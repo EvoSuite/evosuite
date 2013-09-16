@@ -227,8 +227,6 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		while(  record < numRecords &&
 				! log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD));  // is not the end of the calling method
 
-
-
 		if(record == numRecords)
 		{
 			// did not find any caller -> must be very first method call

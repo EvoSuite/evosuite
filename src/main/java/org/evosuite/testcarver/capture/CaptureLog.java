@@ -291,7 +291,7 @@ public final class CaptureLog implements Cloneable {
 			final int logRecNo  = this.objectIds.size();
 			final int infoRecNo = this.oidInitRecNo.size();
 
-			logger.debug("Adding mapping oid->index "+oid+"->"+infoRecNo);
+			logger.debug("Adding mapping oid->index   {} -> {}", oid, infoRecNo);
 			this.oidRecMapping.put(oid, infoRecNo);
 			addNewInitRec(logRecNo);
 
@@ -486,6 +486,12 @@ public final class CaptureLog implements Cloneable {
 
 	public void log(final int captureId, final Object receiver, final String methodName, final String methodDesc, Object...methodParams)
 	{
+		final int oid = System.identityHashCode(receiver);
+
+		
+		final boolean isConstructor = OBSERVED_INIT.equals(methodName);
+
+		
 		// TODO find nicer way
 		if(PUTSTATIC.equals(methodName) || PUTFIELD.equals(methodName))
 		{
@@ -506,13 +512,25 @@ public final class CaptureLog implements Cloneable {
 			this.oidNamesOfAccessedFields.put(captureId, (String) methodParams[0]);
 			methodParams = new Object[0];
 		}
+		else
+		{
+			// if it's not a constructor call, check if something regarding the receiver object has been logged before.
+			// if this is not the case, we know that the object construction could not be observed. Due to the instrumentation
+			// logic, this is most likely an error but we have to provide some information regarding the object construction nevertheless
+			// --> create UNOBSERVED_INIT log entry
+			if(! isConstructor && ! this.oidRecMapping.containsKey(oid) && ! (receiver instanceof Class))
+			{
+				logger.warn("method {} was called on object {} with oid {} without foregoing (observed) init stmt --> creating unobserved init stmt", new Object[]{methodName, receiver, oid});
+				this.updateInfoTable(oid, receiver, isConstructor);	
+				logUnobservedInitStmt(receiver);
+			}
 
-		final int oid = System.identityHashCode(receiver);
+		}
 
+		
 		// update info table if necessary
 		// in case of constructor calls, we want to remember the last one
-		final boolean replace = OBSERVED_INIT.equals(methodName);
-		this.updateInfoTable(oid, receiver, replace);	
+		this.updateInfoTable(oid, receiver, isConstructor);	
 
 		// save receiver class -> might be reference in later calls e.g. doSth(Person.class)
 		if(receiver instanceof Class) {
@@ -594,6 +612,11 @@ public final class CaptureLog implements Cloneable {
 				// exemplary output in test code: Integer number = 123;
 				this.methodNames.add(PLAIN_INIT);
 				this.params.add(new Object[]{ param});
+				this.descList.add(EMPTY_DESC);
+				this.returnValues.add(RETURN_TYPE_VOID);
+				this.captureIds.add(PSEUDO_CAPTURE_ID);
+				this.isStaticCallList.add(Boolean.FALSE);
+				this.logEnd(PSEUDO_CAPTURE_ID, param, RETURN_TYPE_VOID);		
 
 			} else if(isCollection) {
 
@@ -620,7 +643,13 @@ public final class CaptureLog implements Cloneable {
 				this.objectIds.add(paramOID);
 				this.methodNames.add(COLLECTION_INIT);
 				this.params.add(valArray);
+				this.descList.add(EMPTY_DESC);
+				this.returnValues.add(RETURN_TYPE_VOID);
+				this.captureIds.add(PSEUDO_CAPTURE_ID);
+				this.isStaticCallList.add(Boolean.FALSE);
+				this.logEnd(PSEUDO_CAPTURE_ID, param, RETURN_TYPE_VOID);		
 
+				
 			} else if(isMap) {
 
 				final Map m = (Map) param;
@@ -658,6 +687,12 @@ public final class CaptureLog implements Cloneable {
 				this.objectIds.add(paramOID);
 				this.methodNames.add(MAP_INIT);
 				this.params.add(valArray);
+				this.descList.add(EMPTY_DESC);
+				this.returnValues.add(RETURN_TYPE_VOID);
+				this.captureIds.add(PSEUDO_CAPTURE_ID);
+				this.isStaticCallList.add(Boolean.FALSE);
+				this.logEnd(PSEUDO_CAPTURE_ID, param, RETURN_TYPE_VOID);		
+
 			}
 			else if(isArray)
 			{
@@ -685,45 +720,59 @@ public final class CaptureLog implements Cloneable {
 				this.objectIds.add(paramOID);
 				this.methodNames.add(ARRAY_INIT);
 				this.params.add(valArray);
+				this.descList.add(EMPTY_DESC);
+				this.returnValues.add(RETURN_TYPE_VOID);
+				this.captureIds.add(PSEUDO_CAPTURE_ID);
+				this.isStaticCallList.add(Boolean.FALSE);
+				this.logEnd(PSEUDO_CAPTURE_ID, param, RETURN_TYPE_VOID);		
+
 			}
 			else
 			{
-				this.objectIds.add(paramOID);
-				// create new serialization record for first emersion
-				// exemplary output in test code: Person newJoe = (Person) xstream.fromXML(xml); 
-
-				this.checkIfInstanceFromInnerInstanceClass(param);
-				this.methodNames.add(NOT_OBSERVED_INIT);
-
-				try
-				{
-					//					this.xstream.toXML(param, sout);
-					//					this.sout.flush();
-					//					
-					//					this.params.add(new Object[]{ this.bout.toByteArray() });
-					//					
-					//					this.bout.reset();
-					// FIXME
-					this.params.add(new Object[]{ this.xstream.toXML(param) });
-				}
-				catch(final Exception e)
-				{
-					logger.warn("an error occurred while serializing param '{}' -> adding null as param instead", param, e);
-
-					// param can not be serialized -> add null as param
-					this.params.add(new Object[]{ null });
-				}
+				logUnobservedInitStmt(param);
 			}
+			
 
-			this.descList.add(EMPTY_DESC);
-			this.returnValues.add(RETURN_TYPE_VOID);
-			this.captureIds.add(PSEUDO_CAPTURE_ID);
-			this.isStaticCallList.add(Boolean.FALSE);
-			this.logEnd(PSEUDO_CAPTURE_ID, param, RETURN_TYPE_VOID);
 		}
 	}
 
 
+	private void logUnobservedInitStmt(final Object subject)
+	{
+		this.objectIds.add(System.identityHashCode(subject));
+		// create new serialization record for first emersion
+		// exemplary output in test code: Person newJoe = (Person) xstream.fromXML(xml); 
+
+		this.checkIfInstanceFromInnerInstanceClass(subject);
+		this.methodNames.add(NOT_OBSERVED_INIT);
+
+		try
+		{
+			//					this.xstream.toXML(param, sout);
+			//					this.sout.flush();
+			//					
+			//					this.params.add(new Object[]{ this.bout.toByteArray() });
+			//					
+			//					this.bout.reset();
+			// FIXME
+			this.params.add(new Object[]{ this.xstream.toXML(subject) });
+		}
+		catch(final Exception e)
+		{
+			logger.warn("an error occurred while serializing param '{}' -> adding null as param instead", subject, e);
+
+			// param can not be serialized -> add null as param
+			this.params.add(new Object[]{ null });
+		}
+
+		this.descList.add(EMPTY_DESC);
+		this.returnValues.add(RETURN_TYPE_VOID);
+		this.captureIds.add(PSEUDO_CAPTURE_ID);
+		this.isStaticCallList.add(Boolean.FALSE);
+		this.logEnd(PSEUDO_CAPTURE_ID, subject, RETURN_TYPE_VOID);		
+	}
+	
+	
 	@Override
 	public String toString()
 	{
