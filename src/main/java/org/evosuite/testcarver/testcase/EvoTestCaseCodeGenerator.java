@@ -3,6 +3,7 @@ package org.evosuite.testcarver.testcase;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.CaptureUtil;
@@ -294,8 +296,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 //				final VariableReference targetVar = new VariableReferenceImpl(testCase,
 //				        fieldType);
 
-				
-				final FieldStatement fieldStatement = new FieldStatement(testCase, new GenericField(type.getField(fieldName), type), this.oidToVarRefMap.get(oid));
+				final FieldStatement fieldStatement = new FieldStatement(testCase, new GenericField(FieldUtils.getField(type, fieldName, true), type), this.oidToVarRefMap.get(oid));
 				//final AssignmentStatement assignment = new AssignmentStatement(testCase,
 				//        targetVar, valueRef);
 				// VariableReference varRef = testCase.addStatement(assignment);
@@ -306,7 +307,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			} catch (final Exception e) {
 				LoggingUtils.getEvoLogger().debug("Error while trying to get field "
 				                                          + fieldName + " of class "
-				                                          + getClassForName(typeName));
+				                                          + getClassForName(typeName)+": "+e);
 				CodeGeneratorException.propagateError("[logRecNo = %s] - an unexpected error occurred while creating field read access stmt. Log: %s", logRecNo, log, e);
 			}
 		}
@@ -475,7 +476,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 	private boolean hasDefaultConstructor(final Class<?> clazz) {
 		for (final Constructor<?> c : clazz.getConstructors()) {
-			if (c.getParameterTypes().length == 0) {
+			if (c.getParameterTypes().length == 0 && Modifier.isPublic(c.getModifiers())) {
 				return true;
 			}
 		}
@@ -490,17 +491,20 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			final int oid = log.objectIds.get(logRecNo);
 			final Object[] params = log.params.get(logRecNo);
 			String collTypeName = log.getTypeName(oid);
-			final Class<?> collType = getClassForName(collTypeName);
+			Class<?> collType = getClassForName(collTypeName);
 
 			// -- determine if an alternative collection must be used for code generation
 			final boolean isPublic = java.lang.reflect.Modifier.isPublic(collType.getModifiers());
 			if (! isPublic || !hasDefaultConstructor(collType)) {
 				if (Set.class.isAssignableFrom(collType)) {
 					collTypeName = HashSet.class.getName();
+					collType = HashSet.class;
 				} else if (List.class.isAssignableFrom(collType)) {
 					collTypeName = ArrayList.class.getName();
+					collType = ArrayList.class;
 				} else if (Queue.class.isAssignableFrom(collType)) {
 					collTypeName = ArrayDeque.class.getName();
+					collType = ArrayDeque.class;
 				} else {
 					CodeGeneratorException.propagateError("[logRecNo = %s] - collection %s is not supported", logRecNo, collType);
 				}
@@ -524,15 +528,18 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			Integer argOID; // is either an oid or null
 			ArrayList<VariableReference> paramList;
 			Method method;
+
 			for (int i = 0; i < params.length; i++) 
 			{
 				paramList = new ArrayList<VariableReference>(1);
 				argOID = (Integer) params[i];
-				if (argOID == null) {
-					paramList.add(testCase.addStatement(new NullStatement(testCase,
-					        methodParamTypeClasses[i])));
+				if (argOID == null || !this.oidToVarRefMap.containsKey(argOID)) {
+					VariableReference var = testCase.addStatement(new NullStatement(testCase,
+					        methodParamTypeClasses[i]));
+					paramList.add(var);
 				} else {
-					paramList.add(this.oidToVarRefMap.get(argOID));
+					VariableReference var = this.oidToVarRefMap.get(argOID); 
+					paramList.add(var);
 				}
 
 				method = collType.getMethod("add", Object.class);
@@ -555,8 +562,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			Class<?> collType = getClassForName(collTypeName);
 
 			// -- determine if an alternative collection must be used for code generation
-			final boolean isPrivate = java.lang.reflect.Modifier.isPrivate(collType.getModifiers());
-			if (isPrivate || !hasDefaultConstructor(collType)) {
+			final boolean isPublic= java.lang.reflect.Modifier.isPublic(collType.getModifiers());
+			if (!isPublic|| !hasDefaultConstructor(collType)) {
 				collType = HashMap.class;
 			}
 
