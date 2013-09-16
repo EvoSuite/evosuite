@@ -309,6 +309,11 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	public Set<Integer> getTouchedMutants() {
 		return trace.getTouchedMutants();
 	}
+	
+	@Override
+	public Set<Integer> getInfectedMutants() {
+		return trace.getInfectedMutants();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.IExecutionTrace#getTraceForObject(int)
