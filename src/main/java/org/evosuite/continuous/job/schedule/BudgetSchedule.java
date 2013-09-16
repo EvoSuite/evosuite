@@ -32,7 +32,7 @@ public class BudgetSchedule extends OneTimeSchedule{
 		/*
 		 * the total budget we need to choose how to allocate
 		 */
-		int totalBudget =  maximumBudgetPerCore * super.getNumberOfUsableCores(); 
+		int totalBudget =  maximumBudgetPerCore * scheduler.getNumberOfUsableCores(); 
 
 		/*
 		 * a part of the budget is fixed, as each CUT needs a minimum
@@ -76,7 +76,7 @@ public class BudgetSchedule extends OneTimeSchedule{
 			}
 			
 			JobDefinition job = new JobDefinition(
-					budget, getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
+					budget, scheduler.getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
 			jobs.add(job);
 			
 		}
@@ -122,13 +122,15 @@ public class BudgetSchedule extends OneTimeSchedule{
 				counter++;
 			}
 		}
-
-		assert counter != 0;
 		
-		if(totalLeftOver < counter){
+		if(totalLeftOver < counter || counter == 0){
 			/*
 			 * no point in adding complex code to handle so little budget left.
-			 * here we lost at most only one second per job... 
+			 * here we lost at most only one second per job...
+			 * 
+			 *  furthermore, it could happen that budget is left, but
+			 *  all jobs have maximum. this happens if there are more
+			 *  cores than CUTs
 			 */
 			return; 
 		}
@@ -138,8 +140,10 @@ public class BudgetSchedule extends OneTimeSchedule{
 		for(int i=0; i<jobs.size(); i++){
 			JobDefinition job = jobs.get(i);
 			
-			if(job.seconds + extraPerJob < maximumBudgetPerCore){
-				totalLeftOver -= extraPerJob;
+			int toAdd = Math.min(extraPerJob, (maximumBudgetPerCore - job.seconds));
+			
+			if(toAdd > 0){
+				totalLeftOver -= toAdd;
 				jobs.set(i, job.getByAddingBudget(extraPerJob));
 			}
 		}
