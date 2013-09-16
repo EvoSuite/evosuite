@@ -91,7 +91,7 @@ public class ProjectAnalyzer {
 			if(!target.contains(File.pathSeparator)){
 				classes = ResourceList.getResources(target, pattern);
 			} else {
-				classes = new HashSet<>();
+				classes = new HashSet<String>();
 				for(String element : target.split(File.pathSeparator)){
 					classes.addAll(ResourceList.getResources(element, pattern));
 				}

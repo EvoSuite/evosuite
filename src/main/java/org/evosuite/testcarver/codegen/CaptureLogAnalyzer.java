@@ -36,7 +36,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			throw new IllegalArgumentException("set containing black listed classes must not be null");
 		if(observedClasses == null)
 			throw new IllegalArgumentException("array of observed classes must not be null");
-		if(observedClasses.length > 0)
+		if(observedClasses.length == 0)
 			throw new IllegalArgumentException("array of observed classes must not be empty");
 		
 		final CaptureLog log = originalLog.clone();
