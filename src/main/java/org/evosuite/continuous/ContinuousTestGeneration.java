@@ -126,7 +126,7 @@ public class ContinuousTestGeneration {
     		//loop: define (partial) schedule
     		while(scheduler.canExecuteMore()){
     			List<JobDefinition> jobs = scheduler.createNewSchedule();
-    			executor.executeJobs(jobs);
+    			executor.executeJobs(jobs,scheduler.getNumberOfUsableCores());
     			executor.waitForJobs();
     		}
     		
