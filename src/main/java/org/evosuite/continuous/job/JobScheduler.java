@@ -31,6 +31,15 @@ public class JobScheduler {
 	
 	private static Logger logger = LoggerFactory.getLogger(JobScheduler.class);
 
+	/**
+	 * To run a job, you need a minimum of RAM.
+	 * If not enough RAM, then no point in even trying to start
+	 * a search.
+	 * Note: this include the memory of both the master and
+	 * clients together 
+	 */
+	protected final int MINIMUM_MEMORY_PER_JOB_MB = 500;
+	
 	private final ProjectStaticData projectData;
 	
 	private final CtgConfiguration configuration;
@@ -54,6 +63,23 @@ public class JobScheduler {
 		chooseScheduleType(configuration.schedule);
 	}
 	
+	/**
+	 * We cannot use cores if we do not have enough memory,
+	 * as each process has some minimum requirements
+	 * 
+	 * @return
+	 */
+	public int getNumberOfUsableCores() {
+		if(configuration.numberOfCores * MINIMUM_MEMORY_PER_JOB_MB <=  getTotalMemoryInMB()) {
+			return configuration.numberOfCores;
+		} else {
+			return getTotalMemoryInMB() / MINIMUM_MEMORY_PER_JOB_MB;
+		}
+	}
+
+	public int getConstantMemoryPerJob(){
+		return  getTotalMemoryInMB() / getNumberOfUsableCores() ;
+	}
 	
 	public int getMinSecondsPerJob(){
 		return configuration.minMinutesPerJob * 60;
@@ -109,10 +135,6 @@ public class JobScheduler {
 		return projectData;
 	}
 	
-	public int getNumberOfCores() {
-		return configuration.numberOfCores;
-	}
-
 	public int getTotalBudgetInMinutes() {
 		return configuration.timeInMinutes;
 	}

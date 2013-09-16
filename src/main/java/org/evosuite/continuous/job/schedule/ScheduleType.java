@@ -42,44 +42,15 @@ public abstract class ScheduleType {
 
 	protected final JobScheduler scheduler;
 	
-	/**
-	 * To run a job, you need a minimum of RAM.
-	 * If not enough RAM, then no point in even trying to start
-	 * a search.
-	 * Note: this include the memory of both the master and
-	 * clients together 
-	 */
-	protected final int MINIMUM_MEMORY_PER_JOB_MB = 500;
-
 	protected ScheduleType(JobScheduler scheduler){
 		this.scheduler = scheduler;
 	}
 
 
-	/**
-	 * We cannot use cores if we do not have enough memory,
-	 * as each process has some minimum requirements
-	 * 
-	 * @return
-	 */
-	public int getNumberOfUsableCores() {
-		if(scheduler.getNumberOfCores() * MINIMUM_MEMORY_PER_JOB_MB <=  scheduler.getTotalMemoryInMB()) {
-			return scheduler.getNumberOfCores();
-		} else {
-			return scheduler.getTotalMemoryInMB() / MINIMUM_MEMORY_PER_JOB_MB;
-		}
-	}
 
-	protected int getConstantMemoryPerJob(){
-		if(scheduler.getNumberOfCores() * MINIMUM_MEMORY_PER_JOB_MB <= scheduler.getTotalMemoryInMB()) {
-			return  scheduler.getTotalMemoryInMB() / scheduler.getNumberOfCores() ;
-		} else {
-			return scheduler.getTotalMemoryInMB() / MINIMUM_MEMORY_PER_JOB_MB;
-		}
-	}
 
 	protected boolean enoughBudgetForAll(){
-		int totalBudget = 60 * scheduler.getTotalBudgetInMinutes() * getNumberOfUsableCores();
+		int totalBudget = 60 * scheduler.getTotalBudgetInMinutes() * scheduler.getNumberOfUsableCores();
 		int maximumNumberOfJobs = totalBudget / scheduler.getMinSecondsPerJob();
 		return maximumNumberOfJobs >= scheduler.getProjectData().getTotalNumberOfTestableCUTs();
 	}
@@ -116,7 +87,7 @@ public abstract class ScheduleType {
 	protected List<JobDefinition> createScheduleForWhenNotEnoughBudget(){
 		
 		ProjectStaticData data = scheduler.getProjectData();
-		int totalBudget = 60 * scheduler.getTotalBudgetInMinutes() * getNumberOfUsableCores(); 
+		int totalBudget = 60 * scheduler.getTotalBudgetInMinutes() * scheduler.getNumberOfUsableCores(); 
 		
 		List<JobDefinition> jobs = new LinkedList<JobDefinition>();
 
@@ -131,7 +102,7 @@ public abstract class ScheduleType {
 				continue;
 			}
 			JobDefinition job = new JobDefinition(
-					scheduler.getMinSecondsPerJob(), getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
+					scheduler.getMinSecondsPerJob(), scheduler.getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
 			jobs.add(job);
 			
 			totalBudget -= scheduler.getMinSecondsPerJob();
