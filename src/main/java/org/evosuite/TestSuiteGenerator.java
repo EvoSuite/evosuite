@@ -462,7 +462,7 @@ public class TestSuiteGenerator {
 			if (!result.wasSuccessful()) {
 				logger.error("" + result.getFailureCount() + " test cases failed");
 				for (Failure failure : result.getFailures()) {
-					logger.error("Failure: " + failure.getMessage());
+					logger.error("Failure " + failure.getException().getClass()+": "+failure.getMessage()+"\n"+failure.getTrace());
 				}
 				return false;
 			} else {
