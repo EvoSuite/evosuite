@@ -522,8 +522,6 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 			// --- fill collection
 
-			final Class<?>[] methodParamTypeClasses = getMethodParamTypeClasses(log, logRecNo);
-
 			MethodStatement methodStmt;
 			Integer argOID; // is either an oid or null
 			ArrayList<VariableReference> paramList;
@@ -535,7 +533,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				argOID = (Integer) params[i];
 				if (argOID == null || !this.oidToVarRefMap.containsKey(argOID)) {
 					VariableReference var = testCase.addStatement(new NullStatement(testCase,
-					        methodParamTypeClasses[i]));
+					        Object.class));
 					paramList.add(var);
 				} else {
 					VariableReference var = this.oidToVarRefMap.get(argOID); 
@@ -579,9 +577,6 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 			// --- fill collection
 
-			final Class<?>[] methodParamTypeClasses = getMethodParamTypeClasses(log,
-			                                                                    logRecNo);
-
 			MethodStatement methodStmt;
 			Integer argOID; // is either an oid or null
 			ArrayList<VariableReference> paramList = new ArrayList<VariableReference>();
@@ -589,8 +584,10 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			for (int i = 0; i < params.length; i++) {
 				argOID = (Integer) params[i];
 				if (argOID == null) {
+										
 					paramList.add(testCase.addStatement(new NullStatement(testCase,
-					        methodParamTypeClasses[i])));
+					        Object.class)));
+					
 				} else {
 					paramList.add(this.oidToVarRefMap.get(argOID));
 				}
@@ -607,7 +604,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 			}
 		} catch (final Exception e) {
-			CodeGeneratorException.propagateError("[logRecNo = %s] - an unexpected error occurred while creating map init stmt", logRecNo, e);
+			CodeGeneratorException.propagateError( e, "[logRecNo = %s] - an unexpected error occurred while creating map init stmt", logRecNo);
 		}
 	}
 
