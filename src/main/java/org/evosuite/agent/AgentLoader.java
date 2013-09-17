@@ -2,6 +2,8 @@ package org.evosuite.agent;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +42,33 @@ public class AgentLoader {
 			logger.info("Using JavaAgent in "+jarFilePath);
 		}
 
+		/*
+		 * We need to use reflection on a new instantiated ClassLoader because
+		 * we can make no assumption whatsoever on the class loader of AgentLoader 
+		 */
+		ClassLoader toolLoader = ToolsJarLocator.getLoaderForToolsJar();		
+		
 		try {
-			VirtualMachine vm = VirtualMachine.attach(pid);
-			vm.loadAgent(jarFilePath, "");
-			vm.detach();
+			Class<?> string = toolLoader.loadClass("java.lang.String");
+			
+			Class<?> clazz = toolLoader.loadClass("com.sun.tools.attach.VirtualMachine");
+			Method attach = clazz.getMethod("attach", string);
+			
+			 VirtualMachine vm = VirtualMachine.attach(pid);
+			//Object instance = attach.invoke(null, pid);
+			
+			 vm.loadAgent(jarFilePath, "");
+			//Method loadAgent = clazz.getMethod("loadAgent", string, string);
+			//loadAgent.invoke(instance, jarFilePath, "");
+			
+			 vm.detach();
+			//Method detach = clazz.getMethod("detach");
+			//detach.invoke(instance);
+
 		} catch (Exception e) {
+			Throwable cause = e.getCause();
+			String causeDescription = cause==null ? "" : " , cause "+cause.getClass()+" "+cause.getMessage();
+			logger.error("Exception "+e.getClass()+": "+e.getMessage()+causeDescription,e);
 			throw new RuntimeException(e);
 		}
 		
@@ -98,7 +122,7 @@ public class AgentLoader {
 		File home = new File(System.getProperty("user.home"));
 		File m2 = new File(home.getAbsolutePath()+"/.m2");
 		if(!m2.exists()){
-			logger.warn("Cannot find the .m2 folder in home directory in "+m2);
+			logger.debug("Cannot find the .m2 folder in home directory in "+m2);
 			return null;
 		}
 		
@@ -107,7 +131,7 @@ public class AgentLoader {
 		File jar = new File(m2.getAbsolutePath()+relativePath);
 		
 		if(!jar.exists()){
-			logger.warn("No jar file at: "+jar);
+			logger.debug("No jar file at: "+jar);
 			return null;
 		} else {
 			return jar.getAbsolutePath();
@@ -117,12 +141,12 @@ public class AgentLoader {
 	private static String searchInTarget() {
 		File target = new File("target");
 		if(!target.exists()){
-			logger.warn("No target folder "+target.getAbsolutePath());
+			logger.debug("No target folder "+target.getAbsolutePath());
 			return null;
 		}
 
 		if(!target.isDirectory()){
-			logger.error("'target' exists, but it is not a folder");
+			logger.debug("'target' exists, but it is not a folder");
 			return null;
 		}
 
