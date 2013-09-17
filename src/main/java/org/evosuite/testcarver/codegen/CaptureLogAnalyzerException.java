@@ -33,7 +33,7 @@ public class CaptureLogAnalyzerException extends RuntimeException{
     throws CaptureLogAnalyzerException
 	{
 		final String finalMsg = String.format(msg, msgArgs);
-		LOGGER.error(msg, t);
+		LOGGER.error(finalMsg, t);
 		throw new CaptureLogAnalyzerException(finalMsg);
 	}
 }

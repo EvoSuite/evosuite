@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
@@ -194,7 +195,7 @@ public class TestSuiteMinimizer {
 					return;
 				}
 				if (goal.isCovered(test)) {
-					if (Properties.STRUCTURED_TESTS) {
+					if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
 						StructuredTestCase structuredTest = (StructuredTestCase) test.getTestCase();
 						if (structuredTest.getTargetMethods().contains(goal.getTargetMethod())) {
 							logger.info("Covered by minimized test targeting "
@@ -236,18 +237,18 @@ public class TestSuiteMinimizer {
 				org.evosuite.testcase.TestCaseMinimizer minimizer = new org.evosuite.testcase.TestCaseMinimizer(
 				        goal);
 				TestChromosome copy = (TestChromosome) test.clone();
-				if (Properties.STRUCTURED_TESTS) {
+				if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
 					copy.setTestCase(new StructuredTestCase(test.getTestCase()));
 				}
 				minimizer.minimize(copy);
-				if (Properties.STRUCTURED_TESTS) {
+				if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
 					// TODO: Find proper way to determine statements
 					((StructuredTestCase) copy.getTestCase()).setExerciseStatement(copy.size() - 1);
 				}
 
 				// TODO: Need proper list of covered goals
 				copy.getTestCase().clearCoveredGoals();
-				if (Properties.STRUCTURED_TESTS) {
+				if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
 					((StructuredTestCase) copy.getTestCase()).addPrimaryGoal(goal);
 				} else {
 					copy.getTestCase().addCoveredGoal(goal);

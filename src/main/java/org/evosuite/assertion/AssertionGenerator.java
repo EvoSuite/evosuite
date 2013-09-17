@@ -90,6 +90,17 @@ public abstract class AssertionGenerator {
 	public abstract void addAssertions(TestCase test);
 
 	/**
+	 * Add assertions to all tests in a test suite
+	 * 
+	 * @param suite
+	 */
+	public void addAssertions(TestSuiteChromosome suite) {
+		for(TestChromosome test : suite.getTestChromosomes()) {
+			addAssertions(test.getTestCase());
+		}
+	}
+	
+	/**
 	 * Execute a test case on the original unit
 	 * 
 	 * @param test

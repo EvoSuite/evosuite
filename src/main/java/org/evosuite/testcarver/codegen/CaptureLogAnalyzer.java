@@ -45,7 +45,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		CaptureLogAnalyzerException.check(! CollectionUtil.isNullOrEmpty(observedClassNames), "could not extract class names for ", Arrays.toString(observedClasses));
 
 		final List<Integer> targetOIDs = log.getTargetOIDs(observedClassNames);
-		CaptureLogAnalyzerException.check(! targetOIDs.isEmpty(), "could not find any oids for %s", observedClassNames);
+		CaptureLogAnalyzerException.check(! targetOIDs.isEmpty(), "could not find any oids for %s -> %s", observedClassNames, Arrays.toString(observedClasses));
 		
 		final int[] oidExchange = analyzeLog(generator, blackList, log, targetOIDs);		
 		postProcessLog(originalLog, generator, blackList, log, oidExchange, observedClasses);
@@ -226,8 +226,6 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		}
 		while(  record < numRecords &&
 				! log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD));  // is not the end of the calling method
-
-
 
 		if(record == numRecords)
 		{

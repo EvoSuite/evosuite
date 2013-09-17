@@ -36,11 +36,11 @@ public class CodeGeneratorException extends RuntimeException{
 		
 		if (t == null)
 		{
-			LOGGER.error(msg);
+			LOGGER.error(finalMsg);
 		}
 		else
 		{
-			LOGGER.error(msg, t);
+			LOGGER.error(finalMsg, t);
 		}
 		
 		throw new CodeGeneratorException(finalMsg);
