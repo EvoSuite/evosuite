@@ -44,6 +44,7 @@ import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TheReplacementFunction;
+import org.evosuite.agent.AgentLoader;
 import org.evosuite.assertion.AssertionGenerator;
 import org.evosuite.assertion.CompleteAssertionGenerator;
 import org.evosuite.assertion.MutationAssertionGenerator;
@@ -116,6 +117,7 @@ import org.evosuite.ga.stoppingconditions.SocketStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.LCSAJGraph;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
@@ -405,7 +407,7 @@ public class TestSuiteGenerator {
 			dir = new File(dirName);
 			if (!dir.mkdir()) {
 				logger.warn("Cannot create tmp dir " + dirName);
-				return false;
+				return false; 
 			}
 
 			//now generate the JUnit test case
@@ -456,8 +458,22 @@ public class TestSuiteGenerator {
 
 			//as last step, execute the generated/compiled test cases
 
-			ClassPathHacker.addFile(dir);
-			Class<?>[] testClasses = getClassesFromFiles(generated);
+			ClassPathHacker.addFile(dir); //FIXME need refactoring
+			
+			/*
+			 * Ideally, when we run a generated test case, it
+			 * will automatically use JavaAgent to instrument the CUT.
+			 * But here we have already loaded the CUT by now, so that 
+			 * mechanism will not work.
+			 * 
+			 * A simple option is to just use an instrumenting class loader,
+			 * as it does exactly the same type of instrumentation.
+			 * TODO: but a better idea would be to use a new 
+			 * non-instrumenting classloader to re-load the CUT, and so see
+			 * if the JavaAgent works properly.
+			 */
+			InstrumentingClassLoader loader = new InstrumentingClassLoader();
+			Class<?>[] testClasses = getClassesFromFiles(generated,loader);
 			if (testClasses == null) {
 				logger.error("Found no classes for compiled tests");
 				return false;
@@ -510,7 +526,7 @@ public class TestSuiteGenerator {
 	 * @param files
 	 * @return
 	 */
-	private static Class<?>[] getClassesFromFiles(List<File> files) {
+	private static Class<?>[] getClassesFromFiles(List<File> files, ClassLoader loader) {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		for (File file : files) {
 
@@ -527,7 +543,7 @@ public class TestSuiteGenerator {
 
 			Class<?> testClass = null;
 			try {
-				testClass = Class.forName(className);
+				testClass = loader.loadClass(className);
 			} catch (ClassNotFoundException e) {
 				logger.error("Failed to load test case " + className + ": " + e, e);
 				return null;
