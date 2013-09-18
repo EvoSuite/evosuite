@@ -36,6 +36,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
+import org.evosuite.agent.AgentLoader;
 import org.evosuite.agent.ToolsJarLocator;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
@@ -389,6 +390,7 @@ public class EvoSuite {
 	 *            an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
+				
 		try {
 			EvoSuite evosuite = new EvoSuite();
 			evosuite.parseCommandLine(args);

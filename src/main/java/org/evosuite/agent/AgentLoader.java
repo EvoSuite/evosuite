@@ -5,6 +5,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.evosuite.utils.ClassPathHacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,20 +49,28 @@ public class AgentLoader {
 		 */
 		ClassLoader toolLoader = ToolsJarLocator.getLoaderForToolsJar();		
 		
+		
+		logger.info("System classloader class: "+ClassLoader.getSystemClassLoader().getClass()); //TODO remove
+		logger.info("Classpath: "+System.getProperty("java.class.path"));
+		
 		try {
+			//ClassPathHacker.addFile(jarFilePath); //FIXME should check if already there and why it failed to get the default one
+			
 			Class<?> string = toolLoader.loadClass("java.lang.String");
 			
 			Class<?> clazz = toolLoader.loadClass("com.sun.tools.attach.VirtualMachine");
 			Method attach = clazz.getMethod("attach", string);
 			
-			 VirtualMachine vm = VirtualMachine.attach(pid);
+			logger.info("Going to attach agent to process "+pid);
+			 
+			VirtualMachine vm = VirtualMachine.attach(pid);
 			//Object instance = attach.invoke(null, pid);
 			
 			 vm.loadAgent(jarFilePath, "");
 			//Method loadAgent = clazz.getMethod("loadAgent", string, string);
 			//loadAgent.invoke(instance, jarFilePath, "");
 			
-			 vm.detach();
+			 vm.detach(); 
 			//Method detach = clazz.getMethod("detach");
 			//detach.invoke(instance);
 
@@ -75,16 +84,34 @@ public class AgentLoader {
 		alreadyLoaded = true;
 	}
 
+	private static boolean isEvoSuiteMainJar(String path){
+		/*
+		if(! jar.endsWith("minimal.jar")){
+			return false;
+		}
+		if(jar.contains("/evosuite-0")){ //FIXME we need a better check 
+			return true;
+		}
+		*/
+		
+		File file = new File(path);
+		String jar = file.getName();
+		
+		if(jar.startsWith("evosuite-0") && jar.endsWith(".jar")){
+			return true; //FIXME better handling
+		}
+		
+		return false;
+	}
+	
+	
 	private static String getJarPath(){
 		String jarFilePath = null;	
 		String classPath = System.getProperty("java.class.path");
 		String[] tokens = classPath.split(File.pathSeparator); 
 
 		for(String entry : tokens){
-			if(! entry.endsWith("minimal.jar")){
-				continue;
-			}
-			if(entry.contains("/evosuite-0")){ //FIXME we need a better check 
+			if(isEvoSuiteMainJar(entry)){
 				jarFilePath = entry;
 				break;
 			}

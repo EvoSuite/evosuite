@@ -30,6 +30,7 @@ public class ToolsJarLocator {
 
 		try {
 			Class.forName(EXAMPLE_CLASS,true,ClassLoader.getSystemClassLoader());
+			logger.info("Tools.jar already on system classloader");
 			return ClassLoader.getSystemClassLoader(); //if this code is reached, the tools.jar is available on system classpath
 		} catch (ClassNotFoundException e) {
 			//OK, it is missing, so lets try to locate it
@@ -37,6 +38,7 @@ public class ToolsJarLocator {
 
 		try {
 			Class.forName(EXAMPLE_CLASS);
+			logger.info("Tools.jar already on current classloader");
 			return ToolsJarLocator.class.getClassLoader(); //if this code is reached, the tools.jar is available on classpath
 		} catch (ClassNotFoundException e) {
 			//OK, it is missing, so lets try to locate it
@@ -93,10 +95,10 @@ public class ToolsJarLocator {
 		try {
 			/*
 			 * it is important that tools.jar ends up in the classpath of the _system_ classloader,
-			 * otherwise VirtualMachine methods will fail
+			 * otherwise exceptions in EvoSuite classes using tools.jar
 			 */
 			logger.info("Using JDK libraries at: "+location); 
-			ClassPathHacker.addFile(location);  
+			ClassPathHacker.addFile(location);  //FIXME needs refactoring
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to add "+location+" to system classpath");
 		}
