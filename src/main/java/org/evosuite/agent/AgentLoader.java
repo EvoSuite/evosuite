@@ -4,6 +4,11 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.evosuite.utils.ClassPathHacker;
 import org.slf4j.Logger;
@@ -118,10 +123,21 @@ public class AgentLoader {
 		}
 
 		if(jarFilePath==null){
+			jarFilePath = searchInCurrentClassLoaderIfUrlOne();    
+		}
+		
+		if(jarFilePath==null){
 			/*
 			 * this could happen in Eclipse or during test execution in Maven, and so search in compilation 'target' folder 
 			 */    			
-			jarFilePath = searchInTarget();    			
+			jarFilePath = searchInFolder("target");    			
+		}
+
+		if(jarFilePath==null){
+			/*
+			 * this could happen in Eclipse or during test execution in Maven, and so search in compilation 'target' folder 
+			 */    			
+			jarFilePath = searchInFolder("lib");    			
 		}
 
 		if(jarFilePath==null){
@@ -134,7 +150,7 @@ public class AgentLoader {
 		if(jarFilePath==null){
 			//this could happen if the name of the jar has been changed, so just pick one that contains evosuite in its name 
 			for(String entry : tokens){
-				if(entry.contains("evosuite") && entry.endsWith(".jar")){  
+				if(isEvoSuiteMainJar(entry)){  
 					jarFilePath = entry;
 					break;
 				}
@@ -142,6 +158,40 @@ public class AgentLoader {
 		}
 		
 		return jarFilePath; 
+	}
+
+	private static String searchInCurrentClassLoaderIfUrlOne() {
+		
+		Set<URL> urls = new HashSet<URL>();
+		
+		ClassLoader loader = AgentLoader.class.getClassLoader();
+		while(loader != null){
+			if(loader instanceof URLClassLoader){
+				URLClassLoader urlLoader = (URLClassLoader) loader;
+				for(URL url : urlLoader.getURLs()){
+					urls.add(url);
+					try {
+						File file = new File(url.toURI());
+						if(isEvoSuiteMainJar(file.getName())){
+							return file.getAbsolutePath();
+						}
+					} catch (Exception e) {
+						logger.error("Error while parsing URL "+url);
+						continue;
+					}
+				}
+			}
+			
+			loader = loader.getParent();
+		}
+		
+		String msg = "Failed to find EvoSuite jar in current classloader. URLs of classloader:";
+		for(URL url : urls){
+			msg += "\n"+url.toString();
+		}
+		logger.warn(msg);
+		
+		return null;
 	}
 
 	private static String searchInM2() {
@@ -165,8 +215,8 @@ public class AgentLoader {
 		}
 	}
 
-	private static String searchInTarget() {
-		File target = new File("target");
+	private static String searchInFolder(String folder) {
+		File target = new File(folder);
 		if(!target.exists()){
 			logger.debug("No target folder "+target.getAbsolutePath());
 			return null;
@@ -179,7 +229,7 @@ public class AgentLoader {
 
 		for(File file : target.listFiles()){
 			String name = file.getName();
-			if(name.startsWith("evosuite") && name.endsWith("minimal.jar")){
+			if(isEvoSuiteMainJar(name)){
 				return file.getAbsolutePath();
 			}
 		}
