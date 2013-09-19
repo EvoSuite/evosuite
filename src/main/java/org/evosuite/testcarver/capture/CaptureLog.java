@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.testcarver.instrument.TransformerUtil;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -605,7 +606,11 @@ public final class CaptureLog implements Cloneable {
 		final boolean isMap        = param instanceof Map;
 		final boolean isCollection = param instanceof Collection;
 
+		
+		
 		if(isArray || isMap || isCollection || this.updateInfoTable(paramOID, param, false)) {
+
+			final boolean isInstrumented = TransformerUtil.isClassConsideredForInstrumentation(param.getClass().getName());
 
 			if(isPlain(param) || param instanceof Class) {
 				this.objectIds.add(paramOID);
@@ -618,7 +623,7 @@ public final class CaptureLog implements Cloneable {
 				this.isStaticCallList.add(Boolean.FALSE);
 				this.logEnd(PSEUDO_CAPTURE_ID, param, RETURN_TYPE_VOID);		
 
-			} else if(isCollection) {
+			} else if(isCollection && ! isInstrumented) {
 
 				final Collection c = (Collection) param;
 
@@ -650,7 +655,7 @@ public final class CaptureLog implements Cloneable {
 				this.logEnd(PSEUDO_CAPTURE_ID, param, RETURN_TYPE_VOID);		
 
 				
-			} else if(isMap) {
+			} else if(isMap && ! isInstrumented) {
 
 				final Map m = (Map) param;
 				final Object[] valArray = new Object[m.size() * 2];
