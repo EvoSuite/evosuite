@@ -278,7 +278,12 @@ public class JobHandler extends Thread{
 
 			String[] dep = job.inputClasses.toArray(new String[0]);
 
-			cmd += " -Dp_object_pool=0.5 ";
+			double poolP = 0.5;
+			if(Properties.P_OBJECT_POOL > 0){ //TODO need refactoring, ie a Double initialized with null
+				poolP = Properties.P_OBJECT_POOL;
+			}
+			
+			cmd += " -Dp_object_pool="+poolP;
 			cmd += " -Dobject_pools=";
 
 			cmd += poolFolder.getAbsolutePath()+File.separator+dep[0]+extension;
@@ -294,7 +299,7 @@ public class JobHandler extends Thread{
 	private String getOutputVariables(){
 		String cmd =  " -Doutput_variables="; 
 		cmd += "TARGET_CLASS,configuration_id,"; 
-		cmd += "ctg_min_time_per_job,ctg_schedule,search_budget,";
+		cmd += "ctg_min_time_per_job,ctg_schedule,search_budget,p_object_pool,";
 		cmd += RuntimeVariable.Covered_Branches+",";				
 		cmd += RuntimeVariable.Total_Branches+",";				
 		cmd += RuntimeVariable.BranchCoverage+",";		
