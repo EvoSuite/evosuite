@@ -23,7 +23,7 @@ public class JUnitTestCarvedChromosomeFactory implements
 
 	private static final long serialVersionUID = -569338946355072318L;
 	
-	private static final Logger logger = LoggerFactory.getLogger(JUnitTestCarvedChromosomeFactory.class);
+	private static final Logger logger = LoggingUtils.getEvoLogger();
 
 	private List<TestCase> junitTests = new ArrayList<TestCase>();
 	
@@ -77,11 +77,10 @@ public class JUnitTestCarvedChromosomeFactory implements
 		junitTests.addAll(listener.getTestCases());
 		
 		if(junitTests.size()>0){
-			LoggingUtils.getEvoLogger().info("* Carved "+junitTests.size()+" tests from existing JUnit tests");
-			// logger.info("Carved "+junitTests.size()+" tests");
+			logger.info("* Carved {} tests from existing JUnit tests", junitTests.size());
 			if(logger.isDebugEnabled()) {
 				for(TestCase test : junitTests) {
-					logger.debug("Carved Test: "+test.toCode());
+					logger.debug("Carved Test: {}", test.toCode());
 				}
 			}
 		} else {
