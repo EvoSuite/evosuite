@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.testcarver.exception.CapturerException;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ public final class Capturer
 
 	private static final ArrayList<String[]> classesToBeObserved = new ArrayList<String[]>();
 
-	private static final transient Logger logger = LoggerFactory.getLogger(Capturer.class);
+	private static final transient Logger logger = LoggingUtils.getEvoLogger();//LoggerFactory.getLogger(Capturer.class);
 
 
 	/*
