@@ -51,13 +51,15 @@ public class ClientProcess {
 	public void run() {
 		Properties.getInstance();
 		
-		/*
-		 * TODO: We load the agent although we do not use it.
-		 * Reason is that when we compile the generated test cases to debug
-		 * EvoSuite, those will use the agent.
-		 * But for some arcane reason, the loading there fails.
-		 */
-		AgentLoader.loadAgent(); 
+		if(Properties.ENABLE_ASSERTS_FOR_EVOSUITE){
+			/*
+			 * TODO: We load the agent although we do not use it.
+			 * Reason is that when we compile the generated test cases to debug
+			 * EvoSuite, those will use the agent.
+			 * But for some arcane reason, the loading there fails.
+			 */
+			AgentLoader.loadAgent(); 
+		}
 		
 		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
 		                                         + Properties.PROCESS_COMMUNICATION_PORT);
