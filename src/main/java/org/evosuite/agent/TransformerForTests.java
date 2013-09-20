@@ -33,7 +33,7 @@ public class TransformerForTests implements ClassFileTransformer {
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer)
 					throws IllegalClassFormatException {
-
+		
 		String classWithDots = className.replace("/", ".");
 		if(!active || BytecodeInstrumentation.isSharedClass(classWithDots) || classWithDots.startsWith("org.evosuite")){	
 			return classfileBuffer;

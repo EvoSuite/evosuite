@@ -23,7 +23,6 @@ import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -44,9 +43,9 @@ import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TheReplacementFunction;
+import org.evosuite.agent.AgentLoader;
 import org.evosuite.assertion.AssertionGenerator;
 import org.evosuite.assertion.CompleteAssertionGenerator;
-import org.evosuite.assertion.MutationAssertionGenerator;
 import org.evosuite.assertion.SimpleMutationAssertionGenerator;
 import org.evosuite.assertion.StructuredAssertionGenerator;
 import org.evosuite.assertion.UnitAssertionGenerator;
@@ -72,7 +71,6 @@ import org.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import org.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
 import org.evosuite.coverage.lcsaj.LCSAJCoverageTestFitness;
 import org.evosuite.coverage.mutation.MutationFactory;
-import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
@@ -116,13 +114,13 @@ import org.evosuite.ga.stoppingconditions.SocketStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.LCSAJGraph;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
-import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
@@ -138,7 +136,6 @@ import org.evosuite.testcarver.testcase.TestCarvingExecutionObserver;
 import org.evosuite.testcase.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ConstantInliner;
-import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
@@ -227,6 +224,7 @@ public class TestSuiteGenerator {
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
 			                           Arrays.asList(Properties.CP.split(File.pathSeparator)));
 			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
+			ObjectPoolManager.getInstance();
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 			                                          + (e.getMessage() != null ? e.getMessage()
@@ -237,7 +235,6 @@ public class TestSuiteGenerator {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
 		}
-		ObjectPoolManager.getInstance();
 
 		TestCaseExecutor.initExecutor();
 
@@ -345,7 +342,7 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.CHECK_CONTRACTS) {
-			for(TestCase test : FailingTestSet.getFailingTests()) {
+			for (TestCase test : FailingTestSet.getFailingTests()) {
 				tests.addTest(test);
 			}
 		}
@@ -405,7 +402,7 @@ public class TestSuiteGenerator {
 			dir = new File(dirName);
 			if (!dir.mkdir()) {
 				logger.warn("Cannot create tmp dir " + dirName);
-				return false;
+				return false; 
 			}
 
 			//now generate the JUnit test case
@@ -456,8 +453,22 @@ public class TestSuiteGenerator {
 
 			//as last step, execute the generated/compiled test cases
 
-			ClassPathHacker.addFile(dir);
-			Class<?>[] testClasses = getClassesFromFiles(generated);
+			ClassPathHacker.addFile(dir); //FIXME need refactoring
+			
+			/*
+			 * Ideally, when we run a generated test case, it
+			 * will automatically use JavaAgent to instrument the CUT.
+			 * But here we have already loaded the CUT by now, so that 
+			 * mechanism will not work.
+			 * 
+			 * A simple option is to just use an instrumenting class loader,
+			 * as it does exactly the same type of instrumentation.
+			 * TODO: but a better idea would be to use a new 
+			 * non-instrumenting classloader to re-load the CUT, and so see
+			 * if the JavaAgent works properly.
+			 */
+			InstrumentingClassLoader loader = new InstrumentingClassLoader();
+			Class<?>[] testClasses = getClassesFromFiles(generated,loader);
 			if (testClasses == null) {
 				logger.error("Found no classes for compiled tests");
 				return false;
@@ -468,7 +479,8 @@ public class TestSuiteGenerator {
 			if (!result.wasSuccessful()) {
 				logger.error("" + result.getFailureCount() + " test cases failed");
 				for (Failure failure : result.getFailures()) {
-					logger.error("Failure: " + failure.getMessage());
+					logger.error("Failure " + failure.getException().getClass() + ": "
+					        + failure.getMessage() + "\n" + failure.getTrace());
 				}
 				return false;
 			} else {
@@ -510,7 +522,7 @@ public class TestSuiteGenerator {
 	 * @param files
 	 * @return
 	 */
-	private static Class<?>[] getClassesFromFiles(List<File> files) {
+	private static Class<?>[] getClassesFromFiles(List<File> files, ClassLoader loader) {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		for (File file : files) {
 
@@ -527,7 +539,7 @@ public class TestSuiteGenerator {
 
 			Class<?> testClass = null;
 			try {
-				testClass = Class.forName(className);
+				testClass = loader.loadClass(className);
 			} catch (ClassNotFoundException e) {
 				logger.error("Failed to load test case " + className + ": " + e, e);
 				return null;
@@ -587,13 +599,13 @@ public class TestSuiteGenerator {
 
 		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
 			asserter = new SimpleMutationAssertionGenerator();
-		} else if(Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
-			asserter = new StructuredAssertionGenerator();				
+		} else if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
+			asserter = new StructuredAssertionGenerator();
 		} else if (Properties.ASSERTION_STRATEGY == AssertionStrategy.ALL) {
 			asserter = new CompleteAssertionGenerator();
 		} else
 			asserter = new UnitAssertionGenerator();
-		
+
 		asserter.addAssertions(tests);
 
 		if (Properties.FILTER_ASSERTIONS)

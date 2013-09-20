@@ -36,6 +36,8 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
+import org.evosuite.agent.AgentLoader;
+import org.evosuite.agent.ToolsJarLocator;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
 import org.evosuite.executionmode.ListClasses;
@@ -140,9 +142,16 @@ public class EvoSuite {
 		try {
 			// parse the command line arguments
 			CommandLine line = parser.parse(options, args);
-
+			
 			setupProperties();
 
+			if(Properties.REPLACE_CALLS){
+				/*
+				 * This throws an exception if not available
+				 */
+				ToolsJarLocator.getLoaderForToolsJar();
+			}
+			
 			if (line.hasOption("seed")) {
 				/*
 				 * user can both use -seed and -Drandom.seed to set this variable
@@ -381,6 +390,7 @@ public class EvoSuite {
 	 *            an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
+				
 		try {
 			EvoSuite evosuite = new EvoSuite();
 			evosuite.parseCommandLine(args);

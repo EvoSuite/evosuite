@@ -158,9 +158,13 @@ public class TestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	public VariableReference addField(TestCase test, GenericField field, int position)
-	        throws ConstructionFailedException {
+	public VariableReference addField(TestCase test, GenericField field, int position,
+	        int recursionDepth) throws ConstructionFailedException {
 		logger.debug("Adding field " + field);
+		if (recursionDepth > Properties.MAX_RECURSION) {
+			logger.debug("Max recursion depth reached");
+			throw new ConstructionFailedException("Max recursion depth reached");
+		}
 
 		VariableReference callee = null;
 		int length = test.size();
@@ -178,7 +182,8 @@ public class TestFactory {
 
 			} catch (ConstructionFailedException e) {
 				logger.debug("No callee of type " + field.getOwnerType() + " found");
-				callee = attemptGeneration(test, field.getOwnerType(), position, 0, false);
+				callee = attemptGeneration(test, field.getOwnerType(), position,
+				                           recursionDepth + 1, false);
 				position += test.size() - length;
 				length = test.size();
 			}
@@ -419,7 +424,7 @@ public class TestFactory {
 			addPrimitive(test, (PrimitiveStatement<?>) statement, test.size());
 			// test.statements.add((PrimitiveStatement) statement);
 		} else if (statement instanceof FieldStatement) {
-			addField(test, ((FieldStatement) statement).getField(), test.size());
+			addField(test, ((FieldStatement) statement).getField(), test.size(), 0);
 		}
 	}
 
@@ -570,7 +575,8 @@ public class TestFactory {
 					StatementInterface s = sequence.getStatement(i);
 					test.addStatement(s.copy(test, position), position + i);
 				}
-				logger.debug("Return type of object sequence: "+test.getStatement(returnPos).getReturnValue().getClassName());
+				logger.debug("Return type of object sequence: "
+				        + test.getStatement(returnPos).getReturnValue().getClassName());
 				return test.getStatement(returnPos).getReturnValue();
 			}
 
@@ -614,7 +620,8 @@ public class TestFactory {
 			throw new ConstructionFailedException("Generator is null");
 		} else if (o.isField()) {
 			logger.debug("Attempting generating of Object.class via field of type Object.class");
-			VariableReference ret = addField(test, (GenericField) o, position);
+			VariableReference ret = addField(test, (GenericField) o, position,
+			                                 recursionDepth + 1);
 			ret.setDistance(recursionDepth + 1);
 			logger.debug("Success in generating type Object.class");
 			return ret;
@@ -897,7 +904,8 @@ public class TestFactory {
 		} else if (o.isField()) {
 			logger.debug("Attempting generating of " + type + " via field of type "
 			        + type);
-			VariableReference ret = addField(test, (GenericField) o, position);
+			VariableReference ret = addField(test, (GenericField) o, position,
+			                                 recursionDepth + 1);
 			ret.setDistance(recursionDepth + 1);
 			logger.debug("Success in generating type " + type);
 			return ret;
@@ -1382,7 +1390,7 @@ public class TestFactory {
 					//logger.info("Adding field assignment " + f.getName());
 					addFieldAssignment(test, f, position, 0);
 				} else {
-					addField(test, f, position);
+					addField(test, f, position, 0);
 				}
 			} else {
 				logger.error("Got type other than method or constructor!");

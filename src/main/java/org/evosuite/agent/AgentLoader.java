@@ -2,7 +2,15 @@ package org.evosuite.agent;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.evosuite.utils.ClassPathHacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,37 +48,96 @@ public class AgentLoader {
 			logger.info("Using JavaAgent in "+jarFilePath);
 		}
 
+		/*
+		 * We need to use reflection on a new instantiated ClassLoader because
+		 * we can make no assumption whatsoever on the class loader of AgentLoader 
+		 */
+		ClassLoader toolLoader = ToolsJarLocator.getLoaderForToolsJar();		
+		
+		
+		logger.info("System classloader class: "+ClassLoader.getSystemClassLoader().getClass()); //TODO remove
+		logger.info("Classpath: "+System.getProperty("java.class.path"));
+		
 		try {
+			//ClassPathHacker.addFile(jarFilePath); //FIXME should check if already there and why it failed to get the default one
+			
+			Class<?> string = toolLoader.loadClass("java.lang.String");
+			
+			Class<?> clazz = toolLoader.loadClass("com.sun.tools.attach.VirtualMachine");
+			Method attach = clazz.getMethod("attach", string);
+			
+			logger.info("Going to attach agent to process "+pid);
+			 
 			VirtualMachine vm = VirtualMachine.attach(pid);
-			vm.loadAgent(jarFilePath, "");
-			vm.detach();
+			//Object instance = attach.invoke(null, pid);
+			
+			 vm.loadAgent(jarFilePath, "");
+			//Method loadAgent = clazz.getMethod("loadAgent", string, string);
+			//loadAgent.invoke(instance, jarFilePath, "");
+			
+			 vm.detach(); 
+			//Method detach = clazz.getMethod("detach");
+			//detach.invoke(instance);
+
 		} catch (Exception e) {
+			Throwable cause = e.getCause();
+			String causeDescription = cause==null ? "" : " , cause "+cause.getClass()+" "+cause.getMessage();
+			logger.error("Exception "+e.getClass()+": "+e.getMessage()+causeDescription,e);
 			throw new RuntimeException(e);
 		}
 		
 		alreadyLoaded = true;
 	}
 
+	private static boolean isEvoSuiteMainJar(String path){
+		/*
+		if(! jar.endsWith("minimal.jar")){
+			return false;
+		}
+		if(jar.contains("/evosuite-0")){ //FIXME we need a better check 
+			return true;
+		}
+		*/
+		
+		File file = new File(path);
+		String jar = file.getName();
+		
+		if(jar.startsWith("evosuite-0") && jar.endsWith(".jar")){
+			return true; //FIXME better handling
+		}
+		
+		return false;
+	}
+	
+	
 	private static String getJarPath(){
 		String jarFilePath = null;	
 		String classPath = System.getProperty("java.class.path");
 		String[] tokens = classPath.split(File.pathSeparator); 
 
 		for(String entry : tokens){
-			if(! entry.endsWith("minimal.jar")){
-				continue;
-			}
-			if(entry.contains("/evosuite-0")){ //FIXME we need a better check 
+			if(isEvoSuiteMainJar(entry)){
 				jarFilePath = entry;
 				break;
 			}
 		}
 
 		if(jarFilePath==null){
+			jarFilePath = searchInCurrentClassLoaderIfUrlOne();    
+		}
+		
+		if(jarFilePath==null){
 			/*
 			 * this could happen in Eclipse or during test execution in Maven, and so search in compilation 'target' folder 
 			 */    			
-			jarFilePath = searchInTarget();    			
+			jarFilePath = searchInFolder("target");    			
+		}
+
+		if(jarFilePath==null){
+			/*
+			 * this could happen in Eclipse or during test execution in Maven, and so search in compilation 'target' folder 
+			 */    			
+			jarFilePath = searchInFolder("lib");    			
 		}
 
 		if(jarFilePath==null){
@@ -83,7 +150,7 @@ public class AgentLoader {
 		if(jarFilePath==null){
 			//this could happen if the name of the jar has been changed, so just pick one that contains evosuite in its name 
 			for(String entry : tokens){
-				if(entry.contains("evosuite") && entry.endsWith(".jar")){  
+				if(isEvoSuiteMainJar(entry)){  
 					jarFilePath = entry;
 					break;
 				}
@@ -93,12 +160,46 @@ public class AgentLoader {
 		return jarFilePath; 
 	}
 
+	private static String searchInCurrentClassLoaderIfUrlOne() {
+		
+		Set<URL> urls = new HashSet<URL>();
+		
+		ClassLoader loader = AgentLoader.class.getClassLoader();
+		while(loader != null){
+			if(loader instanceof URLClassLoader){
+				URLClassLoader urlLoader = (URLClassLoader) loader;
+				for(URL url : urlLoader.getURLs()){
+					urls.add(url);
+					try {
+						File file = new File(url.toURI());
+						if(isEvoSuiteMainJar(file.getName())){
+							return file.getAbsolutePath();
+						}
+					} catch (Exception e) {
+						logger.error("Error while parsing URL "+url);
+						continue;
+					}
+				}
+			}
+			
+			loader = loader.getParent();
+		}
+		
+		String msg = "Failed to find EvoSuite jar in current classloader. URLs of classloader:";
+		for(URL url : urls){
+			msg += "\n"+url.toString();
+		}
+		logger.warn(msg);
+		
+		return null;
+	}
+
 	private static String searchInM2() {
 	
 		File home = new File(System.getProperty("user.home"));
 		File m2 = new File(home.getAbsolutePath()+"/.m2");
 		if(!m2.exists()){
-			logger.warn("Cannot find the .m2 folder in home directory in "+m2);
+			logger.debug("Cannot find the .m2 folder in home directory in "+m2);
 			return null;
 		}
 		
@@ -107,28 +208,28 @@ public class AgentLoader {
 		File jar = new File(m2.getAbsolutePath()+relativePath);
 		
 		if(!jar.exists()){
-			logger.warn("No jar file at: "+jar);
+			logger.debug("No jar file at: "+jar);
 			return null;
 		} else {
 			return jar.getAbsolutePath();
 		}
 	}
 
-	private static String searchInTarget() {
-		File target = new File("target");
+	private static String searchInFolder(String folder) {
+		File target = new File(folder);
 		if(!target.exists()){
-			logger.warn("No target folder "+target.getAbsolutePath());
+			logger.debug("No target folder "+target.getAbsolutePath());
 			return null;
 		}
 
 		if(!target.isDirectory()){
-			logger.error("'target' exists, but it is not a folder");
+			logger.debug("'target' exists, but it is not a folder");
 			return null;
 		}
 
 		for(File file : target.listFiles()){
 			String name = file.getName();
-			if(name.startsWith("evosuite") && name.endsWith("minimal.jar")){
+			if(isEvoSuiteMainJar(name)){
 				return file.getAbsolutePath();
 			}
 		}

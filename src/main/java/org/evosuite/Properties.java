@@ -626,6 +626,10 @@ public class Properties {
 	@Deprecated
 	public static boolean JUNIT_RUNNER = false;
 
+	@Parameter(key = "tools_jar_location", group = "Output", description = "Location of where to locate tools.jar")
+	public static String TOOLS_JAR_LOCATION = null;
+
+	
 	/**
 	 * TODO: this functionality is not implemented yet
 	 */
