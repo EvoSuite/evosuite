@@ -1,6 +1,7 @@
 package org.evosuite.testcarver.codegen;
 
 
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -8,15 +9,15 @@ import java.util.Set;
 
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.utils.CollectionUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 
 public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 {
-	private static Logger logger = LoggerFactory.getLogger(CaptureLogAnalyzer.class);
+	private static Logger logger = LoggingUtils.getEvoLogger();//LoggerFactory.getLogger(CaptureLogAnalyzer.class);
 
 	@SuppressWarnings("rawtypes")
 	@Override
@@ -45,7 +46,8 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		CaptureLogAnalyzerException.check(! CollectionUtil.isNullOrEmpty(observedClassNames), "could not extract class names for ", Arrays.toString(observedClasses));
 
 		final List<Integer> targetOIDs = log.getTargetOIDs(observedClassNames);
-		CaptureLogAnalyzerException.check(! targetOIDs.isEmpty(), "could not find any oids for %s -> %s", observedClassNames, Arrays.toString(observedClasses));
+		CaptureLogAnalyzerException.check(! targetOIDs.isEmpty(), "could not find any oids for %s -> %s\n%s", observedClassNames, Arrays.toString(observedClasses), log);
+		
 		
 		final int[] oidExchange = analyzeLog(generator, blackList, log, targetOIDs);		
 		postProcessLog(originalLog, generator, blackList, log, oidExchange, observedClasses);
@@ -141,7 +143,8 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 	private Class<?> getClassFromOID(final CaptureLog log,  final int oid) {
 		try {
-			return this.getClassForName(log.getTypeName(oid));
+			final String typeName = log.getTypeName(oid);
+			return this.getClassForName(typeName);
 		} catch(final Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -189,7 +192,11 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			{
 				return Class.forName("java.lang." + type);
 			}
-
+			else if(type.startsWith("$Proxy")) // FIXME is this approach correct?...
+			{
+				return Proxy.class;
+			}
+			
 			if(type.endsWith("[]"))
 			{
 				type = type.replace("[]", "");
@@ -202,7 +209,8 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		} 
 		catch (final ClassNotFoundException e) 
 		{
-			throw new RuntimeException(e);
+			CaptureLogAnalyzerException.propagateError(e, "an error occurred while resolving class for type %s", type);
+			return null; // just to satisfy compiler
 		}
 	}
 
@@ -504,7 +512,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		}
 		catch(final Exception e)
 		{
-			CaptureLogAnalyzerException.propagateError(e, "[currentRecord = %s, currentOID = %s, blackList = %s] - an error occurred while creating array init stmt", currentRecord, currentOID,blackList);
+			CaptureLogAnalyzerException.propagateError(e, "[currentRecord = %s, currentOID = %s, blackList = %s] - an error occurred while creating array init stmt\n%s", currentRecord, currentOID, blackList, log);
 			return -1; // just to satisfy compiler
 		}
 
@@ -524,7 +532,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		}
 		catch(final Exception e)
 		{
-			CaptureLogAnalyzerException.propagateError(e, "[currentRecord = %s, currentOID = %s, blackList = %s] - an error occurred while creating map init stmt", currentRecord, currentOID, blackList);
+			CaptureLogAnalyzerException.propagateError(e, "[currentRecord = %s, currentOID = %s, blackList = %s] - an error occurred while creating map init stmt\n%s", currentRecord, currentOID, blackList, log);
 			return -1; // just to satisfy compiler
 		}
 	}
@@ -544,7 +552,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		}
 		catch(final Exception e)
 		{
-			CaptureLogAnalyzerException.propagateError(e, "[currentRecord = %s, currentOID = %s, blackList = %s] - an error occurred while creating collection init stmt", currentRecord, currentOID, blackList);
+			CaptureLogAnalyzerException.propagateError(e, "[currentRecord = %s, currentOID = %s, blackList = %s] - an error occurred while creating collection init stmt\n%s", currentRecord, currentOID, blackList, log);
 			return -1; // just to satisfy compiler
 		}
 	}
@@ -561,6 +569,12 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 	private boolean isBlackListed(final int oid, final Set<Class<?>> blackList, final CaptureLog log)
 	{
+		final String typeName = log.getTypeName(oid);
+		if(typeName.contains("$Proxy"))
+		{
+			return true;
+		}
+		
 		return blackList.contains(this.getClassFromOID(log, oid));
 	}
 
