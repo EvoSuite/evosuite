@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -163,7 +164,6 @@ public final class Instrumenter
 		{
 			return;
 		}
-		
 		
 		final ArrayList<MethodNode> wrappedMethods = new ArrayList<MethodNode>();
 		MethodNode methodNode;
