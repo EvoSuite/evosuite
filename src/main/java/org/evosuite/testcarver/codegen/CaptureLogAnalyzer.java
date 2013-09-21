@@ -12,12 +12,13 @@ import org.evosuite.utils.CollectionUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
 public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 {
-	private static Logger logger = LoggingUtils.getEvoLogger();//LoggerFactory.getLogger(CaptureLogAnalyzer.class);
+	private static Logger logger = LoggerFactory.getLogger(CaptureLogAnalyzer.class);
 
 	@SuppressWarnings("rawtypes")
 	@Override
