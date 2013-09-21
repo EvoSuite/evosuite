@@ -27,18 +27,18 @@ public class BudgetSchedule extends OneTimeSchedule{
 		
 		ProjectStaticData data = scheduler.getProjectData();
 		
-		int maximumBudgetPerCore = 60 * scheduler.getTotalBudgetInMinutes();
+		int maximumBudgetPerCore = 60 * scheduler.getConfiguration().timeInMinutes;
 		
 		/*
 		 * the total budget we need to choose how to allocate
 		 */
-		int totalBudget =  maximumBudgetPerCore * scheduler.getNumberOfUsableCores(); 
+		int totalBudget =  maximumBudgetPerCore * scheduler.getConfiguration().getNumberOfUsableCores(); 
 
 		/*
 		 * a part of the budget is fixed, as each CUT needs a minimum
 		 * of it. 
 		 */
-		int minTime = scheduler.getMinSecondsPerJob() * data.getTotalNumberOfTestableCUTs();
+		int minTime = 60 * scheduler.getConfiguration().minMinutesPerJob * data.getTotalNumberOfTestableCUTs();
 		
 		/*
 		 * this is what left from the minimum allocation, and that now we can
@@ -63,7 +63,7 @@ public class BudgetSchedule extends OneTimeSchedule{
 			 * there is a minimum that is equal to all jobs,
 			 * plus extra time based on number of branches
 			 */
-			int budget = scheduler.getMinSecondsPerJob() + 
+			int budget = 60 * scheduler.getConfiguration().minMinutesPerJob + 
 					(int)(timePerBranch * info.numberOfBranches);
 			
 			if(budget > maximumBudgetPerCore){
@@ -76,7 +76,7 @@ public class BudgetSchedule extends OneTimeSchedule{
 			}
 			
 			JobDefinition job = new JobDefinition(
-					budget, scheduler.getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
+					budget, scheduler.getConfiguration().getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
 			jobs.add(job);
 			
 		}
