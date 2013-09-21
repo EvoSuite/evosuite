@@ -84,7 +84,7 @@ public class ContinuousTestGeneration {
      */
     private final String projectClassPath;
 	
-    private final CtgConfiguration configuration;
+    private CtgConfiguration configuration;
     
     public ContinuousTestGeneration(String target, String projectClassPath, String prefix, CtgConfiguration conf) {
 		super();		
@@ -120,13 +120,17 @@ public class ContinuousTestGeneration {
     			return "There is no class to test in the chosen project";
     		}
     		
+    		if(Properties.CTG_TIME_PER_CLASS != null){
+    			configuration = configuration.getWithChangedTime(Properties.CTG_TIME_PER_CLASS, data.getTotalNumberOfTestableCUTs());
+    		}
+    		
     		JobScheduler scheduler = new JobScheduler(data,configuration);
     		JobExecutor executor = new JobExecutor(storage,projectClassPath,configuration);
     		
     		//loop: define (partial) schedule
     		while(scheduler.canExecuteMore()){
     			List<JobDefinition> jobs = scheduler.createNewSchedule();
-    			executor.executeJobs(jobs,scheduler.getNumberOfUsableCores());
+    			executor.executeJobs(jobs,configuration.getNumberOfUsableCores());
     			executor.waitForJobs();
     		}
     		

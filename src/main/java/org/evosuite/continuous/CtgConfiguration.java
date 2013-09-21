@@ -11,6 +11,15 @@ import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 public class CtgConfiguration {
 
 	/**
+	 * To run a job, you need a minimum of RAM.
+	 * If not enough RAM, then no point in even trying to start
+	 * a search.
+	 * Note: this include the memory of both the master and
+	 * clients together 
+	 */
+	protected final int MINIMUM_MEMORY_PER_JOB_MB = 500;
+	
+	/**
 	 * how much max memory should be used at the same time
 	 * among all the parallel CTG runs? 
 	 */
@@ -70,6 +79,7 @@ public class CtgConfiguration {
 	 * @return
 	 */
 	public static CtgConfiguration getFromParameters(){
+			
 		return new CtgConfiguration(
 				Properties.CTG_MEMORY, 
 				Properties.CTG_CORES, 
@@ -78,5 +88,56 @@ public class CtgConfiguration {
 				false, /* TODO: just for now, as not implemented yet */
 				Properties.CTG_SCHEDULE
 				);
+	}
+
+	/**
+	 * Get new configuration with budget time proportional to the number of classes (and available cores)
+	 * 
+	 * 
+	 * @param minutesPerClass
+	 * @param numberOfCUTs
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	public  CtgConfiguration getWithChangedTime(int minutesPerClass, int numberOfCUTs)
+		throws IllegalArgumentException{
+		
+		if(minutesPerClass < 0){
+			throw new IllegalArgumentException("Invalid value for minutesPerClass:" + minutesPerClass);
+		}
+		if(numberOfCUTs < 0){
+			throw new IllegalArgumentException("Invalid value for numberOfCUTs:"+numberOfCUTs);
+		}
+		
+		int time = (int) Math.ceil((minutesPerClass * numberOfCUTs) / this.getNumberOfUsableCores());
+		
+		return new CtgConfiguration(
+				this.totalMemoryInMB, 
+				this.numberOfCores, 
+				time, 
+				this.minMinutesPerJob,
+				this.callHome, 
+				this.schedule
+				);
+	}
+	
+	
+	
+	/**
+	 * We cannot use cores if we do not have enough memory,
+	 * as each process has some minimum requirements
+	 * 
+	 * @return
+	 */
+	public int getNumberOfUsableCores() {
+		if(numberOfCores * MINIMUM_MEMORY_PER_JOB_MB <=  totalMemoryInMB) {
+			return numberOfCores;
+		} else {
+			return totalMemoryInMB / MINIMUM_MEMORY_PER_JOB_MB;
+		}
+	}
+
+	public int getConstantMemoryPerJob(){
+		return  totalMemoryInMB / getNumberOfUsableCores() ;
 	}
 }
