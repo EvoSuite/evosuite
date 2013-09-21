@@ -739,6 +739,17 @@ public class TestClusterGenerator {
 		if (isEvoSuiteClass(c))
 			return false;
 
+		if(c.getEnclosingClass() != null) {
+			if(!canUse(c.getEnclosingClass()))
+				return false;
+		}
+
+		if(c.getDeclaringClass() != null) {
+			if(!canUse(c.getDeclaringClass()))
+				return false;
+		}
+
+		
 		// If the SUT is not in the default package, then
 		// we cannot import classes that are in the default
 		// package
