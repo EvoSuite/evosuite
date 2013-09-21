@@ -50,8 +50,8 @@ public abstract class ScheduleType {
 
 
 	protected boolean enoughBudgetForAll(){
-		int totalBudget = 60 * scheduler.getTotalBudgetInMinutes() * scheduler.getNumberOfUsableCores();
-		int maximumNumberOfJobs = totalBudget / scheduler.getMinSecondsPerJob();
+		int totalBudget = 60 * scheduler.getConfiguration().timeInMinutes * scheduler.getConfiguration().getNumberOfUsableCores();
+		int maximumNumberOfJobs = totalBudget / (60 * scheduler.getConfiguration().minMinutesPerJob) ;
 		return maximumNumberOfJobs >= scheduler.getProjectData().getTotalNumberOfTestableCUTs();
 	}
 
@@ -87,7 +87,7 @@ public abstract class ScheduleType {
 	protected List<JobDefinition> createScheduleForWhenNotEnoughBudget(){
 		
 		ProjectStaticData data = scheduler.getProjectData();
-		int totalBudget = 60 * scheduler.getTotalBudgetInMinutes() * scheduler.getNumberOfUsableCores(); 
+		int totalBudget = 60 * scheduler.getConfiguration().timeInMinutes * scheduler.getConfiguration().getNumberOfUsableCores(); 
 		
 		List<JobDefinition> jobs = new LinkedList<JobDefinition>();
 
@@ -102,10 +102,11 @@ public abstract class ScheduleType {
 				continue;
 			}
 			JobDefinition job = new JobDefinition(
-					scheduler.getMinSecondsPerJob(), scheduler.getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
+					60 * scheduler.getConfiguration().minMinutesPerJob, scheduler.getConfiguration().getConstantMemoryPerJob(), 
+					info.getClassName(), 0, null, null);
 			jobs.add(job);
 			
-			totalBudget -= scheduler.getMinSecondsPerJob();
+			totalBudget -= (60 * scheduler.getConfiguration().minMinutesPerJob);
 			
 			if(totalBudget <= 0){
 				break;
