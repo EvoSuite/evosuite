@@ -337,11 +337,16 @@ public class TestCluster {
 							        + " which generated: "
 							        + newGenerator.getGeneratedClass());
 							targetGenerators.add(newGenerator);
-						} else {
+						} else if(logger.isDebugEnabled()){
 							logger.debug("New generator not assignable: " + newGenerator);
 							logger.debug("Had type parameters: "+hadTypeParameters);
 							logger.debug("generatorClazz.equals(clazz): "+generatorClazz.equals(clazz));
-							logger.debug("clazz.isAssignableFrom("+newGenerator.getGeneratedType()+"): "+clazz.isAssignableFrom(newGenerator.getGeneratedType()));
+							try {
+								logger.debug("clazz.isAssignableFrom("+newGenerator.getGeneratedType()+"): ");
+								logger.debug("                        "+clazz.isAssignableFrom(newGenerator.getGeneratedType()));
+							} catch(Throwable t) {
+								logger.debug("Error: "+t);
+							}
 						}
 					}
 				} else {
