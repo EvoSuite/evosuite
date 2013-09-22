@@ -45,6 +45,9 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 	/** {@inheritDoc} */
 	@Override
 	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+		if(statement.isAssignmentStatement())
+			return;
+
 		logger.debug("Checking primitive " + var);
 		try {
 			// Need only legal values
