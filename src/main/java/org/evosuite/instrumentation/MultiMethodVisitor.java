@@ -272,7 +272,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void visitTableSwitchInsn(int arg0, int arg1, Label arg2, Label[] arg3) {
+	public void visitTableSwitchInsn(int arg0, int arg1, Label arg2, Label... arg3) {
 		mv1.visitTableSwitchInsn(arg0, arg1, arg2, arg3);
 		Label[] arg3Copy = new Label[arg3.length];
 		for (int i = 0; i < arg3.length; i++)
