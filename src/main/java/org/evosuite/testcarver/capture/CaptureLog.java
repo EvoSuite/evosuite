@@ -601,15 +601,19 @@ public final class CaptureLog implements Cloneable {
 					// we serialize and deserialize param in order to get a 'cloned' instance of param
 					// -> this approach is not very efficient but we can always clone an object without the
 					//    the need of the Cloneable interface
-					String xml = xstream.toXML(param);
-					param = xstream.fromXML(xml);
-					paramOID = System.identityHashCode(param);
-					
-					logUnobservedInitStmt(param);
-					
-					
-					// TODO remove meta inf entries
-//					return;
+					try
+					{
+						String xml = xstream.toXML(param);
+						param = xstream.fromXML(xml);
+						paramOID = System.identityHashCode(param);
+						
+						logUnobservedInitStmt(param);
+					}
+					catch(final Exception e)
+					{
+						logger.warn("an error occurred while serializing and deserializing {} -> is handled as NULL param",param,e);
+						continue;
+					}
 				}
 				else
 				{
