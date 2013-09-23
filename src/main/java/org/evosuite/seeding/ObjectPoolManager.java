@@ -1,5 +1,6 @@
 package org.evosuite.seeding;
 
+import java.io.File;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -35,7 +36,7 @@ public class ObjectPoolManager extends ObjectPool {
 	
 	public void initialisePool() {
 		if(!Properties.OBJECT_POOLS.isEmpty()) {
-			String[] poolFiles = Properties.OBJECT_POOLS.split(":");
+			String[] poolFiles = Properties.OBJECT_POOLS.split(File.pathSeparator);
 			if(poolFiles.length > 1)
 				LoggingUtils.getEvoLogger().info("* Reading object pools:");
 			else
