@@ -300,20 +300,7 @@ public final class CaptureLog implements Cloneable {
 
 			oidDependencies.add(NO_DEPENDENCY);
 
-			if(receiver instanceof Class) //this can only happen, if there is a static method call 
-			{
-				final Class<?> c = (Class<?>) receiver;
-				this.oidClassNames.add(c.getName());//.replaceFirst("\\$\\d+$", ""));
-			}
-			else if(this.isPlain(receiver))
-			{
-				// we don't need fully qualified name for plain types
-				this.oidClassNames.add(receiver.getClass().getSimpleName());//.replaceFirst("\\$\\d+$", ""));
-			}
-			else
-			{
-				this.oidClassNames.add(receiver.getClass().getName());//.replaceFirst("\\$\\d+$", ""));
-			}
+			registerObjectsClassName(receiver);
 
 
 			this.oids.add(oid);
@@ -322,7 +309,45 @@ public final class CaptureLog implements Cloneable {
 		}
 	}
 
-
+	
+	private void registerObjectsClassName(final Object receiver)
+	{
+		if(receiver instanceof Class) //this can only happen, if there is a static method call 
+		{
+			final Class<?> c = (Class<?>) receiver;
+			this.oidClassNames.add(c.getName());//.replaceFirst("\\$\\d+$", ""));
+		}
+		else if(this.isPlain(receiver))
+		{
+			// we don't need fully qualified name for plain types
+			this.oidClassNames.add(receiver.getClass().getSimpleName());//.replaceFirst("\\$\\d+$", ""));
+		}
+		else if(isProxy(receiver) || isAnonymous(receiver))
+		{
+			// TODO what if there is more than one interface?
+			final Class<?> c = receiver.getClass();
+			final Class<?>[] interfaces = c.getInterfaces();
+			this.oidClassNames.add(interfaces[0].getName());
+		}
+		else
+		{
+			this.oidClassNames.add(receiver.getClass().getName());//.replaceFirst("\\$\\d+$", ""));
+		}
+	}
+	
+	private boolean isAnonymous(final Object receiver)
+	{
+		return receiver.getClass().isAnonymousClass();
+	}
+	
+	private boolean isProxy(final Object receiver)
+	{
+		// TODO is solution with superclass = Proxy cleaner?
+		final String clazzName = receiver.getClass().getName();
+		return clazzName.startsWith("$Proxy");
+	}
+	
+	
 	private boolean isPlain(final Object o)
 	{
 		return //o instanceof Class   ||
@@ -419,7 +444,10 @@ public final class CaptureLog implements Cloneable {
 
 					this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
 
-					this.oidClassNames.add(returnValue.getClass().getName());
+					this.registerObjectsClassName(returnValue);
+					
+//					this.oidClassNames.add(returnValue.getClass().getName());
+					
 					this.oids.add(returnValueOID);
 					this.oidDependencies.add(NO_DEPENDENCY);
 				}
@@ -468,7 +496,13 @@ public final class CaptureLog implements Cloneable {
 						this$0.setAccessible(true);
 						final Object outerInstance = this$0.get(receiver);
 
-						// the enclosing object has to b
+						if( TransformerUtil.isClassConsideredForInstrumentation(outerInstance.getClass().getName()))
+						{
+							// FIXME
+						}
+						
+						
+						// the enclosing object has to be restored first
 
 						final int receiverOID    = System.identityHashCode(receiver);
 						final int initRecNo = this.oidRecMapping.get(receiverOID);
@@ -525,13 +559,11 @@ public final class CaptureLog implements Cloneable {
 				this.updateInfoTable(oid, receiver, isConstructor);	
 				logUnobservedInitStmt(receiver);
 			}
-
 		}
 
-		
-		// update info table if necessary
-		// in case of constructor calls, we want to remember the last one
-		this.updateInfoTable(oid, receiver, isConstructor);	
+		// TODO this.updateInfoTable(oid, receiver, isConstructor);	
+
+
 
 		// save receiver class -> might be reference in later calls e.g. doSth(Person.class)
 		if(receiver instanceof Class) {
@@ -564,12 +596,25 @@ public final class CaptureLog implements Cloneable {
 
 				if(paramOID == oid)
 				{
-					logger.error("PARAM is 'this' reference -> ignore");
+					logger.warn("PARAM is 'this' reference -> are serialized version of 'this' is created and passed as param");
+					
+					// we serialize and deserialize param in order to get a 'cloned' instance of param
+					// -> this approach is not very efficient but we can always clone an object without the
+					//    the need of the Cloneable interface
+					String xml = xstream.toXML(param);
+					param = xstream.fromXML(xml);
+					paramOID = System.identityHashCode(param);
+					
+					logUnobservedInitStmt(param);
+					
+					
 					// TODO remove meta inf entries
-					return;
+//					return;
 				}
-
-				createInitLogEntries(param);
+				else
+				{
+					createInitLogEntries(param);
+				}
 
 
 				// method param  has been created before so we link to it
@@ -582,6 +627,10 @@ public final class CaptureLog implements Cloneable {
 			}
 		}
 
+		// update info table if necessary
+		// in case of constructor calls, we want to remember the last one
+		this.updateInfoTable(oid, receiver, isConstructor);	
+		
 		//--- create method call record
 		this.objectIds.add(oid);
 		this.methodNames.add(methodName);
@@ -591,6 +640,8 @@ public final class CaptureLog implements Cloneable {
 		this.captureIds.add(captureId);
 		this.isStaticCallList.add(receiver instanceof Class);
 
+
+		
 		this.checkIfInstanceFromInnerInstanceClass(receiver);
 	}
 

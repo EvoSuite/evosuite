@@ -245,7 +245,7 @@ public class GenericClass implements Serializable {
 				} catch (RuntimeException e) {
 					// If there is an unresolved capture type in here
 					// we delete it and replace with a wildcard
-
+					this.rawClass = Object.class;
 				}
 			}
 		}
