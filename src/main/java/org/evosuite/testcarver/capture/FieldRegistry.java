@@ -327,7 +327,7 @@ public final class FieldRegistry
 									final WeakReference<?> recentRef   = recentFieldValues.get(fieldName);
 									final Object           recentValue = recentRef.get();
 									
-									if((recentValue != currentValue) || (recentValue != null && ! recentValue.equals(currentValue)))
+									if(recentValue != currentValue) //|| (recentValue != null && ! recentValue.equals(currentValue)))
 									{
 										Capturer.capture(captureId, instance, CaptureLog.PUTFIELD, desc, new Object[]{fieldName, currentValue});
 										Capturer.enable(captureId, instance, CaptureLog.RETURN_TYPE_VOID);
