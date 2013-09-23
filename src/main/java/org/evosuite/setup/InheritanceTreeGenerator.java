@@ -208,14 +208,14 @@ public class InheritanceTreeGenerator {
 
 	private static void analyzeClassName(InheritanceTree inheritanceTree, String className) {
 
-		
 		String fileName = ResourceList.getClassAsResource(className);
 		InputStream stream = InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(fileName);
-		if(stream != null) {
+		if (stream != null) {
 			System.out.println(InheritanceTreeGenerator.class.getClassLoader().getResource(fileName));
 			analyzeClassStream(inheritanceTree, stream, false);
 		} else {
-			logger.warn("Could not find class file "+fileName +" for class "+className);
+			logger.warn("Could not find class file " + fileName + " for class "
+			        + className);
 		}
 	}
 
@@ -261,17 +261,17 @@ public class InheritanceTreeGenerator {
 		if ((cn.access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE) {
 			return false;
 		}
+		if (cn.name.matches(".*\\$\\d+.*$")) {
+			logger.debug(cn.name + " looks like an anonymous class, ignoring it");
+			return false;
+		}
+
+		if (cn.name.matches(".*\\.\\d+.*$")) {
+			logger.debug(cn.name + " looks like an anonymous class, ignoring it");
+			return false;
+		}
 
 		//		TODO: Handle Deprecated
-		if (cn.name.matches(".*\\$\\d+$")) {
-			logger.debug(cn.name + " looks like an anonymous class, ignoring it");
-			return false;
-		}
-
-		if (cn.name.matches(".*\\.\\d+$")) {
-			logger.debug(cn.name + " looks like an anonymous class, ignoring it");
-			return false;
-		}
 
 		if (cn.name.startsWith("junit"))
 			return false;

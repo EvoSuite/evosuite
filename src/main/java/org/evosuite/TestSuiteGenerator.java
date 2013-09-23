@@ -43,7 +43,6 @@ import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TheReplacementFunction;
-import org.evosuite.agent.AgentLoader;
 import org.evosuite.assertion.AssertionGenerator;
 import org.evosuite.assertion.CompleteAssertionGenerator;
 import org.evosuite.assertion.SimpleMutationAssertionGenerator;
@@ -402,7 +401,7 @@ public class TestSuiteGenerator {
 			dir = new File(dirName);
 			if (!dir.mkdir()) {
 				logger.warn("Cannot create tmp dir " + dirName);
-				return false; 
+				return false;
 			}
 
 			//now generate the JUnit test case
@@ -454,7 +453,7 @@ public class TestSuiteGenerator {
 			//as last step, execute the generated/compiled test cases
 
 			ClassPathHacker.addFile(dir); //FIXME need refactoring
-			
+
 			/*
 			 * Ideally, when we run a generated test case, it
 			 * will automatically use JavaAgent to instrument the CUT.
@@ -468,7 +467,7 @@ public class TestSuiteGenerator {
 			 * if the JavaAgent works properly.
 			 */
 			InstrumentingClassLoader loader = new InstrumentingClassLoader();
-			Class<?>[] testClasses = getClassesFromFiles(generated,loader);
+			Class<?>[] testClasses = getClassesFromFiles(generated, loader);
 			if (testClasses == null) {
 				logger.error("Found no classes for compiled tests");
 				return false;
@@ -481,6 +480,14 @@ public class TestSuiteGenerator {
 				for (Failure failure : result.getFailures()) {
 					logger.error("Failure " + failure.getException().getClass() + ": "
 					        + failure.getMessage() + "\n" + failure.getTrace());
+				}
+				for (JavaFileObject sourceFile : compilationUnits) {
+					List<String> lines = FileUtils.readLines(new File(
+					        sourceFile.toUri().getPath()));
+					logger.error(compilationUnits.iterator().next().toString());
+					for (int i = 0; i < lines.size(); i++) {
+						logger.error((i + 1) + ": " + lines.get(i));
+					}
 				}
 				return false;
 			} else {

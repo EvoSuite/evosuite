@@ -18,7 +18,6 @@
 package org.evosuite.testcase;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -30,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import org.evosuite.setup.TestClusterGenerator;
 
 /**
  * This class represents the state of a test case execution
@@ -87,12 +88,8 @@ public class Scope {
 		        && reference.getGenericClass().getNumParameters() == 0
 		        && !reference.isPrimitive() // && !reference.getGenericClass().isClass()
 		        && !o.getClass().isArray()) { // && !(reference instanceof ArrayReference)) {
-			if (Modifier.isPublic(o.getClass().getModifiers())
-			        && !o.getClass().isAnonymousClass()
-			        && !o.getClass().getName().matches(".*\\.\\d+$")
-			        && !o.getClass().getName().matches(".*\\$\\d+$")
-			        && !o.getClass().getName().startsWith("sun.")) {
-				if(Proxy.isProxyClass(o.getClass())) {
+			if (TestClusterGenerator.canUse(o.getClass())) {
+				if (Proxy.isProxyClass(o.getClass())) {
 					reference.setType(o.getClass().getSuperclass());
 				} else {
 					reference.setType(o.getClass());
