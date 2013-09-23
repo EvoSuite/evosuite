@@ -351,7 +351,7 @@ public class TestSuiteGenerator {
 
 		assert verifyCompilationAndExecution(tests.getTests());
 
-		writeObjectPool(tests.getTests());
+		writeObjectPool(tests);
 
 		/*
 		 * PUTGeneralizer generalizer = new PUTGeneralizer(); for (TestCase test
@@ -619,10 +619,10 @@ public class TestSuiteGenerator {
 			asserter.filterFailingAssertions(tests);
 	}
 
-	private void writeObjectPool(List<TestCase> tests) {
+	private void writeObjectPool(TestSuiteChromosome suite) {
 		if (!Properties.WRITE_POOL.isEmpty()) {
 			LoggingUtils.getEvoLogger().info("* Writing sequences to pool");
-			ObjectPool pool = ObjectPool.getPoolFromTestCases(tests);
+			ObjectPool pool = ObjectPool.getPoolFromTestSuite(suite);
 			pool.writePool(Properties.WRITE_POOL);
 		}
 	}

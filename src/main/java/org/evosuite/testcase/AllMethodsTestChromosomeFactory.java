@@ -51,13 +51,13 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 	protected static final Logger logger = LoggerFactory.getLogger(AllMethodsTestChromosomeFactory.class);
 
 	/** Methods we have already seen */
-	private static Set<GenericAccessibleObject> attemptedMethods = new LinkedHashSet<GenericAccessibleObject>();
+	private static Set<GenericAccessibleObject<?>> attemptedMethods = new LinkedHashSet<GenericAccessibleObject<?>>();
 
 	/** Methods we have not already seen */
-	private static Set<GenericAccessibleObject> remainingMethods = new LinkedHashSet<GenericAccessibleObject>();
+	private static Set<GenericAccessibleObject<?>> remainingMethods = new LinkedHashSet<GenericAccessibleObject<?>>();
 
 	/** Methods we have to cover */
-	private static List<GenericAccessibleObject> allMethods = new LinkedList<GenericAccessibleObject>();
+	private static List<GenericAccessibleObject<?>> allMethods = new LinkedList<GenericAccessibleObject<?>>();
 
 	/**
 	 * Create a list of all methods
@@ -93,7 +93,7 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 			if (remainingMethods.size() == 0) {
 				reset();
 			}
-			GenericAccessibleObject call = Randomness.choice(remainingMethods);
+			GenericAccessibleObject<?> call = Randomness.choice(remainingMethods);
 			attemptedMethods.add(call);
 			remainingMethods.remove(call);
 
