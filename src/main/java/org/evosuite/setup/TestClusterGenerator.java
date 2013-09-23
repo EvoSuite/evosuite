@@ -723,12 +723,12 @@ public class TestClusterGenerator {
 			return false;
 		}
 
-		if (c.getName().matches(".*\\$\\d+(\\$.*)?$")) {
+		if (c.getName().matches(".*\\$\\d+.*$")) {
 			logger.debug(c + " looks like an anonymous class, ignoring it");
 			return false;
 		}
 
-		if (c.getName().matches(".*\\.\\d+(\\..*)?$")) {
+		if (c.getName().matches(".*\\.\\d+.*$")) {
 			logger.debug(c + " looks like an anonymous class, ignoring it");
 			return false;
 		}
@@ -739,17 +739,16 @@ public class TestClusterGenerator {
 		if (isEvoSuiteClass(c))
 			return false;
 
-		if(c.getEnclosingClass() != null) {
-			if(!canUse(c.getEnclosingClass()))
+		if (c.getEnclosingClass() != null) {
+			if (!canUse(c.getEnclosingClass()))
 				return false;
 		}
 
-		if(c.getDeclaringClass() != null) {
-			if(!canUse(c.getDeclaringClass()))
+		if (c.getDeclaringClass() != null) {
+			if (!canUse(c.getDeclaringClass()))
 				return false;
 		}
 
-		
 		// If the SUT is not in the default package, then
 		// we cannot import classes that are in the default
 		// package
@@ -904,7 +903,8 @@ public class TestClusterGenerator {
 			return false;
 		}
 
-		if (!Properties.CONSIDER_MAIN_METHODS && m.getName().equals("main") && Modifier.isStatic(m.getModifiers())
+		if (!Properties.CONSIDER_MAIN_METHODS && m.getName().equals("main")
+		        && Modifier.isStatic(m.getModifiers())
 		        && Modifier.isPublic(m.getModifiers())) {
 			logger.debug("Ignoring static main method ");
 			return false;

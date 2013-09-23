@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.evosuite.setup.TestClusterGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +59,8 @@ public class InspectorManager {
 	}
 
 	private void determineInspectors(Class<?> clazz) {
+		if (!TestClusterGenerator.canUse(clazz))
+			return;
 		List<Inspector> inspectorList = new ArrayList<Inspector>();
 		for (Method method : clazz.getMethods()) {
 			if (Modifier.isPublic(method.getModifiers())
@@ -71,11 +74,11 @@ public class InspectorManager {
 			        && !method.getName().equals("pop")) { // FIXXME
 				logger.debug("Inspector for class " + clazz.getSimpleName() + ": "
 				        + method.getName());
-				
+
 				// TODO:
 				// Locale gives weird results
-				if(clazz.equals(Locale.class)) {
-					if(method.getName().startsWith("getDisplay"))
+				if (clazz.equals(Locale.class)) {
+					if (method.getName().startsWith("getDisplay"))
 						continue;
 				}
 				inspectorList.add(new Inspector(clazz, method));
