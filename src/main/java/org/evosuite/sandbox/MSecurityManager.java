@@ -410,16 +410,20 @@ class MSecurityManager extends SecurityManager {
 			return true;
 		}
 
+		/*
+		 * Note: we had to remove this check, as some EvoSuite-RMI threads would be blocked by it 
+		 * 
 		if (!executingTestCase) {
-			/*
-			 * Here, the thread is not "privileged" (either from SUT or an un-registered by EvoSuite), and we are not executing a test case (if from
-			 * SUT, that means the thread was not stopped properly). So, we deny any permission
-			 */
+			
+			 // Here, the thread is not "privileged" (either from SUT or an un-registered by EvoSuite), and we are not executing a test case (if from
+			 // SUT, that means the thread was not stopped properly). So, we deny any permission
+			 
 			logger.debug("Unprivileged thread trying to execute potentially harmfull code outsie SUT code execution. Permission: "
 			        + perm.toString());
 			return false;
 		}
-
+		 */
+		
 		/*
 		 * If we only check threads at the end of test case execution, we would miss
 		 * all the threads that are started and ended within the execution.
