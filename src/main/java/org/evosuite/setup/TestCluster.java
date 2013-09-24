@@ -333,15 +333,18 @@ public class TestCluster {
 							        + " which generated: "
 							        + newGenerator.getGeneratedClass());
 							targetGenerators.add(newGenerator);
-						} else if(logger.isDebugEnabled()){
+						} else if (logger.isDebugEnabled()) {
 							logger.debug("New generator not assignable: " + newGenerator);
-							logger.debug("Had type parameters: "+hadTypeParameters);
-							logger.debug("generatorClazz.equals(clazz): "+generatorClazz.equals(clazz));
+							logger.debug("Had type parameters: " + hadTypeParameters);
+							logger.debug("generatorClazz.equals(clazz): "
+							        + generatorClazz.equals(clazz));
 							try {
-								logger.debug("clazz.isAssignableFrom("+newGenerator.getGeneratedType()+"): ");
-								logger.debug("                        "+clazz.isAssignableFrom(newGenerator.getGeneratedType()));
-							} catch(Throwable t) {
-								logger.debug("Error: "+t);
+								logger.debug("clazz.isAssignableFrom("
+								        + newGenerator.getGeneratedType() + "): ");
+								logger.debug("                        "
+								        + clazz.isAssignableFrom(newGenerator.getGeneratedType()));
+							} catch (Throwable t) {
+								logger.debug("Error: " + t);
 							}
 						}
 					}
@@ -349,7 +352,7 @@ public class TestCluster {
 					logger.debug("Cannot be assigned");
 				}
 			}
-			logger.debug("Found generators for "+clazz+": "+targetGenerators.size());
+			logger.debug("Found generators for " + clazz + ": " + targetGenerators.size());
 		}
 
 		generatorCache.put(clazz, targetGenerators);
@@ -668,6 +671,7 @@ public class TestCluster {
 			all.addAll(generatorCache.get(clazz));
 
 			for (GenericAccessibleObject<?> call : all) {
+				// TODO: Need to instantiate, or check?
 				if (call.isConstructor() && call.getNumParameters() == 0) {
 					calls.add(call);
 				} else if (!Collection.class.isAssignableFrom(call.getDeclaringClass())
@@ -779,8 +783,6 @@ public class TestCluster {
 		}
 		return result;
 	}
-
-	
 
 	/**
 	 * Randomly select one generator

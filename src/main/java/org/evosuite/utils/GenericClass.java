@@ -163,9 +163,9 @@ public class GenericClass implements Serializable {
 	 * @return a boolean.
 	 */
 	public static boolean isAssignable(Type lhsType, Type rhsType) {
-		if(rhsType == null || lhsType == null)
+		if (rhsType == null || lhsType == null)
 			return false;
-		
+
 		try {
 			return TypeUtils.isAssignable(rhsType, lhsType);
 		} catch (IllegalStateException e) {
@@ -301,11 +301,12 @@ public class GenericClass implements Serializable {
 				if (equals(instantiation)) {
 					logger.debug("Instantiation is equal to original, so I think we can't assign: "
 					        + instantiation);
-					if(hasWildcardOrTypeVariables())
+					if (hasWildcardOrTypeVariables())
 						return false;
 					else
 						return true;
 				}
+				logger.debug("Checking instantiation: " + instantiation);
 				return instantiation.canBeInstantiatedTo(otherType);
 			} catch (ConstructionFailedException e) {
 				logger.debug("Failed to instantiate " + toString());
@@ -574,8 +575,17 @@ public class GenericClass implements Serializable {
 	        throws ConstructionFailedException {
 		if (typeMap.containsKey(type)) {
 			logger.debug("Type contains " + toString() + ": " + typeMap);
-			GenericClass selectedClass = new GenericClass(typeMap.get(type));
-			return selectedClass.getGenericInstantiation(typeMap, recursionLevel + 1);
+			GenericClass selectedClass = new GenericClass(typeMap.get(type)).getGenericInstantiation(typeMap,
+			                                                                                         recursionLevel + 1);
+			if (!selectedClass.satisfiesBoundaries((TypeVariable<?>) type)) {
+				logger.debug("Cannot be instantiated to: " + selectedClass);
+				throw new ConstructionFailedException("Unable to instantiate "
+				        + toString());
+			} else {
+				logger.debug("Can be instantiated to: " + selectedClass);
+			}
+
+			return selectedClass;
 		} else {
 			logger.debug("Type map does not contain " + toString() + ": " + typeMap);
 
@@ -647,6 +657,7 @@ public class GenericClass implements Serializable {
 			 * then the boundaries of the parameters of the type variable need to be respected
 			 */
 			if (!parameterClass.hasWildcardOrTypeVariables()) {
+				logger.debug("Parameter has no wildcard or type variable");
 				parameterTypes[numParam++] = parameterClass.getType();
 			} else {
 				logger.debug("Current parameter has type variables: " + parameterClass);
@@ -657,11 +668,15 @@ public class GenericClass implements Serializable {
 				logger.debug("New type map: " + extendedMap);
 
 				if (parameterClass.isWildcardType()) {
+					logger.debug("Is wildcard type");
 					GenericClass parameterInstance = new GenericClass(
 					        typeParameters.get(numParam)).getGenericInstantiation(extendedMap,
 					                                                              recursionLevel + 1);
 					parameterTypes[numParam++] = parameterInstance.getType();
 				} else {
+					logger.debug("Is not wildcard but type variable? "
+					        + parameterClass.isTypeVariable());
+
 					GenericClass parameterInstance = parameterClass.getGenericInstantiation(extendedMap,
 					                                                                        recursionLevel + 1);
 					parameterTypes[numParam++] = parameterInstance.getType();
