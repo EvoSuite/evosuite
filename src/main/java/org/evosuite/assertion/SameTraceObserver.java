@@ -23,6 +23,9 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 	/** {@inheritDoc} */
 	@Override
 	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+		if(statement.isAssignmentStatement())
+			return;
+		
 		try {
 			Object object = var.getObject(scope);
 			if (object == null)
@@ -33,15 +36,17 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 			SameTraceEntry entry = new SameTraceEntry(var);
 
 			for (VariableReference other : scope.getElements(var.getType())) {
-				Object otherObject = other.getObject(scope);
 				if (other == var)
 					continue;
+				if(other.isPrimitive())
+					continue;
+				Object otherObject = other.getObject(scope);
 				if (otherObject == null)
 					continue;
 
 				try {
 					logger.debug("Comparison of " + var + " with " + other + " is: "
-					        + object.equals(otherObject));
+					        + object.equals(otherObject) +" ==> "+(object == otherObject));
 					entry.addEntry(other, object == otherObject);
 				} catch (Throwable t) {
 					logger.debug("Exception during equals: " + t);

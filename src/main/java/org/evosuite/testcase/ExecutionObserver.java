@@ -32,7 +32,6 @@ public abstract class ExecutionObserver {
 	protected static TestCase currentTest = null;
 
 	/** Constant <code>WRAPPER_TYPES</code> */
-	@SuppressWarnings("unchecked")
 	protected static final Set<Class<?>> WRAPPER_TYPES = new HashSet<Class<?>>(
 	        Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
 	                      Integer.class, Long.class, Float.class, Double.class,

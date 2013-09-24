@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.testcarver.instrument.TransformerUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

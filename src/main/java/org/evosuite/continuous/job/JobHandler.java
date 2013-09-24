@@ -164,8 +164,7 @@ public class JobHandler extends Thread{
 		 * if same test suites happen twice (ie in current and old), then we it would be 
 		 * complicated to use both (we would need to change their name) 
 		 */
-		
-		
+				
 		/*
 		 *  it is important to set it before calling EvoSuite, as it has to be read by Master before loading properties.
 		 *  Note: the Client will get it automatically from Master
@@ -311,9 +310,14 @@ public class JobHandler extends Thread{
 		cmd += RuntimeVariable.Implicit_MethodExceptions+",";
 		cmd += RuntimeVariable.Explicit_MethodExceptions; 
 		
+		if(Properties.CTG_TIME_PER_CLASS != null){
+			cmd += ",ctg_time_per_class";
+			cmd += " -Dctg_time_per_class="+Properties.CTG_TIME_PER_CLASS;
+		}
+		
 		/*
-		 * Master/Client will not use this variable.
-		 * But here we include it just to be sure that it will end
+		 * Master/Client will not use these variables.
+		 * But here we include them just to be sure that they will end
 		 * up in the generated CSV files
 		 */
 		cmd += " -Dctg_schedule="+Properties.CTG_SCHEDULE;

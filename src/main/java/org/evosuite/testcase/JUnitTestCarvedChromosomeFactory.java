@@ -9,7 +9,6 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testcarver.extraction.CarvingRunListener;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.Utils;
 import org.junit.runner.JUnitCore;
@@ -23,7 +22,7 @@ public class JUnitTestCarvedChromosomeFactory implements
 
 	private static final long serialVersionUID = -569338946355072318L;
 	
-	private static final Logger logger = LoggingUtils.getEvoLogger();
+	private static final Logger logger = LoggerFactory.getLogger(JUnitTestCarvedChromosomeFactory.class);
 
 	private List<TestCase> junitTests = new ArrayList<TestCase>();
 	
