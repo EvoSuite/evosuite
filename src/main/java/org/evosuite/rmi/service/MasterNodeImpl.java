@@ -46,7 +46,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public void registerClientNode(String clientRmiIdentifier) throws RemoteException {
+	public void evosuite_registerClientNode(String clientRmiIdentifier) throws RemoteException {
 
 		/*
 		 * The client should first register its node, and then inform MasterNode
@@ -68,7 +68,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public void informChangeOfStateInClient(String clientRmiIdentifier,
+	public void evosuite_informChangeOfStateInClient(String clientRmiIdentifier,
 	        ClientState state, ClientStateInformation information) throws RemoteException {
 		clientStates.put(clientRmiIdentifier, state);
 		// To be on the safe side
@@ -138,12 +138,12 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public void collectStatistics(String clientRmiIdentifier, Chromosome individual) {
+	public void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome individual) {
 		SearchStatistics.getInstance().currentIndividual(clientRmiIdentifier, individual);
 	}
 
 	@Override
-	public void collectStatistics(String clientRmiIdentifier, String name, Object value)
+	public void evosuite_collectStatistics(String clientRmiIdentifier, String name, Object value)
 	        throws RemoteException {
 		SearchStatistics.getInstance().setOutputVariable(name, value);
 	}
