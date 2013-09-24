@@ -561,6 +561,8 @@ class MSecurityManager extends SecurityManager {
 	 */
 	private boolean checkIfEvoSuiteRMI(Permission perm) {
 		
+		//FIXME: this does not check if it is the SUT that calls RMI
+		
 		final String pattern = "sun.rmi.";
 		boolean found = false;
 		
@@ -580,7 +582,7 @@ class MSecurityManager extends SecurityManager {
 		String name = perm.getName().trim();
 		
 		if(perm instanceof java.net.SocketPermission){
-			return "accept,resolve".equals(perm.getActions());
+			return true;
 		} else {
 			return "readFileDescriptor".equals(name) ||
 					"writeFileDescriptor".equals(name) ||
