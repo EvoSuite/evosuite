@@ -600,10 +600,12 @@ class MSecurityManager extends SecurityManager {
 		
 		boolean foundMasterNode = false;
 		
-		for(StackTraceElement element : Thread.currentThread().getStackTrace()){
-			if(masterNodeRemoteMethodNames.contains(element.toString())){
-				foundMasterNode = true;
-				break;
+		traceLoop: for(StackTraceElement element : Thread.currentThread().getStackTrace()){
+			for(String masterNodeMethod : masterNodeRemoteMethodNames){
+				if(element.toString().contains(masterNodeMethod)){
+					foundMasterNode = true;
+					break traceLoop;
+				}
 			}
 		}
 		
