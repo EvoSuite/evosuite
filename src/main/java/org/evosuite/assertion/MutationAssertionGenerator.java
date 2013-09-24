@@ -32,6 +32,7 @@ import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionResult;
@@ -164,13 +165,26 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		        && oldCriterion != Criterion.WEAKMUTATION
 		        && oldCriterion != Criterion.STRONGMUTATION) {
 			Properties.CRITERION = Criterion.MUTATION;
-			TestGenerationContext.getInstance().resetContext();
-			for(TestChromosome test : suite.getTestChromosomes()) {
-				DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
-				dtest.changeClassLoader(TestGenerationContext.getClassLoader());
-				test.setChanged(true);
-				test.clearCachedMutationResults();
-				test.clearCachedResults();
+			Sandbox.goingToExecuteSUTCode();
+			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+			try {
+				TestGenerationContext.getInstance().resetContext();
+				Properties.getTargetClass();
+				for(TestChromosome test : suite.getTestChromosomes()) {
+					DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
+					dtest.changeClassLoader(TestGenerationContext.getClassLoader());
+					test.setChanged(true);
+					test.clearCachedMutationResults();
+					test.clearCachedResults();
+				}
+			} catch (Throwable e) {
+				LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
+						+ (e.getMessage() != null ? e.getMessage()
+								: e.toString()));
+				logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
+			} finally {
+				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+				Sandbox.doneWithExecutingSUTCode();
 			}
 			for (Mutation m : MutationPool.getMutants()) {
 				mutants.put(m.getId(), m);
