@@ -100,19 +100,20 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		int currentOID    = targetOIDs.get(0);
 		int[] oidExchange = null;
 
+		
 		// TODO knowing last logRecNo for termination criterion belonging to an observed instance would prevent processing unnecessary statements
 		for(int currentRecord = Math.abs(log.getRecordIndexOfWhereObjectWasInitializedFirst(currentOID)); currentRecord < numLogRecords; currentRecord++)
 		//for(int currentRecord = log.getRecordIndex(currentOID); currentRecord < numLogRecords; currentRecord++)	
 		{
-			
-			// currentOID = log.objectIds.get(currentRecord);
 			currentOID = log.objectIds.get(currentRecord);
-
-			if(targetOIDs.contains(currentOID) && ! blackList.contains(getClassFromOID(log, currentOID)))
+			
+			
+			
+			if( targetOIDs.contains(currentOID) && ! blackList.contains(getClassFromOID(log, currentOID)))
 			{
 				logger.debug("Analyzing record in position {}", currentRecord);
 
-				oidExchange = this.restorceCodeFromLastPosTo(log, generator, currentOID, currentRecord, blackList);
+				oidExchange = this.restorceCodeFromLastPosTo(log, generator, currentOID, currentRecord + 1, blackList);
 				if(oidExchange != null){
 					break;
 				}
@@ -256,7 +257,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 	private void updateInitRec(final CaptureLog log, final int currentOID, final int currentRecord){
 		
-		if(currentRecord > log.getRecordIndexOfWhereObjectWasInitializedFirst(currentOID)){
+		if(Math.abs(currentRecord) > Math.abs(log.getRecordIndexOfWhereObjectWasInitializedFirst(currentOID))){
 			log.updateWhereObjectWasInitializedFirst(currentOID, currentRecord);
 		}
 	}
@@ -270,9 +271,9 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 		final int captureId = log.captureIds.get(currentRecord);
 		while(   record < numRecords &&
-				! (log.objectIds.get(record) == currentOID &&
-				log.captureIds.get(record) == captureId && 
-				log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
+				! ( log.objectIds.get(record) == currentOID &&
+				    log.captureIds.get(record) == captureId && 
+				    log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
 		{
 			record++;
 		}
@@ -300,14 +301,14 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	@SuppressWarnings({ "rawtypes" })
 	private int[] restorceCodeFromLastPosTo(final CaptureLog log, final ICodeGenerator generator,final int oid, final int end, final Set<Class<?>> blackList){
 
-
 		// start from last OID modification point
 		int currentRecord = log.getRecordIndexOfWhereObjectWasInitializedFirst(oid);
 		if(currentRecord > 0){
 			// last modification of object happened here
 			// -> we start looking for interesting records after retrieved record
 			currentRecord++;				
-		} else {
+		}
+		else {
 			// object new instance statement
 			// -> retrieved loc record no is included
 			currentRecord = -currentRecord;
@@ -322,7 +323,8 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		Object returnValueObj;
 		int[] exchange;
 
-		for(; currentRecord <= end; currentRecord++) {
+		for(; currentRecord < end; currentRecord++) {
+//			for(; currentRecord <= end; currentRecord++) {
 			currentOID     = log.objectIds.get(currentRecord);
 			returnValueObj = log.returnValues.get(currentRecord);
 			returnValue    = returnValueObj.equals(CaptureLog.RETURN_TYPE_VOID) ? -1 : (Integer) returnValueObj;
@@ -521,11 +523,13 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			int currentRecord, int currentOID) {
 		try
 		{
+			
 			final Object[] methodArgs = log.params.get(currentRecord);
 			restoreArgs(methodArgs, currentRecord, log, generator, blackList);
 			generator.createArrayInitStmt(log, currentRecord);
 			currentRecord = findEndOfMethod(log, currentRecord, currentOID);
 			this.updateInitRec(log, currentOID, currentRecord);
+			
 			return currentRecord;
 		}
 		catch(final Exception e)

@@ -387,6 +387,41 @@ public final class CaptureLog implements Cloneable {
 		this.isStaticCallList.add(Boolean.FALSE);
 	}
 
+
+	/**
+	 * Find start of method call statement (created by CaptureLog.log()) for capture id and receiver
+	 * 
+	 * @param captureId
+	 * @param receiver
+	 * @param returnValue
+	 */
+	private int findRecordOfMethodStart(final Object receiver, final int captureId)
+	{
+		final int oid = System.identityHashCode(receiver);
+
+		int currentRecord = captureIds.size() - 1;
+		
+		int nestedCalls = 0;
+		while(true){
+			if(this.captureIds.get(currentRecord) == captureId &&
+					this.objectIds.get(currentRecord)  == oid){
+				if(this.methodNames.get(currentRecord).equals(END_CAPTURE_PSEUDO_METHOD)){
+					nestedCalls++;
+				} else{
+					if(nestedCalls == 0){
+						break;
+					} else {
+						nestedCalls--;
+					}
+				}
+			}
+			currentRecord--;
+		}
+		
+		return currentRecord;
+	}
+	
+
 	private void handleReturnValue(final int captureId, final Object receiver,
 			final Object returnValue) {
 		final int returnValueOID = System.identityHashCode(returnValue);
@@ -394,49 +429,62 @@ public final class CaptureLog implements Cloneable {
 		boolean condition = ! this.oidRecMapping.containsKey(returnValueOID);
 
 		if(!condition){		
+			
+			// oid of the target object is already known so we have to check if we should determine the corresponding method call for the return value
+			// and adjust its init meta data
+			
 			final int firstInitRecNo = this.oidFirstInits.get(this.oidRecMapping.get(returnValueOID));
 
-			// was an accessible constructor call belonging to this object logged before?		
-			condition = (! methodNames.get(firstInitRecNo).equals(OBSERVED_INIT) )&&
-					(!    NOT_OBSERVED_INIT_METHODS.contains(methodNames.get(firstInitRecNo)) ) &&
-					RETURN_TYPE_VOID .equals(returnValues.get(firstInitRecNo));
+			final String methodName = methodNames.get(firstInitRecNo);
+			final boolean isObservedConstructionCaughtForThisObject   = methodName.equals(OBSERVED_INIT);
+			final boolean isUnObservedConstructionCaughtForThisObject = NOT_OBSERVED_INIT_METHODS.contains(methodNames.get(firstInitRecNo));
+			final boolean noReturnValueHasBeenSet                     = RETURN_TYPE_VOID .equals(returnValues.get(firstInitRecNo));
+										   
+			
+			if(! isObservedConstructionCaughtForThisObject && ! isUnObservedConstructionCaughtForThisObject)
+			{
+				final int methodStartRecord = findRecordOfMethodStart(receiver, captureId);
+				
+				// did the method call appear before the object construction was performed?
+				// this is important because this method call might be used to reconstruct object construction instead of
+				// the constructor calls
+				if(methodStartRecord < firstInitRecNo)
+				{
+					condition = noReturnValueHasBeenSet;
+				}
+				else
+				{
+					condition = false;
+				}
+				
+			}
+			else
+			{
+				condition = noReturnValueHasBeenSet;
+			}
 		}
 
 		if(condition){
 			if(! isPlain(returnValue) && ! (returnValue instanceof Class)) {
-				final int oid = System.identityHashCode(receiver);
-
-				int currentRecord = captureIds.size() - 1;
-
-				int nestedCalls = 0;
-				while(true){
-					if(this.captureIds.get(currentRecord) == captureId &&
-							this.objectIds.get(currentRecord)  == oid){
-						if(this.methodNames.get(currentRecord).equals(END_CAPTURE_PSEUDO_METHOD)){
-							nestedCalls++;
-						} else{
-							if(nestedCalls == 0){
-								break;
-							} else {
-								nestedCalls--;
-							}
-						}
-					}
-					currentRecord--;
-				}
-
-
+				
+				final int currentRecord = findRecordOfMethodStart(receiver, captureId);
+				
 				if(this.oidRecMapping.containsKey(returnValueOID)){
 					final int infoRecNo = this.oidRecMapping.get(returnValueOID);						
 					final int initRecNo = getRecordIndexOfWhereObjectWasInitializedFirst(returnValueOID);
 					final String method = this.methodNames.get(Math.abs(initRecNo));
 
-					if(! OBSERVED_INIT.equals(method) && ! NOT_OBSERVED_INIT_METHODS.contains(method))
+					if((! OBSERVED_INIT.equals(method) && ! NOT_OBSERVED_INIT_METHODS.contains(method)) )//|| currentRecord < Math.abs(initRecNo))
 					{
 						this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
 						updateWhereObjectWasInitializedFirst(returnValueOID, -currentRecord);							
 						this.oidFirstInits.set(infoRecNo, currentRecord);
 					}
+					else
+					{
+						this.returnValues.set(currentRecord, returnValueOID);
+					}
+					
 				} else {
 					final int infoRecNo = this.oidInitRecNo.size();
 					this.oidRecMapping.put(returnValueOID, infoRecNo);
@@ -790,7 +838,14 @@ public final class CaptureLog implements Cloneable {
 			}
 			else
 			{
-				logUnobservedInitStmt(param);
+				// we don't need to make a dump for instrumented classes because its state changes
+				// are reproducible
+				if (! isInstrumented)
+				{
+					// we always need to make a dump of objects which are not instrumented
+					// because the state might have changed and we couldn't observerve it
+					logUnobservedInitStmt(param);
+				}
 			}
 			
 
@@ -800,7 +855,13 @@ public final class CaptureLog implements Cloneable {
 
 	private void logUnobservedInitStmt(final Object subject)
 	{
-		this.objectIds.add(System.identityHashCode(subject));
+		final int subjectOID = System.identityHashCode(subject);
+		if(! this.oidRecMapping.containsKey(subjectOID))
+		{
+			this.updateInfoTable(subjectOID, subject, true);
+		}
+		
+		this.objectIds.add(subjectOID);
 		// create new serialization record for first emersion
 		// exemplary output in test code: Person newJoe = (Person) xstream.fromXML(xml); 
 
