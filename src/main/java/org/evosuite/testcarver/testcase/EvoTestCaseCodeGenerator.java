@@ -1,5 +1,6 @@
 package org.evosuite.testcarver.testcase;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.testcarver.capture.CaptureLog;
@@ -38,6 +40,7 @@ import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.StringUtil;
 import org.evosuite.utils.Utils;
 
 public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> {
@@ -106,14 +109,16 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 					        new GenericMethod(
 					                this.getDeclaredMethod(type, methodName,
 					                                       methodParamTypeClasses), type),
-					        this.oidToVarRefMap.get(oid), args);
-
+					        
+					        this.oidToVarRefMap.get(oid), 
+					        
+					        args);
 					final Integer returnValueOID = (Integer) returnValue;
 					this.oidToVarRefMap.put(returnValueOID, testCase.addStatement(m));
 				}
 			}
 		} catch (final Exception e) {
-			throw new RuntimeException(e);
+			CodeGeneratorException.propagateError(e, "[logRecNo = %s] - an unexpected error occurred while creating method call stmt.\n%s", logRecNo, log);
 		}
 	}
 
@@ -268,7 +273,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				this.oidToVarRefMap.put(arg, varRef);
 			}
 		} catch (final Exception e) {
-			CodeGeneratorException.propagateError("[logRecNo = %s] - an unexpected error occurred while creating field write access stmt. Log: %s", logRecNo, log, e);
+			CodeGeneratorException.propagateError(e, "[logRecNo = %s] - an unexpected error occurred while creating field write access stmt. Log: %s", logRecNo, log);
 		}
 	}
 
@@ -308,7 +313,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				LoggingUtils.getEvoLogger().debug("Error while trying to get field "
 				                                          + fieldName + " of class "
 				                                          + getClassForName(typeName)+": "+e);
-				CodeGeneratorException.propagateError("[logRecNo = %s] - an unexpected error occurred while creating field read access stmt. Log: %s", logRecNo, log, e);
+				CodeGeneratorException.propagateError(e, "[logRecNo = %s] - an unexpected error occurred while creating field read access stmt. Log: %s", logRecNo, log);
 			}
 		}
 	}
@@ -388,8 +393,26 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			}
 
 			if (type.endsWith("[]")) {
+				// see http://stackoverflow.com/questions/3442090/java-what-is-this-ljava-lang-object
+				
+				final StringBuilder arrayTypeNameBuilder = new StringBuilder(30);
+				
+				int index = 0;
+				while((index = type.indexOf('[', index)) != -1)
+				{
+					arrayTypeNameBuilder.append('[');
+					index++;
+				}
+				
+				arrayTypeNameBuilder.append('L'); // always needed for Object arrays
+				
+				// remove bracket from type name get array component type
 				type = type.replace("[]", "");
-				return Class.forName("[L" + type + ";", true,
+				arrayTypeNameBuilder.append(type);
+
+				arrayTypeNameBuilder.append(';'); // finalize object array name
+				
+				return Class.forName(arrayTypeNameBuilder.toString(), true,
 				                     TestGenerationContext.getClassLoader());
 			} else {
 				return Class.forName(Utils.getClassNameFromResourcePath(type), true,

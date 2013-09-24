@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.testcarver.instrument.TransformerUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -300,20 +301,7 @@ public final class CaptureLog implements Cloneable {
 
 			oidDependencies.add(NO_DEPENDENCY);
 
-			if(receiver instanceof Class) //this can only happen, if there is a static method call 
-			{
-				final Class<?> c = (Class<?>) receiver;
-				this.oidClassNames.add(c.getName());//.replaceFirst("\\$\\d+$", ""));
-			}
-			else if(this.isPlain(receiver))
-			{
-				// we don't need fully qualified name for plain types
-				this.oidClassNames.add(receiver.getClass().getSimpleName());//.replaceFirst("\\$\\d+$", ""));
-			}
-			else
-			{
-				this.oidClassNames.add(receiver.getClass().getName());//.replaceFirst("\\$\\d+$", ""));
-			}
+			registerObjectsClassName(receiver);
 
 
 			this.oids.add(oid);
@@ -322,7 +310,45 @@ public final class CaptureLog implements Cloneable {
 		}
 	}
 
-
+	
+	private void registerObjectsClassName(final Object receiver)
+	{
+		if(receiver instanceof Class) //this can only happen, if there is a static method call 
+		{
+			final Class<?> c = (Class<?>) receiver;
+			this.oidClassNames.add(c.getName());//.replaceFirst("\\$\\d+$", ""));
+		}
+		else if(this.isPlain(receiver))
+		{
+			// we don't need fully qualified name for plain types
+			this.oidClassNames.add(receiver.getClass().getSimpleName());//.replaceFirst("\\$\\d+$", ""));
+		}
+		else if(isProxy(receiver) || isAnonymous(receiver))
+		{
+			// TODO what if there is more than one interface?
+			final Class<?> c = receiver.getClass();
+			final Class<?>[] interfaces = c.getInterfaces();
+			this.oidClassNames.add(interfaces[0].getName());
+		}
+		else
+		{
+			this.oidClassNames.add(receiver.getClass().getName());//.replaceFirst("\\$\\d+$", ""));
+		}
+	}
+	
+	private boolean isAnonymous(final Object receiver)
+	{
+		return receiver.getClass().isAnonymousClass();
+	}
+	
+	private boolean isProxy(final Object receiver)
+	{
+		// TODO is solution with superclass = Proxy cleaner?
+		final String clazzName = receiver.getClass().getName();
+		return clazzName.startsWith("$Proxy");
+	}
+	
+	
 	private boolean isPlain(final Object o)
 	{
 		return //o instanceof Class   ||
@@ -361,6 +387,41 @@ public final class CaptureLog implements Cloneable {
 		this.isStaticCallList.add(Boolean.FALSE);
 	}
 
+
+	/**
+	 * Find start of method call statement (created by CaptureLog.log()) for capture id and receiver
+	 * 
+	 * @param captureId
+	 * @param receiver
+	 * @param returnValue
+	 */
+	private int findRecordOfMethodStart(final Object receiver, final int captureId)
+	{
+		final int oid = System.identityHashCode(receiver);
+
+		int currentRecord = captureIds.size() - 1;
+		
+		int nestedCalls = 0;
+		while(true){
+			if(this.captureIds.get(currentRecord) == captureId &&
+					this.objectIds.get(currentRecord)  == oid){
+				if(this.methodNames.get(currentRecord).equals(END_CAPTURE_PSEUDO_METHOD)){
+					nestedCalls++;
+				} else{
+					if(nestedCalls == 0){
+						break;
+					} else {
+						nestedCalls--;
+					}
+				}
+			}
+			currentRecord--;
+		}
+		
+		return currentRecord;
+	}
+	
+
 	private void handleReturnValue(final int captureId, final Object receiver,
 			final Object returnValue) {
 		final int returnValueOID = System.identityHashCode(returnValue);
@@ -368,49 +429,62 @@ public final class CaptureLog implements Cloneable {
 		boolean condition = ! this.oidRecMapping.containsKey(returnValueOID);
 
 		if(!condition){		
+			
+			// oid of the target object is already known so we have to check if we should determine the corresponding method call for the return value
+			// and adjust its init meta data
+			
 			final int firstInitRecNo = this.oidFirstInits.get(this.oidRecMapping.get(returnValueOID));
 
-			// was an accessible constructor call belonging to this object logged before?		
-			condition = (! methodNames.get(firstInitRecNo).equals(OBSERVED_INIT) )&&
-					(!    NOT_OBSERVED_INIT_METHODS.contains(methodNames.get(firstInitRecNo)) ) &&
-					RETURN_TYPE_VOID .equals(returnValues.get(firstInitRecNo));
+			final String methodName = methodNames.get(firstInitRecNo);
+			final boolean isObservedConstructionCaughtForThisObject   = methodName.equals(OBSERVED_INIT);
+			final boolean isUnObservedConstructionCaughtForThisObject = NOT_OBSERVED_INIT_METHODS.contains(methodNames.get(firstInitRecNo));
+			final boolean noReturnValueHasBeenSet                     = RETURN_TYPE_VOID .equals(returnValues.get(firstInitRecNo));
+										   
+			
+			if(! isObservedConstructionCaughtForThisObject && ! isUnObservedConstructionCaughtForThisObject)
+			{
+				final int methodStartRecord = findRecordOfMethodStart(receiver, captureId);
+				
+				// did the method call appear before the object construction was performed?
+				// this is important because this method call might be used to reconstruct object construction instead of
+				// the constructor calls
+				if(methodStartRecord < firstInitRecNo)
+				{
+					condition = noReturnValueHasBeenSet;
+				}
+				else
+				{
+					condition = false;
+				}
+				
+			}
+			else
+			{
+				condition = noReturnValueHasBeenSet;
+			}
 		}
 
 		if(condition){
 			if(! isPlain(returnValue) && ! (returnValue instanceof Class)) {
-				final int oid = System.identityHashCode(receiver);
-
-				int currentRecord = captureIds.size() - 1;
-
-				int nestedCalls = 0;
-				while(true){
-					if(this.captureIds.get(currentRecord) == captureId &&
-							this.objectIds.get(currentRecord)  == oid){
-						if(this.methodNames.get(currentRecord).equals(END_CAPTURE_PSEUDO_METHOD)){
-							nestedCalls++;
-						} else{
-							if(nestedCalls == 0){
-								break;
-							} else {
-								nestedCalls--;
-							}
-						}
-					}
-					currentRecord--;
-				}
-
-
+				
+				final int currentRecord = findRecordOfMethodStart(receiver, captureId);
+				
 				if(this.oidRecMapping.containsKey(returnValueOID)){
 					final int infoRecNo = this.oidRecMapping.get(returnValueOID);						
 					final int initRecNo = getRecordIndexOfWhereObjectWasInitializedFirst(returnValueOID);
 					final String method = this.methodNames.get(Math.abs(initRecNo));
 
-					if(! OBSERVED_INIT.equals(method) && ! NOT_OBSERVED_INIT_METHODS.contains(method))
+					if((! OBSERVED_INIT.equals(method) && ! NOT_OBSERVED_INIT_METHODS.contains(method)) )//|| currentRecord < Math.abs(initRecNo))
 					{
 						this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
 						updateWhereObjectWasInitializedFirst(returnValueOID, -currentRecord);							
 						this.oidFirstInits.set(infoRecNo, currentRecord);
 					}
+					else
+					{
+						this.returnValues.set(currentRecord, returnValueOID);
+					}
+					
 				} else {
 					final int infoRecNo = this.oidInitRecNo.size();
 					this.oidRecMapping.put(returnValueOID, infoRecNo);
@@ -419,7 +493,10 @@ public final class CaptureLog implements Cloneable {
 
 					this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
 
-					this.oidClassNames.add(returnValue.getClass().getName());
+					this.registerObjectsClassName(returnValue);
+					
+//					this.oidClassNames.add(returnValue.getClass().getName());
+					
 					this.oids.add(returnValueOID);
 					this.oidDependencies.add(NO_DEPENDENCY);
 				}
@@ -468,7 +545,13 @@ public final class CaptureLog implements Cloneable {
 						this$0.setAccessible(true);
 						final Object outerInstance = this$0.get(receiver);
 
-						// the enclosing object has to b
+						if( TransformerUtil.isClassConsideredForInstrumentation(outerInstance.getClass().getName()))
+						{
+							// FIXME
+						}
+						
+						
+						// the enclosing object has to be restored first
 
 						final int receiverOID    = System.identityHashCode(receiver);
 						final int initRecNo = this.oidRecMapping.get(receiverOID);
@@ -525,13 +608,11 @@ public final class CaptureLog implements Cloneable {
 				this.updateInfoTable(oid, receiver, isConstructor);	
 				logUnobservedInitStmt(receiver);
 			}
-
 		}
 
-		
-		// update info table if necessary
-		// in case of constructor calls, we want to remember the last one
-		this.updateInfoTable(oid, receiver, isConstructor);	
+		// TODO this.updateInfoTable(oid, receiver, isConstructor);	
+
+
 
 		// save receiver class -> might be reference in later calls e.g. doSth(Person.class)
 		if(receiver instanceof Class) {
@@ -564,12 +645,29 @@ public final class CaptureLog implements Cloneable {
 
 				if(paramOID == oid)
 				{
-					logger.error("PARAM is 'this' reference -> ignore");
-					// TODO remove meta inf entries
-					return;
+					logger.warn("PARAM is 'this' reference -> are serialized version of 'this' is created and passed as param");
+					
+					// we serialize and deserialize param in order to get a 'cloned' instance of param
+					// -> this approach is not very efficient but we can always clone an object without the
+					//    the need of the Cloneable interface
+					try
+					{
+						String xml = xstream.toXML(param);
+						param = xstream.fromXML(xml);
+						paramOID = System.identityHashCode(param);
+						
+						logUnobservedInitStmt(param);
+					}
+					catch(final Exception e)
+					{
+						logger.warn("an error occurred while serializing and deserializing {} -> is handled as NULL param",param,e);
+						continue;
+					}
 				}
-
-				createInitLogEntries(param);
+				else
+				{
+					createInitLogEntries(param);
+				}
 
 
 				// method param  has been created before so we link to it
@@ -582,6 +680,10 @@ public final class CaptureLog implements Cloneable {
 			}
 		}
 
+		// update info table if necessary
+		// in case of constructor calls, we want to remember the last one
+		this.updateInfoTable(oid, receiver, isConstructor);	
+		
 		//--- create method call record
 		this.objectIds.add(oid);
 		this.methodNames.add(methodName);
@@ -591,6 +693,8 @@ public final class CaptureLog implements Cloneable {
 		this.captureIds.add(captureId);
 		this.isStaticCallList.add(receiver instanceof Class);
 
+
+		
 		this.checkIfInstanceFromInnerInstanceClass(receiver);
 	}
 
@@ -734,7 +838,14 @@ public final class CaptureLog implements Cloneable {
 			}
 			else
 			{
-				logUnobservedInitStmt(param);
+				// we don't need to make a dump for instrumented classes because its state changes
+				// are reproducible
+				if (! isInstrumented)
+				{
+					// we always need to make a dump of objects which are not instrumented
+					// because the state might have changed and we couldn't observerve it
+					logUnobservedInitStmt(param);
+				}
 			}
 			
 
@@ -744,7 +855,13 @@ public final class CaptureLog implements Cloneable {
 
 	private void logUnobservedInitStmt(final Object subject)
 	{
-		this.objectIds.add(System.identityHashCode(subject));
+		final int subjectOID = System.identityHashCode(subject);
+		if(! this.oidRecMapping.containsKey(subjectOID))
+		{
+			this.updateInfoTable(subjectOID, subject, true);
+		}
+		
+		this.objectIds.add(subjectOID);
 		// create new serialization record for first emersion
 		// exemplary output in test code: Person newJoe = (Person) xstream.fromXML(xml); 
 
