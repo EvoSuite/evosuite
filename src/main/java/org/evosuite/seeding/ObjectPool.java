@@ -250,7 +250,7 @@ public class ObjectPool implements Serializable {
 			out.writeObject(this);
 			out.close();
 		} catch (IOException e) {
-			// TODO
+			logger.warn("Error while writing pool to file "+fileName+": "+e);
 		}
 	}
 
