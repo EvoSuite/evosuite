@@ -160,7 +160,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		}
 
 		try {
-			masterNode.informChangeOfStateInClient(clientRmiIdentifier, state,
+			masterNode.evosuite_informChangeOfStateInClient(clientRmiIdentifier, state,
 			                                       information);
 		} catch (RemoteException e) {
 			logger.error("Cannot inform master of change of state", e);
@@ -172,7 +172,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		logger.info("Sending current best individual to master process");
 
 		try {
-			masterNode.collectStatistics(clientRmiIdentifier, individual);
+			masterNode.evosuite_collectStatistics(clientRmiIdentifier, individual);
 		} catch (RemoteException e) {
 			logger.error("Cannot inform master of change of state", e);
 		}
@@ -214,8 +214,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	public boolean init() {
 		try {
 			masterNode = (MasterNodeRemote) registry.lookup(MasterNodeRemote.RMI_SERVICE_NAME);
-			masterNode.registerClientNode(clientRmiIdentifier);
-			masterNode.informChangeOfStateInClient(clientRmiIdentifier, state,
+			masterNode.evosuite_registerClientNode(clientRmiIdentifier);
+			masterNode.evosuite_informChangeOfStateInClient(clientRmiIdentifier, state,
 			                                       new ClientStateInformation(state));
 
 			statisticsThread = new Thread() {
@@ -225,7 +225,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 						OutputVariable ov = null;
 						try {
 							ov = outputVariableQueue.take();
-							masterNode.collectStatistics(clientRmiIdentifier, ov.name,
+							masterNode.evosuite_collectStatistics(clientRmiIdentifier, ov.name,
 							                             ov.value);
 						} catch (InterruptedException e) {
 							break;

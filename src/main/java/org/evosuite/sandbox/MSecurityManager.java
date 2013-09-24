@@ -21,6 +21,7 @@ import java.awt.AWTPermission;
 import java.io.FilePermission;
 import java.io.SerializablePermission;
 import java.lang.management.ManagementPermission;
+import java.lang.reflect.Method;
 import java.lang.reflect.ReflectPermission;
 import java.net.NetPermission;
 import java.net.SocketPermission;
@@ -30,6 +31,9 @@ import java.security.Permission;
 import java.security.SecurityPermission;
 import java.security.UnresolvedPermission;
 import java.sql.SQLPermission;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.PropertyPermission;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -49,6 +53,7 @@ import javax.xml.ws.WebServicePermission;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.SandboxMode;
+import org.evosuite.rmi.service.MasterNodeRemote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,6 +117,13 @@ class MSecurityManager extends SecurityManager {
 	private volatile Thread privilegedThreadToIgnore;
 
 	/**
+	 * Name of all the methods in the MasterNodeRemote interface.
+	 * This is used to allow RMI communications even on non-privileged threads,
+	 * but only if coming from EvoSuite (and not from SUT)
+	 */
+	private final Set<String> masterNodeRemoteMethodNames;
+	
+	/**
 	 * Create a custom security manager for the SUT. The thread that create this
 	 * instance is automatically added as "privileged"
 	 */
@@ -122,6 +134,13 @@ class MSecurityManager extends SecurityManager {
 		executingTestCase = false;
 		defaultProperties = (java.util.Properties) System.getProperties().clone();
 		privilegedThreadToIgnore = null;
+		
+		Method[] methods = MasterNodeRemote.class.getMethods();
+		Set<String> names = new HashSet<String>();
+		for(Method m : methods){
+			names.add(m.getName());
+		}
+		masterNodeRemoteMethodNames = Collections.unmodifiableSet(names);
 	}
 
 	/**
@@ -564,31 +583,42 @@ class MSecurityManager extends SecurityManager {
 		//FIXME: this does not check if it is the SUT that calls RMI
 		
 		final String pattern = "sun.rmi.";
-		boolean found = false;
+		boolean foundRMI = false;
 		
 		//first check if there is any reference to RMI in the stack trace
 		for(StackTraceElement element : Thread.currentThread().getStackTrace()){
 			if(element.toString().startsWith(pattern)){
-				found = true;
+				foundRMI = true;
 				break;
 			}
 		}
 		
-		if(!found){
+		if(!foundRMI){
 			//found no reference to RMI
 			return false;
 		}
 		
-		String name = perm.getName().trim();
+		boolean foundMasterNode = false;
 		
-		if(perm instanceof java.net.SocketPermission || perm instanceof java.lang.RuntimePermission){
-			return true;
-		} else {
-			return "readFileDescriptor".equals(name) ||
-					"writeFileDescriptor".equals(name) ||
-					"setContextClassLoader".equals(name) ||
-					"enableSubstitution".equals(name);
+		for(StackTraceElement element : Thread.currentThread().getStackTrace()){
+			if(masterNodeRemoteMethodNames.contains(element.toString())){
+				foundMasterNode = true;
+				break;
+			}
 		}
+		
+		if(!foundMasterNode){
+			//found no reference to RMI
+			return false;
+		}
+						
+		if(perm instanceof FilePermission){
+			//we do this just as a safety mechanism...
+			logger.error("EvoSuite RMI is trying to interact with files: "+perm);
+			return false;
+		}
+		
+		return true;
 	}
 
 	/*

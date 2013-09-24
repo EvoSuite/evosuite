@@ -14,11 +14,16 @@ public interface MasterNodeRemote extends Remote {
 
 	public static final String RMI_SERVICE_NAME = "MasterNode";
 	
-	public void registerClientNode(String clientRmiIdentifier) throws RemoteException;
+	/*
+	 * Note: we need names starting with 'evosuite' here, becase those names are accessed 
+	 * through reflactions and used in the checks of the sandbox 
+	 */
 	
-	public void informChangeOfStateInClient(String clientRmiIdentifier, ClientState state, ClientStateInformation information) throws RemoteException;
+	public void evosuite_registerClientNode(String clientRmiIdentifier) throws RemoteException;
 	
-	public void collectStatistics(String clientRmiIdentifier, Chromosome individual) throws RemoteException;
+	public void evosuite_informChangeOfStateInClient(String clientRmiIdentifier, ClientState state, ClientStateInformation information) throws RemoteException;
+	
+	public void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome individual) throws RemoteException;
 
-	public void collectStatistics(String clientRmiIdentifier, String name, Object value) throws RemoteException;
+	public void evosuite_collectStatistics(String clientRmiIdentifier, String name, Object value) throws RemoteException;
 }
