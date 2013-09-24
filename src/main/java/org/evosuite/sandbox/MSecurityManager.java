@@ -581,7 +581,7 @@ class MSecurityManager extends SecurityManager {
 		
 		String name = perm.getName().trim();
 		
-		if(perm instanceof java.net.SocketPermission){
+		if(perm instanceof java.net.SocketPermission || perm instanceof java.lang.RuntimePermission){
 			return true;
 		} else {
 			return "readFileDescriptor".equals(name) ||
