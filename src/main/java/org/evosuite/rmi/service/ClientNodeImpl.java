@@ -2,7 +2,6 @@ package org.evosuite.rmi.service;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;

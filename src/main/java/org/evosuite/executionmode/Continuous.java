@@ -8,13 +8,10 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.evosuite.EvoSuite;
-import org.evosuite.Properties;
 import org.evosuite.continuous.ContinuousTestGeneration;
 import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.ResourceList;
 
 public class Continuous {
 

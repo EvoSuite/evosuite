@@ -29,7 +29,7 @@ public final class Capturer
 
 	private static final ArrayList<String[]> classesToBeObserved = new ArrayList<String[]>();
 
-	private static final transient Logger logger = LoggingUtils.getEvoLogger();//LoggerFactory.getLogger(Capturer.class);
+	private static final transient Logger logger = LoggerFactory.getLogger(Capturer.class);
 
 
 	/*

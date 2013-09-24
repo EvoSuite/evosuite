@@ -118,19 +118,6 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 		}
 	}
 
-	private Class<?> getArray(Class<?> arrayClass, ClassLoader loader)
-	        throws ClassNotFoundException {
-		if (arrayClass.isPrimitive()) {
-			return Array.newInstance(arrayClass, 0).getClass();
-		} else if (arrayClass.isArray()) {
-			Class<?> newComponent = getArray(arrayClass.getComponentType(), loader);
-			return Array.newInstance(newComponent, 0).getClass();
-		} else {
-			Class<?> newComponent = loader.loadClass(arrayClass.getName());
-			return Array.newInstance(newComponent, 0).getClass();
-		}
-	}
-
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		super.changeClassLoader(loader);

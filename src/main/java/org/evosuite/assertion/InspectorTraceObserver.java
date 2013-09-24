@@ -47,7 +47,7 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 		if (declaringStatement instanceof PrimitiveStatement<?>)
 			return;
 
-		if (var.isPrimitive() || var.isString())
+		if (var.isPrimitive() || var.isString() || var.isWrapperType())
 			return;
 
 		logger.debug("Checking for inspectors of " + var + " at statement "

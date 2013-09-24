@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -191,24 +190,10 @@ public class ObjectPool implements Serializable {
 				pool.addSequence(new GenericClass(Properties.getTargetClass()), test);
 			}
 		}
-		/*
-		 for(TestCase test : testSuite.getTests()) {
-		 	pool.addSequence(new GenericClass(Properties.getTargetClass()), test);
-		 }
-		 */
+
 		return pool;
 	}
 	
-	public static ObjectPool getPoolFromTestCases(Collection<TestCase> tests) {
-		ObjectPool pool = new ObjectPool();
-		for(TestCase test : tests) {
-			TestCase copy = test.clone();
-			copy.removeAssertions();
-			pool.addSequence(new GenericClass(Properties.getTargetClass()), copy);
-		}
-		return pool;
-	}
-
 	/**
 	 * Execute all tests in a JUnit test suite and add resulting sequences from carver
 	 * 

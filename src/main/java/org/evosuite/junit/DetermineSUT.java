@@ -49,6 +49,8 @@ public class DetermineSUT {
 	private Set<String> superClasses = new HashSet<String>();
 
 	public static class NoJUnitClassException extends Exception {
+
+		private static final long serialVersionUID = -7035856440476749976L;
 		
 	}
 	

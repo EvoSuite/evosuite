@@ -163,6 +163,9 @@ public class GenericClass implements Serializable {
 	 * @return a boolean.
 	 */
 	public static boolean isAssignable(Type lhsType, Type rhsType) {
+		if(rhsType == null || lhsType == null)
+			return false;
+		
 		try {
 			return TypeUtils.isAssignable(rhsType, lhsType);
 		} catch (IllegalStateException e) {

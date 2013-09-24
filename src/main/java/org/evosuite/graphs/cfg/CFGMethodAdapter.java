@@ -184,12 +184,12 @@ public class CFGMethodAdapter extends MethodVisitor {
 		MethodNode mn = (AnnotatedMethodNode) mv;
 
 		boolean checkForMain = false;
-		if(Properties.CONSIDER_MAIN_METHODS){
+		if (Properties.CONSIDER_MAIN_METHODS) {
 			checkForMain = true;
 		} else {
 			checkForMain = !isMainMethod || executeOnMain;
 		}
-				
+
 		// Only instrument if the method is (not main and not excluded) or (the
 		// MethodInstrumentation wants it anyway)
 		if (checkForMain && (!isExcludedMethod || executeOnExcluded)
@@ -216,33 +216,32 @@ public class CFGMethodAdapter extends MethodVisitor {
 				        + bytecodeAnalyzer.retrieveCFGGenerator().getRawGraph().vertexSet().size()
 				        + " nodes for " + bytecodeAnalyzer.getFrames().length
 				        + " instructions");
+				// compute Raw and ActualCFG and put both into GraphPool
+				bytecodeAnalyzer.retrieveCFGGenerator().registerCFGs();
+				logger.info("Created CFG for method " + methodName);
+
+				if (DependencyAnalysis.shouldInstrument(className, methodName)) {
+					if (!methods.containsKey(className))
+						methods.put(className, new HashSet<String>());
+
+					// add the actual instrumentation
+					logger.info("Instrumenting method " + methodName + " in class "
+					        + className);
+					for (MethodInstrumentation instrumentation : instrumentations)
+						instrumentation.analyze(classLoader, mn, className, methodName,
+						                        access);
+
+					handleBranchlessMethods();
+					String id = className + "." + methodName;
+					if (isUsable()) {
+						methods.get(className).add(id);
+						logger.debug("Counting: " + id);
+					}
+				}
 			} catch (AnalyzerException e) {
 				logger.error("Analyzer exception while analyzing " + className + "."
 				        + methodName + ": " + e);
 				e.printStackTrace();
-			}
-
-			// compute Raw and ActualCFG and put both into GraphPool
-			bytecodeAnalyzer.retrieveCFGGenerator().registerCFGs();
-			logger.info("Created CFG for method " + methodName);
-
-			if (DependencyAnalysis.shouldInstrument(className, methodName)) {
-				if (!methods.containsKey(className))
-					methods.put(className, new HashSet<String>());
-
-				// add the actual instrumentation
-				logger.info("Instrumenting method " + methodName + " in class "
-				        + className);
-				for (MethodInstrumentation instrumentation : instrumentations)
-					instrumentation.analyze(classLoader, mn, className, methodName,
-					                        access);
-
-				handleBranchlessMethods();
-				String id = className + "." + methodName;
-				if (isUsable()) {
-					methods.get(className).add(id);
-					logger.debug("Counting: " + id);
-				}
 			}
 
 		}
