@@ -109,7 +109,7 @@ class MSecurityManager extends SecurityManager {
 	/**
 	 * Check whether a privileged thread should use the sandbox as for SUT code
 	 */
-	private volatile boolean ignorePrivileged;
+	private volatile Thread privilegedThreadToIgnore;
 
 	/**
 	 * Create a custom security manager for the SUT. The thread that create this
@@ -121,7 +121,7 @@ class MSecurityManager extends SecurityManager {
 		defaultManager = System.getSecurityManager();
 		executingTestCase = false;
 		defaultProperties = (java.util.Properties) System.getProperties().clone();
-		ignorePrivileged = false;
+		privilegedThreadToIgnore = null;
 	}
 
 	/**
@@ -137,10 +137,10 @@ class MSecurityManager extends SecurityManager {
 			throw new SecurityException(
 			        "Only a privileged thread can execute unsafe code");
 		}
-		if (ignorePrivileged) {
+		if (privilegedThreadToIgnore != null) {
 			throw new IllegalStateException("The thread is already executing unsafe code");
 		}
-		ignorePrivileged = true;
+		privilegedThreadToIgnore = Thread.currentThread();
 	}
 
 	/**
@@ -156,10 +156,10 @@ class MSecurityManager extends SecurityManager {
 			throw new SecurityException(
 			        "Only a privileged thread can return from unsafe code execution");
 		}
-		if (!ignorePrivileged) {
+		if (privilegedThreadToIgnore==null) {
 			throw new IllegalStateException("The thread was not executing unsafe code");
 		}
-		ignorePrivileged = false;
+		privilegedThreadToIgnore = null;
 	}
 
 	/**
@@ -360,18 +360,24 @@ class MSecurityManager extends SecurityManager {
 		if(checkIfEvoSuiteRMI(perm)){
 			return true;
 		}
-		
+
 		// first check if calling thread belongs to EvoSuite rather than the SUT
-		if (!ignorePrivileged && privilegedThreads.contains(Thread.currentThread())) {
-			if (defaultManager == null) {
-				return true; // no security manager, so allow it
-			} else {
-				try {
-					defaultManager.checkPermission(perm); // if not allowed, it will throw exception
-				} catch (SecurityException e) {
-					return false;
+		if (privilegedThreads.contains(Thread.currentThread())) {
+
+			//it is an EvoSuite thread but, in special occasions, we might want to ignore its privileged status 
+
+			if(privilegedThreadToIgnore == null || !privilegedThreadToIgnore.equals(Thread.currentThread())){
+
+				if (defaultManager == null) {
+					return true; // no security manager, so allow it
+				} else {
+					try {
+						defaultManager.checkPermission(perm); // if not allowed, it will throw exception
+					} catch (SecurityException e) {
+						return false;
+					}
+					return true;
 				}
-				return true;
 			}
 		}
 
