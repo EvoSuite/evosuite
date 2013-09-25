@@ -312,6 +312,7 @@ public class JobHandler extends Thread{
 		cmd += RuntimeVariable.Statements_Executed+",";				
 		cmd += RuntimeVariable.Total_Time+",";				
 		cmd += RuntimeVariable.Implicit_MethodExceptions+",";
+		cmd += RuntimeVariable.Random_Seed+",";
 		cmd += RuntimeVariable.Explicit_MethodExceptions; 
 		
 		if(Properties.CTG_TIME_PER_CLASS != null){
