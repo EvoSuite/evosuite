@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
+import org.evosuite.TimeController;
 import org.evosuite.coverage.ClassStatisticsPrinter;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
@@ -151,10 +152,14 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	@Override
 	public void changeState(ClientState state, ClientStateInformation information) {
-		if (this.state != state)
+		if (this.state != state){
 			logger.info("Client changing state from " + this.state + " to " + state);
+		}
+						
 		this.state = state;
 
+		TimeController.getInstance().updateState(state);
+		
 		if (this.state.equals(ClientState.DONE)) {
 			latch.countDown();
 		}

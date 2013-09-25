@@ -195,6 +195,10 @@ public class JobHandler extends Thread{
 			cmd += " -Dlog.level="+Properties.LOG_LEVEL; 
 		}
 
+		if(Properties.LOG_TARGET != null && !Properties.LOG_TARGET.isEmpty()){
+			cmd += " -Dlog.target="+Properties.LOG_TARGET; 
+		}
+
 		/*
 		 * TODO for now we ignore the job configuration (ie special parameter settings)
 		 */
