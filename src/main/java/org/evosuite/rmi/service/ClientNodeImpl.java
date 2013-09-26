@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
+import org.evosuite.TimeController;
 import org.evosuite.coverage.ClassStatisticsPrinter;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
@@ -151,16 +152,20 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	@Override
 	public void changeState(ClientState state, ClientStateInformation information) {
-		if (this.state != state)
+		if (this.state != state){
 			logger.info("Client changing state from " + this.state + " to " + state);
+		}
+						
 		this.state = state;
 
+		TimeController.getInstance().updateState(state);
+		
 		if (this.state.equals(ClientState.DONE)) {
 			latch.countDown();
 		}
 
 		try {
-			masterNode.informChangeOfStateInClient(clientRmiIdentifier, state,
+			masterNode.evosuite_informChangeOfStateInClient(clientRmiIdentifier, state,
 			                                       information);
 		} catch (RemoteException e) {
 			logger.error("Cannot inform master of change of state", e);
@@ -172,7 +177,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		logger.info("Sending current best individual to master process");
 
 		try {
-			masterNode.collectStatistics(clientRmiIdentifier, individual);
+			masterNode.evosuite_collectStatistics(clientRmiIdentifier, individual);
 		} catch (RemoteException e) {
 			logger.error("Cannot inform master of change of state", e);
 		}
@@ -214,8 +219,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	public boolean init() {
 		try {
 			masterNode = (MasterNodeRemote) registry.lookup(MasterNodeRemote.RMI_SERVICE_NAME);
-			masterNode.registerClientNode(clientRmiIdentifier);
-			masterNode.informChangeOfStateInClient(clientRmiIdentifier, state,
+			masterNode.evosuite_registerClientNode(clientRmiIdentifier);
+			masterNode.evosuite_informChangeOfStateInClient(clientRmiIdentifier, state,
 			                                       new ClientStateInformation(state));
 
 			statisticsThread = new Thread() {
@@ -225,7 +230,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 						OutputVariable ov = null;
 						try {
 							ov = outputVariableQueue.take();
-							masterNode.collectStatistics(clientRmiIdentifier, ov.name,
+							masterNode.evosuite_collectStatistics(clientRmiIdentifier, ov.name,
 							                             ov.value);
 						} catch (InterruptedException e) {
 							break;

@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -45,10 +45,9 @@ import org.junit.runner.JUnitCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Pool of interesting method sequences for different objects
- *
+ * 
  * @author Gordon Fraser
  */
 public class ObjectPool implements Serializable {
@@ -59,12 +58,14 @@ public class ObjectPool implements Serializable {
 	protected final Map<GenericClass, Set<TestCase>> pool = new HashMap<GenericClass, Set<TestCase>>();
 
 	protected static Logger logger = LoggerFactory.getLogger(ObjectPool.class);
-	
+
 	/**
 	 * Insert a new sequence for given Type
-	 *
-	 * @param clazz a {@link java.lang.reflect.Type} object.
-	 * @param sequence a {@link org.evosuite.testcase.TestCase} object.
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @param sequence
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public void addSequence(GenericClass clazz, TestCase sequence) {
 		ObjectSequence seq = new ObjectSequence(clazz, sequence);
@@ -86,66 +87,68 @@ public class ObjectPool implements Serializable {
 
 	}
 
-
 	/**
 	 * Randomly choose a sequence for a given Type
-	 *
-	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase getRandomSequence(GenericClass clazz) {
 		return Randomness.choice(getSequences(clazz));
 	}
-	
+
 	/**
 	 * Retrieve all possible sequences for a given Type
-	 *
-	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<TestCase> getSequences(GenericClass clazz) {
-		if(pool.containsKey(clazz))
+		if (pool.containsKey(clazz))
 			return pool.get(clazz);
 
 		Set<Set<TestCase>> candidates = new LinkedHashSet<Set<TestCase>>();
-		for(GenericClass poolClazz : pool.keySet()) {
-			if(poolClazz.isAssignableTo(clazz))
+		for (GenericClass poolClazz : pool.keySet()) {
+			if (poolClazz.isAssignableTo(clazz))
 				candidates.add(pool.get(poolClazz));
 		}
-		
+
 		return Randomness.choice(candidates);
 
 	}
-	
+
 	public Set<GenericClass> getClasses() {
 		return pool.keySet();
 	}
 
 	/**
 	 * Check if there are sequences for given Type
-	 *
-	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a boolean.
 	 */
 	public boolean hasSequence(GenericClass clazz) {
-		if(pool.containsKey(clazz))
+		if (pool.containsKey(clazz))
 			return true;
-		
-		for(GenericClass poolClazz : pool.keySet()) {
-			if(poolClazz.isAssignableTo(clazz))
+
+		for (GenericClass poolClazz : pool.keySet()) {
+			if (poolClazz.isAssignableTo(clazz))
 				return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	public int getNumberOfClasses() {
 		return pool.size();
 	}
-	
+
 	public int getNumberOfSequences() {
 		int num = 0;
-		for(Set<TestCase> p : pool.values()) {
+		for (Set<TestCase> p : pool.values()) {
 			num += p.size();
 		}
 		return num;
@@ -154,9 +157,10 @@ public class ObjectPool implements Serializable {
 	public boolean isEmpty() {
 		return pool.isEmpty();
 	}
-	
+
 	/**
 	 * Read a serialized pool
+	 * 
 	 * @param fileName
 	 */
 	public static ObjectPool getPoolFromFile(String fileName) {
@@ -167,11 +171,12 @@ public class ObjectPool implements Serializable {
 			in.close();
 			return pool;
 		} catch (Exception e) {
-			logger.error("Exception while trying to get object pool from "+fileName+" , "+e.getMessage(),e);
+			logger.error("Exception while trying to get object pool from " + fileName
+			        + " , " + e.getMessage(), e);
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Convert a test suite to a pool
 	 * 
@@ -179,23 +184,33 @@ public class ObjectPool implements Serializable {
 	 */
 	public static ObjectPool getPoolFromTestSuite(TestSuiteChromosome testSuite) {
 		ObjectPool pool = new ObjectPool();
-		
-		for(TestChromosome testChromosome : testSuite.getTestChromosomes()) {
+
+		for (TestChromosome testChromosome : testSuite.getTestChromosomes()) {
 			TestCase test = testChromosome.getTestCase().clone();
 			test.removeAssertions();
-			if(testChromosome.hasException()) {
-				test.chop(test.size() - 1);
+			/*
+			if (testChromosome.hasException()) {
+				// No code including or after an exception should be in the pool
+				Integer pos = testChromosome.getLastExecutionResult().getFirstPositionOfThrownException();
+				if (pos != null) {
+					test.chop(pos);
+				} else {
+					test.chop(test.size() - 1);
+				}
 			}
-			if(test.hasObject(Properties.getTargetClass(), test.size())) {
+			*/
+			if (!testChromosome.hasException()
+			        && test.hasObject(Properties.getTargetClass(), test.size())) {
 				pool.addSequence(new GenericClass(Properties.getTargetClass()), test);
 			}
 		}
 
 		return pool;
 	}
-	
+
 	/**
-	 * Execute all tests in a JUnit test suite and add resulting sequences from carver
+	 * Execute all tests in a JUnit test suite and add resulting sequences from
+	 * carver
 	 * 
 	 * @param targetClass
 	 * @param testSuite
@@ -204,40 +219,39 @@ public class ObjectPool implements Serializable {
 		final JUnitCore runner = new JUnitCore();
 		final CarvingRunListener listener = new CarvingRunListener();
 		runner.addListener(listener);
-		
-		final org.evosuite.testcarver.extraction.CarvingClassLoader classLoader = new org.evosuite.testcarver.extraction.CarvingClassLoader(); 
-		
+
+		final org.evosuite.testcarver.extraction.CarvingClassLoader classLoader = new org.evosuite.testcarver.extraction.CarvingClassLoader();
+
 		try {
 			// instrument target class
 			classLoader.loadClass(Properties.getTargetClass().getCanonicalName());
 		} catch (final ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
-		
+
 		ObjectPool pool = new ObjectPool();
 		//final Result result = 
 		runner.run(testSuite);
-		for(TestCase test : listener.getTestCases()) {
+		for (TestCase test : listener.getTestCases()) {
 			// TODO: Maybe we would get the targetClass from the last object generated in the sequence?
 			pool.addSequence(targetClass, test);
 		}
-		
+
 		// TODO: Some messages based on result
-		
+
 		return pool;
-		
+
 	}
-	
+
 	public void writePool(String fileName) {
 		try {
-			ObjectOutputStream out = new DebuggingObjectOutputStream(new FileOutputStream(fileName));
+			ObjectOutputStream out = new DebuggingObjectOutputStream(
+			        new FileOutputStream(fileName));
 			out.writeObject(this);
 			out.close();
-		} catch(IOException e) {
-			// TODO
+		} catch (IOException e) {
+			logger.warn("Error while writing pool to file "+fileName+": "+e);
 		}
 	}
-	
-	
 
 }

@@ -21,6 +21,7 @@ import java.awt.AWTPermission;
 import java.io.FilePermission;
 import java.io.SerializablePermission;
 import java.lang.management.ManagementPermission;
+import java.lang.reflect.Method;
 import java.lang.reflect.ReflectPermission;
 import java.net.NetPermission;
 import java.net.SocketPermission;
@@ -30,6 +31,9 @@ import java.security.Permission;
 import java.security.SecurityPermission;
 import java.security.UnresolvedPermission;
 import java.sql.SQLPermission;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.PropertyPermission;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -49,6 +53,7 @@ import javax.xml.ws.WebServicePermission;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.SandboxMode;
+import org.evosuite.rmi.service.MasterNodeRemote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,8 +114,15 @@ class MSecurityManager extends SecurityManager {
 	/**
 	 * Check whether a privileged thread should use the sandbox as for SUT code
 	 */
-	private volatile boolean ignorePrivileged;
+	private volatile Thread privilegedThreadToIgnore;
 
+	/**
+	 * Name of all the methods in the MasterNodeRemote interface.
+	 * This is used to allow RMI communications even on non-privileged threads,
+	 * but only if coming from EvoSuite (and not from SUT)
+	 */
+	private final Set<String> masterNodeRemoteMethodNames;
+	
 	/**
 	 * Create a custom security manager for the SUT. The thread that create this
 	 * instance is automatically added as "privileged"
@@ -121,7 +133,14 @@ class MSecurityManager extends SecurityManager {
 		defaultManager = System.getSecurityManager();
 		executingTestCase = false;
 		defaultProperties = (java.util.Properties) System.getProperties().clone();
-		ignorePrivileged = false;
+		privilegedThreadToIgnore = null;
+		
+		Method[] methods = MasterNodeRemote.class.getMethods();
+		Set<String> names = new HashSet<String>();
+		for(Method m : methods){
+			names.add(m.getName());
+		}
+		masterNodeRemoteMethodNames = Collections.unmodifiableSet(names);
 	}
 
 	/**
@@ -137,10 +156,10 @@ class MSecurityManager extends SecurityManager {
 			throw new SecurityException(
 			        "Only a privileged thread can execute unsafe code");
 		}
-		if (ignorePrivileged) {
+		if (privilegedThreadToIgnore != null) {
 			throw new IllegalStateException("The thread is already executing unsafe code");
 		}
-		ignorePrivileged = true;
+		privilegedThreadToIgnore = Thread.currentThread();
 	}
 
 	/**
@@ -156,10 +175,10 @@ class MSecurityManager extends SecurityManager {
 			throw new SecurityException(
 			        "Only a privileged thread can return from unsafe code execution");
 		}
-		if (!ignorePrivileged) {
+		if (privilegedThreadToIgnore==null) {
 			throw new IllegalStateException("The thread was not executing unsafe code");
 		}
-		ignorePrivileged = false;
+		privilegedThreadToIgnore = null;
 	}
 
 	/**
@@ -360,18 +379,24 @@ class MSecurityManager extends SecurityManager {
 		if(checkIfEvoSuiteRMI(perm)){
 			return true;
 		}
-		
+
 		// first check if calling thread belongs to EvoSuite rather than the SUT
-		if (!ignorePrivileged && privilegedThreads.contains(Thread.currentThread())) {
-			if (defaultManager == null) {
-				return true; // no security manager, so allow it
-			} else {
-				try {
-					defaultManager.checkPermission(perm); // if not allowed, it will throw exception
-				} catch (SecurityException e) {
-					return false;
+		if (privilegedThreads.contains(Thread.currentThread())) {
+
+			//it is an EvoSuite thread but, in special occasions, we might want to ignore its privileged status 
+
+			if(privilegedThreadToIgnore == null || !privilegedThreadToIgnore.equals(Thread.currentThread())){
+
+				if (defaultManager == null) {
+					return true; // no security manager, so allow it
+				} else {
+					try {
+						defaultManager.checkPermission(perm); // if not allowed, it will throw exception
+					} catch (SecurityException e) {
+						return false;
+					}
+					return true;
 				}
-				return true;
 			}
 		}
 
@@ -385,16 +410,20 @@ class MSecurityManager extends SecurityManager {
 			return true;
 		}
 
+		/*
+		 * Note: we had to remove this check, as some EvoSuite-RMI threads would be blocked by it 
+		 * 
 		if (!executingTestCase) {
-			/*
-			 * Here, the thread is not "privileged" (either from SUT or an un-registered by EvoSuite), and we are not executing a test case (if from
-			 * SUT, that means the thread was not stopped properly). So, we deny any permission
-			 */
+			
+			 // Here, the thread is not "privileged" (either from SUT or an un-registered by EvoSuite), and we are not executing a test case (if from
+			 // SUT, that means the thread was not stopped properly). So, we deny any permission
+			 
 			logger.debug("Unprivileged thread trying to execute potentially harmfull code outsie SUT code execution. Permission: "
 			        + perm.toString());
 			return false;
 		}
-
+		 */
+		
 		/*
 		 * If we only check threads at the end of test case execution, we would miss
 		 * all the threads that are started and ended within the execution.
@@ -555,32 +584,47 @@ class MSecurityManager extends SecurityManager {
 	 */
 	private boolean checkIfEvoSuiteRMI(Permission perm) {
 		
+		//FIXME: this does not check if it is the SUT that calls RMI
+		
 		final String pattern = "sun.rmi.";
-		boolean found = false;
+		boolean foundRMI = false;
 		
 		//first check if there is any reference to RMI in the stack trace
 		for(StackTraceElement element : Thread.currentThread().getStackTrace()){
 			if(element.toString().startsWith(pattern)){
-				found = true;
+				foundRMI = true;
 				break;
 			}
 		}
 		
-		if(!found){
+		if(!foundRMI){
 			//found no reference to RMI
 			return false;
 		}
 		
-		String name = perm.getName().trim();
+		boolean foundMasterNode = false;
 		
-		if(perm instanceof java.net.SocketPermission){
-			return "accept,resolve".equals(perm.getActions());
-		} else {
-			return "readFileDescriptor".equals(name) ||
-					"writeFileDescriptor".equals(name) ||
-					"setContextClassLoader".equals(name) ||
-					"enableSubstitution".equals(name);
+		traceLoop: for(StackTraceElement element : Thread.currentThread().getStackTrace()){
+			for(String masterNodeMethod : masterNodeRemoteMethodNames){
+				if(element.toString().contains(masterNodeMethod)){
+					foundMasterNode = true;
+					break traceLoop;
+				}
+			}
 		}
+		
+		if(!foundMasterNode){
+			//found no reference to RMI
+			return false;
+		}
+						
+		if(perm instanceof FilePermission){
+			//we do this just as a safety mechanism...
+			logger.error("EvoSuite RMI is trying to interact with files: "+perm);
+			return false;
+		}
+		
+		return true;
 	}
 
 	/*

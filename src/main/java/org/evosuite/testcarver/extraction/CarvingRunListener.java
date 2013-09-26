@@ -59,12 +59,17 @@ public class CarvingRunListener extends RunListener {
 
 		DefaultTestCase test = (DefaultTestCase) codeGen.getCode();
 		logger.info("Carved test: " + test.toCode());
-		test.changeClassLoader(TestGenerationContext.getClassLoader());
-		GenericTypeInference inference = new GenericTypeInference();
-		//test.accept(inference);
-		inference.inferTypes(test);
+		try {
+			test.changeClassLoader(TestGenerationContext.getClassLoader());
+			GenericTypeInference inference = new GenericTypeInference();
+			//test.accept(inference);
+			inference.inferTypes(test);
 
-		carvedTests.add(test);
+			carvedTests.add(test);
+		} catch(Throwable t) {
+			logger.info("Exception during carving: "+t);
+			
+		}
 		codeGen.clear();
 	}
 }

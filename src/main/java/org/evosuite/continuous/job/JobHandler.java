@@ -195,6 +195,10 @@ public class JobHandler extends Thread{
 			cmd += " -Dlog.level="+Properties.LOG_LEVEL; 
 		}
 
+		if(Properties.LOG_TARGET != null && !Properties.LOG_TARGET.isEmpty()){
+			cmd += " -Dlog.target="+Properties.LOG_TARGET; 
+		}
+
 		/*
 		 * TODO for now we ignore the job configuration (ie special parameter settings)
 		 */
@@ -308,6 +312,7 @@ public class JobHandler extends Thread{
 		cmd += RuntimeVariable.Statements_Executed+",";				
 		cmd += RuntimeVariable.Total_Time+",";				
 		cmd += RuntimeVariable.Implicit_MethodExceptions+",";
+		cmd += RuntimeVariable.Random_Seed+",";
 		cmd += RuntimeVariable.Explicit_MethodExceptions; 
 		
 		if(Properties.CTG_TIME_PER_CLASS != null){
@@ -335,9 +340,11 @@ public class JobHandler extends Thread{
 			seconds = remaining;
 		}
 		
-		if(seconds < executor.configuration.minMinutesPerJob){
+		int minSecondsPerJob = 60 * executor.configuration.minMinutesPerJob;
+		
+		if(seconds < minSecondsPerJob){
 			//even if we do not have enough time, we go for the minimum
-			seconds = executor.configuration.minMinutesPerJob;
+			seconds = minSecondsPerJob;
 		}
 		
 		/*
