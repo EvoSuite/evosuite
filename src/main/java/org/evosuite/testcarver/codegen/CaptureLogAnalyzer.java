@@ -265,20 +265,44 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 	private int findEndOfMethod(final CaptureLog log, final int currentRecord, final int currentOID)
 	{
-		final int numRecords = log.objectIds.size();
-
+//		final int numRecords = log.objectIds.size();
+//
+//		int record = currentRecord;
+//
+//		final int captureId = log.captureIds.get(currentRecord);
+//		while(   record < numRecords &&
+//				! ( log.objectIds.get(record) == currentOID &&
+//				    log.captureIds.get(record) == captureId && 
+//				    log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
+//		{
+//			record++;
+//		}
+//
+//		return record;
+		
 		int record = currentRecord;
-
-		final int captureId = log.captureIds.get(currentRecord);
-		while(   record < numRecords &&
-				! ( log.objectIds.get(record) == currentOID &&
-				    log.captureIds.get(record) == captureId && 
-				    log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
-		{
+		
+		final int captureId = log.captureIds.get(record);
+		int nestedCalls = 0;
+		while(true){
+			if(log.captureIds.get(record) == captureId &&
+					log.objectIds.get(record)  == currentOID){
+				
+				if(log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)){
+					nestedCalls--;
+					if(nestedCalls == 0)
+					{
+						break;
+					}
+				} else{
+						nestedCalls++;
+				}
+			}
 			record++;
 		}
-
+		
 		return record;
+
 	}
 
 	@SuppressWarnings({ "rawtypes" })
