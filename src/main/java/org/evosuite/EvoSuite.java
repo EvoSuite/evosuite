@@ -153,9 +153,11 @@ public class EvoSuite {
 			
 			if (line.hasOption("seed")) {
 				/*
-				 * user can both use -seed and -Drandom.seed to set this variable
+				 * user can both use -seed and -Drandom_seed to set this variable
 				 */
-				javaOpts.add("-Drandom.seed=" + line.getOptionValue("seed"));
+				String seedValue = line.getOptionValue("seed");
+				javaOpts.add("-Drandom_seed=" + seedValue);
+				Properties.RANDOM_SEED = Long.parseLong(seedValue);
 			}
 
 			addJavaDOptions(javaOpts, line);
