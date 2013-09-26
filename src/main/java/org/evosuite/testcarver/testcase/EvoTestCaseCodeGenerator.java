@@ -32,6 +32,7 @@ import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.FieldStatement;
 import org.evosuite.testcase.MethodStatement;
+import org.evosuite.testcase.NullReference;
 import org.evosuite.testcase.NullStatement;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.TestCase;
@@ -574,6 +575,22 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		}
 	}
 
+	private void replaceNullWithNullReferences(List<VariableReference> paramList, Class<?> ... paramTypes)
+	{
+		CodeGeneratorException.check(paramList.size() == paramTypes.length, "[paramList = %s, paramTypes] - number of params does not correspond number of paramTypes", paramList, Arrays.toString(paramTypes));
+		
+		Object v;
+		for(int j = 0; j < paramList.size(); j++)
+		{
+			v = paramList.get(j);
+			if(v == null)
+			{
+				paramList.set(j, new NullReference(testCase, paramTypes[j]));
+			}
+		}
+
+	}
+	
 	@Override
 	public void createMapInitStmt(final CaptureLog log, final int logRecNo) {
 		try {
@@ -619,6 +636,9 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 					final Method method = collType.getMethod("put", Object.class,
 					                                         Object.class);
+					
+					replaceNullWithNullReferences(paramList, Object.class, Object.class);
+					
 					methodStmt = new MethodStatement(testCase, new GenericMethod(method,
 					        collType), collRef, paramList);
 					testCase.addStatement(methodStmt);
