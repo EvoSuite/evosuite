@@ -38,6 +38,8 @@ public class ClientServices {
 
 	public boolean registerServices() {
 
+		MasterServices.ensureRegistryOnLoopbackAddress();
+		
 		try{
 			int port = Properties.PROCESS_COMMUNICATION_PORT;
 			Registry registry = LocateRegistry.getRegistry(port);
