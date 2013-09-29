@@ -142,6 +142,18 @@ public class EvoSuite {
 			// parse the command line arguments
 			CommandLine line = parser.parse(options, args);
 			
+			if (!line.hasOption(Setup.NAME)){
+				/*
+				 * -setup is treated specially because it uses the extra input arguments
+				 * 
+				 * TODO: Setup should be refactored/fixed
+				 */
+				String[] unrecognized = line.getArgs();
+				if(unrecognized.length > 0){
+					throw new IllegalArgumentException("There are "+unrecognized.length+" unrecognized inputs: "+Arrays.toString(unrecognized));
+				}
+			}
+		
 			setupProperties();
 
 			if(Properties.REPLACE_CALLS){
@@ -150,6 +162,11 @@ public class EvoSuite {
 				 */
 				ToolsJarLocator.getLoaderForToolsJar();
 			}
+			
+			/*
+			 * FIXME: every time in the Master we set a parameter with -D,
+			 * we should check if it actually exists (ie detect typos)
+			 */
 			
 			if (line.hasOption("seed")) {
 				/*
