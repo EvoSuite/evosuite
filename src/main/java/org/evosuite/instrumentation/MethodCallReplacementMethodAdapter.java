@@ -126,6 +126,32 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			replacementCalls.add(new MethodCallReplacement("java/lang/System",
 			        "currentTimeMillis", "()J", "org/evosuite/runtime/System",
 			        "currentTimeMillis", "()J", false));
+
+			replacementCalls.add(new MethodCallReplacement("java/util/Date", "<init>",
+			        "()V", "org/evosuite/runtime/Date", "getDate", "()Ljava/util/Date;",
+			        false));
+
+			replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
+			        "getInstance", "()Ljava/util/Calendar;",
+			        "org/evosuite/runtime/Calendar", "getCalendar",
+			        "()Ljava/util/Calendar;", false));
+
+			replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
+			        "getInstance", "(Ljava/util/Locale;)Ljava/util/Calendar;",
+			        "org/evosuite/runtime/Calendar", "getCalendar",
+			        "(Ljava/util/Locale;)Ljava/util/Calendar;", false));
+
+			replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
+			        "getInstance", "(Ljava/util/TimeZone;)Ljava/util/Calendar;",
+			        "org/evosuite/runtime/Calendar", "getCalendar",
+			        "(Ljava/util/TimeZone;)Ljava/util/Calendar;", false));
+
+			replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
+			        "getInstance",
+			        "(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;",
+			        "org/evosuite/runtime/Calendar", "getCalendar",
+			        "(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;", false));
+
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
 			        "()I", "org/evosuite/runtime/Random", "nextInt", "()I", true));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
