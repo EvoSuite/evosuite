@@ -61,8 +61,6 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			this.replacementMethodName = replacementMethodName;
 			this.replacementDesc = replacementDesc;
 			this.popCallee = pop;
-			// Currently assume that the methods take identical params 
-			assert (desc.equals(replacementDesc));
 		}
 
 		public boolean isTarget(String owner, String name, String desc) {
