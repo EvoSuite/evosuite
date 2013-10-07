@@ -134,11 +134,16 @@ public class ResourceList {
 			retval.addAll(getResources(element, pattern));
 		}
 
+		
 		classPathElements = System.getProperty("java.class.path", ".").split(File.pathSeparator);
 		for (final String element : classPathElements) {
-			retval.addAll(getResources(element, pattern));
+			try{
+				retval.addAll(getResources(element, pattern));
+			} catch(Exception e){
+				//FIXME seems something doggy going on here, with File.exists() returning false on "."
+				logger.error("Failed to load resources in "+element+": "+e.getMessage(),e);
+			}
 		}
-
 		return retval;
 	}
 
