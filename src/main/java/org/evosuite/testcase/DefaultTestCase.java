@@ -65,6 +65,18 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private boolean isFailing = false;
 	
+	private boolean unstable = false;
+	
+	@Override
+	public void setUnstable(boolean unstable){
+		this.unstable = unstable;
+	}
+	
+	@Override
+	public boolean isUnstable(){
+		return unstable;
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public void addStatements(List<? extends StatementInterface> statements) {

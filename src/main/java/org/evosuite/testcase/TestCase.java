@@ -436,4 +436,19 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 */
 	public void setAccessedFiles(List<String> files);
 
+	/**
+	 * Define whether this test case is unstable or not
+	 * 
+	 * @param unstable
+	 */
+	public void setUnstable(boolean unstable);
+	
+	/**
+	 * A test can be unstable if its assertions fail, eg due to non-determinism,
+	 * non-properly handled static variables and side effects on environment, etc
+	 * 
+	 * @return
+	 */
+	public boolean isUnstable();
+	
 }

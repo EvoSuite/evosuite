@@ -327,7 +327,10 @@ public class TestGeneration {
 		Properties.TARGET_CLASS = target;
 		Properties.PROCESS_COMMUNICATION_PORT = port;
 
+		
 		/*
+		 *  FIXME: refactor, and double-check if indeed correct
+		 * 
 		 * The use of "assertions" in the client is pretty tricky, as those properties need to be transformed into JVM options before starting the
 		 * client. Furthermore, the properties in the property file might be overwritten from the commands coming from shell
 		 */
