@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -114,6 +115,7 @@ import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.LCSAJGraph;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
@@ -346,12 +348,23 @@ public class TestSuiteGenerator {
 			}
 		}
 
+		List<TestCase> testCases = tests.getTests();
+		
+		JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
+		
+		JUnitAnalyzer.commentOutAssertionsThatAreUnstable(testCases);		
+		//second passage on reverse order, this is to spot dependencies among tests
+		if(testCases.size() > 1){
+			Collections.reverse(testCases);
+			JUnitAnalyzer.commentOutAssertionsThatAreUnstable(testCases);
+		}
+		
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
-		writeJUnitTests(tests.getTests());
+		writeJUnitTests(testCases);
 
-		assert verifyCompilationAndExecution(tests.getTests());
+		assert JUnitAnalyzer.verifyCompilationAndExecution(tests.getTests()); //check still on original
 
-		writeObjectPool(tests);
+		writeObjectPool(tests); //FIXME  should be based on testCases
 
 		/*
 		 * PUTGeneralizer generalizer = new PUTGeneralizer(); for (TestCase test
@@ -359,202 +372,9 @@ public class TestSuiteGenerator {
 		 * = new ParameterizedTestCase(test); }
 		 */
 
-		return tests.getTests();
+		return testCases;
 	}
 
-	/**
-	 * <p>
-	 * The output of EvoSuite is a set of test cases. For debugging and
-	 * experiment, we usually would not write any JUnit to file. But we still
-	 * want to see if test cases can compile and execute properly. As EvoSuite
-	 * is supposed to only capture the current behavior of the SUT, all
-	 * generated test cases should pass.
-	 * </p>
-	 * 
-	 * <p>
-	 * Here we compile to a tmp folder, load and execute the test cases, and
-	 * then clean up (ie delete all generated files).
-	 * </p>
-	 * 
-	 * @param tests
-	 * @return
-	 */
-	private static boolean verifyCompilationAndExecution(List<TestCase> tests) {
-
-		if (tests == null || tests.isEmpty()) {
-			//nothing to compile or run
-			return true;
-		}
-
-		TestSuiteWriter suite = new TestSuiteWriter();
-		suite.insertTests(tests);
-
-		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-		name += "Test"; //postfix
-
-		File dir = null;
-		String dirName = FileUtils.getTempDirectoryPath() + File.separator + "EvoSuite_"
-		        + System.currentTimeMillis();
-
-		try {
-			//first create a tmp folder
-			dir = new File(dirName);
-			if (!dir.mkdir()) {
-				logger.warn("Cannot create tmp dir " + dirName);
-				return false;
-			}
-
-			//now generate the JUnit test case
-			List<File> generated = suite.writeTestSuite(name, dirName);
-			for (File file : generated) {
-				if (!file.exists()) {
-					logger.error("Supposed to generate " + file
-					        + " but it does not exist");
-					return false;
-				}
-			}
-
-			//try to compile the test cases
-			JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-			if (compiler == null) {
-				logger.error("No Java compiler is available");
-				return false;
-			}
-
-			DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-			StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics,
-			                                                                      Locale.getDefault(),
-			                                                                      Charset.forName("UTF-8"));
-			Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(generated);
-
-			CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null,
-			                                        null, compilationUnits);
-			boolean compiled = task.call();
-			fileManager.close();
-
-			if (!compiled) {
-				logger.error("Compilation failed on compilation units: "
-				        + compilationUnits);
-				for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
-					logger.error("Diagnostic: " + diagnostic.getMessage(null) + ": "
-					        + diagnostic.getLineNumber());
-				}
-				for (JavaFileObject sourceFile : compilationUnits) {
-					List<String> lines = FileUtils.readLines(new File(
-					        sourceFile.toUri().getPath()));
-					logger.error(compilationUnits.iterator().next().toString());
-					for (int i = 0; i < lines.size(); i++) {
-						logger.error((i + 1) + ": " + lines.get(i));
-					}
-				}
-				return false;
-			}
-
-			//as last step, execute the generated/compiled test cases
-
-			ClassPathHacker.addFile(dir); //FIXME need refactoring
-
-			/*
-			 * Ideally, when we run a generated test case, it
-			 * will automatically use JavaAgent to instrument the CUT.
-			 * But here we have already loaded the CUT by now, so that 
-			 * mechanism will not work.
-			 * 
-			 * A simple option is to just use an instrumenting class loader,
-			 * as it does exactly the same type of instrumentation.
-			 * TODO: but a better idea would be to use a new 
-			 * non-instrumenting classloader to re-load the CUT, and so see
-			 * if the JavaAgent works properly.
-			 */
-			InstrumentingClassLoader loader = new InstrumentingClassLoader();
-			Class<?>[] testClasses = getClassesFromFiles(generated, loader);
-			if (testClasses == null) {
-				logger.error("Found no classes for compiled tests");
-				return false;
-			}
-
-			JUnitCore runner = new JUnitCore();
-			Result result = runner.run(testClasses);
-			if (!result.wasSuccessful()) {
-				logger.error("" + result.getFailureCount() + " test cases failed");
-				for (Failure failure : result.getFailures()) {
-					logger.error("Failure " + failure.getException().getClass() + ": "
-					        + failure.getMessage() + "\n" + failure.getTrace());
-				}
-				for (JavaFileObject sourceFile : compilationUnits) {
-					List<String> lines = FileUtils.readLines(new File(
-					        sourceFile.toUri().getPath()));
-					logger.error(compilationUnits.iterator().next().toString());
-					for (int i = 0; i < lines.size(); i++) {
-						logger.error((i + 1) + ": " + lines.get(i));
-					}
-				}
-				return false;
-			} else {
-				/*
-				 * OK, it was successful, but was there any test case at all?
-				 * 
-				 * Here we just log (and not return false), as it might be that EvoSuite is just not able to generate
-				 * any test case for this SUT
-				 */
-				if (result.getRunCount() == 0) {
-					logger.warn("There was no test to run");
-					//return false;
-				}
-			}
-
-		} catch (IOException e) {
-			logger.error("" + e, e);
-			return false;
-		} finally {
-			//let's be sure we clean up all what we wrote on disk
-			if (dir != null) {
-				try {
-					FileUtils.deleteDirectory(dir);
-				} catch (IOException e) {
-					logger.warn("Cannot delete tmp dir: " + dirName, e);
-				}
-			}
-		}
-
-		logger.debug("Successfully compiled and run test cases generated for "
-		        + Properties.TARGET_CLASS);
-		return true;
-	}
-
-	/**
-	 * Given a list of files representing .java classes, load them (it assumes
-	 * the classpath to be correctly set)
-	 * 
-	 * @param files
-	 * @return
-	 */
-	private static Class<?>[] getClassesFromFiles(List<File> files, ClassLoader loader) {
-		List<Class<?>> classes = new ArrayList<Class<?>>();
-		for (File file : files) {
-
-			//String packagePrefix = Properties.TARGET_CLASS.substring(0,Properties.TARGET_CLASS.lastIndexOf(".")+1);
-			String packagePrefix = Properties.CLASS_PREFIX;
-			if (!packagePrefix.isEmpty() && !packagePrefix.endsWith(".")) {
-				packagePrefix += ".";
-			}
-
-			final String JAVA = ".java";
-			String name = file.getName();
-			name = name.substring(0, name.length() - JAVA.length());
-			String className = packagePrefix + name;
-
-			Class<?> testClass = null;
-			try {
-				testClass = loader.loadClass(className);
-			} catch (ClassNotFoundException e) {
-				logger.error("Failed to load test case " + className + ": " + e, e);
-				return null;
-			}
-			classes.add(testClass);
-		}
-		return classes.toArray(new Class<?>[classes.size()]);
-	}
 
 	/**
 	 * <p>

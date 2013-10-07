@@ -470,9 +470,17 @@ public class TestCodeVisitor extends TestVisitor {
 				testCode += "assertEquals(" + NumberFormatter.getNumberString(value)
 				        + ", (" + NumberFormatter.getBoxedClassName(value) + ")"
 				        + getVariableName(source) + ");";
-		} else
+		} else {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + ");";
+		}
+		
+		if(test!=null && test.isUnstable()){
+			/*
+			 * if the current test is unstable, then comment out all of its assertions.		
+			 */
+			testCode = "// "+testCode +" // Unstable assertion";
+		}
 	}
 
 	protected void visitArrayEqualsAssertion(ArrayEqualsAssertion assertion) {
