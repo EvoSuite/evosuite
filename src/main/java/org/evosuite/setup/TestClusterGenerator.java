@@ -27,7 +27,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -36,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -884,10 +887,9 @@ public class TestClusterGenerator {
 		if (m.getDeclaringClass().equals(java.lang.Thread.class))
 			return false;
 
-		// Randoop special case
-		// We include hashCode unless it is Object.hashCode, a case that is handled above
-		// if (m.getName().equals("hashCode") && !m.getDeclaringClass().equals(String.class))
-		//	return false;
+		// Hashcode only if we need to cover it
+		if (m.getName().equals("hashCode") && !m.getDeclaringClass().equals(Properties.getTargetClass()))
+			return false;
 
 		// Randoop special case: just clumps together a bunch of hashCodes, so skip it
 		if (m.getName().equals("deepHashCode")
@@ -900,6 +902,10 @@ public class TestClusterGenerator {
 
 		if (m.getName().equals("__STATIC_RESET")) {
 			logger.debug("Ignoring static reset class");
+			return false;
+		}
+		
+		if(isForbiddenNonDeterministicCall(m)) {
 			return false;
 		}
 
@@ -940,6 +946,49 @@ public class TestClusterGenerator {
 
 		return false;
 	}
+	
+	/**
+	 * If we try to get deterministic tests, we must not include these methods
+	 * @param m
+	 * @return
+	 */
+	private static boolean isForbiddenNonDeterministicCall(Method m) {
+		if(!Properties.REPLACE_CALLS)
+			return false;
+		
+		// Calendar is initialized with current time
+		if(m.getDeclaringClass().equals(Calendar.class)){
+			if(m.getName().equals("getCalendar"))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * If we try to get deterministic tests, we must not include these constructors
+	 * 
+	 * @param c
+	 * @return
+	 */
+	private static boolean isForbiddenNonDeterministicCall(Constructor<?> c) {
+		if(!Properties.REPLACE_CALLS)
+			return false;
+		
+		// Date default constructor uses current time
+		if(c.getDeclaringClass().equals(Date.class)){
+			if(c.getParameterTypes().length == 0)
+				return true;
+		}
+
+		// Random without seed parameter is...random
+		if(c.getDeclaringClass().equals(Random.class)){
+			if(c.getParameterTypes().length == 0)
+				return true;
+		}
+
+		return false;
+	}
 
 	private static boolean canUse(Constructor<?> c) {
 
@@ -972,6 +1021,10 @@ public class TestClusterGenerator {
 
 		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
 			logger.debug("Skipping deprecated constructor " + c.getName());
+			return false;
+		}
+		
+		if(isForbiddenNonDeterministicCall(c)) {
 			return false;
 		}
 
