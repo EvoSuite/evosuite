@@ -763,7 +763,7 @@ public class TestSuiteWriter implements Opcodes {
 			}
 			builder.append(adapter.getMethodDefinition("test" + targetMethod + num));
 		} else {
-			builder.append(adapter.getMethodDefinition("test" + number));
+			builder.append(adapter.getMethodDefinition(getNameOfTest(null,number)));
 		}
 
 		/*
@@ -844,6 +844,16 @@ public class TestSuiteWriter implements Opcodes {
 		return builder.toString();
 	}
 
+	
+	public static String getNameOfTest(List<TestCase> tests, int position){
+		
+		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED){
+			throw new IllegalStateException("For the moment, structured tests are not supported");
+		}
+		
+		return "test"+position;
+	}
+	
 	/**
 	 * Update/create the main file of the test suite. The main test file simply
 	 * includes all automatically generated test suites in the same directory
