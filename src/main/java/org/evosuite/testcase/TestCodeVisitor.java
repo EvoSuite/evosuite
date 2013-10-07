@@ -442,36 +442,38 @@ public class TestCodeVisitor extends TestVisitor {
 		VariableReference source = assertion.getSource();
 		Object value = assertion.getValue();
 
+		String stmt = "";
+		
 		if (value == null) {
-			testCode += "assertNull(" + getVariableName(source) + ");";
+			stmt += "assertNull(" + getVariableName(source) + ");";
 		} else if (source.getVariableClass().equals(float.class)) {
-			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			stmt += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + ", 0.01F);";
 		} else if (source.getVariableClass().equals(double.class)) {
-			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			stmt += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + ", 0.01D);";
 		} else if (value.getClass().isEnum()) {
-			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			stmt += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + ");";
 			// Make sure the enum is imported in the JUnit test
 			getClassName(value.getClass());
 
 		} else if (source.isWrapperType()) {
 			if (source.getVariableClass().equals(Float.class)) {
-				testCode += "assertEquals(" + NumberFormatter.getNumberString(value)
+				stmt += "assertEquals(" + NumberFormatter.getNumberString(value)
 				        + ", (float)" + getVariableName(source) + ", 0.01F);";
 			} else if (source.getVariableClass().equals(Double.class)) {
-				testCode += "assertEquals(" + NumberFormatter.getNumberString(value)
+				stmt += "assertEquals(" + NumberFormatter.getNumberString(value)
 				        + ", (double)" + getVariableName(source) + ", 0.01D);";
 			} else if (value.getClass().isEnum()) {
-				testCode += "assertEquals(" + NumberFormatter.getNumberString(value)
+				stmt += "assertEquals(" + NumberFormatter.getNumberString(value)
 				        + ", " + getVariableName(source) + ");";
 			} else
-				testCode += "assertEquals(" + NumberFormatter.getNumberString(value)
+				stmt += "assertEquals(" + NumberFormatter.getNumberString(value)
 				        + ", (" + NumberFormatter.getBoxedClassName(value) + ")"
 				        + getVariableName(source) + ");";
 		} else {
-			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			stmt += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + ");";
 		}
 		
@@ -479,8 +481,10 @@ public class TestCodeVisitor extends TestVisitor {
 			/*
 			 * if the current test is unstable, then comment out all of its assertions.		
 			 */
-			testCode = "// "+testCode +" // Unstable assertion";
+			stmt = "// "+stmt +" // Unstable assertion";
 		}
+		
+		testCode += stmt; 
 	}
 
 	protected void visitArrayEqualsAssertion(ArrayEqualsAssertion assertion) {
