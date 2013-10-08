@@ -89,8 +89,7 @@ public abstract class ASMWrapper {
 	 */
 	public String getInstructionType() {
 
-		if (asmNode.getOpcode() >= 0
-				&& asmNode.getOpcode() < Printer.OPCODES.length)
+		if (asmNode.getOpcode() >= 0 && asmNode.getOpcode() < Printer.OPCODES.length)
 			return Printer.OPCODES[asmNode.getOpcode()];
 
 		if (isLineNumber())
@@ -264,7 +263,7 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isBranchLabel() {
 		if (asmNode instanceof LabelNode
-				&& ((LabelNode) asmNode).getLabel().info instanceof Integer) {
+		        && ((LabelNode) asmNode).getLabel().info instanceof Integer) {
 			return true;
 		}
 		return false;
@@ -283,17 +282,19 @@ public abstract class ASMWrapper {
 
 	/**
 	 * <p>
-	 * 	isInvokeStatic
+	 * isInvokeStatic
 	 * </p>
-	 * @return a boolean representing whether the instruction is a static method call.
+	 * 
+	 * @return a boolean representing whether the instruction is a static method
+	 *         call.
 	 */
 	public boolean isInvokeStatic() {
-		if (asmNode instanceof MethodInsnNode){
-			return (asmNode.getOpcode() == Opcodes.INVOKESTATIC );
+		if (asmNode instanceof MethodInsnNode) {
+			return (asmNode.getOpcode() == Opcodes.INVOKESTATIC);
 		}
 		return false;
 	}
-	
+
 	/**
 	 * <p>
 	 * isGoto
@@ -564,8 +565,8 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isFieldDefinition() {
 		return asmNode.getOpcode() == Opcodes.PUTFIELD
-				|| asmNode.getOpcode() == Opcodes.PUTSTATIC
-				|| isFieldArrayDefinition() || isFieldMethodCallDefinition();
+		        || asmNode.getOpcode() == Opcodes.PUTSTATIC || isFieldArrayDefinition()
+		        || isFieldMethodCallDefinition();
 	}
 
 	/**
@@ -577,8 +578,7 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isFieldNodeDefinition() {
 		return asmNode.getOpcode() == Opcodes.PUTFIELD
-				|| asmNode.getOpcode() == Opcodes.PUTSTATIC
-				|| isFieldArrayDefinition();
+		        || asmNode.getOpcode() == Opcodes.PUTSTATIC || isFieldArrayDefinition();
 	}
 
 	/**
@@ -590,8 +590,7 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isFieldUse() {
 		return asmNode.getOpcode() == Opcodes.GETFIELD
-				|| asmNode.getOpcode() == Opcodes.GETSTATIC
-				|| isFieldMethodCallUse();
+		        || asmNode.getOpcode() == Opcodes.GETSTATIC || isFieldMethodCallUse();
 	}
 
 	/**
@@ -603,7 +602,7 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isFieldNodeUse() {
 		return asmNode.getOpcode() == Opcodes.GETFIELD
-				|| asmNode.getOpcode() == Opcodes.GETSTATIC;
+		        || asmNode.getOpcode() == Opcodes.GETSTATIC;
 	}
 
 	/**
@@ -615,8 +614,7 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isStaticDefUse() {
 		return asmNode.getOpcode() == Opcodes.PUTSTATIC
-				|| asmNode.getOpcode() == Opcodes.GETSTATIC
-				|| isStaticArrayUsage();
+		        || asmNode.getOpcode() == Opcodes.GETSTATIC || isStaticArrayUsage();
 	}
 
 	// retrieving information about variable names from ASM
@@ -717,12 +715,11 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isLocalVariableDefinition() {
 		return asmNode.getOpcode() == Opcodes.ISTORE
-				|| asmNode.getOpcode() == Opcodes.LSTORE
-				|| asmNode.getOpcode() == Opcodes.FSTORE
-				|| asmNode.getOpcode() == Opcodes.DSTORE
-				|| asmNode.getOpcode() == Opcodes.ASTORE
-				|| asmNode.getOpcode() == Opcodes.IINC
-				|| isLocalArrayDefinition();
+		        || asmNode.getOpcode() == Opcodes.LSTORE
+		        || asmNode.getOpcode() == Opcodes.FSTORE
+		        || asmNode.getOpcode() == Opcodes.DSTORE
+		        || asmNode.getOpcode() == Opcodes.ASTORE
+		        || asmNode.getOpcode() == Opcodes.IINC || isLocalArrayDefinition();
 	}
 
 	/**
@@ -734,11 +731,11 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isLocalVariableUse() {
 		return asmNode.getOpcode() == Opcodes.ILOAD
-				|| asmNode.getOpcode() == Opcodes.LLOAD
-				|| asmNode.getOpcode() == Opcodes.FLOAD
-				|| asmNode.getOpcode() == Opcodes.DLOAD
-				|| asmNode.getOpcode() == Opcodes.IINC
-				|| (asmNode.getOpcode() == Opcodes.ALOAD && !loadsReferenceToThis());
+		        || asmNode.getOpcode() == Opcodes.LLOAD
+		        || asmNode.getOpcode() == Opcodes.FLOAD
+		        || asmNode.getOpcode() == Opcodes.DLOAD
+		        || asmNode.getOpcode() == Opcodes.IINC
+		        || (asmNode.getOpcode() == Opcodes.ALOAD && !loadsReferenceToThis());
 	}
 
 	public boolean isIINC() {
@@ -756,13 +753,12 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean loadsReferenceToThis() {
-		if(getRawCFG().isStaticMethod())
+		if (getRawCFG().isStaticMethod())
 			return false;
-		
-		return asmNode.getOpcode() == Opcodes.ALOAD
-				&& getLocalVariableSlot() == 0;
+
+		return asmNode.getOpcode() == Opcodes.ALOAD && getLocalVariableSlot() == 0;
 	}
-	
+
 	public abstract RawControlFlowGraph getRawCFG();
 
 	public boolean isLocalArrayDefinition() {
@@ -802,10 +798,10 @@ public abstract class ASMWrapper {
 
 	public boolean isArrayStoreInstruction() {
 		return asmNode.getOpcode() == Opcodes.IASTORE
-				|| asmNode.getOpcode() == Opcodes.LASTORE
-				|| asmNode.getOpcode() == Opcodes.FASTORE
-				|| asmNode.getOpcode() == Opcodes.DASTORE
-				|| asmNode.getOpcode() == Opcodes.AASTORE;
+		        || asmNode.getOpcode() == Opcodes.LASTORE
+		        || asmNode.getOpcode() == Opcodes.FASTORE
+		        || asmNode.getOpcode() == Opcodes.DASTORE
+		        || asmNode.getOpcode() == Opcodes.AASTORE;
 	}
 
 	protected String getArrayVariableName() {
@@ -927,12 +923,16 @@ public abstract class ASMWrapper {
 	 * @param node
 	 *            a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
 	 */
-	public void sanityCheckAbstractInsnNode(AbstractInsnNode node) {
+	public boolean sanityCheckAbstractInsnNode(AbstractInsnNode node) {
 		if (node == null)
-			throw new IllegalArgumentException("null given");
+			return false; //throw new IllegalArgumentException("null given");
 		if (!node.equals(this.asmNode))
-			throw new IllegalStateException("sanity check failed for "
-					+ node.toString() + " on " + getMethodName() + toString());
+			return false;
+		//
+		//	throw new IllegalStateException("sanity check failed for "
+		//			+ node.toString() + " on " + getMethodName() + toString());
+
+		return true;
 	}
 
 }
