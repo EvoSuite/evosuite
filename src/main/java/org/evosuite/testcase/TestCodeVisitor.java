@@ -481,43 +481,32 @@ public class TestCodeVisitor extends TestVisitor {
 			        + getVariableName(source) + ");";
 		}
 						
-		if(isTestUnstable()){
-			/*
-			 * if the current test is unstable, then comment out all of its assertions.		
-			 */
-			stmt = "// "+stmt +getUnstableTestComment();
-		}
-		
 		testCode += stmt; 
 	}
 
-	private String getUnstableTestComment(){
-		return " // Unstable assertion";
-	}
-	
-	private boolean isTestUnstable() {
-		return test!=null && test.isUnstable();
-	}
 
-	
 	
 	protected void visitArrayEqualsAssertion(ArrayEqualsAssertion assertion) {
 		VariableReference source = assertion.getSource();
 		Object[] value = (Object[]) assertion.getValue();
 
-		testCode += "assertArrayEquals(new " + getTypeName(source.getComponentType())
+		String stmt = "";
+		
+		stmt += "assertArrayEquals(new " + getTypeName(source.getComponentType())
 		        + "[] {";
 		boolean first = true;
 		for (Object o : value) {
 			if (!first)
-				testCode += ", ";
+				stmt += ", ";
 			else
 				first = false;
 
-			testCode += NumberFormatter.getNumberString(o);
+			stmt += NumberFormatter.getNumberString(o);
 
 		}
-		testCode += "}" + ", " + getVariableName(source) + ");";
+		stmt += "}" + ", " + getVariableName(source) + ");";
+		
+		testCode += stmt;
 	}
 
 	/**
@@ -705,7 +694,24 @@ public class TestCodeVisitor extends TestVisitor {
 			        + getVariableName(dest) + ");";
 	}
 
+	private String getUnstableTestComment(){
+		return " // Unstable assertion";
+	}
+	
+	private boolean isTestUnstable() {
+		return test!=null && test.isUnstable();
+	}
+
+		
 	protected void visitAssertion(Assertion assertion) {
+		
+		if(isTestUnstable()){
+			/*
+			 * if the current test is unstable, then comment out all of its assertions.		
+			 */
+			testCode  += "// "+getUnstableTestComment()+": ";
+		}
+		
 		if (assertion instanceof PrimitiveAssertion) {
 			visitPrimitiveAssertion((PrimitiveAssertion) assertion);
 		} else if (assertion instanceof PrimitiveFieldAssertion) {
@@ -1220,7 +1226,16 @@ public class TestCodeVisitor extends TestVisitor {
 		while (!Modifier.isPublic(ex.getModifiers()))
 			ex = ex.getSuperclass();
 		// if (isExpected)      
-		return "\n  fail(\"Expecting exception: " + getClassName(ex) + "\");\n";
+		String stmt =  " fail(\"Expecting exception: " + getClassName(ex) + "\");\n";
+		
+		if(isTestUnstable()){
+			/*
+			 * if the current test is unstable, then comment out all of its assertions.		
+			 */
+			stmt = "// "+stmt +getUnstableTestComment();
+		}
+		
+		return "\n "+stmt;
 	}
 
 	/*
