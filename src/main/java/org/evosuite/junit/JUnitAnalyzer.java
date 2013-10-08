@@ -90,11 +90,15 @@ public class JUnitAnalyzer {
 	
 	/**
 	 * Compile and run all the test cases, and mark as "unstable" all the
-	 * ones that fail during execution (ie, unstable assertions)
+	 * ones that fail during execution (ie, unstable assertions).
+	 * 
+	 * <p>
+	 * If a test fail due to an exception not related to a JUnit assertion,
+	 * then remove such test from the input list
 	 * 
 	 * @param tests
 	 */
-	public static void commentOutAssertionsThatAreUnstable(List<TestCase> tests){		
+	public static void handleTestsThatAreUnstable(List<TestCase> tests){		
 		if (tests == null || tests.isEmpty()) { //nothing to do
 			return;
 		}
@@ -135,14 +139,22 @@ public class JUnitAnalyzer {
 					String testName = des.getMethodName();//TODO check if correct
 					
 					logger.warn("Found unstable test named "+testName+" -> " + failure.getException().getClass() + ": "+ failure.getMessage() );
-										
+
+					boolean toRemove = !(failure.getException() instanceof java.lang.AssertionError);
+					
 					for(int i=0; i<tests.size(); i++){
 						if(TestSuiteWriter.getNameOfTest(tests, i).equals(testName)){
-							//we have a match
-							tests.get(i).setUnstable(true);
+							//we have a match. should we remove it or mark as unstable?
+							if(!toRemove){
+								tests.get(i).setUnstable(true);
+							} else {
+								tests.remove(i);
+							}
+							break;
 						}
 					}
 				}
+				
 			} 
 			
 		} catch (Exception e) {
