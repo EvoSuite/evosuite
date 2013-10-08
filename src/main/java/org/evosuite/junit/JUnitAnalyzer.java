@@ -42,6 +42,8 @@ public class JUnitAnalyzer {
 
 	private static Logger logger = LoggerFactory.getLogger(JUnitAnalyzer.class);
 
+	private static int dirCounter = 0;
+	
 	/**
 	 * Try to compile each test separately, and remove the ones that
 	 * cannot be compiled
@@ -50,6 +52,8 @@ public class JUnitAnalyzer {
 	 */
 	public static void removeTestsThatDoNotCompile(List<TestCase> tests){
 
+		logger.info("Going to execute: removeTestsThatDoNotCompile");
+		
 		if (tests == null || tests.isEmpty()) { //nothing to do
 			return;
 		}
@@ -64,6 +68,7 @@ public class JUnitAnalyzer {
 				logger.warn("Failed to create tmp dir");
 				return;
 			}
+			logger.debug("Created tmp folder: "+dir.getAbsolutePath());
 
 			try{
 				List<TestCase> singleList = new ArrayList<TestCase>();
@@ -79,8 +84,9 @@ public class JUnitAnalyzer {
 				if (dir != null) {
 					try {
 						FileUtils.deleteDirectory(dir);
-					} catch (IOException e) {
-						logger.warn("Cannot delete tmp dir: " + dir.getName(), e);
+						logger.debug("Deleted tmp folder: "+dir.getAbsolutePath());
+					} catch (Exception e) {
+						logger.error("Cannot delete tmp dir: " + dir.getAbsolutePath(), e);
 					}
 				}
 			}
@@ -99,6 +105,9 @@ public class JUnitAnalyzer {
 	 * @param tests
 	 */
 	public static void handleTestsThatAreUnstable(List<TestCase> tests){		
+		
+		logger.info("Going to execute: handleTestsThatAreUnstable");
+		
 		if (tests == null || tests.isEmpty()) { //nothing to do
 			return;
 		}
@@ -108,7 +117,8 @@ public class JUnitAnalyzer {
 			logger.warn("Failed to create tmp dir");
 			return;
 		}
-
+		logger.debug("Created tmp folder: "+dir.getAbsolutePath());
+		
 		try{
 			List<File> generated = compileTests(tests,dir);
 			if(generated==null){
@@ -147,8 +157,10 @@ public class JUnitAnalyzer {
 					if(TestSuiteWriter.getNameOfTest(tests, i).equals(testName)){
 						//we have a match. should we remove it or mark as unstable?
 						if(!toRemove){
+							logger.debug("Going to mark test as unstable: "+testName);
 							tests.get(i).setUnstable(true);
 						} else {
+							logger.debug("Going to remove unstable test: "+testName);
 							tests.remove(i);
 						}
 						break;
@@ -159,13 +171,16 @@ public class JUnitAnalyzer {
 			logger.error("" + e, e);			
 		} finally {
 			//let's be sure we clean up all what we wrote on disk
+			
 			if (dir != null) {
 				try {
 					FileUtils.deleteDirectory(dir);
-				} catch (IOException e) {
+					logger.debug("Deleted tmp folder: "+dir.getAbsolutePath());
+				} catch (Exception e) {
 					logger.warn("Cannot delete tmp dir: " + dir.getName(), e);
 				}
 			}
+		
 		}
 
 	}
@@ -189,7 +204,7 @@ public class JUnitAnalyzer {
 
 		try {
 			//now generate the JUnit test case
-			List<File> generated = suite.writeTestSuite(name, dir.getName());
+			List<File> generated = suite.writeTestSuite(name, dir.getAbsolutePath());
 			for (File file : generated) {
 				if (!file.exists()) {
 					logger.error("Supposed to generate " + file
@@ -243,18 +258,23 @@ public class JUnitAnalyzer {
 	}
 
 
-	private static File createNewTmpDir(){
+	protected static File createNewTmpDir(){
 		File dir = null;
-		String dirName = FileUtils.getTempDirectoryPath() + File.separator + "EvoSuite_"
+		String dirName = FileUtils.getTempDirectoryPath() + File.separator + "EvoSuite_"+(dirCounter++)+"_"+
 				+ System.currentTimeMillis();
 
 		//first create a tmp folder
 		dir = new File(dirName);
 		if (!dir.mkdirs()) {
-			logger.warn("Cannot create tmp dir: " + dirName);
+			logger.error("Cannot create tmp dir: " + dirName);
 			return null;
 		}
 
+		if(!dir.exists()){
+			logger.error("Weird behavior: we created folder, but Java cannot determine if it exists? Folder: "+dirName);
+			return null;
+		}
+		
 		return dir;
 	}
 
@@ -262,6 +282,7 @@ public class JUnitAnalyzer {
 	private static Class<?>[] loadTests(List<File> tests, File dir){
 
 		try{
+			Properties.CP += File.pathSeparator + dir.getAbsolutePath();
 			ClassPathHacker.addFile(dir); //FIXME need refactoring
 		} catch(Exception e){
 			logger.error("Failed to add folder to classpath: "+dir.getAbsolutePath());

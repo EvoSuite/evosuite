@@ -54,6 +54,8 @@ import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.NumberFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
@@ -67,6 +69,8 @@ import com.googlecode.gentyref.GenericTypeReflector;
  */
 public class TestCodeVisitor extends TestVisitor {
 
+	private static Logger logger = LoggerFactory.getLogger(TestCodeVisitor.class);
+	
 	protected String testCode = "";
 
 	protected final Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
@@ -476,17 +480,27 @@ public class TestCodeVisitor extends TestVisitor {
 			stmt += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + ");";
 		}
-		
-		if(test!=null && test.isUnstable()){
+						
+		if(isTestUnstable()){
 			/*
 			 * if the current test is unstable, then comment out all of its assertions.		
 			 */
-			stmt = "// "+stmt +" // Unstable assertion";
+			stmt = "// "+stmt +getUnstableTestComment();
 		}
 		
 		testCode += stmt; 
 	}
 
+	private String getUnstableTestComment(){
+		return " // Unstable assertion";
+	}
+	
+	private boolean isTestUnstable() {
+		return test!=null && test.isUnstable();
+	}
+
+	
+	
 	protected void visitArrayEqualsAssertion(ArrayEqualsAssertion assertion) {
 		VariableReference source = assertion.getSource();
 		Object[] value = (Object[]) assertion.getValue();

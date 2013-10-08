@@ -179,11 +179,13 @@ public class ResourceList {
 		final ArrayList<String> retval = new ArrayList<String>();
 		final File file = new File(classPathElement);
 
+	
 		if (!file.exists()) {
 			throw new IllegalArgumentException("The class path resource "
 			        + file.getAbsolutePath() + " does not exist");
 		}
-
+		
+		
 		if (file.isDirectory()) {
 			try {
 				retval.addAll(getResourcesFromDirectory(file, pattern,

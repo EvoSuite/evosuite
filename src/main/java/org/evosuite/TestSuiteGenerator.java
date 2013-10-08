@@ -360,7 +360,7 @@ public class TestSuiteGenerator {
 				JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
 			}
 		} else {
-			logger.warn("No Java compiler is available. Are you running with the JDK?");
+			logger.error("No Java compiler is available. Are you running with the JDK?");
 		}
 
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
