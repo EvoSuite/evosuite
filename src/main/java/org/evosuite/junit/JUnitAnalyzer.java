@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -41,10 +42,58 @@ public class JUnitAnalyzer {
 
 	private static Logger logger = LoggerFactory.getLogger(JUnitAnalyzer.class);
 
+	/**
+	 * Try to compile each test separately, and remove the ones that
+	 * cannot be compiled
+	 * 
+	 * @param tests
+	 */
 	public static void removeTestsThatDoNotCompile(List<TestCase> tests){
-		//TODO
+
+		if (tests == null || tests.isEmpty()) { //nothing to do
+			return;
+		}
+		
+		Iterator<TestCase> iter = tests.iterator();
+		
+		while(iter.hasNext()){
+			TestCase test = iter.next();
+			
+			File dir = createNewTmpDir();
+			if(dir==null){
+				logger.warn("Failed to create tmp dir");
+				return;
+			}
+			
+			try{
+				List<TestCase> singleList = new ArrayList<TestCase>();
+				singleList.add(test);
+				List<File> generated = compileTests(singleList,dir);
+				if(generated==null){
+					iter.remove();
+					String code = test.toCode();
+					logger.error("Failed to compile test case:\n"+code);
+				}
+			} finally {
+				//let's be sure we clean up all what we wrote on disk
+				if (dir != null) {
+					try {
+						FileUtils.deleteDirectory(dir);
+					} catch (IOException e) {
+						logger.warn("Cannot delete tmp dir: " + dir.getName(), e);
+					}
+				}
+			}
+			
+		} // end of while
 	}
 	
+	/**
+	 * Compile and run all the test cases, and mark as "unstable" all the
+	 * ones that fail during execution (ie, unstable assertions)
+	 * 
+	 * @param tests
+	 */
 	public static void commentOutAssertionsThatAreUnstable(List<TestCase> tests){		
 		if (tests == null || tests.isEmpty()) { //nothing to do
 			return;
@@ -82,13 +131,11 @@ public class JUnitAnalyzer {
 			if (!result.wasSuccessful()) {
 				logger.error("" + result.getFailureCount() + " test cases failed");
 				for (Failure failure : result.getFailures()) {
-					logger.warn("Found unstable test -> " + failure.getException().getClass() + ": "+ failure.getMessage() );
-					
 					Description des = failure.getDescription();
 					String testName = des.getMethodName();//TODO check if correct
 					
-					logger.warn("Test name: "+testName); //TODO remove
-					
+					logger.warn("Found unstable test named "+testName+" -> " + failure.getException().getClass() + ": "+ failure.getMessage() );
+										
 					for(int i=0; i<tests.size(); i++){
 						if(TestSuiteWriter.getNameOfTest(tests, i).equals(testName)){
 							//we have a match
