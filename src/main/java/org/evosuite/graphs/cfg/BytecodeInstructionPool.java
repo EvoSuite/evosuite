@@ -93,7 +93,7 @@ public class BytecodeInstructionPool {
 
 		int lastLineNumber = -1;
 		int bytecodeOffset = 0;
-		
+
 		for (int instructionId = 0; instructionId < node.instructions.size(); instructionId++) {
 			AbstractInsnNode instructionNode = node.instructions.get(instructionId);
 
@@ -110,7 +110,7 @@ public class BytecodeInstructionPool {
 				instruction.setLineNumber(lastLineNumber);
 
 			bytecodeOffset += getBytecodeIncrement(instructionNode);
-			
+
 			if (!instruction.isLabel() && !instruction.isLineNumber()
 			        && !instruction.isFrame()) {
 				bytecodeOffset++;
@@ -128,15 +128,16 @@ public class BytecodeInstructionPool {
 
 		return r;
 	}
-	
+
 	/**
-	 * Determine how many bytes the current instruction occupies together with its operands
+	 * Determine how many bytes the current instruction occupies together with
+	 * its operands
 	 * 
 	 * @return
 	 */
 	private int getBytecodeIncrement(AbstractInsnNode instructionNode) {
 		int opcode = instructionNode.getOpcode();
-		switch(opcode) {
+		switch (opcode) {
 		case Opcodes.ALOAD: // index
 		case Opcodes.ASTORE: // index
 		case Opcodes.DLOAD:
@@ -147,8 +148,8 @@ public class BytecodeInstructionPool {
 		case Opcodes.ISTORE:
 		case Opcodes.LLOAD:
 		case Opcodes.LSTORE:
-			VarInsnNode varNode = (VarInsnNode)instructionNode;
-			if(varNode.var > 3)
+			VarInsnNode varNode = (VarInsnNode) instructionNode;
+			if (varNode.var > 3)
 				return 1;
 			else
 				return 0;
@@ -188,22 +189,22 @@ public class BytecodeInstructionPool {
 		case Opcodes.PUTFIELD:
 		case Opcodes.PUTSTATIC:
 		case Opcodes.SIPUSH:
-		// case Opcodes.LDC_W
+			// case Opcodes.LDC_W
 			// case Opcodes.LDC2_W
-			
+
 			return 2;
 		case Opcodes.MULTIANEWARRAY:
 			return 3;
 		case Opcodes.INVOKEDYNAMIC:
 		case Opcodes.INVOKEINTERFACE:
 			return 4;
-			
+
 		case Opcodes.LOOKUPSWITCH:
 		case Opcodes.TABLESWITCH:
 			// TODO: Could be more
 			return 4;
-		// case Opcodes.GOTO_W 
-		// case Opcodes.JSR_W
+			// case Opcodes.GOTO_W 
+			// case Opcodes.JSR_W
 		}
 		return 0;
 	}
@@ -263,7 +264,7 @@ public class BytecodeInstructionPool {
 		BytecodeInstruction r = getInstruction(className, methodName, instructionId);
 
 		if (r != null)
-			r.sanityCheckAbstractInsnNode(asmNode);
+			assert (r.sanityCheckAbstractInsnNode(asmNode));
 
 		return r;
 	}
@@ -375,7 +376,7 @@ public class BytecodeInstructionPool {
 
 		return r;
 	}
-	
+
 	public boolean hasMethod(String className, String methodName) {
 		if (instructionMap.get(className) != null)
 			return instructionMap.get(className).containsKey(methodName);
