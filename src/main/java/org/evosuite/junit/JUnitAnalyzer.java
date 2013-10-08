@@ -160,6 +160,14 @@ public class JUnitAnalyzer {
 
 	}
 
+	/**
+	 * Check if it is possible to use the Java compiler.
+	 * @return
+	 */
+	public static boolean isJavaCompilerAvailable(){
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		return compiler != null;
+	}
 	
 	private static List<File> compileTests(List<TestCase> tests, File dir){
 	
