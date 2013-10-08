@@ -350,15 +350,19 @@ public class TestSuiteGenerator {
 
 		List<TestCase> testCases = tests.getTests();
 		
-		JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
-		
-		JUnitAnalyzer.commentOutAssertionsThatAreUnstable(testCases);		
-		//second passage on reverse order, this is to spot dependencies among tests
-		if(testCases.size() > 1){
-			Collections.reverse(testCases);
-			JUnitAnalyzer.commentOutAssertionsThatAreUnstable(testCases);
+		if(JUnitAnalyzer.isJavaCompilerAvailable()){
+			JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
+
+			JUnitAnalyzer.commentOutAssertionsThatAreUnstable(testCases);		
+			//second passage on reverse order, this is to spot dependencies among tests
+			if(testCases.size() > 1){
+				Collections.reverse(testCases);
+				JUnitAnalyzer.commentOutAssertionsThatAreUnstable(testCases);
+			}
+		} else {
+			logger.warn("No Java compiler is available. Are you running with the JDK?");
 		}
-		
+
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
 		writeJUnitTests(testCases);
 
