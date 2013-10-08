@@ -353,11 +353,11 @@ public class TestSuiteGenerator {
 		if(JUnitAnalyzer.isJavaCompilerAvailable()){
 			JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
 
-			JUnitAnalyzer.commentOutAssertionsThatAreUnstable(testCases);		
+			JUnitAnalyzer.handleTestsThatAreUnstable(testCases);		
 			//second passage on reverse order, this is to spot dependencies among tests
 			if(testCases.size() > 1){
 				Collections.reverse(testCases);
-				JUnitAnalyzer.commentOutAssertionsThatAreUnstable(testCases);
+				JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
 			}
 		} else {
 			logger.warn("No Java compiler is available. Are you running with the JDK?");
