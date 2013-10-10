@@ -66,6 +66,11 @@ public class WeakMutationTestFitness extends MutationTestFitness {
 
 		// If executed...
 		if (executionDistance <= 0) {
+			if(executionDistance < 0) {
+				logger.warn("Execution distance less than 0! "+mutation);
+				assert(false) : "Invalid execution distance on mutation "+mutation;
+				executionDistance = 0.0;
+			}
 			// Add infection distance
 			assert (result.getTrace() != null);
 			// assert (result.getTrace().mutantDistances != null);
