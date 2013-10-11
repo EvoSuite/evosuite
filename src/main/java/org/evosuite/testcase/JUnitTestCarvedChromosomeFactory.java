@@ -7,8 +7,10 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testcarver.extraction.CarvingRunListener;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.Utils;
@@ -28,6 +30,12 @@ public class JUnitTestCarvedChromosomeFactory implements
 	private List<TestCase> junitTests = new ArrayList<TestCase>();
 	
 	private final ChromosomeFactory<TestChromosome> defaultFactory;
+	
+	
+	// These two variables will go once the new statistics frontend is finally finished
+	private static int totalNumberOfTestsCarved = 0;
+	
+	private static double carvedCoverage = 0.0; 
 
 	/**
 	 * The carved test cases are used only with a certain probability P.
@@ -77,12 +85,21 @@ public class JUnitTestCarvedChromosomeFactory implements
 		junitTests.addAll(listener.getTestCases());
 		
 		if(junitTests.size()>0){
+			totalNumberOfTestsCarved += junitTests.size();
+			
 			LoggingUtils.getEvoLogger().info("* Carved {} tests from existing JUnit tests", junitTests.size());
 			if(logger.isDebugEnabled()) {
 				for(TestCase test : junitTests) {
 					logger.debug("Carved Test: {}", test.toCode());
 				}
 			}
+			BranchCoverageSuiteFitness f = new BranchCoverageSuiteFitness();
+			TestSuiteChromosome suite = new TestSuiteChromosome();
+			for(TestCase test : junitTests) {
+				suite.addTest(test);
+			}
+			f.getFitness(suite);
+			carvedCoverage = suite.getCoverage();
 		} else {
 			String outcome = "";
 			for(Failure failure : result.getFailures()){
@@ -150,6 +167,15 @@ public class JUnitTestCarvedChromosomeFactory implements
 			}
 		}
 
-		return chromosome;	}
+		return chromosome;	
+	}
+	
+	public static int getTotalNumberOfTestsCarved() {
+		return totalNumberOfTestsCarved;
+	}
+	
+	public static double getCoverageOfCarvedTests() {
+		return carvedCoverage;
+	}
 
 }

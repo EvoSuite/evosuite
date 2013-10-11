@@ -53,8 +53,6 @@ import org.evosuite.contracts.JCrasherExceptionContract;
 import org.evosuite.contracts.NullPointerExceptionContract;
 import org.evosuite.contracts.ToStringReturnsNormallyContract;
 import org.evosuite.contracts.UndeclaredExceptionContract;
-import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
-import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.SearchListener;
@@ -62,6 +60,7 @@ import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
@@ -235,7 +234,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		CoveredAliasIntraMethodPairs,
 		CoveredAliasInterMethodPairs,
 		CoveredAliasIntraClassPairs,
-		CoveredAliasParameterPairs
+		CoveredAliasParameterPairs,
+		CarvedTests,
+		CarvedCoverage
 	};
 
 	/** Constant <code>DATE_FORMAT_NOW="yyyy-MM-dd HH:mm:ss"</code> */
@@ -404,7 +405,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public Map<String, Set<Class<?>>> implicitExceptions;
 
 		public Map<String, Set<Class<?>>> explicitExceptions;
-
+		
 		//--------------------------------------------------
 
 		private String[] getTimelineHeaderSuffixes() {
@@ -894,6 +895,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "" + aliasingIntraClassPairs;
 			case AliasingParameterPairs:
 				return "" + aliasingParameterPairs;
+			case CarvedTests:
+				return ""+JUnitTestCarvedChromosomeFactory.getTotalNumberOfTestsCarved();
+			case CarvedCoverage:
+				return ""+JUnitTestCarvedChromosomeFactory.getCoverageOfCarvedTests();
 			default:
 				break;
 
