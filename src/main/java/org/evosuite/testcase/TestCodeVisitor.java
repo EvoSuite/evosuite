@@ -25,6 +25,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -492,8 +493,14 @@ public class TestCodeVisitor extends TestVisitor {
 
 		String stmt = "";
 		
-		stmt += "assertArrayEquals(new " + getTypeName(source.getComponentType())
-		        + "[] {";
+		if(source.getComponentClass().equals(Boolean.class) || source.getComponentClass().equals(boolean.class)) {
+			stmt += "assertTrue(Arrays.equals(";
+			// Make sure that the Arrays class is imported
+			getClassName(Arrays.class);
+		} else {
+			stmt += "assertArrayEquals(";
+		}
+		stmt += "new "+getTypeName(source.getComponentType()) + "[] {";
 		boolean first = true;
 		for (Object o : value) {
 			if (!first)
@@ -504,7 +511,15 @@ public class TestCodeVisitor extends TestVisitor {
 			stmt += NumberFormatter.getNumberString(o);
 
 		}
-		stmt += "}" + ", " + getVariableName(source) + ");";
+		stmt += "}" + ", " + getVariableName(source);
+		if(source.getComponentClass().equals(Float.class) || source.getComponentClass().equals(float.class))
+			stmt += ", 0.01F);";
+		else if(source.getComponentClass().equals(Double.class) || source.getComponentClass().equals(double.class))
+			stmt += ", 0.01);";
+		else if(source.getComponentClass().equals(Boolean.class) || source.getComponentClass().equals(boolean.class))
+			stmt += "));";
+		else
+			stmt += ");";
 		
 		testCode += stmt;
 	}
