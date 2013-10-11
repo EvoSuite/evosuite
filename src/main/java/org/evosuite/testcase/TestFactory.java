@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.EvoSuiteFile;
@@ -442,6 +443,7 @@ public class TestFactory {
 		List<VariableReference> objects = test.getObjects(array.getComponentType(),
 		                                                  position);
 		Iterator<VariableReference> iterator = objects.iterator();
+		GenericClass componentClass = new GenericClass(array.getComponentType());
 		// Remove assignments from the same array
 		while (iterator.hasNext()) {
 			VariableReference var = iterator.next();
@@ -453,6 +455,13 @@ public class TestFactory {
 				else if (((ArrayIndex) var).getArray().getType().equals(array.getType()))
 					iterator.remove();
 			}
+			if(componentClass.isWrapperType()) {
+				Class<?> rawClass = ClassUtils.wrapperToPrimitive(componentClass.getRawClass());
+				if(!var.getVariableClass().equals(rawClass) && !var.getVariableClass().equals(componentClass.getRawClass())) {
+					iterator.remove();
+				}
+			}
+			
 		}
 		logger.debug("Reusable objects: " + objects);
 		assignArray(test, array, arrayIndex, position, objects);
