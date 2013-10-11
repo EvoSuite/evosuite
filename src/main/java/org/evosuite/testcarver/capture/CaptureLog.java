@@ -500,9 +500,9 @@ public final class CaptureLog implements Cloneable {
 						this$0.setAccessible(true);
 						final Object outerInstance = this$0.get(receiver);
 
-						if (TransformerUtil.isClassConsideredForInstrumentation(outerInstance.getClass().getName())) {
+						//if (TransformerUtil.isClassConsideredForInstrumentation(outerInstance.getClass().getName())) {
 							// FIXME
-						}
+						//}
 
 						// the enclosing object has to be restored first
 
