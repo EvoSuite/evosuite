@@ -31,7 +31,6 @@ import java.security.Permission;
 import java.security.SecurityPermission;
 import java.security.UnresolvedPermission;
 import java.sql.SQLPermission;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.PropertyPermission;
