@@ -397,7 +397,8 @@ public class CoverageAnalysis {
 		JUnitReportGenerator reportGenerator = new JUnitReportGenerator(covered,
 		        goals.size(),
 		        executionResult.getTrace().getCoveredLines(Properties.TARGET_CLASS),
-		        classes, startTime);
+		        classes, startTime, result.getRunCount());
+		reportGenerator.writeCSV();
 		reportGenerator.writeReport();
 
 	}
