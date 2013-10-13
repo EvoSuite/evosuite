@@ -333,7 +333,7 @@ public class TestSuiteGenerator {
 
 		List<TestCase> testCases = tests.getTests();
 		
-		if(JUnitAnalyzer.isJavaCompilerAvailable()){
+		if(Properties.JUNIT_TESTS && JUnitAnalyzer.isJavaCompilerAvailable()){
 			JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
 
 			JUnitAnalyzer.handleTestsThatAreUnstable(testCases);		
