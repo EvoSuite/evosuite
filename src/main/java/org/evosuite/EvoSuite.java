@@ -40,6 +40,7 @@ import org.evosuite.agent.ToolsJarLocator;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
 import org.evosuite.executionmode.ListClasses;
+import org.evosuite.executionmode.WriteDependencies;
 import org.evosuite.executionmode.ListParameters;
 import org.evosuite.executionmode.MeasureCoverage;
 import org.evosuite.executionmode.PrintStats;
@@ -248,6 +249,10 @@ public class EvoSuite {
 			if (line.hasOption(ListClasses.NAME)) {
 				return ListClasses.execute(options, line, cp);
 			}
+			
+			if(line.hasOption(WriteDependencies.NAME)) {
+				return WriteDependencies.execute(options, javaOpts, line, cp);
+			}
 
 			if (line.hasOption(PrintStats.NAME)) {
 				return PrintStats.execute(options, javaOpts, line, cp);
@@ -336,6 +341,7 @@ public class EvoSuite {
 		Option setup = Setup.getOption();
 		Option measureCoverage = MeasureCoverage.getOption();
 		Option listClasses = ListClasses.getOption();
+		Option listDependencies = WriteDependencies.getOption();
 		Option printStats = PrintStats.getOption();
 		Option listParameters = ListParameters.getOption();
 		Option continuous = Continuous.getOption();
@@ -380,6 +386,7 @@ public class EvoSuite {
 		options.addOption(extendSuite);
 		options.addOption(measureCoverage);
 		options.addOption(listClasses);
+		options.addOption(listDependencies);
 		options.addOption(printStats);
 		options.addOption(setup);
 		options.addOption(targetClass);

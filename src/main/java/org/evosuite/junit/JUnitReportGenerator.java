@@ -45,7 +45,7 @@ public class JUnitReportGenerator extends ReportGenerator {
 	 *            a long.
 	 */
 	public JUnitReportGenerator(int coveredGoals, int totalGoals, Set<Integer> coverage,
-	        List<Class<?>> classes, long startTime) {
+	        List<Class<?>> classes, long startTime, int tests) {
 		this.classes = classes;
 		StatisticEntry entry = new StatisticEntry();
 		entry.total_goals = totalGoals;
@@ -56,6 +56,7 @@ public class JUnitReportGenerator extends ReportGenerator {
 		entry.end_time = System.currentTimeMillis();
 		entry.minimized_time = entry.end_time;
 		entry.start_time = startTime;
+		entry.size_final = tests;
 
 		statistics.add(entry);
 	}
