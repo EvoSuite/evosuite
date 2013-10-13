@@ -442,7 +442,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			}
 
 			// TODO: Replace test with unexpanded version if local search failed
-			test.setTestCase(ex.expandTestCase(test.getTestCase()));
+			// test.setTestCase(ex.expandTestCase(test.getTestCase()));
 			
 			logger.debug("Local search on test " + i);
 			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
