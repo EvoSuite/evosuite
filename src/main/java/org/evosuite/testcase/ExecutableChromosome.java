@@ -79,6 +79,7 @@ public abstract class ExecutableChromosome extends Chromosome {
 	public MutationExecutionResult getLastExecutionResult(Mutation mutation) {
 		return lastMutationResult.get(mutation);
 	}
+	
 
 	/**
 	 * <p>clearCachedResults</p>

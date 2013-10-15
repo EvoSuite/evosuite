@@ -18,21 +18,17 @@
 package org.evosuite.testcase;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.AdaptiveLocalSearchTarget;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationExecutionResult;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.ga.LocalSearchBudget;
-import org.evosuite.ga.LocalSearchObjective;
 import org.evosuite.ga.MutationHistory;
 import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.localsearch.LocalSearchObjective;
+import org.evosuite.localsearch.TestCaseLocalSearch;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
@@ -108,21 +104,11 @@ public class TestChromosome extends ExecutableChromosome {
 	public Chromosome clone() {
 		TestChromosome c = new TestChromosome();
 		c.test = test.clone();
-		//assert (test.toCode().equals(c.test.toCode()));
-		/*
-		assert (test.isValid());
-		try {
-			c.test.isValid();
-		} catch (Throwable t) {
-			logger.warn(c.test.toCode());
-		}
-		assert (c.test.isValid());
-		*/
 		c.setFitness(getFitness());
 		c.solution = solution;
 		c.copyCachedResults(this);
 		c.setChanged(isChanged());
-		if (Properties.ADAPTIVE_LOCAL_SEARCH != AdaptiveLocalSearchTarget.OFF) {
+		if (Properties.LOCAL_SEARCH_SELECTIVE) {
 			for (TestMutationHistoryEntry mutation : mutationHistory) {
 				c.mutationHistory.addMutationEntry(mutation.clone(c.getTestCase()));
 			}
@@ -266,117 +252,16 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 		return false;
 	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void applyAdaptiveLocalSearch(
-	        LocalSearchObjective<? extends Chromosome> objective) {
-
-		double oldFitness = getFitness();
-		logger.info("Applying local search on test case");
-
-		// Only apply local search up to the point where an exception was thrown
-		int lastPosition = test.size() - 1;
-		if (lastExecutionResult != null && !isChanged()) {
-			Integer lastPos = lastExecutionResult.getFirstPositionOfThrownException();
-			if (lastPos != null)
-				lastPosition = lastPos.intValue();
-		}
-
-		Set<Integer> targetPositions = new HashSet<Integer>();
-
-		logger.info("Mutation history: " + mutationHistory.toString());
-		logger.info("Checking {} mutations", mutationHistory.size());
-		for (TestMutationHistoryEntry mutation : mutationHistory) {
-			if (LocalSearchBudget.isFinished())
-				break;
-
-			if (mutation.getMutationType() != TestMutationHistoryEntry.TestMutation.DELETION
-			        && mutation.getStatement().getPosition() <= lastPosition
-			        && mutation.getStatement() instanceof PrimitiveStatement<?>) {
-				logger.info("Found suitable mutation: " + mutation);
-
-				if (!test.hasReferences(mutation.getStatement().getReturnValue())
-				        && !mutation.getStatement().getReturnClass().equals(Properties.getTargetClass())) {
-					logger.info("Return value of statement "
-					        + " is not referenced and not SUT, not doing local search");
-					continue;
-				}
-
-				targetPositions.add(mutation.getStatement().getPosition());
-			} else {
-				logger.info("Unsuitable mutation");
-			}
-		}
-
-		if (!targetPositions.isEmpty()) {
-			logger.info("Yes, now applying the search at positions {}!", targetPositions);
-			DSELocalSearch dse = new DSELocalSearch();
-			dse.doSearch(this, targetPositions,
-			             (LocalSearchObjective<TestChromosome>) objective);
-		}
-		mutationHistory.clear();
-
-		LocalSearchBudget.individualImproved(this);
-
-		assert (getFitness() <= oldFitness);
-		//logger.info("Test after local search: " + test.toCode());
-
-		// TODO: Handle arrays in local search
-		// TODO: mutating an int might have an effect on array lengths
-	}
-
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.Chromosome#localSearch()
 	 */
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void localSearch(LocalSearchObjective<? extends Chromosome> objective) {
-		//logger.info("Test before local search: " + test.toCode());
-		double oldFitness = getFitness();
-
-		// Only apply local search up to the point where an exception was thrown
-		int lastPosition = test.size() - 1;
-		if (lastExecutionResult != null && !isChanged()) {
-			Integer lastPos = lastExecutionResult.getFirstPositionOfThrownException();
-			if (lastPos != null)
-				lastPosition = lastPos.intValue();
-		}
-
-		//We count down to make the code work when lines are
-		//added during the search (see NullReferenceSearch).
-		for (int i = lastPosition; i >= 0; i--) {
-			if (LocalSearchBudget.isFinished())
-				break;
-
-			if (i >= test.size()) {
-				logger.warn("Test size decreased unexpectedly during local search, aborting local search");
-				logger.warn(test.toCode());
-				break;
-			}
-
-			if (!test.hasReferences(test.getStatement(i).getReturnValue())
-			        && !test.getStatement(i).getReturnClass().equals(Properties.getTargetClass())) {
-				logger.info("Return value of statement " + i
-				        + " is not referenced and not SUT, not doing local search");
-				continue;
-			}
-
-			LocalSearch search = LocalSearch.getLocalSearchFor(test.getStatement(i));
-			if (search != null) {
-				search.doSearch(this, i, (LocalSearchObjective<TestChromosome>) objective);
-				i += search.getPositionDelta();
-			}
-		}
-
-		LocalSearchBudget.individualImproved(this);
-
-		assert (getFitness() <= oldFitness);
-		//logger.info("Test after local search: " + test.toCode());
-
-		// TODO: Handle arrays in local search
-		// TODO: mutating an int might have an effect on array lengths
+	public boolean localSearch(LocalSearchObjective<? extends Chromosome> objective) {
+		TestCaseLocalSearch localSearch = TestCaseLocalSearch.getLocalSearch();
+		return localSearch.doSearch(this, (LocalSearchObjective<TestChromosome>) objective);
 	}
 
 	/**
@@ -634,11 +519,13 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @see org.evosuite.ga.Chromosome#applyDSE()
 	 */
 	/** {@inheritDoc} */
+	/*
 	@Override
 	public boolean applyDSE(GeneticAlgorithm<?> ga) {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	*/
 
 	/** {@inheritDoc} */
 	@Override

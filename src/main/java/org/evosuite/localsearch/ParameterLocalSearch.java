@@ -18,11 +18,19 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.localsearch;
 
 import java.util.List;
 
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.testcase.ConstructorStatement;
+import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.FieldStatement;
+import org.evosuite.testcase.MethodStatement;
+import org.evosuite.testcase.NullReference;
+import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class ParameterLocalSearch extends LocalSearch {
+public class ParameterLocalSearch extends StatementLocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(ParameterLocalSearch.class);
 

@@ -33,6 +33,7 @@ public abstract class ArrayUtil {
 	 * @param <T> a T object.
 	 * @return a {@link java.util.Set} object.
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> Set<T> asSet(T... values) {
 		return new HashSet<T>(Arrays.asList(values));
 	}

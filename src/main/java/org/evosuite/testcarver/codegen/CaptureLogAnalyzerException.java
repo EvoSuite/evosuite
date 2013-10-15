@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 public class CaptureLogAnalyzerException extends RuntimeException{
 	
+	private static final long serialVersionUID = 4585552843370187739L;
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(CaptureLogAnalyzerException.class);
 	
 	public CaptureLogAnalyzerException(final String msg)

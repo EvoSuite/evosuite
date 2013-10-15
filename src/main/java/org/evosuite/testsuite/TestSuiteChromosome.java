@@ -18,32 +18,20 @@
 package org.evosuite.testsuite;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.DSEBudget;
-import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.ga.LocalSearchBudget;
-import org.evosuite.ga.LocalSearchObjective;
 import org.evosuite.ga.SecondaryObjective;
-import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.localsearch.LocalSearchObjective;
+import org.evosuite.localsearch.TestSuiteLocalSearch;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.TestMutationHistoryEntry;
-import org.evosuite.testcase.VariableReference;
-import org.evosuite.utils.Randomness;
 
 /**
  * <p>
@@ -127,127 +115,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		return c;
 	}
 
-	@Override
-	public void applyAdaptiveLocalSearch(LocalSearchObjective<? extends Chromosome> objective) {
-
-		if (!hasFitnessChanged()) {
-			logger.info("Fitness has not changed, so not applying local search");
-			return;
-		}
-		logger.info("Fitness has changed, applying local search with fitness "
-		        + getFitness());
-
-		// Apply standard DSE on entire suite?
-		if(Properties.ADAPTIVE_LOCAL_SEARCH_DSE) {
-			boolean hasRelevantTests = false;
-			for(TestChromosome test : tests) {
-				if(test.hasRelevantMutations()) {
-					hasRelevantTests = true;
-					break;
-				}
-			}
-			if(hasRelevantTests) {
-				if(Randomness.nextDouble() < Properties.DSE_ADAPTIVE_PROBABILITY) {
-					DSEBudget.DSEStarted();
-					TestSuiteDSE dse = new TestSuiteDSE(
-							(TestSuiteFitnessFunction) objective.getFitnessFunction());
-					boolean success = dse.applyDSE(this);
-					
-					if(success) {
-						Properties.DSE_ADAPTIVE_PROBABILITY *= Properties.DSE_ADAPTIVE_RATE;
-						Properties.DSE_ADAPTIVE_PROBABILITY = Math.min(Properties.DSE_ADAPTIVE_PROBABILITY, 1.0);
-					} else {
-						Properties.DSE_ADAPTIVE_PROBABILITY /= Properties.DSE_ADAPTIVE_RATE;
-						Properties.DSE_ADAPTIVE_PROBABILITY = Math.max(Properties.DSE_ADAPTIVE_PROBABILITY, 0.0);
-					}
-
-				}
-			}
-			return;
-		}
-		
-		List<TestChromosome> candidates = new ArrayList<TestChromosome>();
-		for(TestChromosome test : tests) {
-			logger.info("Checking test with history entries: "+test.getMutationHistory().size()+": "+test.getMutationHistory());
-			if(test.hasRelevantMutations()) {
-				TestCaseExpander expander = new TestCaseExpander();
-				TestChromosome clone = new TestChromosome();
-				clone.setTestCase(expander.expandTestCase(test.getTestCase()));
-				for (TestMutationHistoryEntry mutation : test.getMutationHistory()) {
-					if(mutation.getMutationType() == TestMutationHistoryEntry.TestMutation.DELETION) {
-						clone.getMutationHistory().addMutationEntry(mutation.clone(clone.getTestCase()));
-					} else {
-						StatementInterface s1 = mutation.getStatement();
-						if(expander.variableMapping.containsKey(s1.getPosition())) {
-							for(VariableReference var : expander.variableMapping.get(s1.getPosition())) {
-								clone.getMutationHistory().addMutationEntry(new TestMutationHistoryEntry(mutation.getMutationType(), clone.getTestCase().getStatement(var.getStPosition())));
-							}
-						} else {
-							clone.getMutationHistory().addMutationEntry(new TestMutationHistoryEntry(mutation.getMutationType(), clone.getTestCase().getStatement(s1.getPosition())));
-						}
-					}
-				}
-				logger.info("Mutation history before expansion: "+test.getMutationHistory().size()+", after: "+clone.getMutationHistory().size());
-				candidates.add(clone);
-			}
-		}
-
-		for(TestChromosome clone : candidates) {
-		    double oldFitness = getFitness();
-		    addTest(clone);
-		    TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective((TestSuiteFitnessFunction) objective.getFitnessFunction(), this, tests.size() - 1);
-		    logger.info("Applying DSE to test: " + clone.getTestCase().toCode());
-		    clone.applyAdaptiveLocalSearch(testObjective);
-		    if(getFitness() >= oldFitness) {
-		    	logger.info("Removing new test from suite again as local search was not successful");
-		    	tests.remove(clone);
-		    }
-		    if(Properties.DSE_KEEP_ALL_TESTS) {
-		    	logger.info("Adding partial solutions: "+testObjective.getPartialSolutions().size()+" at fitness "+getFitness());
-		    	boolean added = false;
-		    	for(TestChromosome partialSolution : testObjective.getPartialSolutions()) {
-		    		addTest(partialSolution);
-		    		added = true;
-		    	}
-		    	if(added) {
-		    		// Recalculate test suite with new tests
-		    		testObjective.getFitnessFunction().getFitness(this);
-			    	logger.info("After adding partial solutions fitness = "+getFitness());
-		    	}
-		    }
-		    
-		    // copies.add(clone);
-		}
-
-		// apply local search to all tests where a mutation was applied
-		/*
-				int numTest = 0;
-				for (TestChromosome test : tests) {
-					if (LocalSearchBudget.isFinished()) {
-						logger.debug("Local search budget used up");
-						break;
-					}
-
-					TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
-					        (TestSuiteFitnessFunction) objective.getFitnessFunction(), this,
-					        numTest);
-					numTest++;
-
-					logger.debug("Checking local search on individual test");
-					test.hasRelevantMutations()
-					test.applyAdaptiveLocalSearch(testObjective);
-				}
-		*/
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public boolean applyDSE(GeneticAlgorithm<?> ga) {
-		TestSuiteDSE dse = new TestSuiteDSE(
-		        (TestSuiteFitnessFunction) ga.getFitnessFunction());
-		return dse.applyDSE(this);
-	}
-
+	
 	public void clearMutationHistory() {
 		for(TestChromosome test : tests) {
 			test.getMutationHistory().clear();
@@ -309,56 +177,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		}
 	}
 
-	/**
-	 * Ensure that all branches are executed twice
-	 */
-	private void ensureDoubleExecution(TestSuiteFitnessFunction objective) {
-
-		Set<TestChromosome> duplicates = new HashSet<TestChromosome>();
-
-		Map<Integer, Integer> covered = new HashMap<Integer, Integer>();
-		Map<Integer, TestChromosome> testMap = new HashMap<Integer, TestChromosome>();
-		for (TestChromosome test : getTestChromosomes()) {
-
-			// Make sure we have an execution result
-			if (test.getLastExecutionResult() == null || test.isChanged()) {
-				ExecutionResult result = test.executeForFitnessFunction(objective);
-				test.setLastExecutionResult(result); // .clone();
-				test.setChanged(false);
-			}
-
-			for (Entry<Integer, Integer> entry : test.getLastExecutionResult().getTrace().getPredicateExecutionCount().entrySet()) {
-				if (!covered.containsKey(entry.getKey())) {
-					covered.put(entry.getKey(), 0);
-				}
-				covered.put(entry.getKey(),
-				            covered.get(entry.getKey()) + entry.getValue());
-				testMap.put(entry.getKey(), test);
-			}
-		}
-
-		for(Entry<Integer, Integer> entry : covered.entrySet()) {
-			int branchId = entry.getKey();
-			int count = entry.getValue();
-			if (count == 1) {
-				TestChromosome duplicate = (TestChromosome) testMap.get(branchId).clone();
-				ExecutionResult result = duplicate.executeForFitnessFunction(objective);
-				duplicate.setLastExecutionResult(result); // .clone();
-				duplicate.setChanged(false);
-				duplicates.add(duplicate);
-			}
-		}
-
-		if (!duplicates.isEmpty()) {
-			logger.info("Adding " + duplicates.size()
-			        + " tests to cover branches sufficiently");
-			for (TestChromosome test : duplicates) {
-				addTest(test);
-			}
-			setChanged(true);
-			objective.getFitness(this);
-		}
-	}
+	
 
 	/**
 	 * <p>
@@ -389,78 +208,18 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		}
 		return testcases;
 	}
-
-	/**
-	 * <p>
-	 * handleTestCallStatements
-	 * </p>
-	 */
-	protected void handleTestCallStatements() {
-		Iterator<TestChromosome> it = tests.iterator();
-
-		int num = 0;
-		while (it.hasNext()) {
-			ExecutableChromosome t = it.next();
-			if (t.size() == 0) {
-				it.remove();
-				unmodifiableTests.remove(t);
-				for (TestChromosome test : tests) {
-					for (StatementInterface s : test.getTestCase()) {
-						if (s instanceof TestCallStatement) {
-							TestCallStatement call = (TestCallStatement) s;
-							if (call.getTestNum() > num) {
-								call.setTestNum(call.getTestNum() - 1);
-							}
-						}
-					}
-				}
-			} else {
-				num++;
-			}
-		}
+	
+	public boolean isUnmodifiable(TestChromosome test) {
+		return unmodifiableTests.contains(test);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void localSearch(LocalSearchObjective<? extends Chromosome> objective) {
-		/*
-		 * When we apply local search, due to budget constraints we might not be able
-		 * to evaluate all the test cases in a test suite. When we apply LS several times on
-		 * same individual in different generations, to avoid having always the same test cases searched for and
-		 * others skipped, then we shuffle the test cases, so each time the order is different 
-		 */
-		Randomness.shuffle(tests);
-
-		ensureDoubleExecution((TestSuiteFitnessFunction) objective.getFitnessFunction());
-
-		TestCaseExpander ex = new TestCaseExpander();
-		
-		double fitnessBefore = getFitness();
-		for (int i = 0; i < tests.size(); i++) {
-			TestChromosome test = tests.get(i);
-			if (unmodifiableTests.contains(test)) {
-				continue;
-			}
-
-			// TODO: Replace test with unexpanded version if local search failed
-			// test.setTestCase(ex.expandTestCase(test.getTestCase()));
-			
-			logger.debug("Local search on test " + i);
-			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
-			        (TestSuiteFitnessFunction) objective.getFitnessFunction(), this, i);
-
-			if (LocalSearchBudget.isFinished()) {
-				logger.debug("Local search budget used up: "+Properties.LOCAL_SEARCH_BUDGET_TYPE);
-				break;
-			}
-			logger.debug("Local search budget not yet used up");
-
-			test.localSearch(testObjective);
-		}
-
-		LocalSearchBudget.individualImproved(this);
-		assert (fitnessBefore >= getFitness()); //FIXME doesn't it assume minimization?
+	public boolean localSearch(LocalSearchObjective<? extends Chromosome> objective) {
+		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
+		return localSearch.doSearch(this, (LocalSearchObjective<TestSuiteChromosome>) objective);
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -471,7 +230,6 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		for (int i = 0; i < Properties.NUMBER_OF_MUTATIONS; i++) {
 			super.mutate();
 		}
-		handleTestCallStatements();
 	}
 
 	/**

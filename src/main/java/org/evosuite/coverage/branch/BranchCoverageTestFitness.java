@@ -173,24 +173,6 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		return fitness;
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean isSimilarTo(TestFitnessFunction other) {
-		if (other instanceof DefUseCoverageTestFitness) {
-			DefUseCoverageTestFitness duFitness = (DefUseCoverageTestFitness) other;
-			if (duFitness.getGoalDefinitionFitness() != null
-			        && isSimilarTo(duFitness.getGoalDefinitionFitness()))
-				return true;
-			return isSimilarTo(duFitness.getGoalUseFitness());
-		}
-		try {
-			BranchCoverageTestFitness otherFitness = (BranchCoverageTestFitness) other;
-			return goal.isConnectedTo(otherFitness.goal);
-		} catch (ClassCastException e) {
-			return false;
-		}
-	}
-
 	//	@Override
 	//	public int getDifficulty() {
 	//		if (goal == null)

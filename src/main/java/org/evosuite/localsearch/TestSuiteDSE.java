@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.testsuite;
+package org.evosuite.localsearch;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +31,6 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.DSEBudget;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.DSEStats;
@@ -44,8 +43,9 @@ import org.evosuite.symbolic.search.ConstraintSolverTimeoutException;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class TestSuiteDSE {
+public class TestSuiteDSE extends TestSuiteLocalSearch {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(TestSuiteDSE.class);
@@ -74,7 +74,7 @@ public class TestSuiteDSE {
 	/** Constant <code>failed=0</code> */
 	public static int failed = 0;
 
-	private final TestSuiteFitnessFunction fitness;
+	// private final TestSuiteFitnessFunction fitness;
 
 	private final Map<TestChromosome, List<BranchCondition>> branchConditions = new HashMap<TestChromosome, List<BranchCondition>>();
 
@@ -94,10 +94,6 @@ public class TestSuiteDSE {
 			this.test = test;
 			this.branch = branchCondition;
 			this.ranking = computeRanking(branchCondition);
-		}
-
-		public double getRanking() {
-			return ranking;
 		}
 
 		private double computeRanking(BranchCondition condition) {
@@ -130,53 +126,13 @@ public class TestSuiteDSE {
 	 *            a {@link org.evosuite.testsuite.TestSuiteFitnessFunction}
 	 *            object.
 	 */
-	public TestSuiteDSE(TestSuiteFitnessFunction fitness) {
-		this.fitness = fitness;
+	public TestSuiteDSE() {
 		if (Properties.DSE_RANK_BRANCH_CONDITIONS) {
 			this.unsolvedBranchConditions = new PriorityQueue<TestBranchPair>();
 		} else {
 			this.unsolvedBranchConditions = new ArrayList<TestBranchPair>();
 		}
 
-	}
-
-	/**
-	 * Before applying DSE we expand test cases, such that each primitive value
-	 * is used at only exactly one position as a parameter
-	 * 
-	 * @param individual
-	 * @return
-	 */
-	private TestSuiteChromosome expandTestSuite(TestSuiteChromosome individual) {
-		TestSuiteChromosome newTestSuite = new TestSuiteChromosome();
-		for (TestChromosome test : individual.getTestChromosomes()) {
-
-			// First make sure we are up to date with the execution
-			if (test.getLastExecutionResult() == null || test.isChanged()) {
-				test.setLastExecutionResult(TestCaseExecutor.runTest(test
-						.getTestCase()));
-				test.setChanged(false);
-			}
-
-			// We skip tests that have problems
-			if (test.getLastExecutionResult().hasTimeout()
-					|| test.getLastExecutionResult().hasTestException()) {
-				logger.info("Skipping test with timeout or exception");
-				continue;
-			}
-
-			TestCase newTest = test.getTestCase().clone();
-			// TODO: We could cut away the call that leads to an exception?
-			/*
-			 * if (!test.getLastExecutionResult().noThrownExceptions()) { while
-			 * (newTest.size() - 1 >=
-			 * test.getLastExecutionResult().getFirstPositionOfThrownException
-			 * ()) { newTest.remove(newTest.size() - 1); } }
-			 */
-			TestCase expandedTest = expandTestCase(newTest);
-			newTestSuite.addTest(expandedTest);
-		}
-		return newTestSuite;
 	}
 
 	/**
@@ -536,88 +492,21 @@ public class TestSuiteDSE {
 		variables.addAll(expr.getVariables());
 	}
 
-	private TestCase expandTestCase(TestCase test) {
-		TestCaseExpander expander = new TestCaseExpander();
-		return expander.expandTestCase(test);
+
+
+	@Override
+	public boolean doSearch(TestSuiteChromosome individual,
+			LocalSearchObjective<TestSuiteChromosome> objective) {
+		return applyDSE(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
 	}
-
-	private TestCase updateTest(TestCase test, Map<String, Object> values) {
-
-		TestCase newTest = test.clone();
-
-		for (Object key : values.keySet()) {
-			Object val = values.get(key);
-			if (val != null) {
-				if (val instanceof Long) {
-					Long value = (Long) val;
-					String name = ((String) key).replace("__SYM", "");
-					// logger.warn("New long value for " + name + " is " +
-					// value);
-					PrimitiveStatement p = getStatement(newTest, name);
-					if (p.getValue().getClass().equals(Character.class))
-						p.setValue((char) value.intValue());
-					else if (p.getValue().getClass().equals(Long.class))
-						p.setValue(value);
-					else if (p.getValue().getClass().equals(Integer.class))
-						p.setValue(value.intValue());
-					else if (p.getValue().getClass().equals(Short.class))
-						p.setValue(value.shortValue());
-					else if (p.getValue().getClass().equals(Boolean.class))
-						p.setValue(value.intValue() > 0);
-					else if (p.getValue().getClass().equals(Byte.class))
-						p.setValue(value.byteValue() > 0);
-					else {
-
-					}
-				} else if (val instanceof String) {
-					String name = ((String) key).replace("__SYM", "");
-					PrimitiveStatement p = getStatement(newTest, name);
-					// logger.warn("New string value for " + name + " is " +
-					// val);
-					assert (p != null) : "Could not find variable " + name
-							+ " in test: " + newTest.toCode()
-							+ " / Orig test: " + test.toCode() + ", seed: "
-							+ Randomness.getSeed();
-					if (p.getValue().getClass().equals(Character.class))
-						p.setValue((char) Integer.parseInt(val.toString()));
-					else
-						p.setValue(val.toString());
-				} else if (val instanceof Double) {
-					Double value = (Double) val;
-					String name = ((String) key).replace("__SYM", "");
-					PrimitiveStatement p = getStatement(newTest, name);
-					// logger.warn("New double value for " + name + " is " +
-					// value);
-					assert (p != null) : "Could not find variable " + name
-							+ " in test: " + newTest.toCode()
-							+ " / Orig test: " + test.toCode() + ", seed: "
-							+ Randomness.getSeed();
-
-					if (p.getValue().getClass().equals(Double.class))
-						p.setValue(value);
-					else if (p.getValue().getClass().equals(Float.class))
-						p.setValue(value.floatValue());
-					else {
-
-					}
-				} else {
-
-				}
-			} else {
-
-			}
-		}
-		return newTest;
-
-	}
-
+	
 	/**
 	 * Attempt to negate individual branches until budget is used up, or there
 	 * are no further branches to negate
 	 * 
 	 * @param individual
 	 */
-	public boolean applyDSE(TestSuiteChromosome individual) {
+	public boolean applyDSE(TestSuiteChromosome individual, TestSuiteFitnessFunction fitness) {
 		logger.info("[DSE] Current test suite: " + individual.toString());
 
 		boolean wasSuccess = false;
@@ -627,8 +516,7 @@ public class TestSuiteDSE {
 
 		double originalFitness = individual.getFitness();
 
-		while (hasNextBranchCondition() && !DSEBudget.isFinished()) {
-			logger.info("DSE time remaining: " + DSEBudget.getTimeRemaining());
+		while (hasNextBranchCondition() && !LocalSearchBudget.getInstance().isFinished()) {
 			logger.info("Branches remaining: "
 					+ unsolvedBranchConditions.size());
 
@@ -679,8 +567,8 @@ public class TestSuiteDSE {
 		}
 		logger.info("Finished DSE");
 		fitness.getFitness(individual);
-		DSEBudget.evaluation();
-
+		LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
+		
 		return wasSuccess;
 	}
 
@@ -698,4 +586,5 @@ public class TestSuiteDSE {
 			calculateUncoveredBranches();
 		}
 	}
+
 }

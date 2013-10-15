@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.AdaptiveLocalSearchTarget;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,16 +137,16 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 				if (isTooLong(offspring1) || offspring1.size() == 0) {
 					rejected++;
 				} else {
-				    if(Properties.ADAPTIVE_LOCAL_SEARCH == AdaptiveLocalSearchTarget.ALL)
-					applyAdaptiveLocalSearch(offspring1);
+				    // if(Properties.ADAPTIVE_LOCAL_SEARCH == AdaptiveLocalSearchTarget.ALL)
+					// applyAdaptiveLocalSearch(offspring1);
 				    newGeneration.add(offspring1);
 				}
 
 				if (isTooLong(offspring2) || offspring2.size() == 0) {
 					rejected++;
 				} else {
-				    if(Properties.ADAPTIVE_LOCAL_SEARCH == AdaptiveLocalSearchTarget.ALL)
-					applyAdaptiveLocalSearch(offspring2);
+				    // if(Properties.ADAPTIVE_LOCAL_SEARCH == AdaptiveLocalSearchTarget.ALL)
+					// applyAdaptiveLocalSearch(offspring2);
 				    newGeneration.add(offspring2);
 				}
 
@@ -178,7 +177,7 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		// Set up initial population
 		generateInitialPopulation(Properties.POPULATION);
 		logger.debug("Calculating fitness of initial population");
-		calculateFitness();
+		calculateFitnessAndSortPopulation();
 		this.notifyIteration();
 	}
 
@@ -196,15 +195,9 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			logger.info("Population size before: " + population.size());
 			evolve();
 
-			if (shouldApplyDSE())
-				applyDSE();
-
-			if (shouldApplyLocalSearch())
-				applyLocalSearch();
-
 			sortPopulation();
-			if(Properties.ADAPTIVE_LOCAL_SEARCH == AdaptiveLocalSearchTarget.BEST)
-			    applyAdaptiveLocalSearch(getBestIndividual());
+
+			applyLocalSearch();
 
 			double newFitness = getBestIndividual().getFitness();
 

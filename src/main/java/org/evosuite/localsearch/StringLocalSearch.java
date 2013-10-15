@@ -18,12 +18,14 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.localsearch;
 
 import java.util.Arrays;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.StringPrimitiveStatement;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author fraser
  */
-public class StringLocalSearch extends LocalSearch {
+public class StringLocalSearch extends StatementLocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(StringLocalSearch.class);
 
@@ -64,7 +66,7 @@ public class StringLocalSearch extends LocalSearch {
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective<TestChromosome> objective) {
-		StringPrimitiveStatement p = (StringPrimitiveStatement) test.test.getStatement(statement);
+		StringPrimitiveStatement p = (StringPrimitiveStatement) test.getTestCase().getStatement(statement);
 		backup(test, p);
 		// TODO: First apply 10 random mutations to determine if string influences _uncovered_ branch
 
@@ -141,6 +143,9 @@ public class StringLocalSearch extends LocalSearch {
 				logger.info("Has not improved");
 				restore(test, p);
 			}
+			if(LocalSearchBudget.getInstance().isFinished())
+				break;
+			
 		}
 
 		return improvement;
@@ -158,6 +163,9 @@ public class StringLocalSearch extends LocalSearch {
 			logger.info(" -> Character " + i + ": " + oldChar);
 			char[] characters = oldValue.toCharArray();
 			for (char replacement = 9; replacement < 128; replacement++) {
+				if(LocalSearchBudget.getInstance().isFinished())
+					return improvement;
+
 				if (replacement != oldChar) {
 					characters[i] = replacement;
 					String newString = new String(characters);
@@ -198,6 +206,9 @@ public class StringLocalSearch extends LocalSearch {
 			int position = oldValue.length();
 			char[] characters = Arrays.copyOf(oldValue.toCharArray(), position + 1);
 			for (char replacement = 9; replacement < 128; replacement++) {
+				if(LocalSearchBudget.getInstance().isFinished())
+					return improvement;
+
 				characters[position] = replacement;
 				String newString = new String(characters);
 				p.setValue(newString);
@@ -221,6 +232,9 @@ public class StringLocalSearch extends LocalSearch {
 			int position = 0;
 			char[] characters = (" " + oldValue).toCharArray();
 			for (char replacement = 9; replacement < 128; replacement++) {
+				if(LocalSearchBudget.getInstance().isFinished())
+					return improvement;
+
 				characters[position] = replacement;
 				String newString = new String(characters);
 				p.setValue(newString);

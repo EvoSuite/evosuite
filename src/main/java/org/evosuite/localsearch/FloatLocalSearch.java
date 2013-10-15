@@ -18,12 +18,14 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.localsearch;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.NumericalPrimitiveStatement;
+import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,9 +36,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class FloatLocalSearch<T extends Number> extends LocalSearch {
+public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 
-	private static final Logger logger = LoggerFactory.getLogger(LocalSearch.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
 
 	private T oldValue;
 
@@ -51,24 +53,36 @@ public class FloatLocalSearch<T extends Number> extends LocalSearch {
 
 		boolean improved = false;
 
-		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.test.getStatement(statement);
+		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.getTestCase().getStatement(statement);
 		double value = p.getValue().doubleValue();
 		if (Double.isInfinite(value) || Double.isNaN(value)) {
 			return false;
 		}
+		logger.info("Applying search to: " + p.getCode());
 
-		if (doSearch(test, statement, objective, 1.0, 2, p))
+		int change = doSearch(test, statement, objective, 1.0, 2, p);
+		if(change < 0)
 			improved = true;
+		else if(change == 0) {
+			// Only apply search after the comma if the fitness was affected by the first part of the search
+			logger.info("Stopping search as variable doesn't influence fitness");
+			return improved;
+		}
+		logger.info("Checking after the comma: " + p.getCode());
 
 		int maxPrecision = p.getValue().getClass().equals(Float.class) ? 7 : 15;
 		for (int precision = 1; precision <= maxPrecision; precision++) {
+			if(LocalSearchBudget.getInstance().isFinished())
+				break;
+
 			roundPrecision(test, objective, precision, p);
 			logger.debug("Current precision: " + precision);
-			if (doSearch(test, statement, objective, Math.pow(10.0, -precision), 2, p))
+			change = doSearch(test, statement, objective, Math.pow(10.0, -precision), 2, p);
+			if(change < 0)
 				improved = true;
 		}
 
-		logger.debug("Finished local search with result " + p.getCode());
+		logger.info("Finished local search with result " + p.getCode());
 		return improved;
 	}
 
@@ -106,11 +120,11 @@ public class FloatLocalSearch<T extends Number> extends LocalSearch {
 
 	}
 
-	private boolean doSearch(TestChromosome test, int statement,
+	private int doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective<TestChromosome> objective, double initialDelta, double factor,
 	        NumericalPrimitiveStatement<T> p) {
 
-		boolean changed = false;
+		int changed = 0;
 
 		oldValue = p.getValue();
 		ExecutionResult oldResult = test.getLastExecutionResult();
@@ -119,12 +133,16 @@ public class FloatLocalSearch<T extends Number> extends LocalSearch {
 		while (!done) {
 			done = true;
 			// Try +1
-			logger.debug("Trying increment of " + p.getCode());
 			p.increment(initialDelta);
+			logger.info("Trying increment of " + p.getCode());
 			//logger.info(" -> " + p.getCode());
-			if (objective.hasImproved(test)) {
+			int change = objective.hasChanged(test);
+			if(change != 0)
+				changed = change;
+			
+			if (change < 0) {
 				done = false;
-				changed = true;
+				// changed = true;
 
 				iterate(factor * initialDelta, factor, objective, test, p, statement);
 				oldValue = p.getValue();
@@ -136,11 +154,12 @@ public class FloatLocalSearch<T extends Number> extends LocalSearch {
 				test.setLastExecutionResult(oldResult);
 				test.setChanged(false);
 
-				logger.debug("Trying decrement of " + p.getCode());
 				p.increment(-initialDelta);
+				logger.info("Trying decrement of " + p.getCode());
 				//logger.info(" -> " + p.getCode());
-				if (objective.hasImproved(test)) {
-					changed = true;
+				change = objective.hasChanged(test);
+				if (change < 0) {
+					changed = change;
 					done = false;
 					iterate(-factor * initialDelta, factor, objective, test, p, statement);
 					oldValue = p.getValue();

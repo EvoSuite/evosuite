@@ -22,7 +22,6 @@ import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.testsuite.TestCallStatement;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
@@ -749,8 +748,6 @@ public class TestFactory {
 			return false;
 		GenericAccessibleObject<?> call = Randomness.choice(calls);
 		try {
-			if (statement instanceof TestCallStatement)
-				logger.info("Changing testcall statement");
 			changeCall(test, statement, call);
 			//logger.debug("Changed to: " + test.toCode());
 

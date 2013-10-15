@@ -18,17 +18,19 @@ import com.examples.with.different.packagename.localsearch.StringLocalSearchExam
 
 public class TestLocalSearch extends SystemTest {
 
-	private int oldSearchRate = Properties.LOCAL_SEARCH_RATE;
+	private int oldSearchRate             = Properties.LOCAL_SEARCH_RATE;
+	private double oldSearchProb          = Properties.LOCAL_SEARCH_PROBABILITY;
 	private Properties.LocalSearchBudgetType localSearchBudgetType = Properties.LOCAL_SEARCH_BUDGET_TYPE;
-	private boolean localSearchArrays = Properties.LOCAL_SEARCH_ARRAYS;
+	private boolean localSearchArrays     = Properties.LOCAL_SEARCH_ARRAYS;
 	private boolean localSearchPrimitives = Properties.LOCAL_SEARCH_PRIMITIVES;
 	private boolean localSearchReferences = Properties.LOCAL_SEARCH_REFERENCES;
-	private int chromosomeLength = Properties.CHROMOSOME_LENGTH;
-	private int maxInitialTests = Properties.MAX_INITIAL_TESTS;
+	private int chromosomeLength          = Properties.CHROMOSOME_LENGTH;
+	private int maxInitialTests           = Properties.MAX_INITIAL_TESTS;
 	
 	@After
 	public void resetLocalSearchRate() {
 		Properties.LOCAL_SEARCH_RATE = oldSearchRate;
+		Properties.LOCAL_SEARCH_PROBABILITY = oldSearchProb;
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = localSearchBudgetType;
 		Properties.LOCAL_SEARCH_PRIMITIVES = localSearchPrimitives;
 		Properties.LOCAL_SEARCH_REFERENCES = localSearchReferences;
@@ -71,8 +73,9 @@ public class TestLocalSearch extends SystemTest {
 		String targetClass = IntegerLocalSearchExample.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.LOCAL_SEARCH_RATE = 2;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.INDIVIDUALS;
+		Properties.LOCAL_SEARCH_RATE = 1;
+		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
+		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = false;
 		
@@ -130,7 +133,7 @@ public class TestLocalSearch extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.LOCAL_SEARCH_RATE = 2;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.INDIVIDUALS;
+		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = false;
 		
@@ -162,7 +165,8 @@ public class TestLocalSearch extends SystemTest {
 		String targetClass = DoubleLocalSearchExample.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-
+		Properties.SEARCH_BUDGET = 30000;
+		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
@@ -188,10 +192,11 @@ public class TestLocalSearch extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.LOCAL_SEARCH_RATE = 2;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.INDIVIDUALS;
+		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = false;
-		
+		Properties.SEARCH_BUDGET = 30000;
+
 		// Make sure that local search will have effect
 		Properties.CHROMOSOME_LENGTH = 5;
 		Properties.MAX_INITIAL_TESTS = 2;
@@ -220,7 +225,8 @@ public class TestLocalSearch extends SystemTest {
 		String targetClass = StringLocalSearchExample.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-
+		Properties.SEARCH_BUDGET = 20000;
+		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
@@ -246,9 +252,10 @@ public class TestLocalSearch extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.LOCAL_SEARCH_RATE = 2;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.INDIVIDUALS;
+		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = false;
+		Properties.SEARCH_BUDGET = 20000;
 		
 		// Make sure that local search will have effect
 		Properties.CHROMOSOME_LENGTH = 5;
@@ -305,7 +312,8 @@ public class TestLocalSearch extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.LOCAL_SEARCH_RATE = 2;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.INDIVIDUALS;
+		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.SUITES;
+		Properties.LOCAL_SEARCH_BUDGET = 1;
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = true;
 		Properties.SEARCH_BUDGET = 50000;

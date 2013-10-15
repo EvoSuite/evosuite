@@ -373,13 +373,6 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	public Set<Class<?>> getDeclaredExceptions();
 
 	/**
-	 * <p>hasCalls</p>
-	 *
-	 * @return a boolean.
-	 */
-	public boolean hasCalls();
-
-	/**
 	 * <p>addCoveredGoal</p>
 	 *
 	 * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object.
