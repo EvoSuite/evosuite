@@ -18,9 +18,11 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.localsearch;
 
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.testcase.EnumPrimitiveStatement;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +32,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class EnumLocalSearch extends LocalSearch {
+public class EnumLocalSearch extends StatementLocalSearch {
 
-	private static final Logger logger = LoggerFactory.getLogger(LocalSearch.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
 
 	private Object oldValue;
 
@@ -44,7 +46,7 @@ public class EnumLocalSearch extends LocalSearch {
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective<TestChromosome> objective) {
-		EnumPrimitiveStatement p = (EnumPrimitiveStatement) test.test.getStatement(statement);
+		EnumPrimitiveStatement p = (EnumPrimitiveStatement) test.getTestCase().getStatement(statement);
 		ExecutionResult oldResult = test.getLastExecutionResult();
 		oldValue = p.getValue();
 

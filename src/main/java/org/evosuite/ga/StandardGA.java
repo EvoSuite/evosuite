@@ -109,7 +109,7 @@ public class StandardGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		// Set up initial population
 		generateInitialPopulation(Properties.POPULATION);
 		// Determine fitness
-		calculateFitness();
+		calculateFitnessAndSortPopulation();
 		this.notifyIteration();
 	}
 
@@ -125,13 +125,9 @@ public class StandardGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 			evolve();
 			// Determine fitness
-			calculateFitness();
+			calculateFitnessAndSortPopulation();
 
-			if (shouldApplyDSE())
-				applyDSE();
-
-			if (shouldApplyLocalSearch())
-				applyLocalSearch();
+			applyLocalSearch();
 
 			this.notifyIteration();
 		}

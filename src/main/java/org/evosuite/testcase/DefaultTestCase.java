@@ -33,7 +33,6 @@ import java.util.Set;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.testsuite.TestCallStatement;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.ListenableList;
@@ -805,20 +804,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 			exceptions.addAll(statement.getDeclaredExceptions());
 		}
 		return exceptions;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#hasCalls()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean hasCalls() {
-		for (StatementInterface s : statements) {
-			if (s instanceof TestCallStatement) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/* (non-Javadoc)

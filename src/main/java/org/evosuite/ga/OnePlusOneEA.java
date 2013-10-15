@@ -58,8 +58,8 @@ public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 		if (isBetterOrEqual(offspring, parent)) {
 			//logger.info("Replacing old population");
-			if(isBetter(offspring, parent))
-				applyAdaptiveLocalSearch(offspring);
+			//if(isBetter(offspring, parent))
+			//	applyAdaptiveLocalSearch(offspring);
 
 			population.set(0, offspring);
 		} else {
@@ -97,11 +97,7 @@ public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			}
 			evolve();
 
-			if (shouldApplyDSE())
-				applyDSE();
-
-			if (shouldApplyLocalSearch())
-				applyLocalSearch();
+			applyLocalSearch();
 
 			this.notifyIteration();
 		}

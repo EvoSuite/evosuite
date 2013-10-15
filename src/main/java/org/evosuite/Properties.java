@@ -293,35 +293,18 @@ public class Properties {
 	@Parameter(key = "dse_negate_all_conditions", group = "Search Algorithm", description = "Negate all branch conditions in the path condition (covered or not)")
 	public static boolean DSE_NEGATE_ALL_CONDITIONS = true;
 
-	/** Constant <code>DSE_RATE=-1</code> */
-	@Parameter(key = "dse_rate", group = "Search Algorithm", description = "Apply DSE at every X generation")
-	public static int DSE_RATE = -1;
+	//@Parameter(key = "dse_adaptive_probability", group = "Search Algorithm", description = "Apply DSE with a certain, adaptive, probability")
+	//public static double DSE_ADAPTIVE_PROBABILITY = 0.0;
 
-	@Parameter(key = "dse_adaptive_probability", group = "Search Algorithm", description = "Apply DSE with a certain, adaptive, probability")
-	public static double DSE_ADAPTIVE_PROBABILITY = 0.0;
-
-	@Parameter(key = "dse_adaptive_rate", group = "Search Algorithm", description = "If successful, increase DSE probability by factor...")
-	public static double DSE_ADAPTIVE_RATE = 2;
+	//@Parameter(key = "dse_adaptive_rate", group = "Search Algorithm", description = "If successful, increase DSE probability by factor...")
+	//public static double DSE_ADAPTIVE_RATE = 2;
 
 	/** Constant <code>DSE_CONSTRAINT_LENGTH=100000</code> */
 	@Parameter(key = "dse_constraint_length", group = "Search Algorithm", description = "Maximal length of the constraints in DSE")
 	public static int DSE_CONSTRAINT_LENGTH = 100000;
 
 	@Parameter(key = "dse_constant_probability", group = "Search Algorithm", description = "Probability with which to use constants from the constraints when resetting variables during search")
-	public static double DSE_CONSTANT_PROBABILITY = 0.5;
-
-	public enum DSEBudgetType {
-		INDIVIDUALS, TIME, BEST_TIME
-	}
-
-	/** Constant <code>DSE_BUDGET_TYPE</code> */
-	@Parameter(key = "dse_budget_type", group = "Search Algorithm", description = "Interpretation of dse_budget property")
-	public static DSEBudgetType DSE_BUDGET_TYPE = DSEBudgetType.BEST_TIME;
-
-	/** Constant <code>DSE_BUDGET=1</code> */
-	@Parameter(key = "dse_budget", group = "Search Algorithm", description = "Milliseconds allowed for dse local search")
-	@IntValue(min = 0)
-	public static long DSE_BUDGET = 10000;
+	public static double DSE_CONSTANT_PROBABILITY = 0.5;	
 
 	/** Constant <code>DSE_VARIABLE_RESETS=1</code> */
 	@Parameter(key = "dse_variable_resets", group = "Search Algorithm", description = "Times DSE resets the int and real variables with random values")
@@ -331,15 +314,22 @@ public class Properties {
 	@Parameter(key = "local_search_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
 	public static int LOCAL_SEARCH_RATE = -1;
 
-	public enum AdaptiveLocalSearchTarget {
-		OFF, BEST, ALL
+	@Parameter(key = "local_search_probability", group = "Search Algorithm", description = "Apply local search at every X generation")
+	public static double LOCAL_SEARCH_PROBABILITY = 1.0;
+
+	@Parameter(key = "local_search_selective", group = "Search Algorithm", description = "Apply local search only to individuals that changed fitness")
+	public static boolean LOCAL_SEARCH_SELECTIVE = false;
+
+	public enum DSEType {
+		OFF, STATEMENT, TEST, SUITE;
 	}
-
-	@Parameter(key = "adaptive_local_search", group = "Search Algorithm", description = "Apply adaptive local search")
-	public static AdaptiveLocalSearchTarget ADAPTIVE_LOCAL_SEARCH = AdaptiveLocalSearchTarget.OFF;
-
-	@Parameter(key = "adaptive_local_search_dse", group = "Search Algorithm", description = "Use DSE on entire test suite in local search")
-	public static boolean ADAPTIVE_LOCAL_SEARCH_DSE = true;
+	
+	/** Constant <code>LOCAL_SEARCH_BUDGET_TYPE</code> */
+	@Parameter(key = "local_search_dse", group = "Search Algorithm", description = "Granularity of DSE application")
+	public static DSEType LOCAL_SEARCH_DSE = DSEType.OFF;
+	
+	@Parameter(key = "local_search_adaptation_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
+	public static double LOCAL_SEARCH_ADAPTATION_RATE = 1.0;
 
 	@Parameter(key = "dse_keep_all_tests", group = "Search Algorithm", description = "Keep tests even if they do not increase fitness")
 	public static boolean DSE_KEEP_ALL_TESTS = false;
@@ -349,7 +339,7 @@ public class Properties {
 	public static long LOCAL_SEARCH_BUDGET = 100;
 
 	public enum LocalSearchBudgetType {
-		STATEMENTS, TIME, INDIVIDUALS
+		STATEMENTS, TESTS, TIME, SUITES, FITNESS_EVALUATIONS
 	}
 
 	/** Constant <code>LOCAL_SEARCH_BUDGET_TYPE</code> */
@@ -1000,26 +990,9 @@ public class Properties {
 	@Parameter(key = "alternative_fitness_calculation_mode", description = "")
 	public static AlternativeFitnessCalculationMode ALTERNATIVE_FITNESS_CALCULATION_MODE = AlternativeFitnessCalculationMode.SUM;
 
-	/** Constant <code>INITIALLY_ENFORCED_RANDOMNESS=0.4</code> */
-	@Parameter(key = "initially_enforced_randomness", description = "")
-	@DoubleValue(min = 0.0, max = 1.0)
-	public static double INITIALLY_ENFORCED_RANDOMNESS = 0.4;
-
-	/** Constant <code>ALTERNATIVE_FITNESS_RANGE=100.0</code> */
-	@Parameter(key = "alternative_fitness_range", description = "")
-	public static double ALTERNATIVE_FITNESS_RANGE = 100.0;
-
 	/** Constant <code>STARVE_BY_FITNESS=true</code> */
 	@Parameter(key = "starve_by_fitness", description = "")
 	public static boolean STARVE_BY_FITNESS = true;
-
-	/** Constant <code>PENALIZE_OVERWRITING_DEFINITIONS_FLAT=false</code> */
-	@Parameter(key = "penalize_overwriting_definitions_flat", description = "")
-	public static boolean PENALIZE_OVERWRITING_DEFINITIONS_FLAT = false;
-
-	/** Constant <code>PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY=false</code> */
-	@Parameter(key = "penalize_overwriting_definitions_linearly", description = "")
-	public static boolean PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY = false;
 
 	/** Constant <code>ENABLE_ALTERNATIVE_FITNESS_CALCULATION=false</code> */
 	@Parameter(key = "enable_alternative_fitness_calculation", description = "")

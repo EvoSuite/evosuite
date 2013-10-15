@@ -374,6 +374,7 @@ public class EvoSuite {
 		Option base_dir = new Option("base_dir", true,
 		        "Working directory in which tests and reports will be placed");
 
+		@SuppressWarnings("static-access")
 		Option property = OptionBuilder.withArgName("property=value").hasArgs(2).withValueSeparator().withDescription("use value for given property").create("D");
 
 		for (Option option : generateOptions) {

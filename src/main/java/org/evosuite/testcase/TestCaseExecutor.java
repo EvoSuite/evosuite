@@ -31,7 +31,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.contracts.ContractChecker;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.sandbox.PermissionStatistics;

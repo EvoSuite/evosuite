@@ -145,7 +145,6 @@ public class TestSuiteMinimizer {
 
 		logger.info("Minimizing per test");
 
-		Properties.RECYCLE_CHROMOSOMES = false; // TODO: FIXXME!
 		ExecutionTracer.enableTraceCalls();
 
 		for (TestChromosome test : suite.getTestChromosomes()) {
@@ -383,7 +382,6 @@ public class TestSuiteMinimizer {
 	public void minimizeSuite(TestSuiteChromosome suite) {
 
 		CurrentChromosomeTracker.getInstance().modification(suite);
-		Properties.RECYCLE_CHROMOSOMES = false; // TODO: FIXXME!
 
 		// Remove previous results as they do not contain method calls
 		// in the case of whole suite generation

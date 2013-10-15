@@ -19,6 +19,7 @@ package org.evosuite.ga;
 
 import java.io.Serializable;
 
+import org.evosuite.localsearch.LocalSearchObjective;
 import org.evosuite.utils.PublicCloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -189,9 +190,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * Apply the local search
 	 * 
 	 * @param objective
-	 *            a {@link org.evosuite.ga.LocalSearchObjective} object.
+	 *            a {@link org.evosuite.localsearch.LocalSearchObjective} object.
 	 */
-	public abstract void localSearch(LocalSearchObjective<? extends Chromosome> objective);
+	public abstract boolean localSearch(LocalSearchObjective<? extends Chromosome> objective);
 
 	/**
 	 * Apply the local search
@@ -199,9 +200,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @param objective
 	 *            a {@link org.evosuite.ga.LocalSearchObjective} object.
 	 */
-	public void applyAdaptiveLocalSearch(LocalSearchObjective<? extends Chromosome> objective) {
-		// No-op
-	}
+	//public void applyAdaptiveLocalSearch(LocalSearchObjective<? extends Chromosome> objective) {
+	//	// No-op
+	//}
 
 	/**
 	 * Apply DSE
@@ -209,7 +210,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @param algorithm
 	 *            a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
-	public abstract boolean applyDSE(GeneticAlgorithm<?> algorithm);
+	//public abstract boolean applyDSE(GeneticAlgorithm<?> algorithm);
 
 	/**
 	 * Return length of individual

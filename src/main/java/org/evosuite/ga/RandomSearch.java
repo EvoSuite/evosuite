@@ -71,7 +71,7 @@ public class RandomSearch<T extends Chromosome> extends GeneticAlgorithm<T> {
 	@Override
 	public void initializePopulation() {
 		generateRandomPopulation(1);
-		calculateFitness();
+		calculateFitnessAndSortPopulation();
 	}
 
 	/* (non-Javadoc)

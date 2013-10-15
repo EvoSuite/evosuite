@@ -18,14 +18,14 @@
 /**
  * 
  */
-package org.evosuite.testsuite;
+package org.evosuite.localsearch;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.evosuite.ga.LocalSearchBudget;
-import org.evosuite.ga.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +110,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	public int hasChanged(TestChromosome individual) {
 		individual.setChanged(true);
 		suite.setTestChromosome(testIndex, individual);
-		LocalSearchBudget.evaluation();
+		LocalSearchBudget.getInstance().countFitnessEvaluation();
 		double newFitness = fitness.getFitness(suite);
 		if (newFitness < lastFitness) { // TODO: Maximize
 			logger.info("Local search improved fitness from " + lastFitness + " to "

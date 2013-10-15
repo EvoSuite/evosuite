@@ -287,39 +287,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		TestChromosome dummy = new TestChromosome();
 		return getFitness(dummy, result);
 	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * First approximation: A DUGoal is similar to another one if the goalDef or
-	 * goalUse branch of this goal is similar to the goalDef or goalUse branch
-	 * of the other goal
-	 * 
-	 * TODO should be: Either make it configurable or choose one: - first
-	 * approximation as described above - similar if goal definition or use are
-	 * equal - something really fancy considering potential overwriting
-	 * definitions and stuff
-	 */
-	@Override
-	public boolean isSimilarTo(TestFitnessFunction goal) {
-		return false; // disabled for now
-		//		if (goal instanceof BranchCoverageTestFitness) {
-		//			BranchCoverageTestFitness branchFitness = (BranchCoverageTestFitness) goal;
-		//			if (goalDefinitionBranchFitness != null
-		//			        && branchFitness.isSimilarTo(goalDefinitionBranchFitness))
-		//				return true;
-		//			return branchFitness.isSimilarTo(goalUseBranchFitness);
-		//		}
-		//		try {
-		//			DefUseCoverageTestFitness other = (DefUseCoverageTestFitness) goal;
-		//			if (goalDefinitionBranchFitness != null
-		//			        && goalDefinitionBranchFitness.isSimilarTo(other))
-		//				return true;
-		//			return goalUseBranchFitness.isSimilarTo(other);
-		//		} catch (ClassCastException e) {
-		//			return false;
-		//		}
-	}
 	
 	public boolean isAlias() {
 		return goalDefinition != null ? !goalUse.getVariableName().equals(goalDefinition.getVariableName()) : false;

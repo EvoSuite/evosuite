@@ -27,9 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.evosuite.Properties.AdaptiveLocalSearchTarget;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.Properties.DSEType;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TheReplacementFunction;
 import org.evosuite.assertion.AssertionGenerator;
@@ -113,6 +113,7 @@ import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
 import org.evosuite.seeding.ObjectPoolManager;
+import org.evosuite.seeding.TestCaseRecycler;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.DSEStats;
@@ -682,9 +683,7 @@ public class TestSuiteGenerator {
 		        && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
 
-		if (Properties.DSE_RATE > 0
-		        || Properties.ADAPTIVE_LOCAL_SEARCH != AdaptiveLocalSearchTarget.OFF
-		        || Properties.DSE_ADAPTIVE_PROBABILITY > 0) {
+		if (Properties.LOCAL_SEARCH_DSE != DSEType.OFF) {
 			DSEStats.printStatistics();
 		}
 
@@ -1740,6 +1739,11 @@ public class TestSuiteGenerator {
 			        * (BranchPool.getNumBranchlessMethods(Properties.TARGET_CLASS) + BranchPool.getBranchCountForClass(Properties.TARGET_CLASS) * 2);
 			stopping_condition.setLimit(Properties.SEARCH_BUDGET);
 			logger.info("Setting dynamic length limit to " + Properties.SEARCH_BUDGET);
+		}
+		
+		if(Properties.RECYCLE_CHROMOSOMES) {
+			if (Properties.STRATEGY == Strategy.ONEBRANCH)
+				ga.addListener(TestCaseRecycler.getInstance());
 		}
 
 		if (Properties.SHUTDOWN_HOOK) {

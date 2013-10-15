@@ -74,7 +74,7 @@ public class GenericTypeInference extends TestVisitor {
 		variableMap.get(value).add(type);
 	}
 
-	private void calculateExactTypes() {
+	protected void calculateExactTypes() {
 		// For each type, if it is a parameterized type determine most specific instantiation
 		logger.info("Types to consider: " + typeMap.size());
 		for (Type type : typeMap.keySet()) {

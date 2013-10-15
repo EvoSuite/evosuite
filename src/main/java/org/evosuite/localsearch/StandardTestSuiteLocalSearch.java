@@ -1,0 +1,74 @@
+package org.evosuite.localsearch;
+
+import java.util.List;
+
+import org.evosuite.Properties;
+import org.evosuite.Properties.DSEType;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.Randomness;
+
+public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
+
+	@Override
+	public boolean doSearch(TestSuiteChromosome individual,
+			LocalSearchObjective<TestSuiteChromosome> objective) {
+		logger.info("Test suite before local search: " + individual);
+
+		List<TestChromosome> tests = individual.getTestChromosomes();
+		/*
+		 * When we apply local search, due to budget constraints we might not be able
+		 * to evaluate all the test cases in a test suite. When we apply LS several times on
+		 * same individual in different generations, to avoid having always the same test cases searched for and
+		 * others skipped, then we shuffle the test cases, so each time the order is different 
+		 */
+		Randomness.shuffle(tests);
+
+		ensureDoubleExecution(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
+		expandTestSuite(individual);
+		logger.info("Test suite after expansion and double execution: " + individual);
+
+		double fitnessBefore = individual.getFitness();
+		if(Properties.LOCAL_SEARCH_DSE == DSEType.SUITE)
+			doDSESearch(individual, objective);
+		else
+			doRegularSearch(individual, objective);
+		
+		LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
+		logger.info("Test suite after local search: " + individual);
+
+		assert (objective.getFitnessFunction().isMaximizationFunction() ? fitnessBefore <= individual.getFitness(): fitnessBefore >= individual.getFitness());
+
+		// Return true if fitness has improved
+		return objective.getFitnessFunction().isMaximizationFunction() ? fitnessBefore > individual.getFitness(): fitnessBefore < individual.getFitness();
+	}
+	
+	private void doRegularSearch(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
+		List<TestChromosome> tests = individual.getTestChromosomes();
+		for (int i = 0; i < tests.size(); i++) {
+			TestChromosome test = tests.get(i);
+			if (individual.isUnmodifiable(test)) {
+				continue;
+			}
+
+			logger.debug("Local search on test " + i);
+			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
+			        (TestSuiteFitnessFunction) objective.getFitnessFunction(), individual, i);
+
+			if (LocalSearchBudget.getInstance().isFinished()) {
+				logger.debug("Local search budget used up: "+Properties.LOCAL_SEARCH_BUDGET_TYPE);
+				break;
+			}
+			logger.debug("Local search budget not yet used up");
+
+			test.localSearch(testObjective);
+		}
+
+	}
+	
+	protected void doDSESearch(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
+		TestSuiteDSE dse = new TestSuiteDSE();
+		dse.applyDSE(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
+	}
+}
