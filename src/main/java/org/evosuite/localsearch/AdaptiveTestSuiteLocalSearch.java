@@ -25,7 +25,8 @@ public class AdaptiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		}
 		if(!hasRelevantTests) 
 			return false;
-		
+		logger.info("Applying DSE to test suite");
+
 		// DSEBudget.DSEStarted();
 		TestSuiteDSE dse = new TestSuiteDSE();
 		// TestSuiteDSE will report attempt to LocalSearchBudget
@@ -74,7 +75,7 @@ public class AdaptiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 	private boolean applyLocalSearchToTest(TestChromosome clone, TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
 		 individual.addTest(clone);
 		 TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective((TestSuiteFitnessFunction) objective.getFitnessFunction(), individual, individual.size() - 1);
-		 logger.info("Applying DSE to test: " + clone.getTestCase().toCode());
+		 logger.info("Applying local search to test: " + clone.getTestCase().toCode());
 		 AdaptiveTestCaseLocalSearch localSearch = new AdaptiveTestCaseLocalSearch();
 		 boolean result = localSearch.doSearch(clone, testObjective);
 		 LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();

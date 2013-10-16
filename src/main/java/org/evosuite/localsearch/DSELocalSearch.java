@@ -35,7 +35,7 @@ public class DSELocalSearch extends StatementLocalSearch {
 		logger.info(test.getTestCase().toCode());
 		logger.info("Starting symbolic execution");
 		// Backup copy
-		test.getMutationHistory().clear();
+		// test.getMutationHistory().clear();
 		TestChromosome clone = (TestChromosome) test.clone();
 
 		// List<BranchCondition> conditions =
