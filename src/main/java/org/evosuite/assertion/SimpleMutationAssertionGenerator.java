@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
@@ -31,10 +32,8 @@ public class SimpleMutationAssertionGenerator extends
 		
 		Set<Integer> tkilled = new HashSet<Integer>();
 		int numTest = 0;
-		long startTime = System.currentTimeMillis();
 		for (TestCase test : suite.getTests()) {
-			long currentTime = System.currentTimeMillis() / 1000;
-			if (currentTime - startTime > Properties.ASSERTION_TIMEOUT) {
+			if (! TimeController.getInstance().isThereStillTimeInThisPhase()) {
 				logger.info("Reached maximum time to generate assertions!");
 				break;
 			}

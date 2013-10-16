@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.TestFitnessFactory;
@@ -297,14 +298,7 @@ public class TestSuiteMinimizer {
 	}
 
 	private boolean isTimeoutReached() {
-		long currentTime = System.currentTimeMillis();
-		int maxSeconds = Properties.MINIMIZATION_TIMEOUT;
-		if (maxSeconds != 0 && startTime != 0
-		        && (currentTime - startTime) / 1000 > maxSeconds)
-			logger.info("Timeout reached");
-
-		return maxSeconds != 0 && startTime != 0
-		        && (currentTime - startTime) / 1000 > maxSeconds;
+		return TimeController.getInstance().isThereStillTimeInThisPhase();
 	}
 
 	/**

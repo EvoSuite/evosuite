@@ -24,7 +24,7 @@ public class TimeController {
 
 	private static final Logger logger = LoggerFactory.getLogger(TimeController.class);
 	
-	private static volatile TimeController singleton = new TimeController();
+	private static final TimeController singleton = new TimeController();
 
 	/**
 	 *  The current state of the client
@@ -58,9 +58,17 @@ public class TimeController {
 	 * Main and only constructor
 	 */
 	protected TimeController(){
+		init();
+	}
+
+	private void init() {
 		state = ClientState.NOT_STARTED;
 		clientStartTime = 0;
 		initializePhaseTimeouts();
+	}
+
+	public static void resetSingleton(){
+		getInstance().init();
 	}
 
 	private void initializePhaseTimeouts() {
@@ -88,10 +96,6 @@ public class TimeController {
 	 */
 	public static TimeController getInstance(){
 		return singleton;
-	}
-
-	public static void resetSingleton(){
-		singleton =  new TimeController();
 	}
 
 
@@ -129,7 +133,7 @@ public class TimeController {
 		}
 	}
 
-	public static int calculateForHowLongClientWillRunInSeconds() {
+	public int calculateForHowLongClientWillRunInSeconds() {
 		int time = Properties.EXTRA_TIMEOUT;
 
 		time += getSearchBudgetInSeconds();
@@ -147,7 +151,7 @@ public class TimeController {
 	 * Is there time to execute a test case?
 	 * This not only depends on which phase we are in, but
 	 * also on how maximum long a test case can be left run
-	 * before trying to kill its thread if timeout.
+	 * before trying to kill its threads if timeout.
 	 * 
 	 * @return
 	 */
