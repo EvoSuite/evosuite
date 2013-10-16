@@ -6,7 +6,7 @@ package org.evosuite.regression;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
@@ -144,20 +144,10 @@ public class RegressionTestChromosome extends ExecutableChromosome {
 	 * @see org.evosuite.ga.Chromosome#localSearch(org.evosuite.ga.LocalSearchObjective)
 	 */
 	@Override
-	public void localSearch(LocalSearchObjective objective) {
-		theTest.localSearch(objective);
+	public boolean localSearch(LocalSearchObjective objective) {
+		boolean result = theTest.localSearch(objective);
 		updateClassloader();
-
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.Chromosome#applyDSE(org.evosuite.ga.GeneticAlgorithm)
-	 */
-	@Override
-	public boolean applyDSE(GeneticAlgorithm algorithm) {
-		boolean success = theTest.applyDSE(algorithm);
-		updateClassloader();
-		return success;
+		return result;
 	}
 
 	/* (non-Javadoc)

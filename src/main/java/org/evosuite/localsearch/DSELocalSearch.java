@@ -1,4 +1,4 @@
-package org.evosuite.testcase;
+package org.evosuite.localsearch;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.LocalSearchObjective;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.DSEStats;
@@ -16,11 +15,17 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.search.CachedConstraintSolver;
 import org.evosuite.symbolic.search.ConstraintSolverTimeoutException;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.PrimitiveStatement;
+import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DSELocalSearch extends LocalSearch {
+public class DSELocalSearch extends StatementLocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(DSELocalSearch.class);
 
@@ -30,7 +35,7 @@ public class DSELocalSearch extends LocalSearch {
 		logger.info(test.getTestCase().toCode());
 		logger.info("Starting symbolic execution");
 		// Backup copy
-		test.getMutationHistory().clear();
+		// test.getMutationHistory().clear();
 		TestChromosome clone = (TestChromosome) test.clone();
 
 		// List<BranchCondition> conditions =

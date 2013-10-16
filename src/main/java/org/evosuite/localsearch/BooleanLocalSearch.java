@@ -18,9 +18,11 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.localsearch;
 
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.PrimitiveStatement;
+import org.evosuite.testcase.TestChromosome;
 
 /**
  * <p>
@@ -29,7 +31,7 @@ import org.evosuite.ga.LocalSearchObjective;
  * 
  * @author Gordon Fraser
  */
-public class BooleanLocalSearch extends LocalSearch {
+public class BooleanLocalSearch extends StatementLocalSearch {
 
 	private boolean oldValue;
 
@@ -42,7 +44,7 @@ public class BooleanLocalSearch extends LocalSearch {
 	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective<TestChromosome> objective) {
 
-		PrimitiveStatement<Boolean> p = (PrimitiveStatement<Boolean>) test.test.getStatement(statement);
+		PrimitiveStatement<Boolean> p = (PrimitiveStatement<Boolean>) test.getTestCase().getStatement(statement);
 		ExecutionResult oldResult = test.getLastExecutionResult();
 		oldValue = p.getValue();
 

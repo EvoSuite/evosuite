@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.DSEBudgetType;
+import org.evosuite.Properties.LocalSearchBudgetType;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
@@ -39,8 +39,8 @@ public class TestConstraintSolver3 {
 
 	@Test
 	public void test() {
-		Properties.DSE_BUDGET = 5000000000000L;
-		Properties.DSE_BUDGET_TYPE = DSEBudgetType.INDIVIDUALS;
+		Properties.LOCAL_SEARCH_BUDGET = 100; // 5000000000000L; TODO - ??
+		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.FITNESS_EVALUATIONS;
 
 		Collection<Constraint<?>> constraints = buildConstraintSystem();
 

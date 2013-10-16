@@ -29,11 +29,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.Strategy;
-import org.evosuite.Properties.AdaptiveLocalSearchTarget;
-import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.localsearch.DefaultLocalSearchObjective;
+import org.evosuite.localsearch.LocalSearchBudget;
+import org.evosuite.localsearch.LocalSearchObjective;
 import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -93,7 +93,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	public GeneticAlgorithm(ChromosomeFactory<T> factory) {
 		chromosomeFactory = factory;
 		addStoppingCondition(new MaxGenerationStoppingCondition());
-		addListener(new LocalSearchBudget());
+		if(Properties.LOCAL_SEARCH_RATE > 0)
+			addListener(LocalSearchBudget.getInstance());
 		// addBloatControl(new MaxSizeBloatControl());
 	}
 
@@ -108,37 +109,35 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * @return a boolean.
 	 */
 	protected boolean shouldApplyLocalSearch() {
+		// If local search is not set to a rate, then we don't use it at all
 		if (Properties.LOCAL_SEARCH_RATE <= 0)
 			return false;
 
-		return (getAge() % Properties.LOCAL_SEARCH_RATE == 0);
+		if(getAge() % Properties.LOCAL_SEARCH_RATE == 0) {
+			if(Randomness.nextDouble() < Properties.LOCAL_SEARCH_PROBABILITY) {
+				return true;
+			}
+		}
+		return false;		
 	}
 
 	/**
-	 * Local search is applied to individuals if they improved fitness
-	 * 
-	 * @param individual
-	 */
-	protected void applyAdaptiveLocalSearch(Chromosome individual) {
-
-		if (Properties.ADAPTIVE_LOCAL_SEARCH == AdaptiveLocalSearchTarget.OFF)
-			return;
-
-		individual.applyAdaptiveLocalSearch(localObjective);
-	}
-
-	/**
-	 * Apply local search
+	 * Apply local search, starting from the best individual 
+	 * and continue applying it to all individuals until the
+	 * local search budget is used up
 	 */
 	protected void applyLocalSearch() {
+		if(!shouldApplyLocalSearch())
+			return;
+		
 		logger.debug("Applying local search");
-		LocalSearchBudget.localSearchStarted();
+		LocalSearchBudget.getInstance().localSearchStarted();
 
 		for (Chromosome individual : population) {
 			if (isFinished())
 				break;
 
-			if (LocalSearchBudget.isFinished()) {
+			if (LocalSearchBudget.getInstance().isFinished()) {
 				logger.debug("Local search budget used up, exiting local search");
 				break;
 			}
@@ -146,31 +145,13 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			individual.localSearch(localObjective);
 		}
 	}
-
-	/**
-	 * DSE is only applied every X generations
-	 * 
-	 * @return a boolean.
-	 */
-	protected boolean shouldApplyDSE() {
-		
-		// If we use DSE in adaptive local search then this is not the place to apply it
-		if(Properties.ADAPTIVE_LOCAL_SEARCH_DSE)
-			return false;
-		
-		// If DSE is not applied in adaptive local search, it either has a fixed rate or probability
-		if(Properties.DSE_ADAPTIVE_PROBABILITY > 0.0) {
-			return Randomness.nextDouble() < Properties.DSE_ADAPTIVE_PROBABILITY;
-		} else if (Properties.DSE_RATE > 0) {
-			return (getAge() % Properties.DSE_RATE == 0);
-		} else {
-			return false;
-		}
-	}
-
+	
+	
 	/**
 	 * Apply dynamic symbolic execution
 	 */
+	/*
+	@Deprecated
 	protected void applyDSE() {
 		logger.info("Applying DSE at generation " + currentIteration);
 		DSEBudget.DSEStarted();
@@ -200,7 +181,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			logger.info("Updating DSE probability to "+Properties.DSE_ADAPTIVE_PROBABILITY);
 		}
 	}
-
+*/
 	/**
 	 * Set up initial population
 	 */
@@ -226,45 +207,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 *            a int.
 	 */
 	protected void generateInitialPopulation(int population_size) {
-		boolean recycle = Properties.RECYCLE_CHROMOSOMES;
-		// FIXME: Possible without reference to strategy?
-		if (Properties.STRATEGY == Strategy.EVOSUITE) // recycling only makes sense for single test generation
-			recycle = false;
-		if (recycle)
-			recycleChromosomes(population_size);
-
 		generateRandomPopulation(population_size - population.size());
-		// TODO: notifyIteration? calculateFitness?
 	}
 
-	/**
-	 * Adds to the current population all chromosomes that had a good
-	 * performance on a goal that was similar to the current fitness_function.
-	 * 
-	 * For more information look at ChromosomeRecycler and
-	 * TestFitnessFunction.isSimilarTo()
-	 * 
-	 * @param populationSize
-	 *            a int.
-	 */
-	@SuppressWarnings("unchecked")
-	protected void recycleChromosomes(int populationSize) {
-		if (fitnessFunction == null)
-			return;
-		ChromosomeRecycler recycler = ChromosomeRecycler.getInstance();
-		Set<Chromosome> recycables = recycler.getRecycableChromosomes(fitnessFunction);
-		for (Chromosome recycable : recycables) {
-			population.add((T)recycable);
-		}
-		double enforcedRandomness = Properties.INITIALLY_ENFORCED_RANDOMNESS;
-		if (enforcedRandomness < 0.0 || enforcedRandomness > 1.0) {
-			logger.warn("property \"initially_enforced_Randomness\" is supposed to be a percentage in [0.0,1.0]");
-			logger.warn("retaining to default");
-			enforcedRandomness = 0.4;
-		}
-		enforcedRandomness = 1 - enforcedRandomness;
-		starveToLimit((int) (populationSize * enforcedRandomness));
-	}
 
 	/**
 	 * This method can be used to kick out chromosomes when the population is
@@ -305,7 +250,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 *            a int.
 	 */
 	protected void starveByFitness(int limit) {
-		calculateFitness();
+		calculateFitnessAndSortPopulation();
 		for (int i = population.size() - 1; i >= limit; i--) {
 			population.remove(i);
 		}
@@ -427,7 +372,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	/**
 	 * Calculate fitness for all individuals
 	 */
-	protected void calculateFitness() {
+	protected void calculateFitnessAndSortPopulation() {
 		logger.debug("Calculating fitness for " + population.size() + " individuals");
 
 		Iterator<T> iterator = population.iterator();
@@ -444,25 +389,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 		// Sort population
 		sortPopulation();
-	}
-
-	/**
-	 * It assumes the population being sorted. After removal, at least 2
-	 * individuals should be left
-	 * 
-	 * @param numberOfIndividuals
-	 *            a int.
-	 */
-	public void removeWorstIndividuals(int numberOfIndividuals) {
-		if (numberOfIndividuals > (population.size() - 2)) {
-			throw new IllegalArgumentException("Asked to remove " + numberOfIndividuals
-			        + " individuals, but population size is " + population.size());
-		}
-
-		int desiredSize = population.size() - numberOfIndividuals;
-		for (int i = population.size() - 1; i >= desiredSize; i--) {
-			population.remove(i);
-		}
 	}
 
 	/**
@@ -886,28 +812,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		if (addStatistics) {
 			SearchStatistics.setInstance((SearchStatistics) ois.readObject());
 			addListener(SearchStatistics.getInstance());
-		}
-	}
-
-	/**
-	 * Set pause before MA
-	 */
-	public void pauseGlobalTimeStoppingCondition() {
-		for (StoppingCondition c : stoppingConditions) {
-			if (c instanceof GlobalTimeStoppingCondition) {
-				((GlobalTimeStoppingCondition) c).pause();
-			}
-		}
-	}
-
-	/**
-	 * Resume from pause after MA
-	 */
-	public void resumeGlobalTimeStoppingCondition() {
-		for (StoppingCondition c : stoppingConditions) {
-			if (c instanceof GlobalTimeStoppingCondition) {
-				((GlobalTimeStoppingCondition) c).resume();
-			}
 		}
 	}
 }

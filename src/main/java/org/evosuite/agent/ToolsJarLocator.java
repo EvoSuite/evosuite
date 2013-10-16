@@ -87,7 +87,7 @@ public class ToolsJarLocator {
 		}
 
 		try {
-			Class<?> clazz = Class.forName(EXAMPLE_CLASS, true, loader);
+			Class.forName(EXAMPLE_CLASS, true, loader);
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException("Missing "+EXAMPLE_CLASS+" in "+location);
 		}

@@ -1,12 +1,14 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.localsearch;
 
 import java.util.Arrays;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.StringPrimitiveStatement;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * @author Gordon Fraser
  * 
  */
-public class StringAVMLocalSearch extends LocalSearch {
+public class StringAVMLocalSearch extends StatementLocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(StringLocalSearch.class);
 
@@ -44,7 +46,7 @@ public class StringAVMLocalSearch extends LocalSearch {
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective<TestChromosome> objective) {
-		StringPrimitiveStatement p = (StringPrimitiveStatement) test.test.getStatement(statement);
+		StringPrimitiveStatement p = (StringPrimitiveStatement) test.getTestCase().getStatement(statement);
 		backup(test, p);
 		// TODO: First apply 10 random mutations to determine if string influences _uncovered_ branch
 

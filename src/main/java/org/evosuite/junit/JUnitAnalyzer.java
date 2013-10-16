@@ -235,6 +235,10 @@ public class JUnitAnalyzer {
 				logger.error("Compilation failed on compilation units: "
 						+ compilationUnits);
 				for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
+					if(diagnostic.getMessage(null).startsWith("error while writing")) {
+						logger.error("Error is due to file permissions, ignoring...");
+						return generated;
+					}
 					logger.error("Diagnostic: " + diagnostic.getMessage(null) + ": "
 							+ diagnostic.getLineNumber());
 				}

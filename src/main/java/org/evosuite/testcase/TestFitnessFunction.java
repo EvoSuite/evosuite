@@ -19,7 +19,6 @@ package org.evosuite.testcase;
 
 import java.util.List;
 
-import org.evosuite.ga.ChromosomeRecycler;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -67,33 +66,6 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		updateIndividual(individual, fitness);
 
 		return individual.getFitness();
-	}
-
-	/**
-	 * This function is used by the ChromosomeRecycler to determine whether an
-	 * older TestChromosome that covered the given goal should be added to the
-	 * initial population for this TestFitnessFunction
-	 * 
-	 * Each CoverageTestFitness can override this method in order to define when
-	 * two goals are similar to each other in a way that tests covering one of
-	 * them is likely to cover the other one too or is at least expected to
-	 * provide a good fitness for it
-	 * 
-	 * If this method does not get overwritten ChromosomeRecycling obviously
-	 * won't work and disabling it using Properties.recycle_chromosomes is
-	 * encouraged in order to avoid unnecessary performance loss
-	 * 
-	 * @param goal
-	 *            a {@link org.evosuite.testcase.TestFitnessFunction} object.
-	 * @return a boolean.
-	 */
-	public boolean isSimilarTo(TestFitnessFunction goal) {
-		//		if (!warnedAboutIsSimilarTo && Properties.RECYCLE_CHROMOSOMES) {
-		//			logger.warn("called default TestFitness.isSimilarTo() though recycling is enabled. "
-		//			        + "possible performance loss. set property recycle_chromosomes to false");
-		//			warnedAboutIsSimilarTo = true;
-		//		}
-		return false;
 	}
 
 	/**
@@ -196,7 +168,6 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
 		boolean covered = getFitness(individual, result) == 0.0;
 		if (covered) {
-			ChromosomeRecycler.getInstance().testIsInterestingForGoal(individual, this);
 			individual.test.addCoveredGoal(this);
 		}
 		return covered;

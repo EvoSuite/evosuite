@@ -1,7 +1,9 @@
 package org.evosuite.rmi.service;
 
+import java.io.File;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -9,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
@@ -19,7 +22,11 @@ import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.sandbox.Sandbox;
+import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.TestCluster;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -278,6 +285,49 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 					                     + Properties.TARGET_CLASS + " with seed "
 					                     + Randomness.getSeed() + ". Configuration id : "
 					                     + Properties.CONFIGURATION_ID, t);
+				}
+
+				changeState(ClientState.DONE);
+			}
+		});
+	}
+	
+	@Override
+	public void doDependencyAnalysis(final String fileName) throws RemoteException {
+		if (!state.equals(ClientState.NOT_STARTED)) {
+			throw new IllegalArgumentException("Search has already been started");
+		}
+
+		/*
+		 * Needs to be done on separated thread, otherwise the master will block on this
+		 * function call until end of the search, even if it is on remote process
+		 */
+		searchExecutor.submit(new Runnable() {
+			@Override
+			public void run() {
+				changeState(ClientState.STARTED);
+				Sandbox.goingToExecuteSUTCode();
+				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+
+				try {
+					LoggingUtils.getEvoLogger().info("* Analyzing classpath");
+					DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+							Arrays.asList(Properties.CP.split(File.pathSeparator)));
+					StringBuffer fileNames = new StringBuffer();
+					for(Class<?> clazz : TestCluster.getInstance().getAnalyzedClasses()) {
+						fileNames.append(clazz.getName());
+						fileNames.append("\n");
+					}
+					LoggingUtils.getEvoLogger().info("* Writing class dependencies to file "+fileName);
+					Utils.writeFile(fileNames.toString(), fileName);
+				} catch (Throwable t) {
+					logger.error("Error when analysing coverage for: "
+					                     + Properties.TARGET_CLASS + " with seed "
+					                     + Randomness.getSeed() + ". Configuration id : "
+					                     + Properties.CONFIGURATION_ID, t);
+				} finally {
+					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+					Sandbox.doneWithExecutingSUTCode();
 				}
 
 				changeState(ClientState.DONE);

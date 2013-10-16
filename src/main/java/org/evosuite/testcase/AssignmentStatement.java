@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.GenericAccessibleObject;
@@ -380,6 +381,15 @@ public class AssignmentStatement extends AbstractStatement {
 			if (!objects.isEmpty()) {
 				VariableReference choice = Randomness.choice(objects);
 				if(choice.isAssignableTo(retval)) {
+					
+					// Need special care if it is a wrapper class
+					if(retval.getGenericClass().isWrapperType()) { 
+						Class<?> rawClass = ClassUtils.wrapperToPrimitive(retval.getVariableClass());
+						if(!retval.getVariableClass().equals(rawClass) && !retval.getVariableClass().equals(choice.getVariableClass())) {
+							return false;
+						}
+					}
+
 					parameter = choice;
 					assert (isValid());
 

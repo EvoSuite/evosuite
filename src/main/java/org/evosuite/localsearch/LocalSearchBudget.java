@@ -18,14 +18,17 @@
 /**
  * 
  */
-package org.evosuite.ga;
+package org.evosuite.localsearch;
 
 import java.io.Serializable;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.LocalSearchBudgetType;
-import org.evosuite.Properties.Strategy;
-import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.SearchListener;
+import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -38,19 +41,33 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 
 	private static final long serialVersionUID = 9152147170303160131L;
 
-	/** Constant <code>attempts=0</code> */
-	protected static int attempts = 0;
+	private final static Logger logger = LoggerFactory.getLogger(LocalSearchBudget.class);
+	
+	// Singleton instance
+	private static LocalSearchBudget instance = null;
+	
+	protected int fitnessEvaluations = 0;
+	protected int tests          = 0;
+	protected long executedStart = 0L;
+	protected int suites         = 0;
+	protected long startTime     = 0L;
+	protected long endTime       = 0L;
 
-	protected static int individuals = 0;
+	protected GeneticAlgorithm<?> ga = null;
 
-	/** Constant <code>startTime=0L</code> */
-	protected static long startTime = 0L;
-
-	/** Constant <code>endTime=0L</code> */
-	protected static long endTime = 0L;
-
-	protected static GeneticAlgorithm<?> ga = null;
-
+	// Private constructor because of singleton type
+	private LocalSearchBudget() {
+		
+	}
+	
+	// Singleton accessor
+	public static LocalSearchBudget getInstance() {
+		if(instance == null)
+			instance = new LocalSearchBudget();
+		
+		return instance;
+	}
+	
 	/**
 	 * <p>
 	 * isFinished
@@ -58,37 +75,49 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 * 
 	 * @return a boolean.
 	 */
-	public static boolean isFinished() {
+	public boolean isFinished() {
+		// If the global search is finished then we don't want local search either
 		if (ga != null && ga.isFinished())
 			return true;
 
-		if (Properties.LOCAL_SEARCH_BUDGET_TYPE == LocalSearchBudgetType.STATEMENTS)
-			return attempts >= Properties.LOCAL_SEARCH_BUDGET;
-		else if (Properties.LOCAL_SEARCH_BUDGET_TYPE == LocalSearchBudgetType.TIME)
-			return System.currentTimeMillis() > endTime;
-		else if (Properties.LOCAL_SEARCH_BUDGET_TYPE == LocalSearchBudgetType.INDIVIDUALS)
-			return individuals >= Properties.LOCAL_SEARCH_BUDGET;
-		else
+		boolean isFinished = false;
+		
+		switch(Properties.LOCAL_SEARCH_BUDGET_TYPE) {
+		case FITNESS_EVALUATIONS:
+			isFinished = fitnessEvaluations >= Properties.LOCAL_SEARCH_BUDGET;
+			break;
+		case SUITES:
+			isFinished = suites >= Properties.LOCAL_SEARCH_BUDGET;
+			break;
+		case STATEMENTS:
+			isFinished = MaxStatementsStoppingCondition.getNumExecutedStatements() > executedStart + Properties.LOCAL_SEARCH_BUDGET;
+			break;
+		case TESTS:
+			isFinished = tests >= Properties.LOCAL_SEARCH_BUDGET;
+			break;
+		case TIME:
+			isFinished = System.currentTimeMillis() > endTime;
+			break;
+		default:
 			throw new RuntimeException("Unknown budget type: "
 			        + Properties.LOCAL_SEARCH_BUDGET_TYPE);
-	}
-
-	/**
-	 * <p>
-	 * evaluation
-	 * </p>
-	 */
-	public static void evaluation() {
-		attempts++;
-	}
-
-	public static void individualImproved(Chromosome chromosome) {
-		if (Properties.STRATEGY == Strategy.EVOSUITE) {
-			if (chromosome instanceof TestSuiteChromosome)
-				individuals++;
-		} else {
-			individuals++;
 		}
+		if(isFinished) {
+			logger.info("Local search budget used up; type: "+Properties.LOCAL_SEARCH_BUDGET_TYPE);
+		}
+		return isFinished;
+	}
+
+	public void countFitnessEvaluation() {
+		fitnessEvaluations++;
+	}
+
+	public void countLocalSearchOnTest() {
+		tests++;
+	}
+	
+	public void countLocalSearchOnTestSuite() {
+		suites++;
 	}
 
 	/**
@@ -96,11 +125,13 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 * localSearchStarted
 	 * </p>
 	 */
-	public static void localSearchStarted() {
-		startTime = System.currentTimeMillis();
-		endTime = startTime + Properties.LOCAL_SEARCH_BUDGET;
-		individuals = 0;
-		attempts = 0;
+	public void localSearchStarted() {
+		startTime     = System.currentTimeMillis();
+		endTime       = startTime + Properties.LOCAL_SEARCH_BUDGET;
+		tests         = 0;
+		suites        = 0;
+		fitnessEvaluations      = 0;
+		executedStart = MaxStatementsStoppingCondition.getNumExecutedStatements();
 	}
 
 	/* (non-Javadoc)
@@ -110,6 +141,9 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	@Override
 	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		ga = algorithm;
+		tests         = 0;
+		suites        = 0;
+		fitnessEvaluations      = 0;
 	}
 
 	/* (non-Javadoc)
@@ -118,7 +152,9 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm<?> algorithm) {
-		attempts = 0;
+		tests         = 0;
+		suites        = 0;
+		fitnessEvaluations      = 0;
 	}
 
 	/* (non-Javadoc)

@@ -20,6 +20,8 @@ public interface ClientNodeRemote extends Remote {
 	        InterruptedException;
 
 	public void doCoverageAnalysis() throws RemoteException;
+	
+	public void doDependencyAnalysis(String fileName) throws RemoteException;
 
 	public void printClassStatistics() throws RemoteException;
 }

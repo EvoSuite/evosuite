@@ -1,15 +1,21 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.localsearch;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.LocalSearchBudget;
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.testcase.ConstructorStatement;
+import org.evosuite.testcase.FieldStatement;
+import org.evosuite.testcase.MethodStatement;
+import org.evosuite.testcase.NullStatement;
+import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * @author Gordon Fraser
  * 
  */
-public class ReferenceLocalSearch extends LocalSearch {
+public class ReferenceLocalSearch extends StatementLocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(ReferenceLocalSearch.class);
 
@@ -43,13 +49,14 @@ public class ReferenceLocalSearch extends LocalSearch {
 			return;
 
 		// test.lastExecutionResult = backup.lastExecutionResult.clone();
-		test.test = backup.test.clone();
+		test.setTestCase(backup.getTestCase().clone());
 		test.copyCachedResults(backup);
 		test.setFitness(backup.getFitness());
 		test.setChanged(backup.isChanged());
 
 		// TODO: Deep copy
-		test.lastMutationResult = backup.lastMutationResult;
+		test.clearCachedMutationResults();
+		// test.lastMutationResult = backup.lastMutationResult;
 	}
 
 	private enum Mutations {
@@ -70,7 +77,7 @@ public class ReferenceLocalSearch extends LocalSearch {
 		int oldLength = test.size();
 
 		while (currentProbe < Properties.LOCAL_SEARCH_PROBES
-		        && !LocalSearchBudget.isFinished()) {
+		        && !LocalSearchBudget.getInstance().isFinished()) {
 			logger.info("Current probe on statement " + statement + ": " + currentProbe);
 
 			List<Mutations> mutations = new ArrayList<Mutations>();

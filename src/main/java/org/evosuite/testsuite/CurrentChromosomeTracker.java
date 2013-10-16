@@ -24,7 +24,6 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.SearchListener;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestChromosome;
 
 
@@ -150,17 +149,6 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 			for (TestChromosome test : suite.tests) {
 				if (test == changed || changed.getTestCase() == test.getTestCase())
 					continue;
-				for (StatementInterface s : test.getTestCase()) {
-					if (s instanceof TestCallStatement) {
-						TestCallStatement call = (TestCallStatement) s;
-						if (call.getTest() != null
-						        && call.getTest().equals(changed.getTestCase())) {
-							if (!test.isChanged())
-								test.setChanged(true);
-							break;
-						}
-					}
-				}
 			}
 		}
 	}

@@ -125,7 +125,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	protected ControlFlowEdge addEdge(BytecodeInstruction src,
 	        BytecodeInstruction target, boolean isExceptionEdge) {
 
-		logger.info("Adding edge to RawCFG of "+className+"."+methodName+": "+this.vertexCount());
+		logger.debug("Adding edge to RawCFG of "+className+"."+methodName+": "+this.vertexCount());
 
 		if (BranchPool.isKnownAsBranch(src))
 			if (src.isBranch())

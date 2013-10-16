@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.EvoSuiteFile;
@@ -21,7 +22,6 @@ import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.testsuite.TestCallStatement;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
@@ -442,6 +442,7 @@ public class TestFactory {
 		List<VariableReference> objects = test.getObjects(array.getComponentType(),
 		                                                  position);
 		Iterator<VariableReference> iterator = objects.iterator();
+		GenericClass componentClass = new GenericClass(array.getComponentType());
 		// Remove assignments from the same array
 		while (iterator.hasNext()) {
 			VariableReference var = iterator.next();
@@ -453,6 +454,13 @@ public class TestFactory {
 				else if (((ArrayIndex) var).getArray().getType().equals(array.getType()))
 					iterator.remove();
 			}
+			if(componentClass.isWrapperType()) {
+				Class<?> rawClass = ClassUtils.wrapperToPrimitive(componentClass.getRawClass());
+				if(!var.getVariableClass().equals(rawClass) && !var.getVariableClass().equals(componentClass.getRawClass())) {
+					iterator.remove();
+				}
+			}
+			
 		}
 		logger.debug("Reusable objects: " + objects);
 		assignArray(test, array, arrayIndex, position, objects);
@@ -740,8 +748,6 @@ public class TestFactory {
 			return false;
 		GenericAccessibleObject<?> call = Randomness.choice(calls);
 		try {
-			if (statement instanceof TestCallStatement)
-				logger.info("Changing testcall statement");
 			changeCall(test, statement, call);
 			//logger.debug("Changed to: " + test.toCode());
 

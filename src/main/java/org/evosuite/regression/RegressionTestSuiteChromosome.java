@@ -6,7 +6,7 @@ package org.evosuite.regression;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.localsearch.LocalSearchObjective;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -52,8 +52,9 @@ public class RegressionTestSuiteChromosome extends
 	 * @see org.evosuite.testsuite.AbstractTestSuiteChromosome#localSearch(org.evosuite.ga.LocalSearchObjective)
 	 */
 	@Override
-	public void localSearch(LocalSearchObjective objective) {
+	public boolean localSearch(LocalSearchObjective objective) {
 		// Ignore for now
+		return false;
 	}
 
 	/* (non-Javadoc)
@@ -71,15 +72,6 @@ public class RegressionTestSuiteChromosome extends
 	public int compareSecondaryObjective(Chromosome o) {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.Chromosome#applyDSE(org.evosuite.ga.GeneticAlgorithm)
-	 */
-	@Override
-	public boolean applyDSE(GeneticAlgorithm algorithm) {
-		// ignore for now
-		return false;
 	}
 
 }

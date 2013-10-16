@@ -25,6 +25,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,8 +55,6 @@ import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.NumberFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
@@ -69,8 +68,6 @@ import com.googlecode.gentyref.GenericTypeReflector;
  */
 public class TestCodeVisitor extends TestVisitor {
 
-	private static Logger logger = LoggerFactory.getLogger(TestCodeVisitor.class);
-	
 	protected String testCode = "";
 
 	protected final Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
@@ -492,8 +489,14 @@ public class TestCodeVisitor extends TestVisitor {
 
 		String stmt = "";
 		
-		stmt += "assertArrayEquals(new " + getTypeName(source.getComponentType())
-		        + "[] {";
+		if(source.getComponentClass().equals(Boolean.class) || source.getComponentClass().equals(boolean.class)) {
+			stmt += "assertTrue(Arrays.equals(";
+			// Make sure that the Arrays class is imported
+			getClassName(Arrays.class);
+		} else {
+			stmt += "assertArrayEquals(";
+		}
+		stmt += "new "+getTypeName(source.getComponentType()) + "[] {";
 		boolean first = true;
 		for (Object o : value) {
 			if (!first)
@@ -504,7 +507,15 @@ public class TestCodeVisitor extends TestVisitor {
 			stmt += NumberFormatter.getNumberString(o);
 
 		}
-		stmt += "}" + ", " + getVariableName(source) + ");";
+		stmt += "}" + ", " + getVariableName(source);
+		if(source.getComponentClass().equals(Float.class) || source.getComponentClass().equals(float.class))
+			stmt += ", 0.01F);";
+		else if(source.getComponentClass().equals(Double.class) || source.getComponentClass().equals(double.class))
+			stmt += ", 0.01);";
+		else if(source.getComponentClass().equals(Boolean.class) || source.getComponentClass().equals(boolean.class))
+			stmt += "));";
+		else
+			stmt += ");";
 		
 		testCode += stmt;
 	}
