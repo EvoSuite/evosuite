@@ -22,6 +22,7 @@ import org.apache.commons.io.IOUtils;
 import org.evosuite.ClientProcess;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
@@ -446,8 +447,8 @@ public class TestGeneration {
 					}
 				}
 
-				int time = calculateHowLongSearchShouldWaitInSeconds();
-				result = handler.waitForResult(time * 1000); // FIXXME: search timeout plus 100 seconds?
+				int time = TimeController.getInstance().calculateForHowLongClientWillRunInSeconds();
+				result = handler.waitForResult(time * 1000); 
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -485,21 +486,6 @@ public class TestGeneration {
 		return result;
 	}
 
-	private static int calculateHowLongSearchShouldWaitInSeconds() {
-		int time = Properties.EXTRA_TIMEOUT;
-		if (Properties.STOPPING_CONDITION == StoppingCondition.MAXTIME) {
-			time += Math.max(Properties.GLOBAL_TIMEOUT, Properties.SEARCH_BUDGET);
-		} else {
-			time += Properties.GLOBAL_TIMEOUT;
-		}
-		if (Properties.MINIMIZE) {
-			time += Properties.MINIMIZATION_TIMEOUT;
-		}
-		if (Properties.ASSERTIONS) {
-			time += Properties.ASSERTION_TIMEOUT;
-		}
-		return time;
-	}
 	
 	/**
 	 * Locates the resources that have to be prepended to bootclasspath in order
