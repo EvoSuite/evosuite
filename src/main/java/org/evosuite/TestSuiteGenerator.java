@@ -18,8 +18,6 @@
 package org.evosuite;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,21 +25,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaCompiler.CompilationTask;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.ToolProvider;
-
-import org.apache.commons.io.FileUtils;
-import org.evosuite.Properties.AdaptiveLocalSearchTarget;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.Properties.DSEType;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TheReplacementFunction;
 import org.evosuite.assertion.AssertionGenerator;
@@ -114,7 +102,6 @@ import org.evosuite.ga.stoppingconditions.SocketStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.LCSAJGraph;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.regression.RegressionSuiteFitness;
@@ -126,6 +113,7 @@ import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
 import org.evosuite.seeding.ObjectPoolManager;
+import org.evosuite.seeding.TestCaseRecycler;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.DSEStats;
@@ -166,13 +154,9 @@ import org.evosuite.testsuite.TestSuiteChromosomeFactory;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.TestSuiteMinimizer;
 import org.evosuite.testsuite.TestSuiteReplacementFunction;
-import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceController;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -350,7 +334,7 @@ public class TestSuiteGenerator {
 
 		List<TestCase> testCases = tests.getTests();
 		
-		if(JUnitAnalyzer.isJavaCompilerAvailable()){
+		if(Properties.JUNIT_TESTS && JUnitAnalyzer.isJavaCompilerAvailable()){
 			JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
 
 			JUnitAnalyzer.handleTestsThatAreUnstable(testCases);		
@@ -699,9 +683,7 @@ public class TestSuiteGenerator {
 		        && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
 
-		if (Properties.DSE_RATE > 0
-		        || Properties.ADAPTIVE_LOCAL_SEARCH != AdaptiveLocalSearchTarget.OFF
-		        || Properties.DSE_ADAPTIVE_PROBABILITY > 0) {
+		if (Properties.LOCAL_SEARCH_DSE != DSEType.OFF) {
 			DSEStats.printStatistics();
 		}
 
@@ -1757,6 +1739,11 @@ public class TestSuiteGenerator {
 			        * (BranchPool.getNumBranchlessMethods(Properties.TARGET_CLASS) + BranchPool.getBranchCountForClass(Properties.TARGET_CLASS) * 2);
 			stopping_condition.setLimit(Properties.SEARCH_BUDGET);
 			logger.info("Setting dynamic length limit to " + Properties.SEARCH_BUDGET);
+		}
+		
+		if(Properties.RECYCLE_CHROMOSOMES) {
+			if (Properties.STRATEGY == Strategy.ONEBRANCH)
+				ga.addListener(TestCaseRecycler.getInstance());
 		}
 
 		if (Properties.SHUTDOWN_HOOK) {

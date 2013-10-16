@@ -18,10 +18,18 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.localsearch;
 
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.ArrayStatement;
+import org.evosuite.testcase.AssignmentStatement;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.NullStatement;
+import org.evosuite.testcase.PrimitiveStatement;
+import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFactory;
 import org.evosuite.testsuite.TestCaseExpander;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,14 +41,21 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class ArrayLocalSearch extends LocalSearch {
+public class ArrayLocalSearch extends StatementLocalSearch {
 
 	private int oldLength = 0;
 
-	private static final Logger logger = LoggerFactory.getLogger(LocalSearch.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
 
 	private TestChromosome backup = null;
 
+	private int positionDelta = 0;
+	
+	@Override
+	public int getPositionDelta() {
+		return positionDelta;
+	}
+	
 	private void backup(TestChromosome test) {
 		backup = (TestChromosome) test.clone();
 	}
@@ -50,13 +65,14 @@ public class ArrayLocalSearch extends LocalSearch {
 			return;
 
 		// test.lastExecutionResult = backup.lastExecutionResult.clone();
-		test.test = backup.test.clone();
+		test.setTestCase(backup.getTestCase().clone());
 		test.copyCachedResults(backup);
 		test.setFitness(backup.getFitness());
 		test.setChanged(backup.isChanged());
 
 		// TODO: Deep copy
-		test.lastMutationResult = backup.lastMutationResult;
+		test.clearCachedMutationResults();
+		// test.lastMutationResult = backup.lastMutationResult;
 	}
 
 	/* (non-Javadoc)
@@ -68,25 +84,25 @@ public class ArrayLocalSearch extends LocalSearch {
 	        LocalSearchObjective<TestChromosome> objective) {
 
 		boolean hasImproved = false;
-		ArrayStatement p = (ArrayStatement) test.test.getStatement(statement);
+		ArrayStatement p = (ArrayStatement) test.getTestCase().getStatement(statement);
 		logger.debug("Doing array local search on statement " + statement + ": "
 		        + test.getTestCase().toCode());
 
 		int difference = stripAssignments(p, test, objective);
 		logger.debug("Adjusting position from " + statement + " to "
 		        + (statement - difference) + ": " + test.getTestCase().toCode());
+		positionDelta = difference;
 		statement = statement - difference;
-		p = (ArrayStatement) test.test.getStatement(statement);
+		p = (ArrayStatement) test.getTestCase().getStatement(statement);
 
 		hasImproved = searchLength(test, statement, objective);
 		TestCaseExpander expander = new TestCaseExpander();
 		int lengthWithoutAssignments = test.size();
-		p = (ArrayStatement) test.test.getStatement(statement);
+		p = (ArrayStatement) test.getTestCase().getStatement(statement);
 		expander.visitArrayStatement(test.getTestCase(), p);
 		int assignmentLength = test.size() - lengthWithoutAssignments;
 		for (int position = statement + 1; position < statement + assignmentLength; position++) {
-			logger.debug("Doing local search on statement " + position);
-			LocalSearch search = LocalSearch.getLocalSearchFor(test.getTestCase().getStatement(position));
+			StatementLocalSearch search = StatementLocalSearch.getLocalSearchFor(test.getTestCase().getStatement(position));
 			if (search != null) {
 				if (search.doSearch(test, position, objective))
 					hasImproved = true;
@@ -155,7 +171,7 @@ public class ArrayLocalSearch extends LocalSearch {
 
 		boolean hasImproved = false;
 
-		ArrayStatement p = (ArrayStatement) test.test.getStatement(statement);
+		ArrayStatement p = (ArrayStatement) test.getTestCase().getStatement(statement);
 		logger.debug("Performing local search on array length, starting with length {}",
 		             p.size());
 		ExecutionResult oldResult = test.getLastExecutionResult();

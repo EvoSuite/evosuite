@@ -18,9 +18,12 @@
 /**
  * 
  */
-package org.evosuite.ga;
+package org.evosuite.localsearch;
 
 import java.io.Serializable;
+
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 
 /**
  * <p>DefaultLocalSearchObjective class.</p>

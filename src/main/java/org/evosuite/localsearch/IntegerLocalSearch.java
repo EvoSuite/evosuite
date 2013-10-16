@@ -18,9 +18,11 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.localsearch;
 
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.NumericalPrimitiveStatement;
+import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +33,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class IntegerLocalSearch<T> extends LocalSearch {
+public class IntegerLocalSearch<T> extends StatementLocalSearch {
 
-	private static final Logger logger = LoggerFactory.getLogger(LocalSearch.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
 
 	private T oldValue;
 
@@ -48,16 +50,17 @@ public class IntegerLocalSearch<T> extends LocalSearch {
 
 		boolean improved = false;
 
-		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.test.getStatement(statement);
+		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.getTestCase().getStatement(statement);
 		ExecutionResult oldResult = test.getLastExecutionResult();
 		oldValue = p.getValue();
+		logger.info("Applying search to: " + p.getCode());
 
 		boolean done = false;
 		while (!done) {
 			done = true;
 			// Try +1
-			logger.debug("Trying increment of " + p.getCode());
 			p.increment(1);
+			logger.info("Trying increment of " + p.getCode());
 			if (objective.hasImproved(test)) {
 				done = false;
 				improved = true;
@@ -72,8 +75,8 @@ public class IntegerLocalSearch<T> extends LocalSearch {
 				test.setLastExecutionResult(oldResult);
 				test.setChanged(false);
 
-				logger.debug("Trying decrement of " + p.getCode());
 				p.increment(-1);
+				logger.info("Trying decrement of " + p.getCode());
 				if (objective.hasImproved(test)) {
 					done = false;
 					iterate(-2, objective, test, p, statement);
@@ -88,7 +91,7 @@ public class IntegerLocalSearch<T> extends LocalSearch {
 			}
 		}
 
-		logger.debug("Finished local search with result " + p.getCode());
+		logger.info("Finished local search with result " + p.getCode());
 		return improved;
 	}
 
@@ -99,23 +102,23 @@ public class IntegerLocalSearch<T> extends LocalSearch {
 		T oldValue = p.getValue();
 		ExecutionResult oldResult = test.getLastExecutionResult();
 
-		logger.debug("Trying increment " + delta + " of " + p.getCode());
 
 		p.increment(delta);
+		logger.info("Trying increment " + delta + " of " + p.getCode());
 		while (objective.hasImproved(test)) {
 			oldValue = p.getValue();
 			oldResult = test.getLastExecutionResult();
 			improvement = true;
 			delta = 2 * delta;
-			logger.debug("Trying increment " + delta + " of " + p.getCode());
 			p.increment(delta);
+			logger.info("Trying increment " + delta + " of " + p.getCode());
 		}
-		logger.debug("No improvement on " + p.getCode());
+		logger.info("No improvement on " + p.getCode());
 
 		p.setValue(oldValue);
 		test.setLastExecutionResult(oldResult);
 		test.setChanged(false);
-		logger.debug("Final value of this iteration: " + p.getValue());
+		logger.info("Final value of this iteration: " + p.getValue());
 
 		return improvement;
 

@@ -1,10 +1,14 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.localsearch;
 
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.NullStatement;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFactory;
 
 /**
  * Try to replace a null reference with a non-null reference
@@ -12,7 +16,7 @@ import org.evosuite.ga.LocalSearchObjective;
  * @author Gordon Fraser
  * 
  */
-public class NullReferenceSearch extends LocalSearch {
+public class NullReferenceSearch extends StatementLocalSearch {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)

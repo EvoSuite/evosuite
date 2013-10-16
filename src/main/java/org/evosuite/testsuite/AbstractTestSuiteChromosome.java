@@ -30,7 +30,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.utils.Randomness;
 public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends
@@ -93,6 +93,14 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		tests.add(test);
 		unmodifiableTests.remove(test);
 		this.setChanged(true);
+	}
+	
+	public void deleteTest(T test) {
+		boolean changed = tests.remove(test);
+		if(!changed)
+			changed = unmodifiableTests.remove(test);
+		if(changed)
+			this.setChanged(true);
 	}
 
 	/**
@@ -239,7 +247,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 
 	/** {@inheritDoc} */
 	@Override
-	public abstract void localSearch(LocalSearchObjective<? extends Chromosome> objective);
+	public abstract boolean localSearch(LocalSearchObjective<? extends Chromosome> objective);
 
 	/** {@inheritDoc} */
 	@Override

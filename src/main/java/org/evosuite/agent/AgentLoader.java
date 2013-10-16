@@ -2,15 +2,12 @@ package org.evosuite.agent;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.evosuite.utils.ClassPathHacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -18,7 +18,11 @@
 /**
  * 
  */
-package org.evosuite.ga;
+package org.evosuite.localsearch;
+
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
+
 
 /**
  * <p>LocalSearchObjective interface.</p>
