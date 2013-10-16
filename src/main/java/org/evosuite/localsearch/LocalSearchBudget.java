@@ -46,7 +46,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	// Singleton instance
 	private static LocalSearchBudget instance = null;
 	
-	protected int attempts       = 0;
+	protected int fitnessEvaluations = 0;
 	protected int tests          = 0;
 	protected long executedStart = 0L;
 	protected int suites         = 0;
@@ -84,7 +84,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 		
 		switch(Properties.LOCAL_SEARCH_BUDGET_TYPE) {
 		case FITNESS_EVALUATIONS:
-			isFinished = attempts >= Properties.LOCAL_SEARCH_BUDGET;
+			isFinished = fitnessEvaluations >= Properties.LOCAL_SEARCH_BUDGET;
 			break;
 		case SUITES:
 			isFinished = suites >= Properties.LOCAL_SEARCH_BUDGET;
@@ -109,7 +109,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	}
 
 	public void countFitnessEvaluation() {
-		attempts++;
+		fitnessEvaluations++;
 	}
 
 	public void countLocalSearchOnTest() {
@@ -130,7 +130,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 		endTime       = startTime + Properties.LOCAL_SEARCH_BUDGET;
 		tests         = 0;
 		suites        = 0;
-		attempts      = 0;
+		fitnessEvaluations      = 0;
 		executedStart = MaxStatementsStoppingCondition.getNumExecutedStatements();
 	}
 
@@ -143,7 +143,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 		ga = algorithm;
 		tests         = 0;
 		suites        = 0;
-		attempts      = 0;
+		fitnessEvaluations      = 0;
 	}
 
 	/* (non-Javadoc)
@@ -154,7 +154,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	public void iteration(GeneticAlgorithm<?> algorithm) {
 		tests         = 0;
 		suites        = 0;
-		attempts      = 0;
+		fitnessEvaluations      = 0;
 	}
 
 	/* (non-Javadoc)
