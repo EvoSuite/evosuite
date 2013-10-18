@@ -42,6 +42,7 @@ import java.util.zip.ZipFile;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceList;
 import org.evosuite.utils.Utils;
@@ -393,7 +394,7 @@ public class InheritanceTreeGenerator {
 	}
 
 	public static Collection<String> getResources() {
-		return getResources(Properties.CP);
+		return getResources(ClassPathHandler.getInstance().getTargetProjectClasspath());
 	}
 
 	public static Collection<String> getAllResources() {

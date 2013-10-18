@@ -14,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.utils.ClassPathHacker;
+import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceList;
 import org.evosuite.utils.Utils;
@@ -26,9 +27,9 @@ public class ListClasses {
 		return new Option(NAME, "list the testable classes found in the specified classpath/prefix");
 	}
 	
-	public static Object execute(Options options, CommandLine line, String cp) {
+	public static Object execute(Options options, CommandLine line) {
 		if (line.hasOption("prefix"))
-			listClassesPrefix(line.getOptionValue("prefix"), cp);
+			listClassesPrefix(line.getOptionValue("prefix"));
 		else if (line.hasOption("target"))
 			listClassesTarget(line.getOptionValue("target"));
 		else if (EvoSuite.hasLegacyTargets())
@@ -69,7 +70,10 @@ public class ListClasses {
 		}
 	}
 
-	private static void listClassesPrefix(String prefix, String cp) {
+	private static void listClassesPrefix(String prefix) {
+		
+		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+		
 		Pattern pattern = Pattern.compile(prefix.replace("\\.", "/") // FIXME replace "/" by File.separator? (not sure)
 		        + "[^\\$]*.class");
 		Set<String> resources = new HashSet<String>();

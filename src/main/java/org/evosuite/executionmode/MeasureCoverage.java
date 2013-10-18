@@ -16,6 +16,7 @@ import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.utils.ClassPathHacker;
+import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -32,9 +33,9 @@ public class MeasureCoverage {
 	}
 	
 	public static Object execute(Options options, List<String> javaOpts,
-			CommandLine line, String cp) {
+			CommandLine line) {
 		if (line.hasOption("class")){
-			measureCoverage(line.getOptionValue("class"), line.getOptionValue("junit"), javaOpts, cp);
+			measureCoverage(line.getOptionValue("class"), line.getOptionValue("junit"), javaOpts);
 		} else {
 			LoggingUtils.getEvoLogger().error("Please specify target class ('-class' option)");
 			Help.execute(options);
@@ -43,19 +44,17 @@ public class MeasureCoverage {
 	}
 	
 	private static void measureCoverage(String targetClass, String junitPrefix,
-	        List<String> args, String cp) {
+	        List<String> args) {
 		if (!InstrumentingClassLoader.checkIfCanInstrument(targetClass)) {
 			throw new IllegalArgumentException(
 			        "Cannot consider "
 			                + targetClass
 			                + " because it belongs to one of the packages EvoSuite cannot currently handle");
 		}
-		String classPath = System.getProperty("java.class.path");
-		if (!EvoSuite.evosuiteJar.equals("")) {
-			classPath += File.pathSeparator + EvoSuite.evosuiteJar;
-		}
-
-		classPath += File.pathSeparator + cp;
+		String classPath = ClassPathHandler.getInstance().getEvoSuiteClassPath();
+		String projectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
+		classPath += File.pathSeparator + projectCP;
+		
 		ExternalProcessHandler handler = new ExternalProcessHandler();
 		int port = handler.openServer();
 		List<String> cmdLine = new ArrayList<String>();
@@ -66,7 +65,7 @@ public class MeasureCoverage {
 		cmdLine.add("-Djava.awt.headless=true");
 		cmdLine.add("-Dlogback.configurationFile="+LoggingUtils.getLogbackFileName());
 		cmdLine.add("-Djava.library.path=lib");
-		cmdLine.add("-DCP=" + cp);
+		cmdLine.add("-DCP=" + projectCP);
 		// cmdLine.add("-Dminimize_values=true");
 
 		for (String arg : args) {
@@ -109,7 +108,7 @@ public class MeasureCoverage {
 		}
 
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
-		for (String entry : Properties.CP.split(File.pathSeparator)) {
+		for (String entry : ClassPathHandler.getInstance().getClassPathElementsForTargetProject()) {
 			try {
 				ClassPathHacker.addFile(entry);
 			} catch (IOException e) {

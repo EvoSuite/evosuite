@@ -11,6 +11,7 @@ import org.apache.commons.cli.Options;
 import org.evosuite.continuous.ContinuousTestGeneration;
 import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.utils.ClassPathHacker;
+import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 
 public class Continuous {
@@ -26,7 +27,7 @@ public class Continuous {
 	}
 
 	public static Object execute(Options options, List<String> javaOpts,
-			CommandLine line, String cp) {
+			CommandLine line) {
 
 
 
@@ -45,25 +46,15 @@ public class Continuous {
 		}
 
 		String target = null;
-		
-		//we need to define 'target' only for execute mode
-		if(command.equals(Command.EXECUTE)){
 
-			if (line.hasOption("target")) {
-				target = line.getOptionValue("target");
-				
-				/*
-				 * We could issue a warning, but to make things easier (so user need to type less),
-				 * let's just add the target automatically to the classpath.
-				 * This is useful for when we do not want to specify the classpath (default '.'),
-				 * and so just typing '-target' on command line
-				 */
-				if(!cp.contains(target)){
-					cp += File.pathSeparator + target;
-				}
-			} 
+		//we need to define 'target' only for execute mode
+		if(line.hasOption("target") && command.equals(Command.EXECUTE)){
+			target = line.getOptionValue("target");				
 		}
 
+		
+		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+		
 		/*
 		 * Setup the classpath
 		 */

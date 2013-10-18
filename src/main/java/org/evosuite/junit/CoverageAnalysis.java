@@ -32,6 +32,7 @@ import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceList;
@@ -64,8 +65,9 @@ public class CoverageAnalysis {
 		Sandbox.goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
+			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
-			                           Arrays.asList(Properties.CP.split(File.pathSeparator)));
+			                           Arrays.asList(cp.split(File.pathSeparator)));
 			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "

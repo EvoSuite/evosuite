@@ -154,6 +154,7 @@ import org.evosuite.testsuite.TestSuiteChromosomeFactory;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.TestSuiteMinimizer;
 import org.evosuite.testsuite.TestSuiteReplacementFunction;
+import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceController;
@@ -206,8 +207,9 @@ public class TestSuiteGenerator {
 		Sandbox.goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
+			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
-			                           Arrays.asList(Properties.CP.split(File.pathSeparator)));
+			                           Arrays.asList(cp.split(File.pathSeparator)));
 			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
 			ObjectPoolManager.getInstance();
 		} catch (Throwable e) {

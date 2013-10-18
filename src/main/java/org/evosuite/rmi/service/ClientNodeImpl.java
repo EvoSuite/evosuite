@@ -24,6 +24,7 @@ import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.Utils;
@@ -312,7 +313,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 				try {
 					LoggingUtils.getEvoLogger().info("* Analyzing classpath");
 					DependencyAnalysis.analyze(Properties.TARGET_CLASS,
-							Arrays.asList(Properties.CP.split(File.pathSeparator)));
+							Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
 					StringBuffer fileNames = new StringBuffer();
 					for(Class<?> clazz : TestCluster.getInstance().getAnalyzedClasses()) {
 						fileNames.append(clazz.getName());

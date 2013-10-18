@@ -21,6 +21,7 @@ import org.evosuite.Properties;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.ClassPathHacker;
+import org.evosuite.utils.ClassPathHandler;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -286,7 +287,7 @@ public class JUnitAnalyzer {
 	private static Class<?>[] loadTests(List<File> tests, File dir){
 
 		try{
-			Properties.CP += File.pathSeparator + dir.getAbsolutePath();
+			ClassPathHandler.getInstance().addElementToTargetProjectClassPath(dir.getAbsolutePath()); //FIXME
 			ClassPathHacker.addFile(dir); //FIXME need refactoring
 		} catch(Exception e){
 			logger.error("Failed to add folder to classpath: "+dir.getAbsolutePath());

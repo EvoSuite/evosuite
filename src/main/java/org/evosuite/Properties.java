@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
+import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
@@ -1851,7 +1852,7 @@ public class Properties {
 		buffer.append("CP=");
 		// Replace backslashes with forwardslashes, as backslashes are dropped during reading
 		// TODO: What if there are weird characters in the code? Need regex
-		buffer.append(Properties.CP.replace("\\", "/"));
+		buffer.append(ClassPathHandler.getInstance().getTargetProjectClasspath().replace("\\", "/"));
 		buffer.append("\nPROJECT_PREFIX=");
 		if (Properties.PROJECT_PREFIX != null)
 			buffer.append(Properties.PROJECT_PREFIX);
