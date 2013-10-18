@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 
-import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
