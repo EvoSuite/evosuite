@@ -48,7 +48,7 @@ public class ResourceList {
 	public static String getClassAsResource(String className) {
 		Pattern pattern = Pattern.compile(className.replace('.', '/') + ".class");
 
-		final String[] classPathElements = Properties.CP.split(File.pathSeparator);
+		final String[] classPathElements = ClassPathHandler.getInstance().getClassPathElementsForTargetProject();
 		for (final String element : classPathElements) {
 			if (element == null || element.isEmpty()) {
 				continue;
@@ -83,7 +83,7 @@ public class ResourceList {
 
 		Pattern pattern = Pattern.compile(className.replace('.', '/') + ".class");
 
-		final String[] classPathElements = Properties.CP.split(File.pathSeparator);
+		final String[] classPathElements = ClassPathHandler.getInstance().getClassPathElementsForTargetProject();
 		for (final String element : classPathElements) {
 			if (element == null || element.isEmpty()) {
 				continue;
@@ -129,7 +129,7 @@ public class ResourceList {
 	public static Collection<String> getResources(final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();
 
-		String[] classPathElements = Properties.CP.split(File.pathSeparator);
+		String[] classPathElements = ClassPathHandler.getInstance().getTargetProjectClasspath().split(File.pathSeparator);
 		for (final String element : classPathElements) {
 			retval.addAll(getResources(element, pattern));
 		}

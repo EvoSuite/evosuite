@@ -16,6 +16,7 @@ import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.utils.ClassPathHacker;
+import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -31,9 +32,9 @@ public class WriteDependencies {
 		return new Option(NAME, true, "write the dependencies of a target class to file");
 	}
 	
-	public static Object execute(Options options, List<String> javaOpts, CommandLine line, String cp) {
+	public static Object execute(Options options, List<String> javaOpts, CommandLine line) {
 		if (line.hasOption("class"))
-			writeDependencies(line.getOptionValue(NAME), line.getOptionValue("class"), javaOpts, cp);
+			writeDependencies(line.getOptionValue(NAME), line.getOptionValue("class"), javaOpts);
 		else {
 			LoggingUtils.getEvoLogger().error("Please specify target class ('-class' option) to list class dependencies");
 			Help.execute(options);
@@ -42,19 +43,18 @@ public class WriteDependencies {
 	}
 	
 	private static void writeDependencies(String targetFile, String targetClass, 
-	        List<String> args, String cp) {
+	        List<String> args) {
+		
 		if (!InstrumentingClassLoader.checkIfCanInstrument(targetClass)) {
 			throw new IllegalArgumentException(
 			        "Cannot consider "
 			                + targetClass
 			                + " because it belongs to one of the packages EvoSuite cannot currently handle");
 		}
-		String classPath = System.getProperty("java.class.path");
-		if (!EvoSuite.evosuiteJar.equals("")) {
-			classPath += File.pathSeparator + EvoSuite.evosuiteJar;
-		}
-
+		String classPath = ClassPathHandler.getInstance().getEvoSuiteClassPath();
+		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		classPath += File.pathSeparator + cp;
+
 		ExternalProcessHandler handler = new ExternalProcessHandler();
 		int port = handler.openServer();
 		List<String> cmdLine = new ArrayList<String>();
@@ -107,7 +107,7 @@ public class WriteDependencies {
 		}
 
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
-		for (String entry : Properties.CP.split(File.pathSeparator)) {
+		for (String entry : ClassPathHandler.getInstance().getClassPathElementsForTargetProject()) {
 			try {
 				ClassPathHacker.addFile(entry);
 			} catch (IOException e) {

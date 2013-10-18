@@ -30,6 +30,7 @@ import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.statistics.SearchStatistics;
 import org.evosuite.utils.ClassPathHacker;
+import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceList;
@@ -42,7 +43,7 @@ public class TestGeneration {
 	private static Logger logger = LoggerFactory.getLogger(TestGeneration.class);
 	
 	public static Object executeTestGeneration(Options options, List<String> javaOpts,
-			CommandLine line, String cp) {
+			CommandLine line) {
 		
 		Strategy strategy = getChosenStrategy(javaOpts, line);
 		
@@ -55,19 +56,14 @@ public class TestGeneration {
 				javaOpts.add("-Djunit_extend="
 						+ line.getOptionValue("extend"));
 			}
-			return generateTests(strategy, line.getOptionValue("class"), javaOpts, cp);
+			return generateTests(strategy, line.getOptionValue("class"), javaOpts);
 		} else if (line.hasOption("prefix")){
-			generateTestsPrefix(strategy, line.getOptionValue("prefix"),javaOpts, cp);
-		} else if (line.hasOption("target")) {
+			generateTestsPrefix(strategy, line.getOptionValue("prefix"),javaOpts);
+		} else if (line.hasOption("target")) {			
 			String target = line.getOptionValue("target");
-			if (cp.isEmpty()) {
-				cp = target;
-			} else if (!cp.contains(target)) {
-				cp = cp + File.pathSeparator + target;
-			}
-			generateTestsTarget(strategy, target, javaOpts, cp);
+			generateTestsTarget(strategy, target, javaOpts);			
 		} else if (EvoSuite.hasLegacyTargets()){
-			generateTestsLegacy(strategy, javaOpts, cp);
+			generateTestsLegacy(strategy, javaOpts);
 		} else {
 			LoggingUtils.getEvoLogger().error("Please specify either target class ('-target' option), prefix ('-prefix' option), or classpath entry ('-class' option)");
 			Help.execute(options);
@@ -77,14 +73,15 @@ public class TestGeneration {
 
 
 	private static void generateTestsLegacy(Properties.Strategy strategy,
-	        List<String> args, String cp) {
+	        List<String> args) {
+		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		LoggingUtils.getEvoLogger().info("* Using .task files in "
 		                                         + Properties.OUTPUT_DIR
 		                                         + " [deprecated]");
 		File directory = new File(Properties.OUTPUT_DIR);
 		String[] extensions = { "task" };
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
-			generateTests(strategy, file.getName().replace(".task", ""), args, cp);
+			generateTests(strategy, file.getName().replace(".task", ""), args);
 		}
 	}
 	
@@ -117,8 +114,9 @@ public class TestGeneration {
 	}
 	
 	private static void generateTestsPrefix(Properties.Strategy strategy, String prefix,
-	        List<String> args, String cp) {
+	        List<String> args) {
 
+		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		Pattern pattern = Pattern.compile(prefix.replace("\\.", File.separator)
 		        + "[^\\$]*.class");
 		Set<String> resources = new HashSet<String>();
@@ -157,42 +155,15 @@ public class TestGeneration {
 			                                         + Utils.getClassNameFromResourcePath(resource));
 			generateTests(Strategy.EVOSUITE,
 						Utils.getClassNameFromResourcePath(resource),
-			              args, cp);
+			              args);
 		}
 
 	}
 	
 	private static boolean findTargetClass(String target, String cp) {
 
-		String oldCP = Properties.CP;
-
-		Properties.CP = cp;
-		if (Properties.CP != null && !Properties.CP.isEmpty()
-		        && ResourceList.hasClass(target)) {
-			return true;
-		}
-
-		Properties.CP = oldCP;
-		if (Properties.CP != null && !Properties.CP.isEmpty()
-		        && ResourceList.hasClass(target)) {
-			return true;
-		}
-
-		Properties.CP = System.getProperty("java.class.path");
-		if (Properties.CP != null && !Properties.CP.isEmpty()
-		        && ResourceList.hasClass(target)) {
-			return true;
-		}
-
-		Properties.CP = System.getenv("CLASSPATH");
-		if (Properties.CP != null && !Properties.CP.isEmpty()
-		        && ResourceList.hasClass(target)) {
-			return true;
-		}
-
-		Properties.CP = System.getProperty("user.dir");
-		if (Properties.CP != null && !Properties.CP.isEmpty()
-		        && ResourceList.hasClass(target)) {
+		if (cp != null && !cp.isEmpty()
+		        && ResourceList.hasClass(target)) { //FIXME
 			return true;
 		}
 
@@ -202,19 +173,17 @@ public class TestGeneration {
 	}
 	
 	private static Object generateTests(Properties.Strategy strategy, String target,
-	        List<String> args, String cp) {
-		String classPath = System.getProperty("java.class.path");
-		if (!EvoSuite.evosuiteJar.equals("")) {
-			classPath += File.pathSeparator + EvoSuite.evosuiteJar;
-		}
-
+	        List<String> args) {
+		String classPath = ClassPathHandler.getInstance().getEvoSuiteClassPath();		
+		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+		
 		if (!findTargetClass(target, cp)) {
 			return null;
 		}
 
 		if (!classPath.isEmpty())
 			classPath += File.pathSeparator;
-		classPath += Properties.CP;
+		classPath += cp;
 
 		if (!InstrumentingClassLoader.checkIfCanInstrument(target)) {
 			throw new IllegalArgumentException(
@@ -413,7 +382,7 @@ public class TestGeneration {
 
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
 
-		for (String entry : Properties.CP.split(File.pathSeparator)) {
+		for (String entry : ClassPathHandler.getInstance().getTargetProjectClasspath().split(File.pathSeparator)) {
 			try {
 				ClassPathHacker.addFile(entry);
 			} catch (IOException e) {
@@ -573,8 +542,9 @@ public class TestGeneration {
 	}
 	
 	private static void generateTestsTarget(Properties.Strategy strategy, String target,
-	        List<String> args, String cp) {
+	        List<String> args) {
 
+		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		Pattern pattern = Pattern.compile("[^\\$]*.class");
 		Collection<String> resources = ResourceList.getResources(target,pattern);
 		LoggingUtils.getEvoLogger().info("* Found " + resources.size()
@@ -610,7 +580,7 @@ public class TestGeneration {
 			                                         + Utils.getClassNameFromResourcePath(resource));
 			generateTests(Strategy.EVOSUITE,
 						Utils.getClassNameFromResourcePath(resource),
-			              args, cp);
+			              args);
 		}
 	}
 }
