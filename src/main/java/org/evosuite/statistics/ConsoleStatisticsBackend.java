@@ -2,6 +2,12 @@ package org.evosuite.statistics;
 
 import java.util.List;
 
+/**
+ * Simple dummy backend that just outputs all output variables to the console
+ *  
+ * @author gordon
+ *
+ */
 public class ConsoleStatisticsBackend implements StatisticsBackend {
 
 	@Override

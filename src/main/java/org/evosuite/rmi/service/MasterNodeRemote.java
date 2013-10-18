@@ -4,6 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 
 /**
  * Master Node view in the client process.  
@@ -25,5 +26,5 @@ public interface MasterNodeRemote extends Remote {
 	
 	public void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome individual) throws RemoteException;
 
-	public void evosuite_collectStatistics(String clientRmiIdentifier, String name, Object value) throws RemoteException;
+	public void evosuite_collectStatistics(String clientRmiIdentifier, RuntimeVariable variable, Object value) throws RemoteException;
 }

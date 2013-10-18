@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 
 public class DummyClientNodeImpl extends ClientNodeImpl {
 
@@ -42,7 +43,7 @@ public class DummyClientNodeImpl extends ClientNodeImpl {
 	}
 
 	@Override
-	public void trackOutputVariable(String name, Object value) {
+	public void trackOutputVariable(RuntimeVariable name, Object value) {
 		// TODO Auto-generated method stub
 		
 	}

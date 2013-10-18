@@ -160,9 +160,6 @@ public class CFGMethodAdapter extends MethodVisitor {
 			        || Properties.CRITERION == Criterion.STRONGMUTATION) {
 				instrumentations.add(new BranchInstrumentation());
 				instrumentations.add(new MutationInstrumentation());
-			} else if (Properties.CRITERION == Criterion.COMP_LCSAJ_BRANCH) {
-				instrumentations.add(new LCSAJsInstrumentation());
-				instrumentations.add(new BranchInstrumentation());
 			} else {
 				instrumentations.add(new BranchInstrumentation());
 			}
