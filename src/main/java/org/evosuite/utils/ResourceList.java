@@ -45,18 +45,19 @@ public class ResourceList {
 
 	private static Logger logger = LoggerFactory.getLogger(ResourceList.class);
 
+	/**
+	 * 
+	 * @param className a fully qualified class name
+	 * @return
+	 */
 	public static String getClassAsResource(String className) {
 		Pattern pattern = Pattern.compile(className.replace('.', '/') + ".class");
 
-		final String[] classPathElements = ClassPathHandler.getInstance().getClassPathElementsForTargetProject();
-		for (final String element : classPathElements) {
-			if (element == null || element.isEmpty()) {
-				continue;
-			}
-			Collection<String> resources = getResources(element, pattern);
-			if (!resources.isEmpty()) {
-				return resources.iterator().next();
-			}
+		String[] cpElements = ClassPathHandler.getInstance().getClassPathElementsForTargetProject(); 
+		Collection<String> resources = getResources(cpElements,pattern);
+
+		if (!resources.isEmpty()) {
+			return resources.iterator().next();
 		}
 
 		if (File.separatorChar != '/') {
@@ -65,51 +66,23 @@ public class ResourceList {
 			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
 			 */
 			pattern = Pattern.compile(className.replace(".", "\\\\") + ".class");
-			for (final String element : classPathElements) {
-				if (element == null || element.isEmpty()) {
-					continue;
-				}
-				Collection<String> resources = getResources(element, pattern);
-				if (!resources.isEmpty()) {
-					return resources.iterator().next();
-				}
+			resources = getResources(cpElements,pattern);
+			if (!resources.isEmpty()) {
+				return resources.iterator().next();
 			}
 		}
 
 		return null;
 	}
 
+	/**
+	 * is the target class among the ones in the SUT classpath?
+	 * 
+	 * @param className a fully qualified class name
+	 * @return
+	 */
 	public static boolean hasClass(String className) {
-
-		Pattern pattern = Pattern.compile(className.replace('.', '/') + ".class");
-
-		final String[] classPathElements = ClassPathHandler.getInstance().getClassPathElementsForTargetProject();
-		for (final String element : classPathElements) {
-			if (element == null || element.isEmpty()) {
-				continue;
-			}
-			if (!getResources(element, pattern).isEmpty()) {
-				return true;
-			}
-		}
-
-		if (File.separatorChar != '/') {
-			/*
-			 * This can happen for example in Windows.
-			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
-			 */
-			pattern = Pattern.compile(className.replace(".", "\\\\") + ".class");
-			for (final String element : classPathElements) {
-				if (element == null || element.isEmpty()) {
-					continue;
-				}
-				if (!getResources(element, pattern).isEmpty()) {
-					return true;
-				}
-			}
-		}
-
-		return false;
+		return getClassAsResource(className) != null;
 	}
 
 	/**
@@ -134,7 +107,7 @@ public class ResourceList {
 			retval.addAll(getResources(element, pattern));
 		}
 
-		
+
 		classPathElements = System.getProperty("java.class.path", ".").split(File.pathSeparator);
 		for (final String element : classPathElements) {
 			try{
@@ -147,26 +120,27 @@ public class ResourceList {
 		return retval;
 	}
 
-	/**
-	 * for all elements of java.class.path get a Collection of resources Pattern
-	 * pattern = Pattern.compile(".*"); gets all resources
-	 * 
-	 * @param pattern
-	 *            the pattern to match
-	 * @return the resources in the order they are found
-	 */
-	public static Collection<String> getBootResources(final Pattern pattern) {
-		Collection<String> result = getResources(pattern);
-		String classPath = System.getProperty("sun.boot.class.path", ".");
-		String[] classPathElements = classPath.split(File.pathSeparator);
-		for (final String element : classPathElements) {
-			result.addAll(getResources(element, pattern));
-		}
-		return result;
-	}
 
 	/**
-	 * Get all resources in the given class path element (eg folder or jar file)
+	 * Get all resources in the given arrays of classpath elements (eg folders and jar files)
+	 * according to the given pattern
+	 * 
+	 * @param classPathElements
+	 * @param pattern
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	public static Collection<String> getResources(String[] classPathElements,
+			final Pattern pattern) throws IllegalArgumentException {
+		ArrayList<String> retval = new ArrayList<String>();
+		for(String element : classPathElements){
+			retval.addAll(getResources(element,pattern));
+		}
+		return retval;
+	}	
+
+	/**
+	 * Get all resources in the given classpath element (eg folder or jar file)
 	 * according to the given pattern
 	 * 
 	 * @param classPathElement
@@ -174,22 +148,22 @@ public class ResourceList {
 	 * @return
 	 */
 	public static Collection<String> getResources(final String classPathElement,
-	        final Pattern pattern) throws IllegalArgumentException {
+			final Pattern pattern) throws IllegalArgumentException {
 
 		final ArrayList<String> retval = new ArrayList<String>();
 		final File file = new File(classPathElement);
 
-	
+
 		if (!file.exists()) {
 			throw new IllegalArgumentException("The class path resource "
-			        + file.getAbsolutePath() + " does not exist");
+					+ file.getAbsolutePath() + " does not exist");
 		}
-		
-		
+
+
 		if (file.isDirectory()) {
 			try {
 				retval.addAll(getResourcesFromDirectory(file, pattern,
-				                                        file.getCanonicalPath()));
+						file.getCanonicalPath()));
 			} catch (IOException e) {
 				logger.error("Error in getting resources", e);
 				throw new RuntimeException(e);
@@ -198,14 +172,14 @@ public class ResourceList {
 			retval.addAll(getResourcesFromJarFile(file, pattern));
 		} else {
 			throw new IllegalArgumentException("The class path resource "
-			        + file.getAbsolutePath() + " is not valid");
+					+ file.getAbsolutePath() + " is not valid");
 		}
 
 		return retval;
 	}
 
 	private static Collection<String> getResourcesFromJarFile(final File file,
-	        final Pattern pattern) {
+			final Pattern pattern) {
 
 		final ArrayList<String> retval = new ArrayList<String>();
 		ZipFile zf;
@@ -233,7 +207,7 @@ public class ResourceList {
 	}
 
 	private static Collection<String> getResourcesFromDirectory(final File directory,
-	        final Pattern pattern, final String classPathFolder) {
+			final Pattern pattern, final String classPathFolder) {
 
 		final ArrayList<String> retval = new ArrayList<String>();
 		if (!directory.exists()) {
@@ -254,8 +228,8 @@ public class ResourceList {
 				try {
 
 					final String relativeFilePath = file.getCanonicalPath().replace(classPathFolder
-					                                                                        + File.separator,
-					                                                                "");
+							+ File.separator,
+							"");
 					final boolean accept = pattern.matcher(relativeFilePath).matches();
 
 					if (accept) {

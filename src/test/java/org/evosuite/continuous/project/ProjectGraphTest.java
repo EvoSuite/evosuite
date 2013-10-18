@@ -4,11 +4,19 @@ import java.io.Serializable;
 import java.util.Set;
 
 import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
+import org.evosuite.utils.ClassPathHandler;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ProjectGraphTest {
 
+	@BeforeClass
+	public static void initClass(){
+		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+	}
+	
+	
 	@Test
 	public void testGetAllCUTsParents(){
 

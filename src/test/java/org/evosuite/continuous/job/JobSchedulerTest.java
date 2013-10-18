@@ -7,7 +7,9 @@ import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.continuous.project.ProjectAnalyzer;
 import org.evosuite.continuous.project.ProjectStaticData;
+import org.evosuite.utils.ClassPathHandler;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.continuous.BaseForSeeding;
@@ -24,6 +26,11 @@ import com.examples.with.different.packagename.continuous.UsingSimpleAndTrivial;
 
 public class JobSchedulerTest {
 
+	@BeforeClass
+	public static void initClass(){
+		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+	}
+	
 	@Test
 	public void testBudget() {
 

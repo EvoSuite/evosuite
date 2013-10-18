@@ -725,25 +725,6 @@ public class TestCluster {
 		return classes;
 	}
 
-	/**
-	 * Retrieve all classes in the classpath that match the given postfix
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public Collection<String> getMatchingClasses(String name) {
-		Pattern pattern = Pattern.compile(".*" + name + ".class");
-		// Pattern pattern = Pattern.compile(".*");
-		Collection<String> resources = ResourceList.getResources(pattern);
-		resources.addAll(ResourceList.getBootResources(pattern));
-
-		Set<String> classes = new LinkedHashSet<String>();
-		for (String className : resources) {
-			classes.add(className.replace(".class", "").replace("/", "."));
-		}
-
-		return classes;
-	}
 
 	/**
 	 * Retrieve all modifiers
