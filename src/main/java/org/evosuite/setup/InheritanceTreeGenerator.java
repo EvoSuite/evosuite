@@ -212,7 +212,7 @@ public class InheritanceTreeGenerator {
 		String fileName = ResourceList.getClassAsResource(className);
 		InputStream stream = InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(fileName);
 		if (stream != null) {
-			System.out.println(InheritanceTreeGenerator.class.getClassLoader().getResource(fileName));
+			logger.debug(InheritanceTreeGenerator.class.getClassLoader().getResource(fileName).toString());
 			analyzeClassStream(inheritanceTree, stream, false);
 		} else {
 			logger.warn("Could not find class file " + fileName + " for class "

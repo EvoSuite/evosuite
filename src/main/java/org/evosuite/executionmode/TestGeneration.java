@@ -160,10 +160,9 @@ public class TestGeneration {
 
 	}
 	
-	private static boolean findTargetClass(String target, String cp) {
+	private static boolean findTargetClass(String target) {
 
-		if (cp != null && !cp.isEmpty()
-		        && ResourceList.hasClass(target)) { //FIXME
+		if (ResourceList.hasClass(target)) {
 			return true;
 		}
 
@@ -177,7 +176,7 @@ public class TestGeneration {
 		String classPath = ClassPathHandler.getInstance().getEvoSuiteClassPath();		
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		
-		if (!findTargetClass(target, cp)) {
+		if (!findTargetClass(target)) {
 			return null;
 		}
 

@@ -148,6 +148,11 @@ public class ClassPathHandler {
 		}
 	}
 	
+	/**
+	 * Get the project classpath as an array of elements
+	 * 
+	 * @return a non-null array
+	 */
 	public String[] getClassPathElementsForTargetProject(){
 		String cp = getTargetProjectClasspath();
 		if(cp==null){
@@ -155,40 +160,18 @@ public class ClassPathHandler {
 		}
 		return cp.split(File.pathSeparator);
 	}
+	
+	/**
+	 * This is meant only for running the EvoSuite test cases, whose CUTs will be in the
+	 * classpath of EvoSuite itself
+	 */
+	public void changeTargetCPtoTheSameAsEvoSuite(){
+		
+		File outDir = new File("target"+File.separator+"classes");
+		if(outDir.exists()){
+			changeTargetClassPath(new String[]{outDir.getAbsolutePath()});
+		} else {
+			changeTargetClassPath(getEvoSuiteClassPath().split(File.pathSeparator));
+		}
+	}
 }
-
-/*
- *
- * 		String oldCP = Properties.CP;
-
-		Properties.CP = cp;
-		if (Properties.CP != null && !Properties.CP.isEmpty()
-		        && ResourceList.hasClass(target)) {
-			return true;
-		}
-
-		Properties.CP = oldCP;
-		if (Properties.CP != null && !Properties.CP.isEmpty()
-		        && ResourceList.hasClass(target)) {
-			return true;
-		}
-
-		Properties.CP = System.getProperty("java.class.path");
-		if (Properties.CP != null && !Properties.CP.isEmpty()
-		        && ResourceList.hasClass(target)) {
-			return true;
-		}
-
-		Properties.CP = System.getenv("CLASSPATH");
-		if (Properties.CP != null && !Properties.CP.isEmpty()
-		        && ResourceList.hasClass(target)) {
-			return true;
-		}
-
-		Properties.CP = System.getProperty("user.dir");
-		if (Properties.CP != null && !Properties.CP.isEmpty()
-		        && ResourceList.hasClass(target)) {
-			return true;
-		}
-
-*/

@@ -15,6 +15,7 @@ import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.sandbox.Sandbox;
+import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.ResourceList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,9 +99,9 @@ public class ProjectAnalyzer {
 			}
 		} else {
 			/*
-			 * if no target specified, just grab everything on classpath
+			 * if no target specified, just grab everything on SUT classpath
 			 */
-			classes = ResourceList.getResources(pattern);
+			classes = ResourceList.getResources(ClassPathHandler.getInstance().getClassPathElementsForTargetProject(),pattern);
 		}
 
 		List<String> cuts = new LinkedList<String>();
