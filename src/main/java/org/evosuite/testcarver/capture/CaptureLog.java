@@ -511,7 +511,7 @@ public final class CaptureLog implements Cloneable {
 						this.oidDependencies.set(initRecNo,
 						                         System.identityHashCode(outerInstance));
 					} catch (final Exception e) {
-						logger.warn("An error occurred while obtaining the enclosing object of an inner non-static class instance. "
+						logger.info("An error occurred while obtaining the enclosing object of an inner non-static class instance. "
 						                    + "FIELDS: "
 						                    + Arrays.toString(receiverClass.getDeclaredFields()),
 						            e);
@@ -551,7 +551,7 @@ public final class CaptureLog implements Cloneable {
 			// --> create UNOBSERVED_INIT log entry
 			if (!isConstructor && !this.oidRecMapping.containsKey(oid)
 			        && !(receiver instanceof Class)) {
-				logger.warn("method {} was called on object {} with oid {} without foregoing (observed) init stmt --> creating unobserved init stmt",
+				logger.info("method {} was called on object {} with oid {} without foregoing (observed) init stmt --> creating unobserved init stmt",
 				            new Object[] { methodName, receiver, oid });
 				this.updateInfoTable(oid, receiver, isConstructor);
 				logUnobservedInitStmt(receiver);
@@ -590,7 +590,7 @@ public final class CaptureLog implements Cloneable {
 				paramOID = System.identityHashCode(param);
 
 				if (paramOID == oid) {
-					logger.warn("PARAM is 'this' reference -> are serialized version of 'this' is created and passed as param");
+					logger.info("PARAM is 'this' reference -> are serialized version of 'this' is created and passed as param");
 
 					// we serialize and deserialize param in order to get a 'cloned' instance of param
 					// -> this approach is not very efficient but we can always clone an object without the
@@ -602,7 +602,7 @@ public final class CaptureLog implements Cloneable {
 
 						logUnobservedInitStmt(param);
 					} catch (final Exception e) {
-						logger.warn("an error occurred while serializing and deserializing {} -> is handled as NULL param",
+						logger.info("an error occurred while serializing and deserializing {} -> is handled as NULL param",
 						            param, e);
 						continue;
 					}
@@ -793,7 +793,7 @@ public final class CaptureLog implements Cloneable {
 			// FIXME
 			this.params.add(new Object[] { this.xstream.toXML(subject) });
 		} catch (final Exception e) {
-			logger.warn("an error occurred while serializing param '{}' -> adding null as param instead",
+			logger.info("an error occurred while serializing param '{}' -> adding null as param instead",
 			            subject, e);
 
 			// param can not be serialized -> add null as param

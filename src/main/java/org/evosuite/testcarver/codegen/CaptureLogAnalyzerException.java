@@ -25,7 +25,7 @@ public class CaptureLogAnalyzerException extends RuntimeException{
 		if(! expr)
 		{
 			final String finalMsg = String.format(msg, msgArgs);
-			LOGGER.error(finalMsg);
+			LOGGER.info(finalMsg);
 			throw new CaptureLogAnalyzerException(finalMsg);
 		}
 	}
@@ -35,7 +35,7 @@ public class CaptureLogAnalyzerException extends RuntimeException{
     throws CaptureLogAnalyzerException
 	{
 		final String finalMsg = String.format(msg, msgArgs);
-		LOGGER.error(finalMsg, t);
+		LOGGER.info(finalMsg, t);
 		throw new CaptureLogAnalyzerException(finalMsg);
 	}
 }

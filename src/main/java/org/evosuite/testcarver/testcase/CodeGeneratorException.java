@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 public class CodeGeneratorException extends RuntimeException{
 	
+	private static final long serialVersionUID = -4032911019839769269L;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(CodeGeneratorException.class);
 	
 	public CodeGeneratorException(final String msg)
@@ -23,7 +25,7 @@ public class CodeGeneratorException extends RuntimeException{
 		if(! expr)
 		{
 			final String finalMsg = String.format(msg, msgArgs);
-			LOGGER.error(finalMsg);
+			LOGGER.info(finalMsg);
 			throw new CodeGeneratorException(finalMsg);
 		}
 	}
@@ -36,7 +38,7 @@ public class CodeGeneratorException extends RuntimeException{
 		
 		if (t == null)
 		{
-			LOGGER.error(finalMsg);
+			LOGGER.info(finalMsg);
 		}
 		else
 		{
