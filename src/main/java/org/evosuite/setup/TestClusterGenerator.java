@@ -52,6 +52,7 @@ import org.evosuite.runtime.FileSystem;
 import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
@@ -180,11 +181,11 @@ public class TestClusterGenerator {
 	}
 
 	private void gatherStatistics() {
-		ClientServices.getInstance().getClientNode().trackOutputVariable("analyzed_classes",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Analyzed_Classes,
 		                                                                 analyzedClasses.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("generators",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generators,
 		                                                                 TestCluster.getInstance().getGenerators().size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("modifiers",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Modifiers,
 		                                                                 TestCluster.getInstance().getModifiers().size());
 	}
 

@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.utils.LoggingUtils;
 
 /**
@@ -466,41 +467,41 @@ public class PermissionStatistics {
 
 	public void gatherStatistics() {
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable("AllPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.AllPermission,
 		                                                                 getNumAllPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("SecurityPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.SecurityPermission,
 		                                                                 getNumSecurityPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("UnresolvedPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.UnresolvedPermission,
 		                                                                 getNumUnresolvedPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("AWTPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.AWTPermission,
 		                                                                 getNumAWTPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("FilePermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.FilePermission,
 		                                                                 getNumFilePermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("SerializablePermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.SerializablePermission,
 		                                                                 getNumSerializablePermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("ReflectPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.ReflectPermission,
 		                                                                 getNumReflectPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("RuntimePermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.RuntimePermission,
 		                                                                 getNumRuntimePermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("NetPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.NetPermission,
 		                                                                 getNumNetPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("SocketPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.SocketPermission,
 		                                                                 getNumSocketPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("SQLPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.SQLPermission,
 		                                                                 getNumSQLPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("PropertyPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.PropertyPermission,
 		                                                                 getNumPropertyPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("LoggingPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.LoggingPermission,
 		                                                                 getNumLoggingPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("SSLPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.SSLPermission,
 		                                                                 getNumSSLPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("AuthPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.AuthPermission,
 		                                                                 getNumAuthPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("AudioPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.AudioPermission,
 		                                                                 getNumAudioPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("OtherPermission",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.OtherPermission,
 		                                                                 getNumOtherPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("Threads",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Threads,
 		                                                                 getMaxThreads());
 	}
 

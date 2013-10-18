@@ -4,20 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.LoggingUtils;
 
+/**
+ * Creates an output variable that represents a sequence of values extracted from
+ * a test suite
+ * 
+ * @author gordon
+ *
+ * @param <T>
+ */
 public abstract class SequenceOutputVariableFactory<T extends Number> {
 
-	protected String name;
+	protected RuntimeVariable variable;
 	
 	protected List<Long> timeStamps = new ArrayList<Long>();
 	protected List<T> values = new ArrayList<T>();
 	
 	private long startTime = 0L;
 	
-	public SequenceOutputVariableFactory(String name) {
-		this.name = name;
+	public SequenceOutputVariableFactory(RuntimeVariable variable) {
+		this.variable = variable;
 	}
 	
 	public void setStartTime(long time) {
@@ -35,7 +43,7 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 		List<String> variables = new ArrayList<String>();
 		
 		for(String suffix : getTimelineHeaderSuffixes()) {
-			variables.add(name + suffix);
+			variables.add(variable.name() + suffix);
 		}
 		
 		return variables;

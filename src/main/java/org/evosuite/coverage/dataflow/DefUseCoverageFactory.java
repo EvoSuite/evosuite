@@ -33,6 +33,7 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;
@@ -143,15 +144,15 @@ public class DefUseCoverageFactory extends
 		LoggingUtils.getEvoLogger().info("* Goal computation took: "
 		                                         + goalComputationTime + "ms");
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable("intramethod_pairs",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.IntraMethodPairs,
 		                                                                 getIntraMethodGoalsCount());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("intermethod_pairs",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.InterMethodPairs,
 		                                                                 getInterMethodGoalsCount());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("parameter_pairs",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.ParameterPairs,
 		                                                                 getParamGoalsCount());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("intraclass_pairs",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.IntraClassPairs,
 		                                                                 getIntraClassGoalsCount());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("defuse_pairs",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.DefUsePairs,
 		                                                                 goals.size());
 	}
 

@@ -20,12 +20,12 @@ package org.evosuite.coverage.branch;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.Properties;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +87,7 @@ public class BranchCoverageFactory extends
 		}
 		goalComputationTime = System.currentTimeMillis() - start;
 		ClientServices.getInstance().getClientNode()
-				.trackOutputVariable("total_branchgoals", goals.size());
+				.trackOutputVariable(RuntimeVariable.Total_Branches, goals.size());
 
 		return goals;
 	}

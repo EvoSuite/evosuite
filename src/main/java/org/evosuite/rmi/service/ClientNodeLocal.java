@@ -1,6 +1,7 @@
 package org.evosuite.rmi.service;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 
 /**
  * Client Node view in the client process.  
@@ -17,7 +18,7 @@ public interface ClientNodeLocal {
 	
 	public void updateStatistics(Chromosome individual);
 	
-	public void trackOutputVariable(String name, Object value);
+	public void trackOutputVariable(RuntimeVariable variable, Object value);
 
 	public void waitUntilDone();  
 }

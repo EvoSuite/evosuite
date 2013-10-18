@@ -23,6 +23,8 @@ package org.evosuite.coverage.mutation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 
 /**
@@ -93,6 +95,8 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 			else
 				goals.add(new WeakMutationTestFitness(m));
 		}
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, goals.size());
+
 		return goals;
 	}
 }

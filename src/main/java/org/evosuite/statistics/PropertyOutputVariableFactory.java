@@ -2,6 +2,12 @@ package org.evosuite.statistics;
 
 import org.evosuite.Properties;
 
+/**
+ * Output variable that represents a value stored in the properties
+ * 
+ * @author gordon
+ *
+ */
 public class PropertyOutputVariableFactory {
 
 	private String propertyName;

@@ -6,15 +6,25 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import org.evosuite.Properties;
 import org.evosuite.utils.ReportGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This statistics backend writes all (selected) output variables to a CSV file
+ * 
+ * @author gordon
+ *
+ */
 public class CSVStatisticsBackend implements StatisticsBackend {
 
 	private static Logger logger = LoggerFactory.getLogger(CSVStatisticsBackend.class);
 	
+	/**
+	 * Retrieve header with variable names
+	 * @param data
+	 * @return
+	 */
 	private String getCSVHeader(List<OutputVariable<?>> data) {
 		StringBuilder r = new StringBuilder();
 
@@ -30,6 +40,11 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 		return r.toString();
 	}
 
+	/**
+	 * Retrieve one line of data 
+	 * @param data
+	 * @return
+	 */
 	private String getCSVData(List<OutputVariable<?>> data) {
 		StringBuilder r = new StringBuilder();
 
