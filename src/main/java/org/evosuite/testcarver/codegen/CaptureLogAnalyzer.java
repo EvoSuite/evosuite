@@ -48,7 +48,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		final List<Integer> targetOIDs = log.getTargetOIDs(observedClassNames);
 		if(targetOIDs.isEmpty())
 		{
-			logger.warn("could not find any oids for {} -> {} ==> no code is generated\n{}", observedClassNames, Arrays.toString(observedClasses), log);
+			logger.info("could not find any oids for {} -> {} ==> no code is generated\n{}", observedClassNames, Arrays.toString(observedClasses), log);
 			return;
 		}
 		
@@ -244,7 +244,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		if(record == numRecords)
 		{
 			// did not find any caller -> must be very first method call
-			logger.warn("[currentRecord={}] - could not find caller for currentRecord -> must be very first method call", currentRecord);
+			logger.info("[currentRecord={}] - could not find caller for currentRecord -> must be very first method call", currentRecord);
 			return -1;
 		}
 		else
