@@ -170,7 +170,13 @@ public class ClassPathHandler {
 		File outDir = new File("target"+File.separator+"classes");
 		if(outDir.exists()){
 			changeTargetClassPath(new String[]{outDir.getAbsolutePath()});
+			
+			File testDir = new File("target"+File.separator+"test-classes");
+			if(testDir.exists()){
+				addElementToTargetProjectClassPath(testDir.getAbsolutePath());
+			}
 		} else {
+			//TODO: just in case... not sure it would work properly
 			changeTargetClassPath(getEvoSuiteClassPath().split(File.pathSeparator));
 		}
 	}

@@ -103,9 +103,20 @@ public class InheritanceTreeGenerator {
 	 * @param classNames
 	 * @return
 	 */
-	public static InheritanceTree createFromClassList(Collection<String> classNames) {
+	public static InheritanceTree createFromClassList(Collection<String> classNames) 
+			throws IllegalArgumentException{
+		
+		if(classNames==null || classNames.isEmpty()){
+			throw new IllegalArgumentException("No class name defined");
+		}
+		
 		InheritanceTree inheritanceTree = new InheritanceTree();
 		for (String className : classNames) {
+			
+			if(className == null){
+				throw new IllegalArgumentException("Null class name");
+			}
+			
 			analyzeClassName(inheritanceTree, className);
 		}
 
@@ -210,7 +221,18 @@ public class InheritanceTreeGenerator {
 	private static void analyzeClassName(InheritanceTree inheritanceTree, String className) {
 
 		String fileName = ResourceList.getClassAsResource(className);
-		InputStream stream = InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(fileName);
+		if(fileName==null){
+			throw new IllegalArgumentException("Failed to locate resource for class "+className);
+		}
+		
+		
+		InputStream stream = null;
+		try{
+			stream = InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(fileName);
+		} catch(NullPointerException e){
+			logger.warn("Java failed to read resource "+fileName,e);
+		}
+		
 		if (stream != null) {
 			logger.debug(InheritanceTreeGenerator.class.getClassLoader().getResource(fileName).toString());
 			analyzeClassStream(inheritanceTree, stream, false);
