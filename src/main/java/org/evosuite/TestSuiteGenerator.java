@@ -116,6 +116,7 @@ import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.seeding.TestCaseRecycler;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.Capturer;
@@ -567,7 +568,7 @@ public class TestSuiteGenerator {
 		TestFitnessFactory<? extends TestFitnessFunction> goalFactory = getFitnessFactory();
 		List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals();
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("total_goals",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
 		                                                                 goals.size());
 
 		TestSuiteChromosome best = new TestSuiteChromosome();
@@ -733,9 +734,6 @@ public class TestSuiteGenerator {
 			break;
 		case ALLDEFS:
 			LoggingUtils.getEvoLogger().info("* Test Criterion: All Definitions");
-			break;
-		case BEHAVIORAL:
-			LoggingUtils.getEvoLogger().info("* Test criterion: Behavioral coverage");
 			break;
 		case EXCEPTION:
 			LoggingUtils.getEvoLogger().info("* Test Criterion: Exception");
@@ -965,7 +963,7 @@ public class TestSuiteGenerator {
 		TestFitnessFactory<? extends TestFitnessFunction> goalFactory = getFitnessFactory();
 		List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals();
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("total_goals",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
 		                                                                 goals.size());
 
 		// The GA is not actually used, except to provide the same statistics as
@@ -1052,7 +1050,7 @@ public class TestSuiteGenerator {
 			// LoggingUtils.getEvoLogger().info("* Shuffling goals");
 			Randomness.shuffle(goals);
 		}
-		ClientServices.getInstance().getClientNode().trackOutputVariable("total_goals",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
 		                                                                 goals.size());
 
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());

@@ -32,7 +32,9 @@ import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.rmi.ClientServices;
 import org.evosuite.sandbox.Sandbox;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionResult;
@@ -170,6 +172,8 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 			try {
 				TestGenerationContext.getInstance().resetContext();
 				Properties.getTargetClass();
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
+
 				for(TestChromosome test : suite.getTestChromosomes()) {
 					DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
 					dtest.changeClassLoader(TestGenerationContext.getClassLoader());

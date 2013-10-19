@@ -3,12 +3,21 @@ package org.evosuite.statistics;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.SearchListener;
+import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.sandbox.Sandbox;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 
+/**
+ * Client-side listener that transmits data to master
+ * 
+ * @author gordon
+ *
+ */
 public class StatisticsListener implements SearchListener {
 
 	private BlockingQueue<Chromosome> individuals = new LinkedBlockingQueue<Chromosome>();
@@ -53,6 +62,9 @@ public class StatisticsListener implements SearchListener {
 	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		// If the search is finished, we may want to clear the queue and just send the final element?
 		//individuals.clear(); // TODO: Maybe have a check on size
+		individuals.offer(algorithm.getBestIndividual());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Statements_Executed, MaxStatementsStoppingCondition.getNumExecutedStatements());
+
 		done = true;
 	}
 

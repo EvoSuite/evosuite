@@ -11,7 +11,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.IOUtils;
 import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
@@ -25,6 +24,7 @@ import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.ClassPathHandler;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.Utils;
@@ -62,12 +62,12 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 
 	private static class OutputVariable {
-		public String name;
+		public RuntimeVariable variable;
 		public Object value;
 
-		public OutputVariable(String name, Object value) {
+		public OutputVariable(RuntimeVariable variable, Object value) {
 			super();
-			this.name = name;
+			this.variable = variable;
 			this.value = value;
 		}
 	}
@@ -192,14 +192,14 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 
 	@Override
-	public void trackOutputVariable(String name, Object value) {
+	public void trackOutputVariable(RuntimeVariable variable, Object value) {
 		logger.info("Sending output variable to master process");
 
 		/*
 		 * As this code might be called from unsafe blocks, we just put the values
 		 * on a queue, and have a privileged thread doing the RMI connection to master
 		 */
-		outputVariableQueue.offer(new OutputVariable(name, value));
+		outputVariableQueue.offer(new OutputVariable(variable, value));
 
 		//TODO remove if queue solution works
 		/*
@@ -238,12 +238,11 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 						OutputVariable ov = null;
 						try {
 							ov = outputVariableQueue.take();
-							masterNode.evosuite_collectStatistics(clientRmiIdentifier, ov.name,
-							                             ov.value);
+							masterNode.evosuite_collectStatistics(clientRmiIdentifier, ov.variable, ov.value);
 						} catch (InterruptedException e) {
 							break;
 						} catch (RemoteException e) {
-							logger.error("Error when exporting statistics: "+ov.name+"="+ov.value, e);
+							logger.error("Error when exporting statistics: "+ov.variable+"="+ov.value, e);
 							break;
 						}
 					}

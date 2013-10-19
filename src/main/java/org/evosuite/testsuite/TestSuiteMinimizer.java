@@ -32,12 +32,14 @@ import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
+import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
@@ -94,9 +96,9 @@ public class TestSuiteMinimizer {
 		if (strategy.contains(":"))
 			strategy = strategy.substring(0, strategy.indexOf(':'));
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable("full_size",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size,
 		                                                                 suite.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("full_length",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length,
 		                                                                 suite.totalLengthOfTestCases());
 
 		logger.info("Minimization Strategy: " + strategy + ", " + suite.size() + " tests");
@@ -107,9 +109,9 @@ public class TestSuiteMinimizer {
 		else
 			minimizeTests(suite);
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable("minimized_size",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size,
 		                                                                 suite.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("minimized_length",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length,
 		                                                                 suite.totalLengthOfTestCases());
 	}
 
@@ -288,6 +290,7 @@ public class TestSuiteMinimizer {
 		ClientServices.getInstance().getClientNode().changeState(state, information);
 
 		SearchStatistics.getInstance().setCoveredGoals(numCovered);
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, numCovered);
 
 		for (TestFitnessFunction goal : goals) {
 			if (!covered.contains(goal))
