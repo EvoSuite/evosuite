@@ -43,6 +43,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.utils.ClassPathHandler;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceList;
 import org.evosuite.utils.Utils;
@@ -131,7 +132,7 @@ public class InheritanceTreeGenerator {
 	}
 
 	public static void gatherStatistics(InheritanceTree inheritanceTree) {
-		ClientServices.getInstance().getClientNode().trackOutputVariable("classpath_classes",
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Classpath_Classes,
 		                                                                 inheritanceTree.getNumClasses());
 	}
 

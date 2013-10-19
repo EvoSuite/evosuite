@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.statistics.SearchStatistics;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -143,9 +144,9 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public void evosuite_collectStatistics(String clientRmiIdentifier, String name, Object value)
+	public void evosuite_collectStatistics(String clientRmiIdentifier, RuntimeVariable variable, Object value)
 	        throws RemoteException {
-		SearchStatistics.getInstance().setOutputVariable(name, value);
+		SearchStatistics.getInstance().setOutputVariable(variable, value);
 	}
 
 	@Override

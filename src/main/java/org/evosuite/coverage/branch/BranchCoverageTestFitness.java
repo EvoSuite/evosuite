@@ -18,7 +18,6 @@
 package org.evosuite.coverage.branch;
 
 import org.evosuite.coverage.ControlFlowDistance;
-import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.MethodCall;

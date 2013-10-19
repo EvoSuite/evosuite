@@ -12,6 +12,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
@@ -122,6 +123,32 @@ public class CoverageAnalysis {
 			LoggingUtils.getEvoLogger().info("* Unknown coverage criterion: " + criterion);
 		}
 	}
+	
+	private static RuntimeVariable getCoverageVariable(Properties.Criterion criterion) {
+		switch(criterion) {
+		case ALLDEFS:
+			return RuntimeVariable.AllDefCoverage;
+		case BRANCH:
+			return RuntimeVariable.BranchCoverage;			
+		case DEFUSE:
+			return RuntimeVariable.DefUseCoverage;
+		case STATEMENT:
+			return RuntimeVariable.StatementCoverage;
+		case STRONGMUTATION:
+			return RuntimeVariable.MutationScore;
+		case WEAKMUTATION:
+			return RuntimeVariable.WeakMutationScore;
+		case IBRANCH:
+		case LCSAJ:
+		case MUTATION:
+		case EXCEPTION:
+		case PATH:
+		case REGRESSION:
+		default:
+			throw new RuntimeException("Criterion not supported: "+criterion);
+		
+		}
+	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void analyzeCoverage(TestSuiteChromosome testSuite,
@@ -171,23 +198,21 @@ public class CoverageAnalysis {
 				SearchStatistics.getInstance().mutationScore(1.0);
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion
 			                                         + ": 100% (no goals)");
-			ClientServices.getInstance().getClientNode().trackOutputVariable(criterion
-			                                                                         + "Coverage",
+			ClientServices.getInstance().getClientNode().trackOutputVariable(getCoverageVariable(criterion),
 			                                                                 1.0);
 		} else {
 
 			SearchStatistics.getInstance().addCoverage(criterion.toString(),
 			                                           (double) covered
 			                                                   / (double) goals.size());
-			ClientServices.getInstance().getClientNode().trackOutputVariable(criterion
-			                                                                         + "Coverage",
+			ClientServices.getInstance().getClientNode().trackOutputVariable(getCoverageVariable(criterion),
 			                                                                 (double) covered
 			                                                                         / (double) goals.size());
 			if (criterion == Properties.Criterion.MUTATION
 			        || criterion == Properties.Criterion.STRONGMUTATION) {
 				SearchStatistics.getInstance().mutationScore((double) covered
 				                                                     / (double) goals.size());
-				ClientServices.getInstance().getClientNode().trackOutputVariable("MutationScore",
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore,
 				                                                                 (double) covered
 				                                                                         / (double) goals.size());
 				if (oldCriterion == criterion)
