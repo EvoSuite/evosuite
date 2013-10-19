@@ -51,7 +51,11 @@ public class ResourceList {
 	 * @return
 	 */
 	public static String getClassAsResource(String className) {
-		Pattern pattern = Pattern.compile(className.replace('.', '/') + ".class");
+		
+		String path = className.replace('.', '/') + ".class";
+		String escapedString = java.util.regex.Pattern.quote(path); //Important in case there is $ in the classname
+		
+		Pattern pattern = Pattern.compile(escapedString);
 
 		String[] cpElements = ClassPathHandler.getInstance().getClassPathElementsForTargetProject(); 
 		Collection<String> resources = getResources(cpElements,pattern);
@@ -65,7 +69,9 @@ public class ResourceList {
 			 * This can happen for example in Windows.
 			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
 			 */
-			pattern = Pattern.compile(className.replace(".", "\\\\") + ".class");
+			path = className.replace(".", "\\\\") + ".class";
+			escapedString = java.util.regex.Pattern.quote(path);
+			pattern = Pattern.compile(path);
 			resources = getResources(cpElements,pattern);
 			if (!resources.isEmpty()) {
 				return resources.iterator().next();
@@ -219,10 +225,15 @@ public class ResourceList {
 		if (!directory.canRead()) {
 			return retval;
 		}
+		
 		final File[] fileList = directory.listFiles();
 		for (final File file : fileList) {
 			if (file.isDirectory()) {
-				//recursion till we get to a file that is not a folder
+				/*
+				 * recursion till we get to a file that is not a folder.
+				 * The pattern is matched only against files, not folders, and it is based
+				 * on their full path names
+				 */
 				retval.addAll(getResourcesFromDirectory(file, pattern, classPathFolder));
 			} else {
 				try {
