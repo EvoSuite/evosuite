@@ -144,7 +144,7 @@ public class BudgetSchedule extends OneTimeSchedule{
 			
 			if(toAdd > 0){
 				totalLeftOver -= toAdd;
-				jobs.set(i, job.getByAddingBudget(extraPerJob));
+				jobs.set(i, job.getByAddingBudget(toAdd));
 			}
 		}
 
