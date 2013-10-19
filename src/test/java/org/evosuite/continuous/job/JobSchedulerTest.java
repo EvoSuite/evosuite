@@ -255,9 +255,9 @@ public class JobSchedulerTest {
 		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
 		ProjectStaticData data = analyzer.analyze();
 
-		int cores = 3;
+		int cores = 2;
 		int memory = 1800;
-		int budget = 2;
+		int budget = 3;
 
 		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.BUDGET_AND_SEEDING);
 		JobScheduler scheduler = new JobScheduler(data, conf);
@@ -287,6 +287,8 @@ public class JobSchedulerTest {
 		int simpleTime = jobs.get(0).seconds;
 		int trivialTime = jobs.get(1).seconds;
 		int seedingTime = jobs.get(2).seconds;
+		
+		System.out.println("Ordered times: "+simpleTime+", "+trivialTime+", "+seedingTime);
 		
 		Assert.assertTrue(simpleTime > trivialTime);
 		Assert.assertTrue(simpleTime < seedingTime);  //seeding, even if last, it should have more time, as it has most branches
