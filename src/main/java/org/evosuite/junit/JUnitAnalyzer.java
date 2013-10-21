@@ -2,6 +2,9 @@ package org.evosuite.junit;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -285,15 +288,7 @@ public class JUnitAnalyzer {
 
 
 	private static Class<?>[] loadTests(List<File> tests, File dir){
-
-		try{
-			ClassPathHandler.getInstance().addElementToTargetProjectClassPath(dir.getAbsolutePath()); //FIXME
-			ClassPathHacker.addFile(dir); //FIXME need refactoring
-		} catch(Exception e){
-			logger.error("Failed to add folder to classpath: "+dir.getAbsolutePath());
-			return null;
-		}
-
+		
 		/*
 		 * Ideally, when we run a generated test case, it
 		 * will automatically use JavaAgent to instrument the CUT.
@@ -307,7 +302,16 @@ public class JUnitAnalyzer {
 		 * if the JavaAgent works properly.
 		 */
 		InstrumentingClassLoader loader = new InstrumentingClassLoader();
-		Class<?>[] testClasses = getClassesFromFiles(tests, loader);
+		
+		URLClassLoader urlLoader;
+		try {
+			urlLoader = new URLClassLoader(new URL[]{dir.toURI().toURL()},loader);
+		} catch (MalformedURLException e) {
+			logger.error(""+e.getMessage(),e);
+			return null;
+		}
+		
+		Class<?>[] testClasses = getClassesFromFiles(tests, urlLoader);
 		return testClasses;		
 	}
 
