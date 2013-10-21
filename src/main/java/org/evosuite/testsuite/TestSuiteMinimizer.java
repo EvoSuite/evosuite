@@ -300,7 +300,7 @@ public class TestSuiteMinimizer {
 	}
 
 	private boolean isTimeoutReached() {
-		return TimeController.getInstance().isThereStillTimeInThisPhase();
+		return !TimeController.getInstance().isThereStillTimeInThisPhase();
 	}
 
 	/**

@@ -117,7 +117,6 @@ public class TestGenerationContext {
 		
 		SystemInUtil.resetSingleton();
 		Runtime.resetSingleton();
-		TimeController.resetSingleton();
 	}
 
 }
