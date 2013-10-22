@@ -50,7 +50,12 @@ public class AdaptiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			if(test.hasRelevantMutations()) {
 				TestCaseExpander expander = new TestCaseExpander();
 				TestChromosome clone = new TestChromosome();
-				clone.setTestCase(expander.expandTestCase(test.getTestCase()));
+				
+				if(Properties.LOCAL_SEARCH_EXPAND_TESTS)
+					clone.setTestCase(expander.expandTestCase(test.getTestCase()));
+				else
+					clone.setTestCase(test.getTestCase().clone());
+				
 				for (TestMutationHistoryEntry mutation : test.getMutationHistory()) {
 					if(mutation.getMutationType() == TestMutationHistoryEntry.TestMutation.DELETION) {
 						clone.getMutationHistory().addMutationEntry(mutation.clone(clone.getTestCase()));
@@ -94,6 +99,9 @@ public class AdaptiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		
 		logger.info("Fitness has changed, applying local search with fitness "
 		        + individual.getFitness());
+
+		if(Properties.LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION)
+			ensureDoubleExecution(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
 
 		if(Properties.LOCAL_SEARCH_DSE == DSEType.SUITE) {
 			// Apply standard DSE on entire suite if it has relevant mutations

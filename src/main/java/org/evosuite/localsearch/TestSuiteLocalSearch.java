@@ -73,6 +73,9 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 	}
 	
 	private TestCase expandTestCase(TestCase test) {
+		if(!Properties.LOCAL_SEARCH_EXPAND_TESTS)
+			return test;
+		
 		TestCaseExpander expander = new TestCaseExpander();
 		return expander.expandTestCase(test);
 	}

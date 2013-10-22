@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.DSEType;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 
@@ -52,13 +51,14 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 				targetPositions.add(i);
 			else {
 				StatementLocalSearch search = StatementLocalSearch.getLocalSearchFor(test.getStatement(i));
-				StatementInterface s = test.getStatement(i);
+				
 				if (search != null) {
 					logger.info("Applying local search of type "+search.getClass()+" to statement "+test.getStatement(i));
 					if(search.doSearch(individual, i, (LocalSearchObjective<TestChromosome>) objective))
 						result = true;
-					i = s.getPosition();
-					//i += search.getPositionDelta();
+					// i = s.getPosition();
+					logger.info("Old position was: "+i+", adjusting to: "+ (i + search.getPositionDelta()));
+					i += search.getPositionDelta();
 				}
 			}
 		}
