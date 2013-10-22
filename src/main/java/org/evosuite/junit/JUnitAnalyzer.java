@@ -23,8 +23,6 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.utils.ClassPathHacker;
-import org.evosuite.utils.ClassPathHandler;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
