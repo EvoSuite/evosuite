@@ -127,7 +127,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	public void localSearchStarted() {
 		startTime     = System.currentTimeMillis();
-		endTime       = startTime + Properties.LOCAL_SEARCH_BUDGET;
+		endTime       = startTime + Properties.LOCAL_SEARCH_BUDGET * 1000;
 		tests         = 0;
 		suites        = 0;
 		fitnessEvaluations      = 0;
