@@ -204,12 +204,16 @@ public class ArrayReference extends VariableReferenceImpl {
 
 	public int getMaximumIndex() {
 		int max = 0;
-		int pos = 0;
+
 		for (StatementInterface s : testCase) {
-			if (s.references(this)) {
-				max = pos;
+			for(VariableReference var : s.getVariableReferences()) {
+				if(var instanceof ArrayIndex) {
+					ArrayIndex index = (ArrayIndex)var;
+					if(index.getArray().equals(this)) {
+						max = Math.max(max, index.getArrayIndex());
+					}
+				}
 			}
-			pos++;
 		}
 		return max;
 	}

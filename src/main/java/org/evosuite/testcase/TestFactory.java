@@ -1179,6 +1179,10 @@ public class TestFactory {
 				VariableReference r = replacement.next();
 				if (var.equals(r.getAdditionalVariableReference()))
 					replacement.remove();
+				else if (r instanceof ArrayReference) {
+					if (maxIndex >= ((ArrayReference) r).getArrayLength())
+						replacement.remove();
+				}
 			}
 			if (!alternatives.isEmpty()) {
 				// Change all references to return value at position to something
@@ -1188,8 +1192,9 @@ public class TestFactory {
 					for (VariableReference var2 : s.getVariableReferences()) {
 						if (var2 instanceof ArrayIndex) {
 							ArrayIndex ai = (ArrayIndex) var2;
-							if (ai.getArray().equals(var))
+							if (ai.getArray().equals(var)) {
 								s.replace(var2, Randomness.choice(alternatives));
+							}
 						}
 					}
 				}
