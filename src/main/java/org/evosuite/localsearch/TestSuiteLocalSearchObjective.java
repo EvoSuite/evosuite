@@ -70,8 +70,10 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		this.fitness = fitness;
 		this.suite = suite;
 		this.testIndex = index;
-		this.lastFitness = suite.getFitness();
+//		this.lastFitness = suite.getFitness();
+		this.lastFitness = fitness.getFitness(suite);
 		this.lastCoverage = suite.getCoverage();
+		
 
 		/*
 		for (TestChromosome test : suite.getTestChromosomes()) {
@@ -79,7 +81,6 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 			test.setLastExecutionResult(null);
 		}
 
-		double fit = fitness.getFitness(suite);
 		assert (fit == this.lastFitness);
 		*/
 	}
