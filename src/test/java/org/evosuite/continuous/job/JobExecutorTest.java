@@ -10,6 +10,7 @@ import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.continuous.persistency.StorageManager.TestsOnDisk;
+import org.evosuite.utils.ClassPathHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,8 +43,8 @@ public class JobExecutorTest {
 		List<TestsOnDisk> data = storage.gatherGeneratedTestsOnDisk();
 		Assert.assertEquals(0, data.size());
 
-		// no need to specify it, as com.examples are compiled with EvoSuite  
-		String classpath = System.getProperty("java.class.path"); 
+		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+		String classpath =  ClassPathHandler.getInstance().getTargetProjectClasspath();
 
 		int cores = 1;
 		int memory = 1000; 
