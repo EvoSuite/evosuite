@@ -53,12 +53,13 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 				StatementLocalSearch search = StatementLocalSearch.getLocalSearchFor(test.getStatement(i));
 				
 				if (search != null) {
-					logger.info("Applying local search of type "+search.getClass()+" to statement "+test.getStatement(i));
+					logger.info("Applying local search of type "+search.getClass()+" to statement "+test.getStatement(i) +" / "+individual.getTestCase().getStatement(i));
 					if(search.doSearch(individual, i, (LocalSearchObjective<TestChromosome>) objective))
 						result = true;
 					// i = s.getPosition();
 					logger.info("Old position was: "+i+", adjusting to: "+ (i + search.getPositionDelta()));
 					i += search.getPositionDelta();
+					test = individual.getTestCase();
 				}
 			}
 		}
