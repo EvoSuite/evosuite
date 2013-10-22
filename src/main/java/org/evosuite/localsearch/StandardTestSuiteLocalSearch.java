@@ -14,7 +14,7 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 	@Override
 	public boolean doSearch(TestSuiteChromosome individual,
 			LocalSearchObjective<TestSuiteChromosome> objective) {
-		logger.info("Test suite before local search: " + individual);
+		//logger.info("Test suite before local search: " + individual);
 
 		List<TestChromosome> tests = individual.getTestChromosomes();
 		/*
@@ -25,9 +25,13 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		 */
 		Randomness.shuffle(tests);
 
-		ensureDoubleExecution(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
-		expandTestSuite(individual);
-		logger.info("Test suite after expansion and double execution: " + individual);
+		if(Properties.LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION)
+			ensureDoubleExecution(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
+		
+		if(Properties.LOCAL_SEARCH_EXPAND_TESTS)
+			expandTestSuite(individual);
+		
+		//logger.info("Test suite after expansion and double execution: " + individual);
 
 		double fitnessBefore = individual.getFitness();
 		if(Properties.LOCAL_SEARCH_DSE == DSEType.SUITE)
@@ -36,9 +40,9 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			doRegularSearch(individual, objective);
 		
 		LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
-		logger.info("Test suite after local search: " + individual);
+		//logger.info("Test suite after local search: " + individual);
 
-		assert (objective.getFitnessFunction().isMaximizationFunction() ? fitnessBefore <= individual.getFitness(): fitnessBefore >= individual.getFitness());
+		assert (objective.getFitnessFunction().isMaximizationFunction() ? fitnessBefore <= individual.getFitness(): fitnessBefore >= individual.getFitness()) : "Fitness was "+fitnessBefore+" and now is "+individual.getFitness();
 
 		// Return true if fitness has improved
 		return objective.getFitnessFunction().isMaximizationFunction() ? fitnessBefore > individual.getFitness(): fitnessBefore < individual.getFitness();
@@ -62,7 +66,13 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			}
 			logger.debug("Local search budget not yet used up");
 
-			test.localSearch(testObjective);
+			double oldFitness = individual.getFitness();
+			if(!test.localSearch(testObjective)) {
+				// The test suite is restored in the local search
+				// but the fitness value may not be
+				// TODO: Should be fixed in local search
+				test.setFitness(oldFitness);
+			}
 		}
 
 	}

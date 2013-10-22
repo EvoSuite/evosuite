@@ -321,6 +321,12 @@ public class Properties {
 	@Parameter(key = "local_search_selective", group = "Search Algorithm", description = "Apply local search only to individuals that changed fitness")
 	public static boolean LOCAL_SEARCH_SELECTIVE = false;
 
+	@Parameter(key = "local_search_expand_tests", group = "Search Algorithm", description = "Expand test cases before applying local search such that each primitive is used only once")
+	public static boolean LOCAL_SEARCH_EXPAND_TESTS = true;
+
+	@Parameter(key = "local_search_ensure_double_execution", group = "Search Algorithm", description = "If a branch is only executed once by a test suite, duplicate that test")
+	public static boolean LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION = true;
+
 	public enum DSEType {
 		OFF, STATEMENT, TEST, SUITE;
 	}
