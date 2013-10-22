@@ -585,7 +585,8 @@ public class TestSuiteWriter implements Opcodes {
 
 		generateFields(bd, wasSecurityException);
 
-		generateBeforeClass(bd, wasSecurityException);
+		if (Properties.REPLACE_CALLS || wasSecurityException)
+			generateBeforeClass(bd, wasSecurityException);
 
 		generateAfterClass(bd, wasSecurityException);
 
@@ -681,7 +682,6 @@ public class TestSuiteWriter implements Opcodes {
 
 		bd.append(METHOD_SPACE);
 		bd.append("public static void initEvoSuiteFramework(){ \n");
-
 		bd.append(BLOCK_SPACE);
 		bd.append("org.evosuite.utils.LoggingUtils.setLoggingForJUnit(); \n");
 
@@ -697,7 +697,7 @@ public class TestSuiteWriter implements Opcodes {
 			//need to setup the Sandbox mode
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."
-			        + Properties.SANDBOX_MODE + "; \n");
+					+ Properties.SANDBOX_MODE + "; \n");
 
 			bd.append(BLOCK_SPACE);
 			bd.append("Sandbox.initializeSecurityManagerForSUT(); \n");
@@ -708,6 +708,7 @@ public class TestSuiteWriter implements Opcodes {
 
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
+
 
 		bd.append("\n");
 	}
