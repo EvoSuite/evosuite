@@ -16,6 +16,23 @@ import org.evosuite.testcase.TestChromosome;
 
 public abstract class StatementLocalSearch {
 
+	private TestChromosome backup = null;
+
+	protected void backup(TestChromosome test) {
+		backup = (TestChromosome) test.clone();
+	}
+
+	protected void restore(TestChromosome test) {
+		if (backup == null)
+			return;
+
+		test.setTestCase(backup.getTestCase().clone());
+		test.copyCachedResults(backup);
+		test.setFitness(backup.getFitness());
+		test.setChanged(backup.isChanged());
+	}
+
+	
 	/**
 	 * <p>
 	 * doSearch

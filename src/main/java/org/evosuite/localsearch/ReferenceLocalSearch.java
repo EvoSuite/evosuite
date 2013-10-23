@@ -28,8 +28,6 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(ReferenceLocalSearch.class);
 
-	private TestChromosome backup = null;
-
 	private int positionDelta = 0;
 
 	/* (non-Javadoc)
@@ -40,24 +38,6 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 		return positionDelta;
 	}
 
-	private void backup(TestChromosome test) {
-		backup = (TestChromosome) test.clone();
-	}
-
-	private void restore(TestChromosome test) {
-		if (backup == null)
-			return;
-
-		// test.lastExecutionResult = backup.lastExecutionResult.clone();
-		test.setTestCase(backup.getTestCase().clone());
-		test.copyCachedResults(backup);
-		test.setFitness(backup.getFitness());
-		test.setChanged(backup.isChanged());
-
-		// TODO: Deep copy
-		test.clearCachedMutationResults();
-		// test.lastMutationResult = backup.lastMutationResult;
-	}
 
 	private enum Mutations {
 		REPLACE, PARAMETER, CALL

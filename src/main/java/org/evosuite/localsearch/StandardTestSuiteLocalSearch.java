@@ -66,13 +66,7 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			}
 			logger.debug("Local search budget not yet used up");
 
-			double oldFitness = individual.getFitness();
-			if(!test.localSearch(testObjective)) {
-				// The test suite is restored in the local search
-				// but the fitness value may not be
-				// TODO: Should be fixed in local search
-				test.setFitness(oldFitness);
-			}
+			test.localSearch(testObjective);
 		}
 
 	}

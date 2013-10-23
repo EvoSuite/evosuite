@@ -101,20 +101,24 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 		}
 
 		double newValue = bd.doubleValue();
+		oldValue = p.getValue();
+		ExecutionResult oldResult = test.getLastExecutionResult();
+
 		if (p.getValue().getClass().equals(Float.class))
 			p.setValue((T) (new Float(newValue)));
 		else
 			p.setValue((T) (new Double(newValue)));
 
-		logger.debug("Trying to chop precision " + precision + ": " + value + " -> "
+		logger.info("Trying to chop precision " + precision + ": " + value + " -> "
 		        + newValue);
+
 		if (objective.hasNotWorsened(test)) {
 			return true;
 		} else {
-			if (p.getValue().getClass().equals(Float.class))
-				p.setValue((T) (new Float(value)));
-			else
-				p.setValue((T) (new Double(value)));
+			logger.info("Restoring old value: "+value);
+			p.setValue(oldValue);
+			test.setLastExecutionResult(oldResult);
+			test.setChanged(false);
 			return false;
 		}
 
@@ -183,7 +187,7 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 		boolean improvement = false;
 		T oldValue = p.getValue();
 		ExecutionResult oldResult = test.getLastExecutionResult();
-		logger.debug("Trying increment " + delta + " of " + p.getCode());
+		logger.info("Trying increment " + delta + " of " + p.getCode());
 
 		p.increment(delta);
 		while (objective.hasImproved(test)) {
@@ -194,7 +198,7 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 			delta = factor * delta;
 			//if (delta > 1)
 			//	return improvement;
-			logger.debug("Trying increment " + delta + " of " + p.getCode());
+			logger.info("Trying increment " + delta + " of " + p.getCode());
 			p.increment(delta);
 		}
 

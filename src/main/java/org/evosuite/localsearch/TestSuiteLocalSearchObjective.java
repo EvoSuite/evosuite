@@ -70,21 +70,21 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		this.fitness = fitness;
 		this.suite = suite;
 		this.testIndex = index;
-//		this.lastFitness = suite.getFitness();
 		this.lastFitness = fitness.getFitness(suite);
 		this.lastCoverage = suite.getCoverage();
-		
-
-		/*
-		for (TestChromosome test : suite.getTestChromosomes()) {
-			test.setChanged(true);
-			test.setLastExecutionResult(null);
-		}
-
-		assert (fit == this.lastFitness);
-		*/
 	}
 
+	public void verifyFitnessValue() {
+		assert(lastFitness == suite.getFitness());
+		double currentFitness1 = fitness.getFitness(suite);
+		for(TestChromosome test : suite.getTestChromosomes()) {
+			test.setChanged(true);
+		}
+		double currentFitness2 = fitness.getFitness(suite);
+		assert(lastFitness == currentFitness1) : "Fitness values; "+lastFitness+", "+currentFitness1+", "+currentFitness2;
+		assert(currentFitness1 == currentFitness2) : "Fitness values; "+lastFitness+", "+currentFitness1+", "+currentFitness2;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#hasImproved(org.evosuite.ga.Chromosome)
 	 */
@@ -103,6 +103,22 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		return hasChanged(individual) < 1;
 	}
 
+	private boolean isFitnessBetter(double newFitness, double oldFitness) {
+		if(fitness.isMaximizationFunction()) {
+			return newFitness > oldFitness;
+		} else {
+			return newFitness < oldFitness;
+		}
+	}
+	
+	private boolean isFitnessWorse(double newFitness, double oldFitness) {
+		if(fitness.isMaximizationFunction()) {
+			return newFitness < oldFitness;
+		} else {
+			return newFitness > oldFitness;
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#hasChanged(org.evosuite.ga.Chromosome)
 	 */
@@ -113,14 +129,15 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		suite.setTestChromosome(testIndex, individual);
 		LocalSearchBudget.getInstance().countFitnessEvaluation();
 		double newFitness = fitness.getFitness(suite);
-		if (newFitness < lastFitness) { // TODO: Maximize
+		
+		if (isFitnessBetter(newFitness, lastFitness)) {
 			logger.info("Local search improved fitness from " + lastFitness + " to "
 			        + newFitness);
 			lastFitness = newFitness;
 			lastCoverage = suite.getCoverage();
 			suite.setFitness(lastFitness);
 			return -1;
-		} else if (newFitness > lastFitness) {
+		} else if (isFitnessWorse(newFitness, lastFitness)) {
 			logger.info("Local search worsened fitness from " + lastFitness + " to "
 			        + newFitness);
 			suite.setFitness(lastFitness);

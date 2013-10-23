@@ -47,33 +47,13 @@ public class ArrayLocalSearch extends StatementLocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
 
-	private TestChromosome backup = null;
-
 	private int positionDelta = 0;
 	
 	@Override
 	public int getPositionDelta() {
 		return positionDelta;
 	}
-	
-	private void backup(TestChromosome test) {
-		backup = (TestChromosome) test.clone();
-	}
 
-	private void restore(TestChromosome test) {
-		if (backup == null)
-			return;
-
-		// test.lastExecutionResult = backup.lastExecutionResult.clone();
-		test.setTestCase(backup.getTestCase().clone());
-		test.copyCachedResults(backup);
-		test.setFitness(backup.getFitness());
-		test.setChanged(backup.isChanged());
-
-		// TODO: Deep copy
-		test.clearCachedMutationResults();
-		// test.lastMutationResult = backup.lastMutationResult;
-	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
