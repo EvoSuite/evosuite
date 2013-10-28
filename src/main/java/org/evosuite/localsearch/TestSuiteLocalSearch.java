@@ -2,6 +2,7 @@ package org.evosuite.localsearch;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -130,4 +131,47 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 			objective.getFitness(individual);
 		}
 	}
+	
+	private Set<Integer> getCoveredTrueBranches(TestSuiteChromosome suite) {
+		Set<Integer> covered = new LinkedHashSet<Integer>();
+		for(TestChromosome testChromosome : suite.getTestChromosomes()) {
+			ExecutionResult lastResult = testChromosome.getLastExecutionResult();
+			if(lastResult != null) {
+				covered.addAll(lastResult.getTrace().getCoveredTrueBranches());
+			}
+		}
+		return covered;
+	}
+
+	private Set<Integer> getCoveredFalseBranches(TestSuiteChromosome suite) {
+		Set<Integer> covered = new LinkedHashSet<Integer>();
+		for(TestChromosome testChromosome : suite.getTestChromosomes()) {
+			ExecutionResult lastResult = testChromosome.getLastExecutionResult();
+			if(lastResult != null) {
+				covered.addAll(lastResult.getTrace().getCoveredFalseBranches());
+			}
+		}
+		return covered;
+	}
+
+	/**
+	 * Ensure that all branches are executed twice
+	 */
+	protected void restoreBranchCoverage(TestSuiteChromosome individual, TestSuiteFitnessFunction objective) {
+		BranchCoverageMap branchMap = BranchCoverageMap.getInstance();
+
+		Set<Integer> uncoveredTrueBranches  = new LinkedHashSet<Integer>(branchMap.getCoveredTrueBranches());
+		Set<Integer> uncoveredFalseBranches = new LinkedHashSet<Integer>(branchMap.getCoveredFalseBranches());
+		
+		uncoveredTrueBranches.removeAll(getCoveredTrueBranches(individual));
+		uncoveredFalseBranches.removeAll(getCoveredFalseBranches(individual));
+		
+		for(Integer branchId : uncoveredTrueBranches) {
+			individual.addTest(branchMap.getTestCoveringTrue(branchId).clone());
+		}
+		for(Integer branchId : uncoveredFalseBranches) {
+			individual.addTest(branchMap.getTestCoveringFalse(branchId).clone());
+		}
+	}
+	
 }

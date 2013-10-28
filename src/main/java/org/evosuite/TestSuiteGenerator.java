@@ -104,6 +104,7 @@ import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.LCSAJGraph;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.TestSuiteWriter;
+import org.evosuite.localsearch.BranchCoverageMap;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
@@ -353,7 +354,7 @@ public class TestSuiteGenerator {
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
 		writeJUnitTests(testCases);
 
-		assert JUnitAnalyzer.verifyCompilationAndExecution(tests.getTests()); //check still on original
+		assert !Properties.JUNIT_TESTS || JUnitAnalyzer.verifyCompilationAndExecution(tests.getTests()); //check still on original
 
 		writeObjectPool(tests); //FIXME  should be based on testCases
 
@@ -1739,6 +1740,10 @@ public class TestSuiteGenerator {
 			        * (BranchPool.getNumBranchlessMethods(Properties.TARGET_CLASS) + BranchPool.getBranchCountForClass(Properties.TARGET_CLASS) * 2);
 			stopping_condition.setLimit(Properties.SEARCH_BUDGET);
 			logger.info("Setting dynamic length limit to " + Properties.SEARCH_BUDGET);
+		}
+		
+		if(Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
+			ga.addListener(BranchCoverageMap.getInstance());
 		}
 		
 		if(Properties.RECYCLE_CHROMOSOMES) {
