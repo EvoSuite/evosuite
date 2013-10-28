@@ -27,6 +27,9 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 
 		if(Properties.LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION)
 			ensureDoubleExecution(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
+	
+		if(Properties.LOCAL_SEARCH_RESTORE_COVERAGE)
+			restoreBranchCoverage(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
 		
 		if(Properties.LOCAL_SEARCH_EXPAND_TESTS)
 			expandTestSuite(individual);

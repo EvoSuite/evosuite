@@ -103,6 +103,9 @@ public class AdaptiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		if(Properties.LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION)
 			ensureDoubleExecution(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
 
+		if(Properties.LOCAL_SEARCH_RESTORE_COVERAGE)
+			restoreBranchCoverage(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
+
 		if(Properties.LOCAL_SEARCH_DSE == DSEType.SUITE) {
 			// Apply standard DSE on entire suite if it has relevant mutations
 			return applyDSE(individual, objective);
