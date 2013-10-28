@@ -114,7 +114,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			return false;
 
 		if(getAge() % Properties.LOCAL_SEARCH_RATE == 0) {
-			if(Randomness.nextDouble() < Properties.LOCAL_SEARCH_PROBABILITY) {
+			if(Randomness.nextDouble() <= Properties.LOCAL_SEARCH_PROBABILITY) {
 				return true;
 			}
 		}
@@ -133,6 +133,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		logger.debug("Applying local search");
 		LocalSearchBudget.getInstance().localSearchStarted();
 
+		boolean improvement = false;
+		
 		for (Chromosome individual : population) {
 			if (isFinished())
 				break;
@@ -142,7 +144,16 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 				break;
 			}
 
-			individual.localSearch(localObjective);
+			if(individual.localSearch(localObjective))
+				improvement = true;
+		}
+		
+		if (improvement) {
+			Properties.LOCAL_SEARCH_PROBABILITY *= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
+			Properties.LOCAL_SEARCH_PROBABILITY = Math.min(Properties.LOCAL_SEARCH_PROBABILITY, 1.0);
+		} else {
+			Properties.LOCAL_SEARCH_PROBABILITY /= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
+			Properties.LOCAL_SEARCH_PROBABILITY = Math.max(Properties.LOCAL_SEARCH_PROBABILITY, Double.MIN_VALUE);
 		}
 	}
 	
