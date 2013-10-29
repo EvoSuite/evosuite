@@ -91,11 +91,6 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 				if (Properties.SANDBOX) {
 					Sandbox.initializeSecurityManagerForSUT();
 				}
-				//Object instruction = util.receiveInstruction();
-				/*
-				 * for now, we ignore the instruction (originally was meant to support several client in parallel and
-				 * restarts, but that will be done in RMI)
-				 */
 
 				try {
 					// Starting a new search
@@ -200,15 +195,6 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		 * on a queue, and have a privileged thread doing the RMI connection to master
 		 */
 		outputVariableQueue.offer(new OutputVariable(variable, value));
-
-		//TODO remove if queue solution works
-		/*
-		try {
-			masterNode.collectStatistics(clientRmiIdentifier, name, value);
-		} catch (RemoteException e) {
-			logger.error("Cannot inform master of output variable",e);
-		}
-		*/
 	}
 
 	public void stop(){

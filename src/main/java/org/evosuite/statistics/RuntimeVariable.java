@@ -58,7 +58,7 @@ public enum RuntimeVariable {
 	Size,                
 	/** Total number of statements in final test suite */
 	Length,              
-	/** Obtained coverage at different points in time  */
+	/** Obtained coverage (of the chosen testing criterion) at different points in time  */
 	CoverageTimeline,
 	FitnessTimeline,
 	SizeTimeline,

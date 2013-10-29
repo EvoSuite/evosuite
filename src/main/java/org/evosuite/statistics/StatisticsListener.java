@@ -3,6 +3,7 @@ package org.evosuite.statistics;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
@@ -19,15 +20,20 @@ import org.evosuite.sandbox.Sandbox;
  */
 public class StatisticsListener implements SearchListener {
 
-	private BlockingQueue<Chromosome> individuals = new LinkedBlockingQueue<Chromosome>();
+	private volatile BlockingQueue<Chromosome> individuals = new LinkedBlockingQueue<Chromosome>();
 	
-	private boolean done = false;
+	private volatile boolean done = false;
 	
-	private double bestFitness = Double.MAX_VALUE;
+	private volatile double bestFitness = Double.MAX_VALUE;
 	
-	private boolean minimizing = true;
+	private volatile boolean minimizing = true;
 	
-	private Thread notifier;
+	private volatile Thread notifier;
+	
+	/**
+	 * When did we send an individual due to a new generation iteration?
+	 */
+	private volatile long timeFromLastGenerationUpdate = 0;
 	
 	public StatisticsListener() {
 		notifier = new Thread() {
@@ -53,8 +59,19 @@ public class StatisticsListener implements SearchListener {
 
 	@Override
 	public void iteration(GeneticAlgorithm<?> algorithm) {
-		// Enqueue current best individual
-		// individuals.offer(algorithm.getBestIndividual());
+		
+		long elapsed = System.currentTimeMillis() - timeFromLastGenerationUpdate;
+		if(elapsed > Properties.TIMELINE_INTERVAL){
+			/*
+			 * We do not send an individual to Master at each new generation, because
+			 * for fast CUTs we could have far too many generations.
+			 * As this info is only used for time interval values, there
+			 * is no point in sending too many 
+			 */
+			timeFromLastGenerationUpdate = System.currentTimeMillis();
+			// Enqueue current best individual
+			individuals.offer(algorithm.getBestIndividual());
+		}	
 	}
 
 	@Override
