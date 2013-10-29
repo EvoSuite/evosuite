@@ -34,7 +34,7 @@ import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.sandbox.Sandbox;
-import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionResult;

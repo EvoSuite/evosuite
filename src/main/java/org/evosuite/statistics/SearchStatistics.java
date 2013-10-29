@@ -30,174 +30,34 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
 	private static final long serialVersionUID = -1859683466333302151L;
 
-	/* Singleton instance */
+	/** Singleton instance */
 	private static SearchStatistics instance = null;
 	
-	private static Logger logger = LoggerFactory.getLogger(SearchStatistics.class);
+	private static final Logger logger = LoggerFactory.getLogger(SearchStatistics.class);
 	
-	/* Map of client id to best individual received from that client so far */
+	/** Map of client id to best individual received from that client so far */
 	private Map<String, TestSuiteChromosome> bestIndividual = new HashMap<String, TestSuiteChromosome>();
 	
-	/* Backend used to output the data */
+	/** Backend used to output the data */
 	private StatisticsBackend backend = null;
 	
-	/* Output variables and their values */ 
+	/** Output variables and their values */ 
 	private Map<String, OutputVariable<?>> outputVariables = new TreeMap<String, OutputVariable<?>>();
 
-	/* Variable factories to extract output variables from chromosomes */
+	/** Variable factories to extract output variables from chromosomes */
 	private Map<String, ChromosomeOutputVariableFactory<?>> variableFactories = new TreeMap<String, ChromosomeOutputVariableFactory<?>>(); 
 	
-	/* Variable factories to extract sequence variables */
+	/** Variable factories to extract sequence variables */
 	private Map<String, SequenceOutputVariableFactory<?>> sequenceOutputVariableFactories = new TreeMap<String, SequenceOutputVariableFactory<?>>();
 
-	/* Keep track of how far EvoSuite progressed */
+	/** Keep track of how far EvoSuite progressed */
 	private ClientState currentState = ClientState.INITIALIZATION;
 	
 	private long currentStateStarted = System.currentTimeMillis();
 	
 	private long startTime = 0L;
 	
-	/**
-	 * <p>
-	 * This enumeration defines all the runtime variables we want to store in
-	 * the CSV files. Note, it is perfectly fine to add new ones, in any
-	 * position. Just be sure to define a proper mapper in {@code getCSVvalue}.
-	 * </p>
-	 * 
-	 * <p>
-	 * WARNING: do not change the name of any variable! If you do, current R
-	 * scripts will break. If you really need to change a name, please first
-	 * contact Andrea Arcuri.
-	 * </p>
-	 * 
-	 * @author arcuri
-	 * 
-	 */
-	public enum RuntimeVariable {
-		Class,               // Class under test
-		Predicates,          // Number of predicates in CUT
-		Classpath_Classes,   // Number of classes in classpath 
-		Analyzed_Classes,    // Number of classes analyzed for test cluster
-		Generators,          // Total number of generators
-		Modifiers,           // Total number of modifiers
-		Total_Branches,      // Total number of branches in CUT
-		Covered_Branches,    // Number of covered branches in CUT
-		Total_Methods,       // Total number of methods in CUT
-		Branchless_Methods,  // Number of methods without any predicates
-		Covered_Methods,     // Number of methods covered
-		Covered_Branchless_Methods, // Number of methods without predicates covered
-		Total_Goals,         // Total number of coverage goals for current criterion
-		Covered_Goals,       // Total number of covered goals
-		Mutants,             // Number of mutants
-		Statements_Executed, // Total number of statements executed
-		Coverage,            // Obtained coverage of the chosen testing criterion
-		Fitness,             // Fitness value of the best individual
-		Size,                // Number of tests in resulting test suite
-		Length,              // Total number of statements in final test suite
-		/**
-		 * Obtained coverage at different points in time
-		 */
-		CoverageTimeline,
-		FitnessTimeline,
-		SizeTimeline,
-		LengthTimeline,
-		/**
-		 * Not only the covered branches ratio, but also including the
-		 * branchless methods
-		 */
-		BranchCoverage,
-		NumberOfGeneratedTestCases,
-		/**
-		 * The number of serialized objects that EvoSuite is
-		 * going to use for seeding strategies
-		 */
-		NumberOfInputPoolObjects,
-		AllDefCoverage,
-		DefUseCoverage,
-		WeakMutationScore,
-		Creation_Time,
-		Minimization_Time,
-		Total_Time,
-		Test_Execution_Time,
-		Goal_Computation_Time,
-		Result_Size,
-		Result_Length,
-		Minimized_Size,
-		Minimized_Length,
-		Chromosome_Length,
-		Population_Size,
-		Random_Seed,
-		Budget,
-		Lines,
-		AllPermission,
-		SecurityPermission,
-		UnresolvedPermission,
-		AWTPermission,
-		FilePermission,
-		SerializablePermission,
-		ReflectPermission,
-		RuntimePermission,
-		NetPermission,
-		SocketPermission,
-		SQLPermission,
-		PropertyPermission,
-		LoggingPermission,
-		SSLPermission,
-		AuthPermission,
-		AudioPermission,
-		OtherPermission,
-		Threads,
-//		JUnitTests,
-		Branches,
-		StatementCoverage,
-		MutationScore,
-		Explicit_MethodExceptions,
-		Explicit_TypeExceptions,
-		Implicit_MethodExceptions,
-		Implicit_TypeExceptions,
-		Error_Predicates,
-		Error_Branches_Covered,
-		Error_Branchless_Methods,
-		Error_Branchless_Methods_Covered,
-		AssertionContract,
-		EqualsContract,
-		EqualsHashcodeContract,
-		EqualsNullContract,
-		EqualsSymmetricContract,
-		HashCodeReturnsNormallyContract,
-		JCrasherExceptionContract,
-		NullPointerExceptionContract,
-		ToStringReturnsNormallyContract,
-		UndeclaredExceptionContract,
-		Contract_Violations,
-		Unique_Violations,
-		Data_File,
-		/**
-		 * Dataflow stuff
-		 */
-		Definitions,
-		Uses,
-		DefUsePairs,
-		IntraMethodPairs,
-		InterMethodPairs,
-		IntraClassPairs,
-		ParameterPairs,
-		LCSAJs,
-		AliasingIntraMethodPairs,
-		AliasingInterMethodPairs,
-		AliasingIntraClassPairs,
-		AliasingParameterPairs,
-		CoveredIntraMethodPairs,
-		CoveredInterMethodPairs,
-		CoveredIntraClassPairs,
-		CoveredParameterPairs,
-		CoveredAliasIntraMethodPairs,
-		CoveredAliasInterMethodPairs,
-		CoveredAliasIntraClassPairs,
-		CoveredAliasParameterPairs,
-		CarvedTests,
-		CarvedCoverage
-	};
+	
 	
 	
 	private SearchStatistics() { 

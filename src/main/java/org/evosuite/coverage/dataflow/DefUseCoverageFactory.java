@@ -33,7 +33,7 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;

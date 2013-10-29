@@ -4,7 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
+import org.evosuite.statistics.RuntimeVariable;
 
 public class DummyClientNodeImpl extends ClientNodeImpl {
 
