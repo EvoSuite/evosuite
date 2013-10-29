@@ -327,6 +327,9 @@ public class Properties {
 	@Parameter(key = "local_search_ensure_double_execution", group = "Search Algorithm", description = "If a branch is only executed once by a test suite, duplicate that test")
 	public static boolean LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION = true;
 
+	@Parameter(key = "local_search_restore_coverage", group = "Search Algorithm", description = "Add tests that cover branches already covered in the past")
+	public static boolean LOCAL_SEARCH_RESTORE_COVERAGE = true;
+
 	public enum DSEType {
 		OFF, STATEMENT, TEST, SUITE;
 	}
@@ -359,6 +362,9 @@ public class Properties {
 
 	@Parameter(key = "local_search_primitives", group = "Search Algorithm", description = "Perform local search on primitive values")
 	public static boolean LOCAL_SEARCH_PRIMITIVES = true;
+
+	@Parameter(key = "local_search_strings", group = "Search Algorithm", description = "Perform local search on primitive values")
+	public static boolean LOCAL_SEARCH_STRINGS = true;
 
 	@Parameter(key = "local_search_arrays", group = "Search Algorithm", description = "Perform local search on array statements")
 	public static boolean LOCAL_SEARCH_ARRAYS = true;
