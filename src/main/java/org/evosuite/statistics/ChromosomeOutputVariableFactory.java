@@ -1,6 +1,6 @@
 package org.evosuite.statistics;
 
-import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**

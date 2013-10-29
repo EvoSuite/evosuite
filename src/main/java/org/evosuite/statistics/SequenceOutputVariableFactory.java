@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**

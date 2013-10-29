@@ -617,7 +617,7 @@ class MSecurityManager extends SecurityManager {
 			return false;
 		}
 						
-		if(perm instanceof FilePermission){
+		if(perm instanceof FilePermission && !perm.getActions().equals("read")){
 			//we do this just as a safety mechanism...
 			logger.error("EvoSuite RMI is trying to interact with files: "+perm);
 			return false;

@@ -12,7 +12,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.statistics.SearchStatistics;
-import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
