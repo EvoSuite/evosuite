@@ -1,7 +1,7 @@
 package org.evosuite.rmi.service;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
+import org.evosuite.statistics.RuntimeVariable;
 
 /**
  * Client Node view in the client process.  

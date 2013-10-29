@@ -52,7 +52,7 @@ import org.evosuite.runtime.FileSystem;
 import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
-import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
