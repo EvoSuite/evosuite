@@ -10,7 +10,6 @@ import org.evosuite.ga.SearchListener;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.sandbox.Sandbox;
-import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
 
 /**
  * Client-side listener that transmits data to master

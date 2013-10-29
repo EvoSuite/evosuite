@@ -116,7 +116,7 @@ import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.seeding.TestCaseRecycler;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
-import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.Capturer;

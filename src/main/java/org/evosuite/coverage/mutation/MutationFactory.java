@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.statistics.SearchStatistics.RuntimeVariable;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 
 /**
