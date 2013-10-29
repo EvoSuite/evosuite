@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -133,15 +134,10 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 	private int calculateNumberOfIntervals() {
 		long interval = Properties.TIMELINE_INTERVAL;
 		/*
-		 * TODO: this might need refactoring once we choose 
-		 * a different way to handle search timeouts.
-		 * 
-		 * The point here is that we need to support both if we use time
-		 * as search budget, and fitness/statement evaluations.
 		 * We cannot just look at the obtained history, because the search might
 		 * have finished earlier, eg if 100% coverage
 		 */
-		long totalTime = Properties.GLOBAL_TIMEOUT * 1000l;
+		long totalTime = TimeController.getSearchBudgetInSeconds() * 1000l;
 		
 		int numberOfIntervals = (int) (totalTime / interval);
 		return numberOfIntervals;

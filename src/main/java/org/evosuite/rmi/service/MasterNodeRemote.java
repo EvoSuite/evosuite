@@ -16,8 +16,8 @@ public interface MasterNodeRemote extends Remote {
 	public static final String RMI_SERVICE_NAME = "MasterNode";
 	
 	/*
-	 * Note: we need names starting with 'evosuite' here, becase those names are accessed 
-	 * through reflactions and used in the checks of the sandbox 
+	 * Note: we need names starting with 'evosuite' here, because those names are accessed 
+	 * through reflections and used in the checks of the sandbox 
 	 */
 	
 	public void evosuite_registerClientNode(String clientRmiIdentifier) throws RemoteException;

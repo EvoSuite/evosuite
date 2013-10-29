@@ -125,7 +125,7 @@ public class TimeController {
 		}
 	}
 	
-	protected static int getSearchBudgetInSeconds(){
+	public static int getSearchBudgetInSeconds(){
 		if (Properties.STOPPING_CONDITION == StoppingCondition.MAXTIME) {
 			return (int) Properties.SEARCH_BUDGET;
 		} else {
