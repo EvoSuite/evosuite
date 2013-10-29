@@ -363,6 +363,9 @@ public class Properties {
 	@Parameter(key = "local_search_primitives", group = "Search Algorithm", description = "Perform local search on primitive values")
 	public static boolean LOCAL_SEARCH_PRIMITIVES = true;
 
+	@Parameter(key = "local_search_strings", group = "Search Algorithm", description = "Perform local search on primitive values")
+	public static boolean LOCAL_SEARCH_STRINGS = true;
+
 	@Parameter(key = "local_search_arrays", group = "Search Algorithm", description = "Perform local search on array statements")
 	public static boolean LOCAL_SEARCH_ARRAYS = true;
 
