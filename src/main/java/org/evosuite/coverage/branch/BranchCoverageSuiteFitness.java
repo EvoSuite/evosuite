@@ -28,8 +28,6 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
-import org.evosuite.rmi.ClientServices;
-import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
@@ -97,8 +95,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		logger.info("Total methods: " + totalMethods + ": " + methods);
 
 		determineCoverageGoals();
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Branches,
-		                                                                 totalGoals);
 	}
 
 	// Some stuff for debug output

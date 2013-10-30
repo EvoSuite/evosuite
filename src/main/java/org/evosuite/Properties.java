@@ -755,7 +755,7 @@ public class Properties {
 	public static boolean OLD_STATISTICS = true;
 
 	public enum StatisticsBackend {
-		NONE, CONSOLE, CSV;
+		NONE, CONSOLE, CSV, HTML;
 	}
 
 	@Parameter(key = "statistics_backend", group = "Output", description = "Which backend to use to collect data")

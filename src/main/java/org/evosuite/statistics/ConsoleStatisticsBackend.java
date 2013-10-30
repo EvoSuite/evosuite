@@ -1,6 +1,8 @@
 package org.evosuite.statistics;
 
-import java.util.List;
+import java.util.Map;
+
+import org.evosuite.ga.Chromosome;
 
 /**
  * Simple dummy backend that just outputs all output variables to the console
@@ -11,8 +13,8 @@ import java.util.List;
 public class ConsoleStatisticsBackend implements StatisticsBackend {
 
 	@Override
-	public void writeData(List<OutputVariable<?>> data) {
-		for(OutputVariable<?> var : data) {
+	public void writeData(Chromosome result, Map<String, OutputVariable<?>> data) {
+		for(OutputVariable<?> var : data.values()) {
 			System.out.println(var.getName()+": "+var.getValue());
 		}
 

@@ -34,7 +34,6 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.coverage.mutation.MutationPool;
-import org.evosuite.coverage.path.PrimePathPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.rmi.ClientServices;
@@ -251,7 +250,9 @@ public class DependencyAnalysis {
 	
 	private static void gatherStatistics() {
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Predicates, BranchPool.getBranchCounter());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Branches, BranchPool.getBranchCounter() * 2);
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Branches, (BranchPool.getBranchCounter()) * 2);
+		// TODO: Where is the difference between Branches and Total_Branches?
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Branches, (BranchPool.getBranchCounter()) * 2);
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Branchless_Methods, BranchPool.getBranchlessMethods().size());
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Methods, CFGMethodAdapter.getNumMethods());
 
