@@ -4,8 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 
+import org.evosuite.ga.Chromosome;
 import org.evosuite.utils.ReportGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 	 * @param data
 	 * @return
 	 */
-	private String getCSVHeader(List<OutputVariable<?>> data) {
+	private String getCSVHeader(Map<String, OutputVariable<?>> data) {
 		StringBuilder r = new StringBuilder();
 
 		if (!data.isEmpty()) {
@@ -45,7 +46,7 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 	 * @param data
 	 * @return
 	 */
-	private String getCSVData(List<OutputVariable<?>> data) {
+	private String getCSVData(Map<String, OutputVariable<?>> data) {
 		StringBuilder r = new StringBuilder();
 
 		if (!data.isEmpty()) {
@@ -61,7 +62,7 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 	}
 
 	@Override
-	public void writeData(List<OutputVariable<?>> data) {
+	public void writeData(Chromosome result, Map<String, OutputVariable<?>> data) {
 		// Write to evosuite-report/statistics.csv
 		try {
 			File outputDir = ReportGenerator.getReportDir();			

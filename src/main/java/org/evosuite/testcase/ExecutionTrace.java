@@ -171,6 +171,13 @@ public interface ExecutionTrace {
 	public Set<Integer> getCoveredLines(String className);
 
 	/**
+	 * Retrieve the set of line numbers covered
+	 * 
+	 * @return a {@link java.util.Set} object.
+	 */
+	public Set<Integer> getCoveredLines();
+
+	/**
 	 * Retrieve detailed line coverage count
 	 * 
 	 * @return a {@link java.util.Map} object.
