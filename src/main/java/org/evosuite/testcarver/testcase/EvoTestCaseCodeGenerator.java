@@ -1,5 +1,6 @@
 package org.evosuite.testcarver.testcase;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -16,6 +17,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.CaptureUtil;
@@ -40,8 +42,12 @@ import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> {
+	
+	private static final Logger logger = LoggerFactory.getLogger(EvoTestCaseCodeGenerator.class);
 	//--- source generation
 	private TestCase testCase;
 	private VariableReference xStreamRef;
@@ -50,6 +56,11 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 	public EvoTestCaseCodeGenerator() {
 		this.oidToVarRefMap = new HashMap<Integer, VariableReference>();
+	}
+	
+	@Override
+	public boolean isMaximumLengthReached() {
+		return testCase.size() > Properties.CHROMOSOME_LENGTH;
 	}
 
 	@Override
@@ -90,11 +101,12 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 				if (CaptureLog.RETURN_TYPE_VOID.equals(returnValue)) {
 
-					GenericMethod geneticMethod = new GenericMethod(
+					GenericMethod genericMethod = new GenericMethod(
 					        this.getDeclaredMethod(type, methodName,
-					                               methodParamTypeClasses), type);
+					                               methodParamTypeClasses)
+							, type);
 
-					MethodStatement m = new MethodStatement(testCase, geneticMethod,
+					MethodStatement m = new MethodStatement(testCase, genericMethod,
 					        this.oidToVarRefMap.get(oid), args);
 
 					testCase.addStatement(m);
@@ -116,6 +128,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				}
 			}
 		} catch (final Exception e) {
+			logger.info("Test case so far: "+testCase.toCode());
 			CodeGeneratorException.propagateError(e, "[logRecNo = %s] - an unexpected error occurred while creating method call stmt.\n%s", logRecNo, log);
 		}
 	}
@@ -336,23 +349,24 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			return Short.TYPE;
 		} else if (type.getSort() == org.objectweb.asm.Type.ARRAY) {
 			final org.objectweb.asm.Type elementType = type.getElementType();
-
+			int[] dimensions = new int[type.getDimensions()];
+			
 			if (elementType.equals(org.objectweb.asm.Type.BOOLEAN_TYPE)) {
-				return boolean[].class;
+				return Array.newInstance(boolean.class, dimensions).getClass();
 			} else if (elementType.equals(org.objectweb.asm.Type.BYTE_TYPE)) {
-				return byte[].class;
+				return Array.newInstance(byte.class, dimensions).getClass();
 			} else if (elementType.equals(org.objectweb.asm.Type.CHAR_TYPE)) {
-				return char[].class;
+				return Array.newInstance(char.class, dimensions).getClass();
 			} else if (elementType.equals(org.objectweb.asm.Type.DOUBLE_TYPE)) {
-				return double[].class;
+				return Array.newInstance(double.class, dimensions).getClass();
 			} else if (elementType.equals(org.objectweb.asm.Type.FLOAT_TYPE)) {
-				return float[].class;
+				return Array.newInstance(float.class, dimensions).getClass();
 			} else if (elementType.equals(org.objectweb.asm.Type.INT_TYPE)) {
-				return int[].class;
+				return Array.newInstance(int.class, dimensions).getClass();
 			} else if (elementType.equals(org.objectweb.asm.Type.LONG_TYPE)) {
-				return long[].class;
+				return Array.newInstance(long.class, dimensions).getClass();
 			} else if (elementType.equals(org.objectweb.asm.Type.SHORT_TYPE)) {
-				return short[].class;
+				return Array.newInstance(short.class, dimensions).getClass();
 			}
 		}
 
@@ -437,9 +451,10 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 	}
 
 	private Method getDeclaredMethod(final Class<?> clazz, final String methodName,
-	        Class<?>[] paramTypes) throws NoSuchFieldException {
+	        Class<?>[] paramTypes) throws NoSuchMethodException {
+		logger.info("Trying to get method "+methodName +" from class "+clazz+" with parameters "+Arrays.asList(paramTypes));
 		if (clazz == null || Object.class.equals(clazz)) {
-			throw new NoSuchFieldException(methodName + "(" + Arrays.toString(paramTypes)
+			throw new NoSuchMethodException(methodName + "(" + Arrays.toString(paramTypes)
 			        + ")");
 		}
 
@@ -447,7 +462,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			final Method m = clazz.getDeclaredMethod(methodName, paramTypes);
 			m.setAccessible(true);
 			return m;
-		} catch (final NoSuchMethodException e) {
+		} catch (final NoSuchMethodException e) {			
+			logger.info("Available methods: "+Arrays.asList(clazz.getDeclaredMethods()));
 			return getDeclaredMethod(clazz.getSuperclass(), methodName, paramTypes);
 		}
 	}

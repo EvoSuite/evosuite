@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 
+
+import org.evosuite.Properties;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -156,13 +158,38 @@ public final class Instrumenter
 		}
 		
 		// consider only public and protected classes which are not interfaces
-		if(( 
-				(cn.access & Opcodes.ACC_PUBLIC) == 0 && (cn.access & Opcodes.ACC_PROTECTED) == 0)
-				|| 
-		   (cn.access & Opcodes.ACC_INTERFACE) != 0)
+		if((cn.access & Opcodes.ACC_INTERFACE) != 0) {
+			return;
+		}
+
+		// No private
+		if((cn.access & Opcodes.ACC_PRIVATE) != 0) {
+			// TODO: Why is this not detecting $DummyIntegrator?
+			logger.debug("Ignoring private class: "+cn.name);
+			return;
+		}
+
+		String packageName = internalClassName.replace('/', '.');
+		if(packageName.contains("."))
+			packageName = packageName.substring(0, packageName.lastIndexOf('.'));
+		
+		logger.info("Checking package: "+packageName+" for class "+cn.name);
+
+		// Protected/default only if in same package
+		if((cn.access & Opcodes.ACC_PUBLIC) == 0) {
+			if(!Properties.CLASS_PREFIX.equals(packageName)) {
+				logger.info("Not using protected/default class because package name does not match");
+				return;
+			} else {
+				logger.info("Using protected/default class because package name matches");
+			}
+		}
+		/*
+		if(	(cn.access & Opcodes.ACC_PUBLIC) == 0 && (cn.access & Opcodes.ACC_PROTECTED) == 0)
 		{
 			return;
 		}
+		*/
 		
 		final ArrayList<MethodNode> wrappedMethods = new ArrayList<MethodNode>();
 		MethodNode methodNode;
@@ -172,17 +199,21 @@ public final class Instrumenter
 		{
 			methodNode = methodIter.next();
 			
-			if(methodNode.name.equals("<init>"))
-			{
-				this.addFieldRegistryRegisterCall(methodNode);
-			}
-			
 			// consider only public methods which are not abstract or native
 			if( ! TransformerUtil.isPrivate(methodNode.access)  &&
 				! TransformerUtil.isAbstract(methodNode.access) &&
 				! TransformerUtil.isNative(methodNode.access)   && 
 				! methodNode.name.equals("<clinit>"))
 			{
+				if(! TransformerUtil.isPublic(methodNode.access)) {
+					if(!Properties.CLASS_PREFIX.equals(packageName))
+						continue;
+				}
+				if(methodNode.name.equals("<init>"))
+				{
+					this.addFieldRegistryRegisterCall(methodNode);
+				}
+				
 				this.instrumentPUTXXXFieldAccesses(cn, internalClassName, methodNode);
 				this.instrumentGETXXXFieldAccesses(cn, internalClassName, methodNode);
 				

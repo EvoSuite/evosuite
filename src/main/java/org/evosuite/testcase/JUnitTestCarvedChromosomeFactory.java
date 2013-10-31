@@ -82,7 +82,24 @@ public class JUnitTestCarvedChromosomeFactory implements
 		final Class<?>[] classes = new Class<?>[junitTestClasses.size()];
 		junitTestClasses.toArray(classes);
 		final Result result = runner.run(classes);
-		junitTests.addAll(listener.getTestCases());
+		for(TestCase test : listener.getTestCases()) {
+			if(test.isEmpty())
+				continue;
+			
+			ExecutionResult executionResult = TestCaseExecutor.runTest(test);
+			if(executionResult.noThrownExceptions()) {
+				logger.info("Adding carved test without exception");
+				logger.info(test.toCode(executionResult.exposeExceptionMapping()));
+				junitTests.add(test);
+			} else {
+				logger.info("Not adding carved test with exception: "+executionResult.getExceptionThrownAtPosition(executionResult.getFirstPositionOfThrownException()));
+				for(StackTraceElement elem : executionResult.getExceptionThrownAtPosition(executionResult.getFirstPositionOfThrownException()).getStackTrace()) {
+					logger.info(elem.toString());
+				}
+				logger.info(test.toCode(executionResult.exposeExceptionMapping()));
+			}
+		}
+		// junitTests.addAll(listener.getTestCases());
 		
 		if(junitTests.size()>0){
 			totalNumberOfTestsCarved += junitTests.size();
