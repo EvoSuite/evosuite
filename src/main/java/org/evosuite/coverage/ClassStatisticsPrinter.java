@@ -3,7 +3,6 @@
  */
 package org.evosuite.coverage;
 
-import java.io.File;
 import java.util.Arrays;
 
 import org.evosuite.Properties;

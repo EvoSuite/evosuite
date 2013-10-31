@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -55,8 +56,9 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	
 	private long currentStateStarted = System.currentTimeMillis();
 	
-	private long startTime = 0L;
+	private long searchStartTime = 0L;
 	
+	private long startTime = System.currentTimeMillis();
 	
 	
 	
@@ -67,6 +69,9 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			break;
 		case CSV:
 			backend = new CSVStatisticsBackend();
+			break;
+		case HTML:
+			backend = new HTMLStatisticsBackend();
 			break;
 		case NONE:
 		default:
@@ -164,19 +169,21 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @param individual
 	 * @return
 	 */
-	private List<OutputVariable<?>> getOutputVariables(Chromosome individual) {
-		List<OutputVariable<?>> variables = new ArrayList<OutputVariable<?>>();
+	private Map<String, OutputVariable<?>> getOutputVariables(Chromosome individual) {
+		Map<String, OutputVariable<?>> variables = new LinkedHashMap<String, OutputVariable<?>>();
 		
 		for(String variableName : getOutputVariableNames()) {
 			if(outputVariables.containsKey(variableName)) {
-				variables.add(outputVariables.get(variableName));
+				variables.put(variableName, outputVariables.get(variableName));
 			} else if(Properties.getParameters().contains(variableName)) {
-				variables.add(new PropertyOutputVariableFactory(variableName).getVariable());
+				variables.put(variableName, new PropertyOutputVariableFactory(variableName).getVariable());
 			} else if(variableFactories.containsKey(variableName)) {
 				// TODO: Iterator mess
-				variables.add(variableFactories.get(variableName).getVariable((TestSuiteChromosome) bestIndividual.values().iterator().next()));
+				variables.put(variableName, variableFactories.get(variableName).getVariable((TestSuiteChromosome) bestIndividual.values().iterator().next()));
 			} else if(sequenceOutputVariableFactories.containsKey(variableName)) {
-				variables.addAll(sequenceOutputVariableFactories.get(variableName).getOutputVariables());
+				for(OutputVariable<?> var : sequenceOutputVariableFactories.get(variableName).getOutputVariables()) {
+					variables.put(var.getName(), var); 
+				}
 			}
 			else {
 				throw new IllegalArgumentException("No such output variable: "+variableName+". Available variables: "+getAllOutputVariableNames());
@@ -194,9 +201,11 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		if(backend == null)
 			return;
 		
+		outputVariables.put(RuntimeVariable.Total_Time.name(), new OutputVariable<Object>(RuntimeVariable.Total_Time.name(), System.currentTimeMillis() - startTime));
+		
 		if(!bestIndividual.isEmpty()) {
 			Chromosome individual = bestIndividual.values().iterator().next();
-			backend.writeData(getOutputVariables(individual));
+			backend.writeData(individual, getOutputVariables(individual));
 		} else {
 			logger.info("No statistics has been saved because EvoSuite failed to generate any test case");
 		}
@@ -210,12 +219,12 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		if(information.getState() != currentState) {
 			logger.info("Received status update: "+information);
 			if(information.getState() == ClientState.SEARCH) {
-				startTime = System.currentTimeMillis();
+				searchStartTime = System.currentTimeMillis();
 				for(SequenceOutputVariableFactory<?> factory : sequenceOutputVariableFactories.values()) {
-					factory.setStartTime(startTime);
+					factory.setStartTime(searchStartTime);
 				}
 			}
-			OutputVariable<Long> time = new OutputVariable<Long>("time_"+currentState.getName(), System.currentTimeMillis() - currentStateStarted);
+			OutputVariable<Long> time = new OutputVariable<Long>("Time_"+currentState.getName(), System.currentTimeMillis() - currentStateStarted);
 			outputVariables.put(time.getName(), time);
 			currentState = information.getState();
 			currentStateStarted = System.currentTimeMillis();

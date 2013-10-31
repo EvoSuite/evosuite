@@ -32,7 +32,6 @@ import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
-import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.junit.TestSuiteWriter;
@@ -271,15 +270,16 @@ public class TestSuiteMinimizer {
 
 		logger.info("Minimized suite covers " + covered.size() + "/" + goals.size()
 		        + " goals");
-		logger.info("Setting coverage to: "+((double) numCovered / (double) numGoals));
 		suite.tests.clear();
 		for (TestCase test : minimizedSuite.getTestCases()) {
 			suite.addTest(test);
 		}
 		if (numGoals == 0)
 			suite.setCoverage(1.0);
-		else
+		else 
 			suite.setCoverage((double) numCovered / (double) numGoals);
+		
+		logger.info("Setting coverage to: "+suite.getCoverage());
 
 		removeRedundantTestCases(suite);
 
@@ -288,9 +288,7 @@ public class TestSuiteMinimizer {
 		information.setProgress(100);
 		information.setCoverage((int) (Math.round(suite.getCoverage() * 100)));
 		ClientServices.getInstance().getClientNode().changeState(state, information);
-
 		SearchStatistics.getInstance().setCoveredGoals(numCovered);
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, numCovered);
 
 		for (TestFitnessFunction goal : goals) {
 			if (!covered.contains(goal))

@@ -242,7 +242,8 @@ public class TestSuiteGenerator {
 		 * need to handle the gathering of the statistics.
 		 */
 		ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
-		statistics.writeReport();
+		if(Properties.OLD_STATISTICS)
+			statistics.writeReport();
 		if (!Properties.NEW_STATISTICS && Properties.OLD_STATISTICS)
 			statistics.writeStatistics();
 
@@ -296,6 +297,7 @@ public class TestSuiteGenerator {
 		if (Properties.CHECK_CONTRACTS) {
 			TestCaseExecutor.getInstance().removeObserver(checker);
 		}
+		gatherStatistics(tests);
 
 		LoggingUtils.getEvoLogger().info("* Time spent executing tests: "
 		                                         + TestCaseExecutor.timeExecuted + "ms");
@@ -315,6 +317,7 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Generating assertions");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
 			addAssertions(tests);
+			ClientServices.getInstance().getClientNode().updateStatistics(tests);
 			/*
 			if (Properties.CRITERION == Criterion.MUTATION
 			        || Properties.CRITERION == Criterion.STRONGMUTATION) {
@@ -668,7 +671,8 @@ public class TestSuiteGenerator {
 		        || Properties.CRITERION == Criterion.STRONGMUTATION) {
 			SearchStatistics.getInstance().mutationScore(best.getCoverage());
 		}
-
+		
+		gatherStatistics(best);
 		statistics.iteration(ga);
 		statistics.minimized(best);
 		LoggingUtils.getEvoLogger().info("* Generated " + best.size()
@@ -712,6 +716,30 @@ public class TestSuiteGenerator {
 		}
 
 		return best;
+	}
+	
+	private void gatherStatistics(TestSuiteChromosome testSuite) {
+		Set<String> coveredMethods = new HashSet<String>(); 
+		Set<Integer> coveredTrueBranches = new HashSet<Integer>();
+		Set<Integer> coveredFalseBranches = new HashSet<Integer>();
+		Set<Integer> coveredLines = new HashSet<Integer>();
+		
+		for (TestChromosome test : testSuite.getTestChromosomes()) {
+			if(test.getLastExecutionResult() == null) {
+				ExecutionResult result = TestCaseExecutor.runTest(test.getTestCase());
+				test.setLastExecutionResult(result);
+			}
+			coveredMethods.addAll(test.getLastExecutionResult().getTrace().getCoveredMethods());
+			coveredTrueBranches.addAll(test.getLastExecutionResult().getTrace().getCoveredTrueBranches());
+			coveredFalseBranches.addAll(test.getLastExecutionResult().getTrace().getCoveredFalseBranches());
+			coveredLines.addAll(test.getLastExecutionResult().getTrace().getCoveredLines());
+		}
+		
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, testSuite.getCoveredGoals().size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Methods, coveredMethods.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Branches, coveredTrueBranches.size() + coveredFalseBranches.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Lines, coveredLines);
+		ClientServices.getInstance().getClientNode().updateStatistics(testSuite);
 	}
 
 	private void printTestCriterion() {

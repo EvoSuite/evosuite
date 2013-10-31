@@ -696,6 +696,17 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		return coveredLines;
 	}
 
+	@Override
+	public Set<Integer> getCoveredLines() {
+		Set<Integer> coveredLines = new HashSet<Integer>();
+		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : coverage.entrySet()) {
+			for (Map<Integer, Integer> methodentry : entry.getValue().values()) {
+				coveredLines.addAll(methodentry.keySet());
+			}
+		}
+		return coveredLines;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionTrace#getCoveredMethods()
 	 */
