@@ -100,6 +100,7 @@ public class ClientProcess {
 		try {
 			LoggingUtils.getEvoLogger().info("* Starting client");
 			ClientProcess process = new ClientProcess();
+			TimeController.resetSingleton();
 			process.run();
 			if (!onThread) {
 				/*

@@ -53,6 +53,9 @@ public class SystemTest {
 
 	@Before
 	public void setDefaultPropertiesForTestCases() {
+		
+		ClientProcess.geneticAlgorithmStatus = null;
+		
 		Properties.HTML = false;
 		Properties.SHOW_PROGRESS = false;
 		Properties.SERIALIZE_RESULT = false;

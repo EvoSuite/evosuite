@@ -78,7 +78,10 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @param value
 	 *            a double.
 	 */
-	public void setFitness(double value) {
+	public void setFitness(double value) throws IllegalArgumentException{
+		if(value < 0){
+			throw new IllegalArgumentException("Fitness can never be negative: "+value);
+		}
 		lastFitness = fitness;
 		fitness = value;
 		// changed = false;

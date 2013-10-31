@@ -18,20 +18,22 @@ import com.examples.with.different.packagename.localsearch.StringLocalSearchExam
 
 public class TestLocalSearch extends SystemTest {
 
-	private int oldSearchRate             = Properties.LOCAL_SEARCH_RATE;
-	private double oldSearchProb          = Properties.LOCAL_SEARCH_PROBABILITY;
-	private Properties.LocalSearchBudgetType localSearchBudgetType = Properties.LOCAL_SEARCH_BUDGET_TYPE;
-	private boolean localSearchArrays     = Properties.LOCAL_SEARCH_ARRAYS;
-	private boolean localSearchPrimitives = Properties.LOCAL_SEARCH_PRIMITIVES;
-	private boolean localSearchReferences = Properties.LOCAL_SEARCH_REFERENCES;
-	private int chromosomeLength          = Properties.CHROMOSOME_LENGTH;
-	private int maxInitialTests           = Properties.MAX_INITIAL_TESTS;
+	private static final int oldSearchRate             = Properties.LOCAL_SEARCH_RATE;
+	private static final double oldSearchProb          = Properties.LOCAL_SEARCH_PROBABILITY;
+	private static final Properties.LocalSearchBudgetType localSearchBudgetType = Properties.LOCAL_SEARCH_BUDGET_TYPE;
+	private static final long oldSearchBudget = Properties.LOCAL_SEARCH_BUDGET; 
+	private static final boolean localSearchArrays     = Properties.LOCAL_SEARCH_ARRAYS;
+	private static final boolean localSearchPrimitives = Properties.LOCAL_SEARCH_PRIMITIVES;
+	private static final boolean localSearchReferences = Properties.LOCAL_SEARCH_REFERENCES;
+	private static final int chromosomeLength          = Properties.CHROMOSOME_LENGTH;
+	private static final int maxInitialTests           = Properties.MAX_INITIAL_TESTS;
 	
 	@After
 	public void resetLocalSearchRate() {
 		Properties.LOCAL_SEARCH_RATE = oldSearchRate;
 		Properties.LOCAL_SEARCH_PROBABILITY = oldSearchProb;
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = localSearchBudgetType;
+		Properties.LOCAL_SEARCH_BUDGET = oldSearchBudget;
 		Properties.LOCAL_SEARCH_PRIMITIVES = localSearchPrimitives;
 		Properties.LOCAL_SEARCH_REFERENCES = localSearchReferences;
 		Properties.LOCAL_SEARCH_ARRAYS     = localSearchArrays;
