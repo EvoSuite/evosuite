@@ -21,8 +21,7 @@ public class BranchCoverageMap implements SearchListener {
 	private Map<Integer, TestCase> coveredFalseBranches;
 
 	private BranchCoverageMap() {
-		coveredTrueBranches  = new LinkedHashMap<Integer, TestCase>();
-		coveredFalseBranches = new LinkedHashMap<Integer, TestCase>();
+		
 	}
 	
 	public static BranchCoverageMap getInstance() {
@@ -58,20 +57,19 @@ public class BranchCoverageMap implements SearchListener {
 
 	@Override
 	public void searchStarted(GeneticAlgorithm<?> algorithm) {
-		// TODO Auto-generated method stub
-		
+		coveredTrueBranches  = new LinkedHashMap<Integer, TestCase>();
+		coveredFalseBranches = new LinkedHashMap<Integer, TestCase>();		
 	}
 
 	@Override
 	public void iteration(GeneticAlgorithm<?> algorithm) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void searchFinished(GeneticAlgorithm<?> algorithm) {
-		// TODO Auto-generated method stub
-		
+		coveredTrueBranches  = null;
+		coveredFalseBranches = null;
 	}
 
 	@Override
