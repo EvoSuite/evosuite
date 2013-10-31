@@ -4,13 +4,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.SearchListener;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.sandbox.Sandbox;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * Client-side listener that transmits data to master
@@ -27,6 +28,8 @@ public class StatisticsListener implements SearchListener {
 	private volatile double bestFitness = Double.MAX_VALUE;
 	
 	private volatile boolean minimizing = true;
+	
+	private int numFitnessEvaluations = 0;
 	
 	private volatile Thread notifier;
 	
@@ -80,8 +83,18 @@ public class StatisticsListener implements SearchListener {
 		//individuals.clear(); // TODO: Maybe have a check on size
 		individuals.offer(algorithm.getBestIndividual());
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Statements_Executed, MaxStatementsStoppingCondition.getNumExecutedStatements());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, MaxTestsStoppingCondition.getNumExecutedTests());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generations, algorithm.getAge());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Fitness_Evaluations, numFitnessEvaluations);
 
+		if(algorithm.getBestIndividual() instanceof TestSuiteChromosome) {
+			reportTestSuiteResult((TestSuiteChromosome) algorithm.getBestIndividual());
+		}
 		done = true;
+	}
+	
+	private void reportTestSuiteResult(TestSuiteChromosome testSuite) {
+		
 	}
 
 	@Override
@@ -98,6 +111,8 @@ public class StatisticsListener implements SearchListener {
 	
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
+		numFitnessEvaluations++;
+		
 		double fitness = individual.getFitness();
 		if(minimizing) {
 			if(fitness < bestFitness) {

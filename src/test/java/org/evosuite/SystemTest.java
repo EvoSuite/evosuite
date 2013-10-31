@@ -65,7 +65,7 @@ public class SystemTest {
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
 		Properties.SEARCH_BUDGET = 10000;
 
-		Properties.GLOBAL_TIMEOUT = 50;
+		Properties.GLOBAL_TIMEOUT = 120;
 		Properties.MINIMIZATION_TIMEOUT = 8;
 		Properties.EXTRA_TIMEOUT = 2;
 

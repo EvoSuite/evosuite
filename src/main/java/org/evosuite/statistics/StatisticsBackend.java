@@ -1,9 +1,11 @@
 package org.evosuite.statistics;
 
-import java.util.List;
+import java.util.Map;
+
+import org.evosuite.ga.Chromosome;
 
 public interface StatisticsBackend {
 
-	public void writeData(List<OutputVariable<?>> data);
+	public void writeData(Chromosome result, Map<String, OutputVariable<?>> data);
 	
 }

@@ -194,8 +194,10 @@ public class CoverageAnalysis {
 		if (goals.isEmpty()) {
 			SearchStatistics.getInstance().addCoverage(criterion.toString(), 1.0);
 			if (criterion == Properties.Criterion.MUTATION
-			        || criterion == Properties.Criterion.STRONGMUTATION)
+			        || criterion == Properties.Criterion.STRONGMUTATION) {
 				SearchStatistics.getInstance().mutationScore(1.0);
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore, 1.0);
+			}
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion
 			                                         + ": 100% (no goals)");
 			ClientServices.getInstance().getClientNode().trackOutputVariable(getCoverageVariable(criterion),

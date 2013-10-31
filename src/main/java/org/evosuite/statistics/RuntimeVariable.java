@@ -33,7 +33,9 @@ public enum RuntimeVariable {
 	/** Total number of branches in CUT */
 	Total_Branches,     
 	/** Number of covered branches in CUT */
-	Covered_Branches,    
+	Covered_Branches,
+	/** the actual covered line numbers */
+	Covered_Lines,
 	/** Total number of methods in CUT */
 	Total_Methods,       
 	/** Number of methods without any predicates */
@@ -50,6 +52,9 @@ public enum RuntimeVariable {
 	Mutants,            
 	/** Total number of statements executed */
 	Statements_Executed, 
+	Tests_Executed, 
+	Fitness_Evaluations,
+	Generations,
 	/** Obtained coverage of the chosen testing criterion */
 	Coverage,            
 	/** Fitness value of the best individual */
