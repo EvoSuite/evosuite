@@ -20,6 +20,7 @@ package org.evosuite.testcarver.extraction;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -155,6 +156,10 @@ public class CarvingClassLoader extends ClassLoader {
 			byte[] byteBuffer = writer.toByteArray();
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
 			                              byteBuffer.length);
+			if(Modifier.isPrivate(result.getModifiers())) {
+				logger.info("REPLACEING PRIVATE CLASS "+fullyQualifiedTargetClass);
+				result = super.loadClass(fullyQualifiedTargetClass);
+			}
 			classes.put(fullyQualifiedTargetClass, result);
 			logger.info("Keeping class: " + fullyQualifiedTargetClass);
 			return result;

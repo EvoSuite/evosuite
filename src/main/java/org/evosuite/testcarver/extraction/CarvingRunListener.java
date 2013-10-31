@@ -58,7 +58,7 @@ public class CarvingRunListener extends RunListener {
 		analyzer.analyze(log, codeGen, this.targetClasses);
 
 		DefaultTestCase test = (DefaultTestCase) codeGen.getCode();
-		logger.info("Carved test: " + test.toCode());
+		logger.info("Carved test of length " + test.size());
 		try {
 			test.changeClassLoader(TestGenerationContext.getClassLoader());
 			GenericTypeInference inference = new GenericTypeInference();

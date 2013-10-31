@@ -348,6 +348,10 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		int[] exchange;
 
 		for(; currentRecord < end; currentRecord++) {
+			
+			if(generator.isMaximumLengthReached())
+				break;
+			
 //			for(; currentRecord <= end; currentRecord++) {
 			currentOID     = log.objectIds.get(currentRecord);
 			returnValueObj = log.returnValues.get(currentRecord);

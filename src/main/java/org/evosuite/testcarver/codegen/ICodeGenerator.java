@@ -19,6 +19,7 @@ public interface ICodeGenerator<T> {
 	public void createCollectionInitStmt(final CaptureLog log, final int currentLogRecNo);
 	public void createMapInitStmt(final CaptureLog log, final int currentLogRecNo);
 
+	public boolean isMaximumLengthReached();
 	
 	public void after(final CaptureLog log);
 	
