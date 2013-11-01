@@ -8,6 +8,7 @@ import org.evosuite.SystemTest;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
@@ -44,7 +45,7 @@ public class TestLinkedListInstrumentation extends SystemTest {
 		// One infeasible error branch
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testLinkedListWithErrorBranches() {
 
@@ -67,14 +68,19 @@ public class TestLinkedListInstrumentation extends SystemTest {
 
 		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
 		Assert.assertEquals("Wrong number of goals: ", 13, goals.size());
-		for(TestFitnessFunction goal : goals) {
-			BranchCoverageTestFitness branchGoal = (BranchCoverageTestFitness)goal;
-			if(branchGoal.getBranch() != null && !branchGoal.getBranch().isInstrumented()) {
+
+		// Not sure why we have to do this:
+		TestCaseExecutor.initExecutor();
+
+		for (TestFitnessFunction goal : goals) {
+			BranchCoverageTestFitness branchGoal = (BranchCoverageTestFitness) goal;
+			if (branchGoal.getBranch() != null
+			        && !branchGoal.getBranch().isInstrumented()) {
 				Assert.assertTrue(branchGoal.isCoveredBy(best));
 			}
 		}
 	}
-	
+
 	@Test
 	public void testLinkedListIndexWithoutErrorBranches() {
 
@@ -101,7 +107,7 @@ public class TestLinkedListInstrumentation extends SystemTest {
 		// One infeasible error branch
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testLinkedListIndexWithErrorBranches() {
 
@@ -124,9 +130,14 @@ public class TestLinkedListInstrumentation extends SystemTest {
 
 		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
 		Assert.assertEquals("Wrong number of goals: ", 15, goals.size());
-		for(TestFitnessFunction goal : goals) {
-			BranchCoverageTestFitness branchGoal = (BranchCoverageTestFitness)goal;
-			if(branchGoal.getBranch() != null && !branchGoal.getBranch().isInstrumented()) {
+
+		// Not sure why we have to do this:
+		TestCaseExecutor.initExecutor();
+
+		for (TestFitnessFunction goal : goals) {
+			BranchCoverageTestFitness branchGoal = (BranchCoverageTestFitness) goal;
+			if (branchGoal.getBranch() != null
+			        && !branchGoal.getBranch().isInstrumented()) {
 				Assert.assertTrue(branchGoal.isCoveredBy(best));
 			}
 		}
