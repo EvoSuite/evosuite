@@ -17,6 +17,9 @@
  */
 package org.evosuite.coverage.dataflow;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -165,18 +168,18 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final static boolean PRINT_DEBUG = false;
 
 	// the Definition-Use pair
-	private final String goalVariable;
-	private final Use goalUse;
-	private final Definition goalDefinition;
+	private String goalVariable;
+	private transient Use goalUse;
+	private transient Definition goalDefinition;
 
-	private final DefUsePairType type;
+	private DefUsePairType type;
 
-	private final TestFitnessFunction goalDefinitionFitness;
-	private final TestFitnessFunction goalUseFitness;
+	private TestFitnessFunction goalDefinitionFitness;
+	private TestFitnessFunction goalUseFitness;
 
 	// coverage information
 	private Integer coveringObjectId = -1;
-	private ExecutionTrace coveringTrace;
+	private transient ExecutionTrace coveringTrace = null;
 	private boolean covered = false;
 
 	// constructors
@@ -200,6 +203,27 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		if (use == null)
 			throw new IllegalArgumentException("null given for use. def was "
 			        + def.toString() + ". type: " + type.toString());
+
+		initRegularDefUse(def, use, type);
+	}
+
+	/**
+	 * Used for Parameter-Uses
+	 * 
+	 * Creates a goal that tries to cover the given Use
+	 * 
+	 * @param use
+	 *            a {@link org.evosuite.coverage.dataflow.Use} object.
+	 */
+	public DefUseCoverageTestFitness(Use use) {
+		if (!use.isParameterUse())
+			throw new IllegalArgumentException(
+			        "this constructor is only for Parameter-Uses");
+
+		initParameterUse(use);
+	}
+
+	private void initRegularDefUse(Definition def, Use use, DefUsePairType type) {
 		//if (!def.getVariableName().equals(use.getVariableName()))
 		//	throw new IllegalArgumentException(
 		//	        "expect def and use to be for the same variable: \n" + def.toString()
@@ -219,19 +243,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		this.type = type;
 	}
 
-	/**
-	 * Used for Parameter-Uses
-	 * 
-	 * Creates a goal that tries to cover the given Use
-	 * 
-	 * @param use
-	 *            a {@link org.evosuite.coverage.dataflow.Use} object.
-	 */
-	public DefUseCoverageTestFitness(Use use) {
-		if (!use.isParameterUse())
-			throw new IllegalArgumentException(
-			        "this constructor is only for Parameter-Uses");
-
+	private void initParameterUse(Use use) {
 		goalVariable = use.getVariableName();
 		goalDefinition = null;
 		goalDefinitionFitness = null;
@@ -287,9 +299,10 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		TestChromosome dummy = new TestChromosome();
 		return getFitness(dummy, result);
 	}
-	
+
 	public boolean isAlias() {
-		return goalDefinition != null ? !goalUse.getVariableName().equals(goalDefinition.getVariableName()) : false;
+		return goalDefinition != null ? !goalUse.getVariableName().equals(goalDefinition.getVariableName())
+		        : false;
 	}
 
 	/**
@@ -669,95 +682,33 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		return goalUse.getMethodName();
 	}
 
-	//	@Override
-	//	public int hashCode() {
-	//		final int prime = 31;
-	//		int result = 1;
-	//		result = prime * result
-	//				+ ((goalDefinition == null) ? 0 : goalDefinition.hashCode());
-	//		result = prime * result + ((goalUse == null) ? 0 : goalUse.hashCode());
-	//		result = prime * result + (isInterMethodPair ? 1231 : 1237);
-	//		return result;
-	//	}
-	//
-	//	@Override
-	//	public boolean equals(Object obj) {
-	//		if (this == obj)
-	//			return true;
-	//		if (obj == null)
-	//			return false;
-	//		if (getClass() != obj.getClass())
-	//			return false;
-	//		DefUseCoverageTestFitness other = (DefUseCoverageTestFitness) obj;
-	//		if (goalDefinition == null) {
-	//			if (other.goalDefinition != null)
-	//				return false;
-	//		} else if (!goalDefinition.equals(other.goalDefinition))
-	//			return false;
-	//		if (goalUse == null) {
-	//			if (other.goalUse != null)
-	//				return false;
-	//		} else if (!goalUse.equals(other.goalUse))
-	//			return false;
-	//		if (type != other.type)
-	//			return false;
-	//		return true;
-	//	}
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		DefUsePairType type = (DefUsePairType) ois.readObject();
+		int useId = (int) ois.readObject();
+		int defId = (int) ois.readObject();
+		Use use = DefUsePool.getUseByUseId(useId);
 
-	//	@Override
-	//	public int hashCode() {
-	//		final int prime = 31;
-	//		int result = 1;
-	//		result = prime * result
-	//				+ ((goalDefinition == null) ? 0 : goalDefinition.hashCode());
-	//		result = prime * result + ((goalUse == null) ? 0 : goalUse.hashCode());
-	//		return result;
-	//	}
-	//
-	//	@Override
-	//	public boolean equals(Object obj) {
-	//		if (this == obj)
-	//			return true;
-	//		if (obj == null)
-	//			return false;
-	//		if (getClass() != obj.getClass())
-	//			return false;
-	//		DefUseCoverageTestFitness other = (DefUseCoverageTestFitness) obj;
-	//		if (goalDefinition == null) {
-	//			if (other.goalDefinition != null)
-	//				return false;
-	//		} else if (!goalDefinition.equals(other.goalDefinition))
-	//			return false;
-	//		if (goalUse == null) {
-	//			if (other.goalUse != null)
-	//				return false;
-	//		} else if (!goalUse.equals(other.goalUse))
-	//			return false;
-	//		return true;
-	//	}
+		if (type == DefUsePairType.PARAMETER) {
+			initParameterUse(use);
+		} else {
+			Definition def = DefUsePool.getDefinitionByDefId(defId);
+			initRegularDefUse(def, use, type);
+		}
+	}
 
-	//	@Override
-	//	public boolean equals(Object o) {
-	//		if (o == this)
-	//			return true;
-	//		if (o == null)
-	//			return false;
-	//		if (!(o instanceof DefUseCoverageTestFitness))
-	//			return false;
-	//
-	//		DefUseCoverageTestFitness t = (DefUseCoverageTestFitness) o;
-	//		if (t.goalUse.useId != this.goalUse.useId)
-	//			return false;
-	//		if (goalDefinition == null) {
-	//			if (t.goalDefinition == null)
-	//				return true;
-	//			else
-	//				return false;
-	//		}
-	//		if (t.goalDefinition == null)
-	//			return false;
-	//		
-	//		return t.goalDefinition.defId == this.goalDefinition.defId;
-	//	}
-
+	/**
+	 * Serialize, but need to abstract classloader away
+	 * 
+	 * @param oos
+	 * @throws IOException
+	 */
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.writeObject(type);
+		oos.writeObject(goalUse.useId);
+		if (goalDefinition != null)
+			oos.writeObject(goalDefinition.defId);
+		else
+			oos.writeObject(0);
+	}
 }
