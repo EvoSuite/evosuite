@@ -2,8 +2,8 @@ package org.evosuite.coverage.dataflow;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.SystemTest;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
@@ -15,15 +15,15 @@ import com.examples.with.different.packagename.defuse.GCD;
 
 public class TestDefUseAnalysis extends SystemTest {
 
-	private Criterion oldCriterion = Properties.CRITERION;
-	private boolean oldAssertions = Properties.ASSERTIONS;
-	
+	private final Criterion oldCriterion = Properties.CRITERION;
+	private final boolean oldAssertions = Properties.ASSERTIONS;
+
 	@After
 	public void resetCriterion() {
 		Properties.CRITERION = oldCriterion;
 		Properties.ASSERTIONS = oldAssertions;
 	}
-	
+
 	@Test
 	public void testSimpleExample() {
 		EvoSuite evosuite = new EvoSuite();
@@ -32,6 +32,10 @@ public class TestDefUseAnalysis extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CRITERION = Criterion.DEFUSE;
+
+		// Need to deactivate assertions, otherwise classloader is chanaged 
+		// and DefUseCoverageFactory is reset
+		Properties.ASSERTIONS = false;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -51,7 +55,7 @@ public class TestDefUseAnalysis extends SystemTest {
 		Assert.assertEquals(3, DefUseCoverageFactory.getIntraMethodGoalsCount());
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testGCDExample() {
 		EvoSuite evosuite = new EvoSuite();
