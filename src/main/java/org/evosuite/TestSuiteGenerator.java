@@ -242,7 +242,7 @@ public class TestSuiteGenerator {
 		 * need to handle the gathering of the statistics.
 		 */
 		ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
-		if(Properties.OLD_STATISTICS)
+		if (Properties.OLD_STATISTICS)
 			statistics.writeReport();
 		if (!Properties.NEW_STATISTICS && Properties.OLD_STATISTICS)
 			statistics.writeStatistics();
@@ -340,15 +340,15 @@ public class TestSuiteGenerator {
 		}
 
 		List<TestCase> testCases = tests.getTests();
-		
-		if(Properties.JUNIT_TESTS){ 
-			if(JUnitAnalyzer.isJavaCompilerAvailable()){
+
+		if (Properties.JUNIT_TESTS) {
+			if (JUnitAnalyzer.isJavaCompilerAvailable()) {
 
 				JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
 
-				JUnitAnalyzer.handleTestsThatAreUnstable(testCases);		
+				JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
 				//second passage on reverse order, this is to spot dependencies among tests
-				if(testCases.size() > 1){
+				if (testCases.size() > 1) {
 					Collections.reverse(testCases);
 					JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
 				}
@@ -359,7 +359,8 @@ public class TestSuiteGenerator {
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
 		writeJUnitTests(testCases);
 
-		assert !Properties.JUNIT_TESTS || JUnitAnalyzer.verifyCompilationAndExecution(tests.getTests()); //check still on original
+		assert !Properties.JUNIT_TESTS
+		        || JUnitAnalyzer.verifyCompilationAndExecution(tests.getTests()); //check still on original
 
 		writeObjectPool(tests); //FIXME  should be based on testCases
 
@@ -371,7 +372,6 @@ public class TestSuiteGenerator {
 
 		return testCases;
 	}
-
 
 	/**
 	 * <p>
@@ -658,20 +658,17 @@ public class TestSuiteGenerator {
 			assert (fitness >= best.getFitness());
 		}
 
-		/*
-		 * FIXME: why was it as an "else" of previous condition???
-		 */
-
 		if (Properties.COVERAGE) {
 			CoverageAnalysis.analyzeCoverage(best, Properties.CRITERION);
 		}
+
 		// progressMonitor.updateStatus(99);
 
 		if (Properties.CRITERION == Criterion.MUTATION
 		        || Properties.CRITERION == Criterion.STRONGMUTATION) {
 			SearchStatistics.getInstance().mutationScore(best.getCoverage());
 		}
-		
+
 		gatherStatistics(best);
 		statistics.iteration(ga);
 		statistics.minimized(best);
@@ -717,15 +714,15 @@ public class TestSuiteGenerator {
 
 		return best;
 	}
-	
+
 	private void gatherStatistics(TestSuiteChromosome testSuite) {
-		Set<String> coveredMethods = new HashSet<String>(); 
+		Set<String> coveredMethods = new HashSet<String>();
 		Set<Integer> coveredTrueBranches = new HashSet<Integer>();
 		Set<Integer> coveredFalseBranches = new HashSet<Integer>();
 		Set<Integer> coveredLines = new HashSet<Integer>();
-		
+
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
-			if(test.getLastExecutionResult() == null) {
+			if (test.getLastExecutionResult() == null) {
 				ExecutionResult result = TestCaseExecutor.runTest(test.getTestCase());
 				test.setLastExecutionResult(result);
 			}
@@ -734,11 +731,16 @@ public class TestSuiteGenerator {
 			coveredFalseBranches.addAll(test.getLastExecutionResult().getTrace().getCoveredFalseBranches());
 			coveredLines.addAll(test.getLastExecutionResult().getTrace().getCoveredLines());
 		}
-		
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, testSuite.getCoveredGoals().size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Methods, coveredMethods.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Branches, coveredTrueBranches.size() + coveredFalseBranches.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Lines, coveredLines);
+
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals,
+		                                                                 testSuite.getCoveredGoals().size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Methods,
+		                                                                 coveredMethods.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Branches,
+		                                                                 coveredTrueBranches.size()
+		                                                                         + coveredFalseBranches.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Lines,
+		                                                                 coveredLines);
 		ClientServices.getInstance().getClientNode().updateStatistics(testSuite);
 	}
 
@@ -1771,12 +1773,12 @@ public class TestSuiteGenerator {
 			stopping_condition.setLimit(Properties.SEARCH_BUDGET);
 			logger.info("Setting dynamic length limit to " + Properties.SEARCH_BUDGET);
 		}
-		
-		if(Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
+
+		if (Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
 			ga.addListener(BranchCoverageMap.getInstance());
 		}
-		
-		if(Properties.RECYCLE_CHROMOSOMES) {
+
+		if (Properties.RECYCLE_CHROMOSOMES) {
 			if (Properties.STRATEGY == Strategy.ONEBRANCH)
 				ga.addListener(TestCaseRecycler.getInstance());
 		}

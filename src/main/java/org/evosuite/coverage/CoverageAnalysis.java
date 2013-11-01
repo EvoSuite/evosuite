@@ -49,6 +49,16 @@ public class CoverageAnalysis {
 		if (oldCriterion == criterion)
 			return;
 
+		if (!ExecutionTracer.isTraceCallsEnabled()) {
+			ExecutionTracer.enableTraceCalls();
+			testSuite.setChanged(true);
+			for (TestChromosome test : testSuite.getTestChromosomes()) {
+				test.setChanged(true);
+				test.clearCachedResults();
+				test.clearCachedMutationResults();
+			}
+		}
+
 		if (isMutationCriterion(criterion) && isMutationCriterion(oldCriterion)) {
 			if (oldCriterion == Properties.Criterion.WEAKMUTATION) {
 				testSuite.setChanged(true);
@@ -123,30 +133,30 @@ public class CoverageAnalysis {
 			LoggingUtils.getEvoLogger().info("* Unknown coverage criterion: " + criterion);
 		}
 	}
-	
+
 	private static RuntimeVariable getCoverageVariable(Properties.Criterion criterion) {
-		switch(criterion) {
+		switch (criterion) {
 		case ALLDEFS:
 			return RuntimeVariable.AllDefCoverage;
 		case BRANCH:
-			return RuntimeVariable.BranchCoverage;			
+		case EXCEPTION:
+			return RuntimeVariable.BranchCoverage;
 		case DEFUSE:
 			return RuntimeVariable.DefUseCoverage;
 		case STATEMENT:
 			return RuntimeVariable.StatementCoverage;
 		case STRONGMUTATION:
+		case MUTATION:
 			return RuntimeVariable.MutationScore;
 		case WEAKMUTATION:
 			return RuntimeVariable.WeakMutationScore;
 		case IBRANCH:
 		case LCSAJ:
-		case MUTATION:
-		case EXCEPTION:
 		case PATH:
 		case REGRESSION:
 		default:
-			throw new RuntimeException("Criterion not supported: "+criterion);
-		
+			throw new RuntimeException("Criterion not supported: " + criterion);
+
 		}
 	}
 
@@ -155,15 +165,6 @@ public class CoverageAnalysis {
 	        Properties.Criterion criterion) {
 
 		Properties.Criterion oldCriterion = Properties.CRITERION;
-		if (!ExecutionTracer.isTraceCallsEnabled()) {
-			ExecutionTracer.enableTraceCalls();
-			testSuite.setChanged(true);
-			for (TestChromosome test : testSuite.getTestChromosomes()) {
-				test.setChanged(true);
-				test.clearCachedResults();
-				test.clearCachedMutationResults();
-			}
-		}
 
 		reinstrument(testSuite, criterion);
 		TestFitnessFactory factory = TestSuiteGenerator.getFitnessFactory(criterion);
@@ -196,7 +197,8 @@ public class CoverageAnalysis {
 			if (criterion == Properties.Criterion.MUTATION
 			        || criterion == Properties.Criterion.STRONGMUTATION) {
 				SearchStatistics.getInstance().mutationScore(1.0);
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore, 1.0);
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore,
+				                                                                 1.0);
 			}
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion
 			                                         + ": 100% (no goals)");
