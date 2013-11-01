@@ -66,9 +66,9 @@ public class CarvingRunListener extends RunListener {
 			inference.inferTypes(test);
 
 			carvedTests.add(test);
-		} catch(Throwable t) {
-			logger.info("Exception during carving: "+t);
-			
+		} catch (Throwable t) {
+			logger.info("Exception during carving: " + t);
+
 		}
 		codeGen.clear();
 	}

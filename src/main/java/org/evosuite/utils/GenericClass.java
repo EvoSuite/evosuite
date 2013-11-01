@@ -827,8 +827,11 @@ public class GenericClass implements Serializable {
 				Map<TypeVariable<?>, Type> superMap = superClass.getTypeVariableMap();
 				//logger.debug("Super map after " + superClass + ": " + superMap);
 				typeMap.putAll(superMap);
+			} else {
+				logger.debug("Strange!");
 			}
 		} catch (Exception e) {
+			logger.debug("Exception while getting type map: " + e);
 		}
 		for (int i = 0; i < typeVariables.size(); i++) {
 			if (types.get(i) != typeVariables.get(i))
