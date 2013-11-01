@@ -3,6 +3,7 @@
  */
 package org.evosuite;
 
+import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
@@ -102,19 +103,20 @@ public class TestGenerationContext {
 			try {
 				TestClusterGenerator clusterGenerator = new TestClusterGenerator();
 				clusterGenerator.generateCluster(Properties.TARGET_CLASS,
-						DependencyAnalysis.getInheritanceTree(),
-						DependencyAnalysis.getCallTree());
+				                                 DependencyAnalysis.getInheritanceTree(),
+				                                 DependencyAnalysis.getCallTree());
 			} catch (RuntimeException e) {
-				logger.error(e.getMessage(),e);
+				logger.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {
-				logger.error(e.getMessage(),e);
+				logger.error(e.getMessage(), e);
 			}
 		}
-		
-		if(Properties.CHECK_CONTRACTS) {
+
+		if (Properties.CHECK_CONTRACTS) {
 			FailingTestSet.changeClassLoader(classLoader);
 		}
-		
+		ContractChecker.setActive(true);
+
 		SystemInUtil.resetSingleton();
 		Runtime.resetSingleton();
 	}
