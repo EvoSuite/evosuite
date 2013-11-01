@@ -16,7 +16,7 @@ public class TestNullPointerInstrumentation extends SystemTest {
 
 	@Test
 	public void testMethodCallWithoutErrorBranches() {
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = Methodcall.class.getCanonicalName();
@@ -38,18 +38,20 @@ public class TestNullPointerInstrumentation extends SystemTest {
 		Assert.assertEquals("Wrong number of goals: ", 2, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testMethodCallWithErrorBranches() {
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = Methodcall.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
+		// Null strings are not so likely, so we give more budget
+		Properties.SEARCH_BUDGET = 20000;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass};
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 
@@ -61,14 +63,14 @@ public class TestNullPointerInstrumentation extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		// 4: 2 regular branches, 2 for overflow, 2 for NPE
+		// 4: 2 regular branches, 2 for NPE
 		Assert.assertEquals("Wrong number of goals: ", 4, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testFieldWithoutErrorBranches() {
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = Fieldaccess.class.getCanonicalName();
@@ -90,10 +92,10 @@ public class TestNullPointerInstrumentation extends SystemTest {
 		Assert.assertEquals("Wrong number of goals: ", 2, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testFieldWithErrorBranches() {
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = Fieldaccess.class.getCanonicalName();
@@ -116,6 +118,6 @@ public class TestNullPointerInstrumentation extends SystemTest {
 		// 4: 2 regular branches, 2 for NPE on callee, 2 for NPE
 		Assert.assertEquals("Wrong number of goals: ", 6, goals);
 		// One goal is infeasible - null on this
-		Assert.assertEquals("Non-optimal coverage: ", 5d/6d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 5d / 6d, best.getCoverage(), 0.001);
 	}
 }
