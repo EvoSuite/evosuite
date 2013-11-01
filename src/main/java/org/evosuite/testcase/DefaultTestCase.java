@@ -60,22 +60,22 @@ public class DefaultTestCase implements TestCase, Serializable {
 	protected final ListenableList<StatementInterface> statements;
 
 	// a list of all goals this test covers
-	private final HashSet<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
+	private final transient HashSet<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
 
 	private boolean isFailing = false;
-	
+
 	private boolean unstable = false;
-	
+
 	@Override
-	public void setUnstable(boolean unstable){
+	public void setUnstable(boolean unstable) {
 		this.unstable = unstable;
 	}
-	
+
 	@Override
-	public boolean isUnstable(){
+	public boolean isUnstable() {
 		return unstable;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public void addStatements(List<? extends StatementInterface> statements) {
@@ -107,12 +107,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public boolean isEmpty() {
 		return statements.isEmpty();
 	}
-	
+
 	@Override
 	public boolean isFailing() {
 		return isFailing;
 	}
-	
+
 	public void setFailing(boolean failing) {
 		isFailing = failing;
 	}
@@ -321,23 +321,22 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 		return Randomness.choice(variables);
 	}
-	
+
 	@Override
-	public VariableReference getLastObject(Type type)
-			throws ConstructionFailedException {
+	public VariableReference getLastObject(Type type) throws ConstructionFailedException {
 		return getLastObject(type, 0);
 	}
-	
+
 	@Override
 	public VariableReference getLastObject(Type type, int position)
-			throws ConstructionFailedException {
-		for(int i = statements.size() - 1; i >= position; i--) {
+	        throws ConstructionFailedException {
+		for (int i = statements.size() - 1; i >= position; i--) {
 			StatementInterface statement = statements.get(i);
 			VariableReference var = statement.getReturnValue();
-			if(var.isAssignableTo(type))
+			if (var.isAssignableTo(type))
 				return var;
 		}
-		throw new ConstructionFailedException("Foudn no variables of type "+type);
+		throw new ConstructionFailedException("Foudn no variables of type " + type);
 	}
 
 	/* (non-Javadoc)
