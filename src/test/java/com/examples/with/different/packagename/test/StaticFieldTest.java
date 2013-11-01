@@ -23,7 +23,7 @@ public class StaticFieldTest {
 	public void testMe(Class test) {
 		if (test.equals(OBJECT_VALUE)) {
 			System.out.println("test");
-		} else if (test.equals(CLASS_VALUE)) {
+		} else if (test.equals(DATE_VALUE)) {
 			System.out.println("test");
 		}
 	}
