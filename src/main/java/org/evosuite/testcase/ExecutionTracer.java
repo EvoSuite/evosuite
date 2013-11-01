@@ -364,7 +364,7 @@ public class ExecutionTracer {
 			return;
 
 		if (tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			// logger.info("Raising TimeoutException as kill switch is active - passedLine");
 			throw new TestCaseExecutor.TimeoutExceeded();
 		}
 	}

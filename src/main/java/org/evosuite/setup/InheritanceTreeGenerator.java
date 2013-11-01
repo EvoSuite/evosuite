@@ -50,6 +50,7 @@ import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InnerClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -283,6 +284,7 @@ public class InheritanceTreeGenerator {
 	public static boolean canUse(ClassNode cn) {
 
 		if ((cn.access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE) {
+			logger.debug(cn.name + " is private, ignoring it");
 			return false;
 		}
 		if (cn.name.matches(".*\\$\\d+.*$")) {
@@ -304,9 +306,30 @@ public class InheritanceTreeGenerator {
 		// we cannot import classes that are in the default
 		// package
 		if ((cn.access & Opcodes.ACC_PROTECTED) == Opcodes.ACC_PROTECTED) {
+			logger.debug(cn.name + " is protected, ignoring it");
 			return false;
 		}
 
+		// ASM has some problem with the access of inner classes
+		// so we check if the inner class name is the current class name
+		// and if so, check if the inner class is actually accessible
+		@SuppressWarnings("unchecked")
+		List<InnerClassNode> in = cn.innerClasses;
+		for(InnerClassNode inc : in) {
+			if(cn.name.equals(inc.name)) {
+				logger.info("ASM Bug: Inner class equals class: "+inc.name);
+				if ((inc.access & Opcodes.ACC_PROTECTED) == Opcodes.ACC_PROTECTED) { 
+					return false;
+				}
+				if ((inc.access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE) { 
+					return false;
+				}
+				logger.debug("Can use inner class: "+inc.name);
+				return true;
+			}
+		}
+		
+		logger.debug(cn.name + " is accessible");
 		return true;
 	}
 
