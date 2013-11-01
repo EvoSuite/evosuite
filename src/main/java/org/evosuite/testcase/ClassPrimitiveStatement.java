@@ -21,7 +21,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	private static final long serialVersionUID = -2728777640255424791L;
 
-	private final Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
+	private Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
 
 	public ClassPrimitiveStatement(TestCase tc, GenericClass type,
 	        Set<Class<?>> assignableClasses) {
@@ -142,7 +142,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 		value = currentClass.getRawClass();
 
 		List<GenericClass> newAssignableClasses = (List<GenericClass>) ois.readObject();
-		assignableClasses.clear();
+		assignableClasses = new LinkedHashSet<Class<?>>();
 		for (GenericClass assignableClass : newAssignableClasses) {
 			assignableClasses.add(assignableClass.getRawClass());
 		}
