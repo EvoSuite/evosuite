@@ -685,8 +685,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
 		DefUsePairType type = (DefUsePairType) ois.readObject();
-		int useId = (int) ois.readObject();
-		int defId = (int) ois.readObject();
+		Integer useId = (Integer) ois.readObject();
+		Integer defId = (Integer) ois.readObject();
 		Use use = DefUsePool.getUseByUseId(useId);
 
 		if (type == DefUsePairType.PARAMETER) {
@@ -705,9 +705,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 */
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.writeObject(type);
-		oos.writeObject(goalUse.useId);
+		oos.writeObject(new Integer(goalUse.useId));
 		if (goalDefinition != null)
-			oos.writeObject(goalDefinition.defId);
+			oos.writeObject(new Integer(goalDefinition.defId));
 		else
 			oos.writeObject(0);
 	}
