@@ -8,6 +8,7 @@ import java.util.ListIterator;
 
 
 
+
 import org.evosuite.Properties;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -17,6 +18,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FrameNode;
+import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
@@ -168,10 +170,31 @@ public final class Instrumenter
 			logger.debug("Ignoring private class: "+cn.name);
 			return;
 		}
-
+		
 		String packageName = internalClassName.replace('/', '.');
 		if(packageName.contains("."))
 			packageName = packageName.substring(0, packageName.lastIndexOf('.'));
+
+		
+		// ASM has some problem with the access of inner classes
+		// so we check if the inner class name is the current class name
+		// and if so, check if the inner class is actually accessible
+		List<InnerClassNode> in = cn.innerClasses;
+		for(InnerClassNode inc : in) {
+			if(cn.name.equals(inc.name)) {
+				logger.info("ASM Bug: Inner class equals class.");
+				if ((inc.access & Opcodes.ACC_PROTECTED) == Opcodes.ACC_PROTECTED) { 
+					if(!Properties.CLASS_PREFIX.equals(packageName)) {
+						return;
+					}
+				}
+				if ((inc.access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE) { 
+					return;
+				}
+				logger.debug("Can use inner class: "+inc.name);
+			}
+		}
+
 		
 		logger.info("Checking package: "+packageName+" for class "+cn.name);
 
