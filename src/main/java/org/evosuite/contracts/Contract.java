@@ -70,7 +70,7 @@ public abstract class Contract {
 		// TODO: Assignable classes and subclasses?
 		return scope.getObjects(Properties.getTargetClass());
 	}
-	
+
 	protected Collection<VariableReference> getAllVariables(Scope scope) {
 		return scope.getElements(Properties.getTargetClass());
 	}
@@ -93,11 +93,11 @@ public abstract class Contract {
 		}
 		return pairs;
 	}
-	
+
 	protected Collection<Pair<VariableReference>> getAllVariablePairs(Scope scope) {
 		Set<Pair<VariableReference>> pairs = new HashSet<Pair<VariableReference>>();
 		for (VariableReference o1 : scope.getElements(Properties.getTargetClass())) {
-			for (VariableReference o2 : scope.getElements(o1.getClass())) {
+			for (VariableReference o2 : scope.getElements(o1.getVariableClass())) {
 				pairs.add(new Pair<VariableReference>(o1, o2));
 			}
 		}
@@ -151,7 +151,7 @@ public abstract class Contract {
 	}
 
 	/**
-	 * Check the contract on the current statement in the current scope 
+	 * Check the contract on the current statement in the current scope
 	 * 
 	 * @param statement
 	 *            a {@link org.evosuite.testcase.StatementInterface} object.
@@ -165,16 +165,17 @@ public abstract class Contract {
 	        Throwable exception);
 
 	/**
-	 * Add an assertion to the statement based on the contract.
-	 * The assertion should fail on a contract violation, and pass
-	 * if the contract is satisfied.
+	 * Add an assertion to the statement based on the contract. The assertion
+	 * should fail on a contract violation, and pass if the contract is
+	 * satisfied.
 	 * 
 	 * @param statement
 	 * @param variables
 	 * @param exception
 	 */
-	public abstract void addAssertionAndComments(StatementInterface statement, List<VariableReference> variables, Throwable exception);
-	
+	public abstract void addAssertionAndComments(StatementInterface statement,
+	        List<VariableReference> variables, Throwable exception);
+
 	public void changeClassLoader(ClassLoader classLoader) {
 		// No-op by default
 	}
