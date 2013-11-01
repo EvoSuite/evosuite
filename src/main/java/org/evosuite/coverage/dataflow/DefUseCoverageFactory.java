@@ -387,7 +387,7 @@ public class DefUseCoverageFactory extends
 	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
-	public static Set<Definition> getRegsiteredDefinitions() {
+	public static Set<Definition> getRegisteredDefinitions() {
 		if (!called)
 			computeGoals();
 		return new HashSet<Definition>(goalMap.keySet());
@@ -478,10 +478,10 @@ public class DefUseCoverageFactory extends
 	}
 
 	public static boolean detectAliasingGoals(List<ExecutionResult> results) {
-		
-		if(!Properties.DEFUSE_ALIASES)
+
+		if (!Properties.DEFUSE_ALIASES)
 			return false;
-		
+
 		Set<DefUseCoverageTestFitness> aliasingGoals = new HashSet<DefUseCoverageTestFitness>();
 
 		for (ExecutionResult result : results) {
@@ -555,7 +555,9 @@ public class DefUseCoverageFactory extends
 															                                                                  defUseMap.get(otherUse).getType());
 															if (goal != null) {
 																logger.info("Created new defuse pair: "
-																        + goal+" of type "+goal.getType());
+																        + goal
+																        + " of type "
+																        + goal.getType());
 																aliasingGoals.add(goal);
 															}
 														}

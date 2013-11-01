@@ -46,7 +46,7 @@ public class AllDefsCoverageFactory extends
 
 		List<AllDefsCoverageTestFitness> goals = new ArrayList<AllDefsCoverageTestFitness>();
 
-		Set<Definition> defs = DefUseCoverageFactory.getRegsiteredDefinitions();
+		Set<Definition> defs = DefUseCoverageFactory.getRegisteredDefinitions();
 
 		for (Definition def : defs) {
 			Map<Use, DefUseCoverageTestFitness> uses = DefUseCoverageFactory.getRegisteredGoalsForDefinition(def);
