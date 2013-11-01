@@ -206,7 +206,8 @@ public class GenericTypeInference extends TestVisitor {
 		        + " at position " + constructorStatement.getPosition());
 
 		Map<TypeVariable<?>, Type> typeMap = constructor.getOwnerClass().getTypeVariableMap();
-		if (!typeMap.isEmpty()) {
+		if (constructor.getOwnerClass().hasTypeVariables()) {
+			// if (!typeMap.isEmpty()) {
 			logger.info("Has types: " + constructor.getOwnerClass());
 			logger.info("Initial type map: " + typeMap);
 			for (TypeVariable<?> var : typeMap.keySet()) {
@@ -251,6 +252,9 @@ public class GenericTypeInference extends TestVisitor {
 			}
 			constructorStatement.setConstructor(constructor.copyWithNewOwner(owner.getWithParameterTypes(types)));
 			updateMethodCallsOfGenericOwner(constructorStatement.getReturnValue());
+		} else {
+			logger.info("Type map empty");
+
 		}
 	}
 
