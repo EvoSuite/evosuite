@@ -72,7 +72,7 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 
 		LocalSearchBudget.getInstance().countLocalSearchOnTest();
 
-		assert (individual.getFitness() <= oldFitness);
+		assert individual.getFitness() <= oldFitness;
 		logger.info("Test after local search: " + individual.getTestCase().toCode());
 
 		return result;

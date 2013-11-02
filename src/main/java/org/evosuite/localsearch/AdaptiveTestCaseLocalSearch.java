@@ -69,9 +69,9 @@ public class AdaptiveTestCaseLocalSearch extends TestCaseLocalSearch {
 		}
 		individual.getMutationHistory().clear();
 
-		LocalSearchBudget.getInstance().countLocalSearchOnTest();;
+		LocalSearchBudget.getInstance().countLocalSearchOnTest();
 
-		assert (individual.getFitness() <= oldFitness);
+		assert individual.getFitness() <= oldFitness;
 		// Return true if fitness has improved
 		return objective.getFitnessFunction().isMaximizationFunction() ? oldFitness > individual.getFitness(): oldFitness < individual.getFitness();
 
