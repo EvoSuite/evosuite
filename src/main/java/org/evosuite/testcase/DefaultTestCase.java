@@ -212,7 +212,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 					Class<?> arrayClass = value.getVariableClass();
 					isClassUtilsBug = isClassUtilsBug(rawClass, arrayClass);
 				}
-				if (rawClass.isArray() && !!isClassUtilsBug) {
+				if (rawClass.isArray() && !isClassUtilsBug) {
 					isClassUtilsBug = isClassUtilsBug(value.getVariableClass(), rawClass);
 				}
 
