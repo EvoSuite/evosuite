@@ -1091,14 +1091,12 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 			// we don't know for sure, let's be conservative
 			return null;
 		}
-		for (Object sourceIns : source.insns) {
-			AbstractInsnNode sourceInstruction = (AbstractInsnNode) sourceIns;
-			BytecodeInstruction src = BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
-			                                                                                          methodName,
-			                                                                                          sourceInstruction);
-			return src;
-		}
-		throw new IllegalStateException("should be unreachable");
+		Object sourceIns = source.insns.iterator().next();
+		AbstractInsnNode sourceInstruction = (AbstractInsnNode) sourceIns;
+		BytecodeInstruction src = BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
+				methodName,
+				sourceInstruction);
+		return src;
 	}
 
 	public boolean isFieldMethodCallDefinition() {
