@@ -72,14 +72,14 @@ public class CCFGNodeAttributeProvider implements ComponentAttributeProvider<CCF
 
 	private String generateSaturatedColor(Object obj) {
 		
-		float h = Math.abs(obj.hashCode()) / (float)Integer.MAX_VALUE;
+		float h = Math.abs(obj.hashCode() / (float)Integer.MAX_VALUE);
 //		return h+",0.75,0.65";
 		return h+",0.85,0.55";
 	}
 	
 	private String generateBColor(Object obj) {
 		
-		float h = Math.abs(obj.hashCode()) / (float)Integer.MAX_VALUE;
+		float h = Math.abs(obj.hashCode() / (float)Integer.MAX_VALUE);
 //		return h+",0.75,0.65";
 		return h+",0.85,0.95";
 	}
