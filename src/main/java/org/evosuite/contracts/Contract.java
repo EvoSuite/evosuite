@@ -44,8 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class Contract {
 
-	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(Contract.class);
+	protected static final Logger logger = LoggerFactory.getLogger(Contract.class);
 
 	protected static class Pair<T> {
 		T object1;

@@ -65,13 +65,13 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 
 	protected final static Logger logger = LoggerFactory.getLogger(MutationAssertionGenerator.class);
 
-	protected static PrimitiveTraceObserver primitiveObserver = new PrimitiveTraceObserver();
-	protected static ComparisonTraceObserver comparisonObserver = new ComparisonTraceObserver();
-	protected static SameTraceObserver sameObserver = new SameTraceObserver();
-	protected static InspectorTraceObserver inspectorObserver = new InspectorTraceObserver();
-	protected static PrimitiveFieldTraceObserver fieldObserver = new PrimitiveFieldTraceObserver();
-	protected static NullTraceObserver nullObserver = new NullTraceObserver();
-	protected static ArrayTraceObserver arrayObserver = new ArrayTraceObserver();
+	protected final static PrimitiveTraceObserver primitiveObserver = new PrimitiveTraceObserver();
+	protected final static ComparisonTraceObserver comparisonObserver = new ComparisonTraceObserver();
+	protected final static SameTraceObserver sameObserver = new SameTraceObserver();
+	protected final static InspectorTraceObserver inspectorObserver = new InspectorTraceObserver();
+	protected final static PrimitiveFieldTraceObserver fieldObserver = new PrimitiveFieldTraceObserver();
+	protected final static NullTraceObserver nullObserver = new NullTraceObserver();
+	protected final static ArrayTraceObserver arrayObserver = new ArrayTraceObserver();
 
 	protected final static Map<Mutation, Integer> timedOutMutations = new HashMap<Mutation, Integer>();
 
@@ -381,7 +381,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 			for (Assertion assertion : assertions) {
 				if (assertion instanceof InspectorAssertion) {
 					InspectorAssertion ia = (InspectorAssertion) assertion;
-					if (ia.getInspector().getMethod().equals(methodStatement.getMethod())) {
+					if (ia.getInspector().getMethod().equals(methodStatement.getMethod().getMethod())) {
 						statement.removeAssertion(assertion);
 						return;
 					}

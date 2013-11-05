@@ -63,7 +63,7 @@ public final class IntegerComparison extends AbstractExpression<Long> implements
 	private final Expression<Long> left;
 	private final Expression<Long> right;
 
-	protected static Logger log = LoggerFactory.getLogger(IntegerComparison.class);
+	protected static final Logger log = LoggerFactory.getLogger(IntegerComparison.class);
 
 	/** {@inheritDoc} */
 	@Override

@@ -18,4 +18,9 @@
     <Class name="org.evosuite.utils.ResourceController" />
     <Bug pattern="DM_GC" />
   </Match>
+  
+  <!-- Ignore encoding warnings -->
+  <Match>
+    <Bug pattern="DM_DEFAULT_ENCODING" />
+  </Match>
 </FindBugsFilter>
