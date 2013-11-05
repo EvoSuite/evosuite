@@ -73,7 +73,7 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 		 * and budget was not enough to get even first generation
 		 */
 		if(timeStamps.isEmpty()){
-			return (T) new Integer(0); // FIXXME - what else?
+			return (T) Integer.valueOf(0); // FIXXME - what else?
 		}
 		
 		for(int i=0; i<timeStamps.size(); i++){

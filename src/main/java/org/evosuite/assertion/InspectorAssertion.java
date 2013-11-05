@@ -104,7 +104,7 @@ public class InspectorAssertion extends Assertion {
 				try {
 					Object val = inspector.getValue(source.getObject(scope));
 					if (val == null)
-						return val == value;
+						return value == null;
 					else
 						return val.equals(value);
 				} catch (Exception e) {
