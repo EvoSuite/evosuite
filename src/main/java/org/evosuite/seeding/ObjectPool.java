@@ -57,7 +57,7 @@ public class ObjectPool implements Serializable {
 	/** The actual object pool */
 	protected final Map<GenericClass, Set<TestCase>> pool = new HashMap<GenericClass, Set<TestCase>>();
 
-	protected static Logger logger = LoggerFactory.getLogger(ObjectPool.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ObjectPool.class);
 
 	/**
 	 * Insert a new sequence for given Type

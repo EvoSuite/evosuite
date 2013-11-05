@@ -51,8 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConcolicMutation {
 
-	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory
+	protected static final Logger logger = LoggerFactory
 			.getLogger(ConcolicMutation.class);
 
 	/**
