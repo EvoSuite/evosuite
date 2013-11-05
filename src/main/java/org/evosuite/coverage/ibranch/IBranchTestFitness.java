@@ -98,7 +98,7 @@ public class IBranchTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public int compareTo(TestFitnessFunction other) {
-		if (other instanceof BranchCoverageTestFitness) {
+		if (other instanceof IBranchTestFitness) {
 			IBranchTestFitness otherBranchFitness = (IBranchTestFitness) other;
 			return branchGoal.compareTo(otherBranchFitness.branchGoal);
 		} else if (other instanceof BranchCoverageTestFitness) {
