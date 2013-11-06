@@ -83,6 +83,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 	/** Age of the population */
 	protected int currentIteration = 0;
+	
+	protected double localSearchProbability = Properties.LOCAL_SEARCH_PROBABILITY;
 
 	/**
 	 * Constructor
@@ -114,7 +116,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			return false;
 
 		if(getAge() % Properties.LOCAL_SEARCH_RATE == 0) {
-			if(Randomness.nextDouble() <= Properties.LOCAL_SEARCH_PROBABILITY) {
+			if(Randomness.nextDouble() <= localSearchProbability) {
 				return true;
 			}
 		}
@@ -149,11 +151,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		}
 		
 		if (improvement) {
-			Properties.LOCAL_SEARCH_PROBABILITY *= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
-			Properties.LOCAL_SEARCH_PROBABILITY = Math.min(Properties.LOCAL_SEARCH_PROBABILITY, 1.0);
+			localSearchProbability *= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
+			localSearchProbability = Math.min(localSearchProbability, 1.0);
 		} else {
-			Properties.LOCAL_SEARCH_PROBABILITY /= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
-			Properties.LOCAL_SEARCH_PROBABILITY = Math.max(Properties.LOCAL_SEARCH_PROBABILITY, Double.MIN_VALUE);
+			localSearchProbability /= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
+			localSearchProbability = Math.max(localSearchProbability, Double.MIN_VALUE);
 		}
 	}
 	
