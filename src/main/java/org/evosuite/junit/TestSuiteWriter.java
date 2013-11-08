@@ -362,11 +362,11 @@ public class TestSuiteWriter implements Opcodes {
 
 		// FIXME: I disagree - it should be covered by the below branches
 		//we always need this one, due to for example logging setup
-		// imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
 
 		if (Properties.REPLACE_CALLS || wasSecurityException
 		        || SystemInUtil.getInstance().hasBeenUsed()) {
 			imports_sorted.add(org.junit.Before.class.getCanonicalName());
+			imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
 		}
 
 		if (Properties.REPLACE_CALLS || wasSecurityException) {
