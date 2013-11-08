@@ -360,10 +360,12 @@ public class TestSuiteWriter implements Opcodes {
 		}
 		List<String> imports_sorted = new ArrayList<String>(import_names);
 
-		//we always need thos one, due to for example logging setup
-		imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
-		
-		if (Properties.REPLACE_CALLS || wasSecurityException || SystemInUtil.getInstance().hasBeenUsed()) {
+		// FIXME: I disagree - it should be covered by the below branches
+		//we always need this one, due to for example logging setup
+		// imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
+
+		if (Properties.REPLACE_CALLS || wasSecurityException
+		        || SystemInUtil.getInstance().hasBeenUsed()) {
 			imports_sorted.add(org.junit.Before.class.getCanonicalName());
 		}
 
@@ -602,7 +604,7 @@ public class TestSuiteWriter implements Opcodes {
 		if (!wasSecurityException && !Properties.REPLACE_CALLS) {
 			return;
 		}
-		
+
 		bd.append(METHOD_SPACE);
 		bd.append("@After \n");
 		bd.append(METHOD_SPACE);
@@ -626,7 +628,8 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException) {
 
-		if (!wasSecurityException && !Properties.REPLACE_CALLS && !SystemInUtil.getInstance().hasBeenUsed()) {
+		if (!wasSecurityException && !Properties.REPLACE_CALLS
+		        && !SystemInUtil.getInstance().hasBeenUsed()) {
 			return;
 		}
 
@@ -644,8 +647,8 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.agent.InstrumentingAgent.activate(); \n");
 		}
-		
-		if (SystemInUtil.getInstance().hasBeenUsed()){
+
+		if (SystemInUtil.getInstance().hasBeenUsed()) {
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.utils.SystemInUtil.getInstance().initForTestCase(); \n");
 		}
@@ -697,7 +700,7 @@ public class TestSuiteWriter implements Opcodes {
 			//need to setup the Sandbox mode
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."
-					+ Properties.SANDBOX_MODE + "; \n");
+			        + Properties.SANDBOX_MODE + "; \n");
 
 			bd.append(BLOCK_SPACE);
 			bd.append("Sandbox.initializeSecurityManagerForSUT(); \n");
@@ -708,7 +711,6 @@ public class TestSuiteWriter implements Opcodes {
 
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
-
 
 		bd.append("\n");
 	}
@@ -764,7 +766,7 @@ public class TestSuiteWriter implements Opcodes {
 			}
 			builder.append(adapter.getMethodDefinition("test" + targetMethod + num));
 		} else {
-			builder.append(adapter.getMethodDefinition(getNameOfTest(null,number)));
+			builder.append(adapter.getMethodDefinition(getNameOfTest(null, number)));
 		}
 
 		/*
@@ -845,16 +847,16 @@ public class TestSuiteWriter implements Opcodes {
 		return builder.toString();
 	}
 
-	
-	public static String getNameOfTest(List<TestCase> tests, int position){
-		
-		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED){
-			throw new IllegalStateException("For the moment, structured tests are not supported");
+	public static String getNameOfTest(List<TestCase> tests, int position) {
+
+		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
+			throw new IllegalStateException(
+			        "For the moment, structured tests are not supported");
 		}
-		
-		return "test"+position;
+
+		return "test" + position;
 	}
-	
+
 	/**
 	 * Update/create the main file of the test suite. The main test file simply
 	 * includes all automatically generated test suites in the same directory
