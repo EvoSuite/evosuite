@@ -316,7 +316,12 @@ public final class CaptureLog implements Cloneable {
 			// TODO what if there is more than one interface?
 			final Class<?> c = receiver.getClass();
 			final Class<?>[] interfaces = c.getInterfaces();
-			this.oidClassNames.add(interfaces[0].getName());
+			if(interfaces.length == 0) {
+				// If there are no interfaces, try superclass?
+				this.oidClassNames.add(c.getSuperclass().getName());
+			} else {
+				this.oidClassNames.add(interfaces[0].getName());
+			}
 		} else {
 			this.oidClassNames.add(receiver.getClass().getName());//.replaceFirst("\\$\\d+$", ""));
 		}
