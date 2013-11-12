@@ -23,11 +23,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,9 @@ public class ResourceList {
 
 	private static Logger logger = LoggerFactory.getLogger(ResourceList.class);
 
+	/** Cache of file lists to avoid unnecessary IO */
+	private static Map<String, Collection<String>> classPathCache = new LinkedHashMap<String, Collection<String>>();
+	
 	/**
 	 * 
 	 * @param className a fully qualified class name
@@ -91,6 +95,10 @@ public class ResourceList {
 		return getClassAsResource(className) != null;
 	}
 
+	public static Collection<String> getAllResources() {
+		return getResources(Pattern.compile(".*"));
+	}
+	
 	/**
 	 * <p>
 	 * for all elements of <code>java.class.path</code> and
@@ -156,6 +164,10 @@ public class ResourceList {
 	public static Collection<String> getResources(final String classPathElement,
 			final Pattern pattern) throws IllegalArgumentException {
 
+		if(classPathCache.containsKey(classPathElement)) {
+			return classPathCache.get(classPathElement);
+		}
+		
 		final ArrayList<String> retval = new ArrayList<String>();
 		final File file = new File(classPathElement);
 
@@ -180,7 +192,7 @@ public class ResourceList {
 			throw new IllegalArgumentException("The class path resource "
 					+ file.getAbsolutePath() + " is not valid");
 		}
-
+		classPathCache.put(classPathElement, retval);
 		return retval;
 	}
 
