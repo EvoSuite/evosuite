@@ -159,24 +159,27 @@ public class CoverageAnalysis {
 
 	private static List<Class<?>> getClasses() {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
-		// If the target name is a path analyze it
-		File path = new File(Properties.JUNIT_PREFIX);
-		if (path.exists()) {
-			if (Properties.JUNIT_PREFIX.endsWith(".jar"))
-				classes.addAll(getClassesJar(path));
-			else
-				classes.addAll(getClasses(path));
-		} else {
+		
+		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
+			// If the target name is a path analyze it
+			File path = new File(prefix);
+			if (path.exists()) {
+				if (Properties.JUNIT_PREFIX.endsWith(".jar"))
+					classes.addAll(getClassesJar(path));
+				else
+					classes.addAll(getClasses(path));
+			} else {
 
-			try {
-				Class<?> junitClass = Class.forName(Properties.JUNIT_PREFIX,
-				                                    true,
-				                                    TestGenerationContext.getClassLoader());
-				classes.add(junitClass);
-			} catch (ClassNotFoundException e) {
-				System.out.println("NOT FOUND: " + e + " with " + Properties.JUNIT_PREFIX);
-				// Second, try if the target name is a package name
-				classes.addAll(getClassesFromClasspath());
+				try {
+					Class<?> junitClass = Class.forName(prefix,
+							true,
+							TestGenerationContext.getClassLoader());
+					classes.add(junitClass);
+				} catch (ClassNotFoundException e) {
+					System.out.println("NOT FOUND: " + e + " with " + prefix);
+					// Second, try if the target name is a package name
+					classes.addAll(getClassesFromClasspath());
+				}
 			}
 		}
 		return classes;
