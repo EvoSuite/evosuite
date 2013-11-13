@@ -22,6 +22,8 @@ package org.evosuite;
 
 import org.evosuite.agent.AgentLoader;
 import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.result.TestGenerationResult;
+import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -43,6 +45,8 @@ public class ClientProcess {
 	/** Constant <code>geneticAlgorithmStatus</code> */
 	public static GeneticAlgorithm<?> geneticAlgorithmStatus;
 
+	public static TestGenerationResult result;
+	
 	/**
 	 * <p>
 	 * run
@@ -67,6 +71,8 @@ public class ClientProcess {
 		boolean registered = ClientServices.getInstance().registerServices();
 	
 		if (!registered) {
+			result = TestGenerationResultBuilder.buildErrorResult("Could not connect to master process on port "
+                    + Properties.PROCESS_COMMUNICATION_PORT);
 			throw new RuntimeException("Could not connect to master process on port "
                     + Properties.PROCESS_COMMUNICATION_PORT);
 		}

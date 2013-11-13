@@ -46,9 +46,7 @@ public class TestTargetMethodPrefix extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		assertTrue(result != null);
-
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -73,9 +71,7 @@ public class TestTargetMethodPrefix extends SystemTest {
 		        "-Dtarget_method=" + targetMethod, "-Dclient_on_thread=true" };
 
 		Object result = evosuite.parseCommandLine(command);
-		assertTrue(result != null);
-
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -101,9 +97,7 @@ public class TestTargetMethodPrefix extends SystemTest {
 		        "-Dtarget_method_prefix=" + targetMethodPrefix, "-Dclient_on_thread=true" };
 
 		Object result = evosuite.parseCommandLine(command);
-		assertTrue(result != null);
-
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -129,9 +123,7 @@ public class TestTargetMethodPrefix extends SystemTest {
 		        "-Dtarget_method_prefix=" + targetMethodPrefix, "-Dclient_on_thread=true" };
 
 		Object result = evosuite.parseCommandLine(command);
-		assertTrue(result != null);
-
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();

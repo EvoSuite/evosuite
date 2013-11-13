@@ -153,6 +153,10 @@ public class Mutation implements Comparable<Mutation> {
 		return methodName;
 	}
 
+	public int getLineNumber() {
+		return lineNo;
+	}
+	
 	/**
 	 * <p>
 	 * getOperandSize

@@ -67,10 +67,10 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected ChromosomeFactory<T> chromosomeFactory;
 
 	/** Listeners */
-	protected Set<SearchListener> listeners = new HashSet<SearchListener>();
+	protected transient Set<SearchListener> listeners = new HashSet<SearchListener>();
 
 	/** List of conditions on which to end the search */
-	protected Set<StoppingCondition> stoppingConditions = new HashSet<StoppingCondition>();
+	protected transient Set<StoppingCondition> stoppingConditions = new HashSet<StoppingCondition>();
 
 	/** Bloat control, to avoid too long chromosomes */
 	protected Set<BloatControlFunction> bloatControl = new HashSet<BloatControlFunction>();
@@ -821,6 +821,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
 		ois.defaultReadObject();
+		listeners = new HashSet<SearchListener>();
+		stoppingConditions = new HashSet<StoppingCondition>();
+
 		boolean addStatistics = (Boolean) ois.readObject();
 		if (addStatistics) {
 			SearchStatistics.setInstance((SearchStatistics) ois.readObject());

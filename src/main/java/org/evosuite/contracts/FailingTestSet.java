@@ -172,6 +172,7 @@ public class FailingTestSet {
 			ContractViolation violation = violations.get(i);
 			violation.minimizeTest();
 			TestCase test = violation.getTestCase();
+			test.addContractViolation(violation);
 			//violation.addAssertion(test);
 			// TODO: Add comment about contract violation
 			writer.insertTest(test, " Contract violation: "

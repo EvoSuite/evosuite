@@ -120,16 +120,6 @@ public class ListParameters {
 		return max;
 	}
 	
-	private static int getMaxDescriptionLength(List<Row> rows){
-		int max = 0;
-		for(Row row : rows){
-			if(row.description.length() > max){
-				max = row.description.length();
-			}
-		}
-		return max;
-	}
-	
 	private static class Row implements Comparable<Row>{
 		public final String name;
 		public final String type;

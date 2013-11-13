@@ -1,6 +1,5 @@
 package org.evosuite.rmi.service;
 
-import java.io.File;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.Arrays;
@@ -20,6 +19,8 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
 import org.evosuite.junit.CoverageAnalysis;
+import org.evosuite.result.TestGenerationResult;
+import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
@@ -91,12 +92,12 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 				if (Properties.SANDBOX) {
 					Sandbox.initializeSecurityManagerForSUT();
 				}
-
+				TestGenerationResult result;
+				
 				try {
 					// Starting a new search
 					TestSuiteGenerator generator = new TestSuiteGenerator();
-					generator.generateTestSuite();
-
+					result = generator.generateTestSuite();
 					GeneticAlgorithm<?> ga = generator.getEmployedGeneticAlgorithm();
 
 					if (Properties.CLIENT_ON_THREAD) {
@@ -106,11 +107,14 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 						 */
 						ClientProcess.geneticAlgorithmStatus = ga;
 					}
+					masterNode.evosuite_collectTestGenerationResult(clientRmiIdentifier, result);
 				} catch (Throwable t) {
 					logger.error("Error when generating tests for: "
 					                     + Properties.TARGET_CLASS + " with seed "
 					                     + Randomness.getSeed() + ". Configuration id : "
 					                     + Properties.CONFIGURATION_ID, t);
+					result = TestGenerationResultBuilder.buildErrorResult("Error when generating tests for: "
+		                     + Properties.TARGET_CLASS+": "+t); 
 				}
 
 				changeState(ClientState.DONE);

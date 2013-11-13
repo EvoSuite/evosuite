@@ -8,6 +8,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -19,13 +20,13 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.evosuite.ClientProcess;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
-import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.result.TestGenerationResult;
+import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.statistics.SearchStatistics;
@@ -42,7 +43,7 @@ public class TestGeneration {
 
 	private static Logger logger = LoggerFactory.getLogger(TestGeneration.class);
 	
-	public static Object executeTestGeneration(Options options, List<String> javaOpts,
+	public static List<TestGenerationResult> executeTestGeneration(Options options, List<String> javaOpts,
 			CommandLine line) {
 		
 		Strategy strategy = getChosenStrategy(javaOpts, line);
@@ -51,38 +52,44 @@ public class TestGeneration {
 			strategy = Strategy.EVOSUITE;
 		} 
 
+		List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
+		
 		if (line.hasOption("class")) {
 			if (line.hasOption("extend")) {
 				javaOpts.add("-Djunit_extend="
 						+ line.getOptionValue("extend"));
 			}
-			return generateTests(strategy, line.getOptionValue("class"), javaOpts);
+			results.addAll(generateTests(strategy, line.getOptionValue("class"), javaOpts));
 		} else if (line.hasOption("prefix")){
-			generateTestsPrefix(strategy, line.getOptionValue("prefix"),javaOpts);
+			results.addAll(generateTestsPrefix(strategy, line.getOptionValue("prefix"),javaOpts));
 		} else if (line.hasOption("target")) {			
 			String target = line.getOptionValue("target");
-			generateTestsTarget(strategy, target, javaOpts);			
+			results.addAll(generateTestsTarget(strategy, target, javaOpts));			
 		} else if (EvoSuite.hasLegacyTargets()){
-			generateTestsLegacy(strategy, javaOpts);
+			results.addAll(generateTestsLegacy(strategy, javaOpts));
 		} else {
 			LoggingUtils.getEvoLogger().error("Please specify either target class ('-target' option), prefix ('-prefix' option), or classpath entry ('-class' option)");
 			Help.execute(options);
 		}
-		return null;
+		return results;
 	}
 
 
-	private static void generateTestsLegacy(Properties.Strategy strategy,
+	private static List<TestGenerationResult> generateTestsLegacy(Properties.Strategy strategy,
 	        List<String> args) {
-		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+		List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
+		
+		ClassPathHandler.getInstance().getTargetProjectClasspath();
 		LoggingUtils.getEvoLogger().info("* Using .task files in "
 		                                         + Properties.OUTPUT_DIR
 		                                         + " [deprecated]");
 		File directory = new File(Properties.OUTPUT_DIR);
 		String[] extensions = { "task" };
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
-			generateTests(strategy, file.getName().replace(".task", ""), args);
+			results.addAll(generateTests(strategy, file.getName().replace(".task", ""), args));
 		}
+		
+		return results;
 	}
 	
 	public static Option[] getOptions(){
@@ -113,9 +120,10 @@ public class TestGeneration {
 		return strategy;
 	}
 	
-	private static void generateTestsPrefix(Properties.Strategy strategy, String prefix,
+	private static List<TestGenerationResult> generateTestsPrefix(Properties.Strategy strategy, String prefix,
 	        List<String> args) {
-
+		List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
+		
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		Pattern pattern = Pattern.compile(prefix.replace("\\.", File.separator)
 		        + "[^\\$]*.class");
@@ -135,7 +143,7 @@ public class TestGeneration {
 			}
 		} catch (IOException e) {
 			LoggingUtils.getEvoLogger().info("* Error while traversing classpath: " + e);
-			return;
+			return results;
 		}
 		LoggingUtils.getEvoLogger().info("* Found " + resources.size()
 		                                         + " matching classes for prefix "
@@ -153,11 +161,11 @@ public class TestGeneration {
 			}
 			LoggingUtils.getEvoLogger().info("* Current class: "
 			                                         + Utils.getClassNameFromResourcePath(resource));
-			generateTests(Strategy.EVOSUITE,
+			results.addAll(generateTests(Strategy.EVOSUITE,
 						Utils.getClassNameFromResourcePath(resource),
-			              args);
+			              args));
 		}
-
+		return results;
 	}
 	
 	private static boolean findTargetClass(String target) {
@@ -171,13 +179,13 @@ public class TestGeneration {
 		return false;
 	}
 	
-	private static Object generateTests(Properties.Strategy strategy, String target,
+	private static List<TestGenerationResult> generateTests(Properties.Strategy strategy, String target,
 	        List<String> args) {
 		String classPath = ClassPathHandler.getInstance().getEvoSuiteClassPath();		
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		
 		if (!findTargetClass(target)) {
-			return null;
+			return Arrays.asList(new TestGenerationResult[]{TestGenerationResultBuilder.buildErrorResult("Could not find target class") });
 		}
 
 		if (!classPath.isEmpty())
@@ -391,7 +399,7 @@ public class TestGeneration {
 		}
 
 		handler.setBaseDir(EvoSuite.base_dir_path);
-		Object result = null;
+		
 		if (handler.startProcess(newArgs)) {
 
 			Set<ClientNodeRemote> clients = null;
@@ -416,7 +424,7 @@ public class TestGeneration {
 				}
 
 				int time = TimeController.getInstance().calculateForHowLongClientWillRunInSeconds();
-				result = handler.waitForResult(time * 1000); 
+				handler.waitForResult(time * 1000); 
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -438,7 +446,7 @@ public class TestGeneration {
 			/*
 			 * FIXME: this is done only to avoid current problems with serialization
 			 */
-			result = ClientProcess.geneticAlgorithmStatus;
+			// result = ClientProcess.geneticAlgorithmStatus;
 			handler.stopAndWaitForClientOnThread(10000);
 		} else {
 			try {
@@ -447,11 +455,11 @@ public class TestGeneration {
 			}
 			logUtils.closeLogServer();
 		}
-
+		
 		logger.debug("Master process has finished to wait for client");
 		if (Properties.NEW_STATISTICS)
 			SearchStatistics.getInstance().writeStatistics();
-		return result;
+		return SearchStatistics.getInstance().getTestGenerationResults();
 	}
 
 	
@@ -540,9 +548,9 @@ public class TestGeneration {
 		return stringToBePrependedToBootclasspath;
 	}
 	
-	private static void generateTestsTarget(Properties.Strategy strategy, String target,
+	private static List<TestGenerationResult> generateTestsTarget(Properties.Strategy strategy, String target,
 	        List<String> args) {
-
+		List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		Pattern pattern = Pattern.compile("[^\\$]*.class");
 		Collection<String> resources = ResourceList.getResources(target,pattern);
@@ -561,7 +569,7 @@ public class TestGeneration {
 			}
 		} catch (IOException e) {
 			LoggingUtils.getEvoLogger().info("* Error while traversing classpath: " + e);
-			return;
+			return results;
 		}
 
 		for (String resource : resources) {
@@ -577,9 +585,11 @@ public class TestGeneration {
 			}
 			LoggingUtils.getEvoLogger().info("* Current class: "
 			                                         + Utils.getClassNameFromResourcePath(resource));
-			generateTests(Strategy.EVOSUITE,
+			results.addAll(generateTests(Strategy.EVOSUITE,
 						Utils.getClassNameFromResourcePath(resource),
-			              args);
+			              args));
 		}
+		
+		return results;
 	}
 }

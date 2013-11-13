@@ -4,6 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.result.TestGenerationResult;
 import org.evosuite.statistics.RuntimeVariable;
 
 /**
@@ -27,4 +28,6 @@ public interface MasterNodeRemote extends Remote {
 	public void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome individual) throws RemoteException;
 
 	public void evosuite_collectStatistics(String clientRmiIdentifier, RuntimeVariable variable, Object value) throws RemoteException;
+
+	public void evosuite_collectTestGenerationResult(String clientRmiIdentifier, TestGenerationResult result) throws RemoteException;
 }

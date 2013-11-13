@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -31,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
+import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.GenericClass;
@@ -59,28 +59,15 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** The statements */
 	protected final ListenableList<StatementInterface> statements;
 
-	// a list of all goals this test covers
-	private final transient HashSet<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
+	/** Coverage goals this test covers */
+	private final transient Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
 
+	/** Violations revealed by this test */
+	private final transient Set<ContractViolation> contractViolations = new LinkedHashSet<ContractViolation>();
+	
 	private boolean isFailing = false;
 
 	private boolean unstable = false;
-
-	@Override
-	public void setUnstable(boolean unstable) {
-		this.unstable = unstable;
-	}
-
-	@Override
-	public boolean isUnstable() {
-		return unstable;
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public void addStatements(List<? extends StatementInterface> statements) {
-		this.statements.addAll(statements);
-	}
 
 	/**
 	 * Constructor
@@ -91,64 +78,53 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#size()
+	 * @see org.evosuite.testcase.TestCase#accept(org.evosuite.testcase.TestVisitor)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int size() {
-		return statements.size();
-	}
+	public void accept(TestVisitor visitor) {
+		visitor.visitTestCase(this);
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#isEmpty()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean isEmpty() {
-		return statements.isEmpty();
-	}
-
-	@Override
-	public boolean isFailing() {
-		return isFailing;
-	}
-
-	public void setFailing(boolean failing) {
-		isFailing = failing;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#chop(int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void chop(int length) {
-		while (statements.size() > length) {
-			statements.remove(length);
+		Iterator<StatementInterface> iterator = statements.iterator();
+		while (iterator.hasNext()) {
+			StatementInterface statement = iterator.next();
+			logger.trace("Visiting statement " + statement.getCode());
+			visitor.visitStatement(statement);
 		}
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#toCode()
+	 * @see org.evosuite.testcase.TestCase#addAssertions(org.evosuite.testcase.DefaultTestCase)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public String toCode() {
-		TestCodeVisitor visitor = new TestCodeVisitor();
-		accept(visitor);
-		return visitor.getCode();
+	public void addAssertions(TestCase other) {
+		for (int i = 0; i < statements.size() && i < other.size(); i++) {
+			for (Assertion a : other.getStatement(i).getAssertions()) {
+				if (!statements.get(i).getAssertions().contains(a))
+					if (a != null)
+						statements.get(i).getAssertions().add(a.clone(this));
+			}
+		}
 	}
-
+	
+	@Override
+	public void addContractViolation(ContractViolation violation) {
+		contractViolations.add(violation);
+	}
+	
+	public Set<ContractViolation> getContractViolations() {
+		return contractViolations;
+	}
+	
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#toCode(java.util.Map)
+	 * @see org.evosuite.testcase.TestCase#addCoveredGoal(org.evosuite.testcase.TestFitnessFunction)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public String toCode(Map<Integer, Throwable> exceptions) {
-		TestCodeVisitor visitor = new TestCodeVisitor();
-		visitor.setExceptions(exceptions);
-		accept(visitor);
-		return visitor.getCode();
+	public void addCoveredGoal(TestFitnessFunction goal) {
+		coveredGoals.add(goal);
+		// TODO: somehow adds the same goal more than once (fitnessfunction.equals()?)
 	}
 
 	private void addFields(List<VariableReference> variables, VariableReference var,
@@ -179,14 +155,324 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 	}
 
-	private boolean isClassUtilsBug(Class<?> rawClass, Class<?> arrayClass) {
-		while (arrayClass != null && arrayClass.isArray()) {
-			if (arrayClass.getComponentType().equals(rawClass)) {
-				return true;
+	/** {@inheritDoc} */
+	@Override
+	public void addListener(Listener<Void> listener) {
+		statements.addListener(listener);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#addStatement(org.evosuite.testcase.Statement)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public VariableReference addStatement(StatementInterface statement) {
+		statements.add(statement);
+		try {
+			assert (isValid());
+		} catch (AssertionError e) {
+			logger.info("Is not valid: ");
+			for (StatementInterface s : statements) {
+				try {
+					logger.info(s.getCode());
+				} catch (AssertionError e2) {
+					logger.info("Found error in: " + s);
+					if (s instanceof MethodStatement) {
+						MethodStatement ms = (MethodStatement) s;
+						if (!ms.isStatic()) {
+							logger.info("Callee: ");
+							logger.info(ms.callee.toString());
+						}
+						int num = 0;
+						for (VariableReference v : ms.parameters) {
+							logger.info("Parameter " + num);
+							logger.info(v.getVariableClass().toString());
+							logger.info(v.getClass().toString());
+							logger.info(v.toString());
+						}
+					}
+				}
 			}
-			arrayClass = arrayClass.getComponentType();
+			assert (false);
 		}
-		return false;
+		return statement.getReturnValue();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#addStatement(org.evosuite.testcase.Statement, int)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public VariableReference addStatement(StatementInterface statement, int position) {
+		statements.add(position, statement);
+		assert (isValid());
+		return statement.getReturnValue();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void addStatements(List<? extends StatementInterface> statements) {
+		this.statements.addAll(statements);
+	}
+
+	/**
+	 * <p>
+	 * changeClassLoader
+	 * </p>
+	 * 
+	 * @param loader
+	 *            a {@link java.lang.ClassLoader} object.
+	 */
+	public void changeClassLoader(ClassLoader loader) {
+		for (StatementInterface s : statements) {
+			s.changeClassLoader(loader);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#chop(int)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public void chop(int length) {
+		while (statements.size() > length) {
+			statements.remove(length);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#clearCoveredGoals()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public void clearCoveredGoals() {
+		coveredGoals.clear();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Create a copy of the test case
+	 */
+	@Override
+	public DefaultTestCase clone() {
+		DefaultTestCase t = new DefaultTestCase();
+		for (StatementInterface s : statements) {
+			StatementInterface copy = s.clone(t);
+			t.statements.add(copy);
+			copy.setRetval(s.getReturnValue().clone(t));
+			copy.setAssertions(s.copyAssertions(t, 0));
+		}
+		t.coveredGoals.addAll(coveredGoals);
+		t.accessedFiles.addAll(accessedFiles);
+		t.isFailing = isFailing;
+		//t.exception_statement = exception_statement;
+		//t.exceptionThrown = exceptionThrown;
+		return t;
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void deleteListener(Listener<Void> listener) {
+		statements.deleteListener(listener);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DefaultTestCase other = (DefaultTestCase) obj;
+
+		if (statements == null) {
+			if (other.statements != null)
+				return false;
+		} else {
+			if (statements.size() != other.statements.size())
+				return false;
+			// if (!statements.equals(other.statements))
+			for (int i = 0; i < statements.size(); i++) {
+				if (!statements.get(i).equals(other.statements.get(i))) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#getAccessedClasses()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public Set<Class<?>> getAccessedClasses() {
+		Set<Class<?>> accessed_classes = new LinkedHashSet<Class<?>>();
+		for (StatementInterface s : statements) {
+			for (VariableReference var : s.getVariableReferences()) {
+				if (var != null && !var.isPrimitive()) {
+					Class<?> clazz = var.getVariableClass();
+					while (clazz.isMemberClass()) {
+						//accessed_classes.add(clazz);
+						clazz = clazz.getEnclosingClass();
+					}
+					while (clazz.isArray())
+						clazz = clazz.getComponentType();
+					accessed_classes.add(clazz);
+				}
+			}
+			if (s instanceof MethodStatement) {
+				MethodStatement ms = (MethodStatement) s;
+				accessed_classes.addAll(Arrays.asList(ms.getMethod().getMethod().getExceptionTypes()));
+				accessed_classes.add(ms.getMethod().getMethod().getDeclaringClass());
+				accessed_classes.add(ms.getMethod().getMethod().getReturnType());
+				accessed_classes.addAll(Arrays.asList(ms.getMethod().getMethod().getParameterTypes()));
+			} else if (s instanceof FieldStatement) {
+				FieldStatement fs = (FieldStatement) s;
+				accessed_classes.add(fs.getField().getField().getDeclaringClass());
+				accessed_classes.add(fs.getField().getField().getType());
+			} else if (s instanceof ConstructorStatement) {
+				ConstructorStatement cs = (ConstructorStatement) s;
+				accessed_classes.add(cs.getConstructor().getConstructor().getDeclaringClass());
+				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getConstructor().getExceptionTypes()));
+				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getConstructor().getParameterTypes()));
+			}
+		}
+		return accessed_classes;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#getAccessedFiles()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public List<String> getAccessedFiles() {
+		return accessedFiles;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#getAssertions()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public List<Assertion> getAssertions() {
+		List<Assertion> assertions = new ArrayList<Assertion>();
+		for (StatementInterface s : statements) {
+			assertions.addAll(s.getAssertions());
+		}
+		return assertions;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#getCoveredGoals()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public Set<TestFitnessFunction> getCoveredGoals() {
+		return coveredGoals;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#getDeclaredExceptions()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public Set<Class<?>> getDeclaredExceptions() {
+		Set<Class<?>> exceptions = new LinkedHashSet<Class<?>>();
+		for (StatementInterface statement : statements) {
+			exceptions.addAll(statement.getDeclaredExceptions());
+		}
+		return exceptions;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#getDependencies(org.evosuite.testcase.VariableReference)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public Set<VariableReference> getDependencies(VariableReference var) {
+		Set<VariableReference> dependencies = new LinkedHashSet<VariableReference>();
+
+		if (var == null || var.getStPosition() == -1)
+			return dependencies;
+
+		Set<StatementInterface> dependentStatements = new LinkedHashSet<StatementInterface>();
+		dependentStatements.add(statements.get(var.getStPosition()));
+
+		for (int i = var.getStPosition(); i >= 0; i--) {
+			Set<StatementInterface> newStatements = new LinkedHashSet<StatementInterface>();
+			for (StatementInterface s : dependentStatements) {
+				if (s.references(statements.get(i).getReturnValue())) {
+					newStatements.add(statements.get(i));
+					dependencies.add(statements.get(i).getReturnValue());
+					break;
+				}
+			}
+			dependentStatements.addAll(newStatements);
+		}
+
+		return dependencies;
+	}
+
+	@Override
+	public VariableReference getLastObject(Type type) throws ConstructionFailedException {
+		return getLastObject(type, 0);
+	}
+
+	@Override
+	public VariableReference getLastObject(Type type, int position)
+	        throws ConstructionFailedException {
+		for (int i = statements.size() - 1; i >= position; i--) {
+			StatementInterface statement = statements.get(i);
+			VariableReference var = statement.getReturnValue();
+			if (var.isAssignableTo(type))
+				return var;
+		}
+		throw new ConstructionFailedException("Foudn no variables of type " + type);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#getObject(org.evosuite.testcase.VariableReference, org.evosuite.testcase.Scope)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public Object getObject(VariableReference reference, Scope scope) {
+		try {
+			return reference.getObject(scope);
+		} catch (CodeUnderTestException e) {
+			throw new AssertionError("This case isn't handled yet");
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#getObjects(int)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public List<VariableReference> getObjects(int position) {
+		List<VariableReference> variables = new LinkedList<VariableReference>();
+
+		for (int i = 0; i < position && i < statements.size(); i++) {
+			VariableReference value = statements.get(i).getReturnValue();
+
+			if (value == null)
+				continue;
+			// TODO: Need to support arrays that were not self-created
+			if (value instanceof ArrayReference) { // &&
+				for (int index = 0; index < ((ArrayReference) value).getArrayLength(); index++) {
+					variables.add(new ArrayIndex(this, (ArrayReference) value, index));
+				}
+			} else if (!(value instanceof ArrayIndex)) {
+				variables.add(value);
+				addFields(variables, value, null);
+			}
+			// logger.trace(statements.get(i).retval.getSimpleClassName());
+		}
+
+		return variables;
 	}
 
 	/* (non-Javadoc)
@@ -247,31 +533,50 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getObjects(int)
+	 * @see org.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public List<VariableReference> getObjects(int position) {
-		List<VariableReference> variables = new LinkedList<VariableReference>();
-
-		for (int i = 0; i < position && i < statements.size(); i++) {
-			VariableReference value = statements.get(i).getReturnValue();
-
-			if (value == null)
-				continue;
-			// TODO: Need to support arrays that were not self-created
-			if (value instanceof ArrayReference) { // &&
-				for (int index = 0; index < ((ArrayReference) value).getArrayLength(); index++) {
-					variables.add(new ArrayIndex(this, (ArrayReference) value, index));
-				}
-			} else if (!(value instanceof ArrayIndex)) {
-				variables.add(value);
-				addFields(variables, value, null);
-			}
-			// logger.trace(statements.get(i).retval.getSimpleClassName());
+	public VariableReference getRandomNonNullNonPrimitiveObject(Type type, int position)
+	        throws ConstructionFailedException {
+		assert (type != null);
+		List<VariableReference> variables = getObjects(type, position);
+		Iterator<VariableReference> iterator = variables.iterator();
+		while (iterator.hasNext()) {
+			VariableReference var = iterator.next();
+			if (var instanceof NullReference)
+				iterator.remove();
+			else if (getStatement(var.getStPosition()) instanceof PrimitiveStatement)
+				iterator.remove();
+			else if (var.isPrimitive() || var.isWrapperType())
+				iterator.remove();
 		}
+		if (variables.isEmpty())
+			throw new ConstructionFailedException("Found no variables of type " + type
+			        + " at position " + position);
 
-		return variables;
+		return Randomness.choice(variables);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public VariableReference getRandomNonNullObject(Type type, int position)
+	        throws ConstructionFailedException {
+		assert (type != null);
+		List<VariableReference> variables = getObjects(type, position);
+		Iterator<VariableReference> iterator = variables.iterator();
+		while (iterator.hasNext()) {
+			if (iterator.next() instanceof NullReference)
+				iterator.remove();
+		}
+		if (variables.isEmpty())
+			throw new ConstructionFailedException("Found no variables of type " + type
+			        + " at position " + position);
+
+		return Randomness.choice(variables);
 	}
 
 	/* (non-Javadoc)
@@ -322,172 +627,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 		return Randomness.choice(variables);
 	}
 
-	@Override
-	public VariableReference getLastObject(Type type) throws ConstructionFailedException {
-		return getLastObject(type, 0);
-	}
-
-	@Override
-	public VariableReference getLastObject(Type type, int position)
-	        throws ConstructionFailedException {
-		for (int i = statements.size() - 1; i >= position; i--) {
-			StatementInterface statement = statements.get(i);
-			VariableReference var = statement.getReturnValue();
-			if (var.isAssignableTo(type))
-				return var;
-		}
-		throw new ConstructionFailedException("Foudn no variables of type " + type);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public VariableReference getRandomNonNullObject(Type type, int position)
-	        throws ConstructionFailedException {
-		assert (type != null);
-		List<VariableReference> variables = getObjects(type, position);
-		Iterator<VariableReference> iterator = variables.iterator();
-		while (iterator.hasNext()) {
-			if (iterator.next() instanceof NullReference)
-				iterator.remove();
-		}
-		if (variables.isEmpty())
-			throw new ConstructionFailedException("Found no variables of type " + type
-			        + " at position " + position);
-
-		return Randomness.choice(variables);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public VariableReference getRandomNonNullNonPrimitiveObject(Type type, int position)
-	        throws ConstructionFailedException {
-		assert (type != null);
-		List<VariableReference> variables = getObjects(type, position);
-		Iterator<VariableReference> iterator = variables.iterator();
-		while (iterator.hasNext()) {
-			VariableReference var = iterator.next();
-			if (var instanceof NullReference)
-				iterator.remove();
-			else if (getStatement(var.getStPosition()) instanceof PrimitiveStatement)
-				iterator.remove();
-			else if (var.isPrimitive() || var.isWrapperType())
-				iterator.remove();
-		}
-		if (variables.isEmpty())
-			throw new ConstructionFailedException("Found no variables of type " + type
-			        + " at position " + position);
-
-		return Randomness.choice(variables);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getObject(org.evosuite.testcase.VariableReference, org.evosuite.testcase.Scope)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public Object getObject(VariableReference reference, Scope scope) {
-		try {
-			return reference.getObject(scope);
-		} catch (CodeUnderTestException e) {
-			throw new AssertionError("This case isn't handled yet");
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#setStatement(org.evosuite.testcase.Statement, int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public VariableReference setStatement(StatementInterface statement, int position) {
-		statements.set(position, statement);
-		assert (isValid());
-		return statement.getReturnValue(); // TODO:
-		                                   // -1?
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#addStatement(org.evosuite.testcase.Statement, int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public VariableReference addStatement(StatementInterface statement, int position) {
-		statements.add(position, statement);
-		assert (isValid());
-		return statement.getReturnValue();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#addStatement(org.evosuite.testcase.Statement)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public VariableReference addStatement(StatementInterface statement) {
-		statements.add(statement);
-		try {
-			assert (isValid());
-		} catch (AssertionError e) {
-			logger.info("Is not valid: ");
-			for (StatementInterface s : statements) {
-				try {
-					logger.info(s.getCode());
-				} catch (AssertionError e2) {
-					logger.info("Found error in: " + s);
-					if (s instanceof MethodStatement) {
-						MethodStatement ms = (MethodStatement) s;
-						if (!ms.isStatic()) {
-							logger.info("Callee: ");
-							logger.info(ms.callee.toString());
-						}
-						int num = 0;
-						for (VariableReference v : ms.parameters) {
-							logger.info("Parameter " + num);
-							logger.info(v.getVariableClass().toString());
-							logger.info(v.getClass().toString());
-							logger.info(v.toString());
-						}
-					}
-				}
-			}
-			assert (false);
-		}
-		return statement.getReturnValue();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getReturnValue(int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public VariableReference getReturnValue(int position) {
-		return statements.get(position).getReturnValue();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#hasReferences(org.evosuite.testcase.VariableReference)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean hasReferences(VariableReference var) {
-		if (var == null || var.getStPosition() == -1)
-			return false;
-
-		for (int i = var.getStPosition() + 1; i < statements.size(); i++) {
-			if (statements.get(i).references(var))
-				return true;
-		}
-		for (Assertion assertion : statements.get(var.getStPosition()).getAssertions()) {
-			if (assertion.getReferencedVariables().contains(var))
-				return true;
-		}
-		return false;
-	}
-
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#getReferences(org.evosuite.testcase.VariableReference)
 	 */
@@ -516,49 +655,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getDependencies(org.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.TestCase#getReturnValue(int)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Set<VariableReference> getDependencies(VariableReference var) {
-		Set<VariableReference> dependencies = new LinkedHashSet<VariableReference>();
-
-		if (var == null || var.getStPosition() == -1)
-			return dependencies;
-
-		Set<StatementInterface> dependentStatements = new LinkedHashSet<StatementInterface>();
-		dependentStatements.add(statements.get(var.getStPosition()));
-
-		for (int i = var.getStPosition(); i >= 0; i--) {
-			Set<StatementInterface> newStatements = new LinkedHashSet<StatementInterface>();
-			for (StatementInterface s : dependentStatements) {
-				if (s.references(statements.get(i).getReturnValue())) {
-					newStatements.add(statements.get(i));
-					dependencies.add(statements.get(i).getReturnValue());
-					break;
-				}
-			}
-			dependentStatements.addAll(newStatements);
-		}
-
-		return dependencies;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#remove(int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void remove(int position) {
-		logger.debug("Removing statement " + position);
-		if (position >= size()) {
-			return;
-		}
-		statements.remove(position);
-		assert (isValid());
-		// for(Statement s : statements) {
-		// for(Asss.assertions)
-		// }
+	public VariableReference getReturnValue(int position) {
+		return statements.get(position).getReturnValue();
 	}
 
 	/* (non-Javadoc)
@@ -571,76 +673,14 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#isPrefix(org.evosuite.testcase.DefaultTestCase)
+	 * @see org.evosuite.testcase.TestCase#hasAssertions()
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean isPrefix(TestCase t) {
-		if (statements.size() > t.size())
-			return false;
-
-		for (int i = 0; i < statements.size(); i++) {
-			if (!statements.get(i).same(t.getStatement(i))) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Equality check
-	 */
-	// public boolean equals(TestCase t) {
-	// return statements.size() == t.statements.size() && isPrefix(t);
-	// }
-	@Override
-	public int hashCode() {
-		return statements.hashCode();
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DefaultTestCase other = (DefaultTestCase) obj;
-
-		if (statements == null) {
-			if (other.statements != null)
-				return false;
-		} else {
-			if (statements.size() != other.statements.size())
-				return false;
-			// if (!statements.equals(other.statements))
-			for (int i = 0; i < statements.size(); i++) {
-				if (!statements.get(i).equals(other.statements.get(i))) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#hasObject(java.lang.reflect.Type, int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean hasObject(Type type, int position) {
-		for (int i = 0; i < position; i++) {
-			StatementInterface st = statements.get(i);
-			if (st.getReturnValue() == null)
-				continue; // Nop
-			if (st.getReturnValue().isAssignableTo(type)) {
+	public boolean hasAssertions() {
+		for (StatementInterface s : statements) {
+			if (s.hasAssertions())
 				return true;
-			}
 		}
 		return false;
 	}
@@ -662,122 +702,98 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * Create a copy of the test case
+	 * Equality check
 	 */
+	// public boolean equals(TestCase t) {
+	// return statements.size() == t.statements.size() && isPrefix(t);
+	// }
 	@Override
-	public DefaultTestCase clone() {
-		DefaultTestCase t = new DefaultTestCase();
-		for (StatementInterface s : statements) {
-			StatementInterface copy = s.clone(t);
-			t.statements.add(copy);
-			copy.setRetval(s.getReturnValue().clone(t));
-			copy.setAssertions(s.copyAssertions(t, 0));
-		}
-		t.coveredGoals.addAll(coveredGoals);
-		t.accessedFiles.addAll(accessedFiles);
-		t.isFailing = isFailing;
-		//t.exception_statement = exception_statement;
-		//t.exceptionThrown = exceptionThrown;
-		return t;
+	public int hashCode() {
+		return statements.hashCode();
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getAccessedClasses()
+	 * @see org.evosuite.testcase.TestCase#hasObject(java.lang.reflect.Type, int)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Set<Class<?>> getAccessedClasses() {
-		Set<Class<?>> accessed_classes = new LinkedHashSet<Class<?>>();
-		for (StatementInterface s : statements) {
-			for (VariableReference var : s.getVariableReferences()) {
-				if (var != null && !var.isPrimitive()) {
-					Class<?> clazz = var.getVariableClass();
-					while (clazz.isMemberClass()) {
-						//accessed_classes.add(clazz);
-						clazz = clazz.getEnclosingClass();
-					}
-					while (clazz.isArray())
-						clazz = clazz.getComponentType();
-					accessed_classes.add(clazz);
-				}
-			}
-			if (s instanceof MethodStatement) {
-				MethodStatement ms = (MethodStatement) s;
-				accessed_classes.addAll(Arrays.asList(ms.getMethod().getMethod().getExceptionTypes()));
-				accessed_classes.add(ms.getMethod().getMethod().getDeclaringClass());
-				accessed_classes.add(ms.getMethod().getMethod().getReturnType());
-				accessed_classes.addAll(Arrays.asList(ms.getMethod().getMethod().getParameterTypes()));
-			} else if (s instanceof FieldStatement) {
-				FieldStatement fs = (FieldStatement) s;
-				accessed_classes.add(fs.getField().getField().getDeclaringClass());
-				accessed_classes.add(fs.getField().getField().getType());
-			} else if (s instanceof ConstructorStatement) {
-				ConstructorStatement cs = (ConstructorStatement) s;
-				accessed_classes.add(cs.getConstructor().getConstructor().getDeclaringClass());
-				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getConstructor().getExceptionTypes()));
-				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getConstructor().getParameterTypes()));
-			}
-		}
-		return accessed_classes;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#addAssertions(org.evosuite.testcase.DefaultTestCase)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void addAssertions(TestCase other) {
-		for (int i = 0; i < statements.size() && i < other.size(); i++) {
-			for (Assertion a : other.getStatement(i).getAssertions()) {
-				if (!statements.get(i).getAssertions().contains(a))
-					if (a != null)
-						statements.get(i).getAssertions().add(a.clone(this));
-			}
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#hasAssertions()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean hasAssertions() {
-		for (StatementInterface s : statements) {
-			if (s.hasAssertions())
+	public boolean hasObject(Type type, int position) {
+		for (int i = 0; i < position; i++) {
+			StatementInterface st = statements.get(i);
+			if (st.getReturnValue() == null)
+				continue; // Nop
+			if (st.getReturnValue().isAssignableTo(type)) {
 				return true;
+			}
 		}
 		return false;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getAssertions()
+	 * @see org.evosuite.testcase.TestCase#hasReferences(org.evosuite.testcase.VariableReference)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public List<Assertion> getAssertions() {
-		List<Assertion> assertions = new ArrayList<Assertion>();
-		for (StatementInterface s : statements) {
-			assertions.addAll(s.getAssertions());
+	public boolean hasReferences(VariableReference var) {
+		if (var == null || var.getStPosition() == -1)
+			return false;
+
+		for (int i = var.getStPosition() + 1; i < statements.size(); i++) {
+			if (statements.get(i).references(var))
+				return true;
 		}
-		return assertions;
+		for (Assertion assertion : statements.get(var.getStPosition()).getAssertions()) {
+			if (assertion.getReferencedVariables().contains(var))
+				return true;
+		}
+		return false;
+	}
+
+	private boolean isClassUtilsBug(Class<?> rawClass, Class<?> arrayClass) {
+		while (arrayClass != null && arrayClass.isArray()) {
+			if (arrayClass.getComponentType().equals(rawClass)) {
+				return true;
+			}
+			arrayClass = arrayClass.getComponentType();
+		}
+		return false;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#removeAssertions()
+	 * @see org.evosuite.testcase.TestCase#isEmpty()
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void removeAssertions() {
-		for (StatementInterface s : statements) {
-			s.removeAssertions();
-		}
+	public boolean isEmpty() {
+		return statements.isEmpty();
 	}
 
 	@Override
-	public void removeAssertion(Assertion assertion) {
-		for (StatementInterface s : statements) {
-			s.removeAssertion(assertion);
+	public boolean isFailing() {
+		return isFailing;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#isPrefix(org.evosuite.testcase.DefaultTestCase)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public boolean isPrefix(TestCase t) {
+		if (statements.size() > t.size())
+			return false;
+
+		for (int i = 0; i < statements.size(); i++) {
+			if (!statements.get(i).same(t.getStatement(i))) {
+				return false;
+			}
 		}
+
+		return true;
+	}
+
+	@Override
+	public boolean isUnstable() {
+		return unstable;
 	}
 
 	/* (non-Javadoc)
@@ -793,47 +809,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getDeclaredExceptions()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public Set<Class<?>> getDeclaredExceptions() {
-		Set<Class<?>> exceptions = new LinkedHashSet<Class<?>>();
-		for (StatementInterface statement : statements) {
-			exceptions.addAll(statement.getDeclaredExceptions());
-		}
-		return exceptions;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#addCoveredGoal(org.evosuite.testcase.TestFitnessFunction)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void addCoveredGoal(TestFitnessFunction goal) {
-		coveredGoals.add(goal);
-		// TODO: somehow adds the same goal more than once (fitnessfunction.equals()?)
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getCoveredGoals()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public Set<TestFitnessFunction> getCoveredGoals() {
-		return coveredGoals;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#clearCoveredGoals()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void clearCoveredGoals() {
-		coveredGoals.clear();
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Iterable#iterator()
 	 */
 	/** {@inheritDoc} */
@@ -842,16 +817,39 @@ public class DefaultTestCase implements TestCase, Serializable {
 		return statements.iterator();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#remove(int)
+	 */
 	/** {@inheritDoc} */
 	@Override
-	public void addListener(Listener<Void> listener) {
-		statements.addListener(listener);
+	public void remove(int position) {
+		logger.debug("Removing statement " + position);
+		if (position >= size()) {
+			return;
+		}
+		statements.remove(position);
+		assert (isValid());
+		// for(Statement s : statements) {
+		// for(Asss.assertions)
+		// }
 	}
 
+	@Override
+	public void removeAssertion(Assertion assertion) {
+		for (StatementInterface s : statements) {
+			s.removeAssertion(assertion);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#removeAssertions()
+	 */
 	/** {@inheritDoc} */
 	@Override
-	public void deleteListener(Listener<Void> listener) {
-		statements.deleteListener(listener);
+	public void removeAssertions() {
+		for (StatementInterface s : statements) {
+			s.removeAssertions();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -863,54 +861,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 		for (StatementInterface statement : statements) {
 			statement.replace(var1, var2);
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#accept(org.evosuite.testcase.TestVisitor)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void accept(TestVisitor visitor) {
-		visitor.visitTestCase(this);
-
-		Iterator<StatementInterface> iterator = statements.iterator();
-		while (iterator.hasNext()) {
-			StatementInterface statement = iterator.next();
-			logger.trace("Visiting statement " + statement.getCode());
-			visitor.visitStatement(statement);
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return toCode();
-	}
-
-	/**
-	 * <p>
-	 * changeClassLoader
-	 * </p>
-	 * 
-	 * @param loader
-	 *            a {@link java.lang.ClassLoader} object.
-	 */
-	public void changeClassLoader(ClassLoader loader) {
-		for (StatementInterface s : statements) {
-			s.changeClassLoader(loader);
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getAccessedFiles()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public List<String> getAccessedFiles() {
-		return accessedFiles;
 	}
 
 	/* (non-Javadoc)
@@ -929,4 +879,66 @@ public class DefaultTestCase implements TestCase, Serializable {
 		coveredGoals = new HashSet<TestFitnessFunction>();
 	}
 	*/
+
+	public void setFailing(boolean failing) {
+		isFailing = failing;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#setStatement(org.evosuite.testcase.Statement, int)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public VariableReference setStatement(StatementInterface statement, int position) {
+		statements.set(position, statement);
+		assert (isValid());
+		return statement.getReturnValue(); // TODO:
+		                                   // -1?
+	}
+
+	@Override
+	public void setUnstable(boolean unstable) {
+		this.unstable = unstable;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#size()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public int size() {
+		return statements.size();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#toCode()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public String toCode() {
+		TestCodeVisitor visitor = new TestCodeVisitor();
+		accept(visitor);
+		return visitor.getCode();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#toCode(java.util.Map)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public String toCode(Map<Integer, Throwable> exceptions) {
+		TestCodeVisitor visitor = new TestCodeVisitor();
+		visitor.setExceptions(exceptions);
+		accept(visitor);
+		return visitor.getCode();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public String toString() {
+		return toCode();
+	}
 }

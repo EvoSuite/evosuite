@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.mutation.Mutation;
+import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
@@ -161,6 +162,8 @@ public class SimpleMutationAssertionGenerator extends
 				} else {
 					timedOutMutations.put(m, timedOutMutations.get(m) + 1);
 				}
+				MutationTimeoutStoppingCondition.timeOut(m);
+				
 			} else if (!mutantResult.noThrownExceptions()
 			        && origResult.noThrownExceptions()) {
 				logger.debug("Increasing exception count.");
@@ -169,6 +172,7 @@ public class SimpleMutationAssertionGenerator extends
 				} else {
 					exceptionMutations.put(m, exceptionMutations.get(m) + 1);
 				}
+				MutationTimeoutStoppingCondition.raisedException(m);
 			}
 
 			if (numKilled > 0
@@ -197,6 +201,7 @@ public class SimpleMutationAssertionGenerator extends
 				}
 				if (isKilled) {
 					killedMutations.add(m.getId());
+					assertion.addKilledMutation(m);
 				}
 			}
 			killMap.put(num, killedMutations);

@@ -49,11 +49,8 @@ public class TestRegression extends SystemTest {
 		//		        "-Dclient_on_thread=true", "-Dsearch_budget=100000" };
 
 		Object result = evosuite.parseCommandLine(command);
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
-
-		return (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		return ga;
 	}
 
 	private void testCovered(String targetClass, int numGoals) {

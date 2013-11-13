@@ -40,7 +40,7 @@ public class TestRandomCall extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass }; //, "-Dassertions=true"
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -60,7 +60,7 @@ public class TestRandomCall extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass }; //, "-Dassertions=true"
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();

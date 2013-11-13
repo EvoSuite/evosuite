@@ -108,6 +108,8 @@ import org.evosuite.localsearch.BranchCoverageMap;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
+import org.evosuite.result.TestGenerationResult;
+import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.sandbox.PermissionStatistics;
@@ -200,7 +202,7 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String generateTestSuite() {
+	public TestGenerationResult generateTestSuite() {
 
 		LoggingUtils.getEvoLogger().info("* Analyzing classpath: ");
 
@@ -219,7 +221,8 @@ public class TestSuiteGenerator {
 			                                          + (e.getMessage() != null ? e.getMessage()
 			                                                  : e.toString()));
 			logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
-			return "";
+			return TestGenerationResultBuilder.buildErrorResult(e.getMessage() != null ? e.getMessage()
+                    : e.toString());
 		} finally {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
@@ -232,9 +235,11 @@ public class TestSuiteGenerator {
 		printTestCriterion();
 
 		if (Properties.getTargetClass() == null)
-			return "";
+			return TestGenerationResultBuilder.buildErrorResult("Could not load target class");
 
-		generateTests();
+		List<TestCase> testCases = generateTests();
+		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
+		TestGenerationResult result = writeJUnitTestsAndCreateResult(testCases);
 
 		TestCaseExecutor.pullDown();
 		/*
@@ -252,7 +257,7 @@ public class TestSuiteGenerator {
 		LoggingUtils.getEvoLogger().info("* Done!");
 		LoggingUtils.getEvoLogger().info("");
 
-		return "";
+		return result;
 	}
 
 	/*
@@ -318,19 +323,6 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
 			addAssertions(tests);
 			ClientServices.getInstance().getClientNode().updateStatistics(tests);
-			/*
-			if (Properties.CRITERION == Criterion.MUTATION
-			        || Properties.CRITERION == Criterion.STRONGMUTATION) {
-				if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
-					handleMutations(tests);
-				} else {
-					addAssertions(tests);
-				}
-			} else {
-				// If we're not using mutation testing, we need to re-instrument
-				addAssertions(tests);
-			}
-			*/
 		}
 
 		if (Properties.CHECK_CONTRACTS) {
@@ -343,6 +335,7 @@ public class TestSuiteGenerator {
 
 		if (Properties.JUNIT_TESTS) {
 			if (JUnitAnalyzer.isJavaCompilerAvailable()) {
+				LoggingUtils.getEvoLogger().info("* Compiling and checking tests");
 
 				JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
 
@@ -356,8 +349,6 @@ public class TestSuiteGenerator {
 				logger.error("No Java compiler is available. Are you running with the JDK?");
 			}
 		}
-		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
-		writeJUnitTests(testCases);
 
 		assert !Properties.JUNIT_TESTS
 		        || JUnitAnalyzer.verifyCompilationAndExecution(tests.getTests()); //check still on original
@@ -385,7 +376,7 @@ public class TestSuiteGenerator {
 	 * @param tests
 	 *            a {@link java.util.List} object.
 	 */
-	public static void writeJUnitTests(List<TestCase> tests, String suffix) {
+	public static TestGenerationResult writeJUnitTestsAndCreateResult(List<TestCase> tests, String suffix) {
 		if (Properties.JUNIT_TESTS) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_TESTS);
 
@@ -403,9 +394,11 @@ public class TestSuiteGenerator {
 
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
+			
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test cases to " + testDir);
 			suite.writeTestSuite(name + suffix, testDir);
 		}
+		return TestGenerationResultBuilder.buildSuccessResult();
 	}
 
 	/**
@@ -413,8 +406,8 @@ public class TestSuiteGenerator {
 	 * @param tests
 	 *            the test cases which should be written to file
 	 */
-	public static void writeJUnitTests(List<TestCase> tests) {
-		writeJUnitTests(tests, Properties.JUNIT_SUFFIX);
+	public static TestGenerationResult writeJUnitTestsAndCreateResult(List<TestCase> tests) {
+		return writeJUnitTestsAndCreateResult(tests, Properties.JUNIT_SUFFIX);
 	}
 
 	private void addAssertions(TestSuiteChromosome tests) {
@@ -547,6 +540,9 @@ public class TestSuiteGenerator {
 			                                         + ga.getAge()
 			                                         + " for whole suite generation");
 		}
+		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
+			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(ga);
+		
 		long start_time = System.currentTimeMillis() / 1000;
 
 		// What's the search target

@@ -43,6 +43,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputFormat;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
@@ -750,6 +751,7 @@ public class TestSuiteWriter implements Opcodes {
 			builder.append(getInformation(id));
 			builder.append("\n");
 		}
+		String methodName;
 		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
 			StructuredTestCase structuredTest = (StructuredTestCase) testCases.get(id);
 			String targetMethod = structuredTest.getTargetMethods().iterator().next();
@@ -764,9 +766,11 @@ public class TestSuiteWriter implements Opcodes {
 			} else {
 				testMethodNumber.put(targetMethod, 1);
 			}
-			builder.append(adapter.getMethodDefinition("test" + targetMethod + num));
+			methodName = "test" + targetMethod + num;
+			builder.append(adapter.getMethodDefinition(methodName));
 		} else {
-			builder.append(adapter.getMethodDefinition(getNameOfTest(null, number)));
+			methodName = getNameOfTest(null, number);
+			builder.append(adapter.getMethodDefinition(methodName));
 		}
 
 		/*
@@ -844,7 +848,9 @@ public class TestSuiteWriter implements Opcodes {
 		builder.append(METHOD_SPACE);
 		builder.append("}\n");
 
-		return builder.toString();
+		String testCode = builder.toString();
+		TestGenerationResultBuilder.getInstance().setTestCase(methodName, testCode, test, getInformation(id), result);
+		return testCode;
 	}
 
 	public static String getNameOfTest(List<TestCase> tests, int position) {
@@ -904,20 +910,25 @@ public class TestSuiteWriter implements Opcodes {
 	public List<File> writeTestSuite(String name, String directory) {
 		List<File> generated = new ArrayList<File>();
 		String dir = makeDirectory(directory);
-
+		String content = "";
+		
 		if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
 			File file = new File(dir + "/" + name + ".java");
 			executor.newObservers();
-			Utils.writeFile(getUnitTest(name), file);
+			content = getUnitTest(name);
+			Utils.writeFile(content, file);
 			generated.add(file);
 		} else {
 			for (int i = 0; i < testCases.size(); i++) {
 				File file = new File(dir + "/" + name + "_" + i + ".java");
 				executor.newObservers();
-				Utils.writeFile(getUnitTest(name, i), file);
+				String testCode = getUnitTest(name, i);
+				Utils.writeFile(testCode, file);
+				content += testCode;
 				generated.add(file);
 			}
 		}
+		TestGenerationResultBuilder.getInstance().setTestSuiteCode(content);
 		return generated;
 	}
 

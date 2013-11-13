@@ -20,7 +20,6 @@ package org.evosuite;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.security.Permission;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;

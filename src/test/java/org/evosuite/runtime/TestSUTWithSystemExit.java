@@ -20,7 +20,7 @@ public class TestSUTWithSystemExit extends SystemTest {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
-		Object result = evosuite.parseCommandLine(command);
+		evosuite.parseCommandLine(command);
 	}
 
 }

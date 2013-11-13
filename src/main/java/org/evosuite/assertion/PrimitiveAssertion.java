@@ -69,6 +69,7 @@ public class PrimitiveAssertion extends Assertion {
 		PrimitiveAssertion s = new PrimitiveAssertion();
 		s.source = source.copy(newTestCase, offset);
 		s.value = value;
+		s.killedMutants.addAll(killedMutants);
 		return s;
 	}
 
