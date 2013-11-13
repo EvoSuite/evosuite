@@ -176,7 +176,6 @@ public class CoverageAnalysis {
 							TestGenerationContext.getClassLoader());
 					classes.add(junitClass);
 				} catch (ClassNotFoundException e) {
-					System.out.println("NOT FOUND: " + e + " with " + prefix);
 					// Second, try if the target name is a package name
 					classes.addAll(getClassesFromClasspath());
 				}
