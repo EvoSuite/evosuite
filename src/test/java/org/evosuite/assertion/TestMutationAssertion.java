@@ -55,11 +55,7 @@ public class TestMutationAssertion extends SystemTest {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass() + ", " + result,
-		                  result instanceof GeneticAlgorithm);
-
-		GeneticAlgorithm ga = (GeneticAlgorithm) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		return (TestSuiteChromosome) ga.getBestIndividual();
 	}
 

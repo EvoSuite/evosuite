@@ -56,7 +56,7 @@ public class TestPool extends SystemTest {
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		ObjectPool pool = ObjectPool.getPoolFromTestSuite(best);
 		pool.writePool(filename);
@@ -73,11 +73,7 @@ public class TestPool extends SystemTest {
 		command = new String[] { "-generateSuite", "-class", targetClass, "-Dobject_pools=" + filename };
 
 		result = evosuite.parseCommandLine(command);
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
-
-		ga = (GeneticAlgorithm<?>) result;
+		ga = getGAFromResult(result);
 		TestSuiteChromosome best2 = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best2);
 
@@ -97,11 +93,7 @@ public class TestPool extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
-
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -126,7 +118,7 @@ public class TestPool extends SystemTest {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		ObjectPool pool = ObjectPool.getPoolFromTestSuite(best);
 		pool.writePool(filename);
@@ -146,7 +138,7 @@ public class TestPool extends SystemTest {
 		Assert.assertTrue("Invalid result type :" + result.getClass(),
 		                  result instanceof GeneticAlgorithm);
 
-		ga = (GeneticAlgorithm<?>) result;
+		ga = getGAFromResult(result);
 		best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -170,7 +162,7 @@ public class TestPool extends SystemTest {
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		ObjectPool pool = ObjectPool.getPoolFromTestSuite(best);
 		pool.writePool(filename);
@@ -192,7 +184,7 @@ public class TestPool extends SystemTest {
 		Assert.assertTrue("Invalid result type :" + result.getClass(),
 		                  result instanceof GeneticAlgorithm);
 
-		ga = (GeneticAlgorithm<?>) result;
+		ga = getGAFromResult(result);
 		best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -216,7 +208,7 @@ public class TestPool extends SystemTest {
 		Assert.assertTrue("Invalid result type :" + result.getClass(),
 		                  result instanceof GeneticAlgorithm);
 
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

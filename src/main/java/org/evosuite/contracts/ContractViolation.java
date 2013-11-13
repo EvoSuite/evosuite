@@ -115,6 +115,10 @@ public class ContractViolation {
 	public Contract getContract() {
 		return contract;
 	}
+	
+	public int getPosition() {
+		return statement.getPosition();
+	}
 
 	/**
 	 * Remove all statements that do not contribute to the contract violation

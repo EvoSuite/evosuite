@@ -1,7 +1,5 @@
 package org.evosuite.continuous.project;
 
-import java.util.Collection;
-
 import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
 import org.junit.Assert;
 import org.junit.Test;

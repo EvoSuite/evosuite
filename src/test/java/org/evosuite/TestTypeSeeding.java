@@ -25,11 +25,8 @@ public class TestTypeSeeding extends SystemTest {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -51,11 +48,8 @@ public class TestTypeSeeding extends SystemTest {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -78,11 +72,8 @@ public class TestTypeSeeding extends SystemTest {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -104,11 +95,8 @@ public class TestTypeSeeding extends SystemTest {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -131,11 +119,8 @@ public class TestTypeSeeding extends SystemTest {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -157,11 +142,8 @@ public class TestTypeSeeding extends SystemTest {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

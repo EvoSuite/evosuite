@@ -18,6 +18,7 @@
 package org.evosuite.coverage.branch;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -550,6 +551,10 @@ public class BranchPool {
 	public static Branch getBranch(int branchId) {
 
 		return branchIdMap.get(branchId);
+	}
+	
+	public static Collection<Branch> getAllBranches() {
+		return branchIdMap.values();
 	}
 
 	/**

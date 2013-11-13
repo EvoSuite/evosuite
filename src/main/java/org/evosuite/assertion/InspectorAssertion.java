@@ -60,6 +60,7 @@ public class InspectorAssertion extends Assertion {
 		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
 		s.inspector = inspector;
 		s.value = value;
+		s.killedMutants.addAll(killedMutants);
 		return s;
 
 	}

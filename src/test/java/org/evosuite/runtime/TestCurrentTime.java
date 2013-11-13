@@ -47,7 +47,7 @@ public class TestCurrentTime extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -67,7 +67,7 @@ public class TestCurrentTime extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass }; //, "-assertions"
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -87,7 +87,7 @@ public class TestCurrentTime extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -107,7 +107,7 @@ public class TestCurrentTime extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -127,7 +127,7 @@ public class TestCurrentTime extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -147,7 +147,7 @@ public class TestCurrentTime extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -167,7 +167,7 @@ public class TestCurrentTime extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		java.lang.System.out.println("Test Suite: " + best.toString());
 
@@ -188,7 +188,7 @@ public class TestCurrentTime extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -208,7 +208,7 @@ public class TestCurrentTime extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		java.lang.System.out.println("Test Suite: " + best.toString());
 

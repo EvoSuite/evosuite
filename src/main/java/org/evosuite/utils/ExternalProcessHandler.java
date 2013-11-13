@@ -37,6 +37,8 @@ import java.util.concurrent.CountDownLatch;
 import org.evosuite.ClientProcess;
 import org.evosuite.ConsoleProgressBar;
 import org.evosuite.Properties;
+import org.evosuite.result.TestGenerationResult;
+import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.rmi.service.ClientState;
@@ -551,14 +553,14 @@ public class ExternalProcessHandler {
 	 *            a int.
 	 * @return a {@link java.lang.Object} object.
 	 */
-	public Object waitForResult(int timeout) {
+	public TestGenerationResult waitForResult(int timeout) {
 
 		try {
 			long start = System.currentTimeMillis();
 			Set<ClientNodeRemote> clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(timeout);
 			if(clients==null){
 				logger.error("Not possible to access to clients");
-				return null;
+				return TestGenerationResultBuilder.buildErrorResult("Could not access client process");
 			}
 
 			for(ClientNodeRemote client : clients){

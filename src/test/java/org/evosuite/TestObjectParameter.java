@@ -21,12 +21,7 @@ public class TestObjectParameter extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
-
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -47,12 +42,7 @@ public class TestObjectParameter extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
-
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

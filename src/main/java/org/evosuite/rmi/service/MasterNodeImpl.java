@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.result.TestGenerationResult;
 import org.evosuite.statistics.SearchStatistics;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.Listener;
@@ -149,6 +150,14 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 		SearchStatistics.getInstance().setOutputVariable(variable, value);
 	}
 
+	@Override
+	public void evosuite_collectTestGenerationResult(
+			String clientRmiIdentifier, TestGenerationResult result)
+			throws RemoteException {
+		SearchStatistics.getInstance().addTestGenerationResult(result);
+		
+	}
+	
 	@Override
 	public void addListener(Listener<ClientStateInformation> listener) {
 		listeners.add(listener);

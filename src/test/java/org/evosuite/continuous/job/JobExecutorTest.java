@@ -11,7 +11,6 @@ import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.continuous.persistency.StorageManager.TestsOnDisk;
 import org.evosuite.utils.ClassPathHandler;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 

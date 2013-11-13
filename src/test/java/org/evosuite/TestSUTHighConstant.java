@@ -55,11 +55,7 @@ public class TestSUTHighConstant extends SystemTest{
 		};
 		
 		Object result = evosuite.parseCommandLine(command);
-		
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :"+result.getClass(), result instanceof GeneticAlgorithm);
-		
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 
 		/*
@@ -92,11 +88,8 @@ public class TestSUTHighConstant extends SystemTest{
 		};
 		
 		Object result = evosuite.parseCommandLine(command);
-		
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :"+result.getClass(), result instanceof GeneticAlgorithm);
-		
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+
 		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 		//Assert.assertEquals("Wrong number of test cases: ",2 , best.size());

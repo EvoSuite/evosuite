@@ -47,7 +47,7 @@ public abstract class Assertion implements Serializable {
 	/** Statement to which the assertion is added */
 	protected StatementInterface statement;
 
-	protected Set<Mutation> killedMutants = new HashSet<Mutation>();
+	protected transient Set<Mutation> killedMutants = new HashSet<Mutation>();
 
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(Assertion.class);

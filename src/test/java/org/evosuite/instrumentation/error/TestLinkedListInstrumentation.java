@@ -33,11 +33,7 @@ public class TestLinkedListInstrumentation extends SystemTest {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
-
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -59,7 +55,7 @@ public class TestLinkedListInstrumentation extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		Assert.assertTrue(result != null);
@@ -94,12 +90,7 @@ public class TestLinkedListInstrumentation extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
-
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -121,11 +112,7 @@ public class TestLinkedListInstrumentation extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();

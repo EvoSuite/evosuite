@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.result.TestGenerationResult;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
@@ -60,7 +61,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	
 	private long startTime = System.currentTimeMillis();
 	
-	
+	private List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
 	
 	private SearchStatistics() { 
 		switch(Properties.STATISTICS_BACKEND) {
@@ -130,6 +131,14 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	public void setOutputVariable(OutputVariable<?> variable) {
 		// TODO: If there already exists that key and the value is different, issue warning?
 		outputVariables.put(variable.getName(), variable);
+	}
+	
+	public void addTestGenerationResult(TestGenerationResult result) {
+		results.add(result);
+	}
+	
+	public List<TestGenerationResult> getTestGenerationResults() {
+		return results;
 	}
 	
 	/**

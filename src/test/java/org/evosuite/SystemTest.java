@@ -19,9 +19,12 @@ package org.evosuite;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.result.TestGenerationResult;
 import org.evosuite.utils.Randomness;
 import org.junit.After;
 import org.junit.Assert;
@@ -133,5 +136,12 @@ public class SystemTest {
 			Assert.fail(e.getMessage());
 		}
 		hasBeenAlreadyRun = false;
+	}
+	
+	protected GeneticAlgorithm<?> getGAFromResult(Object result) {
+		assert(result instanceof List);
+		List<TestGenerationResult> results = (List<TestGenerationResult>)result;
+		assert(results.size() == 1);
+		return results.iterator().next().getGeneticAlgorithm();
 	}
 }

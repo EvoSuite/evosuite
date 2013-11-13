@@ -27,11 +27,8 @@ public class TestArrayInstrumentation extends SystemTest {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -53,11 +50,8 @@ public class TestArrayInstrumentation extends SystemTest {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -79,11 +73,8 @@ public class TestArrayInstrumentation extends SystemTest {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
@@ -105,11 +96,8 @@ public class TestArrayInstrumentation extends SystemTest {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
