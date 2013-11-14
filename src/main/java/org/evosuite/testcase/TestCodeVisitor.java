@@ -172,33 +172,6 @@ public class TestCodeVisitor extends TestVisitor {
 	 */
 	public String getClassName(VariableReference var) {
 		return getTypeName(var.getType());
-		/*
-		Class<?> clazz = var.getVariableClass();
-
-		if (classNames.containsKey(clazz))
-			return classNames.get(clazz);
-
-		String name = var.getSimpleClassName();
-		if (classNames.values().contains(name)) {
-			name = clazz.getCanonicalName();
-		}
-
-		// Ensure outer classes are imported as well
-		Class<?> outerClass = clazz.getEnclosingClass();
-		while (outerClass != null) {
-			getClassName(outerClass);
-			outerClass = outerClass.getEnclosingClass();
-		}
-
-		// We can't use "Test" because of JUnit 
-		if (name.equals("Test")) {
-			name = clazz.getCanonicalName();
-		}
-
-		classNames.put(clazz, name);
-
-		return name;
-		*/
 	}
 
 	private String getTypeName(ParameterizedType type) {
@@ -839,7 +812,9 @@ public class TestCodeVisitor extends TestVisitor {
 			}
 		} else if (statement instanceof ClassPrimitiveStatement) {
 			StringBuilder builder = new StringBuilder();
-			builder.append(getClassName(retval));
+			String className = getClassName(retval);
+			className = className.replaceAll("Class<(.*)(<.*>)>", "Class<\1>");
+			builder.append(className);
 			builder.append(" ");
 			builder.append(getVariableName(retval));
 			builder.append(" = ");
