@@ -48,7 +48,6 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.runtime.FileSystem;
 import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -356,13 +355,18 @@ public class TestClusterGenerator {
 	@SuppressWarnings("unchecked")
 	private void initializeTargetMethods() throws RuntimeException,
 	        ClassNotFoundException {
+
 		if (Properties.VIRTUAL_FS) {
+			/*
+			 * TODO need to check what to do with new FS
+			 */
+			
 			/*
 			 * We need to initialize and temporarily enable the VFS here because Properties.getTargetClass() triggers loading of the target class what
 			 * could lead to execution of static code blocks that may contain statements altering the file system!
 			 */
-			FileSystem.reset();
-			EvoSuiteIO.enableVFS();
+			//FileSystem.reset();
+			//EvoSuiteIO.enableVFS();
 		}
 
 		logger.info("Analyzing target class");

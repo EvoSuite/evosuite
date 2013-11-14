@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.runtime;
+package org.evosuite.runtime.deprecated;
 
 /**
  * package private interface for file operation selectors (that basically select method names)
@@ -23,6 +23,7 @@ package org.evosuite.runtime;
  * @author Daniel Muth
  *
  */
+@Deprecated
 interface FileOperationSelector {
 	
 	/**

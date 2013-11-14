@@ -21,8 +21,8 @@
 package org.evosuite.runtime;
 
 /**
- * <p>EvoSuiteFile class.</p>
- *
+ * A object wrapper for file paths accessed by the SUTs.
+ *   
  * @author fraser
  */
 public class EvoSuiteFile {
