@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.runtime;
+package org.evosuite.runtime.deprecated;
 
 import java.io.BufferedWriter;
 import java.io.EvoSuiteIO;
@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.EvoSuiteFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Daniel Muth
  */
+@Deprecated
 public class FileSystem {
 
 	private static Logger logger = LoggerFactory.getLogger(FileSystem.class);
