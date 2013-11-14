@@ -78,10 +78,14 @@ public class Runtime {
 		}
 
 		if (Properties.VIRTUAL_FS) {
+			//TODO
+			
+			/*
 			logger.info("Resetting the VFS...");
 			FileSystem.reset();
 			logger.info("Enabling the VFS...");
 			EvoSuiteIO.enableVFS();
+			*/
 		}
 	}
 
@@ -107,10 +111,12 @@ public class Runtime {
 		}
 
 		if (Properties.VIRTUAL_FS) {
-			handleVirtualFS(test);
+			//TODO
+			//handleVirtualFS(test);
 		}
 	}
 
+	/*
 	private void handleVirtualFS(TestCase test) {
 		EvoSuiteIO.disableVFS();
 		test.setAccessedFiles(new ArrayList<String>(
@@ -124,7 +130,7 @@ public class Runtime {
 			/**
 			 * maps from the name of a FileSystem method to a class array containing its
 			 * parameter types
-			 */
+			 * /
 			Map<String, Class<?>[]> fileOperations = new HashMap<String, Class<?>[]>();
 			fileOperations.put("setFileContent", new Class<?>[] {
 					EvoSuiteFile.class, String.class });
@@ -151,7 +157,7 @@ public class Runtime {
 			/**
 			 * the set of file operation selectors that shall be used to select
 			 * FileSystem methods
-			 */
+			 * /
 			Set<FileOperationSelector> fileOperationSelectors = new HashSet<FileOperationSelector>();
 			fileOperationSelectors.add(FileOperationSelectors.FILE_CONTENT_MODIFICATION);
 			fileOperationSelectors.add(FileOperationSelectors.CREATION_AND_DELETION);
@@ -178,7 +184,7 @@ public class Runtime {
 			}
 		}
 	}
-
+	*/
 	private void handleReplaceCalls() {
 
 		if (!hasAddedRandom && Random.wasAccessed()) {

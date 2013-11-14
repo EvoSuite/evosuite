@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.runtime;
+package org.evosuite.runtime.deprecated;
 
 /**
  * a set of common FileOperationSelectors
@@ -24,6 +24,7 @@ package org.evosuite.runtime;
  * @author Daniel Muth
  * 
  */
+@Deprecated
 final class FileOperationSelectors {
 	
 	public static final FileOperationSelector SELECT_ALL = new FileOperationSelector() {
