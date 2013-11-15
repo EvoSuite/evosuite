@@ -133,26 +133,27 @@ public class CoverageAnalysis {
 
 	private static List<Class<?>> getClassesFromClasspath() {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
-		Pattern pattern = Pattern.compile(Properties.JUNIT_PREFIX + ".*.class");
-		Collection<String> resources = ResourceList.getResources(pattern);
-		LoggingUtils.getEvoLogger().info("* Found " + resources.size()
-		                                         + " classes with prefix "
-		                                         + Properties.JUNIT_PREFIX);
-		if (!resources.isEmpty()) {
-			for (String resource : resources) {
-				try {
-					Class<?> clazz = Class.forName(resource.replaceAll(".class", "").replaceAll("/",
-					                                                                            "."),
-					                               true,
-					                               TestGenerationContext.getClassLoader());
-					if (isTest(clazz)) {
-						classes.add(clazz);
+		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
+			Pattern pattern = Pattern.compile(prefix + ".*.class");
+			Collection<String> resources = ResourceList.getResources(pattern);
+			LoggingUtils.getEvoLogger().info("* Found " + resources.size()
+					+ " classes with prefix " + prefix);
+			if (!resources.isEmpty()) {
+				for (String resource : resources) {
+					try {
+						Class<?> clazz = Class.forName(resource.replaceAll(".class", "").replaceAll("/",
+								"."),
+								true,
+								TestGenerationContext.getClassLoader());
+						if (isTest(clazz)) {
+							classes.add(clazz);
+						}
+					} catch (ClassNotFoundException e2) {
+						// Ignore?
 					}
-				} catch (ClassNotFoundException e2) {
-					// Ignore?
 				}
-			}
 
+			}
 		}
 		return classes;
 	}
