@@ -296,7 +296,7 @@ public class MockFile extends File{
 	public File[] listFiles(FileFilter filter) {
 		String ss[] = list();
 		if (ss == null) return null;
-		ArrayList<File> files = new ArrayList<>();
+		ArrayList<File> files = new ArrayList<File>();
 		for (String s : ss) {
 			File f = new MockFile(this,s);
 			if ((filter == null) || filter.accept(f))
