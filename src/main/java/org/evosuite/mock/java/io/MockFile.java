@@ -18,7 +18,7 @@ import org.evosuite.runtime.vfs.VFolder;
  * 
  * <p>
  * All files are created in memory, and no access to disk is ever done
- * 
+ *   
  * @author arcuri
  *
  */
@@ -68,12 +68,21 @@ public class MockFile extends File{
 	 */
 
 	public static File[] listRoots() {
-		return null; //TODO
+		File[] roots = File.listRoots();
+		MockFile[] mocks = new MockFile[roots.length];
+		for(int i=0; i<roots.length; i++){
+			mocks[i] = new MockFile(roots[i].getAbsolutePath());
+		}
+		return mocks; 
 	}
 
 	public static File createTempFile(String prefix, String suffix, File directory)
 			throws IOException{
-		return null; //TODO
+		String path = VirtualFileSystem.getInstance().createTempFile(prefix, suffix, directory);
+		if(path==null){
+			throw new IOException();
+		}
+		return new MockFile(path); 
 	}
 
 	public static File createTempFile(String prefix, String suffix)

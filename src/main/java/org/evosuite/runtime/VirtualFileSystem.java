@@ -1,8 +1,10 @@
 package org.evosuite.runtime;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
@@ -29,7 +31,10 @@ public class VirtualFileSystem {
 	
 	private VFolder root;
 	
-	private VirtualFileSystem(){		
+	private final AtomicInteger tmpFileCounter;
+	
+	private VirtualFileSystem(){
+		tmpFileCounter = new AtomicInteger(0);
 	}
 	
 	public static VirtualFileSystem getInstance(){
@@ -52,6 +57,43 @@ public class VirtualFileSystem {
 		String workingDir = java.lang.System.getProperty("user.dir");
 		createFolder(workingDir);
 	}
+	
+	/**
+	 * Create a tmp file, and return its absolute path
+	 * 
+	 * @param prefix
+	 * @param suffix
+	 * @param directory
+	 * @return {@code null} if file could not be created
+	 * @throws IOException 
+	 */
+	public String createTempFile(String prefix, String suffix, File directory) throws IllegalArgumentException, IOException{
+		
+		if (prefix.length() < 3)
+            throw new IllegalArgumentException("Prefix string too short");
+        if (suffix == null)
+            suffix = ".tmp";
+		
+        String folder = null;
+        
+        if(directory==null){
+        		folder = java.lang.System.getProperty("java.io.tmpdir");
+        } else {
+        		folder = directory.getAbsolutePath();
+        }
+
+        int counter = tmpFileCounter.getAndIncrement();
+        String fileName = prefix+counter+suffix;
+        String path =  folder+File.separator+fileName;       
+        
+        boolean created = createFile(path);
+        if(!created){
+        		throw new IOException();
+        }
+        
+		return path; 
+	}
+	
 	
 	public boolean exists(String rawPath){
 		return findFSObject(rawPath) != null;
