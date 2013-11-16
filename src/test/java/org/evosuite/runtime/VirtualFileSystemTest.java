@@ -23,6 +23,16 @@ public class VirtualFileSystemTest {
 	}
 	
 	@Test
+	public void testTmpFileCreation() throws IOException{
+		
+		File file = MockFile.createTempFile("foo", ".tmp");
+		Assert.assertTrue(file.exists());
+		String path = file.getAbsolutePath();
+		java.lang.System.out.println(path);
+		Assert.assertTrue(path,path.contains("foo") & path.contains(".tmp"));
+	}
+	
+	@Test
 	public void testWorkingDirectoryExists(){
 		MockFile workingDir = new MockFile(java.lang.System.getProperty("user.dir"));
 		Assert.assertTrue(workingDir.exists());
