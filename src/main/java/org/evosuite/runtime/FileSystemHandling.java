@@ -1,5 +1,8 @@
 package org.evosuite.runtime;
 
+import org.evosuite.runtime.vfs.FSObject;
+import org.evosuite.runtime.vfs.VFile;
+
 /**
  * This class is used create files as test data
  * in the test cases.
@@ -40,27 +43,84 @@ public class FileSystemHandling {
 	 * @return
 	 */
 	public static boolean appendDataToFile(EvoSuiteFile file, byte[] data){
-		return false; //TODO
+		
+		if(data==null){
+			return false;
+		}
+		
+		FSObject target = VirtualFileSystem.getInstance().findFSObject(file.getPath());
+		//can we write to it?
+		if(target!=null && (target.isFolder() || !target.isWritePermission())){
+			return false;
+		}
+		
+		if(target==null){
+			//if it does not exist, let's create it
+			boolean created = VirtualFileSystem.getInstance().createFile(file.getPath());
+			if(!created){
+				return false;
+			}
+			target = VirtualFileSystem.getInstance().findFSObject(file.getPath());
+			assert target != null;
+		}
+		
+		VFile vf = (VFile) target;
+		vf.writeBytes(data, 0, data.length, true);
+		
+		return true;
 	}
 	
 	
-	public static boolean createFolder(EvoSuiteFile file){
-		return false; //TODO
+	public static boolean createFolder(EvoSuiteFile file){		
+		return VirtualFileSystem.getInstance().createFolder(file.getPath());
 	}
 	
 	public static boolean setReadable(EvoSuiteFile file, boolean isReadable){
-		return false; //TODO
+		FSObject target = VirtualFileSystem.getInstance().findFSObject(file.getPath());
+		if(target == null){
+			return false; 
+		}
+		
+		target.setExecutePermission(isReadable);
+		return true;
 	}
 
 	public static boolean setWritable(EvoSuiteFile file, boolean isWritable){
-		return false; //TODO
+		FSObject target = VirtualFileSystem.getInstance().findFSObject(file.getPath());
+		if(target == null){
+			return false; 
+		}
+		
+		target.setWritePermission(isWritable);
+		return true;
 	}
 
 	public static boolean setExecutable(EvoSuiteFile file, boolean isExecutable){
-		return false; //TODO
+		FSObject target = VirtualFileSystem.getInstance().findFSObject(file.getPath());
+		if(target == null){
+			return false; 
+		}
+		
+		target.setExecutePermission(isExecutable);
+		return true;
 	}
 	
-	public static boolean shouldThrowIOException(EvoSuiteFile file, boolean shouldThrow){
+	/**
+	 * All operations on the given {@code file} will throw an IOException if that
+	 * appears in their method signature
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public static boolean shouldThrowIOException(EvoSuiteFile file){
+		return false; //TODO
+	}
+
+	/**
+	 * All operations in the entire VFS will throw an IOException if that
+	 * appears in their method signature
+	 */
+	public static boolean shouldAllIOThrowIOExceptions(){
 		return false; //TODO
 	}
 }
