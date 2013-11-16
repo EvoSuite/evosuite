@@ -99,6 +99,12 @@ public class VirtualFileSystem {
 		return findFSObject(rawPath) != null;
 	}
 	
+	/**
+	 * Return the VFS object represented by the given {@code rowPath}.
+	 * 
+	 * @param rawPath
+	 * @return {@code null} if the object does not exist in the VFS
+	 */
 	public FSObject findFSObject(String rawPath){
 		String[] tokens = tokenize(new File(rawPath).getAbsolutePath());
 		
