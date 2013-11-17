@@ -74,7 +74,7 @@ public class MockFileInputStream extends FileInputStream{
 			throw new IOException();
 		}
 		
-		//TODO simulate IOException if needed
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
 		
 		int b = vf.read(position.getAndIncrement());
 				
@@ -103,6 +103,7 @@ public class MockFileInputStream extends FileInputStream{
 		if(n<0){
 			throw new IOException();
 		}
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
 		position.addAndGet((int)n);
 		return n; 
 	}
@@ -114,6 +115,8 @@ public class MockFileInputStream extends FileInputStream{
 		if(vf==null){
 			throw new IOException();
 		}
+		
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
 		
 		int size = vf.getDataSize();
 		int available = size - position.get();
@@ -144,6 +147,7 @@ public class MockFileInputStream extends FileInputStream{
 			channel.close();
 		}
 
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
 	}
 
 	/*  //Cannot be overriden
