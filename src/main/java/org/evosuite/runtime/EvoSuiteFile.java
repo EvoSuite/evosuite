@@ -20,6 +20,8 @@
  */
 package org.evosuite.runtime;
 
+import java.io.File;
+
 /**
  * A object wrapper for file paths accessed by the SUTs.
  *   
@@ -35,7 +37,7 @@ public class EvoSuiteFile {
 	 * @param path a {@link java.lang.String} object.
 	 */
 	public EvoSuiteFile(String path) {
-		this.path = path;
+		this.path = (new File(path)).getAbsolutePath();
 	}
 
 	/**

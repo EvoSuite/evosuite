@@ -3,7 +3,10 @@ package org.evosuite.runtime;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.runtime.vfs.FSObject;
@@ -26,26 +29,107 @@ import org.evosuite.runtime.vfs.VFolder;
  */
 public class VirtualFileSystem {
 
-
+	/**
+	 * The only instance of this class
+	 */
 	private static final VirtualFileSystem singleton = new VirtualFileSystem();
 	
+	/**
+	 * The root of the VFS
+	 */
 	private VFolder root;
 	
+	/**
+	 * An atomic counter for generating unique names for tmp files
+	 */
 	private final AtomicInteger tmpFileCounter;
 	
+	/**
+	 * Regular files that are accessed during the search.
+	 * Tmp files are not considered, as they are not interesting from
+	 * a point of view of generating test data.
+	 * 
+	 * <p>
+	 * Ideally we should only keep track of what the SUT reads, and not the files
+	 * it generates. However, for testing purposes, if SUT tries to write to file X,
+	 * then it would be still important to consider the case in which X already exists.
+	 */
+	private final Set<String> accessedFiles;
+	
+	/**
+	 * Check if all operations in this VFS should throw IOException
+	 */
+	private volatile boolean shouldAllThrowIOException;
+	
+	/**
+	 * The classes in this set are marked to throw IOException
+	 */
+	private final Set<String> classesThatShouldThrowIOException;
+	
+	/**
+	 * Hidden, main constructor
+	 */
 	private VirtualFileSystem(){
 		tmpFileCounter = new AtomicInteger(0);
+		accessedFiles = new HashSet<String>(); //we only add during test execution, and read after
+		classesThatShouldThrowIOException = new CopyOnWriteArraySet<String>(); //should only contain very few values
 	}
 	
+	/**
+	 * Get the final instance of this singleton 
+	 * 
+	 * @return
+	 */
 	public static VirtualFileSystem getInstance(){
 		return singleton;
 	}
 	
 	
+	/**
+	 * Reset the internal state of this singleton
+	 */
 	public void resetSingleton(){
 		root = null;
+		tmpFileCounter.set(0);
+		accessedFiles.clear();
+		shouldAllThrowIOException = false;
+		classesThatShouldThrowIOException.clear();
 	}
 	
+	public void throwSimuledIOExceptionIfNeeded(String path) throws IOException{
+		if(isClassSupposedToThrowIOException(path)){
+			throw new IOException("Simulated IOException");
+		}
+	}
+	
+	public boolean isClassSupposedToThrowIOException(String path){
+		if(shouldAllThrowIOException || classesThatShouldThrowIOException.contains(path)){
+			return true;
+		}
+		return false;
+	}
+	
+	public  boolean setShouldThrowIOException(EvoSuiteFile file){
+		String path = file.getPath();
+		if(classesThatShouldThrowIOException.contains(path)){
+			return false;
+		}
+		classesThatShouldThrowIOException.add(path);
+		return true;
+	}
+
+	/**
+	 * All operations in the entire VFS will throw an IOException if that
+	 * appears in their method signature
+	 */
+	public  boolean setShouldAllThrowIOExceptions(){
+		if(shouldAllThrowIOException) {
+			return false; 
+		}
+		shouldAllThrowIOException = true;
+		return true;
+	}
+
 	/**
 	 * Initialize the virtual file system with the current directory the JVM
 	 * was started from
@@ -56,6 +140,10 @@ public class VirtualFileSystem {
 		
 		String workingDir = java.lang.System.getProperty("user.dir");
 		createFolder(workingDir);
+	}
+	
+	private void markAccessedFile(String path){
+		accessedFiles.add(path);
 	}
 	
 	/**
@@ -93,8 +181,7 @@ public class VirtualFileSystem {
         
 		return path; 
 	}
-	
-	
+		
 	public boolean exists(String rawPath){
 		return findFSObject(rawPath) != null;
 	}
@@ -106,7 +193,10 @@ public class VirtualFileSystem {
 	 * @return {@code null} if the object does not exist in the VFS
 	 */
 	public FSObject findFSObject(String rawPath){
-		String[] tokens = tokenize(new File(rawPath).getAbsolutePath());
+		String path = new File(rawPath).getAbsolutePath();
+		String[] tokens = tokenize(path);
+		
+		markAccessedFile(path);
 		
 		VFolder parent = root;
 		for(int i=0; i<tokens.length; i++){
@@ -142,6 +232,10 @@ public class VirtualFileSystem {
 	}
 	
 	public boolean createFile(String rawPath){
+		return createFile(rawPath,false);
+	}
+	
+	private boolean createFile(String rawPath, boolean tmp){
 		String parent = new File(rawPath).getParent();
 		boolean created = createFolder(parent);
 		if(!created){
@@ -151,6 +245,11 @@ public class VirtualFileSystem {
 		VFolder folder = (VFolder)findFSObject(parent);
 		VFile file = new VFile(rawPath,folder);
 		folder.addChild(file);
+		
+		if(!tmp){
+			markAccessedFile(file.getPath());
+		}
+		
 		return true;
 	}
 	
@@ -180,6 +279,8 @@ public class VirtualFileSystem {
 			parent.addChild(folder);
 			parent = folder;
 		}
+		
+		markAccessedFile(parent.getPath());
 		
 		return true;
 	}

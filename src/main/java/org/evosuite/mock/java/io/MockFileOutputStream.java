@@ -99,7 +99,7 @@ public class MockFileOutputStream extends FileOutputStream{
 			throw new IOException();
 		}
 		
-		//TODO simulate IOException if needed
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
 		
 		VFile vf = (VFile) target;
 		boolean written = vf.writeBytes(b, off, len, append);
@@ -137,6 +137,8 @@ public class MockFileOutputStream extends FileOutputStream{
 		if (channel != null) {
 			channel.close();
 		}
+		
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
 	}
 
 	/* 

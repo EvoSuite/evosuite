@@ -103,7 +103,8 @@ public class TestabilityTransformationClassLoader extends ClassLoader {
 		//if (instrumentation.isTargetProject(name)) {
 		// if (TestCluster.isTargetClassName(name)) {
 		if (!checkIfCanInstrument(name)
-		        || (Properties.VIRTUAL_FS && (name.startsWith("org.apache.commons.vfs") || name.startsWith("org.apache.commons.logging")))) {
+		        //|| (Properties.VIRTUAL_FS && (name.startsWith("org.apache.commons.vfs") || name.startsWith("org.apache.commons.logging")))
+		        ) {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {
 				return result;

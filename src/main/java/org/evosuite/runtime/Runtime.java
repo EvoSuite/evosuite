@@ -20,7 +20,6 @@
  */
 package org.evosuite.runtime;
 
-import java.io.EvoSuiteIO;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,15 +76,10 @@ public class Runtime {
 			System.reset();
 		}
 
-		if (Properties.VIRTUAL_FS) {
-			//TODO
-			
-			/*
+		if (Properties.VIRTUAL_FS) {			
 			logger.info("Resetting the VFS...");
-			FileSystem.reset();
-			logger.info("Enabling the VFS...");
-			EvoSuiteIO.enableVFS();
-			*/
+			VirtualFileSystem.getInstance().resetSingleton();
+			VirtualFileSystem.getInstance().init();
 		}
 	}
 

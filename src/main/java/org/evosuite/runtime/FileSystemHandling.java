@@ -8,9 +8,12 @@ import org.evosuite.runtime.vfs.VFile;
  * in the test cases.
  * 
  * <p>
- * The methods in this class are the only ones that are going
+ * The methods in this class are the main ones that are going
  * to be used in the generated JUnit files to manipulate
  * the virtual file system.
+ * Note: if SUT takes as input a {@code File}, then it can happen
+ * that mock {@code java.io} objects manipulating the VFS will appear in the test
+ * cases.
  * 
  * @author arcuri
  *
@@ -75,32 +78,23 @@ public class FileSystemHandling {
 		return VirtualFileSystem.getInstance().createFolder(file.getPath());
 	}
 	
-	public static boolean setReadable(EvoSuiteFile file, boolean isReadable){
+	/**
+	 * Set read/write/execute permissions to the given file
+	 * 
+	 * @param file
+	 * @param isReadable
+	 * @param isWritable
+	 * @param isExecutable
+	 * @return
+	 */
+	public static boolean setPermissions(EvoSuiteFile file, boolean isReadable, boolean isWritable, boolean isExecutable){
 		FSObject target = VirtualFileSystem.getInstance().findFSObject(file.getPath());
 		if(target == null){
 			return false; 
 		}
 		
 		target.setExecutePermission(isReadable);
-		return true;
-	}
-
-	public static boolean setWritable(EvoSuiteFile file, boolean isWritable){
-		FSObject target = VirtualFileSystem.getInstance().findFSObject(file.getPath());
-		if(target == null){
-			return false; 
-		}
-		
 		target.setWritePermission(isWritable);
-		return true;
-	}
-
-	public static boolean setExecutable(EvoSuiteFile file, boolean isExecutable){
-		FSObject target = VirtualFileSystem.getInstance().findFSObject(file.getPath());
-		if(target == null){
-			return false; 
-		}
-		
 		target.setExecutePermission(isExecutable);
 		return true;
 	}
@@ -120,7 +114,7 @@ public class FileSystemHandling {
 	 * All operations in the entire VFS will throw an IOException if that
 	 * appears in their method signature
 	 */
-	public static boolean shouldAllIOThrowIOExceptions(){
+	public static boolean shouldAllThrowIOExceptions(){
 		return false; //TODO
 	}
 }

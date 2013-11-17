@@ -78,6 +78,9 @@ public class MockFile extends File{
 
 	public static File createTempFile(String prefix, String suffix, File directory)
 			throws IOException{
+		
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded("");
+		
 		String path = VirtualFileSystem.getInstance().createTempFile(prefix, suffix, directory);
 		if(path==null){
 			throw new IOException();
@@ -114,6 +117,9 @@ public class MockFile extends File{
 	@Override
 	public File getCanonicalFile() throws IOException {
 		String canonPath = getCanonicalPath();
+		
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(getAbsolutePath());
+		
 		return new MockFile(canonPath);
 	}
 
@@ -250,7 +256,8 @@ public class MockFile extends File{
 
 	@Override
 	public boolean createNewFile() throws IOException {
-		 return VirtualFileSystem.getInstance().createFile(getAbsolutePath());
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(getAbsolutePath()); 
+		return VirtualFileSystem.getInstance().createFile(getAbsolutePath());
 	}
 
 	@Override
@@ -344,6 +351,7 @@ public class MockFile extends File{
 
 	@Override
 	public String getCanonicalPath() throws IOException {
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(getAbsolutePath()); 
 		return super.getCanonicalPath();
 	}
 
