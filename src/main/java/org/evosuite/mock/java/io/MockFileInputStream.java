@@ -39,7 +39,7 @@ public class MockFileInputStream extends FileInputStream{
 	}
 
 	public MockFileInputStream(File file) throws FileNotFoundException {
-		super(file); // just to make compiler happy
+		super(VirtualFileSystem.getInstance().getRealTmpFile()); // just to make compiler happy
 		
 		path = (file != null ? file.getAbsolutePath() : null);
 		if (path == null) {

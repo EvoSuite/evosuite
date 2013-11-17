@@ -48,9 +48,44 @@ public class VirtualFileSystemTest {
 	}
 	
 	@Test
+	public void testReadingNonExistingFile() throws IOException{
+		String fileName = "this_file_should_not_exist";
+		File realFile = new File(fileName);
+		Assert.assertFalse(realFile.exists());
+		
+		try{
+			MockFileInputStream in = new MockFileInputStream(realFile);
+			Assert.fail(); //real file does not exist
+		} catch(FileNotFoundException e){			
+		}
+		
+		File mockFile = new MockFile(fileName);
+		Assert.assertFalse(mockFile.exists());
+		
+		try{
+			MockFileInputStream in = new MockFileInputStream(mockFile);
+			Assert.fail(); // also the mock file does not exist (yet)
+		} catch(FileNotFoundException e){			
+		}
+		
+		boolean created = mockFile.createNewFile();
+		Assert.assertTrue(created);
+		Assert.assertTrue(mockFile.exists());
+		Assert.assertFalse(realFile.exists()); //real file shouldn's have been created
+		
+		//following should work even if real file does not exist
+		MockFileInputStream in = new MockFileInputStream(mockFile);
+	}
+	
+	@Test
 	public void testWriteToFile() throws IOException{
 		
-		File file = new MockFile("foo");
+		String fileName = "foo_written_with_FOS";
+		File realFile = new File(fileName);
+		realFile.deleteOnExit(); // be sure to get it deleted in case we accidently create it
+		Assert.assertFalse(realFile.exists());
+		
+		File file = new MockFile(fileName);
 		Assert.assertFalse(file.exists());
 		
 		byte[] data = new byte[]{42};
@@ -67,6 +102,9 @@ public class VirtualFileSystemTest {
 		} catch(Exception e){
 			//this is expected, as the stream is closed
 		}
+		
+		//be sure that no real file was created
+		Assert.assertFalse(realFile.exists());
 	}
 	
 	@Test

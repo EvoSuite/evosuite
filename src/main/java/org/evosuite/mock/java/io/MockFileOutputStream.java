@@ -49,7 +49,8 @@ public class MockFileOutputStream extends FileOutputStream{
 
 
 	public MockFileOutputStream(File file, boolean append) throws FileNotFoundException{
-		super(file,append); //just to make the compiler happy
+		
+		super(VirtualFileSystem.getInstance().getRealTmpFile(),true); //just to make the compiler happy
 		
 		path = (file != null ? file.getAbsolutePath() : null);
 		this.append = append;
