@@ -53,6 +53,7 @@ import javax.xml.ws.WebServicePermission;
 import org.evosuite.Properties;
 import org.evosuite.Properties.SandboxMode;
 import org.evosuite.rmi.service.MasterNodeRemote;
+import org.evosuite.runtime.VirtualFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1039,6 +1040,11 @@ class MSecurityManager extends SecurityManager {
 			return true;
 		}
 
+		if(fp.getName().equals(VirtualFileSystem.getInstance().getRealTmpFile().getPath())){
+			//we need at least one real file with all permissions, otherwise the VFS will not work
+			return true;
+		}
+		
 		/*
 		 * explanatory note by Daniel concerning integration of this security manager with VFS functionality (-Dvirtual_fs=true):
 		 * 
@@ -1061,15 +1067,15 @@ class MSecurityManager extends SecurityManager {
 		 * FIXME: "contains" is pretty unsecure, and we should check actual path hierarchy. Eg, SUT could create a file named
 		 * $Properties.SANDBOX_FOLDER anywhere in the file system
 		 */
+		/*
 		if (fp.getName().contains(Properties.SANDBOX_FOLDER)) {
-			/*
-			 * need to check "execute". in some cases, for browising directory we need "execute", but we don't want to execute files!!! (eg scripts)
-			 */
+			 // need to check "execute". in some cases, for browising directory we need "execute", but we don't want to execute files!!! (eg scripts)
 			if (action.equals("write") || action.equals("delete")) {
 				// return true; //TODO allow it once the I/O is fixed and properly tested
 			}
 		}
-
+		 */
+		
 		return false;
 	}
 }

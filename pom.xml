@@ -222,7 +222,7 @@
 							</archive>
 							<descriptors>
 								<!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
-								<descriptor>src/main/assembly/evosuite-io.xml</descriptor>
+								<!--  <descriptor>src/main/assembly/evosuite-io.xml</descriptor> -->
 								<descriptor>src/main/assembly/jar-exsyst.xml</descriptor>
 								<descriptor>src/main/assembly/jar-minimal.xml</descriptor>
 								<!-- <descriptor>src/main/assembly/bin.xml</descriptor> -->
@@ -372,11 +372,12 @@
 			<artifactId>graphviz-api</artifactId>
 			<version>1.1</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.evosuite</groupId>
 			<artifactId>evosuite-io</artifactId>
 			<version>0.5.3</version>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>oro</groupId>
 			<artifactId>oro</artifactId>
@@ -517,7 +518,7 @@
 					</archive>
 					<descriptors>
 						<!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
-						<descriptor>src/main/assembly/evosuite-io.xml</descriptor>
+						<!--  <descriptor>src/main/assembly/evosuite-io.xml</descriptor>  -->
 						<!-- <descriptor>src/main/assembly/jar-exsyst.xml</descriptor> -->
 						<descriptor>src/main/assembly/jar-minimal.xml</descriptor>
 						<!-- <descriptor>src/main/assembly/bin.xml</descriptor> -->

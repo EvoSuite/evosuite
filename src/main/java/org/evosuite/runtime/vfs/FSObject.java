@@ -96,6 +96,12 @@ public abstract class FSObject {
 		return path == null ? "" : path;
 	}
 
+	/**
+	 * Once a file/folder is deleted, it shouldn't be accessible any more from the VFS.
+	 * But in case some thread holds a reference to this instance, we need to mark 
+	 * that it is supposed to be deleted
+	 * @return
+	 */
 	public boolean isDeleted() {
 		return deleted;
 	}
