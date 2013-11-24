@@ -532,14 +532,18 @@ public class TestClusterGenerator {
 							 */
 							try {
 								Object o = field.get(null);
-								Class<?> actualClass = o.getClass();
-								logger.debug("Actual class is " + actualClass);
-								if (!actualClass.isAssignableFrom(genericField.getRawGeneratedType())
-								        && genericField.getRawGeneratedType().isAssignableFrom(actualClass)) {
-									GenericField superClassField = new GenericField(
-									        field, clazz);
-									cluster.addGenerator(new GenericClass(actualClass),
-									                     superClassField);
+								if(o == null) {
+									logger.info("Field is not yet initialized: "+field);
+								} else {
+									Class<?> actualClass = o.getClass();
+									logger.debug("Actual class is " + actualClass);
+									if (!actualClass.isAssignableFrom(genericField.getRawGeneratedType())
+											&& genericField.getRawGeneratedType().isAssignableFrom(actualClass)) {
+										GenericField superClassField = new GenericField(
+												field, clazz);
+										cluster.addGenerator(new GenericClass(actualClass),
+												superClassField);
+									}
 								}
 							} catch (IllegalAccessException e) {
 								// TODO Auto-generated catch block

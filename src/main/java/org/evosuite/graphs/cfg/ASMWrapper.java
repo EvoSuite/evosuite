@@ -549,7 +549,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isUse() {
-		return isFieldUse() || isLocalVariableUse();
+		return isFieldUse() || isLocalVariableUse() || isArrayLoadInstruction();
 	}
 
 	public abstract boolean isFieldMethodCallDefinition();
@@ -627,16 +627,24 @@ public abstract class ASMWrapper {
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getVariableName() {
-		if (isArrayStoreInstruction())
+		if (isArrayStoreInstruction()) {
 			return getArrayVariableName();
-		else if (isLocalDU())
+		}
+		else if(isArrayLoadInstruction()) {
+			return getArrayVariableName();
+		}
+		else if (isLocalDU()) {
 			return getLocalVariableName();
-		else if (isMethodCallOfField())
+		}
+		else if (isMethodCallOfField()) {
 			return getFieldMethodCallName();
-		else if (isFieldDU())
+		}
+		else if (isFieldDU()) {
 			return getFieldName();
-		else
+		}
+		else {
 			return null;
+		}
 	}
 
 	/**
@@ -686,7 +694,8 @@ public abstract class ASMWrapper {
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String getLocalVariableName() {
-		return getMethodName() + "_LV_" + getLocalVariableSlot();
+		String ret = getMethodName() + "_LV_" + getLocalVariableSlot();
+		return ret;
 	}
 
 	// TODO unsafe
@@ -753,9 +762,10 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean loadsReferenceToThis() {
-		if (getRawCFG().isStaticMethod())
+		if (getRawCFG().isStaticMethod()) {
 			return false;
-
+		}
+		
 		return asmNode.getOpcode() == Opcodes.ALOAD && getLocalVariableSlot() == 0;
 	}
 
@@ -802,6 +812,14 @@ public abstract class ASMWrapper {
 		        || asmNode.getOpcode() == Opcodes.FASTORE
 		        || asmNode.getOpcode() == Opcodes.DASTORE
 		        || asmNode.getOpcode() == Opcodes.AASTORE;
+	}
+	
+	public boolean isArrayLoadInstruction() {
+		return asmNode.getOpcode() == Opcodes.IALOAD
+		        || asmNode.getOpcode() == Opcodes.LALOAD
+		        || asmNode.getOpcode() == Opcodes.FALOAD
+		        || asmNode.getOpcode() == Opcodes.DALOAD
+		        || asmNode.getOpcode() == Opcodes.AALOAD;
 	}
 
 	protected String getArrayVariableName() {

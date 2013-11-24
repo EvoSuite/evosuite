@@ -92,7 +92,6 @@ public class InheritanceTree {
 
 	public Set<String> getSuperclasses(String className) {
 		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
-
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
 		        inheritanceGraph);
 		Set<String> result = new LinkedHashSet<String>();

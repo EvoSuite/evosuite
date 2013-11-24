@@ -186,7 +186,7 @@ public class TestGeneration {
 		
 		if (!findTargetClass(target)) {
 			return Arrays.asList(new TestGenerationResult[]{TestGenerationResultBuilder.buildErrorResult("Could not find target class") });
-		}
+		}	
 
 		if (!classPath.isEmpty())
 			classPath += File.pathSeparator;
@@ -457,9 +457,17 @@ public class TestGeneration {
 		}
 		
 		logger.debug("Master process has finished to wait for client");
-		if (Properties.NEW_STATISTICS)
-			SearchStatistics.getInstance().writeStatistics();
-		return SearchStatistics.getInstance().getTestGenerationResults();
+		if (Properties.NEW_STATISTICS) {
+			if(MasterServices.getInstance().getMasterNode() == null) {
+				logger.warn("Cannot write results as RMI master node is not running");
+			} else {
+				SearchStatistics.getInstance().writeStatistics();
+			}
+		}
+		if(MasterServices.getInstance().getMasterNode() != null)
+			return SearchStatistics.getInstance().getTestGenerationResults();
+		else
+			return new ArrayList<TestGenerationResult>();
 	}
 
 	

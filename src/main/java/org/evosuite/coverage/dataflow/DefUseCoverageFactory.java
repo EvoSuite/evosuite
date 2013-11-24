@@ -107,6 +107,7 @@ public class DefUseCoverageFactory extends
 	public static void computeGoals() {
 
 		categorizeFieldMethodCalls();
+		
 
 		// XXX testing purposes
 		/*for(String methodInCCFG : GraphPool.getInstance(TestGenerationContext.getClassLoader()).getRawCFGs(Properties.TARGET_CLASS).keySet()) {
@@ -119,6 +120,11 @@ public class DefUseCoverageFactory extends
 		long start = System.currentTimeMillis();
 		LoggingUtils.getEvoLogger().info("starting DefUse-Coverage goal generation");
 		duGoals = new ArrayList<DefUseCoverageTestFitness>();
+		if(!GraphPool.getInstance(TestGenerationContext.getClassLoader()).canMakeCCFGForClass(Properties.TARGET_CLASS)) {
+			goals = new ArrayList<DefUseCoverageTestFitness>();
+			logger.info("Have no CFGs, is this an interface?");
+			return;
+		}
 
 		LoggingUtils.getEvoLogger().info("* Creating DefUse-Pairs from CCFG...");
 		duGoals.addAll(getCCFGPairs());

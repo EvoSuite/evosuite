@@ -284,11 +284,15 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		else {
 			Iterator<Assertion> iterator = assertions.iterator();
 			VariableReference ret = statement.getReturnValue();
+			VariableReference callee = null;
+			if(statement instanceof MethodStatement) {
+				callee = ((MethodStatement)statement).getCallee();
+			}
 			boolean just = true;
 			while (iterator.hasNext()) {
 				Assertion ass = iterator.next();
 				if (!(ass instanceof NullAssertion)) {
-					if (ass.getReferencedVariables().contains(ret)) {
+					if (ass.getReferencedVariables().contains(ret) || ass.getReferencedVariables().contains(callee)) {
 						just = false;
 						break;
 					}
