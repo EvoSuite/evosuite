@@ -17,13 +17,10 @@
  */
 package org.evosuite.instrumentation;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
 import org.evosuite.utils.ResourceList;
@@ -158,51 +155,21 @@ public class InstrumentingClassLoader extends ClassLoader {
 		*/
 	}
 
-	private InputStream findTargetResource(String name) throws FileNotFoundException {
-		Pattern pattern = Pattern.compile(name);
-		Collection<String> resources = ResourceList.getResources(pattern);
-		if (resources.isEmpty())
-			throw new FileNotFoundException(name);
-		else
-			return new FileInputStream(resources.iterator().next());
-	}
-
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
 	        throws ClassNotFoundException {
 		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
 		
+		InputStream is = null;
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
 
-			/*
-			 * TODO: We will need something like this
-			 * but need to make sure that we properly
-			 * open the target as an input stream
-			 * 
-			Pattern pattern = Pattern.compile(className + "\\.class");
-			Collection<String> resources = ResourceList.getResources(pattern);
-			InputStream is = null;
-			if (resources.isEmpty()) {
-				try {
-					is = findTargetResource(".*" + className + ".class");
-				} catch (FileNotFoundException e) {
-					throw new ClassNotFoundException("Class '" + className + ".class"
-					        + "' should be in target project, but could not be found!");
-				}
-			} else {
-				String input = resources.iterator().next();
-				is = new FileInputStream(input);
-			}
-			*/
-			InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
+			is = ResourceList.getClassAsStream(fullyQualifiedTargetClass);
+			
 			if (is == null) {
-				try {
-					is = findTargetResource(".*" + className + ".class");
-				} catch (FileNotFoundException e) {
-					throw new ClassNotFoundException("Class '" + className + ".class"
-					        + "' should be in target project, but could not be found!");
-				}
+				throw new ClassNotFoundException("Class '" + className + ".class"
+						+ "' should be in target project, but could not be found!");
 			}
+			
 			byte[] byteBuffer = instrumentation.transformBytes(this, className,
 			                                                   new ClassReader(is));
 			createPackageDefinition(fullyQualifiedTargetClass);
@@ -212,7 +179,18 @@ public class InstrumentingClassLoader extends ClassLoader {
 			logger.info("Keeping class: " + fullyQualifiedTargetClass);
 			return result;
 		} catch (Throwable t) {
+			logger.error("ERROR OCCURRED: "+t);
+			for(StackTraceElement elem : t.getStackTrace()) {
+				logger.error(elem.toString());
+			}
 			throw new ClassNotFoundException(t.getMessage(), t);
+		} finally {
+			if(is != null)
+				try {
+					is.close();
+				} catch (IOException e) {
+					throw new Error(e);
+				}
 		}
 	}
 	
