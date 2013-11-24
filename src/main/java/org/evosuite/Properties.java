@@ -324,6 +324,9 @@ public class Properties {
 	@Parameter(key = "local_search_selective", group = "Search Algorithm", description = "Apply local search only to individuals that changed fitness")
 	public static boolean LOCAL_SEARCH_SELECTIVE = false;
 
+	@Parameter(key = "local_search_selective_primitives", group = "Search Algorithm", description = "Only check primitives for selective LS")
+	public static boolean LOCAL_SEARCH_SELECTIVE_PRIMITIVES = false;
+
 	@Parameter(key = "local_search_expand_tests", group = "Search Algorithm", description = "Expand test cases before applying local search such that each primitive is used only once")
 	public static boolean LOCAL_SEARCH_EXPAND_TESTS = true;
 
@@ -628,6 +631,9 @@ public class Properties {
 	@Parameter(key = "junit_tests", group = "Output", description = "Create JUnit test suites")
 	public static boolean JUNIT_TESTS = true;
 
+	@Parameter(key = "junit_check", group = "Output", description = "Compile and run resulting JUnit test suite")
+	public static boolean JUNIT_CHECK = true;
+
 	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
 	public static String JUNIT_SUFFIX = "EvoSuiteTest";
 
@@ -719,7 +725,7 @@ public class Properties {
 	public static AssertionStrategy ASSERTION_STRATEGY = AssertionStrategy.MUTATION;
 
 	@Parameter(key = "filter_assertions", group = "Output", description = "Filter flaky assertions")
-	public static boolean FILTER_ASSERTIONS = true;
+	public static boolean FILTER_ASSERTIONS = false;
 
 	@Parameter(key = "max_mutants_per_test", group = "Output", description = "How many mutants to use when trying to find assertions for a test")
 	public static int MAX_MUTANTS_PER_TEST = 100;

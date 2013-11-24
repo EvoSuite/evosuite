@@ -334,7 +334,7 @@ public class TestSuiteGenerator {
 		List<TestCase> testCases = tests.getTests();
 
 		if (Properties.JUNIT_TESTS) {
-			if (JUnitAnalyzer.isJavaCompilerAvailable()) {
+			if (Properties.JUNIT_CHECK && JUnitAnalyzer.isJavaCompilerAvailable()) {
 				LoggingUtils.getEvoLogger().info("* Compiling and checking tests");
 
 				JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
@@ -638,6 +638,14 @@ public class TestSuiteGenerator {
 
 		// progressMonitor.updateStatus(66);
 
+		if (Properties.INLINE) {
+			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
+			ConstantInliner inliner = new ConstantInliner();
+			// progressMonitor.setCurrentPhase("Inlining constants");
+			inliner.inline(best);
+			assert (fitness >= best.getFitness());
+		}
+		
 		if (Properties.MINIMIZE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
@@ -646,13 +654,6 @@ public class TestSuiteGenerator {
 			minimizer.minimize(best);
 		}
 
-		if (Properties.INLINE) {
-			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
-			ConstantInliner inliner = new ConstantInliner();
-			// progressMonitor.setCurrentPhase("Inlining constants");
-			inliner.inline(best);
-			assert (fitness >= best.getFitness());
-		}
 
 		if (Properties.COVERAGE) {
 			CoverageAnalysis.analyzeCoverage(best, Properties.CRITERION);
