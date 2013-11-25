@@ -217,17 +217,13 @@ public class TestChromosome extends ExecutableChromosome {
 
 		for (TestMutationHistoryEntry mutation : mutationHistory) {
 			logger.info("Considering: " + mutation.getMutationType());
-			if (mutation.getMutationType() != TestMutationHistoryEntry.TestMutation.DELETION) {
-				for (StatementInterface s : test) {
-					logger.info(s.toString());
-				}
-				logger.info("-> " + mutation.getStatement());
-				logger.info("=> " + mutation.getStatement().getPosition());
-			}
 
 			if (mutation.getMutationType() != TestMutationHistoryEntry.TestMutation.DELETION
-			        && mutation.getStatement().getPosition() <= lastPosition
-			        && mutation.getStatement() instanceof PrimitiveStatement<?>) {
+			        && mutation.getStatement().getPosition() <= lastPosition) {
+				if(Properties.LOCAL_SEARCH_SELECTIVE_PRIMITIVES) {
+					if(!(mutation.getStatement() instanceof PrimitiveStatement<?>))
+						continue;
+				}
 				if (!test.hasReferences(mutation.getStatement().getReturnValue())
 				        && !mutation.getStatement().getReturnClass().equals(Properties.getTargetClass())) {
 					continue;

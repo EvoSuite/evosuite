@@ -18,8 +18,11 @@
 
 package org.evosuite.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -29,6 +32,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,6 +104,136 @@ public class ResourceList {
 	}
 	
 	/**
+	 * 
+	 * @param pattern
+	 * @return A InputStream object or null if no resource with this name is found
+	 */
+	public static InputStream getResourceAsStream(final Pattern pattern) {
+		String[] classPathElements = ClassPathHandler.getInstance().getTargetProjectClasspath().split(File.pathSeparator);
+		for (final String element : classPathElements) {
+			InputStream input = getResourceAsStream(element, pattern);
+			if(input != null)
+				return input;
+		}
+		
+		return null;
+	}
+	
+	public static InputStream getClassAsStream(String name) {
+		String path = name.replace('.', '/') + ".class";
+		String escapedString = java.util.regex.Pattern.quote(path); //Important in case there is $ in the classname
+		Pattern pattern = Pattern.compile(escapedString);
+		return getResourceAsStream(pattern);
+	}
+	
+	public static InputStream getResourceAsStream(final String classPathElement,
+			final Pattern pattern) throws IllegalArgumentException {
+
+		final File file = new File(classPathElement);
+
+		if (!file.exists()) {
+			throw new IllegalArgumentException("The class path resource "
+					+ file.getAbsolutePath() + " does not exist");
+		}
+
+		InputStream input = null;
+		
+		if (file.isDirectory()) {
+			try {
+				input = getResourceFromDirectoryAsStream(file, pattern,
+						file.getCanonicalPath());
+			} catch (IOException e) {
+				logger.error("Error in getting resources", e);
+				throw new RuntimeException(e);
+			}
+		} else if (file.getName().endsWith(".jar")) {
+			input = getResourceFromJarFileAsStream(file, pattern);
+		} else {
+			throw new IllegalArgumentException("The class path resource "
+					+ file.getAbsolutePath() + " is not valid");
+		}
+		return input;
+	}
+	
+	private static InputStream getResourceFromJarFileAsStream(final File file,
+			final Pattern pattern) {
+
+		ZipFile jf;
+		try {
+			jf = new ZipFile(file);
+		} catch (final Exception e) {
+			throw new Error(e);
+		}
+
+		final Enumeration<?> e = jf.entries();
+		try {
+			while (e.hasMoreElements()) {
+				final ZipEntry ze = (ZipEntry) e.nextElement();
+				final String fileName = ze.getName();
+				final boolean accept = pattern.matcher(fileName).matches();
+				if (accept) {
+					byte[] bytes = IOUtils.toByteArray(jf.getInputStream(ze));
+					return new ByteArrayInputStream(bytes);
+				}
+			}
+		} catch (final IOException e1) {
+			throw new Error(e1);
+		} finally {
+			try {
+				jf.close();
+			} catch (final IOException e1) {
+				throw new Error(e1);
+			}
+		}
+		return null;
+	}
+
+	private static InputStream getResourceFromDirectoryAsStream(final File directory,
+			final Pattern pattern, final String classPathFolder) {
+
+		if (!directory.exists()) {
+			return null;
+		}
+		if (!directory.isDirectory()) {
+			return null;
+		}
+		if (!directory.canRead()) {
+			return null;
+		}
+		
+		final File[] fileList = directory.listFiles();
+		for (final File file : fileList) {
+			if (file.isDirectory()) {
+				/*
+				 * recursion till we get to a file that is not a folder.
+				 * The pattern is matched only against files, not folders, and it is based
+				 * on their full path names
+				 */
+				InputStream input = getResourceFromDirectoryAsStream(file, pattern, classPathFolder);
+				if(input != null)
+					return input;
+			} else {
+				try {
+
+					final String relativeFilePath = file.getCanonicalPath().replace(classPathFolder
+							+ File.separator,
+							"");
+					final boolean accept = pattern.matcher(relativeFilePath).matches();
+
+					if (accept) {
+						return new FileInputStream(file);
+					}
+				} catch (final IOException e) {
+					throw new Error(e);
+				}
+			}
+		}
+
+		return null;
+	}
+	
+	
+	/**
 	 * <p>
 	 * for all elements of <code>java.class.path</code> and
 	 * <code>Properties.CP</code> get a Collection of resources Pattern
@@ -121,7 +255,7 @@ public class ResourceList {
 			retval.addAll(getResources(element, pattern));
 		}
 
-
+/*
 		classPathElements = System.getProperty("java.class.path", ".").split(File.pathSeparator);
 		for (final String element : classPathElements) {
 			try{
@@ -131,6 +265,7 @@ public class ResourceList {
 				logger.error("Failed to load resources in "+element+": "+e.getMessage(),e);
 			}
 		}
+		*/
 		return retval;
 	}
 

@@ -139,7 +139,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	/** {@inheritDoc} */
 	@Override
 	public void visitEnd() {
-
+		logger.debug("Creating CFG of "+className+"."+methodName);
 		boolean isExcludedMethod = EXCLUDE.contains(methodName);
 		boolean isMainMethod = plain_name.equals("main") && Modifier.isStatic(access);
 
@@ -241,6 +241,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 				e.printStackTrace();
 			}
 
+		} else {
+			logger.debug("NOT Creating CFG of "+className+"."+methodName+": "+checkForMain+", "+((!isExcludedMethod || executeOnExcluded)) +", "+((access & Opcodes.ACC_ABSTRACT) == 0)+", "+((access & Opcodes.ACC_NATIVE) == 0));
 		}
 		mn.accept(next);
 	}
