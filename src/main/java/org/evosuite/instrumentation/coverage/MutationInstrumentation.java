@@ -159,7 +159,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 					}
 					MethodInsnNode cn = (MethodInsnNode) in;
 					Set<String> superClasses = new HashSet<String>();
-					if(DependencyAnalysis.getInheritanceTree() != null)
+					if(DependencyAnalysis.getInheritanceTree() != null && DependencyAnalysis.getInheritanceTree().hasClass(className))
 						superClasses.addAll(DependencyAnalysis.getInheritanceTree().getSuperclasses(className));
 					superClasses.add(className);
 					String classNameWithDots = Utils.getClassNameFromResourcePath(cn.owner);

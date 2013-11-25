@@ -21,7 +21,7 @@ import javax.tools.ToolProvider;
 
 import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.TestCase;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
@@ -177,7 +177,6 @@ public class JUnitAnalyzer {
 			if (dir != null) {
 				try {
 					FileUtils.deleteDirectory(dir);
-					logger.debug("Deleted tmp folder: "+dir.getAbsolutePath());
 				} catch (Exception e) {
 					logger.warn("Cannot delete tmp dir: " + dir.getName(), e);
 				}
@@ -299,11 +298,11 @@ public class JUnitAnalyzer {
 		 * non-instrumenting classloader to re-load the CUT, and so see
 		 * if the JavaAgent works properly.
 		 */
-		InstrumentingClassLoader loader = new InstrumentingClassLoader();
+		// InstrumentingClassLoader loader = new InstrumentingClassLoader();
 		
 		URLClassLoader urlLoader;
 		try {
-			urlLoader = new URLClassLoader(new URL[]{dir.toURI().toURL()},loader);
+			urlLoader = new URLClassLoader(new URL[]{dir.toURI().toURL()},TestGenerationContext.getClassLoader());
 		} catch (MalformedURLException e) {
 			logger.error(""+e.getMessage(),e);
 			return null;
@@ -435,6 +434,7 @@ public class JUnitAnalyzer {
 
 			Class<?> testClass = null;
 			try {
+				logger.info("Loading class "+className);
 				testClass = loader.loadClass(className);
 			} catch (ClassNotFoundException e) {
 				logger.error("Failed to load test case " + className + " from file "+file.getAbsolutePath()+" , error " + e, e);

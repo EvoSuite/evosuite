@@ -91,12 +91,12 @@ public class DefUse extends BytecodeInstruction {
 				        "field method calls only accepted once they got categorized");
 		}
 
+		this.isInStaticMethod = getRawCFG().isStaticMethod();
 		this.varName = super.getVariableName();
 		if (this.varName == null)
 			throw new IllegalStateException(
-			        "expect defUses to have non-null varaible names");
+			        "expect defUses to have non-null variable name. Instruction: "+wrap+","+wrap.getASMNode().getPrevious()+", method: "+wrap.getClassName()+"."+wrap.getMethodName());
 
-		this.isInStaticMethod = getRawCFG().isStaticMethod();
 	}
 
 	@Override

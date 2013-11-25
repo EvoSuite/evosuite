@@ -114,6 +114,10 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 
 						if (v.isMethodCallOfField())
 							mn.instructions.insertBefore(v.getASMNode(), instrumentation);
+						else if(v.isArrayStoreInstruction())
+							mn.instructions.insertBefore(v.getSourceOfArrayReference().getASMNode(), instrumentation);
+						else if(v.isArrayLoadInstruction())
+							mn.instructions.insertBefore(v.getSourceOfArrayReference().getASMNode(), instrumentation);
 						else if(v.isUse())
 							mn.instructions.insert(v.getASMNode(), instrumentation);
 						else
@@ -143,7 +147,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 
 		if (DefUsePool.isKnownAsUse(v)) {
 			// The actual object that is defined is on the stack _after_ the load instruction
-			addObjectInstrumentation(v, instrumentation);
+			addObjectInstrumentation(v, instrumentation, mn);
 			addCallingObjectInstrumentation(staticContext, instrumentation);
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
@@ -152,7 +156,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 		}
 		if (DefUsePool.isKnownAsDefinition(v)) {
 			// The actual object that is defined is on the stack _before_ the store instruction
-			addObjectInstrumentation(v, instrumentation);
+			addObjectInstrumentation(v, instrumentation, mn);
 			addCallingObjectInstrumentation(staticContext, instrumentation);
 			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
@@ -175,7 +179,19 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 		}
 	}
 	
-	private void addObjectInstrumentation(BytecodeInstruction instruction, InsnList instrumentation) {
+	@SuppressWarnings("unchecked")
+	private int getNextLocalVariable(MethodNode mn) {
+		int var = 1;
+		List<LocalVariableNode> nodes = mn.localVariables;
+		for(LocalVariableNode varNode : nodes) {
+			if(varNode.index >= var) {
+				var = varNode.index + 1;
+			}
+		}
+		return var;
+	}
+	
+	private void addObjectInstrumentation(BytecodeInstruction instruction, InsnList instrumentation, MethodNode mn) {
 		if(instruction.isLocalVariableDefinition()) {
 			if(instruction.getASMNode().getOpcode() == Opcodes.ALOAD) {
 				instrumentation.add(new InsnNode(Opcodes.DUP));				
@@ -188,7 +204,15 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			} else {
 				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
 			}
+		} else if(instruction.isArrayStoreInstruction()) {
+			// Object, index, value
+			instrumentation.add(new InsnNode(Opcodes.DUP));
+		} else if(instruction.isArrayLoadInstruction()) {
+			instrumentation.add(new InsnNode(Opcodes.DUP));
+			// instrumentation.add(new InsnNode(Opcodes.DUP2));
+			// instrumentation.add(new InsnNode(Opcodes.POP));
 		} else if(instruction.isFieldNodeDU()) {
+			// TODO: FieldNodeDU takes care of ArrayStore - why?
 			Type type = Type.getType(instruction.getFieldType());
 			if(type.getSort() == Type.OBJECT) {
 				instrumentation.add(new InsnNode(Opcodes.DUP));
@@ -231,7 +255,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 		}
 
 		// instrumentation.add(new InsnNode(Opcodes.DUP));//callee
-		addObjectInstrumentation(call, instrumentation);
+		addObjectInstrumentation(call, instrumentation, mn);
 		addCallingObjectInstrumentation(staticContext, instrumentation);
 		// field method calls get special treatment:
 		// during instrumentation it is not clear whether a field method

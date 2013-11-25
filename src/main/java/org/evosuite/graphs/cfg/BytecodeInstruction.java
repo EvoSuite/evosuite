@@ -25,7 +25,6 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cdg.ControlDependenceGraph;
-import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FrameNode;
@@ -1042,13 +1041,22 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * The reference is found on top of the stack minus two
 	 */
 	public BytecodeInstruction getSourceOfArrayReference() {
-		if (!isArrayStoreInstruction())
+		if(isArrayStoreInstruction()) {
+			// when reaching an array store instruction the stack should end in
+			// <arrayref>,<index>,<value>. so the array reference is on top of the
+			// stack minus two
+			return getSourceOfStackInstruction(2);
+			
+		} else if(isArrayLoadInstruction()) {
+			// when reaching an array store instruction the stack should end in
+			// <arrayref>,<index>. so the array reference is on top of the
+			// stack minus one
+			return getSourceOfStackInstruction(1);
+			
+		} else {
 			return null;
+		}
 
-		// when reaching an array store instruction the stack should end in
-		// <arrayref>,<index>,<value>. so the array reference is on top of the
-		// stack minus two
-		return getSourceOfStackInstruction(2);
 	}
 
 	/**
@@ -1076,7 +1084,6 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 
 		int stackPos = frame.getStackSize() - (1 + positionFromTop);
 		if (stackPos < 0){
-			LoggingUtils.getEvoLogger().debug("getSourceOfStackInstruction has stackPos "+stackPos+". This should not happen. Corner case not correctly handled??!");
 			StackTraceElement[] se = new Throwable().getStackTrace();
 			int t=0;
 			System.out.println("Stack trace: ");

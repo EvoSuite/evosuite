@@ -100,6 +100,7 @@ public class CFGClassAdapter extends ClassVisitor {
 			logger.info("Skipping enum valueOf");
 			return mv;
 		}
+		logger.info("Analyzing CFG of "+className);
 
 		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
 

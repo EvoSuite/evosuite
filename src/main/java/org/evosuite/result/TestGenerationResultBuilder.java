@@ -18,6 +18,7 @@ import org.evosuite.instrumentation.LinePool;
 import org.evosuite.result.TestGenerationResult.Status;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.utils.LoggingUtils;
 
 public class TestGenerationResultBuilder {
 
@@ -149,6 +150,9 @@ public class TestGenerationResultBuilder {
 		Set<BranchInfo> branchCoverage = new LinkedHashSet<BranchInfo>();
 		for(int branchId : result.getTrace().getCoveredFalseBranches()) {
 			Branch branch = BranchPool.getBranch(branchId);
+			if(branch == null) {
+				LoggingUtils.getEvoLogger().warn("Branch is null: "+branchId);
+			}
 			BranchInfo info = new BranchInfo(branch.getClassName(), branch.getMethodName(), branch.getInstruction().getLineNumber(), false);
 			branchCoverage.add(info);
 		}
