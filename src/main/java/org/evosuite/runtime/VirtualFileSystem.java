@@ -283,6 +283,32 @@ public class VirtualFileSystem {
 		return true;
 	}
 	
+	public boolean rename(String source, String destination){
+		
+		String parentSource = new File(source).getParent();
+		String parentDest = new File(destination).getParent();
+		
+		if( (parentSource==null && parentDest!=null) ||
+				(!parentSource.equals(parentDest))){
+			//both need to be in the same folder
+			return false;
+		}
+		
+		FSObject src = findFSObject(source);
+		if(src==null){
+			//source should exist
+			return false;
+		}
+
+		FSObject dest = findFSObject(destination);
+		if(dest != null){
+			//destination should not exist
+			return false;
+		}
+
+		return src.rename(destination);
+	}
+	
 	public boolean createFolder(String rawPath){		
 		String[] tokens = tokenize(new File(rawPath).getAbsolutePath());
 		
