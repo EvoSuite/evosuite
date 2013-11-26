@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import org.evosuite.runtime.VirtualFileSystem;
 import org.evosuite.runtime.vfs.FSObject;
+import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VFolder;
 
 /**
@@ -98,7 +99,7 @@ public class MockFile extends File{
 
 	@Override
 	public int compareTo(File pathname) {
-		return 0; //TODO
+		return new File(getAbsolutePath()).compareTo(pathname); 
 	}
 
 	@Override
@@ -221,24 +222,57 @@ public class MockFile extends File{
 
 	@Override
 	public boolean isHidden() {
-		return false; //TODO
+		if(getName().startsWith(".")){
+			//this is not necessarily true in Windows
+			return true;
+		} else {
+			return false; 
+		}
 	}
 
 	@Override
 	public boolean setLastModified(long time) {
-		return false; //TODO
+        if (time < 0){
+        		throw new IllegalArgumentException("Negative time");
+        }
+        
+		FSObject target = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
+		if(target==null){
+			return false;
+		}
+
+		return target.setLastModified(time);
 	}
 
 	@Override
 	public long lastModified() {
-		return 0; //TODO
+		FSObject target = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
+		if(target==null){
+			return 0;
+		}
+
+		return target.getLastModified(); 
 	}
 
 	@Override
 	public long length() {
-		return 0; //TODO
+	
+		FSObject target = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
+		if(target==null){
+			return 0;
+		}
+
+		if(target.isFolder() || target.isDeleted()){
+			return 0;
+		}
+		
+		VFile file = (VFile) target;
+		
+		return file.getDataSize(); 
 	}
 
+	//following 3 methods are never used in SF110
+	
 	@Override
 	public long getTotalSpace() {
 		return 0; //TODO
@@ -266,8 +300,12 @@ public class MockFile extends File{
 	}
 
 	@Override
-	public boolean renameTo(File dest) {
-		return false; //TODO
+	public boolean renameTo(File dest) {				
+		boolean renamed = VirtualFileSystem.getInstance().rename(
+				this.getAbsolutePath(), 
+				dest.getAbsolutePath());
+		
+		return renamed;
 	}
 
 	@Override
