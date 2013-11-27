@@ -177,6 +177,15 @@ public class VirtualFileSystem {
 	}
 	
 	/**
+	 * For each file that has been accessed during the search, keep track of it
+	 * 
+	 * @return a set of file paths
+	 */
+	public Set<String> getAccessedFiles(){
+		return new HashSet<String>(accessedFiles);
+	}
+	
+	/**
 	 * Create a tmp file, and return its absolute path
 	 * 
 	 * @param prefix
