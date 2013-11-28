@@ -466,10 +466,7 @@ public class TestGeneration {
 				SearchStatistics.getInstance().writeStatistics();
 			}
 		}
-		if(MasterServices.getInstance().getMasterNode() != null)
-			return SearchStatistics.getInstance().getTestGenerationResults();
-		else
-			return new ArrayList<TestGenerationResult>();
+		return SearchStatistics.getInstance().getTestGenerationResults();
 	}
 
 	

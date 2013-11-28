@@ -86,7 +86,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		sequenceOutputVariableFactories.put(RuntimeVariable.SizeTimeline.name(), new SizeSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.LengthTimeline.name(), new LengthSequenceOutputVariableFactory());
 		// sequenceOutputVariableFactories.put("Generation_History", new GenerationSequenceOutputVariableFactory());
-		MasterServices.getInstance().getMasterNode().addListener(this);
+		if(MasterServices.getInstance().getMasterNode() != null)
+			MasterServices.getInstance().getMasterNode().addListener(this);
 	}
 	
 	public static SearchStatistics getInstance() {
