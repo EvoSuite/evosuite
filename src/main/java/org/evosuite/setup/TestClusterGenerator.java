@@ -20,7 +20,6 @@
  */
 package org.evosuite.setup;
 
-import java.io.EvoSuiteIO;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -371,10 +370,6 @@ public class TestClusterGenerator {
 
 		logger.info("Analyzing target class");
 		Class<?> targetClass = Properties.getTargetClass();
-
-		if (Properties.VIRTUAL_FS) {
-			EvoSuiteIO.disableVFS(); // disable it again until test case execution
-		}
 
 		TestCluster cluster = TestCluster.getInstance();
 

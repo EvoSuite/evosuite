@@ -217,6 +217,7 @@ public class TestGeneration {
 			cmdLine.add("-DCP=" + cp);
 		}
 
+		/*
 		if (Properties.VIRTUAL_FS) {
 			LoggingUtils.getEvoLogger().info("* Setting up virtual FS for testing");
 			String stringToBePrependedToBootclasspath = locateEvoSuiteIOClasses();
@@ -226,7 +227,8 @@ public class TestGeneration {
 			cmdLine.add("-Xbootclasspath/p:" + stringToBePrependedToBootclasspath);
 			cmdLine.add("-Dvirtual_fs=true");
 		}
-
+		 */
+		
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
 		cmdLine.add("-Djava.awt.headless=true");
