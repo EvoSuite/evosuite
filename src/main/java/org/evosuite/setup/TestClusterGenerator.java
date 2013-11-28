@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -34,6 +35,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
@@ -75,6 +77,7 @@ public class TestClusterGenerator {
 	private static List<String> classExceptions = Arrays.asList(new String[] {
 	        "com.apple", "apple.", "sun.", "com.sun.", "com.oracle.", "sun.awt." });
 
+	
 	/**
 	 * Check if we can use the given class
 	 * 
@@ -960,10 +963,31 @@ public class TestClusterGenerator {
 		if(!Properties.REPLACE_CALLS)
 			return false;
 		
+		Class<?> declaringClass = m.getDeclaringClass();
+		
 		// Calendar is initialized with current time
-		if(m.getDeclaringClass().equals(Calendar.class)){
+		if(declaringClass.equals(Calendar.class)){
 			if(m.getName().equals("getCalendar"))
 				return true;
+		}
+
+		// Locale will return system specific information
+		if(declaringClass.equals(Locale.class)) {
+			if(m.getName().equals("getDefault"))
+				return true;
+			if(m.getName().equals("getAvailableLocales"))
+				return true;
+		}
+		
+		// MessageFormat will return system specific information
+		if(declaringClass.equals(MessageFormat.class)) {
+			if(m.getName().equals("getLocale"))
+				return true;
+		}
+		
+		if(m.getDeclaringClass().equals(Date.class)) {
+			if(m.getName().equals("toLocaleString"))
+				return true;			
 		}
 		
 		return false;
@@ -1277,6 +1301,7 @@ public class TestClusterGenerator {
 					logger.debug("Adding method " + clazz.getClassName() + "."
 					        + method.getName()
 					        + org.objectweb.asm.Type.getMethodDescriptor(method));
+					
 					if (method.getTypeParameters().length > 0) {
 						logger.info("Type parameters in methods are not handled yet, skipping "
 						        + method);
