@@ -27,6 +27,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Inline all primitive values and null references in the test case
@@ -36,6 +38,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 public class ConstantInliner extends ExecutionObserver {
 
 	private TestCase test = null;
+	
+	private static final Logger logger = LoggerFactory.getLogger(ConstantInliner.class);
 
 	/**
 	 * <p>
@@ -144,10 +148,14 @@ public class ConstantInliner extends ExecutionObserver {
 					// logger.info("Statement after inlining: " + statement.getCode());
 				} else if (var.isString() && object != null) {
 					ConstantValue value = new ConstantValue(test, var.getGenericClass());
-					String val = StringEscapeUtils.unescapeJava(object.toString());
-					value.setValue(val);
-					// logger.info("Statement before inlining: " + statement.getCode());
-					statement.replace(var, value);
+					try {
+						String val = StringEscapeUtils.unescapeJava(object.toString());
+						value.setValue(val);
+						statement.replace(var, value);
+					} catch(IllegalArgumentException e) {
+						// Exceptions may happen if strings are not valid unicode
+						logger.info("Cannot escape invalid string: "+object);
+					}
 					// logger.info("Statement after inlining: " + statement.getCode());
 
 				} else {
