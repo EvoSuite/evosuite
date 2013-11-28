@@ -21,13 +21,16 @@
 package org.evosuite.runtime;
 
 import java.io.File;
+import java.io.Serializable;
 
 /**
  * A object wrapper for file paths accessed by the SUTs.
  *   
  * @author fraser
  */
-public class EvoSuiteFile {
+public class EvoSuiteFile implements Serializable{
+
+	private static final long serialVersionUID = -4900126189189434483L;
 
 	private final String path;
 
@@ -37,7 +40,12 @@ public class EvoSuiteFile {
 	 * @param path a {@link java.lang.String} object.
 	 */
 	public EvoSuiteFile(String path) {
-		this.path = (new File(path)).getAbsolutePath();
+		
+		if(path==null){
+			this.path = null;
+		} else {
+			this.path = (new File(path)).getAbsolutePath();
+		}
 	}
 
 	/**
