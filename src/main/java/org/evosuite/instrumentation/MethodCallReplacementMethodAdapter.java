@@ -66,8 +66,10 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		 * @param replacementClassName
 		 * @param replacementMethodName
 		 * @param replacementDesc
-		 * @param pop 	if {@code true}, then get rid of the receiver object from the stack. 
-		 * 				This is needed when a non-static method is replaced by a static one
+		 * @param pop
+		 *            if {@code true}, then get rid of the receiver object from
+		 *            the stack. This is needed when a non-static method is
+		 *            replaced by a static one
 		 */
 		public MethodCallReplacement(String className, String methodName, String desc,
 		        String replacementClassName, String replacementMethodName,
@@ -105,6 +107,28 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			mv.visitMethodInsn(opcode, replacementClassName, replacementMethodName,
 			                   replacementDesc);
 		}
+
+		public void insertConstructorCall(MethodVisitor mv,
+		        MethodCallReplacement replacement) {
+			Type[] args = Type.getArgumentTypes(desc);
+			Map<Integer, Integer> to = new HashMap<Integer, Integer>();
+			for (int i = args.length - 1; i >= 0; i--) {
+				int loc = newLocal(args[i]);
+				storeLocal(loc);
+				to.put(i, loc);
+			}
+
+			pop2();//uninitialized reference (which is duplicated)
+			newInstance(Type.getType(replacement.replacementClassName));
+			dup();
+
+			for (int i = 0; i < args.length; i++) {
+				loadLocal(to.get(i));
+			}
+
+			mv.visitMethodInsn(Opcodes.INVOKESPECIAL, replacementClassName,
+			                   replacementMethodName, replacementDesc);
+		}
 	}
 
 	/**
@@ -117,7 +141,6 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	 */
 	private final Set<MethodCallReplacement> virtualReplacementCalls = new HashSet<MethodCallReplacement>();
 
-	
 	/**
 	 * method replacements, which are called with Opcodes.INVOKESPECIAL
 	 */
@@ -190,36 +213,39 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			        "nextLong", "()J", "org/evosuite/runtime/Random", "nextLong", "()J",
 			        true));
 		}
-		
+
 		if (Properties.VIRTUAL_FS) {
-			replaceAllConstructors(MockFile.class,File.class);		
-			replaceAllConstructors(MockFileInputStream.class,FileInputStream.class);		
-			replaceAllConstructors(MockFileOutputStream.class,FileOutputStream.class);		
+			replaceAllConstructors(MockFile.class, File.class);
+			replaceAllConstructors(MockFileInputStream.class, FileInputStream.class);
+			replaceAllConstructors(MockFileOutputStream.class, FileOutputStream.class);
 		}
 	}
 
 	/**
-	 * Replace all the constructors of {@code target} with a constructor (with same input
-	 * parameters) of mock subclass {@code mockClass}. 
+	 * Replace all the constructors of {@code target} with a constructor (with
+	 * same input parameters) of mock subclass {@code mockClass}.
 	 * 
 	 * @param mockClass
 	 * @param target
 	 * @throws IllegalArgumentException
 	 */
-	private void replaceAllConstructors(Class<?> mockClass, Class<?> target) throws IllegalArgumentException{
-		
-		if(!target.isAssignableFrom(mockClass)){
-			throw new IllegalArgumentException("Constructor replacement can be done only for subclasses. Class "+mockClass+" is not an instance of "+target);
+	private void replaceAllConstructors(Class<?> mockClass, Class<?> target)
+	        throws IllegalArgumentException {
+
+		if (!target.isAssignableFrom(mockClass)) {
+			throw new IllegalArgumentException(
+			        "Constructor replacement can be done only for subclasses. Class "
+			                + mockClass + " is not an instance of " + target);
 		}
-		
-		for(Constructor<?> constructor : mockClass.getConstructors()){
+
+		for (Constructor<?> constructor : mockClass.getConstructors()) {
 			String desc = Type.getConstructorDescriptor(constructor);
 			specialReplacementCalls.add(new MethodCallReplacement(
-					target.getCanonicalName().replace('.', '/'), "<init>", desc,
-					mockClass.getCanonicalName().replace('.', '/'), "<init>", desc, false));
+			        target.getCanonicalName().replace('.', '/'), "<init>", desc,
+			        mockClass.getCanonicalName().replace('.', '/'), "<init>", desc, false));
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
 	 */
@@ -248,12 +274,12 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		for (MethodCallReplacement replacement : specialReplacementCalls) {
 			if (replacement.isTarget(owner, name, desc)) {
 				isReplaced = true;
-				replacement.insertMethodCall(this, Opcodes.INVOKESPECIAL);
+				replacement.insertConstructorCall(this, replacement);
 				break;
 			}
 		}
-		
-		if (!isReplaced){
+
+		if (!isReplaced) {
 			super.visitMethodInsn(opcode, owner, name, desc);
 		}
 	}
