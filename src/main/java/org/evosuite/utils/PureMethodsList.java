@@ -5,9 +5,11 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.Type;
 
@@ -65,6 +67,27 @@ public enum PureMethodsList {
 
 	public boolean checkPurity(String qualifiedName) {
 		return pureMethods.contains(qualifiedName);
+	}
+	
+	public boolean isPureJDKMethod(Method method) {
+		String className = method.getDeclaringClass().getCanonicalName();
+		if(!className.startsWith("java."))
+			return false;
+		
+		String toAnalyze = className + "." + method.getName();
+
+		Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(method);
+		String newParams = "";
+		if (parameters.length != 0) {
+			for (Type i : parameters) {
+				newParams = newParams + "," + i.getClassName();
+			}
+			newParams = newParams.substring(1, newParams.length());
+		}
+		toAnalyze += "(" + newParams + ")";
+			//System.out.println(toAnalyze);
+
+		return checkPurity(toAnalyze);
 	}
 
 }

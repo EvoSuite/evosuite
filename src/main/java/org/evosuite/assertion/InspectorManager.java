@@ -22,12 +22,14 @@ package org.evosuite.assertion;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.utils.PureMethodsList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +39,22 @@ public class InspectorManager {
 
 	private static Logger logger = LoggerFactory.getLogger(InspectorManager.class);
 
-	Map<Class<?>, List<Inspector>> inspectors = new HashMap<Class<?>, List<Inspector>>();
+	private Map<Class<?>, List<Inspector>> inspectors = new HashMap<Class<?>, List<Inspector>>();
 
+	private Map<String, List<String>> blackList = new HashMap<String, List<String>>();
+	
 	private InspectorManager() {
 		// TODO: Need to replace this with proper analysis
 		// readInspectors();
+		initializeBlackList();
+	}
+	
+	private void initializeBlackList() {
+		// These methods will include absolute path names and should not be in assertions
+		blackList.put("java.io.File", Arrays.asList(new String[] {"getPath", "getAbsolutePath", "getCanonicalPath"}));
+		
+		// These methods will contain locale specific strings 
+		blackList.put("java.util.Date", Arrays.asList(new String[] {"getLocaleString"}));
 	}
 
 	/**
@@ -58,20 +71,43 @@ public class InspectorManager {
 		return instance;
 	}
 
+	private boolean isInspectorMethod(Method method) {
+		return Modifier.isPublic(method.getModifiers())
+				&& (method.getReturnType().isPrimitive()
+		                || method.getReturnType().equals(String.class) || method.getReturnType().isEnum())
+		        && !method.getReturnType().equals(void.class)
+		        && method.getParameterTypes().length == 0
+		        && !method.getName().equals("hashCode")
+		        && !method.getDeclaringClass().equals(Object.class)
+		        && !method.isSynthetic() 
+		        && !method.isBridge()
+		        && !method.getName().equals("pop")
+		        && !isBlackListed(method)
+		        && !isImpureJDKMethod(method); 
+	}
+	
+	private boolean isImpureJDKMethod(Method method) {
+		String className = method.getDeclaringClass().getCanonicalName();
+		if(!className.startsWith("java."))
+			return false;
+		
+		return !PureMethodsList.instance.isPureJDKMethod(method);
+	}
+	
+	private boolean isBlackListed(Method method) {
+		String className = method.getDeclaringClass().getCanonicalName();
+		if(!blackList.containsKey(className))
+			return false;
+		String methodName = method.getName();
+		return blackList.get(className).contains(methodName);
+	}
+	
 	private void determineInspectors(Class<?> clazz) {
 		if (!TestClusterGenerator.canUse(clazz))
 			return;
 		List<Inspector> inspectorList = new ArrayList<Inspector>();
 		for (Method method : clazz.getMethods()) {
-			if (Modifier.isPublic(method.getModifiers())
-			        && (method.getReturnType().isPrimitive()
-			                || method.getReturnType().equals(String.class) || method.getReturnType().isEnum())
-			        && !method.getReturnType().equals(void.class)
-			        && method.getParameterTypes().length == 0
-			        && !method.getName().equals("hashCode")
-			        && !method.getDeclaringClass().equals(Object.class)
-			        && !method.isSynthetic() && !method.isBridge()
-			        && !method.getName().equals("pop")) { // FIXXME
+			if (isInspectorMethod(method)) { // FIXXME
 				logger.debug("Inspector for class " + clazz.getSimpleName() + ": "
 				        + method.getName());
 
