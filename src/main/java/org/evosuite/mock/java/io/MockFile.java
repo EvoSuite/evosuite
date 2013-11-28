@@ -48,7 +48,7 @@ public class MockFile extends File{
 	}
 
 	/*
-	 * Java 7:
+	 * TODO: Java 7
 	 * 
 	 * there is only one method in File that depends on Java 7:
 	 * 
