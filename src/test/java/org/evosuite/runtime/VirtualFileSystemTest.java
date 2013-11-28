@@ -25,6 +25,40 @@ public class VirtualFileSystemTest {
 		VirtualFileSystem.getInstance().resetSingleton();
 	}
 	
+	@Test 
+	public void testRename() throws IOException{
+		File bla = new MockFile("bla");
+		File doh = new MockFile("doh");
+		Assert.assertFalse(bla.exists());
+		Assert.assertFalse(doh.exists());
+		
+		boolean created = bla.createNewFile();
+		Assert.assertTrue(created);
+		Assert.assertTrue(bla.exists());
+		Assert.assertFalse(doh.exists());
+		
+		boolean renamed = bla.renameTo(doh);
+		Assert.assertTrue(renamed);
+		Assert.assertFalse(bla.exists());
+		Assert.assertTrue(doh.exists());
+		
+		File inAnotherFolder = new MockFile("foo/hei/hello.tmp");
+		Assert.assertFalse(inAnotherFolder.exists());
+		renamed = doh.renameTo(inAnotherFolder);
+		Assert.assertFalse(renamed);
+		Assert.assertFalse(inAnotherFolder.exists());
+		Assert.assertTrue(doh.exists());
+		
+		File de = new MockFile("deeee");
+		File blup = new MockFile("blup");
+		Assert.assertFalse(de.exists());
+		Assert.assertFalse(blup.exists());
+		renamed = de.renameTo(blup);
+		Assert.assertFalse(renamed);
+		Assert.assertFalse(de.exists());
+		Assert.assertFalse(blup.exists());
+	}
+	
 	@Test
 	public void testReadAfterWriteToFile() throws IOException{
 		

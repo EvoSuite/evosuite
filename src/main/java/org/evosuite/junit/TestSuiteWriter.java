@@ -334,11 +334,8 @@ public class TestSuiteWriter implements Opcodes {
 			}
 
 			imports.addAll(visitor.getImports());
-			// imports.addAll(result.test.getAccessedClasses());
-			//for (Throwable t : result.getAllThrownExceptions()) {
-			//	imports.add(t.getClass());
-			//}
 		}
+		
 		Set<String> import_names = new HashSet<String>();
 		for (Class<?> imp : imports) {
 			while (imp.isArray())
@@ -560,10 +557,12 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Get the code of methods for @BeforeClass, @Before, @AfterClass and
+	 * @After. 
 	 * 
-	 * @After. In those methods, the EvoSuite framework for running the
+	 * <p>
+	 * In those methods, the EvoSuite framework for running the
 	 *         generated test cases is handled (e.g., use of customized
-	 *         SecurityManager)
+	 *         SecurityManager and runtime bytecode replacement)
 	 * 
 	 * @return
 	 */
@@ -588,8 +587,7 @@ public class TestSuiteWriter implements Opcodes {
 
 		generateFields(bd, wasSecurityException);
 
-		if (Properties.REPLACE_CALLS || wasSecurityException)
-			generateBeforeClass(bd, wasSecurityException);
+		generateBeforeClass(bd, wasSecurityException);
 
 		generateAfterClass(bd, wasSecurityException);
 
@@ -602,7 +600,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateAfter(StringBuilder bd, boolean wasSecurityException) {
 
-		if (!wasSecurityException && !Properties.REPLACE_CALLS) {
+		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS) {
 			return;
 		}
 
@@ -616,7 +614,7 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append("Sandbox.doneWithExecutingSUTCode(); \n");
 		}
 
-		if (Properties.REPLACE_CALLS) {
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
 		}
@@ -629,7 +627,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException) {
 
-		if (!wasSecurityException && !Properties.REPLACE_CALLS
+		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS
 		        && !SystemInUtil.getInstance().hasBeenUsed()) {
 			return;
 		}
@@ -644,7 +642,7 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append("Sandbox.goingToExecuteSUTCode(); \n");
 		}
 
-		if (Properties.REPLACE_CALLS) {
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.agent.InstrumentingAgent.activate(); \n");
 		}
@@ -681,6 +679,11 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	private void generateBeforeClass(StringBuilder bd, boolean wasSecurityException) {
+		
+		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS){
+			return;
+		}
+			
 		bd.append(METHOD_SPACE);
 		bd.append("@BeforeClass \n");
 
@@ -689,10 +692,19 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append(BLOCK_SPACE);
 		bd.append("org.evosuite.utils.LoggingUtils.setLoggingForJUnit(); \n");
 
-		if (Properties.REPLACE_CALLS) {
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS) {
 			//need to setup REPLACE_CALLS and instrumentator
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.Properties.REPLACE_CALLS = true; \n");
+			
+			if(Properties.REPLACE_CALLS){
+				bd.append(BLOCK_SPACE);
+				bd.append("org.evosuite.Properties.REPLACE_CALLS = true; \n");
+			}
+			
+			if(Properties.VIRTUAL_FS){
+				bd.append(BLOCK_SPACE);
+				bd.append("org.evosuite.Properties.VIRTUAL_FS = true; \n");
+			}
+			
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.agent.InstrumentingAgent.initialize(); \n");
 		}

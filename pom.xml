@@ -223,7 +223,7 @@
 							<descriptors>
 								<!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
 								<!--  <descriptor>src/main/assembly/evosuite-io.xml</descriptor> -->
-								<descriptor>src/main/assembly/jar-exsyst.xml</descriptor>
+								<!--  <descriptor>src/main/assembly/jar-exsyst.xml</descriptor> -->
 								<descriptor>src/main/assembly/jar-minimal.xml</descriptor>
 								<!-- <descriptor>src/main/assembly/bin.xml</descriptor> -->
 								<descriptor>src/main/assembly/source.xml</descriptor>

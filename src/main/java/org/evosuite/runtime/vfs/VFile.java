@@ -1,6 +1,5 @@
 package org.evosuite.runtime.vfs;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +11,9 @@ import java.util.List;
  */
 public class VFile extends FSObject{
 
+	/**
+	 * the actual data contained in file as a list of bytes
+	 */
 	private final List<Byte> data;
 	
 	public VFile(String path, VFolder parent) {
@@ -53,11 +55,11 @@ public class VFile extends FSObject{
 		for(int i=off; i<b.length & (i-off)<len; i++){
 			data.add(b[i]);
 		}
+
+		setLastModified(java.lang.System.currentTimeMillis());
 		
 		return true;
 	}
-	
-	//TODO read 
 	
 	@Override
 	public synchronized boolean delete(){
