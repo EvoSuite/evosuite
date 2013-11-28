@@ -16,20 +16,20 @@
 		<format>jar</format>
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
-	<files>
+	<!--  <files>
 		<file>
 			<source>${project.build.directory}/${project.artifactId}-${project.version}-evosuite-io.jar</source>
 			<outputDirectory>/</outputDirectory>
 			<destName>evosuite-io.jar</destName>
-			<!-- Not sure if this works always, but should do better than the purely 
+			<! - - Not sure if this works always, but should do better than the purely 
 				hardcoded solution (in EvoSuite.java for retrieving the evosuite-io jar file 
 				as a resource) that was used so far. Now if the build process was successful, 
 				we can be sure there is an "evosuite.jar" inside the "jar-minimal" version. 
 				If the build process is not successful because <source> cannot be found, 
 				we see why and simply fix the path. However, a neater solution to this is 
-				appreciated! ;-) -->
+				appreciated! ;-) - - >
 		</file>
-	</files>
+	</files> -->
 	<fileSets>
 		<fileSet>
 			<directory>${project.build.directory}/classes</directory>
@@ -41,28 +41,6 @@
 		</fileSet>
 	</fileSets>
 	<dependencySets>
-		<dependencySet>
-			<outputDirectory>/</outputDirectory>
-			<useProjectArtifact>false</useProjectArtifact>
-			<includes>
-				<include>org.evosuite:evosuite-io</include>
-				<include>org.apache.commons:commons-vfs2</include>
-				<include>org.apache.commons:commons-logging</include>
-			</includes>
-			<unpack>true</unpack>
-			<unpackOptions>
-				<excludes>
-					<exclude>logback.xml</exclude>
-					<exclude>META-INF/*.SF</exclude>
-					<exclude>META-INF/*.sf</exclude>
-					<exclude>META-INF/*.RSA</exclude>
-					<exclude>META-INF/*.rsa</exclude>
-					<exclude>META-INF/*.INF</exclude>
-					<exclude>META-INF/*.inf</exclude>
-				</excludes>
-			</unpackOptions>
-			<scope>runtime</scope>
-		</dependencySet>
 		<dependencySet>
 			<outputDirectory>/</outputDirectory>
 			<useProjectArtifact>false</useProjectArtifact>

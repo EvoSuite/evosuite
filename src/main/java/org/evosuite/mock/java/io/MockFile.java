@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import org.evosuite.runtime.VirtualFileSystem;
 import org.evosuite.runtime.vfs.FSObject;
+import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VFolder;
 
 /**
@@ -18,7 +19,7 @@ import org.evosuite.runtime.vfs.VFolder;
  * 
  * <p>
  * All files are created in memory, and no access to disk is ever done
- * 
+ *   
  * @author arcuri
  *
  */
@@ -47,7 +48,7 @@ public class MockFile extends File{
 	}
 
 	/*
-	 * Java 7:
+	 * TODO: Java 7
 	 * 
 	 * there is only one method in File that depends on Java 7:
 	 * 
@@ -68,12 +69,24 @@ public class MockFile extends File{
 	 */
 
 	public static File[] listRoots() {
-		return null; //TODO
+		File[] roots = File.listRoots();
+		MockFile[] mocks = new MockFile[roots.length];
+		for(int i=0; i<roots.length; i++){
+			mocks[i] = new MockFile(roots[i].getAbsolutePath());
+		}
+		return mocks; 
 	}
 
 	public static File createTempFile(String prefix, String suffix, File directory)
 			throws IOException{
-		return null; //TODO
+		
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded("");
+		
+		String path = VirtualFileSystem.getInstance().createTempFile(prefix, suffix, directory);
+		if(path==null){
+			throw new IOException();
+		}
+		return new MockFile(path); 
 	}
 
 	public static File createTempFile(String prefix, String suffix)
@@ -86,7 +99,7 @@ public class MockFile extends File{
 
 	@Override
 	public int compareTo(File pathname) {
-		return 0; //TODO
+		return new File(getAbsolutePath()).compareTo(pathname); 
 	}
 
 	@Override
@@ -105,6 +118,9 @@ public class MockFile extends File{
 	@Override
 	public File getCanonicalFile() throws IOException {
 		String canonPath = getCanonicalPath();
+		
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(getAbsolutePath());
+		
 		return new MockFile(canonPath);
 	}
 
@@ -206,24 +222,57 @@ public class MockFile extends File{
 
 	@Override
 	public boolean isHidden() {
-		return false; //TODO
+		if(getName().startsWith(".")){
+			//this is not necessarily true in Windows
+			return true;
+		} else {
+			return false; 
+		}
 	}
 
 	@Override
 	public boolean setLastModified(long time) {
-		return false; //TODO
+        if (time < 0){
+        		throw new IllegalArgumentException("Negative time");
+        }
+        
+		FSObject target = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
+		if(target==null){
+			return false;
+		}
+
+		return target.setLastModified(time);
 	}
 
 	@Override
 	public long lastModified() {
-		return 0; //TODO
+		FSObject target = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
+		if(target==null){
+			return 0;
+		}
+
+		return target.getLastModified(); 
 	}
 
 	@Override
 	public long length() {
-		return 0; //TODO
+	
+		FSObject target = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
+		if(target==null){
+			return 0;
+		}
+
+		if(target.isFolder() || target.isDeleted()){
+			return 0;
+		}
+		
+		VFile file = (VFile) target;
+		
+		return file.getDataSize(); 
 	}
 
+	//following 3 methods are never used in SF110
+	
 	@Override
 	public long getTotalSpace() {
 		return 0; //TODO
@@ -241,7 +290,8 @@ public class MockFile extends File{
 
 	@Override
 	public boolean createNewFile() throws IOException {
-		 return VirtualFileSystem.getInstance().createFile(getAbsolutePath());
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(getAbsolutePath()); 
+		return VirtualFileSystem.getInstance().createFile(getAbsolutePath());
 	}
 
 	@Override
@@ -250,8 +300,12 @@ public class MockFile extends File{
 	}
 
 	@Override
-	public boolean renameTo(File dest) {
-		return false; //TODO
+	public boolean renameTo(File dest) {				
+		boolean renamed = VirtualFileSystem.getInstance().rename(
+				this.getAbsolutePath(), 
+				dest.getAbsolutePath());
+		
+		return renamed;
 	}
 
 	@Override
@@ -335,6 +389,7 @@ public class MockFile extends File{
 
 	@Override
 	public String getCanonicalPath() throws IOException {
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(getAbsolutePath()); 
 		return super.getCanonicalPath();
 	}
 

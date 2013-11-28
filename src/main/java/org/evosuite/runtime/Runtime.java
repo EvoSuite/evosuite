@@ -20,7 +20,7 @@
  */
 package org.evosuite.runtime;
 
-import java.io.EvoSuiteIO;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,26 +45,25 @@ import org.slf4j.LoggerFactory;
  */
 public class Runtime {
 
-	private static Logger logger = LoggerFactory.getLogger(Runtime.class);
+	private static final Logger logger = LoggerFactory.getLogger(Runtime.class);
 
-	private static Runtime singleton = new Runtime();
-	
-	private boolean hasAddedRandom;
-	private boolean hasAddedSystem;
-	private boolean hasAddedFiles;
-	
+	private static final Runtime singleton = new Runtime();
+
+	private volatile boolean hasAddedRandom;
+	private volatile boolean hasAddedSystem;
+	private volatile boolean hasAddedFiles;
+
 	protected Runtime(){		
 	}
-	
+
 	public synchronized static Runtime getInstance(){
 		return singleton;
 	}
-	
+
 	public synchronized static void resetSingleton(){
 		singleton.resetRuntime();
-		singleton = new Runtime();
 	}
-	
+
 	/**
 	 * Resets all simulated classes to an initial default state (so that it
 	 * seems they have never been used by previous test case executions)
@@ -72,20 +71,20 @@ public class Runtime {
 	 * (Idea by Gordon, JavaDoc written by Daniel)
 	 */
 	public void resetRuntime() {
+
+		hasAddedRandom = false;
+		hasAddedSystem = false;
+		hasAddedFiles = false;
+
 		if (Properties.REPLACE_CALLS) {
 			Random.reset();
 			System.reset();
 		}
 
-		if (Properties.VIRTUAL_FS) {
-			//TODO
-			
-			/*
+		if (Properties.VIRTUAL_FS) {			
 			logger.info("Resetting the VFS...");
-			FileSystem.reset();
-			logger.info("Enabling the VFS...");
-			EvoSuiteIO.enableVFS();
-			*/
+			VirtualFileSystem.getInstance().resetSingleton();
+			VirtualFileSystem.getInstance().init();
 		}
 	}
 
@@ -111,80 +110,34 @@ public class Runtime {
 		}
 
 		if (Properties.VIRTUAL_FS) {
-			//TODO
-			//handleVirtualFS(test);
+			handleVirtualFS(test);
 		}
 	}
 
-	/*
-	private void handleVirtualFS(TestCase test) {
-		EvoSuiteIO.disableVFS();
-		test.setAccessedFiles(new ArrayList<String>(
-				EvoSuiteIO.getFilesAccessedByCUT()));
 
-		if (!hasAddedFiles && EvoSuiteIO.filesWereAccessedByCUT()) {
+	private void handleVirtualFS(TestCase test) {
+		test.setAccessedFiles(new ArrayList<String>(VirtualFileSystem.getInstance().getAccessedFiles()));
+
+		if (!hasAddedFiles && VirtualFileSystem.getInstance().getAccessedFiles().size() > 0) {
 			logger.info("Adding EvoSuiteFile calls to cluster");
 
 			hasAddedFiles = true;
 
-			/**
-			 * maps from the name of a FileSystem method to a class array containing its
-			 * parameter types
-			 * /
-			Map<String, Class<?>[]> fileOperations = new HashMap<String, Class<?>[]>();
-			fileOperations.put("setFileContent", new Class<?>[] {
-					EvoSuiteFile.class, String.class });
-			fileOperations.put("setReadPermission", new Class<?>[] {
-					EvoSuiteFile.class, boolean.class });
-			fileOperations.put("setWritePermission", new Class<?>[] {
-					EvoSuiteFile.class, boolean.class });
-			fileOperations.put("setExecutePermission", new Class<?>[] {
-					EvoSuiteFile.class, boolean.class });
-			fileOperations.put("deepDelete",
-					new Class<?>[] { EvoSuiteFile.class });
-			fileOperations.put("createFile",
-					new Class<?>[] { EvoSuiteFile.class });
-			fileOperations.put("createDirectory",
-					new Class<?>[] { EvoSuiteFile.class });
-			fileOperations.put("createAndFillDirectory",
-					new Class<?>[] { EvoSuiteFile.class });
-			fileOperations.put("createParent",
-					new Class<?>[] { EvoSuiteFile.class });
-			fileOperations.put("deepDeleteParent",
-					new Class<?>[] { EvoSuiteFile.class });
-
-
-			/**
-			 * the set of file operation selectors that shall be used to select
-			 * FileSystem methods
-			 * /
-			Set<FileOperationSelector> fileOperationSelectors = new HashSet<FileOperationSelector>();
-			fileOperationSelectors.add(FileOperationSelectors.FILE_CONTENT_MODIFICATION);
-			fileOperationSelectors.add(FileOperationSelectors.CREATION_AND_DELETION);
-			fileOperationSelectors.add(FileOperationSelectors.PARENT_CREATION_AND_DELETION);
-			fileOperationSelectors.add(FileOperationSelectors.PERMISSION_MODIFICATION);
-			fileOperationSelectors.add(FileOperationSelectors.DIRECTORY_CONTENT_MODIFICATION);
-
-
 			try {
-				for (String method : fileOperations.keySet()) {
-					for (FileOperationSelector fileOperationSelector : fileOperationSelectors) {
-						if (fileOperationSelector.select(method)) {
-							TestCluster.getInstance().addTestCall(new GenericMethod(
-									FileSystem.class.getMethod(method,
-											fileOperations.get(method)),
-											new GenericClass(
-													FileSystem.class)));
-							break;
-						}
-					}
-				}
-			} catch (NoSuchMethodException e) {
+				/*
+				 * all methods in FileSystemHandling will be used in the search
+				 */
+				for(Method m : FileSystemHandling.class.getMethods()){
+					TestCluster.getInstance().addTestCall(
+							new GenericMethod(m,
+									new GenericClass(FileSystemHandling.class)));
+				}						
+			} catch (Exception e) {
 				logger.error("Error while handling virtual file system: "+e.getMessage(),e);
 			}
 		}
 	}
-	*/
+
 	private void handleReplaceCalls() {
 
 		if (!hasAddedRandom && Random.wasAccessed()) {

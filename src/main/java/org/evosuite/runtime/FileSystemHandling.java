@@ -1,13 +1,19 @@
 package org.evosuite.runtime;
 
+import org.evosuite.runtime.vfs.FSObject;
+import org.evosuite.runtime.vfs.VFile;
+
 /**
  * This class is used create files as test data
  * in the test cases.
  * 
  * <p>
- * The methods in this class are the only ones that are going
+ * The methods in this class are the main ones that are going
  * to be used in the generated JUnit files to manipulate
  * the virtual file system.
+ * Note: if SUT takes as input a {@code File}, then it can happen
+ * that mock {@code java.io} objects manipulating the VFS will appear in the test
+ * cases.
  * 
  * @author arcuri
  *
@@ -40,27 +46,75 @@ public class FileSystemHandling {
 	 * @return
 	 */
 	public static boolean appendDataToFile(EvoSuiteFile file, byte[] data){
-		return false; //TODO
+		
+		if(data==null){
+			return false;
+		}
+		
+		FSObject target = VirtualFileSystem.getInstance().findFSObject(file.getPath());
+		//can we write to it?
+		if(target!=null && (target.isFolder() || !target.isWritePermission())){
+			return false;
+		}
+		
+		if(target==null){
+			//if it does not exist, let's create it
+			boolean created = VirtualFileSystem.getInstance().createFile(file.getPath());
+			if(!created){
+				return false;
+			}
+			target = VirtualFileSystem.getInstance().findFSObject(file.getPath());
+			assert target != null;
+		}
+		
+		VFile vf = (VFile) target;
+		vf.writeBytes(data, 0, data.length, true);
+		
+		return true;
 	}
 	
 	
-	public static boolean createFolder(EvoSuiteFile file){
-		return false; //TODO
+	public static boolean createFolder(EvoSuiteFile file){		
+		return VirtualFileSystem.getInstance().createFolder(file.getPath());
 	}
 	
-	public static boolean setReadable(EvoSuiteFile file, boolean isReadable){
-		return false; //TODO
+	/**
+	 * Set read/write/execute permissions to the given file
+	 * 
+	 * @param file
+	 * @param isReadable
+	 * @param isWritable
+	 * @param isExecutable
+	 * @return
+	 */
+	public static boolean setPermissions(EvoSuiteFile file, boolean isReadable, boolean isWritable, boolean isExecutable){
+		FSObject target = VirtualFileSystem.getInstance().findFSObject(file.getPath());
+		if(target == null){
+			return false; 
+		}
+		
+		target.setExecutePermission(isReadable);
+		target.setWritePermission(isWritable);
+		target.setExecutePermission(isExecutable);
+		return true;
+	}
+	
+	/**
+	 * All operations on the given {@code file} will throw an IOException if that
+	 * appears in their method signature
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public static boolean shouldThrowIOException(EvoSuiteFile file){
+		return VirtualFileSystem.getInstance().setShouldThrowIOException(file); 
 	}
 
-	public static boolean setWritable(EvoSuiteFile file, boolean isWritable){
-		return false; //TODO
-	}
-
-	public static boolean setExecutable(EvoSuiteFile file, boolean isExecutable){
-		return false; //TODO
-	}
-	
-	public static boolean shouldThrowIOException(EvoSuiteFile file, boolean shouldThrow){
-		return false; //TODO
+	/**
+	 * All operations in the entire VFS will throw an IOException if that
+	 * appears in their method signature
+	 */
+	public static boolean shouldAllThrowIOExceptions(){
+		return VirtualFileSystem.getInstance().setShouldAllThrowIOExceptions(); 
 	}
 }
