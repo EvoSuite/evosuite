@@ -177,6 +177,15 @@ public class VirtualFileSystem {
 	}
 	
 	/**
+	 * For each file that has been accessed during the search, keep track of it
+	 * 
+	 * @return a set of file paths
+	 */
+	public Set<String> getAccessedFiles(){
+		return new HashSet<String>(accessedFiles);
+	}
+	
+	/**
 	 * Create a tmp file, and return its absolute path
 	 * 
 	 * @param prefix
@@ -281,6 +290,32 @@ public class VirtualFileSystem {
 		}
 		
 		return true;
+	}
+	
+	public boolean rename(String source, String destination){
+		
+		String parentSource = new File(source).getParent();
+		String parentDest = new File(destination).getParent();
+		
+		if( (parentSource==null && parentDest!=null) ||
+				(!parentSource.equals(parentDest))){
+			//both need to be in the same folder
+			return false;
+		}
+		
+		FSObject src = findFSObject(source);
+		if(src==null){
+			//source should exist
+			return false;
+		}
+
+		FSObject dest = findFSObject(destination);
+		if(dest != null){
+			//destination should not exist
+			return false;
+		}
+
+		return src.rename(destination);
 	}
 	
 	public boolean createFolder(String rawPath){		

@@ -107,7 +107,7 @@ public class FileSystemHandling {
 	 * @return
 	 */
 	public static boolean shouldThrowIOException(EvoSuiteFile file){
-		return false; //TODO
+		return VirtualFileSystem.getInstance().setShouldThrowIOException(file); 
 	}
 
 	/**
@@ -115,6 +115,6 @@ public class FileSystemHandling {
 	 * appears in their method signature
 	 */
 	public static boolean shouldAllThrowIOExceptions(){
-		return false; //TODO
+		return VirtualFileSystem.getInstance().setShouldAllThrowIOExceptions(); 
 	}
 }

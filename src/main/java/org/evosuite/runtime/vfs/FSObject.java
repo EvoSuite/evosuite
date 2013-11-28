@@ -19,8 +19,11 @@ public abstract class FSObject {
 	/**
 	 * Normalized path uniquely identifying this file on the VFS
 	 */
-	protected final String path;
+	protected volatile String path;
 	
+	/**
+	 * The direct parent folder
+	 */
 	protected final VFolder parent;
 	
 	/**
@@ -29,6 +32,8 @@ public abstract class FSObject {
 	 * file is deleted
 	 */
 	protected volatile boolean deleted;
+
+	protected volatile long lastModified;
 	
 	public FSObject(String path,VFolder parent){		
 		readPermission = true;
@@ -37,8 +42,20 @@ public abstract class FSObject {
 		this.path = normalizePath(path);	
 		this.parent = parent;
 		this.deleted = false;
+		this.lastModified = java.lang.System.currentTimeMillis();
 	}
 
+	public boolean rename(String newPath){
+		
+		if(!isWritePermission() || !parent.isWritePermission()){
+			return false;
+		}
+		
+		path = newPath;
+				
+		return true; 
+	}
+	
 	public boolean delete(){
 		parent.removeChild(getName());
 		deleted = true;
@@ -109,5 +126,21 @@ public abstract class FSObject {
 	@Override
 	public String toString(){
 		return getPath();
+	}
+
+	public long getLastModified() {
+		return lastModified;
+	}
+
+	public boolean setLastModified(long lastModified) {
+		if(!this.isWritePermission()){
+			return false;
+		}
+		this.lastModified = lastModified;
+		return true;
+	}
+
+	public VFolder getParent() {
+		return parent;
 	}
 }

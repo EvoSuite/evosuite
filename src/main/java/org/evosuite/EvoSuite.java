@@ -156,7 +156,7 @@ public class EvoSuite {
 
 			setupProperties();
 
-			if(Properties.REPLACE_CALLS){
+			if(Properties.REPLACE_CALLS || Properties.VIRTUAL_FS){
 				//TODO check if/why it is set here
 				/*
 				 * This throws an exception if not available
