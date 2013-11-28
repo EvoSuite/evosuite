@@ -116,8 +116,12 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 							mn.instructions.insertBefore(v.getASMNode(), instrumentation);
 						else if(v.isArrayStoreInstruction())
 							mn.instructions.insertBefore(v.getSourceOfArrayReference().getASMNode(), instrumentation);
-						else if(v.isArrayLoadInstruction())
-							mn.instructions.insertBefore(v.getSourceOfArrayReference().getASMNode(), instrumentation);
+
+						// Loading of an array is already handled by ALOAD
+						// AILOAD would only be needed if we define DU pairs on 
+						// array indices
+						//						else if(v.isArrayLoadInstruction())
+						//							mn.instructions.insertBefore(v.getSourceOfArrayReference().getASMNode(), instrumentation);
 						else if(v.isUse())
 							mn.instructions.insert(v.getASMNode(), instrumentation);
 						else
@@ -207,10 +211,8 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 		} else if(instruction.isArrayStoreInstruction()) {
 			// Object, index, value
 			instrumentation.add(new InsnNode(Opcodes.DUP));
-		} else if(instruction.isArrayLoadInstruction()) {
-			instrumentation.add(new InsnNode(Opcodes.DUP));
-			// instrumentation.add(new InsnNode(Opcodes.DUP2));
-			// instrumentation.add(new InsnNode(Opcodes.POP));
+//		} else if(instruction.isArrayLoadInstruction()) {
+//			instrumentation.add(new InsnNode(Opcodes.DUP));
 		} else if(instruction.isFieldNodeDU()) {
 			// TODO: FieldNodeDU takes care of ArrayStore - why?
 			Type type = Type.getType(instruction.getFieldType());
