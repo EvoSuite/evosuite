@@ -97,6 +97,10 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		return instance;
 	}
 	
+	public static void clearInstance() {
+		instance = null;
+	}
+	
 	/**
 	 * This method is called when a new individual is sent from a client.
 	 * The individual represents the best individual of the current generation.
