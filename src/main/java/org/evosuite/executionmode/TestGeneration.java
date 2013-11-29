@@ -466,7 +466,9 @@ public class TestGeneration {
 				SearchStatistics.getInstance().writeStatistics();
 			}
 		}
-		return SearchStatistics.getInstance().getTestGenerationResults();
+		List<TestGenerationResult> results = SearchStatistics.getInstance().getTestGenerationResults();
+		SearchStatistics.clearInstance();
+		return results;
 	}
 
 	
