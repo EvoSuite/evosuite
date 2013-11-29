@@ -361,16 +361,21 @@ public class TestSuiteWriter implements Opcodes {
 		// FIXME: I disagree - it should be covered by the below branches
 		//we always need this one, due to for example logging setup
 
-		if (Properties.REPLACE_CALLS || wasSecurityException
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || wasSecurityException
 		        || SystemInUtil.getInstance().hasBeenUsed()) {
 			imports_sorted.add(org.junit.Before.class.getCanonicalName());
 			imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
 		}
 
-		if (Properties.REPLACE_CALLS || wasSecurityException) {
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || wasSecurityException) {
 			imports_sorted.add(org.junit.After.class.getCanonicalName());
 		}
 
+		
+		if(Properties.VIRTUAL_FS){
+			imports_sorted.add(org.evosuite.runtime.EvoSuiteFile.class.getCanonicalName());
+		}
+		
 		if (wasSecurityException) {
 			//Add import info for EvoSuite classes used in the generated test suite
 			imports_sorted.add(Sandbox.class.getCanonicalName());
@@ -643,6 +648,8 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS) {
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.agent.InstrumentingAgent.activate(); \n");
 		}
