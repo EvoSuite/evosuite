@@ -67,8 +67,7 @@ public class Runtime {
 	/**
 	 * Resets all simulated classes to an initial default state (so that it
 	 * seems they have never been used by previous test case executions)
-	 * <p>
-	 * (Idea by Gordon, JavaDoc written by Daniel)
+	 * 
 	 */
 	public void resetRuntime() {
 
