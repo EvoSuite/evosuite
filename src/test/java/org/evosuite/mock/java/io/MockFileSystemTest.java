@@ -34,7 +34,9 @@ public class MockFileSystemTest extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		Assert.assertTrue(result != null);
+		
+		GeneticAlgorithm<?> ga = getGAFromResult(result);				
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

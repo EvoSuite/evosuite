@@ -18,6 +18,7 @@
 package org.evosuite.sandbox;
 
 import java.awt.AWTPermission;
+import java.io.File;
 import java.io.FilePermission;
 import java.io.SerializablePermission;
 import java.lang.management.ManagementPermission;
@@ -82,10 +83,26 @@ import org.slf4j.LoggerFactory;
  * settings in this class could be considered as the "default" settings.
  * </p>
  */
-class MSecurityManager extends SecurityManager {
+public class MSecurityManager extends SecurityManager {
 
 	private static Logger logger = LoggerFactory.getLogger(MSecurityManager.class);
 
+	/**
+	 * Needed for the VFS
+	 */
+	private static final File tmpFile;
+	
+	static{
+		File tmp = null;
+		try {
+			tmp = File.createTempFile("EvosuiteTmpFile", ".tmp");
+			tmp.deleteOnExit();
+		} catch (Exception e) {
+			logger.error("Error while trying to create tmp file: "+e.getMessage());
+		}		
+		tmpFile = tmp;
+	}
+		
 	private final PermissionStatistics statistics = PermissionStatistics.getInstance();
 
 	private final SecurityManager defaultManager;
@@ -143,6 +160,18 @@ class MSecurityManager extends SecurityManager {
 		masterNodeRemoteMethodNames = Collections.unmodifiableSet(names);
 	}
 
+	/**
+	 * This security manager creates one file when its class is loaded.
+	 * This file will be used for example by the virtual file system.
+	 * The file has to be created here, because creating new files 
+	 * is prohibited by the security manager
+	 * 
+	 * @return
+	 */
+	public static File getRealTmpFile(){
+		return tmpFile;
+	}
+	
 	/**
 	 * Use this method if you are going to execute SUT code from a privileged
 	 * thread (ie if you don't want to do it on a new thread)
@@ -1040,7 +1069,8 @@ class MSecurityManager extends SecurityManager {
 			return true;
 		}
 
-		if(fp.getName().equals(VirtualFileSystem.getInstance().getRealTmpFile().getPath())){
+		if(Properties.VIRTUAL_FS && 
+				fp.getName().equals(VirtualFileSystem.getInstance().getRealTmpFile().getPath())){
 			//we need at least one real file with all permissions, otherwise the VFS will not work
 			return true;
 		}
