@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VFolder;
+import org.evosuite.sandbox.MSecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,18 +72,7 @@ public class VirtualFileSystem {
 	private final Set<String> classesThatShouldThrowIOException;
 	
 	
-	private static final File tmpFile;
 	
-	static{
-		File tmp = null;
-		try {
-			tmp = File.createTempFile("EvosuiteTmpFile", ".tmp");
-			tmp.deleteOnExit();
-		} catch (IOException e) {
-			logger.error("Error while trying to create tmp file: "+e.getMessage());
-		}
-		tmpFile = tmp;
-	}
 	
 	/**
 	 * Hidden, main constructor
@@ -123,7 +113,7 @@ public class VirtualFileSystem {
 	 * @return
 	 */
 	public File getRealTmpFile(){
-		return tmpFile;
+		return MSecurityManager.getRealTmpFile();
 	}
 	
 	public void throwSimuledIOExceptionIfNeeded(String path) throws IOException{
