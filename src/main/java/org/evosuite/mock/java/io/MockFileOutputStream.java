@@ -159,6 +159,11 @@ public class MockFileOutputStream extends FileOutputStream{
 
 	@Override
 	public FileChannel getChannel() {
-		return null;  //TODO
+		synchronized (this) {
+			if (channel == null) {
+				//channel = new EvoFileChannel(position,path,false,true); //FIXME 
+			}
+			return channel;
+		}
 	}
 }
