@@ -31,6 +31,23 @@ public class VFile extends FSObject{
 		return data.size();
 	}
 	
+	
+	public synchronized void setLength(int newLength){
+		
+		/*
+		 * Note: this implementation is not particularly efficient...
+		 * but setLength is rarely called
+		 */
+		
+		while(newLength > data.size()){
+			data.add((byte)0);
+		}
+	
+		while(data.size() > newLength){
+			data.remove(data.size()-1);
+		}
+	}
+	
 	public synchronized int read(int position) throws IllegalArgumentException{
 		if(position<0){
 			throw new IllegalArgumentException("Position in the file cannot be negative");
@@ -41,6 +58,32 @@ public class VFile extends FSObject{
 		}
 		
 		return data.get(position);
+	}
+
+	public synchronized int writeBytes(int position, byte b[], int off, int len) throws IllegalArgumentException{
+		
+		if(position<0){
+			throw new IllegalArgumentException("Position in the file cannot be negative");
+		}
+				
+		if(deleted || !isWritePermission()){
+			return 0;
+		}
+		
+		if(position >= data.size()){
+			setLength(position+1);
+		}
+		
+		int written = 0;
+			for(int i=off; i<b.length & (i-off)<len; i++){
+			data.set(position,(b[i]));
+			position++;
+			written++;
+		}
+		
+		setLastModified(java.lang.System.currentTimeMillis());
+		
+		return written;
 	}
 	
 	public synchronized boolean writeBytes(byte b[], int off, int len, boolean append) {
