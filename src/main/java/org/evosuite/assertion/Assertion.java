@@ -17,8 +17,11 @@
  */
 package org.evosuite.assertion;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.evosuite.coverage.mutation.Mutation;
@@ -47,7 +50,7 @@ public abstract class Assertion implements Serializable {
 	/** Statement to which the assertion is added */
 	protected StatementInterface statement;
 
-	protected transient Set<Mutation> killedMutants = new HashSet<Mutation>();
+	protected transient Set<Mutation> killedMutants = new LinkedHashSet<Mutation>();
 
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(Assertion.class);
@@ -209,4 +212,12 @@ public abstract class Assertion implements Serializable {
 	public void changeClassLoader(ClassLoader loader) {
 		// No-op by default?
 	}
+	
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+    IOException {
+		ois.defaultReadObject();
+
+		killedMutants = new LinkedHashSet<Mutation>();
+	}
+
 }

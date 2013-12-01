@@ -17,6 +17,8 @@
  */
 package org.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -60,7 +62,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	protected final ListenableList<StatementInterface> statements;
 
 	/** Coverage goals this test covers */
-	private final transient Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
+	private transient Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
 
 	/** Violations revealed by this test */
 	private final transient Set<ContractViolation> contractViolations = new LinkedHashSet<ContractViolation>();
@@ -871,14 +873,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public void setAccessedFiles(List<String> files) {
 		accessedFiles = files;
 	}
-	/*
+
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
 		ois.defaultReadObject();
 
-		coveredGoals = new HashSet<TestFitnessFunction>();
+		coveredGoals = new LinkedHashSet<TestFitnessFunction>();
 	}
-	*/
 
 	public void setFailing(boolean failing) {
 		isFailing = failing;

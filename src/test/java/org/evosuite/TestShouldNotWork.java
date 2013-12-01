@@ -17,8 +17,11 @@
  */
 package org.evosuite;
 
+import java.util.List;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.result.TestGenerationResult;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,9 +44,10 @@ public class TestShouldNotWork {
 		};
 
 		
-		Object result = evosuite.parseCommandLine(command);
+		List<TestGenerationResult> result = (List<TestGenerationResult>) evosuite.parseCommandLine(command);
+		Assert.assertTrue(result.isEmpty());
 		
-		Assert.assertNull(result);
+		// Assert.assertNull(result);
 	}
 	
 }
