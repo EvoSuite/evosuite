@@ -1,17 +1,16 @@
 package org.evosuite.instrumentation;
 
-import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Method;
 
 import org.evosuite.Properties;
-import org.evosuite.utils.RegexDistanceUtils;
+import org.evosuite.SystemTest;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.TrivialForDynamicSeedingRegex;
 
-public class TestRegexInstrumentation {
+public class TestRegexInstrumentation extends SystemTest {
 
 	@Test
 	public void testTrivialForDynamicSeedingRegex() throws Throwable{
