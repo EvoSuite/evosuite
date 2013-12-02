@@ -162,9 +162,19 @@ public class VirtualFileSystem {
 		createFolder(workingDir);
 	}
 	
+	
+	
 	private void markAccessedFile(String path){
+		
+		if(path.contains("\"")){
+			//shouldn't really have paths with ". Furthermore, " would mess up the writing of JUnit files
+			return;
+		}
+		
 		accessedFiles.add(path);
 	}
+	
+	
 	
 	/**
 	 * For each file that has been accessed during the search, keep track of it
