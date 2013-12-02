@@ -1,12 +1,13 @@
 package org.evosuite.testcase;
 
 import org.evosuite.Properties;
+import org.evosuite.SystemTest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class JUnitTestCarvedChromosomeFactoryTest {
+public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 
 	private static final String defaultSelectedJUnit = Properties.SELECTED_JUNIT;
 	private static final int defaultSeedMutations = Properties.SEED_MUTATIONS;

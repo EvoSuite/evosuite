@@ -138,6 +138,7 @@ public class SystemTest {
 		hasBeenAlreadyRun = false;
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected GeneticAlgorithm<?> getGAFromResult(Object result) {
 		assert(result instanceof List);
 		List<TestGenerationResult> results = (List<TestGenerationResult>)result;
