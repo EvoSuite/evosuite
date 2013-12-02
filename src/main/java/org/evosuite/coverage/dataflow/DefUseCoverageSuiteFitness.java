@@ -59,7 +59,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	public Map<DefUsePairType, Integer> coveredGoals = new HashMap<DefUsePairType, Integer>();
 
-	private final Map<Definition, Integer> maxDefinitionCount = new HashMap<Definition, Integer>();
+	// TODO: Need readObject?
+	private transient final Map<Definition, Integer> maxDefinitionCount = new HashMap<Definition, Integer>();
 
 	private final Map<String, Integer> maxMethodCount = new HashMap<String, Integer>();
 
