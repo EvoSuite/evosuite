@@ -46,19 +46,13 @@ public class MockFileInputStream extends FileInputStream{
 			throw new NullPointerException();
 		}
 
-		VFile vf = getFileForReading();
+		VFile vf = MockNative.getFileForReading(path);
 		if(vf==null){
 			throw new FileNotFoundException();
 		}
 	}
 	
-	private VFile getFileForReading(){
-		FSObject target = VirtualFileSystem.getInstance().findFSObject(path);
-		if(target==null || target.isDeleted() || target.isFolder() || !target.isReadPermission()){
-			return null;
-		}
-		return (VFile) target;
-	}
+	
 	
 	//we do not really handle this constructor
 	public MockFileInputStream(FileDescriptor fdObj) {
@@ -69,16 +63,12 @@ public class MockFileInputStream extends FileInputStream{
 	// ----  read methods  ----------
 
 	public int read() throws IOException{
-		VFile vf = getFileForReading();
-		if(vf==null || closed){
+		
+		if(closed){
 			throw new IOException();
 		}
 		
-		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
-		
-		int b = vf.read(position.getAndIncrement());
-				
-		return b; 
+		return MockNative.read(path, position); 
 	}
 
 	private  int readBytes(byte b[], int off, int len) throws IOException{
@@ -111,7 +101,7 @@ public class MockFileInputStream extends FileInputStream{
 	@Override
 	public int available() throws IOException{
 		
-		VFile vf = getFileForReading();
+		VFile vf = MockNative.getFileForReading(path);
 		if(vf==null){
 			throw new IOException();
 		}
@@ -161,7 +151,7 @@ public class MockFileInputStream extends FileInputStream{
 	public FileChannel getChannel() {
 		synchronized (this) {
 			if (channel == null) {
-				//TODO
+				channel = new EvoFileChannel(position,path,true,false); 
 			}
 			return channel;
 		}
