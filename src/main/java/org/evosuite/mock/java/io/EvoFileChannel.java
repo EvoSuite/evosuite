@@ -16,6 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * This is not a mock of FileChannel, as FileChannel is an abstract class.
  * This class is never instantiated directly from the SUTs, but rather from mock classes (eg MockFileInputStream).
  * 
+ * <p>
+ * FIXME need to support blocking operations
+ * 
  * @author arcuri
  *
  */
@@ -25,8 +28,8 @@ public class EvoFileChannel extends FileChannel{
 	private final String path;
 	private final boolean isOpenForRead;
 	private final boolean isOpenForWrite;
-	
-	
+
+
 	/**
 	 * Main constructor
 	 * 
@@ -45,48 +48,60 @@ public class EvoFileChannel extends FileChannel{
 		this.isOpenForWrite = isOpenForWrite;
 	}
 
+	// -----  read --------
+	
 	@Override
 	public int read(ByteBuffer dst) throws IOException {
-		
-		if(!isOpenForRead){
-			throw new NonReadableChannelException();
-		}
-		
-		//TODO close
-		
-		int r = dst.remaining();
-		int counter = 0;
-		for(int i=0; i<r; i++){
-			int b = MockNative.read(path, position);
-			if(b < 0){ //end of stream
-				return -1;
-			}
-			
-			dst.put((byte)b);
-			counter++;
-		}
-		
-		return counter;
+		return read(new ByteBuffer[]{dst},0,1,position);
 	}
 
 	@Override
-	public int read(ByteBuffer dst, long position) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public int read(ByteBuffer dst, long pos) throws IOException {
 
+		if(pos < 0){
+			throw new IllegalArgumentException("Negative position: "+pos);
+		}
+
+		AtomicInteger tmp = new AtomicInteger((int)pos);
+
+		return read(new ByteBuffer[]{dst},0,1,tmp);
+	}
 
 	@Override
 	public long read(ByteBuffer[] dsts, int offset, int length)
 			throws IOException {
-		
-		if(!isOpenForWrite){
-			throw new NonWritableChannelException();
+		return read(dsts,offset,length,position);
+	}
+
+	private int read(ByteBuffer[] dsts, int offset, int length, AtomicInteger posToUpdate)
+			throws IOException {
+		if(!isOpenForRead){
+			throw new NonReadableChannelException();
+		}
+
+		//TODO close
+
+		int counter = 0;
+
+		for(int j=offset; j<length; j++){
+			ByteBuffer dst = dsts[j];
+			int r = dst.remaining();
+			for(int i=0; i<r; i++){
+				int b = MockNative.read(path, posToUpdate);
+				if(b < 0){ //end of stream
+					return -1;
+				}
+
+				dst.put((byte)b);
+				counter++;
+			}
 		}
 		
-		// TODO Auto-generated method stub
-		return 0;
+		return counter;		
 	}
+
+
+	// -------- write ----------
 
 	@Override
 	public int write(ByteBuffer src) throws IOException {
@@ -101,6 +116,15 @@ public class EvoFileChannel extends FileChannel{
 		return 0;
 	}
 
+	@Override
+	public int write(ByteBuffer src, long position) throws IOException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	//------ others --------
+	
+	
 	@Override
 	public long position() throws IOException {		
 		return position.get();
@@ -143,11 +167,6 @@ public class EvoFileChannel extends FileChannel{
 		return 0;
 	}
 
-	@Override
-	public int write(ByteBuffer src, long position) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	@Override
 	public MappedByteBuffer map(MapMode mode, long position, long size)

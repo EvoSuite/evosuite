@@ -68,7 +68,7 @@ public class FileSystemHandling {
 		}
 		
 		VFile vf = (VFile) target;
-		vf.writeBytes(data, 0, data.length, true);
+		vf.writeBytes(data, 0, data.length);
 		
 		return true;
 	}
