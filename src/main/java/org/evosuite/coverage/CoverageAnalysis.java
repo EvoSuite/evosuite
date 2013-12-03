@@ -46,8 +46,6 @@ public class CoverageAnalysis {
 	private static void reinstrument(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
 		Properties.Criterion oldCriterion = Properties.CRITERION;
-		if (oldCriterion == criterion)
-			return;
 
 		if (!ExecutionTracer.isTraceCallsEnabled()) {
 			ExecutionTracer.enableTraceCalls();
@@ -58,6 +56,9 @@ public class CoverageAnalysis {
 				test.clearCachedMutationResults();
 			}
 		}
+
+		if (oldCriterion == criterion)
+			return;
 
 		if (isMutationCriterion(criterion) && isMutationCriterion(oldCriterion)) {
 			if (oldCriterion == Properties.Criterion.WEAKMUTATION) {
@@ -70,6 +71,7 @@ public class CoverageAnalysis {
 			}
 			return;
 		}
+
 
 		testSuite.setChanged(true);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
@@ -171,9 +173,10 @@ public class CoverageAnalysis {
 
 		int covered = 0;
 		List<TestFitnessFunction> goals = factory.getCoverageGoals();
+		
 		for (TestFitnessFunction goal : goals) {
 			if (goal.isCoveredBy(testSuite)) {
-				logger.debug("Goal " + goal + " is covered");
+				logger.debug("Goal {} is covered", goal);
 				covered++;
 				if (Properties.CRITERION == Properties.Criterion.DEFUSE) {
 					StatisticEntry entry = SearchStatistics.getInstance().getLastStatisticEntry();
@@ -188,7 +191,7 @@ public class CoverageAnalysis {
 
 				}
 			} else {
-				logger.debug("Goal " + goal + " is not covered");
+				logger.debug("Goal {} is not covered", goal);
 			}
 		}
 
