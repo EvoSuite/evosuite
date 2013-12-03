@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.runtime.VirtualFileSystem;
 import org.evosuite.runtime.vfs.FSObject;
@@ -13,11 +14,6 @@ import org.evosuite.runtime.vfs.VFile;
 
 public class MockFileOutputStream extends FileOutputStream{
 	
-	/**
-	 * True if the file is opened for append.
-	 */
-	private final boolean append;
-
 	/**
 	 * The path to the file
 	 */
@@ -30,7 +26,11 @@ public class MockFileOutputStream extends FileOutputStream{
 
 	private volatile boolean closed = false;
 
-
+	/**
+	 * The position to write in the stream next
+	 */
+	private final AtomicInteger position = new AtomicInteger(0);
+	
 	//-------- constructors  ----------------
 	
 	public MockFileOutputStream(String name) throws FileNotFoundException {
@@ -53,7 +53,6 @@ public class MockFileOutputStream extends FileOutputStream{
 		super(VirtualFileSystem.getInstance().getRealTmpFile(),true); //just to make the compiler happy
 		
 		path = (file != null ? file.getAbsolutePath() : null);
-		this.append = append;
 		
 		FSObject target = VirtualFileSystem.getInstance().findFSObject(path);
 		if(target==null){
@@ -66,12 +65,15 @@ public class MockFileOutputStream extends FileOutputStream{
 		if(target==null || target.isDeleted() || target.isFolder() || !target.isWritePermission()){
 			throw new FileNotFoundException();
 		}
+		
+		if(!append){
+			((VFile)target).eraseData();
+		}
 	}
 
 	// we do not really handle this constructor, but anyway FileDescriptor is rare
 	public MockFileOutputStream(FileDescriptor fdObj) {
 		super(fdObj);
-		this.append = false;
 		this.path = "";
 	}
 
@@ -79,12 +81,8 @@ public class MockFileOutputStream extends FileOutputStream{
 	//----------  write methods  --------------
 	
 	
-	//it is a byte?
-	private void write(int b, boolean append) throws IOException{
-		writeBytes(new byte[]{(byte)b},0,1,append);
-	}
 
-	private void writeBytes(byte b[], int off, int len, boolean append)
+	private void writeBytes(byte b[], int off, int len)
 			throws IOException{
 		
 		FSObject target = VirtualFileSystem.getInstance().findFSObject(path);
@@ -103,25 +101,26 @@ public class MockFileOutputStream extends FileOutputStream{
 		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
 		
 		VFile vf = (VFile) target;
-		boolean written = vf.writeBytes(b, off, len, append);
-		if(!written){
+		int written = vf.writeBytes(position.get(),b, off, len);
+		if(written==0){
 			throw new IOException("Error in writing to file");
 		}
+		position.addAndGet(written);
 	}
 
 	@Override
 	public void write(int b) throws IOException {
-		write(b, append);
+		write(new byte[]{(byte)b},0,1);
 	}
 
 	@Override
 	public void write(byte b[]) throws IOException {
-		writeBytes(b, 0, b.length, append);
+		writeBytes(b, 0, b.length);
 	}
 
 	@Override
 	public void write(byte b[], int off, int len) throws IOException {
-		writeBytes(b, off, len, append);
+		writeBytes(b, off, len);
 	}
 
 	
@@ -161,7 +160,7 @@ public class MockFileOutputStream extends FileOutputStream{
 	public FileChannel getChannel() {
 		synchronized (this) {
 			if (channel == null) {
-				//channel = new EvoFileChannel(position,path,false,true); //FIXME 
+				channel = new EvoFileChannel(position,path,false,true);  
 			}
 			return channel;
 		}
