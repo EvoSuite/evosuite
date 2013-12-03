@@ -180,10 +180,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 			logger.info("Keeping class: " + fullyQualifiedTargetClass);
 			return result;
 		} catch (Throwable t) {
-			logger.error("ERROR OCCURRED: "+t);
-			for(StackTraceElement elem : t.getStackTrace()) {
-				logger.error(elem.toString());
-			}
+			logger.info("Error while loading class: "+t);
 			throw new ClassNotFoundException(t.getMessage(), t);
 		} finally {
 			if(is != null)

@@ -58,10 +58,6 @@ public class TestLinkedListInstrumentation extends SystemTest {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :" + result.getClass(),
-		                  result instanceof GeneticAlgorithm);
-
 		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
 		Assert.assertEquals("Wrong number of goals: ", 13, goals.size());
 
