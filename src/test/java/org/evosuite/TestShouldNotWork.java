@@ -17,17 +17,35 @@
  */
 package org.evosuite;
 
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.junit.Assert;
 import org.junit.Test;
 
 
 
 public class TestShouldNotWork {
 
-	@Test
-	public void testShouldNotWorkOnJavaPackage(){
+	@Test(expected=IllegalArgumentException.class)
+	public void testShouldNotWorkOnEvoSuitePackage(){
+		EvoSuite evosuite = new EvoSuite();
+		
+		String targetClass = org.evosuite.SystemTest.class.getCanonicalName();
+		
+		Properties.TARGET_CLASS = targetClass;
+		
+		String[] command = new String[]{				
+				"-generateSuite",
+				"-class",
+				targetClass
+		};
+
+		
+		evosuite.parseCommandLine(command);
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testJavaPackageNotOnProjectCP(){
 		EvoSuite evosuite = new EvoSuite();
 		
 		String targetClass = java.util.TreeMap.class.getCanonicalName();
@@ -41,9 +59,7 @@ public class TestShouldNotWork {
 		};
 
 		
-		Object result = evosuite.parseCommandLine(command);
-		
-		Assert.assertNull(result);
+		evosuite.parseCommandLine(command);
 	}
 	
 }
