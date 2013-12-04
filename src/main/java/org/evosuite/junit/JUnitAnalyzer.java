@@ -154,7 +154,7 @@ public class JUnitAnalyzer {
 
 				logger.warn("Found unstable test named "+testName+" -> " + failure.getException().getClass() + ": "+ failure.getMessage() );
 				for(StackTraceElement elem : failure.getException().getStackTrace()) {
-					logger.warn(elem.toString());
+					logger.info(elem.toString());
 				}
 
 				boolean toRemove = !(failure.getException() instanceof java.lang.AssertionError);
@@ -306,7 +306,7 @@ public class JUnitAnalyzer {
 		
 		URLClassLoader urlLoader;
 		try {
-			urlLoader = new JUnitTestClassLoader(new URL[]{dir.toURI().toURL()},(InstrumentingClassLoader) TestGenerationContext.getClassLoader());
+			urlLoader = new URLClassLoader(new URL[]{dir.toURI().toURL()},(InstrumentingClassLoader) TestGenerationContext.getClassLoader());
 		} catch (MalformedURLException e) {
 			logger.error(""+e.getMessage(),e);
 			return null;
