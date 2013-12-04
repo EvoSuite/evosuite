@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
-import org.evosuite.contracts.ContractViolation;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
