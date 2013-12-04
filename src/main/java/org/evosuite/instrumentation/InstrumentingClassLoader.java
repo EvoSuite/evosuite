@@ -191,7 +191,11 @@ public class InstrumentingClassLoader extends ClassLoader {
 				}
 		}
 	}
-	
+
+	public boolean hasInstrumentedClass(String className) {
+		return classes.containsKey(className);
+	}
+
 	/**
 	 * Before a new class is defined, we need to create a package definition for it
 	 * 
@@ -205,6 +209,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		    Package pkg = getPackage(pkgname);
 		    if(pkg==null){
 		    		definePackage(pkgname, null, null, null, null, null, null, null);
+		    		logger.info("Defined package (3): "+getPackage(pkgname)+", "+getPackage(pkgname).hashCode());
 		    }
 	    }
 	}
