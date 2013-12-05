@@ -9,7 +9,6 @@ import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.runtime.VirtualFileSystem;
-import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
 
 public class MockFileInputStream extends FileInputStream{
@@ -52,8 +51,6 @@ public class MockFileInputStream extends FileInputStream{
 		}
 	}
 	
-	
-	
 	//we do not really handle this constructor
 	public MockFileInputStream(FileDescriptor fdObj) {
 		super(fdObj);
@@ -64,9 +61,7 @@ public class MockFileInputStream extends FileInputStream{
 
 	public int read() throws IOException{
 		
-		if(closed){
-			throw new IOException();
-		}
+		throwExceptionIfClosed();
 		
 		return MockNative.read(path, position); 
 	}
@@ -76,9 +71,13 @@ public class MockFileInputStream extends FileInputStream{
 		int counter = 0;
 		for(int i=0; i<len; i++){
 			int v = read();
-			if(v == -1){  
-				//end of stream
-				return -1;
+			if(v == -1){  //EOF
+				if(i==0){
+					//no data to read
+					return -1;
+				} else {
+					return counter;
+				}
 			}
 			
 			b[off+i] = (byte) v;
@@ -93,6 +92,9 @@ public class MockFileInputStream extends FileInputStream{
 		if(n<0){
 			throw new IOException();
 		}
+		
+		throwExceptionIfClosed();
+		
 		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
 		position.addAndGet((int)n);
 		return n; 
@@ -100,6 +102,8 @@ public class MockFileInputStream extends FileInputStream{
 
 	@Override
 	public int available() throws IOException{
+		
+		throwExceptionIfClosed();
 		
 		VFile vf = MockNative.getFileForReading(path);
 		if(vf==null){
@@ -154,6 +158,12 @@ public class MockFileInputStream extends FileInputStream{
 				channel = new EvoFileChannel(position,path,true,false); 
 			}
 			return channel;
+		}
+	}
+	
+	private void throwExceptionIfClosed() throws IOException{
+		if(closed){
+			throw new IOException();
 		}
 	}
 }

@@ -133,7 +133,7 @@ public abstract class FSObject {
 	}
 
 	public boolean setLastModified(long lastModified) {
-		//TODO check all of its callers, and is if simulate time
+		//TODO check all of its callers, and  if should simulate time
 		
 		if(!this.isWritePermission()){
 			return false;

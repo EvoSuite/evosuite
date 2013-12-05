@@ -5,6 +5,7 @@ import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -85,27 +86,9 @@ public class MockFileOutputStream extends FileOutputStream{
 	private void writeBytes(byte b[], int off, int len)
 			throws IOException{
 		
-		FSObject target = VirtualFileSystem.getInstance().findFSObject(path);
-		if(target == null){
-			throw new IOException("File does not exist: "+path);
-		}
-		
-		if(target.isFolder()){
-			throw new IOException("Cannot write to a folder");
-		}
-		
-		if(closed){
-			throw new IOException();
-		}
-		
-		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
-		
-		VFile vf = (VFile) target;
-		int written = vf.writeBytes(position.get(),b, off, len);
-		if(written==0){
-			throw new IOException("Error in writing to file");
-		}
-		position.addAndGet(written);
+		throwExceptionIfClosed();
+
+		MockNative.writeBytes(path, position, b, off, len);
 	}
 
 	@Override
@@ -163,6 +146,12 @@ public class MockFileOutputStream extends FileOutputStream{
 				channel = new EvoFileChannel(position,path,false,true);  
 			}
 			return channel;
+		}
+	}
+	
+	private void throwExceptionIfClosed() throws IOException{
+		if(closed){
+			throw new IOException();
 		}
 	}
 }

@@ -28,15 +28,32 @@ public class FileSystemHandling {
 	 * @param line
 	 * @return 
 	 */
-	public static boolean appendStringToFile(EvoSuiteFile file, String line){
+	public static boolean appendStringToFile(EvoSuiteFile file, String value){
+		
+		if(value==null){
+			return false;
+		}
+		
+		return appendDataToFile(file,value.getBytes()); 
+	}
+
+	/**
+	 * Append a string to the given file, and then move cursor
+	 * to the next line.
+	 * If the file does not exist, it will be created.
+	 * 
+	 * @param filePath
+	 * @param line
+	 * @return 
+	 */
+	public static boolean appendLineToFile(EvoSuiteFile file, String line){
 		
 		if(line==null){
 			return false;
 		}
 		
-		return appendDataToFile(file,line.getBytes()); 
+		return appendStringToFile(file, line + "\n"); 
 	}
-
 	/**
 	 * Append a byte array to the given file.
 	 * If the file does not exist, it will be created.
