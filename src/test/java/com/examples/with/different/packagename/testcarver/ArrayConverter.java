@@ -421,10 +421,6 @@ public class ArrayConverter extends AbstractConverter {
      */
     private List parseElements(Class type, String value) {
 
-        if (log().isDebugEnabled()) {
-            log().debug("Parsing elements, delimiter=[" + delimiter + "], value=[" + value + "]");
-        }
-
         // Trim any matching '{' and '}' delimiters
         value = value.trim();
         if (value.startsWith("{") && value.endsWith("}")) {
@@ -464,9 +460,6 @@ public class ArrayConverter extends AbstractConverter {
 
             if (list == null) {
                 list = Collections.EMPTY_LIST;
-            }
-            if (log().isDebugEnabled()) {
-                log().debug(list.size() + " elements parsed");
             }
 
             // Return the completed list

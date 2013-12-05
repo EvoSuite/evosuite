@@ -9,6 +9,8 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
 import org.evosuite.testcarver.extraction.CarvingRunListener;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
@@ -64,6 +66,7 @@ public class JUnitTestCarvedChromosomeFactory implements
 	}
 
 	private void readTestCases() throws IllegalStateException {
+		ClientServices.getInstance().getClientNode().changeState(ClientState.CARVING);
 
 		final JUnitCore runner = new JUnitCore();
 		final CarvingRunListener listener = new CarvingRunListener();

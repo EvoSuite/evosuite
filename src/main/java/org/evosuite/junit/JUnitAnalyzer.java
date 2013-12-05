@@ -22,6 +22,7 @@ import javax.tools.ToolProvider;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.testcase.TestCase;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
@@ -138,7 +139,7 @@ public class JUnitAnalyzer {
 				logger.error("Found no classes for compiled tests");
 				return;
 			}
-
+			
 			JUnitCore runner = new JUnitCore();
 			Result result = runner.run(testClasses);
 
@@ -152,6 +153,9 @@ public class JUnitAnalyzer {
 				String testName = des.getMethodName();//TODO check if correct
 
 				logger.warn("Found unstable test named "+testName+" -> " + failure.getException().getClass() + ": "+ failure.getMessage() );
+				for(StackTraceElement elem : failure.getException().getStackTrace()) {
+					logger.info(elem.toString());
+				}
 
 				boolean toRemove = !(failure.getException() instanceof java.lang.AssertionError);
 
@@ -302,13 +306,14 @@ public class JUnitAnalyzer {
 		
 		URLClassLoader urlLoader;
 		try {
-			urlLoader = new URLClassLoader(new URL[]{dir.toURI().toURL()},TestGenerationContext.getClassLoader());
+			urlLoader = new URLClassLoader(new URL[]{dir.toURI().toURL()},(InstrumentingClassLoader) TestGenerationContext.getClassLoader());
 		} catch (MalformedURLException e) {
 			logger.error(""+e.getMessage(),e);
 			return null;
 		}
 		
 		Class<?>[] testClasses = getClassesFromFiles(tests, urlLoader);
+		
 		return testClasses;		
 	}
 
