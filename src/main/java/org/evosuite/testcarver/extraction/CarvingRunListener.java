@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.TimeController;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
@@ -36,15 +37,24 @@ public class CarvingRunListener extends RunListener {
 
 	@Override
 	public void testStarted(Description description) throws Exception {
-		Capturer.startCapture();
+		if (TimeController.getInstance().isThereStillTimeInThisPhase()) {
+			logger.info("Not yet reached maximum time to carve unit tests - executing test with carver");
+			Capturer.startCapture();
+		} else {
+			logger.info("Reached maximum time to carve unit tests - executing test without carver");
+		}
 	}
 
 	@Override
 	public void testFinished(Description description) throws Exception {
 		final CaptureLog log = Capturer.stopCapture();
-		this.processLog(log);
+		if (TimeController.getInstance().isThereStillTimeInThisPhase()) {
+			this.processLog(log);
+		}
 		Capturer.clear();
 	}
+	
+	
 
 	/**
 	 * Creates TestCase out of the captured log
@@ -58,6 +68,10 @@ public class CarvingRunListener extends RunListener {
 		analyzer.analyze(log, codeGen, this.targetClasses);
 
 		DefaultTestCase test = (DefaultTestCase) codeGen.getCode();
+		if(test == null) {
+			logger.warn("Failed to carve test for "+this.targetClasses);
+			return;
+		}
 		logger.info("Carved test of length " + test.size());
 		try {
 			test.changeClassLoader(TestGenerationContext.getClassLoader());

@@ -15,14 +15,15 @@ public enum ClientState {
 	NOT_STARTED("Not started", "EvoSuite has not started client process", 0),
 	STARTED("Started", "Client process has been launched", 1),
 	INITIALIZATION("Initializing", "Analyzing classpath and dependencies", 2),
-	SEARCH("Search", "Generating test cases", 3),
-	INLINING("Inlining", "Inlining constants", 4),
-	MINIMIZING_VALUES("Minimizing values", "Mininizing primitive values in the tests", 5),
-	MINIMIZATION("Minimizing", "Minimizing test cases", 6),
-	ASSERTION_GENERATION("Generating assertions", "Adding assertions to the test cases", 7),
-	WRITING_STATISTICS("Statistics", "Writing statistics to disk", 8),
-	WRITING_TESTS("JUnit", "Writing JUnit tests to disk", 9),
-	DONE("Done", "EvoSuite is finished", 10);
+	CARVING("Carving", "Carving JUnit tests", 3),
+	SEARCH("Search", "Generating test cases", 4),
+	INLINING("Inlining", "Inlining constants", 5),
+	MINIMIZING_VALUES("Minimizing values", "Mininizing primitive values in the tests", 6),
+	MINIMIZATION("Minimizing", "Minimizing test cases", 7),
+	ASSERTION_GENERATION("Generating assertions", "Adding assertions to the test cases", 8),
+	WRITING_STATISTICS("Statistics", "Writing statistics to disk", 9),
+	WRITING_TESTS("JUnit", "Writing JUnit tests to disk", 10),
+	DONE("Done", "EvoSuite is finished", 11);
 
 	private String name;
 	private String description;
@@ -90,8 +91,14 @@ public enum ClientState {
 			startProgress = 2;
 			maxProgress = 9;
 			break;
+			
+		case 3: // Test carving - TODO
+			progress = 5;
+			startProgress = 5;
+			maxProgress = 9;
+			break;
 
-		case 3: // Search has started
+		case 4: // Search has started
 			progress = 10;
 			startProgress = 10;
 			if(Properties.ASSERTIONS) {
@@ -101,7 +108,7 @@ public enum ClientState {
 			}
 			break;
 
-		case 4: // inlining
+		case 5: // inlining
 			if(Properties.ASSERTIONS) {
 				startProgress = 33;
 			} else {
@@ -110,7 +117,7 @@ public enum ClientState {
 			maxProgress = startProgress + 5;
 			progress = startProgress;
 			break;
-		case 5: // minimizing values
+		case 6: // minimizing values
 			if(Properties.ASSERTIONS) {
 				startProgress = Properties.INLINE ? 33 + 5 : 33;
 			} else {
@@ -120,7 +127,7 @@ public enum ClientState {
 			progress = startProgress;
 			break;
 			
-		case 6: // minimizing tests
+		case 7: // minimizing tests
 			if(Properties.ASSERTIONS) {
 				startProgress = Properties.INLINE ? 33 + 5 : 33;
 				maxProgress = 66;
@@ -134,19 +141,19 @@ public enum ClientState {
 			progress = startProgress;
 			break;
 
-		case 7: // generating assertions
+		case 8: // generating assertions
 			startProgress = 67;				
 			maxProgress = 92;
 			progress = startProgress;
 			break;
 
-		case 8: // writing statistics
+		case 9: // writing statistics
 			startProgress = 93;
 			maxProgress = 94;
 			progress = startProgress;
 			break;
 			
-		case 9: // writing tests
+		case 10: // writing tests
 			startProgress = 95;				
 			maxProgress = 100;
 			progress = startProgress;

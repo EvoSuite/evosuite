@@ -115,7 +115,11 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	public void delta() {
 
 		String s = value;
-
+		if(s == null) {
+			randomize();
+			return;
+		}
+		
 		final double P2 = 1d / 3d;
 		double P = 1d / s.length();
 		// Delete
@@ -165,7 +169,11 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	 */
 	public void increment() {
 		String s = value;
-		if (s.isEmpty()) {
+		if(s == null) {
+			randomize();
+			return;
+		}
+		else if (s.isEmpty()) {
 			s += Randomness.nextChar();
 		} else {
 			s = replaceCharAt(s, Randomness.nextInt(s.length()), Randomness.nextChar());
@@ -194,6 +202,9 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	        IllegalAccessException, InstantiationException {
 
 		try {
+			if(value == null)
+				retval.setObject(scope, null);
+			else
 			// In the JUnit code we produce, strings are generated as
 			// String foo = "bar";
 			// That means any reference comparison will behave different

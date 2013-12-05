@@ -783,19 +783,25 @@ public class TestCodeVisitor extends TestVisitor {
 		Object value = statement.getValue();
 
 		if (statement instanceof StringPrimitiveStatement) {
-			char[] charArray = StringEscapeUtils.escapeJava((String) value).toCharArray();
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < charArray.length; ++i) {
-				char a = charArray[i];
-				if (a > 255) {
-					sb.append("\\u");
-					sb.append(Integer.toHexString(a));
-				} else {
-					sb.append(a);
+			if(value == null) {
+				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
+				        + getVariableName(retval) + " = null;\n";
+
+			} else {
+				char[] charArray = StringEscapeUtils.escapeJava((String) value).toCharArray();
+				StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < charArray.length; ++i) {
+					char a = charArray[i];
+					if (a > 255) {
+						sb.append("\\u");
+						sb.append(Integer.toHexString(a));
+					} else {
+						sb.append(a);
+					}
 				}
+				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
+						+ getVariableName(retval) + " = \"" + sb.toString() + "\";\n";
 			}
-			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-			        + getVariableName(retval) + " = \"" + sb.toString() + "\";\n";
 			// testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 			// + getVariableName(retval) + " = \""
 			// + StringEscapeUtils.escapeJava((String) value) + "\";\n";

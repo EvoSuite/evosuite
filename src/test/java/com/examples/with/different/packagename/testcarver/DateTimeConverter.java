@@ -240,14 +240,8 @@ public abstract class DateTimeConverter extends AbstractConverter {
             }
             logFormat("Formatting", format);
             result = format.format(date);
-            if (log().isDebugEnabled()) {
-                log().debug("    Converted  to String using format '" + result + "'");
-            }
         } else {
             result = value.toString();
-            if (log().isDebugEnabled()) {
-                log().debug("    Converted  to String using toString() '" + result + "'");
-             }
         }
         return result;
     }
@@ -403,9 +397,6 @@ public abstract class DateTimeConverter extends AbstractConverter {
 
         String msg = toString(getClass()) + " cannot handle conversion to '"
                    + toString(type) + "'";
-        if (log().isWarnEnabled()) {
-            log().warn("    " + msg);
-        }
         throw new ConversionException(msg);
     }
 
@@ -461,10 +452,6 @@ public abstract class DateTimeConverter extends AbstractConverter {
 
         String msg = toString(getClass()) + " does not support default String to '"
                    + toString(type) + "' conversion.";
-        if (log().isWarnEnabled()) {
-            log().warn("    " + msg);
-            log().warn("    (N.B. Re-configure Converter or use alternative implementation)");
-        }
         throw new ConversionException(msg);
     }
 
@@ -555,9 +542,6 @@ public abstract class DateTimeConverter extends AbstractConverter {
             if (format instanceof SimpleDateFormat) {
                 msg += " using pattern '" + ((SimpleDateFormat)format).toPattern() + "'";
             }
-            if (log().isDebugEnabled()) {
-                log().debug("    " + msg);
-            }
             throw new ConversionException(msg);
         }
         Calendar calendar = format.getCalendar();
@@ -599,30 +583,6 @@ public abstract class DateTimeConverter extends AbstractConverter {
      * @param format The Date format
      */
     private void logFormat(String action, DateFormat format) {
-        if (log().isDebugEnabled()) {
-            StringBuffer buffer = new StringBuffer(45);
-            buffer.append("    ");
-            buffer.append(action);
-            buffer.append(" with Format");
-            if (format instanceof SimpleDateFormat) {
-                buffer.append("[");
-                buffer.append(((SimpleDateFormat)format).toPattern());
-                buffer.append("]");
-            }
-            buffer.append(" for ");
-            if (locale == null) {
-                buffer.append("default locale");
-            } else {
-                buffer.append("locale[");
-                buffer.append(locale);
-                buffer.append("]");
-            }
-            if (timeZone != null) {
-                buffer.append(", TimeZone[");
-                buffer.append(timeZone);
-                buffer.append("]");
-            }
-            log().debug(buffer.toString());
-        }
+        
     }
 }

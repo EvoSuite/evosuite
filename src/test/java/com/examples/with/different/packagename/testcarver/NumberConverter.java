@@ -204,15 +204,8 @@ public abstract class NumberConverter extends AbstractConverter {
             NumberFormat format = getFormat();
             format.setGroupingUsed(false);
             result = format.format(value);
-            if (log().isDebugEnabled()) {
-                log().debug("    Converted  to String using format '" + result + "'");
-            }
-
         } else {
             result = value.toString();
-            if (log().isDebugEnabled()) {
-                log().debug("    Converted  to String using toString() '" + result + "'");
-            }
         }
         return result;
 
@@ -262,9 +255,6 @@ public abstract class NumberConverter extends AbstractConverter {
             NumberFormat format = getFormat();
             number = parse(sourceType, targetType, stringValue, format);
         } else {
-            if (log().isDebugEnabled()) {
-                log().debug("    No NumberFormat, using default conversion");
-            }
             number = toNumber(sourceType, targetType, stringValue);
         }
 
@@ -384,9 +374,6 @@ public abstract class NumberConverter extends AbstractConverter {
 
         String msg = toString(getClass()) + " cannot handle conversion to '"
                    + toString(targetType) + "'";
-        if (log().isWarnEnabled()) {
-            log().warn("    " + msg);
-        }
         throw new ConversionException(msg);
 
     }
@@ -455,9 +442,6 @@ public abstract class NumberConverter extends AbstractConverter {
 
         String msg = toString(getClass()) + " cannot handle conversion from '" +
                      toString(sourceType) + "' to '" + toString(targetType) + "'";
-        if (log().isWarnEnabled()) {
-            log().warn("    " + msg);
-        }
         throw new ConversionException(msg);
     }
 
@@ -494,28 +478,15 @@ public abstract class NumberConverter extends AbstractConverter {
         NumberFormat format = null;
         if (pattern != null) {
             if (locale == null) {
-                if (log().isDebugEnabled()) {
-                    log().debug("    Using pattern '" + pattern + "'");
-                }
                 format = new DecimalFormat(pattern);
             } else {
-                if (log().isDebugEnabled()) {
-                    log().debug("    Using pattern '" + pattern + "'" +
-                              " with Locale[" + locale + "]");
-                }
                 DecimalFormatSymbols symbols = new DecimalFormatSymbols(locale);
                 format = new DecimalFormat(pattern, symbols);
             }
         } else {
             if (locale == null) {
-                if (log().isDebugEnabled()) {
-                    log().debug("    Using default Locale format");
-                }
                 format = NumberFormat.getInstance();
             } else {
-                if (log().isDebugEnabled()) {
-                    log().debug("    Using Locale[" + locale + "] format");
-                }
                 format = NumberFormat.getInstance(locale);
             }
         }
@@ -545,9 +516,6 @@ public abstract class NumberConverter extends AbstractConverter {
             }
             if (locale != null) {
                 msg += " for locale=[" + locale + "]";
-            }
-            if (log().isDebugEnabled()) {
-                log().debug("    " + msg);
             }
             throw new ConversionException(msg);
         }

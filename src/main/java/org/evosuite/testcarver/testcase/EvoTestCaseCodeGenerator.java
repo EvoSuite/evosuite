@@ -19,6 +19,7 @@ import java.util.Set;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.runtime.EvoSuiteXStream;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.CaptureUtil;
 import org.evosuite.testcarver.codegen.ICodeGenerator;
@@ -31,6 +32,7 @@ import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.FieldStatement;
+import org.evosuite.testcase.ImmutableStringPrimitiveStatement;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.NullReference;
 import org.evosuite.testcase.NullStatement;
@@ -50,7 +52,6 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 	private static final Logger logger = LoggerFactory.getLogger(EvoTestCaseCodeGenerator.class);
 	//--- source generation
 	private TestCase testCase;
-	private VariableReference xStreamRef;
 
 	private final Map<Integer, VariableReference> oidToVarRefMap;
 
@@ -203,7 +204,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		this.oidToVarRefMap.put(oid, varRef);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public void createUnobservedInitStmt(CaptureLog log, int logRecNo) {
 
@@ -213,32 +214,11 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 		try {
 
-			final Class<?> xStreamType = getClassForName("com.thoughtworks.xstream.XStream");//Class.forName("com.thoughtworks.xstream.XStream", true, StaticTestCluster.classLoader);
-
 			final Object value = log.params.get(logRecNo)[0];
-
-			if (xStreamRef == null) {
-				final ConstructorStatement constr = new ConstructorStatement(
-				        testCase,
-				        new GenericConstructor(
-				                xStreamType.getConstructor(new Class<?>[0]), xStreamType),
-				        Collections.EMPTY_LIST);
-				xStreamRef = testCase.addStatement(constr);
-			}
-
-			final Class<?> stringType = getClassForName("java.lang.String");//Class.forName("java.lang.String", true, StaticTestCluster.classLoader);
-
-			final PrimitiveStatement stringRep = PrimitiveStatement.getPrimitiveStatement(testCase,
-			                                                                              stringType);
-			stringRep.setValue(value);
+			final PrimitiveStatement stringRep = new ImmutableStringPrimitiveStatement(testCase, (String)value);
 			final VariableReference stringRepRef = testCase.addStatement(stringRep);
 
-			final MethodStatement m = new MethodStatement(testCase, new GenericMethod(
-			        xStreamType.getMethod("fromXML", stringType), xStreamType),
-			        xStreamRef,
-			        //			        xStreamType.getMethod("fromXML", stringType), typeClass), xStreamRef,
-			        Arrays.asList(stringRepRef));
-
+			final MethodStatement m = new MethodStatement(testCase, new GenericMethod(EvoSuiteXStream.class.getMethod("fromString", new Class<?>[] {String.class}), EvoSuiteXStream.class), null, Arrays.asList(stringRepRef));
 			this.oidToVarRefMap.put(oid, testCase.addStatement(m));
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
@@ -681,7 +661,6 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 	@Override
 	public void clear() {
 		this.testCase = null;
-		this.xStreamRef = null;
 		this.oidToVarRefMap.clear();
 	}
 
