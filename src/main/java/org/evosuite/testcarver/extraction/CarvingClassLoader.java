@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.evosuite.testcarver.instrument.Instrumenter;
+import org.evosuite.testcarver.instrument.JSRInlinerClassVisitor;
 import org.evosuite.utils.ResourceList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -152,7 +153,8 @@ public class CarvingClassLoader extends ClassLoader {
 			reader.accept(classNode, ClassReader.SKIP_FRAMES);
 			instrumenter.transformClassNode(classNode, className);
 			ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-			classNode.accept(writer);
+			classNode.accept(new JSRInlinerClassVisitor(writer));
+			//classNode.accept(writer);
 			byte[] byteBuffer = writer.toByteArray();
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
 			                              byteBuffer.length);

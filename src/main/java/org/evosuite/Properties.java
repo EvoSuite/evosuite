@@ -543,6 +543,11 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int ASSERTION_TIMEOUT = 600;
 
+	@Parameter(key = "carving_timeout", group = "Search Algorithm", description = "Seconds allowed for carving JUnit tests")
+	@IntValue(min = 0)
+	public static int CARVING_TIMEOUT = 600;
+
+
 	/** Constant <code>EXTRA_TIMEOUT=120</code> */
 	@Parameter(key = "extra_timeout", group = "Search Algorithm", description = "Extra seconds allowed for the search")
 	@IntValue(min = 0)
