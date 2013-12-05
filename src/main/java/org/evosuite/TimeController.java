@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.Properties.TestFactory;
 import org.evosuite.rmi.service.ClientState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,9 +79,14 @@ public class TimeController {
 			phaseTimeouts = new ConcurrentHashMap<ClientState,Long>();
 		}
 
+		// TODO: I don't understand why, but this may not have happened at this point 
+		Properties.getInstance();
+
+
 		phaseTimeouts.put(ClientState.SEARCH, (Long) 1000l * getSearchBudgetInSeconds());
 		phaseTimeouts.put(ClientState.MINIMIZATION, (Long) 1000l * Properties.MINIMIZATION_TIMEOUT);
 		phaseTimeouts.put(ClientState.ASSERTION_GENERATION, (Long) 1000l * Properties.ASSERTION_TIMEOUT);
+		phaseTimeouts.put(ClientState.CARVING, (Long) 1000l * Properties.CARVING_TIMEOUT);
 
 
 		if(timeSpentInEachPhase!=null){
@@ -144,6 +150,9 @@ public class TimeController {
 		if (Properties.ASSERTIONS) {
 			time += Properties.ASSERTION_TIMEOUT;
 		}
+		if(Properties.TEST_FACTORY == TestFactory.JUNIT) {
+			time += Properties.CARVING_TIMEOUT;
+		}
 		return time;
 	}
 
@@ -186,7 +195,7 @@ public class TimeController {
 			long timeoutInMs = getCurrentPhaseTimeout();
 			long timeSincePhaseStarted = System.currentTimeMillis() - currentPhaseStartTime;
 			long phaseLeft = timeoutInMs - timeSincePhaseStarted;
-
+			logger.info("Time left for current phase "+state+": "+phaseLeft);
 			if(ms > phaseLeft){
 				return false;
 			}
