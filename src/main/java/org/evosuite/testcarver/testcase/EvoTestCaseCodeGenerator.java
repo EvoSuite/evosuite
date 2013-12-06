@@ -484,8 +484,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			} else {
 				valueRef = this.oidToVarRefMap.get(argOID);
 				if(valueRef == null) {
-					logger.warn("ValueREF is NULL for "+argOID);
-					logger.warn(""+this.oidToVarRefMap.keySet());
+					logger.info("ValueREF is NULL for "+argOID);
 					continue;
 				}
 			}
