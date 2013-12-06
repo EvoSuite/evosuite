@@ -8,7 +8,6 @@ import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.runtime.VirtualFileSystem;
-import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
 
 public class MockRandomAccessFile extends RandomAccessFile{
@@ -89,27 +88,12 @@ public class MockRandomAccessFile extends RandomAccessFile{
 	}
 
 	private void writeBytes(byte b[], int off, int len) throws IOException{
-		FSObject target = VirtualFileSystem.getInstance().findFSObject(path);
-		if(target == null){
-			throw new IOException("File does not exist: "+path);
-		}
-		
-		if(target.isFolder()){
-			throw new IOException("Cannot write to a folder");
-		}
 		
 		if(closed){
 			throw new IOException();
 		}
-		
-		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
-		
-		VFile vf = (VFile) target;
-		int written = vf.writeBytes(position.get(),b, off, len);
-		if(written==0){
-			throw new IOException("Error in writing to file");
-		}
-		position.addAndGet(written);
+
+		MockNative.writeBytes(path, position, b, off, len);
 	}
 	
 	@Override
@@ -130,37 +114,20 @@ public class MockRandomAccessFile extends RandomAccessFile{
 
 	@Override
 	public long length() throws IOException{
-		VFile vf = MockNative.getFileForReading(path);
-		if(vf==null || closed){
+		if(closed){
 			throw new IOException();
 		}
-		
-		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
-		
-		return vf.getDataSize();
+		return MockNative.size(path);
 	}
 
 	@Override
 	public void setLength(long newLength) throws IOException{
-		if(newLength < 0){
-			throw new IOException("Negative position: "+newLength);
-		}
-		if(newLength > Integer.MAX_VALUE){
-			throw new IOException("Virtual file system does not handle files larger than  "+Integer.MAX_VALUE+" bytes");
-		}
 		
-		VFile vf = MockNative.getFileForReading(path);
-		if(vf==null || closed){
+		if(closed){
 			throw new IOException();
 		}
 		
-		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
-		
-		vf.setLength((int)newLength);
-		
-		if(position.get() > newLength){
-			position.set((int)newLength);
-		}		
+		MockNative.setLength(path, position, newLength);	
 	}
 
 	
