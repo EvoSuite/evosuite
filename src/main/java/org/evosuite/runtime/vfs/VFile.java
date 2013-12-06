@@ -76,12 +76,16 @@ public class VFile extends FSObject{
 		}
 
 		if(position >= data.size()){
-			setLength(position+1);
+			setLength(position);
 		}
 
 		int written = 0;
 		for(int i=off; i<b.length & (i-off)<len; i++){
-			data.set(position,(b[i]));
+			if(position < data.size()){
+				data.set(position,(b[i]));
+			} else {
+				data.add(b[i]);
+			}
 			position++;
 			written++;
 		}
