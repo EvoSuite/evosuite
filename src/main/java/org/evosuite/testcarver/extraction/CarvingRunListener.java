@@ -1,6 +1,7 @@
 package org.evosuite.testcarver.extraction;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -69,7 +70,7 @@ public class CarvingRunListener extends RunListener {
 
 		DefaultTestCase test = (DefaultTestCase) codeGen.getCode();
 		if(test == null) {
-			logger.warn("Failed to carve test for "+this.targetClasses);
+			logger.warn("Failed to carve test for "+Arrays.asList(this.targetClasses));
 			return;
 		}
 		logger.info("Carved test of length " + test.size());
@@ -82,6 +83,10 @@ public class CarvingRunListener extends RunListener {
 			carvedTests.add(test);
 		} catch (Throwable t) {
 			logger.info("Exception during carving: " + t);
+			for(StackTraceElement elem : t.getStackTrace()) {
+				logger.info(elem.toString());
+			}
+			logger.info(test.toCode());
 
 		}
 		codeGen.clear();
