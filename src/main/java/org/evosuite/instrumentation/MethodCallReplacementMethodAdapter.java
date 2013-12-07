@@ -23,6 +23,7 @@ package org.evosuite.instrumentation;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +34,7 @@ import org.evosuite.Properties;
 import org.evosuite.mock.java.io.MockFile;
 import org.evosuite.mock.java.io.MockFileInputStream;
 import org.evosuite.mock.java.io.MockFileOutputStream;
+import org.evosuite.mock.java.io.MockRandomAccessFile;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -218,6 +220,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			replaceAllConstructors(MockFile.class, File.class);
 			replaceAllConstructors(MockFileInputStream.class, FileInputStream.class);
 			replaceAllConstructors(MockFileOutputStream.class, FileOutputStream.class);
+			replaceAllConstructors(MockRandomAccessFile.class, RandomAccessFile.class);			
 		}
 	}
 
