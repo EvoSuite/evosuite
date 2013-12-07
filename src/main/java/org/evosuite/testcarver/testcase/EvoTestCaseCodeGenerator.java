@@ -258,7 +258,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				assignment = new AssignmentStatement(testCase, targetFieldRef,
 				        this.oidToVarRefMap.get(arg));
 			}
-
+			logger.debug("Adding assignment statement: "+assignment.getCode());
 			final VariableReference varRef = testCase.addStatement(assignment);
 			if (arg != null) {
 				this.oidToVarRefMap.put(arg, varRef);
@@ -483,11 +483,16 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				valueRef = testCase.addStatement(new NullStatement(testCase, arrCompClass));
 			} else {
 				valueRef = this.oidToVarRefMap.get(argOID);
+				if(valueRef == null) {
+					logger.info("ValueREF is NULL for "+argOID);
+					continue;
+				}
 			}
 
 			arrIndex = new ArrayIndex(testCase, arrRef, i);
 			assignStmt = new AssignmentStatement(testCase, arrIndex, valueRef);
 			testCase.addStatement(assignStmt);
+			logger.debug("Adding assignment (array): "+assignStmt.getCode());
 		}
 	}
 

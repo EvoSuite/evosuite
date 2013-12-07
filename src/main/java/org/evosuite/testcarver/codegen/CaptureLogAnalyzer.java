@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.TimeController;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.utils.CollectionUtil;
 import org.evosuite.utils.Utils;
@@ -350,6 +351,9 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		for(; currentRecord < end; currentRecord++) {
 			
 			if(generator.isMaximumLengthReached())
+				break;
+			
+			if(!TimeController.getInstance().isThereStillTimeInThisPhase())
 				break;
 			
 //			for(; currentRecord <= end; currentRecord++) {
