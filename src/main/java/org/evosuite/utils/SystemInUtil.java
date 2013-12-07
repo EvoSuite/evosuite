@@ -20,11 +20,15 @@ import org.slf4j.LoggerFactory;
  */
 public class SystemInUtil extends InputStream{
 
-	public final InputStream defaultIn = System.in;
+	/**
+	 * Need to keep reference to original {@code System.in} for
+	 * when we reset this singleton	
+	 */
+	private static final InputStream defaultIn = System.in;
 
 	private static Logger logger = LoggerFactory.getLogger(SystemInUtil.class);
 
-	private static volatile SystemInUtil singleton = new SystemInUtil();
+	private static final SystemInUtil singleton = new SystemInUtil();
 
 	/**
 	 * Has System.in ever be used by the SUT?
@@ -36,19 +40,31 @@ public class SystemInUtil extends InputStream{
 	 */
 	private volatile List<Byte> data;
 
+	/**
+	 *  the position in the stream
+	 */
 	private volatile AtomicInteger counter;
 
+	/**
+	 * Need to add support function to EvoSuite search just once
+	 */
 	private boolean hasAddedSupport;
 
+	/**
+	 * This is needed to simulate blocking calls when there is 
+	 * no input 
+	 */
+	private static final Object monitor = new Object();
+	
+	private volatile boolean endReached;
+	
+	//--------------------------------
+	
 	/**
 	 * Hidden constructor
 	 */
 	protected SystemInUtil(){
 		super();
-		beingUsed = false;
-		if(Properties.REPLACE_SYSTEM_IN){
-			System.setIn(this);
-		}
 	}
 
 	public static synchronized SystemInUtil getInstance(){
@@ -59,7 +75,11 @@ public class SystemInUtil extends InputStream{
 	 * Reset the static state be re-instantiate the singleton
 	 */
 	public static synchronized void resetSingleton(){
-		singleton = new SystemInUtil();
+		singleton.beingUsed = false;	
+		singleton.data = new ArrayList<Byte>();
+		singleton.counter = new AtomicInteger(0);
+		singleton.endReached = false;
+		System.setIn(defaultIn);
 	}
 
 	/**
@@ -68,6 +88,9 @@ public class SystemInUtil extends InputStream{
 	public void initForTestCase(){
 		data = new ArrayList<Byte>();
 		counter = new AtomicInteger(0);
+		if(Properties.REPLACE_SYSTEM_IN){
+			System.setIn(this);
+		}
 	}
 
 	/**
@@ -87,11 +110,12 @@ public class SystemInUtil extends InputStream{
 		 * Note: this method needs to be static, as we call it directly in the test cases.
 		 */
 
-		synchronized(singleton.data){
+		synchronized(monitor){
 			String line = input+"\n";
 			for(byte b : line.getBytes()){
 				singleton.data.add((Byte)b);
-			}		
+			}	
+			singleton.endReached = false;
 		}
 	}
 
@@ -122,35 +146,58 @@ public class SystemInUtil extends InputStream{
 	public int read() throws IOException {
 
 		beingUsed = true;
+		
+		synchronized(monitor){
+			
+			int current = counter.get();
+			
+			if(Thread.currentThread().isInterrupted()){
+				/*
+				 *  if by the time this thread acquires the monitor it has been interrupted,
+				 *  and the buffered data is finished, then return -1 to represent the end of
+				 *  the stream.
+				 *  
+				 *  Note: the real System.in would not return (would block). Here
+				 *  we need to return, otherwise the test case thread would never end
+				 */
+				return -1;
+			}
 
-		int i = counter.getAndIncrement();
+			while(current >= data.size()){
+				
+				if(!endReached){
+					endReached = true;
+					return -1;
+				}
+				
+				/*
+				 * instead of having the thread waiting on new input that might never come (eg
+				 * if the SUT code is run on same thread as test case, or if there is no console input
+				 * in the following test case statements), let's just simulate an exception.
+				 */
+				throw new IOException("Simulated exception in System.in");
+				/*
+				try {
+					monitor.wait();
+				} catch (InterruptedException e) {
+					return -1; // simulate end of stream
+				}
+				*/
+			}
+			
+			int i = counter.getAndIncrement();
 
-		if(i==data.size()){
-			//first time we reach end of buffer, we return -1 to represents its end
-			return -1; 
+			return (int) data.get(i);
 		}
-
-		if(i>data.size()){
-			/*
-			 * this is bit tricky situation.
-			 * if we arrive here, it means that SUT has already asked for read(),
-			 * got a -1, but then keep asking it.
-			 * To avoid infinite loops and hard to kill threads, here we throw an
-			 * IO exception (which would still be as part of normal behavior of read())
-			 */
-			throw new IOException("Asked to read from System.in when test case has decided to simulate an IO exception");
-		}
-
-		/*
-		 * Note: it is important here that this read() is not blocking.
-		 * 
-		 * TODO: if needed, we could have a delay here to simulate a blocking
-		 * operation till new data is provided to System.in.
-		 * But it is likely not going to be so useful for unit testing
-		 */
-		return (int) data.get(i);
 	}
 
+	@Override
+	public int available() throws IOException {
+        synchronized(monitor){
+        		return data.size() - counter.get();
+        }
+    }
+	
 	/**
 	 * Has there be any call to System.in.read()?
 	 * @return

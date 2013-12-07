@@ -74,7 +74,7 @@ public class FileSystemHandlingTest {
 		String byteString = new String(buffer);
 		Assert.assertTrue("Read: "+byteString, byteString.startsWith(data));
 
-		//try with Reader
+		//try with InputStreamReader
 		InputStreamReader reader = new InputStreamReader(new MockFileInputStream(file.getPath()));
 		char[] cbuf = new char[1024];
 		reader.read(cbuf);
