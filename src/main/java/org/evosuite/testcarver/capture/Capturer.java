@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.evosuite.TimeController;
 import org.evosuite.testcarver.exception.CapturerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -238,7 +239,8 @@ public final class Capturer {
 				}
 
 				currentLog.log(captureId, receiver, methodName, methodDesc, methodParams);
-				setCapturing(true);
+				if(TimeController.getInstance().isThereStillTimeInThisPhase())
+					setCapturing(true);
 			}
 		}
 	}

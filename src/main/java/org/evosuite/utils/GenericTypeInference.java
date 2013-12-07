@@ -59,6 +59,7 @@ public class GenericTypeInference extends TestVisitor {
 				determineExactType((ConstructorStatement) statement);
 			}
 		}
+		logger.debug("Resulting test: "+test.toCode());
 	}
 
 	private void addVariable(StatementInterface statement) {
@@ -149,10 +150,21 @@ public class GenericTypeInference extends TestVisitor {
 	}
 
 	private void addToMap(Type type, Type actualType, Map<TypeVariable<?>, Type> typeMap) {
-		if (type instanceof ParameterizedType)
+		if (type instanceof ParameterizedType) {
 			addToMap((ParameterizedType) type, actualType, typeMap);
+		}
 		else if (type instanceof TypeVariable<?>) {
 			addToMap((TypeVariable<?>) type, actualType, typeMap);
+		} else if (type instanceof GenericArrayType) {
+			logger.info("Is generic array with component type "+((GenericArrayType)type).getGenericComponentType());
+			logger.info("Actual type "+actualType+", "+actualType.getClass());
+			if(actualType instanceof GenericArrayType) {
+				addToMap(((GenericArrayType)type).getGenericComponentType(), ((GenericArrayType)actualType).getGenericComponentType(), typeMap);				
+			} else if(actualType instanceof Class<?> && ((Class<?>)actualType).isArray()) {
+				addToMap(((GenericArrayType)type).getGenericComponentType(), ((Class<?>)actualType).getComponentType(), typeMap);
+			}  
+		} else {
+			logger.info("Is unexpected type: "+type+", "+type.getClass());
 		}
 	}
 
@@ -250,7 +262,9 @@ public class GenericTypeInference extends TestVisitor {
 					}
 				}
 			}
+
 			constructorStatement.setConstructor(constructor.copyWithNewOwner(owner.getWithParameterTypes(types)));
+			logger.info("New type: " + constructorStatement);
 			updateMethodCallsOfGenericOwner(constructorStatement.getReturnValue());
 		} else {
 			logger.info("Type map empty");
