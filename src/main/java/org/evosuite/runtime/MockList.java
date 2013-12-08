@@ -35,13 +35,43 @@ public class MockList {
 	/**
 	 * Check if the given class has been mocked
 	 * 
-	 * @param className
+	 * @param originalClass
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
-	public static boolean shouldBeMocked(String className) throws IllegalArgumentException{
+	public static boolean shouldBeMocked(String originalClass) throws IllegalArgumentException{		
+		return getMockClass(originalClass) != null;
+	}
+	
+	
+	/**
+	 * Check if the given class is among the mock classes
+	 * 
+	 * @param mockClass
+	 * @return
+	 */
+	public static boolean isAMockClass(String mockClass) {
+		if(mockClass == null){
+			return false;
+		}
 		
-		if(className==null || className.isEmpty()){
+		for(Class<?> mock : getList()){
+			if(mock.getCanonicalName().equals(mockClass)){
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Return the mock class for the given target
+	 * 
+	 * @param originalClass
+	 * @return {@code null} if the target is not mocked
+	 */
+	public static Class<?> getMockClass(String originalClass) throws IllegalArgumentException{
+		if(originalClass==null || originalClass.isEmpty()){
 			throw new IllegalArgumentException("Empty className");
 		}
 		
@@ -52,11 +82,11 @@ public class MockList {
 				continue;
 			}
 			
-			if(className.equals(target.getCanonicalName())){
-				return true;
+			if(originalClass.equals(target.getCanonicalName())){
+				return mock;
 			}
 		}
 		
-		return false;
+		return null;
 	}
 }
