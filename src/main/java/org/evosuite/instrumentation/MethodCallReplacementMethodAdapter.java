@@ -35,6 +35,7 @@ import org.evosuite.mock.java.io.MockFile;
 import org.evosuite.mock.java.io.MockFileInputStream;
 import org.evosuite.mock.java.io.MockFileOutputStream;
 import org.evosuite.mock.java.io.MockRandomAccessFile;
+import org.evosuite.runtime.MockList;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -74,8 +75,8 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		 *            replaced by a static one
 		 */
 		public MethodCallReplacement(String className, String methodName, String desc,
-		        String replacementClassName, String replacementMethodName,
-		        String replacementDesc, boolean pop) {
+				String replacementClassName, String replacementMethodName,
+				String replacementDesc, boolean pop) {
 			this.className = className;
 			this.methodName = methodName;
 			this.desc = desc;
@@ -87,7 +88,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 		public boolean isTarget(String owner, String name, String desc) {
 			return className.equals(owner) && methodName.equals(name)
-			        && this.desc.equals(desc);
+					&& this.desc.equals(desc);
 		}
 
 		public void insertMethodCall(MethodVisitor mv, int opcode) {
@@ -107,11 +108,11 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 				}
 			}
 			mv.visitMethodInsn(opcode, replacementClassName, replacementMethodName,
-			                   replacementDesc);
+					replacementDesc);
 		}
 
 		public void insertConstructorCall(MethodVisitor mv,
-		        MethodCallReplacement replacement) {
+				MethodCallReplacement replacement) {
 			Type[] args = Type.getArgumentTypes(desc);
 			Map<Integer, Integer> to = new HashMap<Integer, Integer>();
 			for (int i = args.length - 1; i >= 0; i--) {
@@ -129,7 +130,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			}
 
 			mv.visitMethodInsn(Opcodes.INVOKESPECIAL, replacementClassName,
-			                   replacementMethodName, replacementDesc);
+					replacementMethodName, replacementDesc);
 		}
 	}
 
@@ -165,62 +166,59 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	 *            a {@link java.lang.String} object.
 	 */
 	public MethodCallReplacementMethodAdapter(MethodVisitor mv, String className,
-	        String methodName, int access, String desc) {
+			String methodName, int access, String desc) {
 		super(Opcodes.ASM4, mv, access, methodName, desc);
 		if (Properties.REPLACE_CALLS) {
 			replacementCalls.add(new MethodCallReplacement("java/lang/System", "exit",
-			        "(I)V", "org/evosuite/runtime/System", "exit", "(I)V", false));
+					"(I)V", "org/evosuite/runtime/System", "exit", "(I)V", false));
 			replacementCalls.add(new MethodCallReplacement("java/lang/System",
-			        "currentTimeMillis", "()J", "org/evosuite/runtime/System",
-			        "currentTimeMillis", "()J", false));
+					"currentTimeMillis", "()J", "org/evosuite/runtime/System",
+					"currentTimeMillis", "()J", false));
 
 			replacementCalls.add(new MethodCallReplacement("java/util/Date", "<init>",
-			        "()V", "org/evosuite/runtime/Date", "getDate", "()Ljava/util/Date;",
-			        false));
+					"()V", "org/evosuite/runtime/Date", "getDate", "()Ljava/util/Date;",
+					false));
 
 			replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
-			        "getInstance", "()Ljava/util/Calendar;",
-			        "org/evosuite/runtime/Calendar", "getCalendar",
-			        "()Ljava/util/Calendar;", false));
+					"getInstance", "()Ljava/util/Calendar;",
+					"org/evosuite/runtime/Calendar", "getCalendar",
+					"()Ljava/util/Calendar;", false));
 
 			replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
-			        "getInstance", "(Ljava/util/Locale;)Ljava/util/Calendar;",
-			        "org/evosuite/runtime/Calendar", "getCalendar",
-			        "(Ljava/util/Locale;)Ljava/util/Calendar;", false));
+					"getInstance", "(Ljava/util/Locale;)Ljava/util/Calendar;",
+					"org/evosuite/runtime/Calendar", "getCalendar",
+					"(Ljava/util/Locale;)Ljava/util/Calendar;", false));
 
 			replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
-			        "getInstance", "(Ljava/util/TimeZone;)Ljava/util/Calendar;",
-			        "org/evosuite/runtime/Calendar", "getCalendar",
-			        "(Ljava/util/TimeZone;)Ljava/util/Calendar;", false));
+					"getInstance", "(Ljava/util/TimeZone;)Ljava/util/Calendar;",
+					"org/evosuite/runtime/Calendar", "getCalendar",
+					"(Ljava/util/TimeZone;)Ljava/util/Calendar;", false));
 
 			replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
-			        "getInstance",
-			        "(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;",
-			        "org/evosuite/runtime/Calendar", "getCalendar",
-			        "(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;", false));
+					"getInstance",
+					"(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;",
+					"org/evosuite/runtime/Calendar", "getCalendar",
+					"(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;", false));
 
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
-			        "()I", "org/evosuite/runtime/Random", "nextInt", "()I", true));
+					"()I", "org/evosuite/runtime/Random", "nextInt", "()I", true));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
-			        "(I)I", "org/evosuite/runtime/Random", "nextInt", "(I)I", true));
+					"(I)I", "org/evosuite/runtime/Random", "nextInt", "(I)I", true));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random",
-			        "nextDouble", "()D", "org/evosuite/runtime/Random", "nextDouble",
-			        "()D", true));
+					"nextDouble", "()D", "org/evosuite/runtime/Random", "nextDouble",
+					"()D", true));
 			replacementCalls.add(new MethodCallReplacement("java/lang/Math", "random",
-			        "()D", "org/evosuite/runtime/Random", "nextDouble", "()D", false));
+					"()D", "org/evosuite/runtime/Random", "nextDouble", "()D", false));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random",
-			        "nextFloat", "()F", "org/evosuite/runtime/Random", "nextFloat",
-			        "()F", true));
+					"nextFloat", "()F", "org/evosuite/runtime/Random", "nextFloat",
+					"()F", true));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random",
-			        "nextLong", "()J", "org/evosuite/runtime/Random", "nextLong", "()J",
-			        true));
+					"nextLong", "()J", "org/evosuite/runtime/Random", "nextLong", "()J",
+					true));
 		}
 
-		if (Properties.VIRTUAL_FS) {
-			replaceAllConstructors(MockFile.class, File.class);
-			replaceAllConstructors(MockFileInputStream.class, FileInputStream.class);
-			replaceAllConstructors(MockFileOutputStream.class, FileOutputStream.class);
-			replaceAllConstructors(MockRandomAccessFile.class, RandomAccessFile.class);			
+		for(Class<?> mock : MockList.getList()){
+			replaceAllConstructors(mock, mock.getSuperclass());
 		}
 	}
 
@@ -233,19 +231,19 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	 * @throws IllegalArgumentException
 	 */
 	private void replaceAllConstructors(Class<?> mockClass, Class<?> target)
-	        throws IllegalArgumentException {
+			throws IllegalArgumentException {
 
 		if (!target.isAssignableFrom(mockClass)) {
 			throw new IllegalArgumentException(
-			        "Constructor replacement can be done only for subclasses. Class "
-			                + mockClass + " is not an instance of " + target);
+					"Constructor replacement can be done only for subclasses. Class "
+							+ mockClass + " is not an instance of " + target);
 		}
 
 		for (Constructor<?> constructor : mockClass.getConstructors()) {
 			String desc = Type.getConstructorDescriptor(constructor);
 			specialReplacementCalls.add(new MethodCallReplacement(
-			        target.getCanonicalName().replace('.', '/'), "<init>", desc,
-			        mockClass.getCanonicalName().replace('.', '/'), "<init>", desc, false));
+					target.getCanonicalName().replace('.', '/'), "<init>", desc,
+					mockClass.getCanonicalName().replace('.', '/'), "<init>", desc, false));
 		}
 	}
 

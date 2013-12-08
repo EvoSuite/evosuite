@@ -1818,6 +1818,13 @@ public class Properties {
 		TARGET_CLASS_INSTANCE = null;
 
 		try {
+			/*
+			 * TODO: loading the SUT will execute its static initializer.
+			 * This might interact with the environment (eg, read a file, access static
+			 * variables of other classes), and even fails if an exception is thrown.
+			 * Those cases should be handled here before starting the search.
+			 */
+			
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
 			                                      TestGenerationContext.getClassLoader());
 			setClassPrefix();
