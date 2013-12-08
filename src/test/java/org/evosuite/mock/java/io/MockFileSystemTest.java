@@ -8,6 +8,7 @@ import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.mock.java.io.FileAsInputExist;
@@ -26,7 +27,7 @@ public class MockFileSystemTest extends SystemTest {
 	}
 	
 	
-	
+	@Ignore
 	@Test
 	public void testFileAsInputExist() {
 		EvoSuite evosuite = new EvoSuite();
