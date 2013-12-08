@@ -54,6 +54,9 @@ public class FileSystemHandling {
 		
 		return appendStringToFile(file, line + "\n"); 
 	}
+	
+	
+	
 	/**
 	 * Append a byte array to the given file.
 	 * If the file does not exist, it will be created.

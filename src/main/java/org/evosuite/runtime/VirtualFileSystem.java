@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author arcuri
  *
  */
-public class VirtualFileSystem {
+public final class VirtualFileSystem {
 
 	private static final Logger logger = LoggerFactory.getLogger(VirtualFileSystem.class);
 	
@@ -72,6 +72,8 @@ public class VirtualFileSystem {
 	private final Set<String> classesThatShouldThrowIOException;
 	
 	
+	
+	//--------------------------------------------------------------------------
 	
 	
 	/**
@@ -160,6 +162,9 @@ public class VirtualFileSystem {
 		
 		String workingDir = java.lang.System.getProperty("user.dir");
 		createFolder(workingDir);
+		
+		//important to clear, has above code would modify this field
+		accessedFiles.clear();
 	}
 	
 	

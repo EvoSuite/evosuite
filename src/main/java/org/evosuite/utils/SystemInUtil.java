@@ -76,6 +76,7 @@ public class SystemInUtil extends InputStream{
 	 */
 	public static synchronized void resetSingleton(){
 		singleton.beingUsed = false;	
+		singleton.hasAddedSupport = false;
 		singleton.data = new ArrayList<Byte>();
 		singleton.counter = new AtomicInteger(0);
 		singleton.endReached = false;
