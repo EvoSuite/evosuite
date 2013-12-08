@@ -25,6 +25,12 @@ public class VirtualFileSystemTest {
 		VirtualFileSystem.getInstance().resetSingleton();
 	}
 	
+	
+	@Test
+	public void testNoAccessByDefault(){
+		Assert.assertEquals(0, VirtualFileSystem.getInstance().getAccessedFiles().size());
+	}
+	
 	@Test 
 	public void testRename() throws IOException{
 		File bla = new MockFile("bla");
@@ -74,7 +80,7 @@ public class VirtualFileSystemTest {
 		byte[] buffer = new byte[4];
 		int count = in.read(buffer);
 		in.close();
-		Assert.assertEquals("End of stream should had been reached",-1, count);
+		Assert.assertEquals("End of stream should had been reached",data.length, count);
 		Assert.assertEquals(data[0],buffer[0]);
 		Assert.assertEquals(data[1],buffer[1]);
 		Assert.assertEquals(0,buffer[2]);
