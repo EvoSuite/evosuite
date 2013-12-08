@@ -741,9 +741,10 @@ public class TestClusterGenerator {
 		if (c.getName().startsWith("junit"))
 			return false;
 
-		if (isEvoSuiteClass(c))
+		if (isEvoSuiteClass(c) && !MockList.isAMockClass(c.getCanonicalName())){
 			return false;
-
+		}
+		
 		if (c.getEnclosingClass() != null) {
 			if (!canUse(c.getEnclosingClass()))
 				return false;
@@ -1188,9 +1189,22 @@ public class TestClusterGenerator {
 		if (!canUse(clazz.getRawClass()))
 			return;
 
-		if (!checkIfCanUse(clazz.getClassName()))
-			return;
-
+		
+		Class<?> mock = MockList.getMockClass(clazz.getRawClass().getCanonicalName());
+		if(mock != null){
+			/*
+			 * If we are mocking this class, then such class should not be used
+			 * in the generated JUnit test cases, but rather its mock.
+			 */
+			clazz = new GenericClass(mock);
+			
+		} else {
+		
+			if (!checkIfCanUse(clazz.getClassName())){
+				return;
+			}
+		}
+				
 		for (Pair pair : dependencies) {
 			if (pair.getDependencyClass().equals(clazz)) {
 				return;
@@ -1222,7 +1236,7 @@ public class TestClusterGenerator {
 		}
 
 		clazz = clazz.getRawGenericClass();
-
+	
 		if (analyzedClasses.contains(clazz.getRawClass())) {
 			return true;
 		}

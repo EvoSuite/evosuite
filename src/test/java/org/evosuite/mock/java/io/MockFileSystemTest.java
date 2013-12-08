@@ -27,7 +27,6 @@ public class MockFileSystemTest extends SystemTest {
 	}
 	
 	
-	@Ignore
 	@Test
 	public void testFileAsInputExist() {
 		EvoSuite evosuite = new EvoSuite();
