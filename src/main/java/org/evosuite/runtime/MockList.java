@@ -52,7 +52,7 @@ public class MockList {
 				continue;
 			}
 			
-			if(className.equals(target)){
+			if(className.equals(target.getCanonicalName())){
 				return true;
 			}
 		}
