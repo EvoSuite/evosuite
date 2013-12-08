@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -75,8 +76,8 @@ public class TestClusterGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
 
-	private static List<String> classExceptions = Arrays.asList(new String[] {
-	        "com.apple", "apple.", "sun.", "com.sun.", "com.oracle.", "sun.awt." });
+	private static final List<String> classExceptions = Collections.unmodifiableList(Arrays.asList(new String[] {
+	        "com.apple", "apple.", "sun.", "com.sun.", "com.oracle.", "sun.awt." }));
 
 	
 	/**
@@ -86,9 +87,14 @@ public class TestClusterGenerator {
 	 *            a {@link java.lang.String} object.
 	 * @return a boolean.
 	 */
-	public boolean checkIfCanUse(String className) {
+	public static boolean checkIfCanUse(String className) {
+		
+		if(MockList.shouldBeMocked(className)){
+			return false;
+		}
+		
 		for (String s : classExceptions) {
-			if (className.startsWith(s) || MockList.shouldBeMocked(className)) {
+			if (className.startsWith(s)) {
 				return false;
 			}
 		}
