@@ -9,6 +9,20 @@ import org.evosuite.mock.java.io.MockFileInputStream;
 import org.evosuite.mock.java.io.MockFileOutputStream;
 import org.evosuite.mock.java.io.MockRandomAccessFile;
 
+
+/**
+ * Class used to handle all the mock objects.
+ * When a new mock is defined, it has to be statically added
+ * to the source code of this class.
+ * 
+ * <p>
+ * Recall that a mock M of class X has to extend X (ie 'class M extends X'),
+ * and have the same constructors with same inputs, and same static methods.
+ * Note: cannot use override for constructors and static methods.
+ * 
+ * @author arcuri
+ *
+ */
 public class MockList {
 
 	/**
