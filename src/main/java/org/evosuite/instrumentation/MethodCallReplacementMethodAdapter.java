@@ -25,6 +25,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -219,9 +221,26 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 		for(Class<?> mock : MockList.getList()){
 			replaceAllConstructors(mock, mock.getSuperclass());
+			replaceAllStaticMethods(mock,mock.getSuperclass());
 		}
 	}
 
+	
+	private void replaceAllStaticMethods(Class<?> mockClass, Class<?> target)
+			throws IllegalArgumentException {
+		
+		for(Method m : target.getMethods()){
+			if(! Modifier.isStatic(m.getModifiers())) {				
+				continue;
+			}
+			
+			String desc = Type.getMethodDescriptor(m);
+			replacementCalls.add(new MethodCallReplacement(
+					target.getCanonicalName().replace('.', '/'), m.getName(), desc,
+					mockClass.getCanonicalName().replace('.', '/'), m.getName(), desc, false));
+		}
+	}
+	
 	/**
 	 * Replace all the constructors of {@code target} with a constructor (with
 	 * same input parameters) of mock subclass {@code mockClass}.

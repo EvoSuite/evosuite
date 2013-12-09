@@ -162,7 +162,8 @@ public final class VirtualFileSystem {
 		
 		String workingDir = java.lang.System.getProperty("user.dir");
 		createFolder(workingDir);
-		
+		createFolder(getTmpFolderPath());
+				
 		//important to clear, has above code would modify this field
 		accessedFiles.clear();
 	}
@@ -209,7 +210,7 @@ public final class VirtualFileSystem {
         String folder = null;
         
         if(directory==null){
-        		folder = java.lang.System.getProperty("java.io.tmpdir");
+        		folder = getTmpFolderPath();
         } else {
         		folder = directory.getAbsolutePath();
         }
@@ -224,6 +225,10 @@ public final class VirtualFileSystem {
         }
         
 		return path; 
+	}
+
+	private String getTmpFolderPath() {
+		return java.lang.System.getProperty("java.io.tmpdir");
 	}
 		
 	public boolean exists(String rawPath){
