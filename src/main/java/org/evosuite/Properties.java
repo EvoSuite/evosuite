@@ -702,8 +702,12 @@ public class Properties {
 	public static String OUTPUT_VARIABLES = null;
 
 	/** Constant <code>CONFIGURATION_ID=null</code> */
-	@Parameter(key = "configuration_id", group = "Output", description = "Label used to identify the used configuration of EvoSuite. This is only done when running experiments.")
+	@Parameter(key = "configuration_id", group = "Output", description = "Label that identifies the used configuration of EvoSuite. This is only done when running experiments.")
 	public static String CONFIGURATION_ID = null;
+
+	/** Constant <code>GROUP_ID="none"</code> */
+	@Parameter(key = "group_id", group = "Output", description = "Label that specifies a group the SUT belongs to. This is only needed for running experiments.")
+	public static String GROUP_ID = "none";
 
 	/** Constant <code>SAVE_ALL_DATA=true</code> */
 	@Parameter(key = "save_all_data", group = "Output", description = "Generate and store all data reports")
