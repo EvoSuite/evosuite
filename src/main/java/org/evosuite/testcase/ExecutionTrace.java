@@ -550,4 +550,21 @@ public interface ExecutionTrace {
 	@Deprecated
 	public Set<Integer> getPassedDefIDs();
 
+	/**
+	 * Record a PUTSTATIC statement 
+	 * 
+	 * @param classNameWithDots
+	 * @param fieldName
+	 */
+	public void putStaticPassed(String classNameWithDots, String fieldName);
+
+	/**
+	 * Retrieve if a given class's static fields were referred using PUTSTATIC.
+	 * 
+	 * @param classNameWithDots
+	 * @return
+	 */
+
+	public Set<String> getClassesForStaticReset();
+
 }

@@ -26,6 +26,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,6 +39,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.seeding.CastClassManager;
+import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
@@ -1007,6 +1009,15 @@ public class TestCluster {
 		CastClassManager.getInstance().clear();
 	}
 
+	private HashSet<String> classesForStaticReset = new HashSet<String>();
+	public void registerClassForStaticReset(String classNameWithDots) {
+		classesForStaticReset.add(classNameWithDots);
+	}
+	
+	public void clearRegisteredClassesForStaticReset() {
+		classesForStaticReset.clear();
+	}
+	
 	/**
 	 * Call each of the duplicated static constructors
 	 */
@@ -1014,15 +1025,19 @@ public class TestCluster {
 		boolean tracerEnabled = ExecutionTracer.isEnabled();
 		if (tracerEnabled)
 			ExecutionTracer.disable();
+		
 		loadStaticInitializers();
 		logger.debug("Static initializers: " + staticInitializers.size());
 		for (Method m : staticInitializers) {
-			// if (!m.getDeclaringClass().equals(Properties.getTargetClass()))
-			// continue;
-
-			// logger.warn("Resetting " + m);
-
+			
+			Class<?> declaringClass = m.getDeclaringClass();
+			String declaringClassName = declaringClass.getCanonicalName();
+			if (!classesForStaticReset.contains(declaringClassName)) {
+				logger.debug("Skipping initialization for: " + declaringClassName);
+				continue;
+			}
 			try {
+				logger.debug("Static resetting : " + declaringClassName);
 				m.invoke(null, (Object[]) null);
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
@@ -1038,6 +1053,7 @@ public class TestCluster {
 		}
 		if (tracerEnabled)
 			ExecutionTracer.enable();
+		
 	}
 
 	/*
