@@ -558,4 +558,15 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	public Map<String, Map<CallContext, Integer>> getMethodContextCount() {
 		return trace.getMethodContextCount();
 	}
+
+	@Override
+	public void putStaticPassed(String classNameWithDots, String fieldName) {
+		trace.putStaticPassed(classNameWithDots, fieldName);
+	}
+
+	@Override
+	public Set<String> getClassesForStaticReset() {
+		return trace.getClassesForStaticReset();
+	}
+
 }

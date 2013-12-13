@@ -242,7 +242,19 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public ExecutionResult execute(TestCase tc) {
 		Scope scope = new Scope();
-		return execute(tc, scope, Properties.TIMEOUT);
+		ExecutionResult result = execute(tc, scope, Properties.TIMEOUT);
+		if (Properties.STATIC_HACK) {
+			resetStaticClasses(result.getTrace());
+		}
+		return result;
+	}
+
+	private void resetStaticClasses(ExecutionTrace trace) {
+		for (String className : trace.getClassesForStaticReset()) {
+			TestCluster.getInstance().registerClassForStaticReset(className);
+		}
+		TestCluster.getInstance().resetStaticClasses();
+		TestCluster.getInstance().clearRegisteredClassesForStaticReset();
 	}
 
 	/**
@@ -254,7 +266,11 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public ExecutionResult execute(TestCase tc, int timeout) {
 		Scope scope = new Scope();
-		return execute(tc, scope, timeout);
+		ExecutionResult result = execute(tc, scope, timeout);
+		if (Properties.STATIC_HACK) {
+			resetStaticClasses(result.getTrace());
+		}
+		return result;
 	}
 
 	/**
@@ -267,11 +283,10 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
 	@SuppressWarnings("deprecation")
-	public ExecutionResult execute(TestCase tc, Scope scope, int timeout) {
+	private ExecutionResult execute(TestCase tc, Scope scope, int timeout) {
 		ExecutionTracer.getExecutionTracer().clear();
+			
 		// TODO: Re-insert!
-		if (Properties.STATIC_HACK)
-			TestCluster.getInstance().resetStaticClasses();
 		resetObservers();
 		ExecutionObserver.setCurrentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();

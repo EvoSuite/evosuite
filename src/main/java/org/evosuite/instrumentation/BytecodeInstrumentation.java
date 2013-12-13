@@ -274,6 +274,7 @@ public class BytecodeInstrumentation {
 		// explicit methods
 		if (Properties.STATIC_HACK) {
 			cv = new StaticInitializationClassAdapter(cv, className);
+			cv = new PutStaticClassAdapter(cv, className);
 		}
 
 		// Replace calls to System.exit, Random.*, and System.currentTimeMillis
