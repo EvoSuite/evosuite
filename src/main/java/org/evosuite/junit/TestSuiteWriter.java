@@ -525,7 +525,7 @@ public class TestSuiteWriter implements Opcodes {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getHeader(name, results));
-		builder.append(getBeforeAndAfterMethods(wasSecurityException));
+		builder.append(getBeforeAndAfterMethods(wasSecurityException, results));
 
 		for (int i = 0; i < testCases.size(); i++) {
 			builder.append(testToString(i, i, results.get(i)));
@@ -553,7 +553,7 @@ public class TestSuiteWriter implements Opcodes {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getHeader(name + "_" + testId, results));
-		builder.append(getBeforeAndAfterMethods(wasSecurityException));
+		builder.append(getBeforeAndAfterMethods(wasSecurityException, results));
 		builder.append(testToString(testId, testId, results.get(0)));
 		builder.append(getFooter());
 
@@ -571,7 +571,7 @@ public class TestSuiteWriter implements Opcodes {
 	 * 
 	 * @return
 	 */
-	protected String getBeforeAndAfterMethods(boolean wasSecurityException) {
+	protected String getBeforeAndAfterMethods(boolean wasSecurityException, List<ExecutionResult> results) {
 
 		/*
 		 * Usually, we need support methods (ie @BeforeClass,@Before,@After and @AfterClass)
@@ -598,12 +598,12 @@ public class TestSuiteWriter implements Opcodes {
 
 		generateBefore(bd, wasSecurityException);
 
-		generateAfter(bd, wasSecurityException);
+		generateAfter(bd, wasSecurityException, results);
 
 		return bd.toString();
 	}
 
-	private void generateAfter(StringBuilder bd, boolean wasSecurityException) {
+	private void generateAfter(StringBuilder bd, boolean wasSecurityException, List<ExecutionResult> results) {
 
 		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS) {
 			return;
@@ -624,6 +624,18 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
 		}
 
+		if (Properties.STATIC_HACK) {
+			HashSet<String> classesForStaticReset = new HashSet<String>();
+			for (ExecutionResult executionResult : results) {
+				Set<String> classesForThisTrace = executionResult.getTrace().getClassesForStaticReset();
+				classesForStaticReset.addAll(classesForThisTrace);
+			}
+			for (String className : classesForStaticReset) {
+				bd.append(BLOCK_SPACE);
+				bd.append("org.evosuite.runtime.StaticFieldReset.getInstance().resetStaticFields(\"" + className + "\"); \n");
+			}
+		}
+		
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
@@ -716,6 +728,11 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append("org.evosuite.agent.InstrumentingAgent.initialize(); \n");
 		}
 
+		if (Properties.STATIC_HACK) {
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.Properties.STATIC_HACK = true; \n");
+		}
+		
 		if (wasSecurityException) {
 			//need to setup the Sandbox mode
 			bd.append(BLOCK_SPACE);
