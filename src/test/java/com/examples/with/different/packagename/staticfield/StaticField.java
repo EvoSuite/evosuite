@@ -1,6 +1,6 @@
-package com.examples.with.different.packagename.statichack;
+package com.examples.with.different.packagename.staticfield;
 
-public abstract class StaticHack {
+public abstract class StaticField {
 
 	private static int counter = 0;
 	
