@@ -10,28 +10,28 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.statichack.StaticHack;
+import com.examples.with.different.packagename.staticfield.StaticField;
 
-public class TestStaticHack extends SystemTest{
+public class TestResetStaticField extends SystemTest{
 
-	private boolean statick_hack_property;
+	private boolean reset_statick_field__property;
 
 	@Before
 	public void saveProperties() {
-		statick_hack_property = Properties.RESET_STATIC_FIELDS;
+		reset_statick_field__property = Properties.RESET_STATIC_FIELDS;
 		Properties.RESET_STATIC_FIELDS = true;
 	}
 
 	@After
 	public void restoreProperties() {
-		Properties.RESET_STATIC_FIELDS = statick_hack_property ;
+		Properties.RESET_STATIC_FIELDS = reset_statick_field__property ;
 	}
 
 	@Test
 	public void test() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = StaticHack.class.getCanonicalName();
+		String targetClass = StaticField.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] {"-generateSuite", "-class", targetClass };
 
