@@ -18,13 +18,13 @@ public class TestStaticHack extends SystemTest{
 
 	@Before
 	public void saveProperties() {
-		statick_hack_property = Properties.STATIC_HACK;
-		Properties.STATIC_HACK = true;
+		statick_hack_property = Properties.RESET_STATIC_FIELDS;
+		Properties.RESET_STATIC_FIELDS = true;
 	}
 
 	@After
 	public void restoreProperties() {
-		Properties.STATIC_HACK = statick_hack_property ;
+		Properties.RESET_STATIC_FIELDS = statick_hack_property ;
 	}
 
 	@Test

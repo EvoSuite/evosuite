@@ -44,6 +44,7 @@ import org.evosuite.Properties.OutputFormat;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.runtime.StaticFieldResetter;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
@@ -624,7 +625,7 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
 		}
 
-		if (Properties.STATIC_HACK) {
+		if (Properties.RESET_STATIC_FIELDS) {
 			HashSet<String> classesForStaticReset = new HashSet<String>();
 			for (ExecutionResult executionResult : results) {
 				Set<String> classesForThisTrace = executionResult.getTrace().getClassesForStaticReset();
@@ -632,7 +633,7 @@ public class TestSuiteWriter implements Opcodes {
 			}
 			for (String className : classesForStaticReset) {
 				bd.append(BLOCK_SPACE);
-				bd.append("org.evosuite.runtime.StaticFieldReset.getInstance().resetStaticFields(\"" + className + "\"); \n");
+				bd.append(StaticFieldResetter.class.getCanonicalName() + ".getInstance().resetStaticFields(\"" + className + "\"); \n");
 			}
 		}
 		
@@ -728,9 +729,9 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append("org.evosuite.agent.InstrumentingAgent.initialize(); \n");
 		}
 
-		if (Properties.STATIC_HACK) {
+		if (Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.Properties.STATIC_HACK = true; \n");
+			bd.append("org.evosuite.Properties.RESET_STATIC_FIELDS = true; \n");
 		}
 		
 		if (wasSecurityException) {

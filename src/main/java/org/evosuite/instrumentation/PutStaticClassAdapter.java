@@ -22,7 +22,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * Invokes a PutStaticMethodAdapter on each method
+ * Invokes a <code>PutStaticMethodAdapter</code> on each method.
+ * This class should instrument before the mutation instrumentation.
  * 
  * @author Juan Galeotti
  */

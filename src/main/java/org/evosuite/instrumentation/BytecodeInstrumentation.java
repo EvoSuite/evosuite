@@ -243,7 +243,7 @@ public class BytecodeInstrumentation {
 
 			cv = new ExecutionPathClassAdapter(cv, className);
 
-			if (Properties.STATIC_HACK) {
+			if (Properties.RESET_STATIC_FIELDS) {
 				cv = new PutStaticClassAdapter(cv, className);
 			}
 			cv = new CFGClassAdapter(classLoader, cv, className);
@@ -276,7 +276,7 @@ public class BytecodeInstrumentation {
 
 		// If we need to reset static constructors, make them
 		// explicit methods
-		if (Properties.STATIC_HACK) {
+		if (Properties.RESET_STATIC_FIELDS) {
 			cv = new StaticInitializationClassAdapter(cv, className);
 		}
 
