@@ -29,11 +29,8 @@ import org.objectweb.asm.Type;
 
 /**
  * For each PUTSTATIC we include a call to 
- * StaticFieldUpdateTracer.updateField(String,String) passing
+ * <code>ExecutionTracer.passedPutStatic(String,String)</code> passing
  * the class name and the field name of the PUTSTATIC statement.
- * 
- * The StaticFieldUpdateTracer will be later be used for refreshing
- * the static state.
  *
  * @author Juan Galeotti
  */
@@ -69,14 +66,15 @@ public class PutStaticMethodAdapter extends MethodVisitor {
 				&& !(className.equals(owner) && methodName.equals("<clinit>"))) {
 			String executionTracerClassName = ExecutionTracer.class.getName()
 					.replace(".", "/");
-			String executionTracerDescriptor = Type.getMethodDescriptor(Type.VOID_TYPE,
-					Type.getType(String.class), Type.getType(String.class));
+			String executionTracerDescriptor = Type.getMethodDescriptor(
+					Type.VOID_TYPE, Type.getType(String.class),
+					Type.getType(String.class));
 
 			String classNameWithDots = owner.replace("/", ".");
-			super.visitLdcInsn(classNameWithDots );
+			super.visitLdcInsn(classNameWithDots);
 			super.visitLdcInsn(name);
-			super.visitMethodInsn(INVOKESTATIC, executionTracerClassName, PASSED_PUT_STATIC,
-					executionTracerDescriptor);
+			super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
+					PASSED_PUT_STATIC, executionTracerDescriptor);
 		}
 		super.visitFieldInsn(opcode, owner, name, desc);
 	}

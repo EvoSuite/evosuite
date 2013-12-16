@@ -243,7 +243,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	public ExecutionResult execute(TestCase tc) {
 		Scope scope = new Scope();
 		ExecutionResult result = execute(tc, scope, Properties.TIMEOUT);
-		if (Properties.STATIC_HACK) {
+		if (Properties.RESET_STATIC_FIELDS) {
 			resetStaticClasses(result.getTrace());
 		}
 		return result;
@@ -267,7 +267,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	public ExecutionResult execute(TestCase tc, int timeout) {
 		Scope scope = new Scope();
 		ExecutionResult result = execute(tc, scope, timeout);
-		if (Properties.STATIC_HACK) {
+		if (Properties.RESET_STATIC_FIELDS) {
 			resetStaticClasses(result.getTrace());
 		}
 		return result;
