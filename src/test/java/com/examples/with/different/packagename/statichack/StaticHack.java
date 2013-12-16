@@ -1,6 +1,6 @@
 package com.examples.with.different.packagename.statichack;
 
-public class StaticHack {
+public abstract class StaticHack {
 
 	private static int counter = 0;
 	
@@ -14,7 +14,7 @@ public class StaticHack {
 		throw new IllegalStateException("Cannot invoke reset()");
 	}
 	
-	public boolean checkCounter() {
+	public static boolean checkCounter() {
 		if (counter==0) {
 			return true;
 		} else {
@@ -22,4 +22,7 @@ public class StaticHack {
 		}
 	}
 	
+	public static int getCounter() {
+		return counter;
+	}
 }

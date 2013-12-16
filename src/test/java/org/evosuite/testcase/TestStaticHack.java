@@ -42,6 +42,7 @@ public class TestStaticHack extends SystemTest{
 		System.out.println("EvolvedTestSuite:\n" + best);
 		double best_fitness = best.getFitness();
 		Assert.assertTrue("Optimal coverage is not feasible ", best_fitness > 0.0);
+		
 	}
 
 }
