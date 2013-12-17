@@ -12,22 +12,21 @@ import org.junit.Test;
 public class ProjectGraphTest {
 
 	@BeforeClass
-	public static void initClass(){
+	public static void initClass() {
 		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
 	}
-	
-	
+
 	@Test
-	public void testGetAllCUTsParents(){
+	public void testGetAllCUTsParents() {
 
 		ProjectStaticData data = new ProjectStaticData();
-		data.addNewClass(new ClassInfo(A.class,1,true));
-		data.addNewClass(new ClassInfo(B.class,1,true));
-		data.addNewClass(new ClassInfo(C.class,0,false));
-		data.addNewClass(new ClassInfo(D.class,0,false));
-		data.addNewClass(new ClassInfo(E.class,1,true));
-		data.addNewClass(new ClassInfo(F.class,0,false));
-		data.addNewClass(new ClassInfo(G.class,1,true));
+		data.addNewClass(new ClassInfo(A.class, 1, true));
+		data.addNewClass(new ClassInfo(B.class, 1, true));
+		data.addNewClass(new ClassInfo(C.class, 0, false));
+		data.addNewClass(new ClassInfo(D.class, 0, false));
+		data.addNewClass(new ClassInfo(E.class, 1, true));
+		data.addNewClass(new ClassInfo(F.class, 0, false));
+		data.addNewClass(new ClassInfo(G.class, 1, true));
 
 		ProjectGraph graph = data.getProjectGraph();
 
@@ -39,28 +38,28 @@ public class ProjectGraphTest {
 		Set<String> forF = graph.getAllCUTsParents(F.class.getName());
 		Set<String> forG = graph.getAllCUTsParents(G.class.getName());
 
-		Assert.assertEquals(0,forA.size());
-		Assert.assertEquals(1,forB.size());
-		Assert.assertEquals(0,forC.size());
-		Assert.assertEquals(0,forD.size());
-		Assert.assertEquals(0,forE.size());
-		Assert.assertEquals(0,forF.size());
-		Assert.assertEquals(1,forG.size());
+		Assert.assertEquals(0, forA.size());
+		Assert.assertEquals(1, forB.size());
+		Assert.assertEquals(0, forC.size());
+		Assert.assertEquals(0, forD.size());
+		Assert.assertEquals(0, forE.size());
+		Assert.assertEquals(0, forF.size());
+		Assert.assertEquals(1, forG.size());
 	}
 
 	@Test
-	public void testClassTypes(){
+	public void testClassTypes() {
 		ProjectStaticData data = new ProjectStaticData();
-		data.addNewClass(new ClassInfo(A.class,1,true));
-		data.addNewClass(new ClassInfo(B.class,1,true));
-		data.addNewClass(new ClassInfo(C.class,0,false));
-		data.addNewClass(new ClassInfo(D.class,0,false));
-		data.addNewClass(new ClassInfo(E.class,1,true));
-		data.addNewClass(new ClassInfo(F.class,0,false));
-		data.addNewClass(new ClassInfo(G.class,1,true));
+		data.addNewClass(new ClassInfo(A.class, 1, true));
+		data.addNewClass(new ClassInfo(B.class, 1, true));
+		data.addNewClass(new ClassInfo(C.class, 0, false));
+		data.addNewClass(new ClassInfo(D.class, 0, false));
+		data.addNewClass(new ClassInfo(E.class, 1, true));
+		data.addNewClass(new ClassInfo(F.class, 0, false));
+		data.addNewClass(new ClassInfo(G.class, 1, true));
 
 		ProjectGraph graph = data.getProjectGraph();
-		
+
 		Assert.assertTrue(graph.isConcrete(A.class.getName()));
 		Assert.assertTrue(graph.isConcrete(B.class.getName()));
 		Assert.assertTrue(graph.isInterface(C.class.getName()));
@@ -69,18 +68,35 @@ public class ProjectGraphTest {
 		Assert.assertTrue(graph.isInterface(F.class.getName()));
 		Assert.assertTrue(graph.isAbstract(G.class.getName()));
 	}
-	
-	private class A{ void foo(){}}
 
-	private class B extends A{ void foo(){}}
+	class A {
+		void foo() {
+		}
+	}
 
-	private interface C{}
+	class B extends A {
+		@Override
+		void foo() {
+		}
+	}
 
-	private interface D extends Serializable{}
+	interface C {
+	}
 
-	private abstract class E implements Comparable{ void foo(){}}
+	interface D extends Serializable {
+	}
 
-	private interface F extends C, D{}
+	abstract class E implements Comparable {
+		void foo() {
+		}
+	}
 
-	private abstract class G extends E implements F{ void foo(){}} 
+	interface F extends C, D {
+	}
+
+	abstract class G extends E implements F {
+		@Override
+		void foo() {
+		}
+	}
 }
