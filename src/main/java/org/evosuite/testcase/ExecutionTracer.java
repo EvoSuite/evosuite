@@ -19,17 +19,14 @@ package org.evosuite.testcase;
 
 import java.util.Map;
 
-import org.evosuite.Properties;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
 import org.evosuite.instrumentation.BooleanHelper;
-import org.evosuite.setup.TestCluster;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 
 /**
  * This class collects information about chosen branches/paths at runtime
