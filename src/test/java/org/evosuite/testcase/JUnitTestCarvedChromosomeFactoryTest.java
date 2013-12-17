@@ -411,7 +411,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
-		Assert.assertEquals(5, factory.getNumCarvedTestCases());
+		Assert.assertEquals(6, factory.getNumCarvedTestCases());
 	}
 
 	@Test
@@ -437,7 +437,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
-		Assert.assertEquals(16, factory.getNumCarvedTestCases());
+		Assert.assertEquals(17, factory.getNumCarvedTestCases());
 
 	}
 
