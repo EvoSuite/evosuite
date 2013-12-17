@@ -17,28 +17,33 @@
  */
 package org.evosuite.javaagent;
 
-import junit.framework.Assert;
-
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.TestUtil;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.instrumentation.TestabilityTransformationClassLoader;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.utils.ClassPathHandler;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-
 public class InstrumentingClassLoaderTest {
 
-	@Test
-	public void testClassWithStaticInitializationCallingGetPackage() throws ClassNotFoundException{
-		TestabilityTransformationClassLoader instrumentingClassLoader = new TestabilityTransformationClassLoader();
-		Class<?> stat = Class.forName("com.examples.with.different.packagename.StatInitIssue", true,
-				instrumentingClassLoader);
+	@BeforeClass
+	public static void initClass() {
+		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
 	}
-	
-	
+
+	@Test
+	public void testClassWithStaticInitializationCallingGetPackage()
+	        throws ClassNotFoundException {
+		InstrumentingClassLoader instrumentingClassLoader = new InstrumentingClassLoader();
+		Class<?> stat = Class.forName("com.examples.with.different.packagename.StatInitIssue",
+		                              true, instrumentingClassLoader);
+	}
+
 	/*
 	 * Tests the child-first/parent-last property of the classloader.
 	 */
