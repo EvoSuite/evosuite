@@ -112,9 +112,9 @@ public class Properties {
 	@Parameter(key = "string_replacement", group = "Test Creation", description = "Replace string.equals with levenshtein distance")
 	public static boolean STRING_REPLACEMENT = true;
 
-	/** Constant <code>STATIC_HACK=false</code> */
-	@Parameter(key = "static_hack", group = "Test Creation", description = "Call static constructors after each test execution")
-	public static boolean STATIC_HACK = false;
+	/** Constant <code>RESET_STATIC_FIELDS =false</code> */
+	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each a static field was modified")
+	public static boolean RESET_STATIC_FIELDS = false;
 
 	/**
 	 * TODO: this option is off by default because still experimental and not
@@ -702,8 +702,12 @@ public class Properties {
 	public static String OUTPUT_VARIABLES = null;
 
 	/** Constant <code>CONFIGURATION_ID=null</code> */
-	@Parameter(key = "configuration_id", group = "Output", description = "Label used to identify the used configuration of EvoSuite. This is only done when running experiments.")
+	@Parameter(key = "configuration_id", group = "Output", description = "Label that identifies the used configuration of EvoSuite. This is only done when running experiments.")
 	public static String CONFIGURATION_ID = null;
+
+	/** Constant <code>GROUP_ID="none"</code> */
+	@Parameter(key = "group_id", group = "Output", description = "Label that specifies a group the SUT belongs to. This is only needed for running experiments.")
+	public static String GROUP_ID = "none";
 
 	/** Constant <code>SAVE_ALL_DATA=true</code> */
 	@Parameter(key = "save_all_data", group = "Output", description = "Generate and store all data reports")

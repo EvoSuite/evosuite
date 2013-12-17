@@ -19,13 +19,17 @@ package org.evosuite.testcase;
 
 import java.util.Map;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
 import org.evosuite.instrumentation.BooleanHelper;
+import org.evosuite.setup.TestCluster;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 
 /**
  * This class collects information about chosen branches/paths at runtime
@@ -495,6 +499,21 @@ public class ExecutionTracer {
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
 	}
 
+	public static void passedPutStatic(String classNameWithDots, String fieldName) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
+			return;
+
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
+		
+		tracer.trace.putStaticPassed(classNameWithDots, fieldName);
+	}
 	/**
 	 * Called by the instrumented code each time a new branch is taken
 	 * 
@@ -855,4 +874,5 @@ public class ExecutionTracer {
 	private ExecutionTracer() {
 		trace = new ExecutionTraceProxy();
 	}
+
 }
