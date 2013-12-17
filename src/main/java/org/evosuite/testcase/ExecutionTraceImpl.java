@@ -1500,4 +1500,16 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		return coveredMethodContext;
 	}
 
+	private HashSet<String> staticFieldUpdatedForClasses = new HashSet<String>();
+	@Override
+	public void putStaticPassed(String classNameWithDots, String fieldName) {
+		staticFieldUpdatedForClasses.add(classNameWithDots);		
+	}
+
+	@Override
+	public Set<String> getClassesForStaticReset() {
+		return staticFieldUpdatedForClasses;
+	}
+
+
 }
