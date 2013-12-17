@@ -109,7 +109,7 @@ public class CtgConfiguration {
 			throw new IllegalArgumentException("Invalid value for numberOfCUTs:"+numberOfCUTs);
 		}
 		
-		int time = (int) Math.ceil((minutesPerClass * numberOfCUTs) / this.getNumberOfUsableCores());
+		int time = (int) Math.ceil((minutesPerClass * numberOfCUTs) / (double) this.getNumberOfUsableCores());
 		
 		return new CtgConfiguration(
 				this.totalMemoryInMB, 

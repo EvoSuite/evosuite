@@ -45,15 +45,15 @@ public class DetermineSUT {
 	private String targetName = "";
 
 	private String targetClassPath = "";
-	
+
 	private Set<String> superClasses = new HashSet<String>();
 
 	public static class NoJUnitClassException extends Exception {
 
 		private static final long serialVersionUID = -7035856440476749976L;
-		
+
 	}
-	
+
 	private class TargetClassSorter implements Comparator<String> {
 		private final String targetClass;
 
@@ -69,7 +69,8 @@ public class DetermineSUT {
 		}
 	}
 
-	public String getSUTName(String fullyQualifiedTargetClass, String targetClassPath) throws NoJUnitClassException {
+	public String getSUTName(String fullyQualifiedTargetClass, String targetClassPath)
+	        throws NoJUnitClassException {
 		this.targetName = fullyQualifiedTargetClass;
 		this.targetClassPath = targetClassPath;
 		try {
@@ -89,13 +90,13 @@ public class DetermineSUT {
 			// Ignore, the set will be empty?
 			logger.error("Class not found: " + e, e);
 			return "";
-		} catch(NoJUnitClassException e) {
-			
+		} catch (NoJUnitClassException e) {
+
 		}
 
-		if(!hasJUnit)
+		if (!hasJUnit)
 			throw new NoJUnitClassException();
-		
+
 		if (candidateClasses.isEmpty())
 			return "<UNKNOWN>";
 
@@ -107,7 +108,8 @@ public class DetermineSUT {
 	}
 
 	public Set<String> determineCalledClasses(String fullyQualifiedTargetClass,
-	        Set<String> targetClasses) throws ClassNotFoundException, NoJUnitClassException {
+	        Set<String> targetClasses) throws ClassNotFoundException,
+	        NoJUnitClassException {
 		Set<String> calledClasses = new HashSet<String>();
 
 		String className = fullyQualifiedTargetClass.replace('.', '/');
@@ -116,7 +118,7 @@ public class DetermineSUT {
 			InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
 			if (is == null) {
 				throw new ClassNotFoundException("Class '" + className + ".class"
-						+ "' should be in target project, but could not be found!");
+				        + "' should be in target project, but could not be found!");
 			}
 			ClassReader reader = new ClassReader(is);
 			ClassNode classNode = new ClassNode();
@@ -126,7 +128,7 @@ public class DetermineSUT {
 			if (isJUnitTest(classNode)) {
 				handleClassNode(calledClasses, classNode, targetClasses);
 			} else {
-				throw new NoJUnitClassException(); 
+				throw new NoJUnitClassException();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -143,7 +145,9 @@ public class DetermineSUT {
 		Collection<String> classes = ResourceList.getResources(classPath, pattern);
 		Set<String> classNames = new HashSet<String>();
 		for (String fileName : classes) {
-			classNames.add(fileName.replace(".class", "").replaceAll(File.separator, "."));
+			classNames.add(fileName.replace(".class", "").replaceAll(File.separatorChar == '\\' ? "\\\\"
+			                                                                 : File.separator,
+			                                                         "."));
 		}
 		return classNames;
 	}
@@ -264,7 +268,7 @@ public class DetermineSUT {
 		DetermineSUT det = new DetermineSUT();
 		try {
 			System.out.println(det.getSUTName(args[0], args[1]));
-		} catch(NoJUnitClassException e) {
+		} catch (NoJUnitClassException e) {
 			System.err.println("Found no JUnit test case");
 		}
 	}
