@@ -4,7 +4,6 @@ import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
@@ -367,27 +366,6 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 	@Test
 	public void testPersonExample() {
 		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.TestPerson.class.getCanonicalName();
-		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.Person.class.getCanonicalName();
-
-		Properties.SEED_MUTATIONS = 1;
-		Properties.SEED_CLONE = 1;
-
-		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
-		        null);
-		Assert.assertTrue(factory.hasCarvedTestCases());
-		TestChromosome carved = factory.getChromosome();
-		Assert.assertNotNull(carved);
-
-		String code = carved.toString();
-
-		Assert.assertEquals(code, 3, carved.test.size());
-	}
-
-	@Ignore
-	/* EvoSuiteRunner is now deprecated */
-	@Test
-	public void testEvoSuiteRunner() {
-		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.TestPersonWithEvoSuiteRunner.class.getCanonicalName();
 		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.Person.class.getCanonicalName();
 
 		Properties.SEED_MUTATIONS = 1;
