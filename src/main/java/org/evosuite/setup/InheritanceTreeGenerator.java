@@ -42,8 +42,8 @@ import java.util.zip.ZipFile;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceList;
 import org.evosuite.utils.Utils;
@@ -102,23 +102,26 @@ public class InheritanceTreeGenerator {
 	/**
 	 * Create inheritance tree only for the classes passed as parameter
 	 * 
+	 * <p>
+	 * Private classes will be ignored
+	 * 
 	 * @param classNames
 	 * @return
 	 */
-	public static InheritanceTree createFromClassList(Collection<String> classNames) 
-			throws IllegalArgumentException{
-		
-		if(classNames==null || classNames.isEmpty()){
+	public static InheritanceTree createFromClassList(Collection<String> classNames)
+	        throws IllegalArgumentException {
+
+		if (classNames == null || classNames.isEmpty()) {
 			throw new IllegalArgumentException("No class name defined");
 		}
-		
+
 		InheritanceTree inheritanceTree = new InheritanceTree();
 		for (String className : classNames) {
-			
-			if(className == null){
+
+			if (className == null) {
 				throw new IllegalArgumentException("Null class name");
 			}
-			
+
 			analyzeClassName(inheritanceTree, className);
 		}
 
@@ -223,18 +226,18 @@ public class InheritanceTreeGenerator {
 	private static void analyzeClassName(InheritanceTree inheritanceTree, String className) {
 
 		String fileName = ResourceList.getClassAsResource(className);
-		if(fileName==null){
-			throw new IllegalArgumentException("Failed to locate resource for class "+className);
+		if (fileName == null) {
+			throw new IllegalArgumentException("Failed to locate resource for class "
+			        + className);
 		}
-		
-		
+
 		InputStream stream = null;
-		try{
+		try {
 			stream = InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(fileName);
-		} catch(NullPointerException e){
-			logger.warn("Java failed to read resource "+fileName,e);
+		} catch (NullPointerException e) {
+			logger.warn("Java failed to read resource " + fileName, e);
 		}
-		
+
 		if (stream != null) {
 			logger.debug(InheritanceTreeGenerator.class.getClassLoader().getResource(fileName).toString());
 			analyzeClassStream(inheritanceTree, stream, false);
@@ -315,20 +318,20 @@ public class InheritanceTreeGenerator {
 		// and if so, check if the inner class is actually accessible
 		@SuppressWarnings("unchecked")
 		List<InnerClassNode> in = cn.innerClasses;
-		for(InnerClassNode inc : in) {
-			if(cn.name.equals(inc.name)) {
-				logger.info("ASM Bug: Inner class equals class: "+inc.name);
-				if ((inc.access & Opcodes.ACC_PROTECTED) == Opcodes.ACC_PROTECTED) { 
+		for (InnerClassNode inc : in) {
+			if (cn.name.equals(inc.name)) {
+				logger.info("ASM Bug: Inner class equals class: " + inc.name);
+				if ((inc.access & Opcodes.ACC_PROTECTED) == Opcodes.ACC_PROTECTED) {
 					return false;
 				}
-				if ((inc.access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE) { 
+				if ((inc.access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE) {
 					return false;
 				}
-				logger.debug("Can use inner class: "+inc.name);
+				logger.debug("Can use inner class: " + inc.name);
 				return true;
 			}
 		}
-		
+
 		logger.debug(cn.name + " is accessible");
 		return true;
 	}
