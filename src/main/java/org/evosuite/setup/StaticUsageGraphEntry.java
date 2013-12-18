@@ -65,5 +65,6 @@ abstract class StaticUsageGraphEntry {
 			return false;
 		return true;
 	}
+	
 
 }
