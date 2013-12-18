@@ -161,7 +161,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 			// TODO: Ensure that files were accessed in the first place
 			statement = new FileNamePrimitiveStatement(tc, new EvoSuiteFile(
 			        Randomness.choice(tc.getAccessedFiles())));
-		} else if (clazz instanceof Class) {
+		} else if (clazz == Class.class) {
 			final List<Type> types = genericClass.getParameterTypes();
 
 			Type typeParameter = null;
