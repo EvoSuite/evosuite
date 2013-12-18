@@ -50,7 +50,7 @@ public class StaticUsageGraphGenerator {
 	public static StaticUsageGraph generate(String className) {
 		ClassNode targetClass = DependencyAnalysis.getClassNode(className);
 
-		StaticUsageGraph staticUsageTree = new StaticUsageGraph(className);
+		StaticUsageGraph staticUsageTree = new StaticUsageGraph();
 		if (targetClass != null)
 			handle(staticUsageTree, targetClass, 0);
 		if (Properties.INSTRUMENT_PARENT) {

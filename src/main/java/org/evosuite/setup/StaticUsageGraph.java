@@ -10,12 +10,10 @@ import org.slf4j.LoggerFactory;
 
 public class StaticUsageGraph {
 
+	StaticUsageGraph() {}
+	
 	private static final Logger logger = LoggerFactory
 			.getLogger(StaticUsageGraph.class);
-
-	public StaticUsageGraph(String className) {
-
-	}
 
 	private final Set<StaticFieldReadEntry> staticFieldReads = new HashSet<StaticFieldReadEntry>();
 	private final Set<StaticMethodCallEntry> staticMethodCalls = new HashSet<StaticMethodCallEntry>();
