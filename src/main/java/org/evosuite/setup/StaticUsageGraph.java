@@ -159,6 +159,12 @@ public class StaticUsageGraph {
 		return targetClasses;
 	}
 
+	/**
+	 * Returns a classname->set(fieldname) with those static fields reached by
+	 * static methods (included <clinit>)
+	 * 
+	 * @return
+	 */
 	public Map<String, Set<String>> getStaticFields() {
 		Map<String, Set<String>> staticFields = new HashMap<String, Set<String>>();
 		for (StaticFieldReadEntry read : this.staticFieldReads) {
