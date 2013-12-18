@@ -1,6 +1,8 @@
 package org.evosuite.setup;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -155,5 +157,17 @@ public class StaticUsageGraph {
 			targetClasses.add(entry.getTargetClass().replace("/", "."));
 		}
 		return targetClasses;
+	}
+
+	public Map<String, Set<String>> getStaticFields() {
+		Map<String, Set<String>> staticFields = new HashMap<String, Set<String>>();
+		for (StaticFieldReadEntry read : this.staticFieldReads) {
+			String className = read.getTargetClass().replace("/", ".");
+			if (!staticFields.containsKey(className)) {
+				staticFields.put(className, new HashSet<String>());
+			}
+			staticFields.get(className).add(read.getTargetField());
+		}
+		return staticFields;
 	}
 }
