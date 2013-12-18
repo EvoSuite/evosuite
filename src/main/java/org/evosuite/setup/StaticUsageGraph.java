@@ -8,10 +8,20 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class represents a graph with the INVOKESTATIC/GETSTATIC relation.
+ * The main usage of this graph is to get the set of all the static fields that are
+ * read in static methods that are reachable from the target class.
+ * The method <code>getStaticFields</code> returns that information.
+ * 
+ * @author galeotti
+ *
+ */
 public class StaticUsageGraph {
 
-	StaticUsageGraph() {}
-	
+	StaticUsageGraph() {
+	}
+
 	private static final Logger logger = LoggerFactory
 			.getLogger(StaticUsageGraph.class);
 
