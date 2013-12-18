@@ -10,12 +10,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.staticfield.StaticField;
+import com.examples.with.different.packagename.staticfield.StaticFoo;
 
 public class TestResetStaticField extends SystemTest{
 
 	private boolean reset_statick_field__property;
-
+	
 	@Before
 	public void saveProperties() {
 		reset_statick_field__property = Properties.RESET_STATIC_FIELDS;
@@ -31,7 +31,7 @@ public class TestResetStaticField extends SystemTest{
 	public void test() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = StaticField.class.getCanonicalName();
+		String targetClass = StaticFoo.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] {"-generateSuite", "-class", targetClass };
 
@@ -41,7 +41,7 @@ public class TestResetStaticField extends SystemTest{
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		double best_fitness = best.getFitness();
-		Assert.assertTrue("Optimal coverage is not feasible ", best_fitness > 0.0);
+		Assert.assertTrue("Optimal coverage was not achieved ", best_fitness == 0.0);
 		
 	}
 

@@ -228,6 +228,10 @@ public class BytecodeInstrumentation {
 			cv = new TraceClassVisitor(cv, new PrintWriter(System.err));
 		}
 
+		if (Properties.RESET_STATIC_FIELDS) {
+			cv = new PutStaticClassAdapter(cv, className);
+		}
+
 		// Apply transformations to class under test and its owned
 		// classes
 		if (DependencyAnalysis.shouldAnalyze(classNameWithDots)) {
@@ -243,9 +247,6 @@ public class BytecodeInstrumentation {
 
 			cv = new ExecutionPathClassAdapter(cv, className);
 
-			if (Properties.RESET_STATIC_FIELDS) {
-				cv = new PutStaticClassAdapter(cv, className);
-			}
 			cv = new CFGClassAdapter(classLoader, cv, className);
 
 			if (Properties.ERROR_BRANCHES) {
