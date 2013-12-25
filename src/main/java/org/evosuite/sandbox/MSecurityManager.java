@@ -1020,7 +1020,7 @@ public class MSecurityManager extends SecurityManager {
 		/*
 		 * this is also useful for checking types in the String constants, and to be warned if they ll change in future JDKs
 		 */
-		logger.debug("SUT asked for a runtime permission that EvoSuite does not recognize: "
+		logger.warn("SUT asked for a runtime permission that EvoSuite does not recognize: "
 		        + name);
 
 		return false;
