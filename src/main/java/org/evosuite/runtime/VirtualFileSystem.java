@@ -73,6 +73,12 @@ public final class VirtualFileSystem {
 	 */
 	private final Set<String> classesThatShouldThrowIOException;
 
+	/**
+	 * A set of all IO leaking resources (eg streams) created during the search
+	 * 
+	 */
+	private final Set<LeakingResource> leakingResources;
+	
 	//--------------------------------------------------------------------------
 
 	/**
@@ -81,6 +87,7 @@ public final class VirtualFileSystem {
 	private VirtualFileSystem() {
 		tmpFileCounter = new AtomicInteger(0);
 		accessedFiles = new HashSet<String>(); //we only add during test execution, and read after
+		leakingResources =  new HashSet<LeakingResource>(); 
 		classesThatShouldThrowIOException = new CopyOnWriteArraySet<String>(); //should only contain very few values
 	}
 
@@ -102,8 +109,27 @@ public final class VirtualFileSystem {
 		accessedFiles.clear();
 		shouldAllThrowIOException = false;
 		classesThatShouldThrowIOException.clear();
+		
+		for(LeakingResource resource : leakingResources){
+			try{
+				resource.release();
+			} catch(Exception e){
+				logger.warn("Failed to release resource: "+e.getMessage(),e);
+			}
+		}
+		leakingResources.clear();
 	}
 
+	/**
+	 * Add a leaking resource to this VFS.
+	 * This is mainly necessary for stream objects, even if they are virtual
+	 * 
+	 * @param resource
+	 */
+	public void addLeakingResource(LeakingResource resource){
+		leakingResources.add(resource);
+	}
+	
 	/**
 	 * Some file streams open file connections in their constructors. Even if we
 	 * use a VFS, those methods have to be called. Therefore, we create a single
