@@ -9,11 +9,12 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.evosuite.runtime.LeakingResource;
 import org.evosuite.runtime.VirtualFileSystem;
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
 
-public class MockFileOutputStream extends FileOutputStream{
+public class MockFileOutputStream extends FileOutputStream implements LeakingResource{
 	
 	/**
 	 * The path to the file
@@ -52,6 +53,8 @@ public class MockFileOutputStream extends FileOutputStream{
 	public MockFileOutputStream(File file, boolean append) throws FileNotFoundException{
 		
 		super(VirtualFileSystem.getInstance().getRealTmpFile(),true); //just to make the compiler happy
+		
+		VirtualFileSystem.getInstance().addLeakingResource(this);
 		
 		path = (file != null ? file.getAbsolutePath() : null);
 		
@@ -112,6 +115,8 @@ public class MockFileOutputStream extends FileOutputStream{
 	@Override
 	public void close() throws IOException {
 		
+		super.close();
+		
 		if (closed) {
 			return;
 		}
@@ -153,5 +158,10 @@ public class MockFileOutputStream extends FileOutputStream{
 		if(closed){
 			throw new IOException();
 		}
+	}
+	
+	@Override
+	public void release() throws Exception {		
+			super.close();
 	}
 }

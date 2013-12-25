@@ -7,10 +7,11 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.evosuite.runtime.LeakingResource;
 import org.evosuite.runtime.VirtualFileSystem;
 import org.evosuite.runtime.vfs.VFile;
 
-public class MockRandomAccessFile extends RandomAccessFile{
+public class MockRandomAccessFile extends RandomAccessFile implements LeakingResource{
 
 	private FileChannel channel = null;
 	private final Object closeLock = new Object();
@@ -42,6 +43,8 @@ public class MockRandomAccessFile extends RandomAccessFile{
 		
 		super(VirtualFileSystem.getInstance().getRealTmpFile(),"rw"); //just to make the compiler happy
 
+		VirtualFileSystem.getInstance().addLeakingResource(this);
+		
 		String name = (file != null ? file.getPath() : null);
 		
 		if (mode==null || (!mode.equals("r") && !mode.equals("rw") && !mode.equals("rws") && !mode.equals("rwd")) ){
@@ -177,15 +180,26 @@ public class MockRandomAccessFile extends RandomAccessFile{
 
 	@Override
 	public void close() throws IOException {
+		
 		synchronized (closeLock) {
+		
+			super.close();
+			
 			if (closed) {
 				return;
 			}
 			closed = true;
 		}
+		
 		if (channel != null) {
 			channel.close();
 		}
+		
+		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
 	}
 
+	@Override
+	public void release() throws Exception {		
+			super.close();
+	}
 }
