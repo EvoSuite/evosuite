@@ -1004,12 +1004,19 @@ public class MSecurityManager extends SecurityManager {
 		}
 
 		/*
-		 * This is permissions in NIO, which seems safe...
+		 * These are permissions in NIO, which seems safe...
 		 */
 		if (name.equals("charsetProvider") || name.equals("selectorProvider")) {
 			return true;
 		}
 
+		
+		//Java 7 permissions:
+		if (name.equals("getFileSystemAttributes")) {
+			return true;
+		}
+		
+		
 		/*
 		 * this is also useful for checking types in the String constants, and to be warned if they ll change in future JDKs
 		 */
