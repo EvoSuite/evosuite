@@ -303,6 +303,16 @@ public class TestSuiteWriter implements Opcodes {
 		return dirname;
 	}
 
+	protected static boolean hasAnySecurityException(List<ExecutionResult> results){
+		for (ExecutionResult result : results) {
+			if(result.hasSecurityException()){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
 	/**
 	 * Determine packages that need to be imported in the JUnit file
 	 * 
@@ -313,14 +323,11 @@ public class TestSuiteWriter implements Opcodes {
 	protected String getImports(List<ExecutionResult> results) {
 		StringBuilder builder = new StringBuilder();
 		Set<Class<?>> imports = new HashSet<Class<?>>();
-		boolean wasSecurityException = false;
+		boolean wasSecurityException = hasAnySecurityException(results);
 
 		for (ExecutionResult result : results) {
 			result.test.accept(visitor);
-			if (!wasSecurityException) {
-				wasSecurityException = result.hasSecurityException();
-			}
-
+			
 			// Iterate over declared exceptions to make sure they are known to the visitor
 			Set<Class<?>> exceptions = result.test.getDeclaredExceptions();
 			if (!exceptions.isEmpty()) {
@@ -509,19 +516,16 @@ public class TestSuiteWriter implements Opcodes {
 	public String getUnitTest(String name) {
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
 
+		for (int i = 0; i < testCases.size(); i++) {
+			ExecutionResult result = runTest(testCases.get(i));
+			results.add(result);			
+		}
+		
 		/*
 		 * if there was any security exception, then we need to scaffold the
 		 * test cases with a sandbox
 		 */
-		boolean wasSecurityException = false;
-
-		for (int i = 0; i < testCases.size(); i++) {
-			ExecutionResult result = runTest(testCases.get(i));
-			results.add(result);
-			if (!wasSecurityException) {
-				wasSecurityException = result.hasSecurityException();
-			}
-		}
+		boolean wasSecurityException = hasAnySecurityException(results);
 
 		StringBuilder builder = new StringBuilder();
 
