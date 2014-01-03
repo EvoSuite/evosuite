@@ -17,13 +17,13 @@ import org.slf4j.LoggerFactory;
  * @author galeotti
  *
  */
-public class StaticUsageGraph {
+public class GetStaticGraph {
 
-	StaticUsageGraph() {
+	GetStaticGraph() {
 	}
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(StaticUsageGraph.class);
+			.getLogger(GetStaticGraph.class);
 
 	private final Set<StaticFieldReadEntry> staticFieldReads = new HashSet<StaticFieldReadEntry>();
 	private final Set<StaticMethodCallEntry> staticMethodCalls = new HashSet<StaticMethodCallEntry>();
@@ -117,7 +117,7 @@ public class StaticUsageGraph {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		StaticUsageGraph other = (StaticUsageGraph) obj;
+		GetStaticGraph other = (GetStaticGraph) obj;
 		if (staticFieldReads == null) {
 			if (other.staticFieldReads != null)
 				return false;

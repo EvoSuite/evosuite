@@ -6,7 +6,7 @@ package org.evosuite.setup;
  * @author galeotti
  *
  */
-final class StaticMethodCallEntry extends StaticUsageGraphEntry {
+final class StaticMethodCallEntry extends GetStaticGraphEntry {
 
 	private final String targetMethod;
 

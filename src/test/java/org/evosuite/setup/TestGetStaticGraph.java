@@ -24,12 +24,12 @@ import com.examples.with.different.packagename.staticusage.Cycle2;
 import com.examples.with.different.packagename.staticusage.Foo;
 
 
-public class TestStaticUsage {
+public class TestGetStaticGraph {
 
 	@Test
 	public void testFoo() {
 		String targetClassName = Foo.class.getCanonicalName();
-		StaticUsageGraph graph = StaticUsageGraphGenerator
+		GetStaticGraph graph = GetStaticGraphGenerator
 				.generate(targetClassName);
 
 		Set<String> expectedClasses = new HashSet<String>(Arrays.asList(
@@ -60,7 +60,7 @@ public class TestStaticUsage {
 	@Test
 	public void testCycle() {
 		String targetClassName = Cycle1.class.getCanonicalName();
-		StaticUsageGraph graph = StaticUsageGraphGenerator
+		GetStaticGraph graph = GetStaticGraphGenerator
 				.generate(targetClassName);
 
 		Set<String> expectedSourceClasses = new HashSet<String>(Arrays.asList(
