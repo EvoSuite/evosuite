@@ -57,7 +57,7 @@ public class CallTreeGenerator {
 		return callTree;
 	}
 
-	public static boolean isOverridden(String methodName) {
+	private static boolean isOverridden(String methodName) {
 		return true;
 	}
 
@@ -69,7 +69,7 @@ public class CallTreeGenerator {
 	 * @param targetClass
 	 */
 	@SuppressWarnings("unchecked")
-	public static void handleSuperClasses(CallTree callTree, ClassNode targetClass) {
+	private static void handleSuperClasses(CallTree callTree, ClassNode targetClass) {
 		String superClassName = targetClass.superName;
 		if (superClassName == null || superClassName.isEmpty())
 			return;
@@ -105,7 +105,7 @@ public class CallTreeGenerator {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static void handle(CallTree callTree, ClassNode targetClass, int depth) {
+	private static void handle(CallTree callTree, ClassNode targetClass, int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			logger.debug("Method: " + mn.name);
@@ -114,7 +114,7 @@ public class CallTreeGenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void handle(CallTree callTree, ClassNode targetClass,
+	private static void handle(CallTree callTree, ClassNode targetClass,
 	        String methodName, int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
@@ -123,7 +123,7 @@ public class CallTreeGenerator {
 		}
 	}
 
-	public static void handle(CallTree callTree, String className, String methodName,
+	private static void handle(CallTree callTree, String className, String methodName,
 	        int depth) {
 		ClassNode cn = DependencyAnalysis.getClassNode(className);
 		if (cn == null)
@@ -139,7 +139,7 @@ public class CallTreeGenerator {
 	 * @param mn
 	 */
 	@SuppressWarnings("unchecked")
-	public static void handleMethodNode(CallTree callTree, ClassNode cn, MethodNode mn,
+	private static void handleMethodNode(CallTree callTree, ClassNode cn, MethodNode mn,
 	        int depth) {
 		handlePublicMethodNode(callTree, cn, mn);
 
@@ -169,7 +169,7 @@ public class CallTreeGenerator {
 	 * @param mn
 	 * @param methodCall
 	 */
-	public static void handleMethodInsnNode(CallTree callTree, ClassNode cn,
+	private static void handleMethodInsnNode(CallTree callTree, ClassNode cn,
 	        MethodNode mn, MethodInsnNode methodCall, int depth) {
 
 		// Only build calltree for instrumentable classes
@@ -197,7 +197,7 @@ public class CallTreeGenerator {
 	 * @param callTree
 	 * @param inheritanceTree
 	 */
-	public static void update(CallTree callTree, InheritanceTree inheritanceTree) {
+	static void update(CallTree callTree, InheritanceTree inheritanceTree) {
 		logger.info("Updating call tree ");
 
 		Set<CallTreeEntry> subclassCalls = new LinkedHashSet<CallTreeEntry>();
