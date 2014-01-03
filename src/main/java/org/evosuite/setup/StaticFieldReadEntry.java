@@ -6,7 +6,7 @@ package org.evosuite.setup;
  * @author galeotti
  *
  */
-final class StaticFieldReadEntry extends StaticUsageGraphEntry {
+final class StaticFieldReadEntry extends GetStaticGraphEntry {
 
 	public StaticFieldReadEntry(String sourceClass, String sourceMethod,
 			String targetClass, String targetField) {

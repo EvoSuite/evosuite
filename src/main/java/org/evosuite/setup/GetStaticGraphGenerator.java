@@ -42,15 +42,15 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Juan Galeotti
  */
-public class StaticUsageGraphGenerator {
+public class GetStaticGraphGenerator {
 
 	private static Logger logger = LoggerFactory
-			.getLogger(StaticUsageGraphGenerator.class);
+			.getLogger(GetStaticGraphGenerator.class);
 
-	public static StaticUsageGraph generate(String className) {
+	public static GetStaticGraph generate(String className) {
 		ClassNode targetClass = DependencyAnalysis.getClassNode(className);
 
-		StaticUsageGraph staticUsageTree = new StaticUsageGraph();
+		GetStaticGraph staticUsageTree = new GetStaticGraph();
 		if (targetClass != null)
 			handle(staticUsageTree, targetClass, 0);
 		if (Properties.INSTRUMENT_PARENT) {
@@ -71,7 +71,7 @@ public class StaticUsageGraphGenerator {
 	 * @param targetClass
 	 */
 	@SuppressWarnings("unchecked")
-	private static void handleSuperClasses(StaticUsageGraph staticUsageTree,
+	private static void handleSuperClasses(GetStaticGraph staticUsageTree,
 			ClassNode targetClass) {
 		String superClassName = targetClass.superName;
 		if (superClassName == null || superClassName.isEmpty())
@@ -108,7 +108,7 @@ public class StaticUsageGraphGenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void handle(StaticUsageGraph staticUsageTree,
+	private static void handle(GetStaticGraph staticUsageTree,
 			ClassNode targetClass, int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
@@ -118,7 +118,7 @@ public class StaticUsageGraphGenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void handle(StaticUsageGraph staticUsageTree,
+	private static void handle(GetStaticGraph staticUsageTree,
 			ClassNode targetClass, String methodName, int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
@@ -127,7 +127,7 @@ public class StaticUsageGraphGenerator {
 		}
 	}
 
-	private static void handle(StaticUsageGraph staticUsageTree,
+	private static void handle(GetStaticGraph staticUsageTree,
 			String className, String methodName, int depth) {
 		ClassNode cn = DependencyAnalysis.getClassNode(className);
 		if (cn == null)
@@ -143,7 +143,7 @@ public class StaticUsageGraphGenerator {
 	 * @param mn
 	 */
 	@SuppressWarnings("unchecked")
-	private static void handleMethodNode(StaticUsageGraph staticUsageTree,
+	private static void handleMethodNode(GetStaticGraph staticUsageTree,
 			ClassNode cn, MethodNode mn, int depth) {
 
 		InsnList instructions = mn.instructions;
@@ -167,7 +167,7 @@ public class StaticUsageGraphGenerator {
 	 * Descend into a static field read
 	 * 
 	 */
-	private static void handleFieldInsnNode(StaticUsageGraph staticUsageTree,
+	private static void handleFieldInsnNode(GetStaticGraph staticUsageTree,
 			ClassNode cn, MethodNode mn, FieldInsnNode insn, int depth) {
 
 		// Skip field instructions that are not reads to static fields
@@ -200,7 +200,7 @@ public class StaticUsageGraphGenerator {
 	 * Descend into a static method call
 	 * 
 	 */
-	private static void handleMethodInsnNode(StaticUsageGraph staticUsageTree,
+	private static void handleMethodInsnNode(GetStaticGraph staticUsageTree,
 			ClassNode cn, MethodNode mn, MethodInsnNode methodCall, int depth) {
 
 		// Skip if method call is not static
@@ -236,7 +236,7 @@ public class StaticUsageGraphGenerator {
 	/**
 	 * Descend into a <clinit> 
 	 */
-	private static void handleClassInitializer(StaticUsageGraph staticUsageTree,
+	private static void handleClassInitializer(GetStaticGraph staticUsageTree,
 			ClassNode cn, MethodNode mn, String owner, int depth) {
 		if (!staticUsageTree.hasStaticMethodCall(cn.name, mn.name + mn.desc,
 				owner, CLASS_INIT_NAME)) {

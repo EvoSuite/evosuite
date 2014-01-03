@@ -7,13 +7,13 @@ package org.evosuite.setup;
  *  
  * @author galeotti
  */
-abstract class StaticUsageGraphEntry {
+abstract class GetStaticGraphEntry {
 
 	private final String sourceClass;
 	private final String sourceMethod;
 	private final String targetClass;
 
-	public StaticUsageGraphEntry(String sourceClass, String sourceMethod,
+	public GetStaticGraphEntry(String sourceClass, String sourceMethod,
 			String targetClass) {
 		super();
 		this.sourceClass = sourceClass;
@@ -52,9 +52,9 @@ abstract class StaticUsageGraphEntry {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof StaticUsageGraphEntry))
+		if (!(obj instanceof GetStaticGraphEntry))
 			return false;
-		StaticUsageGraphEntry other = (StaticUsageGraphEntry) obj;
+		GetStaticGraphEntry other = (GetStaticGraphEntry) obj;
 		if (sourceClass == null) {
 			if (other.sourceClass != null)
 				return false;
