@@ -180,14 +180,14 @@ public class StaticUsageGraphGenerator {
 		if (InstrumentingClassLoader.checkIfCanInstrument(calleeClassName)) {
 			logger.debug("Handling field read: " + insn.name);
 			if (!staticUsageTree.hasStaticFieldRead(cn.name, mn.name + mn.desc,
-					insn.owner, insn.name + insn.desc)) {
+					insn.owner, insn.name)) {
 
 				handleClassInitializer(staticUsageTree, cn, mn, insn.owner,
 						depth);
 
 				// Add static read from mn to insn to static usage graph
 				staticUsageTree.addStaticFieldRead(cn.name, mn.name + mn.desc,
-						insn.owner, insn.name + insn.desc);
+						insn.owner, insn.name);
 
 				handle(staticUsageTree, insn.owner, insn.name + insn.desc,
 						depth);
