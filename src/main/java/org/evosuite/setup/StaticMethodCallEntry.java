@@ -1,5 +1,11 @@
 package org.evosuite.setup;
 
+/**
+ * This class represents INVOKESTATIC edges in the static usage graph.
+ * 
+ * @author galeotti
+ *
+ */
 final class StaticMethodCallEntry extends StaticUsageGraphEntry {
 
 	private final String targetMethod;

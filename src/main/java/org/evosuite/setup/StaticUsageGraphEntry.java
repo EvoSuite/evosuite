@@ -1,5 +1,12 @@
 package org.evosuite.setup;
 
+/**
+ * The superclass of an entry of the static usage graph.
+ * The static usage graph contains information regarding how static fields are used
+ * by static methods.
+ *  
+ * @author galeotti
+ */
 abstract class StaticUsageGraphEntry {
 
 	private final String sourceClass;
@@ -65,6 +72,5 @@ abstract class StaticUsageGraphEntry {
 			return false;
 		return true;
 	}
-	
 
 }
