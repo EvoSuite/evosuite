@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,7 +11,6 @@ import java.util.Set;
 
 import org.junit.Test;
 
-/*
 import com.examples.with.different.packagename.staticusage.Bar1;
 import com.examples.with.different.packagename.staticusage.Bar4;
 import com.examples.with.different.packagename.staticusage.Bar3;
@@ -24,14 +22,10 @@ import com.examples.with.different.packagename.staticusage.BarBar1;
 import com.examples.with.different.packagename.staticusage.Cycle1;
 import com.examples.with.different.packagename.staticusage.Cycle2;
 import com.examples.with.different.packagename.staticusage.Foo;
-*/
 
-//NOTE: this does not compile under Mac OSX
-//import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 
 public class TestStaticUsage {
 
-	/*
 	@Test
 	public void testFoo() {
 		String targetClassName = Foo.class.getCanonicalName();
@@ -52,18 +46,12 @@ public class TestStaticUsage {
 		assertEquals(expectedClasses, allClasses);
 
 		Map<String, Set<String>> expectedStaticFields = new HashMap<String, Set<String>>();
-		expectedStaticFields.put(
-				Bar2.class.getCanonicalName(),
-				new HashSet<String>(Arrays.asList("fieldBar2"
-						+ Type.getDescriptor(int.class))));
-		expectedStaticFields.put(
-				Bar6.class.getCanonicalName(),
-				new HashSet<String>(Arrays.asList("fieldBar6"
-						+ Type.getDescriptor(int.class))));
-		expectedStaticFields.put(
-				Bar7.class.getCanonicalName(),
-				new HashSet<String>(Arrays.asList("fieldBar7"
-						+ Type.getDescriptor(int.class))));
+		expectedStaticFields.put(Bar2.class.getCanonicalName(),
+				new HashSet<String>(Arrays.asList("fieldBar2")));
+		expectedStaticFields.put(Bar6.class.getCanonicalName(),
+				new HashSet<String>(Arrays.asList("fieldBar6")));
+		expectedStaticFields.put(Bar7.class.getCanonicalName(),
+				new HashSet<String>(Arrays.asList("fieldBar7")));
 
 		Map<String, Set<String>> staticFields = graph.getStaticFields();
 		assertEquals(expectedStaticFields, staticFields);
@@ -89,5 +77,4 @@ public class TestStaticUsage {
 		assertTrue(staticFields.isEmpty());
 
 	}
- */
 }
