@@ -622,9 +622,48 @@ public class TestClusterGenerator {
 			PutStaticMethodCollector collector = new PutStaticMethodCollector();
 			Set<MethodIdentifier> methodIdentifiers = collector
 					.collectMethods(Properties.TARGET_CLASS);
+
+			for (MethodIdentifier methodId : methodIdentifiers) {
+				
+				Class<?> clazz = getClass(methodId.getClassName());
+				if (clazz==null)
+					continue;
+				
+				if (!canUse(clazz))
+					continue;
+				
+				Method method = getMethod(clazz, methodId.getMethodName(), methodId.getDesc());
+
+				if (method==null)
+					continue;
+				
+				GenericMethod genericMethod = new GenericMethod(method,
+						clazz);
+				
+				cluster.addTestCall(genericMethod);
+				
+			}
 		}
 
 		logger.info("Finished analyzing target class");
+	}
+
+	private Method getMethod(Class<?> clazz, String methodName, String desc) {
+		for (Method method : clazz.getMethods()) {
+			if (method.getName().equals(methodName) && Type.getMethodDescriptor(method).equals(desc))
+				return method;
+		}
+		return null;
+	}
+
+	private Class<?> getClass(String className) {
+		try {
+			Class<?> clazz = Class.forName(className, true,
+			        TestGenerationContext.getClassLoader());
+			return clazz;
+		} catch (ClassNotFoundException e) {
+			return null;
+		}
 	}
 
 	/**
