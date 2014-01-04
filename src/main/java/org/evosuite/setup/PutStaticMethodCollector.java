@@ -85,6 +85,18 @@ public class PutStaticMethodCollector {
 				return false;
 			return true;
 		}
+
+		public String getClassName() {
+			return className;
+		}
+
+		public String getMethodName() {
+			return methodName;
+		}
+
+		public String getDesc() {
+			return desc;
+		}
 	}
 
 	private static Logger logger = LoggerFactory
