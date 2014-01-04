@@ -884,6 +884,10 @@ public class Properties {
 	@Parameter(key = "break_on_exception", description = "Stop test execution if exception occurrs")
 	public static boolean BREAK_ON_EXCEPTION = true;
 
+	/** Constant <code>ADD_METHODS_INITIALIZING_STATIC_FIELDS=false</code> */
+	@Parameter(key = "add_methods_initializing_static_fields", description = "Include methods that update required static fields")
+	public static boolean ADD_METHODS_INITIALIZING_STATIC_FIELDS = false;
+
 	public enum TestFactory {
 		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT
 	}
