@@ -2,14 +2,10 @@ package org.evosuite.setup;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
 
-import org.evosuite.Properties;
 import org.evosuite.setup.PutStaticMethodCollector.MethodIdentifier;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.objectweb.asm.Type;
 
