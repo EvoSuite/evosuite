@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
  */
 public class PutStaticMethodCollector {
 
+	private static final String CLINIT = "<clinit>";
+
 	public static class MethodIdentifier {
 		private final String className;
 		private final String methodName;
@@ -104,7 +106,7 @@ public class PutStaticMethodCollector {
 					.getClassNode(calledClassName);
 			List<MethodNode> classMethods = classNode.methods;
 			for (MethodNode mn : classMethods) {
-				if (mn.name.equals("<clinit>"))
+				if (mn.name.equals(CLINIT))
 					continue;
 				
 				InsnList instructions = mn.instructions;
