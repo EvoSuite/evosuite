@@ -54,6 +54,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		private final String replacementDesc;
 
 		private final boolean popCallee;
+		private final boolean popUninitialisedReference;
 
 		/**
 		 * 
@@ -70,7 +71,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		 */
 		public MethodCallReplacement(String className, String methodName, String desc,
 				String replacementClassName, String replacementMethodName,
-				String replacementDesc, boolean pop) {
+				String replacementDesc, boolean pop, boolean pop2) {
 			this.className = className;
 			this.methodName = methodName;
 			this.desc = desc;
@@ -78,6 +79,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			this.replacementMethodName = replacementMethodName;
 			this.replacementDesc = replacementDesc;
 			this.popCallee = pop;
+			this.popUninitialisedReference = pop2;
 		}
 
 		public boolean isTarget(String owner, String name, String desc) {
@@ -85,7 +87,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					&& this.desc.equals(desc);
 		}
 
-		public void insertMethodCall(MethodVisitor mv, int opcode) {
+		public void insertMethodCall(MethodCallReplacementMethodAdapter mv, int opcode) {
 			if (popCallee) {
 				Type[] args = Type.getArgumentTypes(desc);
 				Map<Integer, Integer> to = new HashMap<Integer, Integer>();
@@ -96,6 +98,8 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 				}
 
 				pop();//callee
+				if(popUninitialisedReference)
+					pop();
 
 				for (int i = 0; i < args.length; i++) {
 					loadLocal(to.get(i));
@@ -105,7 +109,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					replacementDesc);
 		}
 
-		public void insertConstructorCall(MethodVisitor mv,
+		public void insertConstructorCall(MethodCallReplacementMethodAdapter mv,
 				MethodCallReplacement replacement) {
 			Type[] args = Type.getArgumentTypes(desc);
 			Map<Integer, Integer> to = new HashMap<Integer, Integer>();
@@ -122,12 +126,13 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			for (int i = 0; i < args.length; i++) {
 				loadLocal(to.get(i));
 			}
-
 			mv.visitMethodInsn(Opcodes.INVOKESPECIAL, replacementClassName,
 					replacementMethodName, replacementDesc);
 		}
 	}
 
+	
+	
 	/**
 	 * method replacements, which are called with Opcodes.INVOKESTATIC
 	 */
@@ -164,51 +169,51 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		super(Opcodes.ASM4, mv, access, methodName, desc);
 		if (Properties.REPLACE_CALLS) {
 			replacementCalls.add(new MethodCallReplacement("java/lang/System", "exit",
-					"(I)V", "org/evosuite/runtime/System", "exit", "(I)V", false));
+					"(I)V", "org/evosuite/runtime/System", "exit", "(I)V", false, false));
 			replacementCalls.add(new MethodCallReplacement("java/lang/System",
 					"currentTimeMillis", "()J", "org/evosuite/runtime/System",
-					"currentTimeMillis", "()J", false));
+					"currentTimeMillis", "()J", false, false));
 
 			replacementCalls.add(new MethodCallReplacement("java/util/Date", "<init>",
 					"()V", "org/evosuite/runtime/Date", "getDate", "()Ljava/util/Date;",
-					false));
+					true, true));
 
 			replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
 					"getInstance", "()Ljava/util/Calendar;",
 					"org/evosuite/runtime/Calendar", "getCalendar",
-					"()Ljava/util/Calendar;", false));
+					"()Ljava/util/Calendar;", false, false));
 
 			replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
 					"getInstance", "(Ljava/util/Locale;)Ljava/util/Calendar;",
 					"org/evosuite/runtime/Calendar", "getCalendar",
-					"(Ljava/util/Locale;)Ljava/util/Calendar;", false));
+					"(Ljava/util/Locale;)Ljava/util/Calendar;", false, false));
 
 			replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
 					"getInstance", "(Ljava/util/TimeZone;)Ljava/util/Calendar;",
 					"org/evosuite/runtime/Calendar", "getCalendar",
-					"(Ljava/util/TimeZone;)Ljava/util/Calendar;", false));
+					"(Ljava/util/TimeZone;)Ljava/util/Calendar;", false, false));
 
 			replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
 					"getInstance",
 					"(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;",
 					"org/evosuite/runtime/Calendar", "getCalendar",
-					"(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;", false));
+					"(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;", false, false));
 
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
-					"()I", "org/evosuite/runtime/Random", "nextInt", "()I", true));
+					"()I", "org/evosuite/runtime/Random", "nextInt", "()I", true, false));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
-					"(I)I", "org/evosuite/runtime/Random", "nextInt", "(I)I", true));
+					"(I)I", "org/evosuite/runtime/Random", "nextInt", "(I)I", true, false));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random",
 					"nextDouble", "()D", "org/evosuite/runtime/Random", "nextDouble",
-					"()D", true));
+					"()D", true, false));
 			replacementCalls.add(new MethodCallReplacement("java/lang/Math", "random",
-					"()D", "org/evosuite/runtime/Random", "nextDouble", "()D", false));
+					"()D", "org/evosuite/runtime/Random", "nextDouble", "()D", false, false));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random",
 					"nextFloat", "()F", "org/evosuite/runtime/Random", "nextFloat",
-					"()F", true));
+					"()F", true, false));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random",
 					"nextLong", "()J", "org/evosuite/runtime/Random", "nextLong", "()J",
-					true));
+					true, false));
 		}
 
 		for(Class<?> mock : MockList.getList()){
@@ -229,7 +234,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			String desc = Type.getMethodDescriptor(m);
 			replacementCalls.add(new MethodCallReplacement(
 					target.getCanonicalName().replace('.', '/'), m.getName(), desc,
-					mockClass.getCanonicalName().replace('.', '/'), m.getName(), desc, false));
+					mockClass.getCanonicalName().replace('.', '/'), m.getName(), desc, false, false));
 		}
 	}
 	
@@ -254,7 +259,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			String desc = Type.getConstructorDescriptor(constructor);
 			specialReplacementCalls.add(new MethodCallReplacement(
 					target.getCanonicalName().replace('.', '/'), "<init>", desc,
-					mockClass.getCanonicalName().replace('.', '/'), "<init>", desc, false));
+					mockClass.getCanonicalName().replace('.', '/'), "<init>", desc, false, false));
 		}
 	}
 
