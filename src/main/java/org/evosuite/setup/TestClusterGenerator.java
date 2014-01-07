@@ -879,8 +879,8 @@ public class TestClusterGenerator {
 		}
 
 		// If default access rights, then check if this class is in the same package as the target class
-		if (!Modifier.isPrivate(c.getModifiers())
-				&& !Modifier.isProtected(c.getModifiers())) {
+		if (!Modifier.isPrivate(c.getModifiers())) {
+//		        && !Modifier.isProtected(c.getModifiers())) {
 			String packageName = ClassUtils.getPackageName(c);
 			if (packageName.equals(Properties.CLASS_PREFIX)) {
 				return true;
@@ -934,10 +934,9 @@ public class TestClusterGenerator {
 		}
 
 		// If default access rights, then check if this class is in the same package as the target class
-		if (!Modifier.isPrivate(f.getModifiers())
-				&& !Modifier.isProtected(f.getModifiers())) {
-			String packageName = ClassUtils.getPackageName(f
-					.getDeclaringClass());
+		if (!Modifier.isPrivate(f.getModifiers())) {
+//		        && !Modifier.isProtected(f.getModifiers())) {
+			String packageName = ClassUtils.getPackageName(f.getDeclaringClass());
 
 			String declaredPackageName = ClassUtils.getPackageName(f
 					.getDeclaringClass());
@@ -1053,8 +1052,8 @@ public class TestClusterGenerator {
 		}
 
 		// If default access rights, then check if this class is in the same package as the target class
-		if (!Modifier.isPrivate(m.getModifiers())
-				&& !Modifier.isProtected(m.getModifiers())) {
+		if (!Modifier.isPrivate(m.getModifiers())) {
+//		        && !Modifier.isProtected(m.getModifiers())) {
 			String packageName = ClassUtils.getPackageName(ownerClass);
 			String declaredPackageName = ClassUtils.getPackageName(m
 					.getDeclaringClass());
@@ -1177,10 +1176,9 @@ public class TestClusterGenerator {
 		}
 
 		// If default access rights, then check if this class is in the same package as the target class
-		if (!Modifier.isPrivate(c.getModifiers())
-				&& !Modifier.isProtected(c.getModifiers())) {
-			String packageName = ClassUtils.getPackageName(c
-					.getDeclaringClass());
+		if (!Modifier.isPrivate(c.getModifiers())) {
+//		        && !Modifier.isProtected(c.getModifiers())) {
+			String packageName = ClassUtils.getPackageName(c.getDeclaringClass());
 			if (packageName.equals(Properties.CLASS_PREFIX)) {
 				makeAccessible(c);
 				return true;
