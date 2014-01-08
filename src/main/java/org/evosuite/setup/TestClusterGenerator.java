@@ -618,10 +618,44 @@ public class TestClusterGenerator {
 			}
 		}
 
-		if (Properties.ADD_METHODS_INITIALIZING_STATIC_FIELDS) {
-			PutStaticMethodCollector collector = new PutStaticMethodCollector();
-			Set<MethodIdentifier> methodIdentifiers = collector
-					.collectMethods(Properties.TARGET_CLASS);
+		if (Properties.HANDLE_STATIC_FIELDS) {
+
+			GetStaticGraph getStaticGraph = GetStaticGraphGenerator
+					.generate(Properties.TARGET_CLASS);
+			
+			Map<String, Set<String>> staticFields = getStaticGraph.getStaticFields();
+			for (String className : staticFields.keySet()) {
+				logger.info("Adding static fields to cluster for class " 
+						+ className);
+
+				Class<?> clazz = getClass(className);
+				if (clazz==null) {
+					logger.debug("Class not found " 
+							+ className);
+					continue;
+				}
+				
+				if (!canUse(clazz))
+					continue;
+				
+				Set<String> fields = staticFields.get(className);
+				for (Field field : getFields(clazz)) {
+					if (!canUse(field,clazz))
+						continue;
+					
+					if (fields.contains(field.getName())) {
+						if (!Modifier.isFinal(field.getModifiers())) {
+							logger.debug("Is not final");
+							cluster.addTestCall(new GenericField(field, clazz));
+						} 
+					}
+				}
+			}
+			
+			PutStaticMethodCollector collector = new PutStaticMethodCollector(
+					Properties.TARGET_CLASS, staticFields);
+			
+			Set<MethodIdentifier> methodIdentifiers = collector.collectMethods();
 
 			for (MethodIdentifier methodId : methodIdentifiers) {
 				

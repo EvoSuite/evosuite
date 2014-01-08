@@ -16,8 +16,8 @@ public class TestPutStaticCollector {
 
 	@Test
 	public void testFooBar1() {
-		PutStaticMethodCollector collector = new PutStaticMethodCollector();
 		String className = FooBar1.class.getName();
+		PutStaticMethodCollector collector = new PutStaticMethodCollector(className);
 
 		MethodIdentifier expected_method_id = new MethodIdentifier(
 				FooBar2.class.getName(), "init_used_int_field",
@@ -25,7 +25,7 @@ public class TestPutStaticCollector {
 		Set<MethodIdentifier> expected_methods = Collections
 				.singleton(expected_method_id);
 
-		Set<MethodIdentifier> methods = collector.collectMethods(className);
+		Set<MethodIdentifier> methods = collector.collectMethods();
 		assertEquals(expected_methods, methods);
 	}
 }
