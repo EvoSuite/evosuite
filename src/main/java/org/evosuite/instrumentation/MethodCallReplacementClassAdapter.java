@@ -20,6 +20,7 @@
  */
 package org.evosuite.instrumentation;
 
+import org.evosuite.runtime.MockList;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -32,6 +33,8 @@ import org.objectweb.asm.Opcodes;
 public class MethodCallReplacementClassAdapter extends ClassVisitor {
 
 	private final String className;
+	
+	private String superClassName;
 
 	/**
 	 * <p>Constructor for MethodCallReplacementClassAdapter.</p>
@@ -42,6 +45,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	public MethodCallReplacementClassAdapter(ClassVisitor cv, String className) {
 		super(Opcodes.ASM4, cv);
 		this.className = className;
+		this.superClassName = null;
 	}
 
 	/* (non-Javadoc)
@@ -52,6 +56,21 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		return new MethodCallReplacementMethodAdapter(mv, className, name, access, desc);
+		return new MethodCallReplacementMethodAdapter(mv, className, superClassName, name, access, desc);
+	}
+	
+	@Override
+	public void visit(int version, int access, String name, String signature,
+			String superName, String[] interfaces) {
+		String superNameWithDots = superName.replace('/', '.');
+		superClassName = superNameWithDots;
+		if(MockList.shouldBeMocked(superNameWithDots)) {
+			Class<?> mockSuperClass = MockList.getMockClass(superNameWithDots);
+			String mockSuperClassName = mockSuperClass.getCanonicalName().replace('.', '/');
+			
+			super.visit(version, access, name, signature, mockSuperClassName, interfaces);
+		} else {
+			super.visit(version, access, name, signature, superName, interfaces);
+		}
 	}
 }
