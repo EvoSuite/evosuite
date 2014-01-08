@@ -111,20 +111,22 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 		public void insertConstructorCall(MethodCallReplacementMethodAdapter mv,
 				MethodCallReplacement replacement) {
-			Type[] args = Type.getArgumentTypes(desc);
-			Map<Integer, Integer> to = new HashMap<Integer, Integer>();
-			for (int i = args.length - 1; i >= 0; i--) {
-				int loc = newLocal(args[i]);
-				storeLocal(loc);
-				to.put(i, loc);
+			if(!mv.needToWaitForSuperConstructor) {
+				Type[] args = Type.getArgumentTypes(desc);
+				Map<Integer, Integer> to = new HashMap<Integer, Integer>();
+				for (int i = args.length - 1; i >= 0; i--) {
+					int loc = newLocal(args[i]);
+					storeLocal(loc);
+					to.put(i, loc);
+				}
+
+				pop2();//uninitialized reference (which is duplicated)
+				newInstance(Type.getType(replacement.replacementClassName));
+				dup();
+
+				for (int i = 0; i < args.length; i++) {
+					loadLocal(to.get(i));
 			}
-
-			pop2();//uninitialized reference (which is duplicated)
-			newInstance(Type.getType(replacement.replacementClassName));
-			dup();
-
-			for (int i = 0; i < args.length; i++) {
-				loadLocal(to.get(i));
 			}
 			mv.visitMethodInsn(Opcodes.INVOKESPECIAL, replacementClassName,
 					replacementMethodName, replacementDesc);
@@ -148,6 +150,12 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	 */
 	private final Set<MethodCallReplacement> specialReplacementCalls = new HashSet<MethodCallReplacement>();
 
+	private final String className;
+
+	private final String superClassName;
+
+	private boolean needToWaitForSuperConstructor = false;
+	
 	/**
 	 * <p>
 	 * Constructor for MethodCallReplacementMethodAdapter.
@@ -164,9 +172,14 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	 * @param desc
 	 *            a {@link java.lang.String} object.
 	 */
-	public MethodCallReplacementMethodAdapter(MethodVisitor mv, String className,
+	public MethodCallReplacementMethodAdapter(MethodVisitor mv, String className, String superClassName,
 			String methodName, int access, String desc) {
 		super(Opcodes.ASM4, mv, access, methodName, desc);
+		this.className = className;
+		this.superClassName = superClassName;
+		if(methodName.equals("<init>")) {
+			needToWaitForSuperConstructor = true;
+		}
 		if (Properties.REPLACE_CALLS) {
 			replacementCalls.add(new MethodCallReplacement("java/lang/System", "exit",
 					"(I)V", "org/evosuite/runtime/System", "exit", "(I)V", false, false));
@@ -254,7 +267,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					"Constructor replacement can be done only for subclasses. Class "
 							+ mockClass + " is not an instance of " + target);
 		}
-
+		
 		for (Constructor<?> constructor : mockClass.getConstructors()) {
 			String desc = Type.getConstructorDescriptor(constructor);
 			specialReplacementCalls.add(new MethodCallReplacement(
@@ -269,6 +282,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+		
 		boolean isReplaced = false;
 		// static replacement methods
 		for (MethodCallReplacement replacement : replacementCalls) {
@@ -299,5 +313,16 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		if (!isReplaced) {
 			super.visitMethodInsn(opcode, owner, name, desc);
 		}
+		
+		if(needToWaitForSuperConstructor) {
+			if(opcode == Opcodes.INVOKESPECIAL) {
+				String originalClassNameWithDots = owner.replace('/', '.');
+				if(originalClassNameWithDots.equals(superClassName)) {
+					needToWaitForSuperConstructor = false;
+				}
+			}
+		}
+		
+
 	}
 }
