@@ -42,9 +42,9 @@ public class PutStaticMethodCollector {
 			this.methodName = methodName;
 			this.desc = desc;
 		}
-		
+
 		public String toString() {
-			return className + "." + methodName +  this.desc;
+			return className + "." + methodName + this.desc;
 		}
 
 		@Override
@@ -102,25 +102,37 @@ public class PutStaticMethodCollector {
 	private static Logger logger = LoggerFactory
 			.getLogger(PutStaticMethodCollector.class);
 
-	public Set<MethodIdentifier> collectMethods(String targetClassName) {
+	private static Map<String, Set<String>> createStaticFields(
+			String targetClassName) {
+		GetStaticGraph getStaticGraph = GetStaticGraphGenerator
+				.generate(targetClassName);
+		return getStaticGraph.getStaticFields();
+	}
 
+	public PutStaticMethodCollector(String targetClassName) {
+		this(targetClassName, createStaticFields(targetClassName));
+	}
+
+	public PutStaticMethodCollector(String targetClassName,
+			Map<String, Set<String>> getStaticFields) {
+		this.getStaticFields = getStaticFields;
 		this.targetClassName = targetClassName;
+	}
+
+	private final Map<String, Set<String>> getStaticFields;
+
+	public Set<MethodIdentifier> collectMethods() {
 
 		Set<MethodIdentifier> methods = new HashSet<MethodIdentifier>();
 
-		GetStaticGraph getStaticGraph = GetStaticGraphGenerator
-				.generate(targetClassName);
-		Map<String, Set<String>> requiredFields = getStaticGraph
-				.getStaticFields();
-
-		for (String calledClassName : requiredFields.keySet()) {
+		for (String calledClassName : getStaticFields.keySet()) {
 			ClassNode classNode = DependencyAnalysis
 					.getClassNode(calledClassName);
 			List<MethodNode> classMethods = classNode.methods;
 			for (MethodNode mn : classMethods) {
 				if (mn.name.equals(CLINIT))
 					continue;
-				
+
 				InsnList instructions = mn.instructions;
 				Iterator<AbstractInsnNode> it = instructions.iterator();
 				while (it.hasNext()) {
@@ -134,7 +146,7 @@ public class PutStaticMethodCollector {
 								"/", ".");
 						String calleeFieldName = fieldInsn.name;
 
-						if (contains(requiredFields, calleeClassName,
+						if (contains(getStaticFields, calleeClassName,
 								calleeFieldName)) {
 
 							MethodIdentifier methodIdentifier = new MethodIdentifier(
@@ -151,7 +163,7 @@ public class PutStaticMethodCollector {
 		return methods;
 	}
 
-	private String targetClassName;
+	private final String targetClassName;
 
 	private boolean contains(Map<String, Set<String>> fields, String className,
 			String fieldName) {
