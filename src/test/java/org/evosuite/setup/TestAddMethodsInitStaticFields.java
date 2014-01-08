@@ -18,8 +18,8 @@ public class TestAddMethodsInitStaticFields extends SystemTest {
 
 	@Before
 	public void prepareTest() {
-		ADD_METHODS_INITIALIZING_STATIC_FIELDS = Properties.ADD_METHODS_INITIALIZING_STATIC_FIELDS;
-		Properties.ADD_METHODS_INITIALIZING_STATIC_FIELDS = true;
+		ADD_METHODS_INITIALIZING_STATIC_FIELDS = Properties.HANDLE_STATIC_FIELDS;
+		Properties.HANDLE_STATIC_FIELDS = true;
 	}
 
 	@Test
@@ -42,7 +42,7 @@ public class TestAddMethodsInitStaticFields extends SystemTest {
 	
 	@After
 	public void restore() {
-		Properties.ADD_METHODS_INITIALIZING_STATIC_FIELDS = ADD_METHODS_INITIALIZING_STATIC_FIELDS;
+		Properties.HANDLE_STATIC_FIELDS = ADD_METHODS_INITIALIZING_STATIC_FIELDS;
 	}
 
 

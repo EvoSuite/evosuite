@@ -618,7 +618,7 @@ public class TestClusterGenerator {
 			}
 		}
 
-		if (Properties.ADD_METHODS_INITIALIZING_STATIC_FIELDS) {
+		if (Properties.HANDLE_STATIC_FIELDS) {
 			PutStaticMethodCollector collector = new PutStaticMethodCollector();
 			Set<MethodIdentifier> methodIdentifiers = collector
 					.collectMethods(Properties.TARGET_CLASS);
