@@ -110,8 +110,9 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		}
 
 		public void insertConstructorCall(MethodCallReplacementMethodAdapter mv,
-				MethodCallReplacement replacement) {
-			if(!mv.needToWaitForSuperConstructor) {
+				MethodCallReplacement replacement, boolean isSelf) {
+			// if(!mv.needToWaitForSuperConstructor) {
+			if(!isSelf) {
 				Type[] args = Type.getArgumentTypes(desc);
 				Map<Integer, Integer> to = new HashMap<Integer, Integer>();
 				for (int i = args.length - 1; i >= 0; i--) {
@@ -126,7 +127,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 				for (int i = 0; i < args.length; i++) {
 					loadLocal(to.get(i));
-			}
+				}
 			}
 			mv.visitMethodInsn(Opcodes.INVOKESPECIAL, replacementClassName,
 					replacementMethodName, replacementDesc);
@@ -305,7 +306,14 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		for (MethodCallReplacement replacement : specialReplacementCalls) {
 			if (replacement.isTarget(owner, name, desc)) {
 				isReplaced = true;
-				replacement.insertConstructorCall(this, replacement);
+				boolean isSelf = false;
+				if(needToWaitForSuperConstructor && opcode == Opcodes.INVOKESPECIAL) {
+					String originalClassNameWithDots = owner.replace('/', '.');
+					if(originalClassNameWithDots.equals(superClassName)) {
+						isSelf = true;
+					}
+				}
+				replacement.insertConstructorCall(this, replacement, isSelf);
 				break;
 			}
 		}
@@ -313,7 +321,6 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		if (!isReplaced) {
 			super.visitMethodInsn(opcode, owner, name, desc);
 		}
-		
 		if(needToWaitForSuperConstructor) {
 			if(opcode == Opcodes.INVOKESPECIAL) {
 				String originalClassNameWithDots = owner.replace('/', '.');
