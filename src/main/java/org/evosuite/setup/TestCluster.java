@@ -33,7 +33,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -85,7 +87,7 @@ public class TestCluster {
 
 	private static InheritanceTree inheritanceTree = null;
 
-	private static List<String> finalClasses = new ArrayList<String>();
+	private static Set<String> finalClasses = new HashSet<String>();
 
 	private static Set<Method> staticInitializers = new LinkedHashSet<Method>();
 
@@ -164,7 +166,10 @@ public class TestCluster {
 	}
 
 	private static void loadStaticInitializers() {
-		for (String className : finalClasses) {
+		Set<String> visited = new HashSet<String>();
+		while(getNextUnvisitedFinalClassName(visited)!=null) {
+			String className = getNextUnvisitedFinalClassName(visited);
+			visited.add(className);
 			try {
 				Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
 				Method m = clazz.getMethod("__STATIC_RESET", (Class<?>[]) null);
@@ -182,8 +187,22 @@ public class TestCluster {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 		}
 		finalClasses.clear();
+	}
+
+	/**
+	 * @param visited
+	 * @return
+	 */
+	private static String getNextUnvisitedFinalClassName(Set<String> visited) {
+		Set<String> helper = new HashSet<String>(finalClasses);
+		helper.removeAll(visited);
+		if (helper.isEmpty())
+			return null;
+		else
+			return helper.iterator().next();
 	}
 
 	public static void registerStaticInitializer(String className) {
