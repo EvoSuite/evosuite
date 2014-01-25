@@ -908,7 +908,7 @@ public class Properties {
 	public static double SEED_CLONE = 0.2;
 
 	/** Constant <code>SEED_MUTATIONS=2</code> */
-	@Parameter(key = "seed_mutations", description = "Probability with which cloned individuals are mutated")
+	@Parameter(key = "seed_mutations", description = "Number of mutations applied to a cloned individual")
 	public static int SEED_MUTATIONS = 2;
 
 	/** Constant <code>CONCOLIC_MUTATION=0.0</code> */

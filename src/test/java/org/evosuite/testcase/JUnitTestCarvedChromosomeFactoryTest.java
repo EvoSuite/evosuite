@@ -2,6 +2,7 @@ package org.evosuite.testcase;
 
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +13,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 	private static final int defaultSeedMutations = Properties.SEED_MUTATIONS;
 	private static final double defaultSeedClone = Properties.SEED_CLONE;
 
-	@Before
+	@After
 	public void reset() {
 		Properties.SELECTED_JUNIT = defaultSelectedJUnit;
 		Properties.SEED_MUTATIONS = defaultSeedMutations;
