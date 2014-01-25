@@ -17,19 +17,14 @@
  */
 package org.evosuite.sandbox;
 
+import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Class which controls enabling and disabling sandbox.
+ * EvoSuite uses its own customized security manager.
  * 
- * 
- * Note: for the moment it sets a custom security manager and a mocking
- * framework. But this latter is not really used now (but we might want to use
- * it in the future once fixed). So, for the time being, this class is just a
- * wrapper over the security manager
- * 
- * @author Andrey Tarasevich
  */
 public class Sandbox {
 
@@ -37,6 +32,17 @@ public class Sandbox {
 
 	private static MSecurityManager manager;
 
+	/**
+	 * count how often we tried to init the sandbox.
+	 * 
+	 * <p>
+	 * Ideally, the sandbox should be init only once.
+	 * Problem is, that we do compile and run the JUnit test cases (eg
+	 * to see if they compile with no problems, if their assertions 
+	 * are stable, etc), and those test cases do init/reset the sandbox
+	 */
+	private static volatile int counter;
+	
 	/**
 	 * Create and initialize security manager for SUT
 	 */
@@ -48,6 +54,8 @@ public class Sandbox {
 		} else {
 			logger.warn("Sandbox can be initalized only once");
 		}
+		
+		counter++;
 	}
 
 	public static void addPriviligedThread(Thread t) {
@@ -56,10 +64,15 @@ public class Sandbox {
 	}
 
 	public static void resetDefaultSecurityManager() {
-		if (manager != null) {
-			manager.restoreDefaultManager();
+		
+		counter--;
+		
+		if(counter==0){
+			if (manager != null) {
+				manager.restoreDefaultManager();
+			}
+			manager = null;
 		}
-		manager = null;
 	}
 
 	public static boolean isSecurityManagerInitialized() {
@@ -68,6 +81,9 @@ public class Sandbox {
 
 	public static void goingToExecuteSUTCode() {
 		if (!isSecurityManagerInitialized()) {
+			if(Properties.SANDBOX){
+				logger.error("Sandbox is not initialized!");
+			}
 			return;
 		}
 		manager.goingToExecuteTestCase();
@@ -76,6 +92,9 @@ public class Sandbox {
 
 	public static void doneWithExecutingSUTCode() {
 		if (!isSecurityManagerInitialized()) {
+			if(Properties.SANDBOX){
+				logger.error("Sandbox is not initialized!");
+			}
 			return;
 		}
 		manager.goingToEndTestCase();

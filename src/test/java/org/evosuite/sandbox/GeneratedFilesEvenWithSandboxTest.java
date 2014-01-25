@@ -20,6 +20,8 @@ import com.examples.with.different.packagename.sandbox.OpenStreamInSpecificTryCa
 public class GeneratedFilesEvenWithSandboxTest extends SystemTest{
 
 	public static final boolean DEFAULT_VFS = Properties.VIRTUAL_FS; 
+	public static final boolean DEFAULT_SANDBOX = Properties.SANDBOX; 
+
 	
 	private File file = new File(OpenStream.FILE_NAME);
 	
@@ -34,6 +36,7 @@ public class GeneratedFilesEvenWithSandboxTest extends SystemTest{
 	@After
 	public void tearDown(){
 		Properties.VIRTUAL_FS = DEFAULT_VFS;
+		Properties.SANDBOX = DEFAULT_SANDBOX;
 	}
 
 	@Test

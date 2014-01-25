@@ -957,7 +957,7 @@ public class MSecurityManager extends SecurityManager {
 		 * not fully understand this one... so let's block it for now
 		 */
 		if (name.equals("writeFileDescriptor")) {
-			return false;
+			return false; //FIXME
 		}
 
 		if (name.startsWith("loadLibrary.")) {
