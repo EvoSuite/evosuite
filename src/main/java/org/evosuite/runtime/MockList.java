@@ -9,6 +9,8 @@ import org.evosuite.mock.java.io.MockFileInputStream;
 import org.evosuite.mock.java.io.MockFileOutputStream;
 import org.evosuite.mock.java.io.MockFileReader;
 import org.evosuite.mock.java.io.MockFileWriter;
+import org.evosuite.mock.java.io.MockPrintStream;
+import org.evosuite.mock.java.io.MockPrintWriter;
 import org.evosuite.mock.java.io.MockRandomAccessFile;
 
 
@@ -45,6 +47,8 @@ public class MockList {
 			list.add(MockRandomAccessFile.class);
 			list.add(MockFileReader.class);
 			list.add(MockFileWriter.class);
+			list.add(MockPrintStream.class);
+			list.add(MockPrintWriter.class);
 		}
 		
 		return list;
