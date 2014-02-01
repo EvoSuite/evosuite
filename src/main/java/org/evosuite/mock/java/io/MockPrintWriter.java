@@ -3,17 +3,14 @@ package org.evosuite.mock.java.io;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.Objects;
 
 public class MockPrintWriter extends PrintWriter{
 
@@ -74,10 +71,16 @@ public class MockPrintWriter extends PrintWriter{
 
 	private static Charset toCharset(String csn)
 			throws UnsupportedEncodingException {
-		Objects.requireNonNull(csn, "charsetName");
+		// Objects.requireNonNull(csn, "charsetName");
+		if(csn == null)
+			throw new NullPointerException("charsetName");
+		
 		try {
 			return Charset.forName(csn);
-		} catch (IllegalCharsetNameException|UnsupportedCharsetException unused) {
+		} catch (IllegalCharsetNameException unused) {
+			// UnsupportedEncodingException should be thrown
+			throw new UnsupportedEncodingException(csn);
+		} catch (UnsupportedCharsetException unused) {
 			// UnsupportedEncodingException should be thrown
 			throw new UnsupportedEncodingException(csn);
 		}
