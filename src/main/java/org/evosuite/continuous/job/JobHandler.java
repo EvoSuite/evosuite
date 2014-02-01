@@ -349,37 +349,47 @@ public class JobHandler extends Thread {
 		}
 
 		/*
-		 * We have at least 3 phases:
+		 * We have at least 4 phases:
+		 * - init (eg dependency analysis)
 		 * - search
 		 * - minimization
 		 * - assertion generation
 		 * 
-		 * Plus extra time that is needed (eg dependency analysis)
+		 * Plus extra time that might be needed 
 		 * 
 		 * How to best divide the budget among them?
 		 * 
 		 * For now we just do something very basic
 		 */
 
-		int minimization = seconds / 4;
-		int assertions = seconds / 4;
-		int extra = seconds / 4;
+		final int PHASES = 5;
+		
+		int initialization = seconds / PHASES;
+		int minimization = seconds / PHASES;
+		int assertions = seconds / PHASES;
+		int extra = seconds / PHASES;
 
-		if (seconds > 480) {
-			minimization = 120;
-			assertions = 120;
-			extra = 120;
-		} else if (seconds > 240) {
-			minimization = 60;
-			assertions = 60;
-			extra = 60;
+		final int MAJOR_DELTA = 120;
+		final int MINOR_DELTA = 60;
+		
+		if (seconds > PHASES * MAJOR_DELTA) {
+			initialization = MAJOR_DELTA;
+			minimization = MAJOR_DELTA;
+			assertions = MAJOR_DELTA;
+			extra = MAJOR_DELTA;
+		} else if (seconds > PHASES * MINOR_DELTA) {
+			initialization = MINOR_DELTA;
+			minimization = MINOR_DELTA;
+			assertions = MINOR_DELTA;
+			extra = MINOR_DELTA;
 		}
 
-		int search = seconds - (minimization + assertions + extra);
+		int search = seconds - (initialization + minimization + assertions + extra);
 
 		String cmd = " -Dsearch_budget=" + search;
 		cmd += " -Dglobal_timeout=" + search;
 		cmd += " -Dstopping_condition=" + StoppingCondition.MAXTIME;
+		cmd += " -Dinitialization_timeout=" + initialization;
 		cmd += " -Dminimization_timeout=" + minimization;
 		cmd += " -Dassertion_timeout=" + assertions;
 		cmd += " -Dextra_timeout=" + extra;
