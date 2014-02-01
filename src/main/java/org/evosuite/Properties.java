@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
+import org.evosuite.runtime.Runtime;
 import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
@@ -1832,6 +1833,8 @@ public class Properties {
 			 * variables of other classes), and even fails if an exception is thrown.
 			 * Those cases should be handled here before starting the search.
 			 */
+			
+			Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
 			
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
 			                                      TestGenerationContext.getClassLoader());
