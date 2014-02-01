@@ -46,6 +46,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.BooleanTestabilityTransformation;
@@ -63,14 +64,9 @@ import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.Utils;
 import org.junit.Test;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InnerClassNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -298,7 +294,8 @@ public class TestClusterGenerator {
 	 * Continue adding generators for classes that are needed
 	 */
 	private void resolveDependencies(Set<String> blackList) {
-		while (!dependencies.isEmpty()) {
+		
+		while (!dependencies.isEmpty() && TimeController.getInstance().isThereStillTimeInThisPhase()) {
 			logger.debug("Dependencies left: " + dependencies.size());
 
 			Iterator<Pair> iterator = dependencies.iterator();
