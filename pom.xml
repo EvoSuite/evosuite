@@ -296,7 +296,7 @@
 			<version>2.3</version>
 		</dependency>            
 		<dependency>
-			<!-- EvoSuite -->
+			<!-- Based on DSC: adhoc license, copyright holder is The University of Texas at Arlington -->
 			<groupId>org.evosuite</groupId>
 			<artifactId>dsc-evosuite</artifactId>
 			<version>0.3.18</version>
