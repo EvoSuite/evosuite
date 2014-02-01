@@ -87,6 +87,7 @@ public class TimeController {
 		phaseTimeouts.put(ClientState.MINIMIZATION, (Long) 1000l * Properties.MINIMIZATION_TIMEOUT);
 		phaseTimeouts.put(ClientState.ASSERTION_GENERATION, (Long) 1000l * Properties.ASSERTION_TIMEOUT);
 		phaseTimeouts.put(ClientState.CARVING, (Long) 1000l * Properties.CARVING_TIMEOUT);
+		phaseTimeouts.put(ClientState.INITIALIZATION, (Long) 1000l * Properties.INITIALIZATION_TIMEOUT);
 
 
 		if(timeSpentInEachPhase!=null){
@@ -142,6 +143,8 @@ public class TimeController {
 	public int calculateForHowLongClientWillRunInSeconds() {
 		int time = Properties.EXTRA_TIMEOUT;
 
+		time += Properties.INITIALIZATION_TIMEOUT;
+		
 		time += getSearchBudgetInSeconds();
 
 		if (Properties.MINIMIZE) {

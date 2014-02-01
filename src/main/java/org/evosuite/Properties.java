@@ -548,6 +548,10 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int CARVING_TIMEOUT = 600;
 
+	@Parameter(key = "initialization_timeout", group = "Search Algorithm", description = "Seconds allowed for initializing the search")
+	@IntValue(min = 0)
+	public static int INITIALIZATION_TIMEOUT = 600;
+
 
 	/** Constant <code>EXTRA_TIMEOUT=120</code> */
 	@Parameter(key = "extra_timeout", group = "Search Algorithm", description = "Extra seconds allowed for the search")
