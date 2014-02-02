@@ -33,26 +33,62 @@ import org.slf4j.LoggerFactory;
  */
 public class TestGenerationContext {
 
-	private static TestGenerationContext instance = new TestGenerationContext();
+	private static final Logger logger = LoggerFactory.getLogger(TestGenerationContext.class);
 
-	private TestGenerationContext() {
-
-	}
-
-	public static TestGenerationContext getInstance() {
-		return instance;
-	}
+	private static final TestGenerationContext singleton = new TestGenerationContext();
 
 	/**
 	 * This is the classloader that does the instrumentation - it needs to be
 	 * used by all test code
 	 */
-	private static ClassLoader classLoader = new InstrumentingClassLoader();
+	private ClassLoader classLoader;
 
-	private static Logger logger = LoggerFactory.getLogger(TestGenerationContext.class);
+	/**
+	 * The classloader used to load this class
+	 */
+	private ClassLoader originalClassLoader;
+	
+	/**
+	 * Private singleton constructor
+	 */
+	private TestGenerationContext() {
+		originalClassLoader = this.getClass().getClassLoader();
+		classLoader = new InstrumentingClassLoader();
+	}
 
-	public static ClassLoader getClassLoader() {
+	public static TestGenerationContext getInstance() {
+		return singleton;
+	}
+
+	public void goingToExecuteSUTCode(){
+		/*
+		 * This is pretty important if the SUT use classloader of the running thread.
+		 * If we do not set this up, we will end up with cast exceptions.
+		 * 
+		 * Note, an example in which this happens is in
+		 * 
+		 * org.dom4j.bean.BeanAttribute
+		 * 
+		 * in SF100 project 62_dom4j
+		 */		
+		Thread.currentThread().setContextClassLoader(classLoader);
+	}
+	
+	public void doneWithExecuteingSUTCode(){
+		Thread.currentThread().setContextClassLoader(originalClassLoader);
+	}
+	
+	public ClassLoader getClassLoaderForSUT() {
 		return classLoader;
+	}	
+	
+	/**
+	 * @deprecated use {@code getInstance().getClassLoaderForSUT()}
+	 * 
+	 * @return
+	 */
+	public static ClassLoader getClassLoader() {
+		return getInstance().classLoader;
 	}
 
 	public void resetContext() {
