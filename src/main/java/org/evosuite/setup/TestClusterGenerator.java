@@ -375,6 +375,16 @@ public class TestClusterGenerator {
 		return types;
 	}
 
+	private void addDeclaredClasses(Set<Class<?>> targetClasses, Class<?> currentClass) {
+		for(Class<?> c : currentClass.getDeclaredClasses()) {
+			logger.info("Adding declared class " + c);
+			targetClasses.add(c);
+			addDeclaredClasses(targetClasses, c);
+		}
+	}
+	
+	
+	
 	/**
 	 * All public methods defined directly in the SUT should be covered
 	 * 
@@ -397,10 +407,7 @@ public class TestClusterGenerator {
 					+ Properties.TARGET_CLASS);
 		}
 		targetClasses.add(targetClass);
-		for (Class<?> c : targetClass.getDeclaredClasses()) {
-			logger.info("Adding declared class " + c);
-			targetClasses.add(c);
-		}
+		addDeclaredClasses(targetClasses, targetClass);
 		if (Modifier.isAbstract(targetClass.getModifiers())) {
 			logger.info("SUT is an abstract class");
 			Set<Class<?>> subclasses = getConcreteClasses(targetClass,
@@ -421,14 +428,13 @@ public class TestClusterGenerator {
 						+ icn.name + "," + icn.outerName);
 				String innerClassName = Utils
 						.getClassNameFromResourcePath(icn.name);
-				Class<?> innerClass = TestGenerationContext.getClassLoader()
-						.loadClass(innerClassName);
-				if (!canUse(innerClass))
-					continue;
+				Class<?> innerClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(innerClassName);
+				//if (!canUse(innerClass))
+				//	continue;
 
 				// Sometimes strange things appear such as Map$Entry
-				if (!targetClasses.contains(innerClass)
-						&& !innerClassName.matches(".*\\$\\d+(\\$.*)?$")) {
+				if (!targetClasses.contains(innerClass)) {
+//						&& !innerClassName.matches(".*\\$\\d+(\\$.*)?$")) {
 
 					logger.info("Adding inner class " + innerClassName);
 					targetClasses.add(innerClass);
