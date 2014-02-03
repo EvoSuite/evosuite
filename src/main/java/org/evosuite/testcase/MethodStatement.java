@@ -208,10 +208,7 @@ public class MethodStatement extends AbstractStatement {
 	        IllegalAccessException, InstantiationException {
 		logger.trace("Executing method " + method.getName());
 		final Object[] inputs = new Object[parameters.size()];
-		//PrintStream old_out = System.out;
-		//PrintStream old_err = System.err;
-		//System.setOut(out);
-		//System.setErr(out);
+		Throwable exceptionThrown = null;
 
 		try {
 			return super.exceptionHandler(new Executer() {
