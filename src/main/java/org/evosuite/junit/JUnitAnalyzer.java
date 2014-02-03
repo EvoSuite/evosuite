@@ -2,9 +2,6 @@ package org.evosuite.junit;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -141,7 +138,9 @@ public class JUnitAnalyzer {
 			}
 			
 			JUnitCore runner = new JUnitCore();
+			TestGenerationContext.getInstance().goingToExecuteSUTCode();
 			Result result = runner.run(testClasses);
+			TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 
 			if (result.wasSuccessful()){
 				return; //everything is OK
@@ -161,6 +160,7 @@ public class JUnitAnalyzer {
 
 				for(int i=0; i<tests.size(); i++){
 					if(TestSuiteWriter.getNameOfTest(tests, i).equals(testName)){
+						logger.warn("Failing test: "+tests.get(i).toCode());
 						//we have a match. should we remove it or mark as unstable?
 						if(!toRemove){
 							logger.debug("Going to mark test as unstable: "+testName);
@@ -302,18 +302,7 @@ public class JUnitAnalyzer {
 		 * non-instrumenting classloader to re-load the CUT, and so see
 		 * if the JavaAgent works properly.
 		 */
-		// InstrumentingClassLoader loader = new InstrumentingClassLoader();
-		
-		URLClassLoader urlLoader;
-		try {
-			urlLoader = new URLClassLoader(new URL[]{dir.toURI().toURL()},(InstrumentingClassLoader) TestGenerationContext.getClassLoader());
-		} catch (MalformedURLException e) {
-			logger.error(""+e.getMessage(),e);
-			return null;
-		}
-		
-		Class<?>[] testClasses = getClassesFromFiles(tests, urlLoader);
-		
+		Class<?>[] testClasses = getClassesFromFiles(tests);
 		return testClasses;		
 	}
 
@@ -348,7 +337,7 @@ public class JUnitAnalyzer {
 		}
 
 		try{
-			List<File> generated = compileTests(tests,dir);
+			List<File> generated = compileTests(tests, dir);
 			if(generated==null){
 				logger.warn("Failed to compile the test cases ");
 				return false;
@@ -357,7 +346,7 @@ public class JUnitAnalyzer {
 
 			//as last step, execute the generated/compiled test cases
 
-			Class<?>[] testClasses = loadTests(generated,dir);
+			Class<?>[] testClasses = loadTests(generated, dir);
 
 			if (testClasses == null) {
 				logger.error("Found no classes for compiled tests");
@@ -422,7 +411,7 @@ public class JUnitAnalyzer {
 	 * @param files
 	 * @return
 	 */
-	private static Class<?>[] getClassesFromFiles(List<File> files, ClassLoader loader) {
+	private static Class<?>[] getClassesFromFiles(List<File> files) {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		for (File file : files) {
 
@@ -436,11 +425,13 @@ public class JUnitAnalyzer {
 			String name = file.getName();
 			name = name.substring(0, name.length() - JAVA.length());
 			String className = packagePrefix + name;
-
+			String fileName = file.getAbsolutePath();
+			fileName = fileName.substring(0, fileName.length() - JAVA.length()) + ".class";
 			Class<?> testClass = null;
 			try {
 				logger.info("Loading class "+className);
-				testClass = loader.loadClass(className);
+				// testClass = loader.loadClass(className);
+				testClass = ((InstrumentingClassLoader)TestGenerationContext.getInstance().getClassLoaderForSUT()).loadClassFromFile(className, fileName);
 			} catch (ClassNotFoundException e) {
 				logger.error("Failed to load test case " + className + " from file "+file.getAbsolutePath()+" , error " + e, e);
 				return null;
