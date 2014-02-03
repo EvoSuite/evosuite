@@ -17,8 +17,10 @@
  */
 package org.evosuite.instrumentation;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,6 +107,33 @@ public class InstrumentingClassLoader extends ClassLoader {
 		};
 	}
 
+	public Class<?> loadClassFromFile(String fullyQualifiedTargetClass, String fileName) throws ClassNotFoundException {
+
+		String className = fullyQualifiedTargetClass.replace('.', '/');
+		InputStream is = null;
+		try {
+			is = new FileInputStream(new File(fileName));
+			byte[] byteBuffer = instrumentation.transformBytes(this, className,
+			                                                   new ClassReader(is));
+			createPackageDefinition(fullyQualifiedTargetClass);
+			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
+			                              byteBuffer.length);
+			classes.put(fullyQualifiedTargetClass, result);
+			logger.info("Keeping class: " + fullyQualifiedTargetClass);
+			return result;
+		} catch (Throwable t) {
+			logger.info("Error while loading class: "+t);
+			throw new ClassNotFoundException(t.getMessage(), t);
+		} finally {
+			if(is != null)
+				try {
+					is.close();
+				} catch (IOException e) {
+					throw new Error(e);
+				}
+		}	
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
