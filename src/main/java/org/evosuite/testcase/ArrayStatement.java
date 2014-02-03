@@ -196,6 +196,8 @@ public class ArrayStatement extends AbstractStatement {
 	public Throwable execute(Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
+		Throwable exceptionThrown = null;
+
 		// Add array variable to pool
 		try {
 			Class<?> componentType = retval.getComponentClass();

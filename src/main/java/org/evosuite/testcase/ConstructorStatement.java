@@ -183,6 +183,7 @@ public class ConstructorStatement extends AbstractStatement {
 
 		logger.trace("Executing constructor " + constructor.toString());
 		final Object[] inputs = new Object[parameters.size()];
+		Throwable exceptionThrown = null;
 
 		try {
 			return super.exceptionHandler(new Executer() {

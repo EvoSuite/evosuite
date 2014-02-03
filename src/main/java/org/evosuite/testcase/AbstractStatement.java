@@ -82,8 +82,6 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 
 	protected String comment = "";
 	
-	protected Throwable exceptionThrown = null;
-
 	/**
 	 * <p>
 	 * Constructor for AbstractStatement.
