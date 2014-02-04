@@ -200,6 +200,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	public Throwable execute(Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
+		Throwable exceptionThrown = null;
 
 		try {
 			if(value == null)
