@@ -337,6 +337,9 @@ public class ExecutionResult implements Cloneable {
 		for (Integer i : exceptions.keySet()) {
 			Throwable t = exceptions.get(i);
 			assert i>0 && i<test.size();
+			if(i >= test.size())
+				continue;
+			
 			if (!test.getStatement(i).getDeclaredExceptions().contains(t.getClass()))
 				return true;
 		}

@@ -93,6 +93,9 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 		if (other instanceof PrimitiveFieldTraceEntry) {
 			PrimitiveFieldTraceEntry otherEntry = (PrimitiveFieldTraceEntry) other;
 			for (Field field : fieldMap.keySet()) {
+				if(!otherEntry.fieldMap.containsKey(field))
+					continue;
+				
 				if (!otherEntry.fieldMap.get(field).equals(fieldMap.get(field))) {
 					PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
 					assertion.value = fieldMap.get(field);

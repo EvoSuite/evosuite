@@ -454,13 +454,14 @@ public class TestFactory {
 				else if (((ArrayIndex) var).getArray().getType().equals(array.getType()))
 					iterator.remove();
 			}
-			if(componentClass.isWrapperType()) {
+			if (componentClass.isWrapperType()) {
 				Class<?> rawClass = ClassUtils.wrapperToPrimitive(componentClass.getRawClass());
-				if(!var.getVariableClass().equals(rawClass) && !var.getVariableClass().equals(componentClass.getRawClass())) {
+				if (!var.getVariableClass().equals(rawClass)
+				        && !var.getVariableClass().equals(componentClass.getRawClass())) {
 					iterator.remove();
 				}
 			}
-			
+
 		}
 		logger.debug("Reusable objects: " + objects);
 		assignArray(test, array, arrayIndex, position, objects);
@@ -1480,6 +1481,12 @@ public class TestFactory {
 				*/
 				return true;
 			}
+		} else if (var.getGenericClass().hasWildcardOrTypeVariables()) {
+			// TODO: If the object is of type Foo<?> then only
+			//       methods that don't return / need a type ?
+			//       should be called. For now, we just don't call
+			//       any methods at all.
+			logger.debug("Cannot add calls on unknown type");
 		} else {
 			logger.debug("Getting calls for object " + var.toString());
 			try {

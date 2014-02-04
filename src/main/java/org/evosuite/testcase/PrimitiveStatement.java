@@ -250,6 +250,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	public Throwable execute(Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
+		Throwable exceptionThrown = null;
 
 		try {
 			retval.setObject(scope, value);

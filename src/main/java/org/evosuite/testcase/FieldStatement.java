@@ -189,6 +189,7 @@ public class FieldStatement extends AbstractStatement {
 	public Throwable execute(final Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
+		Throwable exceptionThrown = null;
 
 		try {
 			return super.exceptionHandler(new Executer() {
