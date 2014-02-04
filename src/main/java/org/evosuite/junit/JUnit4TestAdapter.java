@@ -36,14 +36,22 @@ import org.evosuite.testcase.TestCodeVisitor;
  */
 public class JUnit4TestAdapter implements UnitTestAdapter {
 
+	private String getJUnitTestShortName() {
+		if(Properties.TARGET_CLASS.equals("Test"))
+			return "org.junit.Test";
+		else
+			return "Test";
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.junit.UnitTestAdapter#getImports()
 	 */
 	/** {@inheritDoc} */
 	@Override
 	public String getImports() {
-		String imports = "import org.junit.Test;\n"
-		        + "import static org.junit.Assert.*;\n";
+		String imports = "import static org.junit.Assert.*;\n";
+		if(!Properties.TARGET_CLASS.equals("Test"))
+			imports += "import org.junit.Test;\n";
 		
 		if(Properties.JUNIT_RUNNER)
 			imports += "import org.junit.runner.RunWith;\nimport org.evosuite.junit.EvoSuiteRunner;\n";
@@ -68,7 +76,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public String getMethodDefinition(String testName) {
-		return "  @Test\n  public void " + testName + "() ";
+		return "  @"+getJUnitTestShortName()+"\n  public void " + testName + "() ";
 	}
 
 	/* (non-Javadoc)
