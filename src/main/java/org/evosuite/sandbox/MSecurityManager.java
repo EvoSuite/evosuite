@@ -68,8 +68,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Regarding the different permissions, and the associated risks in allowing
  * them, see:
- * http://download.oracle.com/javase/6/docs/technotes/guides/security/
- * permissions.html
+ * http://download.oracle.com/javase/6/docs/technotes/guides/security/permissions.html
  * </p>
  * <p>
  * This class grants permissions based on thread references, and not on the
