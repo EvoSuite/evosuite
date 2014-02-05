@@ -89,7 +89,7 @@ public class MockNative {
 			throw new IOException("Virtual file system does not handle files larger than  "+Integer.MAX_VALUE+" bytes");
 		}
 		
-		VFile vf = MockNative.getFileForReading(path);
+		VFile vf = MockNative.getFileForWriting(path);
 		if(vf==null){
 			throw new IOException();
 		}
