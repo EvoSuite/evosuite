@@ -43,6 +43,11 @@ public class VFile extends FSObject{
 			data.add((byte)0);
 		}
 
+		if(newLength==0){
+			data.clear();
+			return;
+		}
+		
 		while(data.size() > newLength){
 			data.remove(data.size()-1);
 		}

@@ -30,7 +30,7 @@ public class FileSystemHandling {
 	 */
 	public static boolean appendStringToFile(EvoSuiteFile file, String value){
 		
-		if(value==null){
+		if(file==null || value==null){
 			return false;
 		}
 		
@@ -48,7 +48,7 @@ public class FileSystemHandling {
 	 */
 	public static boolean appendLineToFile(EvoSuiteFile file, String line){
 		
-		if(line==null){
+		if(file==null || line==null){
 			return false;
 		}
 		
@@ -67,7 +67,7 @@ public class FileSystemHandling {
 	 */
 	public static boolean appendDataToFile(EvoSuiteFile file, byte[] data){
 		
-		if(data==null){
+		if(file==null || data==null){
 			return false;
 		}
 		
@@ -95,6 +95,11 @@ public class FileSystemHandling {
 	
 	
 	public static boolean createFolder(EvoSuiteFile file){		
+		
+		if(file==null){
+			return false;
+		}
+		
 		return VirtualFileSystem.getInstance().createFolder(file.getPath());
 	}
 	
@@ -108,6 +113,9 @@ public class FileSystemHandling {
 	 * @return
 	 */
 	public static boolean setPermissions(EvoSuiteFile file, boolean isReadable, boolean isWritable, boolean isExecutable){
+		if(file==null){
+			return false;
+		}
 		FSObject target = VirtualFileSystem.getInstance().findFSObject(file.getPath());
 		if(target == null){
 			return false; 
@@ -127,6 +135,9 @@ public class FileSystemHandling {
 	 * @return
 	 */
 	public static boolean shouldThrowIOException(EvoSuiteFile file){
+		if(file==null){
+			return false;
+		}
 		return VirtualFileSystem.getInstance().setShouldThrowIOException(file); 
 	}
 

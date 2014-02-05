@@ -61,8 +61,24 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 		if (name == null) {
 			throw new NullPointerException();
 		}
-		
+				
 		path = (file != null ? file.getAbsolutePath() : null);
+		
+		//does the file exist?
+		boolean exist = VirtualFileSystem.getInstance().exists(path);
+		if(!exist){
+			if(!canWrite){
+				throw new FileNotFoundException("File does not exist, and RandomAccessFile is not open in write mode");
+			} else {
+				//let's create it
+				boolean created = VirtualFileSystem.getInstance().createFile(path);
+				if(!created){
+					throw new FileNotFoundException("Failed to create file");
+				}
+			}
+		} else {
+			//the file does exist, no need to do anything here
+		}
 		
 		/*
 		 * it is important to instantiate it here, because getChannel is final
@@ -92,7 +108,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 
 	private void writeBytes(byte b[], int off, int len) throws IOException{
 		
-		if(closed){
+		if(closed || !canWrite){
 			throw new IOException();
 		}
 
@@ -126,7 +142,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 	@Override
 	public void setLength(long newLength) throws IOException{
 		
-		if(closed){
+		if(closed || !canWrite){
 			throw new IOException();
 		}
 		
