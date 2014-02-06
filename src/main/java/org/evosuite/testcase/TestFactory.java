@@ -1504,7 +1504,7 @@ public class TestFactory {
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.AbstractTestFactory#insertRandomStatement(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
-	public int insertRandomStatement(TestCase test) {
+	public int insertRandomStatement(TestCase test, int lastPosition) {
 		final double P = Properties.INSERTION_SCORE_UUT
 		        + Properties.INSERTION_SCORE_OBJECT
 		        + Properties.INSERTION_SCORE_PARAMETER;
@@ -1513,7 +1513,15 @@ public class TestFactory {
 
 		int oldSize = test.size();
 		double r = Randomness.nextDouble();
-		int position = Randomness.nextInt(test.size() + 1);
+		//		int position = Randomness.nextInt(test.size() + 1);
+		int max = lastPosition;
+		if (max == test.size())
+			max += 1;
+
+		if (max <= 0)
+			max = 1;
+
+		int position = Randomness.nextInt(max);
 
 		if (logger.isDebugEnabled()) {
 			for (int i = 0; i < test.size(); i++) {
