@@ -581,7 +581,13 @@ public class TestClusterGenerator {
 			for (String className : staticFields.keySet()) {
 				logger.info("Adding static fields to cluster for class " + className);
 
-				Class<?> clazz = getClass(className);
+				Class<?> clazz;
+				try{ 
+					clazz = getClass(className);
+				} catch (ExceptionInInitializerError ex) {
+					logger.debug("Class class init caused exception " + className);
+					continue;
+				}
 				if (clazz == null) {
 					logger.debug("Class not found " + className);
 					continue;
@@ -649,6 +655,9 @@ public class TestClusterGenerator {
 			                               TestGenerationContext.getClassLoader());
 			return clazz;
 		} catch (ClassNotFoundException e) {
+			return null;
+		} catch (NoClassDefFoundError e) {
+			// an ExceptionInInitializationError might have happened during class initialization.
 			return null;
 		}
 	}
