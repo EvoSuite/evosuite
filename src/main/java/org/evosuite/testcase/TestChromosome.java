@@ -220,8 +220,8 @@ public class TestChromosome extends ExecutableChromosome {
 
 			if (mutation.getMutationType() != TestMutationHistoryEntry.TestMutation.DELETION
 			        && mutation.getStatement().getPosition() <= lastPosition) {
-				if(Properties.LOCAL_SEARCH_SELECTIVE_PRIMITIVES) {
-					if(!(mutation.getStatement() instanceof PrimitiveStatement<?>))
+				if (Properties.LOCAL_SEARCH_SELECTIVE_PRIMITIVES) {
+					if (!(mutation.getStatement() instanceof PrimitiveStatement<?>))
 						continue;
 				}
 				if (!test.hasReferences(mutation.getStatement().getReturnValue())
@@ -248,7 +248,7 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 		return false;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.Chromosome#localSearch()
 	 */
@@ -257,7 +257,8 @@ public class TestChromosome extends ExecutableChromosome {
 	@Override
 	public boolean localSearch(LocalSearchObjective<? extends Chromosome> objective) {
 		TestCaseLocalSearch localSearch = TestCaseLocalSearch.getLocalSearch();
-		return localSearch.doSearch(this, (LocalSearchObjective<TestChromosome>) objective);
+		return localSearch.doSearch(this,
+		                            (LocalSearchObjective<TestChromosome>) objective);
 	}
 
 	/**
@@ -298,6 +299,20 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 	}
 
+	private int getLastMutatableStatement() {
+		ExecutionResult result = getLastExecutionResult();
+		if (result != null && !result.noThrownExceptions()) {
+			int pos = result.getFirstPositionOfThrownException();
+			// It may happen that pos > size() after statements have been deleted
+			if (pos >= test.size())
+				return test.size() - 1;
+			else
+				return pos;
+		} else {
+			return test.size() - 1;
+		}
+	}
+
 	/**
 	 * Each statement is deleted with probability 1/length
 	 * 
@@ -305,10 +320,12 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	private boolean mutationDelete() {
 		boolean changed = false;
-		double pl = 1d / test.size();
+		int lastMutatableStatement = getLastMutatableStatement();
+		double pl = 1d / (lastMutatableStatement + 1);
 		TestFactory testFactory = TestFactory.getInstance();
 
-		for (int num = test.size() - 1; num >= 0; num--) {
+		//		for (int num = test.size() - 1; num >= 0; num--) {
+		for (int num = lastMutatableStatement; num >= 0; num--) {
 
 			// Each statement is deleted with probability 1/l
 			if (Randomness.nextDouble() <= pl) {
@@ -342,7 +359,8 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	private boolean mutationChange() {
 		boolean changed = false;
-		double pl = 1d / test.size();
+		int lastMutatableStatement = getLastMutatableStatement();
+		double pl = 1d / (lastMutatableStatement + 1);
 		TestFactory testFactory = TestFactory.getInstance();
 
 		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
@@ -356,7 +374,7 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 
 		if (!changed) {
-			for (int position = 0; position < test.size(); position++) {
+			for (int position = 0; position <= lastMutatableStatement; position++) {
 				StatementInterface statement = test.getStatement(position);
 				//for (StatementInterface statement : test) {
 				if (Randomness.nextDouble() <= pl) {
@@ -404,7 +422,8 @@ public class TestChromosome extends ExecutableChromosome {
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)
-			int position = testFactory.insertRandomStatement(test);
+			int position = testFactory.insertRandomStatement(test,
+			                                                 getLastMutatableStatement());
 			if (position >= 0 && position < test.size()) {
 				mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
 				        TestMutationHistoryEntry.TestMutation.INSERTION,
