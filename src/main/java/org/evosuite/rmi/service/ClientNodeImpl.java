@@ -266,6 +266,10 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 			@Override
 			public void run() {
 				changeState(ClientState.STARTED);
+				//Before starting search, let's activate the sandbox
+				if (Properties.SANDBOX) {
+					Sandbox.initializeSecurityManagerForSUT();
+				}
 
 				try {
 					CoverageAnalysis.analyzeCoverage();
@@ -278,6 +282,13 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 				}
 
 				changeState(ClientState.DONE);
+				if (Properties.SANDBOX) {
+					/*
+					 * Note: this is mainly done for debugging purposes, to simplify how test cases are run/written 
+					 */
+					Sandbox.resetDefaultSecurityManager();
+				}
+
 			}
 		});
 	}
