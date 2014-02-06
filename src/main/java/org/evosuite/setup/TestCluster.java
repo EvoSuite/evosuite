@@ -176,6 +176,8 @@ public class TestCluster {
 				m.setAccessible(true);
 				staticInitializers.add(m);
 				logger.info("Adding static class: " + className);
+			} catch (NoClassDefFoundError e) {
+				logger.info("Static: Error loading class: " + className);
 			} catch (ClassNotFoundException e) {
 				logger.info("Static: Could not find class: " + className);
 			} catch (SecurityException e) {
@@ -380,7 +382,10 @@ public class TestCluster {
 			logger.debug("Found generators for " + clazz + ": " + targetGenerators.size());
 		}
 
-		logger.debug("XXX Setting generator cache "+clazz+": "+targetGenerators);
+		for (GenericAccessibleObject<?> targetGenerator : targetGenerators) {
+			logger.debug("XXX Setting generator cache "+clazz+": " + String.valueOf(targetGenerator));
+		}
+		logger.debug("]");
 		generatorCache.put(clazz, targetGenerators);
 	}
 
@@ -1102,6 +1107,9 @@ public class TestCluster {
 				// TODO Auto-generated catch block
 				// e.printStackTrace();
 			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+			} catch (NoClassDefFoundError e) {
 				// TODO Auto-generated catch block
 				// e.printStackTrace();
 			}
