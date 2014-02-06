@@ -59,7 +59,7 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 
 		// Then add random stuff
 		while (test.size() < length && num < Properties.MAX_ATTEMPTS) {
-			testFactory.insertRandomStatement(test);
+			testFactory.insertRandomStatement(test, test.size());
 			num++;
 		}
 		if (logger.isDebugEnabled())
