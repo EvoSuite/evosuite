@@ -311,13 +311,13 @@
 			<!-- MIT -->
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.5</version>
+			<version>1.7.6</version>
 		</dependency>
 		<dependency>
 			<!-- EPL/LGPL -->
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.0.12</version>
+			<version>1.1.1</version>
 		</dependency>
 		<dependency>
 			<!-- Common Public License Version 1.0 -->
@@ -353,13 +353,13 @@
 			<!-- BSD -->
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
-			<version>1.4.5</version>
+			<version>1.4.6</version>
 		</dependency>
 		<dependency>
 			<!-- Apache 2 -->
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.1</version>
+			<version>3.2.1</version>
 		</dependency>
 		<dependency>
 			<!-- Apache 2 -->
