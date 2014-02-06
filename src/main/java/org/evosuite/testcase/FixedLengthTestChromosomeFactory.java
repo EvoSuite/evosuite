@@ -50,7 +50,7 @@ public class FixedLengthTestChromosomeFactory implements
 
 		// Then add random stuff
 		while (test.size() < size && num < Properties.MAX_ATTEMPTS) {
-			testFactory.insertRandomStatement(test);
+			testFactory.insertRandomStatement(test, test.size());
 			num++;
 		}
 		//logger.debug("Randomized test case:" + test.toCode());
