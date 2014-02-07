@@ -13,6 +13,7 @@ import org.evosuite.mock.java.io.MockPrintStream;
 import org.evosuite.mock.java.io.MockPrintWriter;
 import org.evosuite.mock.java.io.MockRandomAccessFile;
 import org.evosuite.mock.java.util.MockDate;
+import org.evosuite.mock.java.util.logging.MockFileHandler;
 
 
 /**
@@ -50,7 +51,9 @@ public class MockList {
 			list.add(MockFileWriter.class);
 			list.add(MockPrintStream.class);
 			list.add(MockPrintWriter.class);
+			list.add(MockFileHandler.class);
 		}
+		
 		if(Properties.REPLACE_CALLS) {
 			list.add(MockDate.class);
 		}

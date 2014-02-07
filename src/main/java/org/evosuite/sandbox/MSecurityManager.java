@@ -91,6 +91,11 @@ public class MSecurityManager extends SecurityManager {
 	 */
 	private static final File tmpFile;
 	
+	/**
+	 * Pattern name used by the mock of {@code java.uitl.logging.FileHandler}
+	 */
+	public static final String FILE_HANDLER_NAME_PATTERN = ".tmp_file_needed_by_mock_of_FileHandler";
+	
 	static{
 		File tmp = null;
 		try {
@@ -973,7 +978,9 @@ public class MSecurityManager extends SecurityManager {
 			        || library.equals("j2pkcs11") || library.equals("nio")
 			        || library.equals("laf") || library.endsWith("libmawt.so")
 			        || library.equals("jpeg") || library.endsWith("liblwawt.dylib")
-			        || library.equals("cmm") || library.equals("t2k") ) {
+			        || library.equals("cmm") || library.equals("t2k") 
+			        || library.equals("jawt") 
+			        ) {
 				return true;
 			}
 
@@ -1075,43 +1082,17 @@ public class MSecurityManager extends SecurityManager {
 			return true;
 		}
 
-		if(Properties.VIRTUAL_FS && 
-				fp.getName().equals(VirtualFileSystem.getInstance().getRealTmpFile().getPath())){
+		if(Properties.VIRTUAL_FS){  
+				
 			//we need at least one real file with all permissions, otherwise the VFS will not work
-			return true;
-		}
-		
-		/*
-		 * explanatory note by Daniel concerning integration of this security manager with VFS functionality (-Dvirtual_fs=true):
-		 * 
-		 * In the overwritten classes (File, FileInputStream, FileOutputStream as of now) I left out all security manager checks concerning read &
-		 * write permission for virtual files (that are stored in the virtual file system). That means, if we have something like 'new
-		 * FileOutputStream(virtualFile)', no security exception is thrown, even if this security manager is active and would forbid write access. For
-		 * original files the security manager behaves as specified. I know that I thereby partially violate the original specification of
-		 * File/FileInputStream/FileOutputStream when to throw a security exception. The (not so nice) alternative I can think of, would be to check
-		 * if Properties.VIRTUAL_FS is true, to analyze the current stack trace in this very method here and to allow write/execute access if there is
-		 * File/FileInputStream/FileOutputStream in the stack trace. If you prefer this method (or a better one?) to be implemented (and to have
-		 * File/FIS/FOS throw security exceptions also for virtual files), please let me know.
-		 * 
-		 * Reminder: EvoSuiteIO.shouldBeOriginal labels all File instances as 'virtual' files, that are created by the class under test while the VFS
-		 * is enabled. If such a file instance exists on the real file system, it is copied into memory and all subsequent file operations (provided
-		 * by the classes File/FIS/FOS) are performed on this in-memory copy. Nevertheless, there is an option to only allow existing files to be read
-		 * from within the sandbox read folder (-Drestricted_read=true)
-		 */
-
-		/*
-		 * FIXME: "contains" is pretty unsecure, and we should check actual path hierarchy. Eg, SUT could create a file named
-		 * $Properties.SANDBOX_FOLDER anywhere in the file system
-		 */
-		/*
-		if (fp.getName().contains(Properties.SANDBOX_FOLDER)) {
-			 // need to check "execute". in some cases, for browising directory we need "execute", but we don't want to execute files!!! (eg scripts)
-			if (action.equals("write") || action.equals("delete")) {
-				// return true; //TODO allow it once the I/O is fixed and properly tested
+			boolean isTmpFile = fp.getName().equals(VirtualFileSystem.getInstance().getRealTmpFile().getPath());
+			boolean isFileHandlerFile = fp.getName().contains(FILE_HANDLER_NAME_PATTERN);
+			
+			if(isTmpFile || isFileHandlerFile){
+				return true;
 			}
 		}
-		 */
-		
+				
 		return false;
 	}
 }
