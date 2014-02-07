@@ -450,7 +450,9 @@ public class ArrayIndex extends VariableReferenceImpl {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((array == null) ? 0 : array.hashCode());
-		result = prime * result + indices.hashCode();
+		// TODO: indices shouldn't normally be null
+		//       but it sometimes happens for StrongMutation...
+		result = prime * result + ((indices == null) ? 0 : indices.hashCode());
 		return result;
 	}
 
