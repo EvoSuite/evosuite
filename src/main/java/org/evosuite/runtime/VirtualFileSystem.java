@@ -87,7 +87,7 @@ public final class VirtualFileSystem {
 	private VirtualFileSystem() {
 		tmpFileCounter = new AtomicInteger(0);
 		accessedFiles = new HashSet<String>(); //we only add during test execution, and read after
-		leakingResources =  new HashSet<LeakingResource>(); 
+		leakingResources =  new CopyOnWriteArraySet<LeakingResource>(); 
 		classesThatShouldThrowIOException = new CopyOnWriteArraySet<String>(); //should only contain very few values
 	}
 
@@ -110,14 +110,16 @@ public final class VirtualFileSystem {
 		shouldAllThrowIOException = false;
 		classesThatShouldThrowIOException.clear();
 		
-		for(LeakingResource resource : leakingResources){
-			try{
-				resource.release();
-			} catch(Exception e){
-				logger.warn("Failed to release resource: "+e.getMessage(),e);
+		synchronized(leakingResources){
+			for(LeakingResource resource : leakingResources){
+				try{
+					resource.release();
+				} catch(Exception e){
+					logger.warn("Failed to release resource: "+e.getMessage(),e);
+				}
 			}
+			leakingResources.clear();
 		}
-		leakingResources.clear();
 	}
 
 	/**
@@ -127,7 +129,9 @@ public final class VirtualFileSystem {
 	 * @param resource
 	 */
 	public void addLeakingResource(LeakingResource resource){
-		leakingResources.add(resource);
+		synchronized(leakingResources){
+			leakingResources.add(resource);
+		}
 	}
 	
 	/**
