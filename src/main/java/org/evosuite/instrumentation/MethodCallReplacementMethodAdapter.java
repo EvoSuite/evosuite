@@ -187,6 +187,9 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			replacementCalls.add(new MethodCallReplacement("java/lang/System",
 					"currentTimeMillis", "()J", "org/evosuite/runtime/System",
 					"currentTimeMillis", "()J", false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/System",
+					"nanoTime", "()J", "org/evosuite/runtime/System",
+					"nanoTime", "()J", false, false));
 /*
 			replacementCalls.add(new MethodCallReplacement("java/util/Date", "<init>",
 					"()V", "org/evosuite/runtime/Date", "getDate", "()Ljava/util/Date;",
