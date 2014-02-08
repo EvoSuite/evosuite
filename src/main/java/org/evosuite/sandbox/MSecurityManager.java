@@ -979,7 +979,7 @@ public class MSecurityManager extends SecurityManager {
 			        || library.equals("laf") || library.endsWith("libmawt.so")
 			        || library.equals("jpeg") || library.endsWith("liblwawt.dylib")
 			        || library.equals("cmm") || library.equals("t2k") 
-			        || library.equals("jawt") 
+			        || library.equals("jawt") || library.equals("sunec")  
 			        ) {
 				return true;
 			}
