@@ -359,7 +359,12 @@
 			<!-- Apache 2 -->
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.2.1</version>
+			<version>3.1</version>
+			<!--
+			  Version 3.2.1 leads to a NPE in
+			  org.jcvi.jillion.fasta.qual.QualityFastaRecordWriterBuilder
+			  in 92_jcvi-javacommon
+			-->
 		</dependency>
 		<dependency>
 			<!-- Apache 2 -->
