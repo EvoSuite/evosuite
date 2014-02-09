@@ -33,6 +33,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
+import org.evosuite.runtime.Runtime;
 import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.TestCluster;
@@ -448,6 +449,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			return result;
 		} finally {
 			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
+			Runtime.getInstance().handleRuntimeAccesses(tc);
+			SystemInUtil.getInstance().addSupportInTestClusterIfNeeded();
 		}
 	}
 
