@@ -366,9 +366,14 @@ public class AssignmentStatement extends AbstractStatement {
 				// a long with an int, which is assignable
 				// but if the long is assigned to a Long field, then it is not!
 				if(parameter.isAssignableTo(newRetVal)) {
-					retval = newRetVal;
-					assert (isValid());
-					return true;
+					
+					// Need to check array status because commons lang
+					// is sometimes confused about what is assignable
+					if(parameter.isArray() == newRetVal.isArray()) {
+						retval = newRetVal;
+						assert (isValid());
+						return true;
+					}
 				}
 			}
 
