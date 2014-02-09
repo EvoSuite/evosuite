@@ -103,7 +103,7 @@ public class DependencyAnalysis {
 		for(String className : callTree.getClasses()) {
 			if(className.startsWith(Properties.TARGET_CLASS+"$")) {
 				try {
-					Class.forName(className, true, TestGenerationContext.getClassLoader());
+					Class.forName(className, true, TestGenerationContext.getInstance().getClassLoaderForSUT());
 				} catch(ClassNotFoundException e) {
 					logger.debug("Error loading "+className+ ": "+e);
 				}

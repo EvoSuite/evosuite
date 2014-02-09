@@ -490,7 +490,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		currentThread = new Thread(threadGroup, r);
 		currentThread.setName(TEST_EXECUTION_THREAD + "_" + threadCounter);
 		threadCounter++;
-		currentThread.setContextClassLoader(TestGenerationContext.getClassLoader());
+		currentThread.setContextClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;
 	}
