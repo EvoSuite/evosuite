@@ -86,7 +86,7 @@ public final class VirtualFileSystem {
 	 */
 	private VirtualFileSystem() {
 		tmpFileCounter = new AtomicInteger(0);
-		accessedFiles = new HashSet<String>(); //we only add during test execution, and read after
+		accessedFiles = new CopyOnWriteArraySet<String>(); //we only add during test execution, and read after
 		leakingResources =  new CopyOnWriteArraySet<LeakingResource>(); 
 		classesThatShouldThrowIOException = new CopyOnWriteArraySet<String>(); //should only contain very few values
 	}
