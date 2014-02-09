@@ -145,6 +145,14 @@ public class MSecurityManager extends SecurityManager {
 	private final Set<String> masterNodeRemoteMethodNames;
 	
 	/**
+	 * It can happen that EvoSuite encounters permissions it does not recognize.
+	 * This could be due to a bug in EvoSuite, or a custom permission of the SUT.
+	 * When an unrecognized permission is encountered, we might want to log it.
+	 * However, logging each single access might flood the logs
+	 */
+	private final Set<Permission>  unrecognizedPermissions;
+	
+	/**
 	 * Create a custom security manager for the SUT. The thread that create this
 	 * instance is automatically added as "privileged"
 	 */
@@ -155,6 +163,7 @@ public class MSecurityManager extends SecurityManager {
 		executingTestCase = false;
 		defaultProperties = (java.util.Properties) System.getProperties().clone();
 		privilegedThreadToIgnore = null;
+		unrecognizedPermissions = new CopyOnWriteArraySet<Permission>();
 		
 		Method[] methods = MasterNodeRemote.class.getMethods();
 		Set<String> names = new HashSet<String>();
@@ -588,7 +597,10 @@ public class MSecurityManager extends SecurityManager {
 		 * we have to take, ie allowing SUT permissions
 		 */
 		if (canonicalName.startsWith("java")) {
-			logger.debug("Unrecognized permission type: " + canonicalName);
+			if(! unrecognizedPermissions.contains(perm)){
+				unrecognizedPermissions.add(perm);
+				logger.debug("Unrecognized permission type: " + canonicalName);
+			}
 			return false;
 		} else {
 			/*
@@ -1026,9 +1038,11 @@ public class MSecurityManager extends SecurityManager {
 		/*
 		 * this is also useful for checking types in the String constants, and to be warned if they ll change in future JDKs
 		 */
-		logger.warn("SUT asked for a runtime permission that EvoSuite does not recognize: "
-		        + name);
-
+		if(! unrecognizedPermissions.contains(perm)){
+			unrecognizedPermissions.add(perm);
+			logger.warn("SUT asked for a runtime permission that EvoSuite does not recognize: " + name);
+		}
+		
 		return false;
 	}
 
