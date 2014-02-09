@@ -33,9 +33,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.Set;
-import java.util.Stack;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -74,7 +72,7 @@ public class TestCluster {
 	private final static Set<Class<?>> analyzedClasses = new LinkedHashSet<Class<?>>();
 
 	/** Methods we want to cover when testing */
-	private final static List<GenericAccessibleObject<?>> testMethods = new ArrayList<GenericAccessibleObject<?>>();
+	private final static Set<GenericAccessibleObject<?>> testMethods = new LinkedHashSet<GenericAccessibleObject<?>>();
 
 	/** Static information about how to generate types */
 	private final static Map<GenericClass, Set<GenericAccessibleObject<?>>> generators = new LinkedHashMap<GenericClass, Set<GenericAccessibleObject<?>>>();
@@ -144,7 +142,7 @@ public class TestCluster {
 		// annotated with @Test (> JUnit 4.0)
 		// or contains Test or Suite in it's inheritance structure
 		try {
-			Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
+			Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
 			Class<?> superClazz = clazz.getSuperclass();
 			while (!superClazz.equals(Object.class)) {
 				if (superClazz.equals(Suite.class))
@@ -171,7 +169,7 @@ public class TestCluster {
 			String className = getNextUnvisitedFinalClassName(visited);
 			visited.add(className);
 			try {
-				Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
+				Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
 				Method m = clazz.getMethod("__STATIC_RESET", (Class<?>[]) null);
 				m.setAccessible(true);
 				staticInitializers.add(m);
@@ -633,7 +631,7 @@ public class TestCluster {
 
 		// Or try java.lang
 		try {
-			TestGenerationContext.getClassLoader().loadClass("java.lang." + name);
+			TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass("java.lang." + name);
 		} catch (ClassNotFoundException e) {
 			// Ignore it as we throw our own
 		}

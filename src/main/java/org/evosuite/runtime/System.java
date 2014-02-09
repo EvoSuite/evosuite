@@ -78,6 +78,16 @@ public class System {
 	}
 
 	/**
+	 * Replacement function for System.currentTimeMillis
+	 * 
+	 * @return a long.
+	 */
+	public static long nanoTime() {
+		wasAccessed = true;
+		return currentTime * 1000; //++;
+	}
+
+	/**
 	 * Allow setting the time
 	 * 
 	 * @param time
