@@ -96,7 +96,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 			return short.class;
 		default:
 			return Class.forName(type.getClassName(), true,
-			                     TestGenerationContext.getClassLoader());
+			                     TestGenerationContext.getInstance().getClassLoaderForSUT());
 		}
 	}
 
