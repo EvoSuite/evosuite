@@ -414,7 +414,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			for (int i = 0; i < suffixes.length; i++) {
 				/*
 				 * NOTE: we start from T1 and not T0 because, by definition, coverage
-				 * at T0 is equal to T0, and no point in showing it in a graph
+				 * at T0 is equal to 0, and no point in showing it in a graph
 				 */
 				suffixes[i] = "_T" + (i + 1);
 			}
@@ -1394,13 +1394,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			try {
 				buffer.append("<li>" + key + ": " + Properties.getStringValue(key) + "\n"); // TODO
 			} catch (NoSuchParameterException e) {
-
+				logger.error(e.getMessage(),e);
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage(),e);
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage(),e);
 			}
 		}
 		buffer.append("</ul></div>\n");
@@ -1556,7 +1554,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			in.close();
 			out.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 		}
 	}
 
