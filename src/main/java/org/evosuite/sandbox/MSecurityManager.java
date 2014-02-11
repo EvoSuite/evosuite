@@ -86,16 +86,26 @@ public class MSecurityManager extends SecurityManager {
 
 	private static Logger logger = LoggerFactory.getLogger(MSecurityManager.class);
 
+
+	/*
+	 *  these need to be "static final" as they should be determined
+	 *  only once before the security manager is actually on
+	 */
+
+	private static final String USER_DIR = System.getProperty("user.home");
+
+	private static final String JAVA_VERSION = System.getProperty("java.version");
+
 	/**
 	 * Needed for the VFS
 	 */
 	private static final File tmpFile;
-	
+
 	/**
 	 * Pattern name used by the mock of {@code java.uitl.logging.FileHandler}
 	 */
 	public static final String FILE_HANDLER_NAME_PATTERN = ".tmp_file_needed_by_mock_of_FileHandler";
-	
+
 	static{
 		File tmp = null;
 		try {
@@ -106,7 +116,7 @@ public class MSecurityManager extends SecurityManager {
 		}		
 		tmpFile = tmp;
 	}
-		
+
 	private final PermissionStatistics statistics = PermissionStatistics.getInstance();
 
 	private final SecurityManager defaultManager;
@@ -143,7 +153,7 @@ public class MSecurityManager extends SecurityManager {
 	 * but only if coming from EvoSuite (and not from SUT)
 	 */
 	private final Set<String> masterNodeRemoteMethodNames;
-	
+
 	/**
 	 * It can happen that EvoSuite encounters permissions it does not recognize.
 	 * This could be due to a bug in EvoSuite, or a custom permission of the SUT.
@@ -151,7 +161,7 @@ public class MSecurityManager extends SecurityManager {
 	 * However, logging each single access might flood the logs
 	 */
 	private final Set<Permission>  unrecognizedPermissions;
-	
+
 	/**
 	 * Create a custom security manager for the SUT. The thread that create this
 	 * instance is automatically added as "privileged"
@@ -164,7 +174,7 @@ public class MSecurityManager extends SecurityManager {
 		defaultProperties = (java.util.Properties) System.getProperties().clone();
 		privilegedThreadToIgnore = null;
 		unrecognizedPermissions = new CopyOnWriteArraySet<Permission>();
-		
+
 		Method[] methods = MasterNodeRemote.class.getMethods();
 		Set<String> names = new HashSet<String>();
 		for(Method m : methods){
@@ -184,7 +194,7 @@ public class MSecurityManager extends SecurityManager {
 	public static File getRealTmpFile(){
 		return tmpFile;
 	}
-	
+
 	/**
 	 * Use this method if you are going to execute SUT code from a privileged
 	 * thread (ie if you don't want to do it on a new thread)
@@ -193,10 +203,10 @@ public class MSecurityManager extends SecurityManager {
 	 * @throws IllegalStateException
 	 */
 	public void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException,
-	        IllegalStateException {
+	IllegalStateException {
 		if (!privilegedThreads.contains(Thread.currentThread())) {
 			throw new SecurityException(
-			        "Only a privileged thread can execute unsafe code");
+					"Only a privileged thread can execute unsafe code");
 		}
 		if (privilegedThreadToIgnore != null) {
 			throw new IllegalStateException("The thread is already executing unsafe code");
@@ -212,10 +222,10 @@ public class MSecurityManager extends SecurityManager {
 	 * @throws IllegalStateException
 	 */
 	public void doneWithExecutingUnsafeCodeOnSameThread() throws SecurityException,
-	        IllegalStateException {
+	IllegalStateException {
 		if (!privilegedThreads.contains(Thread.currentThread())) {
 			throw new SecurityException(
-			        "Only a privileged thread can return from unsafe code execution");
+					"Only a privileged thread can return from unsafe code execution");
 		}
 		if (privilegedThreadToIgnore==null) {
 			throw new IllegalStateException("The thread was not executing unsafe code");
@@ -316,7 +326,7 @@ public class MSecurityManager extends SecurityManager {
 			privilegedThreads.add(t);
 		} else {
 			throw new SecurityException(
-			        "Unprivileged thread cannot add a privileged thread");
+					"Unprivileged thread cannot add a privileged thread");
 		}
 	}
 
@@ -332,13 +342,13 @@ public class MSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPermission(Permission perm, Object context)
-	        throws SecurityException, NullPointerException {
+			throws SecurityException, NullPointerException {
 		/*
 		 * Note: this code is copy and paste from "super", with only one difference
 		 */
 		if (context instanceof AccessControlContext) {
 			checkPermission(perm); // this is the difference, i.e. we ignore context //TODO maybe check if privileged, and if so, actually use the
-			                       // context?
+			// context?
 		} else {
 			throw new SecurityException();
 		}
@@ -417,7 +427,7 @@ public class MSecurityManager extends SecurityManager {
 				"getStackTrace".equals(perm.getName().trim())) {
 			return true;
 		}
-		
+
 		if(checkIfEvoSuiteRMI(perm)){
 			return true;
 		}
@@ -456,16 +466,16 @@ public class MSecurityManager extends SecurityManager {
 		 * Note: we had to remove this check, as some EvoSuite-RMI threads would be blocked by it 
 		 * 
 		if (!executingTestCase) {
-			
+
 			 // Here, the thread is not "privileged" (either from SUT or an un-registered by EvoSuite), and we are not executing a test case (if from
 			 // SUT, that means the thread was not stopped properly). So, we deny any permission
-			 
+
 			logger.debug("Unprivileged thread trying to execute potentially harmfull code outsie SUT code execution. Permission: "
 			        + perm.toString());
 			return false;
 		}
 		 */
-		
+
 		/*
 		 * If we only check threads at the end of test case execution, we would miss
 		 * all the threads that are started and ended within the execution.
@@ -628,12 +638,12 @@ public class MSecurityManager extends SecurityManager {
 	 * @return
 	 */
 	private boolean checkIfEvoSuiteRMI(Permission perm) {
-		
+
 		//FIXME: this does not check if it is the SUT that calls RMI
-		
+
 		final String pattern = "sun.rmi.";
 		boolean foundRMI = false;
-		
+
 		//first check if there is any reference to RMI in the stack trace
 		for(StackTraceElement element : Thread.currentThread().getStackTrace()){
 			if(element.toString().startsWith(pattern)){
@@ -641,14 +651,14 @@ public class MSecurityManager extends SecurityManager {
 				break;
 			}
 		}
-		
+
 		if(!foundRMI){
 			//found no reference to RMI
 			return false;
 		}
-		
+
 		boolean foundMasterNode = false;
-		
+
 		traceLoop: for(StackTraceElement element : Thread.currentThread().getStackTrace()){
 			for(String masterNodeMethod : masterNodeRemoteMethodNames){
 				if(element.toString().contains(masterNodeMethod)){
@@ -657,18 +667,18 @@ public class MSecurityManager extends SecurityManager {
 				}
 			}
 		}
-		
+
 		if(!foundMasterNode){
 			//found no reference to RMI
 			return false;
 		}
-						
+
 		if(perm instanceof FilePermission && !perm.getActions().equals("read")){
 			//we do this just as a safety mechanism...
 			logger.error("EvoSuite RMI is trying to interact with files: "+perm);
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -840,8 +850,8 @@ public class MSecurityManager extends SecurityManager {
 		String name = perm.getName();
 
 		if (name.equals("getDomainCombiner") || name.equals("getPolicy")
-		        || name.equals("printIdentity") || name.equals("getSignerPrivateKey")
-		        || name.startsWith("getProperty.")) {
+				|| name.equals("printIdentity") || name.equals("getSignerPrivateKey")
+				|| name.startsWith("getProperty.")) {
 			return true;
 		}
 
@@ -887,10 +897,10 @@ public class MSecurityManager extends SecurityManager {
 		 * reflection.
 		 */
 		if (name.equals("getClassLoader") || name.equals("createClassLoader")
-		        || name.startsWith("accessClassInPackage")
-		        || name.startsWith("defineClassInPackage")
-		        || name.equals("setContextClassLoader")
-		        || name.equals("accessDeclaredMembers")) {
+				|| name.startsWith("accessClassInPackage")
+				|| name.startsWith("defineClassInPackage")
+				|| name.equals("setContextClassLoader")
+				|| name.equals("accessDeclaredMembers")) {
 			return true;
 		}
 
@@ -950,7 +960,7 @@ public class MSecurityManager extends SecurityManager {
 		 * skipping testing the SUT by throwing a security exception
 		 */
 		if (name.equals("modifyThread") || name.equals("stopThread")
-		        || name.equals("modifyThreadGroup")) {
+				|| name.equals("modifyThreadGroup")) {
 			return true;
 		}
 
@@ -965,7 +975,7 @@ public class MSecurityManager extends SecurityManager {
 		 * those are perfectly fine
 		 */
 		if (name.startsWith("getenv.") || name.equals("getProtectionDomain")
-		        || name.equals("readFileDescriptor")) {
+				|| name.equals("readFileDescriptor")) {
 			return true;
 		}
 
@@ -986,13 +996,13 @@ public class MSecurityManager extends SecurityManager {
 			String library = name.substring("loadLibrary.".length(), name.length());
 
 			if (library.equals("awt") || library.equals("fontmanager")
-			        || library.equals("net") || library.equals("lcms")
-			        || library.equals("j2pkcs11") || library.equals("nio")
-			        || library.equals("laf") || library.endsWith("libmawt.so")
-			        || library.equals("jpeg") || library.endsWith("liblwawt.dylib")
-			        || library.equals("cmm") || library.equals("t2k") 
-			        || library.equals("jawt") || library.equals("sunec")  
-			        ) {
+					|| library.equals("net") || library.equals("lcms")
+					|| library.equals("j2pkcs11") || library.equals("nio")
+					|| library.equals("laf") || library.endsWith("libmawt.so")
+					|| library.equals("jpeg") || library.endsWith("liblwawt.dylib")
+					|| library.equals("cmm") || library.equals("t2k") 
+					|| library.equals("jawt") || library.equals("sunec")  
+					) {
 				return true;
 			}
 
@@ -1028,13 +1038,13 @@ public class MSecurityManager extends SecurityManager {
 			return true;
 		}
 
-		
+
 		//Java 7 permissions:
 		if (name.equals("getFileSystemAttributes")) {
 			return true;
 		}
-		
-		
+
+
 		/*
 		 * this is also useful for checking types in the String constants, and to be warned if they ll change in future JDKs
 		 */
@@ -1042,7 +1052,7 @@ public class MSecurityManager extends SecurityManager {
 			unrecognizedPermissions.add(perm);
 			logger.warn("SUT asked for a runtime permission that EvoSuite does not recognize: " + name);
 		}
-		
+
 		return false;
 	}
 
@@ -1097,16 +1107,53 @@ public class MSecurityManager extends SecurityManager {
 		}
 
 		if(Properties.VIRTUAL_FS){  
-				
+
 			//we need at least one real file with all permissions, otherwise the VFS will not work
 			boolean isTmpFile = fp.getName().equals(VirtualFileSystem.getInstance().getRealTmpFile().getPath());
 			boolean isFileHandlerFile = fp.getName().contains(FILE_HANDLER_NAME_PATTERN);
+
+			if(isFileHandlerFile){
+				/*
+				 * Note: story here is complicated, see MockFileHandler class.
+				 * As we do not know which files will be generated in its superclass FileHandler, 
+				 * here we just make sure to delete any tmp file after the JVM terminates.
+				 */
+				File tmpFile = new File(fp.getName());
+				tmpFile.deleteOnExit();
+			}
 			
 			if(isTmpFile || isFileHandlerFile){
 				return true;
 			}
 		}
-				
+
+		String fontDir = USER_DIR+File.separator+".java"+File.separator+
+				"fonts"+File.separator+JAVA_VERSION;
+
+		if(action.equals("write") && 
+				fp.getName().startsWith(fontDir)){
+			/*
+			 * NOTE: this is a very tricky situation.
+			 * Issue arises in GUI classes like javax.swing.JComponent,
+			 * which leads in loading font files.
+			 * Now, based on the JVM, this could lead to execute code
+			 * in sun.font.FcFontConfiguration which leads to writing files.
+			 * Problem is that, normally, such code is executed in a
+			 * AccessController.doPrivileged block (see sun.font.FontManagerFactory).
+			 * However, our security manager is not able to properly handle 
+			 * those cases, so we just allow writing permissions on such 
+			 * target folder.
+			 * 
+			 * Some points to consider:
+			 * - it is unlikely that a SUT will write on such folder by chance,
+			 *   but a malicious attacker could exploit such security hole.
+			 * - if we end up with more cases like this, maybe we should 
+			 *   refactor/extend this class to handle AccessController.doPrivileged blocks.
+			 *        
+			 */
+			return true;
+		}
+
 		return false;
 	}
 }
