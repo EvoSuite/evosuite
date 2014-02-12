@@ -236,7 +236,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		CoveredAliasIntraClassPairs,
 		CoveredAliasParameterPairs,
 		CarvedTests,
-		CarvedCoverage
+		CarvedCoverage,
+		HadUnstableTests
 	};
 
 	/** Constant <code>DATE_FORMAT_NOW="yyyy-MM-dd HH:mm:ss"</code> */
@@ -405,6 +406,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public Map<String, Set<Class<?>>> implicitExceptions;
 
 		public Map<String, Set<Class<?>>> explicitExceptions;
+		
+		
+		public boolean hadUnstableTests;
 		
 		//--------------------------------------------------
 
@@ -899,6 +903,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return ""+JUnitTestCarvedChromosomeFactory.getTotalNumberOfTestsCarved();
 			case CarvedCoverage:
 				return ""+JUnitTestCarvedChromosomeFactory.getCoverageOfCarvedTests();
+			case HadUnstableTests:
+				return ""+hadUnstableTests;
 			default:
 				break;
 
