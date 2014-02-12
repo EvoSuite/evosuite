@@ -157,5 +157,6 @@ public enum RuntimeVariable {
 	CoveredAliasIntraClassPairs,
 	CoveredAliasParameterPairs,
 	CarvedTests,
-	CarvedCoverage
+	CarvedCoverage,
+	HadUnstableTests
 };

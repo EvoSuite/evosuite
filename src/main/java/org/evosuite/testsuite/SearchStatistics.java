@@ -330,6 +330,12 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.covered_goals = num;
 	}
 
+	public void setHadUnstableTests(boolean unstable) {
+		StatisticEntry entry = statistics.get(statistics.size() - 1);
+		entry.hadUnstableTests = unstable;
+	}
+
+	
 	/** {@inheritDoc} */
 	@Override
 	public void minimized(Chromosome chromosome) {
