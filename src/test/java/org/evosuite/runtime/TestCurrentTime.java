@@ -19,6 +19,8 @@ import com.examples.with.different.packagename.CurrentTimeViaCalendar3;
 import com.examples.with.different.packagename.CurrentTimeViaCalendarParameter;
 import com.examples.with.different.packagename.CurrentTimeViaDate;
 import com.examples.with.different.packagename.CurrentTimeViaDateParameter;
+import com.examples.with.different.packagename.CurrentTimeViaGregorianCalendar;
+import com.examples.with.different.packagename.CurrentTimeViaGregorianCalendarParameter;
 import com.examples.with.different.packagename.TimeOperation;
 
 public class TestCurrentTime extends SystemTest {
@@ -176,6 +178,48 @@ public class TestCurrentTime extends SystemTest {
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
+	
+	@Test
+	public void testCurrentTimeViaGregorianCalendar() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = CurrentTimeViaGregorianCalendar.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_CALLS = true;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void testCurrentTimeViaGregorianCalendarParameter() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = CurrentTimeViaGregorianCalendarParameter.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_CALLS = true;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		java.lang.System.out.println("Test Suite: " + best.toString());
+
+		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+	
 	@Test
 	public void testCurrentTimeViaDate() {
 		EvoSuite evosuite = new EvoSuite();
