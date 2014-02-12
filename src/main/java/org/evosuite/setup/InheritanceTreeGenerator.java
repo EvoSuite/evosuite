@@ -309,6 +309,7 @@ public class InheritanceTreeGenerator {
 		// If the SUT is not in the default package, then
 		// we cannot import classes that are in the default
 		// package
+		/*
 		if ((cn.access & Opcodes.ACC_PUBLIC) != Opcodes.ACC_PUBLIC) {
 			String nameWithDots = cn.name.replace('/', '.');
 			String packageName = ClassUtils.getPackageName(nameWithDots);
@@ -316,6 +317,7 @@ public class InheritanceTreeGenerator {
 				return false;
 			}
 		}
+		*/
 
 		// ASM has some problem with the access of inner classes
 		// so we check if the inner class name is the current class name
