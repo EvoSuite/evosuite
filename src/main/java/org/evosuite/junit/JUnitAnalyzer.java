@@ -21,6 +21,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testsuite.SearchStatistics;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -164,6 +165,7 @@ public class JUnitAnalyzer {
 						if (!toRemove) {
 							logger.debug("Going to mark test as unstable: " + testName);
 							tests.get(i).setUnstable(true);
+							SearchStatistics.getInstance().setHadUnstableTests(true);
 						} else {
 							logger.debug("Going to remove unstable test: " + testName);
 							tests.remove(i);
