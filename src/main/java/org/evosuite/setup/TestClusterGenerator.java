@@ -119,7 +119,7 @@ public class TestClusterGenerator {
 		if (Properties.INSTRUMENT_CONTEXT || Properties.CRITERION == Criterion.DEFUSE) {
 			for (String callTreeClass : DependencyAnalysis.getCallTree().getClasses()) {
 				try {
-					TestGenerationContext.getClassLoader().loadClass(callTreeClass);
+					TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(callTreeClass);
 				} catch (ClassNotFoundException e) {
 					logger.info("Class not found: " + callTreeClass + ": " + e);
 				}
@@ -235,7 +235,7 @@ public class TestClusterGenerator {
 			return false;
 		}
 		try {
-			Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
+			Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
 			if (!canUse(clazz)) {
 				logger.debug("Cannot use cast class: " + className);
 				return false;
@@ -563,7 +563,7 @@ public class TestClusterGenerator {
 		if (Properties.INSTRUMENT_PARENT) {
 			for (String superClass : inheritanceTree.getSuperclasses(Properties.TARGET_CLASS)) {
 				try {
-					Class<?> superClazz = TestGenerationContext.getClassLoader().loadClass(superClass);
+					Class<?> superClazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(superClass);
 					dependencies.add(new Pair(0, superClazz));
 				} catch (ClassNotFoundException e) {
 					logger.error("Problem for " + Properties.TARGET_CLASS
@@ -652,7 +652,7 @@ public class TestClusterGenerator {
 	private Class<?> getClass(String className) {
 		try {
 			Class<?> clazz = Class.forName(className, true,
-			                               TestGenerationContext.getClassLoader());
+			                               TestGenerationContext.getInstance().getClassLoaderForSUT());
 			return clazz;
 		} catch (ClassNotFoundException e) {
 			return null;
@@ -1185,6 +1185,34 @@ public class TestClusterGenerator {
 			return dependencyClass;
 		}
 
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime
+					* result
+					+ ((dependencyClass == null) ? 0 : dependencyClass
+							.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Pair other = (Pair) obj;
+			if (dependencyClass == null) {
+				if (other.dependencyClass != null)
+					return false;
+			} else if (!dependencyClass.equals(other.dependencyClass))
+				return false;
+			return true;
+		}
+
 	};
 
 	private final Set<Pair> dependencies = new LinkedHashSet<Pair>();
@@ -1373,13 +1401,18 @@ public class TestClusterGenerator {
 				if (canUse(constructor)) {
 					GenericConstructor genericConstructor = new GenericConstructor(
 					        constructor, clazz);
-					cluster.addGenerator(clazz.getWithWildcardTypes(), genericConstructor);
-					addDependencies(genericConstructor, recursionLevel + 1);
-					logger.debug("Keeping track of "
-					        + constructor.getDeclaringClass().getName()
-					        + "."
-					        + constructor.getName()
-					        + org.objectweb.asm.Type.getConstructorDescriptor(constructor));
+					try {
+						cluster.addGenerator(clazz.getWithWildcardTypes(), genericConstructor);
+						addDependencies(genericConstructor, recursionLevel + 1);
+						logger.debug("Keeping track of "
+								+ constructor.getDeclaringClass().getName()
+								+ "."
+								+ constructor.getName()
+								+ org.objectweb.asm.Type.getConstructorDescriptor(constructor));
+					} catch(Throwable t) {
+						logger.info("Error adding constructor "+constructor.getName()+": "+t.getMessage());
+					}
+
 				} else {
 					logger.debug("Constructor cannot be used: " + constructor);
 				}
@@ -1412,17 +1445,20 @@ public class TestClusterGenerator {
 						continue;
 					}
 					GenericMethod genericMethod = new GenericMethod(method, clazz);
+					try {
+						addDependencies(genericMethod, recursionLevel + 1);
+						cluster.addModifier(clazz.getWithWildcardTypes(), genericMethod);
+						//					GenericClass retClass = new GenericClass(
+						//					        genericMethod.getReturnType(), method.getReturnType());
+						GenericClass retClass = new GenericClass(method.getReturnType());
 
-					addDependencies(genericMethod, recursionLevel + 1);
-					cluster.addModifier(clazz.getWithWildcardTypes(), genericMethod);
-					//					GenericClass retClass = new GenericClass(
-					//					        genericMethod.getReturnType(), method.getReturnType());
-					GenericClass retClass = new GenericClass(method.getReturnType());
-
-					if (!retClass.isPrimitive() && !retClass.isVoid()
-					        && !retClass.isObject()) {
-						cluster.addGenerator(retClass.getWithWildcardTypes(),
-						                     genericMethod);
+						if (!retClass.isPrimitive() && !retClass.isVoid()
+								&& !retClass.isObject()) {
+							cluster.addGenerator(retClass.getWithWildcardTypes(),
+									genericMethod);
+						}
+					} catch(Throwable t) {
+						logger.info("Error adding method "+method.getName()+": "+t.getMessage());
 					}
 				} else {
 					logger.debug("Method cannot be used: " + method);
@@ -1434,13 +1470,18 @@ public class TestClusterGenerator {
 				logger.debug("Checking field " + field);
 				if (canUse(field, clazz.getRawClass())) {
 					logger.debug("Adding field " + field + " for class " + clazz);
-					GenericField genericField = new GenericField(field, clazz);
-					cluster.addGenerator(new GenericClass(field.getGenericType()).getWithWildcardTypes(),
-					                     genericField);
-					if (!Modifier.isFinal(field.getModifiers())) {
-						cluster.addModifier(clazz.getWithWildcardTypes(), genericField);
-						addDependencies(genericField, recursionLevel + 1);
+					try {
+						GenericField genericField = new GenericField(field, clazz);
+						cluster.addGenerator(new GenericClass(field.getGenericType()).getWithWildcardTypes(),
+								genericField);
+						if (!Modifier.isFinal(field.getModifiers())) {
+							cluster.addModifier(clazz.getWithWildcardTypes(), genericField);
+							addDependencies(genericField, recursionLevel + 1);
+						}
+					} catch(Throwable t) {
+						logger.info("Error adding field "+field.getName()+": "+t.getMessage());
 					}
+
 				} else {
 					logger.debug("Field cannot be used: " + field);
 				}
@@ -1512,7 +1553,7 @@ public class TestClusterGenerator {
 						try {
 							Class<?> subClazz = Class.forName(subClass,
 							                                  false,
-							                                  TestGenerationContext.getClassLoader());
+							                                  TestGenerationContext.getInstance().getClassLoaderForSUT());
 							if (!canUse(subClazz))
 								continue;
 							if (subClazz.isInterface())
@@ -1564,7 +1605,7 @@ public class TestClusterGenerator {
 		Class<?> mapClazz;
 		try {
 			mapClazz = Class.forName("java.util.HashMap", false,
-			                         TestGenerationContext.getClassLoader());
+			                         TestGenerationContext.getInstance().getClassLoaderForSUT());
 			mapClasses.add(mapClazz);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -1578,7 +1619,7 @@ public class TestClusterGenerator {
 		Class<?> mapClazz;
 		try {
 			mapClazz = Class.forName("java.util.LinkedList", false,
-			                         TestGenerationContext.getClassLoader());
+			                         TestGenerationContext.getInstance().getClassLoaderForSUT());
 			mapClasses.add(mapClazz);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -1592,7 +1633,7 @@ public class TestClusterGenerator {
 		Class<?> comparableClazz;
 		try {
 			comparableClazz = Class.forName("java.lang.Integer", false,
-			                                TestGenerationContext.getClassLoader());
+			                                TestGenerationContext.getInstance().getClassLoaderForSUT());
 			comparableClasses.add(comparableClazz);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
