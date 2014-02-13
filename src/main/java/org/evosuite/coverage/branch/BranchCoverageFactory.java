@@ -38,8 +38,7 @@ import org.slf4j.LoggerFactory;
 public class BranchCoverageFactory extends
 		AbstractFitnessFactory<BranchCoverageTestFitness> {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(BranchCoverageFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(BranchCoverageFactory.class);
 
 	/*
 	 * (non-Javadoc)

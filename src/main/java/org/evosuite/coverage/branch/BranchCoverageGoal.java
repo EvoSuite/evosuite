@@ -37,22 +37,30 @@ import org.evosuite.testcase.ExecutionResult;
 public class BranchCoverageGoal implements Serializable, Comparable<BranchCoverageGoal> {
 
 	private static final long serialVersionUID = 2962922303111452419L;
-	transient Branch branch;
-	boolean value;
-
-	String className;
-	String methodName;
-
-	private int lineNumber;
+	
+	private transient Branch branch;
+	
+	private final boolean value;
+	private final String className;
+	private final String methodName;
+	
+	
+	/**
+	 * The line number in the source code. This information is stored in the bytecode if the
+	 * code was compiled in debug mode. If no info, we would get a negative value (e.g., -1) here.
+	 */
+	private final int lineNumber;
 
 	/**
-	 * Can be used to create an arbitrary BranchCoverageGoal trying to cover the
-	 * given Branch
+	 * Can be used to create an arbitrary {@code BranchCoverageGoal} trying to cover the
+	 * given {@code Branch}
 	 * 
-	 * If the given branch is null, this goal will try to cover the root branch
+	 * <p>
+	 * If the given branch is {@code null}, this goal will try to cover the root branch
 	 * of the method identified by the given name - meaning it will just try to
 	 * call the method at hand
 	 * 
+	 * <p>
 	 * Otherwise this goal will try to reach the given branch and if value is
 	 * true, make the branchInstruction jump and visa versa
 	 * 
@@ -86,9 +94,8 @@ public class BranchCoverageGoal implements Serializable, Comparable<BranchCovera
 				throw new IllegalArgumentException(
 				        "expect explicitly given information about a branch to coincide with the information given by that branch");
 		} else {
-			//			lineNumber = BranchPool.getBranchlessMethodLineNumber(className, methodName);
-			lineNumber = BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getFirstLineNumberOfMethod(className,
-			                                                                                                                    methodName);
+			lineNumber = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
+					.getFirstLineNumberOfMethod(className,methodName);
 		}
 	}
 
@@ -123,9 +130,8 @@ public class BranchCoverageGoal implements Serializable, Comparable<BranchCovera
 
 		this.className = className;
 		this.methodName = methodName;
-		//		lineNumber = BranchPool.getBranchlessMethodLineNumber(className, methodName);
-		lineNumber = BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getFirstLineNumberOfMethod(className,
-		                                                                                                                    methodName);
+		lineNumber = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
+				.getFirstLineNumberOfMethod(className,  methodName);		                                                                                                                  
 	}
 
 	/**
@@ -288,12 +294,16 @@ public class BranchCoverageGoal implements Serializable, Comparable<BranchCovera
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
 	@Override
 	public int compareTo(BranchCoverageGoal o) {
-		return lineNumber - o.lineNumber;
+		
+		int diff = lineNumber - o.lineNumber;
+		if(diff == 0){
+			//FIXME each target should be strictly greater/smaller than another
+			return 0;
+		} else {
+			return diff;
+		}
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {

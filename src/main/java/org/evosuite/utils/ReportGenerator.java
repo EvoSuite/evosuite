@@ -189,8 +189,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		AudioPermission,
 		OtherPermission,
 		Threads,
-//		JUnitTests,
-		Branches,
+		CoveredBranchesBitString,
 		MutationScore,
 		Explicit_MethodExceptions,
 		Explicit_TypeExceptions,
@@ -773,10 +772,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "" + pstats.getNumOtherPermission();
 			case Threads:
 				return "" + pstats.getMaxThreads();
-			//case JUnitTests:
-			//	return "" + JUnitTestParsedChromosomeFactory.getNumTests();
-			case Branches:
-				//FIXME: this name seem kind of confusing
+			case CoveredBranchesBitString:				
 				return "" + goalCoverage;
 			case MutationScore:
 				return "" + mutationScore;

@@ -21,8 +21,10 @@ import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -633,20 +635,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		 */
 		// }
 
-		BranchCoverageFactory factory = new BranchCoverageFactory();
-		entry.goalCoverage = "";
-		for (TestFitnessFunction fitness : factory.getCoverageGoals()) {
-			boolean covered = false;
-			for (TestChromosome test1 : best.tests) {
-				if (fitness.isCovered(test1)) {
-					covered = true;
-					entry.goalCoverage += "1";
-					break;
-				}
-			}
-			if (!covered)
-				entry.goalCoverage += "0";
-		}
+		String s = calculateCoveredBranchesBitString(best);
+		entry.goalCoverage = s;
 		entry.explicitMethodExceptions = getNumExceptions(explicitTypesOfExceptions);
 		entry.explicitTypeExceptions = getNumClassExceptions(explicitTypesOfExceptions);
 
@@ -656,6 +646,27 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.implicitExceptions = implicitTypesOfExceptions;
 		entry.explicitExceptions = explicitTypesOfExceptions;
 
+	}
+
+	private String calculateCoveredBranchesBitString(TestSuiteChromosome best) {
+		StringBuffer buffer = new StringBuffer(1024);
+		BranchCoverageFactory factory = new BranchCoverageFactory();
+		List<BranchCoverageTestFitness> goals = factory.getCoverageGoals();
+		Collections.sort(goals); 
+		for (BranchCoverageTestFitness fitness : goals) {
+			boolean covered = false;
+			for (TestChromosome test1 : best.tests) {
+				if (fitness.isCovered(test1)) {
+					covered = true;
+					buffer.append("1");
+					break;
+				}
+			}
+			if (!covered){
+				buffer.append("0");
+			}
+		}
+		return buffer.toString();
 	}
 
 	private static int getNumExceptions(Map<String, Set<Class<?>>> exceptions) {
