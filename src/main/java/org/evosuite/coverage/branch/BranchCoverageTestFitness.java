@@ -43,8 +43,10 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	 *            a {@link org.evosuite.coverage.branch.BranchCoverageGoal}
 	 *            object.
 	 */
-	public BranchCoverageTestFitness(BranchCoverageGoal goal) {
-		assert goal != null;
+	public BranchCoverageTestFitness(BranchCoverageGoal goal) throws IllegalArgumentException{
+		if(goal == null){
+			throw new IllegalArgumentException("goal cannot be null");
+		}
 		this.goal = goal;
 	}
 
@@ -56,11 +58,11 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
 	 */
 	public Branch getBranch() {
-		return goal.branch;
+		return goal.getBranch();
 	}
 
 	public boolean getValue() {
-		return goal.value;
+		return goal.getValue();
 	}
 
 	public BranchCoverageGoal getBranchGoal() {
@@ -75,7 +77,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName() {
-		return goal.className;
+		return goal.getClassName();
 	}
 
 	/**
@@ -86,7 +88,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getMethod() {
-		return goal.methodName;
+		return goal.getMethodName();
 	}
 
 	/**
@@ -97,7 +99,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	 * @return a boolean.
 	 */
 	public boolean getBranchExpressionValue() {
-		return goal.value;
+		return goal.getValue();
 	}
 
 	/**
@@ -116,18 +118,14 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		double sum = 0.0;
 		boolean methodExecuted = false;
 
-		// logger.info("Looking for unfitness of " + goal);
 		for (MethodCall call : result.getTrace().getMethodCalls()) {
-			if (call.className.equals(goal.className)
-			        && call.methodName.equals(goal.methodName)) {
+			if (call.className.equals(goal.getClassName())
+			        && call.methodName.equals(goal.getMethodName())) {
 				methodExecuted = true;
-				if (goal.branch != null) {
+				if (goal.getBranch() != null) {
 					for (int i = 0; i < call.branchTrace.size(); i++) {
-						if (call.branchTrace.get(i) == goal.branch.getInstruction().getInstructionId()) {
-							// logger.info("Found target branch with distances "
-							// + call.trueDistanceTrace.get(i) + "/"
-							// + call.falseDistanceTrace.get(i));
-							if (goal.value)
+						if (call.branchTrace.get(i) == goal.getBranch().getInstruction().getInstructionId()) {
+							if (goal.getValue())
 								sum += call.falseDistanceTrace.get(i);
 							else
 								sum += call.trueDistanceTrace.get(i);
@@ -137,9 +135,9 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 			}
 		}
 
-		if (goal.branch == null) {
+		if (goal.getBranch() == null) {
 			// logger.info("Branch is null? " + goal.branch);
-			if (goal.value)
+			if (goal.getValue())
 				sum = methodExecuted ? 1.0 : 0.0;
 			else
 				sum = methodExecuted ? 0.0 : 1.0;

@@ -25,21 +25,24 @@ import org.objectweb.asm.tree.LabelNode;
 /**
  * An object of this class corresponds to a Branch inside the class under test.
  * 
- * Branches are created by the CFGMethodAdapter via the BranchPool. Each Branch
- * holds its corresponding BytecodeInstruction from the RawControlFlowGraph and
- * is associated with a unique actualBranchId.
+ * <p>
+ * Branches are created by the {@code CFGMethodAdapter} via the {@code BranchPool}. Each Branch
+ * holds its corresponding {@code BytecodeInstruction} from the {@code RawControlFlowGraph} and
+ * is associated with a unique {@code actualBranchId}.
  * 
+ * <p>
  * A Branch can either come from a jump instruction, as defined in
- * BytecodeInstruction.isBranch() - which will be called normal branches - or it
+ * {@code BytecodeInstruction.isBranch()} - which will be called normal branches - or it
  * can be associated with a case: of a switch statement as defined in
- * BytecodeInstruction.isSwitch() - which will be called switch case branches.
- * Only BytecodeInstructions satisfying BytecodeInstruction.isActualbranch() are
- * expected to be associated with a Branch object.
+ * {@code BytecodeInstruction.isSwitch()} - which will be called switch case branches.
+ * Only {@code BytecodeInstructions} satisfying {@code BytecodeInstruction.isActualbranch()} are
+ * expected to be associated with a {@code Branch} object.
  * 
- * For SWITCH statements each case <key>: block corresponds to a Branch that can
- * be created by constructing a Branch with the SWITCH statement and the <key>
+ * <p>
+ * For SWITCH statements each case <key>: block corresponds to a {@code Branch} that can
+ * be created by constructing a {@code Branch} with the SWITCH statement and the <key>
  * as the targetCaseValue. The default: case of switch statement can also be
- * modeled this way - it has the targetCaseValue set to null.
+ * modeled this way - it has the {@code targetCaseValue} set to {@code null}.
  * 
  * @author Andre Mis
  */
