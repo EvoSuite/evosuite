@@ -1002,6 +1002,7 @@ public class MSecurityManager extends SecurityManager {
 					|| library.equals("jpeg") || library.endsWith("liblwawt.dylib")
 					|| library.equals("cmm") || library.equals("t2k") 
 					|| library.equals("jawt") || library.equals("sunec")  
+					|| library.equals("management")
 					) {
 				return true;
 			}
