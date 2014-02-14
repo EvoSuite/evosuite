@@ -65,7 +65,8 @@ public class System {
 	}
 
 	/** Current time returns numbers increased by 1 */
-	private static long currentTime = 0;
+	// Initialised to 2014-02-14, 20:21
+	private static long currentTime = 1392409281320L;
 
 	/**
 	 * Replacement function for System.currentTimeMillis
@@ -101,7 +102,7 @@ public class System {
 	 * Reset runtime to initial state
 	 */
 	public static void reset() {
-		currentTime = 0;
+		currentTime = 1392409281320L; // 2014-02-14, 20:21
 		wasAccessed = false;
 	}
 
