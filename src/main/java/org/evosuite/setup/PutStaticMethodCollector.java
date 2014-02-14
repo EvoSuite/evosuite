@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Collects a set of java.lang.reflect.Method of those 
+ * Collects a set of MethodIdentifier of those 
  * classes in the callTree including an update to a static field
  * that is used in the GetStatic relation.
  * 
