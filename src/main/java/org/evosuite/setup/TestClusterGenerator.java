@@ -917,7 +917,7 @@ public class TestClusterGenerator {
 		// If default access rights, then check if this class is in the same package as the target class
 		if (!Modifier.isPrivate(f.getModifiers())) {
 			//		        && !Modifier.isProtected(f.getModifiers())) {
-			String packageName = ClassUtils.getPackageName(f.getDeclaringClass());
+			String packageName = ClassUtils.getPackageName(ownerClass);
 
 			String declaredPackageName = ClassUtils.getPackageName(f.getDeclaringClass());
 
