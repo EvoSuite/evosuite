@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -177,7 +177,7 @@ public class GetStaticGraphGenerator {
 
 		// Only collect relations for instrumentable classes
 		String calleeClassName = insn.owner.replaceAll("/", ".");
-		if (InstrumentingClassLoader.checkIfCanInstrument(calleeClassName)) {
+		if (BytecodeInstrumentation.checkIfCanInstrument(calleeClassName)) {
 			logger.debug("Handling field read: " + insn.name);
 			if (!staticUsageTree.hasStaticFieldRead(cn.name, mn.name + mn.desc,
 					insn.owner, insn.name)) {
@@ -210,7 +210,7 @@ public class GetStaticGraphGenerator {
 
 		// Only collect relations for instrumentable classes
 		String calleeClassName = methodCall.owner.replaceAll("/", ".");
-		if (InstrumentingClassLoader.checkIfCanInstrument(calleeClassName)) {
+		if (BytecodeInstrumentation.checkIfCanInstrument(calleeClassName)) {
 			logger.debug("Handling method: " + methodCall.name);
 			handleClassInitializer(staticUsageTree, cn, mn, methodCall.owner,
 					depth);

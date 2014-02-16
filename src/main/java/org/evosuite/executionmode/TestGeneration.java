@@ -24,7 +24,7 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.Properties.Strategy;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.MasterServices;
@@ -192,7 +192,7 @@ public class TestGeneration {
 			classPath += File.pathSeparator;
 		classPath += cp;
 
-		if (!InstrumentingClassLoader.checkIfCanInstrument(target)) {
+		if (!BytecodeInstrumentation.checkIfCanInstrument(target)) {
 			throw new IllegalArgumentException(
 			        "Cannot consider "
 			                + target

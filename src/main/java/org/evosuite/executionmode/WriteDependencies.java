@@ -12,7 +12,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.utils.ClassPathHacker;
@@ -45,7 +45,7 @@ public class WriteDependencies {
 	private static void writeDependencies(String targetFile, String targetClass, 
 	        List<String> args) {
 		
-		if (!InstrumentingClassLoader.checkIfCanInstrument(targetClass)) {
+		if (!BytecodeInstrumentation.checkIfCanInstrument(targetClass)) {
 			throw new IllegalArgumentException(
 			        "Cannot consider "
 			                + targetClass

@@ -87,45 +87,43 @@ public class BytecodeInstrumentation {
 		externalPreVisitors.add(factory);
 	}
 
+	
 	/**
 	 * <p>
-	 * isJavaClass
+	 * getPackagesShouldNotBeInstrumented
 	 * </p>
 	 * 
-	 * @param classNameWithDots
-	 *            a {@link java.lang.String} object.
-	 * @return a boolean.
+	 * @return the names of class packages EvoSuite is not going to instrument
 	 */
-	public static boolean isJavaClass(String classNameWithDots) {
-		return classNameWithDots.startsWith("java.") // 
-		        || classNameWithDots.startsWith("javax.") //
-		        || classNameWithDots.startsWith("sun.") //
-		        || classNameWithDots.startsWith("apple.")
-		        || classNameWithDots.startsWith("com.apple.");
+	public static String[] getPackagesShouldNotBeInstrumented() {
+		//explicitly blocking client projects such as specmate is only a
+		//temporary solution, TODO allow the user to specify 
+		//packages that should not be instrumented
+		return new String[] { "java.", "javax.", "sun.", "org.evosuite", "org.exsyst",
+					          "de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite",  "org.uispec4j", 
+					          "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
+					          "testing.generation.evosuite", "com.yourkit", "com.vladium.emma.", "daikon.",
+					          // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
+					          "apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
+					          "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc", "org.mozilla.javascript.gen.c",
+					          "corina.cross.Single", "org.slf4j" // I really don't know what is wrong with this class, but we need to exclude it 
+		};
 	}
 
 	/**
-	 * <p>
-	 * isSharedClass
-	 * </p>
+	 * Check if we can instrument the given class
 	 * 
-	 * @param classNameWithDots
+	 * @param className
 	 *            a {@link java.lang.String} object.
 	 * @return a boolean.
 	 */
-	public static boolean isSharedClass(String classNameWithDots) {
-		// this are classes that are used by EvoSuite 
-		// and for which an instrumentation leads to 
-		// bad to detect errors 
-		return isJavaClass(classNameWithDots) //
-		        || classNameWithDots.startsWith("de.unisb.cs.st") //
-		        || classNameWithDots.startsWith("org.xml.sax") //
-		        || classNameWithDots.startsWith("org.mozilla.javascript.gen.c") //
-		        || classNameWithDots.startsWith("daikon.") //
-		        //|| classNameWithDots.startsWith("org.aspectj.org.eclipse") // TODO why was it there?
-		        || classNameWithDots.startsWith("junit.framework") //
-		        || classNameWithDots.startsWith("org.junit")
-		        || classNameWithDots.startsWith("edu.uta.cse.dsc");
+	public static boolean checkIfCanInstrument(String className) {
+		for (String s : BytecodeInstrumentation.getPackagesShouldNotBeInstrumented()) {
+			if (className.startsWith(s)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -208,7 +206,7 @@ public class BytecodeInstrumentation {
 
 		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
 
-		if (isSharedClass(classNameWithDots)) {
+		if (!checkIfCanInstrument(classNameWithDots)) {
 			throw new RuntimeException("Should not transform a shared class ("
 			        + classNameWithDots + ")! Load by parent (JVM) classloader.");
 		}
@@ -364,4 +362,6 @@ public class BytecodeInstrumentation {
 		// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 		return writer.toByteArray();
 	}
+
+
 }

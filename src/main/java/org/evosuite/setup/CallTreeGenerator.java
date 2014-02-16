@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -173,7 +173,7 @@ public class CallTreeGenerator {
 	        MethodNode mn, MethodInsnNode methodCall, int depth) {
 
 		// Only build calltree for instrumentable classes
-		if (InstrumentingClassLoader.checkIfCanInstrument(methodCall.owner.replaceAll("/",
+		if (BytecodeInstrumentation.checkIfCanInstrument(methodCall.owner.replaceAll("/",
 		                                                                              "."))) {
 			logger.debug("Handling method: " + methodCall.name);
 			if (!callTree.hasCall(cn.name, mn.name + mn.desc, methodCall.owner,
