@@ -178,10 +178,10 @@ public class StorageManager {
 	public static class TestsOnDisk{
 		public final File testSuite;
 		public final String cut;
-		public final CsvData csvData;
+		public final CsvJUnitData csvData;
 		
 		
-		public TestsOnDisk(File testSuite, CsvData csvData) {
+		public TestsOnDisk(File testSuite, CsvJUnitData csvData) {
 			super();
 			this.testSuite = testSuite;
 			this.csvData = csvData;
@@ -192,7 +192,7 @@ public class StorageManager {
 			super();
 			this.testSuite = testSuite;
 			this.cut = cut;
-			csvData = CsvData.openFile(csvFile);
+			csvData = CsvJUnitData.openFile(csvFile);
 		}
 		
 		public boolean isValid(){
@@ -264,9 +264,9 @@ public class StorageManager {
 		 * We use a map, otherwise we could have 2 inner loops going potentially on thousands
 		 * of classes, ie, O(n^2) complexity
 		 */
-		Map<String,CsvData> reports = new LinkedHashMap<String,CsvData>();
+		Map<String,CsvJUnitData> reports = new LinkedHashMap<String,CsvJUnitData>();
 		for(File file : generatedReports){
-			CsvData data = CsvData.openFile(file);
+			CsvJUnitData data = CsvJUnitData.openFile(file);
 			if(data==null){
 				logger.warn("Cannot process "+file.getAbsolutePath());
 			} else {
@@ -282,7 +282,7 @@ public class StorageManager {
 			String testName = extractClassName(tmpTests,test);
 			String cut = testName.substring(0, testName.length() - junitSuffix.length());
 						
-			CsvData data = reports.get(cut); 
+			CsvJUnitData data = reports.get(cut); 
 			
 			if(data==null){
 				logger.warn("No CSV file for CUT "+cut+" with test suite at "+test.getAbsolutePath());
@@ -381,7 +381,7 @@ public class StorageManager {
 		assert ondisk.isValid();
 		
 		TestSuite suite = new TestSuite();
-		CsvData csv = ondisk.csvData;
+		CsvJUnitData csv = ondisk.csvData;
 		suite.setBranchCoverage(csv.getBranchCoverage());
 		suite.setFullNameOfTargetClass(csv.getTargetClass());
 		suite.setNumberOfTests(BigInteger.valueOf(csv.getNumberOfTests()));
