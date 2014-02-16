@@ -75,7 +75,14 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractStatement.class);
 
+	/**
+	 * The return value of this statement. Should never be null.
+	 */
 	protected VariableReference retval;
+	
+	/**
+	 * Reference of the test case this statement belongs to. Should never be null.
+	 */
 	protected final TestCase tc;
 
 	protected Set<Assertion> assertions = new LinkedHashSet<Assertion>();
@@ -92,8 +99,13 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 * @param retval
 	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
-	protected AbstractStatement(TestCase tc, VariableReference retval) {
-		assert (retval != null);
+	protected AbstractStatement(TestCase tc, VariableReference retval) throws IllegalArgumentException{
+		if(tc==null){
+			throw new IllegalArgumentException("tc cannot be null");
+		}
+		if(retval==null){
+			throw new IllegalArgumentException("retval cannot be null");
+		}
 		this.retval = retval;
 		this.tc = tc;
 	}
@@ -108,7 +120,14 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 * @param type
 	 *            a {@link java.lang.reflect.Type} object.
 	 */
-	protected AbstractStatement(TestCase tc, Type type) {
+	protected AbstractStatement(TestCase tc, Type type) throws IllegalArgumentException{
+		if(tc==null){
+			throw new IllegalArgumentException("tc cannot be null");
+		}
+		if(type==null){
+			throw new IllegalArgumentException("type cannot be null");
+		}
+		
 		GenericClass c = new GenericClass(type);
 		if (c.isArray()) {
 			this.retval = new ArrayReference(tc, c, 0);
@@ -228,7 +247,10 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void setRetval(VariableReference newRetVal) {
+	public void setRetval(VariableReference newRetVal) throws IllegalArgumentException {
+		if(newRetVal==null){
+			throw new IllegalArgumentException("newRetVal cannot be null");
+		}
 		this.retval = newRetVal;
 	}
 
