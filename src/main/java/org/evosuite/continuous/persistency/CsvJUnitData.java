@@ -21,9 +21,9 @@ import au.com.bytecode.opencsv.CSVReader;
  * @author arcuri
  *
  */
-public class CsvData {
+public class CsvJUnitData {
 
-	private static Logger logger = LoggerFactory.getLogger(CsvData.class);
+	private static Logger logger = LoggerFactory.getLogger(CsvJUnitData.class);
 
 	private String targetClass;	
 	private double branchCoverage;	
@@ -37,7 +37,7 @@ public class CsvData {
 	 * Apart from testing, shouldn't be allowed to instantiate
 	 * this class directly
 	 */
-	protected CsvData(){		
+	protected CsvJUnitData(){		
 	}
 
 	/**
@@ -46,7 +46,7 @@ public class CsvData {
 	 * @param file the csv file, having 1 line of header, and 1 line of data
 	 * @return <code>null</code> in case of any problem in reading the file
 	 */
-	public static CsvData openFile(File file){
+	public static CsvJUnitData openFile(File file){
 		if(!file.getName().endsWith("csv")){
 			logger.error("Not a csv file: "+file.getAbsolutePath());
 			return null;
@@ -67,7 +67,7 @@ public class CsvData {
 			return null;
 		}
 
-		CsvData data = new CsvData();
+		CsvJUnitData data = new CsvJUnitData();
 		try{
 			data.targetClass = getValue(rows,"TARGET_CLASS").trim();		
 			data.configurationId = 0; //TODO. note: it has nothing to do with configuration_id, need refactoring			
