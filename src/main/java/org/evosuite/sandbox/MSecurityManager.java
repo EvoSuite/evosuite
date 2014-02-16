@@ -106,6 +106,13 @@ public class MSecurityManager extends SecurityManager {
 	 */
 	public static final String FILE_HANDLER_NAME_PATTERN = ".tmp_file_needed_by_mock_of_FileHandler";
 
+	/**
+	 * Set of files that will need to be deleted with a "deleteOnExit".
+	 * Note: we need to mark for deletion _after_ test execution, otherwise
+	 * we can end up in a infinite recursion.
+	 */
+	private final Set<File> filesToDelete;
+	
 	static{
 		File tmp = null;
 		try {
@@ -181,6 +188,8 @@ public class MSecurityManager extends SecurityManager {
 			names.add(m.getName());
 		}
 		masterNodeRemoteMethodNames = Collections.unmodifiableSet(names);
+		
+		filesToDelete = new CopyOnWriteArraySet<File>();
 	}
 
 	/**
@@ -309,6 +318,10 @@ public class MSecurityManager extends SecurityManager {
 			}
 		}
 
+		for(File file : filesToDelete){
+			file.deleteOnExit();
+		}
+		
 		executingTestCase = false;
 	}
 
@@ -1118,9 +1131,12 @@ public class MSecurityManager extends SecurityManager {
 				 * Note: story here is complicated, see MockFileHandler class.
 				 * As we do not know which files will be generated in its superclass FileHandler, 
 				 * here we just make sure to delete any tmp file after the JVM terminates.
+				 * 
+				 * However the code below seems _really_ expensive to run, so we should just skip it
 				 */
-				File tmpFile = new File(fp.getName());
-				tmpFile.deleteOnExit();
+				//File tmpFile = new File(fp.getName());
+				//tmpFile.deleteOnExit(); //Note: we cannot do it here, otherwise we end up in a infinite recursion...
+				//filesToDelete.add(tmpFile);
 			}
 			
 			if(isTmpFile || isFileHandlerFile){
