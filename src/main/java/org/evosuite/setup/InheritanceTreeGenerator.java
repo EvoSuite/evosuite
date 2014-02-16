@@ -330,6 +330,7 @@ public class InheritanceTreeGenerator {
 				if ((inc.access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE) {
 					return false;
 				}
+				/*
 				if ((inc.access & Opcodes.ACC_PUBLIC) != Opcodes.ACC_PUBLIC) {
 					String nameWithDots = inc.name.replace('/', '.');
 					String packageName = ClassUtils.getPackageName(nameWithDots);
@@ -337,6 +338,7 @@ public class InheritanceTreeGenerator {
 						return false;
 					}
 				}
+				*/
 				logger.debug("Can use inner class: " + inc.name);
 				return true;
 			}
