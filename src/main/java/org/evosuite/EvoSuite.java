@@ -216,6 +216,14 @@ public class EvoSuite {
 			 */
 			if (! line.hasOption(ListClasses.NAME)) {
 				LoggingUtils.getEvoLogger().info("* EvoSuite " + version);
+				
+				String conf = Properties.CONFIGURATION_ID;
+				if(conf!=null && !conf.isEmpty()){
+					/*
+					 * This is useful for debugging on cluster
+					 */
+					LoggingUtils.getEvoLogger().info("* Configuration: " + conf);
+				}
 			}
 
 
