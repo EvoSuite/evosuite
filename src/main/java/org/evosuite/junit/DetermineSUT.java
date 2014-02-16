@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.ResourceList;
 import org.evosuite.utils.Utils;
@@ -160,9 +159,26 @@ public class DetermineSUT {
 			handleMethodNode(calledClasses, cn, mn, targetClasses);
 		}
 	}
+	
+	/**
+	 * <p>
+	 * isJavaClass
+	 * </p>
+	 * 
+	 * @param classNameWithDots
+	 *            a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
+	public static boolean isJavaClass(String classNameWithDots) {
+		return classNameWithDots.startsWith("java.") // 
+		        || classNameWithDots.startsWith("javax.") //
+		        || classNameWithDots.startsWith("sun.") //
+		        || classNameWithDots.startsWith("apple.")
+		        || classNameWithDots.startsWith("com.apple.");
+	}
 
 	private boolean isValidClass(String name) throws IOException {
-		if (BytecodeInstrumentation.isJavaClass(name))
+		if (isJavaClass(name))
 			return false;
 
 		if (name.startsWith("junit"))

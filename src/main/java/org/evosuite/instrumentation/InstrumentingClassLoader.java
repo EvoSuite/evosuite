@@ -69,44 +69,6 @@ public class InstrumentingClassLoader extends ClassLoader {
 		this.instrumentation = instrumentation;
 	}
 	
-	/**
-	 * Check if we can instrument the given class
-	 * 
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 * @return a boolean.
-	 */
-	public static boolean checkIfCanInstrument(String className) {
-		for (String s : getPackagesShouldNotBeInstrumented()) {
-			if (className.startsWith(s)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * <p>
-	 * getPackagesShouldNotBeInstrumented
-	 * </p>
-	 * 
-	 * @return the names of class packages EvoSuite is not going to instrument
-	 */
-	public static String[] getPackagesShouldNotBeInstrumented() {
-		//explicitly blocking client projects such as specmate is only a
-		//temporary solution, TODO allow the user to specify 
-		//packages that should not be instrumented
-		return new String[] { "java.", "javax.", "sun.", "org.evosuite", "org.exsyst",
-					          "de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite",  "org.uispec4j", 
-					          "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
-					          "testing.generation.evosuite", "com.yourkit", "com.vladium.emma.", "daikon.",
-					          // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
-					          "apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
-					          "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc",
-					          "corina.cross.Single", "org.slf4j" // I really don't know what is wrong with this class, but we need to exclude it 
-		};
-	}
-
 	public Class<?> loadClassFromFile(String fullyQualifiedTargetClass, String fileName) throws ClassNotFoundException {
 
 		String className = fullyQualifiedTargetClass.replace('.', '/');
@@ -139,7 +101,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		//if (instrumentation.isTargetProject(name)) {
 		// if (TestCluster.isTargetClassName(name)) {
-		if (!checkIfCanInstrument(name)
+		if (!BytecodeInstrumentation.checkIfCanInstrument(name)
 		        //|| (Properties.VIRTUAL_FS && (name.startsWith("org.apache.commons.vfs") || name.startsWith("org.apache.commons.logging")))
 		        ) {
 			Class<?> result = findLoadedClass(name);

@@ -35,7 +35,7 @@ public class TransformerForTests implements ClassFileTransformer {
 					throws IllegalClassFormatException {
 		
 		String classWithDots = className.replace("/", ".");
-		if(!active || BytecodeInstrumentation.isSharedClass(classWithDots) || classWithDots.startsWith("org.evosuite")){	
+		if(!active || !BytecodeInstrumentation.checkIfCanInstrument(classWithDots) || classWithDots.startsWith("org.evosuite")){	
 			return classfileBuffer;
 		} else {
 			logger.debug("Going to instrument: "+className);
