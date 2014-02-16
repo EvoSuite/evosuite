@@ -364,6 +364,12 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	/**
 	 * Check if this test case is a prefix of t
 	 *
+	 * <p>
+	 * A test case {@code A} is a prefix of a test case {@code B} if
+	 * and only if the first {@code length(A)} statements of {@code B} are
+	 * equal to ones of {@code A}, in the same order.
+	 * In other words, {@code B} can be seen as an extension of {@code A}.
+	 *
 	 * @param t
 	 *            Test case to check against
 	 * @return True if this test is a prefix of t
