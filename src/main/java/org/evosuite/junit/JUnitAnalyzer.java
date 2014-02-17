@@ -156,16 +156,25 @@ public class JUnitAnalyzer {
 					logger.info(elem.toString());
 				}
 
+				SearchStatistics.getInstance().setHadUnstableTests(true);
+
 				boolean toRemove = !(failure.getException() instanceof java.lang.AssertionError);
 
 				for (int i = 0; i < tests.size(); i++) {
 					if (TestSuiteWriter.getNameOfTest(tests, i).equals(testName)) {
 						logger.warn("Failing test: " + tests.get(i).toCode());
-						//we have a match. should we remove it or mark as unstable?
+						/*
+						 * we have a match. should we remove it or mark as unstable?
+						 * When we have an Assert.* failing, we can just comment out
+						 * all the assertions in the test case. If it is an "assert"
+						 * in the SUT that fails, we do want to have the JUnit test fail.
+						 * On the other hand, if a test fail due to an uncaught exception,
+						 * we should delete it, as it would either represent a bug in EvoSuite
+						 * or something we cannot (easily) fix here 
+						 */
 						if (!toRemove) {
 							logger.debug("Going to mark test as unstable: " + testName);
 							tests.get(i).setUnstable(true);
-							SearchStatistics.getInstance().setHadUnstableTests(true);
 						} else {
 							logger.debug("Going to remove unstable test: " + testName);
 							tests.remove(i);
