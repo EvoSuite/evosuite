@@ -88,9 +88,16 @@ public class AgentLoader {
 
 	private static boolean isEvoSuiteMainJar(String path){
 		/*
-		if(! jar.endsWith("minimal.jar")){
+		 * FIXME: this needs a major refactoring.
+		 * For example, it will not work if EvoSuite is run from sh/bat
+		 * script, and if name of the jar is changed
+		 */
+		
+		/*
+		if(! path.endsWith("minimal.jar")){
 			return false;
-		}
+		} */
+		/*
 		if(jar.contains("/evosuite-0")){ //FIXME we need a better check 
 			return true;
 		}

@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.SearchStatistics;
 import org.junit.runner.Description;
@@ -137,10 +138,24 @@ public class JUnitAnalyzer {
 			}
 
 			JUnitCore runner = new JUnitCore();
+			
+			/*
+			 * Why deactivating the sandbox? This is pretty tricky.
+			 * The JUnitCore runner will execute the test cases on a new
+			 * thread, which might not be privileged. If the test cases need
+			 * the JavaAgent, then they will fail due to the sandbox :(
+			 * Note: if the test cases need a sandbox, they will have code
+			 * to do that by their self. When they do it, the initialization 
+			 * will be after the agent is already loaded. 
+			 */
+			Sandbox.resetDefaultSecurityManager();
 			TestGenerationContext.getInstance().goingToExecuteSUTCode();
+			
 			Result result = runner.run(testClasses);
+			
 			TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
-
+			Sandbox.initializeSecurityManagerForSUT();
+			
 			if (result.wasSuccessful()) {
 				return; //everything is OK
 			}
