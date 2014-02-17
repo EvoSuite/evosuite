@@ -24,8 +24,17 @@ public class  InstrumentingAgent {
 
 	private static final Logger logger = LoggerFactory.getLogger(InstrumentingAgent.class);
 
-	private static TransformerForTests transformer = new TransformerForTests();
+	private static volatile TransformerForTests transformer;
 
+	static{
+		try{
+			transformer = new TransformerForTests();
+		} catch(Exception e){
+			logger.error("Failed to initialize TransformerForTests: "+e.getMessage(),e);
+			transformer = null;
+		}
+	}
+	
 	/**
 	 * This is called by JVM when agent starts
 	 * @param args
@@ -33,6 +42,8 @@ public class  InstrumentingAgent {
 	 * @throws Exception
 	 */
 	public static void premain(String args, Instrumentation inst) throws Exception {
+		logger.info("Executing premain of JavaAgent");
+		checkTransformerState();
 		inst.addTransformer(transformer);
 	}
 
@@ -43,7 +54,17 @@ public class  InstrumentingAgent {
 	 * @throws Exception
 	 */
 	public static void agentmain(String args, Instrumentation inst) throws Exception {
+		logger.info("Executing agentmain of JavaAgent");
+		checkTransformerState();
 		inst.addTransformer(transformer);
+	}
+
+	private static void checkTransformerState() throws IllegalStateException{
+		if(transformer == null){
+			String msg = "TransformerForTests was not properly initialized";
+			logger.error(msg);
+			throw new IllegalStateException(msg);
+		}
 	}
 
 	/**
@@ -53,7 +74,8 @@ public class  InstrumentingAgent {
 		AgentLoader.loadAgent();
 	}
 
-	public static TransformerForTests getTransformer() {
+	public static TransformerForTests getTransformer() throws IllegalStateException{
+		checkTransformerState();
 		return transformer;
 	}
 
@@ -63,6 +85,7 @@ public class  InstrumentingAgent {
 	 * should be instrumented
 	 */
 	public static void activate(){
+		checkTransformerState();
 		transformer.activate();
 	}
 	
@@ -70,6 +93,7 @@ public class  InstrumentingAgent {
 	 * Stop instrumenting classes
 	 */
 	public static void deactivate(){
+		checkTransformerState();
 		transformer.deacitvate();
 	}
 }
