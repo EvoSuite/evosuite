@@ -36,6 +36,10 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 	@Override
 	public synchronized void afterStatement(StatementInterface statement, Scope scope,
 	        Throwable exception) {
+		// By default, no assertions are created for statements that threw exceptions
+		if(exception != null)
+			return;
+
 		visitReturnValue(statement, scope);
 	}
 

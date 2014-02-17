@@ -23,6 +23,10 @@ public class ArrayTraceObserver extends AssertionTraceObserver<ArrayTraceEntry> 
 	@Override
 	public synchronized void afterStatement(StatementInterface statement, Scope scope,
 	        Throwable exception) {
+		// By default, no assertions are created for statements that threw exceptions
+		if(exception != null)
+			return;
+
 		visitReturnValue(statement, scope);
 		visitDependencies(statement, scope);
 	}
@@ -72,6 +76,9 @@ public class ArrayTraceObserver extends AssertionTraceObserver<ArrayTraceEntry> 
 
 			// We are only interested in primitive arrays
 			if (!object.getClass().getComponentType().isPrimitive())
+				return;
+
+			if (var.getComponentClass() == null)
 				return;
 
 			logger.debug("Observed value " + object + " for statement "

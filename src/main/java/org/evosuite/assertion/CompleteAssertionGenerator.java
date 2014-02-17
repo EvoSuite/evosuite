@@ -41,5 +41,6 @@ public class CompleteAssertionGenerator extends AssertionGenerator {
 			trace.getAllAssertions(test);
 			trace.clear();
 		}
+		logger.debug("Test after adding assertions: "+test.toCode());
 	}
 }

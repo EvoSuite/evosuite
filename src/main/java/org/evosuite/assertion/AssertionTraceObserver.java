@@ -125,6 +125,10 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 		//if(checkThread())
 		//	return;
 		
+		// By default, no assertions are created for statements that threw exceptions
+		if(exception != null)
+			return;
+		
 		//visitReturnValue(statement, scope);
 		visitDependencies(statement, scope);
 	}
