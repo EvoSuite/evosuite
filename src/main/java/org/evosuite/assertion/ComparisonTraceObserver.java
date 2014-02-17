@@ -19,6 +19,7 @@
  */
 package org.evosuite.assertion;
 
+import org.evosuite.testcase.AssignmentStatement;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.Scope;
@@ -53,6 +54,9 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 				        && currentTest.getStatement(other.getStPosition()) instanceof PrimitiveStatement)
 					continue; // Don't compare two primitives
 
+				if(statement instanceof AssignmentStatement)
+					continue;
+				
 				try {
 					logger.debug("Comparison of " + var + " with " + other + " is: "
 					        + object.equals(otherObject));
