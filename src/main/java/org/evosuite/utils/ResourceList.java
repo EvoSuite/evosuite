@@ -126,7 +126,24 @@ public class ResourceList {
 		String path = name.replace('.', '/') + ".class";
 		String escapedString = java.util.regex.Pattern.quote(path); //Important in case there is $ in the classname
 		Pattern pattern = Pattern.compile(escapedString);
-		return getResourceAsStream(pattern);
+		InputStream resource = getResourceAsStream(pattern);
+		
+		if (resource != null) {
+			return resource;
+		}
+
+		if (File.separatorChar != '/') {
+			/*
+			 * This can happen for example in Windows.
+			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
+			 */
+			path = name.replace(".", "\\\\") + ".class";
+			escapedString = java.util.regex.Pattern.quote(path);
+			pattern = Pattern.compile(path);
+			return getResourceAsStream(pattern);
+		}
+		
+		return resource;
 	}
 
 	public static InputStream getResourceAsStream(final String classPathElement,
