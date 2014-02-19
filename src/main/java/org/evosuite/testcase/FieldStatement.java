@@ -216,7 +216,9 @@ public class FieldStatement extends AbstractStatement {
 					}
 
 					Object ret = field.getField().get(source_object);
-
+					if(!retval.isAssignableFrom(ret.getClass())) {
+						throw new CodeUnderTestException(new ClassCastException());
+					}
 					try {
 						// FIXXME: isAssignableFrom int <- Integer does not return true 
 						//assert(ret==null || retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
