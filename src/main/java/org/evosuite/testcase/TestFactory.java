@@ -186,6 +186,17 @@ public class TestFactory {
 				                           recursionDepth + 1, false);
 				position += test.size() - length;
 				length = test.size();
+				
+				// TODO: Check if field is still accessible in subclass
+				if(!field.getOwnerClass().equals(callee.getGenericClass())) {
+					try {
+					if(!TestClusterGenerator.canUse(callee.getVariableClass().getField(field.getName()))) {
+						throw new ConstructionFailedException("Cannot access field in subclass");
+					}
+					} catch(NoSuchFieldException fe) {
+						throw new ConstructionFailedException("Cannot access field in subclass");
+					}
+				}
 			}
 		}
 
