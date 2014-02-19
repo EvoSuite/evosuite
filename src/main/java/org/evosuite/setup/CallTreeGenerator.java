@@ -214,8 +214,9 @@ public class CallTreeGenerator {
 				continue;
 
 			if (!inheritanceTree.hasClass(targetClass)) {
-				LoggingUtils.getEvoLogger().warn("Inheritance tree does not contain {}, please check classpath",
-				                                 targetClass);
+				// Private classes are not in the inheritance tree
+				//LoggingUtils.getEvoLogger().warn("Inheritance tree does not contain {}, please check classpath",
+				//                                 targetClass);
 				continue;
 			}
 
