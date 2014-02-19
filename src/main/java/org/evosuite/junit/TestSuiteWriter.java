@@ -717,7 +717,9 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append(METHOD_SPACE);
 		bd.append("public static void initEvoSuiteFramework(){ \n");
 		bd.append(BLOCK_SPACE);
-		bd.append("org.evosuite.utils.LoggingUtils.setLoggingForJUnit(); \n");
+		
+		// FIXME: This is just commented out for experiments
+		//bd.append("org.evosuite.utils.LoggingUtils.setLoggingForJUnit(); \n");
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS) {
 			//need to setup REPLACE_CALLS and instrumentator
