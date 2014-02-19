@@ -55,6 +55,9 @@ public class InspectorManager {
 		
 		// These methods will contain locale specific strings 
 		blackList.put("java.util.Date", Arrays.asList(new String[] {"getLocaleString"}));
+
+		// These methods will contain locale specific strings 
+		blackList.put("java.lang.Thread", Arrays.asList(new String[] {"activeCount", "getId", "getName", "getPriority", "toString"}));
 	}
 
 	/**
