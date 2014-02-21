@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.runtime.MockList;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -235,6 +236,24 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			replacementCalls.add(new MethodCallReplacement("java/util/Random",
 					"nextLong", "()J", "org/evosuite/runtime/Random", "nextLong", "()J",
 					true, false));
+
+			replacementCalls.add(new MethodCallReplacement("java/lang/Thread",
+					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
+					true, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
+					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
+					true, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Exception",
+					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
+					true, false));
+
+			replacementCalls.add(new MethodCallReplacement("java/lang/Thread",
+					"getName", "()Ljava/lang/String;", "org/evosuite/runtime/Thread", "getName", "(Ljava/lang/Thread;)Ljava/lang/String;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Thread",
+					"getId", "()J", "org/evosuite/runtime/Thread", "getId", "(Ljava/lang/Thread;)J",
+					false, false));
+
 		}
 
 		for(Class<?> mock : MockList.getList()){
