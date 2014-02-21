@@ -24,6 +24,11 @@ import org.evosuite.runtime.MockList;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>MethodCallReplacementClassAdapter class.</p>
@@ -35,6 +40,8 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	private final String className;
 	
 	private String superClassName;
+	
+	private boolean definesHashCode = false;
 
 	/**
 	 * <p>Constructor for MethodCallReplacementClassAdapter.</p>
@@ -55,7 +62,14 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, String[] exceptions) {
+		if(name.equals("hashCode"))
+			definesHashCode = true;
+		
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+		if(name.equals("<init>")) {			
+			mv = new RegisterObjectForDeterministicHashCodeVisitor(mv, access, name, desc);
+		}
+
 		return new MethodCallReplacementMethodAdapter(mv, className, superClassName, name, access, desc);
 	}
 	
@@ -72,5 +86,23 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 		} else {
 			super.visit(version, access, name, signature, superName, interfaces);
 		}
+	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(MethodCallReplacementClassAdapter.class);
+	
+	@Override
+	public void visitEnd() {
+		if(!definesHashCode) {
+			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
+			if(superClassName.equals("java.lang.Object")) {
+				Method hashCodeMethod = Method.getMethod("int hashCode()");
+				GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, hashCodeMethod, null, null, this);
+				mg.loadThis();
+				mg.invokeStatic(Type.getType(org.evosuite.runtime.System.class), Method.getMethod("int identityHashCode(Object)"));
+				mg.returnValue();
+				mg.endMethod();
+			}
+		}
+		super.visitEnd();
 	}
 }

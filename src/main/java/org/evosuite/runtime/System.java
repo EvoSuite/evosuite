@@ -20,6 +20,10 @@
  */
 package org.evosuite.runtime;
 
+import java.util.HashMap;
+import java.util.Map;
+
+
 
 /**
  * <p>
@@ -77,6 +81,23 @@ public class System {
 		wasAccessed = true;
 		return currentTime; //++;
 	}
+	
+	private static Map<Integer, Integer> hashKeys = new HashMap<Integer, Integer>();
+	
+	public static void registerObjectForIdentityHashCode(Object o) {
+		identityHashCode(o);
+	}
+	
+	public static int identityHashCode(Object o) {
+		if(o == null)
+			return 0;
+		
+		Integer realId = java.lang.System.identityHashCode(o);
+		if(!hashKeys.containsKey(realId))
+			hashKeys.put(realId, hashKeys.size() + 1);
+		
+		return hashKeys.get(realId);
+	}
 
 	/**
 	 * Replacement function for System.currentTimeMillis
@@ -104,6 +125,7 @@ public class System {
 	public static void reset() {
 		currentTime = 1392409281320L; // 2014-02-14, 20:21
 		wasAccessed = false;
+		hashKeys.clear();
 	}
 
 	/**
