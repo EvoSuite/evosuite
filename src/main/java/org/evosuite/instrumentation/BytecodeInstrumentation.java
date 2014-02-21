@@ -278,7 +278,7 @@ public class BytecodeInstrumentation {
 		// If we need to reset static constructors, make them
 		// explicit methods
 		if (Properties.RESET_STATIC_FIELDS) {
-			cv = new StaticInitializationClassAdapter(cv, className);
+			cv = new StaticResetClassAdapter(cv, className);
 		}
 
 		// Replace calls to System.exit, Random.*, and System.currentTimeMillis
