@@ -56,8 +56,12 @@ public class InspectorManager {
 		// These methods will contain locale specific strings 
 		blackList.put("java.util.Date", Arrays.asList(new String[] {"getLocaleString"}));
 
-		// These methods will contain locale specific strings 
+		// These methods will include data differing in every tun 
 		blackList.put("java.lang.Thread", Arrays.asList(new String[] {"activeCount", "getId", "getName", "getPriority", "toString"}));
+		
+		// AWT identifiers are different with every run
+		blackList.put("java.awt.Panel", Arrays.asList(new String[] {"toString"}));
+		blackList.put("java.awt.event.MouseWheelEvent", Arrays.asList(new String[] {"toString"}));
 	}
 
 	/**
