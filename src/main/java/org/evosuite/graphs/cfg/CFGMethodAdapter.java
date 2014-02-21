@@ -37,6 +37,7 @@ import org.evosuite.instrumentation.coverage.MethodInstrumentation;
 import org.evosuite.instrumentation.coverage.MutationInstrumentation;
 import org.evosuite.instrumentation.coverage.PrimePathInstrumentation;
 import org.evosuite.setup.DependencyAnalysis;
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -87,6 +88,9 @@ public class CFGMethodAdapter extends MethodVisitor {
 	private final ClassLoader classLoader;
 
 	private int lineNumber = 0;
+	
+	/** Can be set by annotation */
+	private boolean excludeMethod = false;
 
 	/**
 	 * <p>
@@ -135,12 +139,21 @@ public class CFGMethodAdapter extends MethodVisitor {
 		lineNumber = line;
 		super.visitLineNumber(line, start);
 	}
+	
+	@Override
+	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+		if("Lorg/evosuite/annotation/EvoSuiteIgnore;".equals(desc)) {
+			logger.info("Method has EvoSuite annotation: "+desc);
+			excludeMethod = true;
+		}
+		return super.visitAnnotation(desc, visible);
+	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void visitEnd() {
 		logger.debug("Creating CFG of "+className+"."+methodName);
-		boolean isExcludedMethod = EXCLUDE.contains(methodName);
+		boolean isExcludedMethod = excludeMethod || EXCLUDE.contains(methodName);
 		boolean isMainMethod = plain_name.equals("main") && Modifier.isStatic(access);
 
 		List<MethodInstrumentation> instrumentations = new ArrayList<MethodInstrumentation>();
