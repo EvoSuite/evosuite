@@ -74,6 +74,7 @@ public class Runtime {
 		if (Properties.REPLACE_CALLS) {
 			Random.reset();
 			System.reset();
+			Thread.reset();
 		}
 
 		if (Properties.VIRTUAL_FS) {			
