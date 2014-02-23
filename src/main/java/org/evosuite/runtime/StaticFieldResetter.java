@@ -3,6 +3,8 @@ package org.evosuite.runtime;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.evosuite.agent.ToolsJarLocator;
+
 /**
  * This class resets the static fields of a given class by invoking the <clinit> class initializer.
  * In order to re-invoke the <clinit> this is duplicated with the method name "__STATIC_RESET".
@@ -30,7 +32,8 @@ public class StaticFieldResetter {
 	 */
 	public void resetStaticFields(String classNameWithDots) {
 		try {
-			Class<?> clazz = Class.forName(classNameWithDots);
+			ClassLoader classLoader = java.lang.Thread.currentThread().getContextClassLoader();
+			Class<?> clazz = classLoader.loadClass(classNameWithDots);
 			Method m = clazz.getMethod(STATIC_RESET, (Class<?>[]) null);
 			m.invoke(null, (Object[]) null);
 		} catch (NoSuchMethodException e) {
