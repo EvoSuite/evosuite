@@ -42,6 +42,8 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	private String superClassName;
 	
 	private boolean definesHashCode = false;
+	
+	private boolean isInterface = false;
 
 	/**
 	 * <p>Constructor for MethodCallReplacementClassAdapter.</p>
@@ -78,6 +80,9 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 			String superName, String[] interfaces) {
 		String superNameWithDots = superName.replace('/', '.');
 		superClassName = superNameWithDots;
+		if((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE)
+			isInterface = true;
+		
 		if(MockList.shouldBeMocked(superNameWithDots)) {
 			Class<?> mockSuperClass = MockList.getMockClass(superNameWithDots);
 			String mockSuperClassName = mockSuperClass.getCanonicalName().replace('.', '/');
@@ -92,7 +97,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	
 	@Override
 	public void visitEnd() {
-		if(!definesHashCode) {
+		if(!definesHashCode && !isInterface) {
 			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
 			if(superClassName.equals("java.lang.Object")) {
 				Method hashCodeMethod = Method.getMethod("int hashCode()");
