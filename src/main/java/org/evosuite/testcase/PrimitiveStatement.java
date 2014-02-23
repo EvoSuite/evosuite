@@ -367,13 +367,16 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 		PrimitiveStatement<?> ps = (PrimitiveStatement<?>) s;
 
-		if (value == null && ps.value != null) {
-			return false;
+		boolean sameValue = false;
+		if (value == null) {
+			sameValue = (ps.value == null);
+		} else {
+			sameValue = value.equals(ps.value);
 		}
-
+		
 		assert retval!=null && ps.retval!=null;
 		
-		return (retval.same(ps.retval) && value.equals(ps.value));
+		return (sameValue && retval.same(ps.retval));
 	}
 
 	/** {@inheritDoc} */
