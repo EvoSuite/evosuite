@@ -1058,7 +1058,7 @@ public class TestClusterGenerator {
 
 		// Calendar is initialized with current time
 		if (declaringClass.equals(Calendar.class)) {
-			if (m.getName().equals("getCalendar"))
+			if (m.getName().equals("getInstance"))
 				return true;
 		}
 
