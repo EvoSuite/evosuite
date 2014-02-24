@@ -771,6 +771,21 @@ public class TestCodeVisitor extends TestVisitor {
 
 	}
 
+	private String getEscapedString(String original) {
+		char[] charArray = StringEscapeUtils.escapeJava((String) original).toCharArray();
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < charArray.length; ++i) {
+			char a = charArray[i];
+			if (a > 255) {
+				sb.append("\\u");
+				sb.append(Integer.toHexString(a));
+			} else {
+				sb.append(a);
+			}
+		}
+		return sb.toString();
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -788,19 +803,9 @@ public class TestCodeVisitor extends TestVisitor {
 				        + getVariableName(retval) + " = null;\n";
 
 			} else {
-				char[] charArray = StringEscapeUtils.escapeJava((String) value).toCharArray();
-				StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < charArray.length; ++i) {
-					char a = charArray[i];
-					if (a > 255) {
-						sb.append("\\u");
-						sb.append(Integer.toHexString(a));
-					} else {
-						sb.append(a);
-					}
-				}
+				String escapedString = getEscapedString((String)value);
 				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-						+ getVariableName(retval) + " = \"" + sb.toString() + "\";\n";
+						+ getVariableName(retval) + " = \"" + escapedString + "\";\n";
 			}
 			// testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 			// + getVariableName(retval) + " = \""
@@ -808,10 +813,11 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (statement instanceof FileNamePrimitiveStatement) {
 			// changed by Daniel
 			if (value != null) {
+				String escapedPath = getEscapedString(((EvoSuiteFile) value).getPath());
 				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 				        + getVariableName(retval) + " = new "
 				        + ((Class<?>) retval.getType()).getSimpleName() + "(\""
-				        + ((EvoSuiteFile) value).getPath() + "\");\n";
+				        + escapedPath + "\");\n";
 			} else {
 				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 				        + getVariableName(retval) + " = null;\n";
