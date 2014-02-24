@@ -137,24 +137,7 @@ public class JUnitAnalyzer {
 				return;
 			}
 
-			JUnitCore runner = new JUnitCore();
-			
-			/*
-			 * Why deactivating the sandbox? This is pretty tricky.
-			 * The JUnitCore runner will execute the test cases on a new
-			 * thread, which might not be privileged. If the test cases need
-			 * the JavaAgent, then they will fail due to the sandbox :(
-			 * Note: if the test cases need a sandbox, they will have code
-			 * to do that by their self. When they do it, the initialization 
-			 * will be after the agent is already loaded. 
-			 */
-			Sandbox.resetDefaultSecurityManager();
-			TestGenerationContext.getInstance().goingToExecuteSUTCode();
-			
-			Result result = runner.run(testClasses);
-			
-			TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
-			Sandbox.initializeSecurityManagerForSUT();
+			Result result = runTests(testClasses);
 			
 			if (result.wasSuccessful()) {
 				return; //everything is OK
@@ -215,6 +198,31 @@ public class JUnitAnalyzer {
 
 	}
 
+	
+	
+	private static Result runTests(Class<?>[] testClasses) {
+		JUnitCore runner = new JUnitCore();
+		
+		/*
+		 * Why deactivating the sandbox? This is pretty tricky.
+		 * The JUnitCore runner will execute the test cases on a new
+		 * thread, which might not be privileged. If the test cases need
+		 * the JavaAgent, then they will fail due to the sandbox :(
+		 * Note: if the test cases need a sandbox, they will have code
+		 * to do that by their self. When they do it, the initialization 
+		 * will be after the agent is already loaded. 
+		 */
+		Sandbox.resetDefaultSecurityManager();
+		TestGenerationContext.getInstance().goingToExecuteSUTCode();
+		
+		Result result = runner.run(testClasses);
+		
+		TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+		Sandbox.initializeSecurityManagerForSUT();
+		return result;
+	}
+
+	
 	/**
 	 * Check if it is possible to use the Java compiler.
 	 * 
@@ -381,24 +389,14 @@ public class JUnitAnalyzer {
 				return false;
 			}
 
-			JUnitCore runner = new JUnitCore();
-			Result result = runner.run(testClasses);
+			Result result = runTests(testClasses);
+			
 			if (!result.wasSuccessful()) {
 				logger.error("" + result.getFailureCount() + " test cases failed");
 				for (Failure failure : result.getFailures()) {
 					logger.error("Failure " + failure.getException().getClass() + ": "
 					        + failure.getMessage() + "\n" + failure.getTrace());
-				}
-				/*
-				for (JavaFileObject sourceFile : compilationUnits) {
-					List<String> lines = FileUtils.readLines(new File(
-					        sourceFile.toUri().getPath()));
-					logger.error(compilationUnits.iterator().next().toString());
-					for (int i = 0; i < lines.size(); i++) {
-						logger.error((i + 1) + ": " + lines.get(i));
-					}
-				}
-				 */
+				}				
 				return false;
 			} else {
 				/*
@@ -408,8 +406,7 @@ public class JUnitAnalyzer {
 				 * any test case for this SUT
 				 */
 				if (result.getRunCount() == 0) {
-					logger.warn("There was no test to run");
-					//return false;
+					logger.warn("There was no test to run");					
 				}
 			}
 
