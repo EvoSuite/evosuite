@@ -2,6 +2,8 @@ package org.evosuite.runtime.vfs;
 
 import java.io.File;
 
+import org.evosuite.Properties;
+
 /**
  * Parent class for both files and folders
  * 
@@ -11,21 +13,21 @@ import java.io.File;
 public abstract class FSObject {
 
 	private volatile boolean readPermission;
-	
+
 	private volatile boolean writePermission;
-	
+
 	private volatile boolean executePermission;
-	
+
 	/**
 	 * Normalized path uniquely identifying this file on the VFS
 	 */
 	protected volatile String path;
-	
+
 	/**
 	 * The direct parent folder
 	 */
 	protected final VFolder parent;
-	
+
 	/**
 	 * Even if file is removed from file system, some threads could still have
 	 * references to it. So, long/expensive operations could be stopped here if
@@ -34,7 +36,7 @@ public abstract class FSObject {
 	protected volatile boolean deleted;
 
 	protected volatile long lastModified;
-	
+
 	public FSObject(String path,VFolder parent){		
 		readPermission = true;
 		writePermission = true;
@@ -42,37 +44,46 @@ public abstract class FSObject {
 		this.path = normalizePath(path);	
 		this.parent = parent;
 		this.deleted = false;
-		this.lastModified = java.lang.System.currentTimeMillis();
+		this.lastModified = getCurrentTimeMillis();
 	}
 
+	protected long getCurrentTimeMillis(){
+		if(Properties.REPLACE_CALLS){
+			return org.evosuite.runtime.System.currentTimeMillis();
+		} else {
+			return java.lang.System.currentTimeMillis();
+		}
+	}
+
+
 	public boolean rename(String newPath){
-		
+
 		if(!isWritePermission() || !parent.isWritePermission()){
 			return false;
 		}
-		
+
 		path = newPath;
-				
+
 		return true; 
 	}
-	
+
 	public boolean delete(){
 		parent.removeChild(getName());
 		deleted = true;
 		return deleted;
 	}
-	
+
 	public boolean isFolder(){
 		return this instanceof VFolder;
 	}
-	
+
 	public String getName(){
 		if(path==null){
 			return null;
 		}
 		return new File(path).getName(); 
 	}
-	
+
 	public String normalizePath(String rawPath){
 		if(rawPath==null){
 			return null;
@@ -122,7 +133,7 @@ public abstract class FSObject {
 	public boolean isDeleted() {
 		return deleted;
 	}
-	
+
 	@Override
 	public String toString(){
 		return getPath();
@@ -134,7 +145,7 @@ public abstract class FSObject {
 
 	public boolean setLastModified(long lastModified) {
 		//TODO check all of its callers, and  if should simulate time
-		
+
 		if(!this.isWritePermission()){
 			return false;
 		}
