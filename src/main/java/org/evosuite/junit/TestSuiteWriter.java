@@ -372,13 +372,13 @@ public class TestSuiteWriter implements Opcodes {
 		// FIXME: I disagree - it should be covered by the below branches
 		//we always need this one, due to for example logging setup
 
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || wasSecurityException
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS || wasSecurityException
 		        || SystemInUtil.getInstance().hasBeenUsed()) {
 			imports_sorted.add(org.junit.Before.class.getCanonicalName());
 			imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
 		}
 
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || wasSecurityException) {
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS || wasSecurityException) {
 			imports_sorted.add(org.junit.After.class.getCanonicalName());
 		}
 
@@ -613,7 +613,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateAfter(StringBuilder bd, boolean wasSecurityException, List<ExecutionResult> results) {
 
-		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS) {
+		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS) {
 			return;
 		}
 
@@ -625,11 +625,6 @@ public class TestSuiteWriter implements Opcodes {
 		if (wasSecurityException) {
 			bd.append(BLOCK_SPACE);
 			bd.append("Sandbox.doneWithExecutingSUTCode(); \n");
-		}
-
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS) {
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
 		}
 
 		if (Properties.RESET_STATIC_FIELDS) {
@@ -644,6 +639,13 @@ public class TestSuiteWriter implements Opcodes {
 			}
 		}
 		
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
+		}
+
+
+		
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
@@ -652,7 +654,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException) {
 
-		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS
+		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS
 		        && !SystemInUtil.getInstance().hasBeenUsed()) {
 			return;
 		}
@@ -667,7 +669,7 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append("Sandbox.goingToExecuteSUTCode(); \n");
 		}
 
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS) {
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
 			bd.append(BLOCK_SPACE);
@@ -707,7 +709,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateBeforeClass(StringBuilder bd, boolean wasSecurityException) {
 		
-		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS){
+		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS){
 			return;
 		}
 			
@@ -721,7 +723,7 @@ public class TestSuiteWriter implements Opcodes {
 		// FIXME: This is just commented out for experiments
 		//bd.append("org.evosuite.utils.LoggingUtils.setLoggingForJUnit(); \n");
 
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS) {
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
 			//need to setup REPLACE_CALLS and instrumentator
 			
 			if(Properties.REPLACE_CALLS){
@@ -736,12 +738,14 @@ public class TestSuiteWriter implements Opcodes {
 			
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.agent.InstrumentingAgent.initialize(); \n");
+
+			if (Properties.RESET_STATIC_FIELDS) {
+				bd.append(BLOCK_SPACE);
+				bd.append("org.evosuite.Properties.RESET_STATIC_FIELDS = true; \n");
+			}
+
 		}
 
-		if (Properties.RESET_STATIC_FIELDS) {
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.Properties.RESET_STATIC_FIELDS = true; \n");
-		}
 		
 		if (wasSecurityException) {
 			//need to setup the Sandbox mode

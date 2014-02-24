@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class StaticInitializationClassAdapter extends ClassVisitor {
+public class StaticResetClassAdapter extends ClassVisitor {
 
 	private final String className;
 
@@ -45,7 +45,7 @@ public class StaticInitializationClassAdapter extends ClassVisitor {
 	public static List<String> static_classes = new ArrayList<String>();
 
 	private static Logger logger = LoggerFactory
-			.getLogger(StaticInitializationClassAdapter.class);
+			.getLogger(StaticResetClassAdapter.class);
 
 	private boolean isInterface = false;
 
@@ -63,8 +63,7 @@ public class StaticInitializationClassAdapter extends ClassVisitor {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public StaticInitializationClassAdapter(ClassVisitor visitor,
-			String className) {
+	public StaticResetClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
 		this.className = className;
 	}
@@ -77,15 +76,12 @@ public class StaticInitializationClassAdapter extends ClassVisitor {
 		isInterface = ((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE);
 	}
 
-	private static class StaticField {
-		int access;
+	static class StaticField {
 		String name;
 		String desc;
-		String signature;
-		Object value;
 	}
 
-	private List<StaticField> static_fields = new LinkedList<StaticField>();
+	private final List<StaticField> static_fields = new LinkedList<StaticField>();
 
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassAdapter#visitField(int, java.lang.String, java.lang.String, java.lang.String, java.lang.Object)
@@ -97,11 +93,8 @@ public class StaticInitializationClassAdapter extends ClassVisitor {
 
 		if ((access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
 			StaticField staticField = new StaticField();
-			staticField.access = access;
 			staticField.name = name;
 			staticField.desc = desc;
-			staticField.signature = signature;
-			staticField.value = value;
 			static_fields.add(staticField);
 		}
 
@@ -113,18 +106,26 @@ public class StaticInitializationClassAdapter extends ClassVisitor {
 
 	/** {@inheritDoc} */
 	@Override
-	public MethodVisitor visitMethod(int methodAccess, String name,
+	public MethodVisitor visitMethod(int methodAccess, String methodName,
 			String descriptor, String signature, String[] exceptions) {
 
-		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor,
-				signature, exceptions);
-		if (name.equals("<clinit>") && !isInterface) {
+		MethodVisitor mv = super.visitMethod(methodAccess, methodName,
+				descriptor, signature, exceptions);
+
+		if (methodName.equals("<clinit>") && !isInterface) {
 			clinit_found = true;
 			logger.info("Found static initializer in class " + className);
+			// duplicates existing <clinit>
+			MethodVisitor visitMethod = super.visitMethod(methodAccess
+					| Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
+					"__STATIC_RESET", descriptor, signature, exceptions);
+
+			StaticResetMethodAdapter staticResetMethodAdapter = new StaticResetMethodAdapter(
+					visitMethod, className, this.static_fields);
+
 			MethodVisitor mv2 = new RemoveFinalMethodAdapter(className,
-					super.visitMethod(methodAccess | Opcodes.ACC_PUBLIC
-							| Opcodes.ACC_STATIC, "__STATIC_RESET", descriptor,
-							signature, exceptions), finalFields);
+					staticResetMethodAdapter, finalFields);
+			
 			registerStaticResetMethod();
 			return new MultiMethodVisitor(mv2, mv);
 		}
@@ -138,12 +139,11 @@ public class StaticInitializationClassAdapter extends ClassVisitor {
 
 	@Override
 	public void visitEnd() {
-		if (!clinit_found && !static_fields.isEmpty() && !isInterface) {
+		if (!clinit_found && !static_fields.isEmpty()) {
 			// create brand new __STATIC_RESET
 			createEmptyStaticReset();
 			registerStaticResetMethod();
 		}
-		// add initial field updates to __STATIC_RESET
 		super.visitEnd();
 	}
 
@@ -186,6 +186,6 @@ public class StaticInitializationClassAdapter extends ClassVisitor {
 		mv.visitInsn(Opcodes.RETURN);
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
-		
+
 	}
 }
