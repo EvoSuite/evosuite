@@ -3,6 +3,7 @@ package org.evosuite.runtime;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.agent.ToolsJarLocator;
 
 /**
@@ -32,7 +33,7 @@ public class StaticFieldResetter {
 	 */
 	public void resetStaticFields(String classNameWithDots) {
 		try {
-			ClassLoader classLoader = java.lang.Thread.currentThread().getContextClassLoader();
+			ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
 			Class<?> clazz = classLoader.loadClass(classNameWithDots);
 			Method m = clazz.getMethod(STATIC_RESET, (Class<?>[]) null);
 			m.invoke(null, (Object[]) null);
