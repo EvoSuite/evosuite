@@ -72,10 +72,10 @@ public class EqualsAssertion extends Assertion {
 				return "assertFalse(" + source.getName() + " == " + dest.getName() + ");";
 		} else {
 			if (((Boolean) value).booleanValue())
-				return "assertTrue(" + source.getName() + ".equals(" + dest.getName()
+				return "assertTrue(" + source.getName() + ".equals((java.lang.Object)" + dest.getName()
 				        + "));";
 			else
-				return "assertFalse(" + source.getName() + ".equals(" + dest.getName()
+				return "assertFalse(" + source.getName() + ".equals((java.lang.Object)" + dest.getName()
 				        + "));";
 		}
 	}

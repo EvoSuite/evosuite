@@ -649,10 +649,10 @@ public class TestCodeVisitor extends TestVisitor {
 				        + getVariableName(dest) + ");";
 		} else {
 			if (((Boolean) value).booleanValue())
-				testCode += "assertTrue(" + getVariableName(source) + ".equals("
+				testCode += "assertTrue(" + getVariableName(source) + ".equals((java.lang.Object)"
 				        + getVariableName(dest) + "));";
 			else
-				testCode += "assertFalse(" + getVariableName(source) + ".equals("
+				testCode += "assertFalse(" + getVariableName(source) + ".equals((java.lang.Object)"
 				        + getVariableName(dest) + "));";
 		}
 	}
