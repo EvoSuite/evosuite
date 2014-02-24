@@ -139,7 +139,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 
 	@Override
 	public void visitEnd() {
-		if (!clinit_found && !static_fields.isEmpty()) {
+		if (!clinit_found && !static_fields.isEmpty() && !isInterface) {
 			// create brand new __STATIC_RESET
 			createEmptyStaticReset();
 			registerStaticResetMethod();
