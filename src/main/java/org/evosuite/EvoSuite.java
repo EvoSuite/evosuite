@@ -156,7 +156,7 @@ public class EvoSuite {
 
 			setupProperties();
 
-			if(Properties.REPLACE_CALLS || Properties.VIRTUAL_FS){
+			if(Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS){
 				//TODO check if/why it is set here
 				/*
 				 * This throws an exception if not available
