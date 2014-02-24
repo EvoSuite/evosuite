@@ -95,7 +95,7 @@ public class VFile extends FSObject{
 			written++;
 		}
 
-		setLastModified(java.lang.System.currentTimeMillis());
+		setLastModified(getCurrentTimeMillis());
 
 		return written;
 	}
