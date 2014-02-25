@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.runtime.MockList;
-import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -261,6 +260,37 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					false, false));
 			replacementCalls.add(new MethodCallReplacement("java/lang/Thread",
 					"getId", "()J", "org/evosuite/runtime/Thread", "getId", "(Ljava/lang/Thread;)J",
+					false, false));
+
+			replacementCalls.add(new MethodCallReplacement("java/lang/Class",
+					"getClasses", "()[Ljava/lang/Class;", "org/evosuite/runtime/Reflection", "getClasses", "(Ljava/lang/Class;)[Ljava/lang/Class;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Class",
+					"getAnnotations", "()[Ljava/lang/annotation/Annotation;", "org/evosuite/runtime/Reflection", "getAnnotations", "(Ljava/lang/Class;)[Ljava/lang/annotation/Annotation;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Class",
+					"getFields", "()[Ljava/lang/reflect/Field;", "org/evosuite/runtime/Reflection", "getFields", "(Ljava/lang/Class;)[Ljava/lang/reflect/Field;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Class",
+					"getConstructors", "()[Ljava/lang/reflect/Constructor;", "org/evosuite/runtime/Reflection", "getConstructors", "(Ljava/lang/Class;)[Ljava/lang/reflect/Constructor;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Class",
+					"getMethods", "()[Ljava/lang/reflect/Method;", "org/evosuite/runtime/Reflection", "getMethods", "(Ljava/lang/Class;)[Ljava/lang/reflect/Method;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Class",
+					"getDeclaredClasses", "()[Ljava/lang/Class;", "org/evosuite/runtime/Reflection", "getDeclaredClasses", "(Ljava/lang/Class;)[Ljava/lang/Class;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Class",
+					"getDeclaredAnnotations", "()[Ljava/lang/annotation/Annotation;", "org/evosuite/runtime/Reflection", "getDeclaredAnnotations", "(Ljava/lang/Class;)[Ljava/lang/annotation/Annotation;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Class",
+					"getDeclaredFields", "()[Ljava/lang/reflect/Field;", "org/evosuite/runtime/Reflection", "getDeclaredFields", "(Ljava/lang/Class;)[Ljava/lang/reflect/Field;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Class",
+					"getDeclaredConstructors", "()[Ljava/lang/reflect/Constructor;", "org/evosuite/runtime/Reflection", "getDeclaredConstructors", "(Ljava/lang/Class;)[Ljava/lang/reflect/Constructor;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Class",
+					"getDeclaredMethods", "()[Ljava/lang/reflect/Method;", "org/evosuite/runtime/Reflection", "getDeclaredMethods", "(Ljava/lang/Class;)[Ljava/lang/reflect/Method;",
 					false, false));
 
 		}
