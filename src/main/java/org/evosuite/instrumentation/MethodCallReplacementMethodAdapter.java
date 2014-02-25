@@ -194,6 +194,9 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			replacementCalls.add(new MethodCallReplacement("java/lang/System",
 					"identityHashCode", "(Ljava/lang/Object;)I", "org/evosuite/runtime/System",
 					"identityHashCode", "(Ljava/lang/Object;)I", false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Object",
+					"hashCode", "()I", "org/evosuite/runtime/System",
+					"identityHashCode", "(Ljava/lang/Object;)I", false, false));
 /*
 			replacementCalls.add(new MethodCallReplacement("java/util/Date", "<init>",
 					"()V", "org/evosuite/runtime/Date", "getDate", "()Ljava/util/Date;",
