@@ -49,6 +49,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
+import org.evosuite.annotation.EvoSuiteExclude;
 import org.evosuite.instrumentation.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.MockList;
@@ -954,6 +955,11 @@ public class TestClusterGenerator {
 
 		if (m.isAnnotationPresent(Test.class)) {
 			logger.debug("Excluding test method " + m.getName());
+			return false;
+		}
+
+		if (m.isAnnotationPresent(EvoSuiteExclude.class)) {
+			logger.debug("Excluding method with exclusion annotation " + m.getName());
 			return false;
 		}
 
