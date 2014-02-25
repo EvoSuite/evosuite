@@ -61,6 +61,7 @@ public class InspectorManager {
 		
 		// AWT identifiers are different with every run
 		blackList.put("java.awt.Panel", Arrays.asList(new String[] {"toString"}));
+		blackList.put("java.awt.Canvas", Arrays.asList(new String[] {"toString"}));
 		blackList.put("java.awt.event.MouseWheelEvent", Arrays.asList(new String[] {"toString"}));
 	}
 
