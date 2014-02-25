@@ -245,6 +245,19 @@ public class TestCaseExecutor implements ThreadFactory {
 		Scope scope = new Scope();
 		ExecutionResult result = execute(tc, scope, Properties.TIMEOUT);
 		if (Properties.RESET_STATIC_FIELDS) {
+			ExecutionTrace trace = result.getTrace();
+			Set<String> classesForStaticReset = trace.getClassesForStaticReset();
+			for(int position = 0; position < result.getExecutedStatements(); position++) {
+				StatementInterface statement = tc.getStatement(position);				
+				if(statement.isAssignmentStatement()) {
+					if(statement.getReturnValue() instanceof FieldReference) {
+						FieldReference fieldReference = (FieldReference)statement.getReturnValue();
+						if(fieldReference.getField().isStatic()) {
+							classesForStaticReset.add(fieldReference.getField().getOwnerClass().getClassName());
+						}
+					}
+				}
+			}
 			resetStaticClasses(result.getTrace());
 		}
 		return result;
