@@ -45,6 +45,8 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	
 	private boolean isInterface = false;
 
+	private boolean isAbstract = false;
+
 	/**
 	 * <p>Constructor for MethodCallReplacementClassAdapter.</p>
 	 *
@@ -68,7 +70,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 			definesHashCode = true;
 		
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		if(name.equals("<init>")) {			
+		if(!isAbstract && name.equals("<init>")) {			
 			mv = new RegisterObjectForDeterministicHashCodeVisitor(mv, access, name, desc);
 		}
 
@@ -82,6 +84,8 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 		superClassName = superNameWithDots;
 		if((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE)
 			isInterface = true;
+		if((access & Opcodes.ACC_ABSTRACT) == Opcodes.ACC_ABSTRACT)
+			isAbstract = true;
 		
 		if(MockList.shouldBeMocked(superNameWithDots)) {
 			Class<?> mockSuperClass = MockList.getMockClass(superNameWithDots);
