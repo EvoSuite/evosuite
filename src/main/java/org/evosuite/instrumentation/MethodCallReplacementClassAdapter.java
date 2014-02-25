@@ -20,8 +20,12 @@
  */
 package org.evosuite.instrumentation;
 
+import java.io.ObjectStreamClass;
+import java.io.Serializable;
+
 import org.evosuite.runtime.MockList;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -46,6 +50,8 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	private boolean isInterface = false;
 
 	private boolean isAbstract = false;
+	
+	private boolean definesUid = false;
 
 	/**
 	 * <p>Constructor for MethodCallReplacementClassAdapter.</p>
@@ -75,6 +81,15 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 		}
 
 		return new MethodCallReplacementMethodAdapter(mv, className, superClassName, name, access, desc);
+	}
+	
+	@Override
+	public FieldVisitor visitField(int access, String name, String desc,
+			String signature, Object value) {
+		if(name.equals("serialVersionUID")) {
+			definesUid = true;
+		}
+		return super.visitField(access, name, desc, signature, value);
 	}
 	
 	@Override
@@ -111,6 +126,25 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 				mg.invokeStatic(Type.getType(org.evosuite.runtime.System.class), Method.getMethod("int identityHashCode(Object)"));
 				mg.returnValue();
 				mg.endMethod();
+				
+				/*
+				 * If the class is serializable, then adding a hashCode will change the serialVersionUID
+				 * if it is not defined in the class. Hence, if it is not defined, we have to define it to
+				 * avoid problems in serialising the class.
+				 */
+				if(!definesUid) {
+					try {
+						Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
+						if(Serializable.class.isAssignableFrom(clazz)) {
+						ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
+						long serialID = c.getSerialVersionUID();
+						logger.info("Adding serialId to class "+className);
+						visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialID);
+						}
+					} catch(ClassNotFoundException e) {
+						logger.info("Failed to add serialId to class "+className+": "+e.getMessage());
+					}
+				}
 			}
 		}
 		super.visitEnd();
