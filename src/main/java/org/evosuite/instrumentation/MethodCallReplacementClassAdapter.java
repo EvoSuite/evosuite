@@ -76,7 +76,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 			definesHashCode = true;
 		
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		if(!isAbstract && name.equals("<init>")) {			
+		if(name.equals("<init>")) {			
 			mv = new RegisterObjectForDeterministicHashCodeVisitor(mv, access, name, desc);
 		}
 

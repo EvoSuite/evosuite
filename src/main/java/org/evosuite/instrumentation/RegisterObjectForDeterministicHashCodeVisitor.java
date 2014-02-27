@@ -16,9 +16,13 @@ public class RegisterObjectForDeterministicHashCodeVisitor extends AdviceAdapter
 	}
 
 	@Override
-	protected void onMethodExit(int opcode) {
-		loadThis();
-		invokeStatic(Type.getType(org.evosuite.runtime.System.class), Method.getMethod("void registerObjectForIdentityHashCode(Object)"));			
-		super.onMethodExit(opcode);
-	}
+	public void visitInsn(int opcode) {
+		// We don't use the AdviceAdapter here because this is not properly initialised if the constructor is
+		// exited with an exception
+		if(opcode == Opcodes.RETURN) {
+			loadThis();
+			invokeStatic(Type.getType(org.evosuite.runtime.System.class), Method.getMethod("void registerObjectForIdentityHashCode(Object)"));						
+		}
+		super.visitInsn(opcode);
+	}	
 }
