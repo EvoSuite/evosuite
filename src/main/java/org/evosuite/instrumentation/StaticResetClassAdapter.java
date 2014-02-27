@@ -17,6 +17,8 @@
  */
 package org.evosuite.instrumentation;
 
+import java.io.ObjectStreamClass;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,7 +51,10 @@ public class StaticResetClassAdapter extends ClassVisitor {
 
 	private boolean isInterface = false;
 
-	private boolean clinit_found = false;
+	private boolean clinitFound = false;
+	
+	private boolean definesUid = false;
+
 
 	private final List<String> finalFields = new ArrayList<String>();
 
@@ -91,6 +96,10 @@ public class StaticResetClassAdapter extends ClassVisitor {
 	public FieldVisitor visitField(int access, String name, String desc,
 			String signature, Object value) {
 
+		if(name.equals("serialVersionUID")) {
+			definesUid = true;
+		}
+
 		if ((access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
 			StaticField staticField = new StaticField();
 			staticField.name = name;
@@ -113,7 +122,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 				descriptor, signature, exceptions);
 
 		if (methodName.equals("<clinit>") && !isInterface) {
-			clinit_found = true;
+			clinitFound = true;
 			logger.info("Found static initializer in class " + className);
 			// duplicates existing <clinit>
 			MethodVisitor visitMethod = super.visitMethod(methodAccess
@@ -139,12 +148,35 @@ public class StaticResetClassAdapter extends ClassVisitor {
 
 	@Override
 	public void visitEnd() {
-		if (!clinit_found && !static_fields.isEmpty() && !isInterface) {
+		if (!clinitFound && !static_fields.isEmpty() && !isInterface) {
 			// create brand new __STATIC_RESET
 			createEmptyStaticReset();
+			createSerialisableUID();
 			registerStaticResetMethod();
 		}
 		super.visitEnd();
+	}
+	
+	// This method is a code clone from MethodCallReplacementClassAdapter
+	private void createSerialisableUID() {
+		/*
+		 * If the class is serializable, then adding a hashCode will change the serialVersionUID
+		 * if it is not defined in the class. Hence, if it is not defined, we have to define it to
+		 * avoid problems in serialising the class.
+		 */
+		if(!definesUid) {
+			try {
+				Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
+				if(Serializable.class.isAssignableFrom(clazz)) {
+				ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
+				long serialID = c.getSerialVersionUID();
+				logger.info("Adding serialId to class "+className);
+				visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialID);
+				}
+			} catch(ClassNotFoundException e) {
+				logger.info("Failed to add serialId to class "+className+": "+e.getMessage());
+			}
+		}
 	}
 
 	private void createEmptyStaticReset() {
