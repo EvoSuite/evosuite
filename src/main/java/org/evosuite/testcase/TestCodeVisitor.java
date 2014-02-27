@@ -52,12 +52,10 @@ import org.evosuite.assertion.SameAssertion;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.setup.TestCluster;
-import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.NumberFormatter;
 
 import com.googlecode.gentyref.CaptureType;
@@ -294,7 +292,7 @@ public class TestCodeVisitor extends TestVisitor {
 			name = clazz.getCanonicalName();
 		}
 		classNames.put(clazz, name);
-		LoggingUtils.getEvoLogger().info("Keeping "+name+" for "+clazz);
+		
 		return name;
 	}
 
