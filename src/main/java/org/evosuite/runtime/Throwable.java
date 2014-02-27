@@ -18,5 +18,13 @@ public class Throwable {
 			p.append("\n");
 		}		
 	}
+	
+	public static String toString(Throwable t) {
+		return t.getClass().getCanonicalName();
+	}
+
+	public static String toString(Exception t) {
+		return t.getClass().getCanonicalName();
+	}
 
 }
