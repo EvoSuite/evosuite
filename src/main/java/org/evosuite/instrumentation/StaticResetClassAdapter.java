@@ -44,7 +44,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 	private final String className;
 
 	/** Constant <code>static_classes</code> */
-	public static List<String> static_classes = new ArrayList<String>();
+	public static List<String> staticClasses = new ArrayList<String>();
 
 	private static Logger logger = LoggerFactory
 			.getLogger(StaticResetClassAdapter.class);
@@ -124,6 +124,8 @@ public class StaticResetClassAdapter extends ClassVisitor {
 		if (methodName.equals("<clinit>") && !isInterface) {
 			clinitFound = true;
 			logger.info("Found static initializer in class " + className);
+			createSerialisableUID();
+
 			// duplicates existing <clinit>
 			MethodVisitor visitMethod = super.visitMethod(methodAccess
 					| Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
@@ -142,7 +144,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 	}
 
 	public void registerStaticResetMethod() {
-		static_classes.add(Utils.getClassNameFromResourcePath(className));
+		staticClasses.add(Utils.getClassNameFromResourcePath(className));
 		TestCluster.registerStaticInitializer(className.replace("/", "."));
 	}
 
@@ -168,10 +170,10 @@ public class StaticResetClassAdapter extends ClassVisitor {
 			try {
 				Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
 				if(Serializable.class.isAssignableFrom(clazz)) {
-				ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
-				long serialID = c.getSerialVersionUID();
-				logger.info("Adding serialId to class "+className);
-				visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialID);
+					ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
+					long serialID = c.getSerialVersionUID();
+					logger.info("Adding serialId to class "+className);
+					visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialID);
 				}
 			} catch(ClassNotFoundException e) {
 				logger.info("Failed to add serialId to class "+className+": "+e.getMessage());
