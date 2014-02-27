@@ -19,11 +19,11 @@ public class Throwable {
 		}		
 	}
 	
-	public static String toString(Throwable t) {
+	public static String toString(java.lang.Throwable t) {
 		return t.getClass().getCanonicalName();
 	}
 
-	public static String toString(Exception t) {
+	public static String toString(java.lang.Exception t) {
 		return t.getClass().getCanonicalName();
 	}
 
