@@ -67,6 +67,7 @@ public class InspectorManager {
 		blackList.put("java.awt.Component", Arrays.asList(new String[] {"toString"}));
 		blackList.put("java.awt.event.MouseWheelEvent", Arrays.asList(new String[] {"toString"}));
 		blackList.put("javax.swing.DefaultListSelectionModel", Arrays.asList(new String[] {"toString"}));
+		blackList.put("java.rmi.server.ObjID", Arrays.asList(new String[] {"toString"}));
 	}
 
 	/**
