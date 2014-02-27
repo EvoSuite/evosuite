@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.Type;
 

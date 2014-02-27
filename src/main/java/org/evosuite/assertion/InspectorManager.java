@@ -58,11 +58,13 @@ public class InspectorManager {
 
 		// These methods will include data differing in every run 
 		blackList.put("java.lang.Thread", Arrays.asList(new String[] {"activeCount", "getId", "getName", "getPriority", "toString"}));
-		blackList.put("java.lang.EventObject", Arrays.asList(new String[] {"toString"}));
+		blackList.put("java.util.EventObject", Arrays.asList(new String[] {"toString"}));
+		
+		blackList.put(Locale.class.getCanonicalName(), Arrays.asList(new String[] {"getDisplay"}));
 		
 		// AWT identifiers are different with every run
 		blackList.put("java.awt.Panel", Arrays.asList(new String[] {"toString"}));
-		blackList.put("java.awt.Canvas", Arrays.asList(new String[] {"toString"}));
+		blackList.put("java.awt.Component", Arrays.asList(new String[] {"toString"}));
 		blackList.put("java.awt.event.MouseWheelEvent", Arrays.asList(new String[] {"toString"}));
 	}
 
@@ -118,14 +120,8 @@ public class InspectorManager {
 		for (Method method : clazz.getMethods()) {
 			if (isInspectorMethod(method)) { // FIXXME
 				logger.debug("Inspector for class " + clazz.getSimpleName() + ": "
-				        + method.getName());
+				        + method.getName() +" defined in "+method.getDeclaringClass().getCanonicalName());
 
-				// TODO:
-				// Locale gives weird results
-				if (clazz.equals(Locale.class)) {
-					if (method.getName().startsWith("getDisplay"))
-						continue;
-				}
 				inspectorList.add(new Inspector(clazz, method));
 			}
 		}
