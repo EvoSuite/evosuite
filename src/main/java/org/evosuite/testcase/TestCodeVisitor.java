@@ -38,6 +38,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.ArrayEqualsAssertion;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.CompareAssertion;
@@ -50,10 +51,13 @@ import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.assertion.SameAssertion;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.EvoSuiteFile;
+import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.NumberFormatter;
 
 import com.googlecode.gentyref.CaptureType;
@@ -263,22 +267,34 @@ public class TestCodeVisitor extends TestVisitor {
 		String name = c.getSimpleName();
 		if (classNames.values().contains(name)) {
 			name = clazz.getCanonicalName();
+		} else {
+			/*
+			 * If e.g. there is a foo.bar.IllegalStateException with
+			 * foo.bar being the SUT package, then we need to use the
+			 * full package name for java.lang.IllegalStateException
+			 */
+			String fullName = Properties.CLASS_PREFIX +"."+name;
+			if(!fullName.equals(clazz.getCanonicalName())) {
+				if(TestCluster.getInheritanceTree().hasClass(fullName)) {
+					name = clazz.getCanonicalName();
+				}
+			}
 		}
 
 		// Ensure outer classes are imported as well
 		Class<?> outerClass = clazz.getEnclosingClass();
-		while (outerClass != null) {
-			getClassName(outerClass);
-			outerClass = outerClass.getEnclosingClass();
+		if(outerClass != null) {
+			String enclosingName = getClassName(outerClass);
+			String simpleOuterName = outerClass.getSimpleName();
+			name = enclosingName + name.substring(simpleOuterName.length());
 		}
 
 		// We can't use "Test" because of JUnit 
 		if (name.equals("Test")) {
 			name = clazz.getCanonicalName();
 		}
-
 		classNames.put(clazz, name);
-
+		LoggingUtils.getEvoLogger().info("Keeping "+name+" for "+clazz);
 		return name;
 	}
 
