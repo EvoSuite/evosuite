@@ -243,6 +243,12 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
 					true, false));
 			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
+					"toString", "()Ljava/lang/String;", "org/evosuite/runtime/Throwable", "toString", "(Ljava/lang/Throwable;)Ljava/lang/String;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Exception",
+					"toString", "()Ljava/lang/String;", "org/evosuite/runtime/Throwable", "toString", "(Ljava/lang/Exception;)Ljava/lang/String;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
 					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
 					true, false));
 			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
