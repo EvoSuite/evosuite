@@ -63,7 +63,7 @@ public class TestImpureInspector extends SystemTest {
 		Assert.assertTrue("Optimal coverage was not achieved ",
 				best_fitness == 0.0);
 
-		PurityAnalyzer purityAnalyzer = PurityAnalyzer.getInstance();
+		CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
 
 		String descriptor = Type.getMethodDescriptor(Type.INT_TYPE);
 		boolean getImpureValue = purityAnalyzer.isPure(targetClass,

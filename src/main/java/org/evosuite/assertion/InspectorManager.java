@@ -125,7 +125,7 @@ public class InspectorManager {
 			return false; 
 
 		if (Properties.PURE_INSPECTORS) {
-			if (!PurityAnalyzer.getInstance().isPure(method)) {
+			if (!CheapPurityAnalyzer.getInstance().isPure(method)) {
 				return false;
 			}
 

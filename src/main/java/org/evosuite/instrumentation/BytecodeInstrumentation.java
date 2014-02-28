@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.assertion.PurityAnalyzer;
+import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
 import org.evosuite.seeding.PrimitiveClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
@@ -234,7 +234,7 @@ public class BytecodeInstrumentation {
 		}
 
 		if (Properties.PURE_INSPECTORS) {
-			PurityAnalyzer purityAnalyzer = PurityAnalyzer.getInstance();
+			CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
 			cv = new PurityAnalysisClassVisitor(cv, className, purityAnalyzer);
 		}
 
