@@ -23,7 +23,7 @@ package org.evosuite.instrumentation;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.evosuite.assertion.PurityAnalyzer;
+import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -35,7 +35,7 @@ import org.objectweb.asm.Opcodes;
 public class PurityAnalysisMethodVisitor extends MethodVisitor {
 
 	private boolean updatesField;
-	private final PurityAnalyzer purityAnalyzer;
+	private final CheapPurityAnalyzer purityAnalyzer;
 	private final String className;
 	private final String methodName;
 	private final String descriptor;
@@ -49,7 +49,7 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 	 * @param finalFields a {@link java.util.List} object.
 	 */
 	public PurityAnalysisMethodVisitor(String className, String methodName,
-			String descriptor, MethodVisitor mv, PurityAnalyzer purityAnalyzer) {
+			String descriptor, MethodVisitor mv, CheapPurityAnalyzer purityAnalyzer) {
 		super(Opcodes.ASM4, mv);
 		this.updatesField = false;
 		this.purityAnalyzer = purityAnalyzer;

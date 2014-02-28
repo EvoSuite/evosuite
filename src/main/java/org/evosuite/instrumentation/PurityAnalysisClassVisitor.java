@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.evosuite.assertion.PurityAnalyzer;
+import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -34,7 +34,7 @@ import org.objectweb.asm.Opcodes;
  */
 public class PurityAnalysisClassVisitor extends ClassVisitor {
 
-	private final PurityAnalyzer purityAnalyzer;
+	private final CheapPurityAnalyzer purityAnalyzer;
 
 	public static class MethodEntry {
 		private final String className;
@@ -84,7 +84,7 @@ public class PurityAnalysisClassVisitor extends ClassVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public PurityAnalysisClassVisitor(ClassVisitor visitor, String className,
-			PurityAnalyzer purityAnalyzer) {
+			CheapPurityAnalyzer purityAnalyzer) {
 		super(Opcodes.ASM4, visitor);
 		this.className = className;
 		this.purityAnalyzer = purityAnalyzer;

@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.objectweb.asm.Type;
 
-public class PurityAnalyzer {
+public class CheapPurityAnalyzer {
 
 	private boolean underApproximateAnalysis = true;
 
@@ -16,9 +16,9 @@ public class PurityAnalyzer {
 	private final HashSet<MethodEntry> pureMethodCache = new HashSet<MethodEntry>();
 	private final HashSet<MethodEntry> notPureMethodCache = new HashSet<MethodEntry>();
 
-	private static final PurityAnalyzer instance = new PurityAnalyzer();
+	private static final CheapPurityAnalyzer instance = new CheapPurityAnalyzer();
 
-	public static PurityAnalyzer getInstance() {
+	public static CheapPurityAnalyzer getInstance() {
 		return instance;
 	}
 
