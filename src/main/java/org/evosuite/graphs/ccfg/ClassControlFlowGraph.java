@@ -30,7 +30,7 @@ import org.evosuite.graphs.ccg.ClassCallNode;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlFlowEdge;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
-import org.evosuite.utils.PureMethodsList;
+import org.evosuite.utils.JdkPureMethodsList;
 import org.objectweb.asm.Type;
 
 /**
@@ -233,7 +233,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 					}
 					toAnalyze=fieldCall.getClassName() + "." + fieldCall.getOnlyMethodName()+"("+newParams+")";
 					
-					return PureMethodsList.instance.checkPurity(toAnalyze);
+					return JdkPureMethodsList.instance.checkPurity(toAnalyze);
 				}
 			}
 			

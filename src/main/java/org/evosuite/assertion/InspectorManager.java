@@ -29,9 +29,11 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.utils.PureMethodsList;
+import org.evosuite.utils.JdkPureMethodsList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 
 public class InspectorManager {
 
@@ -104,7 +106,7 @@ public class InspectorManager {
 		if(!className.startsWith("java."))
 			return false;
 		
-		return !PureMethodsList.instance.isPureJDKMethod(method);
+		return !JdkPureMethodsList.instance.isPureJDKMethod(method);
 	}
 	
 	private boolean isBlackListed(Method method) {
