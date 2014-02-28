@@ -94,7 +94,7 @@ public class InspectorManager {
 			return false;
 		
 		if (!method.getReturnType().isPrimitive()
-		                && !method.getReturnType().equals(String.class) && method.getReturnType().isEnum())
+		                && !method.getReturnType().equals(String.class) && !method.getReturnType().isEnum())
 			return false;
 		
 		if (method.getReturnType().equals(void.class))
