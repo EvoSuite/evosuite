@@ -15,6 +15,7 @@ import org.evosuite.mock.java.io.MockRandomAccessFile;
 import org.evosuite.mock.java.util.MockDate;
 import org.evosuite.mock.java.util.MockGregorianCalendar;
 import org.evosuite.mock.java.util.logging.MockFileHandler;
+import org.evosuite.mock.java.util.logging.MockLogRecord;
 
 
 /**
@@ -58,6 +59,7 @@ public class MockList {
 		if(Properties.REPLACE_CALLS) {
 			list.add(MockDate.class);
 			list.add(MockGregorianCalendar.class);
+			list.add(MockLogRecord.class);
 		}
 		
 		return list;
