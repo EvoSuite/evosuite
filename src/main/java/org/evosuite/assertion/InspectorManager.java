@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.evosuite.Properties;
+import org.evosuite.setup.CallTree;
+import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.JdkPureMethodsList;
 import org.slf4j.Logger;
@@ -87,18 +90,49 @@ public class InspectorManager {
 	}
 
 	private boolean isInspectorMethod(Method method) {
-		return Modifier.isPublic(method.getModifiers())
-				&& (method.getReturnType().isPrimitive()
-		                || method.getReturnType().equals(String.class) || method.getReturnType().isEnum())
-		        && !method.getReturnType().equals(void.class)
-		        && method.getParameterTypes().length == 0
-		        && !method.getName().equals("hashCode")
-		        && !method.getDeclaringClass().equals(Object.class)
-		        && !method.isSynthetic() 
-		        && !method.isBridge()
-		        && !method.getName().equals("pop")
-		        && !isBlackListed(method)
-		        && !isImpureJDKMethod(method); 
+		if (!Modifier.isPublic(method.getModifiers()))
+			return false;
+		
+		if (!method.getReturnType().isPrimitive()
+		                && !method.getReturnType().equals(String.class) && method.getReturnType().isEnum())
+			return false;
+		
+		if (method.getReturnType().equals(void.class))
+			return false;
+		
+		if (method.getParameterTypes().length != 0)
+			return false;
+		
+		if (method.getName().equals("hashCode"))
+			return false;
+		
+		if (method.getDeclaringClass().equals(Object.class))
+			return false;
+		
+		if (method.isSynthetic())
+			return false;
+		
+		if (method.isBridge())
+			return false;
+		
+		if (method.getName().equals("pop"))
+			return false;
+		
+		if (isBlackListed(method))
+			return false;
+		
+		if (isImpureJDKMethod(method))
+			return false; 
+
+		if (Properties.PURE_INSPECTORS) {
+			if (!PurityAnalyzer.getInstance().isPure(method)) {
+				return false;
+			}
+
+		}
+		
+		return true;
+		
 	}
 	
 	private boolean isImpureJDKMethod(Method method) {

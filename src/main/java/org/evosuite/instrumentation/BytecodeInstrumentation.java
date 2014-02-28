@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.assertion.PurityAnalyzer;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
 import org.evosuite.seeding.PrimitiveClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
@@ -230,6 +231,11 @@ public class BytecodeInstrumentation {
 
 		if (Properties.RESET_STATIC_FIELDS) {
 			cv = new PutStaticClassAdapter(cv, className);
+		}
+
+		if (Properties.PURE_INSPECTORS) {
+			PurityAnalyzer purityAnalyzer = PurityAnalyzer.getInstance();
+			cv = new UpdatesFieldClassAdapter(cv, className, purityAnalyzer);
 		}
 
 		// Apply transformations to class under test and its owned
