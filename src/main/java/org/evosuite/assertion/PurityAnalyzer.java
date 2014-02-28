@@ -32,11 +32,11 @@ public class PurityAnalyzer {
 	}
 
 	private boolean isPure(MethodEntry entry) {
-		//		if (this.pureMethodCache.contains(entry))
-		//			return true;
-		//
-		//		if (this.notPureMethodCache.contains(entry))
-		//			return false;
+		if (this.pureMethodCache.contains(entry))
+			return true;
+
+		if (this.notPureMethodCache.contains(entry))
+			return false;
 
 		if (this.updateFieldMethodList.contains(entry)) {
 			this.notPureMethodCache.add(entry);
