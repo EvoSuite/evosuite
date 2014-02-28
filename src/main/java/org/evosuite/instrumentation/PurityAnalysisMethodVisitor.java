@@ -84,16 +84,16 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 				this.purityAnalyzer.addStaticCall(className, methodName,
 						descriptor, owner, name, desc);
 			} else if (opcode == Opcodes.INVOKEVIRTUAL) {
-				this.purityAnalyzer.addVirtualCall(className, methodName
-						+ descriptor, owner, name + desc);
+				this.purityAnalyzer.addVirtualCall(className, methodName,
+						descriptor, owner, name, desc);
 
 			} else if (opcode == Opcodes.INVOKEINTERFACE) {
-				this.purityAnalyzer.addInterfaceCall(className, methodName
-						+ descriptor, owner, name + desc);
+				this.purityAnalyzer.addInterfaceCall(className, methodName,
+						descriptor, owner, name, desc);
 
 			} else if (opcode == Opcodes.INVOKESPECIAL) {
-				this.purityAnalyzer.addSpecialCall(className, methodName
-						+ descriptor, owner, name + desc);
+				this.purityAnalyzer.addSpecialCall(className, methodName,
+						descriptor, owner, name, desc);
 			}
 		}
 		super.visitMethodInsn(opcode, owner, name, desc);
