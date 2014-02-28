@@ -37,7 +37,7 @@ import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.PureMethodsList;
+import org.evosuite.utils.JdkPureMethodsList;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,7 +211,7 @@ public class DefUseCoverageFactory extends
 					        + ")";
 					//System.out.println(toAnalyze);
 
-					if (PureMethodsList.instance.checkPurity(toAnalyze)) {
+					if (JdkPureMethodsList.instance.checkPurity(toAnalyze)) {
 						if (!DefUsePool.addAsUse(fieldMethodCall))
 							throw new IllegalStateException(
 							        "unable to register field method call as a use "

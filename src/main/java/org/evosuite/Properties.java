@@ -654,6 +654,9 @@ public class Properties {
 	@Parameter(key = "tools_jar_location", group = "Output", description = "Location of where to locate tools.jar")
 	public static String TOOLS_JAR_LOCATION = null;
 
+	@Parameter(key = "pure_inspectors", group = "Output", description = "Selects only an underapproximation of all inspectors that are also pure (no side-effects)")
+	public static boolean PURE_INSPECTORS = false;
+	
 	/**
 	 * TODO: this functionality is not implemented yet
 	 */
