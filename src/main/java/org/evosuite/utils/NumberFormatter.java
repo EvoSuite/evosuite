@@ -138,10 +138,13 @@ public class NumberFormatter {
 					return "Enum.valueOf("+className + "class /* "+e+" */, \"" + value + "\")";
 				// return className + "valueOf(\"" + value + "\")";
 			}
-		} else if (value.getClass().equals(String.class)) {
-			return StringEscapeUtils.unescapeJava(value.toString());
-		} else
+		} else if(value.getClass().equals(Boolean.class)) {
 			return value.toString();
+		} else {
+			// This should not happen
+			assert(false);
+			return value.toString();
+		}
 	}
 
 	/**
