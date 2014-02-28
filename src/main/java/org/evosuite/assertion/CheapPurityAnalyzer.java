@@ -2,7 +2,10 @@ package org.evosuite.assertion;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import org.objectweb.asm.Type;
 
@@ -28,6 +31,10 @@ public class CheapPurityAnalyzer {
 	}
 
 	private boolean isPure(MethodEntry entry) {
+		return isPure(entry, new Stack<MethodEntry>());
+	}
+
+	private boolean isPure(MethodEntry entry, Stack<MethodEntry> callStack) {
 		if (this.pureMethodCache.contains(entry))
 			return true;
 
@@ -42,9 +49,14 @@ public class CheapPurityAnalyzer {
 		if (staticCalls.containsKey(entry)) {
 			Set<MethodEntry> calls = staticCalls.get(entry);
 			for (MethodEntry callMethodEntry : calls) {
-				if (!isPure(callMethodEntry)) {
-					this.notPureMethodCache.add(entry);
-					return false;
+				if (!callStack.contains(callMethodEntry)) {
+					Stack<MethodEntry> copyOfStack = new Stack<MethodEntry>();
+					copyOfStack.addAll(callStack);
+					copyOfStack.add(entry);
+					if (!isPure(callMethodEntry, copyOfStack)) {
+						this.notPureMethodCache.add(entry);
+						return false;
+					}
 				}
 			}
 		}

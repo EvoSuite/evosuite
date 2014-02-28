@@ -18,8 +18,6 @@
 package org.evosuite.instrumentation;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.objectweb.asm.ClassVisitor;

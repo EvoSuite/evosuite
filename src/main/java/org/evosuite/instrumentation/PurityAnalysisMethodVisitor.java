@@ -20,9 +20,6 @@
  */
 package org.evosuite.instrumentation;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

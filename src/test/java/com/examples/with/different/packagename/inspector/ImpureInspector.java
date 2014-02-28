@@ -38,4 +38,32 @@ public class ImpureInspector {
 			}
 		}
 	}
+	
+	public int recursivePureInspector() {
+		return recursivePureFunction(10);
+	}
+	
+	private static int recursivePureFunction(int x) {
+		if (x==0)
+			return 0;
+		else
+			return 1 + recursivePureFunction(x-1);
+	}
+	
+	public int recursiveImpureInspector() {
+		return recursiveImpureFunction(10);
+	}
+
+	private static int static_dummy_value;
+	
+	private static int recursiveImpureFunction(int x) {
+		int old = static_dummy_value;
+		static_dummy_value += 1;
+		static_dummy_value = old;
+		if (x==0)
+			return 0;
+		else
+			return 1 + recursiveImpureFunction(x-1);
+	}
+
 }
