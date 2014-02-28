@@ -82,6 +82,15 @@ public class TestImpureInspector extends SystemTest {
 				"getPureValueFromCall", descriptor);
 		assertTrue(getPureValueFromCall);
 
+		boolean recursivePureInspector = purityAnalyzer.isPure(targetClass,
+				"recursivePureInspector", descriptor);
+		assertTrue(recursivePureInspector);
+
+		boolean recursiveImpureInspector = purityAnalyzer.isPure(targetClass,
+				"recursiveImpureInspector", descriptor);
+		assertFalse(recursiveImpureInspector);
+
+		
 		StatisticEntry entry = SearchStatistics.getInstance()
 				.getLastStatisticEntry();
 		assertFalse(entry.hadUnstableTests);
