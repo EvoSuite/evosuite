@@ -235,7 +235,7 @@ public class BytecodeInstrumentation {
 
 		if (Properties.PURE_INSPECTORS) {
 			PurityAnalyzer purityAnalyzer = PurityAnalyzer.getInstance();
-			cv = new UpdatesFieldClassAdapter(cv, className, purityAnalyzer);
+			cv = new PurityAnalysisClassVisitor(cv, className, purityAnalyzer);
 		}
 
 		// Apply transformations to class under test and its owned

@@ -64,14 +64,24 @@ public class TestImpureInspector extends SystemTest {
 				best_fitness == 0.0);
 
 		PurityAnalyzer purityAnalyzer = PurityAnalyzer.getInstance();
-	
+
 		String descriptor = Type.getMethodDescriptor(Type.INT_TYPE);
-		boolean getImpureValue = purityAnalyzer.isPure(targetClass, "getImpureValue", descriptor);
+		boolean getImpureValue = purityAnalyzer.isPure(targetClass,
+				"getImpureValue", descriptor);
 		assertFalse(getImpureValue);
-		
-		boolean getPureValue = purityAnalyzer.isPure(targetClass, "getPureValue", descriptor);
+
+		boolean getPureValue = purityAnalyzer.isPure(targetClass,
+				"getPureValue", descriptor);
 		assertTrue(getPureValue);
-		
+
+		boolean getImpureValueFromCall = purityAnalyzer.isPure(targetClass,
+				"getImpureValueFromCall", descriptor);
+		assertFalse(getImpureValueFromCall);
+
+		boolean getPureValueFromCall = purityAnalyzer.isPure(targetClass,
+				"getPureValueFromCall", descriptor);
+		assertTrue(getPureValueFromCall);
+
 		StatisticEntry entry = SearchStatistics.getInstance()
 				.getLastStatisticEntry();
 		assertFalse(entry.hadUnstableTests);
