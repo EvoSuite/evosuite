@@ -12,13 +12,13 @@ import java.util.Set;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.Type;
 
-public enum PureMethodsList {
+public enum JdkPureMethodsList {
 
 	instance;
 
 	private Set<String> pureMethods;
 
-	private PureMethodsList() {
+	private JdkPureMethodsList() {
 		pureMethods = loadInfo();
 	}
 
