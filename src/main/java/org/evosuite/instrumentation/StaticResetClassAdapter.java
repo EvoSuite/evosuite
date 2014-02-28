@@ -183,6 +183,9 @@ public class StaticResetClassAdapter extends ClassVisitor {
 	
 	// This method is a code clone from MethodCallReplacementClassAdapter
 	private void createSerialisableUID() {
+		// Only add this for serialisable classes
+		if(serialUID < 0)
+			return;
 		/*
 		 * If the class is serializable, then adding a hashCode will change the serialVersionUID
 		 * if it is not defined in the class. Hence, if it is not defined, we have to define it to
