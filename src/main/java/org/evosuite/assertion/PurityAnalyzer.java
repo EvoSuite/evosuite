@@ -1,5 +1,6 @@
 package org.evosuite.assertion;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,41 +32,32 @@ public class PurityAnalyzer {
 	}
 
 	private boolean isPure(MethodEntry entry) {
-		if (this.pureMethodCache.contains(entry))
-			return true;
-
-		if (this.notPureMethodCache.contains(entry))
-			return false;
+		//		if (this.pureMethodCache.contains(entry))
+		//			return true;
+		//
+		//		if (this.notPureMethodCache.contains(entry))
+		//			return false;
 
 		if (this.updateFieldMethodList.contains(entry)) {
 			this.notPureMethodCache.add(entry);
 			return false;
 		}
 
-		CallTree call_tree = DependencyAnalysis.getCallTree();
-		if (call_tree != null) {
-			Set<CallTreeEntry> calls = call_tree.getCallsFrom(entry.className,
-					entry.methodName);
-			for (CallTreeEntry callTreeEntry : calls) {
-				String targetClassName = callTreeEntry.getTargetClass();
-				String targetMethodName = callTreeEntry.getTargetMethod();
-
-				MethodEntry calledMethodEntry = new MethodEntry(
-						targetClassName, targetMethodName, null);
-				if (!isPure(calledMethodEntry)) {
+		if (staticCalls.containsKey(entry)) {
+			Set<MethodEntry> calls = staticCalls.get(entry);
+			for (MethodEntry callMethodEntry : calls) {
+				if (!isPure(callMethodEntry)) {
 					this.notPureMethodCache.add(entry);
 					return false;
 				}
-
 			}
 		}
 
-		
 		if (this.notUpdateFieldMethodList.contains(entry)) {
 			this.pureMethodCache.add(entry);
 			return true;
 		}
-		
+
 		return defaultPurityValue();
 	}
 
@@ -137,15 +129,53 @@ public class PurityAnalyzer {
 	public void addUpdatesFieldMethod(String className, String methodName,
 			String descriptor) {
 		String classNameWithDots = className.replace("/", ".");
-		MethodEntry entry = new MethodEntry(classNameWithDots, methodName, descriptor);
+		MethodEntry entry = new MethodEntry(classNameWithDots, methodName,
+				descriptor);
 		updateFieldMethodList.add(entry);
 	}
 
 	public void addNotUpdatesFieldMethod(String className, String methodName,
 			String descriptor) {
 		String classNameWithDots = className.replace("/", ".");
-		MethodEntry entry = new MethodEntry(classNameWithDots, methodName, descriptor);
+		MethodEntry entry = new MethodEntry(classNameWithDots, methodName,
+				descriptor);
 		notUpdateFieldMethodList.add(entry);
+	}
+
+	private final HashMap<MethodEntry, Set<MethodEntry>> staticCalls = new HashMap<MethodEntry, Set<MethodEntry>>();
+
+	public void addStaticCall(String sourceClassName, String sourceMethodName,
+			String sourceDescriptor, String targetClassName,
+			String targetMethodName, String targetDescriptor) {
+		MethodEntry sourceEntry = new MethodEntry(sourceClassName.replace("/","."),
+				sourceMethodName, sourceDescriptor);
+		MethodEntry targetEntry = new MethodEntry(targetClassName.replace("/","."),
+				targetMethodName, targetDescriptor);
+
+		if (!staticCalls.containsKey(sourceEntry)) {
+			staticCalls.put(sourceEntry, new HashSet<MethodEntry>());
+		}
+		staticCalls.get(sourceEntry).add(targetEntry);
+	}
+
+	public void addVirtualCall(String sourceClassName,
+			String sourceMethodAndDescriptor, String targetClassName,
+			String targetMehtodAndDescriptor) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void addInterfaceCall(String sourceClassName,
+			String sourceMethodAndDescriptor, String targetClassName,
+			String targetMehtodAndDescriptor) {
+		// TODO Auto-generated method stub
+	}
+
+	public void addSpecialCall(String sourceClassName,
+			String sourceMethodAndDescriptor, String targetClassName,
+			String targetMehtodAndDescriptor) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

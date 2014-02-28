@@ -23,6 +23,7 @@ package org.evosuite.instrumentation;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.evosuite.assertion.PurityAnalyzer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -31,20 +32,30 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Juan Galeotti
  */
-public class UpdatesFieldMethodAdapter extends MethodVisitor {
+public class PurityAnalysisMethodVisitor extends MethodVisitor {
 
 	private boolean updatesField;
+	private final PurityAnalyzer purityAnalyzer;
+	private final String className;
+	private final String methodName;
+	private final String descriptor;
 
 	/**
 	 * <p>Constructor for PutStaticMethodAdapter.</p>
 	 *
 	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
 	 * @param className a {@link java.lang.String} object.
+	 * @param purityAnalyzer 
 	 * @param finalFields a {@link java.util.List} object.
 	 */
-	public UpdatesFieldMethodAdapter(MethodVisitor mv) {
+	public PurityAnalysisMethodVisitor(String className, String methodName,
+			String descriptor, MethodVisitor mv, PurityAnalyzer purityAnalyzer) {
 		super(Opcodes.ASM4, mv);
-		updatesField = false;
+		this.updatesField = false;
+		this.purityAnalyzer = purityAnalyzer;
+		this.className = className;
+		this.methodName = methodName;
+		this.descriptor = descriptor;
 	}
 
 	/* (non-Javadoc)
@@ -62,5 +73,29 @@ public class UpdatesFieldMethodAdapter extends MethodVisitor {
 
 	public boolean updatesField() {
 		return updatesField;
+	}
+
+	@Override
+	public void visitMethodInsn(int opcode, String owner, String name,
+			String desc) {
+
+		if (!owner.replace("/", ".").startsWith("org.evosuite")) {
+			if (opcode == Opcodes.INVOKESTATIC) {
+				this.purityAnalyzer.addStaticCall(className, methodName,
+						descriptor, owner, name, desc);
+			} else if (opcode == Opcodes.INVOKEVIRTUAL) {
+				this.purityAnalyzer.addVirtualCall(className, methodName
+						+ descriptor, owner, name + desc);
+
+			} else if (opcode == Opcodes.INVOKEINTERFACE) {
+				this.purityAnalyzer.addInterfaceCall(className, methodName
+						+ descriptor, owner, name + desc);
+
+			} else if (opcode == Opcodes.INVOKESPECIAL) {
+				this.purityAnalyzer.addSpecialCall(className, methodName
+						+ descriptor, owner, name + desc);
+			}
+		}
+		super.visitMethodInsn(opcode, owner, name, desc);
 	}
 }

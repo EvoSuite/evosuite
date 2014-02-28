@@ -32,7 +32,7 @@ import org.objectweb.asm.Opcodes;
  * 
  * @author Juan Galeotti
  */
-public class UpdatesFieldClassAdapter extends ClassVisitor {
+public class PurityAnalysisClassVisitor extends ClassVisitor {
 
 	private final PurityAnalyzer purityAnalyzer;
 
@@ -71,7 +71,7 @@ public class UpdatesFieldClassAdapter extends ClassVisitor {
 	}
 
 	private final String className;
-	private final HashMap<MethodEntry, UpdatesFieldMethodAdapter> method_adapters = new HashMap<MethodEntry, UpdatesFieldMethodAdapter>();
+	private final HashMap<MethodEntry, PurityAnalysisMethodVisitor> method_adapters = new HashMap<MethodEntry, PurityAnalysisMethodVisitor>();
 
 	/**
 	 * <p>
@@ -83,7 +83,7 @@ public class UpdatesFieldClassAdapter extends ClassVisitor {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public UpdatesFieldClassAdapter(ClassVisitor visitor, String className,
+	public PurityAnalysisClassVisitor(ClassVisitor visitor, String className,
 			PurityAnalyzer purityAnalyzer) {
 		super(Opcodes.ASM4, visitor);
 		this.className = className;
@@ -96,8 +96,8 @@ public class UpdatesFieldClassAdapter extends ClassVisitor {
 			String descriptor, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor,
 				signature, exceptions);
-		UpdatesFieldMethodAdapter putStaticMethodAdapter = new UpdatesFieldMethodAdapter(
-				mv);
+		PurityAnalysisMethodVisitor putStaticMethodAdapter = new PurityAnalysisMethodVisitor(
+				className, name, descriptor, mv, purityAnalyzer);
 		MethodEntry methodEntry = new MethodEntry(className, name, descriptor);
 		this.method_adapters.put(methodEntry, putStaticMethodAdapter);
 		return putStaticMethodAdapter;
