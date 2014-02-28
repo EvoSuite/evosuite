@@ -54,6 +54,8 @@ public class StaticResetClassAdapter extends ClassVisitor {
 	private boolean clinitFound = false;
 	
 	private boolean definesUid = false;
+	
+	private long serialUID = -1L;
 
 
 	private final List<String> finalFields = new ArrayList<String>();
@@ -124,7 +126,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 		if (methodName.equals("<clinit>") && !isInterface) {
 			clinitFound = true;
 			logger.info("Found static initializer in class " + className);
-			createSerialisableUID();
+			determineSerialisableUID();
 
 			// duplicates existing <clinit>
 			MethodVisitor visitMethod = super.visitMethod(methodAccess
@@ -152,11 +154,31 @@ public class StaticResetClassAdapter extends ClassVisitor {
 	public void visitEnd() {
 		if (!clinitFound && !static_fields.isEmpty() && !isInterface) {
 			// create brand new __STATIC_RESET
+			if(!definesUid) {
+				determineSerialisableUID();
+				createSerialisableUID();
+			}
 			createEmptyStaticReset();
-			createSerialisableUID();
 			registerStaticResetMethod();
+		} else if(clinitFound) {
+			if(!definesUid) {
+				createSerialisableUID();
+			}
 		}
 		super.visitEnd();
+	}
+	
+	private void determineSerialisableUID() {
+		try {
+			Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
+			if(Serializable.class.isAssignableFrom(clazz)) {
+				ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
+				serialUID = c.getSerialVersionUID();
+			}
+		} catch(ClassNotFoundException e) {
+			logger.info("Failed to add serialId to class "+className+": "+e.getMessage());
+		}
+
 	}
 	
 	// This method is a code clone from MethodCallReplacementClassAdapter
@@ -166,19 +188,8 @@ public class StaticResetClassAdapter extends ClassVisitor {
 		 * if it is not defined in the class. Hence, if it is not defined, we have to define it to
 		 * avoid problems in serialising the class.
 		 */
-		if(!definesUid) {
-			try {
-				Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
-				if(Serializable.class.isAssignableFrom(clazz)) {
-					ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
-					long serialID = c.getSerialVersionUID();
-					logger.info("Adding serialId to class "+className);
-					visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialID);
-				}
-			} catch(ClassNotFoundException e) {
-				logger.info("Failed to add serialId to class "+className+": "+e.getMessage());
-			}
-		}
+		logger.info("Adding serialId to class "+className);
+		visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialUID);
 	}
 
 	private void createEmptyStaticReset() {
