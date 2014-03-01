@@ -67,7 +67,10 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		 * @param pop
 		 *            if {@code true}, then get rid of the receiver object from
 		 *            the stack. This is needed when a non-static method is
-		 *            replaced by a static one
+		 *            replaced by a static one, unless you make the callee of 
+		 *            the original method a parameter of the static replacement method
+		 * @param pop2 
+		 * 			  is needed if you replace the super-constructor call           
 		 */
 		public MethodCallReplacement(String className, String methodName, String desc,
 				String replacementClassName, String replacementMethodName,
