@@ -29,14 +29,10 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.setup.CallTree;
-import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.JdkPureMethodsList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 
 public class InspectorManager {
 
