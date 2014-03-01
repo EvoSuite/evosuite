@@ -46,7 +46,8 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 	 * @param finalFields a {@link java.util.List} object.
 	 */
 	public PurityAnalysisMethodVisitor(String className, String methodName,
-			String descriptor, MethodVisitor mv, CheapPurityAnalyzer purityAnalyzer) {
+			String descriptor, MethodVisitor mv,
+			CheapPurityAnalyzer purityAnalyzer) {
 		super(Opcodes.ASM4, mv);
 		this.updatesField = false;
 		this.purityAnalyzer = purityAnalyzer;
@@ -76,7 +77,8 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 	public void visitMethodInsn(int opcode, String owner, String name,
 			String desc) {
 
-		if (!owner.replace("/", ".").startsWith("org.evosuite")) {
+		String targetClassName = owner.replace("/", ".");
+		if (BytecodeInstrumentation.checkIfCanInstrument(targetClassName)) {
 			if (opcode == Opcodes.INVOKESTATIC) {
 				this.purityAnalyzer.addStaticCall(className, methodName,
 						descriptor, owner, name, desc);
