@@ -32,9 +32,6 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 	private static final long serialVersionUID = 5602125855207061901L;
 
-	/** Constant <code>executor</code> */
-	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
-
 	static boolean warnedAboutIsSimilarTo = false;
 
 	/**

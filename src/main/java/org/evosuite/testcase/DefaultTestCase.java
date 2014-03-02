@@ -258,7 +258,14 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	@Override
 	public DefaultTestCase clone() {
-		DefaultTestCase t = new DefaultTestCase();
+		DefaultTestCase t = null;
+		try {
+			t = (DefaultTestCase) super.clone();
+		} catch (CloneNotSupportedException e) {
+			//shouldn't really happen
+			logger.error("Failed clone: "+e);
+			return null;
+		}
 		for (StatementInterface s : statements) {
 			StatementInterface copy = s.clone(t);
 			t.statements.add(copy);
