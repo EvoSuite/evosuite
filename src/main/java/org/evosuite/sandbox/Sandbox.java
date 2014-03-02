@@ -31,7 +31,7 @@ public class Sandbox {
 
 	private static Logger logger = LoggerFactory.getLogger(Sandbox.class);
 
-	private static MSecurityManager manager;
+	private static volatile MSecurityManager manager;
 
 	/**
 	 * count how often we tried to init the sandbox.
@@ -47,7 +47,7 @@ public class Sandbox {
 	/**
 	 * Create and initialize security manager for SUT
 	 */
-	public static void initializeSecurityManagerForSUT() {
+	public static synchronized void initializeSecurityManagerForSUT() {
 		if (manager == null) {
 			manager = new MSecurityManager();
 			manager.makePriviligedAllCurrentThreads();
@@ -64,7 +64,7 @@ public class Sandbox {
 			manager.addPrivilegedThread(t);
 	}
 
-	public static void resetDefaultSecurityManager() {
+	public static synchronized void resetDefaultSecurityManager() {
 		
 		counter--;
 		

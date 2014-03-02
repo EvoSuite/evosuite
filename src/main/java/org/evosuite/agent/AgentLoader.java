@@ -3,6 +3,7 @@ package org.evosuite.agent;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
@@ -26,13 +27,13 @@ public class AgentLoader {
 	private static final Logger logger = LoggerFactory.getLogger(AgentLoader.class);
 
 	private static volatile boolean alreadyLoaded = false; 
-	
+
 	public synchronized static void loadAgent() throws RuntimeException{
-		
+
 		if(alreadyLoaded){
 			return;
 		}
-		
+
 		logger.info("dynamically loading javaagent");
 		String nameOfRunningVM = ManagementFactory.getRuntimeMXBean().getName();
 		int p = nameOfRunningVM.indexOf('@');
@@ -50,29 +51,29 @@ public class AgentLoader {
 		 * we can make no assumption whatsoever on the class loader of AgentLoader 
 		 */
 		ClassLoader toolLoader = ToolsJarLocator.getLoaderForToolsJar();		
-		
-		
+
+
 		logger.info("System classloader class: "+ClassLoader.getSystemClassLoader().getClass()); //TODO remove
 		logger.info("Classpath: "+System.getProperty("java.class.path"));
-		
+
 		try {
 			//ClassPathHacker.addFile(jarFilePath); //FIXME should check if already there and why it failed to get the default one
-			
+
 			Class<?> string = toolLoader.loadClass("java.lang.String");
-			
+
 			Class<?> clazz = toolLoader.loadClass("com.sun.tools.attach.VirtualMachine");
 			Method attach = clazz.getMethod("attach", string);
-			
+
 			logger.info("Going to attach agent to process "+pid);
-			 
+
 			VirtualMachine vm = VirtualMachine.attach(pid);
 			//Object instance = attach.invoke(null, pid);
-			
-			 vm.loadAgent(jarFilePath, "");
+
+			vm.loadAgent(jarFilePath, "");
 			//Method loadAgent = clazz.getMethod("loadAgent", string, string);
 			//loadAgent.invoke(instance, jarFilePath, "");
-			
-			 vm.detach(); 
+
+			vm.detach(); 
 			//Method detach = clazz.getMethod("detach");
 			//detach.invoke(instance);
 
@@ -82,7 +83,7 @@ public class AgentLoader {
 			logger.error("Exception "+e.getClass()+": "+e.getMessage()+causeDescription,e);
 			throw new RuntimeException(e);
 		}
-		
+
 		alreadyLoaded = true;
 	}
 
@@ -92,7 +93,7 @@ public class AgentLoader {
 		 * For example, it will not work if EvoSuite is run from sh/bat
 		 * script, and if name of the jar is changed
 		 */
-		
+
 		/*
 		if(! path.endsWith("minimal.jar")){
 			return false;
@@ -101,19 +102,19 @@ public class AgentLoader {
 		if(jar.contains("/evosuite-0")){ //FIXME we need a better check 
 			return true;
 		}
-		*/
-		
+		 */
+
 		File file = new File(path);
 		String jar = file.getName();
-		
+
 		if(jar.startsWith("evosuite-0") && jar.endsWith(".jar")){
 			return true; //FIXME better handling
 		}
-		
+
 		return false;
 	}
-	
-	
+
+
 	private static String getJarPath(){
 		String jarFilePath = null;	
 		String classPath = System.getProperty("java.class.path");
@@ -129,7 +130,7 @@ public class AgentLoader {
 		if(jarFilePath==null){
 			jarFilePath = searchInCurrentClassLoaderIfUrlOne();    
 		}
-		
+
 		if(jarFilePath==null){
 			/*
 			 * this could happen in Eclipse or during test execution in Maven, and so search in compilation 'target' folder 
@@ -160,22 +161,24 @@ public class AgentLoader {
 				}
 			}
 		}
-		
+
 		return jarFilePath; 
 	}
 
 	private static String searchInCurrentClassLoaderIfUrlOne() {
-		
-		Set<URL> urls = new HashSet<URL>();
-		
+
+		Set<URI> uris = new HashSet<URI>();
+
 		ClassLoader loader = AgentLoader.class.getClassLoader();
 		while(loader != null){
 			if(loader instanceof URLClassLoader){
 				URLClassLoader urlLoader = (URLClassLoader) loader;
 				for(URL url : urlLoader.getURLs()){
-					urls.add(url);
 					try {
-						File file = new File(url.toURI());
+						URI uri = url.toURI();
+						uris.add(uri);
+
+						File file = new File(uri);
 						if(isEvoSuiteMainJar(file.getName())){
 							return file.getAbsolutePath();
 						}
@@ -185,32 +188,32 @@ public class AgentLoader {
 					}
 				}
 			}
-			
+
 			loader = loader.getParent();
 		}
-		
+
 		String msg = "Failed to find EvoSuite jar in current classloader. URLs of classloader:";
-		for(URL url : urls){
-			msg += "\n"+url.toString();
+		for(URI uri : uris){
+			msg += "\n"+uri.toString();
 		}
 		logger.warn(msg);
-		
+
 		return null;
 	}
 
 	private static String searchInM2() {
-	
+
 		File home = new File(System.getProperty("user.home"));
 		File m2 = new File(home.getAbsolutePath()+"/.m2");
 		if(!m2.exists()){
 			logger.debug("Cannot find the .m2 folder in home directory in "+m2);
 			return null;
 		}
-		
+
 		//FIXME we would need a more robust approach, as this is just an hack for now
 		String relativePath = "/repository/org/evosuite/evosuite/0.1-SNAPSHOT/evosuite-0.1-SNAPSHOT-jar-minimal.jar";
 		File jar = new File(m2.getAbsolutePath()+relativePath);
-		
+
 		if(!jar.exists()){
 			logger.debug("No jar file at: "+jar);
 			return null;

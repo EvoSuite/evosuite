@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 public class PrimePathInstrumentation implements MethodInstrumentation {
 
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(PrimePathInstrumentation.class);
+	private static final Logger logger = LoggerFactory.getLogger(PrimePathInstrumentation.class);
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String, int)
