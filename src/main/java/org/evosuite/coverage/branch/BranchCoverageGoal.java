@@ -299,8 +299,8 @@ public class BranchCoverageGoal implements Serializable, Comparable<BranchCovera
 		
 		int diff = lineNumber - o.lineNumber;
 		if(diff == 0){
-			//FIXME each target should be strictly greater/smaller than another
-			return 0;
+			// If on the same line, order by appearance in bytecode
+			return branch.getActualBranchId() - o.getBranch().getActualBranchId();
 		} else {
 			return diff;
 		}
