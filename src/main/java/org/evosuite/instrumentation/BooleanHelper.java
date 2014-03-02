@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 import org.evosuite.Properties;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.setup.TestCluster;
-import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 
@@ -676,7 +675,7 @@ public class BooleanHelper {
 	 */
 	public static int StringEquals(String first, Object second) {
 		if (first == null) {
-			throw new IllegalArgumentException(
+			throw new NullPointerException(
 			        "StringEquals is not supposed to work on a null caller");
 		}
 		// Comparison with null is always false
@@ -689,11 +688,6 @@ public class BooleanHelper {
 		} else {
 			ConstantPoolManager.getInstance().addDynamicConstant(first);
 			ConstantPoolManager.getInstance().addDynamicConstant(second);
-			//System.out.println("Edit distance between " + first + " and " + second
-			//       + " is " + -editDistance(first, second.toString()) + " / "
-			//      + getLevenshteinDistance(first, (String) second));
-			//return -editDistance(first, second.toString());
-			//return -getLevenshteinDistance(first, (String) second);
 			return -getDistanceBasedOnLeftAlignment(first, second.toString());
 		}
 	}
@@ -869,6 +863,14 @@ public class BooleanHelper {
 	 * @return a int.
 	 */
 	public static int StringEqualsIgnoreCase(String first, String second) {
+		if (first == null) {
+			throw new NullPointerException(
+			        "StringEquals is not supposed to work on a null caller");
+		}
+		// Comparison with null is always false
+		if (second == null) {
+			return -K;
+		}
 		return StringEquals(first.toLowerCase(), second.toLowerCase());
 	}
 
