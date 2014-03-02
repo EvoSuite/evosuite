@@ -76,7 +76,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BooleanTestabilityTransformation {
 
-	public static Logger logger = LoggerFactory.getLogger(BooleanTestabilityTransformation.class);
+	public static final Logger logger = LoggerFactory.getLogger(BooleanTestabilityTransformation.class);
 
 	private final ClassNode cn;
 

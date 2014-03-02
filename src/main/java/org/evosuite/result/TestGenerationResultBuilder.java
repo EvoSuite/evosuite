@@ -152,12 +152,17 @@ public class TestGenerationResultBuilder {
 			Branch branch = BranchPool.getBranch(branchId);
 			if(branch == null) {
 				LoggingUtils.getEvoLogger().warn("Branch is null: "+branchId);
+				continue;
 			}
 			BranchInfo info = new BranchInfo(branch.getClassName(), branch.getMethodName(), branch.getInstruction().getLineNumber(), false);
 			branchCoverage.add(info);
 		}
 		for(int branchId : result.getTrace().getCoveredTrueBranches()) {
 			Branch branch = BranchPool.getBranch(branchId);
+			if(branch == null) {
+				LoggingUtils.getEvoLogger().warn("Branch is null: "+branchId);
+				continue;
+			}
 			BranchInfo info = new BranchInfo(branch.getClassName(), branch.getMethodName(), branch.getInstruction().getLineNumber(), true);
 			branchCoverage.add(info);
 		}
