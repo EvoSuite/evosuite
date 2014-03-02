@@ -795,31 +795,23 @@ public class BooleanHelper {
 	 *            a {@link java.lang.String} object.
 	 * @return a int.
 	 */
-	public static int getDistanceBasedOnLeftAlignment(String a, String b) {
-		if (a == b) {
-			assert (false);
-			return K;
-		} else if (a == null && b != null) {
-			return b.length() + 1; // +1 is important to handle the empty string "" 
-		} else if (a != null && b == null) {
-			return a.length() + 1;
-		} else {
-			int differences = 0;
-			int min = Math.min(a.length(), b.length());
-			int max = Math.max(a.length(), b.length());
-			differences += (max - min);
-			for (int i = 0; i < min; i++) {
-				/*
-				 * Note: instead of just checking for mismatches, we could use something more sophisticated.
-				 * Eg, "a" is closer to "e" than "!". But maybe, considering the type of local search
-				 * we do, we don't need to do it
-				 */
-				if (a.charAt(i) != b.charAt(i)) {
-					differences++;
-				}
+	protected static int getDistanceBasedOnLeftAlignment(String a, String b) {
+		int differences = 0;
+		int min = Math.min(a.length(), b.length());
+		int max = Math.max(a.length(), b.length());
+		differences += (max - min);
+		for (int i = 0; i < min; i++) {
+			/*
+			 * Note: instead of just checking for mismatches, we could use something more sophisticated.
+			 * Eg, "a" is closer to "e" than "!". But maybe, considering the type of local search
+			 * we do, we don't need to do it
+			 */
+			if (a.charAt(i) != b.charAt(i)) {
+				differences++;
 			}
-			return differences;
 		}
+		return differences;
+
 	}
 
 	public static double getDistanceBasedOnLeftAlignmentCharacterDistance(String a,
