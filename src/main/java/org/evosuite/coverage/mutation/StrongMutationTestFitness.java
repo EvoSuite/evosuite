@@ -45,6 +45,7 @@ import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 
 /**
@@ -81,7 +82,7 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		super(mutation);
 		for (AssertionTraceObserver<?> observer : observers) {
 			logger.debug("StrongMutation adding observer " + observer);
-			executor.addObserver(observer);
+			TestCaseExecutor.getInstance().addObserver(observer);
 		}
 	}
 
@@ -105,7 +106,7 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 
 			if (mutant != null)
 				MutationObserver.activateMutation(mutant);
-			result = executor.execute(test);
+			result = TestCaseExecutor.getInstance().execute(test);
 			if (mutant != null)
 				MutationObserver.deactivateMutation(mutant);
 
