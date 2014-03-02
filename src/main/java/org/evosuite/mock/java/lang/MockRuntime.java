@@ -7,8 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.StringTokenizer;
 
-import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
+// import sun.reflect.CallerSensitive;
+// import sun.reflect.Reflection;
 
 public class MockRuntime{// extends java.lang.Runtime{
 /*
