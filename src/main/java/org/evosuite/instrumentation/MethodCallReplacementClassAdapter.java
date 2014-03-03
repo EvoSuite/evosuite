@@ -23,6 +23,7 @@ package org.evosuite.instrumentation;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
 
+import org.evosuite.Properties;
 import org.evosuite.runtime.MockList;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -49,8 +50,6 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	
 	private boolean isInterface = false;
 
-	private boolean isAbstract = false;
-	
 	private boolean definesUid = false;
 
 	/**
@@ -99,8 +98,6 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 		superClassName = superNameWithDots;
 		if((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE)
 			isInterface = true;
-		if((access & Opcodes.ACC_ABSTRACT) == Opcodes.ACC_ABSTRACT)
-			isAbstract = true;
 		
 		if(MockList.shouldBeMocked(superNameWithDots)) {
 			Class<?> mockSuperClass = MockList.getMockClass(superNameWithDots);
@@ -116,7 +113,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	
 	@Override
 	public void visitEnd() {
-		if(!definesHashCode && !isInterface) {
+		if(!definesHashCode && !isInterface && Properties.REPLACE_CALLS) {
 			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
 			if(superClassName.equals("java.lang.Object")) {
 				Method hashCodeMethod = Method.getMethod("int hashCode()");
