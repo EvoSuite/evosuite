@@ -57,6 +57,7 @@ import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.NumberFormatter;
+import org.evosuite.utils.ResourceList;
 
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
@@ -273,7 +274,7 @@ public class TestCodeVisitor extends TestVisitor {
 			 */
 			String fullName = Properties.CLASS_PREFIX +"."+name;
 			if(!fullName.equals(clazz.getCanonicalName())) {
-				if(TestCluster.getInheritanceTree().hasClass(fullName)) {
+				if(ResourceList.hasClass(fullName)) {
 					name = clazz.getCanonicalName();
 				}
 			}
