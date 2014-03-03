@@ -259,6 +259,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public DefaultTestCase clone() {
 		DefaultTestCase t = null;
+		t = new DefaultTestCase(); //Note: cannot use super.clone() due to final fields :( 
+		/*
 		try {
 			t = (DefaultTestCase) super.clone();
 		} catch (CloneNotSupportedException e) {
@@ -266,6 +268,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 			logger.error("Failed clone: "+e);
 			return null;
 		}
+		*/
+		
 		for (StatementInterface s : statements) {
 			StatementInterface copy = s.clone(t);
 			t.statements.add(copy);
