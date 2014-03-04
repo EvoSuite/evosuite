@@ -126,7 +126,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 		if (methodName.equals("<clinit>") && !isInterface) {
 			clinitFound = true;
 			logger.info("Found static initializer in class " + className);
-			determineSerialisableUID();
+			//determineSerialisableUID();
 
 			// duplicates existing <clinit>
 			MethodVisitor visitMethod = super.visitMethod(methodAccess
@@ -155,14 +155,14 @@ public class StaticResetClassAdapter extends ClassVisitor {
 		if (!clinitFound && !static_fields.isEmpty() && !isInterface) {
 			// create brand new __STATIC_RESET
 			if(!definesUid) {
-				determineSerialisableUID();
-				createSerialisableUID();
+				//determineSerialisableUID();
+				//createSerialisableUID();
 			}
 			createEmptyStaticReset();
 			registerStaticResetMethod();
 		} else if(clinitFound) {
 			if(!definesUid) {
-				createSerialisableUID();
+				//createSerialisableUID();
 			}
 		}
 		super.visitEnd();

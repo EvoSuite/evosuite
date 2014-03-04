@@ -20,6 +20,9 @@
  */
 package org.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -164,4 +167,9 @@ public class NullStatement extends PrimitiveStatement<Void> {
 		logger.error("Method randomize not implemented: How to randomize null?");
 	}
 
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+		value = null;
+	}
 }

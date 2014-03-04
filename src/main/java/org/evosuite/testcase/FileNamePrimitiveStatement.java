@@ -20,6 +20,10 @@
  */
 package org.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -88,4 +92,14 @@ public class FileNamePrimitiveStatement extends PrimitiveStatement<EvoSuiteFile>
 		logger.info("Randomized filename: " + value);
 	}
 
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();		
+		oos.writeObject(value);
+	}
+
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+		value = (EvoSuiteFile) ois.readObject();
+	}
 }

@@ -250,7 +250,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> constructorClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
+		Class<?> constructorClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass((String) ois.readObject());
 		String constructorDesc = (String) ois.readObject();
 		for (Constructor<?> constructor : constructorClass.getDeclaredConstructors()) {
 			if (org.objectweb.asm.Type.getConstructorDescriptor(constructor).equals(constructorDesc)) {
