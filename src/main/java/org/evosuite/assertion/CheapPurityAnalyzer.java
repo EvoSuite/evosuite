@@ -11,7 +11,7 @@ import org.evosuite.utils.JdkPureMethodsList;
 import org.objectweb.asm.Type;
 
 /**
- * This class performs a very cheap purity analysis by underapproximating the set of
+ * This class performs a very cheap purity analysis by under-approximating the set of
  * pure methods. It does not use any kind of escape-analysis. The purity analysis
  * is solely based on already collected bytecode instructions during class loading.
  * A method is <i>cheap-pure</i> if and only if:
@@ -19,9 +19,9 @@ import org.objectweb.asm.Type;
  * 	<li>The method is listed in the JdkPureMethodList</li>
  * 	<li>There is no declared overriding method that is not <i>cheap-pure</i></li>
  * 	<li>Has no PUTSTATIC nor PUTFIELD instructions</li>
- * 	<li>All static invokations (INVOKESTATIC) are made to <i>cheap-pure</i> static methods</li>
- *  <li>All special invokations (INVOKESPECIAL) are also made to <i>cheap-pure</i> methods</li>
- *  <li>All interface invokations (INVOKEINTERFACE) are also made to <i>cheap-pure</i> methods</li>
+ * 	<li>All static invocations (INVOKESTATIC) are made to <i>cheap-pure</i> static methods</li>
+ *  <li>All special invocations (INVOKESPECIAL) are also made to <i>cheap-pure</i> methods</li>
+ *  <li>All interface invocations (INVOKEINTERFACE) are also made to <i>cheap-pure</i> methods</li>
  * </ul>
  * 
  * @author galeotti
@@ -145,7 +145,6 @@ public class CheapPurityAnalyzer {
 				MethodEntry subclassEntry = new MethodEntry(subclassName,
 						entry.methodName, entry.descriptor);
 
-				Set<MethodEntry> methodEntriesForClassName = getEntriesForClassName(subclassName);
 				if (methodEntries.contains(subclassEntry)) {
 					if (!isPure(subclassName, entry.methodName,
 							entry.descriptor)) {
@@ -155,16 +154,6 @@ public class CheapPurityAnalyzer {
 			}
 		}
 		return false;
-	}
-
-	private Set<MethodEntry> getEntriesForClassName(String subclassName) {
-		Set<MethodEntry> result = new HashSet<MethodEntry>();
-		for (MethodEntry entry : this.methodEntries) {
-			if (entry.className.equals(subclassName)) {
-				result.add(entry);
-			}
-		}
-		return result;
 	}
 
 	public boolean isJdkPureMethod(MethodEntry entry) {
