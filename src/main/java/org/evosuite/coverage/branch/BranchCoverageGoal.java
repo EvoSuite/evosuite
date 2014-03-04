@@ -298,7 +298,11 @@ public class BranchCoverageGoal implements Serializable, Comparable<BranchCovera
 	public int compareTo(BranchCoverageGoal o) {
 		
 		int diff = lineNumber - o.lineNumber;
-		if(diff == 0){
+		if(diff == 0) {
+			// Branch can only be null if this is a branchless method
+			if(branch == null || o.getBranch() == null)
+				return 0;
+			
 			// If on the same line, order by appearance in bytecode
 			return branch.getActualBranchId() - o.getBranch().getActualBranchId();
 		} else {
