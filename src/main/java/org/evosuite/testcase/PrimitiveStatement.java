@@ -50,7 +50,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	/**
 	 * The value
 	 */
-	protected T value;
+	protected transient T value;
 
 	/**
 	 * <p>

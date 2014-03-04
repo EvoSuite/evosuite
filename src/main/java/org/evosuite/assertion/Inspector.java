@@ -171,8 +171,8 @@ public class Inspector implements Serializable {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		this.clazz = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
-		Class<?> methodClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
+		this.clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass((String) ois.readObject());
+		Class<?> methodClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass((String) ois.readObject());
 
 		String methodName = (String) ois.readObject();
 		String methodDesc = (String) ois.readObject();

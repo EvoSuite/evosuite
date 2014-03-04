@@ -38,7 +38,6 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.ArrayEqualsAssertion;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.CompareAssertion;
@@ -51,7 +50,6 @@ import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.assertion.SameAssertion;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.EvoSuiteFile;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
@@ -274,8 +272,14 @@ public class TestCodeVisitor extends TestVisitor {
 			 */
 			String fullName = Properties.CLASS_PREFIX +"."+name;
 			if(!fullName.equals(clazz.getCanonicalName())) {
-				if(ResourceList.hasClass(fullName)) {
-					name = clazz.getCanonicalName();
+				try {
+					if(ResourceList.hasClass(fullName)) {
+						name = clazz.getCanonicalName();
+					}
+				} catch(IllegalArgumentException e) {
+					// If the classpath is not correct, then we just don't check 
+					// because that cannot happen in regular EvoSuite use, only
+					// from test cases
 				}
 			}
 		}
