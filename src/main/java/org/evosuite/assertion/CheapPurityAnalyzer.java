@@ -17,9 +17,11 @@ import org.objectweb.asm.Type;
  * A method is <i>cheap-pure</i> if and only if:
  * <ul>
  * 	<li>The method is listed in the JdkPureMethodList</li>
+ * 	<li>There is no declared overriding method that is not <i>cheap-pure</i></li>
  * 	<li>Has no PUTSTATIC nor PUTFIELD instructions</li>
  * 	<li>All static invokations (INVOKESTATIC) are made to <i>cheap-pure</i> static methods</li>
  *  <li>All special invokations (INVOKESPECIAL) are also made to <i>cheap-pure</i> methods</li>
+ *  <li>All interface invokations (INVOKEINTERFACE) are also made to <i>cheap-pure</i> methods</li>
  * </ul>
  * 
  * @author galeotti
@@ -116,22 +118,9 @@ public class CheapPurityAnalyzer {
 		}
 
 		// check overriding methods
-		InheritanceTree inheritanceTree = DependencyAnalysis
-				.getInheritanceTree();
-		for (String subclassName : inheritanceTree
-				.getSubclasses(entry.className)) {
-			if (!entry.className.equals(subclassName)) {
-
-				MethodEntry subclassEntry = new MethodEntry(subclassName,
-						entry.methodName, entry.descriptor);
-				if (methodEntries.contains(subclassEntry)) {
-					if (!isPure(subclassName, entry.methodName,
-							entry.descriptor)) {
-						addCacheValue(entry, false);
-						return false;
-					}
-				}
-			}
+		if (checkAnyOverridingMethodImpure(entry)) {
+			addCacheValue(entry, false);
+			return false;
 		}
 
 		if (this.notUpdateFieldMethodList.contains(entry)) {
@@ -141,6 +130,26 @@ public class CheapPurityAnalyzer {
 
 		addCacheValue(entry, DEFAULT_PURITY_VALUE);
 		return DEFAULT_PURITY_VALUE;
+	}
+
+	private boolean checkAnyOverridingMethodImpure(MethodEntry entry) {
+		InheritanceTree inheritanceTree = DependencyAnalysis
+				.getInheritanceTree();
+		Set<String> subclasses = inheritanceTree.getSubclasses(entry.className);
+		for (String subclassName : subclasses) {
+			if (!entry.className.equals(subclassName)) {
+
+				MethodEntry subclassEntry = new MethodEntry(subclassName,
+						entry.methodName, entry.descriptor);
+				if (methodEntries.contains(subclassEntry)) {
+					if (!isPure(subclassName, entry.methodName,
+							entry.descriptor)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	public boolean isJdkPureMethod(MethodEntry entry) {
