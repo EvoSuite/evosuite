@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+import org.evosuite.utils.JdkPureMethodsList;
 import org.objectweb.asm.Type;
 
 /**
@@ -13,9 +14,10 @@ import org.objectweb.asm.Type;
  * is solely based on already collected bytecode instructions during class loading.
  * A method is <i>cheap-pure</i> if and only if:
  * <ul>
- * 	<li>Has no PUTSTATIC, PUTFIELD instructions</li>
- * 	<li>All static invokations are made to <i>cheap-pure</i> static methods</li>
- *  <li>All special invokations are also made to <i>cheap-pure</i> methods</li>
+ * 	<li>The method is listed in the JdkPureMethodList</li>
+ * 	<li>Has no PUTSTATIC nor PUTFIELD instructions</li>
+ * 	<li>All static invokations (INVOKESTATIC) are made to <i>cheap-pure</i> static methods</li>
+ *  <li>All special invokations (INVOKESPECIAL) are also made to <i>cheap-pure</i> methods</li>
  * </ul>
  * 
  * @author galeotti
@@ -23,13 +25,10 @@ import org.objectweb.asm.Type;
  */
 public class CheapPurityAnalyzer {
 
-	private boolean underApproximateAnalysis = true;
-
 	private final HashSet<MethodEntry> updateFieldMethodList = new HashSet<MethodEntry>();
 	private final HashSet<MethodEntry> notUpdateFieldMethodList = new HashSet<MethodEntry>();
 
-	private final HashSet<MethodEntry> pureMethodCache = new HashSet<MethodEntry>();
-	private final HashSet<MethodEntry> notPureMethodCache = new HashSet<MethodEntry>();
+	private final HashMap<MethodEntry, Boolean> purityCache = new HashMap<MethodEntry, Boolean>();
 
 	private static final CheapPurityAnalyzer instance = new CheapPurityAnalyzer();
 
@@ -37,6 +36,14 @@ public class CheapPurityAnalyzer {
 		return instance;
 	}
 
+	/**
+	 * Returns if the method is cheap-pure.
+	 * 
+	 * @param className The declaring class name
+	 * @param methodName The method name
+	 * @param descriptor The method descriptor
+	 * @return true if the method is cheap-pure, false otherwise
+	 */
 	public boolean isPure(String className, String methodName, String descriptor) {
 		MethodEntry entry = new MethodEntry(className, methodName, descriptor);
 		return isPure(entry);
@@ -46,46 +53,80 @@ public class CheapPurityAnalyzer {
 		return isPure(entry, new Stack<MethodEntry>());
 	}
 
-	private boolean isPure(MethodEntry entry, Stack<MethodEntry> callStack) {
-		if (this.pureMethodCache.contains(entry))
-			return true;
+	private boolean isCached(MethodEntry entry) {
+		return this.purityCache.containsKey(entry);
+	}
 
-		if (this.notPureMethodCache.contains(entry))
-			return false;
+	private boolean getCacheValue(MethodEntry entry) {
+		return this.purityCache.get(entry);
+	}
+
+	private void addCacheValue(MethodEntry entry, boolean value) {
+		assert (!isCached(entry));
+		this.purityCache.put(entry, value);
+	}
+
+	private boolean isPure(MethodEntry entry, Stack<MethodEntry> callStack) {
+		if (isCached(entry))
+			return getCacheValue(entry);
+
+		if (isJdkPureMethod(entry)) {
+			addCacheValue(entry, true);
+			return true;
+		}
 
 		if (this.updateFieldMethodList.contains(entry)) {
-			this.notPureMethodCache.add(entry);
+			addCacheValue(entry, false);
 			return false;
 		}
 
 		if (staticCalls.containsKey(entry)) {
 			if (checkAnyStaticCallImpure(entry, callStack)) {
-				this.notPureMethodCache.add(entry);
+				addCacheValue(entry, false);
 				return false;
 			}
 		}
 
 		if (specialCalls.containsKey(entry)) {
 			if (checkAnySpecialCallImpure(entry, callStack)) {
-				this.notPureMethodCache.add(entry);
+				addCacheValue(entry, false);
 				return false;
 			}
 		}
 
 		if (virtualCalls.containsKey(entry)) {
+			addCacheValue(entry, false);
 			return false;
 		}
 
 		if (interfaceCalls.containsKey(entry)) {
+			addCacheValue(entry, false);
 			return false;
 		}
 
 		if (this.notUpdateFieldMethodList.contains(entry)) {
-			this.pureMethodCache.add(entry);
+			addCacheValue(entry, true);
 			return true;
 		}
 
-		return defaultPurityValue();
+		addCacheValue(entry, DEFAULT_PURITY_VALUE);
+		return DEFAULT_PURITY_VALUE;
+	}
+
+	public boolean isJdkPureMethod(MethodEntry entry) {
+		String paraz = entry.descriptor;
+		Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(paraz);
+		String newParams = "";
+		if (parameters.length != 0) {
+			for (Type i : parameters) {
+				newParams = newParams + "," + i.getClassName();
+			}
+			newParams = newParams.substring(1, newParams.length());
+		}
+		String qualifiedName = entry.className + "." + entry.methodName + "("
+				+ newParams + ")";
+
+		return JdkPureMethodsList.instance.checkPurity(qualifiedName);
 	}
 
 	private boolean checkAnyStaticCallImpure(MethodEntry entry,
@@ -122,16 +163,14 @@ public class CheapPurityAnalyzer {
 
 	/**
 	 * We return this value when we can't conclude if a given method is pure or not.
-	 * @return
 	 */
-	private boolean defaultPurityValue() {
-		if (this.underApproximateAnalysis) {
-			return false;
-		} else {
-			return true;
-		}
-	}
+	private static boolean DEFAULT_PURITY_VALUE = false;
 
+	/**
+	 * Returns if a Method is <code>cheap-pure</code>
+	 * @param method
+	 * @return true if the method is cheap-pure, otherwise false.
+	 */
 	public boolean isPure(java.lang.reflect.Method method) {
 		String className = method.getDeclaringClass().getCanonicalName();
 		String methodName = method.getName();
