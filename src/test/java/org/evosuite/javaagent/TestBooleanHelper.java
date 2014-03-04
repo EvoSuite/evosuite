@@ -21,9 +21,9 @@
 package org.evosuite.javaagent;
 
 import static org.junit.Assert.assertTrue;
-import junit.framework.Assert;
 
 import org.evosuite.instrumentation.BooleanHelper;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -244,7 +244,7 @@ public class TestBooleanHelper {
 		try {
 			dist = BooleanHelper.StringEquals(null, "foo");
 			Assert.fail();
-		} catch (IllegalArgumentException e) {
+		} catch (NullPointerException e) {
 		}
 
 		int closer = BooleanHelper.StringEquals("foo1", "foo2");
