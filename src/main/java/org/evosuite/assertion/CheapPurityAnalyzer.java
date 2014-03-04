@@ -45,22 +45,17 @@ public class CheapPurityAnalyzer {
 		}
 
 		if (staticCalls.containsKey(entry)) {
-			Set<MethodEntry> calls = staticCalls.get(entry);
-			for (MethodEntry callMethodEntry : calls) {
-				if (!callStack.contains(callMethodEntry)) {
-					Stack<MethodEntry> copyOfStack = new Stack<MethodEntry>();
-					copyOfStack.addAll(callStack);
-					copyOfStack.add(entry);
-					if (!isPure(callMethodEntry, copyOfStack)) {
-						this.notPureMethodCache.add(entry);
-						return false;
-					}
-				}
+			if (checkAnyStaticCallImpure(entry, callStack)) {
+				this.notPureMethodCache.add(entry);
+				return false;
 			}
 		}
 
 		if (specialCalls.containsKey(entry)) {
-			return false;
+			if (checkAnySpecialCallImpure(entry, callStack)) {
+				this.notPureMethodCache.add(entry);
+				return false;
+			}
 		}
 
 		if (virtualCalls.containsKey(entry)) {
@@ -77,6 +72,38 @@ public class CheapPurityAnalyzer {
 		}
 
 		return defaultPurityValue();
+	}
+
+	private boolean checkAnyStaticCallImpure(MethodEntry entry,
+			Stack<MethodEntry> callStack) {
+		Set<MethodEntry> calls = staticCalls.get(entry);
+		for (MethodEntry callMethodEntry : calls) {
+			if (!callStack.contains(callMethodEntry)) {
+				Stack<MethodEntry> copyOfStack = new Stack<MethodEntry>();
+				copyOfStack.addAll(callStack);
+				copyOfStack.add(entry);
+				if (!isPure(callMethodEntry, copyOfStack)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean checkAnySpecialCallImpure(MethodEntry entry,
+			Stack<MethodEntry> callStack) {
+		Set<MethodEntry> calls = specialCalls.get(entry);
+		for (MethodEntry callMethodEntry : calls) {
+			if (!callStack.contains(callMethodEntry)) {
+				Stack<MethodEntry> copyOfStack = new Stack<MethodEntry>();
+				copyOfStack.addAll(callStack);
+				copyOfStack.add(entry);
+				if (!isPure(callMethodEntry, copyOfStack)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -169,10 +196,10 @@ public class CheapPurityAnalyzer {
 			String sourceDescriptor, String targetClassName,
 			String targetMethodName, String targetDescriptor) {
 
-		MethodEntry sourceEntry = new MethodEntry(sourceClassName.replace("/",
-				"."), sourceMethodName, sourceDescriptor);
-		MethodEntry targetEntry = new MethodEntry(targetClassName.replace("/",
-				"."), targetMethodName, targetDescriptor);
+		MethodEntry sourceEntry = new MethodEntry(sourceClassName,
+				sourceMethodName, sourceDescriptor);
+		MethodEntry targetEntry = new MethodEntry(targetClassName,
+				targetMethodName, targetDescriptor);
 		if (!staticCalls.containsKey(sourceEntry)) {
 			staticCalls.put(sourceEntry, new HashSet<MethodEntry>());
 		}
@@ -183,10 +210,10 @@ public class CheapPurityAnalyzer {
 			String sourceDescriptor, String targetClassName,
 			String targetMethodName, String targetDescriptor) {
 
-		MethodEntry sourceEntry = new MethodEntry(sourceClassName.replace("/",
-				"."), sourceMethodName, sourceDescriptor);
-		MethodEntry targetEntry = new MethodEntry(targetClassName.replace("/",
-				"."), targetMethodName, targetDescriptor);
+		MethodEntry sourceEntry = new MethodEntry(sourceClassName,
+				sourceMethodName, sourceDescriptor);
+		MethodEntry targetEntry = new MethodEntry(targetClassName,
+				targetMethodName, targetDescriptor);
 		if (!virtualCalls.containsKey(sourceEntry)) {
 			virtualCalls.put(sourceEntry, new HashSet<MethodEntry>());
 		}
@@ -199,10 +226,10 @@ public class CheapPurityAnalyzer {
 			String targetClassName, String targetMethodName,
 			String targetDescriptor) {
 
-		MethodEntry sourceEntry = new MethodEntry(sourceClassName.replace("/",
-				"."), sourceMethodName, sourceDescriptor);
-		MethodEntry targetEntry = new MethodEntry(targetClassName.replace("/",
-				"."), targetMethodName, targetDescriptor);
+		MethodEntry sourceEntry = new MethodEntry(sourceClassName,
+				sourceMethodName, sourceDescriptor);
+		MethodEntry targetEntry = new MethodEntry(targetClassName,
+				targetMethodName, targetDescriptor);
 		if (!interfaceCalls.containsKey(sourceEntry)) {
 			interfaceCalls.put(sourceEntry, new HashSet<MethodEntry>());
 		}
@@ -213,10 +240,10 @@ public class CheapPurityAnalyzer {
 	public void addSpecialCall(String sourceClassName, String sourceMethodName,
 			String sourceDescriptor, String targetClassName,
 			String targetMethodName, String targetDescriptor) {
-		MethodEntry sourceEntry = new MethodEntry(sourceClassName.replace("/",
-				"."), sourceMethodName, sourceDescriptor);
-		MethodEntry targetEntry = new MethodEntry(targetClassName.replace("/",
-				"."), targetMethodName, targetDescriptor);
+		MethodEntry sourceEntry = new MethodEntry(sourceClassName,
+				sourceMethodName, sourceDescriptor);
+		MethodEntry targetEntry = new MethodEntry(targetClassName,
+				targetMethodName, targetDescriptor);
 		if (!specialCalls.containsKey(sourceEntry)) {
 			specialCalls.put(sourceEntry, new HashSet<MethodEntry>());
 		}
