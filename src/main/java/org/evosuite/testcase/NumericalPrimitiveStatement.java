@@ -20,6 +20,9 @@
  */
 package org.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 
 /**
@@ -84,4 +87,15 @@ public abstract class NumericalPrimitiveStatement<T> extends PrimitiveStatement<
 	 */
 	public abstract boolean isPositive();
 
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();		
+		oos.writeObject(value);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+		value = (T) ois.readObject();
+	}
 }

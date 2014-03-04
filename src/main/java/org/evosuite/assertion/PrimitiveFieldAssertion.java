@@ -145,7 +145,7 @@ public class PrimitiveFieldAssertion extends Assertion {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> methodClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
+		Class<?> methodClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass((String) ois.readObject());
 		String fieldName = (String) ois.readObject();
 
 		try {

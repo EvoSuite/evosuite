@@ -129,6 +129,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 				 * if it is not defined in the class. Hence, if it is not defined, we have to define it to
 				 * avoid problems in serialising the class.
 				 */
+				/*
 				if(!definesUid) {
 					try {
 						Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
@@ -141,7 +142,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 					} catch(ClassNotFoundException e) {
 						logger.info("Failed to add serialId to class "+className+": "+e.getMessage());
 					}
-				}
+				*/
 			}
 		}
 		super.visitEnd();
