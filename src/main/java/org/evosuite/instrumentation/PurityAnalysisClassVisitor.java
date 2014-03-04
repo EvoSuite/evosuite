@@ -25,7 +25,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * It launches a <code>PurityMethodAdapter</code> on each method.
+ * It launches a <code>PurityAnalysisMethodVisitor</code> on each method.
  * This class only reads the existing bytecode.
  * 
  * @author Juan Galeotti

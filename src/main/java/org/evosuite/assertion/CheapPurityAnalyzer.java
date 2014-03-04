@@ -7,6 +7,20 @@ import java.util.Stack;
 
 import org.objectweb.asm.Type;
 
+/**
+ * This class performs a very cheap purity analysis by underapproximating the set of
+ * pure methods. It does not use any kind of escape-analysis. The purity analysis
+ * is solely based on already collected bytecode instructions during class loading.
+ * A method is <i>cheap-pure</i> if and only if:
+ * <ul>
+ * 	<li>Has no PUTSTATIC, PUTFIELD instructions</li>
+ * 	<li>All static invokations are made to <i>cheap-pure</i> static methods</li>
+ *  <li>All special invokations are also made to <i>cheap-pure</i> methods</li>
+ * </ul>
+ * 
+ * @author galeotti
+ *
+ */
 public class CheapPurityAnalyzer {
 
 	private boolean underApproximateAnalysis = true;
