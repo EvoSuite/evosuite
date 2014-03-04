@@ -4,9 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -340,6 +345,14 @@ public class JUnitAnalyzer {
 		 * if the JavaAgent works properly.
 		 */
 		Class<?>[] testClasses = getClassesFromFiles(tests);
+		List<File> otherClasses = Arrays.asList(dir.listFiles());
+		/*
+		 * this is important to force the loading of all files generated
+		 * in the target folder.
+		 * If we do not do that, then we will miss all the anonymous classes 
+		 */
+		getClassesFromFiles(otherClasses);
+		
 		return testClasses;
 	}
 
@@ -436,7 +449,7 @@ public class JUnitAnalyzer {
 	 * @param files
 	 * @return
 	 */
-	private static Class<?>[] getClassesFromFiles(List<File> files) {
+	private static Class<?>[] getClassesFromFiles(Collection<File> files) {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		for (File file : files) {
 

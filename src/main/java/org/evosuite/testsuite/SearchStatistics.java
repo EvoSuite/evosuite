@@ -333,6 +333,12 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 	}
 
 	public void setHadUnstableTests(boolean unstable) {
+		
+		if(statistics.size() == 0){ //FIXME better handling once refactoring statistics
+			//this could happen in the test cases
+			return;
+		}
+		
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		entry.hadUnstableTests = unstable;
 	}
