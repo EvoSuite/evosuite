@@ -70,8 +70,8 @@ public class CheapPurityAnalyzer {
 	}
 
 	private boolean isPure(MethodEntry entry, Stack<MethodEntry> callStack) {
-		//		if (isCached(entry))
-		//			return getCacheValue(entry);
+		if (isCached(entry))
+			return getCacheValue(entry);
 
 		if (isJdkPureMethod(entry)) {
 			addCacheValue(entry, true);
