@@ -21,7 +21,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	private static final long serialVersionUID = -2728777640255424791L;
 
-	private Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
+	private transient Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
 
 	public ClassPrimitiveStatement(TestCase tc, GenericClass type,
 	        Set<Class<?>> assignableClasses) {
@@ -127,8 +127,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
-		GenericClass currentClass = new GenericClass(value);
-		oos.writeObject(currentClass);
+		oos.defaultWriteObject();
 		List<GenericClass> currentAssignableClasses = new ArrayList<GenericClass>();
 		for (Class<?> assignableClass : assignableClasses)
 			currentAssignableClasses.add(new GenericClass(assignableClass));
@@ -138,14 +137,12 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
-		GenericClass currentClass = (GenericClass) ois.readObject();
-		value = currentClass.getRawClass();
-
+		ois.defaultReadObject();
+		this.value = retval.getGenericClass().getRawClass();
 		List<GenericClass> newAssignableClasses = (List<GenericClass>) ois.readObject();
 		assignableClasses = new LinkedHashSet<Class<?>>();
 		for (GenericClass assignableClass : newAssignableClasses) {
 			assignableClasses.add(assignableClass.getRawClass());
 		}
-
 	}
 }

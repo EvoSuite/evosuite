@@ -54,7 +54,7 @@ public class ConstructorStatement extends AbstractStatement {
 
 	public List<VariableReference> parameters;
 
-	private static List<String> primitiveClasses = Arrays.asList("char", "int", "short",
+	private static final List<String> primitiveClasses = Arrays.asList("char", "int", "short",
 	                                                             "long", "boolean",
 	                                                             "float", "double",
 	                                                             "byte");

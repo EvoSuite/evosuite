@@ -20,9 +20,13 @@
  */
 package org.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.List;
 
+import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -38,9 +42,9 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 
 	private static final long serialVersionUID = -7027695648061887082L;
 
-	private T[] constants;
+	private transient T[] constants;
 
-	private Class<T> enumClass;
+	private transient Class<T> enumClass;
 
 	/**
 	 * <p>
@@ -236,4 +240,39 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 		super.changeClassLoader(loader);
 	}
 
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		GenericClass currentClass = new GenericClass(enumClass);
+		oos.writeObject(currentClass);
+		int pos = 0;
+		for (pos = 0; pos < constants.length; pos++) {
+			if (constants[pos].equals(value)) {
+				break;
+			}
+		}
+		oos.writeInt(pos);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		GenericClass enumGenericClass = (GenericClass) ois.readObject();
+		int pos = ois.readInt();
+		
+		enumClass = (Class<T>) enumGenericClass.getRawClass();
+		try {
+			if (enumClass.getEnumConstants().length > 0) {
+				this.value = enumClass.getEnumConstants()[0];
+				constants = enumClass.getEnumConstants();
+				if(constants.length > 0)
+					value = constants[pos];
+
+			} else {
+				// Coping with empty enums is a bit of a mess
+				constants = (T[]) new Enum[0];
+			}
+		} catch (Throwable t) {
+			// Loading the Enum class might fail
+			constants = (T[]) new Enum[0];
+		}
+	}
 }

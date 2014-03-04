@@ -114,7 +114,7 @@ public class GenericClass implements Serializable {
 	}
 
 	private static Class<?> getClass(String name) throws ClassNotFoundException {
-		return getClass(name, TestGenerationContext.getClassLoader());
+		return getClass(name, TestGenerationContext.getInstance().getClassLoaderForSUT());
 	}
 
 	private static Class<?> getClass(String name, ClassLoader loader)
