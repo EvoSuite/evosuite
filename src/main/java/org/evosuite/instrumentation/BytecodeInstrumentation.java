@@ -235,6 +235,7 @@ public class BytecodeInstrumentation {
 
 		if (Properties.PURE_INSPECTORS) {
 			CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
+			
 			cv = new PurityAnalysisClassVisitor(cv, className, purityAnalyzer);
 		}
 

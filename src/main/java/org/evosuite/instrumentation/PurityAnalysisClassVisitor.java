@@ -24,8 +24,10 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import com.sun.org.apache.bcel.internal.generic.Type;
+
 /**
- * It launches a <code>PurityMethodAdapter</code> on each method.
+ * It launches a <code>PurityAnalysisMethodVisitor</code> on each method.
  * This class only reads the existing bytecode.
  * 
  * @author Juan Galeotti
@@ -92,6 +94,12 @@ public class PurityAnalysisClassVisitor extends ClassVisitor {
 	@Override
 	public MethodVisitor visitMethod(int methodAccess, String name,
 			String descriptor, String signature, String[] exceptions) {
+
+		if (visitingInterface==true) {
+			purityAnalyzer.addInterfaceMethod(className.replace("/", "."), name, descriptor);
+		} else {
+			purityAnalyzer.addMethod(className.replace("/", "."), name, descriptor);
+		}
 		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor,
 				signature, exceptions);
 		PurityAnalysisMethodVisitor putStaticMethodAdapter = new PurityAnalysisMethodVisitor(
@@ -112,5 +120,16 @@ public class PurityAnalysisClassVisitor extends ClassVisitor {
 						method_entry.methodName, method_entry.descriptor);
 			}
 		}
+	}
+
+	private boolean visitingInterface = false;
+	
+	@Override
+	public void visit(int version, int access, String name, String signature,
+			String superName, String[] interfaces) {
+		if ((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE) {
+			visitingInterface = true;
+		}
+		super.visit(version, access, name, signature, superName, interfaces);
 	}
 }

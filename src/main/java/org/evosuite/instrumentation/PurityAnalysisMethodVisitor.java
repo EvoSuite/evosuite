@@ -25,15 +25,25 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * For each PUTSTATIC/PUTFIELD marks the method as impure.
- *
+ * It collects bytecode instructions for further purity analysis in the 
+ * <code>CheapPurityAnalyzer</code> class:
+ * <ul>
+ * 	<li>PUTSTATIC</li>
+ * 	<li>PUTFIELD</li>
+ * 	<li>INVOKESTATIC</li>
+ * 	<li>INVOKESPECIAL</li>
+ * 	<li>INVOKEINTERFACE</li>
+ * 	<li>INVOKEVIRTUAL</li>
+ * </ul>
+ * This class only reads the existing bytecode.
+ * 
  * @author Juan Galeotti
  */
 public class PurityAnalysisMethodVisitor extends MethodVisitor {
 
 	private boolean updatesField;
 	private final CheapPurityAnalyzer purityAnalyzer;
-	private final String className;
+	private final String classNameWithDots;
 	private final String methodName;
 	private final String descriptor;
 
@@ -51,7 +61,7 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 		super(Opcodes.ASM4, mv);
 		this.updatesField = false;
 		this.purityAnalyzer = purityAnalyzer;
-		this.className = className;
+		this.classNameWithDots = className.replace("/", ".");
 		this.methodName = methodName;
 		this.descriptor = descriptor;
 	}
@@ -80,19 +90,19 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 		String targetClassName = owner.replace("/", ".");
 		if (BytecodeInstrumentation.checkIfCanInstrument(targetClassName)) {
 			if (opcode == Opcodes.INVOKESTATIC) {
-				this.purityAnalyzer.addStaticCall(className, methodName,
-						descriptor, owner, name, desc);
+				this.purityAnalyzer.addStaticCall(classNameWithDots,
+						methodName, descriptor, targetClassName, name, desc);
 			} else if (opcode == Opcodes.INVOKEVIRTUAL) {
-				this.purityAnalyzer.addVirtualCall(className, methodName,
-						descriptor, owner, name, desc);
+				this.purityAnalyzer.addVirtualCall(classNameWithDots,
+						methodName, descriptor, targetClassName, name, desc);
 
 			} else if (opcode == Opcodes.INVOKEINTERFACE) {
-				this.purityAnalyzer.addInterfaceCall(className, methodName,
-						descriptor, owner, name, desc);
+				this.purityAnalyzer.addInterfaceCall(classNameWithDots,
+						methodName, descriptor, targetClassName, name, desc);
 
 			} else if (opcode == Opcodes.INVOKESPECIAL) {
-				this.purityAnalyzer.addSpecialCall(className, methodName,
-						descriptor, owner, name, desc);
+				this.purityAnalyzer.addSpecialCall(classNameWithDots,
+						methodName, descriptor, targetClassName, name, desc);
 			}
 		}
 		super.visitMethodInsn(opcode, owner, name, desc);
