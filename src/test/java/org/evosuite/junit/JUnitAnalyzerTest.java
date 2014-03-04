@@ -102,21 +102,25 @@ public class JUnitAnalyzerTest {
 		//NOTE: following order of checks reflects what is done
 		// in EvoSuite after the search is finished
 		
+		System.out.println("\n COMPILATION CHECK \n");
 		//first try to compile (which implies execution)
 		JUnitAnalyzer.removeTestsThatDoNotCompile(list);
 		Assert.assertEquals(1, list.size());
 		Assert.assertFalse(file.exists()); 
 		
+		System.out.println("\n FIRST STABILITY CHECK \n");
 		//try once
 		JUnitAnalyzer.handleTestsThatAreUnstable(list);
 		Assert.assertEquals(1, list.size());
 		Assert.assertFalse(file.exists()); 		
 
+		System.out.println("\n SECOND STABILITY CHECK \n");
 		//try again
 		JUnitAnalyzer.handleTestsThatAreUnstable(list);
 		Assert.assertEquals(1, list.size());
 		Assert.assertFalse(file.exists()); 		
 		
+		System.out.println("\n FINAL VERIFICATION \n");
 		JUnitAnalyzer.verifyCompilationAndExecution(list);
 		Assert.assertEquals(1, list.size());
 		Assert.assertFalse(file.exists()); 			
