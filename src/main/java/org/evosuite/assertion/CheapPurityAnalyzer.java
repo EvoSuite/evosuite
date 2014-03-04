@@ -126,6 +126,9 @@ public class CheapPurityAnalyzer {
 		if (this.notUpdateFieldMethodList.contains(entry)) {
 			addCacheValue(entry, true);
 			return true;
+		} if (this.interfaceMethodEntries.contains(entry)) {
+			addCacheValue(entry, true);
+			return true;
 		}
 
 		addCacheValue(entry, DEFAULT_PURITY_VALUE);
@@ -141,6 +144,8 @@ public class CheapPurityAnalyzer {
 
 				MethodEntry subclassEntry = new MethodEntry(subclassName,
 						entry.methodName, entry.descriptor);
+
+				Set<MethodEntry> methodEntriesForClassName = getEntriesForClassName(subclassName);
 				if (methodEntries.contains(subclassEntry)) {
 					if (!isPure(subclassName, entry.methodName,
 							entry.descriptor)) {
@@ -150,6 +155,16 @@ public class CheapPurityAnalyzer {
 			}
 		}
 		return false;
+	}
+
+	private Set<MethodEntry> getEntriesForClassName(String subclassName) {
+		Set<MethodEntry> result = new HashSet<MethodEntry>();
+		for (MethodEntry entry : this.methodEntries) {
+			if (entry.className.equals(subclassName)) {
+				result.add(entry);
+			}
+		}
+		return result;
 	}
 
 	public boolean isJdkPureMethod(MethodEntry entry) {
@@ -329,6 +344,15 @@ public class CheapPurityAnalyzer {
 		addCall(specialCalls, sourceClassName, sourceMethodName,
 				sourceDescriptor, targetClassName, targetMethodName,
 				targetDescriptor);
+	}
+
+	private final HashSet<MethodEntry> interfaceMethodEntries = new HashSet<MethodEntry>();
+
+	public void addInterfaceMethod(String className, String methodName,
+			String methodDescriptor) {
+		MethodEntry entry = new MethodEntry(className, methodName,
+				methodDescriptor);
+		interfaceMethodEntries.add(entry);
 	}
 
 }
