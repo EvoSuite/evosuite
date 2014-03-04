@@ -92,6 +92,8 @@ public class PurityAnalysisClassVisitor extends ClassVisitor {
 	@Override
 	public MethodVisitor visitMethod(int methodAccess, String name,
 			String descriptor, String signature, String[] exceptions) {
+
+		purityAnalyzer.addMethod(className.replace("/","."), name, descriptor);
 		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor,
 				signature, exceptions);
 		PurityAnalysisMethodVisitor putStaticMethodAdapter = new PurityAnalysisMethodVisitor(

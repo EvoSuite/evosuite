@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.InheritanceTree;
 import org.evosuite.utils.JdkPureMethodsList;
 import org.objectweb.asm.Type;
 
@@ -50,7 +52,8 @@ public class CheapPurityAnalyzer {
 	}
 
 	private boolean isPure(MethodEntry entry) {
-		return isPure(entry, new Stack<MethodEntry>());
+		Stack<MethodEntry> emptyStack = new Stack<MethodEntry>();
+		return isPure(entry, emptyStack);
 	}
 
 	private boolean isCached(MethodEntry entry) {
@@ -67,8 +70,8 @@ public class CheapPurityAnalyzer {
 	}
 
 	private boolean isPure(MethodEntry entry, Stack<MethodEntry> callStack) {
-		if (isCached(entry))
-			return getCacheValue(entry);
+		//		if (isCached(entry))
+		//			return getCacheValue(entry);
 
 		if (isJdkPureMethod(entry)) {
 			addCacheValue(entry, true);
@@ -81,27 +84,54 @@ public class CheapPurityAnalyzer {
 		}
 
 		if (staticCalls.containsKey(entry)) {
-			if (checkAnyStaticCallImpure(entry, callStack)) {
+			Set<MethodEntry> calls = staticCalls.get(entry);
+			if (checkAnyCallImpure(calls, entry, callStack)) {
 				addCacheValue(entry, false);
 				return false;
 			}
 		}
 
 		if (specialCalls.containsKey(entry)) {
-			if (checkAnySpecialCallImpure(entry, callStack)) {
+			Set<MethodEntry> calls = specialCalls.get(entry);
+			if (checkAnyCallImpure(calls, entry, callStack)) {
 				addCacheValue(entry, false);
 				return false;
 			}
 		}
 
 		if (virtualCalls.containsKey(entry)) {
-			addCacheValue(entry, false);
-			return false;
+			Set<MethodEntry> calls = virtualCalls.get(entry);
+			if (checkAnyCallImpure(calls, entry, callStack)) {
+				addCacheValue(entry, false);
+				return false;
+			}
 		}
 
 		if (interfaceCalls.containsKey(entry)) {
-			addCacheValue(entry, false);
-			return false;
+			Set<MethodEntry> calls = interfaceCalls.get(entry);
+			if (checkAnyCallImpure(calls, entry, callStack)) {
+				addCacheValue(entry, false);
+				return false;
+			}
+		}
+
+		// check overriding methods
+		InheritanceTree inheritanceTree = DependencyAnalysis
+				.getInheritanceTree();
+		for (String subclassName : inheritanceTree
+				.getSubclasses(entry.className)) {
+			if (!entry.className.equals(subclassName)) {
+
+				MethodEntry subclassEntry = new MethodEntry(subclassName,
+						entry.methodName, entry.descriptor);
+				if (methodEntries.contains(subclassEntry)) {
+					if (!isPure(subclassName, entry.methodName,
+							entry.descriptor)) {
+						addCacheValue(entry, false);
+						return false;
+					}
+				}
+			}
 		}
 
 		if (this.notUpdateFieldMethodList.contains(entry)) {
@@ -129,25 +159,8 @@ public class CheapPurityAnalyzer {
 		return JdkPureMethodsList.instance.checkPurity(qualifiedName);
 	}
 
-	private boolean checkAnyStaticCallImpure(MethodEntry entry,
-			Stack<MethodEntry> callStack) {
-		Set<MethodEntry> calls = staticCalls.get(entry);
-		for (MethodEntry callMethodEntry : calls) {
-			if (!callStack.contains(callMethodEntry)) {
-				Stack<MethodEntry> copyOfStack = new Stack<MethodEntry>();
-				copyOfStack.addAll(callStack);
-				copyOfStack.add(entry);
-				if (!isPure(callMethodEntry, copyOfStack)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	private boolean checkAnySpecialCallImpure(MethodEntry entry,
-			Stack<MethodEntry> callStack) {
-		Set<MethodEntry> calls = specialCalls.get(entry);
+	private boolean checkAnyCallImpure(Set<MethodEntry> calls,
+			MethodEntry entry, Stack<MethodEntry> callStack) {
 		for (MethodEntry callMethodEntry : calls) {
 			if (!callStack.contains(callMethodEntry)) {
 				Stack<MethodEntry> copyOfStack = new Stack<MethodEntry>();
@@ -224,6 +237,15 @@ public class CheapPurityAnalyzer {
 		}
 	}
 
+	private final HashSet<MethodEntry> methodEntries = new HashSet<MethodEntry>();
+
+	public void addMethod(String className, String methodName,
+			String methodDescriptor) {
+		MethodEntry entry = new MethodEntry(className, methodName,
+				methodDescriptor);
+		methodEntries.add(entry);
+	}
+
 	public void addUpdatesFieldMethod(String className, String methodName,
 			String descriptor) {
 		String classNameWithDots = className.replace("/", ".");
@@ -249,28 +271,19 @@ public class CheapPurityAnalyzer {
 			String sourceDescriptor, String targetClassName,
 			String targetMethodName, String targetDescriptor) {
 
-		MethodEntry sourceEntry = new MethodEntry(sourceClassName,
-				sourceMethodName, sourceDescriptor);
-		MethodEntry targetEntry = new MethodEntry(targetClassName,
-				targetMethodName, targetDescriptor);
-		if (!staticCalls.containsKey(sourceEntry)) {
-			staticCalls.put(sourceEntry, new HashSet<MethodEntry>());
-		}
-		staticCalls.get(sourceEntry).add(targetEntry);
+		addCall(staticCalls, sourceClassName, sourceMethodName,
+				sourceDescriptor, targetClassName, targetMethodName,
+				targetDescriptor);
+
 	}
 
 	public void addVirtualCall(String sourceClassName, String sourceMethodName,
 			String sourceDescriptor, String targetClassName,
 			String targetMethodName, String targetDescriptor) {
 
-		MethodEntry sourceEntry = new MethodEntry(sourceClassName,
-				sourceMethodName, sourceDescriptor);
-		MethodEntry targetEntry = new MethodEntry(targetClassName,
-				targetMethodName, targetDescriptor);
-		if (!virtualCalls.containsKey(sourceEntry)) {
-			virtualCalls.put(sourceEntry, new HashSet<MethodEntry>());
-		}
-		virtualCalls.get(sourceEntry).add(targetEntry);
+		addCall(virtualCalls, sourceClassName, sourceMethodName,
+				sourceDescriptor, targetClassName, targetMethodName,
+				targetDescriptor);
 
 	}
 
@@ -279,28 +292,34 @@ public class CheapPurityAnalyzer {
 			String targetClassName, String targetMethodName,
 			String targetDescriptor) {
 
+		addCall(interfaceCalls, sourceClassName, sourceMethodName,
+				sourceDescriptor, targetClassName, targetMethodName,
+				targetDescriptor);
+
+	}
+
+	private static void addCall(HashMap<MethodEntry, Set<MethodEntry>> calls,
+			String sourceClassName, String sourceMethodName,
+			String sourceDescriptor, String targetClassName,
+			String targetMethodName, String targetDescriptor) {
+
 		MethodEntry sourceEntry = new MethodEntry(sourceClassName,
 				sourceMethodName, sourceDescriptor);
 		MethodEntry targetEntry = new MethodEntry(targetClassName,
 				targetMethodName, targetDescriptor);
-		if (!interfaceCalls.containsKey(sourceEntry)) {
-			interfaceCalls.put(sourceEntry, new HashSet<MethodEntry>());
+		if (!calls.containsKey(sourceEntry)) {
+			calls.put(sourceEntry, new HashSet<MethodEntry>());
 		}
-		interfaceCalls.get(sourceEntry).add(targetEntry);
-
+		calls.get(sourceEntry).add(targetEntry);
 	}
 
 	public void addSpecialCall(String sourceClassName, String sourceMethodName,
 			String sourceDescriptor, String targetClassName,
 			String targetMethodName, String targetDescriptor) {
-		MethodEntry sourceEntry = new MethodEntry(sourceClassName,
-				sourceMethodName, sourceDescriptor);
-		MethodEntry targetEntry = new MethodEntry(targetClassName,
-				targetMethodName, targetDescriptor);
-		if (!specialCalls.containsKey(sourceEntry)) {
-			specialCalls.put(sourceEntry, new HashSet<MethodEntry>());
-		}
-		specialCalls.get(sourceEntry).add(targetEntry);
+
+		addCall(specialCalls, sourceClassName, sourceMethodName,
+				sourceDescriptor, targetClassName, targetMethodName,
+				targetDescriptor);
 	}
 
 }

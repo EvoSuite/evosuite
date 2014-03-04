@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.objectweb.asm.Type;
 
+import com.examples.with.different.packagename.inspector.AbstractInspector;
 import com.examples.with.different.packagename.inspector.SpecialInspector;
 
 public class TestSpecialInspector extends SystemTest {
@@ -70,12 +71,12 @@ public class TestSpecialInspector extends SystemTest {
 				"greaterThanZero", descriptor);
 		assertTrue(greaterthanZeroIsPure);
 
-		boolean notPureGreaterthanZeroIsPure = purityAnalyzer.isPure(targetClass,
-				"notPureGreaterThanZero", descriptor);
+		boolean notPureGreaterthanZeroIsPure = purityAnalyzer.isPure(
+				targetClass, "notPureGreaterThanZero", descriptor);
 		assertFalse(notPureGreaterthanZeroIsPure);
 
-		boolean notPureCreationOfObjectIsPure = purityAnalyzer.isPure(targetClass,
-				"notPureCreationOfObject", descriptor);
+		boolean notPureCreationOfObjectIsPure = purityAnalyzer.isPure(
+				targetClass, "notPureCreationOfObject", descriptor);
 		assertFalse(notPureCreationOfObjectIsPure);
 
 		boolean pureCreationOfObjectIsPure = purityAnalyzer.isPure(targetClass,
@@ -86,10 +87,15 @@ public class TestSpecialInspector extends SystemTest {
 				"superPureCall", descriptor);
 		assertTrue(superPureCall);
 
+		boolean notPureGreaterThanZero = purityAnalyzer.isPure(
+				AbstractInspector.class.getCanonicalName(),
+				"notPureGreaterThanZero", descriptor);
+		assertFalse(notPureGreaterThanZero);
+
 		boolean superNotPureCall = purityAnalyzer.isPure(targetClass,
 				"superNotPureCall", descriptor);
 		assertFalse(superNotPureCall);
-		
+
 		StatisticEntry entry = SearchStatistics.getInstance()
 				.getLastStatisticEntry();
 		assertFalse(entry.hadUnstableTests);
