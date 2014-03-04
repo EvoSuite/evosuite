@@ -1,4 +1,4 @@
-package org.evosuite.assertion;
+package org.evosuite.assertion.purity;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
+import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -16,9 +17,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.objectweb.asm.Type;
 
-import com.examples.with.different.packagename.inspector.ImpureInspector;
+import com.examples.with.different.packagename.inspector.JdkPureInspector;
 
-public class TestImpureInspector extends SystemTest {
+public class TestJdkInspector extends SystemTest {
 	private boolean reset_statick_field__property;
 	private boolean junit_check_property;
 	private boolean junit_tests_property;
@@ -49,7 +50,7 @@ public class TestImpureInspector extends SystemTest {
 	public void test() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = ImpureInspector.class.getCanonicalName();
+		String targetClass = JdkPureInspector.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
@@ -65,30 +66,14 @@ public class TestImpureInspector extends SystemTest {
 
 		CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
 
-		String descriptor = Type.getMethodDescriptor(Type.INT_TYPE);
-		boolean getImpureValue = purityAnalyzer.isPure(targetClass,
-				"getImpureValue", descriptor);
-		assertFalse(getImpureValue);
+		String descriptor = Type.getMethodDescriptor(Type.BOOLEAN_TYPE);
+		boolean equalsToZ = purityAnalyzer.isPure(targetClass,
+				"equalsToZ", descriptor);
+		assertTrue(equalsToZ);
 
-		boolean getPureValue = purityAnalyzer.isPure(targetClass,
-				"getPureValue", descriptor);
-		assertTrue(getPureValue);
-
-		boolean getImpureValueFromCall = purityAnalyzer.isPure(targetClass,
-				"getImpureValueFromCall", descriptor);
-		assertFalse(getImpureValueFromCall);
-
-		boolean getPureValueFromCall = purityAnalyzer.isPure(targetClass,
-				"getPureValueFromCall", descriptor);
-		assertTrue(getPureValueFromCall);
-
-		boolean recursivePureInspector = purityAnalyzer.isPure(targetClass,
-				"recursivePureInspector", descriptor);
-		assertTrue(recursivePureInspector);
-
-		boolean recursiveImpureInspector = purityAnalyzer.isPure(targetClass,
-				"recursiveImpureInspector", descriptor);
-		assertFalse(recursiveImpureInspector);
+		boolean isLowerCase = purityAnalyzer.isPure(targetClass,
+				"isLowerCase", descriptor);
+		assertTrue(isLowerCase);
 
 		
 		StatisticEntry entry = SearchStatistics.getInstance()
