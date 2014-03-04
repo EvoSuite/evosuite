@@ -110,16 +110,16 @@ public class TestInterfaceInspectors extends SystemTest {
 
 		CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
 
-		String descriptor = Type.getMethodDescriptor(Type.BOOLEAN_TYPE);
+		String descriptor = Type.getMethodDescriptor(Type.INT_TYPE);
+		String interfaceInspectorClassName = InterfaceInspector.class
+				.getCanonicalName();
 		boolean pureInspector = purityAnalyzer.isPure(
-				InterfaceInspector.class.getCanonicalName(), "pureInspector",
-				descriptor);
+				interfaceInspectorClassName, "pureInspector", descriptor);
 		assertTrue(pureInspector);
 
 		boolean impureInspector = purityAnalyzer.isPure(
-				InterfaceInspector.class.getCanonicalName(), "impureInspector",
-				descriptor);
-		assertTrue(impureInspector);
+				interfaceInspectorClassName, "impureInspector", descriptor);
+		assertFalse(impureInspector);
 
 		StatisticEntry entry = SearchStatistics.getInstance()
 				.getLastStatisticEntry();
