@@ -345,7 +345,7 @@ public class JUnitAnalyzer {
 		 * if the JavaAgent works properly.
 		 */
 		Class<?>[] testClasses = getClassesFromFiles(tests);
-		List<File> otherClasses = Arrays.asList(dir.listFiles());
+		List<File> otherClasses = listOnlyFiles(dir.listFiles());
 		/*
 		 * this is important to force the loading of all files generated
 		 * in the target folder.
@@ -354,6 +354,16 @@ public class JUnitAnalyzer {
 		getClassesFromFiles(otherClasses);
 		
 		return testClasses;
+	}
+
+	private static List<File> listOnlyFiles(File[] files) {
+		List<File> otherClasses = new LinkedList<File>();
+		for (File file : files) {
+			if (file.isFile()) {
+				otherClasses.add(file);
+			}
+		}
+		return otherClasses;
 	}
 
 	/**
