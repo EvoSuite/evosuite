@@ -143,7 +143,7 @@ public class JUnitAnalyzer {
 			}
 
 			Result result = runTests(testClasses);
-			
+
 			if (result.wasSuccessful()) {
 				return; //everything is OK
 			}
@@ -154,7 +154,7 @@ public class JUnitAnalyzer {
 				String testName = des.getMethodName();//TODO check if correct
 
 				logger.warn("Found unstable test named " + testName + " -> "
-				        + failure.getException().getClass() + ": " + failure.getMessage());
+						+ failure.getException().getClass() + ": " + failure.getMessage());
 				for (StackTraceElement elem : failure.getException().getStackTrace()) {
 					logger.info(elem.toString());
 				}
@@ -203,11 +203,11 @@ public class JUnitAnalyzer {
 
 	}
 
-	
-	
+
+
 	private static Result runTests(Class<?>[] testClasses) {
 		JUnitCore runner = new JUnitCore();
-		
+
 		/*
 		 * Why deactivating the sandbox? This is pretty tricky.
 		 * The JUnitCore runner will execute the test cases on a new
@@ -217,17 +217,17 @@ public class JUnitAnalyzer {
 		 * to do that by their self. When they do it, the initialization 
 		 * will be after the agent is already loaded. 
 		 */
-		Sandbox.resetDefaultSecurityManager();
+		Set<Thread> privileged = Sandbox.resetDefaultSecurityManager();
 		TestGenerationContext.getInstance().goingToExecuteSUTCode();
-		
+
 		Result result = runner.run(testClasses);
-		
+
 		TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
-		Sandbox.initializeSecurityManagerForSUT();
+		Sandbox.initializeSecurityManagerForSUT(privileged);
 		return result;
 	}
 
-	
+
 	/**
 	 * Check if it is possible to use the Java compiler.
 	 * 
@@ -256,7 +256,7 @@ public class JUnitAnalyzer {
 			for (File file : generated) {
 				if (!file.exists()) {
 					logger.error("Supposed to generate " + file
-					        + " but it does not exist");
+							+ " but it does not exist");
 					return null;
 				}
 			}
@@ -270,29 +270,29 @@ public class JUnitAnalyzer {
 
 			DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 			StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics,
-			                                                                      Locale.getDefault(),
-			                                                                      Charset.forName("UTF-8"));
+					Locale.getDefault(),
+					Charset.forName("UTF-8"));
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(generated);
 
 			CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null,
-			                                        null, compilationUnits);
+					null, compilationUnits);
 			boolean compiled = task.call();
 			fileManager.close();
 
 			if (!compiled) {
 				logger.error("Compilation failed on compilation units: "
-				        + compilationUnits);
+						+ compilationUnits);
 				for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
 					if (diagnostic.getMessage(null).startsWith("error while writing")) {
 						logger.error("Error is due to file permissions, ignoring...");
 						return generated;
 					}
 					logger.error("Diagnostic: " + diagnostic.getMessage(null) + ": "
-					        + diagnostic.getLineNumber());
+							+ diagnostic.getLineNumber());
 				}
 				for (JavaFileObject sourceFile : compilationUnits) {
 					List<String> lines = FileUtils.readLines(new File(
-					        sourceFile.toUri().getPath()));
+							sourceFile.toUri().getPath()));
 					logger.error(compilationUnits.iterator().next().toString());
 					for (int i = 0; i < lines.size(); i++) {
 						logger.error((i + 1) + ": " + lines.get(i));
@@ -312,7 +312,7 @@ public class JUnitAnalyzer {
 	protected static File createNewTmpDir() {
 		File dir = null;
 		String dirName = FileUtils.getTempDirectoryPath() + File.separator + "EvoSuite_"
-		        + (dirCounter++) + "_" + +System.currentTimeMillis();
+				+ (dirCounter++) + "_" + +System.currentTimeMillis();
 
 		//first create a tmp folder
 		dir = new File(dirName);
@@ -323,7 +323,7 @@ public class JUnitAnalyzer {
 
 		if (!dir.exists()) {
 			logger.error("Weird behavior: we created folder, but Java cannot determine if it exists? Folder: "
-			        + dirName);
+					+ dirName);
 			return null;
 		}
 
@@ -345,27 +345,60 @@ public class JUnitAnalyzer {
 		 * if the JavaAgent works properly.
 		 */
 		Class<?>[] testClasses = getClassesFromFiles(tests);
-		List<File> otherClasses = listOnlyFiles(dir.listFiles());
+		List<File> otherClasses = listOnlyFiles(tests);
 		/*
 		 * this is important to force the loading of all files generated
 		 * in the target folder.
 		 * If we do not do that, then we will miss all the anonymous classes 
 		 */
 		getClassesFromFiles(otherClasses);
-		
+
 		return testClasses;
 	}
 
-	private static List<File> listOnlyFiles(File[] files) {
+	private static List<File> listOnlyFiles(List<File> tests) {
 		List<File> otherClasses = new LinkedList<File>();
-		for (File file : files) {
-			if (file.isFile()) {
-				otherClasses.add(file);
+
+		for(File test : tests){
+			File folder = test.getParentFile();
+			String testFileNameNoExt = removeFileExtension(test.getName());
+			
+			for (File file : folder.listFiles()) {
+				if(file.equals(test)){
+					continue;
+				}
+				
+				String fileNameNoExt = removeFileExtension(file.getName()); 
+				if(fileNameNoExt.equals(testFileNameNoExt)){
+					/*
+					 * if we already loaded a CUT due to its .java, do not want
+					 * to re-loaded it for a .class
+					 */
+					continue;
+				}
+				
+				if (file.isFile()) {
+					otherClasses.add(file);
+				}
 			}
 		}
 		return otherClasses;
 	}
 
+	private static String removeFileExtension(String str) {
+        if (str == null){
+        		return null;
+        }
+
+        int pos = str.lastIndexOf(".");
+
+        if (pos == -1){
+        		return str;
+        }
+
+        return str.substring(0, pos);
+    }
+	
 	/**
 	 * <p>
 	 * The output of EvoSuite is a set of test cases. For debugging and
@@ -413,12 +446,12 @@ public class JUnitAnalyzer {
 			}
 
 			Result result = runTests(testClasses);
-			
+
 			if (!result.wasSuccessful()) {
 				logger.error("" + result.getFailureCount() + " test cases failed");
 				for (Failure failure : result.getFailures()) {
 					logger.error("Failure " + failure.getException().getClass() + ": "
-					        + failure.getMessage() + "\n" + failure.getTrace());
+							+ failure.getMessage() + "\n" + failure.getTrace());
 				}				
 				return false;
 			} else {
@@ -448,12 +481,12 @@ public class JUnitAnalyzer {
 		}
 
 		logger.debug("Successfully compiled and run test cases generated for "
-		        + Properties.TARGET_CLASS);
+				+ Properties.TARGET_CLASS);
 		return true;
 	}
 
 	/**
-	 * Given a list of files representing .java classes, load them (it assumes
+	 * Given a list of files representing .java/.class classes, load them (it assumes
 	 * the classpath to be correctly set)
 	 * 
 	 * @param files
@@ -466,38 +499,45 @@ public class JUnitAnalyzer {
 			if (!file.isFile()) {
 				continue;
 			}
-			
-			//String packagePrefix = Properties.TARGET_CLASS.substring(0,Properties.TARGET_CLASS.lastIndexOf(".")+1);
+
 			String packagePrefix = Properties.CLASS_PREFIX;
 			if (!packagePrefix.isEmpty() && !packagePrefix.endsWith(".")) {
 				packagePrefix += ".";
 			}
 
 			final String JAVA = ".java";
-			String name = file.getName();
+			final String CLASS = ".class";
 			
-			if(!name.endsWith(JAVA)){
+			String name = file.getName();
+
+			if(!name.endsWith(JAVA) && !name.endsWith(CLASS)){
 				/*
 				 * this could happen when we scan a folder for all src/compiled
 				 * files
 				 */
 				continue;
 			}
-			
-			name = name.substring(0, name.length() - JAVA.length());
-			String className = packagePrefix + name;
+
 			String fileName = file.getAbsolutePath();
-			fileName = fileName.substring(0, fileName.length() - JAVA.length())
-			        + ".class";
+
+			if(name.endsWith(JAVA)){
+				name = name.substring(0, name.length() - JAVA.length());
+				fileName = fileName.substring(0, fileName.length() - JAVA.length()) + ".class";
+			} else {
+				assert name.endsWith(CLASS);
+				name = name.substring(0, name.length() - CLASS.length());
+			}
+			
+			String className = packagePrefix + name;
+			
 			Class<?> testClass = null;
 			try {
 				logger.info("Loading class " + className);
-				// testClass = loader.loadClass(className);
 				testClass = ((InstrumentingClassLoader) TestGenerationContext.getInstance().getClassLoaderForSUT()).loadClassFromFile(className,
-				                                                                                                                      fileName);
+						fileName);
 			} catch (ClassNotFoundException e) {
 				logger.error("Failed to load test case " + className + " from file "
-				        + file.getAbsolutePath() + " , error " + e, e);
+						+ file.getAbsolutePath() + " , error " + e, e);
 				return null;
 			}
 			classes.add(testClass);

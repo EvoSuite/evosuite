@@ -34,6 +34,7 @@ import java.security.UnresolvedPermission;
 import java.sql.SQLPermission;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.PropertyPermission;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -192,6 +193,12 @@ public class MSecurityManager extends SecurityManager {
 		filesToDelete = new CopyOnWriteArraySet<File>();
 	}
 
+	public Set<Thread> getPriviledThreads(){
+		Set<Thread> set = new LinkedHashSet<Thread>();
+		set.addAll(privilegedThreads);
+		return set;
+	}
+	
 	/**
 	 * This security manager creates one file when its class is loaded.
 	 * This file will be used for example by the virtual file system.

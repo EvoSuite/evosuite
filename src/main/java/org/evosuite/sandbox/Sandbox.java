@@ -17,6 +17,8 @@
  */
 package org.evosuite.sandbox;
 
+import java.util.Set;
+
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.slf4j.Logger;
@@ -47,10 +49,18 @@ public class Sandbox {
 	/**
 	 * Create and initialize security manager for SUT
 	 */
-	public static synchronized void initializeSecurityManagerForSUT() {
+	public static synchronized void initializeSecurityManagerForSUT(Set<Thread> privileged) {
 		if (manager == null) {
 			manager = new MSecurityManager();
-			manager.makePriviligedAllCurrentThreads();
+			
+			if(privileged == null){
+				manager.makePriviligedAllCurrentThreads();
+			} else {
+				for(Thread t : privileged){
+					manager.addPrivilegedThread(t);
+				}
+			}
+			
 			manager.apply();
 		} else {
 			logger.warn("Sandbox can be initalized only once");
@@ -58,13 +68,30 @@ public class Sandbox {
 		
 		counter++;
 	}
+	
+	/**
+	 * Create and initialize security manager for SUT
+	 */
+	public static synchronized void initializeSecurityManagerForSUT() {
+		initializeSecurityManagerForSUT(null);
+	}
 
 	public static void addPriviligedThread(Thread t) {
 		if (manager != null)
 			manager.addPrivilegedThread(t);
 	}
 
-	public static synchronized void resetDefaultSecurityManager() {
+	/**
+	 * 
+	 * @return a set of the threads that were marked as privileged. This is useful
+	 * if then we want to reactivate the security manager with the same priviliged threads.
+	 */
+	public static synchronized Set<Thread> resetDefaultSecurityManager() {
+		
+		Set<Thread> privileged = null;
+		if(manager!=null){
+			privileged = manager.getPriviledThreads();
+		}
 		
 		counter--;
 		
@@ -74,6 +101,8 @@ public class Sandbox {
 			}
 			manager = null;
 		}
+		
+		return privileged;
 	}
 
 	public static boolean isSecurityManagerInitialized() {
