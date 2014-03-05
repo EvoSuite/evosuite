@@ -24,11 +24,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.TestSuiteGenerator;
 import org.evosuite.assertion.OutputTrace;
 import org.evosuite.coverage.mutation.Mutation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExecutionResult implements Cloneable {
 
+	private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
+	
 	/** Test case that produced this execution result */
 	public TestCase test;
 
@@ -357,6 +362,7 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	public void setSecurityException(boolean value) {
+		logger.debug("Changing hasSecurityException from "+hasSecurityException +" to "+value);
 		hasSecurityException = value;
 	}
 
