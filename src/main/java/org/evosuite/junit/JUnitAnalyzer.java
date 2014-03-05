@@ -463,6 +463,10 @@ public class JUnitAnalyzer {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		for (File file : files) {
 
+			if (!file.isFile()) {
+				continue;
+			}
+			
 			//String packagePrefix = Properties.TARGET_CLASS.substring(0,Properties.TARGET_CLASS.lastIndexOf(".")+1);
 			String packagePrefix = Properties.CLASS_PREFIX;
 			if (!packagePrefix.isEmpty() && !packagePrefix.endsWith(".")) {
@@ -471,6 +475,11 @@ public class JUnitAnalyzer {
 
 			final String JAVA = ".java";
 			String name = file.getName();
+			
+			if (!name.endsWith(JAVA)) {
+				continue;
+			}
+			
 			name = name.substring(0, name.length() - JAVA.length());
 			String className = packagePrefix + name;
 			String fileName = file.getAbsolutePath();
