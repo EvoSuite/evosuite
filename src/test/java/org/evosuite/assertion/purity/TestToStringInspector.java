@@ -17,11 +17,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.objectweb.asm.Type;
 
-import com.examples.with.different.packagename.inspector.InterfaceInspector;
-import com.examples.with.different.packagename.inspector.InterfaceInspectorBuilder;
-import com.examples.with.different.packagename.inspector.InterfaceInspectorCalls;
+import com.examples.with.different.packagename.inspector.AbstractToStringInspector;
+import com.examples.with.different.packagename.inspector.ImpureToStringInspector;
+import com.examples.with.different.packagename.inspector.ToStringInspector;
 
-public class TestInterfaceInspectors extends SystemTest {
+public class TestToStringInspector extends SystemTest {
 	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
@@ -47,10 +47,10 @@ public class TestInterfaceInspectors extends SystemTest {
 	}
 
 	@Test
-	public void testInterfaceInspectorCalls() {
+	public void testPureToString() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = InterfaceInspectorCalls.class.getCanonicalName();
+		String targetClass = ToStringInspector.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
@@ -66,22 +66,16 @@ public class TestInterfaceInspectors extends SystemTest {
 
 		CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
 
-		String descriptor = Type.getMethodDescriptor(Type.BOOLEAN_TYPE);
-		boolean pureInspector1 = purityAnalyzer.isPure(targetClass,
-				"pureInspector1", descriptor);
-		assertTrue(pureInspector1);
+		String descriptor = Type
+				.getMethodDescriptor(Type.getType(String.class));
+		boolean toString = purityAnalyzer.isPure(targetClass, "toString",
+				descriptor);
+		assertTrue(toString);
 
-		boolean pureInspector2 = purityAnalyzer.isPure(targetClass,
-				"pureInspector2", descriptor);
-		assertTrue(pureInspector2);
-
-		boolean impureInspector1 = purityAnalyzer.isPure(targetClass,
-				"impureInspector1", descriptor);
-		assertFalse(impureInspector1);
-
-		boolean impureInspector2 = purityAnalyzer.isPure(targetClass,
-				"impureInspector1", descriptor);
-		assertFalse(impureInspector2);
+		boolean abstractToString = purityAnalyzer.isPure(
+				AbstractToStringInspector.class.getCanonicalName(), "toString",
+				descriptor);
+		assertTrue(abstractToString);
 
 		StatisticEntry entry = SearchStatistics.getInstance()
 				.getLastStatisticEntry();
@@ -89,10 +83,10 @@ public class TestInterfaceInspectors extends SystemTest {
 	}
 
 	@Test
-	public void testInterfaceInspectorBuilder() {
+	public void testImpureToString() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = InterfaceInspectorBuilder.class.getCanonicalName();
+		String targetClass = ImpureToStringInspector.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
@@ -108,16 +102,11 @@ public class TestInterfaceInspectors extends SystemTest {
 
 		CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
 
-		String descriptor = Type.getMethodDescriptor(Type.INT_TYPE);
-		String interfaceInspectorClassName = InterfaceInspector.class
-				.getCanonicalName();
-		boolean pureInspector = purityAnalyzer.isPure(
-				interfaceInspectorClassName, "pureInspector", descriptor);
-		assertTrue(pureInspector);
-
-		boolean impureInspector = purityAnalyzer.isPure(
-				interfaceInspectorClassName, "impureInspector", descriptor);
-		assertFalse(impureInspector);
+		String descriptor = Type
+				.getMethodDescriptor(Type.getType(String.class));
+		boolean toString = purityAnalyzer.isPure(targetClass, "toString",
+				descriptor);
+		assertFalse(toString);
 
 		StatisticEntry entry = SearchStatistics.getInstance()
 				.getLastStatisticEntry();

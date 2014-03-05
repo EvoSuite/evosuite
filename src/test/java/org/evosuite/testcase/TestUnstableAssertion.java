@@ -16,29 +16,27 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.staticfield.UnstableAssertion;
 
-public class TestUnstableAssertion extends SystemTest{
+public class TestUnstableAssertion extends SystemTest {
 
-	private boolean reset_statick_field__property;
-	private boolean junit_check_property;
-	private boolean junit_tests_property;
-	
+	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
+	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
+	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
+	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
+
 	@Before
 	public void saveProperties() {
-		reset_statick_field__property = Properties.RESET_STATIC_FIELDS;
-		junit_check_property = Properties.JUNIT_CHECK;
-		junit_tests_property = Properties.JUNIT_TESTS;
-
 		Properties.RESET_STATIC_FIELDS = true;
 		Properties.JUNIT_CHECK = true;
 		Properties.JUNIT_TESTS = true;
+		Properties.SANDBOX = true;
 	}
 
 	@After
 	public void restoreProperties() {
-		Properties.RESET_STATIC_FIELDS = reset_statick_field__property ;
-		Properties.JUNIT_CHECK = junit_check_property;
-		Properties.JUNIT_TESTS = junit_tests_property;
-
+		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
+		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
+		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
+		Properties.SANDBOX = DEFAULT_SANDBOX;
 	}
 
 	@Test
@@ -47,7 +45,8 @@ public class TestUnstableAssertion extends SystemTest{
 
 		String targetClass = UnstableAssertion.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] {"-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuite", "-class",
+				targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 
@@ -55,9 +54,11 @@ public class TestUnstableAssertion extends SystemTest{
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		double best_fitness = best.getFitness();
-		Assert.assertTrue("Optimal coverage was not achieved ", best_fitness == 0.0);
-		
-		StatisticEntry entry = SearchStatistics.getInstance().getLastStatisticEntry();
+		Assert.assertTrue("Optimal coverage was not achieved ",
+				best_fitness == 0.0);
+
+		StatisticEntry entry = SearchStatistics.getInstance()
+				.getLastStatisticEntry();
 		assertFalse(entry.hadUnstableTests);
 	}
 
