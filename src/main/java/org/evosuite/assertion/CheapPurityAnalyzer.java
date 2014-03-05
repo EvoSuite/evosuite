@@ -118,7 +118,7 @@ public class CheapPurityAnalyzer {
 		}
 
 		// check overriding methods
-		if (checkAnyOverridingMethodImpure(entry)) {
+		if (checkAnyOverridingMethodImpure(entry, callStack)) {
 			addCacheValue(entry, false);
 			return false;
 		}
@@ -126,7 +126,8 @@ public class CheapPurityAnalyzer {
 		if (this.notUpdateFieldMethodList.contains(entry)) {
 			addCacheValue(entry, true);
 			return true;
-		} if (this.interfaceMethodEntries.contains(entry)) {
+		}
+		if (this.interfaceMethodEntries.contains(entry)) {
 			addCacheValue(entry, true);
 			return true;
 		}
@@ -135,7 +136,8 @@ public class CheapPurityAnalyzer {
 		return DEFAULT_PURITY_VALUE;
 	}
 
-	private boolean checkAnyOverridingMethodImpure(MethodEntry entry) {
+	private boolean checkAnyOverridingMethodImpure(MethodEntry entry,
+			Stack<MethodEntry> callStack) {
 		InheritanceTree inheritanceTree = DependencyAnalysis
 				.getInheritanceTree();
 		Set<String> subclasses = inheritanceTree.getSubclasses(entry.className);
@@ -145,9 +147,13 @@ public class CheapPurityAnalyzer {
 				MethodEntry subclassEntry = new MethodEntry(subclassName,
 						entry.methodName, entry.descriptor);
 
-				if (methodEntries.contains(subclassEntry)) {
-					if (!isPure(subclassName, entry.methodName,
-							entry.descriptor)) {
+				if (!callStack.contains(subclassEntry)
+						&& methodEntries.contains(subclassEntry)) {
+
+					Stack<MethodEntry> newStack = new Stack<MethodEntry>();
+					newStack.addAll(callStack);
+					newStack.add(subclassEntry);
+					if (!isPure(subclassEntry, newStack)) {
 						return true;
 					}
 				}
@@ -156,7 +162,7 @@ public class CheapPurityAnalyzer {
 		return false;
 	}
 
-	public boolean isJdkPureMethod(MethodEntry entry) {
+	private boolean isJdkPureMethod(MethodEntry entry) {
 		String paraz = entry.descriptor;
 		Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(paraz);
 		String newParams = "";

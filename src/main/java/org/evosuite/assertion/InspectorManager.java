@@ -121,8 +121,12 @@ public class InspectorManager {
 			return false; 
 
 		if (Properties.PURE_INSPECTORS) {
+			try {
 			if (!CheapPurityAnalyzer.getInstance().isPure(method)) {
 				return false;
+			}
+			} catch (StackOverflowError err) {
+				System.err.println("STACKOVERFLOW:" + method.getDeclaringClass().getCanonicalName() + "." + method.getName());
 			}
 
 		}
