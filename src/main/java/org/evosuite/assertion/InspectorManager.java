@@ -38,37 +38,52 @@ public class InspectorManager {
 
 	private static InspectorManager instance = null;
 
-	private static Logger logger = LoggerFactory.getLogger(InspectorManager.class);
+	private static Logger logger = LoggerFactory
+			.getLogger(InspectorManager.class);
 
 	private Map<Class<?>, List<Inspector>> inspectors = new HashMap<Class<?>, List<Inspector>>();
 
 	private Map<String, List<String>> blackList = new HashMap<String, List<String>>();
-	
+
 	private InspectorManager() {
 		// TODO: Need to replace this with proper analysis
 		// readInspectors();
 		initializeBlackList();
 	}
-	
+
 	private void initializeBlackList() {
 		// These methods will include absolute path names and should not be in assertions
-		blackList.put("java.io.File", Arrays.asList(new String[] {"getPath", "getAbsolutePath", "getCanonicalPath"}));
-		
+		blackList.put(
+				"java.io.File",
+				Arrays.asList(new String[] { "getPath", "getAbsolutePath",
+						"getCanonicalPath" }));
+
 		// These methods will contain locale specific strings 
-		blackList.put("java.util.Date", Arrays.asList(new String[] {"getLocaleString"}));
+		blackList.put("java.util.Date",
+				Arrays.asList(new String[] { "getLocaleString" }));
 
 		// These methods will include data differing in every run 
-		blackList.put("java.lang.Thread", Arrays.asList(new String[] {"activeCount", "getId", "getName", "getPriority", "toString"}));
-		blackList.put("java.util.EventObject", Arrays.asList(new String[] {"toString"}));
-		
-		blackList.put(Locale.class.getCanonicalName(), Arrays.asList(new String[] {"getDisplay"}));
-		
+		blackList.put(
+				"java.lang.Thread",
+				Arrays.asList(new String[] { "activeCount", "getId", "getName",
+						"getPriority", "toString" }));
+		blackList.put("java.util.EventObject",
+				Arrays.asList(new String[] { "toString" }));
+
+		blackList.put(Locale.class.getCanonicalName(),
+				Arrays.asList(new String[] { "getDisplay" }));
+
 		// AWT identifiers are different with every run
-		blackList.put("java.awt.Panel", Arrays.asList(new String[] {"toString"}));
-		blackList.put("java.awt.Component", Arrays.asList(new String[] {"toString"}));
-		blackList.put("java.awt.event.MouseWheelEvent", Arrays.asList(new String[] {"toString"}));
-		blackList.put("javax.swing.DefaultListSelectionModel", Arrays.asList(new String[] {"toString"}));
-		blackList.put("java.rmi.server.ObjID", Arrays.asList(new String[] {"toString"}));
+		blackList.put("java.awt.Panel",
+				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.awt.Component",
+				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.awt.event.MouseWheelEvent",
+				Arrays.asList(new String[] { "toString" }));
+		blackList.put("javax.swing.DefaultListSelectionModel",
+				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.rmi.server.ObjID",
+				Arrays.asList(new String[] { "toString" }));
 	}
 
 	/**
@@ -88,77 +103,74 @@ public class InspectorManager {
 	private boolean isInspectorMethod(Method method) {
 		if (!Modifier.isPublic(method.getModifiers()))
 			return false;
-		
+
 		if (!method.getReturnType().isPrimitive()
-		                && !method.getReturnType().equals(String.class) && !method.getReturnType().isEnum())
+				&& !method.getReturnType().equals(String.class)
+				&& !method.getReturnType().isEnum())
 			return false;
-		
+
 		if (method.getReturnType().equals(void.class))
 			return false;
-		
+
 		if (method.getParameterTypes().length != 0)
 			return false;
-		
+
 		if (method.getName().equals("hashCode"))
 			return false;
-		
+
 		if (method.getDeclaringClass().equals(Object.class))
 			return false;
-		
+
 		if (method.isSynthetic())
 			return false;
-		
+
 		if (method.isBridge())
 			return false;
-		
+
 		if (method.getName().equals("pop"))
 			return false;
-		
+
 		if (isBlackListed(method))
 			return false;
-		
+
 		if (isImpureJDKMethod(method))
-			return false; 
+			return false;
 
 		if (Properties.PURE_INSPECTORS) {
-			try {
 			if (!CheapPurityAnalyzer.getInstance().isPure(method)) {
 				return false;
 			}
-			} catch (StackOverflowError err) {
-				System.err.println("STACKOVERFLOW:" + method.getDeclaringClass().getCanonicalName() + "." + method.getName());
-			}
-
 		}
-		
+
 		return true;
-		
+
 	}
-	
+
 	private boolean isImpureJDKMethod(Method method) {
 		String className = method.getDeclaringClass().getCanonicalName();
-		if(!className.startsWith("java."))
+		if (!className.startsWith("java."))
 			return false;
-		
+
 		return !JdkPureMethodsList.instance.isPureJDKMethod(method);
 	}
-	
+
 	private boolean isBlackListed(Method method) {
 		String className = method.getDeclaringClass().getCanonicalName();
-		if(!blackList.containsKey(className))
+		if (!blackList.containsKey(className))
 			return false;
 		String methodName = method.getName();
 		return blackList.get(className).contains(methodName);
 	}
-	
+
 	private void determineInspectors(Class<?> clazz) {
 		if (!TestClusterGenerator.canUse(clazz))
 			return;
 		List<Inspector> inspectorList = new ArrayList<Inspector>();
 		for (Method method : clazz.getMethods()) {
 			if (isInspectorMethod(method)) { // FIXXME
-				logger.debug("Inspector for class " + clazz.getSimpleName() + ": "
-				        + method.getName() +" defined in "+method.getDeclaringClass().getCanonicalName());
+				logger.debug("Inspector for class " + clazz.getSimpleName()
+						+ ": " + method.getName() + " defined in "
+						+ method.getDeclaringClass().getCanonicalName());
 
 				inspectorList.add(new Inspector(clazz, method));
 			}
