@@ -26,6 +26,7 @@ public class TestGenerationResultBuilder {
 		TestGenerationResultImpl result = new TestGenerationResultImpl();
 		result.setStatus(Status.ERROR);
 		result.setErrorMessage(errorMessage);
+		getInstance().fillInformationFromConfiguration(result);
 		getInstance().fillInformationFromTestData(result);
 		getInstance().resetTestData();
 		return result;
@@ -34,6 +35,7 @@ public class TestGenerationResultBuilder {
 	public static TestGenerationResult buildTimeoutResult() {
 		TestGenerationResultImpl result = new TestGenerationResultImpl();
 		result.setStatus(Status.TIMEOUT);
+		getInstance().fillInformationFromConfiguration(result);
 		getInstance().fillInformationFromTestData(result);
 		getInstance().resetTestData();
 		return result;
@@ -42,6 +44,7 @@ public class TestGenerationResultBuilder {
 	public static TestGenerationResult buildSuccessResult() {
 		TestGenerationResultImpl result = new TestGenerationResultImpl();
 		result.setStatus(Status.SUCCESS);
+		getInstance().fillInformationFromConfiguration(result);
 		getInstance().fillInformationFromTestData(result);
 		getInstance().resetTestData();
 		return result;
@@ -74,6 +77,11 @@ public class TestGenerationResultBuilder {
 		for(Mutation m : MutationPool.getMutants()) {
 			uncoveredMutants.add(new MutationInfo(m));
 		}
+	}
+	
+	private void fillInformationFromConfiguration(TestGenerationResultImpl result) {
+		result.setClassUnderTest(Properties.TARGET_CLASS);
+		result.setTargetCriterion(Properties.CRITERION.name());
 	}
 	
 	private void fillInformationFromTestData(TestGenerationResultImpl result) {
@@ -129,6 +137,8 @@ public class TestGenerationResultBuilder {
 
 	private Set<MutationInfo> uncoveredMutants = new LinkedHashSet<MutationInfo>();
 
+	private double targetCoverage = 0.0;
+	
 	public void setTestCase(String name, String code, TestCase testCase, String comment, ExecutionResult result) {
 		testCode.put(name, code);
 		testCases.put(name, testCase);
@@ -185,5 +195,6 @@ public class TestGenerationResultBuilder {
 	
 	public void setGeneticAlgorithm(GeneticAlgorithm<?> ga) {
 		this.ga = ga;
+		targetCoverage = ga.getBestIndividual().getCoverage();
 	}
 }

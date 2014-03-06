@@ -46,6 +46,12 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	
 	private String testSuiteCode = "";
 	
+	private String targetClass = "";
+	
+	private String targetCriterion = "";
+	
+	private double targetCoverage = 0.0;
+	
 	private GeneticAlgorithm<?> ga = null;
 	
 	/** Did test generation succeed? */
@@ -83,6 +89,33 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	
 	public void setContractViolations(String name, Set<Failure> violations) {
 		contractViolations.put(name, violations);
+	}
+	
+	public void setClassUnderTest(String targetClass) {
+		this.targetClass = targetClass;
+	}
+	
+	@Override
+	public String getClassUnderTest() {
+		return targetClass;
+	}
+	
+	public void setTargetCoverage(double coverage) {
+		this.targetCoverage = coverage;
+	}
+	
+	@Override
+	public double getTargetCoverage() {
+		return targetCoverage;
+	}
+	
+	@Override
+	public String getTargetCriterion() {
+		return targetCriterion;
+	}
+	
+	public void setTargetCriterion(String criterion) {
+		this.targetCriterion = criterion;
 	}
 	
 	/** Map from test method to EvoSuite test case */

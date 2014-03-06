@@ -22,6 +22,15 @@ public interface TestGenerationResult extends Serializable {
 	/** Map from test method to ContractViolation */
 	public Set<Failure> getContractViolations(String name);
 	
+	/** Class that was tested */
+	public String getClassUnderTest();
+	
+	/** Target coverage criterion used to create this test suite */
+	public String getTargetCriterion();
+	
+	/** Coverage level of the target criterion */
+	public double getTargetCoverage();
+	
 	/** Map from test method to EvoSuite test case */
 	public TestCase getTestCase(String name);
 
