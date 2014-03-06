@@ -17,8 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.objectweb.asm.Type;
 
-import com.examples.with.different.packagename.inspector.AbstractInspector;
-import com.examples.with.different.packagename.inspector.SpecialInspector;
+import com.examples.with.different.packagename.purity.AbstractInspector;
+import com.examples.with.different.packagename.purity.SpecialInspector;
 
 public class TestSpecialInspector extends SystemTest {
 	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;

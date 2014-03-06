@@ -16,9 +16,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.objectweb.asm.Type;
 
-import com.examples.with.different.packagename.inspector.AbstractToStringInspector;
-import com.examples.with.different.packagename.inspector.ImpureToStringInspector;
-import com.examples.with.different.packagename.inspector.ToStringInspector;
+import com.examples.with.different.packagename.purity.AbstractToStringInspector;
+import com.examples.with.different.packagename.purity.ImpureToStringInspector;
+import com.examples.with.different.packagename.purity.ToStringInspector;
 
 public class TestToStringInspector extends SystemTest {
 	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;

@@ -1,4 +1,4 @@
-package com.examples.with.different.packagename.inspector;
+package com.examples.with.different.packagename.purity;
 
 public class ToStringInspector extends AbstractToStringInspector {
 
