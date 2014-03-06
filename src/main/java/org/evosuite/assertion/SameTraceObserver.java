@@ -3,10 +3,12 @@
  */
 package org.evosuite.assertion;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
+import org.objectweb.asm.Type;
 
 /**
  * <p>
@@ -44,6 +46,15 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 				if (otherObject == null)
 					continue;
 
+				if (Properties.PURE_EQUALS) {
+					String className = object.getClass().getCanonicalName();
+					String methodName = "equals";
+					String descriptor = Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.getType(Object.class));
+					CheapPurityAnalyzer cheapPurityAnalyzer = CheapPurityAnalyzer.getInstance();
+					if (!cheapPurityAnalyzer.isPure(className, methodName, descriptor))
+						continue; //Don't compare using impure equals(Object) methods		
+				}
+				
 				try {
 					logger.debug("Comparison of " + var + " with " + other + " is: "
 					        + object.equals(otherObject) +" ==> "+(object == otherObject));
