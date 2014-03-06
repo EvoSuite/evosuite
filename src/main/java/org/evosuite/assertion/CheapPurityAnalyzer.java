@@ -5,10 +5,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.utils.JdkPureMethodsList;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class performs a very cheap purity analysis by under-approximating the set of
@@ -18,6 +21,7 @@ import org.objectweb.asm.Type;
  * <ul>
  * 	<li>The method is listed in the JdkPureMethodList</li>
  * 	<li>There is no declared overriding method that is not <i>cheap-pure</i></li>
+ *  <li>All invoked classes are loaded in the inheritance tree</li>
  * 	<li>Has no PUTSTATIC nor PUTFIELD instructions</li>
  * 	<li>All static invocations (INVOKESTATIC) are made to <i>cheap-pure</i> static methods</li>
  *  <li>All special invocations (INVOKESPECIAL) are also made to <i>cheap-pure</i> methods</li>
@@ -28,6 +32,9 @@ import org.objectweb.asm.Type;
  *
  */
 public class CheapPurityAnalyzer {
+
+	private static Logger logger = LoggerFactory
+			.getLogger(CheapPurityAnalyzer.class);
 
 	private final HashSet<MethodEntry> updateFieldMethodList = new HashSet<MethodEntry>();
 	private final HashSet<MethodEntry> notUpdateFieldMethodList = new HashSet<MethodEntry>();
@@ -71,24 +78,22 @@ public class CheapPurityAnalyzer {
 		this.purityCache.put(entry, value);
 	}
 
-	private boolean isPure(MethodEntry entry, Stack<MethodEntry> callStack) {
-		if (isCached(entry))
-			return getCacheValue(entry);
-
+	private boolean isPure0(MethodEntry entry, Stack<MethodEntry> callStack) {
 		if (isJdkPureMethod(entry)) {
-			addCacheValue(entry, true);
 			return true;
 		}
 
+		if (!BytecodeInstrumentation.checkIfCanInstrument(entry.className)) {
+			return false;
+		}
+
 		if (this.updateFieldMethodList.contains(entry)) {
-			addCacheValue(entry, false);
 			return false;
 		}
 
 		if (staticCalls.containsKey(entry)) {
 			Set<MethodEntry> calls = staticCalls.get(entry);
 			if (checkAnyCallImpure(calls, entry, callStack)) {
-				addCacheValue(entry, false);
 				return false;
 			}
 		}
@@ -96,7 +101,6 @@ public class CheapPurityAnalyzer {
 		if (specialCalls.containsKey(entry)) {
 			Set<MethodEntry> calls = specialCalls.get(entry);
 			if (checkAnyCallImpure(calls, entry, callStack)) {
-				addCacheValue(entry, false);
 				return false;
 			}
 		}
@@ -104,7 +108,6 @@ public class CheapPurityAnalyzer {
 		if (virtualCalls.containsKey(entry)) {
 			Set<MethodEntry> calls = virtualCalls.get(entry);
 			if (checkAnyCallImpure(calls, entry, callStack)) {
-				addCacheValue(entry, false);
 				return false;
 			}
 		}
@@ -112,34 +115,46 @@ public class CheapPurityAnalyzer {
 		if (interfaceCalls.containsKey(entry)) {
 			Set<MethodEntry> calls = interfaceCalls.get(entry);
 			if (checkAnyCallImpure(calls, entry, callStack)) {
-				addCacheValue(entry, false);
 				return false;
 			}
 		}
 
 		// check overriding methods
 		if (checkAnyOverridingMethodImpure(entry, callStack)) {
-			addCacheValue(entry, false);
 			return false;
 		}
 
 		if (this.notUpdateFieldMethodList.contains(entry)) {
-			addCacheValue(entry, true);
 			return true;
 		}
 		if (this.interfaceMethodEntries.contains(entry)) {
-			addCacheValue(entry, true);
 			return true;
 		}
 
-		addCacheValue(entry, DEFAULT_PURITY_VALUE);
 		return DEFAULT_PURITY_VALUE;
+	}
+
+	private boolean isPure(MethodEntry entry, Stack<MethodEntry> callStack) {
+		if (isCached(entry)) {
+			return getCacheValue(entry);
+		} else {
+			boolean isPure = isPure0(entry, callStack);
+			addCacheValue(entry, isPure);
+			return isPure;
+		}
 	}
 
 	private boolean checkAnyOverridingMethodImpure(MethodEntry entry,
 			Stack<MethodEntry> callStack) {
 		InheritanceTree inheritanceTree = DependencyAnalysis
 				.getInheritanceTree();
+
+		if (!inheritanceTree.hasClass(entry.className)) {
+			logger.warn(entry.className
+					+ " was not found in the inheritance tree. Using DEFAULT value for cheap-purity analysis");
+			return DEFAULT_PURITY_VALUE;
+		}
+
 		Set<String> subclasses = inheritanceTree.getSubclasses(entry.className);
 		for (String subclassName : subclasses) {
 			if (!entry.className.equals(subclassName)) {
@@ -196,7 +211,7 @@ public class CheapPurityAnalyzer {
 	/**
 	 * We return this value when we can't conclude if a given method is pure or not.
 	 */
-	private static boolean DEFAULT_PURITY_VALUE = false;
+	private static final boolean DEFAULT_PURITY_VALUE = false;
 
 	/**
 	 * Returns if a Method is <code>cheap-pure</code>
