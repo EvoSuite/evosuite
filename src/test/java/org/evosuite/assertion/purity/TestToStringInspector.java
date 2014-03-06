@@ -1,7 +1,6 @@
 package org.evosuite.assertion.purity;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -70,12 +69,12 @@ public class TestToStringInspector extends SystemTest {
 				.getMethodDescriptor(Type.getType(String.class));
 		boolean toString = purityAnalyzer.isPure(targetClass, "toString",
 				descriptor);
-		assertTrue(toString);
+		assertFalse(toString);
 
 		boolean abstractToString = purityAnalyzer.isPure(
 				AbstractToStringInspector.class.getCanonicalName(), "toString",
 				descriptor);
-		assertTrue(abstractToString);
+		assertFalse(abstractToString);
 
 		StatisticEntry entry = SearchStatistics.getInstance()
 				.getLastStatisticEntry();

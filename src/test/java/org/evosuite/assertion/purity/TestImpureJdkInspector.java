@@ -17,10 +17,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.objectweb.asm.Type;
 
-import com.examples.with.different.packagename.inspector.AbstractInspector;
-import com.examples.with.different.packagename.inspector.SpecialInspector;
+import com.examples.with.different.packagename.inspector.ImpureJdkInspector;
 
-public class TestSpecialInspector extends SystemTest {
+public class TestImpureJdkInspector extends SystemTest {
 	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
@@ -49,7 +48,7 @@ public class TestSpecialInspector extends SystemTest {
 	public void test() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = SpecialInspector.class.getCanonicalName();
+		String targetClass = ImpureJdkInspector.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
@@ -65,35 +64,14 @@ public class TestSpecialInspector extends SystemTest {
 
 		CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
 
-		String descriptor = Type.getMethodDescriptor(Type.BOOLEAN_TYPE);
-		boolean greaterthanZeroIsPure = purityAnalyzer.isPure(targetClass,
-				"greaterThanZero", descriptor);
-		assertTrue(greaterthanZeroIsPure);
+		String descriptor = Type.getMethodDescriptor(Type.INT_TYPE);
+		boolean getPureSize = purityAnalyzer.isPure(targetClass,
+				"getPureSize", descriptor);
+		assertTrue(getPureSize);
 
-		boolean notPureGreaterthanZeroIsPure = purityAnalyzer.isPure(
-				targetClass, "notPureGreaterThanZero", descriptor);
-		assertFalse(notPureGreaterthanZeroIsPure);
-
-		boolean notPureCreationOfObjectIsPure = purityAnalyzer.isPure(
-				targetClass, "notPureCreationOfObject", descriptor);
-		assertFalse(notPureCreationOfObjectIsPure);
-
-		boolean pureCreationOfObjectIsPure = purityAnalyzer.isPure(targetClass,
-				"pureCreationOfObject", descriptor);
-		assertFalse(pureCreationOfObjectIsPure);
-
-		boolean superPureCall = purityAnalyzer.isPure(targetClass,
-				"superPureCall", descriptor);
-		assertTrue(superPureCall);
-
-		boolean notPureGreaterThanZero = purityAnalyzer.isPure(
-				AbstractInspector.class.getCanonicalName(),
-				"notPureGreaterThanZero", descriptor);
-		assertFalse(notPureGreaterThanZero);
-
-		boolean superNotPureCall = purityAnalyzer.isPure(targetClass,
-				"superNotPureCall", descriptor);
-		assertFalse(superNotPureCall);
+		boolean getImpureSize = purityAnalyzer.isPure(
+				targetClass, "getImpureSize", descriptor);
+		assertFalse(getImpureSize);
 
 		StatisticEntry entry = SearchStatistics.getInstance()
 				.getLastStatisticEntry();

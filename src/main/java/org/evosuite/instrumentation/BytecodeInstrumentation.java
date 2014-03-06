@@ -112,6 +112,15 @@ public class BytecodeInstrumentation {
 					          "org.apache.commons.logging.Log"// Leads to ExceptionInInitializerException when re-instrumenting classes that use a logger
 		};
 	}
+	
+	private static String[] getEvoSuitePackages() {
+		return new String[] {"org.evosuite", 
+				"org.exsyst", 
+				"de.unisb.cs.st.testcarver", 
+				"de.unisb.cs.st.evosuite",
+				"testing.generation.evosuite",
+				"de.unisl.cs.st.bugex" };
+	}
 
 	/**
 	 * Check if we can instrument the given class
@@ -127,6 +136,22 @@ public class BytecodeInstrumentation {
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * Check if we the class belongs to an EvoSuite package
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
+	public static boolean checkIfEvoSuitePackage(String className) {
+		for (String s : BytecodeInstrumentation.getEvoSuitePackages()) {
+			if (className.startsWith(s)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

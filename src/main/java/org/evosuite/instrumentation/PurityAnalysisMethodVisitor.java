@@ -88,7 +88,8 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 			String desc) {
 
 		String targetClassName = owner.replace("/", ".");
-		if (BytecodeInstrumentation.checkIfCanInstrument(targetClassName)) {
+		if (!BytecodeInstrumentation.checkIfEvoSuitePackage(targetClassName)) {
+			//Only ignore EvoSuite callbacks
 			if (opcode == Opcodes.INVOKESTATIC) {
 				this.purityAnalyzer.addStaticCall(classNameWithDots,
 						methodName, descriptor, targetClassName, name, desc);
