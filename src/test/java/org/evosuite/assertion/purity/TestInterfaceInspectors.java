@@ -17,9 +17,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.objectweb.asm.Type;
 
-import com.examples.with.different.packagename.inspector.InterfaceInspector;
-import com.examples.with.different.packagename.inspector.InterfaceInspectorBuilder;
-import com.examples.with.different.packagename.inspector.InterfaceInspectorCalls;
+import com.examples.with.different.packagename.purity.InterfaceInspector;
+import com.examples.with.different.packagename.purity.InterfaceInspectorBuilder;
+import com.examples.with.different.packagename.purity.InterfaceInspectorCalls;
 
 public class TestInterfaceInspectors extends SystemTest {
 	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;

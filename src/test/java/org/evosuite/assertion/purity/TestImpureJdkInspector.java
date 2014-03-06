@@ -17,7 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.objectweb.asm.Type;
 
-import com.examples.with.different.packagename.inspector.ImpureJdkInspector;
+import com.examples.with.different.packagename.purity.ImpureJdkInspector;
 
 public class TestImpureJdkInspector extends SystemTest {
 	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
