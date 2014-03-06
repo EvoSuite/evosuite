@@ -111,6 +111,7 @@ public class TestGenerationResultBuilder {
 		result.setExceptionMutants(exceptionMutants);
 		result.setTestSuiteCode(code);
 		result.setGeneticAlgorithm(ga);
+		result.setTargetCoverage(targetCoverage);
 	}
 	
 	private String code = "";
