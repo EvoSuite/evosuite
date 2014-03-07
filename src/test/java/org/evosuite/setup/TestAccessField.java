@@ -77,7 +77,7 @@ public class TestAccessField {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
 		Field f = FieldUtils.getField(com.examples.with.different.packagename.AccessExamples.class, "protectedField", true);
 		boolean result = TestClusterGenerator.canUse(f);
-		Assert.assertFalse(result);
+		Assert.assertTrue(result);
 	}
 
 	@Test

@@ -102,7 +102,7 @@ public class TestAccessMethod {
 		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
 		                     "protectedMethod");
 		boolean result = TestClusterGenerator.canUse(f);
-		Assert.assertFalse(result);
+		Assert.assertTrue(result);
 	}
 
 	@Test
