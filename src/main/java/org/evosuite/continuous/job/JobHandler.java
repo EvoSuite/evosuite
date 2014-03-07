@@ -153,7 +153,6 @@ public class JobHandler extends Thread {
 		String cmd = "java ";
 		String classpath = System.getProperty("java.class.path");
 		cmd += " -cp " + classpath + File.pathSeparator + executor.getProjectClassPath();
-
 		/* 
 		 * FIXME for seeding, need to setup classpath of generated test suites
 		 * - first the currently generated
@@ -188,6 +187,7 @@ public class JobHandler extends Thread {
 		cmd += " " + org.evosuite.EvoSuite.class.getName();
 		cmd += " -mem " + clientMB;
 		cmd += " -class " + job.cut;
+		cmd += " -projectCP "+executor.getProjectClassPath();
 
 		//needs to be called twice, after the Java command
 		if (Properties.LOG_LEVEL != null && !Properties.LOG_LEVEL.isEmpty()) {
