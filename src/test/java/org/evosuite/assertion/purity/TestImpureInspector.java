@@ -65,6 +65,12 @@ public class TestImpureInspector extends SystemTest {
 		CheapPurityAnalyzer purityAnalyzer = CheapPurityAnalyzer.getInstance();
 
 		String descriptor = Type.getMethodDescriptor(Type.INT_TYPE);
+
+		boolean recursivePureFunction = purityAnalyzer.isPure(targetClass,
+				"recursivePureFunction",
+				Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE));
+		assertTrue(recursivePureFunction);
+
 		boolean getImpureValue = purityAnalyzer.isPure(targetClass,
 				"getImpureValue", descriptor);
 		assertFalse(getImpureValue);
