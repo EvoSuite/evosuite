@@ -73,9 +73,20 @@ public class CheapPurityAnalyzer {
 		return this.purityCache.get(entry);
 	}
 
-	private void addCacheValue(MethodEntry entry, boolean value) {
-		assert (!isCached(entry));
-		this.purityCache.put(entry, value);
+	private void addCacheValue(MethodEntry entry, boolean new_value) {
+		if (isCached(entry)) {
+			boolean old_value = this.purityCache.get(entry);
+			if (old_value != new_value) {
+				String fullyQuantifiedMethodName = entry.className + "."
+						+ entry.methodName + entry.descriptor;
+
+				logger.warn("The method "
+						+ fullyQuantifiedMethodName
+						+ " had a different value in the purity cache (old_value="
+						+ old_value + ",new_value=" + new_value + ")");
+			}
+		}
+		this.purityCache.put(entry, new_value);
 	}
 
 	private boolean isPure0(MethodEntry entry, Stack<MethodEntry> callStack) {
