@@ -18,8 +18,13 @@
 package org.evosuite;
 
 
+import static org.junit.Assert.*;
+
+import java.util.List;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.result.TestGenerationResult;
 import org.junit.Test;
 
 
@@ -44,7 +49,8 @@ public class TestShouldNotWork {
 		evosuite.parseCommandLine(command);
 	}
 	
-	@Test(expected=IllegalArgumentException.class)
+	@SuppressWarnings("unchecked")
+	@Test
 	public void testJavaPackageNotOnProjectCP(){
 		EvoSuite evosuite = new EvoSuite();
 		
@@ -59,7 +65,14 @@ public class TestShouldNotWork {
 		};
 
 		
-		evosuite.parseCommandLine(command);
+		Object result = evosuite.parseCommandLine(command);
+		List<TestGenerationResult> results = (List<TestGenerationResult>)result;
+		assertEquals(1, results.size());
+		TestGenerationResult testResult = results.iterator().next();
+		System.out.println(testResult.getErrorMessage());
+		assertFalse(testResult.getErrorMessage().isEmpty());
+		assertEquals(TestGenerationResult.Status.ERROR, testResult.getTestGenerationStatus());
+		
 	}
 	
 }
