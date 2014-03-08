@@ -6,8 +6,10 @@ import java.util.Map;
 public class Thread {
 
 	public static StackTraceElement[] getStackTrace() {
-		StackTraceElement[] stack = new StackTraceElement[1];
+		StackTraceElement[] stack = new StackTraceElement[3];
 		stack[0] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
+		stack[1] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
+		stack[2] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
 		return stack;
 	}
 	
