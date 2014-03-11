@@ -3,6 +3,7 @@ package org.evosuite.runtime;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.evosuite.mock.java.io.MockFile;
 import org.evosuite.mock.java.io.MockFileInputStream;
@@ -25,6 +26,26 @@ public class VirtualFileSystemTest {
 		VirtualFileSystem.getInstance().resetSingleton();
 	}
 	
+	
+	@Test
+	public void testTokenizeOnWindows(){
+		String[] paths = new String[]{
+				"C:\\foo\\single",
+				"C:\\\\foo\\\\double",
+				"C:\\foo\\\\mixed",
+				"D:\\foo\\onD",
+				"D:\\foo\\trail\\",
+				"D:\\foo\\doubleTrail\\\\",
+				"D:\\\\\\\\foo\\eight"
+		};
+		for(String path : paths){
+			String[] tokens = VirtualFileSystem.tokenize(path, '\\');
+			Assert.assertEquals(Arrays.toString(tokens),3, tokens.length);
+			for(String token : tokens){
+				Assert.assertTrue(token,!token.contains("\\"));
+			}
+		}
+	}
 	
 	@Test
 	public void testNoAccessByDefault(){

@@ -40,11 +40,17 @@ public abstract class FSObject {
 	public FSObject(String path,VFolder parent){		
 		readPermission = true;
 		writePermission = true;
-		executePermission = true;
-		this.path = normalizePath(path);	
+		executePermission = true;		
 		this.parent = parent;
 		this.deleted = false;
 		this.lastModified = getCurrentTimeMillis();
+
+		if(isSpecialWindowsRoot(path)){
+			//this means we are in Windows, and we are handling C: root folder
+			this.path = path;
+		} else {
+			this.path = normalizePath(path);
+		}
 	}
 
 	protected long getCurrentTimeMillis(){
@@ -56,6 +62,10 @@ public abstract class FSObject {
 	}
 
 
+	private boolean isSpecialWindowsRoot(String givenPath){
+		return parent!=null && givenPath!=null && parent.isRoot() && givenPath.endsWith(":") && !File.separator.equals("/");
+	}
+	
 	public boolean rename(String newPath){
 
 		if(!isWritePermission() || !parent.isWritePermission()){
@@ -81,7 +91,12 @@ public abstract class FSObject {
 		if(path==null){
 			return null;
 		}
-		return new File(path).getName(); 
+		
+		if(isSpecialWindowsRoot(path)){
+			return path;
+		} else {
+			return new File(path).getName();
+		}
 	}
 
 	public String normalizePath(String rawPath){
