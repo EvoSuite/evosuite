@@ -191,7 +191,7 @@ public final class VirtualFileSystem {
 		createFolder(workingDir);
 		createFolder(getTmpFolderPath());
 
-		//important to clear, has above code would modify this field
+		//important to clear, as above code would modify this field
 		accessedFiles.clear();
 	}
 
@@ -366,7 +366,13 @@ public final class VirtualFileSystem {
 			VFolder folder = null;
 
 			if (!parent.hasChild(name)) {
-				String path = parent.getPath() + File.separator + name;
+				String path = null;
+				if(isUnixStyle() || !parent.isRoot()){
+					path = parent.getPath() + File.separator + name;
+				} else {
+					//this means we are in Windows, and that we are considering a direct child of the root
+					path = name;
+				}
 				folder = new VFolder(path, parent);
 			} else {
 				FSObject child = parent.getChild(name);
@@ -385,8 +391,12 @@ public final class VirtualFileSystem {
 		return true;
 	}
 
-	private String[] tokenize(String path) {
-		String[] tokens = path.split(File.separatorChar == '\\' ? "\\\\" : File.separator);
+	private String[] tokenize(String path){
+		return tokenize(path,File.separatorChar);
+	}
+	
+	protected static String[] tokenize(String path, char separator) {
+		String[] tokens = path.split(separator == '\\' ? "\\\\" : File.separator);
 		List<String> list = new ArrayList<String>(tokens.length);
 		for (String token : tokens) {
 			if (!token.isEmpty()) {
