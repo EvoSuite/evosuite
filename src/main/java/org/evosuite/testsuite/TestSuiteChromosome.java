@@ -267,7 +267,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		String result = "TestSuite: " + tests.size() + "\n";
 		int i = 0;
 		for (TestChromosome test : tests) {
-			result += "Test "+i+": ";
+			result += "Test "+i+": \n";
 			i++;
 			result += test.getTestCase().toCode() + "\n";
 		}

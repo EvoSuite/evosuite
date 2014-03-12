@@ -74,4 +74,6 @@ public interface ConstantPool {
 	 *            a {@link java.lang.Object} object.
 	 */
 	public void add(Object object);
+	
+	public String toString();
 }

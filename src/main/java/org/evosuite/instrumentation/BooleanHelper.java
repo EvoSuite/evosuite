@@ -277,6 +277,9 @@ public class BooleanHelper {
 	 */
 	public static int doubleSub(double d1, double d2) {
 		if (d1 == d2) {
+			if (Properties.DYNAMIC_SEEDING) {
+				ConstantPoolManager.getInstance().addDynamicConstant(d1);
+			};
 			return 0;
 		} else {
 			double diff = d1 - d2;
@@ -284,6 +287,10 @@ public class BooleanHelper {
 			//			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
 			int d3 = (int) (diff2 < 0 ? Math.floor(Integer.MAX_VALUE * diff2)
 			        : Math.ceil(Integer.MAX_VALUE * diff2));
+			if (Properties.DYNAMIC_SEEDING) {
+				ConstantPoolManager.getInstance().addDynamicConstant(d1);
+				ConstantPoolManager.getInstance().addDynamicConstant(d2);
+			};
 			return d3;
 		}
 	}
@@ -298,12 +305,19 @@ public class BooleanHelper {
 	 * @return a int.
 	 */
 	public static int floatSub(float f1, float f2) {
-		if (f1 == f2)
+		if (f1 == f2) {
+			if (Properties.DYNAMIC_SEEDING) {
+				ConstantPoolManager.getInstance().addDynamicConstant(f1);
+			};
 			return 0;
-		else {
+		} else {
 			double diff = f1 - f2;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
 			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
+			if (Properties.DYNAMIC_SEEDING) {
+				ConstantPoolManager.getInstance().addDynamicConstant(f1);
+				ConstantPoolManager.getInstance().addDynamicConstant(f2);
+			};
 			return d3;
 		}
 	}
@@ -338,12 +352,19 @@ public class BooleanHelper {
 	 * @return a int.
 	 */
 	public static int longSub(long l1, long l2) {
-		if (l1 == l2)
+		if (l1 == l2) {
+			if (Properties.DYNAMIC_SEEDING) {
+				ConstantPoolManager.getInstance().addDynamicConstant(l1);
+			};
 			return 0;
-		else {
+		} else {
 			double diff = l1 - l2;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0 + Math.abs(diff));
 			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
+			if (Properties.DYNAMIC_SEEDING) {
+				ConstantPoolManager.getInstance().addDynamicConstant(l1);
+				ConstantPoolManager.getInstance().addDynamicConstant(l2);
+			};
 			return d3;
 		}
 	}
