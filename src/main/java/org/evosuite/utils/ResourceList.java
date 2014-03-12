@@ -21,6 +21,7 @@ package org.evosuite.utils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -127,7 +129,7 @@ public class ResourceList {
 		String escapedString = java.util.regex.Pattern.quote(path); //Important in case there is $ in the classname
 		Pattern pattern = Pattern.compile(escapedString);
 		InputStream resource = getResourceAsStream(pattern);
-		
+
 		if (resource != null) {
 			return resource;
 		}
@@ -142,18 +144,18 @@ public class ResourceList {
 			pattern = Pattern.compile(escapedString);
 			return getResourceAsStream(pattern);
 		}
-		
+
 		return resource;
 	}
 
 	public static InputStream getResourceAsStream(final String classPathElement,
-	        final Pattern pattern) throws IllegalArgumentException {
+			final Pattern pattern) throws IllegalArgumentException {
 
 		final File file = new File(classPathElement);
 
 		if (!file.exists()) {
 			throw new IllegalArgumentException("The class path resource "
-			        + file.getAbsolutePath() + " does not exist");
+					+ file.getAbsolutePath() + " does not exist");
 		}
 
 		InputStream input = null;
@@ -161,7 +163,7 @@ public class ResourceList {
 		if (file.isDirectory()) {
 			try {
 				input = getResourceFromDirectoryAsStream(file, pattern,
-				                                         file.getCanonicalPath());
+						file.getCanonicalPath());
 			} catch (IOException e) {
 				logger.error("Error in getting resources", e);
 				throw new RuntimeException(e);
@@ -170,13 +172,13 @@ public class ResourceList {
 			input = getResourceFromJarFileAsStream(file, pattern);
 		} else {
 			throw new IllegalArgumentException("The class path resource "
-			        + file.getAbsolutePath() + " is not valid");
+					+ file.getAbsolutePath() + " is not valid");
 		}
 		return input;
 	}
 
 	private static InputStream getResourceFromJarFileAsStream(final File file,
-	        final Pattern pattern) {
+			final Pattern pattern) {
 
 		ZipFile jf;
 		try {
@@ -209,7 +211,7 @@ public class ResourceList {
 	}
 
 	private static InputStream getResourceFromDirectoryAsStream(final File directory,
-	        final Pattern pattern, final String classPathFolder) {
+			final Pattern pattern, final String classPathFolder) {
 
 		if (!directory.exists()) {
 			return null;
@@ -223,31 +225,47 @@ public class ResourceList {
 
 		final File[] fileList = directory.listFiles();
 		for (final File file : fileList) {
+
+			String relativeFilePath = null;
+			try {
+				relativeFilePath = file.getCanonicalPath().replace(classPathFolder+ File.separator, "");			
+			}catch (final IOException e) {
+				throw new Error(e);
+			}
+
+			//for a file, check complete match
+			Matcher matcher = pattern.matcher(relativeFilePath);
+			boolean fullMatch = matcher.matches();
+
 			if (file.isDirectory()) {
+
+				boolean prefixMatch = matcher.hitEnd();
+
+				if(!prefixMatch){
+					/*
+					 * no point in scanning the folder if the partial match is 
+					 * already not satisfied
+					 */
+					continue;
+				}
+
 				/*
-				 * recursion till we get to a file that is not a folder.
-				 * The pattern is matched only against files, not folders, and it is based
-				 * on their full path names
+				 * recursion till we get to a file that is not a folder.				
 				 */
-				InputStream input = getResourceFromDirectoryAsStream(file, pattern,
-				                                                     classPathFolder);
-				if (input != null)
+				InputStream input = getResourceFromDirectoryAsStream(file, pattern,classPathFolder);
+
+				if (input != null){
 					return input;
-			} else {
+				}
+			} else if (fullMatch) {
+				//it is a file with full matching name
 				try {
-
-					final String relativeFilePath = file.getCanonicalPath().replace(classPathFolder
-					                                                                        + File.separator,
-					                                                                "");
-					final boolean accept = pattern.matcher(relativeFilePath).matches();
-
-					if (accept) {
-						return new FileInputStream(file);
-					}
-				} catch (final IOException e) {
+					return new FileInputStream(file);
+				} catch (FileNotFoundException e) {
 					throw new Error(e);
 				}
 			}
+
 		}
 
 		return null;
@@ -275,17 +293,6 @@ public class ResourceList {
 			retval.addAll(getResources(element, pattern));
 		}
 
-		/*
-				classPathElements = System.getProperty("java.class.path", ".").split(File.pathSeparator);
-				for (final String element : classPathElements) {
-					try{
-						retval.addAll(getResources(element, pattern));
-					} catch(Exception e){
-						//FIXME seems something doggy going on here, with File.exists() returning false on "."
-						logger.error("Failed to load resources in "+element+": "+e.getMessage(),e);
-					}
-				}
-				*/
 		return retval;
 	}
 
@@ -299,7 +306,7 @@ public class ResourceList {
 	 * @throws IllegalArgumentException
 	 */
 	public static Collection<String> getResources(String[] classPathElements,
-	        final Pattern pattern) throws IllegalArgumentException {
+			final Pattern pattern) throws IllegalArgumentException {
 		ArrayList<String> retval = new ArrayList<String>();
 		for (String element : classPathElements) {
 			retval.addAll(getResources(element, pattern));
@@ -316,7 +323,7 @@ public class ResourceList {
 	 * @return
 	 */
 	public static Collection<String> getResources(final String classPathElement,
-	        final Pattern pattern) throws IllegalArgumentException {
+			final Pattern pattern) throws IllegalArgumentException {
 
 		initialiseCacheEntry(classPathElement);
 		return getResourcesFromCache(classPathElement, pattern);
@@ -347,7 +354,7 @@ public class ResourceList {
 	}
 
 	private static Collection<String> getResourcesFromDirectory(final File directory,
-	        final String classPathFolder) {
+			final String classPathFolder) {
 
 		final ArrayList<String> retval = new ArrayList<String>();
 		if (!directory.exists()) {
@@ -373,8 +380,8 @@ public class ResourceList {
 				try {
 
 					final String relativeFilePath = file.getCanonicalPath().replace(classPathFolder
-					                                                                        + File.separator,
-					                                                                "");
+							+ File.separator,
+							"");
 					retval.add(relativeFilePath);
 				} catch (final IOException e) {
 					throw new Error(e);
@@ -394,7 +401,7 @@ public class ResourceList {
 
 		if (!file.exists()) {
 			throw new IllegalArgumentException("The class path resource "
-			        + file.getAbsolutePath() + " does not exist");
+					+ file.getAbsolutePath() + " does not exist");
 		}
 
 		if (file.isDirectory()) {
@@ -408,13 +415,13 @@ public class ResourceList {
 			retval.addAll(getResourcesFromJarFile(file));
 		} else {
 			throw new IllegalArgumentException("The class path resource "
-			        + file.getAbsolutePath() + " is not valid");
+					+ file.getAbsolutePath() + " is not valid");
 		}
 		classPathCache.put(classPathElement, retval);
 	}
 
 	private static Collection<String> getResourcesFromCache(final String classPathEntry,
-	        final Pattern pattern) {
+			final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();
 		for (String entry : classPathCache.get(classPathEntry)) {
 			if (pattern.matcher(entry).matches())
