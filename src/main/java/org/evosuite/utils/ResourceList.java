@@ -78,9 +78,9 @@ public class ResourceList {
 			 * This can happen for example in Windows.
 			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
 			 */
-			path = className.replace(".", "\\\\") + ".class";
+			path = className.replace(".", "\\") + ".class";
 			escapedString = java.util.regex.Pattern.quote(path);
-			pattern = Pattern.compile(path);
+			pattern = Pattern.compile(escapedString);
 			resources = getResources(cpElements, pattern);
 			if (!resources.isEmpty()) {
 				return resources.iterator().next();
@@ -137,9 +137,9 @@ public class ResourceList {
 			 * This can happen for example in Windows.
 			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
 			 */
-			path = name.replace(".", "\\\\") + ".class";
+			path = name.replace(".", "\\") + ".class";
 			escapedString = java.util.regex.Pattern.quote(path);
-			pattern = Pattern.compile(path);
+			pattern = Pattern.compile(escapedString);
 			return getResourceAsStream(pattern);
 		}
 		
