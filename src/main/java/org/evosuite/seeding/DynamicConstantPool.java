@@ -146,4 +146,17 @@ public class DynamicConstantPool implements ConstantPool {
 		}
 	}
 
+	@Override
+	public String toString() {
+		String res = new String("DynamicConstantPool:{");
+		res += "stringPool=" + stringPool.toString() + " ; ";
+		res += "typePool=" + typePool.toString() + " ; ";
+		res += "intPool=" + intPool.toString() + " ; ";
+		res += "longPool=" + longPool.toString() + " ; ";
+		res += "floatPool=" + floatPool.toString() + " ; ";
+		res += "doublePool=" + doublePool.toString() + "}";	
+		return res;
+	}
+
+	
 }

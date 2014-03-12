@@ -151,6 +151,10 @@ public class Properties {
 	@Parameter(key = "dynamic_pool", group = "Test Creation", description = "Probability to use a primitive from the dynamic pool rather than a random value")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double DYNAMIC_POOL = 0.5; //1d / 3d;
+	
+	/** Constant <code>DYNAMIC_SEEDING=false</code> */
+	@Parameter(key = "dynamic_seeding", group = "Test Creation", description = "Use numeric dynamic seeding")
+	public static boolean DYNAMIC_SEEDING = false;
 
 	/** Constant <code>DYNAMIC_POOL_SIZE=50</code> */
 	@Parameter(key = "dynamic_pool_size", group = "Test Creation", description = "Number of dynamic constants to keep")
