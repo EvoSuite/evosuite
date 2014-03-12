@@ -1,18 +1,32 @@
 package org.evosuite.utils;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ResourceListTest {
 
+	@BeforeClass
+	public static void initClass(){
+		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+	} 
+	
 	@Test
 	public void testLoadOfEvoSuiteTestClasses() {
-
-		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
-
 		String className = ResourceListFoo.class.getName();
 		String res = ResourceList.getClassAsResource(className);
 		Assert.assertNotNull(res);
+	}
+
+	@Test
+	public void testLoadOfEvoSuiteTestClassesAsStream() throws IOException {
+		String className = ResourceListFoo.class.getName();
+		InputStream res = ResourceList.getClassAsStream(className);
+		Assert.assertNotNull(res);
+		res.close();
 	}
 
 	@Test
