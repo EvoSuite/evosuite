@@ -289,7 +289,9 @@ public class TestCodeVisitor extends TestVisitor {
 		if(outerClass != null) {
 			String enclosingName = getClassName(outerClass);
 			String simpleOuterName = outerClass.getSimpleName();
-			name = enclosingName + name.substring(simpleOuterName.length());
+			if(simpleOuterName.equals(enclosingName)) {
+				name = enclosingName + name.substring(simpleOuterName.length());
+			}
 		}
 
 		// We can't use "Test" because of JUnit 
