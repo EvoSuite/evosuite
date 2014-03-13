@@ -483,8 +483,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	private boolean isInStaticInit() {
 		for(StackTraceElement elem : currentThread.getStackTrace()) {
-			logger.debug("Checking element: "+elem.toString()+" with method "+elem.getMethodName());
-			if(elem.getMethodName().startsWith("<clinit>"))
+			if(elem.getMethodName().equals("<clinit>"))
 				return true;
 		}
 		return false;
