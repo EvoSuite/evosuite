@@ -185,10 +185,6 @@ public class ExecutionTracer {
 		if (!checkCallerThread) {
 			return false;
 		}
-		if (getExecutionTracer().killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			throw new TestCaseExecutor.TimeoutExceeded();
-		}
 		if (currentThread == null) {
 			logger.info("CurrentThread has not been set!");
 			Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
@@ -249,10 +245,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - enteredMethod");
-			throw new TestCaseExecutor.TimeoutExceeded();
-		}
+		checkTimeout();
 
 		//logger.trace("Entering method " + classname + "." + methodname);
 		tracer.trace.enteredMethod(classname, methodname, caller);
@@ -366,8 +359,17 @@ public class ExecutionTracer {
 
 		if (tracer.killSwitch) {
 			// logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			throw new TestCaseExecutor.TimeoutExceeded();
+			if(!isInStaticInit())
+				throw new TestCaseExecutor.TimeoutExceeded();
 		}
+	}
+	
+	private static boolean isInStaticInit() {
+		for(StackTraceElement elem : Thread.currentThread().getStackTrace()) {
+			if(elem.getMethodName().equals("<clinit>"))
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -388,10 +390,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			throw new TestCaseExecutor.TimeoutExceeded();
-		}
+		checkTimeout();
 
 		tracer.trace.linePassed(className, methodName, line);
 	}
@@ -442,10 +441,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			throw new TestCaseExecutor.TimeoutExceeded();
-		}
+		checkTimeout();
 
 		// logger.trace("Called passedBranch1 with opcode "+AbstractVisitor.OPCODES[opcode]+" and val "+val+" in branch "+branch);
 		double distance_true = 0.0;
@@ -504,10 +500,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			throw new TestCaseExecutor.TimeoutExceeded();
-		}
+		checkTimeout();
 		
 		tracer.trace.putStaticPassed(classNameWithDots, fieldName);
 	}
@@ -534,10 +527,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			throw new TestCaseExecutor.TimeoutExceeded();
-		}
+		checkTimeout();
 
 		/* logger.trace("Called passedBranch2 with opcode "
 		        + AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2
@@ -615,10 +605,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			throw new TestCaseExecutor.TimeoutExceeded();
-		}
+		checkTimeout();
 
 		// logger.trace("Called passedBranch3 with opcode "
 		//        + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
@@ -685,10 +672,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			throw new TestCaseExecutor.TimeoutExceeded();
-		}
+		checkTimeout();
 
 		double distance_true = 0;
 		double distance_false = 0;
@@ -798,10 +782,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			throw new TestCaseExecutor.TimeoutExceeded();
-		}
+		checkTimeout();
 
 		tracer.trace.mutationPassed(mutationId, distance);
 	}
@@ -827,10 +808,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			throw new TestCaseExecutor.TimeoutExceeded();
-		}
+		checkTimeout();
 
 		tracer.trace.setExplicitException((Throwable) exception);
 
@@ -849,10 +827,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (tracer.killSwitch) {
-			logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			throw new TestCaseExecutor.TimeoutExceeded();
-		}
+		checkTimeout();
 
 		tracer.num_statements++;
 	}
