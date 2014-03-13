@@ -78,7 +78,7 @@ public class Runtime {
 		}
 
 		if (Properties.VIRTUAL_FS) {			
-			logger.info("Resetting the VFS...");
+			logger.debug("Resetting the VFS...");
 			VirtualFileSystem.getInstance().resetSingleton();
 			VirtualFileSystem.getInstance().init();
 		}
