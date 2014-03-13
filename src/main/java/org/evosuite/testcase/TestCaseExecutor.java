@@ -419,6 +419,20 @@ public class TestCaseExecutor implements ThreadFactory {
 					e.printStackTrace();
 				}
 				if (!callable.isRunFinished()) {
+					while(isInStaticInit()) {
+						logger.info("Run still not finished, but awaiting for static initializer to finish.");
+
+						try {
+							executor.awaitTermination(Properties.SHUTDOWN_TIMEOUT,
+							                          TimeUnit.MILLISECONDS);
+						} catch (InterruptedException e) {
+							logger.info("Interrupted");
+							e.printStackTrace();
+						}						
+					}
+				}
+					
+				if (!callable.isRunFinished()) {
 					logger.info("Run still not finished, replacing executor.");
 					try {
 						executor.shutdownNow();
@@ -467,6 +481,14 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 	}
 
+	private boolean isInStaticInit() {
+		for(StackTraceElement elem : currentThread.getStackTrace()) {
+			logger.debug("Checking element: "+elem.toString()+" with method "+elem.getMethodName());
+			if(elem.getMethodName().startsWith("<clinit>"))
+				return true;
+		}
+		return false;
+	}
 	/**
 	 * <p>
 	 * getNumStalledThreads
