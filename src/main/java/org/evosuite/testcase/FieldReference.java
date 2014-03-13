@@ -502,6 +502,9 @@ public class FieldReference extends VariableReferenceImpl {
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		field.changeClassLoader(loader);
+		if(!isStatic())
+			source.changeClassLoader(loader);
+		super.changeClassLoader(loader);
 	}
 
 }
