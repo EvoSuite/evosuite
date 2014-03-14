@@ -20,6 +20,8 @@
  */
 package org.evosuite.testcase;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -111,4 +113,11 @@ public abstract class ExecutableChromosome extends Chromosome {
 	 */
 	abstract public ExecutionResult executeForFitnessFunction(
 	        TestSuiteFitnessFunction testSuiteFitnessFunction);
+	
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+    IOException {
+		ois.defaultReadObject();
+		lastExecutionResult = null;
+		lastMutationResult = new HashMap<Mutation, MutationExecutionResult>();
+	}
 }
