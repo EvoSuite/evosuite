@@ -19,10 +19,12 @@ package org.evosuite.testcase;
 
 import java.util.Map;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
 import org.evosuite.instrumentation.BooleanHelper;
+import org.evosuite.seeding.ConstantPoolManager;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -443,6 +445,10 @@ public class ExecutionTracer {
 
 		checkTimeout();
 
+		if (Properties.DYNAMIC_SEEDING) {
+			ConstantPoolManager.getInstance().addDynamicConstant(val);
+		};
+		
 		// logger.trace("Called passedBranch1 with opcode "+AbstractVisitor.OPCODES[opcode]+" and val "+val+" in branch "+branch);
 		double distance_true = 0.0;
 		double distance_false = 0.0;
@@ -528,6 +534,11 @@ public class ExecutionTracer {
 			return;
 
 		checkTimeout();
+		
+		if (Properties.DYNAMIC_SEEDING) {
+			ConstantPoolManager.getInstance().addDynamicConstant(val1);
+			ConstantPoolManager.getInstance().addDynamicConstant(val2);
+		};
 
 		/* logger.trace("Called passedBranch2 with opcode "
 		        + AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2

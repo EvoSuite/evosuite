@@ -92,6 +92,10 @@ public class ConstantPoolManager {
 		 */
 		return pools[0];
 	}
+	
+	public ConstantPool getDynamicConstantPool() {
+		return pools[DYNAMIC_POOL_INDEX];
+	}
 
 	public void reset() {
 		init();
