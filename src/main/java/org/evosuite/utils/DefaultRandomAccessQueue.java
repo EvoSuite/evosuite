@@ -5,6 +5,7 @@ package org.evosuite.utils;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
 
@@ -45,6 +46,18 @@ public class DefaultRandomAccessQueue<T> implements RandomAccessQueue<T> {
 	@Override
 	public T getRandomValue() {
 		return Randomness.choice(valueSet);
+	}
+
+	@Override
+	public String toString() {
+		String res = new String("[ ");
+		Iterator<T> itr = queue.iterator();
+		while(itr.hasNext()) {
+			Object element = itr.next();
+			res += element + " ";
+		}
+		res += "]";
+		return res;
 	}
 
 }
