@@ -30,6 +30,7 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcarver.instrument.Instrumenter;
 import org.evosuite.testcarver.instrument.TransformerUtil;
+import org.evosuite.utils.ComputeClassWriter;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -247,7 +248,7 @@ public class BytecodeInstrumentation {
 		 *  as well as CFGAdapter.
 		 */
 		int asmFlags = ClassWriter.COMPUTE_FRAMES;
-		ClassWriter writer = new ClassWriter(asmFlags);
+		ClassWriter writer = new ComputeClassWriter(asmFlags);
 
 		ClassVisitor cv = writer;
 		if (logger.isDebugEnabled()) {
