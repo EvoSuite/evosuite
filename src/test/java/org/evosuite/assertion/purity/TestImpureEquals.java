@@ -1,7 +1,6 @@
 package org.evosuite.assertion.purity;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
