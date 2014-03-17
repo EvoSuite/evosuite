@@ -98,6 +98,9 @@ public class ComputeClassWriter extends ClassWriter {
             }
         } catch (IOException e) {
             throw new RuntimeException(e.toString());
+        } catch (NullPointerException e) {
+        	// May happen if class is not found
+            throw new RuntimeException(e.toString());
         }
     }
     
@@ -170,10 +173,14 @@ public class ComputeClassWriter extends ClassWriter {
      * @return the ClassReader corresponding to 'type'.
      * @throws IOException
      *             if the bytecode of 'type' cannot be loaded.
+     * @throws NullPointerException
+     *             if the bytecode of 'type' cannot be found.
      */
-    private ClassReader typeInfo(final String type) throws IOException {
+    private ClassReader typeInfo(final String type) throws IOException, NullPointerException {
         InputStream is = l.getResourceAsStream(type + ".class");
         try {
+        	if(is == null)
+        		throw new NullPointerException("Class not found "+type);
             return new ClassReader(is);
         } finally {
             is.close();
