@@ -71,7 +71,7 @@ public final class SymbolicHeap {
 	 * 
 	 * It is the only way of creating uninitialized non-null references.
 	 * 
-	 * @param className
+	 * @param exceptionClassName
 	 * 
 	 * @return
 	 */

@@ -420,7 +420,7 @@ public class CoverageAnalysis {
 	/**
 	 * Determine if this class contains JUnit tests
 	 * 
-	 * @param className
+	 * @param exceptionClassName
 	 * @return
 	 */
 	private static boolean isTest(Class<?> clazz) {
