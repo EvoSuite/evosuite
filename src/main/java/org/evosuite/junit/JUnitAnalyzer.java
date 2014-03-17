@@ -28,6 +28,7 @@ import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.SearchStatistics;
+import org.evosuite.utils.ClassPathHandler;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -274,7 +275,15 @@ public class JUnitAnalyzer {
 					Charset.forName("UTF-8"));
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(generated);
 
-			CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null,
+			List<String> optionList;
+			if (Properties.CLIENT_ON_THREAD) {
+				optionList = new ArrayList<String>();
+				String targetProjectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
+				optionList.addAll(Arrays.asList("-classpath",targetProjectCP));
+			} else{
+				optionList = null;
+			}
+			CompilationTask task = compiler.getTask(null, fileManager, diagnostics, optionList,
 					null, compilationUnits);
 			boolean compiled = task.call();
 			fileManager.close();
