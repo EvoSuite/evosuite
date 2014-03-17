@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -25,14 +24,13 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.junit.xml.JUnitProcessLauncher;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.utils.ClassPathHandler;
-import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,9 +88,12 @@ public class JUnitAnalyzer {
 				if (dir != null) {
 					try {
 						FileUtils.deleteDirectory(dir);
-						logger.debug("Deleted tmp folder: " + dir.getAbsolutePath());
+						logger.debug("Deleted tmp folder: "
+								+ dir.getAbsolutePath());
 					} catch (Exception e) {
-						logger.error("Cannot delete tmp dir: " + dir.getAbsolutePath(), e);
+						logger.error(
+								"Cannot delete tmp dir: "
+										+ dir.getAbsolutePath(), e);
 					}
 				}
 			}
@@ -143,7 +144,7 @@ public class JUnitAnalyzer {
 				return;
 			}
 
-			JUnitResult result = runTests(testClasses);
+			JUnitResult result = runTests(testClasses, dir);
 
 			if (result.wasSuccessful()) {
 				return; //everything is OK
@@ -154,7 +155,8 @@ public class JUnitAnalyzer {
 				String testName = failure.getDescriptionMethodName();//TODO check if correct
 
 				logger.warn("Found unstable test named " + testName + " -> "
-						+ failure.getExceptionClassName() + ": " + failure.getMessage());
+						+ failure.getExceptionClassName() + ": "
+						+ failure.getMessage());
 				for (String elem : failure.getExceptionStackTrace()) {
 					logger.info(elem);
 				}
@@ -164,7 +166,8 @@ public class JUnitAnalyzer {
 				boolean toRemove = !(failure.isAssertionError());
 
 				for (int i = 0; i < tests.size(); i++) {
-					if (TestSuiteWriter.getNameOfTest(tests, i).equals(testName)) {
+					if (TestSuiteWriter.getNameOfTest(tests, i)
+							.equals(testName)) {
 						logger.warn("Failing test: " + tests.get(i).toCode());
 						/*
 						 * we have a match. should we remove it or mark as unstable?
@@ -176,10 +179,12 @@ public class JUnitAnalyzer {
 						 * or something we cannot (easily) fix here 
 						 */
 						if (!toRemove) {
-							logger.debug("Going to mark test as unstable: " + testName);
+							logger.debug("Going to mark test as unstable: "
+									+ testName);
 							tests.get(i).setUnstable(true);
 						} else {
-							logger.debug("Going to remove unstable test: " + testName);
+							logger.debug("Going to remove unstable test: "
+									+ testName);
 							tests.remove(i);
 						}
 						break;
@@ -203,9 +208,24 @@ public class JUnitAnalyzer {
 
 	}
 
+	private static JUnitResult runTests(Class<?>[] testClasses,
+			File testClassDir) throws JUnitExecutionException{
+		if (Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS) {
+			return runJUnitOnSeparateProcess(testClasses, testClassDir);
+		} else {
+			return runJUnitOnCurrentProcess(testClasses);
+		}
+	}
+
+	private static JUnitResult runJUnitOnSeparateProcess(
+			Class<?>[] testClasses, File testClassDir)  throws JUnitExecutionException{
+		JUnitProcessLauncher launcher = new JUnitProcessLauncher();
+		JUnitResult result = launcher.startNewJUnitProcess(testClasses, testClassDir);
+		return result;
+	}
 
 
-	private static JUnitResult runTests(Class<?>[] testClasses) {
+	private static JUnitResult runJUnitOnCurrentProcess(Class<?>[] testClasses) {
 		JUnitCore runner = new JUnitCore();
 
 		/*
@@ -224,12 +244,11 @@ public class JUnitAnalyzer {
 
 		TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 		Sandbox.initializeSecurityManagerForSUT(privileged);
-		
+
 		JUnitResultBuilder builder = new JUnitResultBuilder();
 		JUnitResult junitResult = builder.build(result);
 		return junitResult;
 	}
-
 
 	/**
 	 * Check if it is possible to use the Java compiler.
@@ -250,12 +269,14 @@ public class JUnitAnalyzer {
 		TestSuiteWriter suite = new TestSuiteWriter();
 		suite.insertTests(tests);
 
-		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
+		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS
+				.lastIndexOf(".") + 1);
 		name += "Test_" + NUM++; //postfix
 
 		try {
 			//now generate the JUnit test case
-			List<File> generated = suite.writeTestSuite(name, dir.getAbsolutePath());
+			List<File> generated = suite.writeTestSuite(name,
+					dir.getAbsolutePath());
 			for (File file : generated) {
 				if (!file.exists()) {
 					logger.error("Supposed to generate " + file
@@ -272,21 +293,23 @@ public class JUnitAnalyzer {
 			}
 
 			DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-			StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics,
-					Locale.getDefault(),
-					Charset.forName("UTF-8"));
-			Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(generated);
+			StandardJavaFileManager fileManager = compiler
+					.getStandardFileManager(diagnostics, Locale.getDefault(),
+							Charset.forName("UTF-8"));
+			Iterable<? extends JavaFileObject> compilationUnits = fileManager
+					.getJavaFileObjectsFromFiles(generated);
 
 			List<String> optionList;
 			if (Properties.CLIENT_ON_THREAD) {
 				optionList = new ArrayList<String>();
-				String targetProjectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
-				optionList.addAll(Arrays.asList("-classpath",targetProjectCP));
-			} else{
+				String targetProjectCP = ClassPathHandler.getInstance()
+						.getTargetProjectClasspath();
+				optionList.addAll(Arrays.asList("-classpath", targetProjectCP));
+			} else {
 				optionList = null;
 			}
-			CompilationTask task = compiler.getTask(null, fileManager, diagnostics, optionList,
-					null, compilationUnits);
+			CompilationTask task = compiler.getTask(null, fileManager,
+					diagnostics, optionList, null, compilationUnits);
 			boolean compiled = task.call();
 			fileManager.close();
 
@@ -294,12 +317,13 @@ public class JUnitAnalyzer {
 				logger.error("Compilation failed on compilation units: "
 						+ compilationUnits);
 				for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
-					if (diagnostic.getMessage(null).startsWith("error while writing")) {
+					if (diagnostic.getMessage(null).startsWith(
+							"error while writing")) {
 						logger.error("Error is due to file permissions, ignoring...");
 						return generated;
 					}
-					logger.error("Diagnostic: " + diagnostic.getMessage(null) + ": "
-							+ diagnostic.getLineNumber());
+					logger.error("Diagnostic: " + diagnostic.getMessage(null)
+							+ ": " + diagnostic.getLineNumber());
 				}
 				for (JavaFileObject sourceFile : compilationUnits) {
 					List<String> lines = FileUtils.readLines(new File(
@@ -322,8 +346,9 @@ public class JUnitAnalyzer {
 
 	protected static File createNewTmpDir() {
 		File dir = null;
-		String dirName = FileUtils.getTempDirectoryPath() + File.separator + "EvoSuite_"
-				+ (dirCounter++) + "_" + +System.currentTimeMillis();
+		String dirName = FileUtils.getTempDirectoryPath() + File.separator
+				+ "EvoSuite_" + (dirCounter++) + "_"
+				+ +System.currentTimeMillis();
 
 		//first create a tmp folder
 		dir = new File(dirName);
@@ -370,24 +395,24 @@ public class JUnitAnalyzer {
 	private static List<File> listOnlyFiles(List<File> tests) {
 		List<File> otherClasses = new LinkedList<File>();
 
-		for(File test : tests){
+		for (File test : tests) {
 			File folder = test.getParentFile();
 			String testFileNameNoExt = removeFileExtension(test.getName());
-			
+
 			for (File file : folder.listFiles()) {
-				if(file.equals(test)){
+				if (file.equals(test)) {
 					continue;
 				}
-				
-				String fileNameNoExt = removeFileExtension(file.getName()); 
-				if(fileNameNoExt.equals(testFileNameNoExt)){
+
+				String fileNameNoExt = removeFileExtension(file.getName());
+				if (fileNameNoExt.equals(testFileNameNoExt)) {
 					/*
 					 * if we already loaded a CUT due to its .java, do not want
 					 * to re-loaded it for a .class
 					 */
 					continue;
 				}
-				
+
 				if (file.isFile()) {
 					otherClasses.add(file);
 				}
@@ -397,19 +422,19 @@ public class JUnitAnalyzer {
 	}
 
 	private static String removeFileExtension(String str) {
-        if (str == null){
-        		return null;
-        }
+		if (str == null) {
+			return null;
+		}
 
-        int pos = str.lastIndexOf(".");
+		int pos = str.lastIndexOf(".");
 
-        if (pos == -1){
-        		return str;
-        }
+		if (pos == -1) {
+			return str;
+		}
 
-        return str.substring(0, pos);
-    }
-	
+		return str.substring(0, pos);
+	}
+
 	/**
 	 * <p>
 	 * The output of EvoSuite is a set of test cases. For debugging and
@@ -456,14 +481,16 @@ public class JUnitAnalyzer {
 				return false;
 			}
 
-			JUnitResult result = runTests(testClasses);
+			JUnitResult result = runTests(testClasses, dir);
 
 			if (!result.wasSuccessful()) {
-				logger.error("" + result.getFailureCount() + " test cases failed");
+				logger.error("" + result.getFailureCount()
+						+ " test cases failed");
 				for (JUnitFailure failure : result.getFailures()) {
-					logger.error("Failure " + failure.getExceptionClassName() + ": "
-							+ failure.getMessage() + "\n" + failure.getTrace());
-				}				
+					logger.error("Failure " + failure.getExceptionClassName()
+							+ ": " + failure.getMessage() + "\n"
+							+ failure.getTrace());
+				}
 				return false;
 			} else {
 				/*
@@ -473,7 +500,7 @@ public class JUnitAnalyzer {
 				 * any test case for this SUT
 				 */
 				if (result.getRunCount() == 0) {
-					logger.warn("There was no test to run");					
+					logger.warn("There was no test to run");
 				}
 			}
 
@@ -518,10 +545,10 @@ public class JUnitAnalyzer {
 
 			final String JAVA = ".java";
 			final String CLASS = ".class";
-			
+
 			String name = file.getName();
 
-			if(!name.endsWith(JAVA) && !name.endsWith(CLASS)){
+			if (!name.endsWith(JAVA) && !name.endsWith(CLASS)) {
 				/*
 				 * this could happen when we scan a folder for all src/compiled
 				 * files
@@ -531,24 +558,28 @@ public class JUnitAnalyzer {
 
 			String fileName = file.getAbsolutePath();
 
-			if(name.endsWith(JAVA)){
+			if (name.endsWith(JAVA)) {
 				name = name.substring(0, name.length() - JAVA.length());
-				fileName = fileName.substring(0, fileName.length() - JAVA.length()) + ".class";
+				fileName = fileName.substring(0,
+						fileName.length() - JAVA.length())
+						+ ".class";
 			} else {
 				assert name.endsWith(CLASS);
 				name = name.substring(0, name.length() - CLASS.length());
 			}
-			
+
 			String className = packagePrefix + name;
-			
+
 			Class<?> testClass = null;
 			try {
 				logger.info("Loading class " + className);
-				testClass = ((InstrumentingClassLoader) TestGenerationContext.getInstance().getClassLoaderForSUT()).loadClassFromFile(className,
-						fileName);
+				testClass = ((InstrumentingClassLoader) TestGenerationContext
+						.getInstance().getClassLoaderForSUT())
+						.loadClassFromFile(className, fileName);
 			} catch (ClassNotFoundException e) {
-				logger.error("Failed to load test case " + className + " from file "
-						+ file.getAbsolutePath() + " , error " + e, e);
+				logger.error("Failed to load test case " + className
+						+ " from file " + file.getAbsolutePath() + " , error "
+						+ e, e);
 				return null;
 			}
 			classes.add(testClass);
