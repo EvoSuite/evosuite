@@ -1,13 +1,9 @@
 package org.evosuite.junit.xml;
 
-import java.util.List;
-
-import org.evosuite.junit.JUnitFailure;
 import org.evosuite.junit.JUnitResult;
 import org.evosuite.junit.JUnitResultBuilder;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
 
 public class JUnitExecutor {
 

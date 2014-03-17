@@ -1,12 +1,10 @@
 package org.evosuite.junit.xml;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.JUnitExecutionException;
 import org.evosuite.junit.JUnitResult;
 import org.evosuite.utils.ClassPathHandler;
