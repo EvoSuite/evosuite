@@ -648,6 +648,9 @@ public class Properties {
 	@Parameter(key = "junit_check", group = "Output", description = "Compile and run resulting JUnit test suite")
 	public static boolean JUNIT_CHECK = true;
 
+	@Parameter(key = "junit_check_on_separate_process", group = "Output", description = "Compile and run resulting JUnit test suite on a separate process")
+	public static boolean JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
+
 	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
 	public static String JUNIT_SUFFIX = "EvoSuiteTest";
 
