@@ -28,6 +28,7 @@ import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.SearchStatistics;
+import org.evosuite.utils.ClassPathHandler;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -142,26 +143,25 @@ public class JUnitAnalyzer {
 				return;
 			}
 
-			Result result = runTests(testClasses);
+			JUnitResult result = runTests(testClasses);
 
 			if (result.wasSuccessful()) {
 				return; //everything is OK
 			}
 
 			logger.error("" + result.getFailureCount() + " test cases failed");
-			for (Failure failure : result.getFailures()) {
-				Description des = failure.getDescription();
-				String testName = des.getMethodName();//TODO check if correct
+			for (JUnitFailure failure : result.getFailures()) {
+				String testName = failure.getDescriptionMethodName();//TODO check if correct
 
 				logger.warn("Found unstable test named " + testName + " -> "
-						+ failure.getException().getClass() + ": " + failure.getMessage());
-				for (StackTraceElement elem : failure.getException().getStackTrace()) {
-					logger.info(elem.toString());
+						+ failure.getExceptionClassName() + ": " + failure.getMessage());
+				for (String elem : failure.getExceptionStackTrace()) {
+					logger.info(elem);
 				}
 
 				SearchStatistics.getInstance().setHadUnstableTests(true);
 
-				boolean toRemove = !(failure.getException() instanceof java.lang.AssertionError);
+				boolean toRemove = !(failure.isAssertionError());
 
 				for (int i = 0; i < tests.size(); i++) {
 					if (TestSuiteWriter.getNameOfTest(tests, i).equals(testName)) {
@@ -205,7 +205,7 @@ public class JUnitAnalyzer {
 
 
 
-	private static Result runTests(Class<?>[] testClasses) {
+	private static JUnitResult runTests(Class<?>[] testClasses) {
 		JUnitCore runner = new JUnitCore();
 
 		/*
@@ -224,7 +224,10 @@ public class JUnitAnalyzer {
 
 		TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 		Sandbox.initializeSecurityManagerForSUT(privileged);
-		return result;
+		
+		JUnitResultBuilder builder = new JUnitResultBuilder();
+		JUnitResult junitResult = builder.build(result);
+		return junitResult;
 	}
 
 
@@ -274,7 +277,15 @@ public class JUnitAnalyzer {
 					Charset.forName("UTF-8"));
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(generated);
 
-			CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null,
+			List<String> optionList;
+			if (Properties.CLIENT_ON_THREAD) {
+				optionList = new ArrayList<String>();
+				String targetProjectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
+				optionList.addAll(Arrays.asList("-classpath",targetProjectCP));
+			} else{
+				optionList = null;
+			}
+			CompilationTask task = compiler.getTask(null, fileManager, diagnostics, optionList,
 					null, compilationUnits);
 			boolean compiled = task.call();
 			fileManager.close();
@@ -445,12 +456,12 @@ public class JUnitAnalyzer {
 				return false;
 			}
 
-			Result result = runTests(testClasses);
+			JUnitResult result = runTests(testClasses);
 
 			if (!result.wasSuccessful()) {
 				logger.error("" + result.getFailureCount() + " test cases failed");
-				for (Failure failure : result.getFailures()) {
-					logger.error("Failure " + failure.getException().getClass() + ": "
+				for (JUnitFailure failure : result.getFailures()) {
+					logger.error("Failure " + failure.getExceptionClassName() + ": "
 							+ failure.getMessage() + "\n" + failure.getTrace());
 				}				
 				return false;
