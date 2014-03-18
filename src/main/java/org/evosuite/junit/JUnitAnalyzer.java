@@ -302,9 +302,12 @@ public class JUnitAnalyzer {
 			List<String> optionList;
 			if (Properties.CLIENT_ON_THREAD) {
 				optionList = new ArrayList<String>();
+				String evosuiteCP = ClassPathHandler.getInstance().getEvoSuiteClassPath();
+				
 				String targetProjectCP = ClassPathHandler.getInstance()
 						.getTargetProjectClasspath();
-				optionList.addAll(Arrays.asList("-classpath", targetProjectCP));
+				String classpath = evosuiteCP + File.separator + targetProjectCP;
+				optionList.addAll(Arrays.asList("-classpath", classpath));
 			} else {
 				optionList = null;
 			}
