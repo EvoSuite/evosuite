@@ -169,12 +169,6 @@ public class FooTestClassLoader {
 			return null;
 		} catch (MalformedURLException e) {
 			return null;
-		} finally {
-			try {
-				urlClassLoader.close();
-			} catch (IOException e) {
-				return null;
-			}
 		}
 	}
 
