@@ -72,7 +72,7 @@ public class JUnitProcessLauncher {
 
 		ProcessBuilder builder = new ProcessBuilder(parsedCommand);
 		builder.directory(dir);
-//		builder.redirectErrorStream(true);
+		builder.redirectErrorStream(true);
 
 		LoggingUtils.getEvoLogger().info(
 				"Going to start process for running JUnit on : " + command);
@@ -81,20 +81,20 @@ public class JUnitProcessLauncher {
 
 		try {
 			Process process = builder.start();
-			int exitCode = process.waitFor();
+
 			InputStream stdout = process.getInputStream();
-			String stdoutStr = readInputStream("Finished JUnit process stdout - " , stdout);
-			logger.debug("JUnit process stdout:");
-			logger.debug(stdoutStr);
-			InputStream stderr = process.getErrorStream();
-			String stderrStr = readInputStream("Finished JUnit process stderr - " , stderr);
-			logger.debug("JUnit process stderr:");
-			logger.debug(stderrStr);
-			
-			logger.debug("JUnit process exit code was " + exitCode);
-			if (exitCode != 0) {
+			logger.debug("JUnit process output:");
+
+			do {
+				readInputStream("Finished JUnit process output - ", stdout);
+			} while (!isFinished(process));
+
+			int exitValue = process.exitValue();
+			LoggingUtils.getEvoLogger().info("JUnit process finished");
+			logger.debug("JUnit process exit code was " + exitValue);
+			if (exitValue != 0) {
 				logger.warn("JUnit process XML did not finish correctly. Exit code: "
-						+ exitCode);
+						+ exitValue);
 				throw new JUnitExecutionException(
 						"Execution of java command did not end correctly: "
 								+ command);
@@ -105,12 +105,14 @@ public class JUnitProcessLauncher {
 				JUnitXmlResultProxy proxy = new JUnitXmlResultProxy();
 				JUnitResult result = proxy.readFromXmlFile(xmlFileName);
 				xmlFile.delete();
+				LoggingUtils.getEvoLogger().info(
+						"JUnit finished correctly and created JUnit result.");
 				return result;
 			} else {
 				logger.warn("JUnit process XML file does not exists: "
 						+ xmlFile.getAbsolutePath());
 				logger.debug("XML file was expected because JUnit process finished correctly with exit code was "
-						+ exitCode + " ");
+						+ exitValue + " ");
 				throw new JUnitExecutionException(
 						"Expected result of JUnitXmlProxy was not found "
 								+ xmlFileName);
@@ -119,26 +121,29 @@ public class JUnitProcessLauncher {
 		} catch (IOException e) {
 			logger.warn("IOException during JUnit process execution ");
 			throw new JUnitExecutionException(e);
-		} catch (InterruptedException e) {
-			logger.warn("InterruptedException during JUnit process execution ");
-			throw new JUnitExecutionException(e);
 		} catch (JUnitXmlResultProxyException e) {
 			logger.warn("JUnitXmlResultProxyException during JUnit process execution ");
 			throw new JUnitExecutionException(e);
 		}
 	}
 
-	private String readInputStream(String prefix, InputStream in) throws IOException {
+	private boolean isFinished(Process process) {
+		try {
+			process.exitValue();
+			return true;
+		} catch (IllegalThreadStateException ex) {
+			return false;
+		}
+	}
+
+	private void readInputStream(String prefix, InputStream in)
+			throws IOException {
 		InputStreamReader is = new InputStreamReader(in);
-		StringBuilder sb = new StringBuilder();
 		BufferedReader br = new BufferedReader(is);
 		String read = br.readLine();
 		while (read != null) {
-			sb.append("\n");
-			sb.append(prefix);
-			sb.append(read);
+			logger.debug(prefix + read);
 			read = br.readLine();
 		}
-		return sb.toString();
 	}
 }
