@@ -10,10 +10,10 @@ import org.evosuite.junit.JUnitResult;
 public class JUnitXmlDocMain {
 
 	public static void main(String[] args) throws ClassNotFoundException, JUnitXmlResultProxyException {
-		if (args.length<1) {
+		if (args.length<=1) {
 			System.err.println("Error: Incorrect Usage of " + JUnitXmlDocMain.class.getCanonicalName());
 			System.err.println("<Usage> testClassName1 testClassName2 ... xmlFilename");
-			return;
+			throw new IllegalArgumentException("Argument String[] args is not correct");
 		}
 		
 		ArrayList<String> testClassNames = new ArrayList<String>();

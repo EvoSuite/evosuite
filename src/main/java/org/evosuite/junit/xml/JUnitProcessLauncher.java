@@ -1,7 +1,10 @@
 package org.evosuite.junit.xml;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class JUnitProcessLauncher {
 
 	private static final String JUNIT_ANALYZER_XML = "junitanalyzer.xml";
-	
+
 	private static Logger logger = LoggerFactory
 			.getLogger(JUnitProcessLauncher.class);
 
@@ -37,11 +40,17 @@ public class JUnitProcessLauncher {
 		File dir = new File(baseDir);
 		String xmlFileName = baseDir + File.separatorChar + JUNIT_ANALYZER_XML;
 
-		String junitClassPath = testClassDir.getAbsolutePath()
-				+ File.pathSeparatorChar
-				+ ClassPathHandler.getInstance().getEvoSuiteClassPath()
-				+ File.pathSeparatorChar
-				+ ClassPathHandler.getInstance().getTargetProjectClasspath();
+		String junitClassPath;
+		if (testClassDir != null) {
+			junitClassPath = testClassDir.getAbsolutePath()
+					+ File.pathSeparatorChar;
+		} else {
+			junitClassPath = "";
+		}
+		junitClassPath += ClassPathHandler.getInstance().getEvoSuiteClassPath();
+		junitClassPath += File.pathSeparatorChar;
+		junitClassPath += ClassPathHandler.getInstance()
+				.getTargetProjectClasspath();
 
 		String command = "java";
 		command += " -cp " + junitClassPath;
@@ -50,8 +59,10 @@ public class JUnitProcessLauncher {
 			command += " " + testClass.getCanonicalName();
 		}
 
+		logger.debug("Checking XML file already exists " + xmlFileName);
 		File xmlFile = new File(xmlFileName);
 		if (xmlFile.exists()) {
+			logger.debug("Deleting XML file " + xmlFileName);
 			xmlFile.delete();
 		}
 
@@ -61,7 +72,7 @@ public class JUnitProcessLauncher {
 
 		ProcessBuilder builder = new ProcessBuilder(parsedCommand);
 		builder.directory(dir);
-		builder.redirectErrorStream(true);
+//		builder.redirectErrorStream(true);
 
 		LoggingUtils.getEvoLogger().info(
 				"Going to start process for running JUnit on : " + command);
@@ -71,28 +82,63 @@ public class JUnitProcessLauncher {
 		try {
 			Process process = builder.start();
 			int exitCode = process.waitFor();
+			InputStream stdout = process.getInputStream();
+			String stdoutStr = readInputStream("Finished JUnit process stdout - " , stdout);
+			logger.debug("JUnit process stdout:");
+			logger.debug(stdoutStr);
+			InputStream stderr = process.getErrorStream();
+			String stderrStr = readInputStream("Finished JUnit process stderr - " , stderr);
+			logger.debug("JUnit process stderr:");
+			logger.debug(stderrStr);
+			
+			logger.debug("JUnit process exit code was " + exitCode);
 			if (exitCode != 0) {
+				logger.warn("JUnit process XML did not finish correctly. Exit code: "
+						+ exitCode);
 				throw new JUnitExecutionException(
 						"Execution of java command did not end correctly: "
 								+ command);
 			}
 
 			if (xmlFile.exists()) {
+				logger.debug("Reading JUnitResult from file: " + xmlFileName);
 				JUnitXmlResultProxy proxy = new JUnitXmlResultProxy();
 				JUnitResult result = proxy.readFromXmlFile(xmlFileName);
 				xmlFile.delete();
 				return result;
 			} else {
-				throw new JUnitExecutionException("Expected result of JUnitXmlProxy was not found " + xmlFileName);
+				logger.warn("JUnit process XML file does not exists: "
+						+ xmlFile.getAbsolutePath());
+				logger.debug("XML file was expected because JUnit process finished correctly with exit code was "
+						+ exitCode + " ");
+				throw new JUnitExecutionException(
+						"Expected result of JUnitXmlProxy was not found "
+								+ xmlFileName);
 			}
 
 		} catch (IOException e) {
+			logger.warn("IOException during JUnit process execution ");
 			throw new JUnitExecutionException(e);
 		} catch (InterruptedException e) {
+			logger.warn("InterruptedException during JUnit process execution ");
 			throw new JUnitExecutionException(e);
 		} catch (JUnitXmlResultProxyException e) {
+			logger.warn("JUnitXmlResultProxyException during JUnit process execution ");
 			throw new JUnitExecutionException(e);
 		}
 	}
 
+	private String readInputStream(String prefix, InputStream in) throws IOException {
+		InputStreamReader is = new InputStreamReader(in);
+		StringBuilder sb = new StringBuilder();
+		BufferedReader br = new BufferedReader(is);
+		String read = br.readLine();
+		while (read != null) {
+			sb.append("\n");
+			sb.append(prefix);
+			sb.append(read);
+			read = br.readLine();
+		}
+		return sb.toString();
+	}
 }
