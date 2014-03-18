@@ -4,12 +4,12 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 
+import org.evosuite.junit.FooTestClassLoader;
 import org.evosuite.junit.JUnitResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.junit.FooTest;
 
 public class JUnitXmlResultProxyTest {
 
@@ -29,7 +29,8 @@ public class JUnitXmlResultProxyTest {
 	public void test() throws JUnitXmlResultProxyException {
 		assertFalse(checkFileExists());
 		JUnitExecutor executor = new JUnitExecutor();
-		JUnitResult result = executor.execute(FooTest.class);
+		Class<?> fooTestClass = new FooTestClassLoader().loadFooTestClass();
+		JUnitResult result = executor.execute(fooTestClass);
 		JUnitXmlResultProxy proxy = new JUnitXmlResultProxy();
 		
 		proxy.writeToXmlFile(result, JUNIT_RESULT_FILENAME);

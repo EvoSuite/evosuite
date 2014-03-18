@@ -8,13 +8,13 @@ import java.io.File;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.evosuite.junit.FooTestClassLoader;
 import org.evosuite.junit.JUnitResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import com.examples.with.different.packagename.junit.FooTest;
 
 public class JUnitXmlDocWriterTest extends JUnitXmlDocWriter {
 
@@ -27,7 +27,8 @@ public class JUnitXmlDocWriterTest extends JUnitXmlDocWriter {
 		File junitResult = new File(JUNIT_RESULT_FILENAME);
 		assertFalse(junitResult.exists());
 		JUnitExecutor executor = new JUnitExecutor();
-		JUnitResult result = executor.execute(FooTest.class);
+		Class<?> fooTestClass = new FooTestClassLoader().loadFooTestClass();
+		JUnitResult result = executor.execute(fooTestClass);
 		JUnitXmlDocBuilder builder = new JUnitXmlDocBuilder();
 		Document doc = builder.buildDocument(result);
 
