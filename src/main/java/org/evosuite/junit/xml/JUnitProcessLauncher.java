@@ -14,6 +14,7 @@ import org.evosuite.junit.JUnitExecutionException;
 import org.evosuite.junit.JUnitResult;
 import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,8 +146,7 @@ public class JUnitProcessLauncher {
 
 			if (xmlFile.exists()) {
 				logger.debug("Reading JUnitResult from file: " + xmlFileName);
-				JUnitXmlResultProxy proxy = new JUnitXmlResultProxy();
-				JUnitResult result = proxy.readFromXmlFile(xmlFileName);
+				JUnitResult result = Utils.<JUnitResult> readXML(xmlFileName);
 				xmlFile.delete();
 				LoggingUtils.getEvoLogger().info(
 						"JUnit finished correctly and created JUnit result.");
@@ -163,9 +163,6 @@ public class JUnitProcessLauncher {
 
 		} catch (IOException e) {
 			logger.warn("IOException during JUnit process execution ");
-			throw new JUnitExecutionException(e);
-		} catch (JUnitXmlResultProxyException e) {
-			logger.warn("JUnitXmlResultProxyException during JUnit process execution ");
 			throw new JUnitExecutionException(e);
 		}
 	}
