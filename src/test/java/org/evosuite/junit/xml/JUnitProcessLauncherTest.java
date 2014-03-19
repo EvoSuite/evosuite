@@ -48,6 +48,9 @@ public class JUnitProcessLauncherTest {
 			launcher.startNewJUnitProcess(new Class<?>[] {}, null);
 			fail();
 		} catch (JUnitExecutionException e) {
+			fail();
+		} catch (IllegalArgumentException e) {
+			
 		}
 	}
 	
