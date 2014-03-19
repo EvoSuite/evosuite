@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.evosuite.junit.JUnitExecutionException;
 import org.evosuite.junit.JUnitResult;
 import org.evosuite.utils.ClassPathHandler;
@@ -17,10 +18,34 @@ import org.slf4j.LoggerFactory;
 
 public class JUnitProcessLauncher {
 
-	private static final String JUNIT_ANALYZER_XML = "junitanalyzer.xml";
+	public static final String JUNIT_ANALYZER_XML_FILENAME = "junitanalyzer.xml";
 
 	private static Logger logger = LoggerFactory
 			.getLogger(JUnitProcessLauncher.class);
+
+	private static int dirCounter = 0;
+
+	private static File createNewTmpDir() {
+		File dir = null;
+		String dirName = FileUtils.getTempDirectoryPath() + File.separator
+				+ "EvoSuite_" + (dirCounter++) + "_"
+				+ System.currentTimeMillis();
+
+		//first create a tmp folder
+		dir = new File(dirName);
+		if (!dir.mkdirs()) {
+			logger.error("Cannot create tmp dir: " + dirName);
+			return null;
+		}
+
+		if (!dir.exists()) {
+			logger.error("Weird behavior: we created folder, but Java cannot determine if it exists? Folder: "
+					+ dirName);
+			return null;
+		}
+
+		return dir;
+	}
 
 	private String[] parseCommand(String command) {
 		List<String> list = new ArrayList<String>();
@@ -36,9 +61,12 @@ public class JUnitProcessLauncher {
 
 	public JUnitResult startNewJUnitProcess(Class<?>[] testClasses,
 			File testClassDir) throws JUnitExecutionException {
-		String baseDir = System.getProperty("user.dir");
-		File dir = new File(baseDir);
-		String xmlFileName = baseDir + File.separatorChar + JUNIT_ANALYZER_XML;
+
+		String baseDirName = System.getProperty("user.dir");
+		File baseDir = new File(baseDirName);
+		File tempDir = createNewTmpDir();
+		String xmlFileName = tempDir.getAbsolutePath() + File.separatorChar
+				+ JUNIT_ANALYZER_XML_FILENAME;
 
 		String junitClassPath;
 		if (testClassDir != null) {
@@ -71,12 +99,12 @@ public class JUnitProcessLauncher {
 		String[] parsedCommand = parseCommand(command);
 
 		ProcessBuilder builder = new ProcessBuilder(parsedCommand);
-		builder.directory(dir);
+		builder.directory(baseDir);
 		builder.redirectErrorStream(true);
 
 		LoggingUtils.getEvoLogger().info(
 				"Going to start process for running JUnit on : " + command);
-		logger.debug("Base directory: " + baseDir);
+		logger.debug("Base directory: " + baseDirName);
 		logger.debug("Command: " + command);
 
 		try {
