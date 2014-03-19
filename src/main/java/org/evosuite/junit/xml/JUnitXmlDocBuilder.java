@@ -17,7 +17,7 @@ class JUnitXmlDocBuilder {
 	public static final String FAILURE_COUNT_ATTRIBUTE_NAME = "failureCount";
 	public static final String RUN_COUNT_ATTRIBUTE_NAME = "runCount";
 	public static final String WAS_SUCCESSFUL_ATTRIBUTE_NAME = "wasSuccessful";
-	
+
 	// JUnitFailure attributes and elements
 	public static final String JUNIT_FAILURE_ELEMENT_NAME = "JunitFailure";
 	public static final String STACK_TRACE_CALL_ELEMENT_NAME = "stackTraceCall";
@@ -40,50 +40,66 @@ class JUnitXmlDocBuilder {
 				.createElement(JUNIT_RESULT_ELEMENT_NAME);
 		doc.appendChild(junitResultElement);
 
-		Attr wasSuccessful = doc.createAttribute(WAS_SUCCESSFUL_ATTRIBUTE_NAME);
-		wasSuccessful.setValue(Boolean.toString(junitResult.wasSuccessful()));
-		junitResultElement.setAttributeNode(wasSuccessful);
+		Attr wasSuccessfulAttr = doc
+				.createAttribute(WAS_SUCCESSFUL_ATTRIBUTE_NAME);
+		boolean wasSuccessful = junitResult.wasSuccessful();
+		wasSuccessfulAttr.setValue(Boolean.toString(wasSuccessful));
+		junitResultElement.setAttributeNode(wasSuccessfulAttr);
 
-		Attr failureCount = doc.createAttribute(FAILURE_COUNT_ATTRIBUTE_NAME);
-		failureCount.setValue(Integer.toString(junitResult.getFailureCount()));
-		junitResultElement.setAttributeNode(failureCount);
+		Attr failureCountAttr = doc
+				.createAttribute(FAILURE_COUNT_ATTRIBUTE_NAME);
+		int failureCount = junitResult.getFailureCount();
+		failureCountAttr.setValue(Integer.toString(failureCount));
+		junitResultElement.setAttributeNode(failureCountAttr);
 
-		Attr runCount = doc.createAttribute(RUN_COUNT_ATTRIBUTE_NAME);
-		runCount.setValue(Integer.toString(junitResult.getRunCount()));
-		junitResultElement.setAttributeNode(runCount);
-		
+		Attr runCountAttr = doc.createAttribute(RUN_COUNT_ATTRIBUTE_NAME);
+		int runCount = junitResult.getRunCount();
+		runCountAttr.setValue(Integer.toString(runCount));
+		junitResultElement.setAttributeNode(runCountAttr);
+
 		for (JUnitFailure junitFailure : junitResult.getFailures()) {
 			Element junitFailureElement = doc
 					.createElement(JUNIT_FAILURE_ELEMENT_NAME);
 			junitResultElement.appendChild(junitFailureElement);
 
-			Attr isAssertionError = doc
+			Attr isAssertionErrorAttr = doc
 					.createAttribute(IS_ASSERTION_ERROR_ATTRIBUTE_NAME);
-			isAssertionError.setValue(Boolean.toString(junitFailure
-					.isAssertionError()));
-			junitFailureElement.setAttributeNode(isAssertionError);
+			boolean assertionError = junitFailure.isAssertionError();
+			isAssertionErrorAttr.setValue(Boolean.toString(assertionError));
+			junitFailureElement.setAttributeNode(isAssertionErrorAttr);
 
 			Element messageElement = doc.createElement(MESSAGE_ELEMENT_NAME);
 			junitFailureElement.appendChild(messageElement);
-			messageElement.appendChild(doc.createTextNode(junitFailure
-					.getMessage()));
+			String message = junitFailure.getMessage();
+			if (message != null) {
+				messageElement.appendChild(doc.createTextNode(message));
+			}
 
 			Element traceElement = doc.createElement(TRACE_ELEMENT_NAME);
 			junitFailureElement.appendChild(traceElement);
-			traceElement.appendChild(doc.createTextNode(junitFailure
-					.getTrace()));
-			
+			String trace = junitFailure.getTrace();
+			if (trace != null) {
+				traceElement.appendChild(doc.createTextNode(trace));
+			}
+
 			Element classNameElement = doc
 					.createElement(CLASS_NAME_ELEMENT_NAME);
 			junitFailureElement.appendChild(classNameElement);
-			classNameElement.appendChild(doc.createTextNode(junitFailure
-					.getExceptionClassName()));
+			String exceptionClassName = junitFailure.getExceptionClassName();
+			if (exceptionClassName != null) {
+				classNameElement.appendChild(doc
+						.createTextNode(exceptionClassName));
+			}
 
 			Element methodNameElement = doc
 					.createElement(METHOD_NAME_ELEMENT_NAME);
 			junitFailureElement.appendChild(methodNameElement);
-			methodNameElement.appendChild(doc.createTextNode(junitFailure
-					.getDescriptionMethodName()));
+			String descriptionMethodName = junitFailure
+					.getDescriptionMethodName();
+			if (descriptionMethodName != null) {
+				methodNameElement.appendChild(doc
+						.createTextNode(descriptionMethodName));
+			}
 
 			Element stackTraceElements = doc
 					.createElement(STACK_TRACE_ELEMENT_NAME);
@@ -95,8 +111,11 @@ class JUnitXmlDocBuilder {
 				Element stackTraceElement = doc
 						.createElement(STACK_TRACE_CALL_ELEMENT_NAME);
 				stackTraceElements.appendChild(stackTraceElement);
-				stackTraceElement.appendChild(doc
-						.createTextNode(stackTraceElementToString));
+
+				if (stackTraceElementToString != null) {
+					stackTraceElement.appendChild(doc
+							.createTextNode(stackTraceElementToString));
+				}
 
 			}
 
