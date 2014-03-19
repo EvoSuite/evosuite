@@ -169,6 +169,13 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	public boolean isWrapperType();
 
 	/**
+	 * Return true if we can validly access this variable. This might not be the case for a field reference if the owner class is not accessible
+	 * 
+	 * @return
+	 */
+	public boolean isAccessible();
+	
+	/**
 	 * Return true if other type can be assigned to this variable
 	 * 
 	 * @param other

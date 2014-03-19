@@ -29,6 +29,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -169,6 +170,8 @@ public class ObjectPool implements Serializable {
 			ObjectInputStream objectIn = new ObjectInputStream(in);
 			ObjectPool pool = (ObjectPool) objectIn.readObject();
 			in.close();
+			// TODO: Do we also need to call that in the other factory methods?
+			pool.filterUnaccessibleTests();
 			return pool;
 		} catch (Exception e) {
 			logger.error("Exception while trying to get object pool from " + fileName
@@ -177,6 +180,19 @@ public class ObjectPool implements Serializable {
 		return null;
 	}
 
+	protected void filterUnaccessibleTests() {
+		for(Set<TestCase> testSet : pool.values()) {
+			Iterator<TestCase> testIterator = testSet.iterator();
+			while(testIterator.hasNext()) {
+				TestCase currentTest = testIterator.next();
+				if(!currentTest.isAccessible()) {
+					logger.info("Removing test containing inaccessible elements");
+					testIterator.remove();
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Convert a test suite to a pool
 	 * 

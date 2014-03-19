@@ -562,6 +562,14 @@ public class ConstructorStatement extends AbstractStatement {
 		return true;
 	}
 
+	@Override
+	public boolean isAccessible() {
+		if(!constructor.isAccessible())
+			return false;
+		
+		return super.isAccessible();
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#isValid()
 	 */

@@ -206,6 +206,11 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 		return constructor.getTypeParameters();
 	}
 
+	@Override
+	public boolean isAccessible() {
+		return TestClusterGenerator.canUse(constructor);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.GenericAccessibleObject#isConstructor()
 	 */

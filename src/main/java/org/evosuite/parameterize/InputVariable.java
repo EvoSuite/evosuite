@@ -23,6 +23,7 @@ package org.evosuite.parameterize;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
@@ -141,6 +142,11 @@ public class InputVariable implements VariableReference {
 	@Override
 	public Type getComponentType() {
 		return type.getComponentType();
+	}
+	
+	@Override
+	public boolean isAccessible() {
+		return TestClusterGenerator.canUse(type.getRawClass());
 	}
 
 	/* (non-Javadoc)
