@@ -146,6 +146,14 @@ public class FieldStatement extends AbstractStatement {
 		this.source = source;
 	}
 
+	@Override
+	public boolean isAccessible() {
+		if(!field.isAccessible())
+			return false;
+		
+		return super.isAccessible();
+	}
+	
 	/**
 	 * <p>
 	 * isStatic

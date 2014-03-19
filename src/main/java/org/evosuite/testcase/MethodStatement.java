@@ -626,6 +626,14 @@ public class MethodStatement extends AbstractStatement {
 		return references;
 	}
 
+	@Override
+	public boolean isAccessible() {
+		if(!method.isAccessible()) 
+			return false;
+		
+		return super.isAccessible();
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#isValid()
 	 */

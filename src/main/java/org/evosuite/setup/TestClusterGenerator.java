@@ -1116,7 +1116,7 @@ public class TestClusterGenerator {
 		return false;
 	}
 
-	private static boolean canUse(Constructor<?> c) {
+	public static boolean canUse(Constructor<?> c) {
 
 		if (c.isSynthetic()) {
 			return false;

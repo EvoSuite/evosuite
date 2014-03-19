@@ -341,6 +341,8 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		return getTypeParameters().length != 0;
 	}
 
+	public abstract boolean isAccessible();
+	
 	public boolean isConstructor() {
 		return false;
 	}
