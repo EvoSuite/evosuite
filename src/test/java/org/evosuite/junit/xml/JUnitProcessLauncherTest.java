@@ -7,6 +7,8 @@ import static org.junit.Assert.fail;
 import org.evosuite.junit.FooTestClassLoader;
 import org.evosuite.junit.JUnitExecutionException;
 import org.evosuite.junit.JUnitResult;
+import org.evosuite.utils.ClassPathHandler;
+import org.junit.After;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.junit.PassingFooTest;
@@ -47,6 +49,11 @@ public class JUnitProcessLauncherTest {
 			fail();
 		} catch (JUnitExecutionException e) {
 		}
+	}
+	
+	@After
+	public void resetHanlderAfterTest() {
+		ClassPathHandler.resetSingleton();
 	}
 
 }
