@@ -1048,7 +1048,8 @@ public class TestFactory {
 		if (reuse <= Properties.OBJECT_REUSE_PROBABILITY) {
 
 			List<VariableReference> candidates = test.getObjects(Object.class, position);
-			filterVariablesByClass(candidates, Object.class);
+			filterVariablesByCastClasses(candidates);
+			//filterVariablesByClass(candidates, Object.class);
 
 			if (!candidates.isEmpty())
 				return Randomness.choice(candidates);
@@ -1093,6 +1094,27 @@ public class TestFactory {
 		}
 	}
 
+	private static void filterVariablesByCastClasses(Collection<VariableReference> variables) {
+		// Remove invalid classes if this is an Object.class reference
+		Set<GenericClass> castClasses = CastClassManager.getInstance().getCastClasses();
+		Iterator<VariableReference> replacement = variables.iterator();
+		while (replacement.hasNext()) {
+			VariableReference r = replacement.next();
+			boolean isAssignable = false;
+			for(GenericClass clazz : castClasses) {
+				if(r.isPrimitive())
+					continue;
+				if(clazz.isAssignableFrom(r.getVariableClass())) {
+					isAssignable = true;
+					break;
+				}
+			}
+			if (!isAssignable && !r.getVariableClass().equals(Object.class))
+				replacement.remove();
+		}
+	}
+
+	
 	private static void filterVariablesByClass(Collection<VariableReference> variables,
 	        Class<?> clazz) {
 		// Remove invalid classes if this is an Object.class reference
