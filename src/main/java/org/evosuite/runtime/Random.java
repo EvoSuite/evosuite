@@ -68,9 +68,22 @@ public class Random {
 		wasAccessed = true;
 		return (currentNumber++ % 10F) / 10F;
 	}
+	
 
 	/**
-	 * Replacement function for nextFloat
+	 * Replacement function for nextBytes
+	 * @param bytes
+	 */
+	 public void nextBytes(byte[] bytes) {
+		   for (int i = 0; i < bytes.length; )
+		     for (int rnd = nextInt(), n = Math.min(bytes.length - i, 4);
+		          n-- > 0; rnd >>= 8)
+		       bytes[i++] = (byte)rnd;
+		 }
+
+	 
+	/**
+	 * Replacement function for nextDouble
 	 * 
 	 * @return a float.
 	 */
@@ -79,6 +92,27 @@ public class Random {
 		return (currentNumber++ % 10.0) / 10.0;
 	}
 
+	/**
+	 * Replacement function for nextGaussian
+	 * 
+	 * @return a double.
+	 */
+	public static double nextGaussian() {
+		wasAccessed = true;
+		return nextDouble();
+	}
+	
+	/**
+	 * Replacement function for nextBoolean
+	 * 
+	 * @return a boolean.
+	 */
+	public static boolean nextBoolean() {
+		wasAccessed = true;
+		return nextInt(1)!=0;
+	}
+
+	
 	/**
 	 * Replacement function for nextLong
 	 * 
