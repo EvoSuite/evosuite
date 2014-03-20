@@ -622,14 +622,17 @@ public class TestFactory {
 			logger.debug("Using a null reference to satisfy the type: " + Object.class);
 			return createNull(test, Object.class, position, recursionDepth);
 		}
-		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomObjectGenerator();
-		if (CastClassManager.getInstance().hasClass("java.lang.String")) {
-			Set<GenericAccessibleObject<?>> generators = TestCluster.getInstance().getObjectGenerators();
-			if (Randomness.nextInt(generators.size() + 1) >= generators.size()) {
-				return createOrReuseVariable(test, String.class, position,
-				                             recursionDepth, null);
-			}
+		
+		List<GenericClass> classes = new ArrayList<GenericClass>(
+		        CastClassManager.getInstance().getCastClasses());
+		classes.add(new GenericClass(Object.class));
+		GenericClass choice = Randomness.choice(classes);
+		logger.debug("Chosen class for Object: "+choice);
+		if(choice.isString()) {
+			return createOrReuseVariable(test, String.class, position,
+                    recursionDepth, null);			
 		}
+		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(choice);
 		// LoggingUtils.getEvoLogger().info("Generator for Object: " + o);
 
 		currentRecursion.add(o);
