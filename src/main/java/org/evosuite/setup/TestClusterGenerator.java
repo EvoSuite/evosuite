@@ -784,9 +784,9 @@ public class TestClusterGenerator {
 	}
 
 	private static boolean isEvoSuiteClass(Class<?> c) {
-		return c.getName().startsWith("org.evosuite")
-		        || c.getName().startsWith("edu.uta.cse.dsc")
-		        || c.getName().equals("java.lang.String");
+		return c.getName().startsWith("org.evosuite");
+		        //|| c.getName().startsWith("edu.uta.cse.dsc"); // TODO: Why was this here?
+		        //|| c.getName().equals("java.lang.String");    // This is now handled in addDependencyClass
 	}
 
 	protected static void makeAccessible(Field field) {
@@ -1380,6 +1380,10 @@ public class TestClusterGenerator {
 			if (clazz.getNumParameters() > 0) {
 				containerClasses.add(clazz.getRawClass());
 			}
+		}
+		
+		if(clazz.equals(String.class)) {
+			return false;
 		}
 
 		try {
