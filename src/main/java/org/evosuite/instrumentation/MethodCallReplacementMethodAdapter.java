@@ -233,15 +233,26 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			replacementCalls.add(new MethodCallReplacement("java/util/Random",
 					"nextDouble", "()D", "org/evosuite/runtime/Random", "nextDouble",
 					"()D", true, false));
-			replacementCalls.add(new MethodCallReplacement("java/lang/Math", "random",
-					"()D", "org/evosuite/runtime/Random", "nextDouble", "()D", false, false));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random",
 					"nextFloat", "()F", "org/evosuite/runtime/Random", "nextFloat",
 					"()F", true, false));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random",
 					"nextLong", "()J", "org/evosuite/runtime/Random", "nextLong", "()J",
 					true, false));
+			replacementCalls.add(new MethodCallReplacement("java/util/Random",
+					"nextGaussian", "()D", "org/evosuite/runtime/Random", "nextGaussian",
+					"()D", true, false));
+			replacementCalls.add(new MethodCallReplacement("java/util/Random",
+					"nextBoolean", "()Z", "org/evosuite/runtime/Random", "nextBoolean",
+					"()Z", true, false));
+			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextBytes",
+					"(]B)V", "org/evosuite/runtime/Random", "nextBytes", "(]B)V", true, false));
 
+			
+			replacementCalls.add(new MethodCallReplacement("java/lang/Math", "random",
+					"()D", "org/evosuite/runtime/Random", "nextDouble", "()D", false, false));
+
+			
 			replacementCalls.add(new MethodCallReplacement("java/lang/Thread",
 					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
 					true, false));
