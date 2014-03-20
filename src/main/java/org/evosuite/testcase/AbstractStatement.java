@@ -462,6 +462,15 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		return retval.getStPosition();
 	}
 
+	@Override
+	public boolean isAccessible() {
+		for(VariableReference var : getVariableReferences()) {
+			if(!var.isAccessible()) 
+				return false;
+		}
+		return true;
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public boolean isValid() {

@@ -197,6 +197,11 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return method.getTypeParameters();
 	}
 
+	@Override
+	public boolean isAccessible() {
+		return TestClusterGenerator.canUse(method);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.GenericAccessibleObject#isMethod()
 	 */
@@ -279,7 +284,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> methodClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
+		Class<?> methodClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass((String) ois.readObject());
 
 		// TODO: What was the point of this??
 		// methodClass = TestCluster.classLoader.loadClass(methodClass.getName());

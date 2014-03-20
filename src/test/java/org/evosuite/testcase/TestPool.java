@@ -41,6 +41,19 @@ public class TestPool extends SystemTest {
 	}
 	
 	@Test
+	public void testPoolDependency() throws IOException {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = DependencyClass.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+	
+	@Test
 	public void testPool() throws IOException {
 		File f = File.createTempFile("EvoSuiteTestPool",null, FileUtils.getTempDirectory());
 		String filename = f.getAbsolutePath();

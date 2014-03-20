@@ -774,6 +774,15 @@ public class DefaultTestCase implements TestCase, Serializable {
 		return false;
 	}
 
+	@Override
+	public boolean isAccessible() {
+		for(StatementInterface statement : statements) {
+			if(!statement.isAccessible())
+				return false;
+		}
+		return true;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#isEmpty()
 	 */

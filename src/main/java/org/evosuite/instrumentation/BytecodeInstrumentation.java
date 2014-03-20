@@ -110,7 +110,8 @@ public class BytecodeInstrumentation {
 					          "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc", "org.mozilla.javascript.gen.c",
 					          "corina.cross.Single",  // I really don't know what is wrong with this class, but we need to exclude it
 					          "org.slf4j", 
-					          "org.apache.commons.logging.Log"// Leads to ExceptionInInitializerException when re-instrumenting classes that use a logger
+					          "org.apache.commons.logging.Log",// Leads to ExceptionInInitializerException when re-instrumenting classes that use a logger
+					          "org.jcp.xml.dsig.internal.dom." //Security exception in ExecutionTracer?
 		};
 	}
 	

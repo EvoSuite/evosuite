@@ -6,10 +6,10 @@ import java.io.File;
 
 import org.evosuite.junit.FooTestClassLoader;
 import org.evosuite.junit.JUnitResult;
+import org.evosuite.utils.Utils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 
 public class JUnitXmlResultProxyTest {
 
@@ -26,18 +26,18 @@ public class JUnitXmlResultProxyTest {
 	}
 
 	@Test
-	public void test() throws JUnitXmlResultProxyException {
+	public void test() {
 		assertFalse(checkFileExists());
 		JUnitExecutor executor = new JUnitExecutor();
 		Class<?> fooTestClass = new FooTestClassLoader().loadFooTestClass();
 		JUnitResult result = executor.execute(fooTestClass);
-		JUnitXmlResultProxy proxy = new JUnitXmlResultProxy();
-		
-		proxy.writeToXmlFile(result, JUNIT_RESULT_FILENAME);
+
+		Utils.writeXML(result, JUNIT_RESULT_FILENAME);
 		assertTrue(checkFileExists());
-		
-		JUnitResult result_from_xml_file = proxy.readFromXmlFile(JUNIT_RESULT_FILENAME);
-	
+
+		JUnitResult result_from_xml_file = Utils
+				.<JUnitResult> readXML(JUNIT_RESULT_FILENAME);
+
 		assertEquals(result, result_from_xml_file);
 	}
 
@@ -47,11 +47,11 @@ public class JUnitXmlResultProxyTest {
 			junitResult.delete();
 		}
 	}
-	
+
 	private boolean checkFileExists() {
 		File file = new File(JUNIT_RESULT_FILENAME);
 		return file.exists();
-		
+
 	}
 
 }

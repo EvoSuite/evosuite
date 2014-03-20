@@ -245,6 +245,11 @@ public class VariableReferenceImpl implements VariableReference {
 		return type.isWrapperType();
 	}
 
+	@Override
+	public boolean isAccessible() {
+		return true;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 * 

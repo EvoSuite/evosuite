@@ -295,6 +295,12 @@ public interface StatementInterface {
 	public int hashCode();
 
 	/**
+	 * Determine if the underlying reflection object is currently accessible 
+	 * @return
+	 */
+	public boolean isAccessible();
+	
+	/**
 	 * Returns true if this statement should be handled as an
 	 * AssignmentStatement. This method was added to allow the wrapping of
 	 * AssignmentStatements (in which case "a instanceof AssignmentStatement" is

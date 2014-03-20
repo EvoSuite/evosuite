@@ -20,7 +20,7 @@ public class StaticFieldResetter {
 	/**
 	 * The name of the instrumented duplication of the class initializer <clinit>
 	 */
-	private static final String STATIC_RESET = "__STATIC_RESET";
+	public static final String STATIC_RESET = "__STATIC_RESET";
 
 	private static final StaticFieldResetter instance = new StaticFieldResetter();
 

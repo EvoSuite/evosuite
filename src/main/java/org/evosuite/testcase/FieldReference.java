@@ -417,6 +417,11 @@ public class FieldReference extends VariableReferenceImpl {
 		return depth;
 	}
 
+	@Override
+	public boolean isAccessible() {
+		return field.isAccessible();
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
