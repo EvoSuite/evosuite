@@ -38,6 +38,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.runtime.StaticFieldResetter;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.utils.GenericAccessibleObject;
@@ -170,7 +171,7 @@ public class TestCluster {
 			visited.add(className);
 			try {
 				Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
-				Method m = clazz.getMethod("__STATIC_RESET", (Class<?>[]) null);
+				Method m = clazz.getMethod(StaticFieldResetter.STATIC_RESET, (Class<?>[]) null);
 				m.setAccessible(true);
 				staticInitializers.add(m);
 				logger.info("Adding static class: " + className);

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.evosuite.runtime.StaticFieldResetter;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassVisitor;
@@ -52,11 +53,10 @@ public class StaticResetClassAdapter extends ClassVisitor {
 	private boolean isInterface = false;
 
 	private boolean clinitFound = false;
-	
-	private boolean definesUid = false;
-	
-	private long serialUID = -1L;
 
+	private boolean definesUid = false;
+
+	private long serialUID = -1L;
 
 	private final List<String> finalFields = new ArrayList<String>();
 
@@ -98,7 +98,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 	public FieldVisitor visitField(int access, String name, String desc,
 			String signature, Object value) {
 
-		if(name.equals("serialVersionUID")) {
+		if (name.equals("serialVersionUID")) {
 			definesUid = true;
 		}
 
@@ -131,14 +131,14 @@ public class StaticResetClassAdapter extends ClassVisitor {
 			// duplicates existing <clinit>
 			MethodVisitor visitMethod = super.visitMethod(methodAccess
 					| Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
-					"__STATIC_RESET", descriptor, signature, exceptions);
+					StaticFieldResetter.STATIC_RESET, descriptor, signature, exceptions);
 
 			StaticResetMethodAdapter staticResetMethodAdapter = new StaticResetMethodAdapter(
-					visitMethod, className, this.static_fields);
+					visitMethod, className, this.static_fields, finalFields);
 
 			MethodVisitor mv2 = new RemoveFinalMethodAdapter(className,
 					staticResetMethodAdapter, finalFields);
-			
+
 			registerStaticResetMethod();
 			return new MultiMethodVisitor(mv2, mv);
 		}
@@ -154,52 +154,57 @@ public class StaticResetClassAdapter extends ClassVisitor {
 	public void visitEnd() {
 		if (!clinitFound && !static_fields.isEmpty() && !isInterface) {
 			// create brand new __STATIC_RESET
-			if(!definesUid) {
+			if (!definesUid) {
 				//determineSerialisableUID();
 				//createSerialisableUID();
 			}
 			createEmptyStaticReset();
 			registerStaticResetMethod();
-		} else if(clinitFound) {
-			if(!definesUid) {
+		} else if (clinitFound) {
+			if (!definesUid) {
 				//createSerialisableUID();
 			}
 		}
 		super.visitEnd();
 	}
-	
+
 	private void determineSerialisableUID() {
 		try {
-			Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
-			if(Serializable.class.isAssignableFrom(clazz)) {
+			Class<?> clazz = Class.forName(className.replace('/', '.'), false,
+					MethodCallReplacementClassAdapter.class.getClassLoader());
+			if (Serializable.class.isAssignableFrom(clazz)) {
 				ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
 				serialUID = c.getSerialVersionUID();
 			}
-		} catch(ClassNotFoundException e) {
-			logger.info("Failed to add serialId to class "+className+": "+e.getMessage());
+		} catch (ClassNotFoundException e) {
+			logger.info("Failed to add serialId to class " + className + ": "
+					+ e.getMessage());
 		}
 
 	}
-	
+
 	// This method is a code clone from MethodCallReplacementClassAdapter
 	private void createSerialisableUID() {
 		// Only add this for serialisable classes
-		if(serialUID < 0)
+		if (serialUID < 0)
 			return;
 		/*
 		 * If the class is serializable, then adding a hashCode will change the serialVersionUID
 		 * if it is not defined in the class. Hence, if it is not defined, we have to define it to
 		 * avoid problems in serialising the class.
 		 */
-		logger.info("Adding serialId to class "+className);
-		visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialUID);
+		logger.info("Adding serialId to class " + className);
+		visitField(
+				Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL,
+				"serialVersionUID", "J", null, serialUID);
 	}
 
 	private void createEmptyStaticReset() {
 		logger.info("Creating brand-new static initializer in class "
 				+ className);
 		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC
-				| Opcodes.ACC_STATIC, "__STATIC_RESET", "()V", null, null);
+				| Opcodes.ACC_STATIC, StaticFieldResetter.STATIC_RESET, "()V",
+				null, null);
 		mv.visitCode();
 		for (StaticField staticField : static_fields) {
 			logger.info("Adding bytecode for initializing field "
