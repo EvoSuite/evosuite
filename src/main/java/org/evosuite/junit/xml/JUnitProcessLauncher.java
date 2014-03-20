@@ -6,21 +6,48 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.evosuite.junit.JUnitExecutionException;
 import org.evosuite.junit.JUnitResult;
 import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JUnitProcessLauncher {
 
-	private static final String JUNIT_ANALYZER_XML = "junitanalyzer.xml";
+	public static final String JUNIT_ANALYZER_XML_FILENAME = "junitanalyzer.xml";
 
 	private static Logger logger = LoggerFactory
 			.getLogger(JUnitProcessLauncher.class);
+
+	private static int dirCounter = 0;
+
+	private static File createNewTmpDir() {
+		File dir = null;
+		String dirName = FileUtils.getTempDirectoryPath() + File.separator
+				+ "EvoSuite_" + (dirCounter++) + "_"
+				+ System.currentTimeMillis();
+
+		//first create a tmp folder
+		dir = new File(dirName);
+		if (!dir.mkdirs()) {
+			logger.error("Cannot create tmp dir: " + dirName);
+			return null;
+		}
+
+		if (!dir.exists()) {
+			logger.error("Weird behavior: we created folder, but Java cannot determine if it exists? Folder: "
+					+ dirName);
+			return null;
+		}
+
+		return dir;
+	}
 
 	private String[] parseCommand(String command) {
 		List<String> list = new ArrayList<String>();
@@ -36,9 +63,17 @@ public class JUnitProcessLauncher {
 
 	public JUnitResult startNewJUnitProcess(Class<?>[] testClasses,
 			File testClassDir) throws JUnitExecutionException {
-		String baseDir = System.getProperty("user.dir");
-		File dir = new File(baseDir);
-		String xmlFileName = baseDir + File.separatorChar + JUNIT_ANALYZER_XML;
+
+		if (testClasses.length == 0) {
+			throw new IllegalArgumentException(
+					"Cannot invoke startNewJUnitProcess with no test classes");
+		}
+
+		String baseDirName = System.getProperty("user.dir");
+		File baseDir = new File(baseDirName);
+		File tempDir = createNewTmpDir();
+		String xmlFileName = tempDir.getAbsolutePath() + File.separatorChar
+				+ JUNIT_ANALYZER_XML_FILENAME;
 
 		String junitClassPath;
 		if (testClassDir != null) {
@@ -55,8 +90,10 @@ public class JUnitProcessLauncher {
 		String command = "java";
 		command += " -cp " + junitClassPath;
 		command += " " + JUnitXmlDocMain.class.getCanonicalName();
+		String testClassesString = "";
 		for (Class<?> testClass : testClasses) {
 			command += " " + testClass.getCanonicalName();
+			testClassesString += " " + testClass.getCanonicalName();
 		}
 
 		logger.debug("Checking XML file already exists " + xmlFileName);
@@ -71,12 +108,13 @@ public class JUnitProcessLauncher {
 		String[] parsedCommand = parseCommand(command);
 
 		ProcessBuilder builder = new ProcessBuilder(parsedCommand);
-		builder.directory(dir);
+		builder.directory(baseDir);
 		builder.redirectErrorStream(true);
 
 		LoggingUtils.getEvoLogger().info(
-				"Going to start process for running JUnit on : " + command);
-		logger.debug("Base directory: " + baseDir);
+				"Going to start process for running JUnit for test classes : "
+						+ testClassesString);
+		logger.debug("Base directory: " + baseDirName);
 		logger.debug("Command: " + command);
 
 		try {
@@ -85,8 +123,10 @@ public class JUnitProcessLauncher {
 			InputStream stdout = process.getInputStream();
 			logger.debug("JUnit process output:");
 
+			List<String> bufferStdOut = new LinkedList<String>();
 			do {
-				readInputStream("Finished JUnit process output - ", stdout);
+				readInputStream("Finished JUnit process output - ", stdout,
+						bufferStdOut);
 			} while (!isFinished(process));
 
 			int exitValue = process.exitValue();
@@ -95,15 +135,18 @@ public class JUnitProcessLauncher {
 			if (exitValue != 0) {
 				logger.warn("JUnit process XML did not finish correctly. Exit code: "
 						+ exitValue);
+
+				logger.warn("Standard Output/Error from JUnit processs");
+				for (String stdLine : bufferStdOut) {
+					logger.warn(stdLine);
+				}
 				throw new JUnitExecutionException(
-						"Execution of java command did not end correctly: "
-								+ command);
+						"Execution of java command did not end correctly");
 			}
 
 			if (xmlFile.exists()) {
 				logger.debug("Reading JUnitResult from file: " + xmlFileName);
-				JUnitXmlResultProxy proxy = new JUnitXmlResultProxy();
-				JUnitResult result = proxy.readFromXmlFile(xmlFileName);
+				JUnitResult result = Utils.<JUnitResult> readXML(xmlFileName);
 				xmlFile.delete();
 				LoggingUtils.getEvoLogger().info(
 						"JUnit finished correctly and created JUnit result.");
@@ -121,9 +164,6 @@ public class JUnitProcessLauncher {
 		} catch (IOException e) {
 			logger.warn("IOException during JUnit process execution ");
 			throw new JUnitExecutionException(e);
-		} catch (JUnitXmlResultProxyException e) {
-			logger.warn("JUnitXmlResultProxyException during JUnit process execution ");
-			throw new JUnitExecutionException(e);
 		}
 	}
 
@@ -136,13 +176,14 @@ public class JUnitProcessLauncher {
 		}
 	}
 
-	private void readInputStream(String prefix, InputStream in)
-			throws IOException {
+	private void readInputStream(String prefix, InputStream in,
+			List<String> buffer) throws IOException {
 		InputStreamReader is = new InputStreamReader(in);
 		BufferedReader br = new BufferedReader(is);
 		String read = br.readLine();
 		while (read != null) {
 			logger.debug(prefix + read);
+			buffer.add(prefix + read);
 			read = br.readLine();
 		}
 	}

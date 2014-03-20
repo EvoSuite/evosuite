@@ -13,6 +13,7 @@ import java.lang.reflect.Type;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.setup.TestClusterGenerator;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
@@ -124,6 +125,11 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 		return field.getGenericType();
 	}
 
+	@Override
+	public boolean isAccessible() {
+		return TestClusterGenerator.canUse(field);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.GenericAccessibleObject#isField()
 	 */
@@ -169,7 +175,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> methodClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
+		Class<?> methodClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass((String) ois.readObject());
 		String fieldName = (String) ois.readObject();
 
 		try {

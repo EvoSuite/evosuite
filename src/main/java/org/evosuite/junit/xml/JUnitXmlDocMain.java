@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import org.evosuite.junit.JUnitResult;
+import org.evosuite.utils.Utils;
 
 
 
 public class JUnitXmlDocMain {
 
-	public static void main(String[] args) throws ClassNotFoundException, JUnitXmlResultProxyException {
+	public static void main(String[] args) throws ClassNotFoundException {
 		if (args.length<=1) {
 			System.err.println("Error: Incorrect Usage of " + JUnitXmlDocMain.class.getCanonicalName());
 			System.err.println("<Usage> testClassName1 testClassName2 ... xmlFilename");
@@ -35,14 +36,7 @@ public class JUnitXmlDocMain {
 		
 		JUnitExecutor executor = new JUnitExecutor();
 		JUnitResult junitResult = executor.execute(testClasses.toArray(new Class<?>[0]));
-		
-		JUnitXmlResultProxy proxy = new JUnitXmlResultProxy();
-		try {
-			proxy.writeToXmlFile(junitResult, xmlFilename);
-		} catch (JUnitXmlResultProxyException e) {
-			System.err.println("Error: could not write result of JUnit execution to " + xmlFilename);
-			throw e;
-		}
+		Utils.writeXML(junitResult , xmlFilename);
 	}
 
 }

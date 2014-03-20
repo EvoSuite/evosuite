@@ -353,6 +353,13 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	public boolean hasReferences(VariableReference var);
 
 	/**
+	 * Check if all methods/fields accessed are accessible also for the current SUT
+	 * 
+	 * @return
+	 */
+	public boolean isAccessible();
+	
+	/**
 	 * <p>isEmpty</p>
 	 *
 	 * @return true if size()==0

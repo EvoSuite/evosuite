@@ -13,42 +13,49 @@ public class StaticResetMethodAdapter extends MethodVisitor {
 
 	private final String className;
 
-	public StaticResetMethodAdapter(MethodVisitor mv,
-			String className, List<StaticField> staticFields) {
+	private final List<String> finalFields;
+
+	public StaticResetMethodAdapter(MethodVisitor mv, String className,
+			List<StaticField> staticFields, List<String> finalFields) {
 		super(Opcodes.ASM4, mv);
 		this.className = className;
 		this.staticFields = staticFields;
+		this.finalFields = finalFields;
 	}
 
 	@Override
 	public void visitCode() {
 		super.visitCode();
 		for (StaticField staticField : staticFields) {
-			Type type = Type.getType(staticField.desc);
-			switch (type.getSort()) {
-			case Type.BOOLEAN:
-			case Type.BYTE:
-			case Type.CHAR:
-			case Type.SHORT:
-			case Type.INT:
-				mv.visitInsn(Opcodes.ICONST_0);
-				break;
-			case Type.FLOAT:
-				mv.visitInsn(Opcodes.FCONST_0);
-				break;
-			case Type.LONG:
-				mv.visitInsn(Opcodes.LCONST_0);
-				break;
-			case Type.DOUBLE:
-				mv.visitInsn(Opcodes.DCONST_0);
-				break;
-			case Type.ARRAY:
-			case Type.OBJECT:
-				mv.visitInsn(Opcodes.ACONST_NULL);
-				break;
+
+			if (!finalFields.contains(staticField.name)) {
+
+				Type type = Type.getType(staticField.desc);
+				switch (type.getSort()) {
+				case Type.BOOLEAN:
+				case Type.BYTE:
+				case Type.CHAR:
+				case Type.SHORT:
+				case Type.INT:
+					mv.visitInsn(Opcodes.ICONST_0);
+					break;
+				case Type.FLOAT:
+					mv.visitInsn(Opcodes.FCONST_0);
+					break;
+				case Type.LONG:
+					mv.visitInsn(Opcodes.LCONST_0);
+					break;
+				case Type.DOUBLE:
+					mv.visitInsn(Opcodes.DCONST_0);
+					break;
+				case Type.ARRAY:
+				case Type.OBJECT:
+					mv.visitInsn(Opcodes.ACONST_NULL);
+					break;
+				}
+				mv.visitFieldInsn(Opcodes.PUTSTATIC, className,
+						staticField.name, staticField.desc);
 			}
-			mv.visitFieldInsn(Opcodes.PUTSTATIC, className, staticField.name,
-					staticField.desc);
 		}
 
 	}
