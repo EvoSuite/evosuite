@@ -19,7 +19,6 @@ package org.evosuite.testcase;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -66,8 +65,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 	private transient Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
 
 	/** Violations revealed by this test */
-	private final transient Set<ContractViolation> contractViolations = new LinkedHashSet<ContractViolation>();
-	
+	private transient Set<ContractViolation> contractViolations = new LinkedHashSet<ContractViolation>();
+
 	private boolean isFailing = false;
 
 	private boolean unstable = false;
@@ -110,16 +109,17 @@ public class DefaultTestCase implements TestCase, Serializable {
 			}
 		}
 	}
-	
+
 	@Override
 	public void addContractViolation(ContractViolation violation) {
 		contractViolations.add(violation);
 	}
-	
+
+	@Override
 	public Set<ContractViolation> getContractViolations() {
 		return contractViolations;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#addCoveredGoal(org.evosuite.testcase.TestFitnessFunction)
 	 */
@@ -270,7 +270,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			return null;
 		}
 		*/
-		
+
 		for (StatementInterface s : statements) {
 			StatementInterface copy = s.clone(t);
 			t.statements.add(copy);
@@ -765,8 +765,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private boolean isClassUtilsBug(Class<?> rawClass, Class<?> arrayClass) {
 		while (arrayClass != null && arrayClass.isArray()) {
-			if(rawClass.isAssignableFrom(arrayClass.getComponentType())) {
-//			if (arrayClass.getComponentType().equals(rawClass)) {
+			if (rawClass.isAssignableFrom(arrayClass.getComponentType())) {
+				//			if (arrayClass.getComponentType().equals(rawClass)) {
 				return true;
 			}
 			arrayClass = arrayClass.getComponentType();
@@ -776,13 +776,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	@Override
 	public boolean isAccessible() {
-		for(StatementInterface statement : statements) {
-			if(!statement.isAccessible())
+		for (StatementInterface statement : statements) {
+			if (!statement.isAccessible())
 				return false;
 		}
 		return true;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#isEmpty()
 	 */
@@ -901,6 +901,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		ois.defaultReadObject();
 
 		coveredGoals = new LinkedHashSet<TestFitnessFunction>();
+		contractViolations = new LinkedHashSet<ContractViolation>();
 	}
 
 	public void setFailing(boolean failing) {
