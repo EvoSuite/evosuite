@@ -39,7 +39,6 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.rmi.ClientServices;
@@ -285,18 +284,21 @@ public class InheritanceTreeGenerator {
 		}
 	}
 
+	private static final Pattern ANONYMOUS_MATCHER1 = Pattern.compile(".*\\$\\d+.*$");
+	private static final Pattern ANONYMOUS_MATCHER2 = Pattern.compile(".*\\.\\d+.*$");
+
 	public static boolean canUse(ClassNode cn) {
 
 		if ((cn.access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE) {
 			logger.debug(cn.name + " is private, ignoring it");
 			return false;
 		}
-		if (cn.name.matches(".*\\$\\d+.*$")) {
+		if (ANONYMOUS_MATCHER1.matcher(cn.name).matches()) {
 			logger.debug(cn.name + " looks like an anonymous class, ignoring it");
 			return false;
 		}
 
-		if (cn.name.matches(".*\\.\\d+.*$")) {
+		if (ANONYMOUS_MATCHER2.matcher(cn.name).matches()) {
 			logger.debug(cn.name + " looks like an anonymous class, ignoring it");
 			return false;
 		}

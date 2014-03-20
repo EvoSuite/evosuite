@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -54,6 +55,12 @@ public class ResourceList {
 
 	/** Cache of file lists to avoid unnecessary IO */
 	private static Map<String, Collection<String>> classPathCache = new LinkedHashMap<String, Collection<String>>();
+
+	/**
+	 * Cache of class names visited to avoid repeated checking of classpath for
+	 * existing files
+	 */
+	private static Map<String, Boolean> classNameCache = new HashMap<String, Boolean>();
 
 	/**
 	 * 
@@ -100,7 +107,10 @@ public class ResourceList {
 	 * @return
 	 */
 	public static boolean hasClass(String className) {
-		return getClassAsResource(className) != null;
+		if (!classNameCache.containsKey(className))
+			classNameCache.put(className, getClassAsResource(className) != null);
+
+		return classNameCache.get(className);
 	}
 
 	public static Collection<String> getAllResources() {
@@ -161,7 +171,7 @@ public class ResourceList {
 		InputStream input = null;
 
 		initialiseCacheEntry(classPathElement);
-		if (getResourcesFromCache(classPathElement, pattern).isEmpty()) {
+		if (!hasResourcesInCache(classPathElement, pattern)) {
 			return input;
 		}
 
@@ -435,4 +445,15 @@ public class ResourceList {
 		}
 		return retval;
 	}
+
+	private static boolean hasResourcesInCache(final String classPathEntry,
+	        final Pattern pattern) {
+		final ArrayList<String> retval = new ArrayList<String>();
+		for (String entry : classPathCache.get(classPathEntry)) {
+			if (pattern.matcher(entry).matches())
+				return true;
+		}
+		return false;
+	}
+
 }
