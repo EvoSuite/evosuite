@@ -171,6 +171,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 			try {
 				TestGenerationContext.getInstance().resetContext();
+				TestGenerationContext.getInstance().goingToExecuteSUTCode();
 				Properties.getTargetClass();
 				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
 
@@ -187,6 +188,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 								: e.toString()));
 				logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
 			} finally {
+				TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 				Sandbox.doneWithExecutingSUTCode();
 			}
