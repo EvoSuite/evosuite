@@ -264,44 +264,76 @@ public class ArrayIndex extends VariableReferenceImpl {
 		}
 	}
 
-	private int getIntValue(Object object) {
-		if (object instanceof Number) {
+	private Integer getIntValue(Object object) {
+		if (object==null) {
+			return null;
+		} else if (object instanceof Number) {
 			return ((Number) object).intValue();
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return new Integer(((Character) object).charValue());
+		} else
+			return 0;
+	}
+	
+	private Short getShortValue(Object object) {
+		if (object==null) {
+			return null;
+		} else if (object instanceof Number) {
+			return (short)((Number) object).intValue();
+		} else if (object instanceof Character) {
+			return new Short((short)((Character) object).charValue());
+		} else
+			return 0;
+	}
+	
+	private Byte getByteValue(Object object) {
+		if (object==null) {
+			return null;
+		} else if (object instanceof Number) {
+			return (byte)((Number) object).intValue();
+		} else if (object instanceof Character) {
+			return new Byte((byte)((Character) object).charValue());
 		} else
 			return 0;
 	}
 
-	private long getLongValue(Object object) {
-		if (object instanceof Number) {
+	private Long getLongValue(Object object) {
+		if (object==null) {
+			return null;
+		} else if (object instanceof Number) {
 			return ((Number) object).longValue();
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return new Long(((Character) object).charValue());
 		} else
 			return 0L;
 	}
 
-	private float getFloatValue(Object object) {
-		if (object instanceof Number) {
+	private Float getFloatValue(Object object) {
+		if (object==null) {
+			return null;
+		} else if (object instanceof Number) {
 			return ((Number) object).floatValue();
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return new Float(((Character) object).charValue());
 		} else
 			return 0F;
 	}
 
-	private double getDoubleValue(Object object) {
-		if (object instanceof Number) {
+	private Double getDoubleValue(Object object) {
+		if (object==null) {
+			return null;
+		} else if (object instanceof Number) {
 			return ((Number) object).doubleValue();
 		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
+			return new Double(((Character) object).charValue());
 		} else
 			return 0.0;
 	}
-
-	private char getCharValue(Object object) {
-		if (object instanceof Character) {
+	
+	private Character getCharValue(Object object) {
+		if (object==null) {
+			return null;
+		} else if (object instanceof Character) {
 			return ((Character) object).charValue();
 		} else if (object instanceof Number) {
 			return (char) ((Number) object).intValue();
@@ -350,10 +382,10 @@ public class ArrayIndex extends VariableReferenceImpl {
 				              getLongValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(short.class))
 				Array.setShort(arrayObject, indices.get(indices.size() - 1),
-				               (short) getIntValue(value));
+				               getShortValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(byte.class))
 				Array.setByte(arrayObject, indices.get(indices.size() - 1),
-				              (byte) getIntValue(value));
+				              getByteValue(value));
 			// We also need to check if we are assigning to a wrapper type, because autoboxing 
 			// only seems to work from int -> Integer, but e.g. not from byte -> Integer 
 			else if (arrayObject.getClass().getComponentType().equals(Integer.class))
@@ -375,10 +407,10 @@ public class ArrayIndex extends VariableReferenceImpl {
 				          getLongValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(Short.class))
 				Array.set(arrayObject, indices.get(indices.size() - 1),
-				          (short) getIntValue(value));
+				          getShortValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(Byte.class))
 				Array.set(arrayObject, indices.get(indices.size() - 1),
-				          (byte) getIntValue(value));
+				          getByteValue(value));
 			else {
 				Array.set(arrayObject, indices.get(indices.size() - 1), value);
 			}
