@@ -26,7 +26,8 @@ import org.slf4j.LoggerFactory;
  * 
  * <p>
  * This class is also used to keep track of what the test cases have tried to
- * do. This is useful guide the search.
+ * do. This is useful to guide the search.
+ * 
  * 
  * @author arcuri
  * 
@@ -42,6 +43,9 @@ public final class VirtualFileSystem {
 
 	/**
 	 * The root of the VFS
+	 * 
+	 * <p>
+	 * TODO: we might need to simulate more than one root on same FS
 	 */
 	private VFolder root;
 
