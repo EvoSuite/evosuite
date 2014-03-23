@@ -12,6 +12,8 @@ import org.evosuite.mock.java.io.MockFileWriter;
 import org.evosuite.mock.java.io.MockPrintStream;
 import org.evosuite.mock.java.io.MockPrintWriter;
 import org.evosuite.mock.java.io.MockRandomAccessFile;
+import org.evosuite.mock.java.lang.MockException;
+import org.evosuite.mock.java.lang.MockThrowable;
 import org.evosuite.mock.java.util.MockDate;
 import org.evosuite.mock.java.util.MockGregorianCalendar;
 import org.evosuite.mock.java.util.logging.MockFileHandler;
@@ -64,6 +66,8 @@ public class MockList {
 			list.add(MockDate.class);
 			list.add(MockGregorianCalendar.class);
 			list.add(MockLogRecord.class);
+			list.add(MockThrowable.class);
+			list.add(MockException.class);
 		}
 		
 		return list;
