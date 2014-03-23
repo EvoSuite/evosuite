@@ -111,7 +111,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			mv.visitMethodInsn(opcode, replacementClassName, replacementMethodName,
 					replacementDesc);
 		}
-
+		
 		public void insertConstructorCall(MethodCallReplacementMethodAdapter mv,
 				MethodCallReplacement replacement, boolean isSelf) {
 			// if(!mv.needToWaitForSuperConstructor) {
@@ -256,24 +256,24 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			replacementCalls.add(new MethodCallReplacement("java/lang/Thread",
 					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
 					true, false));
-			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
-					"toString", "()Ljava/lang/String;", "org/evosuite/runtime/Throwable", "toString", "(Ljava/lang/Throwable;)Ljava/lang/String;",
-					false, false));
-			replacementCalls.add(new MethodCallReplacement("java/lang/Exception",
-					"toString", "()Ljava/lang/String;", "org/evosuite/runtime/Throwable", "toString", "(Ljava/lang/Exception;)Ljava/lang/String;",
-					false, false));
-			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
-					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
-					true, false));
-			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
-					"printStackTrace", "(Ljava/io/PrintStream;)V", "org/evosuite/runtime/Throwable", "printStackTrace", "(Ljava/io/PrintStream;)V",
-					true, false));
-			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
-					"printStackTrace", "(Ljava/io/PrintWriter;)V", "org/evosuite/runtime/Throwable", "printStackTrace", "(Ljava/io/PrintWriter;)V",
-					true, false));
-			replacementCalls.add(new MethodCallReplacement("java/lang/Exception",
-					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
-					true, false));
+//			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
+//					"toString", "()Ljava/lang/String;", "org/evosuite/runtime/Throwable", "toString", "(Ljava/lang/Throwable;)Ljava/lang/String;",
+//					false, false));
+//			replacementCalls.add(new MethodCallReplacement("java/lang/Exception",
+//					"toString", "()Ljava/lang/String;", "org/evosuite/runtime/Throwable", "toString", "(Ljava/lang/Exception;)Ljava/lang/String;",
+//					false, false));
+//			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
+//					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
+//					true, false));
+//			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
+//					"printStackTrace", "(Ljava/io/PrintStream;)V", "org/evosuite/runtime/Throwable", "printStackTrace", "(Ljava/io/PrintStream;)V",
+//					true, false));
+//			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
+//					"printStackTrace", "(Ljava/io/PrintWriter;)V", "org/evosuite/runtime/Throwable", "printStackTrace", "(Ljava/io/PrintWriter;)V",
+//					true, false));
+//			replacementCalls.add(new MethodCallReplacement("java/lang/Exception",
+//					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
+//					true, false));
 
 			replacementCalls.add(new MethodCallReplacement("java/lang/Thread",
 					"getName", "()Ljava/lang/String;", "org/evosuite/runtime/Thread", "getName", "(Ljava/lang/Thread;)Ljava/lang/String;",
@@ -318,6 +318,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		for(Class<?> mock : MockList.getList()){
 			replaceAllConstructors(mock, mock.getSuperclass());
 			replaceAllStaticMethods(mock,mock.getSuperclass());
+			replaceAllInvokeSpecial(mock, mock.getSuperclass());
 		}
 	}
 
@@ -361,6 +362,31 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					mockClass.getCanonicalName().replace('.', '/'), "<init>", desc, false, false));
 		}
 	}
+	
+	/**
+	 * Replace all the methods of {@code target} with a method (with
+	 * same input parameters) of mock subclass {@code mockClass}.
+	 * 
+	 * @param mockClass
+	 * @param target
+	 * @throws IllegalArgumentException
+	 */
+	private void replaceAllInvokeSpecial(Class<?> mockClass, Class<?> target)
+			throws IllegalArgumentException {
+
+		if (!target.isAssignableFrom(mockClass)) {
+			throw new IllegalArgumentException(
+					"Method replacement can be done only for subclasses. Class "
+							+ mockClass + " is not an instance of " + target);
+		}
+		
+		for (Method method : mockClass.getMethods()) {
+			String desc = Type.getMethodDescriptor(method);
+			specialReplacementCalls.add(new MethodCallReplacement(
+					target.getCanonicalName().replace('.', '/'), method.getName(), desc,
+					mockClass.getCanonicalName().replace('.', '/'), method.getName(), desc, false, false));
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
@@ -389,16 +415,19 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 		// for constructors
 		for (MethodCallReplacement replacement : specialReplacementCalls) {
-			if (replacement.isTarget(owner, name, desc)) {
+			if (replacement.isTarget(owner, name, desc) && opcode == Opcodes.INVOKESPECIAL) {
 				isReplaced = true;
 				boolean isSelf = false;
-				if(needToWaitForSuperConstructor && opcode == Opcodes.INVOKESPECIAL) {
+				if(needToWaitForSuperConstructor) {
 					String originalClassNameWithDots = owner.replace('/', '.');
 					if(originalClassNameWithDots.equals(superClassName)) {
 						isSelf = true;
 					}
 				}
-				replacement.insertConstructorCall(this, replacement, isSelf);
+				if(replacement.methodName.equals("<init>"))
+					replacement.insertConstructorCall(this, replacement, isSelf);
+				else
+					replacement.insertMethodCall(this, Opcodes.INVOKESPECIAL);
 				break;
 			}
 		}
