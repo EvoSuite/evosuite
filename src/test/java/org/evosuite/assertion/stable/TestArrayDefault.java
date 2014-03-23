@@ -16,6 +16,7 @@ import org.junit.Test;
 import com.examples.with.different.packagename.stable.BooleanArrayDefault;
 import com.examples.with.different.packagename.stable.DoubleArrayDefault;
 import com.examples.with.different.packagename.stable.FloatArrayDefault;
+import com.examples.with.different.packagename.stable.FloatPrimitiveArrayDefault;
 import com.examples.with.different.packagename.stable.IntegerArrayDefault;
 import com.examples.with.different.packagename.stable.ObjectArrayDefault;
 
@@ -156,6 +157,28 @@ public class TestArrayDefault extends SystemTest {
 
 //		Assert.assertTrue("Optimal coverage was not achieved ",
 //				best_fitness == 0.0);
+
+	}
+
+	@Test
+	public void testFloatPrimitiveDefault() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = FloatPrimitiveArrayDefault.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		String[] command = new String[] { "-generateSuite", "-class",
+				targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		StatisticEntry entry = SearchStatistics.getInstance()
+				.getLastStatisticEntry();
+		assertFalse(entry.hadUnstableTests);
+
 
 	}
 
