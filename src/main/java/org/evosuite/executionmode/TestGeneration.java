@@ -442,6 +442,16 @@ public class TestGeneration {
 			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}
 
+		if (Properties.NEW_STATISTICS) {
+			if(MasterServices.getInstance().getMasterNode() == null) {
+				logger.warn("Cannot write results as RMI master node is not running");
+			} else {
+				SearchStatistics.getInstance().writeStatistics();
+			}
+		}
+		List<TestGenerationResult> results = SearchStatistics.getInstance().getTestGenerationResults();
+		SearchStatistics.clearInstance();
+
 		handler.closeServer();
 
 		if (Properties.CLIENT_ON_THREAD) {
@@ -459,15 +469,7 @@ public class TestGeneration {
 		}
 		
 		logger.debug("Master process has finished to wait for client");
-		if (Properties.NEW_STATISTICS) {
-			if(MasterServices.getInstance().getMasterNode() == null) {
-				logger.warn("Cannot write results as RMI master node is not running");
-			} else {
-				SearchStatistics.getInstance().writeStatistics();
-			}
-		}
-		List<TestGenerationResult> results = SearchStatistics.getInstance().getTestGenerationResults();
-		SearchStatistics.clearInstance();
+
 		return results;
 	}
 
