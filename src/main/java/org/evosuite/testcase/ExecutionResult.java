@@ -19,8 +19,11 @@
  */
 package org.evosuite.testcase;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,6 +61,14 @@ public class ExecutionResult implements Cloneable {
 	/** Was there a permission denied during execution? */
 	protected boolean hasSecurityException = false;
 
+	/** Set of System properties that were read during test execution */
+	protected Set<String> readProperties;
+	
+	/**
+	 * Keep track of whether any System property was written
+	 */
+	protected boolean wasAnyPropertyWritten;
+	
 	/**
 	 * @return the executedStatements
 	 */
@@ -107,6 +118,7 @@ public class ExecutionResult implements Cloneable {
 		}
 	}
 
+	
 	/**
 	 * <p>
 	 * getFirstPositionOfThrownException
@@ -257,8 +269,10 @@ public class ExecutionResult implements Cloneable {
 	 * @param trace
 	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
 	 */
-	public void setTrace(ExecutionTrace trace) {
-		assert (trace != null);
+	public void setTrace(ExecutionTrace trace) throws IllegalArgumentException{
+		if(trace==null){
+			throw new IllegalArgumentException("Trace cannot be null");
+		}
 		this.trace = trace;
 	}
 
@@ -392,6 +406,11 @@ public class ExecutionResult implements Cloneable {
 		for (Class<?> clazz : traces.keySet()) {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}
+		if(readProperties!=null){
+			copy.readProperties = new LinkedHashSet<String>();
+			copy.readProperties.addAll(readProperties);
+		}
+		copy.wasAnyPropertyWritten = wasAnyPropertyWritten;
 
 		return copy;
 	}
@@ -403,5 +422,21 @@ public class ExecutionResult implements Cloneable {
 		result += "Trace:";
 		result += trace;
 		return result;
+	}
+
+	public Set<String> getReadProperties() {
+		return readProperties;
+	}
+
+	public void setReadProperties(Set<String> readProperties) {
+		this.readProperties = readProperties;
+	}
+
+	public boolean wasAnyPropertyWritten() {
+		return wasAnyPropertyWritten;
+	}
+
+	public void setWasAnyPropertyWritten(boolean wasAnyPropertyWritten) {
+		this.wasAnyPropertyWritten = wasAnyPropertyWritten;
 	}
 }

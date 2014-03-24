@@ -151,7 +151,7 @@ public class Runtime {
 			}
 		}
 
-		if (!hasAddedSystem && System.wasAccessed()) {
+		if (!hasAddedSystem && System.wasTimeAccessed()) {
 			hasAddedSystem = true;
 			try {
 				TestCluster.getInstance().addTestCall(new GenericMethod(
