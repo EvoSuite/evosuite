@@ -131,7 +131,8 @@ public class StaticResetClassAdapter extends ClassVisitor {
 			// duplicates existing <clinit>
 			MethodVisitor visitMethod = super.visitMethod(methodAccess
 					| Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
-					StaticFieldResetter.STATIC_RESET, descriptor, signature, exceptions);
+					StaticFieldResetter.STATIC_RESET, descriptor, signature,
+					exceptions);
 
 			StaticResetMethodAdapter staticResetMethodAdapter = new StaticResetMethodAdapter(
 					visitMethod, className, this.static_fields, finalFields);
@@ -207,34 +208,39 @@ public class StaticResetClassAdapter extends ClassVisitor {
 				null, null);
 		mv.visitCode();
 		for (StaticField staticField : static_fields) {
-			logger.info("Adding bytecode for initializing field "
-					+ staticField.name);
 
-			Type type = Type.getType(staticField.desc);
-			switch (type.getSort()) {
-			case Type.BOOLEAN:
-			case Type.BYTE:
-			case Type.CHAR:
-			case Type.SHORT:
-			case Type.INT:
-				mv.visitInsn(Opcodes.ICONST_0);
-				break;
-			case Type.FLOAT:
-				mv.visitInsn(Opcodes.FCONST_0);
-				break;
-			case Type.LONG:
-				mv.visitInsn(Opcodes.LCONST_0);
-				break;
-			case Type.DOUBLE:
-				mv.visitInsn(Opcodes.DCONST_0);
-				break;
-			case Type.ARRAY:
-			case Type.OBJECT:
-				mv.visitInsn(Opcodes.ACONST_NULL);
-				break;
+			if (!finalFields.contains(staticField.name)) {
+
+				logger.info("Adding bytecode for initializing field "
+						+ staticField.name);
+
+				Type type = Type.getType(staticField.desc);
+				switch (type.getSort()) {
+				case Type.BOOLEAN:
+				case Type.BYTE:
+				case Type.CHAR:
+				case Type.SHORT:
+				case Type.INT:
+					mv.visitInsn(Opcodes.ICONST_0);
+					break;
+				case Type.FLOAT:
+					mv.visitInsn(Opcodes.FCONST_0);
+					break;
+				case Type.LONG:
+					mv.visitInsn(Opcodes.LCONST_0);
+					break;
+				case Type.DOUBLE:
+					mv.visitInsn(Opcodes.DCONST_0);
+					break;
+				case Type.ARRAY:
+				case Type.OBJECT:
+					mv.visitInsn(Opcodes.ACONST_NULL);
+					break;
+				}
+				mv.visitFieldInsn(Opcodes.PUTSTATIC, className,
+						staticField.name, staticField.desc);
+
 			}
-			mv.visitFieldInsn(Opcodes.PUTSTATIC, className, staticField.name,
-					staticField.desc);
 		}
 		mv.visitInsn(Opcodes.RETURN);
 		mv.visitMaxs(0, 0);
