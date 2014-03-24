@@ -5,12 +5,10 @@ import java.util.List;
 
 public class ContainerUser {
 
-	private final List<Object> myList;
+	private final List<Object> myList = new LinkedList<Object>();
 
 	public ContainerUser() {
-		myList = new LinkedList<Object>();
-		Object new_object = new Object();
-		myList.add(new_object);
+		myList.add(new Object());
 	}
 
 	public boolean isEmpty() {
