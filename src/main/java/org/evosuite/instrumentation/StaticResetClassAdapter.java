@@ -153,7 +153,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 
 	@Override
 	public void visitEnd() {
-		if (!clinitFound && !static_fields.isEmpty() && !isInterface) {
+		if (!clinitFound && !isInterface) {
 			// create brand new __STATIC_RESET
 			if (!definesUid) {
 				//determineSerialisableUID();
