@@ -20,6 +20,7 @@ public class TestContainerUser extends SystemTest {
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
 	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
+	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
 
 	@Before
 	public void before() {
@@ -34,6 +35,7 @@ public class TestContainerUser extends SystemTest {
 		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
 		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
 		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
 	}
 
 	@Test
