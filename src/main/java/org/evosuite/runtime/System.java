@@ -59,7 +59,7 @@ public class System {
 	/**
 	 * Keep track of which System properties were read
 	 */
-	private static final Set<String> readProperties = new LinkedHashSet<>();
+	private static final Set<String> readProperties = new LinkedHashSet<String>();
 	
 	/**
 	 * Restore to their original values all the properties that have
@@ -114,7 +114,7 @@ public class System {
 	}
 	
 	public static Set<String> getAllPropertiesReadSoFar(){
-		Set<String> copy = new LinkedHashSet<>();
+		Set<String> copy = new LinkedHashSet<String>();
 		copy.addAll(readProperties);
 		return copy;
 	}
