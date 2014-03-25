@@ -134,15 +134,6 @@ public class MSecurityManager extends SecurityManager {
 	 */
 	private volatile boolean executingTestCase;
 
-	/**
-	 * Default Java properties before we run the SUT
-	 */
-	private volatile java.util.Properties defaultProperties;
-
-	/**
-	 * If SUT changed some properties, we need to re-set the default values
-	 */
-	private volatile boolean needToRestoreProperties;
 
 	/**
 	 * Data structure containing all the (EvoSuite) threads that do not need to
@@ -179,7 +170,6 @@ public class MSecurityManager extends SecurityManager {
 		privilegedThreads.add(Thread.currentThread());
 		defaultManager = System.getSecurityManager();
 		executingTestCase = false;
-		defaultProperties = (java.util.Properties) System.getProperties().clone();
 		privilegedThreadToIgnore = null;
 		unrecognizedPermissions = new CopyOnWriteArraySet<Permission>();
 
@@ -306,25 +296,21 @@ public class MSecurityManager extends SecurityManager {
 		if (executingTestCase) {
 			throw new IllegalStateException();
 		}
-		executingTestCase = true;
-		needToRestoreProperties = false;
+		executingTestCase = true;		
 	}
 
 	public void goingToEndTestCase() throws IllegalStateException {
 		if (!executingTestCase) {
 			throw new IllegalStateException();
 		}
+		
 		/*
-		 * The synchronization is used to avoid (if possible) a SUT thread to modify a property just immediately after we restore them. this could
-		 * actually happen if this method is called while a SUT thread is executing a permission check
+		 * it is important to call this method here as soon as the test case
+		 * has finished executing, because properties could be used by 
+		 * EvoSuite as well
 		 */
-		synchronized (defaultProperties) {
-			if (needToRestoreProperties) {
-				System.setProperties((java.util.Properties) defaultProperties.clone());
-				needToRestoreProperties = false;
-			}
-		}
-
+		org.evosuite.runtime.System.restoreProperties();
+		
 		for(File file : filesToDelete){
 			file.deleteOnExit();
 		}
@@ -1079,21 +1065,11 @@ public class MSecurityManager extends SecurityManager {
 	}
 
 	protected boolean checkPropertyPermission(PropertyPermission perm) {
-		/*
-		 * we allow both writing and reading any properties. But, if SUT writes anything, then we need to re-store the values to their default. this
-		 * is very important, otherwise: 1) test cases might have side effects on each other 2) SUT might change properties that are used by EvoSuite
-		 */
-
-		if (perm.getActions().contains("write") && !needToRestoreProperties) {
-			synchronized (defaultProperties) {
-				if (!executingTestCase) { // just to be sure
-					return false;
-				}
-				needToRestoreProperties = true;
-			}
+		if(perm.getActions().contains("write") && !executingTestCase){
+			return false;  // just to be sure
 		}
-
-		return true;
+		
+		return org.evosuite.runtime.System.handlePropertyPermission(perm);
 	}
 
 	protected boolean checkReflectPermission(ReflectPermission perm) {

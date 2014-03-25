@@ -256,24 +256,24 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			replacementCalls.add(new MethodCallReplacement("java/lang/Thread",
 					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
 					true, false));
-//			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
-//					"toString", "()Ljava/lang/String;", "org/evosuite/runtime/Throwable", "toString", "(Ljava/lang/Throwable;)Ljava/lang/String;",
-//					false, false));
-//			replacementCalls.add(new MethodCallReplacement("java/lang/Exception",
-//					"toString", "()Ljava/lang/String;", "org/evosuite/runtime/Throwable", "toString", "(Ljava/lang/Exception;)Ljava/lang/String;",
-//					false, false));
-//			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
-//					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
-//					true, false));
-//			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
-//					"printStackTrace", "(Ljava/io/PrintStream;)V", "org/evosuite/runtime/Throwable", "printStackTrace", "(Ljava/io/PrintStream;)V",
-//					true, false));
-//			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
-//					"printStackTrace", "(Ljava/io/PrintWriter;)V", "org/evosuite/runtime/Throwable", "printStackTrace", "(Ljava/io/PrintWriter;)V",
-//					true, false));
-//			replacementCalls.add(new MethodCallReplacement("java/lang/Exception",
-//					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
-//					true, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
+					"toString", "()Ljava/lang/String;", "org/evosuite/runtime/Throwable", "toString", "(Ljava/lang/Throwable;)Ljava/lang/String;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Exception",
+					"toString", "()Ljava/lang/String;", "org/evosuite/runtime/Throwable", "toString", "(Ljava/lang/Exception;)Ljava/lang/String;",
+					false, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
+					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
+					true, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
+					"printStackTrace", "(Ljava/io/PrintStream;)V", "org/evosuite/runtime/Throwable", "printStackTrace", "(Ljava/io/PrintStream;)V",
+					true, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
+					"printStackTrace", "(Ljava/io/PrintWriter;)V", "org/evosuite/runtime/Throwable", "printStackTrace", "(Ljava/io/PrintWriter;)V",
+					true, false));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Exception",
+					"getStackTrace", "()[Ljava/lang/StackTraceElement;", "org/evosuite/runtime/Thread", "getStackTrace", "()[Ljava/lang/StackTraceElement;",
+					true, false));
 
 			replacementCalls.add(new MethodCallReplacement("java/lang/Thread",
 					"getName", "()Ljava/lang/String;", "org/evosuite/runtime/Thread", "getName", "(Ljava/lang/Thread;)Ljava/lang/String;",
