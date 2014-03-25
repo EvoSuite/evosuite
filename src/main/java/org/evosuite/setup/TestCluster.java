@@ -171,6 +171,11 @@ public class TestCluster {
 			visited.add(className);
 			try {
 				Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
+				if (clazz.getCanonicalName()==null) {
+					//skip annonyomous classes
+					logger.warn("Skipping __STATIC_RESET on anonymous class: " + className);
+					continue;
+				}
 				Method m = clazz.getMethod(StaticFieldResetter.STATIC_RESET, (Class<?>[]) null);
 				m.setAccessible(true);
 				staticInitializers.add(m);
