@@ -73,7 +73,7 @@ public class Runtime {
 
 		if (Properties.REPLACE_CALLS) {
 			Random.reset();
-			System.reset();
+			System.resetRuntime();
 			Thread.reset();
 		}
 

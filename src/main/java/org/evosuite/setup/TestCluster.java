@@ -166,7 +166,7 @@ public class TestCluster {
 
 	private static void loadStaticInitializers() {
 		Set<String> visited = new HashSet<String>();
-		while(getNextUnvisitedFinalClassName(visited)!=null) {
+		while (getNextUnvisitedFinalClassName(visited) != null) {
 			String className = getNextUnvisitedFinalClassName(visited);
 			visited.add(className);
 			try {
@@ -176,7 +176,8 @@ public class TestCluster {
 					logger.warn("Skipping __STATIC_RESET on anonymous class: " + className);
 					continue;
 				}
-				Method m = clazz.getMethod(StaticFieldResetter.STATIC_RESET, (Class<?>[]) null);
+				Method m = clazz.getMethod(StaticFieldResetter.STATIC_RESET,
+				                           (Class<?>[]) null);
 				m.setAccessible(true);
 				staticInitializers.add(m);
 				logger.info("Adding static class: " + className);
@@ -193,7 +194,7 @@ public class TestCluster {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 		}
 		finalClasses.clear();
 	}
@@ -311,7 +312,8 @@ public class TestCluster {
 		} else {
 			logger.debug("2. Target class is not object: " + clazz);
 			for (GenericClass generatorClazz : generators.keySet()) {
-				logger.debug("3. Considering original generator: " + generatorClazz +" for "+clazz);
+				logger.debug("3. Considering original generator: " + generatorClazz
+				        + " for " + clazz);
 
 				if (generatorClazz.canBeInstantiatedTo(clazz)) {
 					logger.debug("4. generator can be instantiated: " + generatorClazz);
@@ -329,7 +331,7 @@ public class TestCluster {
 							// Instantiate potential further type variables based on type variables of return type
 							if (newGenerator.getOwnerClass().hasWildcardOrTypeVariables()) {
 								logger.debug("Instantiating type parameters of owner type: "
-										+ newGenerator.getOwnerClass());
+								        + newGenerator.getOwnerClass());
 								GenericClass concreteClass = newGenerator.getOwnerClass().getGenericInstantiation(clazz.getTypeVariableMap());
 								newGenerator = newGenerator.copyWithNewOwner(concreteClass);
 								hadTypeParameters = true;
@@ -356,27 +358,28 @@ public class TestCluster {
 
 							logger.debug("Current generator: " + newGenerator);
 							if ((!hadTypeParameters && generatorClazz.equals(clazz))
-									|| clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
+							        || clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
 								logger.debug("Got new generator: " + newGenerator
-										+ " which generated: "
-										+ newGenerator.getGeneratedClass());
+								        + " which generated: "
+								        + newGenerator.getGeneratedClass());
 								targetGenerators.add(newGenerator);
 							} else if (logger.isDebugEnabled()) {
-								logger.debug("New generator not assignable: " + newGenerator);
+								logger.debug("New generator not assignable: "
+								        + newGenerator);
 								logger.debug("Had type parameters: " + hadTypeParameters);
 								logger.debug("generatorClazz.equals(clazz): "
-										+ generatorClazz.equals(clazz));
+								        + generatorClazz.equals(clazz));
 								try {
 									logger.debug("clazz.isAssignableFrom("
-											+ newGenerator.getGeneratedType() + "): ");
+									        + newGenerator.getGeneratedType() + "): ");
 									logger.debug("                        "
-											+ clazz.isAssignableFrom(newGenerator.getGeneratedType()));
+									        + clazz.isAssignableFrom(newGenerator.getGeneratedType()));
 								} catch (Throwable t) {
 									logger.debug("Error: " + t);
 								}
 							}
-						} catch(ConstructionFailedException e) {
-							logger.debug("5. ERROR: "+e);
+						} catch (ConstructionFailedException e) {
+							logger.debug("5. ERROR: " + e);
 						}
 					}
 				} else {
@@ -387,7 +390,8 @@ public class TestCluster {
 		}
 
 		for (GenericAccessibleObject<?> targetGenerator : targetGenerators) {
-			logger.debug("XXX Setting generator cache "+clazz+": " + String.valueOf(targetGenerator));
+			logger.debug("XXX Setting generator cache " + clazz + ": "
+			        + String.valueOf(targetGenerator));
 		}
 		logger.debug("]");
 		generatorCache.put(clazz, targetGenerators);
@@ -637,7 +641,8 @@ public class TestCluster {
 
 		// Or try java.lang
 		try {
-			TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass("java.lang." + name);
+			TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass("java.lang."
+			                                                                             + name);
 		} catch (ClassNotFoundException e) {
 			// Ignore it as we throw our own
 		}
@@ -722,15 +727,15 @@ public class TestCluster {
 				}
 			}
 		} else if (clazz.isAssignableTo(Number.class)) {
-			logger.debug("Found special case "+clazz);
+			logger.debug("Found special case " + clazz);
 
 			Set<GenericAccessibleObject<?>> all = new LinkedHashSet<GenericAccessibleObject<?>>();
 			if (!generatorCache.containsKey(clazz)) {
 				cacheGenerators(clazz);
 			}
 			all.addAll(generatorCache.get(clazz));
-			
-			if(all.isEmpty()) {
+
+			if (all.isEmpty()) {
 				addNumericConstructor(clazz);
 				all.addAll(generatorCache.get(clazz));
 			}
@@ -747,34 +752,46 @@ public class TestCluster {
 					}
 				}
 			}
-			logger.debug("Generators for special case "+clazz+": "+calls);
+			logger.debug("Generators for special case " + clazz + ": " + calls);
+			// FIXXME: This is a workaround for the temporary workaround.
+			if (calls.isEmpty()) {
+				addNumericConstructor(clazz);
+				return generatorCache.get(clazz);
+
+			}
 		}
 
 		return calls;
 	}
-	
+
 	/**
-	 * FIXXME: This is a workaround for a bug where Integer is not contained in the generatorCache, but there is a key. No idea how it comes to place
+	 * FIXXME: This is a workaround for a bug where Integer is not contained in
+	 * the generatorCache, but there is a key. No idea how it comes to place
+	 * 
 	 * @param clazz
 	 */
 	private void addNumericConstructor(GenericClass clazz) {
-		if(!generatorCache.containsKey(clazz)) {
+		if (!generatorCache.containsKey(clazz)) {
 			generatorCache.put(clazz, new LinkedHashSet<GenericAccessibleObject<?>>());
 		}
-		if(!generators.containsKey(clazz)) {
+		if (!generators.containsKey(clazz)) {
 			generators.put(clazz, new LinkedHashSet<GenericAccessibleObject<?>>());
 		}
-
-		for(Constructor<?> constructor : clazz.getRawClass().getConstructors()) {
-			if(constructor.getParameterTypes().length == 1) {
+		logger.info("addNumericConstructor for class " + clazz);
+		for (Constructor<?> constructor : clazz.getRawClass().getConstructors()) {
+			if (constructor.getParameterTypes().length == 1) {
 				Class<?> parameterClass = constructor.getParameterTypes()[0];
-				if(!parameterClass.equals(String.class)) {
-					GenericConstructor genericConstructor = new GenericConstructor(constructor, clazz);
+				if (!parameterClass.equals(String.class)) {
+					GenericConstructor genericConstructor = new GenericConstructor(
+					        constructor, clazz);
 					generatorCache.get(clazz).add(genericConstructor);
 					generators.get(clazz).add(genericConstructor);
 				}
 			}
 		}
+		logger.info("Constructors for class " + clazz + ": "
+		        + generators.get(clazz).size());
+
 	}
 
 	/**
@@ -791,7 +808,6 @@ public class TestCluster {
 		}
 		return classes;
 	}
-
 
 	/**
 	 * Retrieve all modifiers
@@ -852,7 +868,11 @@ public class TestCluster {
 
 		GenericAccessibleObject<?> generator = null;
 		if (isSpecialCase(clazz)) {
-			generator = Randomness.choice(getGeneratorsForSpecialCase(clazz));
+			Collection<GenericAccessibleObject<?>> generators = getGeneratorsForSpecialCase(clazz);
+			if (generators.isEmpty()) {
+				logger.warn("No generators for class: " + clazz);
+			}
+			generator = Randomness.choice(generators);
 		} else {
 			generator = Randomness.choice(generatorCache.get(clazz));
 		}
@@ -1074,15 +1094,16 @@ public class TestCluster {
 		CastClassManager.getInstance().clear();
 	}
 
-	private HashSet<String> classesForStaticReset = new HashSet<String>();
+	private final HashSet<String> classesForStaticReset = new HashSet<String>();
+
 	public void registerClassForStaticReset(String classNameWithDots) {
 		classesForStaticReset.add(classNameWithDots);
 	}
-	
+
 	public void clearRegisteredClassesForStaticReset() {
 		classesForStaticReset.clear();
 	}
-	
+
 	/**
 	 * Call each of the duplicated static constructors
 	 */
@@ -1090,11 +1111,11 @@ public class TestCluster {
 		boolean tracerEnabled = ExecutionTracer.isEnabled();
 		if (tracerEnabled)
 			ExecutionTracer.disable();
-		
+
 		loadStaticInitializers();
 		logger.debug("Static initializers: " + staticInitializers.size());
 		for (Method m : staticInitializers) {
-			
+
 			Class<?> declaringClass = m.getDeclaringClass();
 			String declaringClassName = declaringClass.getCanonicalName();
 			if (!classesForStaticReset.contains(declaringClassName)) {
@@ -1121,7 +1142,7 @@ public class TestCluster {
 		}
 		if (tracerEnabled)
 			ExecutionTracer.enable();
-		
+
 	}
 
 	/*
