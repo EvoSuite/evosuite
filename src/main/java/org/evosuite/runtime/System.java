@@ -205,15 +205,30 @@ public class System {
 	/**
 	 * Reset runtime to initial state
 	 */
-	public static void reset() {
+	public static void resetRuntime() {
 		currentTime = 1392409281320L; // 2014-02-14, 20:21
 		wasTimeAccessed = false;
 		hashKeys.clear();
-		restoreProperties();
+		restoreProperties(); 
 		needToRestoreProperties = false;
-		readProperties.clear();		
+		//readProperties.clear(); //we cannot reset read properties here		
 	}
 
+	/**
+	 *  Fully reset the state, not only the one related to 
+	 *  latest test case execution
+	 */
+	public static void fullReset(){
+		resetRuntime();
+		
+		/*
+		 * System properties have to be treated very specially because
+		 * we want to keep track of them when they are accessed in
+		 * static blocks, and also from non-instrumented classes
+		 */
+		readProperties.clear();
+	}
+	
 	/**
 	 * Getter to check whether the runtime replacement for time was accessed during test
 	 * execution
