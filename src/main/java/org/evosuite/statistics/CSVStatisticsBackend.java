@@ -4,7 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.utils.ReportGenerator;
@@ -28,18 +30,16 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 	 */
 	private String getCSVHeader(Map<String, OutputVariable<?>> data) {
 		StringBuilder r = new StringBuilder();
-
-		if (!data.isEmpty()) {
-			r.append(data.get(0).getName());
+		Iterator<Entry<String, OutputVariable<?>>> it = data.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<String, OutputVariable<?>> e = (Entry<String, OutputVariable<?>>)it.next();
+			r.append(e.getKey());
+			if (it.hasNext())
+				r.append(",");
 		}
-
-		for (int i = 1; i < data.size(); i++) {
-			r.append(",");
-			r.append(data.get(i).getName());
-		}
-
 		return r.toString();
 	}
+
 
 	/**
 	 * Retrieve one line of data 
@@ -48,16 +48,13 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 	 */
 	private String getCSVData(Map<String, OutputVariable<?>> data) {
 		StringBuilder r = new StringBuilder();
-
-		if (!data.isEmpty()) {
-			r.append(data.get(0).getValue());
+		Iterator<Entry<String, OutputVariable<?>>> it = data.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<String, OutputVariable<?>> e = (Entry<String, OutputVariable<?>>)it.next();
+			r.append(e.getValue().getValue());
+			if (it.hasNext())
+				r.append(",");
 		}
-
-		for (int i = 1; i < data.size(); i++) {
-			r.append(",");
-			r.append(data.get(i).getValue());
-		}
-
 		return r.toString();
 	}
 
