@@ -97,6 +97,8 @@ public class MSecurityManager extends SecurityManager {
 
 	private static final String JAVA_VERSION = System.getProperty("java.version");
 
+	private static final String AWT_HEADLESS = System.getProperty("java.awt.headless");
+	
 	/**
 	 * Needed for the VFS
 	 */
@@ -882,7 +884,7 @@ public class MSecurityManager extends SecurityManager {
 		 * throw a Headless exception. so, here, we can just grant permissions, as shouldn't really have any effect. When we ll start to test GUI
 		 * (without headless), then we ll need to carefully check which permissions to grant (eg "createRobot" seems very dangerous)
 		 */
-		if ("true".equals(System.getProperty("java.awt.headless"))) {
+		if ("true".equals(AWT_HEADLESS)) {
 			return true;
 		} else {
 			/*
@@ -916,7 +918,8 @@ public class MSecurityManager extends SecurityManager {
 		}
 
 		// AWT needs to be treated specially
-		if ("true".equals(System.getProperty("java.awt.headless")) && isAWTThread()) {
+		//FIXME handling of awt read permission
+		if ("true".equals(AWT_HEADLESS) && isAWTThread()) {
 			if (name.equals("shutdownHooks"))
 				return true;
 			if (name.equals("modifyThreadGroup"))
