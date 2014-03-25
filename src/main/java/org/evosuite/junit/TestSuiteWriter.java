@@ -861,7 +861,7 @@ public class TestSuiteWriter implements Opcodes {
 		if(results==null){
 			return null;
 		}
-		Set<String> set = new LinkedHashSet<>();
+		Set<String> set = new LinkedHashSet<String>();
 		for(ExecutionResult res : results){
 			Set<String> props = res.getReadProperties();
 			if(props!=null){
