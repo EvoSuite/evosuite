@@ -244,7 +244,7 @@ public class Randomness implements Serializable {
 	@SuppressWarnings("unchecked")
 	public static <T> T choice(Collection<T> set) {
 		if (set.isEmpty())
-			return null;
+			throw new IllegalArgumentException("Cannot choose from empty collection");
 
 		int position = random.nextInt(set.size());
 		return (T) set.toArray()[position];
@@ -263,7 +263,7 @@ public class Randomness implements Serializable {
 	 */
 	public static <T> T choice(T... elements) {
 		if (elements.length == 0)
-			return null;
+			throw new IllegalArgumentException("Cannot choose from empty collection");
 
 		int position = random.nextInt(elements.length);
 		return elements[position];
