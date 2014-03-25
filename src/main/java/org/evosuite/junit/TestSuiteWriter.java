@@ -687,8 +687,10 @@ public class TestSuiteWriter implements Opcodes {
 				if(currentValue != null){
 					currentValue = currentValue.replace("\n", "\\n"); //TODO more generic way to escape strings
 					currentValue = "\""+currentValue+"\"";
+					bd.append("java.lang.System.setProperty(\""+prop+"\", "+currentValue+"); \n");
+				} else {
+					bd.append("java.lang.System.clearProperty(\""+prop+"\"); \n");
 				}
-				bd.append("java.lang.System.setProperty(\""+prop+"\", "+currentValue+"); \n");
 			}
 		}
 		

@@ -125,6 +125,16 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 					 */
 					Sandbox.resetDefaultSecurityManager();
 				}
+				
+				/*
+				 * System is special due to the handling of properties
+				 * 
+				 *  TODO: re-add it once we save JUnit code in the 
+				 *  best individual. Otherwise, we wouldn't
+				 *  be able to properly create the JUnit files in the
+				 *  system test cases after the search
+				 */
+				//org.evosuite.runtime.System.fullReset();
 			}
 		});
 	}
