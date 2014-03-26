@@ -1728,7 +1728,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 */
 	protected void makeDirs() {
 		getReportDir().mkdirs();
-		(new File(getReportDir().getAbsolutePath() + "/data")).mkdir();
+		if (Properties.SAVE_ALL_DATA)
+			(new File(getReportDir().getAbsolutePath() + "/data")).mkdir();
 		if (Properties.PLOT)
 			(new File(getReportDir().getAbsolutePath() + "/img")).mkdir();
 		if (Properties.HTML)

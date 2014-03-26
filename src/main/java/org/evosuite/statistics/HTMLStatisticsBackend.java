@@ -11,6 +11,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,21 +72,24 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 		} else {
 
 			writeHTMLHeader(report, Properties.PROJECT_PREFIX);
-			report.append("<div id=\"header\"><div id=\"logo\">");
+			report.append("<div id=\"header\">\n<div id=\"logo\">");
 			/*
 			if (!Properties.PROJECT_PREFIX.isEmpty()) {
 				report.append("<h1 class=title>EvoSuite: " + Properties.PROJECT_PREFIX
 				        + "</h1>\n");
 			}
 			*/
-			report.append("</div><br></div>");
+			report.append("\n</div><br></div>");
 			try {
 				report.append("Run on "
 				        + java.net.InetAddress.getLocalHost().getHostName() + "\n");
 			} catch (Exception e) {
 			}
 
-			report.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
+			report.append("<div id=\"page\">\n");
+			report.append("<div id=\"page-bgtop\">\n");
+			report.append("<div id=\"page-bgbtm\">\n");
+			report.append("<div id=\"content\">\n");
 			report.append("<div id=\"post\">");
 			report.append("<h2 class=\"title\">Test generation runs:</h2>\n");
 			report.append("<div style=\"clear: both;\">&nbsp;</div><div class=\"entry\">");
@@ -171,7 +175,7 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 		buffer.append("\n</title>\n");
 
 		buffer.append("<link href=\"files/prettify.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
-		buffer.append("<link href=\"files/style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\"/>\n");
+		buffer.append("<link href=\"files/style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\" />\n");
 		buffer.append("<script type=\"text/javascript\" src=\"files/prettify.js\"></script>\n");
 		buffer.append("<script type=\"text/javascript\" src=\"files/jquery.js\"></script>\n");
 		buffer.append("<script type=\"text/javascript\" src=\"files/foldButton.js\"></script>\n");
@@ -218,13 +222,16 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 		buffer.append("<td>");
 		buffer.append(sdf.format(new Date()));
 		buffer.append("</td>");
-		long duration = (Long)data.get(RuntimeVariable.Total_Time.name()).getValue() / 1000L;
 		buffer.append("<td>");
-		buffer.append(String.format("%d:%02d:%02d", duration / 3600,
-				(duration % 3600) / 60, (duration % 60)));
+		if (data.containsKey(RuntimeVariable.Total_Time.name())) {
+			long duration = (Long)data.get(RuntimeVariable.Total_Time.name()).getValue() / 1000L;
+			buffer.append(String.format("%d:%02d:%02d", duration / 3600, (duration % 3600) / 60, (duration % 60)));
+		} else
+			buffer.append("UNKNOWN");
 		buffer.append("</td>");
 		buffer.append("<td>");
-		buffer.append(NumberFormat.getPercentInstance().format((Double)data.get(RuntimeVariable.Coverage.name()).getValue()));
+		Double coverage = (Double)getOutputVariableValue(data, RuntimeVariable.Coverage.name());  
+		buffer.append((coverage != null) ? NumberFormat.getPercentInstance().format(coverage) : "UNKNOWN");
 		buffer.append("</td>");
 		buffer.append("<td><a href=\"html/");
 		String filename = writeRunPage(suite, data);
@@ -252,28 +259,30 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 		StringBuffer sb = new StringBuffer();
 		String className = (String)data.get("TARGET_CLASS").getValue();
 		writeHTMLHeader(sb, className);
-
-		sb.append("<div id=\"header\"><div id=\"logo\">");
-		sb.append("<h2>");
-		sb.append(data.get("TARGET_CLASS").getValue());
+		
+		sb.append("<br><br><h2 class=title>Summary</h2>\n");
+		
+		sb.append("<ul><li>Target class: ");
+		sb.append(getOutputVariableValue(data, "TARGET_CLASS"));
 		sb.append(": ");
-		sb.append(NumberFormat.getPercentInstance().format((Double)data.get(RuntimeVariable.Coverage.name()).getValue()));
-		sb.append("</h2></div></div>\n");
-		sb.append("<br/><p><a href=\"../report-generation.html\">Overview</a></p><br/>\n");
+		sb.append(suite.getCoverage());
+		sb.append("</ul>\n");
 
-		writeResultTable(sb, data);
+		writeResultTable(suite, sb, data);
+		
 		// writeMutationTable(sb);
-		sb.append("<div id=\"page\"><div id=\"page-bgtop\"><div id=\"page-bgbtm\"><div id=\"content\">");
-		sb.append("<div id=\"post\">");
+		sb.append("<div id=\"page\">\n");
+		sb.append("<div id=\"page-bgtop\">\n");
+		sb.append("<div id=\"page-bgbtm\">\n");
+		sb.append("<div id=\"content\">\n");
+		
+		sb.append("<div id=\"post\">\n");
 
 		// Resulting test case
-		sb.append("<h2 id=tests class=title>Test suite</h2>\n");
-		sb.append("<div class=statistics><ul>\n");
+		sb.append("<h2 class=title id=tests>Test suite</h2>\n");
+		sb.append("<div class=tests>\n");
 		int num = 0;
 		
-		@SuppressWarnings("unchecked")
-		Set<Integer> coveredLines = (Set<Integer>) data.get(RuntimeVariable.Covered_Lines.name()).getValue();
-
 		for (TestChromosome testChromosome : suite.getTestChromosomes()) {
 			TestCase test = testChromosome.getTestCase();
 			sb.append("<h3>Test case ");
@@ -312,14 +321,17 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 			sb.append("</pre>\n");
 		}
 		sb.append("</div>");
-		sb.append("<div id=\"post\">");
+		sb.append("<div id=\"post\">\n");
 
-		
+		OutputVariable<?> ov_covered_lines = data.get(RuntimeVariable.Covered_Lines.name()); 
+		@SuppressWarnings("unchecked")
+		Set<Integer> coveredLines = (ov_covered_lines != null) ? (Set<Integer>) ov_covered_lines.getValue() : new HashSet<Integer>();
+				
 		// Source code
 		try {
 			Iterable<String> source = html_analyzer.getClassContent(className);
-			sb.append("<h2 id=source class=title>Source Code</h2>\n");
-			sb.append("<div class=statistics>\n");
+			sb.append("<h2 class=title id=source>Source Code</h2>\n");
+			sb.append("<div class=source>\n");
 			sb.append("<p>");
 			sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
 			int linecount = 1;
@@ -337,18 +349,15 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 				linecount++;
 			}
 			sb.append("</pre>\n");
-
 			sb.append("</p>\n");
 		} catch (Exception e) {
 			// Don't display source if there is an error
 		}
-		sb.append("</div>");
-		sb.append("<div id=\"post\">");
-
+		sb.append("</div>\n");
+		sb.append("<div id=\"post\">\n");
 		writeParameterTable(sb, data);
-		sb.append("</div>");
-		sb.append("</div>");
-
+		sb.append("</div>\n");
+		sb.append("<p><br><a href=\"../report-generation.html\">Back to Overview</a></p>\n");
 		writeHTMLFooter(sb);
 
 		String filename = "report-" + className + "-" + getNumber(className) + ".html";
@@ -380,7 +389,14 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 
 		return num;
 	}
-	
+
+
+	protected Object getOutputVariableValue(Map<String, OutputVariable<?>> data, String key) {
+		OutputVariable<?> ov = data.get(key);
+		return (ov != null) ? ov.getValue() : null;
+	}
+
+
 	/**
 	 * Write some overall stats
 	 * 
@@ -390,19 +406,19 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 	 *            a {@link org.evosuite.utils.ReportGenerator.StatisticEntry}
 	 *            object.
 	 */
-	protected void writeResultTable(StringBuffer buffer, Map<String, OutputVariable<?>> data) {
+	protected void writeResultTable(TestSuiteChromosome suite, StringBuffer buffer, Map<String, OutputVariable<?>> data) {
 
 		//buffer.append("<h2>Statistics</h2>\n");
 		buffer.append("<ul>\n");
 
 		buffer.append("<li>");
-		buffer.append(data.get(RuntimeVariable.Fitness_Evaluations.name()).getValue());
-		buffer.append(" fitness evaluations, ");
-		buffer.append(data.get(RuntimeVariable.Generations.name()).getValue());
-		buffer.append(" generations, ");
-		buffer.append(data.get(RuntimeVariable.Statements_Executed.name()).getValue());
-		buffer.append(" statements, ");
-		buffer.append(data.get(RuntimeVariable.Tests_Executed.name()).getValue());
+		buffer.append(suite.getFitness());
+		buffer.append(" fitness evaluations, "); 
+		buffer.append(suite.getAge());
+		buffer.append(" generations, "); 
+		buffer.append(getOutputVariableValue(data, RuntimeVariable.Statements_Executed.name()));
+		buffer.append(" statements, "); 
+		buffer.append(suite.size());
 		buffer.append(" tests.\n");
 
 		/*
@@ -421,11 +437,13 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 		        + String.format("%d:%02d:%02d", duration_MI / 3600,
 		                        (duration_MI % 3600) / 60, (duration_MI % 60)) + ")\n");
 */
-		
-		buffer.append("<li>Covered " + data.get(RuntimeVariable.Covered_Branches.name()).getValue() + "/"
-		        + data.get(RuntimeVariable.Total_Branches.name()).getValue() + " branches, ");
-		buffer.append("<li>Covered "+data.get(RuntimeVariable.Covered_Methods.name()).getValue() + "/" + data.get(RuntimeVariable.Total_Methods.name()).getValue() + " methods, ");
-		buffer.append("<li>Covered "+data.get(RuntimeVariable.Covered_Goals.name()).getValue() + "/" + data.get(RuntimeVariable.Total_Goals.name()).getValue() + " total goals\n");
+
+		buffer.append("<li>Covered " + getOutputVariableValue(data, RuntimeVariable.Covered_Branches.name()) + "/"
+		        + getOutputVariableValue(data, RuntimeVariable.Total_Branches.name()) + " branches, ");
+		buffer.append("<li>Covered "+ getOutputVariableValue(data, RuntimeVariable.Covered_Methods.name()) + "/" 
+		        + getOutputVariableValue(data, RuntimeVariable.Total_Methods.name()) + " methods, ");
+		buffer.append("<li>Covered "+ getOutputVariableValue(data, RuntimeVariable.Covered_Goals.name()) + "/" 
+		        + getOutputVariableValue(data, RuntimeVariable.Total_Goals.name()) + " total goals\n");
 		if(data.containsKey(RuntimeVariable.MutationScore.name()))
 				buffer.append("<li>Mutation score: "
 						+ NumberFormat.getPercentInstance().format((Double)data.get(RuntimeVariable.MutationScore.name()).getValue()) + "\n");
@@ -443,12 +461,12 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 	 *            object.
 	 */
 	protected void writeParameterTable(StringBuffer buffer, Map<String, OutputVariable<?>> data) {
-		buffer.append("<h2 id=parameters>Output Variables</h2>\n");
+		buffer.append("<h2 id=parameters>EvoSuite Parameters</h2>\n");
 		buffer.append("<div class=statistics><ul>\n");
 		for (String key : data.keySet()) {
 			buffer.append("<li>" + key + ": " + data.get(key).getValue() + "\n");
 		}
 		buffer.append("</ul></div>\n");
 
-	}
+	} 
 }
