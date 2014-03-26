@@ -90,6 +90,10 @@ public class CheapPurityAnalyzer {
 	}
 
 	private boolean isPure0(MethodEntry entry, Stack<MethodEntry> callStack) {
+		if (isRandomCall(entry)) {
+			return false;
+		}
+		
 		if (isJdkPureMethod(entry)) {
 			return true;
 		}
@@ -145,6 +149,16 @@ public class CheapPurityAnalyzer {
 		return DEFAULT_PURITY_VALUE;
 	}
 
+	private boolean isRandomCall(MethodEntry entry) {
+		if (entry.className.equals("java.util.Random") || 
+				entry.className.equals("java.security.SecureRandom") || 
+				entry.className.equals("org.evosuite.Random")) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	private boolean isPure(MethodEntry entry, Stack<MethodEntry> callStack) {
 		if (isCached(entry)) {
 			return getCacheValue(entry);
@@ -188,6 +202,8 @@ public class CheapPurityAnalyzer {
 		return false;
 	}
 
+	
+	
 	private boolean isJdkPureMethod(MethodEntry entry) {
 		String paraz = entry.descriptor;
 		Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(paraz);
@@ -201,7 +217,7 @@ public class CheapPurityAnalyzer {
 		String qualifiedName = entry.className + "." + entry.methodName + "("
 				+ newParams + ")";
 
-		return JdkPureMethodsList.instance.checkPurity(qualifiedName);
+		return (JdkPureMethodsList.instance.checkPurity(qualifiedName));
 	}
 
 	private boolean checkAnyCallImpure(Set<MethodEntry> calls,
