@@ -247,11 +247,11 @@ public class TestSuiteGenerator {
 		 * need to handle the gathering of the statistics.
 		 */
 		ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
-		if (Properties.OLD_STATISTICS)
+		if (Properties.OLD_STATISTICS) {
 			statistics.writeReport();
-		if (!Properties.NEW_STATISTICS && Properties.OLD_STATISTICS)
-			statistics.writeStatistics();
-
+			if (!Properties.NEW_STATISTICS)
+				statistics.writeStatistics();
+		}
 		PermissionStatistics.getInstance().printStatistics();
 
 		LoggingUtils.getEvoLogger().info("* Done!");
