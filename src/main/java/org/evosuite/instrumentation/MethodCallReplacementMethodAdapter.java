@@ -226,6 +226,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					"org/evosuite/runtime/Calendar", "getCalendar",
 					"(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;", false, false));
 
+			// java.util.Random
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
 					"()I", "org/evosuite/runtime/Random", "nextInt", "()I", true, false));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
@@ -247,6 +248,11 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					"()Z", true, false));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextBytes",
 					"(]B)V", "org/evosuite/runtime/Random", "nextBytes", "(]B)V", true, false));
+
+
+			// java.security.SecureRandom
+			replacementCalls.add(new MethodCallReplacement("java/security/SecureRandom", "nextInt",
+					"()I", "org/evosuite/runtime/Random", "nextInt", "()I", true, false));
 
 			
 			replacementCalls.add(new MethodCallReplacement("java/lang/Math", "random",
