@@ -78,6 +78,8 @@ public class Random {
 	 * @param bytes
 	 */
 	 public static void nextBytes(byte[] bytes) {
+			wasAccessed = true;
+
 		   for (int i = 0; i < bytes.length; )
 		     for (int rnd = nextInt(), n = Math.min(bytes.length - i, 4);
 		          n-- > 0; rnd >>= 8)
@@ -159,6 +161,8 @@ public class Random {
 	 * @return
 	 */
     public static UUID randomUUID() {
+		wasAccessed = true;
+
         byte[] randomBytes = new byte[16];
         nextBytes(randomBytes);
         randomBytes[6]  &= 0x0f;  /* clear version        */
@@ -187,4 +191,7 @@ public class Random {
         return newUUID;
     }
 
+    public static int getCurrentNumber() {
+    	return currentNumber;
+    }
 }
