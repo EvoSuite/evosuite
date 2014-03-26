@@ -248,7 +248,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					"nextBoolean", "()Z", "org/evosuite/runtime/Random", "nextBoolean",
 					"()Z", true, false));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextBytes",
-					"(]B)V", "org/evosuite/runtime/Random", "nextBytes", "(]B)V", false, false));
+					"([B)V", "org/evosuite/runtime/Random", "nextBytes", "([B)V", false, false));
 
 
 			// java.security.SecureRandom
@@ -274,7 +274,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					"nextBoolean", "()Z", "org/evosuite/runtime/Random", "nextBoolean",
 					"()Z", true, false));
 			replacementCalls.add(new MethodCallReplacement("java/security/SecureRandom", "nextBytes",
-					"(]B)V", "org/evosuite/runtime/Random", "nextBytes", "(]B)V", true, false));
+					"([B)V", "org/evosuite/runtime/Random", "nextBytes", "([B)V", true, false));
 			
 
 			//java.util.UUID.randomUUID()
