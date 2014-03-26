@@ -37,6 +37,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.AssertionStrategy;
@@ -684,12 +685,12 @@ public class TestSuiteWriter implements Opcodes {
 			for(String prop : readProperties){
 				bd.append(BLOCK_SPACE);
 				String currentValue = System.getProperty(prop);
+				String escaped_prop = StringEscapeUtils.escapeJava(prop);
 				if(currentValue != null){
-					currentValue = currentValue.replace("\n", "\\n"); //TODO more generic way to escape strings
-					currentValue = "\""+currentValue+"\"";
-					bd.append("java.lang.System.setProperty(\""+prop+"\", "+currentValue+"); \n");
+					String escaped_currentValue = StringEscapeUtils.escapeJava(currentValue);
+					bd.append("java.lang.System.setProperty(\""+escaped_prop+"\", \""+escaped_currentValue+"\"); \n");
 				} else {
-					bd.append("java.lang.System.clearProperty(\""+prop+"\"); \n");
+					bd.append("java.lang.System.clearProperty(\""+escaped_prop+"\"); \n");
 				}
 			}
 		}
