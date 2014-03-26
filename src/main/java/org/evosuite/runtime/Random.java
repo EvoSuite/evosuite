@@ -20,6 +20,9 @@
  */
 package org.evosuite.runtime;
 
+import java.security.SecureRandom;
+import java.util.UUID;
+
 /**
  * <p>
  * Random class.
@@ -74,7 +77,7 @@ public class Random {
 	 * Replacement function for nextBytes
 	 * @param bytes
 	 */
-	 public void nextBytes(byte[] bytes) {
+	 public static void nextBytes(byte[] bytes) {
 		   for (int i = 0; i < bytes.length; )
 		     for (int rnd = nextInt(), n = Math.min(bytes.length - i, 4);
 		          n-- > 0; rnd >>= 8)
@@ -150,5 +153,38 @@ public class Random {
 	public static boolean wasAccessed() {
 		return wasAccessed;
 	}
+
+	/**
+	 * Replacement for function java.util.UUID.randomUUID() 
+	 * @return
+	 */
+    public static UUID randomUUID() {
+        byte[] randomBytes = new byte[16];
+        nextBytes(randomBytes);
+        randomBytes[6]  &= 0x0f;  /* clear version        */
+        randomBytes[6]  |= 0x40;  /* set to version 4     */
+        randomBytes[8]  &= 0x3f;  /* clear variant        */
+        randomBytes[8]  |= 0x80;  /* set to IETF variant  */
+        
+        UUID newUUID = buildNewUUID(randomBytes);
+        return newUUID;
+    }
+
+    /**
+     * Replacement for creation of new UUID using byte[]
+     * @param data
+     * @return
+     */
+    private static UUID buildNewUUID(byte[] data) {
+        long msb = 0;
+        long lsb = 0;
+        assert data.length == 16 : "data must be 16 bytes in length";
+        for (int i=0; i<8; i++)
+            msb = (msb << 8) | (data[i] & 0xff);
+        for (int i=8; i<16; i++)
+            lsb = (lsb << 8) | (data[i] & 0xff);
+        UUID newUUID = new UUID(msb,lsb);
+        return newUUID;
+    }
 
 }
