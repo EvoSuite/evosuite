@@ -256,6 +256,11 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			        "nextInt", "()I", "org/evosuite/runtime/Random", "nextInt", "()I",
 			        true, false));
 
+
+			//java.util.UUID.randomUUID()
+			replacementCalls.add(new MethodCallReplacement("java/util/UUID", "randomUUID",
+					"()Ljava/util/UUID;", "org/evosuite/runtime/Random", "randomUUID", "()Ljava/util/UUID;", false, false));
+			
 			replacementCalls.add(new MethodCallReplacement("java/lang/Math", "random",
 			        "()D", "org/evosuite/runtime/Random", "nextDouble", "()D", false,
 			        false));
