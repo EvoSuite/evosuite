@@ -16,6 +16,7 @@ import org.junit.Test;
 import com.examples.with.different.packagename.stable.SecureRandomUser;
 
 public class TestSecureRandom extends SystemTest {
+	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
 	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
@@ -25,15 +26,19 @@ public class TestSecureRandom extends SystemTest {
 
 	@Before
 	public void configureProperties() {
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = true;
 		Properties.SANDBOX = true;
 		Properties.REPLACE_CALLS = true;
 		Properties.JUNIT_CHECK = true;
 		Properties.JUNIT_TESTS = true;
 		Properties.PURE_INSPECTORS = true;
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS =true;
+
 	}
 
 	@After
 	public void restoreProperties() {
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
 		Properties.SANDBOX = DEFAULT_SANDBOX;
 		Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
 		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
