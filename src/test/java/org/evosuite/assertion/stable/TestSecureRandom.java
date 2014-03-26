@@ -17,7 +17,6 @@ import com.examples.with.different.packagename.stable.SecureRandomUser;
 
 public class TestSecureRandom extends SystemTest {
 	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
-	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
 	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
@@ -26,11 +25,7 @@ public class TestSecureRandom extends SystemTest {
 
 	@Before
 	public void configureProperties() {
-		Properties.LOG_LEVEL = "debug";
-		Properties.PRINT_TO_SYSTEM = true;
-
 		Properties.SANDBOX = true;
-		Properties.RESET_STATIC_FIELDS = true;
 		Properties.REPLACE_CALLS = true;
 		Properties.JUNIT_CHECK = true;
 		Properties.JUNIT_TESTS = true;
@@ -39,7 +34,6 @@ public class TestSecureRandom extends SystemTest {
 
 	@After
 	public void restoreProperties() {
-		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
 		Properties.SANDBOX = DEFAULT_SANDBOX;
 		Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
 		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
