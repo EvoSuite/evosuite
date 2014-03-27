@@ -147,7 +147,7 @@ public class BooleanHelper {
 			if (!c.contains(o))
 				mismatch++;
 		}
-		return mismatch > 0 ? -mismatch : c2.size();
+		return mismatch > 0 ? -mismatch : c2.size() +1;
 	}
 
 	/**
