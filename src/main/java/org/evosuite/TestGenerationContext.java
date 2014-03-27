@@ -3,6 +3,9 @@
  */
 package org.evosuite;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.branch.BranchPool;
@@ -47,7 +50,7 @@ public class TestGenerationContext {
 	 * The classloader used to load this class
 	 */
 	private ClassLoader originalClassLoader;
-	
+
 	/**
 	 * Private singleton constructor
 	 */
@@ -91,6 +94,7 @@ public class TestGenerationContext {
 		return getInstance().classLoader;
 	}
 
+	
 	public void resetContext() {
 
 		logger.info("*** Resetting context");
@@ -155,6 +159,22 @@ public class TestGenerationContext {
 
 		SystemInUtil.resetSingleton();
 		Runtime.resetSingleton();
+	}
+
+	public boolean hasClassesLoadedBySUT() {
+		return (classLoader instanceof InstrumentingClassLoader);
+	}
+		
+	public Set<String> getClassesLoadedBySUT() {
+		if (classLoader instanceof InstrumentingClassLoader) {
+			Set<String> classesLoadedBySUT = new HashSet<String>();
+			InstrumentingClassLoader instrumentingClassLoader=(InstrumentingClassLoader)classLoader;
+			Set<String> loadedClasses = instrumentingClassLoader.getLoadedClasses();
+			classesLoadedBySUT.addAll(loadedClasses);
+			return classesLoadedBySUT;
+		} else {
+			return null;
+		}
 	}
 
 }
