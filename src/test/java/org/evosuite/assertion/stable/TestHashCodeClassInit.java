@@ -22,13 +22,11 @@ public class TestHashCodeClassInit extends SystemTest {
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
 	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
-	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
 	@Before
 	public void configureProperties() {
 		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = true;
 		Properties.RESET_STATIC_FIELDS = true;
-		Properties.SANDBOX = true;
 		Properties.REPLACE_CALLS = true;
 		Properties.JUNIT_CHECK = true;
 		Properties.JUNIT_TESTS = true;
@@ -39,7 +37,6 @@ public class TestHashCodeClassInit extends SystemTest {
 	public void restoreProperties() {
 		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
 		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
-		Properties.SANDBOX = DEFAULT_SANDBOX;
 		Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
 		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
 		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
