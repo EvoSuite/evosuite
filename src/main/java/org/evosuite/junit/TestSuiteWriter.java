@@ -33,6 +33,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -40,11 +41,14 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputFormat;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.StaticFieldResetter;
 import org.evosuite.sandbox.Sandbox;
@@ -615,8 +619,41 @@ public class TestSuiteWriter implements Opcodes {
 		generateBefore(bd, wasSecurityException, results);
 
 		generateAfter(bd, wasSecurityException, results);
-
+		
+		if (TestGenerationContext.getInstance().hasClassesLoadedBySUT()) {
+			generateLoadSUTClasses(bd, TestGenerationContext
+					.getInstance().getClassesLoadedBySUT());
+		}
+		
 		return bd.toString();
+	}
+
+	private void generateLoadSUTClasses(StringBuilder bd,Set<String> classesLoadedBySUT) {
+		bd.append(METHOD_SPACE);
+		bd.append("private void loadSUTClasses() {" + "\n");
+		TreeSet<String> sortedClassNames = new TreeSet<String>(classesLoadedBySUT);
+		for (String className : sortedClassNames) {
+			if (BytecodeInstrumentation.checkIfCanInstrument(className)) {
+				bd.append(BLOCK_SPACE);
+				bd.append("try {" +"\n");
+				
+				bd.append(BLOCK_SPACE);
+				bd.append(BLOCK_SPACE);
+				bd.append("Class.forName(\""+className+"\");\n");
+
+				bd.append(BLOCK_SPACE);
+				bd.append("} catch (Throwable ex) {" +"\n");
+
+				bd.append(BLOCK_SPACE);
+				bd.append("}\n");
+
+			}
+		}
+		
+		bd.append(METHOD_SPACE);
+		bd.append("}" + "\n");
+
+		
 	}
 
 	private void generateAfter(StringBuilder bd, boolean wasSecurityException, List<ExecutionResult> results) {
@@ -711,6 +748,14 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.utils.SystemInUtil.getInstance().initForTestCase(); \n");
 		}
+		
+		bd.append(BLOCK_SPACE);
+		bd.append("loadSUTClasses();" +"\n");
+
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
+		}
 
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
@@ -780,7 +825,7 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("@BeforeClass \n");
 
 		bd.append(METHOD_SPACE);
-		bd.append("public static void initEvoSuiteFramework(){ \n");
+		bd.append("public static void initEvoSuiteFramework() { \n");
 
 		// FIXME: This is just commented out for experiments
 		//bd.append("org.evosuite.utils.LoggingUtils.setLoggingForJUnit(); \n");
