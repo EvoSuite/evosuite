@@ -191,6 +191,39 @@ public class System {
 		wasTimeAccessed = true;
 		return currentTime * 1000; //++;
 	}
+	
+	/**
+	 * Replacement function for for Runtime.freeMemory()
+	 * @return
+	 */
+	public long freeMemory() {
+		return 0L;
+	}
+
+	/**
+	 * Replacement function for for Runtime.maxMemory()
+	 * @return
+	 */
+	public long maxMemory() {
+		return 0L;
+	}
+	
+	/**
+	 * Replacement function for for Runtime.totalMemory()
+	 * @return
+	 */
+	public long totalMemory() {
+		return 0L;
+	}
+	
+	/**
+	 * Replacement function for for Runtime.availableProcessors()
+	 * @return
+	 */
+	public int availableProcessors() {
+		return 0;
+	}
+
 
 	/**
 	 * Allow setting the time
