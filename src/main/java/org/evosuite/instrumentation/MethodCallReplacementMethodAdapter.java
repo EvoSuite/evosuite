@@ -220,6 +220,16 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 	private void addJavaLangCalls() {
 		
+		//java/lang/Runtime
+		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "freeMemory",
+		        "()J", "org/evosuite/runtime/System", "freeMemory", "()J", false, false));
+		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "maxMemory",
+		        "()J", "org/evosuite/runtime/System", "maxMemory", "()J", false, false));
+		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "totalMemory",
+		        "()J", "org/evosuite/runtime/System", "totalMemory", "()J", false, false));
+		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "availableProcessors",
+		        "()I", "org/evosuite/runtime/System", "availableProcessors", "()I", false, false));		
+		
 		//java/lang/System
 		replacementCalls.add(new MethodCallReplacement("java/lang/System", "exit",
 		        "(I)V", "org/evosuite/runtime/System", "exit", "(I)V", false, false));

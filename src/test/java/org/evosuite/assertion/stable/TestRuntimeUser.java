@@ -13,10 +13,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.stable.StringUser;
+import com.examples.with.different.packagename.stable.RuntimeUser;
 
-public class TestStringUser extends SystemTest {
+public class TestRuntimeUser extends SystemTest {
 
+	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
 	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
@@ -24,6 +25,7 @@ public class TestStringUser extends SystemTest {
 
 	@Before
 	public void before() {
+		Properties.REPLACE_CALLS = true;
 		Properties.JUNIT_CHECK = true;
 		Properties.JUNIT_TESTS = true;
 		Properties.PURE_INSPECTORS = true;
@@ -32,6 +34,7 @@ public class TestStringUser extends SystemTest {
 
 	@After
 	public void after() {
+		Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
 		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
 		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
 		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
@@ -39,10 +42,10 @@ public class TestStringUser extends SystemTest {
 	}
 
 	@Test
-	public void testStringUser() {
+	public void testRuntimeUser() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = StringUser.class.getCanonicalName();
+		String targetClass = RuntimeUser.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
