@@ -13,9 +13,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.stable.ContainerUser;
+import com.examples.with.different.packagename.stable.MapContainerUser;
 
-public class TestContainerUser extends SystemTest {
+public class TestMapContainerUser extends SystemTest {
 
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
@@ -42,7 +42,7 @@ public class TestContainerUser extends SystemTest {
 	public void testContainerUser() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = ContainerUser.class.getCanonicalName();
+		String targetClass = MapContainerUser.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
