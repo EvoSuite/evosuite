@@ -654,26 +654,20 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("for (int i=0; i< classNames.length;i++) {\n");
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
-			bd.append(BLOCK_SPACE);
-			bd.append(BLOCK_SPACE);
+			bd.append(INNER_BLOCK_SPACE);
 			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
 		}
 
-		bd.append(BLOCK_SPACE);
-		bd.append(BLOCK_SPACE);
+		bd.append(INNER_BLOCK_SPACE);
 		bd.append("try {" +"\n");
 				
-		bd.append(BLOCK_SPACE);
-		bd.append(BLOCK_SPACE);
-		bd.append(BLOCK_SPACE);
+		bd.append(INNER_INNER_BLOCK_SPACE);
 		bd.append("Class.forName(classNames[i]);\n");
 
-		bd.append(BLOCK_SPACE);
-		bd.append(BLOCK_SPACE);
+		bd.append(INNER_BLOCK_SPACE);
 		bd.append("} catch (Throwable ex) {" +"\n");
 
-		bd.append(BLOCK_SPACE);
-		bd.append(BLOCK_SPACE);
+		bd.append(INNER_BLOCK_SPACE);
 		bd.append("}\n");
 
 		bd.append(BLOCK_SPACE);
