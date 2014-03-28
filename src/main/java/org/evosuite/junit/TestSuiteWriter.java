@@ -656,7 +656,6 @@ public class TestSuiteWriter implements Opcodes {
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
 			bd.append(BLOCK_SPACE);
-			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
 		}
 
