@@ -214,7 +214,7 @@ public class ContainerTransformation {
 		return changed;
 	}
 
-	private InsnList createNewIfThenElse(MethodInsnNode n) {
+	private static InsnList createNewIfThenElse(MethodInsnNode n) {
 		LabelNode labelIsNotEmpty = new LabelNode();
 		LabelNode labelEndif = new LabelNode();
 		InsnList il = new InsnList();
