@@ -8,12 +8,10 @@ public class ImpureRandomness {
 
 	private final Random random;
 	private final SecureRandom secureRandom;
-	private final UUID randomUUID;
 
 	public ImpureRandomness() {
 		random = new Random();
 		secureRandom = new SecureRandom();
-		randomUUID = UUID.randomUUID();
 	}
 	
 	public int randomNextInt() {
@@ -25,7 +23,11 @@ public class ImpureRandomness {
 	}
 	
 	public String randomUUIDToString() {
+		UUID randomUUID = UUID.randomUUID();
 		return randomUUID.toString();
 	}
 	
+	public double randomMath() {
+		return Math.random();
+	}
 }
