@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +51,7 @@ import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.StaticFieldResetter;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.CodeUnderTestException;
@@ -630,26 +632,54 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateLoadSUTClasses(StringBuilder bd,Set<String> classesLoadedBySUT) {
 		bd.append(METHOD_SPACE);
-		bd.append("private void loadSUTClasses() {" + "\n");
-		TreeSet<String> sortedClassNames = new TreeSet<String>(classesLoadedBySUT);
-		for (String className : sortedClassNames) {
+		bd.append("private void loadSUTClasses() {\n");
+		
+		
+		LinkedList<String> sortedClassNames = new LinkedList<String>(classesLoadedBySUT);
+		Collections.sort(sortedClassNames);
+
+		bd.append(BLOCK_SPACE);
+		bd.append("String[] classNames = new String[" + sortedClassNames.size() + "];\n");
+
+		
+		for (int i=0; i< sortedClassNames.size(); i++) {
+			String className = sortedClassNames.get(i);
 			if (BytecodeInstrumentation.checkIfCanInstrument(className)) {
 				bd.append(BLOCK_SPACE);
-				bd.append("try {" +"\n");
-				
-				bd.append(BLOCK_SPACE);
-				bd.append(BLOCK_SPACE);
-				bd.append("Class.forName(\""+className+"\");\n");
-
-				bd.append(BLOCK_SPACE);
-				bd.append("} catch (Throwable ex) {" +"\n");
-
-				bd.append(BLOCK_SPACE);
-				bd.append("}\n");
-
+				bd.append(String.format("classNames[%s] =\"%s\";\n",i,className));
 			}
 		}
 		
+		bd.append(BLOCK_SPACE);
+		bd.append("for (int i=0; i< classNames.length;i++) {\n");
+
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
+			bd.append(BLOCK_SPACE);
+			bd.append(BLOCK_SPACE);
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
+		}
+
+		bd.append(BLOCK_SPACE);
+		bd.append(BLOCK_SPACE);
+		bd.append("try {" +"\n");
+				
+		bd.append(BLOCK_SPACE);
+		bd.append(BLOCK_SPACE);
+		bd.append(BLOCK_SPACE);
+		bd.append("Class.forName(classNames[i]);\n");
+
+		bd.append(BLOCK_SPACE);
+		bd.append(BLOCK_SPACE);
+		bd.append("} catch (Throwable ex) {" +"\n");
+
+		bd.append(BLOCK_SPACE);
+		bd.append(BLOCK_SPACE);
+		bd.append("}\n");
+
+		bd.append(BLOCK_SPACE);
+		bd.append("}\n");
+
 		bd.append(METHOD_SPACE);
 		bd.append("}" + "\n");
 
