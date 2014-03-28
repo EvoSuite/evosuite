@@ -150,13 +150,16 @@ public class CheapPurityAnalyzer {
 	}
 
 	private boolean isRandomCall(MethodEntry entry) {
-		if (entry.className.equals("java.util.Random") || 
-				entry.className.equals("java.security.SecureRandom") || 
-				entry.className.equals("org.evosuite.Random")) {
+		if (entry.className.equals("java.util.Random"))
 			return true;
-		} else {
+		else if (entry.className.equals("java.security.SecureRandom"))
+			return true;
+		else if (entry.className.equals("org.evosuite.Random")) 
+			return true;
+		else if (entry.className.equals("java.lang.Math") && entry.methodName.equals("random"))
+			return true;
+		 else 
 			return false;
-		}
 	}
 
 	private boolean isPure(MethodEntry entry, Stack<MethodEntry> callStack) {
