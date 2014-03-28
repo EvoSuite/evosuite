@@ -21,9 +21,11 @@ public class TestListContainerUser extends SystemTest {
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
 	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
 	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
+	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
 	@Before
 	public void before() {
+		Properties.SANDBOX = true;
 		Properties.JUNIT_CHECK = true;
 		Properties.JUNIT_TESTS = true;
 		Properties.PURE_INSPECTORS = true;
@@ -32,6 +34,7 @@ public class TestListContainerUser extends SystemTest {
 
 	@After
 	public void after() {
+		Properties.SANDBOX = DEFAULT_SANDBOX;
 		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
 		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
 		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
