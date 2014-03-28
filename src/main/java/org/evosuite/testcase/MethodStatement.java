@@ -265,7 +265,10 @@ public class MethodStatement extends AbstractStatement {
 					 */ 
 					if (method.getReturnType() instanceof Class<?>) {
 						Class<?> returnClass = (Class<?>)method.getReturnType();
-						if (ret != null && !ret.getClass().isAssignableFrom(returnClass)) {
+						
+						if (!returnClass.isPrimitive() 
+								&& ret != null 
+								&& !ret.getClass().isAssignableFrom(returnClass)) {
 							throw new ClassCastException(
 							        "Cannot assign " + method.getReturnType()
 							                + " to variable of type " + retval.getType());
