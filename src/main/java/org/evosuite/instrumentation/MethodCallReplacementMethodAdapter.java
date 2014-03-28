@@ -335,8 +335,11 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		        "org/evosuite/runtime/Reflection", "getDeclaredMethods",
 		        "(Ljava/lang/Class;)[Ljava/lang/reflect/Method;", false, false));
 
-		
-		
+		//java/lang/ClassLoader
+		replacementCalls.add(new MethodCallReplacement("java/lang/ClassLoader",
+		        "getResource", "(Ljava/lang/String;)Ljava/net/URL;", "org/evosuite/runtime/ResourceLoader",
+		        "getResource", "(Ljava/lang/String;)Ljava/net/URL;", true, false));
+
 	}
 
 	private void addCalendarCalls() {
