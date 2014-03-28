@@ -188,7 +188,6 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			//java.lang.*
 			addJavaLangCalls();
 
-			
 			/*
 			replacementCalls.add(new MethodCallReplacement("java/util/Date", "<init>",
 				"()V", "org/evosuite/runtime/Date", "getDate", "()Ljava/util/Date;",
@@ -222,13 +221,13 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		
 		//java/lang/Runtime
 		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "freeMemory",
-		        "()J", "org/evosuite/runtime/System", "freeMemory", "()J", false, false));
+		        "()J", "org/evosuite/runtime/System", "freeMemory", "()J", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "maxMemory",
-		        "()J", "org/evosuite/runtime/System", "maxMemory", "()J", false, false));
+		        "()J", "org/evosuite/runtime/System", "maxMemory", "()J", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "totalMemory",
-		        "()J", "org/evosuite/runtime/System", "totalMemory", "()J", false, false));
+		        "()J", "org/evosuite/runtime/System", "totalMemory", "()J", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "availableProcessors",
-		        "()I", "org/evosuite/runtime/System", "availableProcessors", "()I", false, false));		
+		        "()I", "org/evosuite/runtime/System", "availableProcessors", "()I", true, false));		
 		
 		//java/lang/System
 		replacementCalls.add(new MethodCallReplacement("java/lang/System", "exit",
@@ -387,7 +386,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 				"nextBoolean", "()Z", "org/evosuite/runtime/Random", "nextBoolean",
 				"()Z", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextBytes",
-				"([B)V", "org/evosuite/runtime/Random", "nextBytes", "([B)V", false, false));
+				"([B)V", "org/evosuite/runtime/Random", "nextBytes", "([B)V", true, false));
 	}
 
 	private void addSecureRandomCalls() {
