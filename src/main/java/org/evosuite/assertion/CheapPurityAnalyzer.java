@@ -153,9 +153,9 @@ public class CheapPurityAnalyzer {
 		if (entry.className.equals("java.util.Random") || 
 				entry.className.equals("java.security.SecureRandom") || 
 				entry.className.equals("org.evosuite.Random")) {
-			return false;
-		} else {
 			return true;
+		} else {
+			return false;
 		}
 	}
 
