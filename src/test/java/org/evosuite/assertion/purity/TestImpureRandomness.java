@@ -22,9 +22,11 @@ public class TestImpureRandomness extends SystemTest {
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
 	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
 	private final boolean DEFAULT_ASSERTIONS = Properties.ASSERTIONS;
+	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
 	@Before
 	public void saveProperties() {
+		Properties.SANDBOX = true;
 		Properties.ASSERTIONS = false;
 		Properties.JUNIT_TESTS = true;
 		Properties.PURE_INSPECTORS = true;
@@ -32,6 +34,7 @@ public class TestImpureRandomness extends SystemTest {
 
 	@After
 	public void restoreProperties() {
+		Properties.SANDBOX = DEFAULT_SANDBOX;
 		Properties.ASSERTIONS = DEFAULT_ASSERTIONS;
 		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
 		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
