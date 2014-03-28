@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.agent.TransformerForTests;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
 import org.evosuite.seeding.PrimitiveClassAdapter;
@@ -292,7 +293,7 @@ public class BytecodeInstrumentation {
 				cv = factory.getVisitor(cv, className);
 			}
 
-		} else {
+		} else if (!isIntrumentationUnderJavaAgent()) {
 			logger.debug("Not applying target transformation");
 			cv = new NonTargetClassAdapter(cv, className);
 
@@ -306,8 +307,10 @@ public class BytecodeInstrumentation {
 			}
 		}
 
-		// Collect constant values for the value pool
-		cv = new PrimitiveClassAdapter(cv, className);
+		if (!isIntrumentationUnderJavaAgent()) {
+			// Collect constant values for the value pool
+			cv = new PrimitiveClassAdapter(cv, className);
+		}
 
 		// If we need to reset static constructors, make them
 		// explicit methods
@@ -322,9 +325,10 @@ public class BytecodeInstrumentation {
 		}
 
 		// Testability Transformations
-		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
+		if (!isIntrumentationUnderJavaAgent() && 
+				(classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
 		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
-		        || shouldTransform(classNameWithDots)) {
+		        || shouldTransform(classNameWithDots))) {
 			ClassNode cn = new AnnotatedClassNode();
 			reader.accept(cn, readFlags);
 			logger.info("Starting transformation of " + className);
@@ -367,7 +371,6 @@ public class BytecodeInstrumentation {
 			}
 
 			//----- 
-
 			cn.accept(cv);
 
 			if (Properties.TEST_CARVING) {
@@ -397,6 +400,14 @@ public class BytecodeInstrumentation {
 		// if(logger.isDebugEnabled())
 		// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 		return writer.toByteArray();
+	}
+
+	private boolean instrumentationUnderJavaAgent = false;
+	public void setIntrumentationUnderJavaAgent(boolean instrumentationUnderJavaAgent ) {
+		this.instrumentationUnderJavaAgent = instrumentationUnderJavaAgent ; 
+	}
+	private boolean isIntrumentationUnderJavaAgent() {
+		return instrumentationUnderJavaAgent;
 	}
 
 
