@@ -28,6 +28,7 @@ public class TransformerForTests implements ClassFileTransformer {
 	public TransformerForTests(){
 		active = false;
 		instrumenter = new BytecodeInstrumentation();
+		instrumenter.setIntrumentationUnderJavaAgent(true);
 	}
 	
 	@Override
