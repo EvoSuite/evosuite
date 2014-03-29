@@ -173,7 +173,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 			try {
 				Set<String> classesToReload = null;
 				if (TestGenerationContext.getInstance().hasClassesLoadedBySUT()) {
-					classesToReload = TestGenerationContext.getInstance().getClassesLoadedBySUT();
+					classesToReload = new HashSet<String>(TestGenerationContext.getInstance().getClassesLoadedBySUT());
 				}
 				TestGenerationContext.getInstance().resetContext();
 				TestGenerationContext.getInstance().goingToExecuteSUTCode();
@@ -181,6 +181,8 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 
 				if (classesToReload!=null) {
 					reloadClasses(classesToReload);
+					TestCaseExecutor.getInstance().setResetAllClasses(true);
+					TestCaseExecutor.getInstance().setAllClasses(classesToReload);
 				}
 				
 				

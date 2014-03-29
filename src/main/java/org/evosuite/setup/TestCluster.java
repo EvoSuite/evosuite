@@ -38,7 +38,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.runtime.StaticFieldResetter;
+import org.evosuite.runtime.ClassResetter;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.utils.GenericAccessibleObject;
@@ -85,10 +85,6 @@ public class TestCluster {
 	private final static Map<GenericClass, Set<GenericAccessibleObject<?>>> modifiers = new LinkedHashMap<GenericClass, Set<GenericAccessibleObject<?>>>();
 
 	private static InheritanceTree inheritanceTree = null;
-
-	private static Set<String> finalClasses = new HashSet<String>();
-
-	private static Set<Method> staticInitializers = new LinkedHashSet<Method>();
 
 	/**
 	 * @return the inheritancetree
@@ -164,62 +160,8 @@ public class TestCluster {
 		return false;
 	}
 
-	private static void loadStaticInitializers() {
-		Set<String> visited = new HashSet<String>();
-		while (getNextUnvisitedFinalClassName(visited) != null) {
-			String className = getNextUnvisitedFinalClassName(visited);
-			visited.add(className);
-			try {
-				Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
-				if (clazz.getCanonicalName()==null) {
-					//skip annonyomous classes
-					logger.warn("Skipping __STATIC_RESET on anonymous class: " + className);
-					continue;
-				}
-				Method m = clazz.getMethod(StaticFieldResetter.STATIC_RESET,
-				                           (Class<?>[]) null);
-				m.setAccessible(true);
-				staticInitializers.add(m);
-				logger.info("Adding static class: " + className);
-			} catch (NoClassDefFoundError e) {
-				logger.info("Static: Error loading class: " + className);
-			} catch (ClassNotFoundException e) {
-				logger.info("Static: Could not find class: " + className);
-			} catch (SecurityException e) {
-				logger.info("Static: Security exception: " + className);
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				logger.info("Static: Could not find method clinit in : " + className);
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
-		finalClasses.clear();
-	}
-
-	/**
-	 * @param visited
-	 * @return
-	 */
-	private static String getNextUnvisitedFinalClassName(Set<String> visited) {
-		Set<String> helper = new HashSet<String>(finalClasses);
-		helper.removeAll(visited);
-		if (helper.isEmpty())
-			return null;
-		else
-			return helper.iterator().next();
-	}
-
-	public static void registerStaticInitializer(String className) {
-		finalClasses.add(className);
-	}
-
 	public static void reset() {
 		// classLoader = new InstrumentingClassLoader();
-		finalClasses.clear();
-		staticInitializers.clear();
 
 		analyzedClasses.clear();
 		testMethods.clear();
@@ -1092,57 +1034,6 @@ public class TestCluster {
 		generatorCache.clear();
 		modifiers.clear();
 		CastClassManager.getInstance().clear();
-	}
-
-	private final HashSet<String> classesForStaticReset = new HashSet<String>();
-
-	public void registerClassForStaticReset(String classNameWithDots) {
-		classesForStaticReset.add(classNameWithDots);
-	}
-
-	public void clearRegisteredClassesForStaticReset() {
-		classesForStaticReset.clear();
-	}
-
-	/**
-	 * Call each of the duplicated static constructors
-	 */
-	public void resetStaticClasses() {
-		boolean tracerEnabled = ExecutionTracer.isEnabled();
-		if (tracerEnabled)
-			ExecutionTracer.disable();
-
-		loadStaticInitializers();
-		logger.debug("Static initializers: " + staticInitializers.size());
-		for (Method m : staticInitializers) {
-
-			Class<?> declaringClass = m.getDeclaringClass();
-			String declaringClassName = declaringClass.getCanonicalName();
-			if (!classesForStaticReset.contains(declaringClassName)) {
-				logger.debug("Skipping initialization for: " + declaringClassName);
-				continue;
-			}
-			try {
-				logger.debug("Static resetting : " + declaringClassName);
-				m.invoke(null, (Object[]) null);
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
-			} catch (NoClassDefFoundError e) {
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
-			}
-
-		}
-		if (tracerEnabled)
-			ExecutionTracer.enable();
-
 	}
 
 	/*

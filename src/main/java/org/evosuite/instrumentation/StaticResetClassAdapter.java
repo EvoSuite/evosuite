@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.evosuite.runtime.StaticFieldResetter;
+import org.evosuite.runtime.ClassResetter;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassVisitor;
@@ -131,7 +131,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 			// duplicates existing <clinit>
 			MethodVisitor visitMethod = super.visitMethod(methodAccess
 					| Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
-					StaticFieldResetter.STATIC_RESET, descriptor, signature,
+					ClassResetter.STATIC_RESET, descriptor, signature,
 					exceptions);
 
 			StaticResetMethodAdapter staticResetMethodAdapter = new StaticResetMethodAdapter(
@@ -140,15 +140,9 @@ public class StaticResetClassAdapter extends ClassVisitor {
 			MethodVisitor mv2 = new RemoveFinalMethodAdapter(className,
 					staticResetMethodAdapter, finalFields);
 
-			registerStaticResetMethod();
 			return new MultiMethodVisitor(mv2, mv);
 		}
 		return mv;
-	}
-
-	public void registerStaticResetMethod() {
-		staticClasses.add(Utils.getClassNameFromResourcePath(className));
-		TestCluster.registerStaticInitializer(className.replace("/", "."));
 	}
 
 	@Override
@@ -160,7 +154,6 @@ public class StaticResetClassAdapter extends ClassVisitor {
 				//createSerialisableUID();
 			}
 			createEmptyStaticReset();
-			registerStaticResetMethod();
 		} else if (clinitFound) {
 			if (!definesUid) {
 				//createSerialisableUID();
@@ -204,7 +197,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 		logger.info("Creating brand-new static initializer in class "
 				+ className);
 		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC
-				| Opcodes.ACC_STATIC, StaticFieldResetter.STATIC_RESET, "()V",
+				| Opcodes.ACC_STATIC, ClassResetter.STATIC_RESET, "()V",
 				null, null);
 		mv.visitCode();
 		for (StaticField staticField : static_fields) {

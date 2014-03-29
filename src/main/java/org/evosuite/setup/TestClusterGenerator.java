@@ -54,7 +54,7 @@ import org.evosuite.annotation.EvoSuiteExclude;
 import org.evosuite.instrumentation.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.MockList;
-import org.evosuite.runtime.StaticFieldResetter;
+import org.evosuite.runtime.ClassResetter;
 import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -1009,7 +1009,7 @@ public class TestClusterGenerator {
 		if (m.getName().equals("getAvailableLocales"))
 			return false;
 
-		if (m.getName().equals(StaticFieldResetter.STATIC_RESET)) {
+		if (m.getName().equals(ClassResetter.STATIC_RESET)) {
 			logger.debug("Ignoring static reset class");
 			return false;
 		}
