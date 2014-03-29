@@ -103,6 +103,7 @@ public class TestGenerationContext {
 		classLoader = new InstrumentingClassLoader();
 
 		TestCaseExecutor.pullDown();
+		TestCaseExecutor.getInstance().cleanExecutorState();
 
 		ExecutionTracer.getExecutionTracer().clear();
 

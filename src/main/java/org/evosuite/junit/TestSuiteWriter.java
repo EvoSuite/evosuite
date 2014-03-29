@@ -52,7 +52,7 @@ import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.Runtime;
-import org.evosuite.runtime.StaticFieldResetter;
+import org.evosuite.runtime.ClassResetter;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
@@ -620,7 +620,7 @@ public class TestSuiteWriter implements Opcodes {
 
 		generateBefore(bd, wasSecurityException, results);
 
-		generateAfter(bd, wasSecurityException, results);
+		generateAfter(bd, wasSecurityException);
 		
 		if (TestGenerationContext.getInstance().hasClassesLoadedBySUT()) {
 			generateLoadSUTClasses(bd, TestGenerationContext
@@ -679,7 +679,7 @@ public class TestSuiteWriter implements Opcodes {
 		
 	}
 
-	private void generateAfter(StringBuilder bd, boolean wasSecurityException, List<ExecutionResult> results) {
+	private void generateAfter(StringBuilder bd, boolean wasSecurityException) {
 
 		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS) {
 			return;
@@ -696,14 +696,12 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		if (Properties.RESET_STATIC_FIELDS) {
-			HashSet<String> classesForStaticReset = new HashSet<String>();
-			for (ExecutionResult executionResult : results) {
-				Set<String> classesForThisTrace = executionResult.getTrace().getClassesForStaticReset();
-				classesForStaticReset.addAll(classesForThisTrace);
-			}
-			for (String className : classesForStaticReset) {
+			Set<String> resettableClasses = TestCaseExecutor.getInstance().getResettableClasses();
+			LinkedList<String> sortedResettableClasses = new LinkedList<String>(resettableClasses);
+			Collections.sort(sortedResettableClasses);
+			for (String className : sortedResettableClasses) {
 				bd.append(BLOCK_SPACE);
-				bd.append(StaticFieldResetter.class.getCanonicalName() + ".getInstance().resetStaticFields(\"" + className + "\"); \n");
+				bd.append(ClassResetter.class.getCanonicalName() + ".getInstance().reset(\"" + className + "\"); \n");
 			}
 		}
 
