@@ -226,10 +226,23 @@ public class SimpleMutationAssertionGenerator extends
 		logger.info("Assertions in this test: " + test.getAssertions().size());
 		//TestCase clone = test.clone();
 
+	    if(primitiveWithoutAssertion(test.getStatement(test.size() - 1))) {
+			logger.info("Last statement has primitive return value but no assertions: " + test.toCode());
+			for (Assertion assertion : assertions) {
+				if (assertion instanceof PrimitiveAssertion) {
+					if (assertion.getStatement().equals(test.getStatement(test.size() - 1))) {
+						logger.debug("Adding a primitive assertion " + assertion);
+						test.getStatement(test.size() - 1).addAssertion(assertion);
+						break;
+					}
+				}
+			}
+			filterInspectorPrimitiveDuplication(test.getStatement(test.size() - 1));
+	    }
+
 		// IF there are no mutant killing assertions on the last statement, still assert something
 		if (test.getStatement(test.size() - 1).getAssertions().isEmpty()
 		        || justNullAssertion(test.getStatement(test.size() - 1))) {
-			// || primitiveWithoutAssertion(test.getStatement(test.size() - 1))) {
 			logger.info("Last statement has no assertions: " + test.toCode());
 			logger.info("Assertions to choose from: " + assertions.size());
 
