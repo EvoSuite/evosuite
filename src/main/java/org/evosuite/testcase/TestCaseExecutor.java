@@ -295,6 +295,12 @@ public class TestCaseExecutor implements ThreadFactory {
 		} catch (SecurityException e) {
 			logger.warn("Security exception thrown during loading of method  __STATIC_RESET() for class " + className);
 			return null;
+		} catch (ExceptionInInitializerError ex) {
+			logger.warn("Class " + className + " could not be initialized during __STATIC_RESET() execution ");;
+			return null;
+		} catch (LinkageError ex) {
+			logger.warn("Class " + className + "  initialization led to a Linkage error during during __STATIC_RESET() execution");;
+			return null;
 		}
 	}
 
