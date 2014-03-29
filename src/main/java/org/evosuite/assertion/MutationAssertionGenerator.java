@@ -220,6 +220,10 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 				Class.forName(className, true, classLoader);
 			} catch (ClassNotFoundException e) {
 				logger.warn("Class " + className + " could not be found during setting up of assertion generation ");;
+			} catch (ExceptionInInitializerError ex) {
+				logger.warn("Class " + className + " could not be initialized during setting up of assertion generation ");;
+			} catch (LinkageError ex) {
+				logger.warn("Class " + className + "  initialization led to a Linkage error ");;
 			}
 		}
 	}
