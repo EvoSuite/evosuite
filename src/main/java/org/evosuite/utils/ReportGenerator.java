@@ -81,6 +81,7 @@ import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
  * 
  * @author Gordon Fraser
  */
+@Deprecated
 public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	private static final long serialVersionUID = -920540796220051609L;
@@ -125,6 +126,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * @author arcuri
 	 * 
 	 */
+	@Deprecated
 	public enum RuntimeVariable {
 		/** The class under test */
 		Class,
