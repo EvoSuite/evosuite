@@ -864,13 +864,14 @@ public class TestSuiteWriter implements Opcodes {
 				bd.append("org.evosuite.Properties.VIRTUAL_FS = true; \n");
 			}
 
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.initialize(); \n");
-
 			if (Properties.RESET_STATIC_FIELDS) {
 				bd.append(BLOCK_SPACE);
 				bd.append("org.evosuite.Properties.RESET_STATIC_FIELDS = true; \n");
 			}
+
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.agent.InstrumentingAgent.initialize(); \n");
+
 
 		}
 
