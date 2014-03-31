@@ -64,6 +64,7 @@ import org.objectweb.asm.Type;
  * 
  * @author Gordon Fraser
  */
+@Deprecated
 public class SearchStatistics extends ReportGenerator implements Serializable {
 
 	private static final long serialVersionUID = 8780927435434567712L;
