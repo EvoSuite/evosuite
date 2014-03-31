@@ -87,7 +87,10 @@ public class ClassResetter {
 		} catch (InvocationTargetException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		} catch (NoClassDefFoundError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
