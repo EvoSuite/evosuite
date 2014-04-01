@@ -262,13 +262,19 @@ public class MethodStatement extends AbstractStatement {
 					// Try exact return type
 					/*
 					 * TODO: Sometimes we do want to cast an Object to String etc...
-					 * 
-					if (ret != null && !retval.isAssignableFrom(method.getReturnType())) {
-						throw new CodeUnderTestException(new UncompilableCodeException(
-						        "Cannot assign " + method.getReturnType()
-						                + " to variable of type " + retval.getType()));
+					 */ 
+					if (method.getReturnType() instanceof Class<?>) {
+						Class<?> returnClass = (Class<?>)method.getReturnType();
+						
+						if (!returnClass.isPrimitive() 
+								&& ret != null 
+								&& !returnClass.isAssignableFrom(ret.getClass())) {
+							throw new ClassCastException(
+							        "Cannot assign " + method.getReturnType()
+							                + " to variable of type " + retval.getType());
+						}
 					}
-					*/
+					
 
 					try {
 						retval.setObject(scope, ret);

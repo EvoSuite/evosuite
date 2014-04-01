@@ -8,6 +8,7 @@ import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.defuse.DefUseExample1;
@@ -17,11 +18,18 @@ public class TestDefUseAnalysis extends SystemTest {
 
 	private final Criterion oldCriterion = Properties.CRITERION;
 	private final boolean oldAssertions = Properties.ASSERTIONS;
+	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
+	@Before
+	public void beforeTest() {
+		Properties.SANDBOX = true;
+	}
+	
 	@After
-	public void resetCriterion() {
+	public void afterTest() {
 		Properties.CRITERION = oldCriterion;
 		Properties.ASSERTIONS = oldAssertions;
+		Properties.SANDBOX = DEFAULT_SANDBOX;
 	}
 
 	@Test

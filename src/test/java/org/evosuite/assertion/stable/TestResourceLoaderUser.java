@@ -13,9 +13,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.stable.SecureRandomUser;
+import com.examples.with.different.packagename.stable.ResourceLoaderUser;
 
-public class TestSecureRandom extends SystemTest {
+public class TestResourceLoaderUser extends SystemTest {
 	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
 	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
@@ -46,10 +46,10 @@ public class TestSecureRandom extends SystemTest {
 	}
 
 	@Test
-	public void testSecureRandom() {
+	public void testResourceLoader() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = SecureRandomUser.class.getCanonicalName();
+		String targetClass = ResourceLoaderUser.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };

@@ -33,6 +33,7 @@ import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.runtime.Runtime;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ConstructorStatement;
@@ -170,9 +171,21 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 			Sandbox.goingToExecuteSUTCode();
 			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 			try {
+				Set<String> classesToReload = null;
+				if (TestGenerationContext.getInstance().hasClassesLoadedBySUT()) {
+					classesToReload = new HashSet<String>(TestGenerationContext.getInstance().getClassesLoadedBySUT());
+				}
 				TestGenerationContext.getInstance().resetContext();
 				TestGenerationContext.getInstance().goingToExecuteSUTCode();
 				Properties.getTargetClass();
+
+				if (classesToReload!=null) {
+					reloadClasses(classesToReload);
+					TestCaseExecutor.getInstance().setResetAllClasses(true);
+					TestCaseExecutor.getInstance().setAllClasses(classesToReload);
+				}
+				
+				
 				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
 
 				for(TestChromosome test : suite.getTestChromosomes()) {
@@ -199,6 +212,22 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		}
 	}
 	
+	private void reloadClasses(Set<String> classesToReload) {
+		for (String className : classesToReload) {
+			Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
+			try {
+				ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
+				Class.forName(className, true, classLoader);
+			} catch (ClassNotFoundException e) {
+				logger.warn("Class " + className + " could not be found during setting up of assertion generation ");;
+			} catch (ExceptionInInitializerError ex) {
+				logger.warn("Class " + className + " could not be initialized during setting up of assertion generation ");;
+			} catch (LinkageError ex) {
+				logger.warn("Class " + className + "  initialization led to a Linkage error ");;
+			}
+		}
+	}
+
 	/**
 	 * Set the criterion to whatever it was before
 	 * 

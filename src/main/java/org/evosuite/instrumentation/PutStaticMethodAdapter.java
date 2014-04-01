@@ -22,7 +22,7 @@ package org.evosuite.instrumentation;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
-import org.evosuite.runtime.StaticFieldResetter;
+import org.evosuite.runtime.ClassResetter;
 import org.evosuite.testcase.ExecutionTracer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -65,7 +65,7 @@ public class PutStaticMethodAdapter extends MethodVisitor {
 
 		if (opcode == Opcodes.PUTSTATIC
 				&& !(className.equals(owner) && methodName.equals("<clinit>"))
-				&& !(className.equals(owner) && methodName.equals(StaticFieldResetter.STATIC_RESET))) {
+				&& !(className.equals(owner) && methodName.equals(ClassResetter.STATIC_RESET))) {
 			String executionTracerClassName = ExecutionTracer.class.getName()
 					.replace(".", "/");
 			String executionTracerDescriptor = Type.getMethodDescriptor(

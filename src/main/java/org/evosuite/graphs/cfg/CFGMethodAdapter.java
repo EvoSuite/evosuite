@@ -36,7 +36,7 @@ import org.evosuite.instrumentation.coverage.LCSAJsInstrumentation;
 import org.evosuite.instrumentation.coverage.MethodInstrumentation;
 import org.evosuite.instrumentation.coverage.MutationInstrumentation;
 import org.evosuite.instrumentation.coverage.PrimePathInstrumentation;
-import org.evosuite.runtime.StaticFieldResetter;
+import org.evosuite.runtime.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
@@ -67,8 +67,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * if some MethodInstrumentation requests it.
 	 */
 	public static final List<String> EXCLUDE = Arrays.asList("<clinit>",
-																StaticFieldResetter.STATIC_RESET+"()V",
-																StaticFieldResetter.STATIC_RESET);
+																ClassResetter.STATIC_RESET+"()V",
+																ClassResetter.STATIC_RESET);
 	/**
 	 * The set of all methods which can be used during test case generation This
 	 * excludes e.g. synthetic, initializers, private and deprecated methods
