@@ -251,7 +251,6 @@ public class DependencyAnalysis {
 	private static void gatherStatistics() {
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Predicates, BranchPool.getBranchCounter());
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.CoveredBranchesBitString, (BranchPool.getBranchCounter()) * 2);
-		// TODO: Where is the difference between Branches and Total_Branches?
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Branches, (BranchPool.getBranchCounter()) * 2);
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Branchless_Methods, BranchPool.getBranchlessMethods().size());
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Methods, CFGMethodAdapter.getNumMethods());
