@@ -55,8 +55,8 @@ public class StatisticsListener implements SearchListener {
 				}
 			}
 		};
-		notifier.start();
 		Sandbox.addPriviligedThread(notifier);
+		notifier.start();
 	}
 
 

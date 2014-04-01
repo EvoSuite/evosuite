@@ -129,12 +129,10 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @param value
 	 */
 	public void setOutputVariable(RuntimeVariable variable, Object value) {
-		// TODO: If there already exists that key and the value is different, issue warning?
 		outputVariables.put(variable.toString(), new OutputVariable<Object>(variable.toString(), value));
 	}
 	
 	public void setOutputVariable(OutputVariable<?> variable) {
-		// TODO: If there already exists that key and the value is different, issue warning?
 		outputVariables.put(variable.getName(), variable);
 	}
 	

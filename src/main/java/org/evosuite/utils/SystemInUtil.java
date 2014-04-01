@@ -89,6 +89,7 @@ public class SystemInUtil extends InputStream{
 	public void initForTestCase(){
 		data = new ArrayList<Byte>();
 		counter = new AtomicInteger(0);
+		endReached = false;
 		if(Properties.REPLACE_SYSTEM_IN){
 			System.setIn(this);
 		}
