@@ -1092,6 +1092,8 @@ public class TestCodeVisitor extends TestVisitor {
 			// if (exception == null || !lastStatement)
 			if (!unused)
 				result += getVariableName(retval) + " = ";
+			else
+				result += getClassName(retval) + " " + getVariableName(retval) + " = ";
 
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		}

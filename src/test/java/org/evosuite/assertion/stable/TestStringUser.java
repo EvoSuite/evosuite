@@ -13,43 +13,39 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.stable.SecureRandomUser;
+import com.examples.with.different.packagename.stable.StringUser;
 
-public class TestSecureRandom extends SystemTest {
-	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
-	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
+public class TestStringUser extends SystemTest {
+
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
 	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
+	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
 	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
-	
 
 	@Before
-	public void configureProperties() {
+	public void before() {
 		Properties.SANDBOX = true;
-		Properties.REPLACE_CALLS = true;
 		Properties.JUNIT_CHECK = true;
 		Properties.JUNIT_TESTS = true;
 		Properties.PURE_INSPECTORS = true;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS =true;
-
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = true;
 	}
 
 	@After
-	public void restoreProperties() {
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
+	public void after() {
 		Properties.SANDBOX = DEFAULT_SANDBOX;
-		Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
 		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
 		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
 		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
 	}
 
 	@Test
-	public void testSecureRandom() {
+	public void testStringUser() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = SecureRandomUser.class.getCanonicalName();
+		String targetClass = StringUser.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
@@ -63,6 +59,7 @@ public class TestSecureRandom extends SystemTest {
 		StatisticEntry entry = SearchStatistics.getInstance()
 				.getLastStatisticEntry();
 		assertFalse(entry.hadUnstableTests);
+
 	}
 
 }

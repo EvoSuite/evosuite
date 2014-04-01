@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.utils.ResourceList;
@@ -203,5 +205,17 @@ public class InstrumentingClassLoader extends ClassLoader {
 		    		logger.info("Defined package (3): "+getPackage(pkgname)+", "+getPackage(pkgname).hashCode());
 		    }
 	    }
+	}
+	
+	/**
+	 * Returns a set of class names that were loaded by the 
+	 * current instance of this class loader
+	 * 
+	 * @return a set of class names in fully qualified format
+	 */
+	public Set<String> getLoadedClasses() {
+		Set<String> classNames = new HashSet<String>();
+		classNames.addAll(this.classes.keySet());
+		return classNames;
 	}
 }

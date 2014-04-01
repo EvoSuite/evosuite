@@ -18,9 +18,13 @@
 package org.evosuite.testcase;
 
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -34,6 +38,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.ClassResetter;
 import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.TestCluster;
@@ -245,32 +250,113 @@ public class TestCaseExecutor implements ThreadFactory {
 		Scope scope = new Scope();
 		ExecutionResult result = execute(tc, scope, Properties.TIMEOUT);
 		if (Properties.RESET_STATIC_FIELDS) {
-			ExecutionTrace trace = result.getTrace();
-			Set<String> classesForStaticReset = trace.getClassesForStaticReset();
-			for(int position = 0; position < result.getExecutedStatements(); position++) {
-				StatementInterface statement = tc.getStatement(position);				
-				if(statement.isAssignmentStatement()) {
-					if(statement.getReturnValue() instanceof FieldReference) {
-						FieldReference fieldReference = (FieldReference)statement.getReturnValue();
-						if(fieldReference.getField().isStatic()) {
-							classesForStaticReset.add(fieldReference.getField().getOwnerClass().getClassName());
-						}
-					}
-				}
-			}
-			resetStaticClasses(result.getTrace());
+			resetClasses(tc, result);
 		}
 		return result;
 	}
 
-	private void resetStaticClasses(ExecutionTrace trace) {
-		for (String className : trace.getClassesForStaticReset()) {
-			TestCluster.getInstance().registerClassForStaticReset(className);
+	private void resetClasses(TestCase tc, ExecutionResult result) {
+		Set<String> classesToReset;
+		if (resetAllClasses) {
+			// reset all registered classes
+			classesToReset=allClasses;
+		} else {
+			// reset only classes that were "selected" during trace execution
+			ExecutionTrace trace = result.getTrace();
+			classesToReset = trace.getClassesForStaticReset();
+			HashSet<String> moreClassesForReset = getMoreClassesToReset(
+					tc, result);
+			classesToReset.addAll(moreClassesForReset);
 		}
-		TestCluster.getInstance().resetStaticClasses();
-		TestCluster.getInstance().clearRegisteredClassesForStaticReset();
+		//sort classes to reset 
+		LinkedList<String> sortedClassesToReset = new LinkedList<String>(classesToReset);
+		Collections.sort(sortedClassesToReset);
+		//try to reset each collected class
+		for (String className : sortedClassesToReset) {
+			resetClass(className);
+		}
+	}
+	
+	private static Method getResetMethod(String className) {
+		try {
+			ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
+			Class<?> clazz = Class.forName(className, true, classLoader);
+			Method m = clazz.getMethod(ClassResetter.STATIC_RESET,
+		            (Class<?>[]) null);
+			m.setAccessible(true);
+			return m;
+		
+		} catch (ClassNotFoundException e) {
+			logger.debug("Class " + className + " could not be found during setting up of assertion generation ");
+			return null;
+		} catch (NoSuchMethodException e) {
+			logger.debug("__STATIC_RESET() method does not exists in class " + className);
+			return null;
+		} catch (SecurityException e) {
+			logger.warn("Security exception thrown during loading of method  __STATIC_RESET() for class " + className);
+			return null;
+		} catch (ExceptionInInitializerError ex) {
+			logger.warn("Class " + className + " could not be initialized during __STATIC_RESET() execution ");;
+			return null;
+		} catch (LinkageError ex) {
+			logger.warn("Class " + className + "  initialization led to a Linkage error during during __STATIC_RESET() execution");;
+			return null;
+		}
 	}
 
+	private void resetClass(String className) {
+		try {
+			Method resetMethod = getResetMethod(className);
+			if (resetMethod!=null) {
+				//className.__STATIC_RESET() exists
+				confirmedResettableClasses.add(className);
+				//execute __STATIC_RESET()
+				Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
+				resetMethod.invoke(null, (Object[]) null);
+			}
+		} catch (SecurityException e) {
+			logger.warn("Security exception thrown during loading of method  __STATIC_RESET() for class " + className);
+		} catch (IllegalAccessException e) {
+			logger.warn("IllegalAccessException during execution of method  __STATIC_RESET() for class " + className);
+		} catch (IllegalArgumentException e) {
+			logger.warn("IllegalArgumentException during execution of method  __STATIC_RESET() for class " + className);
+		} catch (InvocationTargetException e) {
+			logger.warn("InvocationTargetException during execution of method  __STATIC_RESET() for class " + className);
+		}
+	}
+	
+	private static HashSet<String> getMoreClassesToReset(TestCase tc,
+			ExecutionResult result) {
+		HashSet<String> moreClassesForStaticReset = new HashSet<String>();
+		for(int position = 0; position < result.getExecutedStatements(); position++) {
+			StatementInterface statement = tc.getStatement(position);				
+			if(statement.isAssignmentStatement()) {
+				if(statement.getReturnValue() instanceof FieldReference) {
+					FieldReference fieldReference = (FieldReference)statement.getReturnValue();
+					if(fieldReference.getField().isStatic()) {
+						moreClassesForStaticReset.add(fieldReference.getField().getOwnerClass().getClassName());
+					}
+				}
+			}
+		}
+		return moreClassesForStaticReset;
+	}
+	
+	private boolean resetAllClasses = false;
+	private HashSet<String> allClasses = null;
+	private final HashSet<String> confirmedResettableClasses = new HashSet<String>();
+
+	public void cleanExecutorState() {
+		resetAllClasses = false;
+		allClasses = null;
+		confirmedResettableClasses.clear();
+	}
+	public void setResetAllClasses(boolean resetAllClasses) {
+		this.resetAllClasses = resetAllClasses;
+	}
+	public Set<String> getResettableClasses() {
+		return this.confirmedResettableClasses;
+	}
 	/**
 	 * Execute a test case on a new scope
 	 * 
@@ -282,7 +368,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		Scope scope = new Scope();
 		ExecutionResult result = execute(tc, scope, timeout);
 		if (Properties.RESET_STATIC_FIELDS) {
-			resetStaticClasses(result.getTrace());
+			resetClasses(tc, result);
 		}
 		return result;
 	}
@@ -527,5 +613,9 @@ public class TestCaseExecutor implements ThreadFactory {
 		currentThread.setContextClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;
+	}
+
+	public void setAllClasses(Set<String> classesToReload) {
+		this.allClasses = new HashSet<String>(classesToReload);
 	}
 }

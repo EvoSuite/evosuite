@@ -15,14 +15,14 @@ import org.evosuite.agent.ToolsJarLocator;
  * @author galeotti
  *
  */
-public class StaticFieldResetter {
+public class ClassResetter {
 
 	/**
 	 * The name of the instrumented duplication of the class initializer <clinit>
 	 */
 	public static final String STATIC_RESET = "__STATIC_RESET";
 
-	private static final StaticFieldResetter instance = new StaticFieldResetter();
+	private static final ClassResetter instance = new ClassResetter();
 
 	private ClassLoader loader = TestGenerationContext.getInstance().getClassLoaderForSUT();
 	
@@ -32,7 +32,7 @@ public class StaticFieldResetter {
 		this.loader = loader;
 	}
 	
-	public static StaticFieldResetter getInstance() {
+	public static ClassResetter getInstance() {
 		return instance;
 	}
 	
@@ -72,7 +72,7 @@ public class StaticFieldResetter {
 	 *  
 	 * @param classNameWithDots the class for invoking the duplicated version of class initializer <clinit>
 	 */
-	public void resetStaticFields(String classNameWithDots) {
+	public void reset(String classNameWithDots) {
 		Method m = getResetMethod(classNameWithDots);
 		if(m == null)
 			return; // TODO: Error handling
@@ -87,7 +87,10 @@ public class StaticFieldResetter {
 		} catch (InvocationTargetException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		} catch (NoClassDefFoundError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
