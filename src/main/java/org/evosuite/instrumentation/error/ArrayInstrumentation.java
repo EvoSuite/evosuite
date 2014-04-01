@@ -19,7 +19,7 @@ public class ArrayInstrumentation extends ErrorBranchInstrumenter {
 				|| opcode == Opcodes.DALOAD || opcode == Opcodes.AALOAD) {
 
 			mv.visitInsn(Opcodes.DUP);
-			insertBranch(Opcodes.IFGE, "java/lang/NegativeArraySizeException");
+			insertBranch(Opcodes.IFGE, "java/lang/ArrayIndexOutOfBoundsException");
 
 			mv.visitInsn(Opcodes.DUP2);
 			mv.visitInsn(Opcodes.SWAP);
@@ -55,7 +55,7 @@ public class ArrayInstrumentation extends ErrorBranchInstrumenter {
 			mv.storeLocal(loc);
 
 			mv.visitInsn(Opcodes.DUP);
-			insertBranch(Opcodes.IFGE, "java/lang/NegativeArraySizeException");
+			insertBranch(Opcodes.IFGE, "java/lang/ArrayIndexOutOfBoundsException");
 
 			mv.visitInsn(Opcodes.DUP2);
 			mv.visitInsn(Opcodes.SWAP);
