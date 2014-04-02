@@ -30,6 +30,7 @@ import org.evosuite.seeding.PrimitiveClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcarver.instrument.Instrumenter;
+import org.evosuite.testcarver.instrument.JSRInlinerClassVisitor;
 import org.evosuite.testcarver.instrument.TransformerUtil;
 import org.evosuite.utils.ComputeClassWriter;
 import org.evosuite.utils.Utils;
@@ -257,7 +258,7 @@ public class BytecodeInstrumentation {
 			cv = new TraceClassVisitor(cv, new PrintWriter(System.err));
 		}
 
-		if (Properties.RESET_STATIC_FIELDS) {
+		if (Properties.RESET_STATIC_FIELDS && !isIntrumentationUnderJavaAgent()) {
 			cv = new PutStaticClassAdapter(cv, className);
 		}
 
@@ -315,7 +316,9 @@ public class BytecodeInstrumentation {
 		// If we need to reset static constructors, make them
 		// explicit methods
 		if (Properties.RESET_STATIC_FIELDS) {
-			cv = new StaticResetClassAdapter(cv, className);
+			StaticResetClassAdapter resetClassAdapter = new StaticResetClassAdapter(cv, className);
+			resetClassAdapter.setRemoveUpdatesOnFinalFields(false);
+			cv = resetClassAdapter;
 		}
 
 		// Replace calls to System.exit, Random.*, and System.currentTimeMillis
@@ -324,78 +327,88 @@ public class BytecodeInstrumentation {
 			cv = new MethodCallReplacementClassAdapter(cv, className);
 		}
 
-		// Testability Transformations
-		if (!isIntrumentationUnderJavaAgent() && 
-				(classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
-		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
-		        || shouldTransform(classNameWithDots))) {
+		if (isIntrumentationUnderJavaAgent()) {
 			ClassNode cn = new AnnotatedClassNode();
 			reader.accept(cn, readFlags);
-			logger.info("Starting transformation of " + className);
-
-			if (Properties.STRING_REPLACEMENT) {
-				StringTransformation st = new StringTransformation(cn);
-				if (isTargetClassName(classNameWithDots)
-				        || shouldTransform(classNameWithDots))
-					cn = st.transform();
-
-			}
-			ComparisonTransformation cmp = new ComparisonTransformation(cn);
-			if (isTargetClassName(classNameWithDots)
-			        || shouldTransform(classNameWithDots)) {
-				cn = cmp.transform();
-				ContainerTransformation ct = new ContainerTransformation(cn);
-				//if (isTargetClassName(classNameWithDots))
-				cn = ct.transform();
-			}
-
-			if (shouldTransform(classNameWithDots)) {
-				logger.info("Testability Transforming " + className);
-
-				//TestabilityTransformation tt = new TestabilityTransformation(cn);
-				BooleanTestabilityTransformation tt = new BooleanTestabilityTransformation(
-				        cn, classLoader);
-				// cv = new TraceClassVisitor(writer, new
-				// PrintWriter(System.out));
-				//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
-				//cv = new CheckClassAdapter(cv);
-				try {
-					//tt.transform().accept(cv);
-					//if (isTargetClassName(classNameWithDots))
-					cn = tt.transform();
-				} catch (Throwable t) {
-					throw new Error(t);
-				}
-
-				logger.info("Testability Transformation done: " + className);
-			}
-
-			//----- 
-			cn.accept(cv);
-
-			if (Properties.TEST_CARVING) {
-				if (TransformerUtil.isClassConsideredForInstrumentation(className)) {
-					final ClassReader cr = new ClassReader(writer.toByteArray());
-					final ClassNode cn2 = new ClassNode();
-					cr.accept(cn2, ClassReader.EXPAND_FRAMES);
-
-					this.testCarvingInstrumenter.transformClassNode(cn2, className);
-					final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-					cn2.accept(cw);
-
-					if (logger.isDebugEnabled()) {
-						final StringWriter sw = new StringWriter();
-						cn2.accept(new TraceClassVisitor(new PrintWriter(sw)));
-						logger.debug("test carving instrumentation result:\n{}", sw);
-					}
-
-					return cw.toByteArray();
-				}
+			cv = new JSRInlinerClassVisitor(cv);
+			try {
+				cn.accept(cv);
+			} catch (Throwable ex) {
+				ex.printStackTrace();
 			}
 		} else {
-			reader.accept(cv, readFlags);
+		// Testability Transformations
+			if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
+			        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
+			        || shouldTransform(classNameWithDots)) {
+				ClassNode cn = new AnnotatedClassNode();
+				reader.accept(cn, readFlags);
+				logger.info("Starting transformation of " + className);
+	
+				if (Properties.STRING_REPLACEMENT) {
+					StringTransformation st = new StringTransformation(cn);
+					if (isTargetClassName(classNameWithDots)
+					        || shouldTransform(classNameWithDots))
+						cn = st.transform();
+	
+				}
+				ComparisonTransformation cmp = new ComparisonTransformation(cn);
+				if (isTargetClassName(classNameWithDots)
+				        || shouldTransform(classNameWithDots)) {
+					cn = cmp.transform();
+					ContainerTransformation ct = new ContainerTransformation(cn);
+					//if (isTargetClassName(classNameWithDots))
+					cn = ct.transform();
+				}
+	
+				if (shouldTransform(classNameWithDots)) {
+					logger.info("Testability Transforming " + className);
+	
+					//TestabilityTransformation tt = new TestabilityTransformation(cn);
+					BooleanTestabilityTransformation tt = new BooleanTestabilityTransformation(
+					        cn, classLoader);
+					// cv = new TraceClassVisitor(writer, new
+					// PrintWriter(System.out));
+					//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+					//cv = new CheckClassAdapter(cv);
+					try {
+						//tt.transform().accept(cv);
+						//if (isTargetClassName(classNameWithDots))
+						cn = tt.transform();
+					} catch (Throwable t) {
+						throw new Error(t);
+					}
+	
+					logger.info("Testability Transformation done: " + className);
+				}
+	
+				//----- 
+				cn.accept(cv);
+	
+				if (Properties.TEST_CARVING) {
+					if (TransformerUtil.isClassConsideredForInstrumentation(className)) {
+						final ClassReader cr = new ClassReader(writer.toByteArray());
+						final ClassNode cn2 = new ClassNode();
+						cr.accept(cn2, ClassReader.EXPAND_FRAMES);
+	
+						this.testCarvingInstrumenter.transformClassNode(cn2, className);
+						final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+						cn2.accept(cw);
+	
+						if (logger.isDebugEnabled()) {
+							final StringWriter sw = new StringWriter();
+							cn2.accept(new TraceClassVisitor(new PrintWriter(sw)));
+							logger.debug("test carving instrumentation result:\n{}", sw);
+						}
+	
+						return cw.toByteArray();
+					}
+				}
+			} else {
+				reader.accept(cv, readFlags);
+			}
 		}
-
+			
 		// Print out bytecode if debug is enabled
 		// if(logger.isDebugEnabled())
 		// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
