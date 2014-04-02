@@ -42,6 +42,12 @@ import org.slf4j.LoggerFactory;
  */
 public class StaticResetClassAdapter extends ClassVisitor {
 
+	private boolean removeUpdatesOnFinalFields = true;
+	
+	public void setRemoveUpdatesOnFinalFields(boolean removeUpdatesOnFinalFields) {
+		this.removeUpdatesOnFinalFields = removeUpdatesOnFinalFields;
+	}
+	
 	private final String className;
 
 	/** Constant <code>static_classes</code> */
@@ -137,10 +143,14 @@ public class StaticResetClassAdapter extends ClassVisitor {
 			StaticResetMethodAdapter staticResetMethodAdapter = new StaticResetMethodAdapter(
 					visitMethod, className, this.static_fields, finalFields);
 
-			MethodVisitor mv2 = new RemoveFinalMethodAdapter(className,
-					staticResetMethodAdapter, finalFields);
-
-			return new MultiMethodVisitor(mv2, mv);
+			if (this.removeUpdatesOnFinalFields) {
+				MethodVisitor mv2 = new RemoveFinalMethodAdapter(className,
+						staticResetMethodAdapter, finalFields);
+	
+				return new MultiMethodVisitor(mv2, mv);
+			} else {
+				return new MultiMethodVisitor(staticResetMethodAdapter, mv);
+			}
 		}
 		return mv;
 	}

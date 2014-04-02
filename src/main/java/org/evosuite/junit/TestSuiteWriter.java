@@ -622,6 +622,8 @@ public class TestSuiteWriter implements Opcodes {
 
 		generateAfter(bd, wasSecurityException);
 		
+		generateSetSystemProperties(bd, results);
+		
 		if (TestGenerationContext.getInstance().hasClassesLoadedBySUT()) {
 			generateLoadSUTClasses(bd, TestGenerationContext
 					.getInstance().getClassesLoadedBySUT());
@@ -632,7 +634,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateLoadSUTClasses(StringBuilder bd,Set<String> classesLoadedBySUT) {
 		bd.append(METHOD_SPACE);
-		bd.append("private void loadSUTClasses() {\n");
+		bd.append("private static void loadSUTClasses() {\n");
 		
 		
 		LinkedList<String> sortedClassNames = new LinkedList<String>(classesLoadedBySUT);
@@ -649,6 +651,11 @@ public class TestSuiteWriter implements Opcodes {
 				bd.append(String.format("classNames[%s] =\"%s\";\n",i,className));
 			}
 		}
+
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.agent.InstrumentingAgent.activate(); \n");
+		}
 		
 		bd.append(BLOCK_SPACE);
 		bd.append("for (int i=0; i< classNames.length;i++) {\n");
@@ -659,13 +666,22 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		bd.append(INNER_BLOCK_SPACE);
-		bd.append("try {" +"\n");
-				
-		bd.append(INNER_INNER_BLOCK_SPACE);
-		bd.append("Class.forName(classNames[i]);\n");
+		bd.append("String classNameToLoad = classNames[i];\n");
 
 		bd.append(INNER_BLOCK_SPACE);
-		bd.append("} catch (Throwable ex) {" +"\n");
+		bd.append("try {" +"\n");
+
+		bd.append(INNER_INNER_BLOCK_SPACE);
+		bd.append("Class.forName(classNameToLoad);\n");
+
+		bd.append(INNER_BLOCK_SPACE);
+		bd.append("} catch (ExceptionInInitializerError ex) {" +"\n");
+
+		bd.append(INNER_INNER_BLOCK_SPACE);
+		bd.append("System.err.println(\"Could not initialize \" + classNameToLoad);\n");
+
+		bd.append(INNER_BLOCK_SPACE);
+		bd.append("} catch (Throwable t) {" +"\n");
 
 		bd.append(INNER_BLOCK_SPACE);
 		bd.append("}\n");
@@ -673,6 +689,11 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append(BLOCK_SPACE);
 		bd.append("}\n");
 
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
+		}
+		
 		bd.append(METHOD_SPACE);
 		bd.append("}" + "\n");
 
@@ -731,26 +752,9 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("public void initTestCase(){ \n");
 
 		if(shouldResetProperties(results)){			
-			/*
-			 * even if we set all the properties that were read, we still need
-			 * to reset everything to handle the properties that were written 
-			 */
 			bd.append(BLOCK_SPACE);
-			bd.append(getResetPropertiesCommand());
+			bd.append("setSystemProperties();");
 			bd.append(" \n");
-			
-			Set<String> readProperties = mergeProperties(results);
-			for(String prop : readProperties){
-				bd.append(BLOCK_SPACE);
-				String currentValue = System.getProperty(prop);
-				String escaped_prop = StringEscapeUtils.escapeJava(prop);
-				if(currentValue != null){
-					String escaped_currentValue = StringEscapeUtils.escapeJava(currentValue);
-					bd.append("java.lang.System.setProperty(\""+escaped_prop+"\", \""+escaped_currentValue+"\"); \n");
-				} else {
-					bd.append("java.lang.System.clearProperty(\""+escaped_prop+"\"); \n");
-				}
-			}
 		}
 		
 		if (wasSecurityException) {
@@ -770,14 +774,6 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append("org.evosuite.utils.SystemInUtil.getInstance().initForTestCase(); \n");
 		}
 		
-		bd.append(BLOCK_SPACE);
-		bd.append("loadSUTClasses();" +"\n");
-
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
-		}
-
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
@@ -836,6 +832,40 @@ public class TestSuiteWriter implements Opcodes {
 
 	}
 
+	private void generateSetSystemProperties(StringBuilder bd, List<ExecutionResult> results) {
+		bd.append(METHOD_SPACE);
+		bd.append("public void setSystemProperties() {\n");
+		bd.append(" \n");
+		if(shouldResetProperties(results)){			
+			/*
+			 * even if we set all the properties that were read, we still need
+			 * to reset everything to handle the properties that were written 
+			 */
+			bd.append(BLOCK_SPACE);
+			bd.append(getResetPropertiesCommand());
+			bd.append(" \n");
+			
+			Set<String> readProperties = mergeProperties(results);
+			for(String prop : readProperties){
+				bd.append(BLOCK_SPACE);
+				String currentValue = System.getProperty(prop);
+				String escaped_prop = StringEscapeUtils.escapeJava(prop);
+				if(currentValue != null){
+					String escaped_currentValue = StringEscapeUtils.escapeJava(currentValue);
+					bd.append("java.lang.System.setProperty(\""+escaped_prop+"\", \""+escaped_currentValue+"\"); \n");
+				} else {
+					bd.append("java.lang.System.clearProperty(\""+escaped_prop+"\"); \n");
+				}
+			}
+		} else {
+			bd.append(BLOCK_SPACE + "/*No java.lang.System property to set*/\n");
+		}
+
+		bd.append(METHOD_SPACE);
+		bd.append("}\n");
+
+	}
+	
 	private void generateBeforeClass(StringBuilder bd, boolean wasSecurityException) {
 
 		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS){
@@ -864,13 +894,14 @@ public class TestSuiteWriter implements Opcodes {
 				bd.append("org.evosuite.Properties.VIRTUAL_FS = true; \n");
 			}
 
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.initialize(); \n");
-
 			if (Properties.RESET_STATIC_FIELDS) {
 				bd.append(BLOCK_SPACE);
 				bd.append("org.evosuite.Properties.RESET_STATIC_FIELDS = true; \n");
 			}
+
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.agent.InstrumentingAgent.initialize(); \n");
+
 
 		}
 
@@ -887,6 +918,16 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append(EXECUTOR_SERVICE + " = Executors.newCachedThreadPool(); \n");
 		}
 
+		if (TestGenerationContext.getInstance().hasClassesLoadedBySUT()) {
+			bd.append(BLOCK_SPACE);
+			bd.append("loadSUTClasses();" +"\n");
+		}
+
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
+		}
+		
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
