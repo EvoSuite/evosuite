@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class StaticResetClassAdapter extends ClassVisitor {
+public class ClassResetClassAdapter extends ClassVisitor {
 
 	private boolean removeUpdatesOnFinalFields = true;
 	
@@ -54,7 +54,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 	public static List<String> staticClasses = new ArrayList<String>();
 
 	private static Logger logger = LoggerFactory
-			.getLogger(StaticResetClassAdapter.class);
+			.getLogger(ClassResetClassAdapter.class);
 
 	private boolean isInterface = false;
 
@@ -76,7 +76,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public StaticResetClassAdapter(ClassVisitor visitor, String className) {
+	public ClassResetClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
 		this.className = className;
 	}
@@ -108,19 +108,37 @@ public class StaticResetClassAdapter extends ClassVisitor {
 			definesUid = true;
 		}
 
-		if ((access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
+		if (hasStaticModifier(access)) {
 			StaticField staticField = new StaticField();
 			staticField.name = name;
 			staticField.desc = desc;
 			static_fields.add(staticField);
 		}
 
-		if ((access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL)
-			finalFields.add(name);
-
-		return super.visitField(access, name, desc, signature, value);
+		if (!isInterface && removeFinalModifierOnStaticFields) {
+			int newAccess = access & (~Opcodes.ACC_FINAL);
+			return super.visitField(newAccess, name, desc, signature, value);
+		} else {
+			if (hasFinalModifier(access))
+				finalFields.add(name);
+	
+			return super.visitField(access, name, desc, signature, value);
+		}
 	}
 
+	private boolean hasFinalModifier(int access) {
+		return (access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL;
+	}
+
+	private boolean hasStaticModifier(int access) {
+		return (access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC;
+	}
+
+	public void setRemoveFinalModifierOnStaticFields(boolean removeFinalModifierOnStaticFields) {
+		this.removeFinalModifierOnStaticFields = removeFinalModifierOnStaticFields;
+	}
+	private boolean removeFinalModifierOnStaticFields = false;
+	
 	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int methodAccess, String methodName,
@@ -140,7 +158,7 @@ public class StaticResetClassAdapter extends ClassVisitor {
 					ClassResetter.STATIC_RESET, descriptor, signature,
 					exceptions);
 
-			StaticResetMethodAdapter staticResetMethodAdapter = new StaticResetMethodAdapter(
+			ClassResetMethodAdapter staticResetMethodAdapter = new ClassResetMethodAdapter(
 					visitMethod, className, this.static_fields, finalFields);
 
 			if (this.removeUpdatesOnFinalFields) {

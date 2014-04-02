@@ -13,9 +13,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.stable.FinalSingletonUser;
+import com.examples.with.different.packagename.stable.FinalSingletonArrayUser;
 
-public class TestFinalSingletonUser extends SystemTest {
+public class TestFinalSingletonArrayUser extends SystemTest {
 
 	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
@@ -48,7 +48,7 @@ public class TestFinalSingletonUser extends SystemTest {
 	public void testFinalSingleton() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = FinalSingletonUser.class.getCanonicalName();
+		String targetClass = FinalSingletonArrayUser.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };

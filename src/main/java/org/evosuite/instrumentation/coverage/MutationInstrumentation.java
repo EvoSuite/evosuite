@@ -43,6 +43,7 @@ import org.evosuite.instrumentation.mutation.ReplaceBitwiseOperator;
 import org.evosuite.instrumentation.mutation.ReplaceComparisonOperator;
 import org.evosuite.instrumentation.mutation.ReplaceConstant;
 import org.evosuite.instrumentation.mutation.ReplaceVariable;
+import org.evosuite.runtime.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.utils.Utils;
@@ -126,6 +127,9 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		if (methodName.startsWith("<clinit>"))
 			return;
 
+		if (methodName.startsWith(ClassResetter.STATIC_RESET)) 
+			return;
+		
 		RawControlFlowGraph graph = GraphPool.getInstance(classLoader).getRawCFG(className,
 		                                                                         methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.agent.TransformerForTests;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
 import org.evosuite.seeding.PrimitiveClassAdapter;
@@ -316,8 +315,12 @@ public class BytecodeInstrumentation {
 		// If we need to reset static constructors, make them
 		// explicit methods
 		if (Properties.RESET_STATIC_FIELDS) {
-			StaticResetClassAdapter resetClassAdapter = new StaticResetClassAdapter(cv, className);
-			resetClassAdapter.setRemoveUpdatesOnFinalFields(false);
+			ClassResetClassAdapter resetClassAdapter = new ClassResetClassAdapter(cv, className);
+			if (getRemoveFinalFieldModifier() || isIntrumentationUnderJavaAgent()) {
+				resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
+			} else {
+				resetClassAdapter.setRemoveFinalModifierOnStaticFields(false);
+			}
 			cv = resetClassAdapter;
 		}
 
@@ -423,5 +426,12 @@ public class BytecodeInstrumentation {
 		return instrumentationUnderJavaAgent;
 	}
 
+	private boolean removeFinalFieldModifier = false;
+	public void setRemoveFinalFieldModifier(boolean removeFinalFieldModifier ) {
+		this.removeFinalFieldModifier = removeFinalFieldModifier ; 
+	}
+	private boolean getRemoveFinalFieldModifier() {
+		return removeFinalFieldModifier;
+	}
 
 }

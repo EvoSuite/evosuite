@@ -13,9 +13,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.stable.Base64;
 import com.examples.with.different.packagename.stable.FinalSingletonUser;
 
-public class TestFinalSingletonUser extends SystemTest {
+public class TestBase64 extends SystemTest {
 
 	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
@@ -45,10 +46,10 @@ public class TestFinalSingletonUser extends SystemTest {
 	}
 
 	@Test
-	public void testFinalSingleton() {
+	public void testBase64() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = FinalSingletonUser.class.getCanonicalName();
+		String targetClass = Base64.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
