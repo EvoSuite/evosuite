@@ -476,7 +476,9 @@ public class TestGeneration {
 
 		//FIXME: tmp hack till understood what TestGenerationResult is...
 		if(hasFailed){
-			throw new IllegalStateException("FIXME: failed to write statistics data");
+			logger.error("failed to write statistics data");
+			//note: cannot throw exception because would require refactoring of many SystemTests
+			return new ArrayList<TestGenerationResult>();
 		}
 		
 		return results;
