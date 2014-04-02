@@ -25,7 +25,9 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.junit.xml.JUnitProcessLauncher;
+import org.evosuite.rmi.ClientServices;
 import org.evosuite.sandbox.Sandbox;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.utils.ClassPathHandler;
@@ -110,19 +112,20 @@ public class JUnitAnalyzer {
 	 * remove such test from the input list
 	 * 
 	 * @param tests
+	 * @return <code>true</code> if any test was unstable
 	 */
-	public static void handleTestsThatAreUnstable(List<TestCase> tests) {
+	public static boolean handleTestsThatAreUnstable(List<TestCase> tests) {
 
 		logger.info("Going to execute: handleTestsThatAreUnstable");
 
 		if (tests == null || tests.isEmpty()) { //nothing to do
-			return;
+			return false;
 		}
 
 		File dir = createNewTmpDir();
 		if (dir == null) {
-			logger.warn("Failed to create tmp dir");
-			return;
+			logger.error("Failed to create tmp dir");
+			return false;
 		}
 		logger.debug("Created tmp folder: " + dir.getAbsolutePath());
 
@@ -134,20 +137,20 @@ public class JUnitAnalyzer {
 				 * is done before calling this method
 				 */
 				logger.warn("Failed to compile the test cases ");
-				return;
+				return false;
 			}
 
 			Class<?>[] testClasses = loadTests(generated, dir);
 
 			if (testClasses == null) {
 				logger.error("Found no classes for compiled tests");
-				return;
+				return false;
 			}
 
 			JUnitResult result = runTests(testClasses, dir);
 
 			if (result.wasSuccessful()) {
-				return; //everything is OK
+				return false; //everything is OK
 			}
 
 			logger.error("" + result.getFailureCount() + " test cases failed");
@@ -193,6 +196,7 @@ public class JUnitAnalyzer {
 			}
 		} catch (Exception e) {
 			logger.error("" + e, e);
+			return false;
 		} finally {
 			//let's be sure we clean up all what we wrote on disk
 
@@ -205,7 +209,9 @@ public class JUnitAnalyzer {
 			}
 
 		}
-
+		
+		//if we arrive here, then it means at least one test was unstable
+		return true;
 	}
 
 	private static JUnitResult runTests(Class<?>[] testClasses,

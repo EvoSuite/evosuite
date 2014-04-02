@@ -91,6 +91,12 @@ public class StatisticsListener implements SearchListener {
 			reportTestSuiteResult((TestSuiteChromosome) algorithm.getBestIndividual());
 		}
 		done = true;
+		try {
+			notifier.join(3000);
+		} catch (InterruptedException e) {
+			notifier.interrupt();
+			Thread.currentThread().interrupt();//interrupted flag was reset
+		}
 	}
 	
 	private void reportTestSuiteResult(TestSuiteChromosome testSuite) {

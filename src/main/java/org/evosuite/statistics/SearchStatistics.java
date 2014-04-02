@@ -34,35 +34,35 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
 	/** Singleton instance */
 	private static SearchStatistics instance = null;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SearchStatistics.class);
-	
+
 	/** Map of client id to best individual received from that client so far */
 	private Map<String, TestSuiteChromosome> bestIndividual = new HashMap<String, TestSuiteChromosome>();
-	
+
 	/** Backend used to output the data */
 	private StatisticsBackend backend = null;
-	
+
 	/** Output variables and their values */ 
 	private Map<String, OutputVariable<?>> outputVariables = new TreeMap<String, OutputVariable<?>>();
 
 	/** Variable factories to extract output variables from chromosomes */
 	private Map<String, ChromosomeOutputVariableFactory<?>> variableFactories = new TreeMap<String, ChromosomeOutputVariableFactory<?>>(); 
-	
+
 	/** Variable factories to extract sequence variables */
 	private Map<String, SequenceOutputVariableFactory<?>> sequenceOutputVariableFactories = new TreeMap<String, SequenceOutputVariableFactory<?>>();
 
 	/** Keep track of how far EvoSuite progressed */
 	private ClientState currentState = ClientState.INITIALIZATION;
-	
+
 	private long currentStateStarted = System.currentTimeMillis();
-	
+
 	private long searchStartTime = 0L;
-	
+
 	private long startTime = System.currentTimeMillis();
-	
+
 	private List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
-	
+
 	private SearchStatistics() { 
 		switch(Properties.STATISTICS_BACKEND) {
 		case CONSOLE:
@@ -89,18 +89,18 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		if(MasterServices.getInstance().getMasterNode() != null)
 			MasterServices.getInstance().getMasterNode().addListener(this);
 	}
-	
+
 	public static SearchStatistics getInstance() {
 		if(instance == null)
 			instance = new SearchStatistics();
-		
+
 		return instance;
 	}
-	
+
 	public static void clearInstance() {
 		instance = null;
 	}
-	
+
 	/**
 	 * This method is called when a new individual is sent from a client.
 	 * The individual represents the best individual of the current generation.
@@ -111,7 +111,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	public void currentIndividual(String rmiClientIdentifier, Chromosome individual) {
 		if(backend == null)
 			return;
-		
+
 		logger.debug("Received individual");
 		bestIndividual.put(rmiClientIdentifier, (TestSuiteChromosome) individual);
 		for(SequenceOutputVariableFactory<?> v : sequenceOutputVariableFactories.values()) {
@@ -121,7 +121,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
 		}
 	}
-	
+
 	/**
 	 * Set an output variable to a value directly 
 	 * 
@@ -129,36 +129,46 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @param value
 	 */
 	public void setOutputVariable(RuntimeVariable variable, Object value) {
-		outputVariables.put(variable.toString(), new OutputVariable<Object>(variable.toString(), value));
+		setOutputVariable(new OutputVariable<Object>(variable.toString(), value));
 	}
-	
+
 	public void setOutputVariable(OutputVariable<?> variable) {
 		outputVariables.put(variable.getName(), variable);
 	}
-	
+
 	public void addTestGenerationResult(TestGenerationResult result) {
 		results.add(result);
 	}
-	
+
 	public List<TestGenerationResult> getTestGenerationResults() {
 		return results;
 	}
-	
+
 	/**
 	 * Retrieve list of possible variables
 	 *  
 	 * @return
 	 */
 	private List<String> getAllOutputVariableNames() {
-		String[] essentials = new String[] { "TARGET_CLASS" };
 		List<String> variableNames = new ArrayList<String>();
+
+		String[] essentials = new String[] {  //TODO maybe add some more
+				"TARGET_CLASS" , "criterion", 
+				RuntimeVariable.Coverage.toString(),
+				RuntimeVariable.BranchCoverage.toString(),
+				RuntimeVariable.Total_Goals.toString(),
+				RuntimeVariable.Covered_Goals.toString()
+				};
 		variableNames.addAll(Arrays.asList(essentials));
+		
+		/* cannot use what we received, as due to possible bugs/errors those might not be constant
 		variableNames.addAll(outputVariables.keySet());
 		variableNames.addAll(variableFactories.keySet());
 		variableNames.addAll(sequenceOutputVariableFactories.keySet());
+		*/
 		return variableNames;
 	}
-	
+
 	/**
 	 * Retrieve list of output variables that the user will get to see.
 	 * If output_variables is not set, then all variables will be returned
@@ -174,52 +184,76 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		}
 		return variableNames;
 	}
-	
+
 	/**
-	 * Extract output variables from current best individual
+	 * Extract output variables from input <code>individual</code>.
+	 * Add also all the other needed search-level variables. 
 	 * 
 	 * @param individual
-	 * @return
+	 * @return <code>null</code> if some data is missing
 	 */
-	private Map<String, OutputVariable<?>> getOutputVariables(Chromosome individual) {
+	private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual) {
 		Map<String, OutputVariable<?>> variables = new LinkedHashMap<String, OutputVariable<?>>();
-		
+
 		for(String variableName : getOutputVariableNames()) {
 			if(outputVariables.containsKey(variableName)) {
+				//values directly sent by the client
 				variables.put(variableName, outputVariables.get(variableName));
 			} else if(Properties.getParameters().contains(variableName)) {
+				// values used to define the search, ie the -D given as input to EvoSuite
 				variables.put(variableName, new PropertyOutputVariableFactory(variableName).getVariable());
 			} else if(variableFactories.containsKey(variableName)) {
-				// TODO: Iterator mess
-				variables.put(variableName, variableFactories.get(variableName).getVariable((TestSuiteChromosome) bestIndividual.values().iterator().next()));
+				//values extracted from the individual
+				variables.put(variableName, variableFactories.get(variableName).getVariable(individual));
 			} else if(sequenceOutputVariableFactories.containsKey(variableName)) {
+				/*
+				 * time related values, which will be expanded in a list of values
+				 * through time
+				 */
 				for(OutputVariable<?> var : sequenceOutputVariableFactories.get(variableName).getOutputVariables()) {
 					variables.put(var.getName(), var); 
 				}
 			}
 			else {
-				throw new IllegalArgumentException("No such output variable: "+variableName+". Available variables: "+getAllOutputVariableNames());
+				logger.error("No obtained value for output variable: "+variableName);
+				return null;
 			}
 		}
-		
+
 		return variables;
 	}
-	
+
 	/**
 	 * Write result to disk using selected backend
+	 * 
+	 * @return true if the writing was succesful
 	 */
-	public void writeStatistics() {
+	public boolean writeStatistics() {
 		logger.info("Writing statistics");
 		if(backend == null)
-			return;
-		
+			return false;
+
 		outputVariables.put(RuntimeVariable.Total_Time.name(), new OutputVariable<Object>(RuntimeVariable.Total_Time.name(), System.currentTimeMillis() - startTime));
-		
-		if(!bestIndividual.isEmpty()) {
-			Chromosome individual = bestIndividual.values().iterator().next();
-			backend.writeData(individual, getOutputVariables(individual));
+
+		if(bestIndividual.isEmpty()) {
+			logger.error("No statistics has been saved because EvoSuite failed to generate any test case");
+			return false;
+		}	
+
+		TestSuiteChromosome individual = bestIndividual.values().iterator().next();
+		Map<String,OutputVariable<?>> map = getOutputVariables(individual);
+		if(map==null){
+			logger.error("Not going to write down statistics data, as some are missing");
+			return false;
+		} 			
+
+		boolean valid = RuntimeVariable.validateRuntimeVariables(map);
+		if(!valid){
+			logger.error("Not going to write down statistics data, as some data is invalid");
+			return false;
 		} else {
-			logger.info("No statistics has been saved because EvoSuite failed to generate any test case");
+			backend.writeData(individual, map);
+			return true;
 		}
 	}
 
@@ -243,7 +277,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		}
 
 	}
-	
+
 	/**
 	 * Create default factories
 	 */
@@ -253,7 +287,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		variableFactories.put(RuntimeVariable.Coverage.name(), new ChromosomeCoverageOutputVariableFactory());
 		variableFactories.put(RuntimeVariable.Fitness.name(), new ChromosomeFitnessOutputVariableFactory());
 	}
-	
+
 	/**
 	 * Total length of a test suite
 	 */
@@ -267,7 +301,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			return individual.totalLengthOfTestCases();
 		}
 	}
-	
+
 	/**
 	 * Number of tests in a test suite
 	 */
@@ -309,7 +343,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			return individual.getCoverage();
 		}
 	}
-	
+
 	/**
 	 * Sequence variable for fitness values
 	 */
@@ -318,7 +352,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		public FitnessSequenceOutputVariableFactory() {
 			super(RuntimeVariable.FitnessTimeline);
 		}
-		
+
 		@Override
 		protected Double getValue(TestSuiteChromosome individual) {
 			return individual.getFitness();
@@ -333,7 +367,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		public CoverageSequenceOutputVariableFactory() {
 			super(RuntimeVariable.CoverageTimeline);
 		}
-		
+
 		@Override
 		public Double getValue(TestSuiteChromosome individual) {
 			return individual.getCoverage();
@@ -348,7 +382,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		public SizeSequenceOutputVariableFactory() {
 			super(RuntimeVariable.SizeTimeline);
 		}
-		
+
 		@Override
 		public Integer getValue(TestSuiteChromosome individual) {
 			return individual.size();
@@ -363,7 +397,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		public LengthSequenceOutputVariableFactory() {
 			super(RuntimeVariable.LengthTimeline);
 		}
-		
+
 		@Override
 		public Integer getValue(TestSuiteChromosome individual) {
 			return individual.totalLengthOfTestCases();
