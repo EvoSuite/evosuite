@@ -442,23 +442,27 @@ public class TestGeneration {
 			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}
 
+		boolean hasFailed = false;
+		
 		if (Properties.NEW_STATISTICS) {
 			if(MasterServices.getInstance().getMasterNode() == null) {
-				logger.warn("Cannot write results as RMI master node is not running");
+				logger.error("Cannot write results as RMI master node is not running");
+				hasFailed = true;
 			} else {
-				SearchStatistics.getInstance().writeStatistics();
+				boolean written = SearchStatistics.getInstance().writeStatistics();
+				hasFailed = !written;
 			}
 		}
+		
+		/*
+		 * FIXME: it is unclear what is the relation between TestGenerationResult and writeStatistics()
+		 */
 		List<TestGenerationResult> results = SearchStatistics.getInstance().getTestGenerationResults();
 		SearchStatistics.clearInstance();
 
 		handler.closeServer();
 
 		if (Properties.CLIENT_ON_THREAD) {
-			/*
-			 * FIXME: this is done only to avoid current problems with serialization
-			 */
-			// result = ClientProcess.geneticAlgorithmStatus;
 			handler.stopAndWaitForClientOnThread(10000);
 		} else {
 			try {
@@ -470,6 +474,11 @@ public class TestGeneration {
 		
 		logger.debug("Master process has finished to wait for client");
 
+		//FIXME: tmp hack till understood what TestGenerationResult is...
+		if(hasFailed){
+			throw new IllegalStateException("FIXME: failed to write statistics data");
+		}
+		
 		return results;
 	}
 

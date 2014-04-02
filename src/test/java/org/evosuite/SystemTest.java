@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.evosuite.Properties.Criterion;
+import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
@@ -77,6 +78,10 @@ public class SystemTest {
 		Properties.ERROR_BRANCHES = false;
 		Properties.CRITERION = Criterion.BRANCH;
 
+		Properties.NEW_STATISTICS = true;
+		Properties.OLD_STATISTICS = false;
+		Properties.STATISTICS_BACKEND = StatisticsBackend.CONSOLE;
+		
 		TestGenerationContext.getInstance().resetContext();
 		Randomness.setSeed(42);
 
