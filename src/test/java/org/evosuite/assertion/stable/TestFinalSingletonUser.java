@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.stable.FinalSingletonUser;
-import com.examples.with.different.packagename.stable.SingletonUser;
 
 public class TestFinalSingletonUser extends SystemTest {
 
