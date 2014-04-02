@@ -315,7 +315,7 @@ public class BytecodeInstrumentation {
 		// If we need to reset static constructors, make them
 		// explicit methods
 		if (Properties.RESET_STATIC_FIELDS) {
-			StaticResetClassAdapter resetClassAdapter = new StaticResetClassAdapter(cv, className);
+			ClassResetClassAdapter resetClassAdapter = new ClassResetClassAdapter(cv, className);
 			if (getRemoveFinalFieldModifier() || isIntrumentationUnderJavaAgent()) {
 				resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
 			} else {
