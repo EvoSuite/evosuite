@@ -4,6 +4,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
+import org.evosuite.sandbox.Sandbox;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.DefaultTestCase;
@@ -17,19 +19,16 @@ import org.junit.Test;
 
 public class TestDefaultValue {
 
-	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
-	private final boolean default_sandbox = Properties.SANDBOX;
+	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
 	@Before
 	public void setUp() {
-		Properties.SANDBOX = true;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS =true;
+		Properties.SANDBOX = false;
 	}
 
 	@After
 	public void reset() {
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
-		Properties.SANDBOX = default_sandbox;
+		Properties.SANDBOX = DEFAULT_SANDBOX;
 		ClassPathHandler.resetSingleton();
 	}
 

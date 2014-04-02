@@ -48,7 +48,7 @@ public class TestRandomUser extends SystemTest {
 		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
 	}
 
-	@Test
+	@Test 
 	public void testRandom() {
 		EvoSuite evosuite = new EvoSuite();
 

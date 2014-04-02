@@ -32,6 +32,8 @@ import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.sandbox.Sandbox;
@@ -130,7 +132,11 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		arrayObserver.clear();
 		try {
 			logger.debug("Executing test");
-			MutationObserver.activateMutation(mutant);
+			if (mutant==null) {
+				MutationObserver.deactivateMutation();
+			} else {
+				MutationObserver.activateMutation(mutant);
+			}
 			result = TestCaseExecutor.getInstance().execute(test);
 			MutationObserver.deactivateMutation(mutant);
 
@@ -173,9 +179,18 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 			try {
 				Set<String> classesToReload = null;
 				if (TestGenerationContext.getInstance().hasClassesLoadedBySUT()) {
-					classesToReload = new HashSet<String>(TestGenerationContext.getInstance().getClassesLoadedBySUT());
+					Set<String> classesLoadedBySUT = TestGenerationContext.getInstance().getClassesLoadedBySUT();
+					classesToReload = new HashSet<String>(classesLoadedBySUT);
 				}
 				TestGenerationContext.getInstance().resetContext();
+				
+				if (Properties.RESET_STATIC_FIELDS) {
+					ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
+					InstrumentingClassLoader instrumentingClassLoader = (InstrumentingClassLoader)classLoader;
+					BytecodeInstrumentation instrumenter = instrumentingClassLoader.getInstrumentation();
+					instrumenter.setRemoveFinalFieldModifier(true);
+				}
+				
 				TestGenerationContext.getInstance().goingToExecuteSUTCode();
 				Properties.getTargetClass();
 
@@ -184,7 +199,6 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 					TestCaseExecutor.getInstance().setResetAllClasses(true);
 					TestCaseExecutor.getInstance().setAllClasses(classesToReload);
 				}
-				
 				
 				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
 

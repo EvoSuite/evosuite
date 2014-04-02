@@ -218,4 +218,10 @@ public class InstrumentingClassLoader extends ClassLoader {
 		classNames.addAll(this.classes.keySet());
 		return classNames;
 	}
+
+	public BytecodeInstrumentation getInstrumentation() {
+		return instrumentation;
+	}
+
+	
 }
