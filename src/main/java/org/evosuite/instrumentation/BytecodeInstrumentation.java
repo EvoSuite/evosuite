@@ -317,7 +317,7 @@ public class BytecodeInstrumentation {
 		// explicit methods
 		if (Properties.RESET_STATIC_FIELDS) {
 			StaticResetClassAdapter resetClassAdapter = new StaticResetClassAdapter(cv, className);
-			resetClassAdapter.setRemoveUpdatesOnFinalFields(false);
+			resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
 			cv = resetClassAdapter;
 		}
 

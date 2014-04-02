@@ -130,7 +130,11 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		arrayObserver.clear();
 		try {
 			logger.debug("Executing test");
-			MutationObserver.activateMutation(mutant);
+			if (mutant==null) {
+				MutationObserver.deactivateMutation();
+			} else {
+				MutationObserver.activateMutation(mutant);
+			}
 			result = TestCaseExecutor.getInstance().execute(test);
 			MutationObserver.deactivateMutation(mutant);
 

@@ -108,19 +108,37 @@ public class StaticResetClassAdapter extends ClassVisitor {
 			definesUid = true;
 		}
 
-		if ((access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
+		if (hasStaticModifier(access)) {
 			StaticField staticField = new StaticField();
 			staticField.name = name;
 			staticField.desc = desc;
 			static_fields.add(staticField);
 		}
 
-		if ((access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL)
-			finalFields.add(name);
-
-		return super.visitField(access, name, desc, signature, value);
+		if (removeFinalModifierOnStaticFields) {
+			int newAccess = access & (~Opcodes.ACC_FINAL);
+			return super.visitField(newAccess, name, desc, signature, value);
+		} else {
+			if (hasFinalModifier(access))
+				finalFields.add(name);
+	
+			return super.visitField(access, name, desc, signature, value);
+		}
 	}
 
+	private boolean hasFinalModifier(int access) {
+		return (access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL;
+	}
+
+	private boolean hasStaticModifier(int access) {
+		return (access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC;
+	}
+
+	public void setRemoveFinalModifierOnStaticFields(boolean removeFinalModifierOnStaticFields) {
+		this.removeFinalModifierOnStaticFields = removeFinalModifierOnStaticFields;
+	}
+	private boolean removeFinalModifierOnStaticFields = false;
+	
 	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int methodAccess, String methodName,
