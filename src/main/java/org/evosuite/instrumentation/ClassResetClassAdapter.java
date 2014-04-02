@@ -115,7 +115,7 @@ public class ClassResetClassAdapter extends ClassVisitor {
 			static_fields.add(staticField);
 		}
 
-		if (removeFinalModifierOnStaticFields) {
+		if (!isInterface && removeFinalModifierOnStaticFields) {
 			int newAccess = access & (~Opcodes.ACC_FINAL);
 			return super.visitField(newAccess, name, desc, signature, value);
 		} else {
