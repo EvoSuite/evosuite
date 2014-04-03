@@ -43,11 +43,11 @@ import org.slf4j.LoggerFactory;
 public class ClassResetClassAdapter extends ClassVisitor {
 
 	private boolean removeUpdatesOnFinalFields = true;
-	
+
 	public void setRemoveUpdatesOnFinalFields(boolean removeUpdatesOnFinalFields) {
 		this.removeUpdatesOnFinalFields = removeUpdatesOnFinalFields;
 	}
-	
+
 	private final String className;
 
 	/** Constant <code>static_classes</code> */
@@ -92,6 +92,7 @@ public class ClassResetClassAdapter extends ClassVisitor {
 	static class StaticField {
 		String name;
 		String desc;
+		Object value;
 	}
 
 	private final List<StaticField> static_fields = new LinkedList<StaticField>();
@@ -112,6 +113,7 @@ public class ClassResetClassAdapter extends ClassVisitor {
 			StaticField staticField = new StaticField();
 			staticField.name = name;
 			staticField.desc = desc;
+			staticField.value = value;
 			static_fields.add(staticField);
 		}
 
@@ -121,7 +123,7 @@ public class ClassResetClassAdapter extends ClassVisitor {
 		} else {
 			if (hasFinalModifier(access))
 				finalFields.add(name);
-	
+
 			return super.visitField(access, name, desc, signature, value);
 		}
 	}
@@ -134,11 +136,13 @@ public class ClassResetClassAdapter extends ClassVisitor {
 		return (access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC;
 	}
 
-	public void setRemoveFinalModifierOnStaticFields(boolean removeFinalModifierOnStaticFields) {
+	public void setRemoveFinalModifierOnStaticFields(
+			boolean removeFinalModifierOnStaticFields) {
 		this.removeFinalModifierOnStaticFields = removeFinalModifierOnStaticFields;
 	}
+
 	private boolean removeFinalModifierOnStaticFields = false;
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int methodAccess, String methodName,
@@ -164,7 +168,7 @@ public class ClassResetClassAdapter extends ClassVisitor {
 			if (this.removeUpdatesOnFinalFields) {
 				MethodVisitor mv2 = new RemoveFinalMethodAdapter(className,
 						staticResetMethodAdapter, finalFields);
-	
+
 				return new MultiMethodVisitor(mv2, mv);
 			} else {
 				return new MultiMethodVisitor(staticResetMethodAdapter, mv);
@@ -225,8 +229,8 @@ public class ClassResetClassAdapter extends ClassVisitor {
 		logger.info("Creating brand-new static initializer in class "
 				+ className);
 		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC
-				| Opcodes.ACC_STATIC, ClassResetter.STATIC_RESET, "()V",
-				null, null);
+				| Opcodes.ACC_STATIC, ClassResetter.STATIC_RESET, "()V", null,
+				null);
 		mv.visitCode();
 		for (StaticField staticField : static_fields) {
 
@@ -235,28 +239,33 @@ public class ClassResetClassAdapter extends ClassVisitor {
 				logger.info("Adding bytecode for initializing field "
 						+ staticField.name);
 
-				Type type = Type.getType(staticField.desc);
-				switch (type.getSort()) {
-				case Type.BOOLEAN:
-				case Type.BYTE:
-				case Type.CHAR:
-				case Type.SHORT:
-				case Type.INT:
-					mv.visitInsn(Opcodes.ICONST_0);
-					break;
-				case Type.FLOAT:
-					mv.visitInsn(Opcodes.FCONST_0);
-					break;
-				case Type.LONG:
-					mv.visitInsn(Opcodes.LCONST_0);
-					break;
-				case Type.DOUBLE:
-					mv.visitInsn(Opcodes.DCONST_0);
-					break;
-				case Type.ARRAY:
-				case Type.OBJECT:
-					mv.visitInsn(Opcodes.ACONST_NULL);
-					break;
+
+				if (staticField.value != null) {
+					mv.visitLdcInsn(staticField.value);
+				} else {
+					Type type = Type.getType(staticField.desc);
+					switch (type.getSort()) {
+					case Type.BOOLEAN:
+					case Type.BYTE:
+					case Type.CHAR:
+					case Type.SHORT:
+					case Type.INT:
+						mv.visitInsn(Opcodes.ICONST_0);
+						break;
+					case Type.FLOAT:
+						mv.visitInsn(Opcodes.FCONST_0);
+						break;
+					case Type.LONG:
+						mv.visitInsn(Opcodes.LCONST_0);
+						break;
+					case Type.DOUBLE:
+						mv.visitInsn(Opcodes.DCONST_0);
+						break;
+					case Type.ARRAY:
+					case Type.OBJECT:
+						mv.visitInsn(Opcodes.ACONST_NULL);
+						break;
+					}
 				}
 				mv.visitFieldInsn(Opcodes.PUTSTATIC, className,
 						staticField.name, staticField.desc);
