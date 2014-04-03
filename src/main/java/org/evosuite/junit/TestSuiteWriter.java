@@ -1038,7 +1038,7 @@ public class TestSuiteWriter implements Opcodes {
 			methodName = "test" + targetMethod + num;
 			builder.append(adapter.getMethodDefinition(methodName));
 		} else {
-			methodName = getNameOfTest(null, number);
+			methodName = getNameOfTest(testCases, number);
 			builder.append(adapter.getMethodDefinition(methodName));
 		}
 
@@ -1129,7 +1129,11 @@ public class TestSuiteWriter implements Opcodes {
 					"For the moment, structured tests are not supported");
 		}
 
-		return "test" + position;
+		int totalNumberOfTests = tests.size();
+		String totalNumberOfTestsString = String.valueOf(totalNumberOfTests);
+		String testNumber = StringUtils.leftPad(String.valueOf(position), totalNumberOfTestsString.length(), "0");
+		String testName = "test" + testNumber;
+		return testName;
 	}
 
 	/**
