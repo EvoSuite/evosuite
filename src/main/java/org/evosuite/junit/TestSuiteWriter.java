@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.swing.DebugGraphics;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -360,6 +362,7 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		imports.add(PrintStream.class);
+		imports.add(DebugGraphics.class);
 		
 		Set<String> import_names = new HashSet<String>();
 		for (Class<?> imp : imports) {
@@ -713,7 +716,12 @@ public class TestSuiteWriter implements Opcodes {
 
 		bd.append(BLOCK_SPACE);
 		bd.append("System.setErr(systemErr); \n");
+
+		bd.append(BLOCK_SPACE);
 		bd.append("System.setOut(systemOut); \n");
+
+		bd.append(BLOCK_SPACE);
+		bd.append("DebugGraphics.setLogStream(logStream); \n");
 
 		if (wasSecurityException) {
 			bd.append(BLOCK_SPACE);
@@ -761,6 +769,9 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("systemOut = System.out;");
 		bd.append(" \n");
 		
+		bd.append(BLOCK_SPACE);
+		bd.append("logStream = DebugGraphics.logStream();");
+		bd.append(" \n");		
 		if(shouldResetProperties(results)){			
 			bd.append(BLOCK_SPACE);
 			bd.append("setSystemProperties();");
@@ -951,6 +962,10 @@ public class TestSuiteWriter implements Opcodes {
 
 		bd.append(METHOD_SPACE);
 		bd.append("private PrintStream systemErr = null;"+'\n');
+		
+		bd.append(METHOD_SPACE);
+		bd.append("private PrintStream logStream = null;"+'\n');
+		
 
 		if (wasSecurityException) {
 			bd.append(METHOD_SPACE);
@@ -1130,7 +1145,7 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		int totalNumberOfTests = tests.size();
-		String totalNumberOfTestsString = String.valueOf(totalNumberOfTests);
+		String totalNumberOfTestsString = String.valueOf(totalNumberOfTests-1);
 		String testNumber = StringUtils.leftPad(String.valueOf(position), totalNumberOfTestsString.length(), "0");
 		String testName = "test" + testNumber;
 		return testName;
