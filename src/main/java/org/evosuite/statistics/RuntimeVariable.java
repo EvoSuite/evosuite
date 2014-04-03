@@ -1,5 +1,11 @@
 package org.evosuite.statistics;
 
+import java.util.Map;
+
+import org.evosuite.Properties.Criterion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * <p>
  * This enumeration defines all the runtime variables we want to store in
@@ -20,7 +26,7 @@ package org.evosuite.statistics;
  * 
  */
 public enum RuntimeVariable {
-	
+
 	/** Number of predicates in CUT */
 	Predicates,         
 	/** Number of classes in classpath  */
@@ -105,7 +111,7 @@ public enum RuntimeVariable {
 	CarvedTests,
 	/** TODO */
 	CarvedCoverage, 
-	/** TODO */
+	/** Was any test unstable in the generated JUnit files? */
 	HadUnstableTests, 
 	/** An estimate (ie not precise) of the maximum number of threads running at the same time in the CUT */
 	Threads,
@@ -136,8 +142,8 @@ public enum RuntimeVariable {
 	AudioPermission,
 	OtherPermission,
 	/* -------------------------------------------------------------------- */
-	
-	
+
+
 	/* TODO following needs to be implemented/updated. Currently they are not (necessarily) supported */
 	Error_Predicates,
 	Error_Branches_Covered,
@@ -178,6 +184,96 @@ public enum RuntimeVariable {
 	CoveredAliasIntraMethodPairs,
 	CoveredAliasInterMethodPairs,
 	CoveredAliasIntraClassPairs,
-	CoveredAliasParameterPairs
+	CoveredAliasParameterPairs;
 	/* -------------------------------------------------- */
+
+	
+	private static Logger logger = LoggerFactory.getLogger(RuntimeVariable.class);
+	
+	/**
+	 * check if the variables do satisfy a set of predefined constraints: eg, the
+	 * number of covered targets cannot be higher than their total number
+	 * 
+	 * @param map from (key->variable name) to (value -> output variable)
+	 * @return
+	 */
+	public static boolean validateRuntimeVariables(Map<String,OutputVariable<?>> map){
+
+		boolean valid = true;
+
+		try{
+			Integer totalBranches = getIntegerValue(map,Total_Branches); 
+			Integer coveredBranches = getIntegerValue(map,Covered_Branches); 
+
+			if(coveredBranches!=null && totalBranches!=null && coveredBranches > totalBranches){
+				logger.error("Obtained invalid branch count: covered "+coveredBranches+" out of "+totalBranches);
+				valid = false;
+			}
+			
+			Integer totalGoals = getIntegerValue(map,Total_Goals);
+			Integer coveredGoals = getIntegerValue(map,Covered_Goals); 
+
+			if(coveredGoals!=null && totalGoals!=null && coveredGoals > totalGoals){
+				logger.error("Obtained invalid goal count: covered "+coveredGoals+" out of "+totalGoals);
+				valid = false;
+			}
+			
+			Integer totalMethods = getIntegerValue(map,Total_Methods);
+			Integer coveredMethods = getIntegerValue(map,Covered_Methods); 
+
+			if(coveredMethods!=null && totalMethods!=null && coveredMethods > totalMethods){
+				logger.error("Obtained invalid method count: covered "+coveredMethods+" out of "+totalMethods);
+				valid = false;
+			}
+			
+			if(!map.containsKey("criterion")){
+				logger.error("No testing criterion defined");
+				valid = false;
+			}
+			String criterion = map.get("criterion").toString();
+			
+			Double coverage = getDoubleValue(map,Coverage);
+			Double branchCoverage = getDoubleValue(map,BranchCoverage);
+			
+			if(criterion.equalsIgnoreCase(Criterion.BRANCH.toString()) 
+					&& coverage!=null && branchCoverage!=null){
+				
+				double diff = Math.abs(coverage - branchCoverage);
+				if(diff>0.001){
+					logger.error("Targeting branch coverage, but Coverage is different "+
+							"from BranchCoverage: "+coverage+" != "+branchCoverage);
+					valid = false;
+				}
+			}
+			
+			
+			/*
+			 * TODO there are more things we could check here
+			 */
+			
+		} catch(Exception e){
+			logger.error("Exception while validating runtime variables: "+e.getMessage(),e);
+			valid = false;
+		}
+
+		return valid;
+	}
+	
+	private static Integer getIntegerValue(Map<String,OutputVariable<?>> map, RuntimeVariable variable){
+		OutputVariable<?> out = map.get(variable.toString());
+		if( out != null){
+			return (Integer) out.getValue();
+		} else {
+			return null;
+		}
+	}
+	
+	private static Double getDoubleValue(Map<String,OutputVariable<?>> map, RuntimeVariable variable){
+		OutputVariable<?> out = map.get(variable.toString());
+		if( out != null){
+			return (Double) out.getValue();
+		} else {
+			return null;
+		}
+	}
 };

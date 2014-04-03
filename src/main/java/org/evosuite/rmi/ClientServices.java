@@ -27,7 +27,7 @@ public class ClientServices {
 	
 	private static ClientServices instance = new ClientServices();
 	
-	private ClientNodeImpl clientNode = new DummyClientNodeImpl();
+	private volatile ClientNodeImpl clientNode = new DummyClientNodeImpl();
 	
 	protected ClientServices(){		
 	}
