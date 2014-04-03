@@ -176,6 +176,7 @@ public class TestSuiteGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
 
+	@Deprecated
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
 
 	/** Constant <code>zero_fitness</code> */
@@ -339,15 +340,20 @@ public class TestSuiteGenerator {
 
 				JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
 
-				JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
+				boolean unstable = false;
+				
+				unstable = JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
 				//second passage on reverse order, this is to spot dependencies among tests
 				if (testCases.size() > 1) {
 					Collections.reverse(testCases);
-					JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
+					unstable = JUnitAnalyzer.handleTestsThatAreUnstable(testCases) || unstable;
 				}
+				
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.HadUnstableTests,unstable);
+				
 			} else {
 				logger.error("No Java compiler is available. Are you running with the JDK?");
-			}
+			}			
 		}
 
 		assert !Properties.JUNIT_TESTS
