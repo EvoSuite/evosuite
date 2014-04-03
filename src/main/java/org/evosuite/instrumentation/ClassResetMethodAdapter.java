@@ -30,28 +30,32 @@ public class ClassResetMethodAdapter extends MethodVisitor {
 
 			if (!finalFields.contains(staticField.name)) {
 
-				Type type = Type.getType(staticField.desc);
-				switch (type.getSort()) {
-				case Type.BOOLEAN:
-				case Type.BYTE:
-				case Type.CHAR:
-				case Type.SHORT:
-				case Type.INT:
-					mv.visitInsn(Opcodes.ICONST_0);
-					break;
-				case Type.FLOAT:
-					mv.visitInsn(Opcodes.FCONST_0);
-					break;
-				case Type.LONG:
-					mv.visitInsn(Opcodes.LCONST_0);
-					break;
-				case Type.DOUBLE:
-					mv.visitInsn(Opcodes.DCONST_0);
-					break;
-				case Type.ARRAY:
-				case Type.OBJECT:
-					mv.visitInsn(Opcodes.ACONST_NULL);
-					break;
+				if (staticField.value != null) {
+					mv.visitLdcInsn(staticField.value);
+				} else {
+					Type type = Type.getType(staticField.desc);
+					switch (type.getSort()) {
+					case Type.BOOLEAN:
+					case Type.BYTE:
+					case Type.CHAR:
+					case Type.SHORT:
+					case Type.INT:
+						mv.visitInsn(Opcodes.ICONST_0);
+						break;
+					case Type.FLOAT:
+						mv.visitInsn(Opcodes.FCONST_0);
+						break;
+					case Type.LONG:
+						mv.visitInsn(Opcodes.LCONST_0);
+						break;
+					case Type.DOUBLE:
+						mv.visitInsn(Opcodes.DCONST_0);
+						break;
+					case Type.ARRAY:
+					case Type.OBJECT:
+						mv.visitInsn(Opcodes.ACONST_NULL);
+						break;
+					}
 				}
 				mv.visitFieldInsn(Opcodes.PUTSTATIC, className,
 						staticField.name, staticField.desc);

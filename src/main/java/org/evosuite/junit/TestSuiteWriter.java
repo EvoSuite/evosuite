@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.swing.DebugGraphics;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -357,6 +361,9 @@ public class TestSuiteWriter implements Opcodes {
 			imports.addAll(visitor.getImports());
 		}
 
+		imports.add(PrintStream.class);
+		imports.add(DebugGraphics.class);
+		
 		Set<String> import_names = new HashSet<String>();
 		for (Class<?> imp : imports) {
 			while (imp.isArray())
@@ -702,14 +709,19 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateAfter(StringBuilder bd, boolean wasSecurityException) {
 
-		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS) {
-			return;
-		}
-
 		bd.append(METHOD_SPACE);
 		bd.append("@After \n");
 		bd.append(METHOD_SPACE);
 		bd.append("public void doneWithTestCase(){ \n");
+
+		bd.append(BLOCK_SPACE);
+		bd.append("System.setErr(systemErr); \n");
+
+		bd.append(BLOCK_SPACE);
+		bd.append("System.setOut(systemOut); \n");
+
+		bd.append(BLOCK_SPACE);
+		bd.append("DebugGraphics.setLogStream(logStream); \n");
 
 		if (wasSecurityException) {
 			bd.append(BLOCK_SPACE);
@@ -731,8 +743,6 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
 		}
 
-
-
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
@@ -751,6 +761,17 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append(METHOD_SPACE);
 		bd.append("public void initTestCase(){ \n");
 
+		bd.append(BLOCK_SPACE);
+		bd.append("systemErr = System.err;");
+		bd.append(" \n");
+
+		bd.append(BLOCK_SPACE);
+		bd.append("systemOut = System.out;");
+		bd.append(" \n");
+		
+		bd.append(BLOCK_SPACE);
+		bd.append("logStream = DebugGraphics.logStream();");
+		bd.append(" \n");		
 		if(shouldResetProperties(results)){			
 			bd.append(BLOCK_SPACE);
 			bd.append("setSystemProperties();");
@@ -936,6 +957,16 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateFields(StringBuilder bd, boolean wasSecurityException, List<ExecutionResult> results) {
 
+		bd.append(METHOD_SPACE);
+		bd.append("private PrintStream systemOut = null;"+'\n');
+
+		bd.append(METHOD_SPACE);
+		bd.append("private PrintStream systemErr = null;"+'\n');
+		
+		bd.append(METHOD_SPACE);
+		bd.append("private PrintStream logStream = null;"+'\n');
+		
+
 		if (wasSecurityException) {
 			bd.append(METHOD_SPACE);
 			bd.append("private static ExecutorService " + EXECUTOR_SERVICE + "; \n");
@@ -1022,7 +1053,7 @@ public class TestSuiteWriter implements Opcodes {
 			methodName = "test" + targetMethod + num;
 			builder.append(adapter.getMethodDefinition(methodName));
 		} else {
-			methodName = getNameOfTest(null, number);
+			methodName = getNameOfTest(testCases, number);
 			builder.append(adapter.getMethodDefinition(methodName));
 		}
 
@@ -1113,7 +1144,11 @@ public class TestSuiteWriter implements Opcodes {
 					"For the moment, structured tests are not supported");
 		}
 
-		return "test" + position;
+		int totalNumberOfTests = tests.size();
+		String totalNumberOfTestsString = String.valueOf(totalNumberOfTests-1);
+		String testNumber = StringUtils.leftPad(String.valueOf(position), totalNumberOfTestsString.length(), "0");
+		String testName = "test" + testNumber;
+		return testName;
 	}
 
 	/**
