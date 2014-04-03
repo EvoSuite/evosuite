@@ -23,7 +23,8 @@ public enum ClientState {
 	ASSERTION_GENERATION("Generating assertions", "Adding assertions to the test cases", 8),
 	WRITING_STATISTICS("Statistics", "Writing statistics to disk", 9),
 	WRITING_TESTS("JUnit", "Writing JUnit tests to disk", 10),
-	DONE("Done", "EvoSuite is finished", 11);
+	DONE("Done", "Test case generation is finished", 11),
+	FINISHED("Finished", "Client process is fully finished", 12);
 
 	private String name;
 	private String description;
@@ -155,9 +156,16 @@ public enum ClientState {
 			
 		case 10: // writing tests
 			startProgress = 95;				
+			maxProgress = 98;
+			progress = startProgress;
+			break;
+			
+		case 11: // shutting down
+			startProgress = 99;				
 			maxProgress = 100;
 			progress = startProgress;
 			break;
+						
 		default:
 			startProgress = 100;				
 			maxProgress = 100;

@@ -36,10 +36,32 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientNodeImpl.class);
 
+	/**
+	 * The current state/phase in which this client process is (eg, search or assertion generation)
+	 */
 	private volatile ClientState state;
+
+	/**
+	 * RMI reference used to communicate with the master node
+	 */
 	private MasterNodeRemote masterNode;
+
+	/**
+	 * A unique identifier for this client process (needed if running several clients in parallel)
+	 */
 	private String clientRmiIdentifier;
-	protected volatile CountDownLatch latch;
+
+	/**
+	 * A latch used to wait till the test generation is done
+	 */
+	protected volatile CountDownLatch doneLatch;
+
+	/**
+	 * A latch used to wait for this process to be fully finished
+	 */
+	protected volatile CountDownLatch finishedLatch;
+
+
 	protected Registry registry;
 
 	protected final ExecutorService searchExecutor = Executors.newSingleThreadExecutor();
@@ -47,7 +69,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	private final BlockingQueue<OutputVariable> outputVariableQueue = new LinkedBlockingQueue<OutputVariable>();
 
 	private Thread statisticsThread; 
-	
+
 	//only for testing
 	protected ClientNodeImpl() {
 	}
@@ -59,7 +81,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		 * TODO: for now it is a constant because we have only one client
 		 */
 		clientRmiIdentifier = "ClientNode";
-		latch = new CountDownLatch(1);
+		doneLatch = new CountDownLatch(1);
+		finishedLatch = new CountDownLatch(1);
 	}
 
 	private static class OutputVariable {
@@ -93,7 +116,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 					Sandbox.initializeSecurityManagerForSUT();
 				}
 				TestGenerationResult result;
-				
+
 				try {
 					// Starting a new search
 					TestSuiteGenerator generator = new TestSuiteGenerator();
@@ -110,11 +133,11 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 					masterNode.evosuite_collectTestGenerationResult(clientRmiIdentifier, result);
 				} catch (Throwable t) {
 					logger.error("Error when generating tests for: "
-					                     + Properties.TARGET_CLASS + " with seed "
-					                     + Randomness.getSeed() + ". Configuration id : "
-					                     + Properties.CONFIGURATION_ID, t);
+							+ Properties.TARGET_CLASS + " with seed "
+							+ Randomness.getSeed() + ". Configuration id : "
+							+ Properties.CONFIGURATION_ID, t);
 					result = TestGenerationResultBuilder.buildErrorResult("Error when generating tests for: "
-		                     + Properties.TARGET_CLASS+": "+t); 
+							+ Properties.TARGET_CLASS+": "+t); 
 				}
 
 				changeState(ClientState.DONE);
@@ -125,7 +148,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 					 */
 					Sandbox.resetDefaultSecurityManager();
 				}
-				
+
 				/*
 				 * System is special due to the handling of properties
 				 * 
@@ -149,15 +172,15 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 
 	@Override
-	public boolean waitUntilDone(long timeoutInMs) throws RemoteException,
-	        InterruptedException {
-		return latch.await(timeoutInMs, TimeUnit.MILLISECONDS);
+	public boolean waitUntilFinished(long timeoutInMs) throws RemoteException,
+	InterruptedException {
+		return finishedLatch.await(timeoutInMs, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
 	public void waitUntilDone() {
 		try {
-			latch.await();
+			doneLatch.await();
 		} catch (InterruptedException e) {
 		}
 	}
@@ -172,20 +195,23 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		if (this.state != state){
 			logger.info("Client changing state from " + this.state + " to " + state);
 		}
-						
+
 		this.state = state;
 
 		TimeController.getInstance().updateState(state);
-		
-		if (this.state.equals(ClientState.DONE)) {
-			latch.countDown();
-		}
 
 		try {
-			masterNode.evosuite_informChangeOfStateInClient(clientRmiIdentifier, state,
-			                                       information);
+			masterNode.evosuite_informChangeOfStateInClient(clientRmiIdentifier, state,information);
 		} catch (RemoteException e) {
 			logger.error("Cannot inform master of change of state", e);
+		}
+
+		if (this.state.equals(ClientState.DONE)) {
+			doneLatch.countDown();
+		}
+
+		if (this.state.equals(ClientState.FINISHED)) {
+			finishedLatch.countDown();
 		}
 	}
 
@@ -221,15 +247,17 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 			}
 			statisticsThread = null;
 		}
+
+		changeState(ClientState.FINISHED);
 	}
-	
+
 	@Override
 	public boolean init() {
 		try {
 			masterNode = (MasterNodeRemote) registry.lookup(MasterNodeRemote.RMI_SERVICE_NAME);
 			masterNode.evosuite_registerClientNode(clientRmiIdentifier);
 			masterNode.evosuite_informChangeOfStateInClient(clientRmiIdentifier, state,
-			                                       new ClientStateInformation(state));
+					new ClientStateInformation(state));
 
 			statisticsThread = new Thread() {
 				@Override
@@ -237,7 +265,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 					while (!this.isInterrupted()) {
 						OutputVariable ov = null;
 						try {
-							ov = outputVariableQueue.take();
+							ov = outputVariableQueue.take(); //this is blocking
 							masterNode.evosuite_collectStatistics(clientRmiIdentifier, ov.variable, ov.value);
 						} catch (InterruptedException e) {
 							break;
@@ -286,9 +314,9 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 				} catch (Throwable t) {
 					logger.error("Error when analysing coverage for: "
-					                     + Properties.TARGET_CLASS + " with seed "
-					                     + Randomness.getSeed() + ". Configuration id : "
-					                     + Properties.CONFIGURATION_ID, t);
+							+ Properties.TARGET_CLASS + " with seed "
+							+ Randomness.getSeed() + ". Configuration id : "
+							+ Properties.CONFIGURATION_ID, t);
 				}
 
 				changeState(ClientState.DONE);
@@ -302,7 +330,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 			}
 		});
 	}
-	
+
 	@Override
 	public void doDependencyAnalysis(final String fileName) throws RemoteException {
 		if (!state.equals(ClientState.NOT_STARTED)) {
@@ -333,9 +361,9 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 					Utils.writeFile(fileNames.toString(), fileName);
 				} catch (Throwable t) {
 					logger.error("Error when analysing coverage for: "
-					                     + Properties.TARGET_CLASS + " with seed "
-					                     + Randomness.getSeed() + ". Configuration id : "
-					                     + Properties.CONFIGURATION_ID, t);
+							+ Properties.TARGET_CLASS + " with seed "
+							+ Randomness.getSeed() + ". Configuration id : "
+							+ Properties.CONFIGURATION_ID, t);
 				} finally {
 					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 					Sandbox.doneWithExecutingSUTCode();
@@ -369,9 +397,9 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 				} catch (Throwable t) {
 					logger.error("Error when analysing coverage for: "
-					                     + Properties.TARGET_CLASS + " with seed "
-					                     + Randomness.getSeed() + ". Configuration id : "
-					                     + Properties.CONFIGURATION_ID, t);
+							+ Properties.TARGET_CLASS + " with seed "
+							+ Randomness.getSeed() + ". Configuration id : "
+							+ Properties.CONFIGURATION_ID, t);
 				}
 
 				changeState(ClientState.DONE);

@@ -16,7 +16,14 @@ public interface ClientNodeRemote extends Remote {
 
 	public void cancelCurrentSearch() throws RemoteException;
 
-	public boolean waitUntilDone(long timeoutInMs) throws RemoteException,
+	/**
+	 * 
+	 * @param timeoutInMs  maximum amount of time we can wait for the client to finish
+	 * @return <code>true</code> if client is finished
+	 * @throws RemoteException
+	 * @throws InterruptedException
+	 */
+	public boolean waitUntilFinished(long timeoutInMs) throws RemoteException,
 	        InterruptedException;
 
 	public void doCoverageAnalysis() throws RemoteException;

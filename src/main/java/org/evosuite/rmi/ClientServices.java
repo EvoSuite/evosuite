@@ -47,7 +47,7 @@ public class ClientServices {
 			ClientNodeRemote stub = (ClientNodeRemote) UtilsRMI.exportObject(clientNode);
 			registry.rebind(clientNode.getClientRmiIdentifier(), stub);
 			return clientNode.init();
-		} catch(RemoteException e){
+		} catch(Exception e){
 			logger.error("Failed to register client services",e);
 			return false;
 		}
@@ -72,7 +72,8 @@ public class ClientServices {
 					done = UnicastRemoteObject.unexportObject(clientNode, false);
 					try {
 						Thread.sleep(1000);
-					} catch (InterruptedException e) {						
+					} catch (InterruptedException e) {	
+						break;
 					}
 					i++;
 					if(i>=tries){
@@ -81,7 +82,8 @@ public class ClientServices {
 					}
 				}
 			} catch (NoSuchObjectException e) {
-				logger.warn("Failed to delete ClientNode RMI instance",e);
+				//this could happen if Master has removed the registry
+				logger.debug("Failed to delete ClientNode RMI instance",e);
 			}
 			clientNode = new DummyClientNodeImpl();
 		}
