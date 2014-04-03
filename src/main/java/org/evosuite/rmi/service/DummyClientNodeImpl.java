@@ -67,7 +67,7 @@ public class DummyClientNodeImpl extends ClientNodeImpl {
 	}
 
 	@Override
-	public boolean waitUntilDone(long timeoutInMs) throws RemoteException,
+	public boolean waitUntilFinished(long timeoutInMs) throws RemoteException,
 			InterruptedException {
 		// TODO Auto-generated method stub
 		return false;

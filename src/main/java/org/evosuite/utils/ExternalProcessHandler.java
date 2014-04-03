@@ -567,7 +567,7 @@ public class ExternalProcessHandler {
 				long passed = System.currentTimeMillis() - start;
 				long remaining = timeout - passed;
 				if(remaining <=0 ){ remaining = 1;}
-				boolean finished = client.waitUntilDone(remaining);
+				boolean finished = client.waitUntilFinished(remaining);
 
 				if(!finished){
 					/*
