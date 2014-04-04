@@ -107,9 +107,9 @@ public enum RuntimeVariable {
 	Minimized_Length,
 	/** The random seed used during the search. A random one was used if none was specified at the beginning */
 	Random_Seed,
-	/** TODO */
+	/** How many tests were carved, ie used as input seeds for the search */
 	CarvedTests,
-	/** TODO */
+	/** The branch coverage of the carved tests */
 	CarvedCoverage, 
 	/** Was any test unstable in the generated JUnit files? */
 	HadUnstableTests, 
