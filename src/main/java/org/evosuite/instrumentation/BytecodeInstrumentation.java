@@ -25,6 +25,7 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
+import org.evosuite.reset.ResetManager;
 import org.evosuite.seeding.PrimitiveClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
@@ -33,7 +34,6 @@ import org.evosuite.testcarver.instrument.JSRInlinerClassVisitor;
 import org.evosuite.testcarver.instrument.TransformerUtil;
 import org.evosuite.utils.ComputeClassWriter;
 import org.evosuite.utils.Utils;
-import org.hamcrest.core.IsInstanceOf;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -316,17 +316,19 @@ public class BytecodeInstrumentation {
 		// If we need to reset static constructors, make them
 		// explicit methods
 		if (Properties.RESET_STATIC_FIELDS) {
+			// Add a callback before leaving the <clinit> method
+			if (!isIntrumentationUnderJavaAgent()) {
+				ExitClassInitAdapter signalClassInitAdapter = new ExitClassInitAdapter(cv, className);
+				cv = signalClassInitAdapter;
+			}
+			// Create a __STATIC_RESET() cloning the original <clinit> method or create one by default
 			CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
-			if (getRemoveFinalFieldModifier() || isIntrumentationUnderJavaAgent()) {
+			if (ResetManager.getInstance().getResetFinalFields() || isIntrumentationUnderJavaAgent()) {
 				resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
 			} else {
 				resetClassAdapter.setRemoveFinalModifierOnStaticFields(false);
 			}
 			cv = resetClassAdapter;
-			if (!isIntrumentationUnderJavaAgent()) {
-				SignalClassInitializationClassAdapter signalClassInitAdapter = new SignalClassInitializationClassAdapter(cv, className);
-				cv = signalClassInitAdapter;
-			}
 		}
 
 		// Replace calls to System.exit, Random.*, and System.currentTimeMillis
@@ -429,14 +431,6 @@ public class BytecodeInstrumentation {
 	}
 	private boolean isIntrumentationUnderJavaAgent() {
 		return instrumentationUnderJavaAgent;
-	}
-
-	private boolean removeFinalFieldModifier = false;
-	public void setRemoveFinalFieldModifier(boolean removeFinalFieldModifier ) {
-		this.removeFinalFieldModifier = removeFinalFieldModifier ; 
-	}
-	private boolean getRemoveFinalFieldModifier() {
-		return removeFinalFieldModifier;
 	}
 
 }

@@ -567,11 +567,4 @@ public interface ExecutionTrace {
 
 	public Set<String> getClassesForStaticReset();
 
-	/**
-	 * Reports that a <clinit> method execution began.
-	 * 
-	 * @param classNameWithDots
-	 */
-	public void classInitializationMethodPassed(String classNameWithDots);
-
 }

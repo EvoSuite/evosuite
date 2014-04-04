@@ -11,11 +11,11 @@ import org.objectweb.asm.Opcodes;
  * @author galeotti
  *
  */
-public class SignalClassInitializationClassAdapter extends ClassVisitor {
+public class ExitClassInitAdapter extends ClassVisitor {
 
 	private final String className;
 
-	public SignalClassInitializationClassAdapter(ClassVisitor visitor,
+	public ExitClassInitAdapter(ClassVisitor visitor,
 			String className) {
 		super(Opcodes.ASM4, visitor);
 		this.className = className;
@@ -30,7 +30,7 @@ public class SignalClassInitializationClassAdapter extends ClassVisitor {
 
 		if (methodName.equals("<clinit>")) {
 
-			SignalClassInitializationMethodAdapter staticResetMethodAdapter = new SignalClassInitializationMethodAdapter(
+			ExitClassInitMethodAdapter staticResetMethodAdapter = new ExitClassInitMethodAdapter(
 					className, methodName, mv);
 
 			return staticResetMethodAdapter;

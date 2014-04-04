@@ -54,6 +54,7 @@ public class ExecutionTracer {
 
 	private ExecutionTrace trace;
 
+
 	private static boolean checkCallerThread = true;
 
 	/**
@@ -498,20 +499,6 @@ public class ExecutionTracer {
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
 	}
 
-	public static void passedClassInitializationMethod(String classNameWithDots) {
-		ExecutionTracer tracer = getExecutionTracer();
-		if (tracer.disabled)
-			return;
-
-		if (isThreadNeqCurrentThread())
-			return;
-
-		checkTimeout();
-		
-		tracer.trace.classInitializationMethodPassed(classNameWithDots);
-	}
-
-	
 	public static void passedPutStatic(String classNameWithDots, String fieldName) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)

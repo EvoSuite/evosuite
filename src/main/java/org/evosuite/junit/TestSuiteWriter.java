@@ -54,6 +54,7 @@ import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.reset.ResetManager;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.ClassResetter;
@@ -631,20 +632,20 @@ public class TestSuiteWriter implements Opcodes {
 		
 		generateSetSystemProperties(bd, results);
 		
-		if (TestGenerationContext.getInstance().hasClassesLoadedBySUT()) {
-			generateLoadSUTClasses(bd, TestGenerationContext
-					.getInstance().getClassesLoadedBySUT());
+		if (Properties.RESET_STATIC_FIELDS) {
+			generateLoadSUTClasses(bd, ResetManager
+					.getInstance().getClassResetOrder());
 		}
 		
 		return bd.toString();
 	}
 
-	private void generateLoadSUTClasses(StringBuilder bd,Set<String> classesLoadedBySUT) {
+	private void generateLoadSUTClasses(StringBuilder bd, List<String> classesToBeReset) {
 		bd.append(METHOD_SPACE);
 		bd.append("private static void loadSUTClasses() {\n");
 		
 		
-		LinkedList<String> sortedClassNames = new LinkedList<String>(classesLoadedBySUT);
+		LinkedList<String> sortedClassNames = new LinkedList<String>(classesToBeReset);
 		Collections.sort(sortedClassNames);
 
 		bd.append(BLOCK_SPACE);
@@ -729,10 +730,9 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		if (Properties.RESET_STATIC_FIELDS) {
-			Set<String> resettableClasses = TestCaseExecutor.getInstance().getResettableClasses();
-			LinkedList<String> sortedResettableClasses = new LinkedList<String>(resettableClasses);
-			Collections.sort(sortedResettableClasses);
-			for (String className : sortedResettableClasses) {
+			List<String> orderedClasses = ResetManager.getInstance().getClassResetOrder();
+			logger.debug("reset class order is " + orderedClasses.toString());
+			for (String className : orderedClasses) {
 				bd.append(BLOCK_SPACE);
 				bd.append(ClassResetter.class.getCanonicalName() + ".getInstance().reset(\"" + className + "\"); \n");
 			}
@@ -939,7 +939,7 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append(EXECUTOR_SERVICE + " = Executors.newCachedThreadPool(); \n");
 		}
 
-		if (TestGenerationContext.getInstance().hasClassesLoadedBySUT()) {
+		if (Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("loadSUTClasses();" +"\n");
 		}

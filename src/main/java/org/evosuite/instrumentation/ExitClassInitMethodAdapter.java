@@ -22,7 +22,7 @@ package org.evosuite.instrumentation;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
-import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.reset.ResetManager;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -33,9 +33,9 @@ import org.objectweb.asm.Type;
  *
  * @author Juan Galeotti
  */
-public class SignalClassInitializationMethodAdapter extends MethodVisitor {
+public class ExitClassInitMethodAdapter extends MethodVisitor {
 
-	private static final String PASSED_CLASS_INITIALIZATION_METHOD = "passedClassInitializationMethod";
+	private static final String EXIT_CLASS_INIT = "exitClassInit";
 	private final String className;
 	private final String methodName;
 
@@ -46,7 +46,7 @@ public class SignalClassInitializationMethodAdapter extends MethodVisitor {
 	 * @param className a {@link java.lang.String} object.
 	 * @param finalFields a {@link java.util.List} object.
 	 */
-	public SignalClassInitializationMethodAdapter(String className,
+	public ExitClassInitMethodAdapter(String className,
 			String methodName, MethodVisitor mv) {
 		super(Opcodes.ASM4, mv);
 		this.className = className;
@@ -54,22 +54,22 @@ public class SignalClassInitializationMethodAdapter extends MethodVisitor {
 	}
 
 	@Override
-	public void visitCode() {
-		super.visitCode();
-
-		if (methodName.equals("<clinit>")) {
-			String executionTracerClassName = ExecutionTracer.class.getName()
+	public void visitInsn(int opcode) {
+		
+		if (opcode==Opcodes.RETURN && (methodName.equals("<clinit>"))) {
+			
+			String executionTracerClassName = ResetManager.class.getName()
 					.replace(".", "/");
 			String executionTracerDescriptor = Type.getMethodDescriptor(
 					Type.VOID_TYPE, Type.getType(String.class));
 
 			String classNameWithDots = className.replace("/", ".");
-			mv.visitLdcInsn(classNameWithDots);
-			mv.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
-					PASSED_CLASS_INITIALIZATION_METHOD, executionTracerDescriptor);
+			super.visitLdcInsn(classNameWithDots);
+			super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
+					EXIT_CLASS_INIT, executionTracerDescriptor);
 
 		}
-
+		super.visitInsn(opcode);
 	}
 
 }
