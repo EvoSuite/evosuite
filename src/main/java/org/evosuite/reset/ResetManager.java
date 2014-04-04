@@ -14,13 +14,17 @@ public class ResetManager {
 		return instance;
 	}
 
-	public synchronized static void clearInstance() {
-		instance = new ResetManager();
+	public void clearManager() {
+		resetAllClasses = false;
+		tracingIsEnabled = true;
+		classInitializationOrder.clear();;
+		resetFinalFields = false;
 	}
 	
 	private boolean resetAllClasses = false;
 	private boolean tracingIsEnabled = true;
 	private final List<String> classInitializationOrder = new LinkedList<String>();
+	private boolean resetFinalFields = false;
 
 	private ResetManager() {
 		
@@ -65,7 +69,6 @@ public class ResetManager {
 		this.resetAllClasses = b;
 	}
 
-	private boolean resetFinalFields = false;
 	public void setResetFinalFields(boolean b) {
 		resetFinalFields = b;
 	}
