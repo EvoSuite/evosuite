@@ -1,4 +1,4 @@
-package org.evosuite.runtime;
+package org.evosuite.reset;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.evosuite.TestGenerationContext;
-import org.evosuite.agent.ToolsJarLocator;
 
 /**
  * This class resets the static fields of a given class by invoking the <clinit> class initializer.

@@ -54,10 +54,10 @@ import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.reset.ClassResetter;
 import org.evosuite.reset.ResetManager;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.Runtime;
-import org.evosuite.runtime.ClassResetter;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
@@ -731,7 +731,6 @@ public class TestSuiteWriter implements Opcodes {
 
 		if (Properties.RESET_STATIC_FIELDS) {
 			List<String> orderedClasses = ResetManager.getInstance().getClassResetOrder();
-			logger.debug("reset class order is " + orderedClasses.toString());
 			for (String className : orderedClasses) {
 				bd.append(BLOCK_SPACE);
 				bd.append(ClassResetter.class.getCanonicalName() + ".getInstance().reset(\"" + className + "\"); \n");

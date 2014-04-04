@@ -5,7 +5,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import org.evosuite.instrumentation.BytecodeInstrumentation;
-import org.evosuite.runtime.ClassResetter;
+import org.evosuite.reset.ClassResetter;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

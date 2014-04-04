@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.evosuite.TestGenerationContext;
-import org.evosuite.runtime.ClassResetter;
 import org.evosuite.runtime.Runtime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
