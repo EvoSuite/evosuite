@@ -198,7 +198,8 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			addCalendarCalls();
 
 			// java.util.Random
-			addRandomCalls();
+			// Is now handled by MockRandom
+			// addRandomCalls();
 
 			// java.security.SecureRandom
 			addSecureRandomCalls();
