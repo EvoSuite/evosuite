@@ -4,7 +4,9 @@
 package org.evosuite.coverage;
 
 import java.text.NumberFormat;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -15,6 +17,7 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.SearchStatistics;
@@ -90,9 +93,11 @@ public class CoverageAnalysis {
 			*/
 
 		Properties.CRITERION = criterion;
+		
 		LoggingUtils.getEvoLogger().info("Re-instrumenting for criterion: "
 		                                         + Properties.CRITERION);
 		TestGenerationContext.getInstance().resetContext();
+		
 		// Need to load class explicitly in case there are no test cases.
 		// If there are tests, then this is redundant
 		Properties.getTargetClass();

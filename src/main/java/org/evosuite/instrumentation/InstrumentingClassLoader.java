@@ -207,18 +207,6 @@ public class InstrumentingClassLoader extends ClassLoader {
 	    }
 	}
 	
-	/**
-	 * Returns a set of class names that were loaded by the 
-	 * current instance of this class loader
-	 * 
-	 * @return a set of class names in fully qualified format
-	 */
-	public Set<String> getLoadedClasses() {
-		Set<String> classNames = new HashSet<String>();
-		classNames.addAll(this.classes.keySet());
-		return classNames;
-	}
-
 	public BytecodeInstrumentation getInstrumentation() {
 		return instrumentation;
 	}
