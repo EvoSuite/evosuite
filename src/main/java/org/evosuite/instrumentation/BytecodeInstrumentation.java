@@ -33,6 +33,7 @@ import org.evosuite.testcarver.instrument.JSRInlinerClassVisitor;
 import org.evosuite.testcarver.instrument.TransformerUtil;
 import org.evosuite.utils.ComputeClassWriter;
 import org.evosuite.utils.Utils;
+import org.hamcrest.core.IsInstanceOf;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -315,13 +316,17 @@ public class BytecodeInstrumentation {
 		// If we need to reset static constructors, make them
 		// explicit methods
 		if (Properties.RESET_STATIC_FIELDS) {
-			ClassResetClassAdapter resetClassAdapter = new ClassResetClassAdapter(cv, className);
+			CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
 			if (getRemoveFinalFieldModifier() || isIntrumentationUnderJavaAgent()) {
 				resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
 			} else {
 				resetClassAdapter.setRemoveFinalModifierOnStaticFields(false);
 			}
 			cv = resetClassAdapter;
+			if (!isIntrumentationUnderJavaAgent()) {
+				SignalClassInitializationClassAdapter signalClassInitAdapter = new SignalClassInitializationClassAdapter(cv, className);
+				cv = signalClassInitAdapter;
+			}
 		}
 
 		// Replace calls to System.exit, Random.*, and System.currentTimeMillis

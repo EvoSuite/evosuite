@@ -2,12 +2,12 @@ package org.evosuite.instrumentation;
 
 import java.util.List;
 
-import org.evosuite.instrumentation.ClassResetClassAdapter.StaticField;
+import org.evosuite.instrumentation.CreateClassResetClassAdapter.StaticField;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-public class ClassResetMethodAdapter extends MethodVisitor {
+public class CreateClassResetMethodAdapter extends MethodVisitor {
 
 	private final List<StaticField> staticFields;
 
@@ -15,7 +15,7 @@ public class ClassResetMethodAdapter extends MethodVisitor {
 
 	private final List<String> finalFields;
 
-	public ClassResetMethodAdapter(MethodVisitor mv, String className,
+	public CreateClassResetMethodAdapter(MethodVisitor mv, String className,
 			List<StaticField> staticFields, List<String> finalFields) {
 		super(Opcodes.ASM4, mv);
 		this.className = className;
