@@ -25,6 +25,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.reset.ResetManager;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.utils.Randomness;
 import org.junit.After;
@@ -52,6 +53,7 @@ public class SystemTest {
 	@After
 	public void resetStaticVariables() {
 		TestGenerationContext.getInstance().resetContext();
+		ResetManager.getInstance().clearManager();
 		System.setProperties(currentProperties);
 	}
 
@@ -83,6 +85,7 @@ public class SystemTest {
 		Properties.STATISTICS_BACKEND = StatisticsBackend.CONSOLE;
 		
 		TestGenerationContext.getInstance().resetContext();
+		ResetManager.getInstance().clearManager();
 		Randomness.setSeed(42);
 
 		currentProperties = (java.util.Properties) System.getProperties().clone();
