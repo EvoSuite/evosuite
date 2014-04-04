@@ -98,7 +98,7 @@ public class MSecurityManager extends SecurityManager {
 	private static final String JAVA_VERSION = System.getProperty("java.version");
 
 	private static final String AWT_HEADLESS = System.getProperty("java.awt.headless");
-	
+
 	/**
 	 * Needed for the VFS
 	 */
@@ -115,7 +115,7 @@ public class MSecurityManager extends SecurityManager {
 	 * we can end up in a infinite recursion.
 	 */
 	private final Set<File> filesToDelete;
-	
+
 	static{
 		File tmp = null;
 		try {
@@ -181,7 +181,7 @@ public class MSecurityManager extends SecurityManager {
 			names.add(m.getName());
 		}
 		masterNodeRemoteMethodNames = Collections.unmodifiableSet(names);
-		
+
 		filesToDelete = new CopyOnWriteArraySet<File>();
 	}
 
@@ -190,7 +190,7 @@ public class MSecurityManager extends SecurityManager {
 		set.addAll(privilegedThreads);
 		return set;
 	}
-	
+
 	/**
 	 * This security manager creates one file when its class is loaded.
 	 * This file will be used for example by the virtual file system.
@@ -305,18 +305,18 @@ public class MSecurityManager extends SecurityManager {
 		if (!executingTestCase) {
 			throw new IllegalStateException();
 		}
-		
+
 		/*
 		 * it is important to call this method here as soon as the test case
 		 * has finished executing, because properties could be used by 
 		 * EvoSuite as well
 		 */
 		org.evosuite.runtime.System.restoreProperties();
-		
+
 		for(File file : filesToDelete){
 			file.deleteOnExit();
 		}
-		
+
 		executingTestCase = false;
 	}
 
@@ -1068,10 +1068,19 @@ public class MSecurityManager extends SecurityManager {
 	}
 
 	protected boolean checkPropertyPermission(PropertyPermission perm) {
+
+		/*
+		 * TODO: this will need to be removed once REPLACE_CALLS
+		 * will be on by default 
+		 */
+		if (perm.getName().equals("sun.font.fontmanager")){
+			return true;
+		}
+
 		if(perm.getActions().contains("write") && !executingTestCase){
 			return false;  // just to be sure
 		}
-		
+
 		return org.evosuite.runtime.System.handlePropertyPermission(perm);
 	}
 
@@ -1125,7 +1134,7 @@ public class MSecurityManager extends SecurityManager {
 				//tmpFile.deleteOnExit(); //Note: we cannot do it here, otherwise we end up in a infinite recursion...
 				//filesToDelete.add(tmpFile);
 			}
-			
+
 			if(isTmpFile || isFileHandlerFile){
 				return true;
 			}
