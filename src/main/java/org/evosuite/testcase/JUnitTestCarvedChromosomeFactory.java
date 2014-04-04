@@ -10,7 +10,9 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientNodeLocal;
 import org.evosuite.rmi.service.ClientState;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcarver.extraction.CarvingRunListener;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
@@ -131,7 +133,7 @@ public class JUnitTestCarvedChromosomeFactory implements
 		// junitTests.addAll(listener.getTestCases());
 
 		if (junitTests.size() > 0) {
-			totalNumberOfTestsCarved += junitTests.size();
+			totalNumberOfTestsCarved = junitTests.size();
 
 			LoggingUtils.getEvoLogger().info("* Carved {} tests from existing JUnit tests",
 			                                 junitTests.size());
@@ -157,6 +159,10 @@ public class JUnitTestCarvedChromosomeFactory implements
 			        + Arrays.toString(junitTestNames.toArray())
 			        + ". Test execution results: " + outcome);
 		}
+		
+		ClientNodeLocal client = ClientServices.getInstance().getClientNode();
+		client.trackOutputVariable(RuntimeVariable.CarvedTests, totalNumberOfTestsCarved);
+		client.trackOutputVariable(RuntimeVariable.CarvedCoverage,carvedCoverage);
 	}
 
 	public boolean hasCarvedTestCases() {
