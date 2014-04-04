@@ -569,4 +569,9 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 		return trace.getClassesForStaticReset();
 	}
 
+	@Override
+	public void classInitializationMethodPassed(String classNameWithDots) {
+		trace.classInitializationMethodPassed(classNameWithDots);
+	}
+
 }

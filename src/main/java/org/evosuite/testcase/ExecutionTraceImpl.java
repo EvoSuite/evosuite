@@ -1506,6 +1506,12 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		staticFieldUpdatedForClasses.add(classNameWithDots);		
 	}
 
+	private List<String> initializedClasses = new LinkedList<String>();
+	@Override
+	public void classInitializationMethodPassed(String classNameWithDots) {
+		initializedClasses.add(classNameWithDots);		
+	}
+	
 	@Override
 	public Set<String> getClassesForStaticReset() {
 		return staticFieldUpdatedForClasses;
