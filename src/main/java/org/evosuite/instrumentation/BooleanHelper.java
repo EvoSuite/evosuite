@@ -284,6 +284,9 @@ public class BooleanHelper {
 		} else {
 			double diff = d1 - d2;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0 + Math.abs(diff));
+			if(Double.isNaN(diff2)) {
+				return Integer.MAX_VALUE;
+			}
 			//			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
 			int d3 = (int) (diff2 < 0 ? Math.floor(Integer.MAX_VALUE * diff2)
 			        : Math.ceil(Integer.MAX_VALUE * diff2));
@@ -313,6 +316,9 @@ public class BooleanHelper {
 		} else {
 			double diff = f1 - f2;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
+			if(Double.isNaN(diff2)) {
+				return Integer.MAX_VALUE;
+			}
 			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
 			if (Properties.DYNAMIC_SEEDING) {
 				ConstantPoolManager.getInstance().addDynamicConstant(f1);
