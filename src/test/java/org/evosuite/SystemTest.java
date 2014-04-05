@@ -55,12 +55,15 @@ public class SystemTest {
 		TestGenerationContext.getInstance().resetContext();
 		ResetManager.getInstance().clearManager();
 		System.setProperties(currentProperties);
+		Properties.getInstance().resetToDefaults();
 	}
 
 	@Before
 	public void setDefaultPropertiesForTestCases() {
 		
 		ClientProcess.geneticAlgorithmStatus = null;
+		
+		Properties.getInstance().resetToDefaults();
 		
 		Properties.HTML = false;
 		Properties.SHOW_PROGRESS = false;
