@@ -16,6 +16,7 @@ import org.evosuite.mock.java.lang.MockException;
 import org.evosuite.mock.java.lang.MockThrowable;
 import org.evosuite.mock.java.util.MockDate;
 import org.evosuite.mock.java.util.MockGregorianCalendar;
+import org.evosuite.mock.java.util.MockRandom;
 import org.evosuite.mock.java.util.logging.MockFileHandler;
 import org.evosuite.mock.java.util.logging.MockLogRecord;
 import org.evosuite.mock.javax.swing.MockJFileChooser;
@@ -64,6 +65,7 @@ public class MockList {
 		
 		if(Properties.REPLACE_CALLS) {
 			list.add(MockDate.class);
+			list.add(MockRandom.class);
 			list.add(MockGregorianCalendar.class);
 			list.add(MockLogRecord.class);
 			list.add(MockThrowable.class);
