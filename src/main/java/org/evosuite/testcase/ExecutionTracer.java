@@ -54,6 +54,7 @@ public class ExecutionTracer {
 
 	private ExecutionTrace trace;
 
+
 	private static boolean checkCallerThread = true;
 
 	/**

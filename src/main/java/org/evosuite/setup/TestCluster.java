@@ -38,7 +38,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.runtime.ClassResetter;
+import org.evosuite.reset.ClassResetter;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.utils.GenericAccessibleObject;
