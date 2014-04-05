@@ -316,11 +316,6 @@ public class BytecodeInstrumentation {
 		// If we need to reset static constructors, make them
 		// explicit methods
 		if (Properties.RESET_STATIC_FIELDS) {
-			// Add a callback before leaving the <clinit> method
-			if (!isIntrumentationUnderJavaAgent()) {
-				ExitClassInitAdapter signalClassInitAdapter = new ExitClassInitAdapter(cv, className);
-				cv = signalClassInitAdapter;
-			}
 			// Create a __STATIC_RESET() cloning the original <clinit> method or create one by default
 			CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
 			if (ResetManager.getInstance().getResetFinalFields() || isIntrumentationUnderJavaAgent()) {
@@ -329,6 +324,11 @@ public class BytecodeInstrumentation {
 				resetClassAdapter.setRemoveFinalModifierOnStaticFields(false);
 			}
 			cv = resetClassAdapter;
+			// Add a callback before leaving the <clinit> method
+			if (!isIntrumentationUnderJavaAgent()) {
+				ExitClassInitAdapter exitClassInitAdapter = new ExitClassInitAdapter(cv, className);
+				cv = exitClassInitAdapter;
+			}
 		}
 
 		// Replace calls to System.exit, Random.*, and System.currentTimeMillis
