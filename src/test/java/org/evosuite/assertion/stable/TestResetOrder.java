@@ -1,4 +1,4 @@
-package org.evosuite.testcase;
+package org.evosuite.assertion.stable;
 
 import static org.junit.Assert.assertFalse;
 
@@ -10,43 +10,45 @@ import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ReportGenerator.StatisticEntry;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.staticfield.UnstableAssertion;
+import com.examples.with.different.packagename.stable.ResetOrderClassA;
 
-public class TestUnstableAssertion extends SystemTest {
+public class TestResetOrder extends SystemTest {
 
-	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
 	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
 	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
+	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
+	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
 	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
 	@Before
-	public void saveProperties() {
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = true;
-		Properties.RESET_STATIC_FIELDS = true;
+	public void before() {
+		Properties.RESET_STATIC_FIELDS=true;
+		Properties.SANDBOX = true;
 		Properties.JUNIT_CHECK = true;
 		Properties.JUNIT_TESTS = true;
-		Properties.SANDBOX = true;
+		Properties.PURE_INSPECTORS = true;
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = true;
 	}
 
 	@After
-	public void restoreProperties() {
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
+	public void after() {
 		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
+		Properties.SANDBOX = DEFAULT_SANDBOX;
 		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
 		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
-		Properties.SANDBOX = DEFAULT_SANDBOX;
+		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
 	}
 
 	@Test
-	public void test() {
+	public void testResetOrder() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = UnstableAssertion.class.getCanonicalName();
+		String targetClass = ResetOrderClassA.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
@@ -56,13 +58,11 @@ public class TestUnstableAssertion extends SystemTest {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
-		double best_fitness = best.getFitness();
-		Assert.assertTrue("Optimal coverage was not achieved ",
-				best_fitness == 0.0);
 
 		StatisticEntry entry = SearchStatistics.getInstance()
 				.getLastStatisticEntry();
 		assertFalse(entry.hadUnstableTests);
+
 	}
 
 }

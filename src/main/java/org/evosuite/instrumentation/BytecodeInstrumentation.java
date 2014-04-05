@@ -25,6 +25,7 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
+import org.evosuite.reset.ResetManager;
 import org.evosuite.seeding.PrimitiveClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
@@ -315,13 +316,19 @@ public class BytecodeInstrumentation {
 		// If we need to reset static constructors, make them
 		// explicit methods
 		if (Properties.RESET_STATIC_FIELDS) {
-			ClassResetClassAdapter resetClassAdapter = new ClassResetClassAdapter(cv, className);
-			if (getRemoveFinalFieldModifier() || isIntrumentationUnderJavaAgent()) {
+			// Create a __STATIC_RESET() cloning the original <clinit> method or create one by default
+			CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
+			if (ResetManager.getInstance().getResetFinalFields() || isIntrumentationUnderJavaAgent()) {
 				resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
 			} else {
 				resetClassAdapter.setRemoveFinalModifierOnStaticFields(false);
 			}
 			cv = resetClassAdapter;
+			// Add a callback before leaving the <clinit> method
+			if (!isIntrumentationUnderJavaAgent()) {
+				ExitClassInitAdapter exitClassInitAdapter = new ExitClassInitAdapter(cv, className);
+				cv = exitClassInitAdapter;
+			}
 		}
 
 		// Replace calls to System.exit, Random.*, and System.currentTimeMillis
@@ -424,14 +431,6 @@ public class BytecodeInstrumentation {
 	}
 	private boolean isIntrumentationUnderJavaAgent() {
 		return instrumentationUnderJavaAgent;
-	}
-
-	private boolean removeFinalFieldModifier = false;
-	public void setRemoveFinalFieldModifier(boolean removeFinalFieldModifier ) {
-		this.removeFinalFieldModifier = removeFinalFieldModifier ; 
-	}
-	private boolean getRemoveFinalFieldModifier() {
-		return removeFinalFieldModifier;
 	}
 
 }

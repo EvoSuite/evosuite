@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.evosuite.runtime.ClassResetter;
+import org.evosuite.reset.ClassResetter;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassVisitor;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class ClassResetClassAdapter extends ClassVisitor {
+public class CreateClassResetClassAdapter extends ClassVisitor {
 
 	private boolean removeUpdatesOnFinalFields = true;
 
@@ -54,7 +54,7 @@ public class ClassResetClassAdapter extends ClassVisitor {
 	public static List<String> staticClasses = new ArrayList<String>();
 
 	private static Logger logger = LoggerFactory
-			.getLogger(ClassResetClassAdapter.class);
+			.getLogger(CreateClassResetClassAdapter.class);
 
 	private boolean isInterface = false;
 
@@ -76,7 +76,7 @@ public class ClassResetClassAdapter extends ClassVisitor {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public ClassResetClassAdapter(ClassVisitor visitor, String className) {
+	public CreateClassResetClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
 		this.className = className;
 	}
@@ -162,7 +162,7 @@ public class ClassResetClassAdapter extends ClassVisitor {
 					ClassResetter.STATIC_RESET, descriptor, signature,
 					exceptions);
 
-			ClassResetMethodAdapter staticResetMethodAdapter = new ClassResetMethodAdapter(
+			CreateClassResetMethodAdapter staticResetMethodAdapter = new CreateClassResetMethodAdapter(
 					visitMethod, className, this.static_fields, finalFields);
 
 			if (this.removeUpdatesOnFinalFields) {

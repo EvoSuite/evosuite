@@ -22,22 +22,20 @@ package org.evosuite.instrumentation;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
-import org.evosuite.reset.ClassResetter;
-import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.reset.ResetManager;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * For each PUTSTATIC we include a call to 
- * <code>ExecutionTracer.passedPutStatic(String,String)</code> passing
- * the class name and the field name of the PUTSTATIC statement.
+ * Adds a call to ExecutionTracer.passedClassInitializationMethod() when
+ * the <clinit> method begins its execution.
  *
  * @author Juan Galeotti
  */
-public class PutStaticMethodAdapter extends MethodVisitor {
+public class ExitClassInitMethodAdapter extends MethodVisitor {
 
-	private static final String PASSED_PUT_STATIC = "passedPutStatic";
+	private static final String EXIT_CLASS_INIT = "exitClassInit";
 	private final String className;
 	private final String methodName;
 
@@ -48,36 +46,30 @@ public class PutStaticMethodAdapter extends MethodVisitor {
 	 * @param className a {@link java.lang.String} object.
 	 * @param finalFields a {@link java.util.List} object.
 	 */
-	public PutStaticMethodAdapter(String className, String methodName,
-			MethodVisitor mv) {
+	public ExitClassInitMethodAdapter(String className,
+			String methodName, MethodVisitor mv) {
 		super(Opcodes.ASM4, mv);
 		this.className = className;
 		this.methodName = methodName;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodAdapter#visitFieldInsn(int, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	/** {@inheritDoc} */
 	@Override
-	public void visitFieldInsn(int opcode, String owner, String name,
-			String desc) {
-
-		if (opcode == Opcodes.PUTSTATIC
-				&& !(className.equals(owner) && methodName.equals("<clinit>"))
-				&& !(className.equals(owner) && methodName.equals(ClassResetter.STATIC_RESET))) {
-			String executionTracerClassName = ExecutionTracer.class.getName()
+	public void visitInsn(int opcode) {
+		
+		if (opcode==Opcodes.RETURN && (methodName.equals("<clinit>"))) {
+			
+			String executionTracerClassName = ResetManager.class.getName()
 					.replace(".", "/");
 			String executionTracerDescriptor = Type.getMethodDescriptor(
-					Type.VOID_TYPE, Type.getType(String.class),
-					Type.getType(String.class));
+					Type.VOID_TYPE, Type.getType(String.class));
 
-			String classNameWithDots = owner.replace("/", ".");
+			String classNameWithDots = className.replace("/", ".");
 			super.visitLdcInsn(classNameWithDots);
-			super.visitLdcInsn(name);
 			super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
-					PASSED_PUT_STATIC, executionTracerDescriptor);
+					EXIT_CLASS_INIT, executionTracerDescriptor);
+
 		}
-		super.visitFieldInsn(opcode, owner, name, desc);
+		super.visitInsn(opcode);
 	}
+
 }
