@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.evosuite.TestGenerationContext;
+import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.runtime.Runtime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,8 @@ public class ResetExecutor {
 	}
 
 	private void resetClass(String className) {
+		int mutationActive = MutationObserver.activeMutation;
+		MutationObserver.deactivateMutation();
 		try {
 			Method resetMethod = getResetMethod(className);
 			if (resetMethod!=null) {
@@ -86,6 +89,8 @@ public class ResetExecutor {
 			logger.warn("IllegalArgumentException during execution of method  __STATIC_RESET() for class " + className);
 		} catch (InvocationTargetException e) {
 			logger.warn("InvocationTargetException during execution of method  __STATIC_RESET() for class " + className);
+		} finally {
+			MutationObserver.activateMutation(mutationActive);
 		}
 	}
 
