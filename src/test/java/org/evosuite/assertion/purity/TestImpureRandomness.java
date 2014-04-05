@@ -19,10 +19,14 @@ import org.objectweb.asm.Type;
 import com.examples.with.different.packagename.purity.ImpureRandomness;
 
 public class TestImpureRandomness extends SystemTest {
-	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
 	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
 	private final boolean DEFAULT_ASSERTIONS = Properties.ASSERTIONS;
 	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
+	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
+	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
+	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
+	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
+	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
 
 	@Before
 	public void saveProperties() {
@@ -30,6 +34,10 @@ public class TestImpureRandomness extends SystemTest {
 		Properties.ASSERTIONS = false;
 		Properties.JUNIT_TESTS = true;
 		Properties.PURE_INSPECTORS = true;
+		Properties.RESET_STATIC_FIELDS = true;
+		Properties.REPLACE_CALLS = true;
+		Properties.JUNIT_CHECK = true;
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = true;
 	}
 
 	@After
@@ -38,6 +46,11 @@ public class TestImpureRandomness extends SystemTest {
 		Properties.ASSERTIONS = DEFAULT_ASSERTIONS;
 		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
 		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
+		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
+		Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
+		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
+
 	}
 
 	@Test
@@ -65,20 +78,22 @@ public class TestImpureRandomness extends SystemTest {
 				"randomNextInt", intTypeDescriptor);
 		assertFalse(randomNextInt);
 
-		boolean secureRandomNextInt = purityAnalyzer.isPure(
-				targetClass, "secureRandomNextInt", intTypeDescriptor);
+		boolean secureRandomNextInt = purityAnalyzer.isPure(targetClass,
+				"secureRandomNextInt", intTypeDescriptor);
 		assertFalse(secureRandomNextInt);
 
-		String stringTypeDescriptor = Type.getMethodDescriptor(Type.getType(String.class));
-		boolean randomUUIDToString = purityAnalyzer.isPure(
-				targetClass, "randomUUIDToString", stringTypeDescriptor);
+		String stringTypeDescriptor = Type.getMethodDescriptor(Type
+				.getType(String.class));
+		boolean randomUUIDToString = purityAnalyzer.isPure(targetClass,
+				"randomUUIDToString", stringTypeDescriptor);
 		assertFalse(randomUUIDToString);
 
-		String doubleTypeDescriptor = Type.getMethodDescriptor(Type.DOUBLE_TYPE);
-		boolean randomMath = purityAnalyzer.isPure(
-				targetClass, "randomMath", doubleTypeDescriptor);
+		String doubleTypeDescriptor = Type
+				.getMethodDescriptor(Type.DOUBLE_TYPE);
+		boolean randomMath = purityAnalyzer.isPure(targetClass, "randomMath",
+				doubleTypeDescriptor);
 		assertFalse(randomMath);
-		
+
 		StatisticEntry entry = SearchStatistics.getInstance()
 				.getLastStatisticEntry();
 		assertFalse(entry.hadUnstableTests);
