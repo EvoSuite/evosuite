@@ -1305,6 +1305,12 @@ public class Properties {
 	/** All fields representing values, inserted via reflection */
 	private static Map<Field, Object> defaultMap = new HashMap<Field, Object>();
 
+	
+	static{
+		// need to do it once, to capture all the default values
+		reflectMap();
+	}
+	
 	/**
 	 * Keep track of which fields have been changed from their defaults during
 	 * loading
@@ -1696,9 +1702,9 @@ public class Properties {
 		}
 		//Boolean
 		else if (f.getType().equals(boolean.class)) {
-			setValue(key, Boolean.parseBoolean(value));
+			setValue(key, strictParseBoolean(value));
 		} else if (f.getType().equals(Boolean.class)) {
-			setValue(key, (Boolean) Boolean.parseBoolean(value));
+			setValue(key, (Boolean) strictParseBoolean(value));
 		}
 		//Double
 		else if (f.getType().equals(double.class)) {
@@ -1716,6 +1722,30 @@ public class Properties {
 		}
 	}
 
+	/**
+	 * we need this strict function because Boolean.parseBoolean silently
+	 * ignores malformed strings
+	 * 
+	 * @param s
+	 * @return
+	 */
+	protected boolean strictParseBoolean(String s){
+		if(s==null || s.isEmpty()){
+			throw new IllegalArgumentException("empty string does not represent a valid boolean");
+		}
+		
+		if(s.equalsIgnoreCase("true")){
+			return true;
+		}
+		
+		if(s.equalsIgnoreCase("false")){
+			return false;
+		}
+		
+		throw new IllegalArgumentException("Invalid string representing a boolean: "+s);
+	}
+	
+	
 	/**
 	 * <p>
 	 * setValue
@@ -1770,6 +1800,13 @@ public class Properties {
 	/** Internal properties hashmap */
 	private java.util.Properties properties;
 
+	/** Constructor */
+	private Properties(boolean loadProperties, boolean silent) {
+		if (loadProperties)
+			loadProperties(silent);
+		setClassPrefix();
+	}
+	
 	/**
 	 * Singleton accessor
 	 * 
@@ -1806,13 +1843,7 @@ public class Properties {
 		}
 	}
 
-	/** Constructor */
-	private Properties(boolean loadProperties, boolean silent) {
-		reflectMap();
-		if (loadProperties)
-			loadProperties(silent);
-		setClassPrefix();
-	}
+
 
 	private static void setClassPrefix() {
 		if (TARGET_CLASS != null && !TARGET_CLASS.equals("")) {
