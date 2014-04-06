@@ -54,7 +54,8 @@ public class Stubbing extends BaseRule {
 	protected void after() {
 	    System.setErr(systemErr); 
 	    System.setOut(systemOut); 
-	    DebugGraphics.setLogStream(logStream); 
+	    DebugGraphics.setLogStream(logStream);
+	    java.lang.System.setProperties((java.util.Properties) defaultProperties.clone());
 	}
 
 }
