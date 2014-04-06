@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 import org.evosuite.junit.JUnitExecutionException;
@@ -49,18 +50,6 @@ public class JUnitProcessLauncher {
 		return dir;
 	}
 
-	private String[] parseCommand(String command) {
-		List<String> list = new ArrayList<String>();
-		for (String token : command.split(" ")) {
-			String entry = token.trim();
-			if (!entry.isEmpty()) {
-				list.add(entry);
-			}
-		}
-		String[] parsedCommand = list.toArray(new String[0]);
-		return parsedCommand;
-	}
-
 	public JUnitResult startNewJUnitProcess(Class<?>[] testClasses,
 			File testClassDir) throws JUnitExecutionException {
 
@@ -87,12 +76,14 @@ public class JUnitProcessLauncher {
 		junitClassPath += ClassPathHandler.getInstance()
 				.getTargetProjectClasspath();
 
-		String command = "java";
-		command += " -cp " + junitClassPath;
-		command += " " + JUnitXmlDocMain.class.getCanonicalName();
+		Vector<String> command = new Vector<String>();
+		command.add("java");
+		command.add("-cp");
+		command.add(junitClassPath);
+		command.add(JUnitXmlDocMain.class.getCanonicalName());
 		String testClassesString = "";
 		for (Class<?> testClass : testClasses) {
-			command += " " + testClass.getCanonicalName();
+			command.add(testClass.getCanonicalName());
 			testClassesString += " " + testClass.getCanonicalName();
 		}
 
@@ -103,9 +94,9 @@ public class JUnitProcessLauncher {
 			xmlFile.delete();
 		}
 
-		command += " " + xmlFileName;
+		command.add(xmlFileName);
 
-		String[] parsedCommand = parseCommand(command);
+		String[] parsedCommand = command.toArray(new String[]{});
 
 		ProcessBuilder builder = new ProcessBuilder(parsedCommand);
 		builder.directory(baseDir);
