@@ -75,7 +75,8 @@ public class TestPool extends SystemTest {
 		pool.writePool(filename);
 		System.out.println("EvolvedTestSuite:\n" + best);
 		resetStaticVariables();
-		
+		setDefaultPropertiesForTestCases();
+
 		targetClass = OtherClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.P_OBJECT_POOL = 1.0;
@@ -137,7 +138,8 @@ public class TestPool extends SystemTest {
 		pool.writePool(filename);
 		System.out.println("EvolvedTestSuite:\n" + best);
 		resetStaticVariables();
-		
+		setDefaultPropertiesForTestCases();
+
 		targetClass = OtherClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.P_OBJECT_POOL = 1.0;
@@ -179,6 +181,7 @@ public class TestPool extends SystemTest {
 		System.out.println("EvolvedTestSuite:\n" + best);
 		
 		resetStaticVariables();
+		setDefaultPropertiesForTestCases();
 		
 		targetClass = ClassDependingOnExceptionClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
