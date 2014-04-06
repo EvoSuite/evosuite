@@ -20,15 +20,12 @@
  */
 package org.evosuite.runtime;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.PropertyPermission;
 import java.util.Set;
 
-import javax.swing.event.ListSelectionEvent;
 
 import org.evosuite.Properties;
 
@@ -196,7 +193,7 @@ public class System {
 	 * Replacement function for for Runtime.freeMemory()
 	 * @return
 	 */
-	public long freeMemory() {
+	public static long freeMemory() {
 		return 0L;
 	}
 
@@ -204,7 +201,7 @@ public class System {
 	 * Replacement function for for Runtime.maxMemory()
 	 * @return
 	 */
-	public long maxMemory() {
+	public static long maxMemory() {
 		return 0L;
 	}
 	
@@ -212,7 +209,7 @@ public class System {
 	 * Replacement function for for Runtime.totalMemory()
 	 * @return
 	 */
-	public long totalMemory() {
+	public static long totalMemory() {
 		return 0L;
 	}
 	
@@ -220,7 +217,7 @@ public class System {
 	 * Replacement function for for Runtime.availableProcessors()
 	 * @return
 	 */
-	public int availableProcessors() {
+	public static int availableProcessors() {
 		return 0;
 	}
 
