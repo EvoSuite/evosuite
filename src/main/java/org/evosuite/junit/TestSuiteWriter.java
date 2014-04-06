@@ -803,12 +803,6 @@ public class TestSuiteWriter implements Opcodes {
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException,
 			List<ExecutionResult> results) {
 
-		if (!wasSecurityException && !Properties.REPLACE_CALLS
-				&& !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS
-				&& !SystemInUtil.getInstance().hasBeenUsed()) {
-			return;
-		}
-
 		bd.append(METHOD_SPACE);
 		bd.append("@Before \n");
 		bd.append(METHOD_SPACE);
