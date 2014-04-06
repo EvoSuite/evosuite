@@ -24,24 +24,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.DebugGraphics;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.AssertionStrategy;
@@ -49,10 +43,10 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputFormat;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
-import org.evosuite.instrumentation.BytecodeInstrumentation;
-import org.evosuite.reset.ClassResetter;
+import org.evosuite.reset.ResetExecutor;
 import org.evosuite.reset.ResetManager;
 import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.runtime.VirtualFileSystem;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
@@ -97,15 +91,13 @@ public class TestSuiteWriter implements Opcodes {
 	private TestCodeVisitor visitor = Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED ? visitor = new StructuredTestCodeVisitor()
 			: new TestCodeVisitor();
 
-	private static final String METHOD_SPACE = "  ";
-	private static final String BLOCK_SPACE = "    ";
-	private static final String INNER_BLOCK_SPACE = "      ";
-	private static final String INNER_INNER_BLOCK_SPACE = "        ";
-	private static final String INNER_INNER_INNER_BLOCK_SPACE = "          ";
+	public static final String METHOD_SPACE = "  ";
+	public static final String BLOCK_SPACE = "    ";
+	public static final String INNER_BLOCK_SPACE = "      ";
+	public static final String INNER_INNER_BLOCK_SPACE = "        ";
+	public static final String INNER_INNER_INNER_BLOCK_SPACE = "          ";
 
 	private final String EXECUTOR_SERVICE = "executor";
-
-	private final String DEFAULT_PROPERTIES = "defaultProperties";
 
 	/**
 	 * FIXME: this filter assumes "Test" as prefix, but would be better to have
@@ -358,10 +350,10 @@ public class TestSuiteWriter implements Opcodes {
 			imports.addAll(visitor.getImports());
 		}
 
-		imports.add(PrintStream.class);
-		imports.add(DebugGraphics.class);
+		Set<String> importNames = new HashSet<String>();
+		importNames.addAll(adapter.getImports(wasSecurityException));
 
-		Set<String> import_names = new HashSet<String>();
+
 		for (Class<?> imp : imports) {
 			while (imp.isArray())
 				imp = imp.getComponentType();
@@ -377,51 +369,51 @@ public class TestSuiteWriter implements Opcodes {
 			// TODO: Check for anonymous type?
 			if (imp.getName().contains("$"))
 				//	import_names.add(imp.getName().substring(0, imp.getName().indexOf("$")));
-				import_names.add(imp.getName().replace("$", "."));
+				importNames.add(imp.getName().replace("$", "."));
 			else
-				import_names.add(imp.getName());
+				importNames.add(imp.getName());
 		}
-		List<String> imports_sorted = new ArrayList<String>(import_names);
+		List<String> importsSorted = new ArrayList<String>(importNames);
 
 		// FIXME: I disagree - it should be covered by the below branches
 		//we always need this one, due to for example logging setup
 
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS || wasSecurityException
-				|| SystemInUtil.getInstance().hasBeenUsed()) {
-			imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
-		}
+		// if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
+		//		|| Properties.RESET_STATIC_FIELDS || wasSecurityException
+		//		|| SystemInUtil.getInstance().hasBeenUsed()) {
+		//	importsSorted.add(org.junit.BeforeClass.class.getCanonicalName());
+		// }
 		
-		imports_sorted.add(org.junit.Before.class.getCanonicalName());
-		imports_sorted.add(org.junit.After.class.getCanonicalName());
+		// importsSorted.add(org.junit.Before.class.getCanonicalName());
+		// importsSorted.add(org.junit.After.class.getCanonicalName());
 
-		if (wasSecurityException || shouldResetProperties(results)) {
-			imports_sorted.add(org.junit.AfterClass.class.getCanonicalName());
-		}
+		// if (wasSecurityException || shouldResetProperties(results)) {
+		//	importsSorted.add(org.junit.AfterClass.class.getCanonicalName());
+		//}
 
 		if (Properties.VIRTUAL_FS) {
-			imports_sorted.add(org.evosuite.runtime.EvoSuiteFile.class
+			importsSorted.add(org.evosuite.runtime.EvoSuiteFile.class
 					.getCanonicalName());
 		}
 
 		if (wasSecurityException) {
 			//Add import info for EvoSuite classes used in the generated test suite
-			imports_sorted.add(Sandbox.class.getCanonicalName());
+			importsSorted.add(Sandbox.class.getCanonicalName());
 			// imports_sorted.add(Properties.class.getCanonicalName());
-			imports_sorted.add(Properties.SandboxMode.class.getCanonicalName());
-			imports_sorted.add(java.util.concurrent.ExecutorService.class
+			importsSorted.add(Properties.SandboxMode.class.getCanonicalName());
+			importsSorted.add(java.util.concurrent.ExecutorService.class
 					.getCanonicalName());
-			imports_sorted.add(java.util.concurrent.Executors.class
+			importsSorted.add(java.util.concurrent.Executors.class
 					.getCanonicalName());
-			imports_sorted.add(java.util.concurrent.Future.class
+			importsSorted.add(java.util.concurrent.Future.class
 					.getCanonicalName());
-			imports_sorted.add(java.util.concurrent.TimeUnit.class
+			importsSorted.add(java.util.concurrent.TimeUnit.class
 					.getCanonicalName());
 
 		}
 
-		Collections.sort(imports_sorted);
-		for (String imp : imports_sorted) {
+		Collections.sort(importsSorted);
+		for (String imp : importsSorted) {
 			builder.append("import ");
 			builder.append(imp);
 			builder.append(";\n");
@@ -517,7 +509,6 @@ public class TestSuiteWriter implements Opcodes {
 		}
 		builder.append("\n");
 
-		builder.append(adapter.getImports());
 		builder.append(getImports(results));
 
 		builder.append(adapter.getClassDefinition(name));
@@ -623,7 +614,24 @@ public class TestSuiteWriter implements Opcodes {
 		 * Because this method is perhaps called only once per SUT,
 		 * not much of the point to try to optimize it 
 		 */
-
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
+				|| Properties.RESET_STATIC_FIELDS || wasSecurityException
+				|| SystemInUtil.getInstance().hasBeenUsed()) {
+			bd.append(adapter.getInstrumentationCode(wasSecurityException));
+		}
+		if (Properties.RESET_STATIC_FIELDS && !ResetManager.getInstance().getClassResetOrder().isEmpty()) {
+			bd.append(adapter.getStaticResettingCode());
+			// generateInitializeClasses(name, bd);
+			// generateResetClasses(bd);
+		}
+		if (Properties.REPLACE_CALLS) {
+			bd.append(adapter.getStubbingCode());
+		}
+		if (Properties.VIRTUAL_FS) {
+			bd.append(adapter.getVirtualFSCode());
+		}
+			// generateSetSystemProperties(bd, results);
+		
 		generateFields(bd, wasSecurityException, results);
 
 		generateBeforeClass(bd, wasSecurityException);
@@ -634,165 +642,21 @@ public class TestSuiteWriter implements Opcodes {
 
 		generateAfter(bd, wasSecurityException);
 
-		generateSetSystemProperties(bd, results);
-
-		if (Properties.RESET_STATIC_FIELDS) {
-			generateInitializeClasses(name, bd);
-
-			generateResetClasses(bd);
-		}
-
 		return bd.toString();
-	}
-
-	private void generateResetClasses(StringBuilder bd) {
-		List<String> classesToReset = ResetManager.getInstance()
-				.getClassResetOrder();
-
-		bd.append(METHOD_SPACE);
-		bd.append("private static void resetClasses() {\n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("String[] classNames = new String[" + classesToReset.size()
-				+ "];\n");
-
-		for (int i = 0; i < classesToReset.size(); i++) {
-			String className = classesToReset.get(i);
-			bd.append(BLOCK_SPACE);
-			bd.append(String.format("classNames[%s] =\"%s\";\n", i, className));
-		}
-
-		bd.append(BLOCK_SPACE);
-		bd.append("for (int i=0; i< classNames.length;i++) {\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("String classNameToReset = classNames[i];\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("try {" + "\n");
-
-		bd.append(INNER_INNER_BLOCK_SPACE);
-		bd.append(ClassResetter.class.getCanonicalName()
-				+ ".getInstance().reset(classNameToReset); \n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("} catch (Throwable t) {" + "\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("}\n");
-		
-		bd.append(BLOCK_SPACE);
-		bd.append("}\n");
-
-		bd.append(METHOD_SPACE);
-		bd.append("}" + "\n");
-
-	}
-
-	private void generateInitializeClasses(String testClassName, StringBuilder bd) {
-
-		List<String> classesToBeReset = ResetManager.getInstance()
-				.getClassResetOrder();
-		bd.append(METHOD_SPACE);
-		bd.append("private static void initializeClasses() {\n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("String[] classNames = new String[" + classesToBeReset.size()
-				+ "];\n");
-
-		for (int i = 0; i < classesToBeReset.size(); i++) {
-			String className = classesToBeReset.get(i);
-			if (BytecodeInstrumentation.checkIfCanInstrument(className)) {
-				bd.append(BLOCK_SPACE);
-				bd.append(String.format("classNames[%s] =\"%s\";\n", i,
-						className));
-			}
-		}
-
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.activate(); \n");
-		}
-
-		bd.append(BLOCK_SPACE);
-		bd.append("for (int i=0; i< classNames.length;i++) {\n");
-
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
-			bd.append(INNER_BLOCK_SPACE);
-			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
-		}
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("String classNameToLoad = classNames[i];\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("ClassLoader classLoader = " + testClassName +".class.getClassLoader();\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("try {" + "\n");
-
-		bd.append(INNER_INNER_BLOCK_SPACE);
-		bd.append("Class.forName(classNameToLoad, true, classLoader);\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("} catch (ExceptionInInitializerError ex) {" + "\n");
-
-		bd.append(INNER_INNER_BLOCK_SPACE);
-		bd.append("System.err.println(\"Could not initialize \" + classNameToLoad);\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("} catch (Throwable t) {" + "\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("}\n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("}\n");
-
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
-		}
-
-		bd.append(METHOD_SPACE);
-		bd.append("}" + "\n");
-
 	}
 
 	private void generateAfter(StringBuilder bd, boolean wasSecurityException) {
 
+		if (!wasSecurityException)
+			return;
+
 		bd.append(METHOD_SPACE);
 		bd.append("@After \n");
 		bd.append(METHOD_SPACE);
-		bd.append("public void doneWithTestCase(){ \n");
+		bd.append("public void doneWithTestCase() { \n");
 
 		bd.append(BLOCK_SPACE);
-		bd.append("System.setErr(systemErr); \n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("System.setOut(systemOut); \n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("DebugGraphics.setLogStream(logStream); \n");
-
-		if (wasSecurityException) {
-			bd.append(BLOCK_SPACE);
-			bd.append("Sandbox.doneWithExecutingSUTCode(); \n");
-		}
-
-		if (Properties.RESET_STATIC_FIELDS) {
-			bd.append(BLOCK_SPACE);
-			bd.append("resetClasses(); \n");
-		}
-
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
-		}
+		bd.append("Sandbox.doneWithExecutingSUTCode(); \n");
 
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
@@ -803,45 +667,18 @@ public class TestSuiteWriter implements Opcodes {
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException,
 			List<ExecutionResult> results) {
 
-		if (!wasSecurityException && !Properties.REPLACE_CALLS
-				&& !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS
-				&& !SystemInUtil.getInstance().hasBeenUsed()) {
+		if (!wasSecurityException && !SystemInUtil.getInstance().hasBeenUsed()) {
 			return;
 		}
 
 		bd.append(METHOD_SPACE);
 		bd.append("@Before \n");
 		bd.append(METHOD_SPACE);
-		bd.append("public void initTestCase(){ \n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("systemErr = System.err;");
-		bd.append(" \n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("systemOut = System.out;");
-		bd.append(" \n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("logStream = DebugGraphics.logStream();");
-		bd.append(" \n");
-		if (shouldResetProperties(results)) {
-			bd.append(BLOCK_SPACE);
-			bd.append("setSystemProperties();");
-			bd.append(" \n");
-		}
+		bd.append("public void initTestCase() { \n");
 
 		if (wasSecurityException) {
 			bd.append(BLOCK_SPACE);
 			bd.append("Sandbox.goingToExecuteSUTCode(); \n");
-		}
-
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.activate(); \n");
 		}
 
 		if (SystemInUtil.getInstance().hasBeenUsed()) {
@@ -855,103 +692,33 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("\n");
 	}
 
-	private boolean shouldResetProperties(List<ExecutionResult> results) {
-		/*
-		 * Note: we need to reset the properties even if the SUT only read them. Reason is
-		 * that we are modifying them in the test case in the @Before method
-		 */
-		Set<String> readProperties = null;
-		if (Properties.REPLACE_CALLS) {
-			readProperties = mergeProperties(results);
-			if (readProperties.isEmpty()) {
-				readProperties = null;
-			}
-		}
-
-		boolean shouldResetProperties = Properties.REPLACE_CALLS
-				&& (wasAnyWrittenProperty(results) || readProperties != null);
-
-		return shouldResetProperties;
-	}
-
-	private String getResetPropertiesCommand() {
-		return "java.lang.System.setProperties((java.util.Properties)" + " "
-				+ DEFAULT_PROPERTIES + ".clone());";
-	}
-
 	private void generateAfterClass(StringBuilder bd,
 			boolean wasSecurityException, List<ExecutionResult> results) {
 
-		if (wasSecurityException || shouldResetProperties(results)) {
-			bd.append(METHOD_SPACE);
-			bd.append("@AfterClass \n");
-			bd.append(METHOD_SPACE);
-			bd.append("public static void clearEvoSuiteFramework(){ \n");
-
-			if (wasSecurityException) {
-				bd.append(BLOCK_SPACE);
-				bd.append(EXECUTOR_SERVICE + ".shutdownNow(); \n");
-				bd.append(BLOCK_SPACE);
-				bd.append("Sandbox.resetDefaultSecurityManager(); \n");
-			}
-
-			if (shouldResetProperties(results)) {
-				bd.append(BLOCK_SPACE);
-				bd.append(getResetPropertiesCommand());
-				bd.append(" \n");
-			}
-
-			bd.append(METHOD_SPACE);
-			bd.append("} \n");
-
-			bd.append("\n");
-		}
-
-	}
-
-	private void generateSetSystemProperties(StringBuilder bd,
-			List<ExecutionResult> results) {
-		bd.append(METHOD_SPACE);
-		bd.append("public void setSystemProperties() {\n");
-		bd.append(" \n");
-		if (shouldResetProperties(results)) {
-			/*
-			 * even if we set all the properties that were read, we still need
-			 * to reset everything to handle the properties that were written 
-			 */
-			bd.append(BLOCK_SPACE);
-			bd.append(getResetPropertiesCommand());
-			bd.append(" \n");
-
-			Set<String> readProperties = mergeProperties(results);
-			for (String prop : readProperties) {
-				bd.append(BLOCK_SPACE);
-				String currentValue = System.getProperty(prop);
-				String escaped_prop = StringEscapeUtils.escapeJava(prop);
-				if (currentValue != null) {
-					String escaped_currentValue = StringEscapeUtils
-							.escapeJava(currentValue);
-					bd.append("java.lang.System.setProperty(\"" + escaped_prop
-							+ "\", \"" + escaped_currentValue + "\"); \n");
-				} else {
-					bd.append("java.lang.System.clearProperty(\""
-							+ escaped_prop + "\"); \n");
-				}
-			}
-		} else {
-			bd.append(BLOCK_SPACE + "/*No java.lang.System property to set*/\n");
-		}
+		if (!wasSecurityException)
+			return;
 
 		bd.append(METHOD_SPACE);
-		bd.append("}\n");
+		bd.append("@AfterClass \n");
+		bd.append(METHOD_SPACE);
+		bd.append("public static void clearEvoSuiteFramework(){ \n");
+
+		bd.append(BLOCK_SPACE);
+		bd.append(EXECUTOR_SERVICE + ".shutdownNow(); \n");
+		bd.append(BLOCK_SPACE);
+		bd.append("Sandbox.resetDefaultSecurityManager(); \n");
+
+		bd.append(METHOD_SPACE);
+		bd.append("} \n");
+
+		bd.append("\n");
 
 	}
 
 	private void generateBeforeClass(StringBuilder bd,
 			boolean wasSecurityException) {
 
-		if (!wasSecurityException && !Properties.REPLACE_CALLS
-				&& !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS) {
+		if (!wasSecurityException) {
 			return;
 		}
 
@@ -964,54 +731,17 @@ public class TestSuiteWriter implements Opcodes {
 		// FIXME: This is just commented out for experiments
 		//bd.append("org.evosuite.utils.LoggingUtils.setLoggingForJUnit(); \n");
 
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
-			//need to setup REPLACE_CALLS and instrumentator
+		//need to setup the Sandbox mode
+		bd.append(BLOCK_SPACE);
+		bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."
+				+ Properties.SANDBOX_MODE + "; \n");
 
-			if (Properties.REPLACE_CALLS) {
-				bd.append(BLOCK_SPACE);
-				bd.append("org.evosuite.Properties.REPLACE_CALLS = true; \n");
-			}
+		bd.append(BLOCK_SPACE);
+		bd.append("Sandbox.initializeSecurityManagerForSUT(); \n");
 
-			if (Properties.VIRTUAL_FS) {
-				bd.append(BLOCK_SPACE);
-				bd.append("org.evosuite.Properties.VIRTUAL_FS = true; \n");
-			}
-
-			if (Properties.RESET_STATIC_FIELDS) {
-				bd.append(BLOCK_SPACE);
-				bd.append("org.evosuite.Properties.RESET_STATIC_FIELDS = true; \n");
-			}
-
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.initialize(); \n");
-
-		}
-
-		if (wasSecurityException) {
-			//need to setup the Sandbox mode
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."
-					+ Properties.SANDBOX_MODE + "; \n");
-
-			bd.append(BLOCK_SPACE);
-			bd.append("Sandbox.initializeSecurityManagerForSUT(); \n");
-
-			bd.append(BLOCK_SPACE);
-			bd.append(EXECUTOR_SERVICE
-					+ " = Executors.newCachedThreadPool(); \n");
-		}
-
-		if (Properties.RESET_STATIC_FIELDS) {
-			bd.append(BLOCK_SPACE);
-			bd.append("initializeClasses();" + "\n");
-		}
-
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
-		}
+		bd.append(BLOCK_SPACE);
+		bd.append(EXECUTOR_SERVICE
+				+ " = Executors.newCachedThreadPool(); \n");
 
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
@@ -1022,15 +752,6 @@ public class TestSuiteWriter implements Opcodes {
 	private void generateFields(StringBuilder bd, boolean wasSecurityException,
 			List<ExecutionResult> results) {
 
-		bd.append(METHOD_SPACE);
-		bd.append("private PrintStream systemOut = null;" + '\n');
-
-		bd.append(METHOD_SPACE);
-		bd.append("private PrintStream systemErr = null;" + '\n');
-
-		bd.append(METHOD_SPACE);
-		bd.append("private PrintStream logStream = null;" + '\n');
-
 		if (wasSecurityException) {
 			bd.append(METHOD_SPACE);
 			bd.append("private static ExecutorService " + EXECUTOR_SERVICE
@@ -1038,44 +759,6 @@ public class TestSuiteWriter implements Opcodes {
 
 			bd.append("\n");
 		}
-
-		if (shouldResetProperties(results)) {
-			/*
-			 * some System properties were read/written. so, let's be sure we ll have the same
-			 * properties in the generated JUnit file, regardless of where it will be executed
-			 * (eg on a remote CI server). This is essential, as generated assertions might
-			 * depend on those properties
-			 */
-			bd.append(METHOD_SPACE);
-			bd.append("private static final java.util.Properties "
-					+ DEFAULT_PROPERTIES);
-			bd.append(" = (java.util.Properties) java.lang.System.getProperties().clone(); \n");
-
-			bd.append("\n");
-		}
-	}
-
-	private boolean wasAnyWrittenProperty(List<ExecutionResult> results) {
-		for (ExecutionResult res : results) {
-			if (res.wasAnyPropertyWritten()) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private Set<String> mergeProperties(List<ExecutionResult> results) {
-		if (results == null) {
-			return null;
-		}
-		Set<String> set = new LinkedHashSet<String>();
-		for (ExecutionResult res : results) {
-			Set<String> props = res.getReadProperties();
-			if (props != null) {
-				set.addAll(props);
-			}
-		}
-		return set;
 	}
 
 	private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
