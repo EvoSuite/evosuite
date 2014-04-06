@@ -260,7 +260,11 @@ public class MSecurityManagerTest {
 		toDelete.delete();
 	}
 	
-	
+	/*
+	 * System permissions are now forbidden to modify.
+	 * they are handled in REPLACE_CALLS
+	 */
+	@Ignore
 	@Test
 	public void testReadAndWriteOfProperties() throws InterruptedException, ExecutionException, TimeoutException{
 		final String userDir = System.getProperty("user.dir");
