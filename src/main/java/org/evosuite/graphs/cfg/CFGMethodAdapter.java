@@ -66,7 +66,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * signatures are not instrumented and no CFG is generated for them. Except
 	 * if some MethodInstrumentation requests it.
 	 */
-	public static final List<String> EXCLUDE = Arrays.asList("<clinit>",
+	public static final List<String> EXCLUDE = Arrays.asList("<clinit>()V",
 																ClassResetter.STATIC_RESET+"()V",
 																ClassResetter.STATIC_RESET);
 	/**
