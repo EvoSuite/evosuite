@@ -1,7 +1,5 @@
 package com.examples.with.different.packagename.stable;
 
-import java.util.Arrays;
-
 public class FinalSingletonArrayUser {
 
 	final static byte[] CONSTANT_ARRAY;

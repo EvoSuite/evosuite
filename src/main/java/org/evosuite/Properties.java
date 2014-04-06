@@ -654,10 +654,6 @@ public class Properties {
 	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
 	public static String JUNIT_SUFFIX = "EvoSuiteTest";
 
-	@Parameter(key = "junit_runner", group = "Output", description = "Use EvoSuite JUnit runner in generated test suites")
-	@Deprecated
-	public static boolean JUNIT_RUNNER = false;
-
 	@Parameter(key = "tools_jar_location", group = "Output", description = "Location of where to locate tools.jar")
 	public static String TOOLS_JAR_LOCATION = null;
 

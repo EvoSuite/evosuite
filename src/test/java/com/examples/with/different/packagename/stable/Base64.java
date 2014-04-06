@@ -1,7 +1,5 @@
 package com.examples.with.different.packagename.stable;
 
-import java.util.Arrays;
-
 public class Base64 {
 	/**
 	 * Chunk size per RFC 2045 section 6.8.

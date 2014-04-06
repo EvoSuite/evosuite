@@ -20,12 +20,16 @@
  */
 package org.evosuite.junit;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.reset.ResetManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
+import org.evosuite.utils.SystemInUtil;
 
 /**
  * <p>
@@ -48,13 +52,32 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public String getImports() {
-		String imports = "import static org.junit.Assert.*;\n";
+	public Set<String> getImports(boolean wasSecurityException) {
+		Set<String> imports = new HashSet<String>();
+		imports.add("static org.junit.Assert.*");
 		if(!Properties.TARGET_CLASS.equals("Test"))
-			imports += "import org.junit.Test;\n";
+			imports.add(org.junit.Test.class.getCanonicalName());
 		
-		if(Properties.JUNIT_RUNNER)
-			imports += "import org.junit.runner.RunWith;\nimport org.evosuite.junit.EvoSuiteRunner;\n";
+		
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
+				|| Properties.RESET_STATIC_FIELDS || wasSecurityException
+				|| SystemInUtil.getInstance().hasBeenUsed()) {
+			imports.add(org.junit.Rule.class.getCanonicalName());
+			imports.add(org.evosuite.junit.rules.Instrumentation.class.getCanonicalName());
+		}
+		if (Properties.REPLACE_CALLS) {
+			imports.add(org.evosuite.junit.rules.Stubbing.class.getCanonicalName());			
+		}
+		if (Properties.VIRTUAL_FS) {
+			imports.add(org.evosuite.junit.rules.VirtualFS.class.getCanonicalName());			
+		}
+		if(Properties.RESET_STATIC_FIELDS) {
+			imports.add(org.evosuite.junit.rules.StaticStateResetter.class.getCanonicalName());
+			if(Properties.REPLACE_CALLS) {
+				imports.add(org.evosuite.junit.rules.InitializeClasses.class.getCanonicalName());
+				imports.add(org.junit.ClassRule.class.getCanonicalName());
+			}
+		}
 		return imports;
 	}
 
@@ -64,10 +87,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public String getClassDefinition(String testName) {
-		if(Properties.JUNIT_RUNNER)
-			return "@RunWith(EvoSuiteRunner.class)\npublic class " + testName;
-		else
-			return "public class " + testName;
+		return "public class " + testName;
 	}
 
 	/* (non-Javadoc)
@@ -139,4 +159,77 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 		visitor.clearExceptions();
 		return visitor.getCode();
 	}
+
+	@Override
+	public String getInstrumentationCode(boolean wasSecurityException) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(TestSuiteWriter.METHOD_SPACE);
+		sb.append("@Rule\n");
+		sb.append(TestSuiteWriter.METHOD_SPACE);
+		sb.append("public Instrumentation instrumentation = new Instrumentation();\n\n");
+		return sb.toString();
+	}
+
+	@Override
+	public String getStaticResettingCode() {
+		StringBuilder sb = new StringBuilder();
+		List<String> classesToReset = ResetManager.getInstance()
+				.getClassResetOrder();
+
+		sb.append(TestSuiteWriter.METHOD_SPACE);
+		sb.append("@Rule\n");
+		sb.append(TestSuiteWriter.METHOD_SPACE);
+		sb.append(      "public StaticStateResetter staticState = new StaticStateResetter(");
+		String indent = "                                                                 ";
+		boolean first = true;
+		StringBuilder classNameList = new StringBuilder();
+		for(String className : classesToReset) {
+			if(first) {
+				first = false;
+			} else {
+				classNameList.append(",\n");
+				classNameList.append(TestSuiteWriter.METHOD_SPACE);
+				classNameList.append(indent);
+			}
+			classNameList.append("\"");
+			classNameList.append(className);
+			classNameList.append("\"");
+		}
+		String classNames = classNameList.toString();
+		sb.append(classNames);
+		sb.append(");\n\n");
+		
+		if(Properties.REPLACE_CALLS) {
+			sb.append(TestSuiteWriter.METHOD_SPACE);
+			sb.append("@ClassRule\n");
+			sb.append(TestSuiteWriter.METHOD_SPACE);
+			sb.append("public static InitializeClasses classInitializer = new InitializeClasses(");
+			sb.append(classNames);
+			sb.append(");\n\n");			
+		}
+
+		return sb.toString();
+	}
+
+	@Override
+	public String getStubbingCode() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(TestSuiteWriter.METHOD_SPACE);
+		sb.append("@Rule\n");
+		sb.append(TestSuiteWriter.METHOD_SPACE);
+		sb.append("public Stubbing stubbing = new Stubbing();\n\n");
+		
+		return sb.toString();
+	}
+	
+	@Override
+	public String getVirtualFSCode() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(TestSuiteWriter.METHOD_SPACE);
+		sb.append("@Rule\n");
+		sb.append(TestSuiteWriter.METHOD_SPACE);
+		sb.append("public VirtualFS virtualFS = new VirtualFS();\n\n");
+		return sb.toString();
+	}
+
 }
