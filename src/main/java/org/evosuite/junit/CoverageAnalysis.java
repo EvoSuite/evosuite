@@ -21,6 +21,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
@@ -423,14 +426,18 @@ public class CoverageAnalysis {
 	 * @param exceptionClassName
 	 * @return
 	 */
-	private static boolean isTest(Class<?> clazz) {
+	public static boolean isTest(Class<?> clazz) {
 		Class<?> superClazz = clazz.getSuperclass();
 		while (superClazz != null && !superClazz.equals(Object.class)
 		        && !superClazz.equals(clazz)) {
-			if (superClazz.equals(Suite.class))
-				return true;
-			if (superClazz.equals(Test.class))
-				return true;
+		    if (superClazz.equals(Suite.class))
+                return true;
+            if (superClazz.equals(TestSuite.class))
+                return true;
+            if (superClazz.equals(Test.class))
+                return true;
+            if (superClazz.equals(TestCase.class))
+                return true;
 
 			if (superClazz.equals(clazz.getSuperclass()))
 				break;
