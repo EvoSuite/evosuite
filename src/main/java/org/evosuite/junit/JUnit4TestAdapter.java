@@ -212,13 +212,30 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	}
 
 	@Override
-	public String getStubbingCode() {
+	public String getStubbingCode(String... properties) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(TestSuiteWriter.METHOD_SPACE);
 		sb.append("@Rule\n");
 		sb.append(TestSuiteWriter.METHOD_SPACE);
-		sb.append("public Stubbing stubbing = new Stubbing();\n\n");
-		
+		sb.append(      "public Stubbing stubbing = new Stubbing(");
+		String indent = "                                        ";
+		boolean first = true;
+		StringBuilder propertyList = new StringBuilder();
+		for(String propertyName : properties) {
+			if(first) {
+				first = false;
+			} else {
+				propertyList.append(",\n");
+				propertyList.append(TestSuiteWriter.METHOD_SPACE);
+				propertyList.append(indent);
+			}
+			propertyList.append("\"");
+			propertyList.append(propertyName);
+			propertyList.append("\"");
+		}
+		String propertiesToSet = propertyList.toString();
+		sb.append(propertiesToSet);
+		sb.append(");\n\n");
 		return sb.toString();
 	}
 	
