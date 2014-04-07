@@ -134,6 +134,7 @@ import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.RandomLengthTestFactory;
+import org.evosuite.testcase.SerializationTestsChromosomeFactory;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestCaseMinimizer;
@@ -633,6 +634,10 @@ public class TestSuiteGenerator {
 				best.addTest(t);
 			}
 		}
+
+		if (Properties.TEST_SERIALIZATION) {
+            SerializationTestsChromosomeFactory.saveTests(best);
+        }
 
 		if (Properties.MINIMIZE_VALUES) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZING_VALUES);
@@ -1499,6 +1504,11 @@ public class TestSuiteGenerator {
 				JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 				        new RandomLengthTestFactory());
 				return new TestSuiteChromosomeFactory(factory);
+            case SERIALIZATION:
+                logger.info("Using serialization seeding chromosome factory");
+                SerializationTestsChromosomeFactory serialization_factory = new SerializationTestsChromosomeFactory(
+                        new RandomLengthTestFactory());
+                return new TestSuiteChromosomeFactory(serialization_factory);
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
@@ -1521,6 +1531,9 @@ public class TestSuiteGenerator {
 			case JUNIT:
 				logger.info("Using seeding chromosome factory");
 				return new JUnitTestCarvedChromosomeFactory(new RandomLengthTestFactory());
+			case SERIALIZATION:
+                logger.info("Using serialization seeding chromosome factory");
+                return new SerializationTestsChromosomeFactory(new RandomLengthTestFactory());
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
