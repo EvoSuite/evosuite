@@ -162,6 +162,18 @@ public class System {
 		return currentTime; //++;
 	}
 	
+	/**
+	 * Get time without modifying whether the time was accessed.
+	 * This is important as otherwise the use of VFS would always
+	 * mark the time as accessed
+	 * 
+	 * @return
+	 */
+	public static long getCurrentTimeMillisForVFS() {
+		//wasTimeAccessed = true;
+		return currentTime; //++;
+	}
+	
 	private static Map<Integer, Integer> hashKeys = new HashMap<Integer, Integer>();
 	
 	public static void registerObjectForIdentityHashCode(Object o) {
