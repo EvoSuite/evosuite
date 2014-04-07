@@ -589,6 +589,12 @@ public class Properties {
 	@Parameter(key = "ctg_folder", group = "Continuous Test Generation", description = "Where generated files will be stored")
 	public static String CTG_FOLDER = ".continuous_evosuite";
 
+	@Parameter(key = "ctg_tmp_folder", group = "Continuous Test Generation", description = "Temporary directory")
+    public static String CTG_TMP_FOLDER = "tmp";
+
+    @Parameter(key = "ctg_history_file", group = "Continuous Test Generation", description = "File with the history of every class")
+    public static String CTG_HISTORY_FILE = "";
+
 	/*
 	 * FIXME choose best schedule for default
 	 * Note: most likely we ll use this parameter only for testing/experiments.

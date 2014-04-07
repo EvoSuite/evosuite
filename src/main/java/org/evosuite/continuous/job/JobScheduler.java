@@ -5,6 +5,7 @@ import java.util.List;
 import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.continuous.job.schedule.BudgetAndSeedingSchedule;
 import org.evosuite.continuous.job.schedule.BudgetSchedule;
+import org.evosuite.continuous.job.schedule.HistorySchedule;
 import org.evosuite.continuous.job.schedule.ScheduleType;
 import org.evosuite.continuous.job.schedule.SeedingSchedule;
 import org.evosuite.continuous.job.schedule.SimpleSchedule;
@@ -27,7 +28,7 @@ public class JobScheduler {
 	 * @author arcuri
 	 *
 	 */
-	public enum AvailableSchedule {SIMPLE,BUDGET,SEEDING,BUDGET_AND_SEEDING}; 
+	public enum AvailableSchedule {SIMPLE,BUDGET,SEEDING,BUDGET_AND_SEEDING,HISTORY}; 
 	
 	private static Logger logger = LoggerFactory.getLogger(JobScheduler.class);
 
@@ -71,6 +72,9 @@ public class JobScheduler {
 			case BUDGET_AND_SEEDING:
 				currentSchedule = new BudgetAndSeedingSchedule(this);
 				break;
+			case HISTORY:
+                currentSchedule = new HistorySchedule(this);
+                break;
 			default:
 				throw new IllegalArgumentException("Schedule '"+schedule+"' is not supported");				
 		}

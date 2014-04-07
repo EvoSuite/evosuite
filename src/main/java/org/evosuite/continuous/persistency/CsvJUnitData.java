@@ -85,7 +85,7 @@ public class CsvJUnitData {
 		return data; 
 	}
 
-	private static String getValue(List<String[]> rows, String columnName){
+	public static String getValue(List<String[]> rows, String columnName){
 		String[] names = rows.get(0);
 		String[] values = rows.get(1);
 
