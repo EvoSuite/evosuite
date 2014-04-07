@@ -149,7 +149,7 @@ public class TestLocalSearch extends SystemTest {
 		String targetClass = DoubleLocalSearchExample.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.SEARCH_BUDGET = 30000;
+		//Properties.SEARCH_BUDGET = 30000;
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -174,7 +174,7 @@ public class TestLocalSearch extends SystemTest {
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = false;
-		Properties.SEARCH_BUDGET = 30000;
+		//Properties.SEARCH_BUDGET = 30000;
 
 		// Make sure that local search will have effect
 		Properties.CHROMOSOME_LENGTH = 5;
@@ -199,7 +199,7 @@ public class TestLocalSearch extends SystemTest {
 		String targetClass = StringLocalSearchExample.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.SEARCH_BUDGET = 20000;
+		//Properties.SEARCH_BUDGET = 20000;
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -224,7 +224,7 @@ public class TestLocalSearch extends SystemTest {
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = false;
-		Properties.SEARCH_BUDGET = 20000;
+		//Properties.SEARCH_BUDGET = 30000;
 		
 		// Make sure that local search will have effect
 		Properties.CHROMOSOME_LENGTH = 5;
