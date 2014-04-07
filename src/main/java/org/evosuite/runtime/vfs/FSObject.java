@@ -55,7 +55,7 @@ public abstract class FSObject {
 
 	protected long getCurrentTimeMillis(){
 		if(Properties.REPLACE_CALLS){
-			return org.evosuite.runtime.System.currentTimeMillis();
+			return org.evosuite.runtime.System.getCurrentTimeMillisForVFS();
 		} else {
 			return java.lang.System.currentTimeMillis();
 		}
