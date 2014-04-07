@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -381,8 +382,12 @@ public class TestSuiteWriter implements Opcodes {
 		// if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		//		|| Properties.RESET_STATIC_FIELDS || wasSecurityException
 		//		|| SystemInUtil.getInstance().hasBeenUsed()) {
-		//	importsSorted.add(org.junit.BeforeClass.class.getCanonicalName());
-		// }
+		if(wasSecurityException) {
+			importsSorted.add(org.junit.BeforeClass.class.getCanonicalName());
+			importsSorted.add(org.junit.Before.class.getCanonicalName());
+			importsSorted.add(org.junit.After.class.getCanonicalName());
+			importsSorted.add(org.junit.AfterClass.class.getCanonicalName());
+		}
 		
 		// importsSorted.add(org.junit.Before.class.getCanonicalName());
 		// importsSorted.add(org.junit.After.class.getCanonicalName());
@@ -625,7 +630,11 @@ public class TestSuiteWriter implements Opcodes {
 			// generateResetClasses(bd);
 		}
 		if (Properties.REPLACE_CALLS) {
-			bd.append(adapter.getStubbingCode());
+			List<String> properties = new ArrayList<String>();
+			properties.addAll(mergeProperties(results));
+			String[] propertyArray = new String[properties.size()];
+			properties.toArray(propertyArray);
+			bd.append(adapter.getStubbingCode(propertyArray));
 		}
 		if (Properties.VIRTUAL_FS) {
 			bd.append(adapter.getVirtualFSCode());
@@ -664,6 +673,20 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("\n");
 	}
 
+	private Set<String> mergeProperties(List<ExecutionResult> results) {
+		if (results == null) {
+			return null;
+		}
+		Set<String> set = new LinkedHashSet<String>();
+		for (ExecutionResult res : results) {
+			Set<String> props = res.getReadProperties();
+			if (props != null) {
+				set.addAll(props);
+			}
+		}
+		return set;
+	}
+	
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException,
 			List<ExecutionResult> results) {
 
