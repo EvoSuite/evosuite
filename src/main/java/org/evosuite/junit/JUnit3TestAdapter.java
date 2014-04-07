@@ -134,7 +134,7 @@ public class JUnit3TestAdapter implements UnitTestAdapter {
 	}
 
 	@Override
-	public String getStubbingCode() {
+	public String getStubbingCode(String... properties) {
 		// TODO Auto-generated method stub
 		return null;
 	}
