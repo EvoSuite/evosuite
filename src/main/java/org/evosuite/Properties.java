@@ -124,6 +124,9 @@ public class Properties {
 	@Parameter(key = "test_carving", group = "Test Creation", description = "Enable test carving")
 	public static boolean TEST_CARVING = false;
 
+	@Parameter(key = "test_serialization", group = "Test Creation", description = "Enable test serialization")
+    public static boolean TEST_SERIALIZATION = false;
+
 	@Parameter(key = "chop_carved_exceptions", group = "Test Creation", description = "If a carved test throws an exception, either chop it off, or drop it")
 	public static boolean CHOP_CARVED_EXCEPTIONS = true;
 
@@ -903,7 +906,7 @@ public class Properties {
 	public static boolean HANDLE_STATIC_FIELDS = false;
 
 	public enum TestFactory {
-		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT
+		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT, SERIALIZATION
 	}
 
 	/** Constant <code>TEST_FACTORY</code> */
@@ -924,6 +927,10 @@ public class Properties {
 	/** Constant <code>SEED_MUTATIONS=2</code> */
 	@Parameter(key = "seed_mutations", description = "Number of mutations applied to a cloned individual")
 	public static int SEED_MUTATIONS = 2;
+
+	/** Constant <code>SEED_DIR=""</code> */
+    @Parameter(key = "seed_dir", group = "Output", description = "Directory name to save best chromosomes")
+    public static String SEED_DIR = "evosuite-seeds";
 
 	/** Constant <code>CONCOLIC_MUTATION=0.0</code> */
 	@Parameter(key = "concolic_mutation", description = "Probability of using concolic mutation operator")
