@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
 import org.evosuite.reset.ResetManager;
 import org.evosuite.testcase.TestCase;
@@ -230,7 +231,8 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 				propertyList.append(indent);
 			}
 			propertyList.append("\"");
-			propertyList.append(propertyName);
+			String escapedPropertyName = StringEscapeUtils.escapeJava(propertyName);
+			propertyList.append(escapedPropertyName);
 			propertyList.append("\"");
 		}
 		String propertiesToSet = propertyList.toString();
