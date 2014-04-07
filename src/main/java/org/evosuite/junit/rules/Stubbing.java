@@ -22,16 +22,13 @@ public class Stubbing extends BaseRule {
 	
 	private PrintStream logStream = null;
 	  
-	public Stubbing(String... properties) {
+	public Stubbing() {
 		org.evosuite.Properties.REPLACE_CALLS = true;
-		for (String prop : properties) {
-			String currentValue = System.getProperty(prop);
-			if (currentValue != null) {
-				setProperty(prop, currentValue);
-			} else {
-				clearProperty(prop);
-			}
-		}	
+		initProperties();
+	}
+	
+	public void initProperties() {
+		
 	}
 	
 	public void setProperty(String key, String value) {

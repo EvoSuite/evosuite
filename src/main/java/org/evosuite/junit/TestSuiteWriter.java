@@ -37,6 +37,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.AssertionStrategy;
@@ -44,10 +45,8 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputFormat;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
-import org.evosuite.reset.ResetExecutor;
 import org.evosuite.reset.ResetManager;
 import org.evosuite.result.TestGenerationResultBuilder;
-import org.evosuite.runtime.VirtualFileSystem;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
@@ -374,6 +373,14 @@ public class TestSuiteWriter implements Opcodes {
 			else
 				importNames.add(imp.getName());
 		}
+		
+		if(wasSecurityException) {
+			importNames.add(org.junit.BeforeClass.class.getCanonicalName());
+			importNames.add(org.junit.Before.class.getCanonicalName());
+			importNames.add(org.junit.After.class.getCanonicalName());
+			importNames.add(org.junit.AfterClass.class.getCanonicalName());
+		}
+		
 		List<String> importsSorted = new ArrayList<String>(importNames);
 
 		// FIXME: I disagree - it should be covered by the below branches
@@ -382,12 +389,7 @@ public class TestSuiteWriter implements Opcodes {
 		// if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		//		|| Properties.RESET_STATIC_FIELDS || wasSecurityException
 		//		|| SystemInUtil.getInstance().hasBeenUsed()) {
-		if(wasSecurityException) {
-			importsSorted.add(org.junit.BeforeClass.class.getCanonicalName());
-			importsSorted.add(org.junit.Before.class.getCanonicalName());
-			importsSorted.add(org.junit.After.class.getCanonicalName());
-			importsSorted.add(org.junit.AfterClass.class.getCanonicalName());
-		}
+
 		
 		// importsSorted.add(org.junit.Before.class.getCanonicalName());
 		// importsSorted.add(org.junit.After.class.getCanonicalName());
@@ -630,11 +632,12 @@ public class TestSuiteWriter implements Opcodes {
 			// generateResetClasses(bd);
 		}
 		if (Properties.REPLACE_CALLS) {
-			List<String> properties = new ArrayList<String>();
-			properties.addAll(mergeProperties(results));
-			String[] propertyArray = new String[properties.size()];
-			properties.toArray(propertyArray);
-			bd.append(adapter.getStubbingCode(propertyArray));
+			// FIXXME: Hack for now.
+			if (shouldResetProperties(results)) {
+				generateSetSystemProperties(bd, results);
+			} else {
+				bd.append(adapter.getStubbingCode());
+			}
 		}
 		if (Properties.VIRTUAL_FS) {
 			bd.append(adapter.getVirtualFSCode());
@@ -782,6 +785,75 @@ public class TestSuiteWriter implements Opcodes {
 
 			bd.append("\n");
 		}
+	}
+	
+	private boolean shouldResetProperties(List<ExecutionResult> results) {
+		/*
+		 * Note: we need to reset the properties even if the SUT only read them. Reason is
+		 * that we are modifying them in the test case in the @Before method
+		 */
+		Set<String> readProperties = null;
+		if (Properties.REPLACE_CALLS) {
+			readProperties = mergeProperties(results);
+			if (readProperties.isEmpty()) {
+				readProperties = null;
+			}
+		}
+
+		boolean shouldResetProperties = Properties.REPLACE_CALLS
+				&& (wasAnyWrittenProperty(results) || readProperties != null);
+
+		return shouldResetProperties;
+	}
+	
+	private boolean wasAnyWrittenProperty(List<ExecutionResult> results) {
+		for (ExecutionResult res : results) {
+			if (res.wasAnyPropertyWritten()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private void generateSetSystemProperties(StringBuilder bd,
+			List<ExecutionResult> results) {
+		bd.append(METHOD_SPACE);
+		bd.append("@Rule\n");
+		bd.append(METHOD_SPACE);
+		bd.append("public Stubbing stubbing = new Stubbing() {\n");
+		if (shouldResetProperties(results)) {
+			/*
+			 * even if we set all the properties that were read, we still need
+			 * to reset everything to handle the properties that were written 
+			 */
+			bd.append(BLOCK_SPACE);
+			bd.append("public void initProperties() {\n");
+
+			Set<String> readProperties = mergeProperties(results);
+			for (String prop : readProperties) {
+				bd.append(INNER_BLOCK_SPACE);
+				String currentValue = System.getProperty(prop);
+				String escaped_prop = StringEscapeUtils.escapeJava(prop);
+				if (currentValue != null) {
+					String escaped_currentValue = StringEscapeUtils
+							.escapeJava(currentValue);
+					bd.append("setProperty(\"" + escaped_prop
+							+ "\", \"" + escaped_currentValue + "\"); \n");
+				} else {
+					bd.append("clearProperty(\""
+							+ escaped_prop + "\"); \n");
+				}
+			}
+			bd.append(BLOCK_SPACE);
+			bd.append("}\n");
+
+		} else {
+			bd.append(BLOCK_SPACE + "/*No java.lang.System property to set*/\n");
+		}
+
+		bd.append(METHOD_SPACE);
+		bd.append("};\n");
+
 	}
 
 	private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
