@@ -381,8 +381,12 @@ public class TestSuiteWriter implements Opcodes {
 		// if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		//		|| Properties.RESET_STATIC_FIELDS || wasSecurityException
 		//		|| SystemInUtil.getInstance().hasBeenUsed()) {
-		//	importsSorted.add(org.junit.BeforeClass.class.getCanonicalName());
-		// }
+		if(wasSecurityException) {
+			importsSorted.add(org.junit.BeforeClass.class.getCanonicalName());
+			importsSorted.add(org.junit.Before.class.getCanonicalName());
+			importsSorted.add(org.junit.After.class.getCanonicalName());
+			importsSorted.add(org.junit.AfterClass.class.getCanonicalName());
+		}
 		
 		// importsSorted.add(org.junit.Before.class.getCanonicalName());
 		// importsSorted.add(org.junit.After.class.getCanonicalName());
