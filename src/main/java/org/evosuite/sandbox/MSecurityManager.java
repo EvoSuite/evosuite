@@ -436,7 +436,7 @@ public class MSecurityManager extends SecurityManager {
 			return true;
 		}
 
-		if(checkIfEvoSuiteRMI(perm)){
+		if(checkIfEvoSuiteRMI(perm) || checkIfRMIDuringTests(perm)){
 			return true;
 		}
 
@@ -690,6 +690,20 @@ public class MSecurityManager extends SecurityManager {
 		return true;
 	}
 
+	public boolean checkIfRMIDuringTests(Permission perm){
+		
+		/*
+		 * if we are running test cases to debug EvoSuite, we always want to allow RMI.
+		 * this is particularly true as we do have RMI in the Master as well, which usually
+		 * would run without a sandbox
+		 */
+		if(Properties.CLIENT_ON_THREAD && Thread.currentThread().getName().startsWith("RMI TCP")){
+			return true;
+		}
+		
+		return false;
+	}
+	
 	/*
 	 * Note: many of the String constants used below in the various methods come from sun.security.util.SecurityConstants but accessing them directly
 	 * can issue some warnings, and might make EvoSuite more difficult to port and use on different OS,installations, or even Java versions
@@ -1012,7 +1026,7 @@ public class MSecurityManager extends SecurityManager {
 					|| library.equals("cmm") || library.equals("t2k") 
 					|| library.equals("jawt") || library.equals("sunec")  
 					|| library.equals("management") || library.equals("kcms")
-					|| library.equals("jaybird21")
+					|| library.equals("jaybird21") || library.equals("instrument")
 					) {
 				return true;
 			}
