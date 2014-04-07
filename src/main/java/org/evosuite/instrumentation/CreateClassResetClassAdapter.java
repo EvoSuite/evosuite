@@ -24,8 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.evosuite.reset.ClassResetter;
-import org.evosuite.setup.TestCluster;
-import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
