@@ -1,6 +1,7 @@
 package org.evosuite.agent;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -8,6 +9,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,28 +91,31 @@ public class AgentLoader {
 		alreadyLoaded = true;
 	}
 
-	private static boolean isEvoSuiteMainJar(String path){
-		/*
-		 * FIXME: this needs a major refactoring.
-		 * For example, it will not work if EvoSuite is run from sh/bat
-		 * script, and if name of the jar is changed
-		 */
-
-		/*
-		if(! path.endsWith("minimal.jar")){
-			return false;
-		} */
-		/*
-		if(jar.contains("/evosuite-0")){ //FIXME we need a better check 
-			return true;
-		}
-		 */
-
+	private static boolean isEvoSuiteMainJar(String path) throws IllegalArgumentException{
+		
 		File file = new File(path);
-		String jar = file.getName();
+		if(!file.exists()){
+			throw new IllegalArgumentException("Non-existing file "+path);
+		}
+		
+		String name = file.getName();
 
-		if(jar.startsWith("evosuite-0") && jar.endsWith(".jar")){
-			return true; //FIXME better handling
+		if(name.toLowerCase().contains("evosuite") && name.endsWith(".jar")){			
+			try (JarFile jar = new JarFile(file);){
+				Manifest manifest = jar.getManifest();
+				if(manifest == null){
+					return false;
+				}
+				
+				Attributes attributes = manifest.getMainAttributes();
+				String agentClass = attributes.getValue("Agent-Class");
+				String agent = "org.evosuite.agent.InstrumentingAgent"; // this is hardcoded in the pom.xml file
+				if(agentClass != null && agentClass.trim().equalsIgnoreCase(agent)){
+					return true; 
+				}
+			} catch (IOException e) {
+				return false;
+			}
 		}
 
 		return false;
@@ -152,16 +159,6 @@ public class AgentLoader {
 			jarFilePath = searchInM2();    			
 		}
 
-		if(jarFilePath==null){
-			//this could happen if the name of the jar has been changed, so just pick one that contains evosuite in its name 
-			for(String entry : tokens){
-				if(isEvoSuiteMainJar(entry)){  
-					jarFilePath = entry;
-					break;
-				}
-			}
-		}
-
 		return jarFilePath; 
 	}
 
@@ -179,7 +176,7 @@ public class AgentLoader {
 						uris.add(uri);
 
 						File file = new File(uri);
-						if(isEvoSuiteMainJar(file.getName())){
+						if(isEvoSuiteMainJar(file.getAbsolutePath())){
 							return file.getAbsolutePath();
 						}
 					} catch (Exception e) {
@@ -235,9 +232,9 @@ public class AgentLoader {
 		}
 
 		for(File file : target.listFiles()){
-			String name = file.getName();
-			if(isEvoSuiteMainJar(name)){
-				return file.getAbsolutePath();
+			String path = file.getAbsolutePath();
+			if(isEvoSuiteMainJar(path)){
+				return path;
 			}
 		}
 
