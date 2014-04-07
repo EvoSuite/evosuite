@@ -11,9 +11,12 @@ import java.util.regex.Pattern;
 import javax.swing.event.ListSelectionEvent;
 
 import org.evosuite.Properties;
+import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
+import org.evosuite.continuous.job.schedule.HistorySchedule;
 import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.ResourceList;
@@ -119,7 +122,14 @@ public class ProjectAnalyzer {
 				continue;
 			}
 
-			cuts.add(className);
+			try {
+				Class<?> clazz = Class.forName(className);
+				if (!CoverageAnalysis.isTest(clazz))
+					cuts.add(className);
+			}
+			catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 
 		}
 		return cuts;
@@ -177,7 +187,13 @@ public class ProjectAnalyzer {
 				Properties.TARGET_CLASS = "";
 			}
 
-			data.addNewClass(new ClassInfo(theClass, numberOfBranches, hasCode));
+			ClassInfo ci = new ClassInfo(theClass, numberOfBranches, hasCode);
+			data.addNewClass(ci);
+
+			if (Properties.CTG_SCHEDULE == AvailableSchedule.HISTORY) {
+				ci.setChanged(data.hasChanged(theClass.getCanonicalName()));
+				ci.setCoverageImproved(data.hasCoverageImproved(theClass.getCanonicalName(), HistorySchedule.COMMIT_IMPROVEMENT));
+			}
 		}
 
 		return data;

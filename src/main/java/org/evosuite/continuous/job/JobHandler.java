@@ -171,7 +171,8 @@ public class JobHandler extends Thread {
 
 		StorageManager storage = executor.getStorage();
 		File logs = storage.getTmpLogs();
-		cmd += " -Devosuite.log.folder=" + logs.getAbsolutePath() + "/job" + job.jobID;
+		//cmd += " -Devosuite.log.folder=" + logs.getAbsolutePath() + "/job" + job.jobID;
+		cmd += " -Devosuite.log.folder=" + logs.getAbsolutePath() + "/job" + job.cut;
 
 		if (Properties.LOG_LEVEL != null && !Properties.LOG_LEVEL.isEmpty()) {
 			cmd += " -Dlog.level=" + Properties.LOG_LEVEL;
@@ -226,11 +227,15 @@ public class JobHandler extends Thread {
 		File tests = storage.getTmpTests();
 
 		//TODO check if it works on Windows... likely not	
-		cmd += " -Dreport_dir=" + reports.getAbsolutePath() + "/job" + job.jobID;
+		//cmd += " -Dreport_dir=" + reports.getAbsolutePath() + "/job" + job.jobID;
+		cmd += " -Dreport_dir=" + reports.getAbsolutePath() + "/job" + job.cut;
 		cmd += " -Dtest_dir=" + tests.getAbsolutePath();
 
 		//cmd += " -Derror_branches=true"; 
 		cmd += " -criterion exception";
+		cmd += " -Dtest_factory=" + Properties.TEST_FACTORY;
+		cmd += " -Dseed_clone=" + Properties.SEED_CLONE;
+		cmd += " -Dseed_dir=" + storage.getTmpSeeds().getAbsolutePath();
 
 		cmd += " " + getOutputVariables();
 
@@ -260,9 +265,20 @@ public class JobHandler extends Thread {
 		cmd += " -Dminimize=" + Properties.MINIMIZE;
 		cmd += " -Dassertions=" + Properties.ASSERTIONS;
 
+		cmd += " -Dmax_size=" + Properties.MAX_SIZE;
+
 		cmd += " -Dsecondary_objectives=totallength  -Dtimeout=5000  ";
-		cmd += " -Dhtml=false -Dlog_timeout=false  -Dplot=false -Djunit_tests=true  -Dshow_progress=false";
+		cmd += " -Dhtml=false -Dlog_timeout=false  -Dplot=false -Djunit_tests=true -Dtest_comments=false -Dshow_progress=false";
 		cmd += " -Dsave_all_data=false  -Dinline=false";
+
+		/*
+		 * for (de)serialization of classes with static fields, inner classes, etc,
+		 * we must have this options set to true
+		 */
+		cmd += " -Dreset_static_fields=true -Dreplace_calls=true";
+
+		if (!Properties.CTG_HISTORY_FILE.isEmpty())
+            cmd += " -Dctg_history_file=" + Properties.CTG_HISTORY_FILE;
 
 		return cmd;
 	}

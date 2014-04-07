@@ -83,7 +83,7 @@ public class SerializationTestsChromosomeFactory
         }
         catch (IOException e)
         {
-            logger.error(e.getMessage());
+            // ok, maybe we don't have a previous test suite yet
         }
     }
 

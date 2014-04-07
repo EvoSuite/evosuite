@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Resources;
 import javax.xml.XMLConstants;
@@ -56,6 +57,7 @@ public class StorageManager {
 	private File tmpReports;
 	private File tmpTests;
 	private File tmpPools;
+	private File tmpSeeds;
 	
 	/**
 	 * Folder where all the best test suites generated so far in all CTG runs are stored
@@ -132,16 +134,23 @@ public class StorageManager {
 	 * @return
 	 */
 	public boolean createNewTmpFolders(){
-		String tmpPath = rootFolderName+"/tmp/";
+		String tmpPath = rootFolderName+"/"+Properties.CTG_TMP_FOLDER;
+
 		Date now = new Date();
 		String time = DateFormatUtils.format(
 				now, "yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
-		File tmp = new File(tmpPath+"/tmp_"+time);
-		boolean created = tmp.mkdirs();
 
-		if(created){
+		File tmp = new File(tmpPath+"/tmp_"+time+"_"+UUID.randomUUID().toString());
+		boolean created;
+		if (new File(tmpPath).exists())
+			created = tmp.mkdir();
+		else
+			created = tmp.mkdirs();
+
+		if (created) {
 			tmpFolder = tmp;
-		} else {
+		}
+		else {
 			tmpFolder = null;
 			return false;
 		}
@@ -156,6 +165,8 @@ public class StorageManager {
 		tmpTests.mkdirs();
 		tmpPools = new File(tmpFolder.getAbsolutePath()+"/pools");
 		tmpPools.mkdirs();
+		tmpSeeds = new File(tmpPath+"/"+Properties.SEED_DIR);
+		tmpSeeds.mkdirs();
 		
 		return true;
 	}
@@ -604,5 +615,9 @@ public class StorageManager {
 
 	public File getTmpPools() {
 		return tmpPools;
+	}
+
+	public File getTmpSeeds() {
+		return this.tmpSeeds;
 	}
 }

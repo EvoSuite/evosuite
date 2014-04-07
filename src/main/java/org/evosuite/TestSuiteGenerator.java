@@ -31,6 +31,7 @@ import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.DSEType;
 import org.evosuite.Properties.Strategy;
+import org.evosuite.Properties.TestFactory;
 import org.evosuite.Properties.TheReplacementFunction;
 import org.evosuite.assertion.AssertionGenerator;
 import org.evosuite.assertion.CompleteAssertionGenerator;
@@ -635,7 +636,7 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		if (Properties.TEST_SERIALIZATION) {
+		if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
             SerializationTestsChromosomeFactory.saveTests(best);
         }
 
