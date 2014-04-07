@@ -92,7 +92,7 @@ public interface UnitTestAdapter {
 	
 	public String getStaticResettingCode();
 	
-	public String getStubbingCode(String... properties);
+	public String getStubbingCode();
 	
 	public String getVirtualFSCode();
 
