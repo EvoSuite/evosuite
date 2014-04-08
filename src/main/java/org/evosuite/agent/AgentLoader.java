@@ -128,6 +128,9 @@ public class AgentLoader {
 		String[] tokens = classPath.split(File.pathSeparator); 
 
 		for(String entry : tokens){
+			if(entry==null || entry.isEmpty()){
+				continue;
+			}
 			if(isEvoSuiteMainJar(entry)){
 				jarFilePath = entry;
 				break;
