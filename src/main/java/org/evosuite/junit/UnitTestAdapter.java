@@ -22,7 +22,6 @@ package org.evosuite.junit;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
@@ -40,7 +39,7 @@ public interface UnitTestAdapter {
 	 *
 	 * @return a {@link java.lang.String} object.
 	 */
-	public Set<String> getImports(boolean wasSecurityException);
+	public String getImports();
 
 	/**
 	 * Get the framework specific definition of the test class
@@ -87,13 +86,4 @@ public interface UnitTestAdapter {
 	 */
 	public String getTestString(int id, TestCase test,
 	        Map<Integer, Throwable> exceptions, TestCodeVisitor visitor);
-	
-	public String getInstrumentationCode(boolean wasSecurityException);
-	
-	public String getStaticResettingCode();
-	
-	public String getStubbingCode();
-	
-	public String getVirtualFSCode();
-
 }
