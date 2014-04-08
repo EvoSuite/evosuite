@@ -20,10 +20,8 @@
  */
 package org.evosuite.junit;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
@@ -40,10 +38,8 @@ public class JUnit3TestAdapter implements UnitTestAdapter {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Set<String> getImports(boolean wasSecurityException) {
-		Set<String> imports = new HashSet<String>();
-		imports.add(junit.framework.TestCase.class.getCanonicalName());
-		return imports;
+	public String getImports() {
+		return "import junit.framework.TestCase;\n";
 	}
 
 	/* (non-Javadoc)
@@ -120,31 +116,5 @@ public class JUnit3TestAdapter implements UnitTestAdapter {
 		visitor.clearExceptions();
 		return visitor.getCode();
 	}
-
-	@Override
-	public String getInstrumentationCode(boolean wasSecurityException) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getStaticResettingCode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getStubbingCode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getVirtualFSCode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-
 
 }
