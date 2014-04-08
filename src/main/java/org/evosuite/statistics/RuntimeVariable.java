@@ -226,16 +226,15 @@ public enum RuntimeVariable {
 				valid = false;
 			}
 			
-			if(!map.containsKey("criterion")){
-				logger.error("No testing criterion defined");
-				valid = false;
+			String criterion = null;
+			if(map.containsKey("criterion")){
+				criterion = map.get("criterion").toString();
 			}
-			String criterion = map.get("criterion").toString();
 			
 			Double coverage = getDoubleValue(map,Coverage);
 			Double branchCoverage = getDoubleValue(map,BranchCoverage);
 			
-			if(criterion.equalsIgnoreCase(Criterion.BRANCH.toString()) 
+			if(criterion!=null && criterion.equalsIgnoreCase(Criterion.BRANCH.toString()) 
 					&& coverage!=null && branchCoverage!=null){
 				
 				double diff = Math.abs(coverage - branchCoverage);
