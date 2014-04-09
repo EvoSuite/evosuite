@@ -740,7 +740,7 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("} catch (ExceptionInInitializerError ex) {" + "\n");
 
 		bd.append(INNER_INNER_BLOCK_SPACE);
-		bd.append("System.err.println(\"Could not initialize \" + classNameToLoad);\n");
+		bd.append("java.lang.System.err.println(\"Could not initialize \" + classNameToLoad);\n");
 
 		bd.append(INNER_BLOCK_SPACE);
 		bd.append("} catch (Throwable t) {" + "\n");
@@ -815,11 +815,11 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("public void initTestCase(){ \n");
 
 		bd.append(BLOCK_SPACE);
-		bd.append("systemErr = System.err;");
+		bd.append("systemErr = java.lang.System.err;");
 		bd.append(" \n");
 
 		bd.append(BLOCK_SPACE);
-		bd.append("systemOut = System.out;");
+		bd.append("systemOut = java.lang.System.out;");
 		bd.append(" \n");
 
 		bd.append(BLOCK_SPACE);
