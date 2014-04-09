@@ -57,9 +57,6 @@ public class HistorySchedule
         // left
         int totalLeftOver = 0;
 
-        //
-        int totalBudgetUsed = 0;
-
         List<JobDefinition> jobs = new LinkedList<JobDefinition>();
         for (ClassInfo c_info : data.getClassInfos())
         {
@@ -99,8 +96,6 @@ public class HistorySchedule
 
             jobs.add(new JobDefinition((int) budget, this.scheduler.getConfiguration().getConstantMemoryPerJob(),
                                        c_info.getClassName(), 0, null, null));
-
-            totalBudgetUsed += (int) budget;
         }
 
         /*
@@ -127,7 +122,6 @@ public class HistorySchedule
             }
         });
 
-        int budgetLeft = totalBudget > totalBudgetUsed ? (totalBudget - totalBudgetUsed) / jobs.size() : 0;
         int budgetUsed = 0;
 
         List<JobDefinition> jobsUnderBudget = new LinkedList<JobDefinition>();
@@ -135,17 +129,14 @@ public class HistorySchedule
         {
             JobDefinition job = jobs.get(i);
 
-            if (budgetLeft != 0)
-                job = job.getByAddingBudget(budgetLeft);
-
-            if ((budgetUsed + job.seconds) <= totalBudget)
+            if (budgetUsed <= totalBudget)
             {
-                LoggingUtils.getEvoLogger().info("+ Added class: " + job.cut + ", budget: " + job.seconds + " (bonus = " + budgetLeft + ")");
+                LoggingUtils.getEvoLogger().info("+ Added class: " + job.cut + ", budget: " + job.seconds/* + " (bonus = " + budgetLeft + ")"*/);
                 jobsUnderBudget.add(job);
                 budgetUsed += job.seconds;
             }
             else
-                LoggingUtils.getEvoLogger().info("- Ignored class: " + job.cut + ", budget: " + job.seconds + " (bonus = " + budgetLeft + ")");
+                LoggingUtils.getEvoLogger().info("- Ignored class: " + job.cut + ", budget: " + job.seconds/* + " (bonus = " + budgetLeft + ")"*/);
         }
 
         return jobsUnderBudget;

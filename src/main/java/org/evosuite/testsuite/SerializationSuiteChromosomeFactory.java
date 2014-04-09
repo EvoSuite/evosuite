@@ -1,4 +1,4 @@
-package org.evosuite.testcase;
+package org.evosuite.testsuite;
 
 import java.io.EOFException;
 import java.io.File;
@@ -7,28 +7,26 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.utils.DebuggingObjectOutputStream;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SerializationTestsChromosomeFactory
-    implements ChromosomeFactory<TestChromosome>
+public class SerializationSuiteChromosomeFactory
+    implements ChromosomeFactory<TestSuiteChromosome>
 {
     private static final long serialVersionUID = -569338946355072318L;
 
-    private static final Logger logger = LoggerFactory.getLogger(SerializationTestsChromosomeFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(SerializationSuiteChromosomeFactory.class);
 
-    private static List<TestChromosome> previousTests = new ArrayList<TestChromosome>();
+    private static TestSuiteChromosome previousSuite = null;
 
-    private final ChromosomeFactory<TestChromosome> defaultFactory;
+    private ChromosomeFactory<TestChromosome> defaultFactory;
 
     /**
      * The carved test cases are used only with a certain probability P. So, with probability 1-P the 'default' factory
@@ -37,17 +35,19 @@ public class SerializationTestsChromosomeFactory
      * @param defaultFactory
      * @throws IllegalStateException if Properties are not properly set
      */
-    public SerializationTestsChromosomeFactory(ChromosomeFactory<TestChromosome> defaultFactory)
+    public SerializationSuiteChromosomeFactory(ChromosomeFactory<TestChromosome> defaultFactory)
         throws IllegalStateException
     {
         this.defaultFactory = defaultFactory;
+
+        previousSuite = new TestSuiteChromosome(this.defaultFactory);
+        previousSuite.tests.clear();
+
         this.loadPreviousTests();
     }
 
     /**
      * Deserialize previous tests
-     * 
-     * @throws IllegalStateException
      */
     private void loadPreviousTests()
     {
@@ -66,8 +66,8 @@ public class SerializationTestsChromosomeFactory
             {
                 try
                 {
-                    TestChromosome t = (TestChromosome) in.readObject();
-                    previousTests.add(t);
+                    TestChromosome tc = (TestChromosome) in.readObject();
+                    previousSuite.addTest(tc);
                 }
                 catch (EOFException e)
                 {
@@ -92,7 +92,7 @@ public class SerializationTestsChromosomeFactory
      */
     public static void saveTests(Chromosome best)
     {
-        if (best.size() > 0 || previousTests.size() > 0)
+        if (best.size() > 0/* || previousSuite.getTestChromosomes().size() > 0*/)
         {
             try
             {
@@ -101,8 +101,8 @@ public class SerializationTestsChromosomeFactory
                         + Properties.TARGET_CLASS));
 
                 // keep the previous suite
-                for (TestChromosome tc : previousTests)
-                    out.writeObject(tc);
+                /*for (TestChromosome tc : previousTests)
+                    out.writeObject(tc);*/
 
                 // and also the new one
                 if (best instanceof TestChromosome)
@@ -137,31 +137,25 @@ public class SerializationTestsChromosomeFactory
      * 
      */
     @Override
-    public TestChromosome getChromosome()
+    public TestSuiteChromosome getChromosome()
     {
-        final int N_mutations = Properties.SEED_MUTATIONS;
-        final double P_clone = Properties.SEED_CLONE;
+        final int previousSuiteSize = previousSuite.getTestChromosomes().size();
 
-        if (Randomness.nextDouble() >= P_clone || previousTests.isEmpty())
+        if (Randomness.nextDouble() <= Properties.SEED_CLONE && previousSuiteSize > 0)
+            return previousSuite.clone();
+
+        TestSuiteChromosome tsc = new TestSuiteChromosome(this.defaultFactory);
+        tsc.tests.clear();
+
+        int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,
+                                          Properties.MAX_INITIAL_TESTS + 1);
+
+        for (int i = 0; i < numTests; i++)
         {
-            logger.debug("Using random test");
-            return defaultFactory.getChromosome();
+            TestChromosome tc = (TestChromosome) this.defaultFactory.getChromosome().clone();
+            tsc.addTest(tc);
         }
 
-        // Cloning
-        logger.info("Cloning a previous test chromosome");
-        TestChromosome chromosome = (TestChromosome) Randomness.choice(previousTests).clone();
-
-        if (N_mutations > 0)
-        {
-            int numMutations = Randomness.nextInt(N_mutations);
-            logger.debug("Mutations: " + numMutations);
-
-            // Delta
-            for (int i = 0; i < numMutations; i++)
-                chromosome.mutate();
-        }
-
-        return chromosome;
+        return tsc;
     }
 }

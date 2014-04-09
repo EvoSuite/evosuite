@@ -135,7 +135,6 @@ import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.RandomLengthTestFactory;
-import org.evosuite.testcase.SerializationTestsChromosomeFactory;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestCaseMinimizer;
@@ -154,6 +153,7 @@ import org.evosuite.testsuite.MinimizeMaxLengthSecondaryObjective;
 import org.evosuite.testsuite.MinimizeTotalLengthSecondaryObjective;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
 import org.evosuite.testsuite.SearchStatistics;
+import org.evosuite.testsuite.SerializationSuiteChromosomeFactory;
 import org.evosuite.testsuite.StatementsPopulationLimit;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosomeFactory;
@@ -637,7 +637,7 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
-            SerializationTestsChromosomeFactory.saveTests(best);
+            SerializationSuiteChromosomeFactory.saveTests(best);
         }
 
 		if (Properties.MINIMIZE_VALUES) {
@@ -1507,9 +1507,8 @@ public class TestSuiteGenerator {
 				return new TestSuiteChromosomeFactory(factory);
             case SERIALIZATION:
                 logger.info("Using serialization seeding chromosome factory");
-                SerializationTestsChromosomeFactory serialization_factory = new SerializationTestsChromosomeFactory(
+                return new SerializationSuiteChromosomeFactory(
                         new RandomLengthTestFactory());
-                return new TestSuiteChromosomeFactory(serialization_factory);
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
@@ -1534,7 +1533,7 @@ public class TestSuiteGenerator {
 				return new JUnitTestCarvedChromosomeFactory(new RandomLengthTestFactory());
 			case SERIALIZATION:
                 logger.info("Using serialization seeding chromosome factory");
-                return new SerializationTestsChromosomeFactory(new RandomLengthTestFactory());
+                return new SerializationSuiteChromosomeFactory(new RandomLengthTestFactory());
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
