@@ -1,4 +1,4 @@
-package org.evosuite.assertion.stable;
+package org.evosuite.assertion.stable.copy;
 
 import java.util.List;
 
@@ -10,18 +10,20 @@ import org.evosuite.testcase.TestCaseExecutor;
 
 public abstract class TestStabilityChecker {
 	public static boolean checkStability(List<TestCase> list) {
+		return true;
+	}
+	private static boolean checkStability0(List<TestCase> list) {
 		int n = list.size();
 		boolean previousRunOnSeparateProcess = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
+		boolean previousSandbox = Properties.SANDBOX;
 		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = true;
+//		Properties.SANDBOX = true;
 		
+//		if (!Sandbox.isSecurityManagerInitialized()) {
+//			Sandbox.initializeSecurityManagerForSUT();
+//		}
 		TestCaseExecutor.initExecutor(); //needed because it gets pulled down after the search
 
-		//Before starting search, let's activate the sandbox
-		if (Properties.SANDBOX) {
-			Sandbox.initializeSecurityManagerForSUT();
-		}
-
-		
 		for (TestCase tc : list) {
 			if (tc.isUnstable()) {
 				return false;
@@ -49,10 +51,9 @@ public abstract class TestStabilityChecker {
 
 			return true;
 		} finally {
+//			Sandbox.resetDefaultSecurityManager();
 			Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = previousRunOnSeparateProcess;
-			if (Properties.SANDBOX) {
-				Sandbox.resetDefaultSecurityManager();
-			}
+//			Properties.SANDBOX = previousSandbox;
 		}
 	}
 
