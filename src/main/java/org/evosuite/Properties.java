@@ -124,9 +124,6 @@ public class Properties {
 	@Parameter(key = "test_carving", group = "Test Creation", description = "Enable test carving")
 	public static boolean TEST_CARVING = false;
 
-	@Parameter(key = "test_serialization", group = "Test Creation", description = "Enable test serialization")
-    public static boolean TEST_SERIALIZATION = false;
-
 	@Parameter(key = "chop_carved_exceptions", group = "Test Creation", description = "If a carved test throws an exception, either chop it off, or drop it")
 	public static boolean CHOP_CARVED_EXCEPTIONS = true;
 
