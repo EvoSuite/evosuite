@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.evosuite.Properties;
 import org.evosuite.continuous.persistency.CsvJUnitData;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ReportGenerator.RuntimeVariable;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -96,9 +95,12 @@ public class ProjectStaticData {
 
         // Load Previous Coverage
         File tmp = new File(Properties.CTG_FOLDER + "/" + Properties.CTG_TMP_FOLDER);
-        File[] tmp_dirs = tmp.listFiles();
-        Arrays.sort(tmp_dirs);
 
+        File[] tmp_dirs = tmp.listFiles();
+        if (tmp_dirs == null || tmp_dirs.length == 0)
+            return ;
+
+        Arrays.sort(tmp_dirs);
         for (File tmp_dir : tmp_dirs)
         {
             if (tmp_dir.getName().equals(Properties.SEED_DIR))

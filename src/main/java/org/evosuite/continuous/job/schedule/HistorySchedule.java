@@ -131,12 +131,12 @@ public class HistorySchedule
 
             if (budgetUsed <= totalBudget)
             {
-                LoggingUtils.getEvoLogger().info("+ Added class: " + job.cut + ", budget: " + job.seconds/* + " (bonus = " + budgetLeft + ")"*/);
+                LoggingUtils.getEvoLogger().info("+ Added class: " + job.cut + ", budget: " + job.seconds);
                 jobsUnderBudget.add(job);
                 budgetUsed += job.seconds;
             }
             else
-                LoggingUtils.getEvoLogger().info("- Ignored class: " + job.cut + ", budget: " + job.seconds/* + " (bonus = " + budgetLeft + ")"*/);
+                LoggingUtils.getEvoLogger().info("- Ignored class: " + job.cut + ", budget: " + job.seconds);
         }
 
         return jobsUnderBudget;
