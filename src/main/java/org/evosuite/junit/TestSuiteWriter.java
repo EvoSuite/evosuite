@@ -770,10 +770,10 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("public void doneWithTestCase(){ \n");
 
 		bd.append(BLOCK_SPACE);
-		bd.append("System.setErr(systemErr); \n");
+		bd.append("java.lang.System.setErr(systemErr); \n");
 
 		bd.append(BLOCK_SPACE);
-		bd.append("System.setOut(systemOut); \n");
+		bd.append("java.lang.System.setOut(systemOut); \n");
 
 		bd.append(BLOCK_SPACE);
 		bd.append("DebugGraphics.setLogStream(logStream); \n");
