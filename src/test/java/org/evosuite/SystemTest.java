@@ -78,6 +78,7 @@ public class SystemTest {
 		Properties.MINIMIZATION_TIMEOUT = 8;
 		Properties.EXTRA_TIMEOUT = 2;
 
+		Properties.ENABLE_ASSERTS_FOR_EVOSUITE = true;
 		Properties.CLIENT_ON_THREAD = true;
 		Properties.SANDBOX = false;
 		Properties.ERROR_BRANCHES = false;

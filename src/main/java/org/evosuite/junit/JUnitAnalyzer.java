@@ -299,26 +299,25 @@ public class JUnitAnalyzer {
 			}
 
 			DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-			StandardJavaFileManager fileManager = compiler
-					.getStandardFileManager(diagnostics, Locale.getDefault(),
-							Charset.forName("UTF-8"));
-			Iterable<? extends JavaFileObject> compilationUnits = fileManager
-					.getJavaFileObjectsFromFiles(generated);
+			Locale locale = Locale.getDefault();
+			Charset charset = Charset.forName("UTF-8");
+			StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, locale, charset);
+			
+			Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(generated);
 
 			List<String> optionList;
 			if (Properties.CLIENT_ON_THREAD) {
 				optionList = new ArrayList<String>();
 				String evosuiteCP = ClassPathHandler.getInstance().getEvoSuiteClassPath();
 				
-				String targetProjectCP = ClassPathHandler.getInstance()
-						.getTargetProjectClasspath();
+				String targetProjectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
 				String classpath = evosuiteCP + File.separator + targetProjectCP;
 				optionList.addAll(Arrays.asList("-classpath", classpath));
 			} else {
 				optionList = null;
 			}
-			CompilationTask task = compiler.getTask(null, fileManager,
-					diagnostics, optionList, null, compilationUnits);
+			
+			CompilationTask task = compiler.getTask(null, fileManager, diagnostics, optionList, null, compilationUnits);
 			boolean compiled = task.call();
 			fileManager.close();
 
