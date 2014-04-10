@@ -75,7 +75,11 @@ public class SerializationSuiteChromosomeFactory
                 }
                 catch (ClassNotFoundException e)
                 {
-                    logger.error("DESERIALIZATION ERROR, Class of a serialized object cannot be found: " + e);
+                    logger.error("DESERIALIZATION ERROR: " + e);
+                }
+                catch (IllegalStateException e)
+                {
+                    logger.error("DESERIALIZATION ERROR: " + e);
                 }
             }
 

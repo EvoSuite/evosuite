@@ -302,7 +302,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		}
 		
 		if (this.method==null) {
-			throw new IllegalStateException("Unknown field for " + methodName 
+			throw new IllegalStateException("Unknown method for " + methodName 
 					+ " in class " + methodClass.getCanonicalName());
 		}
 	}
