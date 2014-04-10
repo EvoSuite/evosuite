@@ -160,7 +160,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 			if (t.isAlive() && !currentRunningThreads.contains(t)) {
 
-				logger.info("Thread " + t + ". This looks like the new thread");
+				logger.info("Found new thread");
 				try {
 					/*
 					 * In total the test case should not run for more than Properties.TIMEOUT ms
