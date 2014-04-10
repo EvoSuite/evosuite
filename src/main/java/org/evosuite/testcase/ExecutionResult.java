@@ -46,7 +46,11 @@ public class ExecutionResult implements Cloneable {
 	/** Map statement number to raised exception */
 	protected Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
 
-	/** Record for each exception if it was explicitly thrown */
+	/** Record for each exception if it was explicitly thrown 
+	 * 
+	 * <p>
+	 * FIXME: internal data structures should never be null...
+	 * */
 	public Map<Integer, Boolean> explicitExceptions = new HashMap<Integer, Boolean>();
 
 	/** Trace recorded during execution */

@@ -48,7 +48,7 @@ public class StatisticsListener implements SearchListener {
 					Chromosome individual;
 					try {
 						individual = individuals.take();
-						ClientServices.getInstance().getClientNode().updateStatistics(individual);
+						StatisticsSender.sendIndividualToMaster(individual);
 					} catch (InterruptedException e) {
 						done = true;
 					}
