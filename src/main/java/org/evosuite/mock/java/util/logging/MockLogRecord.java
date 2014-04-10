@@ -9,6 +9,7 @@ public class MockLogRecord extends LogRecord {
 		super(level, msg);
 		setMillis(org.evosuite.runtime.System.currentTimeMillis());
 		setSequenceNumber(0L);
+		setThreadID(0);
 	}
 
 	private static final long serialVersionUID = -1511890873640420434L;
