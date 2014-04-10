@@ -8,6 +8,7 @@ import java.util.List;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.runtime.Runtime;
+import org.evosuite.sandbox.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,23 +73,33 @@ public class ResetExecutor {
 	private void resetClass(String className) {
 		int mutationActive = MutationObserver.activeMutation;
 		MutationObserver.deactivateMutation();
+		logger.info("Resetting class "+className);
 		try {
 			Method resetMethod = getResetMethod(className);
 			if (resetMethod!=null) {
 				//className.__STATIC_RESET() exists
 				confirmedResettableClasses.add(className);
 				//execute __STATIC_RESET()
+				Sandbox.goingToExecuteSUTCode();
+
 				Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
 				resetMethod.invoke(null, (Object[]) null);
+				
+				Sandbox.doneWithExecutingSUTCode();
+
 			}
 		} catch (SecurityException e) {
 			logger.warn("Security exception thrown during loading of method  __STATIC_RESET() for class " + className);
+			logger.warn(""+e.getCause());
 		} catch (IllegalAccessException e) {
 			logger.warn("IllegalAccessException during execution of method  __STATIC_RESET() for class " + className);
+			logger.warn(""+e.getCause());
 		} catch (IllegalArgumentException e) {
 			logger.warn("IllegalArgumentException during execution of method  __STATIC_RESET() for class " + className);
+			logger.warn(""+e.getCause());
 		} catch (InvocationTargetException e) {
 			logger.warn("InvocationTargetException during execution of method  __STATIC_RESET() for class " + className);
+			logger.warn(""+e.getCause());
 		} finally {
 			MutationObserver.activateMutation(mutationActive);
 		}
