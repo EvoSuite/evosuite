@@ -115,13 +115,13 @@ public enum RuntimeVariable {
 	HadUnstableTests, 
 	/** An estimate (ie not precise) of the maximum number of threads running at the same time in the CUT */
 	Threads,
-	/** TODO */
+	/** Number of top-level methods throwing an undeclared exception explicitly with a 'throw new' */
 	Explicit_MethodExceptions, 
-	/** TODO */
+	/** Number of undeclared exception types that were explicitly thrown with a 'throw new' at least once */
 	Explicit_TypeExceptions, 
-	/** TODO */
+	/** Number of top-level methods throwing an undeclared exception implicitly (ie, no 'new throw') */
 	Implicit_MethodExceptions, 
-	/** TODO */
+	/** Number of undeclared exception types that were implicitly thrown (ie, no 'new throw') at least once */
 	Implicit_TypeExceptions, 
 	/* ----- number of unique permissions that were denied for each kind --- */
 	AllPermission,
