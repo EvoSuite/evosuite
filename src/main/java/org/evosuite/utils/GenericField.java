@@ -181,11 +181,11 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 		try {
 			field = methodClass.getDeclaredField(fieldName);
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		    throw new IllegalStateException("Unknown field for " + fieldName 
+		                                    + " in class " + methodClass.getCanonicalName());
 		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            throw new IllegalStateException("Unknown field for " + fieldName 
+                                            + " in class " + methodClass.getCanonicalName());
 		}
 	}
 

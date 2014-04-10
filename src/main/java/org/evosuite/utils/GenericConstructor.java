@@ -263,6 +263,8 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 				return;
 			}
 		}
+
+		throw new IllegalStateException("Unknown constructor in class " + constructorClass.getCanonicalName());
 	}
 
 	/* (non-Javadoc)

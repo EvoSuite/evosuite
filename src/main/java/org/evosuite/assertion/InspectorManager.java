@@ -66,7 +66,7 @@ public class InspectorManager {
 		blackList.put(
 				"java.lang.Thread",
 				Arrays.asList(new String[] { "activeCount", "getId", "getName",
-						"getPriority", "toString" }));
+						"getPriority", "toString", "getState", "isAlive" }));
 		blackList.put("java.util.EventObject",
 				Arrays.asList(new String[] { "toString" }));
 
