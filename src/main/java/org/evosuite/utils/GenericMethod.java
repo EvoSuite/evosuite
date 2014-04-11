@@ -224,15 +224,18 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		Class<?>[] parameterTypes = method.getParameterTypes();
 		boolean isExact = true;
 		Class<?>[] parameterClasses = new Class<?>[parameters.size()];
-		int num = 0;
-		for (VariableReference parameter : parameters) {
+		for (int num =0 ; num < parameters.size(); num++) {
+			VariableReference parameter = parameters.get(num);
 			parameterClasses[num] = parameter.getVariableClass();
 			if (!parameterClasses[num].equals(parameterTypes[num])) {
 				isExact = false;
 			}
+			
 		}
-		if (isExact)
+		
+		if (isExact) {
 			return false;
+		}
 		try {
 			java.lang.reflect.Method otherMethod = declaringClass.getMethod(methodName,
 			                                                                parameterTypes);
