@@ -1013,7 +1013,13 @@ public class TestFactory {
 				clazz = clazz.getGenericInstantiation();
 				parameterType = clazz.getType();
 			}
-			if (!TestCluster.getInstance().hasGenerator(parameterType)) {
+			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isClass() || clazz.getRawClass().equals(EvoSuiteFile.class) || clazz.isString() || clazz.isArray() || TestCluster.getInstance().hasGenerator(parameterType)) {
+				logger.debug(" Generating new object of type " + parameterType);
+				VariableReference reference = attemptGeneration(test, parameterType,
+				                                                position, recursionDepth,
+				                                                true);
+				return reference;
+			} else {
 				if (objects.isEmpty())
 					throw new ConstructionFailedException(
 					        "Have no objects and generators");
@@ -1022,12 +1028,6 @@ public class TestFactory {
 				VariableReference reference = Randomness.choice(objects);
 				logger.debug(" Using existing object of type " + parameterType + ": "
 				        + reference);
-				return reference;
-			} else {
-				logger.debug(" Generating new object of type " + parameterType);
-				VariableReference reference = attemptGeneration(test, parameterType,
-				                                                position, recursionDepth,
-				                                                true);
 				return reference;
 			}
 		}
