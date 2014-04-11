@@ -2,12 +2,15 @@ package org.evosuite.statistics;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.testcase.ConstructorStatement;
@@ -78,19 +81,10 @@ public class StatisticsSender {
 
 	private static void sendExceptionInfo(TestSuiteChromosome testSuite) {
 
-		/*
-		 * for each test case, keep track of thrown exceptions and their position (a index) in
-		 * the test case sequence.
-		 * For each of these exception, keep track of whether it was explicit (ie directly thrown)
-		 */
-		Map<TestCase, Map<Integer, Boolean>> isExceptionExplicit = new HashMap<TestCase, Map<Integer, Boolean>>();
-		Map<TestCase, Map<Integer, Throwable>> exceptionMappings = new HashMap<TestCase, Map<Integer, Throwable>>();		
-
+		List<ExecutionResult> results = new ArrayList<>();
+		
 		for (TestChromosome testChromosome : testSuite.getTestChromosomes()) {
-			TestCase tc = testChromosome.getTestCase();
-			ExecutionResult res = testChromosome.getLastExecutionResult();
-			isExceptionExplicit.put(tc, res.explicitExceptions);
-			exceptionMappings.put(tc, res.getCopyOfExceptionMapping());
+			results.add(testChromosome.getLastExecutionResult());
 		}
 
 		/*
@@ -99,74 +93,16 @@ public class StatisticsSender {
 		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new HashMap<>();
 		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<>();
 
-		for (TestCase test : exceptionMappings.keySet()) {
-			Map<Integer, Throwable> exceptions = exceptionMappings.get(test);
-			//iterate on the indexes of the statements that resulted in an exception
-			for (Integer i : exceptions.keySet()) {
-				Throwable t = exceptions.get(i);
-				if (t instanceof SecurityException && Properties.SANDBOX){
-					continue;
-				}
-				if (i >= test.size()) {
-					// Timeouts are put after the last statement if the process was forcefully killed
-					continue;
-				}
-
-				String methodName = "";
-				boolean sutException = false;
-
-				if (test.getStatement(i) instanceof MethodStatement) {
-					MethodStatement ms = (MethodStatement) test.getStatement(i);
-					Method method = ms.getMethod().getMethod();
-					methodName = method.getName() + Type.getMethodDescriptor(method);
-
-					if (method.getDeclaringClass().equals(Properties.getTargetClass())){
-						sutException = true;
-					}
-
-				} else if (test.getStatement(i) instanceof ConstructorStatement) {
-
-					ConstructorStatement cs = (ConstructorStatement) test.getStatement(i);
-					Constructor<?> constructor = cs.getConstructor().getConstructor();
-					methodName = "<init>" + Type.getConstructorDescriptor(constructor);
-					if (constructor.getDeclaringClass().equals(Properties.getTargetClass())){
-						sutException = true;
-					}
-				}
-
-				boolean notDeclared = !test.getStatement(i).getDeclaredExceptions().contains(t.getClass());
-
-				if (notDeclared && sutException) {
-					/*
-					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
-					 * input for pre-condition) or implicit ("likely" a real fault).
-					 */					
-					boolean isExplicit = isExceptionExplicit.get(test).containsKey(i)
-							&& isExceptionExplicit.get(test).get(i);
-
-					if (isExplicit) {
-						if (!explicitTypesOfExceptions.containsKey(methodName)){
-							explicitTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
-						}
-						explicitTypesOfExceptions.get(methodName).add(t.getClass());
-					} else {
-						if (!implicitTypesOfExceptions.containsKey(methodName)){
-							implicitTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
-						}
-						implicitTypesOfExceptions.get(methodName).add(t.getClass());
-					}
-				}
-			}
-		}
+		ExceptionCoverageSuiteFitness.calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions);
 
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
-				RuntimeVariable.Explicit_MethodExceptions, getNumExceptions(explicitTypesOfExceptions));
+				RuntimeVariable.Explicit_MethodExceptions, ExceptionCoverageSuiteFitness.getNumExceptions(explicitTypesOfExceptions));
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
-				RuntimeVariable.Explicit_TypeExceptions, getNumClassExceptions(explicitTypesOfExceptions));
+				RuntimeVariable.Explicit_TypeExceptions, ExceptionCoverageSuiteFitness.getNumClassExceptions(explicitTypesOfExceptions));
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
-				RuntimeVariable.Implicit_MethodExceptions, getNumExceptions(implicitTypesOfExceptions));
+				RuntimeVariable.Implicit_MethodExceptions, ExceptionCoverageSuiteFitness.getNumExceptions(implicitTypesOfExceptions));
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
-				RuntimeVariable.Implicit_TypeExceptions, getNumClassExceptions(implicitTypesOfExceptions));
+				RuntimeVariable.Implicit_TypeExceptions, ExceptionCoverageSuiteFitness.getNumClassExceptions(implicitTypesOfExceptions));
 
 		/*
 		 * NOTE: in old report generator, we were using Properties.SAVE_ALL_DATA
@@ -174,21 +110,7 @@ public class StatisticsSender {
 		 */
 	}
 
-	private static int getNumExceptions(Map<String, Set<Class<?>>> exceptions) {
-		int total = 0;
-		for (Set<Class<?>> exceptionSet : exceptions.values()) {
-			total += exceptionSet.size();
-		}
-		return total;
-	}
-
-	private static int getNumClassExceptions(Map<String, Set<Class<?>>> exceptions) {
-		Set<Class<?>> classExceptions = new HashSet<Class<?>>();
-		for (Set<Class<?>> exceptionSet : exceptions.values()) {
-			classExceptions.addAll(exceptionSet);
-		}
-		return classExceptions.size();
-	}
+	
 
 	private static void sendCoveredInfo(TestSuiteChromosome testSuite){
 
