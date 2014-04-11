@@ -86,6 +86,8 @@ public class InspectorManager {
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("javax.swing.DefaultListSelectionModel",
 				Arrays.asList(new String[] { "toString" }));
+		blackList.put("javax.swing.text.StyleContext",
+				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.rmi.server.ObjID",
 				Arrays.asList(new String[] { "toString" }));
 	}
