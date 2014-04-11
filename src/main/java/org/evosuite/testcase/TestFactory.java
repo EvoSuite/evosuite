@@ -1013,7 +1013,7 @@ public class TestFactory {
 				clazz = clazz.getGenericInstantiation();
 				parameterType = clazz.getType();
 			}
-			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isClass() || clazz.getRawClass().equals(EvoSuiteFile.class) || clazz.isString() || clazz.isArray() || TestCluster.getInstance().hasGenerator(parameterType)) {
+			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isObject() || clazz.isClass() || clazz.getRawClass().equals(EvoSuiteFile.class) || clazz.isString() || clazz.isArray() || TestCluster.getInstance().hasGenerator(parameterType)) {
 				logger.debug(" Generating new object of type " + parameterType);
 				VariableReference reference = attemptGeneration(test, parameterType,
 				                                                position, recursionDepth,
