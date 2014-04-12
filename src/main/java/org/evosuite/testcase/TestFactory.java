@@ -978,6 +978,7 @@ public class TestFactory {
 		}
 
 		double reuse = Randomness.nextDouble();
+		logger.debug("Reuse = "+reuse);
 
 		List<VariableReference> objects = test.getObjects(parameterType, position);
 		if (exclude != null) {
@@ -993,13 +994,13 @@ public class TestFactory {
 		}
 
 		GenericClass clazz = new GenericClass(parameterType);
-		if ((clazz.isPrimitive() || clazz.isEnum() || clazz.isClass() || clazz.isString())
+		if ((clazz.isPrimitive() || clazz.isWrapperType() || clazz.isEnum() || clazz.isClass() || clazz.isString())
 		        && !objects.isEmpty() && reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
 			logger.debug(" Looking for existing object of type " + parameterType);
 			VariableReference reference = Randomness.choice(objects);
 			return reference;
 
-		} else if (!clazz.isPrimitive() && !clazz.isEnum() && !clazz.isClass() && !clazz.isString()
+		} else if (!clazz.isPrimitive() && !clazz.isWrapperType() && !clazz.isEnum() && !clazz.isClass() && !clazz.isString()
 		        && !objects.isEmpty() && ((reuse <= Properties.OBJECT_REUSE_PROBABILITY))) {
 
 			logger.debug(" Choosing from " + objects.size() + " existing objects");
@@ -1050,15 +1051,16 @@ public class TestFactory {
 		double reuse = Randomness.nextDouble();
 
 		// Only reuse objects if they are related to a target call
-		if (reuse <= Properties.OBJECT_REUSE_PROBABILITY) {
+		if (reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
 
 			List<VariableReference> candidates = test.getObjects(Object.class, position);
 			filterVariablesByCastClasses(candidates);
 			//filterVariablesByClass(candidates, Object.class);
-
+			logger.debug("Choosing object from: "+candidates);
 			if (!candidates.isEmpty())
 				return Randomness.choice(candidates);
 		}
+		logger.debug("Attenmpting object generation");
 
 		return attemptObjectGeneration(test, position, recursionDepth, true);
 
