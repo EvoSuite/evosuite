@@ -290,6 +290,7 @@ public class FieldReference extends VariableReferenceImpl {
 					//FIXME: is it correct to throw an exception here? if yes, which kind?						
 				}
 				//assert (field.getDeclaringClass().isAssignableFrom(sourceObject.getClass()));
+				field.getField().setAccessible(true);
 				field.getField().set(sourceObject, value);
 			}
 		} catch (IllegalArgumentException e) {

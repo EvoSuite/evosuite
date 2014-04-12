@@ -73,11 +73,7 @@ public class SerializationSuiteChromosomeFactory
                 {
                     break;
                 }
-                catch (ClassNotFoundException e)
-                {
-                    logger.error("DESERIALIZATION ERROR: " + e);
-                }
-                catch (IllegalStateException e)
+                catch (ClassNotFoundException | IllegalStateException e)
                 {
                     logger.error("DESERIALIZATION ERROR: " + e);
                 }
