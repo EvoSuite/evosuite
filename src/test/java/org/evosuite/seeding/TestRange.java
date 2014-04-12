@@ -6,16 +6,11 @@ import org.evosuite.SystemTest;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.seeding.AbstractFormatValidator;
-import com.examples.with.different.packagename.seeding.AbstractNumberValidator;
 import com.examples.with.different.packagename.seeding.Range;
 import com.examples.with.different.packagename.seeding.Range2;
 import com.examples.with.different.packagename.seeding.RangeMin;
-import com.examples.with.different.packagename.seeding.ShortValidator;
-import com.examples.with.different.packagename.seeding.ShortValidatorMin;
 
 
 public class TestRange extends SystemTest {

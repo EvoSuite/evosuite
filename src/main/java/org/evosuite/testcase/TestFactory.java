@@ -993,13 +993,13 @@ public class TestFactory {
 		}
 
 		GenericClass clazz = new GenericClass(parameterType);
-		if ((clazz.isPrimitive() || clazz.isEnum() || clazz.isClass())
+		if ((clazz.isPrimitive() || clazz.isEnum() || clazz.isClass() || clazz.isString())
 		        && !objects.isEmpty() && reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
 			logger.debug(" Looking for existing object of type " + parameterType);
 			VariableReference reference = Randomness.choice(objects);
 			return reference;
 
-		} else if (!clazz.isPrimitive() && !clazz.isEnum() && !clazz.isClass()
+		} else if (!clazz.isPrimitive() && !clazz.isEnum() && !clazz.isClass() && !clazz.isString()
 		        && !objects.isEmpty() && ((reuse <= Properties.OBJECT_REUSE_PROBABILITY))) {
 
 			logger.debug(" Choosing from " + objects.size() + " existing objects");
@@ -1013,7 +1013,9 @@ public class TestFactory {
 				clazz = clazz.getGenericInstantiation();
 				parameterType = clazz.getType();
 			}
-			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isObject() || clazz.isClass() || clazz.getRawClass().equals(EvoSuiteFile.class) || clazz.isString() || clazz.isArray() || TestCluster.getInstance().hasGenerator(parameterType)) {
+			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isObject() || 
+					clazz.isClass() || clazz.getRawClass().equals(EvoSuiteFile.class) || 
+					clazz.isString() || clazz.isArray() || TestCluster.getInstance().hasGenerator(parameterType)) {
 				logger.debug(" Generating new object of type " + parameterType);
 				VariableReference reference = attemptGeneration(test, parameterType,
 				                                                position, recursionDepth,
