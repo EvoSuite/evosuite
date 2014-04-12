@@ -23,16 +23,8 @@ import org.evosuite.SystemTest;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.TrivialForDynamicSeeding;
-import com.examples.with.different.packagename.TrivialForDynamicSeedingEndsWith;
-import com.examples.with.different.packagename.TrivialForDynamicSeedingRegex;
-import com.examples.with.different.packagename.TrivialForDynamicSeedingRegionMatches;
-import com.examples.with.different.packagename.TrivialForDynamicSeedingRegionMatchesCase;
-import com.examples.with.different.packagename.TrivialForDynamicSeedingStartsWith;
 import com.examples.with.different.packagename.seeding.NumericDynamicDoubleSeeding;
 import com.examples.with.different.packagename.seeding.NumericDynamicFloatSeeding;
 import com.examples.with.different.packagename.seeding.NumericDynamicIntSeeding;
