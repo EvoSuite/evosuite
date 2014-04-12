@@ -21,6 +21,7 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
@@ -46,7 +47,19 @@ public class TestImplicitExplicitExceptions  extends SystemTest {
 		
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CRITERION = Properties.Criterion.EXCEPTION;
-
+		Properties.OUTPUT_VARIABLES = ""+
+				RuntimeVariable.Explicit_MethodExceptions + "," +
+				RuntimeVariable.Explicit_TypeExceptions + "," +
+				RuntimeVariable.Implicit_MethodExceptions +"," +
+				RuntimeVariable.Implicit_TypeExceptions;
+		
+		/*
+		 * FIXME: once statistics fully refactored, should check we get data.
+		 * Furthermore, we should check if works with and without minimization.
+		 * Currently, minimization for exceptions is broken.
+		 */
+		//Properties.MINIMIZE = false;		
+		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);

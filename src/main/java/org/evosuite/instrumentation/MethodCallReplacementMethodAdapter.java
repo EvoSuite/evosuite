@@ -203,6 +203,8 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 			// java.security.SecureRandom
 			addSecureRandomCalls();
+			
+			addGUICalls();
 
 			//java.util.UUID.randomUUID()
 			replacementCalls.add(new MethodCallReplacement("java/util/UUID", "randomUUID",
@@ -340,6 +342,13 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		        "getResource", "(Ljava/lang/String;)Ljava/net/URL;", "org/evosuite/runtime/ResourceLoader",
 		        "getResource", "(Ljava/lang/String;)Ljava/net/URL;", true, false));
 
+	}
+	
+	private void addGUICalls() {
+		replacementCalls.add(new MethodCallReplacement("javax/swing/JComponent",
+		        "getPreferredSize", "()Ljava/awt/Dimension;",
+		        "org/evosuite/runtime/gui/JComponent", "getPreferredSize",
+		        "()Ljava/awt/Dimension;", true, false));		
 	}
 
 	private void addCalendarCalls() {
