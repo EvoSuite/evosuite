@@ -59,9 +59,18 @@ public class ListClasses {
 				LoggingUtils.getEvoLogger().error("Could not load class: " + resource);
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info(Utils.getClassNameFromResourcePath(resource));
+			
+			String row = "";
+			String groupId = Properties.GROUP_ID;
+			if(groupId!=null && !groupId.isEmpty() && !groupId.equals("none")){
+				row += groupId + "\t";
+			}
+			row += Utils.getClassNameFromResourcePath(resource);
+			
+			LoggingUtils.getEvoLogger().info(row);
 		}
 	}
+	
 	private static void listClassesLegacy() {
 		File directory = new File(Properties.OUTPUT_DIR);
 		String[] extensions = { "task" };
