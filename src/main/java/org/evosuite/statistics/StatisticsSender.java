@@ -1,7 +1,5 @@
 package org.evosuite.statistics;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,19 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.Properties;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
-import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.objectweb.asm.Type;
 
 /**
  * Class responsible to send "individuals" from Client to Master process.

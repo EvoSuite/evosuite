@@ -113,6 +113,10 @@ public class SimpleMutationAssertionGenerator extends
 		for (Mutation m : executedMutants) {
 
 			numExecutedMutants++;
+			if (! TimeController.getInstance().isThereStillTimeInThisPhase()) {
+				logger.info("Reached maximum time to generate assertions!");
+				break;
+			}
 
 			assert (m != null);
 			if (timedOutMutations.containsKey(m)) {
