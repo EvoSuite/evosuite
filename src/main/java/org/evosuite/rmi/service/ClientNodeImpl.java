@@ -228,7 +228,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	@Override
 	public void trackOutputVariable(RuntimeVariable variable, Object value) {
-		logger.info("Sending output variable to master process");
+		logger.info("Sending output variable to master process: "+variable+" = "+value);
 
 		/*
 		 * As this code might be called from unsafe blocks, we just put the values
