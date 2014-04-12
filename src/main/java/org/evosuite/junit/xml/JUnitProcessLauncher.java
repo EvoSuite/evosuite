@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -80,6 +79,7 @@ public class JUnitProcessLauncher {
 		command.add("java");
 		command.add("-cp");
 		command.add(junitClassPath);
+		command.add("-Djava.awt.headless=true");
 		command.add(JUnitXmlDocMain.class.getCanonicalName());
 		String testClassesString = "";
 		for (Class<?> testClass : testClasses) {

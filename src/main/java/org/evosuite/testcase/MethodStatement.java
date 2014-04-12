@@ -243,6 +243,9 @@ public class MethodStatement extends AbstractStatement {
 								}
 							}
 							inputs[i] = parameterVar.getObject(scope);
+							if(inputs[i] == null && method.getMethod().getParameterTypes()[i].isPrimitive()) {
+								throw new CodeUnderTestException(new NullPointerException());
+							}
 						}
 
 						callee_object = method.isStatic() ? null

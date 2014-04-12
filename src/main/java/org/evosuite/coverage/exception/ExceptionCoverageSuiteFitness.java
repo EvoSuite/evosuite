@@ -80,6 +80,36 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
 
 		List<ExecutionResult> results = runTestSuite(suite);
+		
+		calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions);
+
+		int nExc = getNumExceptions(implicitTypesOfExceptions) + getNumExceptions(explicitTypesOfExceptions);
+
+		double exceptionFitness = 1d / (1d + nExc);
+
+		suite.setFitness(coverageFitness + exceptionFitness);
+		return coverageFitness + exceptionFitness;
+	}
+
+	
+	
+	/**
+	 * given the list of results, fill the 2 given (empty) maps with exception information
+	 * 
+	 * @param results
+	 * @param implicitTypesOfExceptions
+	 * @param explicitTypesOfExceptions
+	 * @throws IllegalArgumentException
+	 */
+	public static void calculateExceptionInfo(List<ExecutionResult> results, 
+			Map<String, Set<Class<?>>> implicitTypesOfExceptions, Map<String, Set<Class<?>>> explicitTypesOfExceptions)
+		throws IllegalArgumentException{
+		
+		if(results==null || implicitTypesOfExceptions==null || explicitTypesOfExceptions==null ||
+				!implicitTypesOfExceptions.isEmpty() || !explicitTypesOfExceptions.isEmpty()){
+			throw new IllegalArgumentException();
+		}
+		
 		Map<TestCase, Map<Integer, Boolean>> isExceptionExplicit = new HashMap<TestCase, Map<Integer, Boolean>>();
 
 		// for each test case
@@ -94,31 +124,41 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 				//not interested in security exceptions when Sandbox is active
 				Throwable t = result.getExceptionThrownAtPosition(i);
-				if (t instanceof SecurityException && Properties.SANDBOX)
+				if (t instanceof SecurityException && Properties.SANDBOX){
 					continue;
+				}
+				
 				// If the exception was thrown in the test directly, it is also not interesting
 				if (t.getStackTrace().length > 0
 				        && t.getStackTrace()[0].getClassName().startsWith("org.evosuite.testcase")) {
 					continue;
 				}
+				
 				// Ignore exceptions thrown in the test code itself
-				if (t instanceof CodeUnderTestException)
+				if (t instanceof CodeUnderTestException){
 					continue;
-
+				}
+				
 				String methodName = "";
 				boolean sutException = false;
+				
 				if (result.test.getStatement(i) instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement) result.test.getStatement(i);
 					Method method = ms.getMethod().getMethod();
 					methodName = method.getName() + Type.getMethodDescriptor(method);
-					if (method.getDeclaringClass().equals(Properties.getTargetClass()))
+					
+					if (method.getDeclaringClass().equals(Properties.getTargetClass())){
 						sutException = true;
+					}
+					
 				} else if (result.test.getStatement(i) instanceof ConstructorStatement) {
 					ConstructorStatement cs = (ConstructorStatement) result.test.getStatement(i);
 					Constructor<?> constructor = cs.getConstructor().getConstructor();
 					methodName = "<init>" + Type.getConstructorDescriptor(constructor);
-					if (constructor.getDeclaringClass().equals(Properties.getTargetClass()))
+					
+					if (constructor.getDeclaringClass().equals(Properties.getTargetClass())){
 						sutException = true;
+					}
 				}
 
 				boolean notDeclared = !result.test.getStatement(i).getDeclaredExceptions().contains(t.getClass());
@@ -138,35 +178,39 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					        && isExceptionExplicit.get(result.test).get(i);
 
 					if (isExplicit) {
-						if (!explicitTypesOfExceptions.containsKey(methodName))
-							explicitTypesOfExceptions.put(methodName,
-							                              new HashSet<Class<?>>());
+						
+						if (!explicitTypesOfExceptions.containsKey(methodName)){
+							explicitTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
+						}
 						explicitTypesOfExceptions.get(methodName).add(t.getClass());
+						
 					} else {
-						if (!implicitTypesOfExceptions.containsKey(methodName))
-							implicitTypesOfExceptions.put(methodName,
-							                              new HashSet<Class<?>>());
+						
+						if (!implicitTypesOfExceptions.containsKey(methodName)){
+							implicitTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
+						}
 						implicitTypesOfExceptions.get(methodName).add(t.getClass());
+						
 					}
 				}
 
 			}
 		}
-
-		int nExc = getNumExceptions(implicitTypesOfExceptions)
-		        + getNumExceptions(explicitTypesOfExceptions);
-
-		double exceptionFitness = 1d / (1d + nExc);
-
-		suite.setFitness(coverageFitness + exceptionFitness);
-		return coverageFitness + exceptionFitness;
 	}
-
-	private static int getNumExceptions(Map<String, Set<Class<?>>> exceptions) {
+	
+	public static int getNumExceptions(Map<String, Set<Class<?>>> exceptions) {
 		int total = 0;
 		for (Set<Class<?>> exceptionSet : exceptions.values()) {
 			total += exceptionSet.size();
 		}
 		return total;
+	}
+
+	public static int getNumClassExceptions(Map<String, Set<Class<?>>> exceptions) {
+		Set<Class<?>> classExceptions = new HashSet<Class<?>>();
+		for (Set<Class<?>> exceptionSet : exceptions.values()) {
+			classExceptions.addAll(exceptionSet);
+		}
+		return classExceptions.size();
 	}
 }

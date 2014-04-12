@@ -213,6 +213,10 @@ public class ConstructorStatement extends AbstractStatement {
 							assert (false);
 							throw new EvosuiteError(e);
 						}
+						if(inputs[i] == null && constructor.getConstructor().getParameterTypes()[i].isPrimitive()) {
+							throw new CodeUnderTestException(new NullPointerException());
+						}
+
 					}
 
 					// If this is a non-static member class, the first parameter must not be null

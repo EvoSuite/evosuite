@@ -21,7 +21,7 @@ public class EqualsHashCode {
 			return true;
 		
 		if(x == 42)
-			return false;
+			return true;
 		
 		if(other instanceof EqualsHashCode) {
 			return ((EqualsHashCode)other).x == x;
