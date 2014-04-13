@@ -268,7 +268,7 @@ public class TestSuiteWriter implements Opcodes {
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
-	public ExecutionResult runTest(TestCase test) {
+	ExecutionResult runTest(TestCase test) {
 
 		ExecutionResult result = new ExecutionResult(test, null);
 
