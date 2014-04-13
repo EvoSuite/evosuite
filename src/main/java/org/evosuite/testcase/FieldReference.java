@@ -20,9 +20,11 @@
  */
 package org.evosuite.testcase;
 
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.utils.GenericField;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -259,9 +261,9 @@ public class FieldReference extends VariableReferenceImpl {
 				field.getField().setBoolean(sourceObject, (Boolean) value);
 			else if (field.getField().getType().equals(byte.class))
 				field.getField().setByte(sourceObject, (byte) getIntValue(value));
-			else if (field.getField().getType().equals(char.class)) {
+			else if (field.getField().getType().equals(char.class))
 				field.getField().setChar(sourceObject, getCharValue(value));
-			} else if (field.getField().getType().equals(double.class))
+			else if (field.getField().getType().equals(double.class))
 				field.getField().setDouble(sourceObject, getDoubleValue(value));
 			else if (field.getField().getType().equals(float.class))
 				field.getField().setFloat(sourceObject, getFloatValue(value));
@@ -290,7 +292,6 @@ public class FieldReference extends VariableReferenceImpl {
 					//FIXME: is it correct to throw an exception here? if yes, which kind?						
 				}
 				//assert (field.getDeclaringClass().isAssignableFrom(sourceObject.getClass()));
-				field.getField().setAccessible(true);
 				field.getField().set(sourceObject, value);
 			}
 		} catch (IllegalArgumentException e) {
@@ -298,7 +299,9 @@ public class FieldReference extends VariableReferenceImpl {
 			        + value + " on object " + sourceObject + ": " + e, e);
 			throw e;
 		} catch (IllegalAccessException e) {
-			logger.error("Error while assigning field: " + e, e);
+			logger.error("Error while assigning field: " + field.getField().toString()
+			             + " of type: " + field.getField().getType().getCanonicalName()
+			             + " " + e, e);
 			throw new EvosuiteError(e);
 		} catch (NullPointerException e) {
 			throw new CodeUnderTestException(e);
