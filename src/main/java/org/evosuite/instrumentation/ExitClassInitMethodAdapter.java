@@ -28,8 +28,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import com.sun.tools.classfile.Opcode;
-
 /**
  * Adds a call to ExecutionTracer.passedClassInitializationMethod() when
  * the <clinit> method begins its execution.
