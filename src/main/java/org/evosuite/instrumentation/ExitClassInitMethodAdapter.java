@@ -23,6 +23,7 @@ package org.evosuite.instrumentation;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 import org.evosuite.reset.ResetManager;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -38,6 +39,8 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 	private static final String EXIT_CLASS_INIT = "exitClassInit";
 	private final String className;
 	private final String methodName;
+	private Label startingTryLabel;
+	private Label endingTryLabel;
 
 	/**
 	 * <p>Constructor for PutStaticMethodAdapter.</p>
@@ -46,8 +49,8 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 	 * @param className a {@link java.lang.String} object.
 	 * @param finalFields a {@link java.util.List} object.
 	 */
-	public ExitClassInitMethodAdapter(String className,
-			String methodName, MethodVisitor mv) {
+	public ExitClassInitMethodAdapter(String className, String methodName,
+			MethodVisitor mv) {
 		super(Opcodes.ASM4, mv);
 		this.className = className;
 		this.methodName = methodName;
@@ -55,9 +58,8 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 
 	@Override
 	public void visitInsn(int opcode) {
-		
-		if (opcode==Opcodes.RETURN && (methodName.equals("<clinit>"))) {
-			
+		if (opcode == Opcodes.RETURN && (methodName.equals("<clinit>"))) {
+
 			String executionTracerClassName = ResetManager.class.getName()
 					.replace(".", "/");
 			String executionTracerDescriptor = Type.getMethodDescriptor(
@@ -70,6 +72,38 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 
 		}
 		super.visitInsn(opcode);
+	}
+
+	@Override
+	public void visitCode() {
+		super.visitCode();
+		if (methodName.equals("<clinit>")) {
+			startingTryLabel = new Label();
+			endingTryLabel = new Label();
+			super.visitTryCatchBlock(startingTryLabel, endingTryLabel,
+					endingTryLabel, null);
+			
+			super.visitLabel(startingTryLabel);
+		}
+	}
+
+	@Override
+	public void visitEnd() {
+		if (methodName.equals("<clinit>")) {
+			super.visitLabel(endingTryLabel);
+			String executionTracerClassName = ResetManager.class.getName()
+					.replace(".", "/");
+			String executionTracerDescriptor = Type.getMethodDescriptor(
+					Type.VOID_TYPE, Type.getType(String.class));
+
+			String classNameWithDots = className.replace("/", ".");
+			super.visitLdcInsn(classNameWithDots);
+			super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
+					EXIT_CLASS_INIT, executionTracerDescriptor);
+			super.visitInsn(Opcodes.ATHROW);
+
+		}
+		super.visitEnd();
 	}
 
 }
