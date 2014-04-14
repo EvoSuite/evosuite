@@ -30,16 +30,19 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 	public GenericField(Field field, GenericClass owner) {
 		super(new GenericClass(owner));
 		this.field = field;
+		field.setAccessible(true);
 	}
 
 	public GenericField(Field field, Class<?> owner) {
 		super(new GenericClass(owner));
 		this.field = field;
+		field.setAccessible(true);
 	}
 
 	public GenericField(Field field, Type owner) {
 		super(new GenericClass(owner));
 		this.field = field;
+		field.setAccessible(true);
 	}
 
 	@Override
@@ -180,6 +183,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 
 		try {
 			field = methodClass.getDeclaredField(fieldName);
+			field.setAccessible(true);
 		} catch (SecurityException e) {
 		    throw new IllegalStateException("Unknown field for " + fieldName 
 		                                    + " in class " + methodClass.getCanonicalName());
