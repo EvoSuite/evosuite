@@ -1,11 +1,12 @@
 package org.evosuite.sandbox;
 
+import static org.junit.Assert.assertFalse;
+
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
@@ -15,10 +16,11 @@ import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.ReportGenerator.StatisticEntry;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.DeleteFileCommonsIO;
 import com.examples.with.different.packagename.sandbox.ReadLineSeparator;
 import com.examples.with.different.packagename.sandbox.ReadWriteSystemProperties;
 
@@ -28,10 +30,12 @@ public class ReadWriteSystemPropertiesTest extends SystemTest {
 	private static final String aProperty = System.getProperty(ReadWriteSystemProperties.A_PROPERTY);
 	
 	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS; 
+	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX; 
 	
 	@After
 	public void reset(){
 		Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
+		Properties.SANDBOX = DEFAULT_SANDBOX;
 	}
 	
 	@BeforeClass
@@ -133,25 +137,9 @@ public class ReadWriteSystemPropertiesTest extends SystemTest {
 		Assert.assertEquals(userDir, currentUserDir);
 		Assert.assertEquals(aProperty, currentAProperty);
 		
-		//now check the JUnit generation
-		List<TestCase> list = best.getTests();
-		int n = list.size();
-		Assert.assertTrue(n > 0);
-		
-		TestCaseExecutor.initExecutor(); //needed because it gets pulled down after the search
-		
-		for(TestCase tc : list){
-			Assert.assertFalse(tc.isUnstable());
-		}
-		
-		JUnitAnalyzer.removeTestsThatDoNotCompile(list);
-		Assert.assertEquals(n, list.size());		
-		JUnitAnalyzer.handleTestsThatAreUnstable(list);
-		Assert.assertEquals(n, list.size());
-
-		for(TestCase tc : list){
-			Assert.assertFalse(tc.isUnstable());
-		}
+		StatisticEntry entry = SearchStatistics.getInstance()
+				.getLastStatisticEntry();
+		assertFalse(entry.hadUnstableTests);
 		
 		Assert.assertEquals(userDir, currentUserDir);
 		Assert.assertEquals(aProperty, currentAProperty);
