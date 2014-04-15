@@ -150,12 +150,8 @@ public class ReadWriteSystemPropertiesTest extends SystemTest {
 
 		TestCaseExecutor.initExecutor(); //needed because it gets pulled down after the search
 
-		//Before starting search, let's activate the sandbox
-		if (Properties.SANDBOX) {
-			Sandbox.initializeSecurityManagerForSUT();
-		}
-
 		try {
+			Sandbox.initializeSecurityManagerForSUT();
 			for (TestCase tc : list) {
 				Assert.assertFalse(tc.isUnstable());
 			}
@@ -174,9 +170,7 @@ public class ReadWriteSystemPropertiesTest extends SystemTest {
 		} catch (Throwable ex) {
 			fail();
 		} finally {
-			if (Properties.SANDBOX) {
-				Sandbox.resetDefaultSecurityManager();
-			}
+			Sandbox.resetDefaultSecurityManager();
 		}
 	}
 }
