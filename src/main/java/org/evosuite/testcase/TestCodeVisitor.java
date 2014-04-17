@@ -846,7 +846,7 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (statement instanceof ClassPrimitiveStatement) {
 			StringBuilder builder = new StringBuilder();
 			String className = getClassName(retval);
-			className = className.replaceAll("Class<(.*)(<.*>)>", "Class<\1>");
+			className = className.replaceAll("Class<(.*)(<.*>)>", "Class<$1>");
 			builder.append(className);
 			builder.append(" ");
 			builder.append(getVariableName(retval));
