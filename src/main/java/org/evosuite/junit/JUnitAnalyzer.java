@@ -114,18 +114,20 @@ public class JUnitAnalyzer {
 	 * @param tests
 	 * @return <code>true</code> if any test was unstable
 	 */
-	public static boolean handleTestsThatAreUnstable(List<TestCase> tests) {
+	public static int handleTestsThatAreUnstable(List<TestCase> tests) {
 
+		int numUnstable = 0;
+		
 		logger.info("Going to execute: handleTestsThatAreUnstable");
 
 		if (tests == null || tests.isEmpty()) { //nothing to do
-			return false;
+			return numUnstable;
 		}
 
 		File dir = createNewTmpDir();
 		if (dir == null) {
 			logger.error("Failed to create tmp dir");
-			return false;
+			return numUnstable;
 		}
 		logger.debug("Created tmp folder: " + dir.getAbsolutePath());
 
@@ -137,20 +139,20 @@ public class JUnitAnalyzer {
 				 * is done before calling this method
 				 */
 				logger.warn("Failed to compile the test cases ");
-				return false;
+				return numUnstable;
 			}
 
 			Class<?>[] testClasses = loadTests(generated, dir);
 
 			if (testClasses == null) {
 				logger.error("Found no classes for compiled tests");
-				return false;
+				return numUnstable;
 			}
 
 			JUnitResult result = runTests(testClasses, dir);
 
 			if (result.wasSuccessful()) {
-				return false; //everything is OK
+				return numUnstable; //everything is OK
 			}
 
 			logger.error("" + result.getFailureCount() + " test cases failed");
@@ -172,6 +174,7 @@ public class JUnitAnalyzer {
 					if (TestSuiteWriter.getNameOfTest(tests, i)
 							.equals(testName)) {
 						logger.warn("Failing test: " + tests.get(i).toCode());
+						numUnstable++;
 						/*
 						 * we have a match. should we remove it or mark as unstable?
 						 * When we have an Assert.* failing, we can just comment out
@@ -196,7 +199,7 @@ public class JUnitAnalyzer {
 			}
 		} catch (Exception e) {
 			logger.error("" + e, e);
-			return false;
+			return numUnstable;
 		} finally {
 			//let's be sure we clean up all what we wrote on disk
 
@@ -211,7 +214,7 @@ public class JUnitAnalyzer {
 		}
 		
 		//if we arrive here, then it means at least one test was unstable
-		return true;
+		return numUnstable;
 	}
 
 	private static JUnitResult runTests(Class<?>[] testClasses,

@@ -344,15 +344,18 @@ public class TestSuiteGenerator {
 				JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
 
 				boolean unstable = false;
-				
-				unstable = JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
+				int numUnstable = 0;
+				numUnstable = JUnitAnalyzer.handleTestsThatAreUnstable(testCases); 
+				unstable = numUnstable > 0;
 				//second passage on reverse order, this is to spot dependencies among tests
 				if (testCases.size() > 1) {
 					Collections.reverse(testCases);
-					unstable = JUnitAnalyzer.handleTestsThatAreUnstable(testCases) || unstable;
+					numUnstable += JUnitAnalyzer.handleTestsThatAreUnstable(testCases); 
+					unstable = (numUnstable > 0) || unstable;
 				}
 				
 				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.HadUnstableTests,unstable);
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.NumUnstableTests,numUnstable);
 				
 			} else {
 				logger.error("No Java compiler is available. Are you running with the JDK?");
