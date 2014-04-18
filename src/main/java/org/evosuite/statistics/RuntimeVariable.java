@@ -113,6 +113,8 @@ public enum RuntimeVariable {
 	CarvedCoverage, 
 	/** Was any test unstable in the generated JUnit files? */
 	HadUnstableTests, 
+	/** Number of unstable tests in the generated JUnit files */
+	NumUnstableTests, 
 	/** An estimate (ie not precise) of the maximum number of threads running at the same time in the CUT */
 	Threads,
 	/** Number of top-level methods throwing an undeclared exception explicitly with a 'throw new' */
