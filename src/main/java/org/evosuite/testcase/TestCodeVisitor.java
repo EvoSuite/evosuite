@@ -178,15 +178,27 @@ public class TestCodeVisitor extends TestVisitor {
 	private String getTypeName(ParameterizedType type) {
 		String name = getClassName((Class<?>) type.getRawType());
 		Type[] types = type.getActualTypeArguments();
-		if (types.length > 0) {
-			name += "<";
-			for (int i = 0; i < types.length; i++) {
-				if (i != 0)
-					name += ", ";
-
-				name += getTypeName(types[i]);
+		boolean isDefined = false;
+		for(Type parameterType : types) {
+			if(parameterType instanceof Class<?> ||
+					parameterType instanceof ParameterizedType ||
+					parameterType instanceof WildcardType ||
+					parameterType instanceof GenericArrayType) {
+				isDefined = true;
+				break;
 			}
-			name += ">";
+		}
+		if(isDefined) {
+			if (types.length > 0) {
+				name += "<";
+				for (int i = 0; i < types.length; i++) {
+					if (i != 0)
+						name += ", ";
+
+					name += getTypeName(types[i]);
+				}
+				name += ">";
+			}
 		}
 		return name;
 	}
