@@ -127,9 +127,9 @@ public class JUnitProcessLauncher {
 				logger.warn("JUnit process XML did not finish correctly. Exit code: "
 						+ exitValue);
 
-				logger.warn("Standard Output/Error from JUnit processs");
+				logger.debug("Standard Output/Error from JUnit processs");
 				for (String stdLine : bufferStdOut) {
-					logger.warn(stdLine);
+					logger.debug(stdLine);
 				}
 				throw new JUnitExecutionException(
 						"Execution of java command did not end correctly");
