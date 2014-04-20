@@ -29,6 +29,12 @@ public class ListParameters {
 
 		List<Row> rows = new ArrayList<Row>();
 
+		/*
+		 * This is necessary, as reading from evosuite-files properties
+		 * can change the defaults
+		 */
+		Properties.getInstance().resetToDefaults();
+		
 		for (Field f : Properties.class.getFields()) {
 			if (f.isAnnotationPresent(Parameter.class)) {
 				Parameter p = f.getAnnotation(Parameter.class);
