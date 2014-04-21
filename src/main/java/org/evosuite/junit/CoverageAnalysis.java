@@ -85,13 +85,12 @@ public class CoverageAnalysis {
 		// TestCluster.getInstance();
 
 		List<Class<?>> junitTests = getClasses();
-		LoggingUtils.getEvoLogger().info("* Found " + junitTests.size()
-		                                         + " unit test classes");
+		LoggingUtils.getEvoLogger().info("* Found " + junitTests.size() + " unit test classes");
 		if (junitTests.isEmpty())
 			return;
 
-		Class<?>[] classes = new Class<?>[junitTests.size()];
-		junitTests.toArray(classes);
+		 
+		Class<?>[] classes =junitTests.toArray(new Class<?>[junitTests.size()]);
 		LoggingUtils.getEvoLogger().info("* Executing tests");
 		long startTime = System.currentTimeMillis();
 		Result result = executeTests(classes);
@@ -139,13 +138,12 @@ public class CoverageAnalysis {
 		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
 			Pattern pattern = Pattern.compile(prefix + ".*.class");
 			Collection<String> resources = ResourceList.getResources(pattern);
-			LoggingUtils.getEvoLogger().info("* Found " + resources.size()
-					+ " classes with prefix " + prefix);
+			LoggingUtils.getEvoLogger().info("* Found " + resources.size() + " classes with prefix " + prefix);
 			if (!resources.isEmpty()) {
 				for (String resource : resources) {
 					try {
-						Class<?> clazz = Class.forName(resource.replaceAll(".class", "").replaceAll("/",
-								"."),
+						Class<?> clazz = Class.forName(
+								resource.replaceAll(".class", "").replaceAll("/","."),
 								true,
 								TestGenerationContext.getClassLoader());
 						if (isTest(clazz)) {
@@ -164,7 +162,12 @@ public class CoverageAnalysis {
 	private static List<Class<?>> getClasses() {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		
+		logger.debug("JUNIT_PREFIX: "+Properties.JUNIT_PREFIX);
+		
 		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
+			
+			LoggingUtils.getEvoLogger().info("* Analyzing entry: "+prefix);
+			
 			// If the target name is a path analyze it
 			File path = new File(prefix);
 			if (path.exists()) {
