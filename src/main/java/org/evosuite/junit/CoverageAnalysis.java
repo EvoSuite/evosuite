@@ -14,6 +14,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -418,6 +419,17 @@ public class CoverageAnalysis {
 		ExecutionTracer.enable();
 		ExecutionTracer.enableTraceCalls();
 		ExecutionTracer.setCheckCallerThread(false);
+		
+		/*
+		 * sort them in a deterministic way, in case there are 
+		 * static state dependencies
+		 */
+		Arrays.sort(junitClasses,new Comparator<Class>(){
+			@Override
+			public int compare(Class o1, Class o2) {				
+				return o1.getName().compareTo(o2.getName());
+			}});
+		
 		Result result = JUnitCore.runClasses(junitClasses);
 		ExecutionTracer.disable();
 		return result;
