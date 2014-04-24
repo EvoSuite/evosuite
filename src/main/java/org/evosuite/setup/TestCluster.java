@@ -820,6 +820,9 @@ public class TestCluster {
 			generator = Randomness.choice(generatorCache.get(clazz));
 		}
 
+		if (generator == null)
+			throw new ConstructionFailedException("No generators of type " + clazz);
+		
 		if (generator.hasTypeParameters()) {
 			generator = generator.getGenericInstantiation(clazz);
 		}
