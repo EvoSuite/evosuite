@@ -220,7 +220,7 @@ public class Randomness implements Serializable {
 	 *            a {@link java.util.List} object.
 	 * @param <T>
 	 *            a T object.
-	 * @return a T object.
+	 * @return a T object or <code>null</code> if <code>list</code> is empty.
 	 */
 	public static <T> T choice(List<T> list) {
 		if (list.isEmpty())
@@ -239,12 +239,12 @@ public class Randomness implements Serializable {
 	 *            a {@link java.util.Collection} object.
 	 * @param <T>
 	 *            a T object.
-	 * @return a T object.
+	 * @return a T object or <code>null</code> if <code>set</code> is empty.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T choice(Collection<T> set) {
 		if (set.isEmpty())
-			throw new IllegalArgumentException("Cannot choose from empty collection");
+			return null;
 
 		int position = random.nextInt(set.size());
 		return (T) set.toArray()[position];
@@ -259,11 +259,11 @@ public class Randomness implements Serializable {
 	 *            a T object.
 	 * @param <T>
 	 *            a T object.
-	 * @return a T object.
+	 * @return a T object or <code>null</code> if <code>elements.length</code> is zero.
 	 */
 	public static <T> T choice(T... elements) {
 		if (elements.length == 0)
-			throw new IllegalArgumentException("Cannot choose from empty collection");
+			return null;
 
 		int position = random.nextInt(elements.length);
 		return elements[position];
