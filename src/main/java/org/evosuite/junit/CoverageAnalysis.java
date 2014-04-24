@@ -14,6 +14,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -85,13 +86,12 @@ public class CoverageAnalysis {
 		// TestCluster.getInstance();
 
 		List<Class<?>> junitTests = getClasses();
-		LoggingUtils.getEvoLogger().info("* Found " + junitTests.size()
-		                                         + " unit test classes");
+		LoggingUtils.getEvoLogger().info("* Found " + junitTests.size() + " unit test classes");
 		if (junitTests.isEmpty())
 			return;
 
-		Class<?>[] classes = new Class<?>[junitTests.size()];
-		junitTests.toArray(classes);
+		 
+		Class<?>[] classes =junitTests.toArray(new Class<?>[junitTests.size()]);
 		LoggingUtils.getEvoLogger().info("* Executing tests");
 		long startTime = System.currentTimeMillis();
 		Result result = executeTests(classes);
@@ -139,13 +139,12 @@ public class CoverageAnalysis {
 		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
 			Pattern pattern = Pattern.compile(prefix + ".*.class");
 			Collection<String> resources = ResourceList.getResources(pattern);
-			LoggingUtils.getEvoLogger().info("* Found " + resources.size()
-					+ " classes with prefix " + prefix);
+			LoggingUtils.getEvoLogger().info("* Found " + resources.size() + " classes with prefix " + prefix);
 			if (!resources.isEmpty()) {
 				for (String resource : resources) {
 					try {
-						Class<?> clazz = Class.forName(resource.replaceAll(".class", "").replaceAll("/",
-								"."),
+						Class<?> clazz = Class.forName(
+								resource.replaceAll(".class", "").replaceAll("/","."),
 								true,
 								TestGenerationContext.getClassLoader());
 						if (isTest(clazz)) {
@@ -164,7 +163,12 @@ public class CoverageAnalysis {
 	private static List<Class<?>> getClasses() {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		
+		logger.debug("JUNIT_PREFIX: "+Properties.JUNIT_PREFIX);
+		
 		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
+			
+			LoggingUtils.getEvoLogger().info("* Analyzing entry: "+prefix);
+			
 			// If the target name is a path analyze it
 			File path = new File(prefix);
 			if (path.exists()) {
@@ -415,6 +419,17 @@ public class CoverageAnalysis {
 		ExecutionTracer.enable();
 		ExecutionTracer.enableTraceCalls();
 		ExecutionTracer.setCheckCallerThread(false);
+		
+		/*
+		 * sort them in a deterministic way, in case there are 
+		 * static state dependencies
+		 */
+		Arrays.sort(junitClasses,new Comparator<Class>(){
+			@Override
+			public int compare(Class o1, Class o2) {				
+				return o1.getName().compareTo(o2.getName());
+			}});
+		
 		Result result = JUnitCore.runClasses(junitClasses);
 		ExecutionTracer.disable();
 		return result;
