@@ -7,9 +7,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
+import org.evosuite.Properties;
 import org.evosuite.junit.JUnitExecutionException;
 import org.evosuite.junit.JUnitResult;
 import org.evosuite.utils.ClassPathHandler;
@@ -109,11 +112,20 @@ public class JUnitProcessLauncher {
 		logger.debug("Command: " + command);
 
 		try {
-			Process process = builder.start();
+			final Process process = builder.start();
 
 			InputStream stdout = process.getInputStream();
 			logger.debug("JUnit process output:");
 
+			Timer t = new Timer();
+		    t.schedule(new TimerTask() {
+
+		        @Override
+		        public void run() {
+		            process.destroy();
+		        }
+		    }, Properties.TIMEOUT * testClasses.length); 
+		    
 			List<String> bufferStdOut = new LinkedList<String>();
 			do {
 				readInputStream("Finished JUnit process output - ", stdout,
