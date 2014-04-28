@@ -16,7 +16,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -26,11 +28,18 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
+import org.evosuite.coverage.mutation.Mutation;
+import org.evosuite.coverage.mutation.MutationObserver;
+import org.evosuite.coverage.mutation.MutationPool;
+import org.evosuite.result.Failure;
+import org.evosuite.rmi.ClientServices;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.ExecutionTracer;
@@ -93,11 +102,47 @@ public class CoverageAnalysis {
 		 
 		Class<?>[] classes =junitTests.toArray(new Class<?>[junitTests.size()]);
 		LoggingUtils.getEvoLogger().info("* Executing tests");
-		long startTime = System.currentTimeMillis();
-		Result result = executeTests(classes);
-		printReport(result, junitTests, startTime);
+		if(Properties.CRITERION == Criterion.MUTATION || Properties.CRITERION == Criterion.STRONGMUTATION) {
+			junitMutationAnalysis(classes);
+		} else {
+			long startTime = System.currentTimeMillis();
+			ExecutionTraceRunListener listener = new ExecutionTraceRunListener();
+			List<Result> results = executeTests(listener, classes);
+			printReport(listener.getExecutionTraces(), results, junitTests, startTime);
+		}
 	}
 
+	public static void junitMutationAnalysis(Class<?>[] classes) {
+		long startTime = System.currentTimeMillis();
+		Set<Mutation> killed = executeTestsForMutationAnalysis(classes);
+		List<Mutation> mutants = MutationPool.getMutants();
+		if(Properties.NEW_STATISTICS) {
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, mutants.size());
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, killed.size());
+			if(mutants.isEmpty()) {
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BranchCoverage, 0.0); // TODO
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage, 1.0);
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore, 1.0);
+			}
+			else {
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BranchCoverage, 0.0); // TODO
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage, (double)killed.size() / (double)mutants.size());
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore, (double)killed.size() / (double)mutants.size());
+			}
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Time, System.currentTimeMillis() - startTime);
+
+			
+			// FIXXME: Need to give some time for transmission before client is killed
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+	}
+	
 	public static double getCoverage() {
 		TestCluster.getInstance();
 
@@ -110,27 +155,29 @@ public class CoverageAnalysis {
 		Class<?>[] classes = new Class<?>[junitTests.size()];
 		junitTests.toArray(classes);
 		LoggingUtils.getEvoLogger().info("* Executing tests");
-		Result result = executeTests(classes);
-		return getCoverage(result);
+		ExecutionTraceRunListener listener = new ExecutionTraceRunListener();
+		List<Result> result = executeTests(listener, classes);
+		return getCoverage(listener.getExecutionTraces(), result);
 	}
 	
 	public static List<TestFitnessFunction> getCoveredGoals(Class<?> testClass, List<TestFitnessFunction> allGoals) {
 		List<TestFitnessFunction> coveredGoals = new ArrayList<TestFitnessFunction>();
-		
-		executeTests(testClass);
-		ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
+		ExecutionTraceRunListener listener = new ExecutionTraceRunListener();
 
-		TestChromosome dummy = new TestChromosome();
-		ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
-		executionResult.setTrace(trace);
-		dummy.setLastExecutionResult(executionResult);
-		dummy.setChanged(false);
+		executeTests(listener, testClass);
+		Set<ExecutionTrace> traces = listener.getExecutionTraces();
+		for(ExecutionTrace trace : traces) {
+			TestChromosome dummy = new TestChromosome();
+			ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
+			executionResult.setTrace(trace);
+			dummy.setLastExecutionResult(executionResult);
+			dummy.setChanged(false);
 
-		for(TestFitnessFunction goal : allGoals) {
-			if (goal.isCovered(dummy))
-				coveredGoals.add(goal);
+			for(TestFitnessFunction goal : allGoals) {
+				if (goal.isCovered(dummy))
+					coveredGoals.add(goal);
+			}
 		}
-		
 		return coveredGoals;
 	}
 
@@ -146,12 +193,15 @@ public class CoverageAnalysis {
 						Class<?> clazz = Class.forName(
 								resource.replaceAll(".class", "").replaceAll("/","."),
 								true,
-								TestGenerationContext.getClassLoader());
+								TestGenerationContext.getInstance().getClassLoaderForSUT());
 						if (isTest(clazz)) {
 							classes.add(clazz);
 						}
 					} catch (ClassNotFoundException e2) {
 						// Ignore?
+						logger.info("Could not find class "+resource);
+					} catch(Throwable t) {
+						logger.info("Error while initialising class "+resource);
 					}
 				}
 
@@ -181,7 +231,7 @@ public class CoverageAnalysis {
 				try {
 					Class<?> junitClass = Class.forName(prefix,
 							true,
-							TestGenerationContext.getClassLoader());
+							TestGenerationContext.getInstance().getClassLoaderForSUT());
 					classes.add(junitClass);
 				} catch (ClassNotFoundException e) {
 					// Second, try if the target name is a package name
@@ -225,7 +275,7 @@ public class CoverageAnalysis {
 
 				// Use default classLoader
 				Class<?> clazz = Class.forName(className.replace("/", "."), true,
-				                               TestGenerationContext.getClassLoader());
+				                               TestGenerationContext.getInstance().getClassLoaderForSUT());
 				LoggingUtils.restorePreviousOutAndErrStream();
 
 				//clazz = Class.forName(clazz.getName());
@@ -317,7 +367,7 @@ public class CoverageAnalysis {
 				Class<?> clazz = Class.forName(fileName.replace(".class", "").replace("/",
 				                                                                      "."),
 				                               true,
-				                               TestGenerationContext.getClassLoader());
+				                               TestGenerationContext.getInstance().getClassLoaderForSUT());
 				classes.add(clazz);
 			} catch (IllegalAccessError ex) {
 				System.setOut(old_out);
@@ -360,62 +410,118 @@ public class CoverageAnalysis {
 
 	}
 
-	private static double getCoverage(Result result) {
-		LoggingUtils.getEvoLogger().info("* Executed " + result.getRunCount() + " tests");
-		ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
-
-		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
-		TestChromosome dummy = new TestChromosome();
-		ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
-		executionResult.setTrace(trace);
-		dummy.setLastExecutionResult(executionResult);
-		dummy.setChanged(false);
-
+	private static double getCoverage(Set<ExecutionTrace> traces, List<Result> results) {
+		int runCount = 0;
+		for(Result result : results) {
+			runCount += result.getRunCount();
+		}
+		LoggingUtils.getEvoLogger().info("* Executed " + runCount + " tests");
 		int covered = 0;
-		for (TestFitnessFunction goal : goals) {
-			if (goal.isCovered(dummy))
-				covered++;
+		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
+		
+		for(ExecutionTrace trace : traces) {
+
+			TestChromosome dummy = new TestChromosome();
+			ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
+			executionResult.setTrace(trace);
+			dummy.setLastExecutionResult(executionResult);
+			dummy.setChanged(false);
+
+			for (TestFitnessFunction goal : goals) {
+				if (goal.isCovered(dummy))
+					covered++;
+			}
 		}
 
 		return (double) covered / (double) goals.size();
 	}
+	
+	private static void printReport(Set<ExecutionTrace> traces, List<Result> results, List<Class<?>> classes, long startTime) {
 
-	private static void printReport(Result result, List<Class<?>> classes, long startTime) {
-
-		LoggingUtils.getEvoLogger().info("* Executed " + result.getRunCount() + " tests");
-		ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
+		int runCount = 0;
+		int numTests = 0;
+		for(Result result : results) {
+			runCount += result.getRunCount();
+		}
+		LoggingUtils.getEvoLogger().info("* Executed " + runCount + " tests");
 
 		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
-		TestChromosome dummy = new TestChromosome();
-		ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
-		executionResult.setTrace(trace);
-		dummy.setLastExecutionResult(executionResult);
-		dummy.setChanged(false);
+		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+		
+		Set<Integer> coveredLines = new HashSet<Integer>();
+		int explicitExceptions = 0;
+		Set<String> explicitExceptionNames = new HashSet<String>();
+		for(ExecutionTrace trace : traces) {
 
-		int covered = 0;
-		for (TestFitnessFunction goal : goals) {
-			if (goal.isCovered(dummy))
-				covered++;
+			TestChromosome dummy = new TestChromosome();
+			ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
+			executionResult.setTrace(trace);
+			dummy.setLastExecutionResult(executionResult);
+			dummy.setChanged(false);
+			coveredLines.addAll(trace.getCoveredLines());
+			if(trace.getExplicitException() != null) {
+				explicitExceptions++;
+				explicitExceptionNames.add(trace.getExplicitException().getClass().getName());
+			}
+
+			boolean hasCoverage = false;
+			for (TestFitnessFunction goal : goals) {
+				if (goal.isCovered(dummy)) {
+					hasCoverage = true;
+					coveredGoals.add(goal);
+				}
+			}
+			if(hasCoverage) {
+				numTests++;
+			}
 		}
 		LoggingUtils.getEvoLogger().info("* Covered "
-		                                         + covered
+		                                         + coveredGoals.size()
 		                                         + "/"
 		                                         + goals.size()
 		                                         + " coverage goals: "
-		                                         + NumberFormat.getPercentInstance().format((double) covered
+		                                         + NumberFormat.getPercentInstance().format((double) coveredGoals.size()
 
 		                                                                                            / (double) goals.size()));
 
-		JUnitReportGenerator reportGenerator = new JUnitReportGenerator(covered,
+		JUnitReportGenerator reportGenerator = new JUnitReportGenerator(coveredGoals.size(),
 		        goals.size(),
-		        executionResult.getTrace().getCoveredLines(Properties.TARGET_CLASS),
-		        classes, startTime, result.getRunCount());
-		reportGenerator.writeCSV();
+		        coveredLines,
+		        classes, startTime, runCount);
+		if(Properties.OLD_STATISTICS) {
+			reportGenerator.writeCSV();
+		} 
+		if(Properties.NEW_STATISTICS) {
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, numTests);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, runCount);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, coveredGoals.size());
+			if(goals.isEmpty()) {
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BranchCoverage, 1.0);
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage, 1.0);
+			}
+			else {
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BranchCoverage, (double)coveredGoals.size()/(double)goals.size());
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage, (double)coveredGoals.size()/(double)goals.size());
+			}
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Time, System.currentTimeMillis() - startTime);
+
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Explicit_TypeExceptions, explicitExceptionNames.size());
+			
+			// FIXXME: Need to give some time for transmission before client is killed
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 		reportGenerator.writeReport();
 
 	}
 
-	private static Result executeTests(Class<?>... junitClasses) {
+	private static List<Result> executeTests(ExecutionTraceRunListener listener, Class<?>... junitClasses) {
 		ExecutionTracer.enable();
 		ExecutionTracer.enableTraceCalls();
 		ExecutionTracer.setCheckCallerThread(false);
@@ -430,10 +536,75 @@ public class CoverageAnalysis {
 				return o1.getName().compareTo(o2.getName());
 			}});
 		
-		Result result = JUnitCore.runClasses(junitClasses);
+		List<Result> results = new ArrayList<Result>();
+		final JUnitCore runner = new JUnitCore();
+		runner.addListener(listener);
+
+		for(Class<?> clazz : junitClasses) {
+			try {
+				logger.info("Running test "+clazz.getSimpleName());
+				Result result = runner.run(clazz);
+				results.add(result);
+			} catch(Throwable t) {
+				logger.warn("Error during test execution: "+t);
+			}
+		}
 		ExecutionTracer.disable();
-		return result;
+		return results;
 	}
+	
+	private static Set<Mutation> executeTestsForMutationAnalysis(Class<?>... junitClasses) {
+		ExecutionTracer.enable();
+		ExecutionTracer.setCheckCallerThread(false);
+		
+		/*
+		 * sort them in a deterministic way, in case there are 
+		 * static state dependencies
+		 */
+		Arrays.sort(junitClasses,new Comparator<Class>(){
+			@Override
+			public int compare(Class o1, Class o2) {				
+				return o1.getName().compareTo(o2.getName());
+			}});
+		
+		List<Class<?>> passingClasses = new ArrayList<Class<?>>();
+		for(Class<?> clazz : junitClasses) {
+			try {
+				logger.info("Running test "+clazz.getSimpleName());
+				Result result = JUnitCore.runClasses(clazz);
+				if(result.wasSuccessful())
+					passingClasses.add(clazz);
+			} catch(Throwable t) {
+				logger.warn("Error during test execution: "+t);
+			}
+		}
+
+		final JUnitCore runner = new JUnitCore();
+		List<Mutation> mutants = MutationPool.getMutants();
+		Set<Mutation> killed = new HashSet<Mutation>();
+		for(Mutation mutation : mutants) {
+			logger.info("Current mutant: "+mutation.getId());
+
+			MutationObserver.activateMutation(mutation.getId());
+
+			for(Class<?> clazz : passingClasses) {
+				try {
+					logger.info("Running test "+clazz.getSimpleName());
+					Result result = runner.run(clazz);
+					if(!result.wasSuccessful()) {
+						// killed!
+						killed.add(mutation);
+						break;
+					}
+				} catch(Throwable t) {
+					logger.warn("Error during test execution: "+t);
+				}
+			}
+		}
+		ExecutionTracer.disable();
+		return killed;
+	}
+
 
 	/**
 	 * Determine if this class contains JUnit tests
