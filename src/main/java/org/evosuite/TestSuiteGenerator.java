@@ -669,6 +669,11 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize(best);
+		} else {
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, best.size());
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, best.size());
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, best.totalLengthOfTestCases());
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, best.totalLengthOfTestCases());
 		}
 
 
@@ -1523,7 +1528,7 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	protected static ChromosomeFactory<? extends Chromosome> getDefaultChromosomeFactory() {
+	public static ChromosomeFactory<? extends Chromosome> getDefaultChromosomeFactory() {
 		switch (Properties.STRATEGY) {
 		case EVOSUITE:
 			return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
