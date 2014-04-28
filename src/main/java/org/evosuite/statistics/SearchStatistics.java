@@ -17,6 +17,7 @@ import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Listener;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -194,7 +195,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 */
 	private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual) {
 		Map<String, OutputVariable<?>> variables = new LinkedHashMap<String, OutputVariable<?>>();
-
+		
 		for(String variableName : getOutputVariableNames()) {
 			if(outputVariables.containsKey(variableName)) {
 				//values directly sent by the client
@@ -226,7 +227,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	/**
 	 * Write result to disk using selected backend
 	 * 
-	 * @return true if the writing was succesful
+	 * @return true if the writing was successful
 	 */
 	public boolean writeStatistics() {
 		logger.info("Writing statistics");
@@ -241,6 +242,37 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		}	
 
 		TestSuiteChromosome individual = bestIndividual.values().iterator().next();
+		Map<String,OutputVariable<?>> map = getOutputVariables(individual);
+		if(map==null){
+			logger.error("Not going to write down statistics data, as some are missing");
+			return false;
+		} 			
+
+		boolean valid = RuntimeVariable.validateRuntimeVariables(map);
+		if(!valid){
+			logger.error("Not going to write down statistics data, as some data is invalid");
+			return false;
+		} else {
+			backend.writeData(individual, map);
+			return true;
+		}
+	}
+	
+	/**
+	 * Write result to disk using selected backend
+	 * 
+	 * @return true if the writing was successful
+	 */
+	public boolean writeStatisticsForAnalysis() {
+		logger.info("Writing statistics");
+		if(backend == null) {
+			LoggingUtils.getEvoLogger().info("Backend is null");
+			return false;
+		}
+
+		outputVariables.put(RuntimeVariable.Total_Time.name(), new OutputVariable<Object>(RuntimeVariable.Total_Time.name(), System.currentTimeMillis() - startTime));
+
+		TestSuiteChromosome individual = new TestSuiteChromosome();
 		Map<String,OutputVariable<?>> map = getOutputVariables(individual);
 		if(map==null){
 			logger.error("Not going to write down statistics data, as some are missing");

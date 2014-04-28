@@ -4,6 +4,7 @@
 package org.evosuite.coverage;
 
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -111,7 +112,9 @@ public class CoverageAnalysis {
 
 	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
 		Criterion oldCriterion = Properties.CRITERION;
-		for (String criterion : criteria.split(",")) {
+		List<String> criteriaList = Arrays.asList(criteria.split(","));
+		criteriaList.remove(oldCriterion.name());
+		for (String criterion : criteriaList) {
 			if (SearchStatistics.getInstance().hasCoverage(criterion)) {
 				LoggingUtils.getEvoLogger().info("Skipping measuring coverage of criterion: "
 				                                         + criterion);
@@ -124,6 +127,7 @@ public class CoverageAnalysis {
 		                                         + oldCriterion);
 		//reinstrument(testSuite, oldCriterion);
 		Properties.CRITERION = oldCriterion;
+		analyzeCoverage(testSuite, oldCriterion.name());
 	}
 
 	public static void analyzeCoverage(TestSuiteChromosome testSuite, String criterion) {
@@ -173,6 +177,10 @@ public class CoverageAnalysis {
 		reinstrument(testSuite, criterion);
 		TestFitnessFactory factory = TestSuiteGenerator.getFitnessFactory(criterion);
 
+		for(TestChromosome test : testSuite.getTestChromosomes()) {
+			test.getTestCase().clearCoveredGoals();
+		}
+		
 		int covered = 0;
 		List<TestFitnessFunction> goals = factory.getCoverageGoals();
 		

@@ -15,6 +15,7 @@ import org.evosuite.Properties;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
+import org.evosuite.statistics.SearchStatistics;
 import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.ExternalProcessHandler;
@@ -148,8 +149,17 @@ public class MeasureCoverage {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
-
+			if (Properties.NEW_STATISTICS) {
+				if(MasterServices.getInstance().getMasterNode() == null) {
+					logger.error("Cannot write results as RMI master node is not running");
+				} else {
+					LoggingUtils.getEvoLogger().info("* Writing statistics");
+					
+					SearchStatistics.getInstance().writeStatisticsForAnalysis();
+				}
+			}
 			handler.killProcess();
+			
 		} else {
 			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}
