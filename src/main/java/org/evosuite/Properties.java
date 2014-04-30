@@ -1099,6 +1099,7 @@ public class Properties {
 		WEAKMUTATION,
 		MUTATION,
 		STATEMENT,
+		RHO,
 		IBRANCH,
 		REGRESSION
 	}

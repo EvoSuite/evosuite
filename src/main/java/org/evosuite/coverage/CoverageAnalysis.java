@@ -153,6 +153,8 @@ public class CoverageAnalysis {
 			return RuntimeVariable.DefUseCoverage;
 		case STATEMENT:
 			return RuntimeVariable.StatementCoverage;
+		case RHO:
+            return RuntimeVariable.RhoCoverage;
 		case STRONGMUTATION:
 		case MUTATION:
 			return RuntimeVariable.MutationScore;
