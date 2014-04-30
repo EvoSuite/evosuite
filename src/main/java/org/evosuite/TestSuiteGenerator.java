@@ -43,6 +43,8 @@ import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.CoverageAnalysis;
 import org.evosuite.coverage.FitnessLogger;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.ambiguity.AmbiguityCoverageFactory;
+import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchPool;
@@ -575,7 +577,8 @@ public class TestSuiteGenerator {
 		if (Properties.CRITERION == Criterion.DEFUSE
 		        || Properties.CRITERION == Criterion.ALLDEFS
 		        || Properties.CRITERION == Criterion.STATEMENT
-		        || Properties.CRITERION == Criterion.RHO)
+		        || Properties.CRITERION == Criterion.RHO
+		        || Properties.CRITERION == Criterion.AMBIGUITY)
 			ExecutionTracer.enableTraceCalls();
 
 		// TODO: why it was only if "analyzing"???
@@ -761,6 +764,9 @@ public class TestSuiteGenerator {
 		case RHO:
             LoggingUtils.getEvoLogger().info("* Test Criterion: Rho Coverage");
             break;
+		case AMBIGUITY:
+            LoggingUtils.getEvoLogger().info("* Test Criterion: Ambiguity Coverage");
+            break;
 		case ALLDEFS:
 			LoggingUtils.getEvoLogger().info("* Test Criterion: All Definitions");
 			break;
@@ -814,6 +820,8 @@ public class TestSuiteGenerator {
 			return new StatementCoverageSuiteFitness();
 		case RHO:
             return new RhoCoverageSuiteFitness();
+		case AMBIGUITY:
+            return new AmbiguityCoverageSuiteFitness();
 		case ALLDEFS:
 			return new AllDefsCoverageSuiteFitness();
 		case EXCEPTION:
@@ -869,6 +877,8 @@ public class TestSuiteGenerator {
 			return new StatementCoverageFactory();
 		case RHO:
             return new RhoCoverageFactory();
+		case AMBIGUITY:
+            return new AmbiguityCoverageFactory();
 		case ALLDEFS:
 			return new AllDefsCoverageFactory();
 		case EXCEPTION:
