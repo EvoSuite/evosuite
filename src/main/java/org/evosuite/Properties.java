@@ -1100,6 +1100,7 @@ public class Properties {
 		MUTATION,
 		STATEMENT,
 		RHO,
+		AMBIGUITY,
 		IBRANCH,
 		REGRESSION
 	}
