@@ -112,13 +112,13 @@ public class RhoCoverageFactory extends
 	/**
 	 * Read the coverage of a test suite from a file
 	 */
-	private static void loadCoverage() {
+	protected static void loadCoverage() {
 
 		BufferedReader br = null;
 
 		try {
 			String sCurrentLine;
-			br = new BufferedReader(new FileReader("evosuite-report" + File.separator + "data" + File.separator + Properties.TARGET_CLASS + ".matrix"));
+			br = new BufferedReader(new FileReader(Properties.REPORT_DIR + File.separator + "data" + File.separator + Properties.TARGET_CLASS + ".matrix"));
 
 			String[] split;
 			while ((sCurrentLine = br.readLine()) != null) {
