@@ -109,13 +109,13 @@ public class AmbiguityCoverageFactory extends
 	/**
 	 * Read the coverage of a test suite from a file
 	 */
-	private static void loadCoverage() {
+	protected static void loadCoverage() {
 
 		BufferedReader br = null;
 
 		try {
 			String sCurrentLine;
-			br = new BufferedReader(new FileReader("evosuite-report" + File.separator + "data" + File.separator + Properties.TARGET_CLASS + ".matrix"));
+			br = new BufferedReader(new FileReader(Properties.REPORT_DIR + File.separator + "data" + File.separator + Properties.TARGET_CLASS + ".matrix"));
 
 			List<StringBuilder> matrix = new ArrayList<StringBuilder>();
 			while ((sCurrentLine = br.readLine()) != null) {
@@ -175,11 +175,12 @@ public class AmbiguityCoverageFactory extends
 
 	/**
 	 * 
-	 * @param matrix
+	 * @param matrix transposed matrix
 	 * @return
 	 */
 	public static double getAmbiguity(List<StringBuilder> matrix) {
 
+	    int number_of_components = matrix.size();
 		HashMap<String, Integer> groups = new HashMap<String, Integer>();
 
 		for (StringBuilder s : matrix) {
@@ -196,7 +197,7 @@ public class AmbiguityCoverageFactory extends
 			if (cardinality == 1.0)
 				continue ;
 
-			fit += (cardinality / ((double) goals.size())) * ((cardinality - 1.0) / 2.0);
+			fit += (cardinality / ((double) number_of_components)) * ((cardinality - 1.0) / 2.0);
 		}
 
 		return fit;
@@ -208,9 +209,11 @@ public class AmbiguityCoverageFactory extends
 	 * @return
 	 */
 	private static List<StringBuilder> tranposeMatrix(List<StringBuilder> matrix) {
+
+	    int number_of_components = matrix.get(0).length();
 		List<StringBuilder> new_matrix = new ArrayList<StringBuilder>();
 
-		for (int c_i = 0; c_i < goals.size(); c_i++) {
+		for (int c_i = 0; c_i < number_of_components; c_i++) {
 			StringBuilder str = new StringBuilder();
 			for (StringBuilder t_i : matrix)
 				str.append(t_i.charAt(c_i));
