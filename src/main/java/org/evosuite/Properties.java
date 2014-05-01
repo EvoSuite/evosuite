@@ -117,6 +117,11 @@ public class Properties {
 	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each a static field was modified")
 	public static boolean RESET_STATIC_FIELDS = false;
 
+	/** Constant <code>RESET_STANDARD_STREAMS =false</code> */
+	@Parameter(key = "reset_standard_streams", group = "Test Creation", description = "Restore System.out, System.in and DebugGraphics.logStream after test execution")
+	public static boolean RESET_STANDARD_STREAMS = false;
+	
+	
 	/**
 	 * TODO: this option is off by default because still experimental and not
 	 * fully tested

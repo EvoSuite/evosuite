@@ -358,8 +358,10 @@ public class TestSuiteWriter implements Opcodes {
 			imports.addAll(visitor.getImports());
 		}
 
-		imports.add(PrintStream.class);
-		imports.add(DebugGraphics.class);
+		if(Properties.RESET_STANDARD_STREAMS) {
+			imports.add(PrintStream.class);
+			imports.add(DebugGraphics.class);
+		}
 
 		Set<String> import_names = new HashSet<String>();
 		for (Class<?> imp : imports) {
@@ -764,19 +766,29 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateAfter(StringBuilder bd, boolean wasSecurityException) {
 
+		if (!Properties.RESET_STANDARD_STREAMS 
+				&& !wasSecurityException 
+				&& !Properties.REPLACE_CALLS 
+				&& !Properties.VIRTUAL_FS
+				&& !Properties.RESET_STATIC_FIELDS) {
+			return;
+		}
+		
 		bd.append(METHOD_SPACE);
 		bd.append("@After \n");
 		bd.append(METHOD_SPACE);
 		bd.append("public void doneWithTestCase(){ \n");
 
-		bd.append(BLOCK_SPACE);
-		bd.append("java.lang.System.setErr(systemErr); \n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("java.lang.System.setOut(systemOut); \n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("DebugGraphics.setLogStream(logStream); \n");
+		if (Properties.RESET_STANDARD_STREAMS) {
+			bd.append(BLOCK_SPACE);
+			bd.append("java.lang.System.setErr(systemErr); \n");
+	
+			bd.append(BLOCK_SPACE);
+			bd.append("java.lang.System.setOut(systemOut); \n");
+	
+			bd.append(BLOCK_SPACE);
+			bd.append("DebugGraphics.setLogStream(logStream); \n");
+		}
 
 		if (wasSecurityException) {
 			bd.append(BLOCK_SPACE);
@@ -803,22 +815,35 @@ public class TestSuiteWriter implements Opcodes {
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException,
 			List<ExecutionResult> results) {
 
+		if (!Properties.RESET_STANDARD_STREAMS 
+				&& !shouldResetProperties(results) 
+				&& !wasSecurityException 
+				&& !Properties.REPLACE_CALLS 
+				&& !Properties.VIRTUAL_FS
+				&& !Properties.RESET_STATIC_FIELDS 
+				&& !SystemInUtil.getInstance().hasBeenUsed()) {
+			return;
+		}
+		
 		bd.append(METHOD_SPACE);
 		bd.append("@Before \n");
 		bd.append(METHOD_SPACE);
 		bd.append("public void initTestCase(){ \n");
 
-		bd.append(BLOCK_SPACE);
-		bd.append("systemErr = java.lang.System.err;");
-		bd.append(" \n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("systemOut = java.lang.System.out;");
-		bd.append(" \n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("logStream = DebugGraphics.logStream();");
-		bd.append(" \n");
+		if (Properties.RESET_STANDARD_STREAMS) {
+			bd.append(BLOCK_SPACE);
+			bd.append("systemErr = java.lang.System.err;");
+			bd.append(" \n");
+	
+			bd.append(BLOCK_SPACE);
+			bd.append("systemOut = java.lang.System.out;");
+			bd.append(" \n");
+	
+			bd.append(BLOCK_SPACE);
+			bd.append("logStream = DebugGraphics.logStream();");
+			bd.append(" \n");
+		}
+		
 		if (shouldResetProperties(results)) {
 			bd.append(BLOCK_SPACE);
 			bd.append("setSystemProperties();");
@@ -1016,15 +1041,17 @@ public class TestSuiteWriter implements Opcodes {
 	private void generateFields(StringBuilder bd, boolean wasSecurityException,
 			List<ExecutionResult> results) {
 
-		bd.append(METHOD_SPACE);
-		bd.append("private PrintStream systemOut = null;" + '\n');
-
-		bd.append(METHOD_SPACE);
-		bd.append("private PrintStream systemErr = null;" + '\n');
-
-		bd.append(METHOD_SPACE);
-		bd.append("private PrintStream logStream = null;" + '\n');
-
+		if (Properties.RESET_STANDARD_STREAMS) {
+			bd.append(METHOD_SPACE);
+			bd.append("private PrintStream systemOut = null;" + '\n');
+	
+			bd.append(METHOD_SPACE);
+			bd.append("private PrintStream systemErr = null;" + '\n');
+	
+			bd.append(METHOD_SPACE);
+			bd.append("private PrintStream logStream = null;" + '\n');
+		}
+		
 		if (wasSecurityException) {
 			bd.append(METHOD_SPACE);
 			bd.append("private static ExecutorService " + EXECUTOR_SERVICE
