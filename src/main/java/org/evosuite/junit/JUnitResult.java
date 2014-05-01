@@ -3,59 +3,206 @@ package org.evosuite.junit;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.testcase.ExecutionTrace;
+
 /**
- * The information from executing a JUnit test case needed
- * by the JUnitAnalyzer
+ * The information from executing a JUnit test case
  * 
  * @author galeotti
- *
+ * @author José Campos
  */
 public class JUnitResult {
 
+    /**
+     * 
+     */
+    private String name;
+
+    /**
+     * 
+     */
+    private boolean successful;
+
+    /**
+     * 
+     */
+    private long runtime;
+
+    /**
+     * 
+     */
+    private String trace;
+
+    /**
+     * 
+     */
+    private ExecutionTrace executionTrace;
+
+    /**
+     * 
+     */
+    private int failureCount;
+
+    /**
+     * 
+     */
+    private int runCount;
+
+    /**
+     * 
+     */
+    private ArrayList<JUnitFailure> junitFailures = new ArrayList<JUnitFailure>();
+
+    /**
+     * 
+     */
+    public JUnitResult(String name) {
+        this.successful = true;
+        this.name = name;
+    }
+
+    /**
+     * 
+     * @param wasSuccessful
+     * @param failureCount
+     * @param runCount
+     */
 	public JUnitResult(boolean wasSuccessful, int failureCount, int runCount) {
-		super();
-		this.wasSuccessful = wasSuccessful;
-		this.failureCount = failureCount;
-		this.runCount = runCount;
+	    this.successful = wasSuccessful;
+	    this.failureCount = failureCount;
+	    this.runCount = runCount;
 	}
 
-	private final boolean wasSuccessful;
-	private final int failureCount;
-	private final int runCount;
-	private final ArrayList<JUnitFailure> junitFailures = new ArrayList<JUnitFailure>();
-	
-	public void addFailure(JUnitFailure junitFailure) {
-		junitFailures.add(junitFailure);
-	}
+	/**
+     * 
+     * @return
+     */
+    public String getName() {
+        return this.name;
+    }
 
-	public List<JUnitFailure> getFailures() {
-		return junitFailures;
-	}
+    /**
+     * 
+     * @param n
+     */
+    public void setName(String n) {
+        this.name = n;
+    }
 
-	public boolean wasSuccessful() {
-		return this.wasSuccessful;
-	}
+    /**
+     * 
+     * @return
+     */
+    public boolean wasSuccessful() {
+        return this.successful;
+    }
 
-	public int getFailureCount() {
-		return this.failureCount;
-	}
+    /**
+     * 
+     * @param s
+     */
+    public void setSuccessful(boolean s) {
+        this.successful = s;
+    }
 
-	public int getRunCount() {
-		return runCount;
-	}
+    /**
+     * 
+     * @return
+     */
+    public long getRuntime() {
+        return this.runtime;
+    }
 
+    /**
+     * 
+     * @param r
+     */
+    public void setRuntime(long r) {
+        this.runtime = r;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public String getTrace() {
+        return this.trace;
+    }
+
+    /**
+     * 
+     * @param t
+     */
+    public void setTrace(String t) {
+        this.trace = t;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public ExecutionTrace getExecutionTrace() {
+        return this.executionTrace;
+    }
+
+    /**
+     * 
+     * @param et
+     */
+    public void setExecutionTrace(ExecutionTrace et) {
+        this.executionTrace = et;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public int getFailureCount() {
+        return this.failureCount;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public int getRunCount() {
+        return runCount;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public List<JUnitFailure> getFailures() {
+        return junitFailures;
+    }
+
+    /**
+     * 
+     * @param junitFailure
+     */
+    public void addFailure(JUnitFailure junitFailure) {
+        junitFailures.add(junitFailure);
+    }
+
+    /**
+     * 
+     */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + failureCount;
+		result = prime * result + this.failureCount;
 		result = prime * result
-				+ ((junitFailures == null) ? 0 : junitFailures.hashCode());
-		result = prime * result + runCount;
-		result = prime * result + (wasSuccessful ? 1231 : 1237);
+				+ ((this.junitFailures == null) ? 0 : this.junitFailures.hashCode());
+		result = prime * result + this.runCount;
+		result = prime * result + (this.successful ? 1231 : 1237);
 		return result;
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -65,18 +212,17 @@ public class JUnitResult {
 		if (getClass() != obj.getClass())
 			return false;
 		JUnitResult other = (JUnitResult) obj;
-		if (failureCount != other.failureCount)
+		if (this.failureCount != other.failureCount)
 			return false;
-		if (junitFailures == null) {
+		if (this.junitFailures == null) {
 			if (other.junitFailures != null)
 				return false;
-		} else if (!junitFailures.equals(other.junitFailures))
+		} else if (!this.junitFailures.equals(other.junitFailures))
 			return false;
-		if (runCount != other.runCount)
+		if (this.runCount != other.runCount)
 			return false;
-		if (wasSuccessful != other.wasSuccessful)
+		if (this.successful != other.successful)
 			return false;
 		return true;
 	}
-
 }

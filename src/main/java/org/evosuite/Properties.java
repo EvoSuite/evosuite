@@ -652,6 +652,10 @@ public class Properties {
 	@Parameter(key = "html", group = "Output", description = "Create html reports")
 	public static boolean HTML = true;
 
+	/** Constant <code>COVERAGE_MATRIX=true</code> */
+    @Parameter(key = "coverage_matrix", group = "Output", description = "Create coverage matrix")
+    public static boolean COVERAGE_MATRIX = false;
+
 	/** Constant <code>JUNIT_TESTS=true</code> */
 	@Parameter(key = "junit_tests", group = "Output", description = "Create JUnit test suites")
 	public static boolean JUNIT_TESTS = true;
