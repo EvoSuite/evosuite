@@ -94,6 +94,10 @@ public class Randomness implements Serializable {
 		return random.nextInt(max);
 	}
 
+	public static double nextGaussian() {
+		return random.nextGaussian();
+	}
+	
 	/**
 	 * <p>
 	 * nextInt
