@@ -1056,6 +1056,17 @@ public class TestClusterGenerator {
 		return false;
 	}
 
+	private static boolean hasStaticGenerator(Class<?> clazz) {
+		for(Method m : clazz.getMethods()) {
+			if(Modifier.isStatic(m.getModifiers())) {
+				if(clazz.isAssignableFrom(m.getReturnType())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * If we try to get deterministic tests, we must not include these methods
 	 * 
@@ -1147,8 +1158,7 @@ public class TestClusterGenerator {
 			return false;
 		}
 
-		if (c.getDeclaringClass().isMemberClass()
-		        && !Modifier.isPublic(c.getDeclaringClass().getModifiers()))
+		if (c.getDeclaringClass().isMemberClass() && !canUse(c.getDeclaringClass()))
 			return false;
 
 		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
@@ -1577,8 +1587,10 @@ public class TestClusterGenerator {
 								continue;
 							if (subClazz.isInterface())
 								continue;
-							if (Modifier.isAbstract(subClazz.getModifiers()))
-								continue;
+							if (Modifier.isAbstract(subClazz.getModifiers())) {
+								if(!hasStaticGenerator(subClazz))
+									continue;
+							}
 							Class<?> mock = MockList.getMockClass(subClazz.getCanonicalName());
 							if (mock != null) {
 								/*
@@ -1606,6 +1618,9 @@ public class TestClusterGenerator {
 					}
 				}
 				distance++;
+			}
+			if(hasStaticGenerator(clazz)) {
+				actualClasses.add(clazz);
 			}
 			if (actualClasses.isEmpty()) {
 				logger.info("Don't know how to instantiate abstract class "
