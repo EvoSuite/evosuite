@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -52,6 +53,7 @@ import org.evosuite.utils.ResourceList;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
+import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
@@ -568,39 +570,72 @@ public class CoverageAnalysis {
 			}});
 		
 		List<Class<?>> passingClasses = new ArrayList<Class<?>>();
+		RunNotifier notifier = new RunNotifier();
+		Set<Mutation> allMutants = new LinkedHashSet<Mutation>(MutationPool.getMutants());
+		Set<Mutation> killed = new HashSet<Mutation>();
+
 		for(Class<?> clazz : junitClasses) {
 			try {
-				logger.info("Running test "+clazz.getSimpleName());
-				Result result = JUnitCore.runClasses(clazz);
-				if(result.wasSuccessful())
-					passingClasses.add(clazz);
-			} catch(Throwable t) {
-				logger.warn("Error during test execution: "+t);
-			}
-		}
-
-		final JUnitCore runner = new JUnitCore();
-		List<Mutation> mutants = MutationPool.getMutants();
-		Set<Mutation> killed = new HashSet<Mutation>();
-		for(Mutation mutation : mutants) {
-			logger.info("Current mutant: "+mutation.getId());
-
-			MutationObserver.activateMutation(mutation.getId());
-
-			for(Class<?> clazz : passingClasses) {
-				try {
-					logger.info("Running test "+clazz.getSimpleName());
-					Result result = runner.run(clazz);
-					if(!result.wasSuccessful()) {
-						// killed!
-						killed.add(mutation);
-						break;
+				logger.info("Remaining mutants: "+allMutants.size());
+				logger.info("Running test class: "+clazz.getSimpleName());
+				//if(junit.framework.TestCase.class.isAssignableFrom(clazz)) {
+				//	logger.info("Found JUnit 3.8 test");
+					ExecutionTracer.enable();
+					Result result = JUnitCore.runClasses(clazz);
+					ExecutionTracer.disable();
+					ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
+					for(Integer mutationID : trace.getTouchedMutants()) {
+						Mutation m = MutationPool.getMutant(mutationID);
+						if(allMutants.contains(m)) {
+							ExecutionTracer.getExecutionTracer().clear();
+							MutationObserver.activateMutation(mutationID);
+							ExecutionTracer.enable();
+							Result mutationResult = JUnitCore.runClasses(clazz);
+							ExecutionTracer.disable();
+							MutationObserver.deactivateMutation();
+							if(mutationResult.getFailureCount() != result.getFailureCount()) {
+								logger.info("Mutation killed: "+mutationID);
+								allMutants.remove(m);
+								killed.add(m);
+							}
+						}
 					}
-				} catch(Throwable t) {
-					logger.warn("Error during test execution: "+t);
+//			} else {
+//				MutationAnalysisRunner runner = new MutationAnalysisRunner(clazz, allMutants);
+//				//Result result = JUnitCore.runClasses(clazz);
+//				runner.run(notifier);
+//				allMutants.removeAll(runner.getKilledMutants());
+//			}
+				//if(result.wasSuccessful())
+				//	passingClasses.add(clazz);
+			} catch(Throwable t) {
+				logger.warn("Error during test execution: "+t+", "+t.getMessage());
+				for(StackTraceElement elem : t.getStackTrace()) {
+					logger.warn(elem.toString());
 				}
 			}
 		}
+// TODO: The problem is that the runner only works for JUnit 4 tests
+//		List<Mutation> mutants = MutationPool.getMutants();
+//		for(Mutation mutation : mutants) {
+//			logger.info("Current mutant: "+mutation.getId());
+//
+//			MutationObserver.activateMutation(mutation.getId());
+//
+//			for(Class<?> clazz : passingClasses) {
+//				try {
+//					logger.info("Running test "+clazz.getSimpleName());
+//					Result result = runner.run(clazz);
+//					if(!result.wasSuccessful()) {
+//						// killed!
+//						killed.add(mutation);
+//						break;
+//					}
+//				} catch(Throwable t) {
+//					logger.warn("Error during test execution: "+t);
+//				}
+//			}
+//		}
 		ExecutionTracer.disable();
 		return killed;
 	}
