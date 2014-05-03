@@ -43,6 +43,8 @@ import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.CoverageAnalysis;
 import org.evosuite.coverage.FitnessLogger;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.ambiguity.AmbiguityCoverageFactory;
+import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchPool;
@@ -66,6 +68,8 @@ import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
 import org.evosuite.coverage.mutation.WeakMutationSuiteFitness;
 import org.evosuite.coverage.path.PrimePathCoverageFactory;
 import org.evosuite.coverage.path.PrimePathSuiteFitness;
+import org.evosuite.coverage.rho.RhoCoverageFactory;
+import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.coverage.statement.StatementCoverageFactory;
 import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
@@ -573,7 +577,9 @@ public class TestSuiteGenerator {
 
 		if (Properties.CRITERION == Criterion.DEFUSE
 		        || Properties.CRITERION == Criterion.ALLDEFS
-		        || Properties.CRITERION == Criterion.STATEMENT)
+		        || Properties.CRITERION == Criterion.STATEMENT
+		        || Properties.CRITERION == Criterion.RHO
+		        || Properties.CRITERION == Criterion.AMBIGUITY)
 			ExecutionTracer.enableTraceCalls();
 
 		// TODO: why it was only if "analyzing"???
@@ -756,6 +762,12 @@ public class TestSuiteGenerator {
 		case STATEMENT:
 			LoggingUtils.getEvoLogger().info("* Test Criterion: Statement Coverage");
 			break;
+		case RHO:
+            LoggingUtils.getEvoLogger().info("* Test Criterion: Rho Coverage");
+            break;
+		case AMBIGUITY:
+            LoggingUtils.getEvoLogger().info("* Test Criterion: Ambiguity Coverage");
+            break;
 		case ALLDEFS:
 			LoggingUtils.getEvoLogger().info("* Test Criterion: All Definitions");
 			break;
@@ -807,6 +819,10 @@ public class TestSuiteGenerator {
 			return new IBranchSuiteFitness();
 		case STATEMENT:
 			return new StatementCoverageSuiteFitness();
+		case RHO:
+            return new RhoCoverageSuiteFitness();
+		case AMBIGUITY:
+            return new AmbiguityCoverageSuiteFitness();
 		case ALLDEFS:
 			return new AllDefsCoverageSuiteFitness();
 		case EXCEPTION:
@@ -860,6 +876,10 @@ public class TestSuiteGenerator {
 			return new IBranchFitnessFactory();
 		case STATEMENT:
 			return new StatementCoverageFactory();
+		case RHO:
+            return new RhoCoverageFactory();
+		case AMBIGUITY:
+            return new AmbiguityCoverageFactory();
 		case ALLDEFS:
 			return new AllDefsCoverageFactory();
 		case EXCEPTION:
