@@ -87,7 +87,7 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
+		short delta = (short)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
 		value = (short) (value.shortValue() + delta);
 	}
 
