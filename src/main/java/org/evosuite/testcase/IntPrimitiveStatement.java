@@ -87,7 +87,7 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
+		int delta = (int)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
 		value = value + delta;
 	}
 

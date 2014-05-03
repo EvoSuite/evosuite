@@ -20,6 +20,9 @@
  */
 package org.evosuite.testcase;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import org.evosuite.Properties;
 import org.evosuite.seeding.ConstantPool;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -87,10 +90,22 @@ public class FloatPrimitiveStatement extends NumericalPrimitiveStatement<Float> 
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
-		value = new Float((value.floatValue() + delta + Randomness.nextFloat()));
+		double P = Randomness.nextDouble();
+		if(P < 1d/3d) {
+			value += (float)Randomness.nextGaussian() * Properties.MAX_DELTA;
+		} else if(P < 2d/3d) {
+			value += (float)Randomness.nextGaussian();
+		} else {
+			int precision = Randomness.nextInt(7);
+			chopPrecision(precision);
+		}
 	}
 
+	private void chopPrecision(int precision) {
+		BigDecimal bd = new BigDecimal(value).setScale(precision, RoundingMode.HALF_EVEN);
+		this.value = bd.floatValue();
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
 	 */
@@ -115,9 +130,11 @@ public class FloatPrimitiveStatement extends NumericalPrimitiveStatement<Float> 
 	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
-		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
-			value = (Randomness.nextInt(2 * Properties.MAX_INT) - Properties.MAX_INT)
-			        + Randomness.nextFloat();
+		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
+			value = (float)Randomness.nextGaussian() * Properties.MAX_INT;
+			int precision = Randomness.nextInt(7);
+			chopPrecision(precision);
+		}
 		else {
 			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
 			value = constantPool.getRandomFloat();

@@ -103,7 +103,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
+		byte delta = (byte)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
 		value = (byte) (value.byteValue() + delta);
 	}
 

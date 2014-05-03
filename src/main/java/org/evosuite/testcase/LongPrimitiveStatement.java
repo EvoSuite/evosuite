@@ -87,8 +87,8 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
-		value = new Long((value.longValue() + delta));
+		long delta = (long)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
+		value = value + delta;
 	}
 
 	/* (non-Javadoc)
