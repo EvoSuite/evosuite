@@ -25,6 +25,8 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.junit.TestSuiteWriter;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.slf4j.Logger;
@@ -207,4 +209,21 @@ public class FailingTestSet {
 		violationCount = 0;
 	}
 
+	public static void sendStatistics() {
+		if(!Properties.NEW_STATISTICS)
+			return;
+		
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.AssertionContract, getNumberOfViolations(AssertionErrorContract.class));
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.EqualsContract, getNumberOfViolations(EqualsContract.class));
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.EqualsHashcodeContract, getNumberOfViolations(EqualsHashcodeContract.class));
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.EqualsNullContract, getNumberOfViolations(EqualsNullContract.class));
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.EqualsSymmetricContract, getNumberOfViolations(EqualsSymmetricContract.class));
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.HashCodeReturnsNormallyContract, getNumberOfViolations(HashCodeReturnsNormallyContract.class));
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.JCrasherExceptionContract, getNumberOfViolations(JCrasherExceptionContract.class));
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.NullPointerExceptionContract, getNumberOfViolations(NullPointerExceptionContract.class));
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.ToStringReturnsNormallyContract, getNumberOfViolations(ToStringReturnsNormallyContract.class));
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.UndeclaredExceptionContract, getNumberOfViolations(UndeclaredExceptionContract.class));
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Contract_Violations, getNumberOfViolations());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Unique_Violations, getNumberOfUniqueViolations());
+	}
 }

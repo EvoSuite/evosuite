@@ -93,7 +93,7 @@ public class ContractChecker extends ExecutionObserver {
 
 		for (String theoryName : Properties.JUNIT_THEORIES.split(":")) {
 			try {
-				Class<?> theory = TestGenerationContext.getClassLoader().loadClass(theoryName);
+				Class<?> theory = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(theoryName);
 				Constructor<?> constructor = theory.getConstructor();
 				if (!Modifier.isPublic(constructor.getModifiers())) {
 					logger.info("Theory class does not have public default constructor");

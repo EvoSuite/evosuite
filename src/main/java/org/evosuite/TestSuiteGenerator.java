@@ -333,10 +333,11 @@ public class TestSuiteGenerator {
 			StatisticsSender.sendIndividualToMaster(tests);
 		}
 
-		if (Properties.CHECK_CONTRACTS) {
+		if (Properties.CHECK_CONTRACTS) {			
 			for (TestCase test : FailingTestSet.getFailingTests()) {
 				tests.addTest(test);
 			}
+			FailingTestSet.sendStatistics();
 		}
 
 		List<TestCase> testCases = tests.getTests();

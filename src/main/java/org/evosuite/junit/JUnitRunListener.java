@@ -88,9 +88,10 @@ public class JUnitRunListener extends RunListener {
 
 		this.testResult.setRuntime(System.nanoTime() - this.start);
 		this.testResult.setExecutionTrace(ExecutionTracer.getExecutionTracer().getTrace());
+		this.testResult.incrementRunCount();
 		ExecutionTracer.getExecutionTracer().clear();
 
-		this.junitRunner.finish(this.testResult);
+		this.junitRunner.addResult(this.testResult);
 	}
 
 	/**
@@ -102,6 +103,7 @@ public class JUnitRunListener extends RunListener {
 
 		this.testResult.setSuccessful(false);
 		this.testResult.setTrace(failure.getTrace());
+		this.testResult.incrementFailureCount();
 	}
 
 	/**

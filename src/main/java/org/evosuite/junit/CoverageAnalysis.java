@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -42,6 +43,7 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.utils.ClassPathHandler;
@@ -138,7 +140,6 @@ public class CoverageAnalysis {
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -552,7 +553,6 @@ public class CoverageAnalysis {
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -578,38 +578,77 @@ public class CoverageAnalysis {
 	
 	private static Set<Mutation> executeTestsForMutationAnalysis(Class<?>... junitClasses) {
 
-	    List<Class<?>> passingClasses = new ArrayList<Class<?>>();
+        //List<Class<?>> passingClasses = new ArrayList<Class<?>>();
+	    //RunNotifier notifier = new RunNotifier();
+	    Set<Mutation> allMutants = new LinkedHashSet<Mutation>(MutationPool.getMutants());
+	    Set<Mutation> killed = new HashSet<Mutation>();
 
-	    List<JUnitResult> testResults = executeTests(junitClasses);
-        for (int i = 0; i < testResults.size(); i++) {
-            if (testResults.get(i).wasSuccessful())
-                passingClasses.add(junitClasses[i]);
-        }
+	    for(Class<?> clazz : junitClasses) {
+	        try {
+	            logger.info("Remaining mutants: "+allMutants.size());
+	            logger.info("Running test class: "+clazz.getSimpleName());
+	            //if(junit.framework.TestCase.class.isAssignableFrom(clazz)) {
+	            //	logger.info("Found JUnit 3.8 test");
+	                List<JUnitResult> results = executeTests(clazz);
+                    for (JUnitResult tR : results) {
+                        ExecutionTrace trace = tR.getExecutionTrace();
 
-		List<Mutation> mutants = MutationPool.getMutants();
-		Set<Mutation> killed = new HashSet<Mutation>();
+                        for (Integer mutationID : trace.getTouchedMutants()) {
+                            Mutation m = MutationPool.getMutant(mutationID);
+                            if (allMutants.contains(m))
+                            {
+                                MutationObserver.activateMutation(mutationID);
+                                List<JUnitResult> mutationResults = executeTests(clazz);
+                                MutationObserver.deactivateMutation();
 
-		for (Mutation mutation : mutants) {
-			logger.info("Current mutant: "+mutation.getId());
-
-			MutationObserver.activateMutation(mutation.getId());
-
-			for (Class<?> passingClass : passingClasses) {
-			    logger.info("Running test " + passingClass.getSimpleName());
-
-			    testResults = executeTests(passingClass);
-                for (int i = 0; i < testResults.size(); i++)
-                {
-                    if (!testResults.get(i).wasSuccessful()) {
-                        // killed!
-                        killed.add(mutation);
-                        break;
+                                for (JUnitResult mR : mutationResults) {
+                                    if (mR.getFailureCount() != tR.getFailureCount()) {
+                                        logger.info("Mutation killed: "+mutationID);
+                                        allMutants.remove(m);
+                                        killed.add(m);
+                                    }
+                                }
+                            }
+                        }
                     }
-                }
-			}
-		}
+//			} else {
+//				MutationAnalysisRunner runner = new MutationAnalysisRunner(clazz, allMutants);
+//				//Result result = JUnitCore.runClasses(clazz);
+//				runner.run(notifier);
+//				allMutants.removeAll(runner.getKilledMutants());
+//			}
+                //if(result.wasSuccessful())
+                //	passingClasses.add(clazz);
+	        } catch(Throwable t) {
+	            logger.warn("Error during test execution: "+t+", "+t.getMessage());
+	            for(StackTraceElement elem : t.getStackTrace()) {
+	                logger.warn(elem.toString());
+	            }
+	        }
+	    }
+// TODO: The problem is that the runner only works for JUnit 4 tests
+//		List<Mutation> mutants = MutationPool.getMutants();
+//		for(Mutation mutation : mutants) {
+//			logger.info("Current mutant: "+mutation.getId());
+//
+//			MutationObserver.activateMutation(mutation.getId());
+//
+//			for(Class<?> clazz : passingClasses) {
+//				try {
+//					logger.info("Running test "+clazz.getSimpleName());
+//					Result result = runner.run(clazz);
+//					if(!result.wasSuccessful()) {
+//						// killed!
+//						killed.add(mutation);
+//						break;
+//					}
+//				} catch(Throwable t) {
+//					logger.warn("Error during test execution: "+t);
+//				}
+//			}
+//		}
 
-		return killed;
+	    return killed;
 	}
 
 

@@ -59,6 +59,8 @@ public class JUnitResult {
     public JUnitResult(String name) {
         this.successful = true;
         this.name = name;
+        this.failureCount = 0;
+        this.runCount = 0;
     }
 
     /**
@@ -161,12 +163,20 @@ public class JUnitResult {
         return this.failureCount;
     }
 
+    public void incrementFailureCount() {
+        this.failureCount++;
+    }
+
     /**
      * 
      * @return
      */
     public int getRunCount() {
         return runCount;
+    }
+
+    public void incrementRunCount() {
+        this.runCount++;
     }
 
     /**

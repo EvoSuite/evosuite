@@ -90,7 +90,7 @@ public class JUnitRunner {
 	 * 
 	 * @param testResult
 	 */
-	public void finish(JUnitResult testResult) {
+	public void addResult(JUnitResult testResult) {
 		this.testResults.add(testResult);
 	}
 
