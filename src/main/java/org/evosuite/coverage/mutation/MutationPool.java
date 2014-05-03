@@ -133,6 +133,10 @@ public class MutationPool {
 		mutants.addAll(mutationIdMap.values());
 		return mutants;
 	}
+	
+	public static Mutation getMutant(int id) {
+		return mutationIdMap.get(id);
+	}
 
 	/**
 	 * Remove all known mutants
