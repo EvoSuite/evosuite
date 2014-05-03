@@ -81,6 +81,10 @@ public enum RuntimeVariable {
 	LengthTimeline,
 	/** The obtained statement coverage */
 	StatementCoverage,
+	/** The obtained rho coverage */
+	RhoCoverage,
+	/** The obtained ambiguity coverage */
+	AmbiguityCoverage,
 	/** Not only the covered branches ratio, but also including the branchless methods. FIXME: this will need to be changed */
 	BranchCoverage,
 	/** A bit string (0/1) representing whether branches (in order) are covered */
