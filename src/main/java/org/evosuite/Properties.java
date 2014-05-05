@@ -265,7 +265,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, STEADYSTATEGA, ONEPLUSONEEA, MUPLUSLAMBDAGA, RANDOM
+		STANDARDGA, STEADYSTATEGA, ONEPLUSONEEA, MUPLUSLAMBDAGA, RANDOM, NSGAII
 	}
 
 	/** Constant <code>ALGORITHM</code> */
@@ -392,6 +392,11 @@ public class Properties {
 	@Parameter(key = "crossover_rate", group = "Search Algorithm", description = "Probability of crossover")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double CROSSOVER_RATE = 0.75;
+
+	/** Constant <code>MUTATION_RATE=0.75</code> */
+    @Parameter(key = "mutation_rate", group = "Search Algorithm", description = "Probability of mutation")
+    @DoubleValue(min = 0.0, max = 1.0)
+    public static double MUTATION_RATE = 0.75;
 
 	/** Constant <code>NUMBER_OF_MUTATIONS=1</code> */
 	@Parameter(key = "number_of_mutations", group = "Search Algorithm", description = "Number of single mutations applied on an individual when a mutation event occurs")

@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.ga;
+package org.evosuite.ga.operators.selection;
 
 import static org.junit.Assert.assertTrue;
 

@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga;
+package org.evosuite.ga.operators.selection;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessProportionateSelection;
+import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
 import org.evosuite.ga.operators.selection.RankSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.ga.operators.selection.TournamentSelection;

@@ -1,0 +1,176 @@
+package org.evosuite.ga.metaheuristics;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.ga.variables.DoubleVariable;
+import org.evosuite.ga.variables.Variable;
+import org.evosuite.utils.Randomness;
+
+/**
+ * 
+ * @author José Campos
+ */
+public class NSGAChromosome extends Chromosome
+{
+	private static final long serialVersionUID = -2056801838518269049L;
+
+	/**  */
+	private List<Variable> variables = new ArrayList<Variable>();
+
+	public NSGAChromosome() {
+		// empty
+	}
+
+	public NSGAChromosome(boolean ZDT4,
+			int number_of_variables,
+			double min, double max,
+			double upperBound, double lowerBound) {
+		super();
+
+		int index = 0;
+		if (ZDT4) {
+			Variable v = new DoubleVariable(0.0 + Randomness.nextDouble() * (1.0 - 0.0),
+					0.0, 1.0);
+			this.addVariable(v);
+			index++;
+		}
+
+		for (int i = index; i < number_of_variables; i++) {
+			Variable v = new DoubleVariable(min + Randomness.nextDouble() * (max - min),
+					lowerBound, upperBound);
+			this.addVariable(v);
+		}
+	}
+
+	public List<Variable> getVariables() {
+		return this.variables;
+	}
+
+	public Variable getVariable(int i) {
+		return this.variables.get(i);
+	}
+
+	public int getNumberOfVariables() {
+		return this.variables.size();
+	}
+
+	public void addVariable(Variable var) {
+		this.variables.add(var);
+	}
+
+	@Override
+	public Chromosome clone() {
+		NSGAChromosome c = new NSGAChromosome();
+		c.setFitness(this.getFitness());
+		for (Variable v : this.getVariables()) {
+			c.addVariable(v.clone());
+		}
+		c.setSolution(this.isSolution());
+		c.setChanged(this.isChanged());
+		c.setCoverage(this.getCoverage());
+		c.setNumOfCoveredGoals(this.getNumOfCoveredGoals());
+		c.updateAge(this.getAge());
+		c.setHowManyDominateMe(this.getHowManyDominateMe());
+		for (Chromosome c_old : this.getChromosomeDominated()) {
+			c.addChromosomeDominated(c_old);
+		}
+		c.setRank(this.getRank());
+		c.setDistance(this.getDistance());
+
+		return c;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this.hashCode() == obj.hashCode())
+			return true;
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		int hashCode = 0;
+
+		hashCode = hashCode * 37 + this.getVariables().hashCode();
+
+	    return hashCode;
+	}
+
+	@Override
+	public int compareSecondaryObjective(Chromosome o) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/**
+	 *  Polynomial Mutation (for real values) - PM
+	 */
+	@Override
+	public void mutate() {
+		for (int i = 0; i < this.getNumberOfVariables(); i++) {
+			Variable v = this.getVariable(i);
+
+			if (v instanceof DoubleVariable)
+				this.mutate((DoubleVariable)v);
+		}
+	}
+
+	private void mutate(DoubleVariable v) {
+		double ub = v.getUpperBound();
+		double lb = v.getLowerBound();
+		double db = ub - lb;
+
+		double new_x = v.getValue();
+
+		double delta1 = (new_x - lb) / db;
+		double delta2 = (ub - new_x) / db;
+		double deltaq;
+
+		double distributionIndex = 20.0;
+		double pow = 1.0 / (distributionIndex + 1.0);
+
+		double r = Randomness.nextDouble();
+		if (r <= 0.5) {
+			double aux = (2.0  * r) +
+							((1.0 - (2.0 * r)) *
+							Math.pow(1.0 - delta1, distributionIndex + 1.0));
+			deltaq = Math.pow(aux, pow) - 1.0;
+		}
+		else {
+			double aux = (2 * (1.0 - r)) +
+							((2 * (r - 0.5)) *
+							Math.pow(1.0 - delta2, distributionIndex + 1.0));
+			deltaq = 1.0 - Math.pow(aux, pow);
+		}
+
+		new_x = new_x + deltaq * db;
+
+		if (new_x < lb)
+			new_x = lb;
+		else if (new_x > ub)
+			new_x = ub;
+
+		v.setValue(new_x);
+	}
+
+	@Override
+	public void crossOver(Chromosome other, int position1, int position2) {
+		// empty
+	}
+
+	@Override
+	public boolean localSearch(
+			LocalSearchObjective<? extends Chromosome> objective) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int size() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+}
