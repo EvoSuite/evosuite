@@ -18,6 +18,8 @@
 package org.evosuite.ga;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.utils.PublicCloneable;
@@ -41,7 +43,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * only used for testing/debugging
 	 */
 	protected Chromosome() {
-
+	    // empty
 	}
 
 	/** Last recorded fitness value */
@@ -62,7 +64,19 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	
 	/** Generation in which this chromosome was created */
 	protected int age = 0;
-	
+
+	/** */
+	protected int howManyDominateMe = 0;
+
+	/** */
+    protected List<Chromosome> chromosomeDominated = new ArrayList<Chromosome>();
+
+    /** */
+    protected int rank = -1;
+
+    /** */
+    protected double distance = 0.0;
+
 	/**
 	 * Return current fitness value
 	 * 
@@ -275,4 +289,76 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public int getAge() {
 		return age;
 	}
+
+	public int getHowManyDominateMe() {
+        return this.howManyDominateMe;
+    }
+
+    public void setHowManyDominateMe(int dc) {
+        this.howManyDominateMe = dc;
+    }
+
+    public boolean isDominated() {
+        if (this.howManyDominateMe > 0) return true;
+        else return false;
+    }
+
+    /**
+     * Is c2 dominated by c1?
+     * 
+     * http://en.wikipedia.org/wiki/Multi-objective_optimization#Introduction
+     * 
+     * @param c1
+     * @param c2
+     * @return
+     */
+    public static boolean isDominated(Chromosome c1, Chromosome c2) {
+        double c1_fitness = c1.getFitness();
+        double c2_fitness = c2.getFitness();
+
+        int for_all_indices = 0;
+        int for_at_least_one_index = 0;
+            if (c1_fitness <= c2_fitness)
+                for_all_indices++;
+            if (c1_fitness < c2_fitness)
+                for_at_least_one_index++;
+
+        if ( (for_all_indices == 1) &&
+                (for_at_least_one_index != 0) )
+            return true;
+
+        return false;
+    }
+
+    public List<Chromosome> getChromosomeDominated() {
+        return this.chromosomeDominated;
+    }
+
+    public void addChromosomeDominated(Chromosome c) {
+        this.chromosomeDominated.add(c);
+    }
+
+    public void setChromosomeDominated(List<Chromosome> lc) {
+        this.chromosomeDominated.addAll(lc);
+    }
+
+    public void resetChromosomeDominated() {
+        this.chromosomeDominated.clear();
+    }
+
+    public int getRank() {
+        return this.rank;
+    }
+
+    public void setRank(int r) {
+        this.rank = r;
+    }
+
+    public double getDistance() {
+        return this.distance;
+    }
+
+    public void setDistance(double d) {
+        this.distance = d;
+    }
 }
