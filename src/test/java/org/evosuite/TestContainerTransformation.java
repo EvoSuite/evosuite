@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.instrumentation.BooleanHelper;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;

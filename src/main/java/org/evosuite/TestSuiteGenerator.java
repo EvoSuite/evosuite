@@ -74,28 +74,29 @@ import org.evosuite.coverage.statement.StatementCoverageFactory;
 import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.CrossOverFunction;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessProportionateSelection;
 import org.evosuite.ga.FitnessReplacementFunction;
-import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.ga.IndividualPopulationLimit;
 import org.evosuite.ga.MinimizeSizeSecondaryObjective;
-import org.evosuite.ga.MuPlusLambdaGA;
-import org.evosuite.ga.OnePlusOneEA;
-import org.evosuite.ga.PopulationLimit;
-import org.evosuite.ga.RandomSearch;
-import org.evosuite.ga.RankSelection;
 import org.evosuite.ga.SecondaryObjective;
-import org.evosuite.ga.SelectionFunction;
-import org.evosuite.ga.SinglePointCrossOver;
-import org.evosuite.ga.SinglePointFixedCrossOver;
-import org.evosuite.ga.SinglePointRelativeCrossOver;
-import org.evosuite.ga.SizePopulationLimit;
-import org.evosuite.ga.StandardGA;
-import org.evosuite.ga.SteadyStateGA;
 import org.evosuite.ga.TournamentChromosomeFactory;
-import org.evosuite.ga.TournamentSelection;
+import org.evosuite.ga.localsearch.BranchCoverageMap;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.MuPlusLambdaGA;
+import org.evosuite.ga.metaheuristics.OnePlusOneEA;
+import org.evosuite.ga.metaheuristics.RandomSearch;
+import org.evosuite.ga.metaheuristics.StandardGA;
+import org.evosuite.ga.metaheuristics.SteadyStateGA;
+import org.evosuite.ga.operators.crossover.CrossOverFunction;
+import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
+import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
+import org.evosuite.ga.operators.crossover.SinglePointRelativeCrossOver;
+import org.evosuite.ga.operators.selection.RankSelection;
+import org.evosuite.ga.operators.selection.SelectionFunction;
+import org.evosuite.ga.operators.selection.TournamentSelection;
+import org.evosuite.ga.populationlimit.IndividualPopulationLimit;
+import org.evosuite.ga.populationlimit.PopulationLimit;
+import org.evosuite.ga.populationlimit.SizePopulationLimit;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
@@ -109,7 +110,6 @@ import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.LCSAJGraph;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.TestSuiteWriter;
-import org.evosuite.localsearch.BranchCoverageMap;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
@@ -276,7 +276,7 @@ public class TestSuiteGenerator {
 	 * getEmployedGeneticAlgorithm
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.ga.GeneticAlgorithm} object.
+	 * @return a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
 	public GeneticAlgorithm getEmployedGeneticAlgorithm() {
 		return ga;
@@ -1433,7 +1433,7 @@ public class TestSuiteGenerator {
 	 * getCrossoverFunction
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.ga.CrossOverFunction} object.
+	 * @return a {@link org.evosuite.ga.operators.crossover.CrossOverFunction} object.
 	 */
 	public static CrossOverFunction getCrossoverFunction() {
 		switch (Properties.CROSSOVER_FUNCTION) {
@@ -1460,7 +1460,7 @@ public class TestSuiteGenerator {
 	 * getSelectionFunction
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.ga.SelectionFunction} object.
+	 * @return a {@link org.evosuite.ga.operators.selection.SelectionFunction} object.
 	 */
 	public static SelectionFunction getSelectionFunction() {
 		switch (Properties.SELECTION_FUNCTION) {
@@ -1610,7 +1610,7 @@ public class TestSuiteGenerator {
 	 * </p>
 	 * 
 	 * @param algorithm
-	 *            a {@link org.evosuite.ga.GeneticAlgorithm} object.
+	 *            a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
 	public static void getSecondaryObjectives(GeneticAlgorithm algorithm) {
 		String objectives = Properties.SECONDARY_OBJECTIVE;
@@ -1634,7 +1634,7 @@ public class TestSuiteGenerator {
 	 * getPopulationLimit
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.ga.PopulationLimit} object.
+	 * @return a {@link org.evosuite.ga.populationlimit.PopulationLimit} object.
 	 */
 	public static PopulationLimit getPopulationLimit() {
 		switch (Properties.POPULATION_LIMIT) {
@@ -1656,7 +1656,7 @@ public class TestSuiteGenerator {
 	 * 
 	 * @param factory
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 * @return a {@link org.evosuite.ga.GeneticAlgorithm} object.
+	 * @return a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
 	public static <T extends Chromosome> GeneticAlgorithm<T> getGeneticAlgorithm(
 	        ChromosomeFactory<T> factory) {
@@ -1709,7 +1709,7 @@ public class TestSuiteGenerator {
 	/**
 	 * Factory method for search algorithm
 	 * 
-	 * @return a {@link org.evosuite.ga.GeneticAlgorithm} object.
+	 * @return a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public GeneticAlgorithm<?> setup() {

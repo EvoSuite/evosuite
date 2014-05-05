@@ -30,7 +30,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.localsearch.LocalSearchObjective;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.utils.Randomness;
 public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends

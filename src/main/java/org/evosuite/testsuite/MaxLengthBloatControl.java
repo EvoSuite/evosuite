@@ -18,8 +18,8 @@
 package org.evosuite.testsuite;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.BloatControlFunction;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.bloatcontrol.BloatControlFunction;
 
 
 /**

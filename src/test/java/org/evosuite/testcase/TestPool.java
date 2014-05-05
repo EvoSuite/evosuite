@@ -7,7 +7,7 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.seeding.ObjectPool;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.testsuite.TestSuiteChromosome;

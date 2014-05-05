@@ -40,7 +40,7 @@ import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;

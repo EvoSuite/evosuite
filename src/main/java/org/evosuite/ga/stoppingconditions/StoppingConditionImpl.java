@@ -22,7 +22,7 @@ import java.text.NumberFormat;
 
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 
 
 /**
