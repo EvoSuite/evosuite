@@ -18,7 +18,7 @@
 package org.evosuite;
 
 import org.evosuite.EvoSuite;
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.*;
 

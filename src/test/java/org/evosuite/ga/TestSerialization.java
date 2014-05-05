@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.evosuite.localsearch.LocalSearchObjective;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.junit.Assert;
 import org.junit.Test;
 

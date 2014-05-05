@@ -19,6 +19,7 @@ package org.evosuite.ga;
 
 import java.util.List;
 
+import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.utils.Randomness;
 
 

@@ -19,11 +19,12 @@ package org.evosuite.ga;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessProportionateSelection;
-import org.evosuite.ga.RankSelection;
-import org.evosuite.ga.SelectionFunction;
-import org.evosuite.ga.TournamentSelection;
+import org.evosuite.ga.operators.selection.RankSelection;
+import org.evosuite.ga.operators.selection.SelectionFunction;
+import org.evosuite.ga.operators.selection.TournamentSelection;
 import org.evosuite.testcase.*;
 import org.junit.*;
+
 import java.util.*;
 
 

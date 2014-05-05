@@ -16,7 +16,7 @@ import org.evosuite.TestSuiteGenerator;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.ClassStatisticsPrinter;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.result.TestGenerationResult;

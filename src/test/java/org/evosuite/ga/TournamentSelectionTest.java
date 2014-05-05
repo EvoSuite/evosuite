@@ -22,7 +22,7 @@ package org.evosuite.ga;
 
 import static org.junit.Assert.assertTrue;
 
-import org.evosuite.ga.TournamentSelection;
+import org.evosuite.ga.operators.selection.TournamentSelection;
 import org.junit.Test;
 
 /**
