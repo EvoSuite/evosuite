@@ -425,11 +425,11 @@ public class TestChromosome extends ExecutableChromosome {
 			int position = testFactory.insertRandomStatement(test,
 			                                                 getLastMutatableStatement());
 			if (position >= 0 && position < test.size()) {
+				changed = true;
 				mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
 				        TestMutationHistoryEntry.TestMutation.INSERTION,
 				        test.getStatement(position)));
 			}
-			changed = true;
 		}
 		return changed;
 	}
