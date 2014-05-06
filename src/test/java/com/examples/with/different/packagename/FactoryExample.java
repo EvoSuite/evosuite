@@ -9,6 +9,8 @@ package com.examples.with.different.packagename;
  */
 public class FactoryExample {
 
+	public boolean setMe = false;
+	
 	public byte testByte(byte x, byte y) {
 		return (byte) (x + y);
 	}
