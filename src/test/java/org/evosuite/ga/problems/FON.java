@@ -36,7 +36,7 @@ public class FON<T extends NSGAChromosome> implements Problem
 				}
 
 				fitness = 1.0 - Math.exp(-fitness);
-				updateIndividual(individual, fitness);
+				updateIndividual(this, individual, fitness);
 				return fitness;
 			}
 			@Override
@@ -60,7 +60,7 @@ public class FON<T extends NSGAChromosome> implements Problem
 				}
 
 				fitness = 1.0 - Math.exp(-fitness);
-				updateIndividual(individual, fitness);
+				updateIndividual(this, individual, fitness);
 				return fitness;
 			}
 			@Override

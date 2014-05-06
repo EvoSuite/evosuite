@@ -4,6 +4,7 @@
 package org.evosuite.coverage;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -57,11 +58,13 @@ public class ClassStatisticsPrinter {
 		}
 		for (Properties.Criterion criterion : criteria) {
 			reinstrument(criterion);
-			TestFitnessFactory<?> factory = TestSuiteGenerator.getFitnessFactory();
-			int numGoals = factory.getCoverageGoals().size();
+			//TestFitnessFactory<?> factory = TestSuiteGenerator.getFitnessFactory(); // FIXME: remove me
+			List<TestFitnessFactory<?>> factories = TestSuiteGenerator.getFitnessFactory();
+			//int numGoals = factory.getCoverageGoals().size(); // FIXME: remove me
+			int numGoals = 0;
+			for (TestFitnessFactory<?> factory : factories)
+			    numGoals += factory.getCoverageGoals().size();
 			LoggingUtils.getEvoLogger().info("* Criterion " + criterion + ": " + numGoals);
 		}
-
 	}
-
 }

@@ -279,7 +279,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 		singleFitnessTime += System.currentTimeMillis() - start;
 
-		updateIndividual(individual, fitness);
+		updateIndividual(this, individual, fitness);
 
 		return fitness;
 	}
@@ -412,7 +412,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			logger.debug("==============================================================");
 		}
 		this.coveringObjectId = objectId;
-		updateIndividual(individual, 0);
+		updateIndividual(this, individual, 0);
 
 		if (DEBUG)
 			if (!DefUseFitnessCalculator.traceCoversGoal(this, individual, trace))

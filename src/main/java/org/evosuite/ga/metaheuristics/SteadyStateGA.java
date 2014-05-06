@@ -124,10 +124,10 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			// The two offspring replace the parents if and only if one of
 			// the offspring is not worse than the best parent.
 
-			fitnessFunction.getFitness(offspring1);
+			getFitnessFunction().getFitness(offspring1);
 			notifyEvaluation(offspring1);
 
-			fitnessFunction.getFitness(offspring2);
+			getFitnessFunction().getFitness(offspring2);
 			notifyEvaluation(offspring2);
 
 			// local search
@@ -194,7 +194,7 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 		logger.debug("Starting evolution");
 		double bestFitness = Double.MAX_VALUE;
-		if (fitnessFunction.isMaximizationFunction())
+		if (getFitnessFunction().isMaximizationFunction())
 			bestFitness = 0.0;
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
@@ -206,7 +206,7 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 			double newFitness = getBestIndividual().getFitness();
 
-			if (fitnessFunction.isMaximizationFunction())
+			if (getFitnessFunction().isMaximizationFunction())
 				assert (newFitness >= bestFitness) : "Best fitness was: " + bestFitness
 				        + ", now best fitness is " + newFitness;
 			else

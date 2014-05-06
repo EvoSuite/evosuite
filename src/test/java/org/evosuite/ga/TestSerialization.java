@@ -79,7 +79,7 @@ public class TestSerialization {
 		
 		double fitness = 3.14;
 		DummyChromosome chromosome = new DummyChromosome();
-		chromosome.setFitness(fitness);		
+		chromosome.setFitness(null, fitness);		
 		oos.writeObject(chromosome);
 		byte [] baSerialized = baos.toByteArray();
 		

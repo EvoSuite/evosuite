@@ -3,7 +3,10 @@
  */
 package org.evosuite.ga.localsearch;
 
+import java.util.Map;
+
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.NullStatement;
 import org.evosuite.testcase.TestCase;
@@ -28,7 +31,9 @@ public class NullReferenceSearch extends StatementLocalSearch {
 		TestCase newTest = test.getTestCase();
 		TestCase oldTest = newTest.clone();
 		ExecutionResult oldResult = test.getLastExecutionResult();
-		double oldFitness = test.getFitness();
+		//double oldFitness = test.getFitness();
+		Map<FitnessFunction<?>, Double> oldFitnesses = test.getFitnesses();
+		Map<FitnessFunction<?>, Double> oldLastFitnesses = test.getLastFitnesses();
 
 		try {
 			TestFactory.getInstance().attemptGeneration(newTest,
@@ -37,7 +42,9 @@ public class NullReferenceSearch extends StatementLocalSearch {
 			if (!objective.hasImproved(test)) {
 				test.setTestCase(oldTest);
 				test.setLastExecutionResult(oldResult);
-				test.setFitness(oldFitness);
+				//test.setFitness(oldFitness);
+				test.setFitnesses(oldFitnesses);
+				test.setLastFitnesses(oldLastFitnesses);
 			} else {
 				return true;
 			}

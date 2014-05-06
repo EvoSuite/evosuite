@@ -43,7 +43,7 @@ public class TestRandomCall extends SystemTest {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // FIXME: remove me assuming single fitness function
 		Assert.assertEquals("Wrong number of goals: ", 5, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
@@ -63,7 +63,7 @@ public class TestRandomCall extends SystemTest {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // FIXME: remove me assuming single fitness function
 		Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}

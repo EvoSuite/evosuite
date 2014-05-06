@@ -73,7 +73,8 @@ public class TestSelectionOperators
 			{
 				ExecutableChromosome ind = new TestChromosome();
 				double fit = b ? N-i : i;
-				ind.setFitness(fit);
+				//ind.setFitness(fit);
+				ind.addFitness(null, fit);
 				//Rank selection assumes the population in order, but for the others does not matter
 				population.add(ind);
 			}

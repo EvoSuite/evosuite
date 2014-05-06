@@ -28,7 +28,9 @@ public abstract class StatementLocalSearch {
 
 		test.setTestCase(backup.getTestCase().clone());
 		test.copyCachedResults(backup);
-		test.setFitness(backup.getFitness());
+		//test.setFitness(backup.getFitness());
+		test.setFitnesses(backup.getFitnesses());
+		test.setLastFitnesses(backup.getLastFitnesses());
 		test.setChanged(backup.isChanged());
 	}
 

@@ -74,7 +74,7 @@ public class AmbiguityCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		double fitness = FitnessFunction.normalize(AmbiguityCoverageFactory.getAmbiguity(transposed_matrix));
 
-		updateIndividual(suite, fitness);
+		updateIndividual(this, suite, fitness);
 		return fitness;
 	}
 

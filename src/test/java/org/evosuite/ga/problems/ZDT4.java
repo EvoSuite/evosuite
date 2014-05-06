@@ -30,7 +30,7 @@ public class ZDT4<T extends NSGAChromosome> implements Problem
 				NSGAChromosome individual = (NSGAChromosome)c;
 
 				double fitness = ((DoubleVariable)individual.getVariable(0)).getValue();
-				updateIndividual(individual, fitness);
+				updateIndividual(this, individual, fitness);
 				return fitness;
 			}
 			@Override
@@ -57,7 +57,7 @@ public class ZDT4<T extends NSGAChromosome> implements Problem
 				double h = 1.0 - Math.sqrt(((DoubleVariable)individual.getVariable(0)).getValue() / g);
 
 				double fitness = g * h;
-				updateIndividual(individual, fitness);
+				updateIndividual(this, individual, fitness);
 				return fitness;
 			}
 			@Override

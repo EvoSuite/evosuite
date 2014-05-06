@@ -57,7 +57,7 @@ public class RandomSearch<T extends Chromosome> extends GeneticAlgorithm<T> {
 	@Override
 	protected void evolve() {
 		T newChromosome = chromosomeFactory.getChromosome();
-		fitnessFunction.getFitness(newChromosome);
+		getFitnessFunction().getFitness(newChromosome);
 		notifyEvaluation(newChromosome);
 		if (newChromosome.compareTo(getBestIndividual()) <= 0) {
 			logger.info("New fitness: " + newChromosome.getFitness());

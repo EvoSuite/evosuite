@@ -64,7 +64,8 @@ public class NSGAChromosome extends Chromosome
 	@Override
 	public Chromosome clone() {
 		NSGAChromosome c = new NSGAChromosome();
-		c.setFitness(this.getFitness());
+		c.setFitnesses(this.getFitnesses());
+		c.setLastFitnesses(this.getLastFitnesses());
 		for (Variable v : this.getVariables()) {
 			c.addVariable(v.clone());
 		}
@@ -95,13 +96,15 @@ public class NSGAChromosome extends Chromosome
 		int hashCode = 0;
 
 		hashCode = hashCode * 37 + this.getVariables().hashCode();
+	    hashCode = hashCode * 37 + this.getFitnesses().hashCode();
+	    hashCode = hashCode * 37 + this.getLastFitnesses().hashCode();
 
 	    return hashCode;
 	}
 
 	@Override
 	public int compareSecondaryObjective(Chromosome o) {
-		// TODO Auto-generated method stub
+		// empty
 		return 0;
 	}
 
@@ -164,13 +167,13 @@ public class NSGAChromosome extends Chromosome
 	@Override
 	public boolean localSearch(
 			LocalSearchObjective<? extends Chromosome> objective) {
-		// TODO Auto-generated method stub
+		// empty
 		return false;
 	}
 
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
+		// empty
 		return 0;
 	}
 }
