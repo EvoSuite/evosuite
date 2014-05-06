@@ -2,7 +2,9 @@ package org.evosuite.rmi.service;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -115,12 +117,14 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 				if (Properties.SANDBOX) {
 					Sandbox.initializeSecurityManagerForSUT();
 				}
-				TestGenerationResult result;
+				//TestGenerationResult result; // FIXME: remove me
+				List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
 
 				try {
 					// Starting a new search
 					TestSuiteGenerator generator = new TestSuiteGenerator();
-					result = generator.generateTestSuite();
+					//result = generator.generateTestSuite(); // FIXME: remove me
+					results = generator.generateTestSuite();
 					GeneticAlgorithm<?> ga = generator.getEmployedGeneticAlgorithm();
 
 					if (Properties.CLIENT_ON_THREAD) {
@@ -130,14 +134,17 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 						 */
 						ClientProcess.geneticAlgorithmStatus = ga;
 					}
-					masterNode.evosuite_collectTestGenerationResult(clientRmiIdentifier, result);
+					//masterNode.evosuite_collectTestGenerationResult(clientRmiIdentifier, result); // FIXME: remove me
+					masterNode.evosuite_collectTestGenerationResult(clientRmiIdentifier, results);
 				} catch (Throwable t) {
 					logger.error("Error when generating tests for: "
 							+ Properties.TARGET_CLASS + " with seed "
 							+ Randomness.getSeed() + ". Configuration id : "
 							+ Properties.CONFIGURATION_ID, t);
-					result = TestGenerationResultBuilder.buildErrorResult("Error when generating tests for: "
-							+ Properties.TARGET_CLASS+": "+t); 
+					//result = TestGenerationResultBuilder.buildErrorResult("Error when generating tests for: "
+					//		+ Properties.TARGET_CLASS+": "+t); // FIXME: remove me
+					results.add(TestGenerationResultBuilder.buildErrorResult("Error when generating tests for: "
+                            + Properties.TARGET_CLASS+": "+t));
 				}
 
 				changeState(ClientState.DONE);

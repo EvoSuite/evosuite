@@ -55,7 +55,7 @@ public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		} while (!offspring.isChanged());
 
 
-		fitnessFunction.getFitness(offspring);
+		getFitnessFunction().getFitness(offspring);
 		notifyEvaluation(offspring);
 		//logger.info("New individual: " + offspring);
 
@@ -79,7 +79,7 @@ public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 		// Only one parent
 		generateRandomPopulation(1);
-		fitnessFunction.getFitness(population.get(0));
+		getFitnessFunction().getFitness(population.get(0));
 		this.notifyIteration();
 		logger.info("Initial fitness: " + population.get(0).getFitness());
 	}
@@ -92,8 +92,8 @@ public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 		double fitness = population.get(0).getFitness();
 		while (!isFinished()) {
-			if ((fitnessFunction.isMaximizationFunction() && getBestIndividual().getFitness() > fitness)
-			        || (!fitnessFunction.isMaximizationFunction() && getBestIndividual().getFitness() < fitness)) {
+			if ((getFitnessFunction().isMaximizationFunction() && getBestIndividual().getFitness() > fitness)
+			        || (!getFitnessFunction().isMaximizationFunction() && getBestIndividual().getFitness() < fitness)) {
 				logger.info("Current generation: " + getAge());
 				logger.info("Best fitness: " + getBestIndividual().getFitness());
 				fitness = population.get(0).getFitness();

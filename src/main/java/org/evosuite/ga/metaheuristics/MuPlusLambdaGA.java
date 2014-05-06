@@ -89,10 +89,10 @@ public class MuPlusLambdaGA<T extends Chromosome> extends SteadyStateGA<T> {
 		// The two offspring replace the parents if and only if one of
 		// the offspring is not worse than the best parent.
 
-		fitnessFunction.getFitness(offspring1);
+		getFitnessFunction().getFitness(offspring1);
 		notifyEvaluation(offspring1);
 
-		fitnessFunction.getFitness(offspring2);
+		getFitnessFunction().getFitness(offspring2);
 		notifyEvaluation(offspring2);
 
 		// if (replacement_function.keepOffspring(parent1, parent2, offspring1,

@@ -79,7 +79,9 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 			addTest((T) test.clone());
 		}
 
-		this.setFitness(source.getFitness());
+		//this.setFitness(source.getFitness());
+		this.setFitnesses(source.getFitnesses());
+		this.setLastFitnesses(source.getLastFitnesses());
 		this.setChanged(source.isChanged());
 		this.coverage = source.coverage;
 	}

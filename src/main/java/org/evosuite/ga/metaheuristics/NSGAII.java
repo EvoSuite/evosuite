@@ -8,6 +8,7 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,8 +146,10 @@ public class NSGAII<T extends Chromosome> extends GeneticAlgorithm<T>
 
         while (!isFinished())
         {
-            for (T p : population)
-                fitnessFunction.getFitness(p);
+            for (final FitnessFunction<T> ff : this.getFitnessFunctions()) {
+                for (T p : population)
+                    ff.getFitness(p);
+            }
 
             // Set rank
             List<List<T>> fronts = this.fastNonDominatedSort(population, Properties.POPULATION);
@@ -162,6 +165,13 @@ public class NSGAII<T extends Chromosome> extends GeneticAlgorithm<T>
             this.notifyIteration();
         }
 
+        /*for (T p : population) {
+            for (FitnessFunction<T> ff : this.getFitnessFunctions()) {
+                System.out.printf("%f,", p.getFitness(ff));
+            }
+            System.out.print("\n");
+        }*/
+
         notifySearchFinished();
     }
 
@@ -172,27 +182,29 @@ public class NSGAII<T extends Chromosome> extends GeneticAlgorithm<T>
         for (T p : front)
             p.setDistance(0.0);
 
+        for (final FitnessFunction<T> ff : this.getFitnessFunctions()) {
             // sort in ascending order, using each objective value
             Collections.sort(front, new Comparator<T>() {
                 @Override
                 public int compare(T i, T j) {
-                    return Double.compare(i.getFitness(), j.getFitness());
+                    return Double.compare(i.getFitness(ff), j.getFitness(ff));
                 }
             });
 
-            double fmin = front.get(0).getFitness();
-            double fmax = front.get(l).getFitness();
+            double fmin = front.get(0).getFitness(ff);
+            double fmax = front.get(l).getFitness(ff);
 
             front.get(0).setDistance(Double.MAX_VALUE);
             front.get(l).setDistance(Double.MAX_VALUE);
 
             for (int i = 1; i < l - 1; i++) {
-                double normalization = (front.get(i+1).getFitness() - front.get(i-1).getFitness()) /
-                                (fmax - fmin);
+                double normalization = (front.get(i+1).getFitness(ff) - front.get(i-1).getFitness(ff)) /
+                                        (fmax - fmin);
                 if (Double.compare(normalization, Double.NaN) == 0)
                     normalization = 0.0;
                 front.get(i).setDistance( front.get(i).getDistance() + normalization );
             }
+        }
 
         return front;
     }

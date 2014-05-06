@@ -93,7 +93,7 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 			}
 		}
 
-		updateIndividual(individual, fitness);
+		updateIndividual(this, individual, fitness);
 		return fitness;
 	}
 

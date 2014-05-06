@@ -39,7 +39,7 @@ public class OneVariableProblem<T extends NSGAChromosome> implements Problem
                 double x = dv.getValue();
                 double fitness = x * x;
 
-                updateIndividual(individual, fitness);
+                updateIndividual(this, individual, fitness);
                 return fitness;
             }
             @Override

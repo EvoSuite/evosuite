@@ -134,7 +134,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 				logger.debug("Skipping test with timeout");
 				double fitness = branchFitness.totalBranches * 2
 				        + branchFitness.totalMethods + 3 * mutationGoals.size();
-				updateIndividual(individual, fitness);
+				updateIndividual(this, individual, fitness);
 				suite.setCoverage(0.0);
 				logger.info("Test case has timed out, setting fitness to max value "
 				        + fitness);
@@ -280,7 +280,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 
 		// TODO: Each statement needs to be covered at least as often as it is mutated? No.
 		*/
-		updateIndividual(individual, fitness);
+		updateIndividual(this, individual, fitness);
 		updateGoals();
 		suite.setCoverage(1.0 * numKilled / mutationGoals.size());
 		suite.setNumOfCoveredGoals(numKilled);

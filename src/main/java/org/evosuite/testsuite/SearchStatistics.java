@@ -740,9 +740,12 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.total_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getNumMethodsMemberClasses(Properties.TARGET_CLASS)
 		        : CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
 
-		entry.total_goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		//entry.total_goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size(); // FIXME: remove me
+		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals(); // FIXME: since this class is classified as 'deprecate' we are just assuming one fitness function
+		entry.total_goals = goals.size();
 
-		for (TestFitnessFunction f : TestSuiteGenerator.getFitnessFactory().getCoverageGoals()) {
+		//for (TestFitnessFunction f : TestSuiteGenerator.getFitnessFactory().getCoverageGoals()) {
+		for (TestFitnessFunction f : goals) {
 			if (f instanceof BranchCoverageTestFitness) {
 				BranchCoverageTestFitness b = (BranchCoverageTestFitness) f;
 				if (b.getBranch() != null && b.getBranch().isInstrumented()) {

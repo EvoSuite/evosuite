@@ -62,7 +62,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
 	private long startTime = System.currentTimeMillis();
 
-	private List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
+	//private List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>(); // FIXME: remove me
+	private List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
 
 	private SearchStatistics() { 
 		switch(Properties.STATISTICS_BACKEND) {
@@ -137,11 +138,12 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		outputVariables.put(variable.getName(), variable);
 	}
 
-	public void addTestGenerationResult(TestGenerationResult result) {
-		results.add(result);
+	public void addTestGenerationResult(List<TestGenerationResult> result) {
+		//results.add(result); // FIXME: remove me
+	    results.add(result);
 	}
 
-	public List<TestGenerationResult> getTestGenerationResults() {
+	public List<List<TestGenerationResult>> getTestGenerationResults() {
 		return results;
 	}
 

@@ -39,7 +39,7 @@ public class SCH<T extends NSGAChromosome> implements Problem
 				double x = dv.getValue();
 				double fitness = x * x;
 
-				updateIndividual(individual, fitness);
+				updateIndividual(this, individual, fitness);
 				return fitness;
 			}
 			@Override
@@ -61,7 +61,7 @@ public class SCH<T extends NSGAChromosome> implements Problem
 				double x = dv.getValue();
 				double fitness = (x - 2) * (x - 2);
 
-				updateIndividual(individual, fitness);
+				updateIndividual(this, individual, fitness);
 				return fitness;
 			}
 			@Override

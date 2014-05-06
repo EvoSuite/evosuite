@@ -83,7 +83,7 @@ public class WeakMutationTestFitness extends MutationTestFitness {
 		logger.debug("Individual fitness: " + " + " + infectionDistance + " + "
 		        + executionDistance + " = " + fitness);
 
-		updateIndividual(individual, fitness);
+		updateIndividual(this, individual, fitness);
 		if (fitness == 0.0) {
 			individual.getTestCase().addCoveredGoal(this);
 		}
