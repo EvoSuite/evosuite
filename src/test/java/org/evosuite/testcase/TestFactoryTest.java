@@ -12,9 +12,12 @@ import java.util.List;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.GenericAccessibleObject;
+import org.evosuite.utils.GenericConstructor;
+import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,8 +53,8 @@ public class TestFactoryTest extends SystemTest {
 	        NoSuchMethodException, SecurityException {
 		List<GenericAccessibleObject<?>> testCalls = TestCluster.getInstance().getTestCalls();
 		System.out.println(testCalls.toString());
-		assertEquals("Expected 3 test calls, but got: " + testCalls.size() + ": "
-		        + testCalls, 3, testCalls.size());
+		assertEquals("Expected 4 test calls, but got: " + testCalls.size() + ": "
+		        + testCalls, 4, testCalls.size());
 	}
 
 	@Test
@@ -63,67 +66,71 @@ public class TestFactoryTest extends SystemTest {
 		        FactoryExample.class.getMethod("testByte", byte.class, byte.class),
 		        FactoryExample.class);
 		DefaultTestCase test = new DefaultTestCase();
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 		testFactory.addMethod(test, method, 0, 0);
 		String code = test.toCode();
+		System.out.println(code);
 		assertEquals(4, test.size());
-		assertTrue(code.contains("FactoryExample0.testByte(byte0, byte1)"));
+		assertTrue(code.contains("factoryExample0.testByte(byte0, byte1)"));
 	}
 
 	@Test
 	public void testObjectDependencyReuse() throws ConstructionFailedException,
-	        NoSuchMethodException, SecurityException {
+	        NoSuchMethodException, SecurityException, ClassNotFoundException {
 		TestFactory testFactory = TestFactory.getInstance();
-
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
 		GenericMethod method = new GenericMethod(
-		        FactoryExample.class.getMethod("testByte", byte.class, byte.class),
-		        FactoryExample.class);
+		        sut.getMethod("testByte", byte.class, byte.class),
+		        sut);
 		DefaultTestCase test = new DefaultTestCase();
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 1.0;
 		Properties.OBJECT_REUSE_PROBABILITY = 1.0;
 		testFactory.addMethod(test, method, 0, 0);
-		testFactory.addMethod(test, method, 4, 0);
+		testFactory.addMethod(test, method, 3, 0);
 		String code = test.toCode();
 		System.out.println(code);
 
 		// With object reuse being 0, there should be no new instance of this object
-		assertEquals(5, test.size());
-		assertTrue(code.contains("FactoryExample0.testByte(byte0, byte1)"));
-		assertFalse(code.contains("FactoryExample1"));
+		assertEquals(4, test.size());
+		assertTrue(code.contains("factoryExample0.testByte(byte0, byte0)"));
+		assertFalse(code.contains("factoryExample1"));
 	}
 
 	@Test
 	public void testObjectDependencyNoReuse() throws ConstructionFailedException,
-	        NoSuchMethodException, SecurityException {
+	        NoSuchMethodException, SecurityException, ClassNotFoundException {
 		TestFactory testFactory = TestFactory.getInstance();
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
 
-		GenericMethod method = new GenericMethod(
-		        FactoryExample.class.getMethod("testByte", byte.class, byte.class),
-		        FactoryExample.class);
+		GenericMethod method = new GenericMethod(sut.getMethod("testByte", byte.class, byte.class), sut);
 		DefaultTestCase test = new DefaultTestCase();
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
 		testFactory.addMethod(test, method, 0, 0);
+		testFactory.resetRecursion();
 		testFactory.addMethod(test, method, 4, 0);
 		String code = test.toCode();
 		System.out.println(code);
 
 		// With object reuse being 0, there should be no new instance of this object
 		assertEquals(8, test.size());
-		assertTrue(code.contains("FactoryExample0.testByte(byte0, byte1)"));
+		assertTrue(code.contains("factoryExample0.testByte(byte0, byte1)"));
 		// byte2 is the first return value
-		assertTrue(code.contains("FactoryExample1.testByte(byte3, byte4"));
+		assertTrue(code.contains("factoryExample1.testByte(byte3, byte4"));
 	}
 
 	@Test
 	public void testStaticMethod() throws ConstructionFailedException,
-	        NoSuchMethodException, SecurityException {
+	        NoSuchMethodException, SecurityException, ClassNotFoundException {
 		TestFactory testFactory = TestFactory.getInstance();
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
 
-		GenericMethod method = new GenericMethod(
-		        FactoryExample.class.getMethod("testStatic"), FactoryExample.class);
+		GenericMethod method = new GenericMethod(sut.getMethod("testStatic"), sut);
 		DefaultTestCase test = new DefaultTestCase();
 		testFactory.addMethod(test, method, 0, 0);
 		assertEquals(1, test.size());
+		testFactory.resetRecursion();
+
 		testFactory.addMethod(test, method, 1, 0);
 		assertEquals(2, test.size());
 		String code = test.toCode();
@@ -133,5 +140,248 @@ public class TestFactoryTest extends SystemTest {
 		assertTrue(code.contains("FactoryExample.testStatic()"));
 		// No instance
 		assertFalse(code.contains("FactoryExample0"));
+	}
+	
+	@Test
+	public void testMethodFor() throws ConstructionFailedException,
+	        NoSuchMethodException, SecurityException, ClassNotFoundException {
+		TestFactory testFactory = TestFactory.getInstance();
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
+
+		GenericConstructor constructor = new GenericConstructor(sut.getConstructor(), sut);
+		GenericMethod method = new GenericMethod(sut.getMethod("testByte", byte.class, byte.class), sut);
+		DefaultTestCase test = new DefaultTestCase();
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
+		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
+		VariableReference var1 = testFactory.addConstructor(test, constructor, 0, 0);
+		testFactory.resetRecursion();
+		VariableReference var2 = testFactory.addConstructor(test, constructor, 1, 0);
+		testFactory.addMethodFor(test, var1, method, 2);
+		testFactory.resetRecursion();
+		testFactory.addMethodFor(test, var2, method, 3);
+		String code = test.toCode();
+		System.out.println(code);
+
+		assertEquals(8, test.size());
+		assertTrue(code.contains("factoryExample0.testByte"));
+		// byte2 is the first return value
+		assertTrue(code.contains("factoryExample1.testByte"));
+	}
+	
+	@Test(expected=ConstructionFailedException.class)
+	public void testMethodForWrongPosition() throws ConstructionFailedException,
+	        NoSuchMethodException, SecurityException, ClassNotFoundException {
+		TestFactory testFactory = TestFactory.getInstance();
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
+
+		GenericConstructor constructor = new GenericConstructor(sut.getConstructor(), sut);
+		GenericMethod method = new GenericMethod(sut.getMethod("testByte", byte.class, byte.class), sut);
+		DefaultTestCase test = new DefaultTestCase();
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
+		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
+		VariableReference var1 = testFactory.addConstructor(test, constructor, 0, 0);
+		testFactory.resetRecursion();
+		testFactory.addMethodFor(test, var1, method, 0);
+	}
+	
+	@Test
+	public void testAddConstructor() throws ConstructionFailedException,
+	        NoSuchMethodException, SecurityException, ClassNotFoundException {
+		TestFactory testFactory = TestFactory.getInstance();
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
+
+		GenericConstructor method = new GenericConstructor(sut.getConstructor(), sut);
+		DefaultTestCase test = new DefaultTestCase();
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
+		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
+		testFactory.addConstructor(test, method, 0, 0);
+		testFactory.resetRecursion();
+		assertEquals(1, test.size());
+		testFactory.addConstructor(test, method, 0, 0);
+		assertEquals(2, test.size());
+		String code = test.toCode();
+		System.out.println(code);
+
+		assertTrue(code.contains("factoryExample0"));
+		assertTrue(code.contains("factoryExample1"));
+	}
+	
+	@Test
+	public void testAddField() throws ConstructionFailedException,
+	        NoSuchMethodException, SecurityException, NoSuchFieldException, ClassNotFoundException {
+		TestFactory testFactory = TestFactory.getInstance();
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
+
+		GenericField field = new GenericField(sut.getField("setMe"), sut);
+		DefaultTestCase test = new DefaultTestCase();
+		testFactory.addField(test, field, 0, 0);
+		assertEquals(2, test.size());
+		String code = test.toCode();
+		System.out.println(code);
+
+		assertTrue(code.contains("factoryExample0.setMe"));
+		assertFalse(code.contains("factoryExample1"));
+	}
+	
+	@Test
+	public void testAddFieldReuse() throws ConstructionFailedException,
+	        NoSuchMethodException, SecurityException, NoSuchFieldException, ClassNotFoundException {
+		TestFactory testFactory = TestFactory.getInstance();
+
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
+
+		GenericField field = new GenericField(sut.getField("setMe"), sut);
+		DefaultTestCase test = new DefaultTestCase();
+		testFactory.addField(test, field, 0, 0);
+		assertEquals(2, test.size());
+
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 1.0;
+		Properties.OBJECT_REUSE_PROBABILITY = 1.0;
+		testFactory.resetRecursion();
+		testFactory.addField(test, field, 2, 0);
+		assertEquals(3, test.size());
+
+		String code = test.toCode();
+		System.out.println(code);
+
+		assertTrue(code.contains("factoryExample0.setMe"));
+		assertFalse(code.contains("factoryExample1"));
+	}
+	
+	@Test
+	public void testAddFieldNoreuse() throws ConstructionFailedException,
+	        NoSuchMethodException, SecurityException, NoSuchFieldException, ClassNotFoundException {
+		TestFactory testFactory = TestFactory.getInstance();
+
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
+
+		GenericField field = new GenericField(sut.getField("setMe"), sut);
+		DefaultTestCase test = new DefaultTestCase();
+		testFactory.addField(test, field, 0, 0);
+		assertEquals(2, test.size());
+
+		testFactory.resetRecursion();
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
+		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
+		testFactory.addField(test, field, 2, 0);
+		System.out.println(test.toCode());
+		assertEquals(4, test.size());
+		
+		String code = test.toCode();
+		System.out.println(code);
+
+		assertTrue(code.contains("factoryExample0.setMe"));
+		assertTrue(code.contains("factoryExample1.setMe"));
+		assertFalse(code.contains("factoryExample2"));
+	}
+	
+	@Test
+	public void testFieldFor() throws ConstructionFailedException,
+	        NoSuchMethodException, SecurityException, ClassNotFoundException, NoSuchFieldException {
+		TestFactory testFactory = TestFactory.getInstance();
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
+
+		GenericConstructor constructor = new GenericConstructor(sut.getConstructor(), sut);
+		GenericField field = new GenericField(sut.getField("setMe"), sut);
+		DefaultTestCase test = new DefaultTestCase();
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
+		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
+		VariableReference var1 = testFactory.addConstructor(test, constructor, 0, 0);
+		testFactory.resetRecursion();
+		VariableReference var2 = testFactory.addConstructor(test, constructor, 1, 0);
+		testFactory.addFieldFor(test, var1, field, 2);
+		testFactory.resetRecursion();
+		testFactory.addFieldFor(test, var2, field, 3);
+		String code = test.toCode();
+		System.out.println(code);
+
+		assertEquals(6, test.size());
+		assertTrue(code.contains("factoryExample0.setMe"));
+		// byte2 is the first return value
+		assertTrue(code.contains("factoryExample1.setMe"));
+	}
+	
+	@Test(expected=ConstructionFailedException.class)
+	public void testFieldForWrongPosition() throws ConstructionFailedException,
+	        NoSuchMethodException, SecurityException, ClassNotFoundException, NoSuchFieldException {
+		TestFactory testFactory = TestFactory.getInstance();
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
+
+		GenericConstructor constructor = new GenericConstructor(sut.getConstructor(), sut);
+		GenericField field = new GenericField(sut.getField("setMe"), sut);
+		DefaultTestCase test = new DefaultTestCase();
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
+		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
+		VariableReference var1 = testFactory.addConstructor(test, constructor, 0, 0);
+		testFactory.resetRecursion();
+		testFactory.addFieldFor(test, var1, field, 0);
+	}
+	
+	@Test
+	public void testAddFieldAssignment() throws ConstructionFailedException,
+	        NoSuchMethodException, SecurityException, NoSuchFieldException, ClassNotFoundException {
+		TestFactory testFactory = TestFactory.getInstance();
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
+
+		GenericField field = new GenericField(sut.getField("setMe"), sut);
+		DefaultTestCase test = new DefaultTestCase();
+		testFactory.addFieldAssignment(test, field, 0, 0);
+		assertEquals(3, test.size());
+		String code = test.toCode();
+		System.out.println(code);
+
+		assertTrue(code.contains("factoryExample0.setMe"));
+		assertFalse(code.contains("factoryExample1"));
+	}
+	
+	@Test
+	public void testAddFieldAssignmentReuse() throws ConstructionFailedException,
+	        NoSuchMethodException, SecurityException, NoSuchFieldException, ClassNotFoundException {
+		TestFactory testFactory = TestFactory.getInstance();
+
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
+
+		GenericField field = new GenericField(sut.getField("setMe"), sut);
+		DefaultTestCase test = new DefaultTestCase();
+		testFactory.addFieldAssignment(test, field, 0, 0);
+		assertEquals(3, test.size());
+
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 1.0;
+		Properties.OBJECT_REUSE_PROBABILITY = 1.0;
+		testFactory.resetRecursion();
+		testFactory.addFieldAssignment(test, field, 3, 0);
+		assertEquals(4, test.size());
+
+		String code = test.toCode();
+		System.out.println(code);
+
+		assertTrue(code.contains("factoryExample0.setMe"));
+		assertFalse(code.contains("factoryExample1"));
+	}
+	
+	@Test
+	public void testAddFieldAssignmentNoreuse() throws ConstructionFailedException,
+	        NoSuchMethodException, SecurityException, NoSuchFieldException, ClassNotFoundException {
+		TestFactory testFactory = TestFactory.getInstance();
+
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName()); 
+
+		GenericField field = new GenericField(sut.getField("setMe"), sut);
+		DefaultTestCase test = new DefaultTestCase();
+		testFactory.addFieldAssignment(test, field, 0, 0);
+		assertEquals(3, test.size());
+
+		testFactory.resetRecursion();
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
+		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
+		testFactory.addFieldAssignment(test, field, 3, 0);
+		assertEquals(6, test.size());
+		
+		String code = test.toCode();
+		System.out.println(code);
+
+		assertTrue(code.contains("factoryExample0.setMe"));
+		assertTrue(code.contains("factoryExample1.setMe"));
+		assertFalse(code.contains("factoryExample2"));
 	}
 }
