@@ -47,10 +47,13 @@ public class TestFactory {
 	 */
 	private transient Set<GenericAccessibleObject<?>> currentRecursion = new HashSet<GenericAccessibleObject<?>>();
 
+	/** Singleton instance */
 	private static TestFactory instance = null;
 
+	/**
+	 * We keep track of calls already attempted to avoid infinite recursion
+	 */
 	public void reset() {
-		// MethodDescriptorReplacement.getInstance().reset();
 		currentRecursion.clear();
 	}
 
@@ -58,10 +61,6 @@ public class TestFactory {
 		if (instance == null)
 			instance = new TestFactory();
 		return instance;
-	}
-
-	public void resetRecursion() {
-		currentRecursion.clear();
 	}
 
 	/**
@@ -1365,6 +1364,7 @@ public class TestFactory {
 			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomTestCall();
 			if (o == null) {
 				logger.warn("Have no target methods to test");
+				return false;
 			} else if (o.isConstructor()) {
 				GenericConstructor c = (GenericConstructor) o;
 				logger.debug("Adding constructor call " + c.getName());
@@ -1425,6 +1425,7 @@ public class TestFactory {
 				}
 			} else {
 				logger.error("Got type other than method or constructor!");
+				return false;
 			}
 
 			return true;
