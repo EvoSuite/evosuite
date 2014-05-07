@@ -99,7 +99,7 @@ public class TestLocalSearch extends SystemTest {
 		String targetClass = FloatLocalSearchExample.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.SEARCH_BUDGET = 20000;
+		// Properties.SEARCH_BUDGET = 20000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -128,7 +128,7 @@ public class TestLocalSearch extends SystemTest {
 		// Make sure that local search will have effect
 		Properties.CHROMOSOME_LENGTH = 5;
 		Properties.MAX_INITIAL_TESTS = 2;
-		Properties.SEARCH_BUDGET = 20000;
+		// Properties.SEARCH_BUDGET = 20000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
