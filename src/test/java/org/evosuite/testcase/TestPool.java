@@ -28,16 +28,20 @@ public class TestPool extends SystemTest {
 	
 	private double pPool = 0.0;
 	
+	private long budget = 0;
+	
 	@Before
 	public void storeProperties() {
-		pools = Properties.OBJECT_POOLS;
-		pPool = Properties.P_OBJECT_POOL;
+		pools  = Properties.OBJECT_POOLS;
+		pPool  = Properties.P_OBJECT_POOL;
+		budget = Properties.SEARCH_BUDGET;
 	}
 	
 	@After
 	public void restoreProperties() {
 		Properties.OBJECT_POOLS = pools;
 		Properties.P_OBJECT_POOL = pPool;
+		Properties.SEARCH_BUDGET = budget;
 	}
 	
 	@Test
@@ -46,6 +50,7 @@ public class TestPool extends SystemTest {
 
 		String targetClass = DependencyClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.SEARCH_BUDGET = 100000;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
