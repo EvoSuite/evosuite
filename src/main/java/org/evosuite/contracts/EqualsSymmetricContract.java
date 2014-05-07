@@ -92,11 +92,11 @@ public class EqualsSymmetricContract extends Contract {
 
 			// Create x = a.equals(b)
 			StatementInterface st1 = new MethodStatement(test, method, a, Arrays.asList(new VariableReference[] {b}));
-			VariableReference x = test.addStatement(st1, statement.getPosition());
+			VariableReference x = test.addStatement(st1, statement.getPosition() + 1);
 			
 			// Create y = b.equals(a);
 			StatementInterface st2 = new MethodStatement(test, method, b, Arrays.asList(new VariableReference[] {a}));
-			VariableReference y = test.addStatement(st2, statement.getPosition() + 1);
+			VariableReference y = test.addStatement(st2, statement.getPosition() + 2);
 
 			StatementInterface newStatement = test.getStatement(y.getStPosition());
 			

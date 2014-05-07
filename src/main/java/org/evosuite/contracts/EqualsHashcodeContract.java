@@ -97,25 +97,25 @@ public class EqualsHashcodeContract extends Contract {
 
 			GenericMethod genericEqualsMethod = new GenericMethod(equalsMethod, a.getGenericClass());
 			GenericMethod genericHashCodeMethod = new GenericMethod(hashCodeMethod, a.getGenericClass());
-
+			
 			// Create x = a.equals(b)
 			StatementInterface st1 = new MethodStatement(test, genericEqualsMethod, a, Arrays.asList(new VariableReference[] {b}));
-			VariableReference x = test.addStatement(st1, statement.getPosition());
+			VariableReference x = test.addStatement(st1, statement.getPosition() + 1);
 			
 			// Create y = a.hashCode();
 			StatementInterface st2 = new MethodStatement(test, genericHashCodeMethod, a, Arrays.asList(new VariableReference[] {}));
-			VariableReference y = test.addStatement(st2, statement.getPosition() + 1);
+			VariableReference y = test.addStatement(st2, statement.getPosition() + 2);
 
 			// Create z = b.hashCode();
 			StatementInterface st3 = new MethodStatement(test, genericHashCodeMethod, b, Arrays.asList(new VariableReference[] {}));
-			VariableReference z = test.addStatement(st3, statement.getPosition() + 2);
+			VariableReference z = test.addStatement(st3, statement.getPosition() + 3);
 
 			// Create w = z == z
 			VariableReference w = new VariableReferenceImpl(test, boolean.class);
 			PrimitiveExpression exp = new PrimitiveExpression(test, w, y, Operator.EQUALS, z);
-			w = test.addStatement(exp, statement.getPosition() + 3);
+			w = test.addStatement(exp, statement.getPosition() + 4);
 			
-			StatementInterface newStatement = test.getStatement(w.getStPosition()+1);
+			StatementInterface newStatement = test.getStatement(w.getStPosition());
 			
 			// Create assertEquals(x, w)
 			EqualsAssertion assertion = new EqualsAssertion();
@@ -125,6 +125,7 @@ public class EqualsHashcodeContract extends Contract {
 			assertion.setValue(true);
 			newStatement.addAssertion(assertion);
 			newStatement.addComment("Violates contract equals(null)");
+			logger.info("6 Test currently: "+test.toCode());
 
 		} catch (NoSuchMethodException e) {
 			// TODO Auto-generated catch block
