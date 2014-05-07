@@ -143,7 +143,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-		if("Lorg/evosuite/annotation/EvoSuiteIgnore;".equals(desc)) {
+		if("Lorg/evosuite/annotation/EvoSuiteExclude;".equals(desc)) {
 			logger.info("Method has EvoSuite annotation: "+desc);
 			excludeMethod = true;
 		}
