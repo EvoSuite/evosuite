@@ -109,12 +109,12 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
     public void setFitnesses(Map<FitnessFunction<?>, Double> fits) {
         this.fitnesses.clear();
-        this.fitnesses = fits;
+        this.fitnesses.putAll(fits);
     }
 
     public void setLastFitnesses(Map<FitnessFunction<?>, Double> lastFits) {
         this.lastFitnesses.clear();
-        this.lastFitnesses = lastFits;
+        this.lastFitnesses.putAll(lastFits);
     }
 
     public void addFitness(FitnessFunction<?> ff) {

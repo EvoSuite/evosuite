@@ -1,6 +1,7 @@
 package org.evosuite.ga.operators.crossover;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.metaheuristics.NSGAChromosome;
 import org.evosuite.ga.variables.DoubleVariable;
 import org.evosuite.ga.variables.Variable;
@@ -22,6 +23,7 @@ public class SBXCrossOver<T extends NSGAChromosome> extends CrossOverFunction
 
 	@Override
 	public void crossOver(Chromosome p1, Chromosome p2)
+	                throws ConstructionFailedException
 	{
 		NSGAChromosome n1 = (NSGAChromosome)p1;
 		NSGAChromosome n2 = (NSGAChromosome)p2;

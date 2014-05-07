@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.variables.DoubleVariable;
 import org.evosuite.ga.variables.Variable;
@@ -160,7 +161,8 @@ public class NSGAChromosome extends Chromosome
 	}
 
 	@Override
-	public void crossOver(Chromosome other, int position1, int position2) {
+	public void crossOver(Chromosome other, int position1, int position2)
+	                throws ConstructionFailedException {
 		// empty
 	}
 
