@@ -36,7 +36,7 @@ public class TestNSGAII
 	    Properties.POPULATION = 1000;
 		Properties.SEARCH_BUDGET = 250;
 		Properties.CROSSOVER_RATE = 0.9;
-		//Properties.RANDOM_SEED = 1l;
+		Properties.RANDOM_SEED = 1l;
 	}
 
 	@Test
@@ -274,8 +274,8 @@ public class TestNSGAII
         });
 
         // load Pareto Front
-        double[] pareto_f1 = new double[1000];
-        double[] pareto_f2 = new double[1000];
+        double[] pareto_f1 = new double[Properties.POPULATION];
+        double[] pareto_f2 = new double[Properties.POPULATION];
         int index = 0;
 
         BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource("Fonseca.pf").getPath()));
@@ -363,8 +363,8 @@ public class TestNSGAII
         });
 
         // load Pareto Front
-        double[] pareto_f1 = new double[199];
-        double[] pareto_f2 = new double[199];
+        double[] pareto_f1 = new double[Properties.POPULATION];
+        double[] pareto_f2 = new double[Properties.POPULATION];
         int index = 0;
 
         BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource("Schaffer.pf").getPath()));
@@ -383,8 +383,8 @@ public class TestNSGAII
         {
             System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
 
-            //Assert.assertEquals(chromosome.getFitness(f1), pareto_f1[index], 0.05);
-            //Assert.assertEquals(chromosome.getFitness(f2), pareto_f2[index], 0.05);
+            Assert.assertEquals(chromosome.getFitness(f1), pareto_f1[index], 0.06);
+            Assert.assertEquals(chromosome.getFitness(f2), pareto_f2[index], 0.06);
             index++;
         }
     }
@@ -428,8 +428,8 @@ public class TestNSGAII
         });
 
         // load Pareto Front
-	    double[] pareto_f1 = new double[1000];
-	    double[] pareto_f2 = new double[1000];
+        double[] pareto_f1 = new double[Properties.POPULATION];
+	    double[] pareto_f2 = new double[Properties.POPULATION];
 	    int index = 0;
 
         BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource("ZDT4.pf").getPath()));
