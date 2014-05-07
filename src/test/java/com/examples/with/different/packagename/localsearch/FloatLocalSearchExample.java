@@ -3,7 +3,7 @@ package com.examples.with.different.packagename.localsearch;
 public class FloatLocalSearchExample {
 
 	public boolean testMe(float x, float y) {
-		if(Math.round((x * 2) * Math.sin(y)) == 20F)
+		if(Math.abs((Math.log(x) * Math.sqrt(y)) - 20F * Math.PI) < 0.01F)
 			return true;
 		else
 			return false;
