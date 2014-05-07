@@ -170,7 +170,7 @@ public class TestFactory {
 
 		if (!field.isStatic()) {
 			callee = createOrReuseVariable(test, field.getOwnerType(), position,
-					recursionDepth, null);
+					recursionDepth, null, false);
 			position += test.size() - length;
 			length = test.size();
 
@@ -222,7 +222,7 @@ public class TestFactory {
 		VariableReference callee = null;
 		if (!field.isStatic()) { 
 			callee = createOrReuseVariable(test, field.getOwnerType(), position,
-					recursionDepth, null);
+					recursionDepth, null, false);
 			position += test.size() - length;
 			length = test.size();
 			if (!TestClusterGenerator.canUse(field.getField(), callee.getVariableClass())) {
@@ -234,7 +234,7 @@ public class TestFactory {
 		}
 
 		VariableReference var = createOrReuseVariable(test, field.getFieldType(),
-		                                              position, recursionDepth, callee);
+		                                              position, recursionDepth, callee, true);
 		int newLength = test.size();
 		position += (newLength - length);
 
@@ -270,7 +270,7 @@ public class TestFactory {
 		FieldReference fieldVar = new FieldReference(test, field, callee);
 		int length = test.size();
 		VariableReference value = createOrReuseVariable(test, fieldVar.getType(),
-		                                                position, 0, callee);
+		                                                position, 0, callee, true);
 
 		int newLength = test.size();
 		position += (newLength - length);
@@ -309,7 +309,7 @@ public class TestFactory {
 		try {
 			if (!method.isStatic()) {
 				callee = createOrReuseVariable(test, method.getOwnerType(), position,
-						recursionDepth, null);
+						recursionDepth, null, false);
 				position += test.size() - length;
 				length = test.size();
 
@@ -610,7 +610,7 @@ public class TestFactory {
 		logger.debug("Chosen class for Object: "+choice);
 		if(choice.isString()) {
 			return createOrReuseVariable(test, String.class, position,
-                    recursionDepth, null);			
+                    recursionDepth, null, true);			
 		}
 		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(choice);
 		// LoggingUtils.getEvoLogger().info("Generator for Object: " + o);
@@ -950,7 +950,7 @@ public class TestFactory {
 	 * @throws ConstructionFailedException
 	 */
 	private VariableReference createOrReuseVariable(TestCase test, Type parameterType,
-	        int position, int recursionDepth, VariableReference exclude)
+	        int position, int recursionDepth, VariableReference exclude, boolean allowNull)
 	        throws ConstructionFailedException {
 
 		if (Properties.SEED_TYPES && parameterType.equals(Object.class)) {
@@ -998,7 +998,7 @@ public class TestFactory {
 				logger.debug(" Generating new object of type " + parameterType);
 				VariableReference reference = attemptGeneration(test, parameterType,
 				                                                position, recursionDepth,
-				                                                true);
+				                                                allowNull);
 				return reference;
 			} else {
 				if (objects.isEmpty())
@@ -1605,7 +1605,7 @@ public class TestFactory {
 			int previousLength = test.size();
 
 			VariableReference var = createOrReuseVariable(test, parameterType, position,
-			                                              recursionDepth, callee);
+			                                              recursionDepth, callee, true);
 			parameters.add(var);
 
 			int currentLength = test.size();
