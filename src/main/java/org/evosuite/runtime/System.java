@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.PropertyPermission;
 import java.util.Set;
 
-
 import org.evosuite.Properties;
 
 
@@ -94,9 +93,13 @@ public class System {
 		}
 		
 		if (perm.getActions().contains("write")) {
-			
+						
 			if(!Properties.REPLACE_CALLS){
-				return false;
+				if(java.lang.System.getProperty(perm.getName()) == null) {
+					return true;
+				} else {
+					return false;
+				}
 			}
 			
 			synchronized (defaultProperties) {				
