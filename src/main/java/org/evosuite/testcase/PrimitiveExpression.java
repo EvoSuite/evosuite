@@ -135,7 +135,20 @@ public class PrimitiveExpression extends AbstractStatement {
 	public Throwable execute(Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
-		throw new UnsupportedOperationException("Method execute not implemented!");
+		Object o1 = scope.getObject(leftOperand);
+		Object o2 = scope.getObject(rightOperand);
+		switch (operator) {
+		case EQUALS:
+			if (o1 == o2) {
+				scope.setObject(retval, true);
+			} else {
+				scope.setObject(retval, true);
+			}
+			break;
+		default:
+			throw new UnsupportedOperationException("Method execute not implemented!");
+		}
+		return null;
 	}
 
 	/** {@inheritDoc} */
@@ -233,7 +246,17 @@ public class PrimitiveExpression extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public boolean same(StatementInterface s) {
-		throw new UnsupportedOperationException("Method same not implemented!");
+		if (this == s)
+			return true;
+		if (s == null)
+			return false;
+		if (getClass() != s.getClass())
+			return false;
+
+		PrimitiveExpression ps = (PrimitiveExpression) s;
+
+		return operator.equals(ps.operator) && leftOperand.same(ps.leftOperand)
+		        && rightOperand.same(ps.rightOperand);
 	}
 
 	/** {@inheritDoc} */
