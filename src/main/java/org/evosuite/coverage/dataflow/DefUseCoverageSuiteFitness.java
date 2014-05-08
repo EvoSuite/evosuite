@@ -50,10 +50,10 @@ import org.evosuite.utils.LoggingUtils;
 public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 1L;
 
-	static List<DefUseCoverageTestFitness> goals = DefUseCoverageFactory.getDUGoals();
+	List<DefUseCoverageTestFitness> goals = DefUseCoverageFactory.getDUGoals();
 
 	/** Constant <code>totalGoals</code> */
-	public static Map<DefUsePairType, Integer> totalGoals = initTotalGoals();
+	public Map<DefUsePairType, Integer> totalGoals = initTotalGoals();
 	/** Constant <code>mostCoveredGoals</code> */
 	public final static Map<DefUsePairType, Integer> mostCoveredGoals = new HashMap<DefUsePairType, Integer>();
 
@@ -105,8 +105,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		if (DefUseCoverageFactory.detectAliasingGoals(results)) {
 			logger.debug("New total number of goals: " + goals.size());
 			totalGoals = initTotalGoals();
-			for(DefUsePairType type : totalGoals.keySet()) {
-				logger.info(type+":" + totalGoals.get(type));
+			for (DefUsePairType type : totalGoals.keySet()) {
+				logger.info(type + ":" + totalGoals.get(type));
 			}
 		}
 
@@ -310,8 +310,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			goals = DefUseCoverageFactory.getDUGoals();
 			logger.debug("New total number of goals: " + goals.size());
 			totalGoals = initTotalGoals();
-			for(DefUsePairType type : totalGoals.keySet()) {
-				logger.info(type+":" + totalGoals.get(type));
+			for (DefUsePairType type : totalGoals.keySet()) {
+				logger.info(type + ":" + totalGoals.get(type));
 			}
 		}
 
@@ -364,8 +364,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		int num = 0;
 		// count total goals according to type
-		for (DefUseCoverageTestFitness goal : goals) {
-			logger.info("Goal "+num);
+		for (DefUseCoverageTestFitness goal : DefUseCoverageFactory.getDUGoals()) {
+			logger.info("Goal " + num);
 			num++;
 			r.put(goal.getType(), r.get(goal.getType()) + 1);
 		}
@@ -396,7 +396,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		return countGoalsIn(mostCoveredGoals);
 	}
 
-	private static int countTotalGoals() {
+	private int countTotalGoals() {
 		return countGoalsIn(totalGoals);
 	}
 
@@ -454,7 +454,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		LoggingUtils.getEvoLogger().info("* Time spent optimizing covered goals analysis: "
 		                                         + DefUseExecutionTraceAnalyzer.timeGetCoveredGoals
 		                                         + "ms");
-
+		Map<DefUsePairType, Integer> totalGoals = initTotalGoals();
 		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType.values()) {
 			LoggingUtils.getEvoLogger().info("* Covered goals of type " + type + ": "
 			                                         + mostCoveredGoals.get(type) + " / "
@@ -470,7 +470,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		LoggingUtils.getEvoLogger().info("* Covered " + countMostCoveredGoals() + "/"
-		                                         + countTotalGoals() + " goals");
+		                                         + countGoalsIn(totalGoals) + " goals");
 	}
 
 	/**
@@ -483,7 +483,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	private static ArrayList<DefUseCoverageTestFitness> getPairsOfType(DefUsePairType type) {
 		ArrayList<DefUseCoverageTestFitness> pairs = new ArrayList<DefUseCoverageTestFitness>();
-		for (DefUseCoverageTestFitness pair : goals) {
+		for (DefUseCoverageTestFitness pair : DefUseCoverageFactory.getDUGoals()) {
 			if (pair.getType() == type)
 				pairs.add(pair);
 		}
