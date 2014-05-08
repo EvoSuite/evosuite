@@ -55,19 +55,20 @@ public class ContractViolation {
 	private TestCase test;
 
 	private StatementInterface statement;
-	
-	/** If the statement execution leads to a contract violation with an undeclared exception
-	 * this is stored here 
+
+	/**
+	 * If the statement execution leads to a contract violation with an
+	 * undeclared exception this is stored here
 	 */
 	private final Throwable exception;
-	
+
 	/**
 	 * List of all variables involved in the contract violation
 	 */
 	private final List<VariableReference> variables = new ArrayList<VariableReference>();
 
 	private boolean isMinimized = false;
-	
+
 	/**
 	 * <p>
 	 * Constructor for ContractViolation.
@@ -82,13 +83,14 @@ public class ContractViolation {
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */
-	public ContractViolation(Contract contract, StatementInterface statement, Throwable exception, VariableReference... variables) {
+	public ContractViolation(Contract contract, StatementInterface statement,
+	        Throwable exception, VariableReference... variables) {
 		this.contract = contract;
 		this.test = statement.getTestCase().clone();
 		this.test.chop(statement.getPosition() + 1);
-		((DefaultTestCase)this.test).setFailing(true);
+		((DefaultTestCase) this.test).setFailing(true);
 		this.statement = this.test.getStatement(statement.getPosition());
-		for(VariableReference var : variables) {
+		for (VariableReference var : variables) {
 			this.variables.add(var.clone(this.test));
 		}
 		this.exception = exception;
@@ -97,7 +99,7 @@ public class ContractViolation {
 	protected VariableReference getVariable(int num) {
 		return variables.get(num).clone(this.test);
 	}
-	
+
 	/**
 	 * Getter for test case
 	 * 
@@ -115,7 +117,7 @@ public class ContractViolation {
 	public Contract getContract() {
 		return contract;
 	}
-	
+
 	public int getPosition() {
 		return statement.getPosition();
 	}
@@ -124,22 +126,22 @@ public class ContractViolation {
 	 * Remove all statements that do not contribute to the contract violation
 	 */
 	public void minimizeTest() {
-		if(isMinimized)
+		if (isMinimized)
 			return;
-		
+
 		/** Factory method that handles statement deletion */
 		TestFactory testFactory = TestFactory.getInstance();
-		
+
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
 			inliner.inline(test);
 		}
 		TestCase origTest = test.clone();
-		
-		int[] positions = new int[variables.size()];
-		int num = 0;
-		for(VariableReference var : variables)
-			positions[num++] = var.getStPosition();
+
+		List<Integer> positions = new ArrayList<Integer>();
+
+		for (VariableReference var : variables)
+			positions.add(var.getStPosition());
 
 		int oldLength = test.size();
 		boolean changed = true;
@@ -150,30 +152,34 @@ public class ContractViolation {
 				// TODO - why??
 				if (i >= test.size())
 					continue;
+				if (positions.contains(i))
+					continue;
+
 				try {
 					testFactory.deleteStatementGracefully(test, i);
 					if (!contract.fails(test)) {
 						test = origTest.clone();
 					} else {
 						changed = true;
-						for(int j = 0; j < positions.length; j++) {
-							if(positions[j] > i) {
-								positions[j] -= (oldLength - test.size());
+						for (int j = 0; j < positions.size(); j++) {
+							if (positions.get(j) > i) {
+								positions.set(j,
+								              positions.get(j)
+								                      - (oldLength - test.size()));
 							}
 						}
 						origTest = test.clone();
 						oldLength = test.size();
-
 					}
 				} catch (ConstructionFailedException e) {
 					test = origTest.clone();
 				}
 			}
 		}
-		
+
 		statement = test.getStatement(test.size() - 1);
-		for(int i = 0; i < variables.size(); i++) {
-			variables.set(i, test.getStatement(positions[i]).getReturnValue());
+		for (int i = 0; i < variables.size(); i++) {
+			variables.set(i, test.getStatement(positions.get(i)).getReturnValue());
 		}
 
 		contract.addAssertionAndComments(statement, variables, exception);
@@ -235,14 +241,14 @@ public class ContractViolation {
 		return "Violated contract: " + contract + " in statement " + statement
 		        + " with exception " + exception;
 	}
-	
+
 	public void changeClassLoader(ClassLoader classLoader) {
-		((DefaultTestCase)test).changeClassLoader(classLoader);
+		((DefaultTestCase) test).changeClassLoader(classLoader);
 		contract.changeClassLoader(classLoader);
 		this.statement = this.test.getStatement(statement.getPosition());
-		for(int i = 0; i < variables.size(); i++) {
+		for (int i = 0; i < variables.size(); i++) {
 			variables.set(i, variables.get(i).clone(test));
 		}
 	}
-	
+
 }

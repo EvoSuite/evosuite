@@ -95,11 +95,17 @@ public abstract class Contract {
 
 	protected Collection<Pair<VariableReference>> getAllVariablePairs(Scope scope) {
 		Set<Pair<VariableReference>> pairs = new HashSet<Pair<VariableReference>>();
-		for (VariableReference o1 : scope.getElements(Properties.getTargetClass())) {
-			for (VariableReference o2 : scope.getElements(o1.getVariableClass())) {
-				pairs.add(new Pair<VariableReference>(o1, o2));
+		List<VariableReference> objects = scope.getElements(Properties.getTargetClass());
+		for (int i = 0; i < objects.size(); i++) {
+			for (int j = i; j < objects.size(); j++) {
+				pairs.add(new Pair<VariableReference>(objects.get(i), objects.get(j)));
 			}
 		}
+		//		for (VariableReference o1 : scope.getElements(Properties.getTargetClass())) {
+		//			for (VariableReference o2 : scope.getElements(o1.getVariableClass())) {
+		//				pairs.add(new Pair<VariableReference>(o1, o2));
+		//			}
+		//		}
 		return pairs;
 	}
 
