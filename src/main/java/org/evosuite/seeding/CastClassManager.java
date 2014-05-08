@@ -7,7 +7,6 @@ import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -246,6 +245,7 @@ public class CastClassManager {
 				continue;
 
 			GenericClass genericClass = new GenericClass(clazz).getWithWildcardTypes();
+			
 			if (!genericClass.satisfiesBoundaries(typeVariable, typeMap)) {
 				logger.debug("Not assignable: " + clazz);
 			} else {
@@ -343,9 +343,15 @@ public class CastClassManager {
 					assignableClasses.add(clazz);
 				}
 			}
-			logger.debug("After adding bounds, found assignable classes for type variable "
-			        + typeVariable + ": " + assignableClasses.size());
+			logger.debug("After adding bounds, found "+assignableClasses.size()+" assignable classes for type variable "
+			        + typeVariable + ": " + assignableClasses);
 			if (!assignableClasses.isEmpty()) {
+				// TODO: Add all classes?
+//				for(Class<?> clazz : assignableClasses) {
+//					GenericClass castClass = new GenericClass(clazz);
+//					logger.debug("Adding cast class " + castClass);
+//					classMap.put(castClass, 10);					
+//				}
 				Class<?> clazz = Randomness.choice(assignableClasses);
 				GenericClass castClass = new GenericClass(clazz);
 				logger.debug("Adding cast class " + castClass);
@@ -360,7 +366,7 @@ public class CastClassManager {
 
 	private List<GenericClass> getAssignableClasses(WildcardType wildcardType,
 	        boolean allowRecursion, Map<TypeVariable<?>, Type> ownerVariableMap) {
-		Map<GenericClass, Integer> assignableClasses = new HashMap<GenericClass, Integer>();
+		Map<GenericClass, Integer> assignableClasses = new LinkedHashMap<GenericClass, Integer>();
 
 		logger.debug("Getting assignable classes for wildcard type " + wildcardType);
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
@@ -383,7 +389,7 @@ public class CastClassManager {
 
 	private List<GenericClass> getAssignableClasses(TypeVariable<?> typeVariable,
 	        boolean allowRecursion, Map<TypeVariable<?>, Type> ownerVariableMap) {
-		Map<GenericClass, Integer> assignableClasses = new HashMap<GenericClass, Integer>();
+		Map<GenericClass, Integer> assignableClasses = new LinkedHashMap<GenericClass, Integer>();
 
 		logger.debug("Getting assignable classes for type variable " + typeVariable);
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {

@@ -642,9 +642,18 @@ public class TestGenericClass {
 
 		typeMap.put(var, iterableIntegerClass.getType());
 
-		GenericClass arrayListClass = new GenericClass(java.util.ArrayList.class);
+		GenericClass arrayListClass = new GenericClass(
+		        new TypeToken<java.util.ArrayList<String>>() {
+		        }.getType());
 
 		Assert.assertFalse(arrayListClass.satisfiesBoundaries(var, typeMap));
+		
+		arrayListClass = new GenericClass(
+		        new TypeToken<java.util.ArrayList<Integer>>() {
+		        }.getType());
+
+		Assert.assertTrue(arrayListClass.satisfiesBoundaries(var, typeMap));
+
 	}
 
 	@Test

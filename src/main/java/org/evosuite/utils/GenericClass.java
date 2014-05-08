@@ -605,7 +605,15 @@ public class GenericClass implements Serializable {
 			for (Type bound : ((TypeVariable<?>) type).getBounds()) {
 				GenericClass boundClass = new GenericClass(bound);
 				extendedMap.putAll(boundClass.getTypeVariableMap());
+				if(boundClass.isParameterizedType()) {
+					Class<?> boundRawClass = boundClass.getRawClass();
+					if(boundRawClass.isAssignableFrom(selectedClass.getRawClass())) {
+						Map<TypeVariable<?>, Type> xmap = TypeUtils.determineTypeArguments(selectedClass.getRawClass(), (ParameterizedType) boundClass.getType());
+						extendedMap.putAll(xmap);
+					}
+				}
 			}
+			
 			logger.debug("Updated type variable map to " + extendedMap);
 
 			GenericClass instantiation = selectedClass.getGenericInstantiation(extendedMap,
@@ -721,7 +729,7 @@ public class GenericClass implements Serializable {
 	 * @return
 	 */
 	public List<Type> getParameterTypes() {
-		if (type instanceof ParameterizedType) {
+		if (type instanceof ParameterizedType) {			
 			return Arrays.asList(((ParameterizedType) type).getActualTypeArguments());
 		}
 		return new ArrayList<Type>();
@@ -823,20 +831,34 @@ public class GenericClass implements Serializable {
 			        && !rawClass.getSuperclass().isAnonymousClass()
 			        && !(hasOwnerType() && getOwnerType().getRawClass().isAnonymousClass())) {
 				GenericClass superClass = getSuperClass();
-				//logger.debug("Superclass of " + type + ": " + superClass);
+				logger.debug("Superclass of " + type + ": " + superClass);
 				Map<TypeVariable<?>, Type> superMap = superClass.getTypeVariableMap();
 				//logger.debug("Super map after " + superClass + ": " + superMap);
 				typeMap.putAll(superMap);
-			} else {
-				logger.debug("Strange!");
 			}
+			for(Class<?> interFace : rawClass.getInterfaces()) {
+				GenericClass interFaceClass = new GenericClass(interFace);
+				logger.debug("Interface of " + type + ": " + interFaceClass);
+				Map<TypeVariable<?>, Type> superMap = interFaceClass.getTypeVariableMap();
+				//logger.debug("Super map after " + superClass + ": " + superMap);
+				typeMap.putAll(superMap);
+			}
+			if(isTypeVariable()) {
+				for(Type boundType : ((TypeVariable<?>)type).getBounds()) {
+					GenericClass boundClass = new GenericClass(boundType);
+					typeMap.putAll(boundClass.getTypeVariableMap());
+				}
+			}
+
 		} catch (Exception e) {
 			logger.debug("Exception while getting type map: " + e);
 		}
 		for (int i = 0; i < typeVariables.size(); i++) {
-			if (types.get(i) != typeVariables.get(i))
+			if (types.get(i) != typeVariables.get(i)) {
 				typeMap.put(typeVariables.get(i), types.get(i));
+			}
 		}
+
 		//logger.debug("Type map: " + typeMap);
 		return typeMap;
 	}
@@ -848,12 +870,15 @@ public class GenericClass implements Serializable {
 	 * @return
 	 */
 	public List<TypeVariable<?>> getTypeVariables() {
+		List<TypeVariable<?>> typeVariables = new ArrayList<TypeVariable<?>>();
 		if (type instanceof ParameterizedType) {
-			List<TypeVariable<?>> typeVariables = new ArrayList<TypeVariable<?>>();
+			logger.debug("Type variables of "+rawClass+": ");
+			for(TypeVariable<?> var : rawClass.getTypeParameters()) {
+				logger.debug("Var "+var+" of "+var.getGenericDeclaration());
+			}
 			typeVariables.addAll(Arrays.asList(rawClass.getTypeParameters()));
-			return typeVariables;
 		}
-		return new ArrayList<TypeVariable<?>>();
+		return typeVariables;
 	}
 
 	public Class<?> getUnboxedType() {
@@ -1365,9 +1390,43 @@ public class GenericClass implements Serializable {
 	public boolean satisfiesBoundaries(TypeVariable<?> typeVariable,
 	        Map<TypeVariable<?>, Type> typeMap) {
 		boolean isAssignable = true;
-		logger.debug("Checking class: " + type + " against type variable " + typeVariable);
+		logger.debug("Checking class: " + type + " against type variable " + typeVariable+" with map "+typeMap);
 		Map<TypeVariable<?>, Type> ownerVariableMap = getTypeVariableMap();
+		for(Type bound : typeVariable.getBounds()) {
+			if(bound instanceof ParameterizedType) {
+				Class<?> boundClass = GenericTypeReflector.erase(bound);
+				if(boundClass.isAssignableFrom(rawClass)) {
+					Map<TypeVariable<?>, Type> xmap = TypeUtils.determineTypeArguments(rawClass, (ParameterizedType) bound);
+					ownerVariableMap.putAll(xmap);
+				}
+			}
+		}
 		ownerVariableMap.putAll(typeMap);
+		boolean changed = true;
+		while(changed) {
+			changed = false;
+			for (TypeVariable<?> var : ownerVariableMap.keySet()) {
+				logger.debug("Type var: "+var+" of "+var.getGenericDeclaration());
+				if(ownerVariableMap.get(var) instanceof TypeVariable<?>) {
+					logger.debug("Is set to type var: "+ownerVariableMap.get(var)+" of "+((TypeVariable<?>)ownerVariableMap.get(var)).getGenericDeclaration());
+					TypeVariable<?> value = (TypeVariable<?>)ownerVariableMap.get(var);
+					if(ownerVariableMap.containsKey(value)) {
+						logger.debug("Replacing "+var+" with "+ownerVariableMap.get(value));
+						ownerVariableMap.put(var, ownerVariableMap.get(value));
+						changed = true;
+					} else {
+						logger.debug("Not in map: "+value);
+					}
+				} else {
+					logger.debug("Is set to concrete type: "+ownerVariableMap.get(var));
+				}
+			}
+			logger.debug("Current iteration of map: " + ownerVariableMap);
+		}
+		
+		GenericClass concreteClass = new GenericClass(GenericUtils.replaceTypeVariables(type, ownerVariableMap));
+		logger.debug("Concrete class after variable replacement: " + concreteClass);
+
 		for (Type theType : typeVariable.getBounds()) {
 			logger.debug("Current boundary of " + typeVariable + ": " + theType);
 			// Special case: Enum is defined as Enum<T extends Enum>
@@ -1390,8 +1449,9 @@ public class GenericClass implements Serializable {
 			boundType = GenericUtils.replaceTypeVariable(boundType, typeVariable,
 			                                             getType());
 			boundType = GenericUtils.replaceTypeVariablesWithWildcards(boundType);
+
 			logger.debug("Bound after variable replacement: " + boundType);
-			if (!isAssignableTo(boundType)) {
+			if (!concreteClass.isAssignableTo(boundType)) {
 				logger.debug("Not assignable: " + type + " and " + boundType);
 				// If the boundary is not assignable it may still be possible 
 				// to instantiate the generic to an assignable type
