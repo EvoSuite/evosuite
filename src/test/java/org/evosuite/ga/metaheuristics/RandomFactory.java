@@ -10,8 +10,6 @@ public class RandomFactory implements ChromosomeFactory<NSGAChromosome>
 {
 	private static final long serialVersionUID = -6984639266849566298L;
 
-	private double min;
-	private double max;
 	private double upperBound;
 	private double lowerBound;
 
@@ -23,27 +21,21 @@ public class RandomFactory implements ChromosomeFactory<NSGAChromosome>
 	 * 
 	 * @param z are you executing ZDT4 problem?
 	 * @param nv number of variables
-	 * @param m min
-	 * @param M max
-	 * @param ub upperBound
 	 * @param lb lowerBound
+	 * @param ub upperBound
 	 */
-	public RandomFactory(boolean z, int nv, double m, double M,
-			double ub, double lb) {
+	public RandomFactory(boolean z, int nv, double lb, double ub) {
 		this.ZDT4 = z;
 		this.number_of_variables = nv;
-		this.min = m;
-		this.max = M;
-		this.upperBound = ub;
 		this.lowerBound = lb;
+		this.upperBound = ub;
 	}
 
 	@Override
 	public NSGAChromosome getChromosome() {
 		NSGAChromosome c = new NSGAChromosome(this.ZDT4,
 				this.number_of_variables,
-				this.min, this.max,
-				this.upperBound, this.lowerBound);
+				this.lowerBound, this.upperBound);
 		return c;
 	}
 }

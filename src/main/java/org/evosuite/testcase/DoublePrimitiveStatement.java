@@ -90,7 +90,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		double P = Randomness.nextDouble();
+		/*double P = Randomness.nextDouble();
 		if(P < 1d/3d) {
 			value += Randomness.nextGaussian() * Properties.MAX_DELTA;
 		} else if(P < 2d/3d) {
@@ -98,7 +98,9 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 		} else {
 			int precision = Randomness.nextInt(15);
 			chopPrecision(precision);
-		}
+		}*/
+	    int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
+        value = new Double((value.doubleValue() + delta + Randomness.nextDouble()));
 	}
 
 	/* (non-Javadoc)
@@ -130,7 +132,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
-		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
+		/*if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
 			value = Randomness.nextGaussian() * Properties.MAX_INT;
 			int precision = Randomness.nextInt(15);
 			chopPrecision(precision);
@@ -138,7 +140,14 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 		else {
 			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
 			value = constantPool.getRandomDouble();
-		}
+		}*/
+	    if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
+            value = (Randomness.nextInt(2 * Properties.MAX_INT) - Properties.MAX_INT)
+                    + Randomness.nextDouble();
+        else {
+            ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
+            value = constantPool.getRandomDouble();
+        }
 	}
 
 	/* (non-Javadoc)
