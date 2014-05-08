@@ -152,7 +152,7 @@ public class JobHandler extends Thread {
 
 		String cmd = "java ";
 		String classpath = System.getProperty("java.class.path");
-		cmd += " -cp " + classpath + File.pathSeparator + executor.getProjectClassPath();
+		cmd += " -cp \"" + classpath + File.pathSeparator + executor.getProjectClassPath() +"\"";
 		/* 
 		 * FIXME for seeding, need to setup classpath of generated test suites
 		 * - first the currently generated
@@ -172,7 +172,7 @@ public class JobHandler extends Thread {
 		StorageManager storage = executor.getStorage();
 		File logs = storage.getTmpLogs();
 		//cmd += " -Devosuite.log.folder=" + logs.getAbsolutePath() + "/job" + job.jobID;
-		cmd += " -Devosuite.log.folder=" + logs.getAbsolutePath() + "/" + job.cut;
+		cmd += " -Devosuite.log.folder=\"" + logs.getAbsolutePath() + "/" + job.cut+"\"";
 
 		if (Properties.LOG_LEVEL != null && !Properties.LOG_LEVEL.isEmpty()) {
 			cmd += " -Dlog.level=" + Properties.LOG_LEVEL;
@@ -188,7 +188,7 @@ public class JobHandler extends Thread {
 		cmd += " " + org.evosuite.EvoSuite.class.getName();
 		cmd += " -mem " + clientMB;
 		cmd += " -class " + job.cut;
-		cmd += " -projectCP "+executor.getProjectClassPath();
+		cmd += " -projectCP \""+executor.getProjectClassPath()+"\"";
 
 		//needs to be called twice, after the Java command
 		if (Properties.LOG_LEVEL != null && !Properties.LOG_LEVEL.isEmpty()) {
@@ -228,14 +228,14 @@ public class JobHandler extends Thread {
 
 		//TODO check if it works on Windows... likely not	
 		//cmd += " -Dreport_dir=" + reports.getAbsolutePath() + "/job" + job.jobID;
-		cmd += " -Dreport_dir=" + reports.getAbsolutePath() + "/" + job.cut;
-		cmd += " -Dtest_dir=" + tests.getAbsolutePath();
+		cmd += " -Dreport_dir=\"" + reports.getAbsolutePath() + "/" + job.cut+"\"";
+		cmd += " -Dtest_dir=\"" + tests.getAbsolutePath()+"\"";
 
 		//cmd += " -Derror_branches=true"; 
 		cmd += " -criterion exception";
 		cmd += " -Dtest_factory=" + Properties.TEST_FACTORY;
 		cmd += " -Dseed_clone=" + Properties.SEED_CLONE;
-		cmd += " -Dseed_dir=" + storage.getTmpSeeds().getAbsolutePath();
+		cmd += " -Dseed_dir=\"" + storage.getTmpSeeds().getAbsolutePath()+"\"";
 
 		cmd += " " + getOutputVariables();
 
