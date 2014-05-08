@@ -100,7 +100,11 @@ public class ClassPathHandler {
 	/**
 	 * Return the classpath of the target project.
 	 * This should include also all the third-party jars
-	 * it depends on 
+	 * it depends on
+	 * 
+	 *  <p>
+	 *  If no classpath has been set so far, the ones from the property file
+	 *  will be used, if it exists.
 	 * 
 	 * @return
 	 */
