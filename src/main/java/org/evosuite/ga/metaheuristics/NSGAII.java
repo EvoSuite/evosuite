@@ -143,6 +143,12 @@ public class NSGAII<T extends Chromosome> extends GeneticAlgorithm<T>
 
 		if (population.isEmpty())
 			initializePopulation();
+		for (T p : population) {
+            for (FitnessFunction<T> ff : this.getFitnessFunctions()) {
+                System.out.print(p.getFitness(ff) + ",");
+            }
+            System.out.print("\n");
+        }
 
 		while (!isFinished())
 		{
@@ -163,6 +169,13 @@ public class NSGAII<T extends Chromosome> extends GeneticAlgorithm<T>
 
 			evolve();
 			this.notifyIteration();
+			
+			for (T p : population) {
+	            for (FitnessFunction<T> ff : this.getFitnessFunctions()) {
+	                System.out.print(p.getFitness(ff) + ",");
+	            }
+	            System.out.print("\n");
+	        }
 		}
 
 		/*for (T p : population) {

@@ -28,7 +28,7 @@ public class TestSBXCrossOver
         NSGAChromosome c2 = new NSGAChromosome();
         c2.addVariable(new DoubleVariable(0.5, 0.0, 1.0));
 
-        SBXCrossOver sbx = new SBXCrossOver();
+        SBXCrossover sbx = new SBXCrossover();
         sbx.crossOver(c1, c2);
 
         double v_c1 = ((DoubleVariable)c1.getVariable(0)).getValue();
@@ -45,7 +45,7 @@ public class TestSBXCrossOver
         NSGAChromosome c2 = new NSGAChromosome();
         c2.addVariable(new DoubleVariable(0.1, 0.0, 1.0));
 
-        SBXCrossOver sbx = new SBXCrossOver();
+        SBXCrossover sbx = new SBXCrossover();
         sbx.crossOver(c1, c2);
 
         double v_c1 = ((DoubleVariable)c1.getVariable(0)).getValue();

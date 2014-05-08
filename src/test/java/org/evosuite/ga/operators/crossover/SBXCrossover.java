@@ -12,7 +12,7 @@ import org.evosuite.utils.Randomness;
  * 
  * @author José Campos
  */
-public class SBXCrossOver<T extends NSGAChromosome> extends CrossOverFunction
+public class SBXCrossover<T extends NSGAChromosome> extends CrossOverFunction
 {
 	private static final long serialVersionUID = -4258729002155733390L;
 

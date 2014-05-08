@@ -27,8 +27,7 @@ public class NSGAChromosome extends Chromosome
 
 	public NSGAChromosome(boolean ZDT4,
 			int number_of_variables,
-			double min, double max,
-			double upperBound, double lowerBound) {
+			double lowerBound, double upperBound) {
 		super();
 
 		int index = 0;
@@ -40,7 +39,7 @@ public class NSGAChromosome extends Chromosome
 		}
 
 		for (int i = index; i < number_of_variables; i++) {
-			Variable v = new DoubleVariable(min + Randomness.nextDouble() * (max - min),
+			Variable v = new DoubleVariable(lowerBound + Randomness.nextDouble() * (upperBound - lowerBound),
 					lowerBound, upperBound);
 			this.addVariable(v);
 		}
@@ -138,15 +137,11 @@ public class NSGAChromosome extends Chromosome
 
 		double r = Randomness.nextDouble();
 		if (r <= 0.5) {
-			double aux = (2.0  * r) +
-							((1.0 - (2.0 * r)) *
-							Math.pow(1.0 - delta1, distributionIndex + 1.0));
+			double aux = 2.0 * r + (1.0 - 2.0 * r) * (Math.pow(1.0 - delta1, (distributionIndex + 1.0)));
 			deltaq = Math.pow(aux, pow) - 1.0;
 		}
 		else {
-			double aux = (2 * (1.0 - r)) +
-							((2 * (r - 0.5)) *
-							Math.pow(1.0 - delta2, distributionIndex + 1.0));
+			double aux = 2.0 * (1.0 - r) + 2.0 * (r - 0.5) * (Math.pow(1.0 - delta2, (distributionIndex + 1.0)));
 			deltaq = 1.0 - Math.pow(aux, pow);
 		}
 
