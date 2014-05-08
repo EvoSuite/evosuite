@@ -19,17 +19,19 @@ public class TestDefUseAnalysis extends SystemTest {
 	private final Criterion oldCriterion = Properties.CRITERION;
 	private final boolean oldAssertions = Properties.ASSERTIONS;
 	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
+	private final String analysisCriteria = Properties.ANALYSIS_CRITERIA;
 
 	@Before
 	public void beforeTest() {
 		Properties.SANDBOX = true;
 	}
-	
+
 	@After
 	public void afterTest() {
 		Properties.CRITERION = oldCriterion;
 		Properties.ASSERTIONS = oldAssertions;
 		Properties.SANDBOX = DEFAULT_SANDBOX;
+		Properties.ANALYSIS_CRITERIA = analysisCriteria;
 	}
 
 	@Test
@@ -44,6 +46,7 @@ public class TestDefUseAnalysis extends SystemTest {
 		// Need to deactivate assertions, otherwise classloader is chanaged 
 		// and DefUseCoverageFactory is reset
 		Properties.ASSERTIONS = false;
+		Properties.ANALYSIS_CRITERIA = "Branch,DefUse";
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -69,6 +72,7 @@ public class TestDefUseAnalysis extends SystemTest {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CRITERION = Criterion.DEFUSE;
 		Properties.ASSERTIONS = false;
+		Properties.ANALYSIS_CRITERIA = "Branch,DefUse";
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
