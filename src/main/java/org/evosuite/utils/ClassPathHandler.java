@@ -103,7 +103,7 @@ public class ClassPathHandler {
 	 * it depends on
 	 * 
 	 *  <p>
-	 *  If no classpath has been set so far, the ones from the property file
+	 *  If no classpath has been set so far, the one from the property file
 	 *  will be used, if it exists.
 	 * 
 	 * @return
