@@ -68,6 +68,7 @@ public class TestOverflowInstrumentation extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
+		Properties.SEARCH_BUDGET = 20000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
