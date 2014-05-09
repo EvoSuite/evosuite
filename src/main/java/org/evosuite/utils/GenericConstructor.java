@@ -181,7 +181,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 
 		// Generic member classes should have the enclosing instance as a parameter
 		// but don't for some reason
-		if (rawTypes.length != types.length) {
+		if (rawTypes.length != types.length && owner.isParameterizedType()) {
 			Type[] actualTypes = new Type[rawTypes.length];
 			actualTypes[0] = owner.getOwnerType().getType();
 			int pos = 1;
