@@ -5,9 +5,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.continuous.persistency.StorageManager;
@@ -67,7 +67,7 @@ public class JobHandler extends Thread {
 				break;
 			}
 
-			String command = getCommandString(job);
+			List<String> commands = getCommandString(job);
 
 			Process process = null;
 
@@ -75,7 +75,9 @@ public class JobHandler extends Thread {
 				String baseDir = System.getProperty("user.dir");
 				File dir = new File(baseDir);
 
-				String[] parsedCommand = parseCommand(command);
+				// String[] parsedCommand = parseCommand(command);
+				String[] parsedCommand = new String[commands.size()];
+				commands.toArray(parsedCommand);
 
 				ProcessBuilder builder = new ProcessBuilder(parsedCommand);
 				builder.directory(dir);
@@ -83,7 +85,7 @@ public class JobHandler extends Thread {
 
 				LoggingUtils.getEvoLogger().info("Going to start job for: " + job.cut);
 				logger.debug("Base directory: " + baseDir);
-				logger.debug("Command: " + command);
+				logger.debug("Commands: " + Arrays.asList(parsedCommand));
 
 				process = builder.start();
 
@@ -108,18 +110,6 @@ public class JobHandler extends Thread {
 				executor.doneWithJob(job);
 			}
 		}
-	}
-
-	private String[] parseCommand(String command) {
-		List<String> list = new ArrayList<String>();
-		for (String token : command.split(" ")) {
-			String entry = token.trim();
-			if (!entry.isEmpty()) {
-				list.add(entry);
-			}
-		}
-		String[] parsedCommand = list.toArray(new String[0]);
-		return parsedCommand;
 	}
 
 	/**
@@ -149,11 +139,13 @@ public class JobHandler extends Thread {
 		        + "\nProcess console output:\n" + sb.toString());
 	}
 
-	private String getCommandString(JobDefinition job) {
+	private List<String> getCommandString(JobDefinition job) {
 
-		String cmd = "java ";
+		List<String> commands = new ArrayList<String>();
+		commands.add("java");		
 		String classpath = System.getProperty("java.class.path");
-		cmd += " -cp " + StringEscapeUtils.escapeJava(classpath + File.pathSeparator + executor.getProjectClassPath());
+		commands.add("-cp");
+		commands.add(classpath + File.pathSeparator + executor.getProjectClassPath());
 		/* 
 		 * FIXME for seeding, need to setup classpath of generated test suites
 		 * - first the currently generated
@@ -167,16 +159,16 @@ public class JobHandler extends Thread {
 		 *  it is important to set it before calling EvoSuite, as it has to be read by Master before loading properties.
 		 *  Note: the Client will get it automatically from Master
 		 */
-		cmd += " -D" + LoggingUtils.USE_DIFFERENT_LOGGING_XML_PARAMETER
-		        + "=logback-ctg.xml";
+		commands.add("-D" + LoggingUtils.USE_DIFFERENT_LOGGING_XML_PARAMETER
+				+ "=logback-ctg.xml");
 
 		StorageManager storage = executor.getStorage();
 		File logs = storage.getTmpLogs();
 		//cmd += " -Devosuite.log.folder=" + logs.getAbsolutePath() + "/job" + job.jobID;
-		cmd += " -Devosuite.log.folder=\"" + logs.getAbsolutePath() + "/" + job.cut+"\"";
+		commands.add("-Devosuite.log.folder=" + logs.getAbsolutePath() + "/" + job.cut);
 
 		if (Properties.LOG_LEVEL != null && !Properties.LOG_LEVEL.isEmpty()) {
-			cmd += " -Dlog.level=" + Properties.LOG_LEVEL;
+			commands.add("-Dlog.level=" + Properties.LOG_LEVEL);
 		}
 
 		/*
@@ -185,19 +177,22 @@ public class JobHandler extends Thread {
 		int masterMB = 250;
 		int clientMB = job.memoryInMB - masterMB;
 
-		cmd += (" -Xmx" + masterMB) + "m";
-		cmd += " " + org.evosuite.EvoSuite.class.getName();
-		cmd += " -mem " + clientMB;
-		cmd += " -class " + job.cut;
-		cmd += " -projectCP "+StringEscapeUtils.escapeJava(executor.getProjectClassPath());
+		commands.add("-Xmx" + masterMB + "m");
+		commands.add(org.evosuite.EvoSuite.class.getName());
+		commands.add("-mem");
+		commands.add(""+clientMB);
+		commands.add("-class");
+		commands.add(job.cut);
+		commands.add("-projectCP");
+		commands.add(executor.getProjectClassPath());
 
 		//needs to be called twice, after the Java command
 		if (Properties.LOG_LEVEL != null && !Properties.LOG_LEVEL.isEmpty()) {
-			cmd += " -Dlog.level=" + Properties.LOG_LEVEL;
+			commands.add("-Dlog.level=" + Properties.LOG_LEVEL);
 		}
 
 		if (Properties.LOG_TARGET != null && !Properties.LOG_TARGET.isEmpty()) {
-			cmd += " -Dlog.target=" + Properties.LOG_TARGET;
+			commands.add("-Dlog.target=" + Properties.LOG_TARGET);
 		}
 
 		/*
@@ -218,81 +213,90 @@ public class JobHandler extends Thread {
 		 * is available for the CUT 
 		 */
 
-		cmd += " " + getPoolInfo(job);
+		commands.addAll(getPoolInfo(job));
 
 		//TODO not just input pool, but also hierarchy
 
-		cmd += timeSetUp(job.seconds);
+		commands.addAll(timeSetUp(job.seconds));
 
 		File reports = storage.getTmpReports();
 		File tests = storage.getTmpTests();
 
 		//TODO check if it works on Windows... likely not	
 		//cmd += " -Dreport_dir=" + reports.getAbsolutePath() + "/job" + job.jobID;
-		cmd += " -Dreport_dir=" + StringEscapeUtils.escapeJava(reports.getAbsolutePath() + "/" + job.cut);
-		cmd += " -Dtest_dir=" + StringEscapeUtils.escapeJava(tests.getAbsolutePath());
+		commands.add("-Dreport_dir=" + reports.getAbsolutePath() + "/" + job.cut);
+		commands.add("-Dtest_dir=" + tests.getAbsolutePath());
 
 		//cmd += " -Derror_branches=true"; 
-		cmd += " -criterion exception";
-		cmd += " -Dtest_factory=" + Properties.TEST_FACTORY;
-		cmd += " -Dseed_clone=" + Properties.SEED_CLONE;
-		cmd += " -Dseed_dir=" + StringEscapeUtils.escapeJava(storage.getTmpSeeds().getAbsolutePath());
+		commands.add("-criterion");
+		commands.add("exception");
+		commands.add("-Dtest_factory=" + Properties.TEST_FACTORY);
+		commands.add("-Dseed_clone=" + Properties.SEED_CLONE);
+		commands.add("-Dseed_dir=" + storage.getTmpSeeds().getAbsolutePath());
 
-		cmd += " " + getOutputVariables();
+		commands.addAll(getOutputVariables());
 
-		cmd += " -Djunit_suffix=" + StorageManager.junitSuffix;
+		commands.add("-Djunit_suffix=" + StorageManager.junitSuffix);
 
-		cmd += " -Denable_asserts_for_evosuite=" + Properties.ENABLE_ASSERTS_FOR_EVOSUITE;
+		commands.add("-Denable_asserts_for_evosuite=" + Properties.ENABLE_ASSERTS_FOR_EVOSUITE);
 		String confId = Properties.CONFIGURATION_ID;
 		if (confId != null && !confId.isEmpty()) {
-			cmd += " -Dconfiguration_id=" + confId;
+			commands.add("-Dconfiguration_id=" + confId);
 		} else {
-			cmd += " -Dconfiguration_id=default";
+			commands.add("-Dconfiguration_id=default");
 		}
 
 		if (Properties.RANDOM_SEED != null) {
-			cmd += " -Drandom_seed=" + Properties.RANDOM_SEED;
+			commands.add("-Drandom_seed=" + Properties.RANDOM_SEED);
 		}
 
-		cmd += " -Dprint_to_system=" + Properties.PRINT_TO_SYSTEM;
+		commands.add("-Dprint_to_system=" + Properties.PRINT_TO_SYSTEM);
 
-		cmd += " -Dp_object_pool=" + Properties.P_OBJECT_POOL;
+		commands.add("-Dp_object_pool=" + Properties.P_OBJECT_POOL);
 
 		/*
 		 * these 2 options should always be 'true'.
 		 * Here we take them as parameter, just because for experiments
 		 * we might skip those phases if we do not analyze their results
 		 */
-		cmd += " -Dminimize=" + Properties.MINIMIZE;
-		cmd += " -Dassertions=" + Properties.ASSERTIONS;
+		commands.add("-Dminimize=" + Properties.MINIMIZE);
+		commands.add("-Dassertions=" + Properties.ASSERTIONS);
 
-		cmd += " -Dmax_size=" + Properties.MAX_SIZE;
+		commands.add("-Dmax_size=" + Properties.MAX_SIZE);
 
-		cmd += " -Dsecondary_objectives=totallength  -Dtimeout=5000  ";
-		cmd += " -Dhtml=false -Dlog_timeout=false  -Dplot=false -Djunit_tests=true -Dtest_comments=false -Dshow_progress=false";
-		cmd += " -Dsave_all_data=false  -Dinline=false";
+		commands.add("-Dsecondary_objectives=totallength");
+		commands.add("-Dtimeout=5000");
+		commands.add("-Dhtml=false");
+		commands.add("-Dlog_timeout=false");
+		commands.add("-Dplot=false");
+		commands.add("-Djunit_tests=true");
+		commands.add("-Dtest_comments=false");
+		commands.add("-Dshow_progress=false");
+		commands.add("-Dsave_all_data=false");
+		commands.add("-Dinline=false");
 
 		/*
 		 * for (de)serialization of classes with static fields, inner classes, etc,
 		 * we must have this options set to true
 		 */
-		cmd += " -Dreset_static_fields=true -Dreplace_calls=true";
+		commands.add("-Dreset_static_fields=true");
+		commands.add("-Dreplace_calls=true");
 
 		if (!Properties.CTG_HISTORY_FILE.isEmpty())
-            cmd += " -Dctg_history_file=" + Properties.CTG_HISTORY_FILE;
+			commands.add("-Dctg_history_file=" + Properties.CTG_HISTORY_FILE);
 
-		return cmd;
+		return commands;
 	}
 
-	private String getPoolInfo(JobDefinition job) {
+	private List<String> getPoolInfo(JobDefinition job) {
 
+		List<String> commands = new ArrayList<String>();
 		StorageManager storage = executor.getStorage();
 		File poolFolder = storage.getTmpPools();
 
 		String extension = ".pool";
-		String cmd = "";
-		cmd += " -Dwrite_pool=" + poolFolder.getAbsolutePath() + File.separator + job.cut
-		        + extension;
+		commands.add("-Dwrite_pool=" + poolFolder.getAbsolutePath() + File.separator + job.cut
+		        + extension);
 
 		if (job.inputClasses != null && job.inputClasses.size() > 0) {
 
@@ -303,22 +307,24 @@ public class JobHandler extends Thread {
 				poolP = Properties.P_OBJECT_POOL;
 			}
 
-			cmd += " -Dp_object_pool=" + poolP;
-			cmd += " -Dobject_pools=";
-
+			commands.add("-Dp_object_pool=" + poolP);
+			String cmd = "-Dobject_pools=";
+			
 			cmd += poolFolder.getAbsolutePath() + File.separator + dep[0] + extension;
 
 			for (int i = 1; i < dep.length; i++) {
 				cmd += File.pathSeparator + poolFolder.getAbsolutePath() + File.separator
 				        + dep[i] + extension;
 			}
+			commands.add(cmd);
 		}
 
-		return cmd;
+		return commands;
 	}
 
-	private String getOutputVariables() {
-		String cmd = " -Doutput_variables=";
+	private List<String> getOutputVariables() {
+		List<String> commands = new ArrayList<String>();
+		String cmd = "-Doutput_variables=";
 		cmd += "TARGET_CLASS,configuration_id,";
 		cmd += "ctg_min_time_per_job,ctg_schedule,search_budget,p_object_pool,";
 		cmd += RuntimeVariable.Covered_Branches + ",";
@@ -335,7 +341,11 @@ public class JobHandler extends Thread {
 
 		if (Properties.CTG_TIME_PER_CLASS != null) {
 			cmd += ",ctg_time_per_class";
-			cmd += " -Dctg_time_per_class=" + Properties.CTG_TIME_PER_CLASS;
+		}
+		commands.add(cmd);
+		
+		if (Properties.CTG_TIME_PER_CLASS != null) {
+			commands.add("-Dctg_time_per_class=" + Properties.CTG_TIME_PER_CLASS);
 		}
 
 		/*
@@ -343,13 +353,13 @@ public class JobHandler extends Thread {
 		 * But here we include them just to be sure that they will end
 		 * up in the generated CSV files
 		 */
-		cmd += " -Dctg_schedule=" + Properties.CTG_SCHEDULE;
-		cmd += " -Dctg_min_time_per_job=" + Properties.CTG_MIN_TIME_PER_JOB;
+		commands.add("-Dctg_schedule=" + Properties.CTG_SCHEDULE);
+		commands.add("-Dctg_min_time_per_job=" + Properties.CTG_MIN_TIME_PER_JOB);
 
-		return cmd;
+		return commands;
 	}
 
-	private String timeSetUp(int seconds) {
+	private List<String> timeSetUp(int seconds) {
 
 		//do we have enough time for this job?
 		int remaining = (int) executor.getRemainingTimeInMs() / 1000;
@@ -403,14 +413,15 @@ public class JobHandler extends Thread {
 
 		int search = seconds - (initialization + minimization + assertions + extra);
 
-		String cmd = " -Dsearch_budget=" + search;
-		cmd += " -Dglobal_timeout=" + search;
-		cmd += " -Dstopping_condition=" + StoppingCondition.MAXTIME;
-		cmd += " -Dinitialization_timeout=" + initialization;
-		cmd += " -Dminimization_timeout=" + minimization;
-		cmd += " -Dassertion_timeout=" + assertions;
-		cmd += " -Dextra_timeout=" + extra;
+		List<String> commands = new ArrayList<String>();
+		commands.add("-Dsearch_budget=" + search);
+		commands.add("-Dglobal_timeout=" + search);
+		commands.add("-Dstopping_condition=" + StoppingCondition.MAXTIME);
+		commands.add("-Dinitialization_timeout=" + initialization);
+		commands.add("-Dminimization_timeout=" + minimization);
+		commands.add("-Dassertion_timeout=" + assertions);
+		commands.add("-Dextra_timeout=" + extra);
 
-		return cmd;
+		return commands;
 	}
 }
