@@ -102,6 +102,9 @@ public class FloatPrimitiveStatement extends NumericalPrimitiveStatement<Float> 
 	}
 
 	private void chopPrecision(int precision) {
+		if(value.isNaN() || value.isInfinite())
+			return;
+
 		BigDecimal bd = new BigDecimal(value).setScale(precision, RoundingMode.HALF_EVEN);
 		this.value = bd.floatValue();
 	}
