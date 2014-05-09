@@ -574,6 +574,9 @@ public class GenericClass implements Serializable {
 	        Map<TypeVariable<?>, Type> typeMap, int recursionLevel)
 	        throws ConstructionFailedException {
 		if (typeMap.containsKey(type)) {
+			if(typeMap.get(type) == type) {
+				throw new ConstructionFailedException("Type points to itself");
+			}
 			logger.debug("Type contains " + toString() + ": " + typeMap);
 			GenericClass selectedClass = new GenericClass(typeMap.get(type)).getGenericInstantiation(typeMap,
 			                                                                                         recursionLevel + 1);
