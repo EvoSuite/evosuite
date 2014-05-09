@@ -53,8 +53,21 @@ public class ComputeClassWriter extends ClassWriter {
     @Override
     protected String getCommonSuperClass(final String type1, final String type2) {
         try {
-            ClassReader info1 = typeInfo(type1);
-            ClassReader info2 = typeInfo(type2);
+        	ClassReader info1;
+        	ClassReader info2;
+        	try {
+        		info1 = typeInfo(type1);
+            } catch (NullPointerException e) {
+            	// May happen if class is not found
+                throw new RuntimeException("Class not found: "+type1+": "+e.toString());
+        	}
+        	try {
+        		info2 = typeInfo(type2);
+            } catch (NullPointerException e) {
+            	// May happen if class is not found
+                throw new RuntimeException("Class not found: "+type2+": "+e.toString());
+        	}
+
             if ((info1.getAccess() & Opcodes.ACC_INTERFACE) != 0) {
                 if (typeImplements(type2, info2, type1)) {
                     return type1;
