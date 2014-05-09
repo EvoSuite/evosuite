@@ -1097,7 +1097,7 @@ public class TestCodeVisitor extends TestVisitor {
 			}
 		}
 
-		if (retval.getType() == Void.TYPE) {
+		if (retval.isVoid()) {
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		} else {
 			// if (exception == null || !lastStatement)
