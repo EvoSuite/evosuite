@@ -1092,7 +1092,11 @@ public class MSecurityManager extends SecurityManager {
 		}
 
 		if(perm.getActions().contains("write") && !executingTestCase){
-			return false;  // just to be sure
+			if(org.evosuite.runtime.System.isSystemProperty(perm.getName())) {
+				return false;
+			} else {
+				return true;
+			}
 		}
 
 		return org.evosuite.runtime.System.handlePropertyPermission(perm);

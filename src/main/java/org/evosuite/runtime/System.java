@@ -47,6 +47,12 @@ public class System {
 	private static final java.util.Properties defaultProperties  =  
 			(java.util.Properties) java.lang.System.getProperties().clone();
 
+	
+	// private static final Set<String> systemProperties = new HashSet<String>(Arrays.asList(new String[]{"java.version", "java.vendor", "java.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor",	
+	// "java.vm.specification.name", "java.vm.version", "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor", 	
+	// "java.specification.name", "java.class.version", "java.class.path", "java.library.path", "java.io.tmpdir", "java.compiler", "java.ext.dirs",	
+	// "os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "user.name", "user.home", "user.dir"}));
+	
 	/**
 	 * If SUT changed some properties, we need to re-set the default values
 	 */
@@ -78,6 +84,10 @@ public class System {
 		return needToRestoreProperties;
 	}
 	
+	public static boolean isSystemProperty(String property) {
+		return defaultProperties.contains(property);
+	}
+	
 	public static boolean handlePropertyPermission(PropertyPermission perm){
 		/*
 		 * we allow both writing and reading any properties. But, if SUT writes anything, then we need to re-store the values to their default. this
@@ -95,10 +105,10 @@ public class System {
 		if (perm.getActions().contains("write")) {
 						
 			if(!Properties.REPLACE_CALLS){
-				if(java.lang.System.getProperty(perm.getName()) == null) {
-					return true;
-				} else {
+				if(isSystemProperty(perm.getName())) {
 					return false;
+				} else {
+					return true;
 				}
 			}
 			
