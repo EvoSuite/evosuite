@@ -1026,7 +1026,7 @@ public class MSecurityManager extends SecurityManager {
 					|| library.equals("cmm") || library.equals("t2k") 
 					|| library.equals("jawt") || library.equals("sunec")  
 					|| library.equals("management") || library.equals("kcms")
-					|| library.equals("jaybird21") || library.equals("instrument")
+					|| library.startsWith("jaybird") || library.equals("instrument")
 					) {
 				return true;
 			}
