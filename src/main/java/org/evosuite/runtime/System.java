@@ -85,7 +85,7 @@ public class System {
 	}
 	
 	public static boolean isSystemProperty(String property) {
-		return defaultProperties.contains(property);
+		return defaultProperties.containsKey(property);
 	}
 	
 	public static boolean handlePropertyPermission(PropertyPermission perm){
