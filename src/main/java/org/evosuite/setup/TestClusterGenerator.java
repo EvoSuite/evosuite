@@ -1541,6 +1541,8 @@ public class TestClusterGenerator {
 			return getConcreteClassesMap();
 		else if (clazz.equals(java.util.List.class))
 			return getConcreteClassesList();
+		else if (clazz.equals(java.util.Set.class))
+			return getConcreteClassesSet();
 		else if (clazz.equals(java.util.Collection.class))
 			return getConcreteClassesList();
 		else if (clazz.equals(java.util.Iterator.class))
@@ -1657,6 +1659,21 @@ public class TestClusterGenerator {
 			                         false,
 			                         TestGenerationContext.getInstance().getClassLoaderForSUT());
 			mapClasses.add(mapClazz);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return mapClasses;
+	}
+	
+	private static Set<Class<?>> getConcreteClassesSet() {
+		Set<Class<?>> mapClasses = new LinkedHashSet<Class<?>>();
+		Class<?> setClazz;
+		try {
+			setClazz = Class.forName("java.util.LinkedHashSet",
+			                         false,
+			                         TestGenerationContext.getInstance().getClassLoaderForSUT());
+			mapClasses.add(setClazz);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
