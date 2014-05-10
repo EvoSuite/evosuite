@@ -2,7 +2,9 @@ package org.evosuite.rmi.service;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -240,6 +242,17 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	public void stop(){
 		if(statisticsThread!=null){
 			statisticsThread.interrupt();
+			List<OutputVariable> vars = new ArrayList<OutputVariable>();
+			outputVariableQueue.drainTo(vars);
+			for(OutputVariable ov : vars) {
+				try {
+					masterNode.evosuite_collectStatistics(clientRmiIdentifier, ov.variable, ov.value);
+				} catch (RemoteException e) {
+					logger.error("Error when exporting statistics: "+ov.variable+"="+ov.value, e);
+					break;
+				}
+			}
+
 			try {
 				statisticsThread.join(3000);
 			} catch (InterruptedException e) {

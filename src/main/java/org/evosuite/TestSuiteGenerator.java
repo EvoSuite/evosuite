@@ -246,6 +246,8 @@ public class TestSuiteGenerator {
 			return TestGenerationResultBuilder.buildErrorResult("Could not load target class");
 
 		List<TestCase> testCases = generateTests();
+		PermissionStatistics.getInstance().printStatistics();
+		
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
 		TestGenerationResult result = writeJUnitTestsAndCreateResult(testCases);
 
@@ -260,7 +262,6 @@ public class TestSuiteGenerator {
 			if (!Properties.NEW_STATISTICS)
 				statistics.writeStatistics();
 		}
-		PermissionStatistics.getInstance().printStatistics();
 
 		LoggingUtils.getEvoLogger().info("* Done!");
 		LoggingUtils.getEvoLogger().info("");
@@ -311,7 +312,9 @@ public class TestSuiteGenerator {
 			TestCaseExecutor.getInstance().removeObserver(checker);
 		}
 		StatisticsSender.executedAndThenSendIndividualToMaster(tests);
-
+		
+		PermissionStatistics.getInstance().gatherStatistics();
+		
 		LoggingUtils.getEvoLogger().info("* Time spent executing tests: "
 		                                         + TestCaseExecutor.timeExecuted + "ms");
 
