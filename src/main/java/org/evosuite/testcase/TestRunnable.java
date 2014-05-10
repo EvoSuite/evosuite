@@ -19,8 +19,10 @@ package org.evosuite.testcase;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -98,7 +100,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 */
 	public void storeCurrentThreads() {
 		if (currentRunningThreads == null) {
-			currentRunningThreads = new HashSet<Thread>();
+			currentRunningThreads = Collections.newSetFromMap(new IdentityHashMap<Thread, Boolean>());
 		} else {
 			currentRunningThreads.clear();
 		}
@@ -123,18 +125,24 @@ public class TestRunnable implements InterfaceTestRunnable {
 			        "The current threads are not set. You need to call storeCurrentThreads() first");
 		}
 
+		// Using enumerate here because getAllStackTraces may call hashCode of the SUT,
+		// if the SUT is a subclass of Thread
+		Thread[] threadArray = new Thread[Thread.activeCount() + 2];
+		Thread.enumerate(threadArray);
+
 		/*
 		 * First we set the kill switch in the instrumented bytecode, this
 		 * to prevent issues with code that do not handle interrupt 
 		 */
 		ExecutionTracer.setKillSwitch(true);
 
-		Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
-
 		/*
 		 * try to interrupt the SUT threads
 		 */
-		for (Thread t : threadMap.keySet()) {
+		for (Thread t : threadArray) {
+			// May happen...
+			if(t == null)
+				continue;
 			/*
 			 * the TestCaseExecutor threads are executing the SUT, so they are not privileged.
 			 * But we don't want to stop/join them, as they just execute Runnable objects, and
@@ -153,7 +161,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 		 * now, join up to a total of TIMEOUT ms. 
 		 * 
 		 */
-		for (Thread t : threadMap.keySet()) {
+		for (Thread t : threadArray) {
+			// May happen...
+			if(t == null)
+				continue;
+
 			if (t.getName().startsWith(TestCaseExecutor.TEST_EXECUTION_THREAD)) {
 				continue;
 			}
