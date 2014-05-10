@@ -646,13 +646,12 @@ public class TestCluster {
 			if (!generatorCache.containsKey(clazz)) {
 				cacheGenerators(clazz);
 			}
+			if(!hasGenerator(clazz)) {
+				throw new ConstructionFailedException("No generators of type " + clazz);
+			}
+				
 			all.addAll(generatorCache.get(clazz));
 
-			if (all.isEmpty()) {
-				logger.warn("generatorCache.get returns an empty collection for class " + clazz);
-				// TODO: Should be fixed as it's done for Number.class in method addNumericConstructor(clazz)
-			}
-			
 			for (GenericAccessibleObject<?> call : all) {
 				// TODO: Need to instantiate, or check?
 				if (call.isConstructor() && call.getNumParameters() == 0) {
@@ -668,6 +667,10 @@ public class TestCluster {
 						calls.add(call);
 					}
 				}
+			}
+			// This may happen e.g. for java.util.concurrent.ArrayBlockingQueue which has no default constructor
+			if(calls.isEmpty()) {
+				calls.addAll(all);
 			}
 		} else if (clazz.isAssignableTo(Number.class)) {
 			logger.debug("Found special case " + clazz);
