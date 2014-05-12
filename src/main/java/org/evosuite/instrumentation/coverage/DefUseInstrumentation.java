@@ -287,7 +287,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	/** {@inheritDoc} */
 	@Override
 	public boolean executeOnExcludedMethods() {
-		return true;
+		return false;
 	}
 
 	/*
