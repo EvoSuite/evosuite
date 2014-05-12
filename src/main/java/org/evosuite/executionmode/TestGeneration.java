@@ -46,6 +46,7 @@ public class TestGeneration {
 	public static List<TestGenerationResult> executeTestGeneration(Options options, List<String> javaOpts,
 			CommandLine line) {
 		
+		
 		Strategy strategy = getChosenStrategy(javaOpts, line);
 		
 		if (strategy == null) {
@@ -53,6 +54,13 @@ public class TestGeneration {
 		} 
 
 		List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
+
+		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+		if(cp==null || cp.isEmpty()){
+			LoggingUtils.getEvoLogger().error("No defined classpath for the target project. From command line you can set it with the -projectCP option");
+			return results;
+		}
+
 		
 		if (line.hasOption("class")) {
 			if (line.hasOption("extend")) {
