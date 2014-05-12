@@ -126,7 +126,7 @@ public class EvoSuite {
 	 * @return a {@link java.lang.Object} object.
 	 */
 	public Object parseCommandLine(String[] args) {
-		Options options = getCommandLineOptions();
+		Options options = CommandLineParameters.getCommandLineOptions();
 
 		List<String> javaOpts = new ArrayList<String>();
 
@@ -169,22 +169,13 @@ public class EvoSuite {
 			 * we should check if it actually exists (ie detect typos)
 			 */
 
-			handleSeed(javaOpts, line);
+			CommandLineParameters.handleSeed(javaOpts, line);
 
-			addJavaDOptions(javaOpts, line);
+			CommandLineParameters.addJavaDOptions(javaOpts, line);
 
-			handleClassPath(line); 
+			CommandLineParameters.handleClassPath(line); 
 
-			/*
-			 * NOTE: JVM arguments will not be passed over from the master to the client. So for -Xmx, we need to use "mem"
-			 */
-			if (line.hasOption("mem")) {
-				javaOpts.add("-Xmx" + line.getOptionValue("mem") + "M");
-			}
-
-			if (line.hasOption("heapdump")) {
-				javaOpts.add("-XX:+HeapDumpOnOutOfMemoryError");
-			}
+			CommandLineParameters.handleJVMOptions(javaOpts, line);
 
 			if (!line.hasOption("regressionSuite")) {
 				if (line.hasOption("criterion")) {
@@ -209,6 +200,7 @@ public class EvoSuite {
 				}
 			}
 
+			CommandLineParameters.validateInputOptionsAndParameters(line);
 
 			/*
 			 * We shouldn't print when -listClasses, as we do not want to have
@@ -275,8 +267,7 @@ public class EvoSuite {
 		return null;
 	}
 
-
-
+	
 	public static boolean hasLegacyTargets() {
 		File directory = new File(Properties.OUTPUT_DIR);
 		if (!directory.exists()) {
@@ -284,165 +275,6 @@ public class EvoSuite {
 		}
 		String[] extensions = { "task" };
 		return !FileUtils.listFiles(directory, extensions, false).isEmpty();
-	}
-
-	/**
-	 * Add all the properties that were set with -D
-	 * 
-	 * @param javaOpts
-	 * @param line
-	 * @throws Error
-	 */
-	private void addJavaDOptions(List<String> javaOpts, CommandLine line) throws Error {
-		java.util.Properties properties = line.getOptionProperties("D");
-		Set<String> propertyNames = new HashSet<String>(Properties.getParameters());
-		for (String propertyName : properties.stringPropertyNames()) {
-			if (!propertyNames.contains(propertyName)) {
-				LoggingUtils.getEvoLogger().error("* Unknown property: " + propertyName);
-				throw new Error("Unknown property: " + propertyName);
-			}
-			String propertyValue = properties.getProperty(propertyName);
-			javaOpts.add("-D" + propertyName + "=" + propertyValue);
-			System.setProperty(propertyName, propertyValue);
-			try {
-				Properties.getInstance().setValue(propertyName, propertyValue);
-			} catch (Exception e) {
-				throw new Error("Invalid value for property " + propertyName+": "+propertyValue+". Exception "+e.getMessage(),e);
-			}
-		}
-	}
-
-	private void handleSeed(List<String> javaOpts, CommandLine line) {
-		if (line.hasOption("seed")) {
-			/*
-			 * user can both use -seed and -Drandom_seed to set this variable
-			 */
-			String seedValue = line.getOptionValue("seed");
-			javaOpts.add("-Drandom_seed=" + seedValue);
-			Properties.RANDOM_SEED = Long.parseLong(seedValue);
-		}
-	}
-
-	private void handleClassPath(CommandLine line) {
-
-		String DCP = null;
-		java.util.Properties properties = line.getOptionProperties("D");
-		for (String propertyName : properties.stringPropertyNames()) {
-			if (propertyName.equals("CP")) {
-				DCP = properties.getProperty(propertyName);
-			}
-		}
-		
-		if(line.hasOption("projectCP") && DCP!=null){
-			throw new IllegalArgumentException("Ambiguous classpath: both -projectCP and -DCP are defined");
-		}
-
-		String[] cpEntries = null;
-				
-		if (line.hasOption("projectCP")) {
-			cpEntries = line.getOptionValue("projectCP").split(File.pathSeparator);
-		} else if (DCP != null) { 
-			cpEntries = DCP.split(File.pathSeparator);
-		}
-
-		if(cpEntries != null){
-			ClassPathHandler.getInstance().changeTargetClassPath(cpEntries);
-		}
-		
-		if (line.hasOption("target")) {
-			String target = line.getOptionValue("target");
-
-			/* 
-			 * let's just add the target automatically to the classpath.
-			 * This is useful for when we do not want to specify the classpath,
-			 * and so just typing '-target' on command line
-			 * 
-			 */ 
-			ClassPathHandler.getInstance().addElementToTargetProjectClassPath(target);
-		} 
-
-		if (line.hasOption("evosuiteCP")) {
-			String[] entries = line.getOptionValues("evosuiteCP");
-			ClassPathHandler.getInstance().setEvoSuiteClassPath(entries);
-		}
-	}
-
-	private Options getCommandLineOptions() {
-		Options options = new Options();
-
-		Option help = Help.getOption();
-		Option setup = Setup.getOption();
-		Option measureCoverage = MeasureCoverage.getOption();
-		Option listClasses = ListClasses.getOption();
-		Option listDependencies = WriteDependencies.getOption();
-		Option printStats = PrintStats.getOption();
-		Option listParameters = ListParameters.getOption();
-		Option continuous = Continuous.getOption();
-
-		Option[] generateOptions = TestGeneration.getOptions();
-
-		Option targetClass = new Option("class", true, "target class for test generation");
-		Option targetPrefix = new Option("prefix", true,
-				"target prefix for test generation");
-		Option targetCP = new Option("target", true,
-				"target classpath for test generation");
-
-		Option projectCP = new Option("projectCP", true,
-				"classpath of the project under test and all its dependencies");		
-		
-		Option evosuiteCP = new Option("evosuiteCP", true,
-				"classpath of EvoSuite jar file(s). This is needed when EvoSuite is called in plugins like Eclipse/Maven");
-		
-		Option junitPrefix = new Option("junit", true, "junit prefix");
-		Option criterion = new Option("criterion", true,
-				"target criterion for test generation");
-		Option seed = new Option("seed", true, "seed for random number generator");
-		Option mem = new Option("mem", true,
-				"heap size for client process (in megabytes)");
-		
-		
-		
-		Option extendSuite = new Option("extend", true, "extend an existing test suite");
-
-		Option inheritance = new Option("inheritanceTree",
-				"Cache inheritance tree during setup");
-		Option heapDump = new Option("heapdump",
-				"Create heap dump on client VM out of memory error");
-
-		Option base_dir = new Option("base_dir", true,
-				"Working directory in which tests and reports will be placed");
-
-		@SuppressWarnings("static-access")
-		Option property = OptionBuilder.withArgName("property=value").hasArgs(2).withValueSeparator().withDescription("use value for given property").create("D");
-
-		for (Option option : generateOptions) {
-			options.addOption(option);
-		}
-
-		options.addOption(continuous);
-		options.addOption(listParameters);
-		options.addOption(help);
-		options.addOption(extendSuite);
-		options.addOption(measureCoverage);
-		options.addOption(listClasses);
-		options.addOption(listDependencies);
-		options.addOption(printStats);
-		options.addOption(setup);
-		options.addOption(targetClass);
-		options.addOption(targetPrefix);
-		options.addOption(targetCP);
-		options.addOption(junitPrefix);
-		options.addOption(criterion);
-		options.addOption(seed);
-		options.addOption(mem);
-		options.addOption(evosuiteCP);
-		options.addOption(inheritance);
-		options.addOption(base_dir);
-		options.addOption(property);
-		options.addOption(projectCP);
-		options.addOption(heapDump);
-
-		return options;
 	}
 
 	/**
