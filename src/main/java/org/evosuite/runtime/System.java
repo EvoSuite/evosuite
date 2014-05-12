@@ -20,7 +20,9 @@
  */
 package org.evosuite.runtime;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.PropertyPermission;
@@ -48,10 +50,10 @@ public class System {
 			(java.util.Properties) java.lang.System.getProperties().clone();
 
 	
-	// private static final Set<String> systemProperties = new HashSet<String>(Arrays.asList(new String[]{"java.version", "java.vendor", "java.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor",	
-	// "java.vm.specification.name", "java.vm.version", "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor", 	
-	// "java.specification.name", "java.class.version", "java.class.path", "java.library.path", "java.io.tmpdir", "java.compiler", "java.ext.dirs",	
-	// "os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "user.name", "user.home", "user.dir"}));
+	private static final Set<String> systemProperties = new HashSet<String>(Arrays.asList(new String[]{"java.version", "java.vendor", "java.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor",	
+			"java.vm.specification.name", "java.vm.version", "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor", 	
+			"java.specification.name", "java.class.version", "java.class.path", "java.library.path", "java.io.tmpdir", "java.compiler", "java.ext.dirs",	
+			"os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "user.name", "user.home", "user.dir"}));
 	
 	/**
 	 * If SUT changed some properties, we need to re-set the default values
@@ -85,7 +87,7 @@ public class System {
 	}
 	
 	public static boolean isSystemProperty(String property) {
-		return defaultProperties.containsKey(property);
+		return systemProperties.contains(property);
 	}
 	
 	public static boolean handlePropertyPermission(PropertyPermission perm){
