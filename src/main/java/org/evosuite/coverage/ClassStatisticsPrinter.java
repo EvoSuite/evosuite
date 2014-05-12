@@ -28,12 +28,13 @@ public class ClassStatisticsPrinter {
 		TestGenerationContext.getInstance().resetContext();
 		// Need to load class explicitly in case there are no test cases.
 		// If there are tests, then this is redundant
-		Properties.getTargetClass();
+		Properties.getTargetClass(false);
 	}
 
 	private final static Properties.Criterion[] criteria = { Properties.Criterion.BRANCH,
-	        Properties.Criterion.DEFUSE, Properties.Criterion.WEAKMUTATION,
+	         Properties.Criterion.WEAKMUTATION,
 	        Properties.Criterion.STATEMENT };
+	// Properties.Criterion.DEFUSE is currently experimental
 
 	/**
 	 * Identify all JUnit tests starting with the given name prefix, instrument
@@ -43,9 +44,15 @@ public class ClassStatisticsPrinter {
 		Sandbox.goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
-			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
-			                           Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
-			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
+			// Load SUT without initialising it
+			Class<?> targetClass = Properties.getTargetClass(false);
+			if(targetClass != null) {
+				//DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+				//		Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
+				LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
+			} else {
+				LoggingUtils.getEvoLogger().info("* Error while initializing target class, not continuing");
+			}
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 			                                          + (e.getMessage() != null ? e.getMessage()

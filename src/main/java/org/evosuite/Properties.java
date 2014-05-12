@@ -1879,12 +1879,16 @@ public class Properties {
 		}
 	}
 
+	public static Class<?> getTargetClass() {
+		return getTargetClass(true);
+	}
+	
 	/**
 	 * Get class object of class under test
 	 * 
 	 * @return a {@link java.lang.Class} object.
 	 */
-	public static Class<?> getTargetClass() {
+	public static Class<?> getTargetClass(boolean initialise) {
 		if (TARGET_CLASS_INSTANCE != null
 		        && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
@@ -1901,8 +1905,8 @@ public class Properties {
 			
 			Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
 			
-			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
-			                                      TestGenerationContext.getClassLoader());
+			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
+			                                      TestGenerationContext.getInstance().getClassLoaderForSUT());
 			setClassPrefix();
 
 		} catch (ClassNotFoundException e) {

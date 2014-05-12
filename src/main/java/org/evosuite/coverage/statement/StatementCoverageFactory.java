@@ -28,7 +28,6 @@ import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.evosuite.utils.LoggingUtils;
 
 public class StatementCoverageFactory extends
         AbstractFitnessFactory<StatementCoverageTestFitness> {
@@ -55,26 +54,23 @@ public class StatementCoverageFactory extends
 
 		final MethodNameMatcher matcher = new MethodNameMatcher();
 		
-		for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownClasses()) {
+		for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
 
 			if (!(targetClass.equals("") || className.endsWith(targetClass)))
 				continue;
 
-			for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownMethods(className)) {
+			for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
 
 				if (!matcher.methodMatches(methodName))
 					continue;
 
-				for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstructionsIn(className,
+				for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className,
 				                                                                                                                             methodName))
 					if (isUsable(ins))
 						goals.add(new StatementCoverageTestFitness(ins));
 			}
 		}
 		long end = System.currentTimeMillis();
-		LoggingUtils.getEvoLogger().info("* Total number of coverage goals: "
-		                                         + goals.size() + " took "
-		                                         + (end - start) + "ms");
 		goalComputationTime = end - start;
 		called = true;
 	}

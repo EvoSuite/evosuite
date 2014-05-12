@@ -404,6 +404,9 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 			@Override
 			public void run() {
 				changeState(ClientState.STARTED);
+				if (Properties.SANDBOX) {
+					Sandbox.initializeSecurityManagerForSUT();
+				}
 
 				try {
 					ClassStatisticsPrinter.printClassStatistics();
