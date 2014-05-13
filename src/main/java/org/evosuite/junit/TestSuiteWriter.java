@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,8 +82,7 @@ import org.slf4j.LoggerFactory;
 public class TestSuiteWriter implements Opcodes {
 
 	/** Constant <code>logger</code> */
-	protected final static Logger logger = LoggerFactory
-			.getLogger(TestSuiteWriter.class);
+	protected final static Logger logger = LoggerFactory.getLogger(TestSuiteWriter.class);
 
 	protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -95,7 +93,7 @@ public class TestSuiteWriter implements Opcodes {
 	private final UnitTestAdapter adapter = TestSuiteWriter.getAdapter();
 
 	private TestCodeVisitor visitor = Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED ? visitor = new StructuredTestCodeVisitor()
-			: new TestCodeVisitor();
+	        : new TestCodeVisitor();
 
 	private static final String METHOD_SPACE = "  ";
 	private static final String BLOCK_SPACE = "    ";
@@ -127,7 +125,7 @@ public class TestSuiteWriter implements Opcodes {
 		@Override
 		public boolean accept(File file) {
 			return file.getName().toLowerCase().endsWith(".java")
-					&& file.getName().startsWith("Test");
+			        && file.getName().startsWith("Test");
 		}
 	}
 
@@ -218,8 +216,8 @@ public class TestSuiteWriter implements Opcodes {
 		int id = insertTest(test);
 		if (testComment.containsKey(id)) {
 			if (!testComment.get(id).contains(comment))
-				testComment.put(id, testComment.get(id) + "\n" + METHOD_SPACE
-						+ "//" + comment);
+				testComment.put(id, testComment.get(id) + "\n" + METHOD_SPACE + "//"
+				        + comment);
 		} else
 			testComment.put(id, comment);
 		return id;
@@ -291,7 +289,7 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	protected String makeDirectory(String directory) {
 		String dirname = directory + File.separator
-				+ Properties.CLASS_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
+		        + Properties.CLASS_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
 		File dir = new File(dirname);
 		logger.debug("Target directory: " + dirname);
 		dir.mkdirs();
@@ -307,15 +305,14 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	protected String mainDirectory(String directory) {
 		String dirname = directory + File.separator
-				+ Properties.PROJECT_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
+		        + Properties.PROJECT_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
 		File dir = new File(dirname);
 		logger.debug("Target directory: " + dirname);
 		dir.mkdirs();
 		return dirname;
 	}
 
-	protected static boolean hasAnySecurityException(
-			List<ExecutionResult> results) {
+	protected static boolean hasAnySecurityException(List<ExecutionResult> results) {
 		for (ExecutionResult result : results) {
 			if (result.hasSecurityException()) {
 				return true;
@@ -358,7 +355,7 @@ public class TestSuiteWriter implements Opcodes {
 			imports.addAll(visitor.getImports());
 		}
 
-		if(Properties.RESET_STANDARD_STREAMS) {
+		if (Properties.RESET_STANDARD_STREAMS) {
 			imports.add(PrintStream.class);
 			imports.add(DebugGraphics.class);
 		}
@@ -389,21 +386,19 @@ public class TestSuiteWriter implements Opcodes {
 		//we always need this one, due to for example logging setup
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS || wasSecurityException
-				|| SystemInUtil.getInstance().hasBeenUsed()) {
+		        || Properties.RESET_STATIC_FIELDS || wasSecurityException
+		        || SystemInUtil.getInstance().hasBeenUsed()) {
 			imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
+			imports_sorted.add(org.junit.Before.class.getCanonicalName());
+			imports_sorted.add(org.junit.After.class.getCanonicalName());
 		}
-		
-		imports_sorted.add(org.junit.Before.class.getCanonicalName());
-		imports_sorted.add(org.junit.After.class.getCanonicalName());
 
 		if (wasSecurityException || shouldResetProperties(results)) {
 			imports_sorted.add(org.junit.AfterClass.class.getCanonicalName());
 		}
 
 		if (Properties.VIRTUAL_FS) {
-			imports_sorted.add(org.evosuite.runtime.EvoSuiteFile.class
-					.getCanonicalName());
+			imports_sorted.add(org.evosuite.runtime.EvoSuiteFile.class.getCanonicalName());
 		}
 
 		if (wasSecurityException) {
@@ -411,14 +406,10 @@ public class TestSuiteWriter implements Opcodes {
 			imports_sorted.add(Sandbox.class.getCanonicalName());
 			// imports_sorted.add(Properties.class.getCanonicalName());
 			imports_sorted.add(Properties.SandboxMode.class.getCanonicalName());
-			imports_sorted.add(java.util.concurrent.ExecutorService.class
-					.getCanonicalName());
-			imports_sorted.add(java.util.concurrent.Executors.class
-					.getCanonicalName());
-			imports_sorted.add(java.util.concurrent.Future.class
-					.getCanonicalName());
-			imports_sorted.add(java.util.concurrent.TimeUnit.class
-					.getCanonicalName());
+			imports_sorted.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
+			imports_sorted.add(java.util.concurrent.Executors.class.getCanonicalName());
+			imports_sorted.add(java.util.concurrent.Future.class.getCanonicalName());
+			imports_sorted.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
 
 		}
 
@@ -466,15 +457,12 @@ public class TestSuiteWriter implements Opcodes {
 				builder.append("\n   * " + nr + " " + goal.toString());
 				// TODO only for debugging purposes
 				if (Properties.CRITERION == Criterion.DEFUSE
-						&& (goal instanceof DefUseCoverageTestFitness)) {
+				        && (goal instanceof DefUseCoverageTestFitness)) {
 					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness) goal;
 					if (duGoal.getCoveringTrace() != null) {
-						String traceInformation = duGoal.getCoveringTrace()
-								.toDefUseTraceInformation(
-										duGoal.getGoalVariable(),
-										duGoal.getCoveringObjectId());
-						traceInformation = traceInformation
-								.replaceAll("\n", "");
+						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),
+						                                                                             duGoal.getCoveringObjectId());
+						traceInformation = traceInformation.replaceAll("\n", "");
 						builder.append("\n     * DUTrace: " + traceInformation);
 					}
 				}
@@ -493,8 +481,7 @@ public class TestSuiteWriter implements Opcodes {
 		else if (Properties.TEST_FORMAT == OutputFormat.JUNIT4)
 			return new JUnit4TestAdapter();
 		else
-			throw new RuntimeException("Unknown output format: "
-					+ Properties.TEST_FORMAT);
+			throw new RuntimeException("Unknown output format: " + Properties.TEST_FORMAT);
 	}
 
 	/**
@@ -597,17 +584,18 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Get the code of methods for @BeforeClass, @Before, @AfterClass and
-	 * @After. 
 	 * 
-	 * <p>
-	 * In those methods, the EvoSuite framework for running the
+	 * @After.
+	 * 
+	 *         <p>
+	 *         In those methods, the EvoSuite framework for running the
 	 *         generated test cases is handled (e.g., use of customized
 	 *         SecurityManager and runtime bytecode replacement)
 	 * 
 	 * @return
 	 */
 	protected String getBeforeAndAfterMethods(String name, boolean wasSecurityException,
-			List<ExecutionResult> results) {
+	        List<ExecutionResult> results) {
 
 		/*
 		 * Usually, we need support methods (ie @BeforeClass,@Before,@After and @AfterClass)
@@ -648,15 +636,13 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	private void generateResetClasses(StringBuilder bd) {
-		List<String> classesToReset = ResetManager.getInstance()
-				.getClassResetOrder();
+		List<String> classesToReset = ResetManager.getInstance().getClassResetOrder();
 
 		bd.append(METHOD_SPACE);
 		bd.append("private static void resetClasses() {\n");
 
 		bd.append(BLOCK_SPACE);
-		bd.append("String[] classNames = new String[" + classesToReset.size()
-				+ "];\n");
+		bd.append("String[] classNames = new String[" + classesToReset.size() + "];\n");
 
 		for (int i = 0; i < classesToReset.size(); i++) {
 			String className = classesToReset.get(i);
@@ -675,14 +661,14 @@ public class TestSuiteWriter implements Opcodes {
 
 		bd.append(INNER_INNER_BLOCK_SPACE);
 		bd.append(ClassResetter.class.getCanonicalName()
-				+ ".getInstance().reset(classNameToReset); \n");
+		        + ".getInstance().reset(classNameToReset); \n");
 
 		bd.append(INNER_BLOCK_SPACE);
 		bd.append("} catch (Throwable t) {" + "\n");
 
 		bd.append(INNER_BLOCK_SPACE);
 		bd.append("}\n");
-		
+
 		bd.append(BLOCK_SPACE);
 		bd.append("}\n");
 
@@ -693,26 +679,23 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateInitializeClasses(String testClassName, StringBuilder bd) {
 
-		List<String> classesToBeReset = ResetManager.getInstance()
-				.getClassResetOrder();
+		List<String> classesToBeReset = ResetManager.getInstance().getClassResetOrder();
 		bd.append(METHOD_SPACE);
 		bd.append("private static void initializeClasses() {\n");
 
 		bd.append(BLOCK_SPACE);
-		bd.append("String[] classNames = new String[" + classesToBeReset.size()
-				+ "];\n");
+		bd.append("String[] classNames = new String[" + classesToBeReset.size() + "];\n");
 
 		for (int i = 0; i < classesToBeReset.size(); i++) {
 			String className = classesToBeReset.get(i);
 			if (BytecodeInstrumentation.checkIfCanInstrument(className)) {
 				bd.append(BLOCK_SPACE);
-				bd.append(String.format("classNames[%s] =\"%s\";\n", i,
-						className));
+				bd.append(String.format("classNames[%s] =\"%s\";\n", i, className));
 			}
 		}
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
+		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.agent.InstrumentingAgent.activate(); \n");
 		}
@@ -721,7 +704,7 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("for (int i=0; i< classNames.length;i++) {\n");
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
+		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(INNER_BLOCK_SPACE);
 			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
 		}
@@ -730,7 +713,8 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("String classNameToLoad = classNames[i];\n");
 
 		bd.append(INNER_BLOCK_SPACE);
-		bd.append("ClassLoader classLoader = " + testClassName +".class.getClassLoader();\n");
+		bd.append("ClassLoader classLoader = " + testClassName
+		        + ".class.getClassLoader();\n");
 
 		bd.append(INNER_BLOCK_SPACE);
 		bd.append("try {" + "\n");
@@ -754,7 +738,7 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("}\n");
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
+		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
 		}
@@ -766,14 +750,12 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateAfter(StringBuilder bd, boolean wasSecurityException) {
 
-		if (!Properties.RESET_STANDARD_STREAMS 
-				&& !wasSecurityException 
-				&& !Properties.REPLACE_CALLS 
-				&& !Properties.VIRTUAL_FS
-				&& !Properties.RESET_STATIC_FIELDS) {
+		if (!Properties.RESET_STANDARD_STREAMS && !wasSecurityException
+		        && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS
+		        && !Properties.RESET_STATIC_FIELDS) {
 			return;
 		}
-		
+
 		bd.append(METHOD_SPACE);
 		bd.append("@After \n");
 		bd.append(METHOD_SPACE);
@@ -782,10 +764,10 @@ public class TestSuiteWriter implements Opcodes {
 		if (Properties.RESET_STANDARD_STREAMS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("java.lang.System.setErr(systemErr); \n");
-	
+
 			bd.append(BLOCK_SPACE);
 			bd.append("java.lang.System.setOut(systemOut); \n");
-	
+
 			bd.append(BLOCK_SPACE);
 			bd.append("DebugGraphics.setLogStream(logStream); \n");
 		}
@@ -801,7 +783,7 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
+		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
 		}
@@ -813,18 +795,15 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException,
-			List<ExecutionResult> results) {
+	        List<ExecutionResult> results) {
 
-		if (!Properties.RESET_STANDARD_STREAMS 
-				&& !shouldResetProperties(results) 
-				&& !wasSecurityException 
-				&& !Properties.REPLACE_CALLS 
-				&& !Properties.VIRTUAL_FS
-				&& !Properties.RESET_STATIC_FIELDS 
-				&& !SystemInUtil.getInstance().hasBeenUsed()) {
+		if (!Properties.RESET_STANDARD_STREAMS && !shouldResetProperties(results)
+		        && !wasSecurityException && !Properties.REPLACE_CALLS
+		        && !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS
+		        && !SystemInUtil.getInstance().hasBeenUsed()) {
 			return;
 		}
-		
+
 		bd.append(METHOD_SPACE);
 		bd.append("@Before \n");
 		bd.append(METHOD_SPACE);
@@ -834,16 +813,16 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append(BLOCK_SPACE);
 			bd.append("systemErr = java.lang.System.err;");
 			bd.append(" \n");
-	
+
 			bd.append(BLOCK_SPACE);
 			bd.append("systemOut = java.lang.System.out;");
 			bd.append(" \n");
-	
+
 			bd.append(BLOCK_SPACE);
 			bd.append("logStream = DebugGraphics.logStream();");
 			bd.append(" \n");
 		}
-		
+
 		if (shouldResetProperties(results)) {
 			bd.append(BLOCK_SPACE);
 			bd.append("setSystemProperties();");
@@ -856,7 +835,7 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
+		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
 			bd.append(BLOCK_SPACE);
@@ -888,18 +867,18 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		boolean shouldResetProperties = Properties.REPLACE_CALLS
-				&& (wasAnyWrittenProperty(results) || readProperties != null);
+		        && (wasAnyWrittenProperty(results) || readProperties != null);
 
 		return shouldResetProperties;
 	}
 
 	private String getResetPropertiesCommand() {
 		return "java.lang.System.setProperties((java.util.Properties)" + " "
-				+ DEFAULT_PROPERTIES + ".clone());";
+		        + DEFAULT_PROPERTIES + ".clone());";
 	}
 
-	private void generateAfterClass(StringBuilder bd,
-			boolean wasSecurityException, List<ExecutionResult> results) {
+	private void generateAfterClass(StringBuilder bd, boolean wasSecurityException,
+	        List<ExecutionResult> results) {
 
 		if (wasSecurityException || shouldResetProperties(results)) {
 			bd.append(METHOD_SPACE);
@@ -929,7 +908,12 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	private void generateSetSystemProperties(StringBuilder bd,
-			List<ExecutionResult> results) {
+	        List<ExecutionResult> results) {
+
+		if (!Properties.REPLACE_CALLS) {
+			return;
+		}
+
 		bd.append(METHOD_SPACE);
 		bd.append("public void setSystemProperties() {\n");
 		bd.append(" \n");
@@ -948,13 +932,12 @@ public class TestSuiteWriter implements Opcodes {
 				String currentValue = System.getProperty(prop);
 				String escaped_prop = StringEscapeUtils.escapeJava(prop);
 				if (currentValue != null) {
-					String escaped_currentValue = StringEscapeUtils
-							.escapeJava(currentValue);
-					bd.append("java.lang.System.setProperty(\"" + escaped_prop
-							+ "\", \"" + escaped_currentValue + "\"); \n");
+					String escaped_currentValue = StringEscapeUtils.escapeJava(currentValue);
+					bd.append("java.lang.System.setProperty(\"" + escaped_prop + "\", \""
+					        + escaped_currentValue + "\"); \n");
 				} else {
-					bd.append("java.lang.System.clearProperty(\""
-							+ escaped_prop + "\"); \n");
+					bd.append("java.lang.System.clearProperty(\"" + escaped_prop
+					        + "\"); \n");
 				}
 			}
 		} else {
@@ -966,11 +949,10 @@ public class TestSuiteWriter implements Opcodes {
 
 	}
 
-	private void generateBeforeClass(StringBuilder bd,
-			boolean wasSecurityException) {
+	private void generateBeforeClass(StringBuilder bd, boolean wasSecurityException) {
 
-		if (!wasSecurityException && !Properties.REPLACE_CALLS
-				&& !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS) {
+		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS
+		        && !Properties.RESET_STATIC_FIELDS) {
 			return;
 		}
 
@@ -984,7 +966,7 @@ public class TestSuiteWriter implements Opcodes {
 		//bd.append("org.evosuite.utils.LoggingUtils.setLoggingForJUnit(); \n");
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
+		        || Properties.RESET_STATIC_FIELDS) {
 			//need to setup REPLACE_CALLS and instrumentator
 
 			if (Properties.REPLACE_CALLS) {
@@ -1011,14 +993,13 @@ public class TestSuiteWriter implements Opcodes {
 			//need to setup the Sandbox mode
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."
-					+ Properties.SANDBOX_MODE + "; \n");
+			        + Properties.SANDBOX_MODE + "; \n");
 
 			bd.append(BLOCK_SPACE);
 			bd.append("Sandbox.initializeSecurityManagerForSUT(); \n");
 
 			bd.append(BLOCK_SPACE);
-			bd.append(EXECUTOR_SERVICE
-					+ " = Executors.newCachedThreadPool(); \n");
+			bd.append(EXECUTOR_SERVICE + " = Executors.newCachedThreadPool(); \n");
 		}
 
 		if (Properties.RESET_STATIC_FIELDS) {
@@ -1027,7 +1008,7 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
+		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
 		}
@@ -1039,23 +1020,22 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	private void generateFields(StringBuilder bd, boolean wasSecurityException,
-			List<ExecutionResult> results) {
+	        List<ExecutionResult> results) {
 
 		if (Properties.RESET_STANDARD_STREAMS) {
 			bd.append(METHOD_SPACE);
 			bd.append("private PrintStream systemOut = null;" + '\n');
-	
+
 			bd.append(METHOD_SPACE);
 			bd.append("private PrintStream systemErr = null;" + '\n');
-	
+
 			bd.append(METHOD_SPACE);
 			bd.append("private PrintStream logStream = null;" + '\n');
 		}
-		
+
 		if (wasSecurityException) {
 			bd.append(METHOD_SPACE);
-			bd.append("private static ExecutorService " + EXECUTOR_SERVICE
-					+ "; \n");
+			bd.append("private static ExecutorService " + EXECUTOR_SERVICE + "; \n");
 
 			bd.append("\n");
 		}
@@ -1068,8 +1048,7 @@ public class TestSuiteWriter implements Opcodes {
 			 * depend on those properties
 			 */
 			bd.append(METHOD_SPACE);
-			bd.append("private static final java.util.Properties "
-					+ DEFAULT_PROPERTIES);
+			bd.append("private static final java.util.Properties " + DEFAULT_PROPERTIES);
 			bd.append(" = (java.util.Properties) java.lang.System.getProperties().clone(); \n");
 
 			bd.append("\n");
@@ -1124,14 +1103,11 @@ public class TestSuiteWriter implements Opcodes {
 		}
 		String methodName;
 		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
-			StructuredTestCase structuredTest = (StructuredTestCase) testCases
-					.get(id);
-			String targetMethod = structuredTest.getTargetMethods().iterator()
-					.next();
+			StructuredTestCase structuredTest = (StructuredTestCase) testCases.get(id);
+			String targetMethod = structuredTest.getTargetMethods().iterator().next();
 			targetMethod = targetMethod.replace("<init>", "Constructor");
 			if (targetMethod.indexOf('(') != -1)
-				targetMethod = targetMethod.substring(0,
-						targetMethod.indexOf('('));
+				targetMethod = targetMethod.substring(0, targetMethod.indexOf('('));
 			targetMethod = StringUtils.capitalize(targetMethod);
 			int num = 0;
 			if (testMethodNumber.containsKey(targetMethod)) {
@@ -1175,7 +1151,7 @@ public class TestSuiteWriter implements Opcodes {
 		if (wasSecurityException) {
 			builder.append(BLOCK_SPACE);
 			builder.append("Future<?> future = " + EXECUTOR_SERVICE
-					+ ".submit(new Runnable(){ \n");
+			        + ".submit(new Runnable(){ \n");
 			builder.append(INNER_BLOCK_SPACE);
 			// Doesn't seem to need override?
 			// builder.append("@Override \n");
@@ -1190,7 +1166,7 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		for (String line : adapter.getTestString(id, test,
-				result.exposeExceptionMapping(), visitor).split("\\r?\\n")) {
+		                                         result.exposeExceptionMapping(), visitor).split("\\r?\\n")) {
 			builder.append(CODE_SPACE);
 			builder.append(line);
 			builder.append("\n");
@@ -1214,8 +1190,7 @@ public class TestSuiteWriter implements Opcodes {
 
 			long time = Properties.TIMEOUT + 1000; // we add one second just to be sure, that to avoid issues with test cases taking exactly TIMEOUT ms
 			builder.append(BLOCK_SPACE);
-			builder.append("future.get(" + time
-					+ ", TimeUnit.MILLISECONDS); \n");
+			builder.append("future.get(" + time + ", TimeUnit.MILLISECONDS); \n");
 		}
 
 		// ---------   end of the body ----------------------------
@@ -1224,8 +1199,8 @@ public class TestSuiteWriter implements Opcodes {
 		builder.append("}\n");
 
 		String testCode = builder.toString();
-		TestGenerationResultBuilder.getInstance().setTestCase(methodName,
-				testCode, test, getInformation(id), result);
+		TestGenerationResultBuilder.getInstance().setTestCase(methodName, testCode, test,
+		                                                      getInformation(id), result);
 		return testCode;
 	}
 
@@ -1233,14 +1208,13 @@ public class TestSuiteWriter implements Opcodes {
 
 		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
 			throw new IllegalStateException(
-					"For the moment, structured tests are not supported");
+			        "For the moment, structured tests are not supported");
 		}
 
 		int totalNumberOfTests = tests.size();
-		String totalNumberOfTestsString = String
-				.valueOf(totalNumberOfTests - 1);
+		String totalNumberOfTestsString = String.valueOf(totalNumberOfTests - 1);
 		String testNumber = StringUtils.leftPad(String.valueOf(position),
-				totalNumberOfTestsString.length(), "0");
+		                                        totalNumberOfTestsString.length(), "0");
 		String testName = "test" + testNumber;
 		return testName;
 	}
@@ -1254,8 +1228,7 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	public void writeTestSuiteMainFile(String directory) {
 
-		File file = new File(mainDirectory(directory)
-				+ "/GeneratedTestSuite.java");
+		File file = new File(mainDirectory(directory) + "/GeneratedTestSuite.java");
 
 		StringBuilder builder = new StringBuilder();
 		if (!Properties.PROJECT_PREFIX.equals("")) {
@@ -1268,11 +1241,11 @@ public class TestSuiteWriter implements Opcodes {
 
 		File basedir = new File(directory);
 		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(),
-				TrueFileFilter.INSTANCE);
+		                                          TrueFileFilter.INSTANCE);
 		while (i.hasNext()) {
 			File f = i.next();
-			String name = f.getPath().replace(directory, "")
-					.replace(".java", "").replace("/", ".");
+			String name = f.getPath().replace(directory, "").replace(".java", "").replace("/",
+			                                                                              ".");
 
 			if (name.startsWith("."))
 				name = name.substring(1);
@@ -1317,7 +1290,7 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	private void testToBytecode(TestCase test, GeneratorAdapter mg,
-			Map<Integer, Throwable> exceptions) {
+	        Map<Integer, Throwable> exceptions) {
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
 		mg.visitAnnotation("Lorg/junit/Test;", true);
 		int num = 0;
@@ -1341,13 +1314,13 @@ public class TestSuiteWriter implements Opcodes {
 	public byte[] getBytecode(String name) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		String prefix = Properties.TARGET_CLASS.substring(0,
-				Properties.TARGET_CLASS.lastIndexOf(".")).replace(".", "/");
+		                                                  Properties.TARGET_CLASS.lastIndexOf(".")).replace(".",
+		                                                                                                    "/");
 		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, prefix + "/" + name, null,
-				"junit/framework/TestCase", null);
+		         "junit/framework/TestCase", null);
 
 		Method m = Method.getMethod("void <init> ()");
-		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null,
-				cw);
+		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
 		mg.loadThis();
 		mg.invokeConstructor(Type.getType(junit.framework.TestCase.class), m);
 		mg.returnValue();
@@ -1374,7 +1347,7 @@ public class TestSuiteWriter implements Opcodes {
 		// mg.invokeStatic(Type.getType(org.junit.runner.JUnitCore.class),
 		// Method.getMethod("void main (String[])"));
 		mg.invokeStatic(Type.getType(junit.textui.TestRunner.class),
-				Method.getMethod("void main (String[])"));
+		                Method.getMethod("void main (String[])"));
 		mg.returnValue();
 		mg.endMethod();
 
