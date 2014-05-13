@@ -83,9 +83,13 @@ public class InheritanceTreeGenerator {
 				                                 e);
 			}
 		}
+		
+		logger.debug("Reading JDK data");
 		InheritanceTree inheritanceTree = readJDKData();
 
+		logger.debug("CP: "+classPath);
 		for (String classPathEntry : classPath) {
+			logger.debug("Looking at CP entry: "+classPathEntry);
 			if (classPathEntry.isEmpty())
 				continue;
 
