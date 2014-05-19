@@ -2,6 +2,7 @@ package org.evosuite.junit;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class JUnitAnalyzerTest {
 	}
 	
 	@Test 
-	public void testSandboxIssue(){
+	public void testSandboxIssue() throws Exception{
 
 		//First, get a TestCase from a carved JUnit
 		
@@ -80,8 +81,8 @@ public class JUnitAnalyzerTest {
 
 		/*
 		 * FIXME: issue with carver
-		 */
-		file.delete();
+		 */		
+		Files.deleteIfExists(file.toPath());
 		
 		Assert.assertFalse(file.exists());
 
