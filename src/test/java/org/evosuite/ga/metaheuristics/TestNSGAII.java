@@ -1,24 +1,14 @@
 package org.evosuite.ga.metaheuristics;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.operators.crossover.SBXCrossover;
-import org.evosuite.ga.operators.selection.TournamentSelectionCrowdedComparison;
-import org.evosuite.ga.problems.FON;
-import org.evosuite.ga.problems.OneVariableProblem;
+import org.evosuite.ga.NSGAChromosome;
+import org.evosuite.ga.problems.SingleObjective;
 import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.problems.SCH;
-import org.evosuite.ga.problems.ZDT4;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,7 +34,7 @@ public class TestNSGAII
 	{
 		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
 
-		Problem p = new OneVariableProblem<NSGAChromosome>();
+		Problem p = new SingleObjective<NSGAChromosome>();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         ga.addFitnessFunctions(fitnessFunctions);
 
@@ -111,7 +101,7 @@ public class TestNSGAII
 	{
 		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
 
-		Problem p = new OneVariableProblem();
+		Problem p = new SingleObjective();
 		List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
 		ga.addFitnessFunctions(fitnessFunctions);
 
@@ -235,219 +225,40 @@ public class TestNSGAII
         Assert.assertTrue(ret.get(8).getDistance() == 0.0);
     }
 
-	/**
-     * Testing NSGA-II with FON Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
-     */
 	@Test
-    public void testFON() throws NumberFormatException, IOException
+    public void testCrowdedComparisonOperator()
     {
-	    Properties.MUTATION_RATE = 1d / 3d; // 3 because, FON problem has 3 variables
+	    NSGAII<NSGAChromosome> ga = new NSGAII(null);
 
-        ChromosomeFactory<?> factory = new RandomFactory(false, 3, -4.0, 4.0);
+        NSGAChromosome c1 = new NSGAChromosome();
+        NSGAChromosome c2 = new NSGAChromosome();
+        NSGAChromosome c3 = new NSGAChromosome();
 
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
-        TournamentSelectionCrowdedComparison ts = new TournamentSelectionCrowdedComparison();
-        ts.setMaximize(false);
-        ga.setSelectionFunction(ts);
-        ga.setCrossOverFunction(new SBXCrossover());
+        // Set Rank
+        c1.setRank(1);
+        c2.setRank(0);
+        c3.setRank(0);
 
-        Problem p = new FON();
-        final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
-        final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
-        ga.addFitnessFunction(f1);
-        ga.addFitnessFunction(f2);
+        // Set Distance
+        c1.setDistance(0.1);
+        c2.setDistance(0.5);
+        c3.setDistance(0.4);
 
-        // execute
-        ga.generateSolution();
+        List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
+        population.add(c1);
+        population.add(c2);
+        population.add(c3);
 
-        List<Chromosome> chromosomes = (List<Chromosome>) ga.population;
-        Collections.sort(chromosomes, new Comparator<Chromosome>() {
-            @Override
-            public int compare(Chromosome arg0, Chromosome arg1) {
-                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
-            }
-        });
+        ga.crowdedComparisonOperator(population);
 
-        // load Pareto Front
-        double[] pareto_f1 = new double[Properties.POPULATION];
-        double[] pareto_f2 = new double[Properties.POPULATION];
-        int index = 0;
+        // assert by Rank
+        Assert.assertTrue(population.get(0).getRank() == 0);
+        Assert.assertTrue(population.get(1).getRank() == 0);
+        Assert.assertTrue(population.get(2).getRank() == 1);
 
-        BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource("Fonseca.pf").getPath()));
-        String sCurrentLine;
-        while ((sCurrentLine = br.readLine()) != null) {
-            String[] split = sCurrentLine.split("\t");
-            pareto_f1[index] = Double.valueOf(split[0]);
-            pareto_f2[index] = Double.valueOf(split[1]);
-            index++;
-        }
-        br.close();
-
-        // test
-        index = 0;
-        for (Chromosome chromosome : chromosomes)
-        {
-            System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
-
-            //Assert.assertEquals(chromosome.getFitness(f1), pareto_f1[index], 0.05);
-            //Assert.assertEquals(chromosome.getFitness(f2), pareto_f2[index], 0.05);
-            index++;
-        }
-    }
-
-	/**
-     * Testing NSGA-II with OneVariable Problem
-     */
-	@Test
-	public void testOneVariable()
-	{
-	    Properties.MUTATION_RATE = 1d / 1d; // 1 because, OneVariable problem has 1 variable
-
-	    ChromosomeFactory<?> factory = new RandomFactory(false, 1, -10.0, 10.0);
-
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
-        TournamentSelectionCrowdedComparison ts = new TournamentSelectionCrowdedComparison();
-        ts.setMaximize(false);
-        ga.setSelectionFunction(ts);
-        ga.setCrossOverFunction(new SBXCrossover());
-
-        Problem p = new OneVariableProblem();
-        FitnessFunction ff = (FitnessFunction) p.getFitnessFunctions().get(0);
-        ga.addFitnessFunction(ff);
-        ga.generateSolution();
-
-        Assert.assertEquals(ga.population.size(), Properties.POPULATION);
-        for (Chromosome population : ga.population)
-            Assert.assertEquals(population.getFitness(), 0.0, 0.0);
-	}
-
-	/**
-     * Testing NSGA-II with SCH Problem
-     * 
-	 * @throws IOException 
-	 * @throws NumberFormatException 
-     */
-	@Test
-    public void testSCH() throws NumberFormatException, IOException
-    {
-	    Properties.MUTATION_RATE = 1d / 1d; // 1 because, SCH problem has 1 variable
-
-	    ChromosomeFactory<?> factory = new RandomFactory(false, 1, Math.pow(-10.0, 3), Math.pow(10.0, 3));
-
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
-        TournamentSelectionCrowdedComparison ts = new TournamentSelectionCrowdedComparison();
-        ts.setMaximize(false);
-        ga.setSelectionFunction(ts);
-        ga.setCrossOverFunction(new SBXCrossover());
-
-        Problem p = new SCH();
-        final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
-        final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
-        ga.addFitnessFunction(f1);
-        ga.addFitnessFunction(f2);
-
-        // execute
-        ga.generateSolution();
-
-        List<Chromosome> chromosomes = (List<Chromosome>) ga.population;
-        Collections.sort(chromosomes, new Comparator<Chromosome>() {
-            @Override
-            public int compare(Chromosome arg0, Chromosome arg1) {
-                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
-            }
-        });
-
-        // load Pareto Front
-        /*double[] pareto_f1 = new double[Properties.POPULATION];
-        double[] pareto_f2 = new double[Properties.POPULATION];
-        int index = 0;
-
-        BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource("Schaffer.pf").getPath()));
-        String sCurrentLine;
-        while ((sCurrentLine = br.readLine()) != null) {
-            String[] split = sCurrentLine.split("\t");
-            pareto_f1[index] = Double.valueOf(split[0]);
-            pareto_f2[index] = Double.valueOf(split[1]);
-            index++;
-        }
-        br.close();
-
-        // test
-        index = 0;*/
-        for (Chromosome chromosome : chromosomes)
-        {
-            System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
-
-            /*Assert.assertEquals(chromosome.getFitness(f1), pareto_f1[index], 0.06);
-            Assert.assertEquals(chromosome.getFitness(f2), pareto_f2[index], 0.06);
-            index++;*/
-        }
-    }
-
-	/**
-     * Testing NSGA-II with ZDT4 Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
-     */
-	@Test
-    public void testZDT4() throws NumberFormatException, IOException
-    {
-	    Properties.MUTATION_RATE = 1d / 10d; // 10 because, ZDT4 problem has 10 variable
-	    Properties.TOURNAMENT_SIZE = 2;
-
-        ChromosomeFactory<?> factory = new RandomFactory(true, 10, -5.0, 5.0);
-
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
-        TournamentSelectionCrowdedComparison ts = new TournamentSelectionCrowdedComparison();
-        ts.setMaximize(false);
-        ga.setSelectionFunction(ts);
-        ga.setCrossOverFunction(new SBXCrossover());
-
-        Problem p = new ZDT4();
-        final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
-        final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
-        ga.addFitnessFunction(f1);
-        ga.addFitnessFunction(f2);
-
-        // execute
-        ga.generateSolution();
-
-        List<Chromosome> chromosomes = (List<Chromosome>) ga.population;
-        Collections.sort(chromosomes, new Comparator<Chromosome>() {
-            @Override
-            public int compare(Chromosome arg0, Chromosome arg1) {
-                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
-            }
-        });
-
-        // load Pareto Front
-        /*double[] pareto_f1 = new double[Properties.POPULATION];
-	    double[] pareto_f2 = new double[Properties.POPULATION];
-	    int index = 0;
-
-        BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource("ZDT4.pf").getPath()));
-        String sCurrentLine;
-        while ((sCurrentLine = br.readLine()) != null) {
-            String[] split = sCurrentLine.split("\t");
-            pareto_f1[index] = Double.valueOf(split[0]);
-            pareto_f2[index] = Double.valueOf(split[1]);
-            index++;
-        }
-        br.close();
-
-        // test
-        index = 0;*/
-        for (Chromosome chromosome : chromosomes)
-        {
-            System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
-
-            /*Assert.assertEquals(chromosome.getFitness(f1), pareto_f1[index], 0.05);
-            Assert.assertEquals(chromosome.getFitness(f2), pareto_f2[index], 0.05);
-            index++;*/
-        }
+        // assert by Distance
+        Assert.assertTrue(population.get(0).getDistance() == 0.5);
+        Assert.assertTrue(population.get(1).getDistance() == 0.4);
+        Assert.assertTrue(population.get(2).getDistance() == 0.1);
     }
 }

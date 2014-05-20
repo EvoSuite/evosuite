@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.NSGAChromosome;
+import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.variables.DoubleVariable;
 
 /**
@@ -32,7 +32,7 @@ public class FON<T extends NSGAChromosome> implements Problem
 				double fitness = 0.0;
 				for (int i = 0; i < individual.getNumberOfVariables(); i++) {
 					DoubleVariable dv = (DoubleVariable) individual.getVariables().get(i);
-					fitness += Math.pow(dv.getValue() - (1.0 / Math.sqrt(3)), 2.0);
+					fitness += Math.pow(dv.getValue() - (1.0 / Math.sqrt(3.0)), 2.0);
 				}
 
 				fitness = 1.0 - Math.exp(-fitness);
@@ -56,7 +56,7 @@ public class FON<T extends NSGAChromosome> implements Problem
 				double fitness = 0.0;
 				for (int i = 0; i < individual.getNumberOfVariables(); i++) {
 					DoubleVariable dv = (DoubleVariable) individual.getVariables().get(i);
-					fitness += Math.pow(dv.getValue() + (1.0 / Math.sqrt(3)), 2.0);
+					fitness += Math.pow(dv.getValue() + (1.0 / Math.sqrt(3.0)), 2.0);
 				}
 
 				fitness = 1.0 - Math.exp(-fitness);

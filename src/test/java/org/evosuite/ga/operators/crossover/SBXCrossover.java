@@ -2,7 +2,7 @@ package org.evosuite.ga.operators.crossover;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.metaheuristics.NSGAChromosome;
+import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.variables.DoubleVariable;
 import org.evosuite.ga.variables.Variable;
 import org.evosuite.utils.Randomness;
@@ -54,7 +54,8 @@ public class SBXCrossover<T extends NSGAChromosome> extends CrossOverFunction
 		valueX1 = v1.getValue();
 		valueX2 = v2.getValue();
 
-		if (Math.abs(valueX1 - valueX2) > EPS) {
+		if (Math.abs(valueX1 - valueX2) > EPS)
+		{
 			if (valueX1 < valueX2) {
 				y1 = valueX1;
 				y2 = valueX2;

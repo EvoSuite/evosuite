@@ -5,40 +5,35 @@ import java.util.List;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.NSGAChromosome;
+import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.variables.DoubleVariable;
 
 /**
- * One variable Problem
- * 
- * f(x) = x^2
- * 
- * Optimal Solutions x = 0
+ * Single Objective Problem (Booth's function)
  * 
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked", "serial" })
-public class OneVariableProblem<T extends NSGAChromosome> implements Problem
+public class SingleObjective<T extends NSGAChromosome> implements Problem
 {
     private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
 
-    public OneVariableProblem()
+    public SingleObjective()
     {
         super();
 
         /**
          * Fitness function
-         * f(x) = x^2
          */
         class fFitnessFunction extends FitnessFunction {
             @Override
             public double getFitness(Chromosome c) {
                 NSGAChromosome individual = (NSGAChromosome)c;
 
-                DoubleVariable dv = (DoubleVariable) individual.getVariables().get(0);
-                double x = dv.getValue();
-                double fitness = x * x;
+                double x = ((DoubleVariable) individual.getVariables().get(0)).getValue();
+                double y = ((DoubleVariable) individual.getVariables().get(1)).getValue();
 
+                double fitness = Math.pow(x + 2.0 * y - 7.0, 2.0) + Math.pow(2.0 * x + y - 5.0, 2.0);
                 updateIndividual(this, individual, fitness);
                 return fitness;
             }

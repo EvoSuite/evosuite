@@ -335,7 +335,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
      * @param function
      *            a {@link org.evosuite.ga.FitnessFunction} object.
      */
-    protected void addFitnessFunction(FitnessFunction<T> function) {
+    public void addFitnessFunction(FitnessFunction<T> function) {
         fitnessFunctions.add(function);
         if (localObjective == null)
             localObjective = new DefaultLocalSearchObjective<T>(function); // FIXME: there is a localObjective for each FitnessFunction or a global localObjective? 
@@ -362,6 +362,10 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
      */
     public List<FitnessFunction<T>> getFitnessFunctions() {
         return fitnessFunctions;
+    }
+
+    public int getNumberOfFitnessFunctions() {
+        return fitnessFunctions.size();
     }
 
     /**

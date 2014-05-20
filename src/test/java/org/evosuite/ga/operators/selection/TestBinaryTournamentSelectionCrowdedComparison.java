@@ -4,19 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.metaheuristics.NSGAChromosome;
+import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.metaheuristics.NSGAII;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Test Tournament Selection using Crowded Comparison
+ * Test Binary Tournament Selection using Crowded Comparison
  * 
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class TestTournamentSelectionCrowdedComparison
+public class TestBinaryTournamentSelectionCrowdedComparison
 {
 	@BeforeClass
 	public static void setUp() {
@@ -27,7 +27,7 @@ public class TestTournamentSelectionCrowdedComparison
 	public void testNonDominationRankMinimize()
 	{
 		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
-		TournamentSelectionCrowdedComparison ts = new TournamentSelectionCrowdedComparison();
+		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
 		ts.setMaximize(false);
 		ga.setSelectionFunction(ts);
 
@@ -49,7 +49,7 @@ public class TestTournamentSelectionCrowdedComparison
 	public void testNonDominationRankMaximize()
 	{
 		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
-		TournamentSelectionCrowdedComparison ts = new TournamentSelectionCrowdedComparison();
+		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
 		ts.setMaximize(true);
 		ga.setSelectionFunction(ts);
 
@@ -71,7 +71,7 @@ public class TestTournamentSelectionCrowdedComparison
 	public void testCrowdingDistanceMinimize()
 	{
 		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
-		TournamentSelectionCrowdedComparison ts = new TournamentSelectionCrowdedComparison();
+		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
 		ts.setMaximize(false);
 		ga.setSelectionFunction(ts);
 
@@ -97,7 +97,7 @@ public class TestTournamentSelectionCrowdedComparison
 	public void testCrowdingDistanceMaximize()
 	{
 		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
-		TournamentSelectionCrowdedComparison ts = new TournamentSelectionCrowdedComparison();
+		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
 		ts.setMaximize(true);
 		ga.setSelectionFunction(ts);
 

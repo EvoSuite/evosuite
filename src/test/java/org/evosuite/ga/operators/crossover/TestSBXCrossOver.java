@@ -1,7 +1,7 @@
 package org.evosuite.ga.operators.crossover;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.metaheuristics.NSGAChromosome;
+import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.variables.DoubleVariable;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -32,9 +32,9 @@ public class TestSBXCrossOver
         sbx.crossOver(c1, c2);
 
         double v_c1 = ((DoubleVariable)c1.getVariable(0)).getValue();
-        Assert.assertEquals("", v_c1, 0.5, 0.0);
+        Assert.assertEquals(v_c1, 0.5, 0.0);
         double v_c2 = ((DoubleVariable)c2.getVariable(0)).getValue();
-        Assert.assertEquals("", v_c2, 0.5, 0.0);
+        Assert.assertEquals(v_c2, 0.5, 0.0);
 	}
 
 	@Test
@@ -49,8 +49,8 @@ public class TestSBXCrossOver
         sbx.crossOver(c1, c2);
 
         double v_c1 = ((DoubleVariable)c1.getVariable(0)).getValue();
-        Assert.assertEquals("", v_c1, 0.1, 0.01);
+        Assert.assertEquals(v_c1, 0.1, 0.01);
         double v_c2 = ((DoubleVariable)c2.getVariable(0)).getValue();
-        Assert.assertEquals("", v_c2, 0.9, 0.01);
+        Assert.assertEquals(v_c2, 0.9, 0.01);
     }
 }
