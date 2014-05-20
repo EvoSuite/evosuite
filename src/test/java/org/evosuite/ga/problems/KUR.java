@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.NSGAChromosome;
+import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.variables.DoubleVariable;
 
 /**

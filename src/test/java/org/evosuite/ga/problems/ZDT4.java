@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.NSGAChromosome;
+import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.variables.DoubleVariable;
 
 /**
@@ -50,7 +50,7 @@ public class ZDT4<T extends NSGAChromosome> implements Problem
 				double g = 0.0;
 				for (int i = 1; i < individual.getNumberOfVariables(); i++) {
 					DoubleVariable dv = (DoubleVariable) individual.getVariable(i);
-					g += Math.pow(dv.getValue(), 2.0) - 10.0 * Math.cos(4.0 * Math.PI * dv.getValue());
+					g += Math.pow(dv.getValue(), 2.0) - 10.0 * Math.cos(4.0 * Math.PI * dv.getValue() / 180.0);
 				}
 				g += 1.0 + 10.0 * (individual.getNumberOfVariables() - 1);
 

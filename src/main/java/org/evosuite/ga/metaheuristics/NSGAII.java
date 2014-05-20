@@ -9,6 +9,8 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.NSGAChromosome;
+import org.evosuite.ga.variables.DoubleVariable;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,12 +145,22 @@ public class NSGAII<T extends Chromosome> extends GeneticAlgorithm<T>
 
 		if (population.isEmpty())
 			initializePopulation();
-		for (T p : population) {
-            for (FitnessFunction<T> ff : this.getFitnessFunctions()) {
-                System.out.print(p.getFitness(ff) + ",");
-            }
-            System.out.print("\n");
-        }
+//		for (T p : population) {
+//            /*for (FitnessFunction<T> ff : this.getFitnessFunctions()) {
+//                System.out.print(p.getFitness(ff) + ",");
+//            }
+//            System.out.print("\n");*/
+//
+//		    NSGAChromosome nsga_c = (NSGAChromosome)p;
+//		    for (int i = 0; i < nsga_c.getNumberOfVariables(); i++)
+//            {
+//                DoubleVariable dv = (DoubleVariable) nsga_c.getVariables().get(i);
+//                System.out.printf("%f,", dv.getValue());
+//            }
+//		    System.out.println();
+//        }
+//		System.out.println("--------------------------");
+//		System.exit(-1);
 
 		while (!isFinished())
 		{
@@ -169,12 +181,13 @@ public class NSGAII<T extends Chromosome> extends GeneticAlgorithm<T>
 
 			evolve();
 			this.notifyIteration();
-			
+
 			for (T p : population) {
 	            for (FitnessFunction<T> ff : this.getFitnessFunctions()) {
-	                System.out.print(p.getFitness(ff) + ",");
+	                //System.out.print(p.getFitness(ff) + ",");
+	                p.getFitness(ff);
 	            }
-	            System.out.print("\n");
+	            //System.out.print("\n");
 	        }
 		}
 
@@ -227,7 +240,7 @@ public class NSGAII<T extends Chromosome> extends GeneticAlgorithm<T>
 	 * @param front
 	 * @return
 	 */
-	protected List<T> crowdedComparisonOperator(List<T> front) {
+	protected void crowdedComparisonOperator(List<T> front) {
 		Collections.sort(front, new Comparator<T>() {
 			@Override
 			public int compare(T i, T j) {
@@ -245,8 +258,6 @@ public class NSGAII<T extends Chromosome> extends GeneticAlgorithm<T>
 				return 0;
 			}
 		});
-
-		return front;
 	}
 
 	/**

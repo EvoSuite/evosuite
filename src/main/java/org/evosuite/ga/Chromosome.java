@@ -143,8 +143,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		*/
 
 		if ( (Double.compare(value, Double.NaN) == 0) ||
-                (Double.isInfinite(value)) ||
-                (value < 0) /*||
+                (Double.isInfinite(value)) /*||
+                (value < 0) ||
                 (ff == null)*/ ) {
             throw new IllegalArgumentException("Invalid value of Fitness: " + value + ", Fitness: " + ff.getClass().getName());
         }

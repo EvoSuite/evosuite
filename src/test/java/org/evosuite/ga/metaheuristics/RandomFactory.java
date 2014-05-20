@@ -1,6 +1,7 @@
 package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.NSGAChromosome;
 
 /**
  * 

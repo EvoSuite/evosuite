@@ -9,36 +9,27 @@ import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.variables.DoubleVariable;
 
 /**
- * SCH Problem
- * 
- * f1(x) = x^2
- * f2(x) = (x-2)^2
- * 
- * Optimal Solutions x E [0,2]
+ * ZDT1 Problem
  * 
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked", "serial" })
-public class SCH<T extends NSGAChromosome> implements Problem
+public class ZDT1<T extends NSGAChromosome> implements Problem
 {
 	private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
 
-	public SCH() {
+	public ZDT1() {
 		super();
 
 		/**
 		 * First fitness function
-		 * f1(x) = x^2
 		 */
 		class f1FitnessFunction extends FitnessFunction {
 			@Override
 			public double getFitness(Chromosome c) {
 				NSGAChromosome individual = (NSGAChromosome)c;
 
-				DoubleVariable dv = (DoubleVariable) individual.getVariables().get(0);
-				double x = dv.getValue();
-				double fitness = x * x;
-
+				double fitness = ((DoubleVariable)individual.getVariable(0)).getValue();
 				updateIndividual(this, individual, fitness);
 				return fitness;
 			}
@@ -50,17 +41,23 @@ public class SCH<T extends NSGAChromosome> implements Problem
 
 		/**
 		 * Second fitness function
-		 * f2(x) = (x-2)^2
 		 */
 		class f2FitnessFunction extends FitnessFunction {
 			@Override
 			public double getFitness(Chromosome c) {
 				NSGAChromosome individual = (NSGAChromosome)c;
 
-				DoubleVariable dv = (DoubleVariable) individual.getVariables().get(0);
-				double x = dv.getValue();
-				double fitness = (x - 2) * (x - 2);
+				double x0 = ((DoubleVariable)individual.getVariable(0)).getValue();
 
+				double sum = 0.0;
+				for (int i = 1; i < individual.getNumberOfVariables(); i++) {
+					double x = ((DoubleVariable) individual.getVariable(i)).getValue();
+					sum += x;
+				}
+
+				double g = 1.0 + 9.0 * sum / (individual.getNumberOfVariables() - 1);
+
+				double fitness = g * (1 - Math.sqrt(x0 / g));
 				updateIndividual(this, individual, fitness);
 				return fitness;
 			}

@@ -1,4 +1,4 @@
-package org.evosuite.ga.metaheuristics;
+package org.evosuite.ga;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,13 @@ public class NSGAChromosome extends Chromosome
 	public NSGAChromosome() {
 		// empty
 	}
+
+	public NSGAChromosome(double lowerBound, double upperBound, double ... values) {
+	    for (int i = 0; i < values.length; i++) {
+	        Variable v = new DoubleVariable(values[i], lowerBound, upperBound);
+	        this.addVariable(v);
+	    }
+    }
 
 	public NSGAChromosome(boolean ZDT4,
 			int number_of_variables,
@@ -136,7 +143,7 @@ public class NSGAChromosome extends Chromosome
 		double pow = 1.0 / (distributionIndex + 1.0);
 
 		double r = Randomness.nextDouble();
-		if (r <= 0.5) {
+		if (r < 0.5) {
 			double aux = 2.0 * r + (1.0 - 2.0 * r) * (Math.pow(1.0 - delta1, (distributionIndex + 1.0)));
 			deltaq = Math.pow(aux, pow) - 1.0;
 		}
