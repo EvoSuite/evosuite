@@ -64,7 +64,7 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		fitness = n_ones / n_tests / ((double) RhoCoverageFactory.getNumberComponents());
 		fitness = Math.abs(0.5 - fitness);
 
-		updateIndividual(suite, fitness);
+		updateIndividual(this, suite, fitness);
 		return fitness;
 	}
 

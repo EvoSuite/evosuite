@@ -87,7 +87,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		double exceptionFitness = 1d / (1d + nExc);
 
-		suite.setFitness(coverageFitness + exceptionFitness);
+		suite.setFitness(this, coverageFitness + exceptionFitness);
 		return coverageFitness + exceptionFitness;
 	}
 

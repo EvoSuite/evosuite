@@ -178,7 +178,8 @@ public class CoverageAnalysis {
         dummy.setChanged(false);
 
         int covered = 0;
-        List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
+        //List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals(); // FIXME: remove me
+        List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals(); // FIXME: can we assume that CoverageAnalysis class is only called with one fitness function?
 
         for (JUnitResult testResult : results) {
             executionResult.setTrace(testResult.getExecutionTrace());
@@ -464,7 +465,8 @@ public class CoverageAnalysis {
 		LoggingUtils.getEvoLogger().info("* Executed " + results.size() + " tests");
 
 		// Goals
-		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
+		//List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals(); // FIXME: remove me
+		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals(); // FIXME: can we assume that CoverageAnalysis class is only called with one fitness function?
 
         // A dummy Chromosome
         TestChromosome dummy = new TestChromosome();

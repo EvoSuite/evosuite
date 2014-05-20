@@ -63,10 +63,10 @@ public class ValueMinimizer extends TestVisitor {
 			double newFitness = fitness.getFitness(individual);
 			if (newFitness <= lastFitness) { // TODO: Maximize
 				lastFitness = newFitness;
-				individual.setFitness(lastFitness);
+				individual.setFitness(fitness, lastFitness);
 				return true;
 			} else {
-				individual.setFitness(lastFitness);
+				individual.setFitness(fitness, lastFitness);
 				return false;
 			}
 		}
@@ -110,11 +110,11 @@ public class ValueMinimizer extends TestVisitor {
 				logger.debug("Fitness changed from " + lastFitness + " to " + newFitness);
 				lastFitness = newFitness;
 				lastCoverage = suite.getCoverage();
-				suite.setFitness(lastFitness);
+				suite.setFitness(fitness, lastFitness);
 				return true;
 			} else {
 				individual.setLastExecutionResult(lastResult);
-				suite.setFitness(lastFitness);
+				suite.setFitness(fitness, lastFitness);
 				suite.setCoverage(lastCoverage);
 				return false;
 			}

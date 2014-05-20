@@ -3,7 +3,7 @@ package org.evosuite;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Before;
@@ -49,7 +49,7 @@ public class TestTargetMethodPrefix extends SystemTest {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // FIXME: remove me assuming single fitness function
 
 		assertEquals("Wrong number of goals:", 13, goals);
 		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -74,7 +74,7 @@ public class TestTargetMethodPrefix extends SystemTest {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // FIXME: remove me assuming single fitness function
 
 		assertEquals("Wrong number of goals: ", 4, goals);
 		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -100,7 +100,7 @@ public class TestTargetMethodPrefix extends SystemTest {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // FIXME: remove me assuming single fitness function
 
 		assertEquals("Wrong number of goals: ", 4, goals);
 		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -126,7 +126,7 @@ public class TestTargetMethodPrefix extends SystemTest {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // FIXME: remove me assuming single fitness function
 
 		assertEquals("Wrong number of goals: ", 8, goals);
 		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);

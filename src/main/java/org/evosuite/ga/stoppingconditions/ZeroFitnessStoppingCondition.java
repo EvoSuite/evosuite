@@ -17,7 +17,7 @@
  */
 package org.evosuite.ga.stoppingconditions;
 
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 
 /**
  * Stop the search when the fitness has reached 0 (assuming minimization)

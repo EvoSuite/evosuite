@@ -4,7 +4,7 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.TestSuiteGenerator;
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
@@ -57,7 +57,7 @@ public class SystemInUtilSystemTest extends SystemTest{
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();		
+		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // FIXME: remove me assuming single fitness function
 		Assert.assertEquals(3, goals );
 		double coverage = best.getCoverage();
 		Assert.assertTrue("Not good enough coverage: "+coverage, coverage > 0.99d);
