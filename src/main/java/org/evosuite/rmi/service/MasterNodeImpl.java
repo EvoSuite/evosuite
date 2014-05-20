@@ -5,6 +5,7 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -152,9 +153,9 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 
 	@Override
 	public void evosuite_collectTestGenerationResult(
-			String clientRmiIdentifier, TestGenerationResult result)
+			String clientRmiIdentifier, List<TestGenerationResult> results)
 			throws RemoteException {
-		SearchStatistics.getInstance().addTestGenerationResult(result);
+		SearchStatistics.getInstance().addTestGenerationResult(results);
 		
 	}
 	

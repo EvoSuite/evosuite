@@ -5,8 +5,8 @@ package org.evosuite.regression;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.localsearch.LocalSearchObjective;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 

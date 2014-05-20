@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.evosuite.localsearch.LocalSearchObjective;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -79,7 +79,7 @@ public class TestSerialization {
 		
 		double fitness = 3.14;
 		DummyChromosome chromosome = new DummyChromosome();
-		chromosome.setFitness(fitness);		
+		chromosome.setFitness(null, fitness);		
 		oos.writeObject(chromosome);
 		byte [] baSerialized = baos.toByteArray();
 		

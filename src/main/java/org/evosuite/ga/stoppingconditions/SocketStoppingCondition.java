@@ -8,7 +8,7 @@ import java.net.ServerSocket;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.utils.LoggingUtils;
 
 /**

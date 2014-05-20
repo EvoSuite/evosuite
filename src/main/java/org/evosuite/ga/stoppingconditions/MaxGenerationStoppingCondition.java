@@ -18,7 +18,7 @@
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

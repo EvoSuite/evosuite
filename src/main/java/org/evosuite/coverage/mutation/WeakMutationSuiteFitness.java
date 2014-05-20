@@ -92,7 +92,7 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 				covered++;
 		}
 		
-		updateIndividual(individual, fitness);
+		updateIndividual(this, individual, fitness);
 		((TestSuiteChromosome) individual).setCoverage(1.0 * covered
 		        / mutationGoals.size());
 		((TestSuiteChromosome) individual).setNumOfCoveredGoals(covered);

@@ -18,10 +18,10 @@
 package org.evosuite.testcase;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.BloatControlFunction;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.ga.SearchListener;
+import org.evosuite.ga.bloatcontrol.BloatControlFunction;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.SearchListener;
 
 
 /**

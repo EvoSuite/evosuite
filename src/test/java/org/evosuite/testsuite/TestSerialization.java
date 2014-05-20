@@ -27,8 +27,8 @@ public class TestSerialization {
 		PrimitiveStatement<?> statement = PrimitiveStatement.getPrimitiveStatement(test, int.class);
 		test.addStatement(statement);
 		testChromosome.setTestCase(test);
-		testChromosome.setFitness(3.14d);		
-		chromosome.setFitness(fitness);
+		testChromosome.setFitness(null, 3.14d);		
+		chromosome.setFitness(null, fitness);
 		chromosome.setCoverage(0.5);
 		chromosome.updateAge(24);
 		chromosome.setChanged(true);

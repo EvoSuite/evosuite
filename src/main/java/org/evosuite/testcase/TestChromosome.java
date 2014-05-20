@@ -25,10 +25,10 @@ import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationExecutionResult;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.MutationHistory;
 import org.evosuite.ga.SecondaryObjective;
-import org.evosuite.localsearch.LocalSearchObjective;
-import org.evosuite.localsearch.TestCaseLocalSearch;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.ga.localsearch.TestCaseLocalSearch;
+import org.evosuite.ga.operators.mutation.MutationHistory;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
@@ -104,7 +104,9 @@ public class TestChromosome extends ExecutableChromosome {
 	public Chromosome clone() {
 		TestChromosome c = new TestChromosome();
 		c.test = test.clone();
-		c.setFitness(getFitness());
+		//c.setFitness(getFitness());
+		c.setFitnesses(getFitnesses());
+		c.setLastFitnesses(getLastFitnesses());
 		c.solution = solution;
 		c.copyCachedResults(this);
 		c.setChanged(isChanged());

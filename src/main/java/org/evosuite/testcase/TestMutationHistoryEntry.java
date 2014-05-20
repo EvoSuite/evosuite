@@ -2,7 +2,7 @@ package org.evosuite.testcase;
 
 import java.io.Serializable;
 
-import org.evosuite.ga.MutationHistoryEntry;
+import org.evosuite.ga.operators.mutation.MutationHistoryEntry;
 
 public class TestMutationHistoryEntry implements MutationHistoryEntry, Serializable {
 
