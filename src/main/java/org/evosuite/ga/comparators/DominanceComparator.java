@@ -1,6 +1,9 @@
-package org.evosuite.ga;
+package org.evosuite.ga.comparators;
 
 import java.util.Comparator;
+
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 
 public class DominanceComparator
     implements Comparator<Chromosome>

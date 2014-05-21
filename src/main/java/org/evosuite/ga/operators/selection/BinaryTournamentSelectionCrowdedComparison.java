@@ -3,7 +3,7 @@ package org.evosuite.ga.operators.selection;
 import java.util.List;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.CrowdingComparator;
+import org.evosuite.ga.comparators.CrowdingComparator;
 import org.evosuite.utils.Randomness;
 
 /**
