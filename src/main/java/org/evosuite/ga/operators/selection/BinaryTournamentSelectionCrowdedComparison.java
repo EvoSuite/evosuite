@@ -3,6 +3,7 @@ package org.evosuite.ga.operators.selection;
 import java.util.List;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.CrowdingComparator;
 import org.evosuite.utils.Randomness;
 
 /**
@@ -25,6 +26,12 @@ public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome> ex
      */
     private int indexes[];
 
+    private CrowdingComparator comparator;
+
+    public BinaryTournamentSelectionCrowdedComparison() {
+        this.comparator = new CrowdingComparator(maximize);
+    }
+
 	@Override
 	public int getIndex(List<T> population)
 	{
@@ -39,7 +46,7 @@ public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome> ex
 
         this.index = (this.index + 2) % population.size();
 
-		if (maximize) {
+		/*if (maximize) {
 			if (p1.getRank() < p2.getRank())
 			    return index2;
 			else if (p1.getRank() > p2.getRank())
@@ -54,9 +61,15 @@ public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome> ex
 			    return index2;
 			else if (p1.getRank() == p2.getRank())
 			    return (p1.getDistance() >= p2.getDistance()) ? index1 : index2;
-		}
+		}*/
 
-		return index1;
+        int flag = this.comparator.compare(p1, p2);
+        if (flag == -1)
+            return index1;
+        else if (flag == 1)
+            return index2;
+
+		return index1; // default
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package org.evosuite.ga.problems;
+package org.evosuite.ga.problems.multiobjective;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,19 +6,20 @@ import java.util.List;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
+import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.variables.DoubleVariable;
 
 /**
- * ZDT1 Problem
+ * ZDT4 Problem
  * 
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked", "serial" })
-public class ZDT1<T extends NSGAChromosome> implements Problem
+public class ZDT4<T extends NSGAChromosome> implements Problem
 {
 	private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
 
-	public ZDT1() {
+	public ZDT4() {
 		super();
 
 		/**
@@ -47,17 +48,16 @@ public class ZDT1<T extends NSGAChromosome> implements Problem
 			public double getFitness(Chromosome c) {
 				NSGAChromosome individual = (NSGAChromosome)c;
 
-				double x0 = ((DoubleVariable)individual.getVariable(0)).getValue();
-
-				double sum = 0.0;
+				double g = 0.0;
 				for (int i = 1; i < individual.getNumberOfVariables(); i++) {
-					double x = ((DoubleVariable) individual.getVariable(i)).getValue();
-					sum += x;
+					DoubleVariable dv = (DoubleVariable) individual.getVariable(i);
+					g += Math.pow(dv.getValue(), 2.0) - 10.0 * Math.cos(4.0 * Math.PI * dv.getValue() / 180.0);
 				}
+				g += 1.0 + 10.0 * (individual.getNumberOfVariables() - 1);
 
-				double g = 1.0 + 9.0 * sum / (individual.getNumberOfVariables() - 1);
+				double h = 1.0 - Math.sqrt(((DoubleVariable)individual.getVariable(0)).getValue() / g);
 
-				double fitness = g * (1 - Math.sqrt(x0 / g));
+				double fitness = g * h;
 				updateIndividual(this, individual, fitness);
 				return fitness;
 			}

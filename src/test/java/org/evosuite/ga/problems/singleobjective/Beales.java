@@ -1,4 +1,4 @@
-package org.evosuite.ga.problems;
+package org.evosuite.ga.problems.singleobjective;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,19 +6,20 @@ import java.util.List;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
+import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.variables.DoubleVariable;
 
 /**
- * Single Objective Problem (Booth's function)
+ * Beale's Problem
  * 
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked", "serial" })
-public class SingleObjective<T extends NSGAChromosome> implements Problem
+public class Beales<T extends NSGAChromosome> implements Problem
 {
     private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
 
-    public SingleObjective()
+    public Beales()
     {
         super();
 
@@ -33,7 +34,9 @@ public class SingleObjective<T extends NSGAChromosome> implements Problem
                 double x = ((DoubleVariable) individual.getVariables().get(0)).getValue();
                 double y = ((DoubleVariable) individual.getVariables().get(1)).getValue();
 
-                double fitness = Math.pow(x + 2.0 * y - 7.0, 2.0) + Math.pow(2.0 * x + y - 5.0, 2.0);
+                double fitness = Math.pow(1.5 - x + x * y, 2.0) +
+                                 Math.pow(2.25 - x + Math.pow(x * y, 2.0), 2.0) +
+                                 Math.pow(2.625 - x + Math.pow(x * y, 3.0), 2.0);
                 updateIndividual(this, individual, fitness);
                 return fitness;
             }
