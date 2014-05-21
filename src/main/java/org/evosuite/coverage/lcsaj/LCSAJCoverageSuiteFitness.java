@@ -166,7 +166,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		logger.info("Combined fitness with correction: " + fitness);
 
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 
 		double coverage = 0.0;
 

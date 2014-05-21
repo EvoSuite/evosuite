@@ -166,7 +166,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		        + " / branch distance: " + distance.getBranchDistance() + ", fitness = "
 		        + fitness);
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 		return fitness;
 	}
 

@@ -2,7 +2,6 @@ package org.evosuite.rmi.service;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.List;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.result.TestGenerationResult;
@@ -30,5 +29,5 @@ public interface MasterNodeRemote extends Remote {
 
 	public void evosuite_collectStatistics(String clientRmiIdentifier, RuntimeVariable variable, Object value) throws RemoteException;
 
-	public void evosuite_collectTestGenerationResult(String clientRmiIdentifier, List<TestGenerationResult> results) throws RemoteException;
+	public void evosuite_collectTestGenerationResult(String clientRmiIdentifier, TestGenerationResult result) throws RemoteException;
 }

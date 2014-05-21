@@ -30,7 +30,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.utils.Randomness;
 public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends
@@ -79,9 +79,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 			addTest((T) test.clone());
 		}
 
-		//this.setFitness(source.getFitness());
-		this.setFitnesses(source.getFitnesses());
-		this.setLastFitnesses(source.getLastFitnesses());
+		this.setFitness(source.getFitness());
 		this.setChanged(source.isChanged());
 		this.coverage = source.coverage;
 	}
