@@ -23,8 +23,8 @@ package org.evosuite;
 import java.io.Serializable;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.ga.SearchListener;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;

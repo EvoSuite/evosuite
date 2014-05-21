@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.PopulationLimit;
+import org.evosuite.ga.populationlimit.PopulationLimit;
 
 
 /**

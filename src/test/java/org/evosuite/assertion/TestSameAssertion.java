@@ -4,7 +4,7 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.SystemTest;
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;

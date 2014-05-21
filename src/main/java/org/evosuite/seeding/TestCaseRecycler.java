@@ -21,8 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.ga.SearchListener;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;

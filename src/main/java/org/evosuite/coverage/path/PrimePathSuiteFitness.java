@@ -83,7 +83,7 @@ public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 			fitness += goalFitness;
 		}
 		suite.setCoverage(coveredGoals.size() / (double) goals.size());
-		updateIndividual(suite, fitness);
+		updateIndividual(this, suite, fitness);
 		return fitness;
 	}
 }

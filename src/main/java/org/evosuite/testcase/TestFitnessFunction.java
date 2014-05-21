@@ -60,7 +60,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 		double fitness = getFitness(individual, origResult);
 
-		updateIndividual(individual, fitness);
+		updateIndividual(this, individual, fitness);
 
 		return individual.getFitness();
 	}

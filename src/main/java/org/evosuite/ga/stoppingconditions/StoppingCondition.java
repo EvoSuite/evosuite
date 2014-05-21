@@ -20,7 +20,7 @@
  */
 package org.evosuite.ga.stoppingconditions;
 
-import org.evosuite.ga.SearchListener;
+import org.evosuite.ga.metaheuristics.SearchListener;
 public interface StoppingCondition extends SearchListener {
 
 	/**

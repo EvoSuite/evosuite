@@ -28,7 +28,7 @@ import java.util.Set;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.CrossOverFunction;
+import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.utils.Randomness;

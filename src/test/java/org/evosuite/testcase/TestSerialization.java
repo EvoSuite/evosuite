@@ -19,7 +19,7 @@ public class TestSerialization {
 
 		double fitness = 3.14;
 		TestChromosome chromosome = new TestChromosome();
-		chromosome.setFitness(fitness);		
+		chromosome.setFitness(null, fitness);		
 		oos.writeObject(chromosome);
 		byte [] baSerialized = baos.toByteArray();
 
@@ -40,7 +40,7 @@ public class TestSerialization {
 		PrimitiveStatement<?> statement = PrimitiveStatement.getPrimitiveStatement(test, int.class);
 		test.addStatement(statement);
 		chromosome.setTestCase(test);
-		chromosome.setFitness(fitness);		
+		chromosome.setFitness(null, fitness);		
 		oos.writeObject(chromosome);
 		byte [] baSerialized = baos.toByteArray();
 
