@@ -24,7 +24,7 @@ import java.util.List;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.reset.ResetManager;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.utils.Randomness;

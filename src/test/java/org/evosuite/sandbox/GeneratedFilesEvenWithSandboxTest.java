@@ -6,7 +6,7 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.TestSuiteGenerator;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
@@ -60,7 +60,7 @@ public class GeneratedFilesEvenWithSandboxTest extends SystemTest{
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // FIXME: remove me assuming single fitness function
+		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 		Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertTrue("Should not achive optimala coverage ", best.getCoverage() < 1);
 
@@ -88,7 +88,7 @@ public class GeneratedFilesEvenWithSandboxTest extends SystemTest{
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // FIXME: remove me assuming single fitness function
+		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 		Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 
@@ -118,7 +118,7 @@ public class GeneratedFilesEvenWithSandboxTest extends SystemTest{
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // FIXME: remove me assuming single fitness function
+		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 		Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertTrue("Should not achive optimala coverage ", best.getCoverage() < 1);
 

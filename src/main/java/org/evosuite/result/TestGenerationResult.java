@@ -3,7 +3,7 @@ package org.evosuite.result;
 import java.io.Serializable;
 import java.util.Set;
 
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testcase.TestCase;
 
 public interface TestGenerationResult extends Serializable {
