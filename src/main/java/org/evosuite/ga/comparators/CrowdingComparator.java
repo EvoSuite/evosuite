@@ -1,6 +1,8 @@
-package org.evosuite.ga;
+package org.evosuite.ga.comparators;
 
 import java.util.Comparator;
+
+import org.evosuite.ga.Chromosome;
 
 public class CrowdingComparator
     implements Comparator<Chromosome>
