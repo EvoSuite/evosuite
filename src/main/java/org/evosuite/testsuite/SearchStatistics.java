@@ -40,7 +40,7 @@ import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
@@ -740,12 +740,9 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.total_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getNumMethodsMemberClasses(Properties.TARGET_CLASS)
 		        : CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
 
-		//entry.total_goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size(); // FIXME: remove me
-		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals(); // FIXME: since this class is classified as 'deprecate' we are just assuming one fitness function
-		entry.total_goals = goals.size();
+		entry.total_goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 
-		//for (TestFitnessFunction f : TestSuiteGenerator.getFitnessFactory().getCoverageGoals()) {
-		for (TestFitnessFunction f : goals) {
+		for (TestFitnessFunction f : TestSuiteGenerator.getFitnessFactory().getCoverageGoals()) {
 			if (f instanceof BranchCoverageTestFitness) {
 				BranchCoverageTestFitness b = (BranchCoverageTestFitness) f;
 				if (b.getBranch() != null && b.getBranch().isInstrumented()) {

@@ -93,7 +93,7 @@ public class AmbiguityCoverageTestFitness extends TestFitnessFunction {
 			}
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 		return fitness;
 	}
 

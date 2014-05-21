@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
@@ -91,9 +90,9 @@ public class SerializationSuiteChromosomeFactory
     /**
      * Serialize tests
      */
-    public static void saveTests(List<TestSuiteChromosome> bests)
+    public static void saveTests(Chromosome best)
     {
-        if (bests.size() > 0/* || previousSuite.getTestChromosomes().size() > 0*/)
+        if (best.size() > 0/* || previousSuite.getTestChromosomes().size() > 0*/)
         {
             try
             {
@@ -105,21 +104,18 @@ public class SerializationSuiteChromosomeFactory
                 /*for (TestChromosome tc : previousTests)
                     out.writeObject(tc);*/
 
-                // FIXME: we want to serialize several bests or all test cases?
-                for (TestSuiteChromosome best : bests)
+                // and also the new one
+                if (best instanceof TestChromosome)
                 {
-                    /*if (best instanceof TestChromosome)
+                    ((TestChromosome) best).getTestCase().removeAssertions();
+                    out.writeObject(best);
+                }
+                else if (best instanceof TestSuiteChromosome)
+                {
+                    for (TestChromosome tc : ((TestSuiteChromosome) best).getTestChromosomes())
                     {
-                        ((TestChromosome) best).getTestCase().removeAssertions();
-                        out.writeObject(best);
-                    }
-                    else if (best instanceof TestSuiteChromosome)*/
-                    {
-                        for (TestChromosome tc : ((TestSuiteChromosome) best).getTestChromosomes())
-                        {
-                            tc.getTestCase().removeAssertions();
-                            out.writeObject(tc);
-                        }
+                        tc.getTestCase().removeAssertions();
+                        out.writeObject(tc);
                     }
                 }
 
