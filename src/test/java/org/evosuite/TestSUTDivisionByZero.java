@@ -17,7 +17,7 @@
  */
 package org.evosuite;
 
-import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
@@ -59,7 +59,7 @@ public class TestSUTDivisionByZero extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // FIXME: remove me assuming single fitness function
 		/*
 		 * 1: default constructor
 		 * 1: method testMe

@@ -42,8 +42,8 @@ public abstract class FitnessFunction<T extends Chromosome> implements Serializa
 	 * @param fitness
 	 *            a double.
 	 */
-	protected void updateIndividual(T individual, double fitness) {
-		individual.setFitness(fitness);
+	protected void updateIndividual(FitnessFunction<?> ff, T individual, double fitness) {
+		individual.setFitness(ff, fitness);
 	}
 
 	/**
