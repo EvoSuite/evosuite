@@ -182,7 +182,7 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 				}
 			}
 		}
-		updateIndividual(this, individual, savedFitness);
+		updateIndividual(individual, savedFitness);
 		return savedFitness;
 	}
 

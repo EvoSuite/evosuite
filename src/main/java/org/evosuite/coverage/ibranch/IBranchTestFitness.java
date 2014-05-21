@@ -89,7 +89,7 @@ public class IBranchTestFitness extends TestFitnessFunction {
 			fitness = getPredicateDistance(result.getTrace().getFalseDistancesContext());
 		}
 
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 		return fitness;
 	}
 

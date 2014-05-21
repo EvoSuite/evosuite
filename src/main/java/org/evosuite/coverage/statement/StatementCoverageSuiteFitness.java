@@ -75,7 +75,7 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		suite.setNumOfCoveredGoals(coveredGoals.size());
 		
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 
 		return fitness;
 	}
