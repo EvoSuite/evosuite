@@ -1,4 +1,4 @@
-package org.evosuite.ga.problems;
+package org.evosuite.ga.problems.singleobjective;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -15,13 +15,14 @@ import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.RandomFactory;
 import org.evosuite.ga.operators.crossover.SBXCrossover;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
+import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.variables.DoubleVariable;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class TestSingleObjective
+public class TestBooths
 {
     @BeforeClass
     public static void setUp() {
@@ -32,9 +33,9 @@ public class TestSingleObjective
     }
 
     @Test
-    public void testSingleObjectiveFitness()
+    public void testBoothsFitness()
     {
-        Problem p = new SingleObjective();
+        Problem p = new Booths();
         FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
 
         double[] values = {-2.0, 1.0};
@@ -50,26 +51,26 @@ public class TestSingleObjective
     }
 
     /**
-     * Testing NSGA-II with OneVariable Problem
+     * Testing NSGA-II with Booths Problem
      * 
      * @throws IOException 
      * @throws NumberFormatException 
      */
     @Test
-    public void testSingleObjective() throws NumberFormatException, IOException
+    public void testBooths() throws NumberFormatException, IOException
     {
-        Properties.MUTATION_RATE = 1d / 2d; // 2 because, SingleObjective problem has 2 variable
+        Properties.MUTATION_RATE = 1d / 2d;
 
         ChromosomeFactory<?> factory = new RandomFactory(false, 2, -10.0, 10.0);
 
+        //GeneticAlgorithm<?> ga = new NSGAII(factory);
         GeneticAlgorithm<?> ga = new NSGAII(factory);
-        //GeneticAlgorithm<?> ga = new NSGAIIJMetal(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
         //BinaryTournament ts = new BinaryTournament();
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());
 
-        Problem p = new SingleObjective();
+        Problem p = new Booths();
         final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
         ga.addFitnessFunction(f1);
 
@@ -84,40 +85,15 @@ public class TestSingleObjective
             }
         });
 
-        // load Pareto Front
-        /*double[] pareto_f1 = new double[Properties.POPULATION];
-        double[] pareto_f2 = new double[Properties.POPULATION];
-        int index = 0;
-
-        BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource("SingleObjective.pf").getPath()));
-        String sCurrentLine;
-        while ((sCurrentLine = br.readLine()) != null) {
-            String[] split = sCurrentLine.split("\t");
-            pareto_f1[index] = Double.valueOf(split[0]);
-            pareto_f2[index] = Double.valueOf(split[1]);
-            index++;
-        }
-        br.close();
-
-        // test
-        index = 0;*/
         for (Chromosome chromosome : chromosomes)
-        {
+            Assert.assertEquals(chromosome.getFitness(f1), 0.000, 0.001);
+
+        for (Chromosome chromosome : chromosomes) {
             NSGAChromosome nsga_c = (NSGAChromosome)chromosome;
 
             DoubleVariable x = (DoubleVariable) nsga_c.getVariables().get(0);
             DoubleVariable y = (DoubleVariable) nsga_c.getVariables().get(1);
-            System.out.printf("%f,%f\n", x.getValue(), y.getValue());
-
-            //Assert.assertEquals(chromosome.getFitness(f1), pareto_f1[index], 0.05);
-            //Assert.assertEquals(chromosome.getFitness(f2), pareto_f2[index], 0.05);
-            //index++;
-        }
-
-        System.out.println("---------------");
-        for (Chromosome chromosome : chromosomes)
-        {
-            System.out.printf("%f\n", chromosome.getFitness(f1));
+            System.out.printf("%f,%f : %f\n", x.getValue(), y.getValue(), chromosome.getFitness(f1));
         }
     }
 }

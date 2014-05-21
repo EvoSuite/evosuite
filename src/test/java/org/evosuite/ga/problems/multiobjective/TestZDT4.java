@@ -1,5 +1,7 @@
-package org.evosuite.ga.problems;
+package org.evosuite.ga.problems.multiobjective;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,6 +17,7 @@ import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.RandomFactory;
 import org.evosuite.ga.operators.crossover.SBXCrossover;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
+import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.variables.DoubleVariable;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -26,7 +29,7 @@ public class TestZDT4
     @BeforeClass
     public static void setUp() {
         Properties.POPULATION = 100;
-        Properties.SEARCH_BUDGET = 250;
+        Properties.SEARCH_BUDGET = 10000;
         Properties.CROSSOVER_RATE = 0.9;
         Properties.RANDOM_SEED = 1l;
     }
@@ -52,7 +55,7 @@ public class TestZDT4
         Assert.assertEquals(((DoubleVariable) c.getVariables().get(9)).getValue(), 3.0, 0.0);
 
         Assert.assertEquals(f1.getFitness(c), 0.5, 0.0);
-        Assert.assertEquals(f2.getFitness(c), 64.08392021690038, 0.0);
+        Assert.assertEquals(f2.getFitness(c), 65.68459221202592, 0.0);
     }
 
     /**
@@ -64,14 +67,12 @@ public class TestZDT4
     @Test
     public void testZDT4() throws NumberFormatException, IOException
     {
-        Properties.MUTATION_RATE = 1d / 10d; // 10 because, ZDT4 problem has 10 variable
+        Properties.MUTATION_RATE = 1d / 10d;
 
-        ChromosomeFactory<?> factory = new RandomFactory(true, 10, 0.0, 1.0);
+        ChromosomeFactory<?> factory = new RandomFactory(true, 10, -5.0, 5.0);
 
         GeneticAlgorithm<?> ga = new NSGAII(factory);
-        //GeneticAlgorithm<?> ga = new NSGAIIJMetal(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
-        //BinaryTournament ts = new BinaryTournament();
         ts.setMaximize(false);
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());
@@ -94,40 +95,29 @@ public class TestZDT4
         });
 
         // load Pareto Front
-        /*double[] pareto_f1 = new double[Properties.POPULATION];
-        double[] pareto_f2 = new double[Properties.POPULATION];
+        double[] x = new double[Properties.POPULATION];
+        double[] y = new double[Properties.POPULATION];
         int index = 0;
 
         BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource("ZDT4.pf").getPath()));
         String sCurrentLine;
         while ((sCurrentLine = br.readLine()) != null) {
-            String[] split = sCurrentLine.split("\t");
-            pareto_f1[index] = Double.valueOf(split[0]);
-            pareto_f2[index] = Double.valueOf(split[1]);
+            String[] split = sCurrentLine.split(",");
+            x[index] = Double.valueOf(split[0]);
+            y[index] = Double.valueOf(split[1]);
             index++;
         }
         br.close();
 
         // test
-        index = 0;*/
-        for (Chromosome chromosome : chromosomes)
-        {
-            NSGAChromosome nsga_c = (NSGAChromosome)chromosome;
-            for (int i = 0; i < 10; i++)
-            {
-                DoubleVariable dv = (DoubleVariable) nsga_c.getVariables().get(i);
-                System.out.printf("%f,", dv.getValue());
-            }
-            System.out.printf(": %f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
-            //System.out.printf(": %f,%f\n", f1.getFitness(chromosome), f2.getFitness(chromosome));
-
-            /*Assert.assertEquals(chromosome.getFitness(f1), pareto_f1[index], 0.05);
-            Assert.assertEquals(chromosome.getFitness(f2), pareto_f2[index], 0.05);
-            index++;*/
-        }
+        index = 0;
         for (Chromosome chromosome : chromosomes)
         {
             System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
+
+            Assert.assertEquals(chromosome.getFitness(f1), x[index], 0.10);
+            Assert.assertEquals(chromosome.getFitness(f2), y[index], 0.10);
+            index++;
         }
     }
 }

@@ -81,10 +81,6 @@ public class NSGAChromosome extends Chromosome
 		c.setCoverage(this.getCoverage());
 		c.setNumOfCoveredGoals(this.getNumOfCoveredGoals());
 		c.updateAge(this.getAge());
-		c.setHowManyDominateMe(this.getHowManyDominateMe());
-		for (Chromosome c_old : this.getChromosomeDominated()) {
-			c.addChromosomeDominated(c_old);
-		}
 		c.setRank(this.getRank());
 		c.setDistance(this.getDistance());
 

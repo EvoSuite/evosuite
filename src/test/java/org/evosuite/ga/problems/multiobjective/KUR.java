@@ -1,4 +1,4 @@
-package org.evosuite.ga.problems;
+package org.evosuite.ga.problems.multiobjective;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,19 +6,20 @@ import java.util.List;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
+import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.variables.DoubleVariable;
 
 /**
- * POL Problem
+ * ZDT4 Problem
  * 
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked", "serial" })
-public class POL<T extends NSGAChromosome> implements Problem
+public class KUR<T extends NSGAChromosome> implements Problem
 {
 	private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
 
-	public POL() {
+	public KUR() {
 		super();
 
 		/**
@@ -29,15 +30,14 @@ public class POL<T extends NSGAChromosome> implements Problem
 			public double getFitness(Chromosome c) {
 				NSGAChromosome individual = (NSGAChromosome)c;
 
-				double x1 = ((DoubleVariable)individual.getVariable(0)).getValue();
-				double x2 = ((DoubleVariable)individual.getVariable(1)).getValue();
+				double fitness = 0.0;
+                for (int i = 0; i < individual.getNumberOfVariables() - 1; i++) {
+                    DoubleVariable dv = (DoubleVariable) individual.getVariables().get(i);
+                    DoubleVariable nextdv = (DoubleVariable) individual.getVariables().get(i+1);
 
-				double A1 = 0.5 * Math.sin(1.0) - 2.0 * Math.cos(1.0) + Math.sin(2.0) - 1.5 * Math.cos(2.0);
-				double A2 = 1.5 * Math.sin(1.0) - Math.cos(1.0) + 2.0 * Math.sin(2.0) - 0.5 * Math.cos(2.0);
-				double B1 = 0.5 * Math.sin(x1) - 2.0 * Math.cos(x1) + Math.sin(x2) - 1.5 * Math.cos(x2);
-				double B2 = 1.5 * Math.sin(x1) - Math.cos(x1) + 2.0 * Math.sin(x2) - 0.5 * Math.cos(x2);
+                    fitness += -10 * Math.exp(-0.2 * Math.sqrt( Math.pow(dv.getValue(), 2) + Math.pow(nextdv.getValue(), 2) ));
+                }
 
-				double fitness = 1.0 + Math.pow(A1 - B1, 2.0) + Math.pow(A2 - B2, 2.0);
 				updateIndividual(this, individual, fitness);
 				return fitness;
 			}
@@ -55,10 +55,13 @@ public class POL<T extends NSGAChromosome> implements Problem
 			public double getFitness(Chromosome c) {
 				NSGAChromosome individual = (NSGAChromosome)c;
 
-				double x1 = ((DoubleVariable)individual.getVariable(0)).getValue();
-                double x2 = ((DoubleVariable)individual.getVariable(1)).getValue();
+				double fitness = 0.0;
+                for (int i = 0; i < individual.getNumberOfVariables(); i++) {
+                    DoubleVariable dv = (DoubleVariable) individual.getVariables().get(i);
 
-                double fitness = Math.pow(x1 + 3.0, 2.0) + Math.pow(x2 + 1.0, 2.0);
+                    fitness += Math.pow(Math.abs(dv.getValue()), 0.8) + 5 * Math.sin(Math.pow(dv.getValue(), 3));
+                }
+
 				updateIndividual(this, individual, fitness);
 				return fitness;
 			}

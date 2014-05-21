@@ -1,4 +1,4 @@
-package org.evosuite.ga.problems;
+package org.evosuite.ga.problems.multiobjective;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,19 +6,20 @@ import java.util.List;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
+import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.variables.DoubleVariable;
 
 /**
- * ZDT4 Problem
+ * POL Problem
  * 
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked", "serial" })
-public class ZDT4<T extends NSGAChromosome> implements Problem
+public class POL<T extends NSGAChromosome> implements Problem
 {
 	private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
 
-	public ZDT4() {
+	public POL() {
 		super();
 
 		/**
@@ -29,7 +30,15 @@ public class ZDT4<T extends NSGAChromosome> implements Problem
 			public double getFitness(Chromosome c) {
 				NSGAChromosome individual = (NSGAChromosome)c;
 
-				double fitness = ((DoubleVariable)individual.getVariable(0)).getValue();
+				double x1 = ((DoubleVariable)individual.getVariable(0)).getValue();
+				double x2 = ((DoubleVariable)individual.getVariable(1)).getValue();
+
+				double A1 = 0.5 * Math.sin(1.0) - 2.0 * Math.cos(1.0) + Math.sin(2.0) - 1.5 * Math.cos(2.0);
+				double A2 = 1.5 * Math.sin(1.0) - Math.cos(1.0) + 2.0 * Math.sin(2.0) - 0.5 * Math.cos(2.0);
+				double B1 = 0.5 * Math.sin(x1) - 2.0 * Math.cos(x1) + Math.sin(x2) - 1.5 * Math.cos(x2);
+				double B2 = 1.5 * Math.sin(x1) - Math.cos(x1) + 2.0 * Math.sin(x2) - 0.5 * Math.cos(x2);
+
+				double fitness = 1.0 + Math.pow(A1 - B1, 2.0) + Math.pow(A2 - B2, 2.0);
 				updateIndividual(this, individual, fitness);
 				return fitness;
 			}
@@ -47,16 +56,10 @@ public class ZDT4<T extends NSGAChromosome> implements Problem
 			public double getFitness(Chromosome c) {
 				NSGAChromosome individual = (NSGAChromosome)c;
 
-				double g = 0.0;
-				for (int i = 1; i < individual.getNumberOfVariables(); i++) {
-					DoubleVariable dv = (DoubleVariable) individual.getVariable(i);
-					g += Math.pow(dv.getValue(), 2.0) - 10.0 * Math.cos(4.0 * Math.PI * dv.getValue() / 180.0);
-				}
-				g += 1.0 + 10.0 * (individual.getNumberOfVariables() - 1);
+				double x1 = ((DoubleVariable)individual.getVariable(0)).getValue();
+                double x2 = ((DoubleVariable)individual.getVariable(1)).getValue();
 
-				double h = 1.0 - Math.sqrt(((DoubleVariable)individual.getVariable(0)).getValue() / g);
-
-				double fitness = g * h;
+                double fitness = Math.pow(x1 + 3.0, 2.0) + Math.pow(x2 + 1.0, 2.0);
 				updateIndividual(this, individual, fitness);
 				return fitness;
 			}

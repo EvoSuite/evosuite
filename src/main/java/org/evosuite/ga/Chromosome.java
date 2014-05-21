@@ -18,9 +18,7 @@
 package org.evosuite.ga;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.evosuite.ga.localsearch.LocalSearchObjective;
@@ -68,12 +66,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	
 	/** Generation in which this chromosome was created */
 	protected int age = 0;
-
-	/** */
-	protected int howManyDominateMe = 0;
-
-	/** */
-    protected List<Chromosome> chromosomeDominated = new ArrayList<Chromosome>();
 
     /** */
     protected int rank = -1;
@@ -352,64 +344,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public int getAge() {
 		return age;
 	}
-
-	public int getHowManyDominateMe() {
-        return this.howManyDominateMe;
-    }
-
-    public void setHowManyDominateMe(int dc) {
-        this.howManyDominateMe = dc;
-    }
-
-    public boolean isDominated() {
-        if (this.howManyDominateMe > 0) return true;
-        else return false;
-    }
-
-    /**
-     * Is c2 dominated by c1?
-     * 
-     * http://en.wikipedia.org/wiki/Multi-objective_optimization#Introduction
-     * 
-     * @param c1
-     * @param c2
-     * @return
-     */
-    public static boolean isDominated(Chromosome c1, Chromosome c2) {
-        Map<FitnessFunction<?>, Double> c1_fitness = c1.getFitnesses();
-        Map<FitnessFunction<?>, Double> c2_fitness = c2.getFitnesses();
-
-        int for_all_indices = 0;
-        int for_at_least_one_index = 0;
-        for (FitnessFunction<?> ff : c1_fitness.keySet()) {
-            if (c1_fitness.get(ff) <= c2_fitness.get(ff))
-                for_all_indices++;
-            if (c1_fitness.get(ff) < c2_fitness.get(ff))
-                for_at_least_one_index++;
-        }
-
-        if ( (for_all_indices == c1_fitness.size()) &&
-                (for_at_least_one_index != 0) )
-            return true;
-
-        return false;
-    }
-
-    public List<Chromosome> getChromosomeDominated() {
-        return this.chromosomeDominated;
-    }
-
-    public void addChromosomeDominated(Chromosome c) {
-        this.chromosomeDominated.add(c);
-    }
-
-    public void setChromosomeDominated(List<Chromosome> lc) {
-        this.chromosomeDominated.addAll(lc);
-    }
-
-    public void resetChromosomeDominated() {
-        this.chromosomeDominated.clear();
-    }
 
     public int getRank() {
         return this.rank;

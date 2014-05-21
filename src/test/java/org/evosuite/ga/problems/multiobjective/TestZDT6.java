@@ -1,5 +1,7 @@
-package org.evosuite.ga.problems;
+package org.evosuite.ga.problems.multiobjective;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,60 +17,56 @@ import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.RandomFactory;
 import org.evosuite.ga.operators.crossover.SBXCrossover;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
-import org.evosuite.ga.variables.DoubleVariable;
+import org.evosuite.ga.problems.Problem;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class TestKUR
+public class TestZDT6
 {
     @BeforeClass
     public static void setUp() {
         Properties.POPULATION = 100;
-        Properties.SEARCH_BUDGET = 250;
+        Properties.SEARCH_BUDGET = 50000;
         Properties.CROSSOVER_RATE = 0.9;
         Properties.RANDOM_SEED = 1l;
     }
 
     @Test
-    public void testKURFitnesses()
+    public void testZDT6Fitnesses()
     {
-        Problem p = new KUR();
+        Problem p = new ZDT6();
         FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
         FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
 
-        double[] values = {-2, 1, 3};
-        NSGAChromosome c = new NSGAChromosome(-5.0, 5.0, values);
-        Assert.assertEquals(((DoubleVariable) c.getVariables().get(0)).getValue(), -2.0, 0.0);
-        Assert.assertEquals(((DoubleVariable) c.getVariables().get(1)).getValue(), 1.0, 0.0);
-        Assert.assertEquals(((DoubleVariable) c.getVariables().get(2)).getValue(), 3.0, 0.0);
+        double[] values = {0.541, 0.585, 0.915, 0.624, 0.493, 0.142, 0.971, 0.836, 0.763, 0.323};
+        NSGAChromosome c = new NSGAChromosome(0.0, 1.0, values);
 
-        Assert.assertEquals(f1.getFitness(c), -11.706929282948648, 0.0);
-        Assert.assertEquals(f2.getFitness(c), 9.191769144818029, 0.0);
+        Assert.assertEquals(f1.getFitness(c), 0.9866973935066625, 0.0);
+        Assert.assertEquals(f2.getFitness(c), 8.903810335418541, 0.0);
     }
 
     /**
-     * Testing NSGA-II with KUR Problem
+     * Testing NSGA-II with ZDT6 Problem
      * 
      * @throws IOException 
      * @throws NumberFormatException 
      */
     @Test
-    public void testKUR() throws NumberFormatException, IOException
+    public void testZDT6() throws NumberFormatException, IOException
     {
-        Properties.MUTATION_RATE = 1d / 3d; // 3 because, KUR problem has 3 variables
+        Properties.MUTATION_RATE = 1d / 10d;
 
-        ChromosomeFactory<?> factory = new RandomFactory(false, 3, -5.0, 5.0);
+        ChromosomeFactory<?> factory = new RandomFactory(false, 10, 0.0, 1.0);
 
         GeneticAlgorithm<?> ga = new NSGAII(factory);
-        //GeneticAlgorithm<?> ga = new NSGAIIJMetal(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
-        //BinaryTournament ts = new BinaryTournament();
+        ts.setMaximize(false);
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());
 
-        Problem p = new KUR();
+        Problem p = new ZDT6();
         final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
         final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
         ga.addFitnessFunction(f1);
@@ -86,40 +84,29 @@ public class TestKUR
         });
 
         // load Pareto Front
-        /*double[] pareto_f1 = new double[Properties.POPULATION];
-        double[] pareto_f2 = new double[Properties.POPULATION];
+        double[] x = new double[Properties.POPULATION];
+        double[] y = new double[Properties.POPULATION];
         int index = 0;
 
-        BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource("Kur.pf").getPath()));
+        BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource("ZDT6.pf").getPath()));
         String sCurrentLine;
         while ((sCurrentLine = br.readLine()) != null) {
-            String[] split = sCurrentLine.split("\t");
-            pareto_f1[index] = Double.valueOf(split[0]);
-            pareto_f2[index] = Double.valueOf(split[1]);
+            String[] split = sCurrentLine.split(",");
+            x[index] = Double.valueOf(split[0]);
+            y[index] = Double.valueOf(split[1]);
             index++;
         }
         br.close();
 
         // test
-        index = 0;*/
-        for (Chromosome chromosome : chromosomes)
-        {
-            NSGAChromosome nsga_c = (NSGAChromosome)chromosome;
-
-            DoubleVariable dv_0 = (DoubleVariable) nsga_c.getVariables().get(0);
-            DoubleVariable dv_1 = (DoubleVariable) nsga_c.getVariables().get(1);
-            DoubleVariable dv_2 = (DoubleVariable) nsga_c.getVariables().get(2);
-            System.out.printf("%f,%f,%f\n", dv_0.getValue(), dv_1.getValue(), dv_2.getValue());
-
-            //Assert.assertEquals(chromosome.getFitness(f1), pareto_f1[index], 0.05);
-            //Assert.assertEquals(chromosome.getFitness(f2), pareto_f2[index], 0.05);
-            //index++;
-        }
-
-        System.out.println("---------------");
+        index = 0;
         for (Chromosome chromosome : chromosomes)
         {
             System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
+
+            Assert.assertEquals(chromosome.getFitness(f1), x[index], 0.05);
+            Assert.assertEquals(chromosome.getFitness(f2), y[index], 0.06);
+            index++;
         }
     }
 }
