@@ -23,6 +23,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * 
+ * @author José Campos
+ */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class TestZDT6
 {
