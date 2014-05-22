@@ -1,7 +1,5 @@
 package org.evosuite.ga.problems.multiobjective;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,16 +16,19 @@ import org.evosuite.ga.metaheuristics.RandomFactory;
 import org.evosuite.ga.operators.crossover.SBXCrossover;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
 import org.evosuite.ga.problems.Problem;
+import org.evosuite.ga.problems.metrics.GenerationalDistance;
+import org.evosuite.ga.problems.metrics.Metrics;
+import org.evosuite.ga.problems.metrics.Spacing;
 import org.evosuite.ga.variables.DoubleVariable;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class TestKUR
 {
-    @BeforeClass
-    public static void setUp() {
+    @Before
+    public void setUp() {
         Properties.POPULATION = 100;
         Properties.SEARCH_BUDGET = 10000;
         Properties.CROSSOVER_RATE = 0.9;
@@ -86,39 +87,30 @@ public class TestKUR
             }
         });
 
-        // load Pareto Front
-        double[] x = new double[Properties.POPULATION];
-        double[] y = new double[Properties.POPULATION];
+        double[][] front = new double[Properties.POPULATION][2];
         int index = 0;
 
-        BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource("Kursawe.pf").getPath()));
-        String sCurrentLine;
-        while ((sCurrentLine = br.readLine()) != null) {
-            String[] split = sCurrentLine.split(",");
-            x[index] = Double.valueOf(split[0]);
-            y[index] = Double.valueOf(split[1]);
-            index++;
-        }
-        br.close();
-
-        // test
-        double avg_x = 0.0;
-        double avg_y = 0.0;
-
-        index = 0;
-        for (Chromosome chromosome : chromosomes)
-        {
+        for (Chromosome chromosome : chromosomes) {
             System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
+            front[index][0] = Double.valueOf(chromosome.getFitness(f1));
+            front[index][1] = Double.valueOf(chromosome.getFitness(f2));
 
-            Assert.assertEquals(chromosome.getFitness(f1), x[index], 0.95);
-            Assert.assertEquals(chromosome.getFitness(f2), y[index], 0.65);
             index++;
-
-            avg_x += chromosome.getFitness(f1);
-            avg_y += chromosome.getFitness(f2);
         }
 
-        Assert.assertEquals(avg_x / Properties.POPULATION, -16.50, 0.50);
-        Assert.assertEquals(avg_y / Properties.POPULATION, -5.50, 0.50);
+        // load True Pareto Front
+        double[][] trueParetoFront = Metrics.readFront("Kursawe.pf");
+
+        GenerationalDistance gd = new GenerationalDistance();
+        double gdd = gd.evaluate(front, trueParetoFront);
+        System.out.println("GenerationalDistance: " + gdd);
+        Assert.assertEquals(gdd, 0.0004, 0.0001);
+
+        Spacing sp = new Spacing();
+        double spd = sp.evaluate(front);
+        double spdt = sp.evaluate(trueParetoFront);
+        System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
+                            + Math.abs(spd - spdt));
+        Assert.assertEquals(Math.abs(spd - spdt), 0.30, 0.05);
     }
 }

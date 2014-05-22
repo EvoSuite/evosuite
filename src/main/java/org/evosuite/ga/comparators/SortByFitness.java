@@ -5,26 +5,17 @@ import java.util.Comparator;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 
+/**
+ * Sort a Collection of Chromosomes by their fitness value
+ * 
+ * @author José Campos
+ */
 public class SortByFitness
     implements Comparator<Chromosome>
 {
-    /**
-     * 
-     */
-    private boolean ascendingOrder;
-
-    /**
-     * 
-     */
     private FitnessFunction<?> ff;
 
-    /**
-     * 
-     * @param ascendingOrder
-     * @param ff
-     */
-    public SortByFitness(boolean ascendingOrder, FitnessFunction<?> ff) {
-        this.ascendingOrder = ascendingOrder;
+    public SortByFitness(FitnessFunction<?> ff) {
         this.ff = ff;
     }
 
@@ -39,21 +30,11 @@ public class SortByFitness
         double objetive1 = c1.getFitness(this.ff);
         double objetive2 = c2.getFitness(this.ff);
 
-        if (this.ascendingOrder) {
-            if (objetive1 < objetive2)
-                return -1;
-            else if (objetive1 > objetive2)
-                return 1;
-            else
-                return 0;
-        }
-        else {
-            if (objetive1 < objetive2)
-                return 1;
-            else if (objetive1 > objetive2)
-                return -1;
-            else
-                return 0;
-        }
+        if (objetive1 < objetive2)
+            return 1;
+        else if (objetive1 > objetive2)
+            return -1;
+        else
+            return 0;
     }
 }

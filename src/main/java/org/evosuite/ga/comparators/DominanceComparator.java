@@ -5,6 +5,11 @@ import java.util.Comparator;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 
+/**
+ * Sort a Collection of Chromosomes by their Dominance
+ * 
+ * @author José Campos
+ */
 public class DominanceComparator
     implements Comparator<Chromosome>
 {

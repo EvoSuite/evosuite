@@ -1,7 +1,5 @@
 package org.evosuite.ga.problems.multiobjective;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,15 +16,18 @@ import org.evosuite.ga.metaheuristics.RandomFactory;
 import org.evosuite.ga.operators.crossover.SBXCrossover;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
 import org.evosuite.ga.problems.Problem;
+import org.evosuite.ga.problems.metrics.GenerationalDistance;
+import org.evosuite.ga.problems.metrics.Metrics;
+import org.evosuite.ga.problems.metrics.Spacing;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class TestZDT6
 {
-    @BeforeClass
-    public static void setUp() {
+    @Before
+    public void setUp() {
         Properties.POPULATION = 100;
         Properties.SEARCH_BUDGET = 50000;
         Properties.CROSSOVER_RATE = 0.9;
@@ -83,30 +84,30 @@ public class TestZDT6
             }
         });
 
-        // load Pareto Front
-        double[] x = new double[Properties.POPULATION];
-        double[] y = new double[Properties.POPULATION];
+        double[][] front = new double[Properties.POPULATION][2];
         int index = 0;
 
-        BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource("ZDT6.pf").getPath()));
-        String sCurrentLine;
-        while ((sCurrentLine = br.readLine()) != null) {
-            String[] split = sCurrentLine.split(",");
-            x[index] = Double.valueOf(split[0]);
-            y[index] = Double.valueOf(split[1]);
-            index++;
-        }
-        br.close();
-
-        // test
-        index = 0;
-        for (Chromosome chromosome : chromosomes)
-        {
+        for (Chromosome chromosome : chromosomes) {
             System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
+            front[index][0] = Double.valueOf(chromosome.getFitness(f1));
+            front[index][1] = Double.valueOf(chromosome.getFitness(f2));
 
-            Assert.assertEquals(chromosome.getFitness(f1), x[index], 0.05);
-            Assert.assertEquals(chromosome.getFitness(f2), y[index], 0.06);
             index++;
         }
+
+        // load True Pareto Front
+        double[][] trueParetoFront = Metrics.readFront("ZDT6.pf");
+
+        GenerationalDistance gd = new GenerationalDistance();
+        double gdd = gd.evaluate(front, trueParetoFront);
+        System.out.println("GenerationalDistance: " + gdd);
+        Assert.assertEquals(gdd, 0.0005, 0.0001);
+
+        Spacing sp = new Spacing();
+        double spd = sp.evaluate(front);
+        double spdt = sp.evaluate(trueParetoFront);
+        System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
+                            + Math.abs(spd - spdt));
+        Assert.assertEquals(Math.abs(spd - spdt), 0.15, 0.05);
     }
 }
