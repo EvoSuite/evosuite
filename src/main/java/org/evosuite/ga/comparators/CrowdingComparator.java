@@ -4,6 +4,11 @@ import java.util.Comparator;
 
 import org.evosuite.ga.Chromosome;
 
+/**
+ * Sort a Collection of Chromosomes by Crowd
+ * 
+ * @author José Campos
+ */
 public class CrowdingComparator
     implements Comparator<Chromosome>
 {

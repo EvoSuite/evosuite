@@ -27,7 +27,7 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 	public void testNonDominationRankMinimize()
 	{
 		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
-		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
+		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(false);
 		ts.setMaximize(false);
 		ga.setSelectionFunction(ts);
 
@@ -49,7 +49,7 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 	public void testNonDominationRankMaximize()
 	{
 		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
-		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
+		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(true);
 		ts.setMaximize(true);
 		ga.setSelectionFunction(ts);
 
@@ -71,7 +71,7 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 	public void testCrowdingDistanceMinimize()
 	{
 		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
-		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
+		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(false);
 		ts.setMaximize(false);
 		ga.setSelectionFunction(ts);
 
@@ -97,7 +97,7 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 	public void testCrowdingDistanceMaximize()
 	{
 		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
-		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
+		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(true);
 		ts.setMaximize(true);
 		ga.setSelectionFunction(ts);
 

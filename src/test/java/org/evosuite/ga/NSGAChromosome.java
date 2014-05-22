@@ -135,7 +135,7 @@ public class NSGAChromosome extends Chromosome
 		double delta2 = (ub - new_x) / db;
 		double deltaq;
 
-		double distributionIndex = 20.0;
+		double distributionIndex = 10.0;
 		double pow = 1.0 / (distributionIndex + 1.0);
 
 		double r = Randomness.nextDouble();

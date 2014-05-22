@@ -7,8 +7,7 @@ import org.evosuite.ga.comparators.CrowdingComparator;
 import org.evosuite.utils.Randomness;
 
 /**
- * Select an individual from a population using the crowdedComparisonOperator
- * from NSGA-II as winner of a number of tournaments
+ * Select an individual from a population using a Crowd Comparison Operator
  * 
  * @author José Campos
  */
@@ -30,6 +29,10 @@ public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome> ex
 
     public BinaryTournamentSelectionCrowdedComparison() {
         this.comparator = new CrowdingComparator(maximize);
+    }
+
+    public BinaryTournamentSelectionCrowdedComparison(boolean isToMaximize) {
+        this.comparator = new CrowdingComparator(isToMaximize);
     }
 
 	@Override

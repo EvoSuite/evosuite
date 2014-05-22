@@ -65,7 +65,7 @@ public class NSGAII<T extends Chromosome>
     @Override
     protected void evolve()
     {
-        // Create the offSpring solutionSet
+        // Create the offSpring population
         List<T> offspringPopulation = new ArrayList<T>(population.size());
 
         // execute binary tournment selection, crossover, and mutation to
@@ -141,33 +141,6 @@ public class NSGAII<T extends Chromosome>
             // front contains individuals to insert
             crowingDistanceAssignment(front);
 
-            // crowdedComparisonOperator
-            /*Collections.sort(front, new Comparator<T>()
-            {
-                @Override
-                public int compare(T o1, T o2)
-                {
-                    if (o1 == null)
-                        return 1;
-                    else if (o2 == null)
-                        return -1;
-
-                    int flagComparatorRank = rankComparator(o1, o2);
-                    if (flagComparatorRank != 0)
-                        return flagComparatorRank;
-
-                    // individual with the same ranking, then distance crowding comparator
-                    double distance1 = o1.getDistance();
-                    double distance2 = o2.getDistance();
-
-                    if (distance1 > distance2)
-                        return -1;
-                    if (distance1 < distance2)
-                        return 1;
-
-                    return 0;
-                }
-            });*/
             Collections.sort(front, new CrowdingComparator(true));
 
             for (int k = 0; k < remain; k++)
@@ -212,16 +185,6 @@ public class NSGAII<T extends Chromosome>
         notifySearchFinished();
     }
 
-    /*private int rankComparator(T o1, T o2)
-    {
-        if (o1.getRank() < o2.getRank())
-            return -1;
-        if (o1.getRank() > o2.getRank())
-            return 1;
-
-        return 0;
-    }*/
-
     private List<T> union(List<T> population, List<T> offspringPopulation)
     {
         // Check the correct size. In development
@@ -241,54 +204,9 @@ public class NSGAII<T extends Chromosome>
     }
 
     /**
-     * Is c2 dominated by c1?
-     * 
-     * http://en.wikipedia.org/wiki/Multi-objective_optimization#Introduction
-     * 
-     * @param c1
-     * @param c2
-     * @return -1, or 0, or 1 if solution1 dominates solution2, both are non-dominated, or solution1 is dominated by
-     *         solution2, respectively.
-     */
-    /*private int dominanceComparator(Chromosome c1, Chromosome c2)
-    {
-        int dominate1 = 0; // dominate1 indicates if some objective of solution1
-                           // dominates the same objective in solution2
-        int dominate2 = 0; // dominate2 is the complementary of dominate1
-
-        int flag; // stores the result of the comparison
-
-        for (FitnessFunction<?> ff : this.fitnessFunctions)
-        {
-            double value1 = c1.getFitness(ff);
-            double value2 = c2.getFitness(ff);
-
-            if (value1 < value2)
-                flag = -1;
-            else if (value1 > value2)
-                flag = 1;
-            else
-                flag = 0;
-
-            if (flag == -1)
-                dominate1 = 1;
-            if (flag == 1)
-                dominate2 = 1;
-        }
-
-        if (dominate1 == dominate2)
-            return 0; // no one dominate the other
-        if (dominate1 == 1)
-            return -1; // solution1 dominate
-
-        return 1; // solution2 dominate
-    }*/
-
-    /**
      * Fast nondominated sorting
      * 
      * @param population Population to sort using domination
-     * @param N Number of solutions (stop condition)
      * @return Return the list of identified fronts
      */
     @SuppressWarnings("unchecked")
@@ -413,43 +331,10 @@ public class NSGAII<T extends Chromosome>
         double objetiveMinn;
         double distance;
 
-        //final boolean ascendingOrder_ = true; // FIXME: remove me
         for (final FitnessFunction<?> ff : this.getFitnessFunctions())
         {
-            // Sort the population by Obj n
-            /*Collections.sort(front, new Comparator<T>()
-            {
-                @Override
-                public int compare(T o1, T o2)
-                {
-                    if (o1 == null)
-                        return 1;
-                    else if (o2 == null)
-                        return -1;
-
-                    double objetive1 = o1.getFitness(ff);
-                    double objetive2 = o2.getFitness(ff);
-                    if (ascendingOrder_)
-                    {
-                        if (objetive1 < objetive2)
-                            return -1;
-                        else if (objetive1 > objetive2)
-                            return 1;
-                        else
-                            return 0;
-                    }
-                    else
-                    {
-                        if (objetive1 < objetive2)
-                            return 1;
-                        else if (objetive1 > objetive2)
-                            return -1;
-                        else
-                            return 0;
-                    }
-                }
-            });*/
-            Collections.sort(front, new SortByFitness(false, ff));
+            // Sort the population by Fit n
+            Collections.sort(front, new SortByFitness(ff));
 
             objetiveMinn = front.get(0).getFitness(ff);
             objetiveMaxn = front.get(front.size() - 1).getFitness(ff);
