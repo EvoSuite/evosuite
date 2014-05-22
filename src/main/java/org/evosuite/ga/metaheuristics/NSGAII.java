@@ -185,9 +185,8 @@ public class NSGAII<T extends Chromosome>
         notifySearchFinished();
     }
 
-    private List<T> union(List<T> population, List<T> offspringPopulation)
+    protected List<T> union(List<T> population, List<T> offspringPopulation)
     {
-        // Check the correct size. In development
         int newSize = population.size() + offspringPopulation.size();
         if (newSize < Properties.POPULATION)
             newSize = Properties.POPULATION;

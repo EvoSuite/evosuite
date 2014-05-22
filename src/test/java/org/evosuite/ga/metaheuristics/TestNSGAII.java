@@ -1,11 +1,13 @@
 package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
+import org.evosuite.ga.comparators.CrowdingComparator;
 import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.problems.multiobjective.SCH;
 import org.evosuite.ga.problems.singleobjective.Booths;
@@ -28,6 +30,38 @@ public class TestNSGAII
 		Properties.CROSSOVER_RATE = 0.9;
 		Properties.RANDOM_SEED = 1l;
 	}
+
+	@Test
+	public void testUnionEmptyPopulation()
+	{
+	    NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+
+	    List<NSGAChromosome> pop = new ArrayList<NSGAChromosome>();
+	    List<NSGAChromosome> off = new ArrayList<NSGAChromosome>();
+	    List<NSGAChromosome> union = ga.union(pop, off);
+
+	    Assert.assertTrue(union.isEmpty());
+	}
+
+	@Test
+    public void testUnion()
+    {
+        NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+
+        NSGAChromosome c1 = new NSGAChromosome();
+        NSGAChromosome c2 = new NSGAChromosome();
+        NSGAChromosome c3 = new NSGAChromosome();
+
+        List<NSGAChromosome> pop = new ArrayList<NSGAChromosome>();
+        pop.add(c1);
+        pop.add(c2);
+
+        List<NSGAChromosome> off = new ArrayList<NSGAChromosome>();
+        off.add(c3);
+
+        List<NSGAChromosome> union = ga.union(pop, off);
+        Assert.assertEquals(union.size(), 3);
+    }
 
 	@Test
 	public void testFastNonDominatedSort()
@@ -73,7 +107,10 @@ public class TestNSGAII
 		population.add(c9);
 		population.add(c10);
 
-		/*List<List<NSGAChromosome>> fronts = ga.fastNonDominatedSort(population, Properties.POPULATION);
+		List<List<NSGAChromosome>> fronts = ga.fastNonDominatedSort(population);
+
+		// Total number of Fronts
+		Assert.assertEquals(fronts.size(), 5);
 
 		// Front 0
 		Assert.assertTrue(fronts.get(0).get(0).getFitness() == 0.0);
@@ -93,7 +130,7 @@ public class TestNSGAII
 
 		// Front 4
 		Assert.assertTrue(fronts.get(4).get(0).getFitness() == 0.8);
-		Assert.assertTrue(fronts.get(4).get(1).getFitness() == 0.8);*/
+		Assert.assertTrue(fronts.get(4).get(1).getFitness() == 0.8);
 	}
 
 	@Test
@@ -140,19 +177,21 @@ public class TestNSGAII
 		population.add(c9);
 		population.add(c10);
 
-		/*List<NSGAChromosome> ret = ga.crowingDistanceAssignment(population);
-		Assert.assertTrue(ret.get(0).getDistance() == Double.MAX_VALUE);
-		Assert.assertTrue(ret.get(ret.size() - 1).getDistance() == Double.MAX_VALUE);
+		ga.crowingDistanceAssignment(population);
+		Collections.sort(population, new CrowdingComparator(true));
 
-		double epsilon = 1e-10;		
-		Assert.assertTrue(Math.abs(0.25 - ret.get(1).getDistance()) < epsilon);
-		Assert.assertTrue(Math.abs(0.25 - ret.get(2).getDistance()) < epsilon);
-		Assert.assertTrue(Math.abs(0.25 - ret.get(3).getDistance()) < epsilon);
-		Assert.assertTrue(Math.abs(0.25 - ret.get(4).getDistance()) < epsilon);
-		Assert.assertTrue(Math.abs(0.25 - ret.get(5).getDistance()) < epsilon);
-		Assert.assertTrue(Math.abs(0.25 - ret.get(6).getDistance()) < epsilon);
-		Assert.assertTrue(Math.abs(0.25 - ret.get(7).getDistance()) < epsilon);
-		Assert.assertTrue(ret.get(8).getDistance() == 0.0);*/
+		Assert.assertTrue(population.get(0).getDistance() == Double.POSITIVE_INFINITY);
+		Assert.assertTrue(population.get(1).getDistance() == Double.POSITIVE_INFINITY);
+
+		double epsilon = 1e-10;
+		Assert.assertTrue(Math.abs(0.25 - population.get(2).getDistance()) < epsilon);
+		Assert.assertTrue(Math.abs(0.25 - population.get(3).getDistance()) < epsilon);
+		Assert.assertTrue(Math.abs(0.25 - population.get(4).getDistance()) < epsilon);
+		Assert.assertTrue(Math.abs(0.25 - population.get(5).getDistance()) < epsilon);
+		Assert.assertTrue(Math.abs(0.25 - population.get(6).getDistance()) < epsilon);
+		Assert.assertTrue(Math.abs(0.25 - population.get(7).getDistance()) < epsilon);
+		Assert.assertTrue(Math.abs(0.25 - population.get(8).getDistance()) < epsilon);
+		Assert.assertTrue(Math.abs(0.25 - population.get(9).getDistance()) < epsilon);
 	}
 
 	@Test
@@ -211,54 +250,20 @@ public class TestNSGAII
         population.add(c9);
         population.add(c10);
 
-        /*List<NSGAChromosome> ret = ga.crowingDistanceAssignment(population);
-        Assert.assertTrue(ret.get(0).getDistance() == Double.MAX_VALUE);
-        Assert.assertTrue(ret.get(ret.size() - 1).getDistance() == Double.MAX_VALUE);
-        double epsilon = 0.000000000000001;
-        Assert.assertTrue(Math.abs(0.5 - ret.get(1).getDistance()) < epsilon);
-        Assert.assertTrue(Math.abs(0.5 - ret.get(2).getDistance()) < epsilon);
-        Assert.assertTrue(Math.abs(0.5 - ret.get(3).getDistance()) < epsilon);
-        Assert.assertTrue(Math.abs(0.5 - ret.get(4).getDistance()) < epsilon);
-        Assert.assertTrue(Math.abs(0.5 - ret.get(5).getDistance()) < epsilon);
-        Assert.assertTrue(Math.abs(0.5 - ret.get(6).getDistance()) < epsilon);
-        Assert.assertTrue(Math.abs(0.5 - ret.get(7).getDistance()) < epsilon);
-        Assert.assertTrue(ret.get(8).getDistance() == 0.0);*/
-    }
+        ga.crowingDistanceAssignment(population);
+        Collections.sort(population, new CrowdingComparator(true));
 
-	@Test
-    public void testCrowdedComparisonOperator()
-    {
-	    NSGAII<NSGAChromosome> ga = new NSGAII(null);
+        Assert.assertTrue(population.get(0).getDistance() == Double.POSITIVE_INFINITY);
+        Assert.assertTrue(population.get(1).getDistance() == Double.POSITIVE_INFINITY);
 
-        NSGAChromosome c1 = new NSGAChromosome();
-        NSGAChromosome c2 = new NSGAChromosome();
-        NSGAChromosome c3 = new NSGAChromosome();
-
-        // Set Rank
-        c1.setRank(1);
-        c2.setRank(0);
-        c3.setRank(0);
-
-        // Set Distance
-        c1.setDistance(0.1);
-        c2.setDistance(0.5);
-        c3.setDistance(0.4);
-
-        List<NSGAChromosome> population = new ArrayList<NSGAChromosome>();
-        population.add(c1);
-        population.add(c2);
-        population.add(c3);
-
-        //ga.crowdedComparisonOperator(population);
-
-        // assert by Rank
-        Assert.assertTrue(population.get(0).getRank() == 0);
-        Assert.assertTrue(population.get(1).getRank() == 0);
-        Assert.assertTrue(population.get(2).getRank() == 1);
-
-        // assert by Distance
-        Assert.assertTrue(population.get(0).getDistance() == 0.5);
-        Assert.assertTrue(population.get(1).getDistance() == 0.4);
-        Assert.assertTrue(population.get(2).getDistance() == 0.1);
+        double epsilon = 1e-10;
+        Assert.assertTrue(Math.abs(0.5 - population.get(2).getDistance()) < epsilon);
+        Assert.assertTrue(Math.abs(0.5 - population.get(3).getDistance()) < epsilon);
+        Assert.assertTrue(Math.abs(0.5 - population.get(4).getDistance()) < epsilon);
+        Assert.assertTrue(Math.abs(0.5 - population.get(5).getDistance()) < epsilon);
+        Assert.assertTrue(Math.abs(0.5 - population.get(6).getDistance()) < epsilon);
+        Assert.assertTrue(Math.abs(0.5 - population.get(7).getDistance()) < epsilon);
+        Assert.assertTrue(Math.abs(0.5 - population.get(8).getDistance()) < epsilon);
+        Assert.assertTrue(Math.abs(0.5 - population.get(9).getDistance()) < epsilon);
     }
 }

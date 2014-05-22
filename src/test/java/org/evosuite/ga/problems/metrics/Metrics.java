@@ -6,6 +6,10 @@ import java.io.IOException;
 
 import org.evosuite.Properties;
 
+/**
+ * 
+ * @author José Campos
+ */
 public abstract class Metrics
 {
     public static double[][] readFront(String problemName)
