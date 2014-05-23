@@ -93,18 +93,18 @@ public class ProjectAnalyzer {
 
 		if(target!=null){
 			if(!target.contains(File.pathSeparator)){
-				classes = ResourceList.getResources(target, pattern);
+				classes = ResourceList.getAllClassesAsResources(target);
 			} else {
 				classes = new HashSet<String>();
 				for(String element : target.split(File.pathSeparator)){
-					classes.addAll(ResourceList.getResources(element, pattern));
+					classes.addAll(ResourceList.getAllClassesAsResources(element));
 				}
 			}
 		} else {
 			/*
 			 * if no target specified, just grab everything on SUT classpath
 			 */
-			classes = ResourceList.getResources(ClassPathHandler.getInstance().getClassPathElementsForTargetProject(),pattern);
+			classes = ResourceList.getAllClassesAsResources(ClassPathHandler.getInstance().getTargetProjectClasspath());
 		}
 
 		List<String> cuts = new LinkedList<String>();
@@ -128,7 +128,7 @@ public class ProjectAnalyzer {
 					cuts.add(className);
 			}
 			catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				logger.error(""+e,e);
 			}
 
 		}

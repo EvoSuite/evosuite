@@ -43,8 +43,7 @@ public class ListClasses {
 
 
 	private static void listClassesTarget(String target) {
-		Pattern pattern = Pattern.compile("[^\\$]*.class");
-		Collection<String> resources = ResourceList.getResources(target, pattern);
+		Collection<String> resources = ResourceList.getAllClassesAsResources(target);
 		try {
 			ClassPathHacker.addFile(target);
 		} catch (IOException e) {
@@ -83,11 +82,9 @@ public class ListClasses {
 		
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		
-		Pattern pattern = Pattern.compile(prefix.replace("\\.", "/") // FIXME replace "/" by File.separator? (not sure)
-		        + "[^\\$]*.class");
 		Set<String> resources = new HashSet<String>();
 		for (String classPathElement : cp.split(File.pathSeparator)) {
-			resources.addAll(ResourceList.getResources(classPathElement, pattern));
+			resources.addAll(ResourceList.getAllClassesAsResources(classPathElement, prefix));
 			try {
 				ClassPathHacker.addFile(classPathElement);
 			} catch (IOException e) {

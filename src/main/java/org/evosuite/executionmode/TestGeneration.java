@@ -133,11 +133,9 @@ public class TestGeneration {
 		List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
 		
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-		Pattern pattern = Pattern.compile(prefix.replace("\\.", File.separator)
-		        + "[^\\$]*.class");
 		Set<String> resources = new HashSet<String>();
 		for (String classPathElement : cp.split(File.pathSeparator)) {
-			resources.addAll(ResourceList.getResources(classPathElement, pattern));
+			resources.addAll(ResourceList.getAllClassesAsResources(classPathElement, prefix));
 			try {
 				ClassPathHacker.addFile(classPathElement);
 			} catch (IOException e) {
@@ -586,8 +584,7 @@ public class TestGeneration {
 	        List<String> args) {
 		List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-		Pattern pattern = Pattern.compile("[^\\$]*.class");
-		Collection<String> resources = ResourceList.getResources(target,pattern);
+		Collection<String> resources = ResourceList.getAllClassesAsResources(target);
 		LoggingUtils.getEvoLogger().info("* Found " + resources.size()
 		                                         + " matching classes in target "
 		                                         + target);

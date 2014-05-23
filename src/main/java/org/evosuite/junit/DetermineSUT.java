@@ -140,8 +140,7 @@ public class DetermineSUT {
 	}
 
 	private Set<String> analyzeTargetClasspath(String classPath) {
-		Pattern pattern = Pattern.compile(".*\\.class");
-		Collection<String> classes = ResourceList.getResources(classPath, pattern);
+		Collection<String> classes = ResourceList.getAllClassesAsResources(classPath);
 		Set<String> classNames = new HashSet<String>();
 		for (String fileName : classes) {
 			classNames.add(fileName.replace(".class", "").replaceAll(File.separatorChar == '\\' ? "\\\\"

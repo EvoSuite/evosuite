@@ -369,8 +369,6 @@ public class InheritanceTreeGenerator {
 				others.add(tree);
 			} catch (IOException e) {
 				logger.info("Error: " + e);
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 
@@ -447,9 +445,6 @@ public class InheritanceTreeGenerator {
 		output.close();
 	}
 
-	public static Collection<String> getResources() {
-		return getResources(ClassPathHandler.getInstance().getTargetProjectClasspath());
-	}
 
 	public static Collection<String> getAllResources() {
 		Collection<String> retval = getResources(System.getProperty("java.class.path",
@@ -461,7 +456,6 @@ public class InheritanceTreeGenerator {
 	private static Collection<String> getResources(String classPath) {
 		final ArrayList<String> retval = new ArrayList<String>();
 		String[] classPathElements = classPath.split(File.pathSeparator);
-		Pattern pattern = Pattern.compile(".*\\.class$");
 
 		for (final String element : classPathElements) {
 			if (element.contains("evosuite-0.1-SNAPSHOT-dependencies.jar"))
@@ -473,7 +467,7 @@ public class InheritanceTreeGenerator {
 			if (element.contains("evosuite"))
 				continue;
 			try {
-				retval.addAll(ResourceList.getResources(element, pattern));
+				retval.addAll(ResourceList.getAllClassesAsResources(element));
 			} catch (IllegalArgumentException e) {
 				System.err.println("Does not exist: " + element);
 			}
