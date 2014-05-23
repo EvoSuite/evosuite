@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -54,12 +53,7 @@ public class ResourceList {
 	/** Cache of file lists to avoid unnecessary IO */
 	private static Map<String, Collection<String>> classPathCache = new LinkedHashMap<String, Collection<String>>();
 
-	/**
-	 * Cache of class names visited to avoid repeated checking of classpath for
-	 * existing files
-	 */
-	private static Map<String, Boolean> classNameCache = new HashMap<String, Boolean>();
-
+	protected static final ResourceCache cache = new ResourceCache();
 
 	// -------------------------------------------
 	// --------- public methods  ----------------- 
@@ -74,11 +68,7 @@ public class ResourceList {
 	 * @return
 	 */
 	public static boolean hasClass(String className) {
-		if (!classNameCache.containsKey(className)){
-			classNameCache.put(className, getClassAsResource(className) != null);
-		}
-
-		return classNameCache.get(className);
+		return cache.hasClass(className);
 	}
 
 	public static InputStream getClassAsStream(String name) {
