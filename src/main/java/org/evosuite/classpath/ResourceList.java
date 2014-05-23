@@ -68,42 +68,7 @@ public class ResourceList {
 	// -------------------------------------------
 	
 		
-	/**
-	 * 
-	 * @param fullyQualifyingClassName
-	 *            a fully qualified class name
-	 * @return
-	 */
-	public static String getClassAsResource(String fullyQualifyingClassName) {
-
-		String path = fullyQualifyingClassName.replace('.', '/') + ".class";
-		String escapedString = java.util.regex.Pattern.quote(path); //Important in case there is $ in the classname
-
-		Pattern pattern = Pattern.compile(escapedString);
-
-		String[] cpElements = ClassPathHandler.getInstance().getClassPathElementsForTargetProject();
-		Collection<String> resources = getResources(cpElements, pattern);
-
-		if (!resources.isEmpty()) {
-			return resources.iterator().next();
-		}
-
-		if (File.separatorChar != '/') {
-			/*
-			 * This can happen for example in Windows.
-			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
-			 */
-			path = fullyQualifyingClassName.replace(".", "\\") + ".class";
-			escapedString = java.util.regex.Pattern.quote(path);
-			pattern = Pattern.compile(escapedString);
-			resources = getResources(cpElements, pattern);
-			if (!resources.isEmpty()) {
-				return resources.iterator().next();
-			}
-		}
-
-		return null;
-	}
+	
 
 	/**
 	 * is the target class among the ones in the SUT classpath?
@@ -113,9 +78,10 @@ public class ResourceList {
 	 * @return
 	 */
 	public static boolean hasClass(String className) {
-		if (!classNameCache.containsKey(className))
+		if (!classNameCache.containsKey(className)){
 			classNameCache.put(className, getClassAsResource(className) != null);
-
+		}
+		
 		return classNameCache.get(className);
 	}
 
@@ -197,10 +163,45 @@ public class ResourceList {
 
 	
 	// -------------------------------------------
-	// --------- private methods  ---------------- 
+	// --------- private/protected methods  ------ 
 	// -------------------------------------------
 	
-	
+	/**
+	 * 
+	 * @param fullyQualifyingClassName
+	 *            a fully qualified class name
+	 * @return
+	 */
+	protected static String getClassAsResource(String fullyQualifyingClassName) {
+
+		String path = fullyQualifyingClassName.replace('.', '/') + ".class";
+		String escapedString = java.util.regex.Pattern.quote(path); //Important in case there is $ in the classname
+
+		Pattern pattern = Pattern.compile(escapedString);
+
+		String[] cpElements = ClassPathHandler.getInstance().getClassPathElementsForTargetProject();
+		Collection<String> resources = getResources(cpElements, pattern);
+
+		if (!resources.isEmpty()) {
+			return resources.iterator().next();
+		}
+
+		if (File.separatorChar != '/') {
+			/*
+			 * This can happen for example in Windows.
+			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
+			 */
+			path = fullyQualifyingClassName.replace(".", "\\") + ".class";
+			escapedString = java.util.regex.Pattern.quote(path);
+			pattern = Pattern.compile(escapedString);
+			resources = getResources(cpElements, pattern);
+			if (!resources.isEmpty()) {
+				return resources.iterator().next();
+			}
+		}
+
+		return null;
+	}
 	/**
 	 * 
 	 * @param pattern

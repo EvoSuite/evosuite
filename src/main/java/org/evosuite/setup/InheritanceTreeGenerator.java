@@ -229,26 +229,13 @@ public class InheritanceTreeGenerator {
 
 	private static void analyzeClassName(InheritanceTree inheritanceTree, String className) {
 
-		String fileName = ResourceList.getClassAsResource(className);
-		if (fileName == null) {
-			throw new IllegalArgumentException("Failed to locate resource for class "
-			        + className);
+		InputStream stream = ResourceList.getClassAsStream(className);
+		if(stream==null){
+			throw new IllegalArgumentException("Failed to locate/load class: "+className);
 		}
-
-		InputStream stream = null;
-		try {
-			stream = InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(fileName);
-		} catch (NullPointerException e) {
-			logger.warn("Java failed to read resource " + fileName, e);
-		}
-
-		if (stream != null) {
-			logger.debug(InheritanceTreeGenerator.class.getClassLoader().getResource(fileName).toString());
-			analyzeClassStream(inheritanceTree, stream, false);
-		} else {
-			logger.warn("Could not find class file " + fileName + " for class "
-			        + className);
-		}
+		
+		logger.debug("Going to analyze: "+className);
+		analyzeClassStream(inheritanceTree, stream, false);
 	}
 
 	@SuppressWarnings("unchecked")
