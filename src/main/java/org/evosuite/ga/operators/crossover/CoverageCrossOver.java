@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.testsuite;
+package org.evosuite.ga.operators.crossover;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,9 +28,9 @@ import java.util.Set;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 
 
