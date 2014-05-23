@@ -83,6 +83,20 @@ public class ResourceList {
 
 	public static InputStream getClassAsStream(String name) {
 		String path = name.replace('.', '/') + ".class";
+		String windowsPath = name.replace(".", "\\") + ".class";
+		
+		//first try with system classloader
+		InputStream is = ClassLoader.getSystemResourceAsStream(path);
+		if(is!=null){
+			return is;
+		}
+		if (File.separatorChar != '/') {			
+			is = ClassLoader.getSystemResourceAsStream(windowsPath);
+			if(is!=null){
+				return is;
+			}
+		}
+		
 		String escapedString = java.util.regex.Pattern.quote(path); //Important in case there is $ in the classname
 		Pattern pattern = Pattern.compile(escapedString);
 		InputStream resource = getResourceAsStream(pattern);
@@ -95,14 +109,13 @@ public class ResourceList {
 			/*
 			 * This can happen for example in Windows.
 			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
-			 */
-			path = name.replace(".", "\\") + ".class";
-			escapedString = java.util.regex.Pattern.quote(path);
+			 */			
+			escapedString = java.util.regex.Pattern.quote(windowsPath);
 			pattern = Pattern.compile(escapedString);
 			return getResourceAsStream(pattern);
 		}
 
-		return resource;
+		return null;
 	}
 
 	//TODO JavaDoc

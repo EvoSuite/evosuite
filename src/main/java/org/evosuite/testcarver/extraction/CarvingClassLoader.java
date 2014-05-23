@@ -131,14 +131,12 @@ public class CarvingClassLoader extends ClassLoader {
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
 
-			InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
-			if (is == null) {
-				is = ResourceList.getClassAsStream(className);
-				if(is == null){
-					throw new ClassNotFoundException("Class '" + className + ".class"
-							+ "' should be in target project, but could not be found!");
-				}
+			InputStream is = ResourceList.getClassAsStream(className);
+			if(is == null){
+				throw new ClassNotFoundException("Class '" + className + ".class"
+						+ "' should be in target project, but could not be found!");
 			}
+
 			ClassReader reader = new ClassReader(is);
 			ClassNode classNode = new ClassNode();
 			reader.accept(classNode, ClassReader.SKIP_FRAMES);
