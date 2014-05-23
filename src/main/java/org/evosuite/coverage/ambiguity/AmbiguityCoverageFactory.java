@@ -33,7 +33,6 @@ import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.MD5;
 
 /**
@@ -88,8 +87,8 @@ public class AmbiguityCoverageFactory extends
 						goals.add(new AmbiguityCoverageTestFitness(ins));
 			}
 		}
-		LoggingUtils.getEvoLogger().info("* Total number of coverage goals using Ambiguity Fitness Function: "
-											+ goals.size());
+		/*LoggingUtils.getEvoLogger().info("* Total number of coverage goals using Ambiguity Fitness Function: "
+											+ goals.size());*/
 
 		called = true;
 		loadCoverage();

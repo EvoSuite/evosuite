@@ -153,8 +153,9 @@ public class SystemTest {
 	@SuppressWarnings("unchecked")
 	protected GeneticAlgorithm<?> getGAFromResult(Object result) {
 		assert(result instanceof List);
-		List<TestGenerationResult> results = (List<TestGenerationResult>)result;
-		assert(results.size() == 1);
-		return results.iterator().next().getGeneticAlgorithm();
+		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>)result;
+		Assert.assertTrue(results.size() == 1);
+		//return results.iterator().next().getGeneticAlgorithm();
+		return results.get(0).get(0).getGeneticAlgorithm();
 	}
 }
