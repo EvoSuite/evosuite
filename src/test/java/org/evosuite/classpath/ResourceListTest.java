@@ -1,8 +1,10 @@
-package org.evosuite.utils;
+package org.evosuite.classpath;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.classpath.ResourceList;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

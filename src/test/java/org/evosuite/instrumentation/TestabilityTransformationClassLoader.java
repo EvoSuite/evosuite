@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
-import org.evosuite.utils.ResourceList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;

@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 import javax.swing.event.ListSelectionEvent;
 
 import org.evosuite.Properties;
+import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.continuous.job.schedule.HistorySchedule;
 import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
@@ -18,8 +20,6 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.sandbox.Sandbox;
-import org.evosuite.utils.ClassPathHandler;
-import org.evosuite.utils.ResourceList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

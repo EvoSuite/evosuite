@@ -1,4 +1,4 @@
-package org.evosuite.utils;
+package org.evosuite.classpath;
 
 import java.io.File;
 

@@ -7,7 +7,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import org.evosuite.Properties;
-import org.evosuite.utils.ClassPathHacker;
+import org.evosuite.classpath.ClassPathHacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

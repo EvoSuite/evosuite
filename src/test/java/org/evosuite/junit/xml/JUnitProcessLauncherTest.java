@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.junit.FooTestClassLoader;
 import org.evosuite.junit.JUnitExecutionException;
 import org.evosuite.junit.JUnitResult;
-import org.evosuite.utils.ClassPathHandler;
 import org.junit.After;
 import org.junit.Test;
 

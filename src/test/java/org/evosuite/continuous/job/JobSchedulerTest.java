@@ -3,11 +3,11 @@ package org.evosuite.continuous.job;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.continuous.project.ProjectAnalyzer;
 import org.evosuite.continuous.project.ProjectStaticData;
-import org.evosuite.utils.ClassPathHandler;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

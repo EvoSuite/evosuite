@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.testcase.ArrayReference;
@@ -12,7 +13,6 @@ import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.VariableReference;
-import org.evosuite.utils.ClassPathHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

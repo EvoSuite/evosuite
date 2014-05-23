@@ -16,7 +16,7 @@
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.evosuite.utils;
+package org.evosuite.classpath;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
