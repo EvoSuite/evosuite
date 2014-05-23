@@ -17,8 +17,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.evosuite.utils.ClassPathHacker;
-import org.evosuite.utils.ResourceList;
+import org.evosuite.classpath.ClassPathHacker;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;

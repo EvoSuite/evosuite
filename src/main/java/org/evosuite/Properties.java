@@ -34,9 +34,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.runtime.Runtime;
-import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;

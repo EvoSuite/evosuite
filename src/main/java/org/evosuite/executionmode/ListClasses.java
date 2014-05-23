@@ -13,10 +13,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.utils.ClassPathHacker;
-import org.evosuite.utils.ClassPathHandler;
+import org.evosuite.classpath.ClassPathHacker;
+import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.ResourceList;
 import org.evosuite.utils.Utils;
 
 public class ListClasses {
