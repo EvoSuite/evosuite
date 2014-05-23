@@ -361,13 +361,15 @@ public class TestSuiteGenerator {
 			FailingTestSet.sendStatistics();
 		}
 
+		LoggingUtils.getEvoLogger().info("* Compiling and checking tests");
+		int i = 0;
 		for (TestSuiteChromosome test : tests) {
     		//List<TestCase> testCases = tests.getTests();
 		    List<TestCase> testCases = test.getTests();
 
     		if (Properties.JUNIT_TESTS) {
     			if (Properties.JUNIT_CHECK && JUnitAnalyzer.isJavaCompilerAvailable()) {
-    				LoggingUtils.getEvoLogger().info("* Compiling and checking tests");
+    			    LoggingUtils.getEvoLogger().info("  - Compiling and checking test " + i);
 
     				JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
 
@@ -394,6 +396,8 @@ public class TestSuiteGenerator {
     		test.clearTests();
     		for (TestCase testCase : testCases)
     		    test.addTest(testCase);
+
+    		i++;
 		}
 
 		for (TestSuiteChromosome test : tests) {
@@ -445,7 +449,8 @@ public class TestSuiteGenerator {
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
 			
-			LoggingUtils.getEvoLogger().info("* Writing JUnit test cases to " + testDir);
+			//LoggingUtils.getEvoLogger().info("* Writing JUnit test cases to " + testDir); // FIXME: remove me
+			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
 			suite.writeTestSuite(name + suffix, testDir);
 		}
 		return TestGenerationResultBuilder.buildSuccessResult();
@@ -613,6 +618,7 @@ public class TestSuiteGenerator {
 		List<TestSuiteFitnessFunction> fitness_functions = getFitnessFunction();
 		//ga.setFitnessFunction(fitness_function); // FIXME: remove me
 		ga.addFitnessFunctions(fitness_functions);
+
 		if (Properties.CRITERION == Criterion.STRONGMUTATION) {
 		    for (FitnessFunction<?> fitness_function : fitness_functions)
 		        ga.addListener((StrongMutationSuiteFitness) fitness_function);
@@ -686,7 +692,7 @@ public class TestSuiteGenerator {
 		                                         + ga.getAge()
 		                                         + " generations, "
 		                                         + MaxStatementsStoppingCondition.getNumExecutedStatements()
-		                                         + " statements, best individual has fitness "
+		                                         + " statements, best individual(s) has(have) fitness: "
 		                                         //+ best.getFitness()); // FIXME: remove me
 		                                         + ga.toString());
 
@@ -781,11 +787,23 @@ public class TestSuiteGenerator {
 
 		// progressMonitor.updateStatus(99);
 
+		int number_of_test_cases = 0;
+        int totalLengthOfTestCases = 0;
+        double coverage = 0.0;
+
+        for (TestSuiteChromosome tsc : bests) {
+            number_of_test_cases += tsc.size();
+            totalLengthOfTestCases += tsc.totalLengthOfTestCases();
+            coverage += tsc.getCoverage();
+        }
+        coverage = coverage / ((double)bests.size());
+
 		// FIXME: this if can only be executed on single objective function?
 		if (Properties.CRITERION == Criterion.MUTATION
 		        || Properties.CRITERION == Criterion.STRONGMUTATION) {
 			//SearchStatistics.getInstance().mutationScore(best.getCoverage()); // FIXME: remove me?
-		    SearchStatistics.getInstance().mutationScore(bests.get(0).getCoverage());
+		    //SearchStatistics.getInstance().mutationScore(bests.get(0).getCoverage()); // FIXME: remove me?
+		    SearchStatistics.getInstance().mutationScore(coverage);
 		}
 
 		//StatisticsSender.executedAndThenSendIndividualToMaster(best); // FIXME: remove me?
@@ -793,21 +811,22 @@ public class TestSuiteGenerator {
 		statistics.iteration(ga);
 		//statistics.minimized(best); // FIXME: remove me?
 		statistics.minimized(bests.get(0)); // FIXME: can this be executed with MOO?
-		LoggingUtils.getEvoLogger().info("* Generated " + /*best*/bests.get(0).size() // FIXME
+		LoggingUtils.getEvoLogger().info("* Generated " + /*best*/number_of_test_cases // FIXME
 		                                         + " tests with total length "
-		                                         + /*best*/bests.get(0).totalLengthOfTestCases()); // FIXME
+		                                         + /*best*/totalLengthOfTestCases); // FIXME
 
 		// TODO: In the end we will only need one analysis technique
 		// FIXME: can this if be executed on MOO?
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
 			//SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), best.getCoverage()); // FIXME: remove me
-		    SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), bests.get(0).getCoverage());
+		    //SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), bests.get(0).getCoverage()); // FIXME: remove me
+		    SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), coverage);
 			//CoverageAnalysis.analyzeCriteria(best, Properties.ANALYSIS_CRITERIA); // FIXME: remove me
 		    CoverageAnalysis.analyzeCriteria(bests.get(0), Properties.ANALYSIS_CRITERIA);
 		}
 
 		LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "
-		                                         + NumberFormat.getPercentInstance().format(/*best*/bests.get(0).getCoverage())); // FIXME
+		                                         + NumberFormat.getPercentInstance().format(/*best*/coverage)); // FIXME
 
 		ga.printBudget();
 		if (Properties.CRITERION == Criterion.DEFUSE
@@ -890,6 +909,7 @@ public class TestSuiteGenerator {
 	public static List<TestSuiteFitnessFunction> getFitnessFunction() {
 	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
 	    ffs.add(getFitnessFunction(Properties.CRITERION));
+	    ffs.add(getFitnessFunction(Criterion.AMBIGUITY)); // FIXME: remove me
 		return ffs;
 	}
 
@@ -949,6 +969,7 @@ public class TestSuiteGenerator {
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactory() {
 	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
 	    goalsFactory.add(getFitnessFactory(Properties.CRITERION));
+	    goalsFactory.add(getFitnessFactory(Criterion.AMBIGUITY)); // FIXME: remove me
 		return goalsFactory;
 	}
 

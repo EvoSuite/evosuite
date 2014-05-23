@@ -4,7 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.SystemTest;
+import org.evosuite.Properties.Algorithm;
+import org.evosuite.Properties.Criterion;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.comparators.CrowdingComparator;
@@ -15,13 +20,15 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.Calculator;
+
 /**
  * NSGA-II test
  * 
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class TestNSGAII
+public class TestNSGAII extends SystemTest
 {
 	@BeforeClass
 	public static void setUp() {
@@ -266,4 +273,44 @@ public class TestNSGAII
         Assert.assertTrue(Math.abs(0.5 - population.get(8).getDistance()) < epsilon);
         Assert.assertTrue(Math.abs(0.5 - population.get(9).getDistance()) < epsilon);
     }
+
+	@Test
+	public void testIntegration()
+	{
+	    Properties.JUNIT_TESTS = true;
+	    Properties.SANDBOX = true;
+
+	    Properties.MUTATION_RATE = 1d / 1d;
+	    //Properties.CRITERION = Criterion.AMBIGUITY;
+	    Properties.ALGORITHM = Algorithm.NSGAII;
+
+	    EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = Calculator.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEARCH_BUDGET = 100000;
+
+        String[] command = new String[] {
+            "-Dminimize=false",
+            "-Dstop_zero=false",
+            "-Dcoverage=true",
+            "-generateSuite",
+            "-class", targetClass
+        };
+
+        Object result = evosuite.parseCommandLine(command);
+        Assert.assertNotNull(result);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+
+        List<Chromosome> population = (List<Chromosome>) ga.getBestIndividuals();
+
+        final FitnessFunction branch = ga.getFitnessFunctions().get(0);
+        final FitnessFunction ag = ga.getFitnessFunctions().get(1);
+
+        for (Chromosome p : population) {
+            System.out.println(p.getFitness(branch) + "," + p.getFitness(ag));
+        }
+
+        //Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
 }
