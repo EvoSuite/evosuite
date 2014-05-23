@@ -148,30 +148,19 @@ public class TestabilityTransformationClassLoader extends ClassLoader {
 		*/
 	}
 
-	private InputStream findTargetResource(String name) throws FileNotFoundException {
-		Pattern pattern = Pattern.compile(name);
-		Collection<String> resources = ResourceList.getResources(pattern);
-		if (resources.isEmpty())
-			throw new FileNotFoundException(name);
-		else
-			return new FileInputStream(resources.iterator().next());
-	}
-
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
 	        throws ClassNotFoundException {
 		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
 		
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
-
 			
 			InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
 			if (is == null) {
-				try {
-					is = findTargetResource(".*" + className + ".class");
-				} catch (FileNotFoundException e) {
+				is = ResourceList.getClassAsStream(className);
+				if(is == null){
 					throw new ClassNotFoundException("Class '" + className + ".class"
-					        + "' should be in target project, but could not be found!");
+							+ "' should be in target project, but could not be found!");
 				}
 			}
 			ClassReader reader = new ClassReader(is);

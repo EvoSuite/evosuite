@@ -228,8 +228,11 @@ public class CoverageAnalysis {
 	private static List<Class<?>> getClassesFromClasspath() {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
-			Pattern pattern = Pattern.compile(prefix + ".*.class");
-			Collection<String> resources = ResourceList.getResources(pattern);
+			
+			Collection<String> resources = ResourceList.getAllClassesAsResources(
+					ClassPathHandler.getInstance().getTargetProjectClasspath(), 
+					prefix);
+			
 			LoggingUtils.getEvoLogger().info("* Found " + resources.size() + " classes with prefix " + prefix);
 			if (!resources.isEmpty()) {
 				for (String resource : resources) {
