@@ -26,7 +26,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import org.evosuite.Properties;
-import org.evosuite.utils.Utils;
+import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -53,7 +53,7 @@ public class PrintBytecodeTransformer implements ClassFileTransformer {
 
 		if (className != null) {
 			try {
-				String classNameWithDots = Utils.getClassNameFromResourcePath(className);
+				String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 				
 				ClassReader reader = new ClassReader(classfileBuffer);
 				ClassWriter writer = new ClassWriter(org.objectweb.asm.ClassWriter.COMPUTE_MAXS);

@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.TimeController;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.utils.CollectionUtil;
-import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -211,7 +211,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			}
 			else
 			{
-				return Class.forName(Utils.getClassNameFromResourcePath(type));
+				return Class.forName(ResourceList.getClassNameFromResourcePath(type));
 			}
 		} 
 		catch (final ClassNotFoundException e) 

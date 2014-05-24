@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
 import org.evosuite.reset.ResetManager;
 import org.evosuite.seeding.PrimitiveClassAdapter;
@@ -33,7 +34,6 @@ import org.evosuite.testcarver.instrument.Instrumenter;
 import org.evosuite.testcarver.instrument.JSRInlinerClassVisitor;
 import org.evosuite.testcarver.instrument.TransformerUtil;
 import org.evosuite.utils.ComputeClassWriter;
-import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -239,7 +239,7 @@ public class BytecodeInstrumentation {
 		if (Properties.INSTRUMENTATION_SKIP_DEBUG)
 			readFlags |= ClassReader.SKIP_DEBUG;
 
-		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
+		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 
 		if (!checkIfCanInstrument(classNameWithDots)) {
 			throw new RuntimeException("Should not transform a shared class ("

@@ -46,7 +46,6 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -381,7 +380,7 @@ public class InheritanceTreeGenerator {
 				}
 			}
 			for (InheritanceTree other : others) {
-				if (!other.hasClass(Utils.getClassNameFromResourcePath(name))) {
+				if (!other.hasClass(ResourceList.getClassNameFromResourcePath(name))) {
 					logger.info("Skipping " + name
 					        + " because it is not in other inheritance tree");
 					continue EXCEPTION;

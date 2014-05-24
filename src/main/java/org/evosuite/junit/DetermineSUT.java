@@ -17,7 +17,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ResourceList;
-import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -141,7 +140,7 @@ public class DetermineSUT {
 		Collection<String> classes = ResourceList.getAllClassesAsResources(classPath, false);
 		Set<String> classNames = new HashSet<String>();
 		for (String fileName : classes) {
-			classNames.add(Utils.getClassNameFromResourcePath(fileName));
+			classNames.add(ResourceList.getClassNameFromResourcePath(fileName));
 		}
 		return classNames;
 	}
@@ -205,7 +204,7 @@ public class DetermineSUT {
 		while (iterator.hasNext()) {
 			AbstractInsnNode insn = iterator.next();
 			if (insn instanceof MethodInsnNode) {
-				String name = Utils.getClassNameFromResourcePath(((MethodInsnNode) insn).owner);
+				String name = ResourceList.getClassNameFromResourcePath(((MethodInsnNode) insn).owner);
 				if (!targetClasses.contains(name))
 					continue;
 
@@ -242,7 +241,7 @@ public class DetermineSUT {
 		Set<String> superClasses = new HashSet<String>();
 		String currentSuper = cn.superName;
 		while (!currentSuper.equals("java/lang/Object")) {
-			superClasses.add(Utils.getClassNameFromResourcePath(currentSuper));
+			superClasses.add(ResourceList.getClassNameFromResourcePath(currentSuper));
 			ClassNode superNode = loadClassNode(currentSuper);
 			currentSuper = superNode.superName;
 		}
