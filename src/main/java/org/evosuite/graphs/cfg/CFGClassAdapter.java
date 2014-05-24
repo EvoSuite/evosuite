@@ -18,7 +18,7 @@
 package org.evosuite.graphs.cfg;
 
 import org.evosuite.Properties;
-import org.evosuite.utils.Utils;
+import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -102,7 +102,7 @@ public class CFGClassAdapter extends ClassVisitor {
 		}
 		logger.info("Analyzing CFG of "+className);
 
-		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
+		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 
 		mv = new CFGMethodAdapter(classLoader, classNameWithDots, methodAccess, name,
 		        descriptor, signature, exceptions, mv);

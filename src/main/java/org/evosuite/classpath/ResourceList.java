@@ -35,6 +35,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
+import org.evosuite.EvoSuite;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,7 +126,45 @@ public class ResourceList {
 		return resources;
 	}
 
+	public static boolean isInterface(String resource) throws IOException {
+		
+		ClassReader reader = new ClassReader(
+				EvoSuite.class.getClassLoader().getResourceAsStream(resource));
+		ClassNode cn = new ClassNode();
+		reader.accept(cn, ClassReader.SKIP_FRAMES);
+		return (cn.access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE;
+	}
 
+	/**
+	 * <p>
+	 * Given a resource path, eg foo/Foo.class, return the class name, eg foo.Foo
+	 * 
+	 * <p>
+	 * This method is able to handle different operating systems (Unix/Windows) and whether
+	 * the resource is in a folder or inside a jar file ('/' separator independent of operating system).  
+	 *
+	 */
+	public static String getClassNameFromResourcePath(String resource){
+		if(resource==null || resource.isEmpty()){
+			return resource;
+		}
+	
+		// check file ending
+		final String CLASS = ".class";		 
+		if(resource.endsWith(CLASS)){
+			resource = resource.substring(0, resource.length() - CLASS.length());
+		}
+	
+		//in Jar it is always '/'
+		resource = resource.replace('/', '.');
+	
+		if(File.separatorChar != '/'){
+			//this would happen on a Windows machine for example
+			resource = resource.replace(File.separatorChar, '.');
+		}
+	
+		return resource;
+	}
 
 
 	// -------------------------------------------
@@ -446,5 +488,7 @@ public class ResourceList {
 		}
 		return false;
 	}
+
+
 
 }

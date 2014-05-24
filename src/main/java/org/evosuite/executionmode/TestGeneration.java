@@ -35,7 +35,6 @@ import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.statistics.SearchStatistics;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,9 +155,9 @@ public class TestGeneration {
 		                                         + prefix);
 		for (String resource : resources) {
 			try {
-				if (EvoSuite.isInterface(resource)) {
+				if (ResourceList.isInterface(resource)) {
 					LoggingUtils.getEvoLogger().info("* Skipping interface: "
-					                                         + Utils.getClassNameFromResourcePath(resource));
+					                                         + ResourceList.getClassNameFromResourcePath(resource));
 					continue;
 				}
 			} catch (IOException e) {
@@ -166,9 +165,9 @@ public class TestGeneration {
 				continue;
 			}
 			LoggingUtils.getEvoLogger().info("* Current class: "
-			                                         + Utils.getClassNameFromResourcePath(resource));
+			                                         + ResourceList.getClassNameFromResourcePath(resource));
 			results.addAll(generateTests(Strategy.EVOSUITE,
-						Utils.getClassNameFromResourcePath(resource),
+						ResourceList.getClassNameFromResourcePath(resource),
 			              args));
 		}
 		return results;
@@ -605,9 +604,9 @@ public class TestGeneration {
 
 		for (String resource : resources) {
 			try {
-				if (EvoSuite.isInterface(resource)) {
+				if (ResourceList.isInterface(resource)) {
 					LoggingUtils.getEvoLogger().info("* Skipping interface: "
-					                                         + Utils.getClassNameFromResourcePath(resource));
+					                                         + ResourceList.getClassNameFromResourcePath(resource));
 					continue;
 				}
 			} catch (IOException e) {
@@ -615,9 +614,9 @@ public class TestGeneration {
 				continue;
 			}
 			LoggingUtils.getEvoLogger().info("* Current class: "
-			                                         + Utils.getClassNameFromResourcePath(resource));
+			                                         + ResourceList.getClassNameFromResourcePath(resource));
 			results.addAll(generateTests(Strategy.EVOSUITE,
-						Utils.getClassNameFromResourcePath(resource),
+						ResourceList.getClassNameFromResourcePath(resource),
 			              args));
 		}
 		

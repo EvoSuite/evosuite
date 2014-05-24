@@ -50,7 +50,6 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Utils;
 import org.junit.Test;
 import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
@@ -239,7 +238,7 @@ public class CoverageAnalysis {
 				for (String resource : resources) {
 					try {
 						Class<?> clazz = Class.forName(
-								Utils.getClassNameFromResourcePath(resource),
+								ResourceList.getClassNameFromResourcePath(resource),
 								true,
 								TestGenerationContext.getInstance().getClassLoaderForSUT());
 						if (isTest(clazz)) {

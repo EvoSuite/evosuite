@@ -17,7 +17,6 @@ import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Utils;
 
 public class ListClasses {
 
@@ -51,7 +50,7 @@ public class ListClasses {
 		}
 		for (String resource : resources) {
 			try {
-				if (EvoSuite.isInterface(resource)) {
+				if (ResourceList.isInterface(resource)) {
 					continue;
 				}
 			} catch (IOException e) {
@@ -64,7 +63,7 @@ public class ListClasses {
 			if(groupId!=null && !groupId.isEmpty() && !groupId.equals("none")){
 				row += groupId + "\t";
 			}
-			row += Utils.getClassNameFromResourcePath(resource);
+			row += ResourceList.getClassNameFromResourcePath(resource);
 			
 			LoggingUtils.getEvoLogger().info(row);
 		}
@@ -93,14 +92,14 @@ public class ListClasses {
 		}
 		for (String resource : resources) {
 			try {
-				if (EvoSuite.isInterface(resource)) {
+				if (ResourceList.isInterface(resource)) {
 					continue;
 				}
 			} catch (IOException e) {
 				LoggingUtils.getEvoLogger().error("Could not load class: " + resource);
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info(Utils.getClassNameFromResourcePath(resource));
+			LoggingUtils.getEvoLogger().info(ResourceList.getClassNameFromResourcePath(resource));
 		}
 	}
 }

@@ -19,6 +19,7 @@ import java.util.Set;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.runtime.EvoSuiteXStream;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.CaptureUtil;
@@ -43,7 +44,6 @@ import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -407,7 +407,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				return Class.forName(arrayTypeNameBuilder.toString(), true,
 				                     TestGenerationContext.getClassLoader());
 			} else {
-				return Class.forName(Utils.getClassNameFromResourcePath(type), true,
+				return Class.forName(ResourceList.getClassNameFromResourcePath(type), true,
 				                     TestGenerationContext.getClassLoader());
 			}
 		} catch (final ClassNotFoundException e) {

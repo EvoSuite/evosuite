@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.rmi.ClientServices;
@@ -17,7 +18,6 @@ import org.evosuite.testcarver.extraction.CarvingRunListener;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
-import org.evosuite.utils.Utils;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -88,7 +88,7 @@ public class JUnitTestCarvedChromosomeFactory implements
 
 		for (String className : junitTestNames) {
 
-			String classNameWithDots = Utils.getClassNameFromResourcePath(className);
+			String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 			try {
 				final Class<?> junitClass = classLoader.loadClass(classNameWithDots);
 				junitTestClasses.add(junitClass);
