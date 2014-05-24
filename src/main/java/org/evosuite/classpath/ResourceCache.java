@@ -12,6 +12,10 @@ public class ResourceCache {
 	 */
 	private  Map<String, Boolean> classNameCache = new HashMap<String, Boolean>();
 	
+	public void reset(){
+		classNameCache.clear();
+	}
+	
 	public boolean hasClass(String className) {
 		if (!classNameCache.containsKey(className)){
 			classNameCache.put(className, ResourceList.getClassAsResource(className) != null);

@@ -6,6 +6,7 @@ import java.io.InputStream;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -15,6 +16,11 @@ public class ResourceListTest {
 	public static void initClass(){
 		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
 	} 
+	
+	@Before
+	public void resetCache(){
+		ResourceList.cache.reset();
+	}
 	
 	@Test
 	public void testLoadOfEvoSuiteTestClasses() {
@@ -33,8 +39,6 @@ public class ResourceListTest {
 
 	@Test
 	public void testClassPathCacheRegressionBug() {
-		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
-
 		String className1 = ResourceListFoo.class.getName();
 		String className2 = ResourceListFoo2.class.getName();
 		String res1 = ResourceList.getClassAsResource(className1);

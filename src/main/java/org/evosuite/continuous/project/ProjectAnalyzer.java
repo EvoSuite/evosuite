@@ -88,23 +88,22 @@ public class ProjectAnalyzer {
 			return Arrays.asList(cutsToAnalyze);
 		}
 
-		Pattern pattern = Pattern.compile("[^\\$]*.class");
 		Collection<String> classes = null;
 
 		if(target!=null){
 			if(!target.contains(File.pathSeparator)){
-				classes = ResourceList.getAllClassesAsResources(target);
+				classes = ResourceList.getAllClassesAsResources(target, false);
 			} else {
 				classes = new HashSet<String>();
 				for(String element : target.split(File.pathSeparator)){
-					classes.addAll(ResourceList.getAllClassesAsResources(element));
+					classes.addAll(ResourceList.getAllClassesAsResources(element, false));
 				}
 			}
 		} else {
 			/*
 			 * if no target specified, just grab everything on SUT classpath
 			 */
-			classes = ResourceList.getAllClassesAsResources(ClassPathHandler.getInstance().getTargetProjectClasspath());
+			classes = ResourceList.getAllClassesAsResources(ClassPathHandler.getInstance().getTargetProjectClasspath(), false);
 		}
 
 		List<String> cuts = new LinkedList<String>();
