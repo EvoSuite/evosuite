@@ -76,7 +76,8 @@ public class CommandLineParameters {
 		Option targetClass = new Option("class", true, 
 				"target class for test generation. A fully qualifying needs to be provided, e.g. org.foo.SomeClass");
 		Option targetPrefix = new Option("prefix", true,
-				"target prefix for test generation. All classes on the classpath with the given prefix will be used");
+				"target package prefix for test generation. All classes on the classpath with the given package prefix " +
+				"will be used, i.e. all classes in the given package and sub-packages.");
 		Option targetCP = new Option("target", true,
 				"target classpath for test generation. Either a jar file or a folder where to find the .class files");
 

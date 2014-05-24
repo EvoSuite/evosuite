@@ -50,6 +50,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Utils;
 import org.junit.Test;
 import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
@@ -231,14 +232,14 @@ public class CoverageAnalysis {
 			
 			Collection<String> resources = ResourceList.getAllClassesAsResources(
 					ClassPathHandler.getInstance().getTargetProjectClasspath(), 
-					prefix);
+					prefix, false);
 			
 			LoggingUtils.getEvoLogger().info("* Found " + resources.size() + " classes with prefix " + prefix);
 			if (!resources.isEmpty()) {
 				for (String resource : resources) {
 					try {
 						Class<?> clazz = Class.forName(
-								resource.replaceAll(".class", "").replaceAll("/","."),
+								Utils.getClassNameFromResourcePath(resource),
 								true,
 								TestGenerationContext.getInstance().getClassLoaderForSUT());
 						if (isTest(clazz)) {

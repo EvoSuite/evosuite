@@ -3,7 +3,6 @@
  */
 package org.evosuite.junit;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.classpath.ClassPathHacker;
@@ -140,12 +138,10 @@ public class DetermineSUT {
 	}
 
 	private Set<String> analyzeTargetClasspath(String classPath) {
-		Collection<String> classes = ResourceList.getAllClassesAsResources(classPath);
+		Collection<String> classes = ResourceList.getAllClassesAsResources(classPath, false);
 		Set<String> classNames = new HashSet<String>();
 		for (String fileName : classes) {
-			classNames.add(fileName.replace(".class", "").replaceAll(File.separatorChar == '\\' ? "\\\\"
-			                                                                 : File.separator,
-			                                                         "."));
+			classNames.add(Utils.getClassNameFromResourcePath(fileName));
 		}
 		return classNames;
 	}

@@ -109,13 +109,13 @@ public class ResourceList {
 	}
 
 	//TODO JavaDoc
-	public static Collection<String> getAllClassesAsResources(String classPathEntry){
+	public static Collection<String> getAllClassesAsResources(String classPathEntry, boolean includeAnonymousClasses){
 		//TODO check input
-		return getAllClassesAsResources(classPathEntry,"");
+		return getAllClassesAsResources(classPathEntry,"", includeAnonymousClasses);
 	}
 	
 	//TODO JavaDoc
-	public static Collection<String> getAllClassesAsResources(String classPathEntry, String prefix){
+	public static Collection<String> getAllClassesAsResources(String classPathEntry, String prefix, boolean includeAnonymousClasses){
 		//TODO check input
 		Pattern pattern = Pattern.compile(prefix.replace('.', '/')+"[^\\$]*.class");
 		Collection<String> resources = ResourceList.getResources(classPathEntry, pattern);
