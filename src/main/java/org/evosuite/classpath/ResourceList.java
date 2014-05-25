@@ -196,30 +196,30 @@ public class ResourceList {
 			}
 		}
 		
-		/*
-		String escapedString = java.util.regex.Pattern.quote(path); //Important in case there is $ in the classname
-		Pattern pattern = Pattern.compile(escapedString);
-		InputStream resource = getResourceAsStream(pattern);
-
-		if (resource != null) {
-			return resource;
-		}
-
-		if (File.separatorChar != '/') {
-			
-			 * This can happen for example in Windows.
-			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
-			 			
-			escapedString = java.util.regex.Pattern.quote(windowsPath);
-			pattern = Pattern.compile(escapedString);
-			return getResourceAsStream(pattern);
-		}
-
-		return null;
-		*/
 	}
 
-	//TODO JavaDoc
+	
+	/**
+	 * Given the target classpath entry (eg folder or jar file), return all the classes (.class files)
+	 * inside
+	 * 
+	 * @param classPathEntry
+	 * @param includeAnonymousClasses
+	 * @return
+	 */
+	public static Collection<String> getAllClasses(String classPathEntry, boolean includeAnonymousClasses){
+		return getAllClasses(classPathEntry,"",includeAnonymousClasses);
+	}
+	
+	/**
+	 * Given the target classpath entry (eg folder or jar file), return all the classes (.class files)
+	 * inside
+	 * 
+	 * @param classPathEntry
+	 * @param prefix
+	 * @param includeAnonymousClasses
+	 * @return
+	 */
 	public static Collection<String> getAllClasses(String classPathEntry, String prefix, boolean includeAnonymousClasses){
 
 		if(classPathEntry.contains(File.pathSeparator)){
@@ -282,6 +282,7 @@ public class ResourceList {
 		return resources;
 	}
 
+	
 	public static boolean isInterface(String resource) throws IOException {
 
 		ClassReader reader = new ClassReader(
@@ -322,7 +323,19 @@ public class ResourceList {
 		return resource;
 	}
 
-	public static String getParentPackageName(String className){
+	
+
+	// -------------------------------------------
+	// --------- private/protected methods  ------ 
+	// -------------------------------------------
+
+	/**
+	 * Remove last '.' token
+ 	 * 
+	 * @param className
+	 * @return
+	 */
+	protected static String getParentPackageName(String className){
 		if(className==null || className.isEmpty()){
 			return className;
 		}
@@ -334,11 +347,11 @@ public class ResourceList {
 
 		return className.substring(0,index);
 	}
-
-	// -------------------------------------------
-	// --------- private/protected methods  ------ 
-	// -------------------------------------------
-
+	
+	/**
+	 * Init the cache if null
+	 * @return
+	 */
 	private static Cache getCache(){
 		if(cache == null){
 			initCache();
