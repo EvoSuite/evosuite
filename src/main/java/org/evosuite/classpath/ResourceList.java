@@ -26,12 +26,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -65,29 +68,63 @@ public class ResourceList {
 	 * existing files
 	 */
 	private  static Map<String, Boolean> classNameCache = new HashMap<String, Boolean>();
-	
-	
-	private static Set<String> analyzedClasspath; 
-	
+
+
+	private static class Cache{
+		/**
+		 * Key -> a classpath entry (eg folder or jar file)
+		 * <p>
+		 * Value -> set of all classes in that CP entry
+		 */
+		public  Map<String,Set<String>> mapCPtoClasses = new LinkedHashMap<>(); 
+
+		/**
+		 * Key -> full qualifying name of a class, eg org.some.Foo
+		 * <p>
+		 * Value -> the classpath entry in which it can be found
+		 */
+		public  Map<String,String> mapClassToCP = new LinkedHashMap<>();
+
+		/**
+		 * Key -> package prefix
+		 * <p>
+		 * Value -> set of classpath entries having such prefix
+		 */
+		public Map<String,Set<String>> mapPrefixToCPs = new LinkedHashMap<>();
+
+		public void addPrefix(String prefix, String cpEntry){
+			Set<String> classPathEntries = mapPrefixToCPs.get(prefix);
+			if(classPathEntries==null){
+				classPathEntries = new LinkedHashSet<String>();
+				mapPrefixToCPs.put(prefix, classPathEntries);
+			}
+			classPathEntries.add(cpEntry);
+			
+			if(!prefix.isEmpty()){
+				String parent = getParentPackageName(prefix);
+				addPrefix(parent,cpEntry);
+			}
+		}
+
+	}
+
 	/**
-	 * Key -> full qualifying name of a class, eg org.some.Foo
-	 * <p>
-	 * Value -> the classpath entry in which it can be found
+	 * Current cache. Do not access directly, but rather use getCache(), as it can be null
 	 */
-	private static Map<String,String> mapClassToCP;
-	
-	
+	private static Cache cache;
+
+
 	// -------------------------------------------
 	// --------- public methods  ----------------- 
 	// -------------------------------------------
-	
+
 	protected static void resetCache(){
-		classNameCache.clear();
+		cache = null;
 		classPathCache.clear();
-		analyzedClasspath = null;
+		classNameCache.clear();
 	}
-	
-	
+
+
 	/**
 	 * is the target class among the ones in the SUT classpath?
 	 * 
@@ -111,7 +148,7 @@ public class ResourceList {
 	public static InputStream getClassAsStream(String name) {
 		String path = name.replace('.', '/') + ".class";
 		String windowsPath = name.replace(".", "\\") + ".class";
-		
+
 		//first try with system classloader
 		InputStream is = ClassLoader.getSystemResourceAsStream(path);
 		if(is!=null){
@@ -123,7 +160,7 @@ public class ResourceList {
 				return is;
 			}
 		}
-		
+
 		String escapedString = java.util.regex.Pattern.quote(path); //Important in case there is $ in the classname
 		Pattern pattern = Pattern.compile(escapedString);
 		InputStream resource = getResourceAsStream(pattern);
@@ -145,21 +182,58 @@ public class ResourceList {
 		return null;
 	}
 
+	//TODO JavaDoc
 	public static Collection<String> getAllClasses(String classPathEntry, String prefix, boolean includeAnonymousClasses){
+
+		if(classPathEntry.contains(File.pathSeparator)){
+			Set<String> retval = new LinkedHashSet<String>();
+			for(String element : classPathEntry.split(File.pathSeparator)){
+				retval.addAll(getAllClasses(element,prefix,includeAnonymousClasses));
+			}
+			return retval;
+		} else {
+
+			classPathEntry = (new File(classPathEntry)).getAbsolutePath();
+
+			addEntry(classPathEntry);
+
+			//no need to scan the classpath entry cache if it does not have the given prefix
+			Set<String> cps = getCache().mapPrefixToCPs.get(prefix);
+			if(cps==null || !cps.contains(classPathEntry)){
+				return Collections.emptySet();
+			}
+
+			Set<String> classes = new LinkedHashSet<>();
+
+			for(String className : getCache().mapCPtoClasses.get(classPathEntry)){
+				if(!className.startsWith(prefix)){
+					continue;
+				}
+				if(!includeAnonymousClasses && className.contains("$")){
+					continue;
+				}
+
+				classes.add(className);
+			}
+
+			return classes;
+		}
+		/*
 		Collection<String> resources = getAllClassesAsResources(classPathEntry,prefix,includeAnonymousClasses);
 		Collection<String> classes = new LinkedHashSet<>(resources.size());
 		for(String res : resources){
 			classes.add(getClassNameFromResourcePath(res));
 		}
 		return classes;
+		 */
 	}
-	
+
 	//TODO JavaDoc
 	public static Collection<String> getAllClassesAsResources(String classPathEntry, boolean includeAnonymousClasses){
 		//TODO check input
 		return getAllClassesAsResources(classPathEntry,"", includeAnonymousClasses);
 	}
-	
+
 	//TODO JavaDoc
 	public static Collection<String> getAllClassesAsResources(String classPathEntry, String prefix, boolean includeAnonymousClasses){
 		//TODO check input
@@ -173,14 +247,14 @@ public class ResourceList {
 			rx += ".*";
 		}
 		rx += "\\.class";
-			
+
 		Pattern pattern = Pattern.compile(rx);
 		Collection<String> resources = ResourceList.getResources(classPathEntry, pattern);
 		return resources;
 	}
 
 	public static boolean isInterface(String resource) throws IOException {
-		
+
 		ClassReader reader = new ClassReader(
 				EvoSuite.class.getClassLoader().getResourceAsStream(resource));
 		ClassNode cn = new ClassNode();
@@ -201,28 +275,153 @@ public class ResourceList {
 		if(resource==null || resource.isEmpty()){
 			return resource;
 		}
-	
+
 		// check file ending
 		final String CLASS = ".class";		 
 		if(resource.endsWith(CLASS)){
 			resource = resource.substring(0, resource.length() - CLASS.length());
 		}
-	
+
 		//in Jar it is always '/'
 		resource = resource.replace('/', '.');
-	
+
 		if(File.separatorChar != '/'){
 			//this would happen on a Windows machine for example
 			resource = resource.replace(File.separatorChar, '.');
 		}
-	
+
 		return resource;
 	}
 
+	public static String getParentPackageName(String className){
+		if(className==null || className.isEmpty()){
+			return className;
+		}
+
+		int index = className.lastIndexOf('.');
+		if(index<0){
+			return "";
+		}
+
+		return className.substring(0,index);
+	}
 
 	// -------------------------------------------
 	// --------- private/protected methods  ------ 
 	// -------------------------------------------
+
+	private static Cache getCache(){
+		if(cache == null){
+			initCache();
+		}
+
+		return cache;
+	}
+
+	private static void initCache() {
+
+		cache = new Cache();
+
+		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+		for(String entry : cp.split(File.pathSeparator)){
+			addEntry(entry);
+		}		
+	}
+
+	private static void addEntry(String classPathElement) throws IllegalArgumentException{
+		final File file = new File(classPathElement);
+
+		classPathElement = file.getAbsolutePath();
+
+		if(getCache().mapCPtoClasses.containsKey(classPathElement)){
+			return; //this classpath entry has already been analyzed
+		}
+
+		getCache().mapCPtoClasses.put(classPathElement, new LinkedHashSet<String>());
+
+
+		if (!file.exists()) {
+			throw new IllegalArgumentException("The class path resource "
+					+ file.getAbsolutePath() + " does not exist");
+		}
+
+		if (file.isDirectory()) {
+			scanDirectory(file,classPathElement);
+		} else if (file.getName().endsWith(".jar")) {
+			scanJar(classPathElement);
+		} else {
+			throw new IllegalArgumentException("The class path resource "
+					+ file.getAbsolutePath() + " is not valid");
+		}		
+	}
+
+	private static void scanDirectory(final File directory,
+			final String classPathFolder) {
+
+		if (!directory.exists()) {
+			return;
+		}
+		if (!directory.isDirectory()) {
+			return;
+		}
+		if (!directory.canRead()) {
+			logger.warn("No permission to read: "+directory.getAbsolutePath());
+			return;
+		}
+
+		String prefix =  directory.getAbsolutePath().replace(classPathFolder + File.separator,"");
+		prefix = prefix.replace(File.separatorChar, '.');
+		
+		File[] fileList = directory.listFiles();
+		for (final File file : fileList) {
+			if (file.isDirectory()) {
+				/*
+				 * recursion till we get to a file that is not a folder.
+				 */
+				scanDirectory(file, classPathFolder);
+			} else {
+				if(! file.getName().endsWith(".class")){
+					continue; // we are only interested in class files
+				}
+				String relativeFilePath = file.getAbsolutePath().replace(classPathFolder + File.separator,"");
+				String className = getClassNameFromResourcePath(relativeFilePath);
+
+				getCache().mapClassToCP.put(className, classPathFolder);
+				getCache().mapCPtoClasses.get(classPathFolder).add(className);
+				getCache().addPrefix(prefix, classPathFolder);
+			}
+		}
+	}
+
+	private static void scanJar(String jarEntry) {
+		JarFile zf;
+		try {
+			zf = new JarFile(jarEntry);
+		} catch (final Exception e) {
+			throw new Error(e);
+		}
+
+		Enumeration<?> e = zf.entries();
+		while (e.hasMoreElements()) {
+			JarEntry ze = (JarEntry) e.nextElement();
+			String entryName = ze.getName();
+
+			if(! entryName.endsWith(".class")){
+				continue;
+			}
+
+			String className = getClassNameFromResourcePath(entryName);
+			getCache().mapClassToCP.put(className, jarEntry);//getPackageName
+			getCache().mapCPtoClasses.get(jarEntry).add(className);
+			getCache().addPrefix(getParentPackageName(className), jarEntry);
+		}
+		try {
+			zf.close();
+		} catch (final IOException e1) {
+			throw new Error(e1);
+		}
+	}
+
 
 	/**
 	 * 
@@ -282,7 +481,7 @@ public class ResourceList {
 			return getResourcesFromCache(classPathElement, pattern);
 		}
 	}
-	
+
 	private static Collection<String> getResourcesFromJarFile(final File file) {
 		final ArrayList<String> retval = new ArrayList<String>();
 		ZipFile zf;
@@ -391,7 +590,7 @@ public class ResourceList {
 		}
 		return false;
 	}
-	
+
 	//----------------------------------------------------------------------------
 
 	/**
