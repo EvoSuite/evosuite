@@ -27,8 +27,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -57,13 +60,34 @@ public class ResourceList {
 	/** Cache of file lists to avoid unnecessary IO */
 	private static Map<String, Collection<String>> classPathCache = new LinkedHashMap<String, Collection<String>>();
 
-	protected static final ResourceCache cache = new ResourceCache();
-
+	/**
+	 * Cache of class names visited to avoid repeated checking of classpath for
+	 * existing files
+	 */
+	private  static Map<String, Boolean> classNameCache = new HashMap<String, Boolean>();
+	
+	
+	private static Set<String> analyzedClasspath; 
+	
+	/**
+	 * Key -> full qualifying name of a class, eg org.some.Foo
+	 * <p>
+	 * Value -> the classpath entry in which it can be found
+	 */
+	private static Map<String,String> mapClassToCP;
+	
+	
 	// -------------------------------------------
 	// --------- public methods  ----------------- 
 	// -------------------------------------------
-
-
+	
+	protected static void resetCache(){
+		classNameCache.clear();
+		classPathCache.clear();
+		analyzedClasspath = null;
+	}
+	
+	
 	/**
 	 * is the target class among the ones in the SUT classpath?
 	 * 
@@ -72,9 +96,18 @@ public class ResourceList {
 	 * @return
 	 */
 	public static boolean hasClass(String className) {
-		return cache.hasClass(className);
+		if (!classNameCache.containsKey(className)){
+			classNameCache.put(className, ResourceList.getClassAsResource(className) != null);
+		}
+
+		return classNameCache.get(className);
 	}
 
+	/**
+	 * 
+	 * @param name  a fully qualifying name, e.g. org.some.Foo
+	 * @return
+	 */
 	public static InputStream getClassAsStream(String name) {
 		String path = name.replace('.', '/') + ".class";
 		String windowsPath = name.replace(".", "\\") + ".class";
@@ -112,6 +145,15 @@ public class ResourceList {
 		return null;
 	}
 
+	public static Collection<String> getAllClasses(String classPathEntry, String prefix, boolean includeAnonymousClasses){
+		Collection<String> resources = getAllClassesAsResources(classPathEntry,prefix,includeAnonymousClasses);
+		Collection<String> classes = new LinkedHashSet<>(resources.size());
+		for(String res : resources){
+			classes.add(getClassNameFromResourcePath(res));
+		}
+		return classes;
+	}
+	
 	//TODO JavaDoc
 	public static Collection<String> getAllClassesAsResources(String classPathEntry, boolean includeAnonymousClasses){
 		//TODO check input
@@ -121,7 +163,18 @@ public class ResourceList {
 	//TODO JavaDoc
 	public static Collection<String> getAllClassesAsResources(String classPathEntry, String prefix, boolean includeAnonymousClasses){
 		//TODO check input
-		Pattern pattern = Pattern.compile(prefix.replace('.', '/')+"[^\\$]*.class");
+		if(prefix==null){
+			prefix = "";
+		}
+		String rx = prefix;
+		if(!includeAnonymousClasses){
+			rx += "[^\\$]*";
+		} else {
+			rx += ".*";
+		}
+		rx += "\\.class";
+			
+		Pattern pattern = Pattern.compile(rx);
 		Collection<String> resources = ResourceList.getResources(classPathEntry, pattern);
 		return resources;
 	}
@@ -230,6 +283,117 @@ public class ResourceList {
 		}
 	}
 	
+	private static Collection<String> getResourcesFromJarFile(final File file) {
+		final ArrayList<String> retval = new ArrayList<String>();
+		ZipFile zf;
+		try {
+			zf = new ZipFile(file);
+		} catch (final Exception e) {
+			throw new Error(e);
+		}
+
+		final Enumeration<?> e = zf.entries();
+		while (e.hasMoreElements()) {
+			final ZipEntry ze = (ZipEntry) e.nextElement();
+			final String fileName = ze.getName();
+			retval.add(fileName);
+		}
+		try {
+			zf.close();
+		} catch (final IOException e1) {
+			throw new Error(e1);
+		}
+		return retval;
+	}
+
+	private static Collection<String> getResourcesFromDirectory(final File directory,
+			final String classPathFolder) {
+
+		final ArrayList<String> retval = new ArrayList<String>();
+		if (!directory.exists()) {
+			return retval;
+		}
+		if (!directory.isDirectory()) {
+			return retval;
+		}
+		if (!directory.canRead()) {
+			return retval;
+		}
+
+		final File[] fileList = directory.listFiles();
+		for (final File file : fileList) {
+			if (file.isDirectory()) {
+				/*
+				 * recursion till we get to a file that is not a folder.
+				 * The pattern is matched only against files, not folders, and it is based
+				 * on their full path names
+				 */
+				retval.addAll(getResourcesFromDirectory(file, classPathFolder));
+			} else {
+				try {
+
+					final String relativeFilePath = file.getCanonicalPath().replace(classPathFolder
+							+ File.separator,
+							"");
+					retval.add(relativeFilePath);
+				} catch (final IOException e) {
+					throw new Error(e);
+				}
+			}
+		}
+
+		return retval;
+	}
+
+	private static void initialiseCacheEntry(final String classPathElement) {
+		if (classPathCache.containsKey(classPathElement))
+			return;
+
+		final ArrayList<String> retval = new ArrayList<String>();
+		final File file = new File(classPathElement);
+
+		if (!file.exists()) {
+			throw new IllegalArgumentException("The class path resource "
+					+ file.getAbsolutePath() + " does not exist");
+		}
+
+		if (file.isDirectory()) {
+			try {
+				retval.addAll(getResourcesFromDirectory(file, file.getCanonicalPath()));
+			} catch (IOException e) {
+				logger.error("Error in getting resources", e);
+				throw new RuntimeException(e);
+			}
+		} else if (file.getName().endsWith(".jar")) {
+			retval.addAll(getResourcesFromJarFile(file));
+		} else {
+			throw new IllegalArgumentException("The class path resource "
+					+ file.getAbsolutePath() + " is not valid");
+		}
+		classPathCache.put(classPathElement, retval);
+	}
+
+	private static Collection<String> getResourcesFromCache(final String classPathEntry,
+			final Pattern pattern) {
+		final ArrayList<String> retval = new ArrayList<String>();
+		for (String entry : classPathCache.get(classPathEntry)) {
+			if (pattern.matcher(entry).matches())
+				retval.add(entry);
+		}
+		return retval;
+	}
+
+	private static boolean hasResourcesInCache(final String classPathEntry,
+			final Pattern pattern) {
+		for (String entry : classPathCache.get(classPathEntry)) {
+			if (pattern.matcher(entry).matches())
+				return true;
+		}
+		return false;
+	}
+	
+	//----------------------------------------------------------------------------
+
 	/**
 	 * 
 	 * @param pattern
@@ -379,115 +543,6 @@ public class ResourceList {
 		return null;
 	}
 
-
-	private static Collection<String> getResourcesFromJarFile(final File file) {
-		final ArrayList<String> retval = new ArrayList<String>();
-		ZipFile zf;
-		try {
-			zf = new ZipFile(file);
-		} catch (final Exception e) {
-			throw new Error(e);
-		}
-
-		final Enumeration<?> e = zf.entries();
-		while (e.hasMoreElements()) {
-			final ZipEntry ze = (ZipEntry) e.nextElement();
-			final String fileName = ze.getName();
-			retval.add(fileName);
-		}
-		try {
-			zf.close();
-		} catch (final IOException e1) {
-			throw new Error(e1);
-		}
-		return retval;
-	}
-
-	private static Collection<String> getResourcesFromDirectory(final File directory,
-			final String classPathFolder) {
-
-		final ArrayList<String> retval = new ArrayList<String>();
-		if (!directory.exists()) {
-			return retval;
-		}
-		if (!directory.isDirectory()) {
-			return retval;
-		}
-		if (!directory.canRead()) {
-			return retval;
-		}
-
-		final File[] fileList = directory.listFiles();
-		for (final File file : fileList) {
-			if (file.isDirectory()) {
-				/*
-				 * recursion till we get to a file that is not a folder.
-				 * The pattern is matched only against files, not folders, and it is based
-				 * on their full path names
-				 */
-				retval.addAll(getResourcesFromDirectory(file, classPathFolder));
-			} else {
-				try {
-
-					final String relativeFilePath = file.getCanonicalPath().replace(classPathFolder
-							+ File.separator,
-							"");
-					retval.add(relativeFilePath);
-				} catch (final IOException e) {
-					throw new Error(e);
-				}
-			}
-		}
-
-		return retval;
-	}
-
-	private static void initialiseCacheEntry(final String classPathElement) {
-		if (classPathCache.containsKey(classPathElement))
-			return;
-
-		final ArrayList<String> retval = new ArrayList<String>();
-		final File file = new File(classPathElement);
-
-		if (!file.exists()) {
-			throw new IllegalArgumentException("The class path resource "
-					+ file.getAbsolutePath() + " does not exist");
-		}
-
-		if (file.isDirectory()) {
-			try {
-				retval.addAll(getResourcesFromDirectory(file, file.getCanonicalPath()));
-			} catch (IOException e) {
-				logger.error("Error in getting resources", e);
-				throw new RuntimeException(e);
-			}
-		} else if (file.getName().endsWith(".jar")) {
-			retval.addAll(getResourcesFromJarFile(file));
-		} else {
-			throw new IllegalArgumentException("The class path resource "
-					+ file.getAbsolutePath() + " is not valid");
-		}
-		classPathCache.put(classPathElement, retval);
-	}
-
-	private static Collection<String> getResourcesFromCache(final String classPathEntry,
-			final Pattern pattern) {
-		final ArrayList<String> retval = new ArrayList<String>();
-		for (String entry : classPathCache.get(classPathEntry)) {
-			if (pattern.matcher(entry).matches())
-				retval.add(entry);
-		}
-		return retval;
-	}
-
-	private static boolean hasResourcesInCache(final String classPathEntry,
-			final Pattern pattern) {
-		for (String entry : classPathCache.get(classPathEntry)) {
-			if (pattern.matcher(entry).matches())
-				return true;
-		}
-		return false;
-	}
 
 
 
