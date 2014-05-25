@@ -132,9 +132,10 @@ public class TestGeneration {
 		List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
 		
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-		Set<String> resources = new HashSet<String>();
+		Set<String> classes = new HashSet<String>();
+		
 		for (String classPathElement : cp.split(File.pathSeparator)) {
-			resources.addAll(ResourceList.getAllClassesAsResources(classPathElement, prefix, false));
+			classes.addAll(ResourceList.getAllClasses(classPathElement, prefix, false));
 			try {
 				ClassPathHacker.addFile(classPathElement);
 			} catch (IOException e) {
@@ -150,25 +151,21 @@ public class TestGeneration {
 			LoggingUtils.getEvoLogger().info("* Error while traversing classpath: " + e);
 			return results;
 		}
-		LoggingUtils.getEvoLogger().info("* Found " + resources.size()
+		LoggingUtils.getEvoLogger().info("* Found " + classes.size()
 		                                         + " matching classes for prefix "
 		                                         + prefix);
-		for (String resource : resources) {
+		for (String sut : classes) {
 			try {
-				if (ResourceList.isInterface(resource)) {
-					LoggingUtils.getEvoLogger().info("* Skipping interface: "
-					                                         + ResourceList.getClassNameFromResourcePath(resource));
+				if (ResourceList.isClassAnInterface(sut)) {
+					LoggingUtils.getEvoLogger().info("* Skipping interface: "+sut);
 					continue;
 				}
 			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().info("Could not load class: " + resource);
+				LoggingUtils.getEvoLogger().info("Could not load class: " + sut);
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info("* Current class: "
-			                                         + ResourceList.getClassNameFromResourcePath(resource));
-			results.addAll(generateTests(Strategy.EVOSUITE,
-						ResourceList.getClassNameFromResourcePath(resource),
-			              args));
+			LoggingUtils.getEvoLogger().info("* Current class: "+ sut);
+			results.addAll(generateTests(Strategy.EVOSUITE,sut,args));
 		}
 		return results;
 	}
@@ -583,8 +580,10 @@ public class TestGeneration {
 	        List<String> args) {
 		List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-		Collection<String> resources = ResourceList.getAllClassesAsResources(target, false);
-		LoggingUtils.getEvoLogger().info("* Found " + resources.size()
+		
+		Set<String> classes = ResourceList.getAllClasses(target, false);
+		
+		LoggingUtils.getEvoLogger().info("* Found " + classes.size()
 		                                         + " matching classes in target "
 		                                         + target);
 		try {
@@ -602,22 +601,18 @@ public class TestGeneration {
 			return results;
 		}
 
-		for (String resource : resources) {
+		for (String sut : classes) {
 			try {
-				if (ResourceList.isInterface(resource)) {
-					LoggingUtils.getEvoLogger().info("* Skipping interface: "
-					                                         + ResourceList.getClassNameFromResourcePath(resource));
+				if (ResourceList.isClassAnInterface(sut)) {
+					LoggingUtils.getEvoLogger().info("* Skipping interface: " + sut );
 					continue;
 				}
 			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().info("Could not load class: " + resource);
+				LoggingUtils.getEvoLogger().info("Could not load class: " + sut);
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info("* Current class: "
-			                                         + ResourceList.getClassNameFromResourcePath(resource));
-			results.addAll(generateTests(Strategy.EVOSUITE,
-						ResourceList.getClassNameFromResourcePath(resource),
-			              args));
+			LoggingUtils.getEvoLogger().info("* Current class: " + sut);
+			results.addAll(generateTests(Strategy.EVOSUITE,sut,args));
 		}
 		
 		return results;

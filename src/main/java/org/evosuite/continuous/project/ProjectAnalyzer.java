@@ -4,8 +4,10 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.swing.event.ListSelectionEvent;
@@ -88,29 +90,27 @@ public class ProjectAnalyzer {
 			return Arrays.asList(cutsToAnalyze);
 		}
 
-		Collection<String> classes = null;
+		Set<String> suts = null;
 
 		if(target!=null){
 			if(!target.contains(File.pathSeparator)){
-				classes = ResourceList.getAllClassesAsResources(target, prefix, false);
+				suts = ResourceList.getAllClasses(target, prefix, false);
 			} else {
-				classes = new HashSet<String>();
+				suts = new LinkedHashSet<String>();
 				for(String element : target.split(File.pathSeparator)){
-					classes.addAll(ResourceList.getAllClassesAsResources(element, prefix, false));
+					suts.addAll(ResourceList.getAllClasses(element, prefix, false));
 				}
 			}
 		} else {
 			/*
 			 * if no target specified, just grab everything on SUT classpath
 			 */
-			classes = ResourceList.getAllClassesAsResources(ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
+			suts = ResourceList.getAllClasses(ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 		}
 
 		List<String> cuts = new LinkedList<String>();
 
-		for (String fileName : classes) {
-			String className = ResourceList.getClassNameFromResourcePath(fileName);
-
+		for (String className : suts) {
 			try {
 				Class<?> clazz = Class.forName(className);
 				if (!CoverageAnalysis.isTest(clazz)){

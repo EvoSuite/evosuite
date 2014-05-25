@@ -229,26 +229,23 @@ public class CoverageAnalysis {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
 			
-			Collection<String> resources = ResourceList.getAllClassesAsResources(
-					ClassPathHandler.getInstance().getTargetProjectClasspath(), 
-					prefix, false);
+			Set<String> suts = ResourceList.getAllClasses(
+					ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 			
-			LoggingUtils.getEvoLogger().info("* Found " + resources.size() + " classes with prefix " + prefix);
-			if (!resources.isEmpty()) {
-				for (String resource : resources) {
+			LoggingUtils.getEvoLogger().info("* Found " + suts.size() + " classes with prefix " + prefix);
+			if (!suts.isEmpty()) {
+				for (String sut : suts) {
 					try {
 						Class<?> clazz = Class.forName(
-								ResourceList.getClassNameFromResourcePath(resource),
-								true,
-								TestGenerationContext.getInstance().getClassLoaderForSUT());
+								sut,true,TestGenerationContext.getInstance().getClassLoaderForSUT());
+						
 						if (isTest(clazz)) {
 							classes.add(clazz);
 						}
 					} catch (ClassNotFoundException e2) {
-						// Ignore?
-						logger.info("Could not find class "+resource);
+						logger.info("Could not find class "+sut);
 					} catch(Throwable t) {
-						logger.info("Error while initialising class "+resource);
+						logger.info("Error while initialising class "+sut);
 					}
 				}
 

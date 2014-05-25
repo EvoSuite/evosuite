@@ -75,7 +75,7 @@ public class DetermineSUT {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		Set<String> targetClasses = analyzeTargetClasspath(targetClassPath);
+		Set<String> targetClasses = ResourceList.getAllClasses(targetClassPath,false);
 		Set<String> candidateClasses = new HashSet<String>();
 		boolean hasJUnit = false;
 		try {
@@ -136,14 +136,6 @@ public class DetermineSUT {
 		return calledClasses;
 	}
 
-	private Set<String> analyzeTargetClasspath(String classPath) {
-		Collection<String> classes = ResourceList.getAllClassesAsResources(classPath, false);
-		Set<String> classNames = new HashSet<String>();
-		for (String fileName : classes) {
-			classNames.add(ResourceList.getClassNameFromResourcePath(fileName));
-		}
-		return classNames;
-	}
 
 	@SuppressWarnings("unchecked")
 	private void handleClassNode(Set<String> calledClasses, ClassNode cn,
