@@ -133,11 +133,7 @@ public class ResourceList {
 	 * @return
 	 */
 	public static boolean hasClass(String className) {
-		if (!classNameCache.containsKey(className)){
-			classNameCache.put(className, ResourceList.getClassAsResource(className) != null);
-		}
-
-		return classNameCache.get(className);
+		return getCache().mapClassToCP.containsKey(className);
 	}
 
 	/**
@@ -161,6 +157,46 @@ public class ResourceList {
 			}
 		}
 
+		String cpEntry = getCache().mapClassToCP.get(name);
+		if(cpEntry==null){
+			logger.warn("The class "+name+" is not on the classapath");
+			return null;
+		}
+		
+		if(cpEntry.endsWith(".jar")){
+			try {
+				JarFile jar = new JarFile(cpEntry);
+				JarEntry entry = jar.getJarEntry(path);
+				if(entry == null){
+					logger.error("Error: could not find "+path+" inside of jar file "+cpEntry);
+					return null;
+				}
+				return jar.getInputStream(entry);
+			} catch (IOException e) {
+				logger.error("Error while reading jar file "+cpEntry+": "+e.getMessage(),e);
+				return null;
+			}
+		} else {
+			//if not a jar, it is a folder
+			File classFile = null;
+			if (File.separatorChar != '/') {	
+				classFile = new File(cpEntry+File.separator+windowsPath);
+			} else {
+				classFile = new File(cpEntry+File.separator+path);
+			}
+			if(!classFile.exists()){
+				logger.error("Could not find "+classFile);
+			}
+			
+			try {
+				return new FileInputStream(classFile);
+			} catch (FileNotFoundException e) {
+				logger.error("Error while trying to open stream on: "+classFile.getAbsolutePath());
+				return null;
+			}
+		}
+		
+		/*
 		String escapedString = java.util.regex.Pattern.quote(path); //Important in case there is $ in the classname
 		Pattern pattern = Pattern.compile(escapedString);
 		InputStream resource = getResourceAsStream(pattern);
@@ -170,16 +206,17 @@ public class ResourceList {
 		}
 
 		if (File.separatorChar != '/') {
-			/*
+			
 			 * This can happen for example in Windows.
 			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
-			 */			
+			 			
 			escapedString = java.util.regex.Pattern.quote(windowsPath);
 			pattern = Pattern.compile(escapedString);
 			return getResourceAsStream(pattern);
 		}
 
 		return null;
+		*/
 	}
 
 	//TODO JavaDoc
@@ -218,14 +255,6 @@ public class ResourceList {
 
 			return classes;
 		}
-		/*
-		Collection<String> resources = getAllClassesAsResources(classPathEntry,prefix,includeAnonymousClasses);
-		Collection<String> classes = new LinkedHashSet<>(resources.size());
-		for(String res : resources){
-			classes.add(getClassNameFromResourcePath(res));
-		}
-		return classes;
-		 */
 	}
 
 	//TODO JavaDoc
