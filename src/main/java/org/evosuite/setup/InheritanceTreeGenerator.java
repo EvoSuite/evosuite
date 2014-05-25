@@ -466,7 +466,9 @@ public class InheritanceTreeGenerator {
 			if (element.contains("evosuite"))
 				continue;
 			try {
-				retval.addAll(ResourceList.getAllClassesAsResources(element, false));
+				//retval.addAll(ResourceList.getAllClassesAsResources(element, false));
+				//TODO: need to fix based on new ResourceList 
+				throw new RuntimeException("ERROR: this functionality is temporarely disabled");
 			} catch (IllegalArgumentException e) {
 				System.err.println("Does not exist: " + element);
 			}

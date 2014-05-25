@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -42,19 +43,19 @@ public class ListClasses {
 
 
 	private static void listClassesTarget(String target) {
-		Collection<String> resources = ResourceList.getAllClassesAsResources(target, false);
+		Set<String> classes = ResourceList.getAllClasses(target, false);
 		try {
 			ClassPathHacker.addFile(target);
 		} catch (IOException e) {
 			// Ignore?
 		}
-		for (String resource : resources) {
+		for (String sut : classes) {
 			try {
-				if (ResourceList.isInterface(resource)) {
+				if (ResourceList.isClassAnInterface(sut)) {
 					continue;
 				}
 			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().error("Could not load class: " + resource);
+				LoggingUtils.getEvoLogger().error("Could not load class: " + sut);
 				continue;
 			}
 			
@@ -63,7 +64,7 @@ public class ListClasses {
 			if(groupId!=null && !groupId.isEmpty() && !groupId.equals("none")){
 				row += groupId + "\t";
 			}
-			row += ResourceList.getClassNameFromResourcePath(resource);
+			row += sut;
 			
 			LoggingUtils.getEvoLogger().info(row);
 		}
@@ -81,25 +82,26 @@ public class ListClasses {
 		
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		
-		Set<String> resources = new HashSet<String>();
+		Set<String> classes = new LinkedHashSet<>();
+		
 		for (String classPathElement : cp.split(File.pathSeparator)) {
-			resources.addAll(ResourceList.getAllClassesAsResources(classPathElement, prefix, false));
+			classes.addAll(ResourceList.getAllClasses(classPathElement, prefix, false));
 			try {
 				ClassPathHacker.addFile(classPathElement);
 			} catch (IOException e) {
 				// Ignore?
 			}
 		}
-		for (String resource : resources) {
+		for (String sut : classes) {
 			try {
-				if (ResourceList.isInterface(resource)) {
+				if (ResourceList.isClassAnInterface(sut)) {
 					continue;
 				}
 			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().error("Could not load class: " + resource);
+				LoggingUtils.getEvoLogger().error("Could not load class: " + sut);
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info(ResourceList.getClassNameFromResourcePath(resource));
+			LoggingUtils.getEvoLogger().info(sut);
 		}
 	}
 }
