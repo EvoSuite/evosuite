@@ -33,6 +33,14 @@ public class ResourceListTest {
 	//-------------------------------------------------------------------------------------------------
 
 	@Test
+	public void testGetPackageName(){
+		Assert.assertEquals("", ResourceList.getParentPackageName(""));
+		Assert.assertEquals("", ResourceList.getParentPackageName("foo"));
+		Assert.assertEquals("foo", ResourceList.getParentPackageName("foo.bar"));
+		Assert.assertEquals("bar.foo", ResourceList.getParentPackageName("bar.foo.evo"));
+	}
+	
+	@Test
 	public void testStreamFromFolder() throws Exception{
 		File localFolder = new File("local_test_data"+File.separator+"aCpEntry");
 		Assert.assertTrue("ERROR: file "+localFolder+" should be avaialable on local file system",localFolder.exists());
