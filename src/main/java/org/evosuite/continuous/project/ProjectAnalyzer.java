@@ -92,41 +92,31 @@ public class ProjectAnalyzer {
 
 		if(target!=null){
 			if(!target.contains(File.pathSeparator)){
-				classes = ResourceList.getAllClassesAsResources(target, false);
+				classes = ResourceList.getAllClassesAsResources(target, prefix, false);
 			} else {
 				classes = new HashSet<String>();
 				for(String element : target.split(File.pathSeparator)){
-					classes.addAll(ResourceList.getAllClassesAsResources(element, false));
+					classes.addAll(ResourceList.getAllClassesAsResources(element, prefix, false));
 				}
 			}
 		} else {
 			/*
 			 * if no target specified, just grab everything on SUT classpath
 			 */
-			classes = ResourceList.getAllClassesAsResources(ClassPathHandler.getInstance().getTargetProjectClasspath(), false);
+			classes = ResourceList.getAllClassesAsResources(ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 		}
 
 		List<String> cuts = new LinkedList<String>();
 
 		for (String fileName : classes) {
-			/*
-			 * Using File.separator seems to give problems in Windows
-			 */
-			String className = fileName.replace(".class", "").replaceAll("/", ".");
-
-			if(prefix!=null && !prefix.isEmpty() && !className.startsWith(prefix)){
-				/*
-				 * A prefix is defined, but this class does not belong to that package hierarchy
-				 */
-				continue;
-			}
+			String className = ResourceList.getClassNameFromResourcePath(fileName);
 
 			try {
 				Class<?> clazz = Class.forName(className);
-				if (!CoverageAnalysis.isTest(clazz))
+				if (!CoverageAnalysis.isTest(clazz)){
 					cuts.add(className);
-			}
-			catch (ClassNotFoundException e) {
+				}
+			} catch (ClassNotFoundException e) {
 				logger.error(""+e,e);
 			}
 
