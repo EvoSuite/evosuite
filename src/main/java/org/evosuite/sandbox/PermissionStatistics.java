@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.utils.LoggingUtils;
 
 /**
@@ -515,7 +516,9 @@ public class PermissionStatistics {
 	 *            a int.
 	 */
 	public void countThreads(int numThreads) {
-		maxThreads = Math.max(maxThreads, numThreads);
+		if(Thread.currentThread().getThreadGroup().getName().equals(TestCaseExecutor.TEST_EXECUTION_THREAD_GROUP)){
+			maxThreads = Math.max(maxThreads, numThreads);
+		}
 	}
 
 	/**
