@@ -39,6 +39,8 @@ public class CommandLineParameters {
 		/*
 		 * TODO: here there is lot more that could be added
 		 */
+		
+		java.util.Properties properties = line.getOptionProperties("D");
 
 		String cut = line.getOptionValue("class");
 		
@@ -51,6 +53,13 @@ public class CommandLineParameters {
 			}
 		}
 		
+		if(!line.hasOption(Continuous.NAME)){
+			for(Object p : properties.keySet()){
+				if(p.toString().startsWith("ctg_")){
+					throw new IllegalArgumentException("Option "+p+" is only valid in '-"+Continuous.NAME+"' mode");
+				}
+			}
+		}
 	}
 	
 	
