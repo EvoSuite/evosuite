@@ -86,7 +86,7 @@ public class SystemTest {
 
 		Properties.NEW_STATISTICS = true;
 		Properties.OLD_STATISTICS = false;
-		Properties.STATISTICS_BACKEND = StatisticsBackend.CONSOLE;
+		Properties.STATISTICS_BACKEND = StatisticsBackend.DEBUG;
 		
 		TestGenerationContext.getInstance().resetContext();
 		ResetManager.getInstance().clearManager();

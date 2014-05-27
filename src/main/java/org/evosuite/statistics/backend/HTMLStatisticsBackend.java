@@ -1,4 +1,4 @@
-package org.evosuite.statistics;
+package org.evosuite.statistics.backend;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,6 +19,8 @@ import java.util.Set;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.statistics.OutputVariable;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;

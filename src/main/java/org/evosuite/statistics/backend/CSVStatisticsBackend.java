@@ -1,4 +1,4 @@
-package org.evosuite.statistics;
+package org.evosuite.statistics.backend;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.statistics.OutputVariable;
 import org.evosuite.utils.ReportGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
