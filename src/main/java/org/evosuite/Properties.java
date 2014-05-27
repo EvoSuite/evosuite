@@ -804,7 +804,7 @@ public class Properties {
 	public static boolean SERIALIZE_GA = false;
 	
 	public enum StatisticsBackend {
-		NONE, CONSOLE, CSV, HTML;
+		NONE, CONSOLE, CSV, HTML, DEBUG;
 	}
 
 	@Parameter(key = "statistics_backend", group = "Output", description = "Which backend to use to collect data")

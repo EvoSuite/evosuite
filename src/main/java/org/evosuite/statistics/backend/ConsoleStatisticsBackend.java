@@ -1,8 +1,9 @@
-package org.evosuite.statistics;
+package org.evosuite.statistics.backend;
 
 import java.util.Map;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.statistics.OutputVariable;
 
 /**
  * Simple dummy backend that just outputs all output variables to the console
