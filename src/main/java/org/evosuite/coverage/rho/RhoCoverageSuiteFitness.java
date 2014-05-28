@@ -50,13 +50,13 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		double n_ones = (double) RhoCoverageFactory.getNumberOnes();
 		for (ExecutionResult result : results) {
-			TestChromosome tc = new TestChromosome();
-			tc.setTestCase(result.test);
+			/*TestChromosome tc = new TestChromosome();
+			tc.setTestCase(result.test);*/
 
-			for (TestFitnessFunction goal : goals) {
-				if (goal.getFitness(tc, result) == 0.0)
+			for (TestFitnessFunction goal : goals)
+				//if (goal.getFitness(tc, result) == 0.0)
+			    if (goal.isCovered(result))
 					n_ones++;
-			}
 		}
 
 		double n_tests = ((double) suite.size()) + ((double) RhoCoverageFactory.getNumberTestCases());

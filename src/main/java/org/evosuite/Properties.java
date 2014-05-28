@@ -519,7 +519,7 @@ public class Properties {
 	public static TheReplacementFunction REPLACEMENT_FUNCTION = TheReplacementFunction.DEFAULT;
 
 	public enum SelectionFunction {
-		RANK, ROULETTEWHEEL, TOURNAMENT
+		RANK, ROULETTEWHEEL, TOURNAMENT, BINARY_TOURNAMENT
 	}
 
 	/** Constant <code>SELECTION_FUNCTION</code> */

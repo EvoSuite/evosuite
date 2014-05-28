@@ -78,14 +78,18 @@ public class RhoCoverageFactory extends
 		String targetClass = Properties.TARGET_CLASS;
 
 		final MethodNameMatcher matcher = new MethodNameMatcher();
-		for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownClasses()) {
+		//for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownClasses()) {
+		for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
 			if (!(targetClass.equals("") || className.endsWith(targetClass)))
 				continue ;
-			for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownMethods(className)) {
+			//for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownMethods(className)) {
+			for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
 				if (!matcher.methodMatches(methodName))
 					continue ;
-				for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstructionsIn(className,
-																																				methodName))
+				/*for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstructionsIn(className,
+																																				methodName))*/
+				for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className,
+				                                                                                                                                                 methodName))
 					if (isUsable(ins))
 						goals.add(new RhoCoverageTestFitness(ins));
 			}
