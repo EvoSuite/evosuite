@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.PublicCloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,11 +142,18 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
             throw new IllegalArgumentException("Invalid value of Fitness: " + value + ", Fitness: " + ff.getClass().getName());
         }
 
+		/*LoggingUtils.getEvoLogger().error("How many fitnesses I have now = " + fitnesses.size());
+		for (FitnessFunction<?> fff : fitnesses.keySet()) {
+		    LoggingUtils.getEvoLogger().error("    " + fff.getClass().getName());
+		}*/
+
         if (!fitnesses.containsKey(ff)) {
+            //LoggingUtils.getEvoLogger().error("    Adding new fitness " + ff.getClass().getName() + " with value " + value);
             lastFitnesses.put(ff, value);
             fitnesses.put(ff, value);
         }
         else {
+            //LoggingUtils.getEvoLogger().error("    Updating fitness " + ff.getClass().getName() + " with value " + value);
             lastFitnesses.put(ff, fitnesses.get(ff));
             fitnesses.put(ff, value);
         }

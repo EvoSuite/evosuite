@@ -92,6 +92,7 @@ import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointRelativeCrossOver;
+import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
 import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
 import org.evosuite.ga.operators.selection.RankSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
@@ -683,6 +684,17 @@ public class TestSuiteGenerator {
 
 		long end_time = System.currentTimeMillis() / 1000;
 
+		// ----------------------------------------------------
+
+		final FitnessFunction branch = (FitnessFunction) ga.getFitnessFunctions().get(0);
+        //final FitnessFunction rho = (FitnessFunction) ga.getFitnessFunctions().get(1);
+		for (TestSuiteChromosome l_ts : bests) {
+		    //System.out.println(l_ts.getTestChromosomes().size() + ":" + l_ts.getFitness(branch) + "|" + l_ts.getFitness(rho));
+		    System.out.println(l_ts.getTestChromosomes().size() + ":" + l_ts.getFitness(branch));
+		}
+
+		// ----------------------------------------------------
+
 		// Newline after progress bar
 		if (Properties.SHOW_PROGRESS)
 			LoggingUtils.getEvoLogger().info("");
@@ -909,7 +921,7 @@ public class TestSuiteGenerator {
 	public static List<TestSuiteFitnessFunction> getFitnessFunction() {
 	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
 	    ffs.add(getFitnessFunction(Properties.CRITERION));
-	    ffs.add(getFitnessFunction(Criterion.AMBIGUITY)); // FIXME: remove me
+	    //ffs.add(getFitnessFunction(Criterion.RHO)); // FIXME: remove me
 		return ffs;
 	}
 
@@ -969,7 +981,7 @@ public class TestSuiteGenerator {
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactory() {
 	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
 	    goalsFactory.add(getFitnessFactory(Properties.CRITERION));
-	    goalsFactory.add(getFitnessFactory(Criterion.AMBIGUITY)); // FIXME: remove me
+	    //goalsFactory.add(getFitnessFactory(Criterion.RHO)); // FIXME: remove me
 		return goalsFactory;
 	}
 
@@ -1632,6 +1644,8 @@ public class TestSuiteGenerator {
 			return new FitnessProportionateSelection();
 		case TOURNAMENT:
 			return new TournamentSelection();
+		case BINARY_TOURNAMENT:
+		    return new BinaryTournamentSelectionCrowdedComparison();
 		default:
 			return new RankSelection();
 		}

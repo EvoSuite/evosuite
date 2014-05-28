@@ -1,5 +1,6 @@
 package org.evosuite.ga.comparators;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.evosuite.ga.Chromosome;
@@ -10,8 +11,13 @@ import org.evosuite.ga.Chromosome;
  * @author José Campos
  */
 public class CrowdingComparator
-    implements Comparator<Chromosome>
+    implements Comparator<Chromosome>, Serializable
 {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6576898111709166470L;
+
     private boolean isToMaximize;
 
     public CrowdingComparator(boolean maximize) {
