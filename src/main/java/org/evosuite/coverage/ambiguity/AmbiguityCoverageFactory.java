@@ -22,10 +22,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -63,7 +62,7 @@ public class AmbiguityCoverageFactory extends
 	/**
 	 * 
 	 */
-	private static Set<Integer> lineNumbers = new HashSet<Integer>();
+	private static LinkedHashSet<Integer> lineNumbers = new LinkedHashSet<Integer>();
 
 	/**
 	 * 
@@ -75,18 +74,22 @@ public class AmbiguityCoverageFactory extends
 		String targetClass = Properties.TARGET_CLASS;
 
 		final MethodNameMatcher matcher = new MethodNameMatcher();
-		for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownClasses()) {
-			if (!(targetClass.equals("") || className.endsWith(targetClass)))
-				continue ;
-			for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownMethods(className)) {
-				if (!matcher.methodMatches(methodName))
-					continue ;
-				for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstructionsIn(className,
-																																				methodName))
-					if (isUsable(ins))
-						goals.add(new AmbiguityCoverageTestFitness(ins));
-			}
-		}
+        //for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownClasses()) {
+        for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
+            if (!(targetClass.equals("") || className.endsWith(targetClass)))
+                continue ;
+            //for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownMethods(className)) {
+            for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
+                if (!matcher.methodMatches(methodName))
+                    continue ;
+                /*for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstructionsIn(className,
+                                                                                                                                                methodName))*/
+                for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className,
+                                                                                                                                                                 methodName))
+                    if (isUsable(ins))
+                        goals.add(new AmbiguityCoverageTestFitness(ins));
+            }
+        }
 		/*LoggingUtils.getEvoLogger().info("* Total number of coverage goals using Ambiguity Fitness Function: "
 											+ goals.size());*/
 
@@ -180,7 +183,7 @@ public class AmbiguityCoverageFactory extends
 	public static double getAmbiguity(List<StringBuilder> matrix) {
 
 	    int number_of_components = matrix.size();
-		HashMap<String, Integer> groups = new HashMap<String, Integer>();
+	    LinkedHashMap<String, Integer> groups = new LinkedHashMap<String, Integer>();
 
 		for (StringBuilder s : matrix) {
 			String md5 = MD5.hash(s.toString());

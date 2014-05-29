@@ -333,7 +333,7 @@ public class NSGAII<T extends Chromosome>
         for (final FitnessFunction<?> ff : this.getFitnessFunctions())
         {
             // Sort the population by Fit n
-            Collections.sort(front, new SortByFitness(ff));
+            Collections.sort(front, new SortByFitness(ff, true));
 
             objetiveMinn = front.get(0).getFitness(ff);
             objetiveMaxn = front.get(front.size() - 1).getFitness(ff);

@@ -21,10 +21,10 @@ import java.util.List;
 
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * <p>
@@ -49,20 +49,27 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		double fitness = 0.0;
 
 		double n_ones = (double) RhoCoverageFactory.getNumberOnes();
+		StringBuilder str = new StringBuilder();
 		for (ExecutionResult result : results) {
-			/*TestChromosome tc = new TestChromosome();
-			tc.setTestCase(result.test);*/
-
-			for (TestFitnessFunction goal : goals)
-				//if (goal.getFitness(tc, result) == 0.0)
-			    if (goal.isCovered(result))
+			for (TestFitnessFunction goal : goals) {
+			    if (goal.isCovered(result)) {
 					n_ones++;
+					str.append("1 ");
+			    }
+			    else
+			        str.append("0 ");
+			}
+			str.append("\n");
 		}
 
 		double n_tests = ((double) suite.size()) + ((double) RhoCoverageFactory.getNumberTestCases());
 
-		fitness = n_ones / n_tests / ((double) RhoCoverageFactory.getNumberComponents());
+		fitness = n_ones / n_tests / ((double) goals.size());
 		fitness = Math.abs(0.5 - fitness);
+
+		/*LoggingUtils.getEvoLogger().info("goals.size(): " + goals.size() + ", n_ones: " + n_ones + ", n_tests: " + n_tests + " | fit: " + fitness);
+		LoggingUtils.getEvoLogger().info(str.toString());
+		LoggingUtils.getEvoLogger().info("------");*/
 
 		updateIndividual(this, suite, fitness);
 		return fitness;

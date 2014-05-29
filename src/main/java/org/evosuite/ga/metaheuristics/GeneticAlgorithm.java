@@ -30,6 +30,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
+import org.evosuite.ga.comparators.SortByFitness;
 import org.evosuite.ga.localsearch.DefaultLocalSearchObjective;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
@@ -606,6 +607,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
         }
 
         // multi fitness functions
+        Collections.sort(population, new SortByFitness(this.fitnessFunctions.get(0), false));
         return population;
     }
 

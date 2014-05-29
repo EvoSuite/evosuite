@@ -23,10 +23,10 @@ import java.util.List;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * <p>
@@ -54,14 +54,12 @@ public class AmbiguityCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (TestFitnessFunction goal : goals) {
 			StringBuilder str = new StringBuilder();
 			for (ExecutionResult result : results) {
-				TestChromosome tc = new TestChromosome();
-				tc.setTestCase(result.test);
-
-				if (goal.getFitness(tc, result) == 0.0)
+				if (goal.isCovered(result))
 					str.append("1");
 				else
 					str.append("0");
 			}
+			//LoggingUtils.getEvoLogger().info(str.toString());
 
 			try {
 				transposed_matrix.set(g_i, str.append(transposed_matrix.get(g_i)));
@@ -72,7 +70,11 @@ public class AmbiguityCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			g_i++;
 		}
 
-		double fitness = FitnessFunction.normalize(AmbiguityCoverageFactory.getAmbiguity(transposed_matrix));
+		//double fitness = FitnessFunction.normalize(AmbiguityCoverageFactory.getAmbiguity(transposed_matrix));
+		double fitness = AmbiguityCoverageFactory.getAmbiguity(transposed_matrix);
+        
+		/*LoggingUtils.getEvoLogger().info("goals.size(): " + goals.size() + " | fit: " + fitness);
+        LoggingUtils.getEvoLogger().info("------");*/
 
 		updateIndividual(this, suite, fitness);
 		return fitness;
