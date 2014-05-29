@@ -88,7 +88,6 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 
 		for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
 			if (branchFitness.isCovered(result)) {
-		    //if (branchFitness.getFitness(individual, result) == 0.0) {
 				fitness = 0.0;
 				break ;
 			}

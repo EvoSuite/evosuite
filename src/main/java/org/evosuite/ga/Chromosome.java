@@ -18,11 +18,10 @@
 package org.evosuite.ga;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.PublicCloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,11 +48,11 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/** Last recorded fitness value */
 	//private double fitness = 0.0;
-	private Map<FitnessFunction<?>, Double> fitnesses = new HashMap<FitnessFunction<?>, Double>();
+	private LinkedHashMap<FitnessFunction<?>, Double> fitnesses = new LinkedHashMap<FitnessFunction<?>, Double>();
 	
 	/** Previous fitness, to see if there was an improvement */
 	//private double lastFitness = 0.0;
-	private Map<FitnessFunction<?>, Double> lastFitnesses = new HashMap<FitnessFunction<?>, Double>();
+	private LinkedHashMap<FitnessFunction<?>, Double> lastFitnesses = new LinkedHashMap<FitnessFunction<?>, Double>();
 
 	/** True if this is a solution */
 	protected boolean solution = false;

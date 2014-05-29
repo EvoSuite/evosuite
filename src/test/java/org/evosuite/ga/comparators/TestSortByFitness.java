@@ -36,7 +36,7 @@ public class TestSortByFitness
         population.add(c1);
         population.add(c2);
 
-        SortByFitness sf = new SortByFitness(ff);
+        SortByFitness sf = new SortByFitness(ff, true);
         Collections.sort(population, sf);
 
         Assert.assertTrue(population.get(0) == c1);
@@ -64,7 +64,7 @@ public class TestSortByFitness
         population.add(c1);
         population.add(c2);
 
-        SortByFitness sf = new SortByFitness(ff);
+        SortByFitness sf = new SortByFitness(ff, true);
         Collections.sort(population, sf);
 
         Assert.assertTrue(population.get(0) == c2);
@@ -92,7 +92,7 @@ public class TestSortByFitness
         population.add(c1);
         population.add(c2);
 
-        SortByFitness sf = new SortByFitness(ff);
+        SortByFitness sf = new SortByFitness(ff, true);
         Collections.sort(population, sf);
 
         Assert.assertTrue(population.get(0) == c1);

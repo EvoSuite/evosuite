@@ -111,6 +111,6 @@ public class TestPOL
         double spdt = sp.evaluate(trueParetoFront);
         System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
                             + Math.abs(spd - spdt));
-        Assert.assertEquals(Math.abs(spd - spdt), 0.15, 0.05);
+        Assert.assertEquals(Math.abs(spd - spdt), 0.80, 0.05);
     }
 }

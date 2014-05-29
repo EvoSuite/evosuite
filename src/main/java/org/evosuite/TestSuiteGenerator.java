@@ -686,11 +686,8 @@ public class TestSuiteGenerator {
 
 		// ----------------------------------------------------
 
-		final FitnessFunction branch = (FitnessFunction) ga.getFitnessFunctions().get(0);
-        //final FitnessFunction rho = (FitnessFunction) ga.getFitnessFunctions().get(1);
 		for (TestSuiteChromosome l_ts : bests) {
-		    //System.out.println(l_ts.getTestChromosomes().size() + ":" + l_ts.getFitness(branch) + "|" + l_ts.getFitness(rho));
-		    System.out.println(l_ts.getTestChromosomes().size() + ":" + l_ts.getFitness(branch));
+		    System.out.println(l_ts.getTestChromosomes().size());
 		}
 
 		// ----------------------------------------------------
@@ -921,7 +918,8 @@ public class TestSuiteGenerator {
 	public static List<TestSuiteFitnessFunction> getFitnessFunction() {
 	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
 	    ffs.add(getFitnessFunction(Properties.CRITERION));
-	    //ffs.add(getFitnessFunction(Criterion.RHO)); // FIXME: remove me
+	    ffs.add(getFitnessFunction(Criterion.AMBIGUITY)); // FIXME: remove me
+	    //ffs.add(getFitnessFunction(Criterion.BRANCH)); // FIXME: remove me
 		return ffs;
 	}
 
@@ -981,7 +979,8 @@ public class TestSuiteGenerator {
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactory() {
 	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
 	    goalsFactory.add(getFitnessFactory(Properties.CRITERION));
-	    //goalsFactory.add(getFitnessFactory(Criterion.RHO)); // FIXME: remove me
+	    goalsFactory.add(getFitnessFactory(Criterion.AMBIGUITY)); // FIXME: remove me
+	    //goalsFactory.add(getFitnessFactory(Criterion.BRANCH)); // FIXME: remove me
 		return goalsFactory;
 	}
 

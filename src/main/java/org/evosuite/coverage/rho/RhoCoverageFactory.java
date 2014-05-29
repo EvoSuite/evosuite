@@ -22,9 +22,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -32,6 +31,7 @@ import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.testsuite.AbstractFitnessFactory;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * <p>
@@ -66,7 +66,7 @@ public class RhoCoverageFactory extends
 	/**
 	 * 
 	 */
-	private static Set<Integer> lineNumbers = new HashSet<Integer>();
+	private static LinkedHashSet<Integer> lineNumbers = new LinkedHashSet<Integer>();
 
 	/**
 	 * 
@@ -96,6 +96,9 @@ public class RhoCoverageFactory extends
 		}
 		/*LoggingUtils.getEvoLogger().info("* Total number of coverage goals using Rho Fitness Function: "
 											+ goals.size());*/
+
+		for (RhoCoverageTestFitness r : goals)
+		    LoggingUtils.getEvoLogger().info(r.toString());
 
 		called = true;
 		loadCoverage();
@@ -189,13 +192,5 @@ public class RhoCoverageFactory extends
 	 */
 	public static int getNumberTestCases() {
 		return number_of_test_cases;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public static int getNumberComponents() {
-		return goals.size();
 	}
 }

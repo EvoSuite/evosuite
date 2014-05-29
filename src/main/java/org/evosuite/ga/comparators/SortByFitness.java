@@ -15,8 +15,16 @@ public class SortByFitness
 {
     private FitnessFunction<?> ff;
 
-    public SortByFitness(FitnessFunction<?> ff) {
+    private boolean order;
+
+    /**
+     * 
+     * @param ff
+     * @param des descending order
+     */
+    public SortByFitness(FitnessFunction<?> ff, boolean desc) {
         this.ff = ff;
+        this.order = desc;
     }
 
     @Override
@@ -30,11 +38,21 @@ public class SortByFitness
         double objetive1 = c1.getFitness(this.ff);
         double objetive2 = c2.getFitness(this.ff);
 
-        if (objetive1 < objetive2)
-            return 1;
-        else if (objetive1 > objetive2)
-            return -1;
-        else
-            return 0;
+        if (this.order) {
+            if (objetive1 < objetive2)
+                return 1;
+            else if (objetive1 > objetive2)
+                return -1;
+            else
+                return 0;
+        }
+        else {
+            if (objetive1 < objetive2)
+                return -1;
+            else if (objetive1 > objetive2)
+                return 1;
+            else
+                return 0;
+        }
     }
 }

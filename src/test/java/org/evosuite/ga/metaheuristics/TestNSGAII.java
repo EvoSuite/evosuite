@@ -7,11 +7,13 @@ import java.util.List;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.comparators.CrowdingComparator;
+import org.evosuite.ga.comparators.SortByFitness;
 import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.problems.multiobjective.SCH;
 import org.evosuite.ga.problems.singleobjective.Booths;
@@ -275,8 +277,9 @@ public class TestNSGAII extends SystemTest
 	public void testIntegration()
 	{
 	    Properties.MUTATION_RATE = 1d / 1d;
-	    //Properties.CRITERION = Criterion.RHO;
+	    Properties.CRITERION = Criterion.RHO;
 	    Properties.ALGORITHM = Algorithm.NSGAII;
+	    Properties.POPULATION = 250;
 
 	    EvoSuite evosuite = new EvoSuite();
 
@@ -304,16 +307,16 @@ public class TestNSGAII extends SystemTest
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-        List<Chromosome> population = (List<Chromosome>) ga.getBestIndividuals();
+        List<Chromosome> population = new ArrayList<Chromosome>(ga.getBestIndividuals());
 
-        final FitnessFunction branch = ga.getFitnessFunctions().get(0);
-        //final FitnessFunction rho = ga.getFitnessFunctions().get(1);
+        final FitnessFunction rho = ga.getFitnessFunctions().get(0);
+        final FitnessFunction ag = ga.getFitnessFunctions().get(1);
 
         for (Chromosome p : population) {
-            //System.out.println(p.getFitness(branch) + "," + p.getFitness(rho));
-            System.out.println(p.getFitness(branch));
+            System.out.println(p.getFitness(rho) + "," + p.getFitness(ag));
         }
 
-        //Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+        Assert.assertEquals(0.0, population.get(0).getFitness(rho), 0.0);
+        Assert.assertEquals(0.0, population.get(0).getFitness(ag), 0.0);
 	}
 }
