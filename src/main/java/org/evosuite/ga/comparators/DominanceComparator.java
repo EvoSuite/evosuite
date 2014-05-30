@@ -1,5 +1,6 @@
 package org.evosuite.ga.comparators;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.evosuite.ga.Chromosome;
@@ -11,8 +12,13 @@ import org.evosuite.ga.FitnessFunction;
  * @author José Campos
  */
 public class DominanceComparator
-    implements Comparator<Chromosome>
+    implements Comparator<Chromosome>, Serializable
 {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -3962098107892633870L;
+
     /**
      * Is c2 dominated by c1?
      * 

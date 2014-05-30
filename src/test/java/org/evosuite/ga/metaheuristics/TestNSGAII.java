@@ -279,7 +279,6 @@ public class TestNSGAII extends SystemTest
 	    Properties.MUTATION_RATE = 1d / 1d;
 	    Properties.CRITERION = Criterion.RHO;
 	    Properties.ALGORITHM = Algorithm.NSGAII;
-	    Properties.POPULATION = 250;
 
 	    EvoSuite evosuite = new EvoSuite();
 
@@ -307,16 +306,18 @@ public class TestNSGAII extends SystemTest
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
 
-        List<Chromosome> population = new ArrayList<Chromosome>(ga.getBestIndividuals());
-
         final FitnessFunction rho = ga.getFitnessFunctions().get(0);
         final FitnessFunction ag = ga.getFitnessFunctions().get(1);
 
-        for (Chromosome p : population) {
-            System.out.println(p.getFitness(rho) + "," + p.getFitness(ag));
-        }
+        List<Chromosome> population = new ArrayList<Chromosome>(ga.getBestIndividuals());
+        Collections.sort(population, new SortByFitness(rho, false));
 
-        Assert.assertEquals(0.0, population.get(0).getFitness(rho), 0.0);
-        Assert.assertEquals(0.0, population.get(0).getFitness(ag), 0.0);
+        for (Chromosome p : population) {
+            System.out.println("Rho: " + p.getFitness(rho) + ", AG: " + p.getFitness(ag) + " | Rank: " + p.getRank());
+
+            Assert.assertEquals(0.0, p.getFitness(rho), 0.0);
+            Assert.assertEquals(0.0, p.getFitness(ag), 0.0);
+            Assert.assertEquals(0, p.getRank());
+        }
 	}
 }
