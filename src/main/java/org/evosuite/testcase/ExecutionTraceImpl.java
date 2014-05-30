@@ -37,6 +37,7 @@ import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
 import org.evosuite.setup.CallContext;
+import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -324,7 +325,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		else
 			falseDistancesSum.put(branch, falseDistancesSum.get(branch) + false_distance);
 
-		if (Properties.CRITERION == Criterion.IBRANCH) {
+		//if (Properties.CRITERION == Criterion.IBRANCH) { // FIXME: remove me contains
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)) {
 			updateBranchContextMaps(branch, true_distance, false_distance);
 		}
 
@@ -530,8 +532,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			methodId++;
 			MethodCall call = new MethodCall(className, methodName, methodId,
 			        callingObjectID, stack.size());
-			if (Properties.CRITERION == Criterion.DEFUSE
-			        || Properties.CRITERION == Criterion.ALLDEFS) {
+			/*if (Properties.CRITERION == Criterion.DEFUSE
+			        || Properties.CRITERION == Criterion.ALLDEFS) { // FIXME: remove me contains*/
+			if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+			        || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)) {
 				call.branchTrace.add(-1);
 				call.trueDistanceTrace.add(1.0);
 				call.falseDistanceTrace.add(0.0);
@@ -541,7 +545,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			stack.push(call);
 		}
 
-		if (Properties.CRITERION == Criterion.IBRANCH) {
+		//if (Properties.CRITERION == Criterion.IBRANCH) { // FIXME: remove me contains
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)) {
 			updateMethodContextMaps(className, methodName, caller);
 		}
 
@@ -1359,8 +1364,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			stack.peek().falseDistanceTrace.add(false_distance);
 			assert ((true_distance == 0.0) || (false_distance == 0.0));
 			// TODO line_trace ?
-			if (Properties.CRITERION == Criterion.DEFUSE
-			        || Properties.CRITERION == Criterion.ALLDEFS) {
+			/*if (Properties.CRITERION == Criterion.DEFUSE
+			        || Properties.CRITERION == Criterion.ALLDEFS) { // FIXME: remove me contains*/
+			if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+			        || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)) {
 				stack.peek().defuseCounterTrace.add(duCounter);
 			}
 		}

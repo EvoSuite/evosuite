@@ -32,7 +32,8 @@ import com.examples.with.different.packagename.ImplicitExplicitException;
 
 public class TestImplicitExplicitExceptions  extends SystemTest {
 
-	private static final Criterion defaultCriterion = Properties.CRITERION;
+	//private static final Criterion defaultCriterion = Properties.CRITERION; // FIXME: remove me
+    private static final Criterion[] defaultCriterion = Properties.CRITERION;
 
 	@After
 	public void resetProperties() {
@@ -46,7 +47,8 @@ public class TestImplicitExplicitExceptions  extends SystemTest {
 		String targetClass = ImplicitExplicitException.class.getCanonicalName();
 		
 		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION = Properties.Criterion.EXCEPTION;
+		//Properties.CRITERION = Properties.Criterion.EXCEPTION; // FIXME: remove me
+		Properties.CRITERION[0] = Properties.Criterion.EXCEPTION;
 		Properties.OUTPUT_VARIABLES = ""+
 				RuntimeVariable.Explicit_MethodExceptions + "," +
 				RuntimeVariable.Explicit_TypeExceptions + "," +

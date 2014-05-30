@@ -48,6 +48,7 @@ import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,8 +163,10 @@ public class TestSuiteMinimizer {
 		int numCovered = 0;
 		int currentGoal = 0;
 
-		if (Properties.CRITERION != Properties.Criterion.BRANCH
-		        && Properties.CRITERION != Properties.Criterion.IBRANCH) {
+		/*if (Properties.CRITERION != Properties.Criterion.BRANCH
+		        && Properties.CRITERION != Properties.Criterion.IBRANCH) { // FIXME: remove me contains*/
+		if (!ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.BRANCH)
+		        && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
 			BranchCoverageFactory branchFactory = new BranchCoverageFactory();
 			branchGoals.addAll(branchFactory.getCoverageGoals());
 			filterJUnitCoveredGoals(branchGoals);

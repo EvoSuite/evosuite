@@ -16,7 +16,8 @@ import com.examples.with.different.packagename.defuse.GCD;
 
 public class TestDefUseAnalysis extends SystemTest {
 
-	private final Criterion oldCriterion = Properties.CRITERION;
+	//private final Criterion oldCriterion = Properties.CRITERION; // FIXME: remove me
+    private final Criterion[] oldCriterion = Properties.CRITERION;
 	private final boolean oldAssertions = Properties.ASSERTIONS;
 	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 	private final String analysisCriteria = Properties.ANALYSIS_CRITERIA;
@@ -41,7 +42,8 @@ public class TestDefUseAnalysis extends SystemTest {
 		String targetClass = DefUseExample1.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION = Criterion.DEFUSE;
+		//Properties.CRITERION = Criterion.DEFUSE; // FIXME: remove me
+		Properties.CRITERION[0] = Criterion.DEFUSE;
 
 		// Need to deactivate assertions, otherwise classloader is chanaged 
 		// and DefUseCoverageFactory is reset
@@ -70,7 +72,8 @@ public class TestDefUseAnalysis extends SystemTest {
 		String targetClass = GCD.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION = Criterion.DEFUSE;
+		//Properties.CRITERION = Criterion.DEFUSE; // FIXME: remove me
+        Properties.CRITERION[0] = Criterion.DEFUSE;
 		Properties.ASSERTIONS = false;
 		Properties.ANALYSIS_CRITERIA = "Branch,DefUse";
 

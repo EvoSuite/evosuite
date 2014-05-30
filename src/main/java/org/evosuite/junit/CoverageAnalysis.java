@@ -46,6 +46,7 @@ import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
@@ -106,8 +107,10 @@ public class CoverageAnalysis {
 
 		Class<?>[] classes =junitTests.toArray(new Class<?>[junitTests.size()]);
 		LoggingUtils.getEvoLogger().info("* Executing tests");
-		if(Properties.CRITERION == Criterion.MUTATION
-		                || Properties.CRITERION == Criterion.STRONGMUTATION) {
+		/*if(Properties.CRITERION == Criterion.MUTATION
+		                || Properties.CRITERION == Criterion.STRONGMUTATION) { // FIXME: remove me contains*/
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
+		                || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 			junitMutationAnalysis(classes);
 		}
 		else {

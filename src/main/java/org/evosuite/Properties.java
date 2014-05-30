@@ -1165,7 +1165,8 @@ public class Properties {
 
 	/** Constant <code>CRITERION</code> */
 	@Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion")
-	public static Criterion CRITERION = Criterion.BRANCH;
+	//public static Criterion CRITERION = Criterion.BRANCH; // FIXME: remove me
+	public static Criterion[] CRITERION = new Criterion[] { /* empty */ };
 
 	public enum Strategy {
 		ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, REGRESSION
@@ -1738,6 +1739,17 @@ public class Properties {
 		else if (f.getType().isArray()) {
 			if (f.getType().isAssignableFrom(String[].class)) {
 				setValue(key, value.split(":"));
+			}
+			else if(f.getType().getComponentType().equals(Criterion.class)) {
+			    String[] values = value.split(":");
+			    Criterion[] criteria = new Criterion[values.length];
+
+			    int pos = 0;
+			    for(String stringValue : values) {
+			        criteria[pos++] = Enum.valueOf(Criterion.class, stringValue);
+			    }
+
+			    f.set(this, criteria);
 			}
 		} else {
 			f.set(null, value);

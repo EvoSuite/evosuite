@@ -1523,7 +1523,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 
 		if (Properties.SAVE_ALL_DATA) {
-			if (Properties.CRITERION == Properties.Criterion.EXCEPTION) {
+			//if (Properties.CRITERION == Properties.Criterion.EXCEPTION) { // FIXME: remove me contains
+		    if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EXCEPTION)) {
 				writeExceptionData(entry.getExceptionFilepath(),
 				                   entry.implicitExceptions, entry.explicitExceptions);
 			}

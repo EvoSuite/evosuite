@@ -20,6 +20,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ReportGenerator.StatisticEntry;
 import org.slf4j.Logger;
@@ -192,7 +193,8 @@ public class CoverageAnalysis {
 			if (goal.isCoveredBy(testSuite)) {
 				logger.debug("Goal {} is covered", goal);
 				covered++;
-				if (Properties.CRITERION == Properties.Criterion.DEFUSE) {
+				//if (Properties.CRITERION == Properties.Criterion.DEFUSE) { // FIXME: remove me contains
+				if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)) {
 					StatisticEntry entry = SearchStatistics.getInstance().getLastStatisticEntry();
 					if (((DefUseCoverageTestFitness) goal).isInterMethodPair())
 						entry.coveredInterMethodPairs++;

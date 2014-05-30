@@ -82,7 +82,9 @@ public class SystemTest {
 		Properties.CLIENT_ON_THREAD = true;
 		Properties.SANDBOX = false;
 		Properties.ERROR_BRANCHES = false;
-		Properties.CRITERION = Criterion.BRANCH;
+		//Properties.CRITERION = Criterion.BRANCH; // FIXME: remove me
+		Properties.CRITERION = new Criterion[1];
+		Properties.CRITERION[0] = Criterion.BRANCH;
 
 		Properties.NEW_STATISTICS = true;
 		Properties.OLD_STATISTICS = false;

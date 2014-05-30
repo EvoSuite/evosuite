@@ -168,6 +168,7 @@ import org.evosuite.testsuite.TestSuiteChromosomeFactory;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.TestSuiteMinimizer;
 import org.evosuite.testsuite.TestSuiteReplacementFunction;
+import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -335,7 +336,8 @@ public class TestSuiteGenerator {
 		LoggingUtils.getEvoLogger().info("* Time spent executing tests: "
 		                                         + TestCaseExecutor.timeExecuted + "ms");
 
-		if (Properties.CRITERION == Criterion.DEFUSE) {
+		//if (Properties.CRITERION == Criterion.DEFUSE) { // FIXME: remove me contains
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
 			if (Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION)
 				LoggingUtils.getEvoLogger().info("* Time spent calculating alternative fitness: "
 				                                         + DefUseFitnessCalculator.alternativeTime
@@ -621,7 +623,8 @@ public class TestSuiteGenerator {
 		//ga.setFitnessFunction(fitness_function); // FIXME: remove me
 		ga.addFitnessFunctions(fitness_functions);
 
-		if (Properties.CRITERION == Criterion.STRONGMUTATION) {
+		//if (Properties.CRITERION == Criterion.STRONGMUTATION) { // FIXME: remove me contains
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 		    for (FitnessFunction<?> fitness_function : fitness_functions)
 		        ga.addListener((StrongMutationSuiteFitness) fitness_function);
 		}
@@ -633,11 +636,16 @@ public class TestSuiteGenerator {
 		// client hang if EvoSuite is
 		// executed with -prefix!
 
-		if (Properties.CRITERION == Criterion.DEFUSE
+		/*if (Properties.CRITERION == Criterion.DEFUSE
 		        || Properties.CRITERION == Criterion.ALLDEFS
 		        || Properties.CRITERION == Criterion.STATEMENT
 		        || Properties.CRITERION == Criterion.RHO
-		        || Properties.CRITERION == Criterion.AMBIGUITY)
+		        || Properties.CRITERION == Criterion.AMBIGUITY) // FIXME: remove me contains*/
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+		        || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
+		        || ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT)
+		        || ArrayUtil.contains(Properties.CRITERION, Criterion.RHO)
+		        || ArrayUtil.contains(Properties.CRITERION, Criterion.AMBIGUITY))
 			ExecutionTracer.enableTraceCalls();
 
 		// TODO: why it was only if "analyzing"???
@@ -792,7 +800,9 @@ public class TestSuiteGenerator {
 		// FIXME: this if can only be executed on single objective function?
 		if (Properties.COVERAGE) {
 			//CoverageAnalysis.analyzeCoverage(best, Properties.CRITERION); // FIXME: remove me?
-		    CoverageAnalysis.analyzeCoverage(bests.get(0), Properties.CRITERION);
+		    //CoverageAnalysis.analyzeCoverage(bests.get(0), Properties.CRITERION); // FIXME: remove me contains
+		    for (Properties.Criterion pc : Properties.CRITERION)
+		        CoverageAnalysis.analyzeCoverage(bests.get(0), pc);
 		}
 
 		// progressMonitor.updateStatus(99);
@@ -809,8 +819,10 @@ public class TestSuiteGenerator {
         coverage = coverage / ((double)bests.size());
 
 		// FIXME: this if can only be executed on single objective function?
-		if (Properties.CRITERION == Criterion.MUTATION
-		        || Properties.CRITERION == Criterion.STRONGMUTATION) {
+		/*if (Properties.CRITERION == Criterion.MUTATION
+		        || Properties.CRITERION == Criterion.STRONGMUTATION) { // FIXME: remove me contains*/
+        if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
+                || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 			//SearchStatistics.getInstance().mutationScore(best.getCoverage()); // FIXME: remove me?
 		    //SearchStatistics.getInstance().mutationScore(bests.get(0).getCoverage()); // FIXME: remove me?
 		    SearchStatistics.getInstance().mutationScore(coverage);
@@ -839,7 +851,8 @@ public class TestSuiteGenerator {
 		                                         + NumberFormat.getPercentInstance().format(/*best*/coverage)); // FIXME
 
 		ga.printBudget();
-		if (Properties.CRITERION == Criterion.DEFUSE
+		//if (Properties.CRITERION == Criterion.DEFUSE // FIXME: remove me contains
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 		        && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
 
@@ -872,40 +885,46 @@ public class TestSuiteGenerator {
 	}
 
 	private void printTestCriterion() {
-		switch (Properties.CRITERION) {
+	    LoggingUtils.getEvoLogger().info("* Test criterion:");
+	    for (int i = 0; i < Properties.CRITERION.length; i++)
+	        printTestCriterion(Properties.CRITERION[i]);
+	}
+
+	private void printTestCriterion(Criterion criterion) {
+		switch (criterion) {
 		case WEAKMUTATION:
-			LoggingUtils.getEvoLogger().info("* Test criterion: Mutation testing (weak)");
+			LoggingUtils.getEvoLogger().info("  - Mutation testing (weak)");
 			break;
 		case STRONGMUTATION:
 		case MUTATION:
-			LoggingUtils.getEvoLogger().info("* Test criterion: Mutation testing (strong)");
+			LoggingUtils.getEvoLogger().info("  - Mutation testing (strong)");
 			break;
 		case LCSAJ:
-			LoggingUtils.getEvoLogger().info("* Test criterion: LCSAJ");
+			LoggingUtils.getEvoLogger().info("  - LCSAJ");
 			break;
 		case DEFUSE:
-			LoggingUtils.getEvoLogger().info("* Test criterion: All DU Pairs");
+			LoggingUtils.getEvoLogger().info("  - All DU Pairs");
 			break;
 		case PATH:
-			LoggingUtils.getEvoLogger().info("* Test criterion: Prime Path");
+			LoggingUtils.getEvoLogger().info("  - Prime Path");
 			break;
 		case STATEMENT:
-			LoggingUtils.getEvoLogger().info("* Test Criterion: Statement Coverage");
+			LoggingUtils.getEvoLogger().info("  - Statement Coverage");
 			break;
 		case RHO:
-            LoggingUtils.getEvoLogger().info("* Test Criterion: Rho Coverage");
+            LoggingUtils.getEvoLogger().info("  - Rho Coverage");
             break;
 		case AMBIGUITY:
-            LoggingUtils.getEvoLogger().info("* Test Criterion: Ambiguity Coverage");
+            LoggingUtils.getEvoLogger().info("  - Ambiguity Coverage");
             break;
 		case ALLDEFS:
-			LoggingUtils.getEvoLogger().info("* Test Criterion: All Definitions");
+			LoggingUtils.getEvoLogger().info("  - All Definitions");
 			break;
 		case EXCEPTION:
-			LoggingUtils.getEvoLogger().info("* Test Criterion: Exception");
+			LoggingUtils.getEvoLogger().info("  - Exception");
 			break;
 		default:
-			LoggingUtils.getEvoLogger().info("* Test criterion: Branch coverage");
+			LoggingUtils.getEvoLogger().info("  - Branch coverage");
 		}
 	}
 
@@ -918,9 +937,18 @@ public class TestSuiteGenerator {
 	 */
 	public static List<TestSuiteFitnessFunction> getFitnessFunction() {
 	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
-	    ffs.add(getFitnessFunction(Properties.CRITERION));
-	    ffs.add(getFitnessFunction(Criterion.AMBIGUITY)); // FIXME: remove me
+	    //ffs.add(getFitnessFunction(Properties.CRITERION));
+	    //ffs.add(getFitnessFunction(Criterion.AMBIGUITY)); // FIXME: remove me
 	    //ffs.add(getFitnessFunction(Criterion.BRANCH)); // FIXME: remove me
+
+	    // ----
+	    if (Properties.CRITERION.length == 0)
+	        ffs.add(getFitnessFunction(Criterion.BRANCH));
+	    else {
+	        for (int i = 0; i < Properties.CRITERION.length; i++)
+	            ffs.add(getFitnessFunction(Properties.CRITERION[i]));
+	    }
+
 		return ffs;
 	}
 
@@ -979,9 +1007,18 @@ public class TestSuiteGenerator {
 	 */
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactory() {
 	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
-	    goalsFactory.add(getFitnessFactory(Properties.CRITERION));
-	    goalsFactory.add(getFitnessFactory(Criterion.AMBIGUITY)); // FIXME: remove me
+	    //goalsFactory.add(getFitnessFactory(Properties.CRITERION));
+	    //goalsFactory.add(getFitnessFactory(Criterion.AMBIGUITY)); // FIXME: remove me
 	    //goalsFactory.add(getFitnessFactory(Criterion.BRANCH)); // FIXME: remove me
+
+	    // ----
+        if (Properties.CRITERION.length == 0)
+            goalsFactory.add(getFitnessFactory(Criterion.BRANCH));
+        else {
+            for (int i = 0; i < Properties.CRITERION.length; i++)
+                goalsFactory.add(getFitnessFactory(Properties.CRITERION[i]));
+        }
+
 		return goalsFactory;
 	}
 
@@ -1039,8 +1076,10 @@ public class TestSuiteGenerator {
 	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction<?> fitness,
 	        TestFitnessFactory<?> goals) {
 
-		if (Properties.CRITERION == Criterion.DEFUSE
-		        || Properties.CRITERION == Criterion.ALLDEFS) {
+		/*if (Properties.CRITERION == Criterion.DEFUSE
+		        || Properties.CRITERION == Criterion.ALLDEFS) { // FIXME: remove me contains*/
+	    if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+	            || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)) {
 			LoggingUtils.getEvoLogger().info("* Disabled random bootstraping for dataflow criterion");
 			Properties.RANDOM_TESTS = 0;
 		}
@@ -1446,7 +1485,8 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().info("! #Goals that were not covered: "
 			                                         + uncovered_goals);
 
-		if (Properties.CRITERION == Criterion.LCSAJ && Properties.WRITE_CFG) {
+		//if (Properties.CRITERION == Criterion.LCSAJ && Properties.WRITE_CFG) { // FIXME: remove me contains
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.LCSAJ) && Properties.WRITE_CFG) {
 			int d = 0;
 			for (TestFitnessFunction goal : goals) {
 				if (!covered.contains(d)) {
@@ -1920,8 +1960,10 @@ public class TestSuiteGenerator {
 			ga.addStoppingCondition(global_time);
 		}
 
-		if (Properties.CRITERION == Criterion.MUTATION
-		        || Properties.CRITERION == Criterion.STRONGMUTATION) {
+		/*if (Properties.CRITERION == Criterion.MUTATION
+		        || Properties.CRITERION == Criterion.STRONGMUTATION) { // FIXME: remove me contains*/
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
+		        || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 			if (Properties.STRATEGY == Strategy.ONEBRANCH)
 				ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 			else

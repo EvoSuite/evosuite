@@ -26,7 +26,7 @@ public interface TestGenerationResult extends Serializable {
 	public String getClassUnderTest();
 	
 	/** Target coverage criterion used to create this test suite */
-	public String getTargetCriterion();
+	public String[] getTargetCriterion();
 	
 	/** Coverage level of the target criterion */
 	public double getTargetCoverage();
