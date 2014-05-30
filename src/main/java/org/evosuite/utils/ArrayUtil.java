@@ -154,4 +154,19 @@ public abstract class ArrayUtil {
 	public static String join(byte[] array) {
 		return join(array, DEFAULT_JOIN_SEPARATOR);
 	}
+
+	/**
+	 * <p>contains</p>
+	 * 
+	 * @param array
+	 * @param object
+	 * @return true if array contains an instance equals to object
+	 */
+	public static boolean contains(Object[] array, Object object) {
+	    for (Object obj : array) {
+	        if (obj.equals(object))
+	            return true;
+	    }
+	    return false;
+	}
 }

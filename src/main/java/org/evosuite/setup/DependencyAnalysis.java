@@ -38,6 +38,7 @@ import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.utils.ArrayUtil;
 import org.junit.Test;
 import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
@@ -187,7 +188,8 @@ public class DependencyAnalysis {
 		}
 
 		// Also analyze if it is in the calltree and we are considering the context
-		if (Properties.INSTRUMENT_CONTEXT || Properties.CRITERION == Criterion.DEFUSE) {
+		//if (Properties.INSTRUMENT_CONTEXT || Properties.CRITERION == Criterion.DEFUSE) { // FIXME: remove me contains
+		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
 			if (callTree.isCalledClass(className)) {
 				return true;
 			}
@@ -257,25 +259,28 @@ public class DependencyAnalysis {
 
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Lines, LinePool.getNumLines());
 
-		switch(Properties.CRITERION) {
-		case DEFUSE:
-		case ALLDEFS:
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Definitions, DefUsePool.getDefCounter());
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Uses, DefUsePool.getUseCounter());
-			break;
+		for (Properties.Criterion pc : Properties.CRITERION) {
+    		//switch(Properties.CRITERION) { // FIXME: remove me contains
+		    switch(pc) {
+        		case DEFUSE:
+        		case ALLDEFS:
+        			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Definitions, DefUsePool.getDefCounter());
+        			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Uses, DefUsePool.getUseCounter());
+        			break;
 
-		case LCSAJ:
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.LCSAJs, LCSAJPool.getLCSAJsPerClass(Properties.TARGET_CLASS));
-			break;
-			
-		case WEAKMUTATION:
-		case STRONGMUTATION:
-		case MUTATION:
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
-			break;
+        		case LCSAJ:
+        			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.LCSAJs, LCSAJPool.getLCSAJsPerClass(Properties.TARGET_CLASS));
+        			break;
 
-		default:
-			break;
+        		case WEAKMUTATION:
+        		case STRONGMUTATION:
+        		case MUTATION:
+        			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
+        			break;
+
+        		default:
+        			break;
+    		}
 		}
 	}
 }

@@ -30,6 +30,7 @@ import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.ArrayUtil;
 
 /**
  * <p>
@@ -53,7 +54,8 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	public MutationSuiteFitness() {
 		MutationFactory factory = new MutationFactory(
-		        Properties.CRITERION == Criterion.WEAKMUTATION ? false : true);
+		        //Properties.CRITERION == Criterion.WEAKMUTATION // FIXME: remove me contains
+		        ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION) ? false : true);
 		mutationGoals = factory.getCoverageGoals();
 		logger.info("Mutation goals: " + mutationGoals.size());
 		branchFitness = new BranchCoverageSuiteFitness();

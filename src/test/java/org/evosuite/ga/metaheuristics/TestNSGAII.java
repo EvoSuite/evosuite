@@ -277,7 +277,10 @@ public class TestNSGAII extends SystemTest
 	public void testIntegration()
 	{
 	    Properties.MUTATION_RATE = 1d / 1d;
-	    Properties.CRITERION = Criterion.RHO;
+	    //Properties.CRITERION = Criterion.RHO; // FIXME: remove me
+	    Properties.CRITERION = new Criterion[2];
+        Properties.CRITERION[0] = Criterion.RHO;
+        Properties.CRITERION[1] = Criterion.AMBIGUITY;
 	    Properties.ALGORITHM = Algorithm.NSGAII;
 
 	    EvoSuite evosuite = new EvoSuite();

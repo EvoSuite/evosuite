@@ -30,6 +30,7 @@ import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,7 +211,8 @@ public class DefUseFitnessCalculator {
 			double useFitness = callTestFitnessFunctionForTrace(objectTrace,
 			                                                    goalUseFitness);
 			fitness = normalize(useFitness);
-			if (Properties.CRITERION == Criterion.DEFUSE && fitness == 0.0)
+			//if (Properties.CRITERION == Criterion.DEFUSE && fitness == 0.0) // FIXME: remove me contains
+			if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE) && fitness == 0.0)
 				goal.setCovered(individual, objectTrace, objectId);
 			return fitness;
 		}
@@ -236,7 +238,8 @@ public class DefUseFitnessCalculator {
 			        + DefUsePool.getDefinitionByDefId(activeDefId));
 			if (activeDefId == goalDefinition.getDefId()) {
 				// Case 3.1.
-				if (Properties.CRITERION == Criterion.DEFUSE)
+				//if (Properties.CRITERION == Criterion.DEFUSE) // FIXME: remove me contains
+			    if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE))
 					goal.setCovered(individual, objectTrace, objectId); {
 						if(!defVariable.equals(useVariable)) {
 							// Check if object is equal

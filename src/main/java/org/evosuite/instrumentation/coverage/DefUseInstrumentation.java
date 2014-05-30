@@ -31,6 +31,7 @@ import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
+import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -75,8 +76,10 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			AbstractInsnNode in = j.next();
 			for (BytecodeInstruction v : completeCFG.vertexSet()) {
 
-				if ((Properties.CRITERION == Criterion.DEFUSE
-				        || Properties.CRITERION == Criterion.ALLDEFS)
+				/*if ((Properties.CRITERION == Criterion.DEFUSE
+				        || Properties.CRITERION == Criterion.ALLDEFS) // FIXME: remove me contains*/
+			    if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+			            || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
 				        && in.equals(v.getASMNode()) && v.isDefUse()) {
 
 					boolean isValidDU = false;

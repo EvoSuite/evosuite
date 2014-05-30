@@ -53,6 +53,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.ReportGenerator;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.Type;
@@ -392,7 +393,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		Map<TestCase, Map<Integer, Boolean>> isExceptionExplicit = new HashMap<TestCase, Map<Integer, Boolean>>();
 
 		Set<DefUseCoverageTestFitness> coveredDUGoals = new HashSet<DefUseCoverageTestFitness>();
-		if (Properties.CRITERION == Properties.Criterion.DEFUSE
+		//if (Properties.CRITERION == Properties.Criterion.DEFUSE // FIXME: remove me contains
+		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
 		        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE")) {
 			for (DefUseCoverageTestFitness goal : DefUseCoverageFactory.getDUGoals()) {
 				if (goal.isInterMethodPair())
@@ -426,7 +428,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			entry.coverage.addAll(getCoveredLines(trace, entry.className));
 			isExceptionExplicit.put(test.getTestCase(), result.explicitExceptions);
 
-			if (Properties.CRITERION == Properties.Criterion.DEFUSE
+			//if (Properties.CRITERION == Properties.Criterion.DEFUSE // FIXME: remove me contains
+			if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
 			        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE")) {
 				for (DefUseCoverageTestFitness goal : DefUseCoverageFactory.getDUGoals()) {
 					if (coveredDUGoals.contains(goal))

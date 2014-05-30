@@ -34,6 +34,7 @@ import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.utils.ArrayUtil;
 
 /*
  * // (0) TODO IDEA FOR AN EVO-SUITE-FEATURE: // given a test(suite) for a
@@ -272,7 +273,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 		double fitness = calculator.calculateDUFitness();
 
-		if (Properties.CRITERION == Criterion.DEFUSE && fitness == 0.0)
+		//if (Properties.CRITERION == Criterion.DEFUSE && fitness == 0.0) // FIXME: remove me contains
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE) && fitness == 0.0)
 			setCovered(individual, result.getTrace(), -1); // TODO objectId wrong
 
 		postFitnessDebugInfo(individual, result, fitness);

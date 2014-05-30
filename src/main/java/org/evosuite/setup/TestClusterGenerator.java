@@ -60,6 +60,7 @@ import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.setup.PutStaticMethodCollector.MethodIdentifier;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
@@ -119,7 +120,8 @@ public class TestClusterGenerator {
 		this.inheritanceTree = inheritanceTree;
 		TestCluster.setInheritanceTree(inheritanceTree);
 
-		if (Properties.INSTRUMENT_CONTEXT || Properties.CRITERION == Criterion.DEFUSE) {
+		//if (Properties.INSTRUMENT_CONTEXT || Properties.CRITERION == Criterion.DEFUSE) { // FIXME: remove me contains
+		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
 			for (String callTreeClass : DependencyAnalysis.getCallTree().getClasses()) {
 				try {
 					TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(callTreeClass);
