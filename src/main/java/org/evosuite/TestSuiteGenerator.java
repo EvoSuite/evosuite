@@ -83,6 +83,7 @@ import org.evosuite.ga.TournamentChromosomeFactory;
 import org.evosuite.ga.localsearch.BranchCoverageMap;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.MuPlusLambdaGA;
+import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.OnePlusOneEA;
 import org.evosuite.ga.metaheuristics.RandomSearch;
 import org.evosuite.ga.metaheuristics.StandardGA;
@@ -1878,6 +1879,9 @@ public class TestSuiteGenerator {
 		case RANDOM:
 			logger.info("Chosen search algorithm: Random");
 			return new RandomSearch<T>(factory);
+        case NSGAII:
+            logger.info("Chosen search algorithm: NSGAII");
+            return new NSGAII<T>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
 			return new StandardGA<T>(factory);
