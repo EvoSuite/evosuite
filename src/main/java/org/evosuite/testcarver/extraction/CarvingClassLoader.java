@@ -26,9 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.testcarver.instrument.Instrumenter;
 import org.evosuite.testcarver.instrument.JSRInlinerClassVisitor;
-import org.evosuite.utils.ResourceList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -83,13 +83,13 @@ public class CarvingClassLoader extends ClassLoader {
 		//temporary solution, TODO allow the user to specify 
 		//packages that should not be instrumented
 		return new String[] { "java.", "javax.", "sun.", "org.evosuite", "org.exsyst",
-					          "de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite",  "org.uispec4j", 
-					          "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
-					          "testing.generation.evosuite", "com.yourkit", "com.vladium.emma.", "daikon.",
-					          // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
-					          "apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
-					          "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc",
-					          "corina.cross.Single" // I really don't know what is wrong with this class, but we need to exclude it 
+				"de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite",  "org.uispec4j", 
+				"de.unisb.cs.st.specmate", "org.xml", "org.w3c",
+				"testing.generation.evosuite", "com.yourkit", "com.vladium.emma.", "daikon.",
+				// Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
+				"apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
+				"org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc",
+				"corina.cross.Single" // I really don't know what is wrong with this class, but we need to exclude it 
 		};
 	}
 
@@ -123,31 +123,20 @@ public class CarvingClassLoader extends ClassLoader {
 		}
 	}
 
-	private InputStream findTargetResource(String name) throws FileNotFoundException {
-		Pattern pattern = Pattern.compile(name);
-		Collection<String> resources = ResourceList.getResources(pattern);
-		if (resources.isEmpty())
-			throw new FileNotFoundException(name);
-		else
-			return new FileInputStream(resources.iterator().next());
-	}
 
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
-	        throws ClassNotFoundException {
+			throws ClassNotFoundException {
 		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
-		
+
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
 
-			InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
-			if (is == null) {
-				try {
-					is = findTargetResource(".*" + className + ".class");
-				} catch (FileNotFoundException e) {
-					throw new ClassNotFoundException("Class '" + className + ".class"
-					        + "' should be in target project, but could not be found!");
-				}
+			InputStream is = ResourceList.getClassAsStream(className);
+			if(is == null){
+				throw new ClassNotFoundException("Class '" + className + ".class"
+						+ "' should be in target project, but could not be found!");
 			}
+
 			ClassReader reader = new ClassReader(is);
 			ClassNode classNode = new ClassNode();
 			reader.accept(classNode, ClassReader.SKIP_FRAMES);
@@ -157,7 +146,7 @@ public class CarvingClassLoader extends ClassLoader {
 			//classNode.accept(writer);
 			byte[] byteBuffer = writer.toByteArray();
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
-			                              byteBuffer.length);
+					byteBuffer.length);
 			if(Modifier.isPrivate(result.getModifiers())) {
 				logger.info("REPLACEING PRIVATE CLASS "+fullyQualifiedTargetClass);
 				result = super.loadClass(fullyQualifiedTargetClass);

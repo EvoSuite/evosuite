@@ -49,23 +49,6 @@ public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome> ex
 
         this.index = (this.index + 2) % (population.size());
 
-		/*if (maximize) {
-			if (p1.getRank() < p2.getRank())
-			    return index2;
-			else if (p1.getRank() > p2.getRank())
-			    return index1;
-			else if (p1.getRank() == p2.getRank())
-			    return (p1.getDistance() >= p2.getDistance()) ? index1 : index2;
-		}
-		else {
-			if (p1.getRank() < p2.getRank())
-			    return index1;
-			else if (p1.getRank() > p2.getRank())
-			    return index2;
-			else if (p1.getRank() == p2.getRank())
-			    return (p1.getDistance() >= p2.getDistance()) ? index1 : index2;
-		}*/
-
         int flag = this.comparator.compare(p1, p2);
         if (flag == -1)
             return index1;

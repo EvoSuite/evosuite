@@ -51,6 +51,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.annotation.EvoSuiteExclude;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.instrumentation.BooleanTestabilityTransformation;
 import org.evosuite.reset.ClassResetter;
 import org.evosuite.rmi.ClientServices;
@@ -66,7 +67,6 @@ import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
-import org.evosuite.utils.Utils;
 import org.junit.Test;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
@@ -408,7 +408,7 @@ public class TestClusterGenerator {
 			try {
 				logger.debug("Loading inner class: " + icn.innerName + ", " + icn.name
 				        + "," + icn.outerName);
-				String innerClassName = Utils.getClassNameFromResourcePath(icn.name);
+				String innerClassName = ResourceList.getClassNameFromResourcePath(icn.name);
 				Class<?> innerClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(innerClassName);
 				//if (!canUse(innerClass))
 				//	continue;

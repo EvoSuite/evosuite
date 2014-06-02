@@ -34,9 +34,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.runtime.Runtime;
-import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
@@ -800,16 +800,16 @@ public class Properties {
 	public static boolean SERIALIZE_RESULT = false;
 
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
-	public static boolean NEW_STATISTICS = false;
+	public static boolean NEW_STATISTICS = true;
 
 	@Parameter(key = "old_statistics", group = "Output", description = "Use the old statistics backend on the master")
-	public static boolean OLD_STATISTICS = true;
+	public static boolean OLD_STATISTICS = false;
 
 	@Parameter(key = "serialize_ga", group = "Output", description = "Include the GA instance in the test generation result")
 	public static boolean SERIALIZE_GA = false;
 	
 	public enum StatisticsBackend {
-		NONE, CONSOLE, CSV, HTML;
+		NONE, CONSOLE, CSV, HTML, DEBUG;
 	}
 
 	@Parameter(key = "statistics_backend", group = "Output", description = "Which backend to use to collect data")

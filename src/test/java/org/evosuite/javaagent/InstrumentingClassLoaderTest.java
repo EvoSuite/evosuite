@@ -19,11 +19,11 @@ package org.evosuite.javaagent;
 
 import org.evosuite.Properties;
 import org.evosuite.TestUtil;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.instrumentation.TestabilityTransformationClassLoader;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.ExecutionTracer;
-import org.evosuite.utils.ClassPathHandler;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;

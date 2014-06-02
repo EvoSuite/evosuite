@@ -15,6 +15,11 @@ import org.evosuite.result.TestGenerationResult;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
+import org.evosuite.statistics.backend.CSVStatisticsBackend;
+import org.evosuite.statistics.backend.ConsoleStatisticsBackend;
+import org.evosuite.statistics.backend.DebugStatisticsBackend;
+import org.evosuite.statistics.backend.HTMLStatisticsBackend;
+import org.evosuite.statistics.backend.StatisticsBackend;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.LoggingUtils;
@@ -75,6 +80,9 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			break;
 		case HTML:
 			backend = new HTMLStatisticsBackend();
+			break;
+		case DEBUG:
+			backend = new DebugStatisticsBackend();
 			break;
 		case NONE:
 		default:

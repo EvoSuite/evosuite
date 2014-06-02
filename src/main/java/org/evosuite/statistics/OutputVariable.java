@@ -2,9 +2,9 @@ package org.evosuite.statistics;
 
 public class OutputVariable<T> {
 	
-	private String name;
+	private final String name;
 	
-	private T value;
+	private final T value;
 	
 	public OutputVariable(String name, T value) {
 		this.name = name;

@@ -13,9 +13,9 @@ import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.junit.JUnitExecutionException;
 import org.evosuite.junit.JUnitResult;
-import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;

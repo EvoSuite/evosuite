@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -60,7 +61,7 @@ public class ObjectSignatureAdapter extends ClassVisitor {
 	public ObjectSignatureAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
 
-		this.className = Utils.getClassNameFromResourcePath(className);
+		this.className = ResourceList.getClassNameFromResourcePath(className);
 
 		if (!(this.className.startsWith(Properties.PROJECT_PREFIX))
 		        && !(this.className.startsWith(Properties.TARGET_CLASS_PREFIX))) {

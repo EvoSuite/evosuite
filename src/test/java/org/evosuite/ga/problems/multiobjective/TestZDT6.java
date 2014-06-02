@@ -105,7 +105,7 @@ public class TestZDT6
         GenerationalDistance gd = new GenerationalDistance();
         double gdd = gd.evaluate(front, trueParetoFront);
         System.out.println("GenerationalDistance: " + gdd);
-        Assert.assertEquals(gdd, 0.0005, 0.0001);
+        Assert.assertEquals(gdd, 0.0005, 0.0005);
 
         Spacing sp = new Spacing();
         double spd = sp.evaluate(front);

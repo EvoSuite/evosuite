@@ -39,6 +39,7 @@ import org.evosuite.assertion.CompleteAssertionGenerator;
 import org.evosuite.assertion.SimpleMutationAssertionGenerator;
 import org.evosuite.assertion.StructuredAssertionGenerator;
 import org.evosuite.assertion.UnitAssertionGenerator;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.CoverageAnalysis;
@@ -169,7 +170,6 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.TestSuiteMinimizer;
 import org.evosuite.testsuite.TestSuiteReplacementFunction;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceController;
@@ -271,7 +271,7 @@ public class TestSuiteGenerator {
 			if (!Properties.NEW_STATISTICS)
 				statistics.writeStatistics();
 		}
-		PermissionStatistics.getInstance().printStatistics();
+		//PermissionStatistics.getInstance().printStatistics(); // FIXME: remove me
 
 		LoggingUtils.getEvoLogger().info("* Done!");
 		LoggingUtils.getEvoLogger().info("");

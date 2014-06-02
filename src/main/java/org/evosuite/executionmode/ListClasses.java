@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -13,11 +14,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.utils.ClassPathHacker;
-import org.evosuite.utils.ClassPathHandler;
+import org.evosuite.classpath.ClassPathHacker;
+import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.ResourceList;
-import org.evosuite.utils.Utils;
 
 public class ListClasses {
 
@@ -43,20 +43,19 @@ public class ListClasses {
 
 
 	private static void listClassesTarget(String target) {
-		Pattern pattern = Pattern.compile("[^\\$]*.class");
-		Collection<String> resources = ResourceList.getResources(target, pattern);
+		Set<String> classes = ResourceList.getAllClasses(target, false);
 		try {
 			ClassPathHacker.addFile(target);
 		} catch (IOException e) {
 			// Ignore?
 		}
-		for (String resource : resources) {
+		for (String sut : classes) {
 			try {
-				if (EvoSuite.isInterface(resource)) {
+				if (ResourceList.isClassAnInterface(sut)) {
 					continue;
 				}
 			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().error("Could not load class: " + resource);
+				LoggingUtils.getEvoLogger().error("Could not load class: " + sut);
 				continue;
 			}
 			
@@ -65,7 +64,7 @@ public class ListClasses {
 			if(groupId!=null && !groupId.isEmpty() && !groupId.equals("none")){
 				row += groupId + "\t";
 			}
-			row += Utils.getClassNameFromResourcePath(resource);
+			row += sut;
 			
 			LoggingUtils.getEvoLogger().info(row);
 		}
@@ -83,27 +82,26 @@ public class ListClasses {
 		
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		
-		Pattern pattern = Pattern.compile(prefix.replace("\\.", "/") // FIXME replace "/" by File.separator? (not sure)
-		        + "[^\\$]*.class");
-		Set<String> resources = new HashSet<String>();
+		Set<String> classes = new LinkedHashSet<>();
+		
 		for (String classPathElement : cp.split(File.pathSeparator)) {
-			resources.addAll(ResourceList.getResources(classPathElement, pattern));
+			classes.addAll(ResourceList.getAllClasses(classPathElement, prefix, false));
 			try {
 				ClassPathHacker.addFile(classPathElement);
 			} catch (IOException e) {
 				// Ignore?
 			}
 		}
-		for (String resource : resources) {
+		for (String sut : classes) {
 			try {
-				if (EvoSuite.isInterface(resource)) {
+				if (ResourceList.isClassAnInterface(sut)) {
 					continue;
 				}
 			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().error("Could not load class: " + resource);
+				LoggingUtils.getEvoLogger().error("Could not load class: " + sut);
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info(Utils.getClassNameFromResourcePath(resource));
+			LoggingUtils.getEvoLogger().info(sut);
 		}
 	}
 }

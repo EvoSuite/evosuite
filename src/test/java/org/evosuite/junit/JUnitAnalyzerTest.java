@@ -8,11 +8,11 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.utils.ClassPathHandler;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

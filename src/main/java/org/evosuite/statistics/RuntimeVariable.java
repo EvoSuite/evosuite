@@ -101,13 +101,15 @@ public enum RuntimeVariable {
 	Size,                
 	/** Total number of statements in final test suite */
 	Length,   
-	/** TODO */
+	/** Number of tests in resulting test suite before minimization */
 	Result_Size,
-	/** TODO */
+	/** Total number of statements in final test suite before minimization */
 	Result_Length,
-	/** TODO */
+	/** Either use {@link RuntimeVariable.Size} */
+	@Deprecated
 	Minimized_Size,
-	/** TODO */
+	/** Either use  {@link RuntimeVariable.Length} */
+	@Deprecated
 	Minimized_Length,
 	/** The random seed used during the search. A random one was used if none was specified at the beginning */
 	Random_Seed,

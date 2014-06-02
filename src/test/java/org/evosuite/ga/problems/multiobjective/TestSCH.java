@@ -125,6 +125,6 @@ public class TestSCH
         double spdt = sp.evaluate(trueParetoFront);
         System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
                             + Math.abs(spd - spdt));
-        Assert.assertEquals(Math.abs(spd - spdt), 1.15, 0.05);
+        Assert.assertEquals(Math.abs(spd - spdt), 0.95, 0.05);
     }
 }
