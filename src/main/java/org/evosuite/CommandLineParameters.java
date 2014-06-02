@@ -9,6 +9,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.evosuite.Properties.Parameter;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
@@ -53,7 +54,7 @@ public class CommandLineParameters {
 			}
 		}
 		
-		if(!line.hasOption(Continuous.NAME)){
+		if(!line.hasOption(Continuous.NAME) & !line.hasOption("startedByCtg")){			
 			for(Object p : properties.keySet()){
 				if(p.toString().startsWith("ctg_")){
 					throw new IllegalArgumentException("Option "+p+" is only valid in '-"+Continuous.NAME+"' mode");
@@ -103,7 +104,8 @@ public class CommandLineParameters {
 		Option mem = new Option("mem", true,
 				"heap size for client process (in megabytes)");
 		
-		
+		Option startedByCtg = new Option("startedByCtg",false, "Determine if current process was started by a CTG process");
+
 		
 		Option extendSuite = new Option("extend", true, "extend an existing test suite");
 
@@ -144,6 +146,7 @@ public class CommandLineParameters {
 		options.addOption(property);
 		options.addOption(projectCP);
 		options.addOption(heapDump);
+		options.addOption(startedByCtg);
 
 		return options;
 	}
