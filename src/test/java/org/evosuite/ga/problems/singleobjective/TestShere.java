@@ -1,0 +1,93 @@
+package org.evosuite.ga.problems.singleobjective;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.NSGAChromosome;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.NSGAII;
+import org.evosuite.ga.metaheuristics.RandomFactory;
+import org.evosuite.ga.operators.crossover.SBXCrossover;
+import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
+import org.evosuite.ga.problems.Problem;
+import org.evosuite.ga.variables.DoubleVariable;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class TestShere
+{
+    @BeforeClass
+    public static void setUp() {
+        Properties.POPULATION = 100;
+        Properties.SEARCH_BUDGET = 2500;
+        Properties.CROSSOVER_RATE = 0.9;
+        Properties.RANDOM_SEED = 1l;
+    }
+
+    @Test
+    public void testSphereFitness()
+    {
+        Problem p = new Sphere();
+        FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
+
+        double[] values = {-2.0};
+        NSGAChromosome c = new NSGAChromosome(Math.pow(-10.0, 3.0), Math.pow(10.0, 3.0), values);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(0)).getValue(), -2.0, 0.0);
+
+        Assert.assertEquals(f1.getFitness(c), 4.0, 0.0);
+    }
+
+    /**
+     * Testing NSGA-II with Sphere Problem
+     * 
+     * @throws IOException 
+     * @throws NumberFormatException 
+     */
+    @Test
+    public void testSphere() throws NumberFormatException, IOException
+    {
+        Properties.MUTATION_RATE = 1d / 1d;
+
+        ChromosomeFactory<?> factory = new RandomFactory(false, 1, Math.pow(-10.0, 3.0), Math.pow(10.0, 3.0));
+
+        //GeneticAlgorithm<?> ga = new NSGAII(factory);
+        GeneticAlgorithm<?> ga = new NSGAII(factory);
+        BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
+        //BinaryTournament ts = new BinaryTournament();
+        ga.setSelectionFunction(ts);
+        ga.setCrossOverFunction(new SBXCrossover());
+
+        Problem p = new Sphere();
+        final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
+        ga.addFitnessFunction(f1);
+
+        // execute
+        ga.generateSolution();
+
+        List<Chromosome> chromosomes = (List<Chromosome>) ga.getPopulation();
+        Collections.sort(chromosomes, new Comparator<Chromosome>() {
+            @Override
+            public int compare(Chromosome arg0, Chromosome arg1) {
+                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
+            }
+        });
+
+        for (Chromosome chromosome : chromosomes)
+            Assert.assertEquals(chromosome.getFitness(f1), 0.00, 0.01);
+
+        for (Chromosome chromosome : chromosomes) {
+            NSGAChromosome nsga_c = (NSGAChromosome)chromosome;
+
+            DoubleVariable x = (DoubleVariable) nsga_c.getVariables().get(0);
+            System.out.printf("%f : %f\n", x.getValue(), chromosome.getFitness(f1));
+        }
+    }
+}
