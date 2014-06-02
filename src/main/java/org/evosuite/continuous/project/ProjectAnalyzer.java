@@ -4,13 +4,17 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.swing.event.ListSelectionEvent;
 
 import org.evosuite.Properties;
+import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.continuous.job.schedule.HistorySchedule;
 import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
@@ -18,8 +22,6 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.sandbox.Sandbox;
-import org.evosuite.utils.ClassPathHandler;
-import org.evosuite.utils.ResourceList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,47 +90,34 @@ public class ProjectAnalyzer {
 			return Arrays.asList(cutsToAnalyze);
 		}
 
-		Pattern pattern = Pattern.compile("[^\\$]*.class");
-		Collection<String> classes = null;
+		Set<String> suts = null;
 
 		if(target!=null){
 			if(!target.contains(File.pathSeparator)){
-				classes = ResourceList.getResources(target, pattern);
+				suts = ResourceList.getAllClasses(target, prefix, false);
 			} else {
-				classes = new HashSet<String>();
+				suts = new LinkedHashSet<String>();
 				for(String element : target.split(File.pathSeparator)){
-					classes.addAll(ResourceList.getResources(element, pattern));
+					suts.addAll(ResourceList.getAllClasses(element, prefix, false));
 				}
 			}
 		} else {
 			/*
 			 * if no target specified, just grab everything on SUT classpath
 			 */
-			classes = ResourceList.getResources(ClassPathHandler.getInstance().getClassPathElementsForTargetProject(),pattern);
+			suts = ResourceList.getAllClasses(ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 		}
 
 		List<String> cuts = new LinkedList<String>();
 
-		for (String fileName : classes) {
-			/*
-			 * Using File.separator seems to give problems in Windows
-			 */
-			String className = fileName.replace(".class", "").replaceAll("/", ".");
-
-			if(prefix!=null && !prefix.isEmpty() && !className.startsWith(prefix)){
-				/*
-				 * A prefix is defined, but this class does not belong to that package hierarchy
-				 */
-				continue;
-			}
-
+		for (String className : suts) {
 			try {
 				Class<?> clazz = Class.forName(className);
-				if (!CoverageAnalysis.isTest(clazz))
+				if (!CoverageAnalysis.isTest(clazz)){
 					cuts.add(className);
-			}
-			catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				}
+			} catch (ClassNotFoundException e) {
+				logger.error(""+e,e);
 			}
 
 		}

@@ -41,12 +41,11 @@ import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.ResourceList;
-import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -229,26 +228,13 @@ public class InheritanceTreeGenerator {
 
 	private static void analyzeClassName(InheritanceTree inheritanceTree, String className) {
 
-		String fileName = ResourceList.getClassAsResource(className);
-		if (fileName == null) {
-			throw new IllegalArgumentException("Failed to locate resource for class "
-			        + className);
+		InputStream stream = ResourceList.getClassAsStream(className);
+		if(stream==null){
+			throw new IllegalArgumentException("Failed to locate/load class: "+className);
 		}
-
-		InputStream stream = null;
-		try {
-			stream = InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(fileName);
-		} catch (NullPointerException e) {
-			logger.warn("Java failed to read resource " + fileName, e);
-		}
-
-		if (stream != null) {
-			logger.debug(InheritanceTreeGenerator.class.getClassLoader().getResource(fileName).toString());
-			analyzeClassStream(inheritanceTree, stream, false);
-		} else {
-			logger.warn("Could not find class file " + fileName + " for class "
-			        + className);
-		}
+		
+		logger.debug("Going to analyze: "+className);
+		analyzeClassStream(inheritanceTree, stream, false);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -382,8 +368,6 @@ public class InheritanceTreeGenerator {
 				others.add(tree);
 			} catch (IOException e) {
 				logger.info("Error: " + e);
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 
@@ -396,7 +380,7 @@ public class InheritanceTreeGenerator {
 				}
 			}
 			for (InheritanceTree other : others) {
-				if (!other.hasClass(Utils.getClassNameFromResourcePath(name))) {
+				if (!other.hasClass(ResourceList.getClassNameFromResourcePath(name))) {
 					logger.info("Skipping " + name
 					        + " because it is not in other inheritance tree");
 					continue EXCEPTION;
@@ -460,9 +444,6 @@ public class InheritanceTreeGenerator {
 		output.close();
 	}
 
-	public static Collection<String> getResources() {
-		return getResources(ClassPathHandler.getInstance().getTargetProjectClasspath());
-	}
 
 	public static Collection<String> getAllResources() {
 		Collection<String> retval = getResources(System.getProperty("java.class.path",
@@ -474,7 +455,6 @@ public class InheritanceTreeGenerator {
 	private static Collection<String> getResources(String classPath) {
 		final ArrayList<String> retval = new ArrayList<String>();
 		String[] classPathElements = classPath.split(File.pathSeparator);
-		Pattern pattern = Pattern.compile(".*\\.class$");
 
 		for (final String element : classPathElements) {
 			if (element.contains("evosuite-0.1-SNAPSHOT-dependencies.jar"))
@@ -486,7 +466,9 @@ public class InheritanceTreeGenerator {
 			if (element.contains("evosuite"))
 				continue;
 			try {
-				retval.addAll(ResourceList.getResources(element, pattern));
+				//retval.addAll(ResourceList.getAllClassesAsResources(element, false));
+				//TODO: need to fix based on new ResourceList 
+				throw new RuntimeException("ERROR: this functionality is temporarely disabled");
 			} catch (IllegalArgumentException e) {
 				System.err.println("Does not exist: " + element);
 			}

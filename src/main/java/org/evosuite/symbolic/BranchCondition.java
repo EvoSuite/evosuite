@@ -21,8 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.utils.Utils;
 
 /**
  * <p>
@@ -62,7 +62,7 @@ public class BranchCondition {
 	        String methodName, int branchIndex, Constraint<?> localConstraint,
 	        List<Constraint<?>> supportingConstraints) {
 
-		this.className = Utils.getClassNameFromResourcePath(className);
+		this.className = ResourceList.getClassNameFromResourcePath(className);
 		this.methodName = methodName;
 		this.branchIndex = branchIndex;
 

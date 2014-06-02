@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.graphs.GraphPool;
@@ -46,7 +47,6 @@ import org.evosuite.instrumentation.mutation.ReplaceVariable;
 import org.evosuite.reset.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testcase.ExecutionTracer;
-import org.evosuite.utils.Utils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -166,7 +166,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 					if(DependencyAnalysis.getInheritanceTree() != null && DependencyAnalysis.getInheritanceTree().hasClass(className))
 						superClasses.addAll(DependencyAnalysis.getInheritanceTree().getSuperclasses(className));
 					superClasses.add(className);
-					String classNameWithDots = Utils.getClassNameFromResourcePath(cn.owner);
+					String classNameWithDots = ResourceList.getClassNameFromResourcePath(cn.owner);
 					if (superClasses.contains(classNameWithDots)) {
 						constructorInvoked = true;
 					}

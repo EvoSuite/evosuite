@@ -37,6 +37,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.agent.ToolsJarLocator;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
 import org.evosuite.executionmode.ListClasses;
@@ -48,12 +49,8 @@ import org.evosuite.executionmode.Setup;
 import org.evosuite.executionmode.TestGeneration;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.InheritanceTreeGenerator;
-import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,15 +80,6 @@ public class EvoSuite {
 			+ "java";
 
 	public static String base_dir_path = System.getProperty("user.dir");
-
-	public static boolean isInterface(String resource) throws IOException {
-
-		ClassReader reader = new ClassReader(
-				EvoSuite.class.getClassLoader().getResourceAsStream(resource));
-		ClassNode cn = new ClassNode();
-		reader.accept(cn, ClassReader.SKIP_FRAMES);
-		return (cn.access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE;
-	}
 
 	public static String generateInheritanceTree(String cp) throws IOException {
 		LoggingUtils.getEvoLogger().info("* Analyzing classpath");

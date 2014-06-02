@@ -14,7 +14,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -22,7 +21,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -34,6 +32,8 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
+import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -47,10 +47,8 @@ import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.ResourceList;
 import org.junit.Test;
 import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
@@ -232,24 +230,24 @@ public class CoverageAnalysis {
 	private static List<Class<?>> getClassesFromClasspath() {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
-			Pattern pattern = Pattern.compile(prefix + ".*.class");
-			Collection<String> resources = ResourceList.getResources(pattern);
-			LoggingUtils.getEvoLogger().info("* Found " + resources.size() + " classes with prefix " + prefix);
-			if (!resources.isEmpty()) {
-				for (String resource : resources) {
+			
+			Set<String> suts = ResourceList.getAllClasses(
+					ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
+			
+			LoggingUtils.getEvoLogger().info("* Found " + suts.size() + " classes with prefix " + prefix);
+			if (!suts.isEmpty()) {
+				for (String sut : suts) {
 					try {
 						Class<?> clazz = Class.forName(
-								resource.replaceAll(".class", "").replaceAll("/","."),
-								true,
-								TestGenerationContext.getInstance().getClassLoaderForSUT());
+								sut,true,TestGenerationContext.getInstance().getClassLoaderForSUT());
+						
 						if (isTest(clazz)) {
 							classes.add(clazz);
 						}
 					} catch (ClassNotFoundException e2) {
-						// Ignore?
-						logger.info("Could not find class "+resource);
+						logger.info("Could not find class "+sut);
 					} catch(Throwable t) {
-						logger.info("Error while initialising class "+resource);
+						logger.info("Error while initialising class "+sut);
 					}
 				}
 

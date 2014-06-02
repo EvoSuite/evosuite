@@ -25,8 +25,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Utils;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.graph.EdgeReversedGraph;
@@ -48,8 +48,8 @@ public class InheritanceTree {
 	}
 
 	public void addSuperclass(String className, String superName, int access) {
-		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
-		String superNameWithDots = Utils.getClassNameFromResourcePath(superName);
+		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
+		String superNameWithDots = ResourceList.getClassNameFromResourcePath(superName);
 
 		if (inheritanceGraph == null) {
 			inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(
@@ -62,8 +62,8 @@ public class InheritanceTree {
 	}
 
 	public void addInterface(String className, String interfaceName) {
-		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
-		String interfaceNameWithDots = Utils.getClassNameFromResourcePath(interfaceName);
+		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
+		String interfaceNameWithDots = ResourceList.getClassNameFromResourcePath(interfaceName);
 
 		inheritanceGraph.addVertex(classNameWithDots);
 		inheritanceGraph.addVertex(interfaceNameWithDots);
@@ -71,7 +71,7 @@ public class InheritanceTree {
 	}
 
 	public Set<String> getSubclasses(String className) {
-		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
+		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 
 		if (subclassCache.containsKey(classNameWithDots))
 			return subclassCache.get(classNameWithDots);
@@ -91,7 +91,7 @@ public class InheritanceTree {
 	}
 
 	public Set<String> getSuperclasses(String className) {
-		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
+		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
 		        inheritanceGraph);
 		Set<String> result = new LinkedHashSet<String>();

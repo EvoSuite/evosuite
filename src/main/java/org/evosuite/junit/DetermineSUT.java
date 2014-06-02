@@ -3,7 +3,6 @@
  */
 package org.evosuite.junit;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -14,12 +13,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.evosuite.utils.ClassPathHacker;
-import org.evosuite.utils.ResourceList;
-import org.evosuite.utils.Utils;
+import org.evosuite.classpath.ClassPathHacker;
+import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -78,7 +75,7 @@ public class DetermineSUT {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		Set<String> targetClasses = analyzeTargetClasspath(targetClassPath);
+		Set<String> targetClasses = ResourceList.getAllClasses(targetClassPath,false);
 		Set<String> candidateClasses = new HashSet<String>();
 		boolean hasJUnit = false;
 		try {
@@ -139,17 +136,6 @@ public class DetermineSUT {
 		return calledClasses;
 	}
 
-	private Set<String> analyzeTargetClasspath(String classPath) {
-		Pattern pattern = Pattern.compile(".*\\.class");
-		Collection<String> classes = ResourceList.getResources(classPath, pattern);
-		Set<String> classNames = new HashSet<String>();
-		for (String fileName : classes) {
-			classNames.add(fileName.replace(".class", "").replaceAll(File.separatorChar == '\\' ? "\\\\"
-			                                                                 : File.separator,
-			                                                         "."));
-		}
-		return classNames;
-	}
 
 	@SuppressWarnings("unchecked")
 	private void handleClassNode(Set<String> calledClasses, ClassNode cn,
@@ -210,7 +196,7 @@ public class DetermineSUT {
 		while (iterator.hasNext()) {
 			AbstractInsnNode insn = iterator.next();
 			if (insn instanceof MethodInsnNode) {
-				String name = Utils.getClassNameFromResourcePath(((MethodInsnNode) insn).owner);
+				String name = ResourceList.getClassNameFromResourcePath(((MethodInsnNode) insn).owner);
 				if (!targetClasses.contains(name))
 					continue;
 
@@ -247,7 +233,7 @@ public class DetermineSUT {
 		Set<String> superClasses = new HashSet<String>();
 		String currentSuper = cn.superName;
 		while (!currentSuper.equals("java/lang/Object")) {
-			superClasses.add(Utils.getClassNameFromResourcePath(currentSuper));
+			superClasses.add(ResourceList.getClassNameFromResourcePath(currentSuper));
 			ClassNode superNode = loadClassNode(currentSuper);
 			currentSuper = superNode.superName;
 		}

@@ -9,6 +9,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
 import org.evosuite.executionmode.ListClasses;
@@ -18,7 +19,6 @@ import org.evosuite.executionmode.PrintStats;
 import org.evosuite.executionmode.Setup;
 import org.evosuite.executionmode.TestGeneration;
 import org.evosuite.executionmode.WriteDependencies;
-import org.evosuite.utils.ClassPathHandler;
 import org.evosuite.utils.LoggingUtils;
 
 /**
@@ -39,6 +39,8 @@ public class CommandLineParameters {
 		/*
 		 * TODO: here there is lot more that could be added
 		 */
+		
+		java.util.Properties properties = line.getOptionProperties("D");
 
 		String cut = line.getOptionValue("class");
 		
@@ -51,6 +53,13 @@ public class CommandLineParameters {
 			}
 		}
 		
+		if(!line.hasOption(Continuous.NAME)){
+			for(Object p : properties.keySet()){
+				if(p.toString().startsWith("ctg_")){
+					throw new IllegalArgumentException("Option "+p+" is only valid in '-"+Continuous.NAME+"' mode");
+				}
+			}
+		}
 	}
 	
 	
@@ -76,7 +85,8 @@ public class CommandLineParameters {
 		Option targetClass = new Option("class", true, 
 				"target class for test generation. A fully qualifying needs to be provided, e.g. org.foo.SomeClass");
 		Option targetPrefix = new Option("prefix", true,
-				"target prefix for test generation. All classes on the classpath with the given prefix will be used");
+				"target package prefix for test generation. All classes on the classpath with the given package prefix " +
+				"will be used, i.e. all classes in the given package and sub-packages.");
 		Option targetCP = new Option("target", true,
 				"target classpath for test generation. Either a jar file or a folder where to find the .class files");
 

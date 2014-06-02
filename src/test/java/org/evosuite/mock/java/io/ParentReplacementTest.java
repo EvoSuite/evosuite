@@ -5,8 +5,8 @@ import java.io.File;
 import org.junit.Assert;
 
 import org.evosuite.Properties;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
-import org.evosuite.utils.ClassPathHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -116,13 +116,13 @@ public class TestZDT4
         GenerationalDistance gd = new GenerationalDistance();
         double gdd = gd.evaluate(front, trueParetoFront);
         System.out.println("GenerationalDistance: " + gdd);
-        Assert.assertEquals(gdd, 0.0006, 0.0001);
+        Assert.assertEquals(gdd, 0.005, 0.001);
 
         Spacing sp = new Spacing();
         double spd = sp.evaluate(front);
         double spdt = sp.evaluate(trueParetoFront);
         System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
                             + Math.abs(spd - spdt));
-        Assert.assertEquals(Math.abs(spd - spdt), 0.10, 0.05);
+        Assert.assertEquals(Math.abs(spd - spdt), 0.15, 0.05);
     }
 }

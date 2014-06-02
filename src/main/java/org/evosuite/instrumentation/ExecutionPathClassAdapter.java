@@ -19,9 +19,9 @@ package org.evosuite.instrumentation;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -61,7 +61,7 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 	 */
 	public ExecutionPathClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
-		this.className = Utils.getClassNameFromResourcePath(className);
+		this.className = ResourceList.getClassNameFromResourcePath(className);
 	}
 
 	/*

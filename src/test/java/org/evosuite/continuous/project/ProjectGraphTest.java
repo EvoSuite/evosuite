@@ -3,8 +3,8 @@ package org.evosuite.continuous.project;
 import java.io.Serializable;
 import java.util.Set;
 
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
-import org.evosuite.utils.ClassPathHandler;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
