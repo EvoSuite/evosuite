@@ -12,7 +12,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.ReportGenerator.RuntimeVariable;
+import org.evosuite.statistics.RuntimeVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -330,9 +330,9 @@ public class JobHandler extends Thread {
 		cmd += RuntimeVariable.Covered_Branches + ",";
 		cmd += RuntimeVariable.Total_Branches + ",";
 		cmd += RuntimeVariable.BranchCoverage + ",";
-		cmd += RuntimeVariable.NumberOfInputPoolObjects + ",";
-		cmd += RuntimeVariable.Minimized_Size + ",";
-		cmd += RuntimeVariable.NumberOfGeneratedTestCases + ",";
+		//cmd += RuntimeVariable.NumberOfInputPoolObjects + ",";
+		cmd += RuntimeVariable.Size + ",";
+		cmd += RuntimeVariable.Length + ",";
 		cmd += RuntimeVariable.Statements_Executed + ",";
 		cmd += RuntimeVariable.Total_Time + ",";
 		cmd += RuntimeVariable.Implicit_MethodExceptions + ",";
@@ -353,6 +353,7 @@ public class JobHandler extends Thread {
 		 * But here we include them just to be sure that they will end
 		 * up in the generated CSV files
 		 */
+		commands.add("-startedByCtg");
 		commands.add("-Dctg_schedule=" + Properties.CTG_SCHEDULE);
 		commands.add("-Dctg_min_time_per_job=" + Properties.CTG_MIN_TIME_PER_JOB);
 

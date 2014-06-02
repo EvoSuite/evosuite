@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.List;
 
-import org.evosuite.utils.ReportGenerator.RuntimeVariable;
+import org.evosuite.statistics.RuntimeVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +72,9 @@ public class CsvJUnitData {
 			data.targetClass = getValue(rows,"TARGET_CLASS").trim();		
 			data.configurationId = 0; //TODO. note: it has nothing to do with configuration_id, need refactoring			
 			data.branchCoverage = Double.parseDouble(getValue(rows,RuntimeVariable.BranchCoverage.toString()));	
-			data.totalNumberOfStatements = Integer.parseInt(getValue(rows,RuntimeVariable.Minimized_Size.toString()));
+			data.totalNumberOfStatements = Integer.parseInt(getValue(rows,RuntimeVariable.Length.toString()));
 			data.durationInSeconds = Integer.parseInt(getValue(rows,RuntimeVariable.Total_Time.toString())) / 1000;
-			data.numberOfTests = Integer.parseInt(getValue(rows,RuntimeVariable.NumberOfGeneratedTestCases.toString()));
+			data.numberOfTests = Integer.parseInt(getValue(rows,RuntimeVariable.Size.toString()));
 			
 			data.totalNumberOfFailures = 0; //TODO
 		} catch(Exception e){

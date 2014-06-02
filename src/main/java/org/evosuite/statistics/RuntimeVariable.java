@@ -89,8 +89,6 @@ public enum RuntimeVariable {
 	BranchCoverage,
 	/** A bit string (0/1) representing whether branches (in order) are covered */
 	CoveredBranchesBitString,
-	/** The number of serialized objects that EvoSuite is going to use for seeding strategies */
-	NumberOfInputPoolObjects,
 	/** The obtained score for weak mutation testing */
 	WeakMutationScore,
 	/** The obtained score for (strong) mutation testing*/
@@ -153,6 +151,8 @@ public enum RuntimeVariable {
 
 
 	/* TODO following needs to be implemented/updated. Currently they are not (necessarily) supported */
+	/** (FIXME: need to be implemented) The number of serialized objects that EvoSuite is going to use for seeding strategies */
+	NumberOfInputPoolObjects,
 	Error_Predicates,
 	Error_Branches_Covered,
 	Error_Branchless_Methods,
