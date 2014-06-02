@@ -47,7 +47,7 @@ public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome> ex
         int index2 = this.index + 1;
         T p2 = population.get(this.indexes[index2]);
 
-        this.index = (this.index + 2) % (population.size()-1); // FIXME: -1?
+        this.index = (this.index + 2) % (population.size());
 
 		/*if (maximize) {
 			if (p1.getRank() < p2.getRank())

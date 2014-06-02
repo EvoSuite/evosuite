@@ -3,15 +3,14 @@
  */
 package org.evosuite.coverage;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.sandbox.Sandbox;
-import org.evosuite.setup.DependencyAnalysis;
-import org.evosuite.utils.ClassPathHandler;
+import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 
 /**
@@ -21,11 +20,16 @@ import org.evosuite.utils.LoggingUtils;
 public class ClassStatisticsPrinter {
 
 	private static void reinstrument(Properties.Criterion criterion) {
-		Properties.Criterion oldCriterion = Properties.CRITERION;
+		/*Properties.Criterion oldCriterion = Properties.CRITERION;
 		if (oldCriterion == criterion)
-			return;
+			return; // FIXME: remove me contains*/
+	    Properties.Criterion[] oldCriterion = Properties.CRITERION;
+	    if (ArrayUtil.contains(oldCriterion, criterion))
+	        return ;
 
-		Properties.CRITERION = criterion;
+		//Properties.CRITERION = criterion; // FIXME: remove me contains
+	    Properties.CRITERION = (Criterion[]) ArrayUtil.append(Properties.CRITERION, criterion);
+
 		TestGenerationContext.getInstance().resetContext();
 		// Need to load class explicitly in case there are no test cases.
 		// If there are tests, then this is redundant

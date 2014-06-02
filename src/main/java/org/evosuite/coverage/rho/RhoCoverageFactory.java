@@ -31,7 +31,6 @@ import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.evosuite.utils.LoggingUtils;
 
 /**
  * <p>
@@ -96,9 +95,6 @@ public class RhoCoverageFactory extends
 		}
 		/*LoggingUtils.getEvoLogger().info("* Total number of coverage goals using Rho Fitness Function: "
 											+ goals.size());*/
-
-		for (RhoCoverageTestFitness r : goals)
-		    LoggingUtils.getEvoLogger().info(r.toString());
 
 		called = true;
 		loadCoverage();
