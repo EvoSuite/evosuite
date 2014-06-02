@@ -169,4 +169,17 @@ public abstract class ArrayUtil {
 	    }
 	    return false;
 	}
+
+	/**
+	 * 
+	 * @param arr
+	 * @param obj
+	 * @return
+	 */
+	public static Object[] append(Object[] arr, Object obj) {
+	    final int N = arr.length;
+	    arr = Arrays.copyOf(arr, N + 1);
+	    arr[N] = obj;
+	    return arr;
+	}
 }

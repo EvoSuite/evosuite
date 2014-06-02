@@ -693,14 +693,6 @@ public class TestSuiteGenerator {
 
 		long end_time = System.currentTimeMillis() / 1000;
 
-		// ----------------------------------------------------
-
-		for (TestSuiteChromosome l_ts : bests) {
-		    System.out.println(l_ts.getTestChromosomes().size());
-		}
-
-		// ----------------------------------------------------
-
 		// Newline after progress bar
 		if (Properties.SHOW_PROGRESS)
 			LoggingUtils.getEvoLogger().info("");
