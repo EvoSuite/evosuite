@@ -16,27 +16,12 @@
 		<format>jar</format>
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
-	<!--  <files>
-		<file>
-			<source>${project.build.directory}/${project.artifactId}-${project.version}-evosuite-io.jar</source>
-			<outputDirectory>/</outputDirectory>
-			<destName>evosuite-io.jar</destName>
-			<! - - Not sure if this works always, but should do better than the purely 
-				hardcoded solution (in EvoSuite.java for retrieving the evosuite-io jar file 
-				as a resource) that was used so far. Now if the build process was successful, 
-				we can be sure there is an "evosuite.jar" inside the "jar-minimal" version. 
-				If the build process is not successful because <source> cannot be found, 
-				we see why and simply fix the path. However, a neater solution to this is 
-				appreciated! ;-) - - >
-		</file>
-	</files> -->
 	<fileSets>
 		<fileSet>
 			<directory>${project.build.directory}/classes</directory>
 			<outputDirectory>/</outputDirectory>
 			<excludes>
 				<exclude>*.jar</exclude>
-				<exclude>org/evosuite/ui/**/*.class</exclude>
 			</excludes>
 		</fileSet>
 	</fileSets>
@@ -44,11 +29,6 @@
 		<dependencySet>
 			<outputDirectory>/</outputDirectory>
 			<useProjectArtifact>false</useProjectArtifact>
-			<excludes>
-				<exclude>jmockit:*</exclude>
-				<exclude>org.uispec4j:*</exclude>
-				<exclude>com.ibm:icu</exclude>
-			</excludes>
 			<unpack>true</unpack>
 			<unpackOptions>
 				<excludes>
