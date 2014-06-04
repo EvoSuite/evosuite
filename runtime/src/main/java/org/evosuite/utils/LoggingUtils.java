@@ -29,7 +29,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -291,8 +290,8 @@ public class LoggingUtils {
 				configurator.setContext(context);
 				final String xmlFileName = getLogbackFileName();
 				InputStream f = null;
-				if (EvoSuite.class.getClassLoader() != null) {
-					f = EvoSuite.class.getClassLoader().getResourceAsStream(xmlFileName);
+				if (LoggingUtils.class.getClassLoader() != null) {
+					f = LoggingUtils.class.getClassLoader().getResourceAsStream(xmlFileName);
 				} else {
 					// If the classloader is null, then that means EvoSuite.class was loaded
 					// with the bootstrap classloader, so let's try that as well

@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.evosuite.EvoSuite;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -236,7 +235,7 @@ public class ResourceList {
 	}
 
 	public static boolean isInterface(String resource) throws IOException {
-		InputStream input = EvoSuite.class.getClassLoader().getResourceAsStream(resource);
+		InputStream input = ResourceList.class.getClassLoader().getResourceAsStream(resource);
 		return isClassAnInterface(input);
 	}
 
