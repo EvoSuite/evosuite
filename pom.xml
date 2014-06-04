@@ -16,6 +16,7 @@
 		<module>master</module>
 		<module>client</module>
 		<module>runtime</module>
+		<module>plugins</module>
 	</modules>
 
 	<developers>
