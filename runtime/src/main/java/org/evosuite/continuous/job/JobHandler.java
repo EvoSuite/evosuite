@@ -178,7 +178,11 @@ public class JobHandler extends Thread {
 		int clientMB = job.memoryInMB - masterMB;
 
 		commands.add("-Xmx" + masterMB + "m");
-		commands.add(org.evosuite.EvoSuite.class.getName());
+		
+		//FIXME
+		//commands.add(org.evosuite.EvoSuite.class.getName());
+		commands.add("org.evosuite.EvoSuite");
+		
 		commands.add("-mem");
 		commands.add(""+clientMB);
 		commands.add("-class");
