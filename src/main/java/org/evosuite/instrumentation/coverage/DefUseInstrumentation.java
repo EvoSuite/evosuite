@@ -78,8 +78,8 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 
 				/*if ((Properties.CRITERION == Criterion.DEFUSE
 				        || Properties.CRITERION == Criterion.ALLDEFS) // FIXME: remove me contains*/
-			    if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
-			            || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
+			    if ((ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+			            || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS))
 				        && in.equals(v.getASMNode()) && v.isDefUse()) {
 
 					boolean isValidDU = false;

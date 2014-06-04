@@ -75,7 +75,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	}
 
 	public void verifyFitnessValue() {
-		assert(lastFitness == suite.getFitness());
+		assert(lastFitness == suite.getFitness(this.fitness));
 		double currentFitness1 = fitness.getFitness(suite);
 		for(TestChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);

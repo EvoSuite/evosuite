@@ -271,7 +271,6 @@ public class TestSuiteGenerator {
 			if (!Properties.NEW_STATISTICS)
 				statistics.writeStatistics();
 		}
-		//PermissionStatistics.getInstance().printStatistics(); // FIXME: remove me
 
 		LoggingUtils.getEvoLogger().info("* Done!");
 		LoggingUtils.getEvoLogger().info("");

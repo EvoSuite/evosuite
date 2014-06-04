@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.DSEType;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;

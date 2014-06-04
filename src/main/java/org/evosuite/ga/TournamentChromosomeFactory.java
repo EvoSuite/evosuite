@@ -78,13 +78,13 @@ public class TournamentChromosomeFactory<T extends Chromosome> implements
 			if (bestIndividual == null) {
 				bestIndividual = candidate;
 			} else if (candidate.compareTo(bestIndividual) <= 0) {
-				logger.debug("Old individual has fitness " + bestIndividual.getFitness()
-				        + ", replacing with fitness " + candidate.getFitness());
+				logger.debug("Old individual has fitness " + bestIndividual.getFitness(this.fitnessFunction)
+				        + ", replacing with fitness " + candidate.getFitness(this.fitnessFunction));
 				bestIndividual = candidate;
 			}
 		}
 		if (bestIndividual != null)
-			logger.debug("Resulting fitness: " + bestIndividual.getFitness());
+			logger.debug("Resulting fitness: " + bestIndividual.getFitness(this.fitnessFunction));
 
 		assert (bestIndividual != null);
 

@@ -28,7 +28,9 @@ public class ClassStatisticsPrinter {
 	        return ;
 
 		//Properties.CRITERION = criterion; // FIXME: remove me contains
-	    Properties.CRITERION = (Criterion[]) ArrayUtil.append(Properties.CRITERION, criterion);
+	    //Properties.CRITERION = (Criterion[]) ArrayUtil.append(Properties.CRITERION, criterion);
+	    Properties.CRITERION = new Properties.Criterion[1];
+        Properties.CRITERION[0] = criterion;
 
 		TestGenerationContext.getInstance().resetContext();
 		// Need to load class explicitly in case there are no test cases.
@@ -67,6 +69,7 @@ public class ClassStatisticsPrinter {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
 		}
+		Properties.Criterion[] backup = Properties.CRITERION; // FIXME: remove me contains
 		for (Properties.Criterion criterion : criteria) {
 			reinstrument(criterion);
 			//TestFitnessFactory<?> factory = TestSuiteGenerator.getFitnessFactory(); // FIXME: remove me
@@ -76,6 +79,8 @@ public class ClassStatisticsPrinter {
 			for (TestFitnessFactory<?> factory : factories)
 			    numGoals += factory.getCoverageGoals().size();
 			LoggingUtils.getEvoLogger().info("* Criterion " + criterion + ": " + numGoals);
+
+			Properties.CRITERION = backup; // FIXME: remove me contains
 		}
 	}
 }

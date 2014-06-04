@@ -290,7 +290,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			    individual.addFitness(fitnessFunction);
     			if (!fitnessFunction.isMaximizationFunction()) {
     				//individual.setFitness(Double.MAX_VALUE);
-    			    individual.setFitness(fitnessFunction, Double.MAX_VALUE); // FIXME: Double.MAX_VALUE or Randomness.nextDouble()?
+    			    individual.setFitness(fitnessFunction, Double.MAX_VALUE);
     			}
     			else {
     				//individual.setFitness(0.0);
