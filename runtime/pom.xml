@@ -9,9 +9,7 @@
 		<version>0.1-SNAPSHOT</version>
 	</parent>
 
-	<groupId>org.evosuite</groupId>
-	<artifactId>runtime</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<artifactId>evosuite-runtime</artifactId>
 	<packaging>jar</packaging>
 
 
