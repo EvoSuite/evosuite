@@ -514,7 +514,7 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 		createPathConstraints(expandedTests);
 		fitness.getFitness(expandedTests);
 
-		double originalFitness = individual.getFitness();
+		double originalFitness = individual.getFitness(fitness);
 
 		while (hasNextBranchCondition() && !LocalSearchBudget.getInstance().isFinished()) {
 			logger.info("Branches remaining: "
@@ -541,7 +541,7 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 
 					if (fitness.getFitness(expandedTests) < originalFitness) {
 						logger.info("New test improves fitness to {}",
-								expandedTests.getFitness());
+								expandedTests.getFitness(fitness));
 						DSEStats.reportNewTestUseful();
 						wasSuccess = true;
 
@@ -549,7 +549,7 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 						updatePathConstraints(newTestChromosome);
 						calculateUncoveredBranches(newTestChromosome);
 						individual.addTest(newTest);
-						originalFitness = expandedTests.getFitness();
+						originalFitness = expandedTests.getFitness(fitness);
 						// TODO: Cancel on fitness 0 - would need to know if
 						// ZeroFitness is a stopping condition
 					} else {

@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
@@ -103,10 +104,12 @@ public class CoverageAnalysis {
 			*/
 
 		//Properties.CRITERION = criterion; // FIXME: remove me contains
-        Properties.CRITERION = (Criterion[]) ArrayUtil.append(Properties.CRITERION, criterion);
+        //Properties.CRITERION = (Criterion[]) ArrayUtil.append(Properties.CRITERION, criterion);
+		Properties.CRITERION = new Properties.Criterion[1];
+		Properties.CRITERION[0] = criterion;
 		
 		LoggingUtils.getEvoLogger().info("Re-instrumenting for criterion: "
-		                                         + Properties.CRITERION);
+		                                         + criterion);
 		TestGenerationContext.getInstance().resetContext();
 		
 		// Need to load class explicitly in case there are no test cases.
@@ -115,7 +118,7 @@ public class CoverageAnalysis {
 
 		// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
 		LoggingUtils.getEvoLogger().info("Changing classloader of test suite for criterion: "
-		                                         + Properties.CRITERION);
+		                                         + criterion);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
 			dtest.changeClassLoader(TestGenerationContext.getClassLoader());
@@ -131,7 +134,13 @@ public class CoverageAnalysis {
 		for (Criterion c : oldCriterion) {
 		    criteriaList.remove(c.name());
 		}
-		for (String criterion : criteriaList) {
+		//for (String criterion : criteriaList) {
+	    for (String criterion : criteria.split(","))
+	    {
+	        /*String criterion = crit.toUpperCase();
+	        if (ArrayUtils.contains(oldCriterion, criterion))
+	            continue ;*/
+
 			if (SearchStatistics.getInstance().hasCoverage(criterion)) {
 				LoggingUtils.getEvoLogger().info("Skipping measuring coverage of criterion: "
 				                                         + criterion);
@@ -140,12 +149,13 @@ public class CoverageAnalysis {
 
 			analyzeCoverage(testSuite, criterion);
 		}
-		LoggingUtils.getEvoLogger().info("Reinstrumenting for original criterion "
-		                                         + oldCriterion);
+
+		LoggingUtils.getEvoLogger().info("Reinstrumenting for original criterion ");
 		//reinstrument(testSuite, oldCriterion);
 		Properties.CRITERION = oldCriterion;
 		//analyzeCoverage(testSuite, oldCriterion.name()); // FIXME: remove me contains
 		for (Criterion c : oldCriterion) {
+		    LoggingUtils.getEvoLogger().info("  - " + c.name());
 		    analyzeCoverage(testSuite, c.name());
 		}
 	}
@@ -271,6 +281,5 @@ public class CoverageAnalysis {
 			                                                                                            / (double) goals.size()));
 
 		}
-
 	}
 }

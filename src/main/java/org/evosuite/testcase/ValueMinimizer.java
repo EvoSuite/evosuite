@@ -51,7 +51,7 @@ public class ValueMinimizer extends TestVisitor {
 		public TestMinimization(TestFitnessFunction fitness, TestChromosome test) {
 			this.fitness = fitness;
 			this.individual = test;
-			this.lastFitness = test.getFitness();
+			this.lastFitness = test.getFitness(fitness);
 		}
 
 		/* (non-Javadoc)
@@ -92,7 +92,7 @@ public class ValueMinimizer extends TestVisitor {
 			this.suite = suite;
 			this.individual = suite.getTestChromosome(index);
 			this.testIndex = index;
-			this.lastFitness = suite.getFitness();
+			this.lastFitness = suite.getFitness(fitness);
 			this.lastCoverage = suite.getCoverage();
 		}
 

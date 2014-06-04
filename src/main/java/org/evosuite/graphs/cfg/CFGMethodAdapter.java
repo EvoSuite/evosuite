@@ -247,8 +247,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 					logger.info("Instrumenting method " + methodName + " in class "
 					        + className);
 					for (MethodInstrumentation instrumentation : instrumentations)
-						instrumentation.analyze(classLoader, mn, className, methodName,
-						                        access);
+						instrumentation.analyze(classLoader, mn, className, methodName, access);
 
 					handleBranchlessMethods();
 					String id = className + "." + methodName;

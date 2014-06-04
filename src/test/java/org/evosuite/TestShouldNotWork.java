@@ -66,9 +66,11 @@ public class TestShouldNotWork {
 
 		
 		Object result = evosuite.parseCommandLine(command);
-		List<TestGenerationResult> results = (List<TestGenerationResult>)result;
+		//List<TestGenerationResult> results = (List<TestGenerationResult>)result;
+		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>)result;
 		assertEquals(1, results.size());
-		TestGenerationResult testResult = results.iterator().next();
+		//TestGenerationResult testResult = results.iterator().next();
+		TestGenerationResult testResult = results.get(0).get(0);
 		System.out.println(testResult.getErrorMessage());
 		assertFalse(testResult.getErrorMessage().isEmpty());
 		assertEquals(TestGenerationResult.Status.ERROR, testResult.getTestGenerationStatus());

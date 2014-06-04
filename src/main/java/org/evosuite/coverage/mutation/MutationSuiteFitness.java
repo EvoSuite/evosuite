@@ -55,7 +55,7 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	public MutationSuiteFitness() {
 		MutationFactory factory = new MutationFactory(
 		        //Properties.CRITERION == Criterion.WEAKMUTATION // FIXME: remove me contains
-		        ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION) ? false : true);
+		        ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION));
 		mutationGoals = factory.getCoverageGoals();
 		logger.info("Mutation goals: " + mutationGoals.size());
 		branchFitness = new BranchCoverageSuiteFitness();
