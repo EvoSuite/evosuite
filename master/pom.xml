@@ -9,9 +9,7 @@
 		<version>0.1-SNAPSHOT</version>
 	</parent>
 
-	<groupId>org.evosuite</groupId>
-	<artifactId>master</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<artifactId>evosuite-master</artifactId>
 	<packaging>jar</packaging>
 
 
