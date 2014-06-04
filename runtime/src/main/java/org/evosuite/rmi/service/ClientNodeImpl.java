@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.TimeController;
@@ -125,13 +124,6 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 					result = generator.generateTestSuite();
 					GeneticAlgorithm<?> ga = generator.getEmployedGeneticAlgorithm();
 
-					if (Properties.CLIENT_ON_THREAD) {
-						/*
-						 * this is done when the client is run on same JVM, to avoid
-						 * problems of serializing ga
-						 */
-						ClientProcess.geneticAlgorithmStatus = ga;
-					}
 					masterNode.evosuite_collectTestGenerationResult(clientRmiIdentifier, result);
 				} catch (Throwable t) {
 					logger.error("Error when generating tests for: "

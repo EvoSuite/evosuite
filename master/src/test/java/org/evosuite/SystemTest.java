@@ -61,8 +61,6 @@ public class SystemTest {
 	@Before
 	public void setDefaultPropertiesForTestCases() {
 		
-		ClientProcess.geneticAlgorithmStatus = null;
-		
 		Properties.getInstance().resetToDefaults();
 		
 		Properties.HTML = false;
