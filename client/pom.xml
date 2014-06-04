@@ -12,6 +12,16 @@
 	<artifactId>evosuite-client</artifactId>
 	<packaging>jar</packaging>
 
+	<dependencies>
 
+		<!-- EvoSuite Modules -->
+
+		<dependency>
+			<groupId>org.evosuite</groupId>
+			<artifactId>evosuite-runtime</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+	</dependencies>
 </project>
 	

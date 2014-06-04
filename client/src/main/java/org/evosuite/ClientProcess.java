@@ -42,9 +42,6 @@ public class ClientProcess {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientProcess.class);
 
-	/** Constant <code>geneticAlgorithmStatus</code> */
-	public static GeneticAlgorithm<?> geneticAlgorithmStatus;
-
 	public static TestGenerationResult result;
 	
 	/**
