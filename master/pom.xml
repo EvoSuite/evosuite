@@ -14,6 +14,19 @@
 
 	<!-- dependency versions are inherited from parent pom -->
 	<dependencies>
+	
+		<!-- EvoSuite Modules -->
+	
+		<dependency>
+			<groupId>org.evosuite</groupId>
+			<artifactId>evosuite-runtime</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	
+	
+	
+		<!-- External Libraries -->
+	
 		<dependency>
 			<groupId>com.sun</groupId>
 			<artifactId>tools</artifactId>

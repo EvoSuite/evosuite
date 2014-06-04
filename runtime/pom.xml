@@ -12,6 +12,27 @@
 	<artifactId>evosuite-runtime</artifactId>
 	<packaging>jar</packaging>
 
+	<!-- 
+		"runtime" is what is going to be linked in the user's applications.
+		As such, it should have no reference to any other EvoSuite module,
+		and we should try to keep the number of external dependencies to
+		a minimum
+	 -->
+
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency> <!-- TODO: this one might be problematic... -->
+			<groupId>com.sun</groupId>
+			<artifactId>tools</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-all</artifactId>
+		</dependency>
+	</dependencies>
 
 </project>
 	
