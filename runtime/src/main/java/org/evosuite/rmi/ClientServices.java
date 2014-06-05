@@ -38,7 +38,7 @@ public class ClientServices {
 
 	public boolean registerServices() {
 
-		MasterServices.ensureRegistryOnLoopbackAddress();
+		UtilsRMI.ensureRegistryOnLoopbackAddress();
 		
 		try{
 			int port = Properties.PROCESS_COMMUNICATION_PORT;
