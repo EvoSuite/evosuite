@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.continuous.CtgConfiguration;
-import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
+import org.evosuite.Properties.AvailableSchedule;
 import org.evosuite.continuous.project.ProjectAnalyzer;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.junit.Assert;
