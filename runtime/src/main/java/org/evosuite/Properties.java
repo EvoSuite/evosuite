@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.classpath.ClassPathHandler;
-import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
@@ -596,6 +595,12 @@ public class Properties {
 
     @Parameter(key = "ctg_history_file", group = "Continuous Test Generation", description = "File with the history of every class")
     public static String CTG_HISTORY_FILE = "";
+
+    
+	/**
+	 * The types of CTG schedules that can be used
+	 */
+	public enum AvailableSchedule {SIMPLE,BUDGET,SEEDING,BUDGET_AND_SEEDING,HISTORY}; 
 
 	/*
 	 * FIXME choose best schedule for default

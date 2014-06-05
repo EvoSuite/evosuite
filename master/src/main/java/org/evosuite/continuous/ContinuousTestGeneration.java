@@ -6,7 +6,6 @@ import org.evosuite.Properties;
 import org.evosuite.continuous.job.JobDefinition;
 import org.evosuite.continuous.job.JobExecutor;
 import org.evosuite.continuous.job.JobScheduler;
-import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.continuous.project.ProjectAnalyzer;
 import org.evosuite.continuous.project.ProjectStaticData;

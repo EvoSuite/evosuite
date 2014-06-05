@@ -1,7 +1,7 @@
 package org.evosuite.continuous;
 
 import org.evosuite.Properties;
-import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
+import org.evosuite.Properties.AvailableSchedule;
 
 /**
  * This class contain the starting, fixed configurations for CTG

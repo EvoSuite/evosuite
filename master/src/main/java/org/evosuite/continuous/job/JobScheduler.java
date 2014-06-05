@@ -2,6 +2,7 @@ package org.evosuite.continuous.job;
 
 import java.util.List;
 
+import org.evosuite.Properties.AvailableSchedule;
 import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.continuous.job.schedule.BudgetAndSeedingSchedule;
 import org.evosuite.continuous.job.schedule.BudgetSchedule;
@@ -23,12 +24,6 @@ import org.slf4j.LoggerFactory;
  */
 public class JobScheduler {
 	
-	/**
-	 * The types of schedules that can be used
-	 * @author arcuri
-	 *
-	 */
-	public enum AvailableSchedule {SIMPLE,BUDGET,SEEDING,BUDGET_AND_SEEDING,HISTORY}; 
 	
 	private static Logger logger = LoggerFactory.getLogger(JobScheduler.class);
 
