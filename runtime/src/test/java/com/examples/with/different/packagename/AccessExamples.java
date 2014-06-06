@@ -1,6 +1,6 @@
 package com.examples.with.different.packagename;
 
-public class AccessExamples extends com.examples.with.different.packagename.test.AccessExamples {
+public class AccessExamples  {
 
 	public String publicField = "";
 

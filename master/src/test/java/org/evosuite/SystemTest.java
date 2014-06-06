@@ -24,6 +24,7 @@ import java.util.List;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.reset.ResetManager;
 import org.evosuite.result.TestGenerationResult;
@@ -60,6 +61,8 @@ public class SystemTest {
 
 	@Before
 	public void setDefaultPropertiesForTestCases() {
+		
+		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
 		
 		Properties.getInstance().resetToDefaults();
 		
