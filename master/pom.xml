@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.evosuite</groupId>
+		<artifactId>evosuite</artifactId>
+		<version>0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>evosuite-master</artifactId>
+	<packaging>jar</packaging>
+
+	<!-- dependency versions are inherited from parent pom -->
+	<dependencies>
+	
+		<!-- EvoSuite Modules -->
+	
+		<dependency>
+			<groupId>org.evosuite</groupId>
+			<artifactId>evosuite-runtime</artifactId>
+			<version>${project.version}</version>
+		</dependency>	
+		<dependency> <!--  FIXME this is temporary -->
+			<groupId>org.evosuite</groupId>
+			<artifactId>evosuite-runtime</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
+      		<scope>test</scope></dependency>	
+		<dependency>
+			<groupId>org.evosuite</groupId>
+			<artifactId>evosuite-client</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	
+	
+	
+		<!-- External Libraries -->
+	
+		
+	</dependencies>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jaxb2-maven-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>xjc</id>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<schemaDirectory>${project.basedir}/src/main/resources/xsd</schemaDirectory>
+					<packageName>org.evosuite.xsd</packageName>
+				</configuration>
+			</plugin>
+			
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>org.evosuite.EvoSuite</mainClass>
+						</manifest>
+						<manifestEntries>
+							<Premain-Class>org.evosuite.agent.InstrumentingAgent</Premain-Class>
+							<Agent-Class>org.evosuite.agent.InstrumentingAgent</Agent-Class>
+							<Can-Redefine-Classes>true</Can-Redefine-Classes>
+							<Can-Retransform-Classes>true</Can-Retransform-Classes>
+						</manifestEntries>
+					</archive>
+					<descriptors>
+						<descriptor>src/main/assembly/jar-minimal.xml</descriptor>
+						<!-- <descriptor>src/main/assembly/source.xml</descriptor> -->
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id> <!-- this is used for inheritance merges -->
+						<phase>package</phase> <!-- append to the packaging phase. -->
+						<goals>
+							<goal>single</goal> <!-- goals == mojos -->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+</project>
+	
