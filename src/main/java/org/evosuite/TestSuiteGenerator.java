@@ -725,6 +725,7 @@ public class TestSuiteGenerator {
 
 		    for (TestSuiteChromosome best : bests) {
 		        final List<TestCase> carvedTests = this.carveTests(best.getTests());
+		        best.clearTests();
 		        for (TestCase t : carvedTests)
 		            best.addTest(t);
 		    }
