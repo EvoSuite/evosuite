@@ -1,0 +1,16 @@
+<project>
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.evosuite.plugins</groupId>
+		<artifactId>evosuite-plugins</artifactId>
+		<version>0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>evosuite-eclipse-plugin</artifactId>
+	<packaging>jar</packaging>
+
+	<name>Eclipse Plugin for EvoSuite</name>
+
+	
+</project>
