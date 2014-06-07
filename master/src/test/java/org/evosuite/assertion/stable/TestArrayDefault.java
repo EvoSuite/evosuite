@@ -2,14 +2,20 @@ package org.evosuite.assertion.stable;
 
 import static org.junit.Assert.assertFalse;
 
+import java.util.Map;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.testsuite.SearchStatistics;
+import org.evosuite.statistics.OutputVariable;
+import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.statistics.SearchStatistics;
+import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ReportGenerator.StatisticEntry;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,6 +61,7 @@ public class TestArrayDefault extends SystemTest {
 
 		String targetClass = FloatArrayDefault.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
@@ -64,9 +71,11 @@ public class TestArrayDefault extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		StatisticEntry entry = SearchStatistics.getInstance()
-				.getLastStatisticEntry();
-		assertFalse(entry.hadUnstableTests);
+		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+		Assert.assertNotNull(map);
+		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+		Assert.assertNotNull(unstable);
+		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 
 
 	}
@@ -77,6 +86,7 @@ public class TestArrayDefault extends SystemTest {
 
 		String targetClass = IntegerArrayDefault.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
@@ -86,10 +96,11 @@ public class TestArrayDefault extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		StatisticEntry entry = SearchStatistics.getInstance()
-				.getLastStatisticEntry();
-		assertFalse(entry.hadUnstableTests);
-
+		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+		Assert.assertNotNull(map);
+		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+		Assert.assertNotNull(unstable);
+		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 
 	}
 
@@ -99,6 +110,7 @@ public class TestArrayDefault extends SystemTest {
 
 		String targetClass = ObjectArrayDefault.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
@@ -108,9 +120,11 @@ public class TestArrayDefault extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		StatisticEntry entry = SearchStatistics.getInstance()
-				.getLastStatisticEntry();
-		assertFalse(entry.hadUnstableTests);
+		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+		Assert.assertNotNull(map);
+		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+		Assert.assertNotNull(unstable);
+		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 
 
 	}
@@ -121,6 +135,7 @@ public class TestArrayDefault extends SystemTest {
 
 		String targetClass = BooleanArrayDefault.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
@@ -130,9 +145,11 @@ public class TestArrayDefault extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		StatisticEntry entry = SearchStatistics.getInstance()
-				.getLastStatisticEntry();
-		assertFalse(entry.hadUnstableTests);
+		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+		Assert.assertNotNull(map);
+		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+		Assert.assertNotNull(unstable);
+		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 
 //		Assert.assertTrue("Optimal coverage was not achieved ",
 //				best_fitness == 0.0);
@@ -145,6 +162,7 @@ public class TestArrayDefault extends SystemTest {
 
 		String targetClass = DoubleArrayDefault.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
@@ -154,9 +172,11 @@ public class TestArrayDefault extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		StatisticEntry entry = SearchStatistics.getInstance()
-				.getLastStatisticEntry();
-		assertFalse(entry.hadUnstableTests);
+		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+		Assert.assertNotNull(map);
+		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+		Assert.assertNotNull(unstable);
+		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 
 //		Assert.assertTrue("Optimal coverage was not achieved ",
 //				best_fitness == 0.0);
@@ -169,6 +189,7 @@ public class TestArrayDefault extends SystemTest {
 
 		String targetClass = FloatPrimitiveArrayDefault.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
@@ -178,9 +199,11 @@ public class TestArrayDefault extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		StatisticEntry entry = SearchStatistics.getInstance()
-				.getLastStatisticEntry();
-		assertFalse(entry.hadUnstableTests);
+		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+		Assert.assertNotNull(map);
+		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+		Assert.assertNotNull(unstable);
+		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 
 
 	}

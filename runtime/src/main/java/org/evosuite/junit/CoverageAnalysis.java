@@ -528,10 +528,11 @@ public class CoverageAnalysis {
                                                                         classes,
                                                                         startTime,
                                                                         results.size());
-
+        /*
 		if(Properties.OLD_STATISTICS) {
 			reportGenerator.writeCSV();
 		} 
+		*/
 		if(Properties.NEW_STATISTICS) {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, numTests);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, results.size());
