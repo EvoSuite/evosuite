@@ -34,7 +34,7 @@ import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.localsearch.DefaultLocalSearchObjective;
 import org.evosuite.localsearch.LocalSearchBudget;
 import org.evosuite.localsearch.LocalSearchObjective;
-import org.evosuite.testsuite.SearchStatistics;
+//import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -805,13 +805,14 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
+		/*
 		if (listeners.contains(SearchStatistics.getInstance())) {
 			removeListener(SearchStatistics.getInstance());
 			oos.defaultWriteObject();
 			oos.writeObject(Boolean.TRUE);
 			// Write/save additional fields
 			oos.writeObject(SearchStatistics.getInstance());
-		} else {
+		} else */ {
 			oos.defaultWriteObject();
 			oos.writeObject(Boolean.FALSE);
 		}
@@ -825,9 +826,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		stoppingConditions = new HashSet<StoppingCondition>();
 
 		boolean addStatistics = (Boolean) ois.readObject();
+		/*
 		if (addStatistics) {
 			SearchStatistics.setInstance((SearchStatistics) ois.readObject());
 			addListener(SearchStatistics.getInstance());
 		}
+		*/
 	}
 }
