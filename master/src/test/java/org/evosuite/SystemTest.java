@@ -62,8 +62,6 @@ public class SystemTest {
 	@Before
 	public void setDefaultPropertiesForTestCases() {
 		
-		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
-		
 		Properties.getInstance().resetToDefaults();
 		
 		Properties.HTML = false;
@@ -112,20 +110,11 @@ public class SystemTest {
 
 		System.out.println("*** SystemTest: runSetup() ***");
 
-		String target = System.getProperty("user.dir") + File.separator + "target"
-		        + File.separator + "test-classes";
-
-		File targetDir = new File(target);
-		try {
-			Assert.assertTrue("Target directory does not exist: "
-			                          + targetDir.getCanonicalPath(), targetDir.exists());
-		} catch (IOException e) {
-			Assert.fail(e.getMessage());
-		}
-		Assert.assertTrue(targetDir.isDirectory());
-
+		String master = getMasterTestsTarget();
+		String runtime = getRuntimeTestsTarget();
+		
 		EvoSuite evosuite = new EvoSuite();
-		String[] command = new String[] { "-setup", target };
+		String[] command = new String[] { "-setup", master,runtime };
 
 		Object result = evosuite.parseCommandLine(command);
 		Assert.assertNull(result);
@@ -135,6 +124,37 @@ public class SystemTest {
 		                  evoProp.exists());
 
 		hasBeenAlreadyRun = true;
+	}
+
+	private static String getMasterTestsTarget() {
+		String target = System.getProperty("user.dir") + File.separator + "target"
+		        + File.separator + "test-classes";
+
+		checkFile(target);
+		return target;
+	}
+
+	private static String getRuntimeTestsTarget() {
+		String target = 
+				System.getProperty("user.dir") + 
+				File.separator +".." + 
+				File.separator +"runtime" +		
+				File.separator + "target"
+		        + File.separator + "test-classes";
+
+		checkFile(target);
+		return target;
+	}
+
+	private static void checkFile(String target) {
+		File targetDir = new File(target);
+		try {
+			Assert.assertTrue("Target directory does not exist: "
+			                          + targetDir.getCanonicalPath(), targetDir.exists());
+		} catch (IOException e) {
+			Assert.fail(e.getMessage());
+		}
+		Assert.assertTrue(targetDir.isDirectory());
 	}
 
 	private static void deleteEvoDirs() {
