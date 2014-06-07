@@ -46,7 +46,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.VariableReference;
-import org.evosuite.testsuite.SearchStatistics;
+//import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -231,7 +231,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	protected void calculateMutationScore(Set<Integer> tkilled) {
 		if (MutationPool.getMutantCounter() == 0) {
 			Properties.CRITERION = oldCriterion;
-			SearchStatistics.getInstance().mutationScore(1.0);
+			//SearchStatistics.getInstance().mutationScore(1.0);
 			LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
 			                                         + NumberFormat.getPercentInstance().format(1.0));
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore, 1.0);
@@ -240,7 +240,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		} else {
 			double score = (double) tkilled.size()
 			        / (double) MutationPool.getMutantCounter();
-			SearchStatistics.getInstance().mutationScore(score);
+			//SearchStatistics.getInstance().mutationScore(score);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore, score);
 			LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
 			                                         + NumberFormat.getPercentInstance().format(score));

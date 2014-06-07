@@ -18,7 +18,7 @@ import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testsuite.SearchStatistics;
+//import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ReportGenerator.StatisticEntry;
@@ -115,12 +115,13 @@ public class CoverageAnalysis {
 		List<String> criteriaList = Arrays.asList(criteria.split(","));
 		criteriaList.remove(oldCriterion.name());
 		for (String criterion : criteriaList) {
+			/*
 			if (SearchStatistics.getInstance().hasCoverage(criterion)) {
 				LoggingUtils.getEvoLogger().info("Skipping measuring coverage of criterion: "
 				                                         + criterion);
 				continue;
 			}
-
+			*/
 			analyzeCoverage(testSuite, criterion);
 		}
 		LoggingUtils.getEvoLogger().info("Reinstrumenting for original criterion "
@@ -192,6 +193,7 @@ public class CoverageAnalysis {
 			if (goal.isCoveredBy(testSuite)) {
 				logger.debug("Goal {} is covered", goal);
 				covered++;
+				/*
 				if (Properties.CRITERION == Properties.Criterion.DEFUSE) {
 					StatisticEntry entry = SearchStatistics.getInstance().getLastStatisticEntry();
 					if (((DefUseCoverageTestFitness) goal).isInterMethodPair())
@@ -204,16 +206,17 @@ public class CoverageAnalysis {
 						entry.coveredIntraMethodPairs++;
 
 				}
+				*/
 			} else {
 				logger.debug("Goal {} is not covered", goal);
 			}
 		}
 
 		if (goals.isEmpty()) {
-			SearchStatistics.getInstance().addCoverage(criterion.toString(), 1.0);
+			//SearchStatistics.getInstance().addCoverage(criterion.toString(), 1.0);
 			if (criterion == Properties.Criterion.MUTATION
 			        || criterion == Properties.Criterion.STRONGMUTATION) {
-				SearchStatistics.getInstance().mutationScore(1.0);
+				//SearchStatistics.getInstance().mutationScore(1.0);
 				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore,
 				                                                                 1.0);
 			}
@@ -223,21 +226,18 @@ public class CoverageAnalysis {
 			                                                                 1.0);
 		} else {
 
-			SearchStatistics.getInstance().addCoverage(criterion.toString(),
-			                                           (double) covered
-			                                                   / (double) goals.size());
+			//SearchStatistics.getInstance().addCoverage(criterion.toString(), (double) covered / (double) goals.size());
 			ClientServices.getInstance().getClientNode().trackOutputVariable(getCoverageVariable(criterion),
 			                                                                 (double) covered
 			                                                                         / (double) goals.size());
 			if (criterion == Properties.Criterion.MUTATION
 			        || criterion == Properties.Criterion.STRONGMUTATION) {
-				SearchStatistics.getInstance().mutationScore((double) covered
-				                                                     / (double) goals.size());
+				//SearchStatistics.getInstance().mutationScore((double) covered / (double) goals.size());
 				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore,
 				                                                                 (double) covered
 				                                                                         / (double) goals.size());
-				if (oldCriterion == criterion)
-					SearchStatistics.getInstance().setCoveredGoals(covered);
+				//if (oldCriterion == criterion)
+					//SearchStatistics.getInstance().setCoveredGoals(covered);
 
 			}
 

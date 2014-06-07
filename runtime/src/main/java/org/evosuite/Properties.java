@@ -802,8 +802,8 @@ public class Properties {
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
 	public static boolean NEW_STATISTICS = true;
 
-	@Parameter(key = "old_statistics", group = "Output", description = "Use the old statistics backend on the master")
-	public static boolean OLD_STATISTICS = false;
+	//@Parameter(key = "old_statistics", group = "Output", description = "Use the old statistics backend on the master")
+	//public static boolean OLD_STATISTICS = false;
 
 	@Parameter(key = "serialize_ga", group = "Output", description = "Include the GA instance in the test generation result")
 	public static boolean SERIALIZE_GA = false;

@@ -158,7 +158,7 @@ import org.evosuite.testsuite.MinimizeExceptionsSecondaryObjective;
 import org.evosuite.testsuite.MinimizeMaxLengthSecondaryObjective;
 import org.evosuite.testsuite.MinimizeTotalLengthSecondaryObjective;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
-import org.evosuite.testsuite.SearchStatistics;
+//import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.SerializationSuiteChromosomeFactory;
 import org.evosuite.testsuite.StatementsPopulationLimit;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -183,8 +183,8 @@ public class TestSuiteGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
 
-	@Deprecated
-	private final SearchStatistics statistics = SearchStatistics.getInstance();
+	//@Deprecated
+	//private final SearchStatistics statistics = SearchStatistics.getInstance();
 
 	/** Constant <code>zero_fitness</code> */
 	public final static ZeroFitnessStoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
@@ -257,12 +257,14 @@ public class TestSuiteGenerator {
 		 * need to handle the gathering of the statistics.
 		 */
 		ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
+		/*
 		if (Properties.OLD_STATISTICS) {
 			statistics.writeReport();
 			if (!Properties.NEW_STATISTICS)
 				statistics.writeStatistics();
 		}
-
+		 */
+		
 		LoggingUtils.getEvoLogger().info("* Done!");
 		LoggingUtils.getEvoLogger().info("");
 
@@ -609,8 +611,8 @@ public class TestSuiteGenerator {
 				return new TestSuiteChromosome();
 			}
 		} else {
-			statistics.searchStarted(ga);
-			statistics.searchFinished(ga);
+			//statistics.searchStarted(ga);
+			//statistics.searchFinished(ga);
 			zero_fitness.setFinished();
 			best.setCoverage(1.0);
 		}
@@ -695,19 +697,18 @@ public class TestSuiteGenerator {
 
 		if (Properties.CRITERION == Criterion.MUTATION
 		        || Properties.CRITERION == Criterion.STRONGMUTATION) {
-			SearchStatistics.getInstance().mutationScore(best.getCoverage());
+			//SearchStatistics.getInstance().mutationScore(best.getCoverage());
 		}
 
 		StatisticsSender.executedAndThenSendIndividualToMaster(best);
-		statistics.iteration(ga);
-		statistics.minimized(best);
+		//statistics.iteration(ga);
+		//statistics.minimized(best);
 		LoggingUtils.getEvoLogger().info("* Generated " + best.size()
 		                                         + " tests with total length "
 		                                         + best.totalLengthOfTestCases());
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
-			SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(),
-			                                           best.getCoverage());
+			//SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), best.getCoverage());
 			CoverageAnalysis.analyzeCriteria(best, Properties.ANALYSIS_CRITERIA);
 		}
 
@@ -961,7 +962,7 @@ public class TestSuiteGenerator {
 		GeneticAlgorithm<TestSuiteChromosome> suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		// GeneticAlgorithm suiteGA = setup();
 		stopping_condition = getStoppingCondition();
-		statistics.searchStarted(suiteGA);
+		//statistics.searchStarted(suiteGA);
 
 		for (int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
 			if (suiteGA.isFinished())
@@ -987,9 +988,9 @@ public class TestSuiteGenerator {
 		}
 
 		suiteGA.getPopulation().add(suite);
-		statistics.searchFinished(suiteGA);
+		//statistics.searchFinished(suiteGA);
 		suiteGA.printBudget();
-		statistics.minimized(suiteGA.getBestIndividual());
+		//statistics.minimized(suiteGA.getBestIndividual());
 
 		return suite;
 	}
@@ -1018,7 +1019,7 @@ public class TestSuiteGenerator {
 		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		// GeneticAlgorithm suiteGA = setup();
 		suiteGA.setFitnessFunction(fitnessFunction);
-		statistics.searchStarted(suiteGA);
+		//statistics.searchStarted(suiteGA);
 
 		ga = suiteGA;
 
@@ -1041,7 +1042,7 @@ public class TestSuiteGenerator {
 			}
 		}
 		suiteGA.getPopulation().add(suite);
-		statistics.searchFinished(suiteGA);
+		//statistics.searchFinished(suiteGA);
 		suiteGA.printBudget();
 
 		if (Properties.MINIMIZE) {
@@ -1050,7 +1051,7 @@ public class TestSuiteGenerator {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize((TestSuiteChromosome) suiteGA.getBestIndividual());
 		}
-		statistics.minimized(suiteGA.getBestIndividual());
+		//statistics.minimized(suiteGA.getBestIndividual());
 
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
@@ -1103,7 +1104,7 @@ public class TestSuiteGenerator {
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
 
 		// Bootstrap with random testing to cover easy goals
-		statistics.searchStarted(suiteGA);
+		//statistics.searchStarted(suiteGA);
 
 		TestSuiteChromosome suite = bootstrapRandomSuite(suiteFitness, goalFactory);
 		suiteGA.getPopulation().add(suite);
@@ -1216,7 +1217,7 @@ public class TestSuiteGenerator {
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 				}
 
-				statistics.iteration(suiteGA);
+				//statistics.iteration(suiteGA);
 				if (Properties.REUSE_BUDGET)
 					current_budget += stopping_condition.getCurrentValue();
 				else
@@ -1289,7 +1290,7 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		statistics.searchFinished(suiteGA);
+		//statistics.searchFinished(suiteGA);
 		long end_time = System.currentTimeMillis() / 1000;
 		LoggingUtils.getEvoLogger().info("* Search finished after "
 		                                         + (end_time - start_time)
@@ -1334,8 +1335,8 @@ public class TestSuiteGenerator {
 		                                         + suite.totalLengthOfTestCases());
 
 		// Log some stats
-		statistics.iteration(suiteGA);
-		statistics.minimized(suite);
+		//statistics.iteration(suiteGA);
+		//statistics.minimized(suite);
 
 		return suite;
 	}
@@ -1777,8 +1778,8 @@ public class TestSuiteGenerator {
 		getSecondaryObjectives(ga);
 
 		// Some statistics
-		if (Properties.STRATEGY == Strategy.EVOSUITE)
-			ga.addListener(SearchStatistics.getInstance());
+		//if (Properties.STRATEGY == Strategy.EVOSUITE)
+		//	ga.addListener(SearchStatistics.getInstance());
 		// ga.addListener(new MemoryMonitor());
 		// ga.addListener(MutationStatistics.getInstance());
 		// ga.addListener(BestChromosomeTracker.getInstance());
