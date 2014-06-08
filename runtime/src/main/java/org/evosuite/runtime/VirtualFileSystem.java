@@ -9,10 +9,10 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VFolder;
-import org.evosuite.sandbox.MSecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

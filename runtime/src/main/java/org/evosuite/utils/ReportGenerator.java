@@ -56,7 +56,7 @@ import org.evosuite.contracts.UndeclaredExceptionContract;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.SearchListener;
-import org.evosuite.sandbox.PermissionStatistics;
+import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.ExecutionTracer;

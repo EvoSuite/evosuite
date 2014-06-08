@@ -26,7 +26,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.junit.xml.JUnitProcessLauncher;
-import org.evosuite.sandbox.Sandbox;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;

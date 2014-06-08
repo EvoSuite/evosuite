@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
-import org.evosuite.sandbox.Sandbox;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.DefaultTestCase;

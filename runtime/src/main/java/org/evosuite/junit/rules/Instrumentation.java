@@ -7,17 +7,17 @@ public class Instrumentation extends BaseRule {
 
 	public Instrumentation() {
 		// TODO: Is that the right place for this?
-		org.evosuite.agent.InstrumentingAgent.initialize(); 
+		org.evosuite.runtime.agent.InstrumentingAgent.initialize(); 
 	}
 	
 	@Override
 	protected void before() {
-		org.evosuite.agent.InstrumentingAgent.activate();
+		org.evosuite.runtime.agent.InstrumentingAgent.activate();
 	}
 
 	@Override
 	protected void after() {
-		org.evosuite.agent.InstrumentingAgent.deactivate();	
+		org.evosuite.runtime.agent.InstrumentingAgent.deactivate();	
 	}
 
 }

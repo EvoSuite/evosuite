@@ -23,7 +23,7 @@ import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
-import org.evosuite.sandbox.Sandbox;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;

@@ -8,8 +8,8 @@ import java.io.InputStreamReader;
 import java.util.Scanner;
 
 import org.evosuite.Properties;
-import org.evosuite.mock.java.io.MockFile;
-import org.evosuite.mock.java.io.MockFileInputStream;
+import org.evosuite.runtime.mock.java.io.MockFile;
+import org.evosuite.runtime.mock.java.io.MockFileInputStream;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

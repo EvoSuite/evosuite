@@ -2,6 +2,7 @@ package org.evosuite.utils;
 
 import java.util.Scanner;
 
+import org.evosuite.runtime.util.SystemInUtil;
 import org.junit.Assert;
 import org.junit.After;
 import org.junit.Test;

@@ -8,7 +8,7 @@ import java.util.List;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.runtime.Runtime;
-import org.evosuite.sandbox.Sandbox;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

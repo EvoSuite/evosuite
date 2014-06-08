@@ -3,6 +3,7 @@ package org.evosuite.agent;
 import org.junit.Assert;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

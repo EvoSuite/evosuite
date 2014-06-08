@@ -4,23 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.mock.java.io.MockFile;
-import org.evosuite.mock.java.io.MockFileInputStream;
-import org.evosuite.mock.java.io.MockFileOutputStream;
-import org.evosuite.mock.java.io.MockFileReader;
-import org.evosuite.mock.java.io.MockFileWriter;
-import org.evosuite.mock.java.io.MockPrintStream;
-import org.evosuite.mock.java.io.MockPrintWriter;
-import org.evosuite.mock.java.io.MockRandomAccessFile;
-import org.evosuite.mock.java.lang.MockException;
-import org.evosuite.mock.java.lang.MockThrowable;
-import org.evosuite.mock.java.util.MockDate;
-import org.evosuite.mock.java.util.MockGregorianCalendar;
-import org.evosuite.mock.java.util.MockRandom;
-import org.evosuite.mock.java.util.logging.MockFileHandler;
-import org.evosuite.mock.java.util.logging.MockLogRecord;
-import org.evosuite.mock.javax.swing.MockJFileChooser;
-import org.evosuite.mock.javax.swing.filechooser.MockFileSystemView;
+import org.evosuite.runtime.mock.java.io.MockFile;
+import org.evosuite.runtime.mock.java.io.MockFileInputStream;
+import org.evosuite.runtime.mock.java.io.MockFileOutputStream;
+import org.evosuite.runtime.mock.java.io.MockFileReader;
+import org.evosuite.runtime.mock.java.io.MockFileWriter;
+import org.evosuite.runtime.mock.java.io.MockPrintStream;
+import org.evosuite.runtime.mock.java.io.MockPrintWriter;
+import org.evosuite.runtime.mock.java.io.MockRandomAccessFile;
+import org.evosuite.runtime.mock.java.lang.MockException;
+import org.evosuite.runtime.mock.java.lang.MockThrowable;
+import org.evosuite.runtime.mock.java.util.MockDate;
+import org.evosuite.runtime.mock.java.util.MockGregorianCalendar;
+import org.evosuite.runtime.mock.java.util.MockRandom;
+import org.evosuite.runtime.mock.java.util.logging.MockFileHandler;
+import org.evosuite.runtime.mock.java.util.logging.MockLogRecord;
+import org.evosuite.runtime.mock.javax.swing.MockJFileChooser;
+import org.evosuite.runtime.mock.javax.swing.filechooser.MockFileSystemView;
 
 
 /**
