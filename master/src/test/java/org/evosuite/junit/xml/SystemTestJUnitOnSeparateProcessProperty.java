@@ -12,9 +12,7 @@ import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
-//import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.ReportGenerator.StatisticEntry;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,6 +20,7 @@ import org.junit.Test;
 import org.objectweb.asm.Type;
 
 import com.examples.with.different.packagename.junit.Foo;
+//import org.evosuite.testsuite.SearchStatistics;
 
 public class SystemTestJUnitOnSeparateProcessProperty extends SystemTest {
 	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
