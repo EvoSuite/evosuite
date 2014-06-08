@@ -52,6 +52,7 @@ import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.reset.ClassResetter;
 import org.evosuite.reset.ResetManager;
 import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.testcase.CodeUnderTestException;
@@ -73,9 +74,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>
- * TestSuiteWriter class.
- * </p>
+ *   Class used to generate the source code of the JUnit test cases.
+ *   
+ *   <p>
+ *   NOTE: a test case should only access to the following packages
+ *   <ul>
+ *   <li> Java API
+ *   <li> Junit
+ *   <li> org.evosuite.runtime.*
  * 
  * @author Gordon Fraser
  */
@@ -697,7 +703,7 @@ public class TestSuiteWriter implements Opcodes {
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.activate(); \n");
+			bd.append(InstrumentingAgent.class.getName()+".activate(); \n");
 		}
 
 		bd.append(BLOCK_SPACE);
@@ -706,7 +712,7 @@ public class TestSuiteWriter implements Opcodes {
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(INNER_BLOCK_SPACE);
-			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
+			bd.append(Runtime.class.getName()+".getInstance().resetRuntime(); \n");
 		}
 
 		bd.append(INNER_BLOCK_SPACE);
@@ -740,7 +746,7 @@ public class TestSuiteWriter implements Opcodes {
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
+			bd.append(InstrumentingAgent.class.getName()+".deactivate(); \n");
 		}
 
 		bd.append(METHOD_SPACE);
@@ -774,7 +780,7 @@ public class TestSuiteWriter implements Opcodes {
 
 		if (wasSecurityException) {
 			bd.append(BLOCK_SPACE);
-			bd.append("Sandbox.doneWithExecutingSUTCode(); \n");
+			bd.append(Sandbox.class.getName()+".doneWithExecutingSUTCode(); \n");
 		}
 
 		if (Properties.RESET_STATIC_FIELDS) {
@@ -785,7 +791,7 @@ public class TestSuiteWriter implements Opcodes {
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
+			bd.append(InstrumentingAgent.class.getName()+".deactivate(); \n");
 		}
 
 		bd.append(METHOD_SPACE);
@@ -831,20 +837,20 @@ public class TestSuiteWriter implements Opcodes {
 
 		if (wasSecurityException) {
 			bd.append(BLOCK_SPACE);
-			bd.append("Sandbox.goingToExecuteSUTCode(); \n");
+			bd.append(Sandbox.class.getName()+".goingToExecuteSUTCode(); \n");
 		}
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
+			bd.append(Runtime.class.getName()+".getInstance().resetRuntime(); \n");
 			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.activate(); \n");
+			bd.append(InstrumentingAgent.class.getName()+".activate(); \n");
 		}
 
 		if (SystemInUtil.getInstance().hasBeenUsed()) {
 			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.utils.SystemInUtil.getInstance().initForTestCase(); \n");
+			bd.append(SystemInUtil.class.getName()+".getInstance().initForTestCase(); \n");
 		}
 
 		bd.append(METHOD_SPACE);
@@ -971,32 +977,32 @@ public class TestSuiteWriter implements Opcodes {
 
 			if (Properties.REPLACE_CALLS) {
 				bd.append(BLOCK_SPACE);
-				bd.append("org.evosuite.Properties.REPLACE_CALLS = true; \n");
+				bd.append(Properties.class.getName()+".REPLACE_CALLS = true; \n");
 			}
 
 			if (Properties.VIRTUAL_FS) {
 				bd.append(BLOCK_SPACE);
-				bd.append("org.evosuite.Properties.VIRTUAL_FS = true; \n");
+				bd.append(Properties.class.getName()+".VIRTUAL_FS = true; \n");
 			}
 
 			if (Properties.RESET_STATIC_FIELDS) {
 				bd.append(BLOCK_SPACE);
-				bd.append("org.evosuite.Properties.RESET_STATIC_FIELDS = true; \n");
+				bd.append(Properties.class.getName()+".RESET_STATIC_FIELDS = true; \n");
 			}
 
 			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.agent.InstrumentingAgent.initialize(); \n");
+			bd.append(InstrumentingAgent.class.getName()+".initialize(); \n");
 
 		}
 
 		if (wasSecurityException) {
 			//need to setup the Sandbox mode
 			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."
+			bd.append(Properties.class.getName()+".SANDBOX_MODE = SandboxMode."
 			        + Properties.SANDBOX_MODE + "; \n");
 
 			bd.append(BLOCK_SPACE);
-			bd.append("Sandbox.initializeSecurityManagerForSUT(); \n");
+			bd.append(Sandbox.class.getName()+".initializeSecurityManagerForSUT(); \n");
 
 			bd.append(BLOCK_SPACE);
 			bd.append(EXECUTOR_SERVICE + " = Executors.newCachedThreadPool(); \n");
@@ -1010,7 +1016,7 @@ public class TestSuiteWriter implements Opcodes {
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.runtime.Runtime.getInstance().resetRuntime(); \n");
+			bd.append(Runtime.class.getName()+".getInstance().resetRuntime(); \n");
 		}
 
 		bd.append(METHOD_SPACE);
