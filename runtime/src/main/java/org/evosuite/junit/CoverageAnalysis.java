@@ -522,12 +522,14 @@ public class CoverageAnalysis {
 	                      + NumberFormat.getPercentInstance().format((double) coveredGoals.cardinality()
                                                                              / (double) goals.size()));
 
+        /*
         JUnitReportGenerator reportGenerator = new JUnitReportGenerator(coveredGoals.cardinality(),
                                                                         goals.size(),
                                                                         coveredLines,
                                                                         classes,
                                                                         startTime,
                                                                         results.size());
+        */
         /*
 		if(Properties.OLD_STATISTICS) {
 			reportGenerator.writeCSV();
@@ -558,7 +560,7 @@ public class CoverageAnalysis {
 			}
 		}
 
-		reportGenerator.writeReport();
+		//reportGenerator.writeReport();
 
 		if (Properties.COVERAGE_MATRIX)
 		    CoverageReportGenerator.writeCoverage(coverage);

@@ -11,19 +11,17 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
-import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-//import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.ReportGenerator.StatisticEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+//import org.evosuite.testsuite.SearchStatistics;
 
 /**
  * @author Gordon Fraser
