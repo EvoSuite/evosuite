@@ -6,6 +6,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.junit.*;
 
 public class SandboxFromJUnitTest {

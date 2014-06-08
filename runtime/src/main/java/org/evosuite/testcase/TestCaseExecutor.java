@@ -39,9 +39,9 @@ import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.reset.ResetExecutor;
 import org.evosuite.reset.ResetManager;
 import org.evosuite.runtime.Runtime;
-import org.evosuite.sandbox.PermissionStatistics;
-import org.evosuite.sandbox.Sandbox;
-import org.evosuite.utils.SystemInUtil;
+import org.evosuite.runtime.sandbox.PermissionStatistics;
+import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.runtime.util.SystemInUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
