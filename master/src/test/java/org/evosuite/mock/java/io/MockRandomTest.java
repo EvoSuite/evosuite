@@ -1,28 +1,22 @@
 package org.evosuite.mock.java.io;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
 import java.util.Map;
-import java.util.Random;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
-//import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.ReportGenerator.StatisticEntry;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.mock.java.util.RandomUser;
+//import org.evosuite.testsuite.SearchStatistics;
 
 public class MockRandomTest extends SystemTest {
 
