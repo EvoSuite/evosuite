@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.Publisher;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.utils.LoggingUtils;
@@ -69,7 +69,10 @@ public class PermissionStatistics {
 
 	private boolean hasNewExceptions = false;
 
-	// Private constructor
+    private Publisher publisher;
+
+
+    // Private constructor
 	private PermissionStatistics() {
 		allowedCount = new ConcurrentHashMap<String, Map<String, Integer>>();
 		deniedCount = new ConcurrentHashMap<String, Map<String, Integer>>();
@@ -77,6 +80,10 @@ public class PermissionStatistics {
 		recentAccess = Collections.synchronizedSet(new HashSet<String>());
 		maxThreads = 1;
 	}
+
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
 
 	/**
 	 * <p>
@@ -468,42 +475,45 @@ public class PermissionStatistics {
 
 	public void gatherStatistics() {
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.AllPermission,
-		                                                                 getNumAllPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.SecurityPermission,
-		                                                                 getNumSecurityPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.UnresolvedPermission,
-		                                                                 getNumUnresolvedPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.AWTPermission,
-		                                                                 getNumAWTPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.FilePermission,
-		                                                                 getNumFilePermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.SerializablePermission,
-		                                                                 getNumSerializablePermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.ReflectPermission,
-		                                                                 getNumReflectPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.RuntimePermission,
-		                                                                 getNumRuntimePermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.NetPermission,
-		                                                                 getNumNetPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.SocketPermission,
-		                                                                 getNumSocketPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.SQLPermission,
-		                                                                 getNumSQLPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.PropertyPermission,
-		                                                                 getNumPropertyPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.LoggingPermission,
-		                                                                 getNumLoggingPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.SSLPermission,
-		                                                                 getNumSSLPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.AuthPermission,
-		                                                                 getNumAuthPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.AudioPermission,
-		                                                                 getNumAudioPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.OtherPermission,
-		                                                                 getNumOtherPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Threads,
-		                                                                 getMaxThreads());
+        if(publisher != null) {
+
+            publisher.trackOutputVariable(RuntimeVariable.AllPermission,
+                    getNumAllPermission());
+            publisher.trackOutputVariable(RuntimeVariable.SecurityPermission,
+                    getNumSecurityPermission());
+            publisher.trackOutputVariable(RuntimeVariable.UnresolvedPermission,
+                    getNumUnresolvedPermission());
+            publisher.trackOutputVariable(RuntimeVariable.AWTPermission,
+                    getNumAWTPermission());
+            publisher.trackOutputVariable(RuntimeVariable.FilePermission,
+                    getNumFilePermission());
+            publisher.trackOutputVariable(RuntimeVariable.SerializablePermission,
+                    getNumSerializablePermission());
+            publisher.trackOutputVariable(RuntimeVariable.ReflectPermission,
+                    getNumReflectPermission());
+            publisher.trackOutputVariable(RuntimeVariable.RuntimePermission,
+                    getNumRuntimePermission());
+            publisher.trackOutputVariable(RuntimeVariable.NetPermission,
+                    getNumNetPermission());
+            publisher.trackOutputVariable(RuntimeVariable.SocketPermission,
+                    getNumSocketPermission());
+            publisher.trackOutputVariable(RuntimeVariable.SQLPermission,
+                    getNumSQLPermission());
+            publisher.trackOutputVariable(RuntimeVariable.PropertyPermission,
+                    getNumPropertyPermission());
+            publisher.trackOutputVariable(RuntimeVariable.LoggingPermission,
+                    getNumLoggingPermission());
+            publisher.trackOutputVariable(RuntimeVariable.SSLPermission,
+                    getNumSSLPermission());
+            publisher.trackOutputVariable(RuntimeVariable.AuthPermission,
+                    getNumAuthPermission());
+            publisher.trackOutputVariable(RuntimeVariable.AudioPermission,
+                    getNumAudioPermission());
+            publisher.trackOutputVariable(RuntimeVariable.OtherPermission,
+                    getNumOtherPermission());
+            publisher.trackOutputVariable(RuntimeVariable.Threads,
+                    getMaxThreads());
+        }
 	}
 
 	/**
