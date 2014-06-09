@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.evosuite.statistics.Publisher;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.utils.LoggingUtils;
@@ -69,8 +68,7 @@ public class PermissionStatistics {
 
 	private boolean hasNewExceptions = false;
 
-    private Publisher publisher;
-
+  
 
     // Private constructor
 	private PermissionStatistics() {
@@ -81,10 +79,7 @@ public class PermissionStatistics {
 		maxThreads = 1;
 	}
 
-    public void setPublisher(Publisher publisher) {
-        this.publisher = publisher;
-    }
-
+   
 	/**
 	 * <p>
 	 * Getter for the field <code>instance</code>.
@@ -440,7 +435,7 @@ public class PermissionStatistics {
 	 * </p>
 	 */
 	public void printStatistics() {
-		gatherStatistics();
+        forcePermissionInit();
 		if (hasDeniedPermissions()) {
 			LoggingUtils.getEvoLogger().info("* Permissions denied during test execution: ");
 			for (String name : deniedCount.keySet()) {
@@ -473,48 +468,31 @@ public class PermissionStatistics {
 		}
 	}
 
-	public void gatherStatistics() {
+    /**
+     * This is needed due to caching
+     */
+    private void forcePermissionInit(){
+                getNumAllPermission();
+                getNumSecurityPermission();
+                getNumUnresolvedPermission();
+                getNumAWTPermission();
+                getNumFilePermission();
+                getNumSerializablePermission();
+                getNumReflectPermission();
+                getNumRuntimePermission();
+                getNumNetPermission();
+                getNumSocketPermission();
+                getNumSQLPermission();
+                getNumPropertyPermission();
+                getNumLoggingPermission();
+                getNumSSLPermission();
+                getNumAuthPermission();
+                getNumAudioPermission();
+                getNumOtherPermission();
+                getMaxThreads();
+    }
 
-        if(publisher != null) {
 
-            publisher.trackOutputVariable(RuntimeVariable.AllPermission,
-                    getNumAllPermission());
-            publisher.trackOutputVariable(RuntimeVariable.SecurityPermission,
-                    getNumSecurityPermission());
-            publisher.trackOutputVariable(RuntimeVariable.UnresolvedPermission,
-                    getNumUnresolvedPermission());
-            publisher.trackOutputVariable(RuntimeVariable.AWTPermission,
-                    getNumAWTPermission());
-            publisher.trackOutputVariable(RuntimeVariable.FilePermission,
-                    getNumFilePermission());
-            publisher.trackOutputVariable(RuntimeVariable.SerializablePermission,
-                    getNumSerializablePermission());
-            publisher.trackOutputVariable(RuntimeVariable.ReflectPermission,
-                    getNumReflectPermission());
-            publisher.trackOutputVariable(RuntimeVariable.RuntimePermission,
-                    getNumRuntimePermission());
-            publisher.trackOutputVariable(RuntimeVariable.NetPermission,
-                    getNumNetPermission());
-            publisher.trackOutputVariable(RuntimeVariable.SocketPermission,
-                    getNumSocketPermission());
-            publisher.trackOutputVariable(RuntimeVariable.SQLPermission,
-                    getNumSQLPermission());
-            publisher.trackOutputVariable(RuntimeVariable.PropertyPermission,
-                    getNumPropertyPermission());
-            publisher.trackOutputVariable(RuntimeVariable.LoggingPermission,
-                    getNumLoggingPermission());
-            publisher.trackOutputVariable(RuntimeVariable.SSLPermission,
-                    getNumSSLPermission());
-            publisher.trackOutputVariable(RuntimeVariable.AuthPermission,
-                    getNumAuthPermission());
-            publisher.trackOutputVariable(RuntimeVariable.AudioPermission,
-                    getNumAudioPermission());
-            publisher.trackOutputVariable(RuntimeVariable.OtherPermission,
-                    getNumOtherPermission());
-            publisher.trackOutputVariable(RuntimeVariable.Threads,
-                    getMaxThreads());
-        }
-	}
 
 	/**
 	 * Check how many threads are active, and store the maximum value seen so

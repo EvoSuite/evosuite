@@ -1,16 +1,20 @@
 package org.evosuite.rmi.service;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.statistics.Publisher;
+import org.evosuite.statistics.RuntimeVariable;
 
 /**
  * Client Node view in the client process.
  * @author arcuri
  *
  */
-public interface ClientNodeLocal extends Publisher {
+public interface ClientNodeLocal {
 
 	public boolean init();
+
+	public void trackOutputVariable(RuntimeVariable variable, Object value);
+	
+    public void publishPermissionStatistics();
 
 	public void changeState(ClientState state);
 
