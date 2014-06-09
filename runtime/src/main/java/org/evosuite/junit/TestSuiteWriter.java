@@ -712,7 +712,7 @@ public class TestSuiteWriter implements Opcodes {
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(INNER_BLOCK_SPACE);
-			bd.append(Runtime.class.getName()+".getInstance().resetRuntime(); \n");
+			bd.append(org.evosuite.runtime.Runtime.class.getName()+".getInstance().resetRuntime(); \n");
 		}
 
 		bd.append(INNER_BLOCK_SPACE);
@@ -843,7 +843,7 @@ public class TestSuiteWriter implements Opcodes {
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
-			bd.append(Runtime.class.getName()+".getInstance().resetRuntime(); \n");
+			bd.append(org.evosuite.runtime.Runtime.class.getName()+".getInstance().resetRuntime(); \n");
 			bd.append(BLOCK_SPACE);
 			bd.append(InstrumentingAgent.class.getName()+".activate(); \n");
 		}
@@ -1016,7 +1016,7 @@ public class TestSuiteWriter implements Opcodes {
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		        || Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
-			bd.append(Runtime.class.getName()+".getInstance().resetRuntime(); \n");
+			bd.append(org.evosuite.runtime.Runtime.class.getName()+".getInstance().resetRuntime(); \n");
 		}
 
 		bd.append(METHOD_SPACE);

@@ -73,8 +73,8 @@
 							<mainClass>org.evosuite.EvoSuite</mainClass>
 						</manifest>
 						<manifestEntries>
-							<Premain-Class>org.evosuite.agent.InstrumentingAgent</Premain-Class>
-							<Agent-Class>org.evosuite.agent.InstrumentingAgent</Agent-Class>
+							<Premain-Class>org.evosuite.runtime.agent.InstrumentingAgent</Premain-Class>
+							<Agent-Class>org.evosuite.runtime.agent.InstrumentingAgent</Agent-Class>
 							<Can-Redefine-Classes>true</Can-Redefine-Classes>
 							<Can-Retransform-Classes>true</Can-Retransform-Classes>
 						</manifestEntries>
