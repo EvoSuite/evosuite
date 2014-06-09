@@ -109,7 +109,7 @@ public class AgentLoader {
 				
 				Attributes attributes = manifest.getMainAttributes();
 				String agentClass = attributes.getValue("Agent-Class");
-				String agent = "org.evosuite.agent.InstrumentingAgent"; // this is hardcoded in the pom.xml file
+				String agent = InstrumentingAgent.class.getName(); // this is hardcoded in the pom.xml file
 				if(agentClass != null && agentClass.trim().equalsIgnoreCase(agent)){
 					return true; 
 				}
