@@ -1,4 +1,4 @@
-package org.evosuite.reset;
+package org.evosuite.utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -8,6 +8,8 @@ import java.util.List;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.reset.ClassResetter;
+import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
