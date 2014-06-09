@@ -1,4 +1,4 @@
-package org.evosuite.reset;
+package org.evosuite.runtime.reset;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -44,7 +44,7 @@ import org.evosuite.instrumentation.mutation.ReplaceBitwiseOperator;
 import org.evosuite.instrumentation.mutation.ReplaceComparisonOperator;
 import org.evosuite.instrumentation.mutation.ReplaceConstant;
 import org.evosuite.instrumentation.mutation.ReplaceVariable;
-import org.evosuite.reset.ClassResetter;
+import org.evosuite.runtime.reset.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testcase.ExecutionTracer;
 import org.objectweb.asm.Opcodes;

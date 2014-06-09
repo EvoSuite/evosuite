@@ -2,6 +2,8 @@ package org.evosuite.junit.rules;
 
 import java.util.Arrays;
 
+import org.evosuite.TestGenerationContext;
+
 /**
  * Should be used as MethodRule
  */
@@ -12,6 +14,12 @@ public class StaticStateResetter extends BaseRule {
 	public StaticStateResetter(String... classesToReset) {
 		classNames = Arrays.copyOf(classesToReset, classesToReset.length);
 		org.evosuite.Properties.RESET_STATIC_FIELDS = true;
+		
+		/*
+		 * FIXME: tmp hack done during refactoring
+		 */
+		org.evosuite.runtime.reset.ClassResetter.getInstance().setClassLoader(
+				TestGenerationContext.getInstance().getClassLoaderForSUT());
 	}
 	
 	@Override
@@ -23,7 +31,7 @@ public class StaticStateResetter extends BaseRule {
 		for (int i=0; i< classNames.length;i++) {
 			String classNameToReset = classNames[i];
 			try {
-				org.evosuite.reset.ClassResetter.getInstance().reset(classNameToReset); 
+				org.evosuite.runtime.reset.ClassResetter.getInstance().reset(classNameToReset); 
 			} catch (Throwable t) {
 			}
 		}

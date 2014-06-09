@@ -36,7 +36,7 @@ import org.evosuite.instrumentation.coverage.LCSAJsInstrumentation;
 import org.evosuite.instrumentation.coverage.MethodInstrumentation;
 import org.evosuite.instrumentation.coverage.MutationInstrumentation;
 import org.evosuite.instrumentation.coverage.PrimePathInstrumentation;
-import org.evosuite.reset.ClassResetter;
+import org.evosuite.runtime.reset.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
