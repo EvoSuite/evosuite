@@ -76,8 +76,6 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			AbstractInsnNode in = j.next();
 			for (BytecodeInstruction v : completeCFG.vertexSet()) {
 
-				/*if ((Properties.CRITERION == Criterion.DEFUSE
-				        || Properties.CRITERION == Criterion.ALLDEFS) // FIXME: remove me contains*/
 			    if ((ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 			            || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS))
 				        && in.equals(v.getASMNode()) && v.isDefUse()) {

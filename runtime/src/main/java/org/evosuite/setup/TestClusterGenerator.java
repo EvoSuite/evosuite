@@ -53,9 +53,9 @@ import org.evosuite.TimeController;
 import org.evosuite.annotation.EvoSuiteExclude;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.instrumentation.BooleanTestabilityTransformation;
-import org.evosuite.reset.ClassResetter;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.MockList;
+import org.evosuite.runtime.reset.ClassResetter;
 import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -120,7 +120,6 @@ public class TestClusterGenerator {
 		this.inheritanceTree = inheritanceTree;
 		TestCluster.setInheritanceTree(inheritanceTree);
 
-		//if (Properties.INSTRUMENT_CONTEXT || Properties.CRITERION == Criterion.DEFUSE) { // FIXME: remove me contains
 		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
 			for (String callTreeClass : DependencyAnalysis.getCallTree().getClasses()) {
 				try {

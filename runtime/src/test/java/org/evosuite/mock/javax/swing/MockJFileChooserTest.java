@@ -5,8 +5,9 @@ import java.io.File;
 import javax.swing.JFileChooser;
 
 import org.evosuite.Properties;
-import org.evosuite.mock.java.io.MockFile;
 import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.mock.java.io.MockFile;
+import org.evosuite.runtime.mock.javax.swing.MockJFileChooser;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

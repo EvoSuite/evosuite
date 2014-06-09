@@ -15,6 +15,7 @@ import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.seeding.ObjectPoolManager;
@@ -24,7 +25,6 @@ import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.SystemInUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,7 +136,6 @@ public class TestGenerationContext {
 		ConstantPoolManager.getInstance().reset();
 		ObjectPoolManager.getInstance().reset();
 
-		//if (Properties.CRITERION == Properties.Criterion.DEFUSE) { // FIXME: remove me contains
 		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)) {
 			try {
 				TestClusterGenerator clusterGenerator = new TestClusterGenerator();

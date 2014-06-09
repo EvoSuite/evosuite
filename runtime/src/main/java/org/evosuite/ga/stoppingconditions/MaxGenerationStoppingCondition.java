@@ -19,8 +19,6 @@ package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Stop search after a predefined number of iterations
@@ -28,8 +26,6 @@ import org.slf4j.LoggerFactory;
  * @author Gordon Fraser
  */
 public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
-
-	private static final Logger logger = LoggerFactory.getLogger(MaxGenerationStoppingCondition.class);
 
 	private static final long serialVersionUID = 251196904115160351L;
 
@@ -68,8 +64,6 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 	 */
 	@Override
 	public boolean isFinished() {
-		logger.debug("Is finished? Current generation: " + currentIteration
-		        + " Max iteration: " + maxIterations);
 		return currentIteration >= maxIterations;
 	}
 

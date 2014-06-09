@@ -38,7 +38,7 @@ import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.sandbox.Sandbox;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
@@ -105,8 +105,6 @@ public class CoverageAnalysis {
 
 		Class<?>[] classes =junitTests.toArray(new Class<?>[junitTests.size()]);
 		LoggingUtils.getEvoLogger().info("* Executing tests");
-		/*if(Properties.CRITERION == Criterion.MUTATION
-		                || Properties.CRITERION == Criterion.STRONGMUTATION) { // FIXME: remove me contains*/
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
 		                || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 			junitMutationAnalysis(classes);
@@ -179,7 +177,6 @@ public class CoverageAnalysis {
         dummy.setChanged(false);
 
         int covered = 0;
-        //List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals(); // FIXME: remove me
         List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals(); // FIXME: can we assume that CoverageAnalysis class is only called with one fitness function?
 
         for (JUnitResult testResult : results) {
@@ -466,7 +463,6 @@ public class CoverageAnalysis {
 		LoggingUtils.getEvoLogger().info("* Executed " + results.size() + " tests");
 
 		// Goals
-		//List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals(); // FIXME: remove me
 		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals(); // FIXME: can we assume that CoverageAnalysis class is only called with one fitness function?
 
         // A dummy Chromosome
@@ -525,16 +521,19 @@ public class CoverageAnalysis {
 	                      + NumberFormat.getPercentInstance().format((double) coveredGoals.cardinality()
                                                                              / (double) goals.size()));
 
+        /*
         JUnitReportGenerator reportGenerator = new JUnitReportGenerator(coveredGoals.cardinality(),
                                                                         goals.size(),
                                                                         coveredLines,
                                                                         classes,
                                                                         startTime,
                                                                         results.size());
-
+        */
+        /*
 		if(Properties.OLD_STATISTICS) {
 			reportGenerator.writeCSV();
 		} 
+		*/
 		if(Properties.NEW_STATISTICS) {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, numTests);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, results.size());
@@ -560,7 +559,7 @@ public class CoverageAnalysis {
 			}
 		}
 
-		reportGenerator.writeReport();
+		//reportGenerator.writeReport();
 
 		if (Properties.COVERAGE_MATRIX)
 		    CoverageReportGenerator.writeCoverage(coverage);

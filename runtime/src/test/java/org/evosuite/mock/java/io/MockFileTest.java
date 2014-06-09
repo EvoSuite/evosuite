@@ -2,6 +2,7 @@ package org.evosuite.mock.java.io;
 
 import java.io.File;
 
+import org.evosuite.runtime.mock.java.io.MockFile;
 import org.junit.Assert;
 
 import org.junit.Test;

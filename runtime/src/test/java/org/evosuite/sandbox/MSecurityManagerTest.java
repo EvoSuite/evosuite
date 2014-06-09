@@ -19,6 +19,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.LogManager;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.sandbox.MSecurityManager;
 import  org.junit.*;
 
 public class MSecurityManagerTest {

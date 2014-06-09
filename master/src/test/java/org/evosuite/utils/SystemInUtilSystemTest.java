@@ -57,7 +57,7 @@ public class SystemInUtilSystemTest extends SystemTest{
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // FIXME: remove me assuming single fitness function
+		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(3, goals );
 		double coverage = best.getCoverage();
 		Assert.assertTrue("Not good enough coverage: "+coverage, coverage > 0.99d);

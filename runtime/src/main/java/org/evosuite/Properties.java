@@ -807,8 +807,8 @@ public class Properties {
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
 	public static boolean NEW_STATISTICS = true;
 
-	@Parameter(key = "old_statistics", group = "Output", description = "Use the old statistics backend on the master")
-	public static boolean OLD_STATISTICS = false;
+	//@Parameter(key = "old_statistics", group = "Output", description = "Use the old statistics backend on the master")
+	//public static boolean OLD_STATISTICS = false;
 
 	@Parameter(key = "serialize_ga", group = "Output", description = "Include the GA instance in the test generation result")
 	public static boolean SERIALIZE_GA = false;
@@ -1170,7 +1170,6 @@ public class Properties {
 
 	/** Constant <code>CRITERION</code> */
 	@Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion")
-	//public static Criterion CRITERION = Criterion.BRANCH; // FIXME: remove me
 	public static Criterion[] CRITERION = new Criterion[] { /* empty */ };
 
 	public enum Strategy {

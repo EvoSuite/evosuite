@@ -6,10 +6,9 @@ package org.evosuite.coverage;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
-import org.evosuite.sandbox.Sandbox;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 
@@ -20,15 +19,10 @@ import org.evosuite.utils.LoggingUtils;
 public class ClassStatisticsPrinter {
 
 	private static void reinstrument(Properties.Criterion criterion) {
-		/*Properties.Criterion oldCriterion = Properties.CRITERION;
-		if (oldCriterion == criterion)
-			return; // FIXME: remove me contains*/
 	    Properties.Criterion[] oldCriterion = Properties.CRITERION;
 	    if (ArrayUtil.contains(oldCriterion, criterion))
 	        return ;
 
-		//Properties.CRITERION = criterion; // FIXME: remove me contains
-	    //Properties.CRITERION = (Criterion[]) ArrayUtil.append(Properties.CRITERION, criterion);
 	    Properties.CRITERION = new Properties.Criterion[1];
         Properties.CRITERION[0] = criterion;
 
@@ -69,18 +63,16 @@ public class ClassStatisticsPrinter {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
 		}
-		Properties.Criterion[] backup = Properties.CRITERION; // FIXME: remove me contains
+		Properties.Criterion[] backup = Properties.CRITERION;
 		for (Properties.Criterion criterion : criteria) {
 			reinstrument(criterion);
-			//TestFitnessFactory<?> factory = TestSuiteGenerator.getFitnessFactory(); // FIXME: remove me
 			List<TestFitnessFactory<?>> factories = TestSuiteGenerator.getFitnessFactory();
-			//int numGoals = factory.getCoverageGoals().size(); // FIXME: remove me
 			int numGoals = 0;
 			for (TestFitnessFactory<?> factory : factories)
 			    numGoals += factory.getCoverageGoals().size();
 			LoggingUtils.getEvoLogger().info("* Criterion " + criterion + ": " + numGoals);
 
-			Properties.CRITERION = backup; // FIXME: remove me contains
+			Properties.CRITERION = backup;
 		}
 	}
 }

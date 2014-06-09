@@ -67,7 +67,6 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
 	private long startTime = System.currentTimeMillis();
 
-	//private List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>(); // FIXME: remove me
 	private List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
 
 	private SearchStatistics() { 
@@ -147,7 +146,6 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	}
 
 	public void addTestGenerationResult(List<TestGenerationResult> result) {
-		//results.add(result); // FIXME: remove me
 	    results.add(result);
 	}
 

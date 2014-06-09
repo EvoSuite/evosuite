@@ -3,14 +3,17 @@ package org.evosuite.assertion.purity;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Map;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.testsuite.SearchStatistics;
+import org.evosuite.statistics.OutputVariable;
+import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.ReportGenerator.StatisticEntry;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,6 +53,7 @@ public class TestImpureJdkInspector extends SystemTest {
 
 		String targetClass = ImpureJdkInspector.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
@@ -73,9 +77,11 @@ public class TestImpureJdkInspector extends SystemTest {
 				targetClass, "getImpureSize", descriptor);
 		assertFalse(getImpureSize);
 
-		StatisticEntry entry = SearchStatistics.getInstance()
-				.getLastStatisticEntry();
-		assertFalse(entry.hadUnstableTests);
+		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+		Assert.assertNotNull(map);
+		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+		Assert.assertNotNull(unstable);
+		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 	}
 
 }

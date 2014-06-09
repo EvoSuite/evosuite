@@ -32,9 +32,9 @@ import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.reset.ResetManager;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.sandbox.Sandbox;
+import org.evosuite.runtime.reset.ResetManager;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
@@ -46,7 +46,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.VariableReference;
-import org.evosuite.testsuite.SearchStatistics;
+//import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
@@ -159,7 +159,6 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 
 
 
-	//protected Criterion oldCriterion = Properties.CRITERION; // FIXME: remove me contains
 	protected Criterion[] oldCriterion = Properties.CRITERION;
 	
 	/**
@@ -170,13 +169,9 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 */
 	protected void setupClassLoader(TestSuiteChromosome suite) {
 		oldCriterion = Properties.CRITERION;
-		/*if (oldCriterion != Criterion.MUTATION
-		        && oldCriterion != Criterion.WEAKMUTATION
-		        && oldCriterion != Criterion.STRONGMUTATION) { // FIXME: remove me contains*/
 		if (!ArrayUtil.contains(oldCriterion, Criterion.MUTATION)
 		        && !ArrayUtil.contains(oldCriterion, Criterion.WEAKMUTATION)
 		        && !ArrayUtil.contains(oldCriterion, Criterion.STRONGMUTATION)) {
-			//Properties.CRITERION = Criterion.MUTATION; // FIXME: remove me contains
 		    Properties.CRITERION = new Criterion[] { Criterion.MUTATION };
 			Sandbox.goingToExecuteSUTCode();
 			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
@@ -237,7 +232,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	protected void calculateMutationScore(Set<Integer> tkilled) {
 		if (MutationPool.getMutantCounter() == 0) {
 			Properties.CRITERION = oldCriterion;
-			SearchStatistics.getInstance().mutationScore(1.0);
+			//SearchStatistics.getInstance().mutationScore(1.0);
 			LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
 			                                         + NumberFormat.getPercentInstance().format(1.0));
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore, 1.0);
@@ -246,7 +241,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		} else {
 			double score = (double) tkilled.size()
 			        / (double) MutationPool.getMutantCounter();
-			SearchStatistics.getInstance().mutationScore(score);
+			//SearchStatistics.getInstance().mutationScore(score);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore, score);
 			LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
 			                                         + NumberFormat.getPercentInstance().format(score));

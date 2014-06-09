@@ -24,10 +24,9 @@ import java.util.List;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
-import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.reset.ResetManager;
 import org.evosuite.result.TestGenerationResult;
+import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.utils.Randomness;
 import org.junit.After;
 import org.junit.Assert;
@@ -62,8 +61,6 @@ public class SystemTest {
 	@Before
 	public void setDefaultPropertiesForTestCases() {
 		
-		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
-		
 		Properties.getInstance().resetToDefaults();
 		
 		Properties.HTML = false;
@@ -83,12 +80,11 @@ public class SystemTest {
 		Properties.CLIENT_ON_THREAD = true;
 		Properties.SANDBOX = false;
 		Properties.ERROR_BRANCHES = false;
-		//Properties.CRITERION = Criterion.BRANCH; // FIXME: remove me
 		Properties.CRITERION = new Criterion[1];
 		Properties.CRITERION[0] = Criterion.BRANCH;
 
 		Properties.NEW_STATISTICS = true;
-		Properties.OLD_STATISTICS = false;
+		//Properties.OLD_STATISTICS = false;
 		Properties.STATISTICS_BACKEND = StatisticsBackend.DEBUG;
 		
 		TestGenerationContext.getInstance().resetContext();
@@ -114,20 +110,11 @@ public class SystemTest {
 
 		System.out.println("*** SystemTest: runSetup() ***");
 
-		String target = System.getProperty("user.dir") + File.separator + "target"
-		        + File.separator + "test-classes";
-
-		File targetDir = new File(target);
-		try {
-			Assert.assertTrue("Target directory does not exist: "
-			                          + targetDir.getCanonicalPath(), targetDir.exists());
-		} catch (IOException e) {
-			Assert.fail(e.getMessage());
-		}
-		Assert.assertTrue(targetDir.isDirectory());
-
+		String master = getMasterTestsTarget();
+		String runtime = getRuntimeTestsTarget();
+		
 		EvoSuite evosuite = new EvoSuite();
-		String[] command = new String[] { "-setup", target };
+		String[] command = new String[] { "-setup", master,runtime };
 
 		Object result = evosuite.parseCommandLine(command);
 		Assert.assertNull(result);
@@ -137,6 +124,37 @@ public class SystemTest {
 		                  evoProp.exists());
 
 		hasBeenAlreadyRun = true;
+	}
+
+	private static String getMasterTestsTarget() {
+		String target = System.getProperty("user.dir") + File.separator + "target"
+		        + File.separator + "test-classes";
+
+		checkFile(target);
+		return target;
+	}
+
+	private static String getRuntimeTestsTarget() {
+		String target = 
+				System.getProperty("user.dir") + 
+				File.separator +".." + 
+				File.separator +"runtime" +		
+				File.separator + "target"
+		        + File.separator + "test-classes";
+
+		checkFile(target);
+		return target;
+	}
+
+	private static void checkFile(String target) {
+		File targetDir = new File(target);
+		try {
+			Assert.assertTrue("Target directory does not exist: "
+			                          + targetDir.getCanonicalPath(), targetDir.exists());
+		} catch (IOException e) {
+			Assert.fail(e.getMessage());
+		}
+		Assert.assertTrue(targetDir.isDirectory());
 	}
 
 	private static void deleteEvoDirs() {

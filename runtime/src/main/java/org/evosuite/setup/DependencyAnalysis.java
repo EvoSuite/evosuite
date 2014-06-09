@@ -188,7 +188,6 @@ public class DependencyAnalysis {
 		}
 
 		// Also analyze if it is in the calltree and we are considering the context
-		//if (Properties.INSTRUMENT_CONTEXT || Properties.CRITERION == Criterion.DEFUSE) { // FIXME: remove me contains
 		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
 			if (callTree.isCalledClass(className)) {
 				return true;
@@ -260,7 +259,6 @@ public class DependencyAnalysis {
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Lines, LinePool.getNumLines());
 
 		for (Properties.Criterion pc : Properties.CRITERION) {
-    		//switch(Properties.CRITERION) { // FIXME: remove me contains
 		    switch(pc) {
         		case DEFUSE:
         		case ALLDEFS:

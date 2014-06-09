@@ -20,11 +20,11 @@
  */
 package org.evosuite;
 
-import org.evosuite.agent.AgentLoader;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.runtime.agent.AgentLoader;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;

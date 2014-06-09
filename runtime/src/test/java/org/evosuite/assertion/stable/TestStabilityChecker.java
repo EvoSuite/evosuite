@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.junit.JUnitAnalyzer;
-import org.evosuite.sandbox.Sandbox;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 
