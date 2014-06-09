@@ -22,7 +22,7 @@ package org.evosuite.instrumentation;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
-import org.evosuite.reset.ResetManager;
+import org.evosuite.runtime.reset.ResetManager;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

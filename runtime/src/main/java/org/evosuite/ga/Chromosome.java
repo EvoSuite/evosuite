@@ -22,7 +22,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.PublicCloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +47,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	}
 
 	/** Last recorded fitness value */
-	//private double fitness = 0.0;
 	private LinkedHashMap<FitnessFunction<?>, Double> fitnesses = new LinkedHashMap<FitnessFunction<?>, Double>();
 	
 	/** Previous fitness, to see if there was an improvement */
-	//private double lastFitness = 0.0;
 	private LinkedHashMap<FitnessFunction<?>, Double> lastFitnesses = new LinkedHashMap<FitnessFunction<?>, Double>();
 
 	/** True if this is a solution */
@@ -80,24 +77,18 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return a double.
 	 */
 	public double getFitness() {
-		//return fitness;
-	    //assert (!fitnesses.isEmpty());
-        //return fitnesses.get( fitnesses.keySet().iterator().next() );
 	    return fitnesses.isEmpty() ? 0.0 : fitnesses.get( fitnesses.keySet().iterator().next() );
 	}
 
 	public double getFitness(FitnessFunction<?> ff) {
-        //assert (fitnesses.containsKey(ff));
         return fitnesses.get(ff);
     }
 
     public Map<FitnessFunction<?>, Double> getFitnesses() {
-        //assert (!fitnesses.isEmpty());
         return this.fitnesses;
     }
 
     public Map<FitnessFunction<?>, Double> getLastFitnesses() {
-        //assert (!fitnesses.isEmpty());
         return this.lastFitnesses;
     }
 
@@ -128,14 +119,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            a double.
 	 */
 	public void setFitness(FitnessFunction<?> ff, double value) throws IllegalArgumentException{
-		/*if(value < 0){
-			throw new IllegalArgumentException("Fitness can never be negative: "+value);
-		}
-		lastFitness = fitness;
-		fitness = value;
-		// changed = false;
-		*/
-
 		if ( (Double.compare(value, Double.NaN) == 0) ||
                 (Double.isInfinite(value)) /*||
                 (value < 0) ||
@@ -143,19 +126,11 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
             throw new IllegalArgumentException("Invalid value of Fitness: " + value + ", Fitness: " + ff.getClass().getName());
         }
 
-		/*LoggingUtils.getEvoLogger().error("I'm a " + this.getClass().getName());
-		LoggingUtils.getEvoLogger().error("  How many fitnesses I have now = " + fitnesses.size() + ":");
-		for (FitnessFunction<?> fff : fitnesses.keySet()) {
-		    LoggingUtils.getEvoLogger().error("    " + fff.getClass().getName());
-		}*/
-
         if (!fitnesses.containsKey(ff)) {
-            //LoggingUtils.getEvoLogger().error("      Adding new fitness " + ff.getClass().getName() + " with value " + value);
             lastFitnesses.put(ff, value);
             fitnesses.put(ff, value);
         }
         else {
-            //LoggingUtils.getEvoLogger().error("      Updating fitness " + ff.getClass().getName() + " with value " + value);
             lastFitnesses.put(ff, fitnesses.get(ff));
             fitnesses.put(ff, value);
         }
@@ -166,7 +141,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	        if (fitnesses.get(ff) != lastFitnesses.get(ff))
 	            return true;
 	    }
-	    //return fitness != lastFitness;
 	    return false;
 	}
 
@@ -216,7 +190,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 */
 	@Override
 	public int compareTo(Chromosome c) {
-		//int i = (int) Math.signum(fitness - c.fitness);
 	    int i = (int) Math.signum(this.getFitness() - c.getFitness());
 		if (i == 0)
 			return compareSecondaryObjective(c);

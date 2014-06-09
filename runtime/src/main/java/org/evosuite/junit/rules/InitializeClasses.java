@@ -12,7 +12,7 @@ public class InitializeClasses extends BaseRule {
 
 	@Override
 	protected void before() {
-		org.evosuite.agent.InstrumentingAgent.activate(); 
+		org.evosuite.runtime.agent.InstrumentingAgent.activate(); 
 		for (int i=0; i< classNames.length;i++) {
 			org.evosuite.runtime.Runtime.getInstance().resetRuntime(); 
 			String classNameToLoad = classNames[i];
@@ -24,7 +24,7 @@ public class InitializeClasses extends BaseRule {
 			 } catch (Throwable t) {
 			 }
 		}
-		org.evosuite.agent.InstrumentingAgent.deactivate(); 
+		org.evosuite.runtime.agent.InstrumentingAgent.deactivate(); 
 	}
 
 	@Override

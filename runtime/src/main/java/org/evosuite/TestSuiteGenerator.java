@@ -122,8 +122,8 @@ import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
-import org.evosuite.sandbox.PermissionStatistics;
-import org.evosuite.sandbox.Sandbox;
+import org.evosuite.runtime.sandbox.PermissionStatistics;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.seeding.TestCaseRecycler;
@@ -161,7 +161,7 @@ import org.evosuite.testsuite.MinimizeExceptionsSecondaryObjective;
 import org.evosuite.testsuite.MinimizeMaxLengthSecondaryObjective;
 import org.evosuite.testsuite.MinimizeTotalLengthSecondaryObjective;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
-import org.evosuite.testsuite.SearchStatistics;
+//import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.SerializationSuiteChromosomeFactory;
 import org.evosuite.testsuite.StatementsPopulationLimit;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -187,8 +187,8 @@ public class TestSuiteGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
 
-	@Deprecated
-	private final SearchStatistics statistics = SearchStatistics.getInstance();
+	//@Deprecated
+	//private final SearchStatistics statistics = SearchStatistics.getInstance();
 
 	/** Constant <code>zero_fitness</code> */
 	public final static ZeroFitnessStoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
@@ -233,8 +233,6 @@ public class TestSuiteGenerator {
 			                                          + (e.getMessage() != null ? e.getMessage()
 			                                                  : e.toString()));
 			logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
-			//return TestGenerationResultBuilder.buildErrorResult(e.getMessage() != null ? e.getMessage()
-            //        : e.toString()); // FIXME: remove me
 			return new ArrayList<TestGenerationResult>(Arrays.asList(TestGenerationResultBuilder.buildErrorResult(
 			          e.getMessage() != null ? e.getMessage() : e.toString())));
 		} finally {
@@ -249,15 +247,13 @@ public class TestSuiteGenerator {
 		printTestCriterion();
 
 		if (Properties.getTargetClass() == null)
-			//return TestGenerationResultBuilder.buildErrorResult("Could not load target class"); // FIXME: remove me
 		    return new ArrayList<TestGenerationResult>(Arrays.asList(TestGenerationResultBuilder.buildErrorResult("Could not load target class")));
 
-		//List<TestCase> testCases = generateTests(); // FIXME: remove me
 		List<TestSuiteChromosome> testCases = generateTests();
+        ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 		PermissionStatistics.getInstance().printStatistics();
 		
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
-		//TestGenerationResult result = writeJUnitTestsAndCreateResult(testCases); // FIXME: remove me
 		List<TestGenerationResult> results = writeJUnitTestsAndCreateResult(testCases);
 
 		TestCaseExecutor.pullDown();
@@ -266,16 +262,17 @@ public class TestSuiteGenerator {
 		 * need to handle the gathering of the statistics.
 		 */
 		ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
+		/*
 		if (Properties.OLD_STATISTICS) {
 			statistics.writeReport();
 			if (!Properties.NEW_STATISTICS)
 				statistics.writeStatistics();
 		}
-
+		 */
+		
 		LoggingUtils.getEvoLogger().info("* Done!");
 		LoggingUtils.getEvoLogger().info("");
 
-		//return result; // FIXME: remove me
 		return results;
 	}
 
@@ -294,7 +291,6 @@ public class TestSuiteGenerator {
 	}
 
 	private List<TestSuiteChromosome> generateTests() {
-		//TestSuiteChromosome tests; // FIXME: remove me
 	    List<TestSuiteChromosome> tests = new ArrayList<TestSuiteChromosome>();
 		// Make sure target class is loaded at this point
 		TestCluster.getInstance();
@@ -302,7 +298,6 @@ public class TestSuiteGenerator {
 		if (TestCluster.getInstance().getNumTestCalls() == 0) {
 			LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
 			                                         + Properties.TARGET_CLASS);
-			//return new ArrayList<TestCase>(); // FIXME: remove me
 			return new ArrayList<TestSuiteChromosome>();
 		}
 
@@ -313,29 +308,23 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.STRATEGY == Strategy.EVOSUITE)
-			//tests = generateWholeSuite(); // FIXME: remove me
 		    tests.addAll(generateWholeSuite());
 		else if (Properties.STRATEGY == Strategy.RANDOM)
-			//tests = generateRandomTests(); // FIXME: remove me
 		    tests.add(generateRandomTests());
 		else if (Properties.STRATEGY == Strategy.RANDOM_FIXED)
-			//tests = generateFixedRandomTests(); // FIXME: remove me
 		    tests.add(generateFixedRandomTests());
 		else
-			//tests = generateIndividualTests(); // FIXME: remove me
 		    tests.add(generateFixedRandomTests());
 		if (Properties.CHECK_CONTRACTS) {
 			TestCaseExecutor.getInstance().removeObserver(checker);
 		}
-		//StatisticsSender.executedAndThenSendIndividualToMaster(tests); // FIXME: remove me?
 		StatisticsSender.executedAndThenSendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?
 		
-		PermissionStatistics.getInstance().gatherStatistics();
+        ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 		
 		LoggingUtils.getEvoLogger().info("* Time spent executing tests: "
 		                                         + TestCaseExecutor.timeExecuted + "ms");
 
-		//if (Properties.CRITERION == Criterion.DEFUSE) { // FIXME: remove me contains
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
 			if (Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION)
 				LoggingUtils.getEvoLogger().info("* Time spent calculating alternative fitness: "
@@ -351,12 +340,11 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Generating assertions");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
 			addAssertions(tests);
-			//StatisticsSender.sendIndividualToMaster(tests); // FIXME: remove me?
 			StatisticsSender.sendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?
 		}
 
 		if (Properties.CHECK_CONTRACTS) {
-			for (TestSuiteChromosome test : tests) { // FIXME: is this ok? can we add failing tests to all testsuitechromosomes?
+			for (TestSuiteChromosome test : tests) {
     		    for (TestCase failing_test : FailingTestSet.getFailingTests()) {
     				test.addTest(failing_test);
     			}
@@ -404,9 +392,7 @@ public class TestSuiteGenerator {
 		}
 
 		for (TestSuiteChromosome test : tests) {
-		    // check still on original
-		    //assert !Properties.JUNIT_TESTS || JUnitAnalyzer.verifyCompilationAndExecution(tests.getTests()); // FIXME: remove me
-		    assert !Properties.JUNIT_TESTS || JUnitAnalyzer.verifyCompilationAndExecution(test.getTests()); //check still on original
+		    assert !Properties.JUNIT_TESTS || JUnitAnalyzer.verifyCompilationAndExecution(test.getTests()); // check still on original
 		}
 
 		writeObjectPool(tests);
@@ -417,7 +403,6 @@ public class TestSuiteGenerator {
 		 * = new ParameterizedTestCase(test); }
 		 */
 
-		//return testCases; // FIXME: remove me
 		return tests;
 	}
 
@@ -451,8 +436,7 @@ public class TestSuiteGenerator {
 
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
-			
-			//LoggingUtils.getEvoLogger().info("* Writing JUnit test cases to " + testDir); // FIXME: remove me
+
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
 			suite.writeTestSuite(name + suffix, testDir);
 		}
@@ -617,29 +601,21 @@ public class TestSuiteGenerator {
 		long start_time = System.currentTimeMillis() / 1000;
 
 		// What's the search target
-		//FitnessFunction<?> fitness_function = getFitnessFunction(); // FIXME: remove me
 		List<TestSuiteFitnessFunction> fitness_functions = getFitnessFunction();
-		//ga.setFitnessFunction(fitness_function); // FIXME: remove me
 		ga.addFitnessFunctions(fitness_functions);
 
-		//if (Properties.CRITERION == Criterion.STRONGMUTATION) { // FIXME: remove me contains
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 		    for (FitnessFunction<?> fitness_function : fitness_functions)
 		        ga.addListener((StrongMutationSuiteFitness) fitness_function);
 		}
 
 		//ga.setChromosomeFactory(getChromosomeFactory(fitness_function));
-		ga.setChromosomeFactory(getChromosomeFactory(fitness_functions.get(0))); // FIXME: should we pass the list of fitness functions?
+		ga.setChromosomeFactory(getChromosomeFactory(fitness_functions.get(0))); // FIXME: just one fitness function?
 		// if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
 		ga.addListener(progressMonitor); // FIXME progressMonitor may cause
 		// client hang if EvoSuite is
 		// executed with -prefix!
 
-		/*if (Properties.CRITERION == Criterion.DEFUSE
-		        || Properties.CRITERION == Criterion.ALLDEFS
-		        || Properties.CRITERION == Criterion.STATEMENT
-		        || Properties.CRITERION == Criterion.RHO
-		        || Properties.CRITERION == Criterion.AMBIGUITY) // FIXME: remove me contains*/
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT)
@@ -651,21 +627,17 @@ public class TestSuiteGenerator {
 		// if (analyzing)
 		ga.resetStoppingConditions();
 
-		//TestFitnessFactory<? extends TestFitnessFunction> goalFactory = getFitnessFactory(); // FIXME: remove me
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactory();
-		//List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals(); // FIXME: remove me
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-		//LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size()); // FIXME: remove me
         LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
         for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-            goals.addAll(goalFactory.getCoverageGoals()); // FIXME: two situations, 1) Rho + Ambiguity -> 2 times the same goals; 2) Rho + Branch fine
+            goals.addAll(goalFactory.getCoverageGoals());
             LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
                     + " " + goalFactory.getCoverageGoals().size());
         }
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
 		                                                                 goals.size());
 
-		//TestSuiteChromosome best = new TestSuiteChromosome(); // FIXME: remove me
 		List<TestSuiteChromosome> bests = new ArrayList<TestSuiteChromosome>();
 		if (!(Properties.STOP_ZERO && goals.isEmpty())) {
 			// Perform search
@@ -674,17 +646,14 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 			ga.generateSolution();
-			//best = (TestSuiteChromosome) ga.getBestIndividual(); // FIXME: remove me
 			bests = (List<TestSuiteChromosome>) ga.getBestIndividuals();
-			//if (best == null) { // FIXME: remove me
 			if (bests.isEmpty()) {
 				LoggingUtils.getEvoLogger().warn("Could not find any suiteable chromosome");
-				//return new TestSuiteChromosome(); // FIXME: remove me
-				return null; // FIXME: can we return null?
+				return bests;
 			}
 		} else {
-			statistics.searchStarted(ga);
-			statistics.searchFinished(ga);
+			//statistics.searchStarted(ga);
+			//statistics.searchFinished(ga);
 			zero_fitness.setFinished();
 			for (TestSuiteChromosome best : bests)
 			    best.setCoverage(1.0);
@@ -702,7 +671,6 @@ public class TestSuiteGenerator {
 		                                         + " generations, "
 		                                         + MaxStatementsStoppingCondition.getNumExecutedStatements()
 		                                         + " statements, best individual(s) has(have) fitness: "
-		                                         //+ best.getFitness()); // FIXME: remove me
 		                                         + ga.toString());
 
 		// TODO also consider time for test carving in end_time?
@@ -714,17 +682,11 @@ public class TestSuiteGenerator {
 			 * but one could use the test carver to produce a test on X out of it.
 			 */
 
-			// execute all tests to carve them
-			//final List<TestCase> carvedTests = this.carveTests(best.getTests()); // FIXME: remove me
-
-		    // replace chromosome test cases with carved tests
-            // best.clearTests(); // FIXME: remove me
-            // for (TestCase t : carvedTests) { // FIXME: remove me
-            //    best.addTest(t); // FIXME: remove me
-            //} // FIXME: remove me
-
 		    for (TestSuiteChromosome best : bests) {
+		        // execute all tests to carve them
 		        final List<TestCase> carvedTests = this.carveTests(best.getTests());
+
+		        // replace chromosome test cases with carved tests
 		        best.clearTests();
 		        for (TestCase t : carvedTests)
 		            best.addTest(t);
@@ -732,22 +694,18 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
-            //SerializationSuiteChromosomeFactory.saveTests(best); // FIXME: remove me
 		    SerializationSuiteChromosomeFactory.saveTests(bests);
         }
 
-		// FIXME: this if can only be executed on single objective function
-		if (Properties.MINIMIZE_VALUES) {
-		    //double fitness = best.getFitness(); // FIXME: remove me
-		    double fitness = bests.get(0).getFitness(); // FIXME: doesn't work with MOO
+		if (Properties.MINIMIZE_VALUES && 
+		                Properties.CRITERION.length > 1) {
+		    double fitness = bests.get(0).getFitness();
 
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZING_VALUES);
 			LoggingUtils.getEvoLogger().info("* Minimizing values");
 			ValueMinimizer minimizer = new ValueMinimizer();
-			//minimizer.minimize(best, (TestSuiteFitnessFunction) fitness_function); // FIXME: remove me
-			minimizer.minimize(bests.get(0), (TestSuiteFitnessFunction) fitness_functions.get(0)); // FIXME: doesn't work with MOO
-			//assert (fitness >= best.getFitness()); // FIXME: remove me
-			assert (fitness >= bests.get(0).getFitness()); // FIXME: doesn't work with MOO
+			minimizer.minimize(bests.get(0), (TestSuiteFitnessFunction) fitness_functions.get(0));
+			assert (fitness >= bests.get(0).getFitness());
 		}
 		// progressMonitor.updateStatus(33);
 
@@ -757,8 +715,6 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
 			ConstantInliner inliner = new ConstantInliner();
 			// progressMonitor.setCurrentPhase("Inlining constants");
-			//inliner.inline(best); // FIXME: remove me
-            //assert (fitness >= best.getFitness()); // FIXME: remove me
 
 			for (TestSuiteChromosome best : bests) {
                 Map<FitnessFunction<?>, Double> fitnesses = best.getFitnesses();
@@ -769,32 +725,24 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		// FIXME: this if/else can only be executed on single objective function
-		if (Properties.MINIMIZE) {
-			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
-			LoggingUtils.getEvoLogger().info("* Minimizing result");
-			// progressMonitor.setCurrentPhase("Minimizing test cases");
-			//TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory()); // FIXME: remove me
-			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories.get(0));
-			//minimizer.minimize(best); // FIXME: remove me
-			minimizer.minimize(bests.get(0));
-		} else {
-			//ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, best.size()); // FIXME: remove me?
-		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, bests.get(0).size());
-			//ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, best.size()); // FIXME: remove me?
-		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, bests.get(0).size());
-			//ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, best.totalLengthOfTestCases()); // FIXME: remove me?
-		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, bests.get(0).totalLengthOfTestCases());
-			//ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, best.totalLengthOfTestCases()); // FIXME: remove me?
-            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, bests.get(0).totalLengthOfTestCases());
+		if (Properties.CRITERION.length > 1) {
+    		if (Properties.MINIMIZE) {
+    			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
+    			LoggingUtils.getEvoLogger().info("* Minimizing result");
+    			// progressMonitor.setCurrentPhase("Minimizing test cases");
+    			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories.get(0));
+    			minimizer.minimize(bests.get(0));
+    		} else {
+    		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, bests.get(0).size());
+    		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, bests.get(0).size());
+    		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, bests.get(0).totalLengthOfTestCases());
+                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, bests.get(0).totalLengthOfTestCases());
+    		}
 		}
 
-		// FIXME: this if can only be executed on single objective function?
 		if (Properties.COVERAGE) {
-			//CoverageAnalysis.analyzeCoverage(best, Properties.CRITERION); // FIXME: remove me?
-		    //CoverageAnalysis.analyzeCoverage(bests.get(0), Properties.CRITERION); // FIXME: remove me contains
 		    for (Properties.Criterion pc : Properties.CRITERION)
-		        CoverageAnalysis.analyzeCoverage(bests.get(0), pc);
+		        CoverageAnalysis.analyzeCoverage(bests.get(0), pc); // FIXME: can we send all bests?
 		}
 
 		// progressMonitor.updateStatus(99);
@@ -810,40 +758,28 @@ public class TestSuiteGenerator {
         }
         coverage = coverage / ((double)bests.size());
 
-		// FIXME: this if can only be executed on single objective function?
-		/*if (Properties.CRITERION == Criterion.MUTATION
-		        || Properties.CRITERION == Criterion.STRONGMUTATION) { // FIXME: remove me contains*/
         if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
                 || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
-			//SearchStatistics.getInstance().mutationScore(best.getCoverage()); // FIXME: remove me?
-		    //SearchStatistics.getInstance().mutationScore(bests.get(0).getCoverage()); // FIXME: remove me?
-		    SearchStatistics.getInstance().mutationScore(coverage);
+		    //SearchStatistics.getInstance().mutationScore(coverage);
 		}
 
-		//StatisticsSender.executedAndThenSendIndividualToMaster(best); // FIXME: remove me?
-		StatisticsSender.executedAndThenSendIndividualToMaster(bests.get(0)); // FIXME: can this be executed with MOO?
-		statistics.iteration(ga);
-		//statistics.minimized(best); // FIXME: remove me?
-		statistics.minimized(bests.get(0)); // FIXME: can this be executed with MOO?
-		LoggingUtils.getEvoLogger().info("* Generated " + /*best*/number_of_test_cases // FIXME
+		StatisticsSender.executedAndThenSendIndividualToMaster(bests.get(0)); // FIXME: can we send all bests?
+		//statistics.iteration(ga);
+		//statistics.minimized(bests.get(0)); // FIXME: can we send all bests?
+		LoggingUtils.getEvoLogger().info("* Generated " + number_of_test_cases
 		                                         + " tests with total length "
-		                                         + /*best*/totalLengthOfTestCases); // FIXME
+		                                         + totalLengthOfTestCases);
 
 		// TODO: In the end we will only need one analysis technique
-		// FIXME: can this if be executed on MOO?
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
-			//SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), best.getCoverage()); // FIXME: remove me
-		    //SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), bests.get(0).getCoverage()); // FIXME: remove me
-		    SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), coverage);
-			//CoverageAnalysis.analyzeCriteria(best, Properties.ANALYSIS_CRITERIA); // FIXME: remove me
-		    CoverageAnalysis.analyzeCriteria(bests.get(0), Properties.ANALYSIS_CRITERIA);
+		    //SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), coverage);
+		    CoverageAnalysis.analyzeCriteria(bests.get(0), Properties.ANALYSIS_CRITERIA); // FIXME: can we send all bests?
 		}
 
 		LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "
-		                                         + NumberFormat.getPercentInstance().format(/*best*/coverage)); // FIXME
+		                                         + NumberFormat.getPercentInstance().format(coverage));
 
 		ga.printBudget();
-		//if (Properties.CRITERION == Criterion.DEFUSE // FIXME: remove me contains
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 		        && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
@@ -872,7 +808,6 @@ public class TestSuiteGenerator {
 		    }
 		}
 
-		//return best;
 		return bests;
 	}
 
@@ -929,11 +864,6 @@ public class TestSuiteGenerator {
 	 */
 	public static List<TestSuiteFitnessFunction> getFitnessFunction() {
 	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
-	    //ffs.add(getFitnessFunction(Properties.CRITERION));
-	    //ffs.add(getFitnessFunction(Criterion.AMBIGUITY)); // FIXME: remove me
-	    //ffs.add(getFitnessFunction(Criterion.BRANCH)); // FIXME: remove me
-
-	    // ----
 	    if (Properties.CRITERION.length == 0)
 	        ffs.add(getFitnessFunction(Criterion.BRANCH));
 	    else {
@@ -999,12 +929,7 @@ public class TestSuiteGenerator {
 	 */
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactory() {
 	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
-	    //goalsFactory.add(getFitnessFactory(Properties.CRITERION));
-	    //goalsFactory.add(getFitnessFactory(Criterion.AMBIGUITY)); // FIXME: remove me
-	    //goalsFactory.add(getFitnessFactory(Criterion.BRANCH)); // FIXME: remove me
-
-	    // ----
-        if (Properties.CRITERION.length == 0)
+	    if (Properties.CRITERION.length == 0)
             goalsFactory.add(getFitnessFactory(Criterion.BRANCH));
         else {
             for (int i = 0; i < Properties.CRITERION.length; i++)
@@ -1068,9 +993,7 @@ public class TestSuiteGenerator {
 	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction<?> fitness,
 	        TestFitnessFactory<?> goals) {
 
-		/*if (Properties.CRITERION == Criterion.DEFUSE
-		        || Properties.CRITERION == Criterion.ALLDEFS) { // FIXME: remove me contains*/
-	    if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 	            || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)) {
 			LoggingUtils.getEvoLogger().info("* Disabled random bootstraping for dataflow criterion");
 			Properties.RANDOM_TESTS = 0;
@@ -1127,7 +1050,7 @@ public class TestSuiteGenerator {
 		GeneticAlgorithm<TestSuiteChromosome> suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		// GeneticAlgorithm suiteGA = setup();
 		stopping_condition = getStoppingCondition();
-		statistics.searchStarted(suiteGA);
+		//statistics.searchStarted(suiteGA);
 
 		for (int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
 			if (suiteGA.isFinished())
@@ -1153,9 +1076,9 @@ public class TestSuiteGenerator {
 		}
 
 		suiteGA.getPopulation().add(suite);
-		statistics.searchFinished(suiteGA);
+		//statistics.searchFinished(suiteGA);
 		suiteGA.printBudget();
-		statistics.minimized(suiteGA.getBestIndividual());
+		//statistics.minimized(suiteGA.getBestIndividual());
 
 		return suite;
 	}
@@ -1170,21 +1093,17 @@ public class TestSuiteGenerator {
 	public TestSuiteChromosome generateRandomTests() {
 		LoggingUtils.getEvoLogger().info("* Using random test generation");
 
-		//TestSuiteFitnessFunction fitnessFunction = getFitnessFunction(); // FIXME: remove me
 		List<TestSuiteFitnessFunction> fitness_functions = getFitnessFunction();
 
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		for (TestSuiteFitnessFunction fitness_function : fitness_functions)
             suite.addFitness(fitness_function);
 
-		//TestFitnessFactory<? extends TestFitnessFunction> goalFactory = getFitnessFactory(); // FIXME: remove me
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactory();
-		//List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals();
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-		//LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
 		for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-            goals.addAll(goalFactory.getCoverageGoals()); // FIXME: two situations, 1) Rho + Ambiguity -> 2 times the same goals; 2) Rho + Branch fine
+            goals.addAll(goalFactory.getCoverageGoals());
             LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
                     + " " + goalFactory.getCoverageGoals().size());
         }
@@ -1195,9 +1114,8 @@ public class TestSuiteGenerator {
 		// during search
 		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		// GeneticAlgorithm suiteGA = setup();
-		//suiteGA.setFitnessFunction(fitnessFunction); // FIXME: remove me
 		suiteGA.addFitnessFunctions(fitness_functions);
-		statistics.searchStarted(suiteGA);
+		//statistics.searchStarted(suiteGA);
 
 		ga = suiteGA;
 
@@ -1206,7 +1124,6 @@ public class TestSuiteGenerator {
 		// TODO: Shutdown hook?
 
 		stopping_condition = getStoppingCondition();
-		// fitnessFunction.getFitness(suite); // FIXME: remove me
 		for (FitnessFunction<?> fitness_function : fitness_functions)
 		    ((TestSuiteFitnessFunction)fitness_functions).getFitness(suite);
 
@@ -1214,31 +1131,26 @@ public class TestSuiteGenerator {
 			TestChromosome test = factory.getChromosome();
 			TestSuiteChromosome clone = suite.clone();
 			clone.addTest(test);
-			//fitnessFunction.getFitness(clone); // FIXME: remove me
 			for (FitnessFunction<?> fitness_function : fitness_functions) {
-                ((TestSuiteFitnessFunction)fitness_function).getFitness(suite);
-                logger.debug("Old fitness {}: {}, new fitness: {}",
-                            fitness_functions.getClass().getSimpleName(),
-                            suite.getFitness(),
-                            clone.getFitness());
-            }
-			logger.debug("Old fitness: {}, new fitness: {}", suite.getFitness(),
+                ((TestSuiteFitnessFunction)fitness_function).getFitness(clone);
+                logger.debug("Old fitness: {}, new fitness: {}", suite.getFitness(),
 			             clone.getFitness());
+            }
 			if (clone.compareTo(suite) < 0) {
 				suite = clone;
 			}
 		}
 		suiteGA.getPopulation().add(suite);
-		statistics.searchFinished(suiteGA);
+		//statistics.searchFinished(suiteGA);
 		suiteGA.printBudget();
 
 		if (Properties.MINIMIZE) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
-			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory().get(0)); // FIXME: pass first FitnessFactory when we are using MOO?
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory().get(0)); // FIXME: just one FitnessFactory?
 			minimizer.minimize((TestSuiteChromosome) suiteGA.getBestIndividual());
 		}
-		statistics.minimized(suiteGA.getBestIndividual()); // FIXME: only best individual or ALL best individuals?
+		//statistics.minimized(suiteGA.getBestIndividual()); // FIXME: only best individual or ALL best individuals?
 
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
@@ -1264,9 +1176,7 @@ public class TestSuiteGenerator {
 			ga = setup();
 
 		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
-		//FitnessFunction<AbstractTestSuiteChromosome<? extends ExecutableChromosome>> suiteFitness = getFitnessFunction(); // FIXME: remove me
 		List<TestSuiteFitnessFunction> fitness_functions = getFitnessFunction();
-		//suiteGA.setFitnessFunction(suiteFitness); // FIXME: remove me
 		suiteGA.addFitnessFunctions(fitness_functions);
 
 		long start_time = System.currentTimeMillis() / 1000;
@@ -1276,14 +1186,12 @@ public class TestSuiteGenerator {
 		}
 
 		// Get list of goals
-		//TestFitnessFactory<?> goalFactory = getFitnessFactory(); // FIXME: remove me
         List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactory();
 		long goalComputationStart = System.currentTimeMillis();
-		//List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals(); // FIXME: remove me
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
         for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-            goals.addAll(goalFactory.getCoverageGoals()); // FIXME: two situations, 1) Rho + Ambiguity -> 2 times the same goals; 2) Rho + Branch fine
+            goals.addAll(goalFactory.getCoverageGoals());
             LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
                     + " " + goalFactory.getCoverageGoals().size());
         }
@@ -1302,10 +1210,9 @@ public class TestSuiteGenerator {
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
 
 		// Bootstrap with random testing to cover easy goals
-		statistics.searchStarted(suiteGA);
+		//statistics.searchStarted(suiteGA);
 
-		//TestSuiteChromosome suite = bootstrapRandomSuite(suiteFitness, goalFactory); // FIXME: remove me
-		TestSuiteChromosome suite = bootstrapRandomSuite(fitness_functions.get(0), goalFactories.get(0)); // FIXME: is this correct in terms of MOO?
+		TestSuiteChromosome suite = bootstrapRandomSuite(fitness_functions.get(0), goalFactories.get(0)); // FIXME: just one fitness and one factory?!
 		suiteGA.getPopulation().add(suite);
 		Set<Integer> covered = new HashSet<Integer>();
 		int covered_goals = 0;
@@ -1371,8 +1278,7 @@ public class TestSuiteGenerator {
 				}
 
 				// FitnessFunction fitness_function = new
-				//ga.setFitnessFunction(fitnessFunction); // FIXME: remove me
-				ga.setSingleFitnessFunction(fitnessFunction);
+				ga.addFitnessFunction(fitnessFunction);
 
 				// Perform search
 				logger.info("Starting evolution for goal " + fitnessFunction);
@@ -1395,7 +1301,6 @@ public class TestSuiteGenerator {
 					suite.addTest(best);
 					suiteGA.getPopulation().set(0, suite);
 					// Calculate and keep track of overall fitness
-					// suiteFitness.getFitness(suite); // FIXME: remove me
 					for (TestSuiteFitnessFunction fitness_function : fitness_functions)
 					    fitness_function.getFitness(suite);
 
@@ -1419,7 +1324,7 @@ public class TestSuiteGenerator {
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 				}
 
-				statistics.iteration(suiteGA);
+				//statistics.iteration(suiteGA);
 				if (Properties.REUSE_BUDGET)
 					current_budget += stopping_condition.getCurrentValue();
 				else
@@ -1477,7 +1382,6 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().info("! #Goals that were not covered: "
 			                                         + uncovered_goals);
 
-		//if (Properties.CRITERION == Criterion.LCSAJ && Properties.WRITE_CFG) { // FIXME: remove me contains
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.LCSAJ) && Properties.WRITE_CFG) {
 			int d = 0;
 			for (TestFitnessFunction goal : goals) {
@@ -1493,7 +1397,7 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		statistics.searchFinished(suiteGA);
+		//statistics.searchFinished(suiteGA);
 		long end_time = System.currentTimeMillis() / 1000;
 		LoggingUtils.getEvoLogger().info("* Search finished after "
 		                                         + (end_time - start_time)
@@ -1513,11 +1417,10 @@ public class TestSuiteGenerator {
 		        + suite.totalLengthOfTestCases());
 
 		// Generate a test suite chromosome once all test cases are done?
-		if (Properties.MINIMIZE && Properties.MINIMIZE_OLD) {
+		if (Properties.MINIMIZE && Properties.MINIMIZE_OLD && Properties.CRITERION.length > 1) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
 			logger.info("Size before: " + suite.totalLengthOfTestCases());
-			//TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory()); // FIXME: remove me
-			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories.get(0)); // FIXME: make sure we want to minimize using the first factory
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories.get(0));
 			minimizer.minimize(suite);
 			logger.info("Size after: " + suite.totalLengthOfTestCases());
 		}
@@ -1539,8 +1442,8 @@ public class TestSuiteGenerator {
 		                                         + suite.totalLengthOfTestCases());
 
 		// Log some stats
-		statistics.iteration(suiteGA);
-		statistics.minimized(suite);
+		//statistics.iteration(suiteGA);
+		//statistics.minimized(suite);
 
 		return suite;
 	}
@@ -1691,8 +1594,6 @@ public class TestSuiteGenerator {
 	 * @param fitness
 	 *            a {@link org.evosuite.ga.FitnessFunction} object.
 	 * @return a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 * 
-	 * FIXME: should we pass the list of fitness functions?
 	 */
 	@SuppressWarnings("unchecked")
 	protected static ChromosomeFactory<? extends Chromosome> getChromosomeFactory(
@@ -1952,8 +1853,6 @@ public class TestSuiteGenerator {
 			ga.addStoppingCondition(global_time);
 		}
 
-		/*if (Properties.CRITERION == Criterion.MUTATION
-		        || Properties.CRITERION == Criterion.STRONGMUTATION) { // FIXME: remove me contains*/
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 			if (Properties.STRATEGY == Strategy.ONEBRANCH)
@@ -1991,8 +1890,8 @@ public class TestSuiteGenerator {
 		getSecondaryObjectives(ga);
 
 		// Some statistics
-		if (Properties.STRATEGY == Strategy.EVOSUITE)
-			ga.addListener(SearchStatistics.getInstance());
+		//if (Properties.STRATEGY == Strategy.EVOSUITE)
+		//	ga.addListener(SearchStatistics.getInstance());
 		// ga.addListener(new MemoryMonitor());
 		// ga.addListener(MutationStatistics.getInstance());
 		// ga.addListener(BestChromosomeTracker.getInstance());

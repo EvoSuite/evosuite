@@ -2,7 +2,7 @@ package com.examples.with.different.packagename.testcarver;
 
 import static org.junit.Assert.assertEquals;
 
-import org.evosuite.agent.InstrumentingAgent;
+import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

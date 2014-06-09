@@ -58,7 +58,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	private static final Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
 
 	/** Fitness function to rank individuals */
-	//protected FitnessFunction<T> fitnessFunction;
 	protected List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
 
 	/** Selection function to select parents */
@@ -314,22 +313,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	/**
-	 * Set new fitness function (i.e., for new mutation)
-	 * 
-	 * @param function
-	 *            a {@link org.evosuite.ga.FitnessFunction} object.
-	 */
-	/*public void setFitnessFunction(FitnessFunction<T> function) {
-		fitnessFunction = function;
-		localObjective = new DefaultLocalSearchObjective<T>(function);
-	}*/
-	public void setSingleFitnessFunction(FitnessFunction<T> function) {
-	    fitnessFunctions.clear();
-	    fitnessFunctions.add(function);
-	    if (localObjective == null)
-            localObjective = new DefaultLocalSearchObjective<T>(function); // FIXME: there is a localObjective for each FitnessFunction or a global localObjective?
-	}
-	/**
      * Add new fitness function (i.e., for new mutation)
      * 
      * @param function
@@ -338,7 +321,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
     public void addFitnessFunction(FitnessFunction<T> function) {
         fitnessFunctions.add(function);
         if (localObjective == null)
-            localObjective = new DefaultLocalSearchObjective<T>(function); // FIXME: there is a localObjective for each FitnessFunction or a global localObjective? 
+            localObjective = new DefaultLocalSearchObjective<T>(function); // FIXME: there is a localObjective for each FitnessFunction or just a global localObjective? 
     }
 
     public void addFitnessFunctions(List<FitnessFunction<T>> functions) {
@@ -352,7 +335,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
 	public FitnessFunction<T> getFitnessFunction() {
-		//return fitnessFunction;
 	    return fitnessFunctions.get(0);
 	}
     /**
@@ -367,14 +349,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
     public int getNumberOfFitnessFunctions() {
         return fitnessFunctions.size();
     }
-
-    /**
-     * 
-     * @return
-     */
-    /*public int getNumberFitnessFunction() {
-        return this.fitnessFunctions.size();
-    }*/
 
     /**
      * 

@@ -38,9 +38,6 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 	private final String className;
 
 	private static boolean isMutation() {
-		/*return Properties.CRITERION == Criterion.MUTATION
-		        || Properties.CRITERION == Criterion.STRONGMUTATION
-		        || Properties.CRITERION == Criterion.WEAKMUTATION; // FIXME: remove me contains*/
 	    return ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
 	            || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)
 	            || ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION);

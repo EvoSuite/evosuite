@@ -163,8 +163,6 @@ public class TestSuiteMinimizer {
 		int numCovered = 0;
 		int currentGoal = 0;
 
-		/*if (Properties.CRITERION != Properties.Criterion.BRANCH
-		        && Properties.CRITERION != Properties.Criterion.IBRANCH) { // FIXME: remove me contains*/
 		if (!ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.BRANCH)
 		        && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
 			BranchCoverageFactory branchFactory = new BranchCoverageFactory();
@@ -291,7 +289,6 @@ public class TestSuiteMinimizer {
 		information.setProgress(100);
 		information.setCoverage((int) (Math.round(suite.getCoverage() * 100)));
 		ClientServices.getInstance().getClientNode().changeState(state, information);
-		SearchStatistics.getInstance().setCoveredGoals(numCovered);
 
 		for (TestFitnessFunction goal : goals) {
 			if (!covered.contains(goal))

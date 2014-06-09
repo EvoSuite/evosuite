@@ -26,9 +26,8 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.junit.xml.JUnitProcessLauncher;
-import org.evosuite.sandbox.Sandbox;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testsuite.SearchStatistics;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.slf4j.Logger;
@@ -165,8 +164,6 @@ public class JUnitAnalyzer {
 				for (String elem : failure.getExceptionStackTrace()) {
 					logger.info(elem);
 				}
-
-				SearchStatistics.getInstance().setHadUnstableTests(true);
 
 				boolean toRemove = !(failure.isAssertionError());
 

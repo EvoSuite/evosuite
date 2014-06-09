@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import org.evosuite.runtime.VirtualFileSystem;
+import org.evosuite.runtime.mock.java.io.MockFile;
+import org.evosuite.runtime.mock.java.io.MockRandomAccessFile;
 import org.junit.Assert;
 import org.junit.Test;
 

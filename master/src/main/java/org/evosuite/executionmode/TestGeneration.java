@@ -51,7 +51,6 @@ public class TestGeneration {
 			strategy = Strategy.EVOSUITE;
 		} 
 
-		//List<TestGenerationResult> results = new ArrayList<TestGenerationResult>(); // FIXME: remove me
 		List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
 
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
@@ -84,7 +83,6 @@ public class TestGeneration {
 
 	private static List<List<TestGenerationResult>> generateTestsLegacy(Properties.Strategy strategy,
 	        List<String> args) {
-		//List<TestGenerationResult> results = new ArrayList<TestGenerationResult>(); // FIXME: remove me
 	    List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
 		
 		ClassPathHandler.getInstance().getTargetProjectClasspath();
@@ -130,7 +128,6 @@ public class TestGeneration {
 	
 	private static List<List<TestGenerationResult>> generateTestsPrefix(Properties.Strategy strategy, String prefix,
 	        List<String> args) {
-		//List<TestGenerationResult> results = new ArrayList<TestGenerationResult>(); // FIXME: remove me
 	    List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
 		
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
@@ -186,13 +183,12 @@ public class TestGeneration {
 	private static List<List<TestGenerationResult>> generateTests(Properties.Strategy strategy, String target,
 	        List<String> args) {
 		
-		//LoggingUtils.getEvoLogger().info("Going to generate test cases for class: "+target);
+		LoggingUtils.getEvoLogger().info("Going to generate test cases for class: "+target);
 		
 		String classPath = ClassPathHandler.getInstance().getEvoSuiteClassPath();		
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		
 		if (!findTargetClass(target)) {
-			//return Arrays.asList(new TestGenerationResult[]{TestGenerationResultBuilder.buildErrorResult("Could not find target class") }); // FIXME: remove me
 		    return Arrays.asList(Arrays.asList(new TestGenerationResult[]{TestGenerationResultBuilder.buildErrorResult("Could not find target class") }));
 		}	
 
@@ -487,7 +483,6 @@ public class TestGeneration {
 		if(hasFailed){
 			logger.error("failed to write statistics data");
 			//note: cannot throw exception because would require refactoring of many SystemTests
-			//return new ArrayList<TestGenerationResult>(); // FIXME: remove me
 			return new ArrayList<List<TestGenerationResult>>();
 		}
 		
@@ -582,7 +577,6 @@ public class TestGeneration {
 	
 	private static List<List<TestGenerationResult>> generateTestsTarget(Properties.Strategy strategy, String target,
 	        List<String> args) {
-		//List<TestGenerationResult> results = new ArrayList<TestGenerationResult>(); // FIXME: remove me
 	    List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		

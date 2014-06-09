@@ -8,9 +8,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.statistics.OutputVariable;
-import org.evosuite.utils.ReportGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,11 +59,33 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 		return r.toString();
 	}
 
+	/**
+	 * Return the folder of where reports should be generated.
+	 * If the folder does not exist, try to create it
+	 * 
+	 * @return
+	 * @throws RuntimeException if folder does not exist, and we cannot create it
+	 */
+	public static File getReportDir() throws RuntimeException{
+		File dir = new File(Properties.REPORT_DIR);
+		
+		if(!dir.exists()){
+			boolean created = dir.mkdirs();
+			if(!created){
+				String msg = "Cannot create report dir: "+Properties.REPORT_DIR;
+				logger.error(msg);
+				throw new RuntimeException(msg);
+			}
+		}
+		
+		return dir;			
+	}
+	
 	@Override
 	public void writeData(Chromosome result, Map<String, OutputVariable<?>> data) {
 		// Write to evosuite-report/statistics.csv
 		try {
-			File outputDir = ReportGenerator.getReportDir();			
+			File outputDir = getReportDir();			
 			File f = new File(outputDir.getAbsolutePath() + File.separator + "statistics.csv");
 			BufferedWriter out = new BufferedWriter(new FileWriter(f, true));
 			if (f.length() == 0L) {

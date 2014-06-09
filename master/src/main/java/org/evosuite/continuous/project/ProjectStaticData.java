@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.evosuite.Properties;
 import org.evosuite.continuous.persistency.CsvJUnitData;
-import org.evosuite.utils.ReportGenerator.RuntimeVariable;
+import org.evosuite.statistics.RuntimeVariable;
 
 import au.com.bytecode.opencsv.CSVReader;
 

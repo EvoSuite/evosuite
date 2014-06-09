@@ -2,14 +2,17 @@ package org.evosuite.junit.xml;
 
 import static org.junit.Assert.assertFalse;
 
+import java.util.Map;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.testsuite.SearchStatistics;
+import org.evosuite.statistics.OutputVariable;
+import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.ReportGenerator.StatisticEntry;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,6 +20,7 @@ import org.junit.Test;
 import org.objectweb.asm.Type;
 
 import com.examples.with.different.packagename.junit.Foo;
+//import org.evosuite.testsuite.SearchStatistics;
 
 public class SystemTestJUnitOnSeparateProcessProperty extends SystemTest {
 	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
@@ -43,6 +47,7 @@ public class SystemTestJUnitOnSeparateProcessProperty extends SystemTest {
 
 		String targetClass = Foo.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
@@ -63,9 +68,11 @@ public class SystemTestJUnitOnSeparateProcessProperty extends SystemTest {
 				descriptor);
 		assertFalse(equals);
 
-		StatisticEntry entry = SearchStatistics.getInstance()
-				.getLastStatisticEntry();
-		assertFalse(entry.hadUnstableTests);
+		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+		Assert.assertNotNull(map);
+		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+		Assert.assertNotNull(unstable);
+		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 	}
 
 }

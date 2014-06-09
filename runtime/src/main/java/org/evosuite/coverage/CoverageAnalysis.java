@@ -7,25 +7,22 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
-import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.ReportGenerator.StatisticEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+//import org.evosuite.testsuite.SearchStatistics;
 
 /**
  * @author Gordon Fraser
@@ -56,7 +53,6 @@ public class CoverageAnalysis {
 
 	private static void reinstrument(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
-		//Properties.Criterion oldCriterion = Properties.CRITERION; // FIXME: remove me contains
 	    Properties.Criterion oldCriterion[] = Properties.CRITERION;
 
 		if (!ExecutionTracer.isTraceCallsEnabled()) {
@@ -69,12 +65,10 @@ public class CoverageAnalysis {
 			}
 		}
 
-		//if (oldCriterion == criterion) // FIXME: remove me contains
 		if (ArrayUtil.contains(oldCriterion, criterion))
 			return;
 
 		if (isMutationCriterion(criterion) && isMutationCriterion(oldCriterion)) {
-			//if (oldCriterion == Properties.Criterion.WEAKMUTATION) { // FIXME: remove me contains
 		    if (ArrayUtil.contains(oldCriterion, Properties.Criterion.WEAKMUTATION)) {
 				testSuite.setChanged(true);
 				for (TestChromosome test : testSuite.getTestChromosomes()) {
@@ -103,8 +97,6 @@ public class CoverageAnalysis {
 			return;
 			*/
 
-		//Properties.CRITERION = criterion; // FIXME: remove me contains
-        //Properties.CRITERION = (Criterion[]) ArrayUtil.append(Properties.CRITERION, criterion);
 		Properties.CRITERION = new Properties.Criterion[1];
 		Properties.CRITERION[0] = criterion;
 		
@@ -127,33 +119,26 @@ public class CoverageAnalysis {
 	}
 
 	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
-		//Criterion oldCriterion = Properties.CRITERION; // FIXME: remove me contains
 	    Criterion[] oldCriterion = Properties.CRITERION;
 		List<String> criteriaList = Arrays.asList(criteria.split(","));
-		//criteriaList.remove(oldCriterion.name()); // FIXME: remove me contains
 		for (Criterion c : oldCriterion) {
 		    criteriaList.remove(c.name());
 		}
-		//for (String criterion : criteriaList) {
 	    for (String criterion : criteria.split(","))
 	    {
-	        /*String criterion = crit.toUpperCase();
-	        if (ArrayUtils.contains(oldCriterion, criterion))
-	            continue ;*/
-
+			/*
 			if (SearchStatistics.getInstance().hasCoverage(criterion)) {
 				LoggingUtils.getEvoLogger().info("Skipping measuring coverage of criterion: "
 				                                         + criterion);
 				continue;
 			}
-
+			*/
 			analyzeCoverage(testSuite, criterion);
 		}
 
 		LoggingUtils.getEvoLogger().info("Reinstrumenting for original criterion ");
 		//reinstrument(testSuite, oldCriterion);
 		Properties.CRITERION = oldCriterion;
-		//analyzeCoverage(testSuite, oldCriterion.name()); // FIXME: remove me contains
 		for (Criterion c : oldCriterion) {
 		    LoggingUtils.getEvoLogger().info("  - " + c.name());
 		    analyzeCoverage(testSuite, c.name());
@@ -206,7 +191,6 @@ public class CoverageAnalysis {
 	public static void analyzeCoverage(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
 
-		//Properties.Criterion oldCriterion = Properties.CRITERION; // FIXME: remove me contains
 	    Properties.Criterion oldCriterion[] = Properties.CRITERION;
 
 		reinstrument(testSuite, criterion);
@@ -223,7 +207,7 @@ public class CoverageAnalysis {
 			if (goal.isCoveredBy(testSuite)) {
 				logger.debug("Goal {} is covered", goal);
 				covered++;
-				//if (Properties.CRITERION == Properties.Criterion.DEFUSE) { // FIXME: remove me contains
+				/*
 				if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)) {
 					StatisticEntry entry = SearchStatistics.getInstance().getLastStatisticEntry();
 					if (((DefUseCoverageTestFitness) goal).isInterMethodPair())
@@ -236,16 +220,17 @@ public class CoverageAnalysis {
 						entry.coveredIntraMethodPairs++;
 
 				}
+				*/
 			} else {
 				logger.debug("Goal {} is not covered", goal);
 			}
 		}
 
 		if (goals.isEmpty()) {
-			SearchStatistics.getInstance().addCoverage(criterion.toString(), 1.0);
+			//SearchStatistics.getInstance().addCoverage(criterion.toString(), 1.0);
 			if (criterion == Properties.Criterion.MUTATION
 			        || criterion == Properties.Criterion.STRONGMUTATION) {
-				SearchStatistics.getInstance().mutationScore(1.0);
+				//SearchStatistics.getInstance().mutationScore(1.0);
 				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore,
 				                                                                 1.0);
 			}
@@ -255,22 +240,18 @@ public class CoverageAnalysis {
 			                                                                 1.0);
 		} else {
 
-			SearchStatistics.getInstance().addCoverage(criterion.toString(),
-			                                           (double) covered
-			                                                   / (double) goals.size());
+			//SearchStatistics.getInstance().addCoverage(criterion.toString(), (double) covered / (double) goals.size());
 			ClientServices.getInstance().getClientNode().trackOutputVariable(getCoverageVariable(criterion),
 			                                                                 (double) covered
 			                                                                         / (double) goals.size());
 			if (criterion == Properties.Criterion.MUTATION
 			        || criterion == Properties.Criterion.STRONGMUTATION) {
-				SearchStatistics.getInstance().mutationScore((double) covered
-				                                                     / (double) goals.size());
+				//SearchStatistics.getInstance().mutationScore((double) covered / (double) goals.size());
 				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore,
 				                                                                 (double) covered
 				                                                                         / (double) goals.size());
-				//if (oldCriterion == criterion) // FIXME: remove me contains
-				if (ArrayUtil.contains(oldCriterion, criterion))
-					SearchStatistics.getInstance().setCoveredGoals(covered);
+				//if (ArrayUtil.contains(oldCriterion, criterion))
+					//SearchStatistics.getInstance().setCoveredGoals(covered);
 
 			}
 

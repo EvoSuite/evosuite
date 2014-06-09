@@ -5,9 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.evosuite.mock.java.io.MockFile;
-import org.evosuite.mock.java.io.MockFileInputStream;
-import org.evosuite.mock.java.io.MockFileOutputStream;
+import org.evosuite.runtime.mock.java.io.MockFile;
+import org.evosuite.runtime.mock.java.io.MockFileInputStream;
+import org.evosuite.runtime.mock.java.io.MockFileOutputStream;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

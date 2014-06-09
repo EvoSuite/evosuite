@@ -23,7 +23,8 @@ import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
-import org.evosuite.sandbox.Sandbox;
+import org.evosuite.runtime.sandbox.PermissionStatistics;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
@@ -116,25 +117,20 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 				if (Properties.SANDBOX) {
 					Sandbox.initializeSecurityManagerForSUT();
 				}
-				//TestGenerationResult result; // FIXME: remove me
 				List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
 
 				try {
 					// Starting a new search
 					TestSuiteGenerator generator = new TestSuiteGenerator();
-					//result = generator.generateTestSuite(); // FIXME: remove me
 					results = generator.generateTestSuite();
 					GeneticAlgorithm<?> ga = generator.getEmployedGeneticAlgorithm();
 
-					//masterNode.evosuite_collectTestGenerationResult(clientRmiIdentifier, result); // FIXME: remove me
 					masterNode.evosuite_collectTestGenerationResult(clientRmiIdentifier, results);
 				} catch (Throwable t) {
 					logger.error("Error when generating tests for: "
 							+ Properties.TARGET_CLASS + " with seed "
 							+ Randomness.getSeed() + ". Configuration id : "
 							+ Properties.CONFIGURATION_ID, t);
-					//result = TestGenerationResultBuilder.buildErrorResult("Error when generating tests for: "
-					//		+ Properties.TARGET_CLASS+": "+t); // FIXME: remove me
 					results.add(TestGenerationResultBuilder.buildErrorResult("Error when generating tests for: "
                             + Properties.TARGET_CLASS+": "+t));
 				}
@@ -235,6 +231,48 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		 */
 		outputVariableQueue.offer(new OutputVariable(variable, value));
 	}
+
+    @Override
+    public void publishPermissionStatistics() {
+
+            trackOutputVariable(RuntimeVariable.AllPermission,
+                    PermissionStatistics.getInstance().getNumAllPermission());
+            trackOutputVariable(RuntimeVariable.SecurityPermission,
+                    PermissionStatistics.getInstance().getNumSecurityPermission());
+            trackOutputVariable(RuntimeVariable.UnresolvedPermission,
+                    PermissionStatistics.getInstance().getNumUnresolvedPermission());
+            trackOutputVariable(RuntimeVariable.AWTPermission,
+                    PermissionStatistics.getInstance().getNumAWTPermission());
+            trackOutputVariable(RuntimeVariable.FilePermission,
+                    PermissionStatistics.getInstance().getNumFilePermission());
+            trackOutputVariable(RuntimeVariable.SerializablePermission,
+                    PermissionStatistics.getInstance().getNumSerializablePermission());
+            trackOutputVariable(RuntimeVariable.ReflectPermission,
+                    PermissionStatistics.getInstance().getNumReflectPermission());
+            trackOutputVariable(RuntimeVariable.RuntimePermission,
+                    PermissionStatistics.getInstance().getNumRuntimePermission());
+            trackOutputVariable(RuntimeVariable.NetPermission,
+                    PermissionStatistics.getInstance().getNumNetPermission());
+            trackOutputVariable(RuntimeVariable.SocketPermission,
+                    PermissionStatistics.getInstance().getNumSocketPermission());
+            trackOutputVariable(RuntimeVariable.SQLPermission,
+                    PermissionStatistics.getInstance().getNumSQLPermission());
+            trackOutputVariable(RuntimeVariable.PropertyPermission,
+                    PermissionStatistics.getInstance().getNumPropertyPermission());
+            trackOutputVariable(RuntimeVariable.LoggingPermission,
+                    PermissionStatistics.getInstance().getNumLoggingPermission());
+            trackOutputVariable(RuntimeVariable.SSLPermission,
+                    PermissionStatistics.getInstance().getNumSSLPermission());
+            trackOutputVariable(RuntimeVariable.AuthPermission,
+                    PermissionStatistics.getInstance().getNumAuthPermission());
+            trackOutputVariable(RuntimeVariable.AudioPermission,
+                    PermissionStatistics.getInstance().getNumAudioPermission());
+            trackOutputVariable(RuntimeVariable.OtherPermission,
+                    PermissionStatistics.getInstance().getNumOtherPermission());
+            trackOutputVariable(RuntimeVariable.Threads,
+                    PermissionStatistics.getInstance().getMaxThreads());
+
+    }
 
 	public void stop(){
 		if(statisticsThread!=null){

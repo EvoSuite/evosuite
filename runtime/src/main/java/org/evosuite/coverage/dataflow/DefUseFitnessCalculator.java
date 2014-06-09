@@ -211,7 +211,6 @@ public class DefUseFitnessCalculator {
 			double useFitness = callTestFitnessFunctionForTrace(objectTrace,
 			                                                    goalUseFitness);
 			fitness = normalize(useFitness);
-			//if (Properties.CRITERION == Criterion.DEFUSE && fitness == 0.0) // FIXME: remove me contains
 			if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE) && fitness == 0.0)
 				goal.setCovered(individual, objectTrace, objectId);
 			return fitness;
@@ -238,7 +237,6 @@ public class DefUseFitnessCalculator {
 			        + DefUsePool.getDefinitionByDefId(activeDefId));
 			if (activeDefId == goalDefinition.getDefId()) {
 				// Case 3.1.
-				//if (Properties.CRITERION == Criterion.DEFUSE) // FIXME: remove me contains
 			    if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE))
 					goal.setCovered(individual, objectTrace, objectId); {
 						if(!defVariable.equals(useVariable)) {

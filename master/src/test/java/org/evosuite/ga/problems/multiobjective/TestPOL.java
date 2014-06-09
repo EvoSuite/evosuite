@@ -61,56 +61,56 @@ public class TestPOL
     @Test
     public void testPOL() throws NumberFormatException, IOException
     {
-//        Properties.MUTATION_RATE = 1d / 2d;
-//
-//        ChromosomeFactory<?> factory = new RandomFactory(false, 2, -Math.PI, Math.PI);
-//
-//        GeneticAlgorithm<?> ga = new NSGAII(factory);
-//        BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
-//        ga.setSelectionFunction(ts);
-//        ga.setCrossOverFunction(new SBXCrossover());
-//
-//        Problem p = new POL();
-//        final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
-//        final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
-//        ga.addFitnessFunction(f1);
-//        ga.addFitnessFunction(f2);
-//
-//        // execute
-//        ga.generateSolution();
-//
-//        List<Chromosome> chromosomes = (List<Chromosome>) ga.getPopulation();
-//        Collections.sort(chromosomes, new Comparator<Chromosome>() {
-//            @Override
-//            public int compare(Chromosome arg0, Chromosome arg1) {
-//                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
-//            }
-//        });
-//
-//        double[][] front = new double[Properties.POPULATION][2];
-//        int index = 0;
-//
-//        for (Chromosome chromosome : chromosomes) {
-//            System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
-//            front[index][0] = Double.valueOf(chromosome.getFitness(f1));
-//            front[index][1] = Double.valueOf(chromosome.getFitness(f2));
-//
-//            index++;
-//        }
+        Properties.MUTATION_RATE = 1d / 2d;
+
+        ChromosomeFactory<?> factory = new RandomFactory(false, 2, -Math.PI, Math.PI);
+
+        GeneticAlgorithm<?> ga = new NSGAII(factory);
+        BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
+        ga.setSelectionFunction(ts);
+        ga.setCrossOverFunction(new SBXCrossover());
+
+        Problem p = new POL();
+        final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
+        final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
+        ga.addFitnessFunction(f1);
+        ga.addFitnessFunction(f2);
+
+        // execute
+        ga.generateSolution();
+
+        List<Chromosome> chromosomes = (List<Chromosome>) ga.getPopulation();
+        Collections.sort(chromosomes, new Comparator<Chromosome>() {
+            @Override
+            public int compare(Chromosome arg0, Chromosome arg1) {
+                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
+            }
+        });
+
+        double[][] front = new double[Properties.POPULATION][2];
+        int index = 0;
+
+        for (Chromosome chromosome : chromosomes) {
+            System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
+            front[index][0] = Double.valueOf(chromosome.getFitness(f1));
+            front[index][1] = Double.valueOf(chromosome.getFitness(f2));
+
+            index++;
+        }
 
         // load True Pareto Front
         double[][] trueParetoFront = Metrics.readFront("Poloni.pf");
 
-//        GenerationalDistance gd = new GenerationalDistance();
-//        double gdd = gd.evaluate(front, trueParetoFront);
-//        System.out.println("GenerationalDistance: " + gdd);
-//        Assert.assertEquals(gdd, 0.0005, 0.0001);
-//
-//        Spacing sp = new Spacing();
-//        double spd = sp.evaluate(front);
-//        double spdt = sp.evaluate(trueParetoFront);
-//        System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
-//                            + Math.abs(spd - spdt));
-//        Assert.assertEquals(Math.abs(spd - spdt), 0.10, 0.05);
+        GenerationalDistance gd = new GenerationalDistance();
+        double gdd = gd.evaluate(front, trueParetoFront);
+        System.out.println("GenerationalDistance: " + gdd);
+        Assert.assertEquals(gdd, 0.0005, 0.0001);
+
+        Spacing sp = new Spacing();
+        double spd = sp.evaluate(front);
+        double spdt = sp.evaluate(trueParetoFront);
+        System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
+                            + Math.abs(spd - spdt));
+        Assert.assertEquals(Math.abs(spd - spdt), 0.10, 0.05);
     }
 }

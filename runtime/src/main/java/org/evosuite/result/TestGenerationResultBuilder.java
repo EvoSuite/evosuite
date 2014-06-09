@@ -81,7 +81,6 @@ public class TestGenerationResultBuilder {
 	
 	private void fillInformationFromConfiguration(TestGenerationResultImpl result) {
 		result.setClassUnderTest(Properties.TARGET_CLASS);
-		//result.setTargetCriterion(Properties.CRITERION.name()); // FIXME: remove me contains
 		String[] criteria = new String[Properties.CRITERION.length];
 		for (int i = 0; i < Properties.CRITERION.length; i++)
 		    criteria[i] = Properties.CRITERION[i].name();

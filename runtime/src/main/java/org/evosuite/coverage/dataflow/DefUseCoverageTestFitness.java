@@ -273,7 +273,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 		double fitness = calculator.calculateDUFitness();
 
-		//if (Properties.CRITERION == Criterion.DEFUSE && fitness == 0.0) // FIXME: remove me contains
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE) && fitness == 0.0)
 			setCovered(individual, result.getTrace(), -1); // TODO objectId wrong
 

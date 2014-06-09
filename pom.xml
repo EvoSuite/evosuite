@@ -156,41 +156,6 @@
 			</build>
 		</profile>
 		<profile>
-			<id>Java6</id>
-			<activation>
-				<jdk>1.6</jdk>
-				<property>
-					<name>Java6</name>
-				</property>
-			</activation>
-			<properties>
-				<toolsVersion>1.6.0</toolsVersion>
-			</properties>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<version>3.0</version>
-						<configuration>
-							<source>1.6</source>
-							<target>1.6</target>
-							<encoding>${project.build.sourceEncoding}</encoding>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>findbugs-maven-plugin</artifactId>
-						<version>2.5.2</version>
-						<configuration>
-							<xmlOutput>true</xmlOutput>
-							<excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
 			<id>exsyst</id>
 			<activation>
 				<property>
@@ -540,26 +505,7 @@
 					</excludes>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
-				<inherited>true</inherited>
-				<configuration>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-						</manifest>
-						<manifestEntries>
-							<Premain-Class>org.evosuite.agent.InstrumentingAgent</Premain-Class>
-							<Agent-Class>org.evosuite.agent.InstrumentingAgent</Agent-Class>
-							<Can-Redefine-Classes>true</Can-Redefine-Classes>
-							<Can-Retransform-Classes>true</Can-Retransform-Classes>
-						</manifestEntries>
-					</archive>
-				</configuration>
-			</plugin>
+			
 
 		</plugins>
 

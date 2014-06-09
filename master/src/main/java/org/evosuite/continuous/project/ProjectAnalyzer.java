@@ -21,7 +21,7 @@ import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.junit.CoverageAnalysis;
-import org.evosuite.sandbox.Sandbox;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

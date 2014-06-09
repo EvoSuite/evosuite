@@ -36,7 +36,7 @@ import org.evosuite.instrumentation.coverage.LCSAJsInstrumentation;
 import org.evosuite.instrumentation.coverage.MethodInstrumentation;
 import org.evosuite.instrumentation.coverage.MutationInstrumentation;
 import org.evosuite.instrumentation.coverage.PrimePathInstrumentation;
-import org.evosuite.reset.ClassResetter;
+import org.evosuite.runtime.reset.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.AnnotationVisitor;
@@ -160,23 +160,19 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 		List<MethodInstrumentation> instrumentations = new ArrayList<MethodInstrumentation>();
 		if (DependencyAnalysis.shouldInstrument(className, methodName)) {
-			//if (Properties.CRITERION == Criterion.LCSAJ) { // FIXME: remove me contains
 		    if (ArrayUtil.contains(Properties.CRITERION, Criterion.LCSAJ)) {
 				instrumentations.add(new LCSAJsInstrumentation());
 				instrumentations.add(new BranchInstrumentation());
-			} /*else if (Properties.CRITERION == Criterion.DEFUSE
-			        || Properties.CRITERION == Criterion.ALLDEFS) { // FIXME: remove me contains*/
+			}
 		    else if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)) {
 				instrumentations.add(new BranchInstrumentation());
 				instrumentations.add(new DefUseInstrumentation());
-			} /*else if (Properties.CRITERION == Criterion.PATH) { // FIXME: remove me contains*/
+			}
 		    else if (ArrayUtil.contains(Properties.CRITERION, Criterion.PATH)) {
 				instrumentations.add(new PrimePathInstrumentation());
 				instrumentations.add(new BranchInstrumentation());
-			} /*else if (Properties.CRITERION == Criterion.MUTATION
-			        || Properties.CRITERION == Criterion.WEAKMUTATION
-			        || Properties.CRITERION == Criterion.STRONGMUTATION) { // FIXME: remove me contains*/
+			}
 		    else if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION)
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
