@@ -54,7 +54,6 @@ import javax.xml.ws.WebServicePermission;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.SandboxMode;
-import org.evosuite.rmi.service.MasterNodeRemote;
 import org.evosuite.runtime.VirtualFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +152,7 @@ public class MSecurityManager extends SecurityManager {
 	 * This is used to allow RMI communications even on non-privileged threads,
 	 * but only if coming from EvoSuite (and not from SUT)
 	 */
-	private final Set<String> masterNodeRemoteMethodNames;
+	private static Set<String> masterNodeRemoteMethodNames;
 
 	/**
 	 * It can happen that EvoSuite encounters permissions it does not recognize.
@@ -175,15 +174,23 @@ public class MSecurityManager extends SecurityManager {
 		privilegedThreadToIgnore = null;
 		unrecognizedPermissions = new CopyOnWriteArraySet<Permission>();
 
-		Method[] methods = MasterNodeRemote.class.getMethods();
-		Set<String> names = new HashSet<String>();
-		for(Method m : methods){
-			names.add(m.getName());
-		}
-		masterNodeRemoteMethodNames = Collections.unmodifiableSet(names);
-
 		filesToDelete = new CopyOnWriteArraySet<File>();
 	}
+
+    /**
+     * We need to use reflection to avoid the runtime module to have a dependency
+     * on MasterNodeRemote
+     *
+     * @param remoteNode
+     */
+    public static void setupMasterNodeRemoteHandling(Class<?> remoteNode){
+        Method[] methods = remoteNode.getMethods();
+        Set<String> names = new HashSet<String>();
+        for(Method m : methods){
+            names.add(m.getName());
+        }
+        masterNodeRemoteMethodNames = Collections.unmodifiableSet(names);
+    }
 
 	public Set<Thread> getPriviledThreads(){
 		Set<Thread> set = new LinkedHashSet<Thread>();

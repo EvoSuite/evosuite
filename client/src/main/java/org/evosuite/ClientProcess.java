@@ -20,15 +20,21 @@
  */
 package org.evosuite;
 
+import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.MasterNodeRemote;
 import org.evosuite.runtime.agent.AgentLoader;
+import org.evosuite.runtime.agent.ToolsJarLocator;
+import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * <p>
@@ -59,9 +65,26 @@ public class ClientProcess {
 			 * EvoSuite, those will use the agent.
 			 * But for some arcane reason, the loading there fails.
 			 */
-			AgentLoader.loadAgent(); 
+			AgentLoader.loadAgent();
+
+            ToolsJarLocator locator = new ToolsJarLocator();
+            locator.getLoaderForToolsJar();
+            if (locator.getLocationNotOnClasspath() != null) {
+                try {
+			            /*
+			             * it is important that tools.jar ends up in the classpath of the _system_ classloader,
+			             * otherwise exceptions in EvoSuite classes using tools.jar
+			             */
+                    logger.info("Using JDK libraries at: " + locator.getLocationNotOnClasspath());
+                    ClassPathHacker.addFile(locator.getLocationNotOnClasspath());  //FIXME needs refactoring
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to add " + locator.getLocationNotOnClasspath() + " to system classpath");
+                }
+            }
 		}
-		
+
+        MSecurityManager.setupMasterNodeRemoteHandling(MasterNodeRemote.class);
+
 		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
 		                                         + Properties.PROCESS_COMMUNICATION_PORT);
 	
