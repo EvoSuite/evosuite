@@ -298,7 +298,6 @@ public class TestNSGAII extends SystemTest
             "-Dassertions=true",
             "-Dsandbox=true",
             "-Dnew_statistics=false",
-            "-Dold_statistics=false",
             "-generateSuite",
             "-class", targetClass
         };
