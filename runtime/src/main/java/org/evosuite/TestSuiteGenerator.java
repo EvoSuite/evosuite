@@ -864,11 +864,8 @@ public class TestSuiteGenerator {
 	 */
 	public static List<TestSuiteFitnessFunction> getFitnessFunction() {
 	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
-	    if (Properties.CRITERION.length == 0)
-	        ffs.add(getFitnessFunction(Criterion.BRANCH));
-	    else {
-	        for (int i = 0; i < Properties.CRITERION.length; i++)
-	            ffs.add(getFitnessFunction(Properties.CRITERION[i]));
+	    for (int i = 0; i < Properties.CRITERION.length; i++) {
+	        ffs.add(getFitnessFunction(Properties.CRITERION[i]));
 	    }
 
 		return ffs;
@@ -929,12 +926,9 @@ public class TestSuiteGenerator {
 	 */
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactory() {
 	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
-	    if (Properties.CRITERION.length == 0)
-            goalsFactory.add(getFitnessFactory(Criterion.BRANCH));
-        else {
-            for (int i = 0; i < Properties.CRITERION.length; i++)
-                goalsFactory.add(getFitnessFactory(Properties.CRITERION[i]));
-        }
+	    for (int i = 0; i < Properties.CRITERION.length; i++) {
+	        goalsFactory.add(getFitnessFactory(Properties.CRITERION[i]));
+	    }
 
 		return goalsFactory;
 	}
