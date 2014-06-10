@@ -698,7 +698,7 @@ public class TestSuiteGenerator {
         }
 
 		if (Properties.MINIMIZE_VALUES && 
-		                Properties.CRITERION.length > 1) {
+		                Properties.CRITERION.length == 1) {
 		    double fitness = bests.get(0).getFitness();
 
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZING_VALUES);
@@ -725,7 +725,7 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		if (Properties.CRITERION.length > 1) {
+		if (Properties.CRITERION.length == 1) {
     		if (Properties.MINIMIZE) {
     			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
     			LoggingUtils.getEvoLogger().info("* Minimizing result");
@@ -1417,7 +1417,7 @@ public class TestSuiteGenerator {
 		        + suite.totalLengthOfTestCases());
 
 		// Generate a test suite chromosome once all test cases are done?
-		if (Properties.MINIMIZE && Properties.MINIMIZE_OLD && Properties.CRITERION.length > 1) {
+		if (Properties.MINIMIZE && Properties.MINIMIZE_OLD && Properties.CRITERION.length == 1) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
 			logger.info("Size before: " + suite.totalLengthOfTestCases());
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories.get(0));
