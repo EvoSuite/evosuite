@@ -1,8 +1,9 @@
 package org.evosuite.ga.problems.metrics;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.evosuite.Properties;
 
@@ -18,7 +19,9 @@ public abstract class Metrics
         double[][] front = new double[Properties.POPULATION][2];
         int index = 0;
 
-        BufferedReader br = new BufferedReader(new FileReader(ClassLoader.getSystemResource(problemName).getPath()));
+        InputStream in = ClassLoader.getSystemResourceAsStream(problemName);
+        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
         String sCurrentLine;
         while ((sCurrentLine = br.readLine()) != null) {
             String[] split = sCurrentLine.split(",");
