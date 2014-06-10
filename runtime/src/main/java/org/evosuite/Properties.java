@@ -1116,7 +1116,8 @@ public class Properties {
 		RHO,
 		AMBIGUITY,
 		IBRANCH,
-		REGRESSION
+		REGRESSION,
+		READABILITY
 	}
 
 	/** Cache target class */
