@@ -191,32 +191,34 @@ public class TestSuiteMinimizer {
 				return;
 			}
 			logger.info("Considering goal: " + goal);
-			for (TestChromosome test : minimizedTests) {
-				if (isTimeoutReached()) {
-					logger.warn("Minimization timeout. Roll back to original test suite");
-					return;
-				}
-				if (goal.isCovered(test)) {
-					if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
-						StructuredTestCase structuredTest = (StructuredTestCase) test.getTestCase();
-						if (structuredTest.getTargetMethods().contains(goal.getTargetMethod())) {
-							logger.info("Covered by minimized test targeting "
-							        + structuredTest.getTargetMethods() + ": " + goal
-							        + " ");
+			if(Properties.MINIMIZE_SKIP_COINCIDENTAL) {
+				for (TestChromosome test : minimizedTests) {
+					if (isTimeoutReached()) {
+						logger.warn("Minimization timeout. Roll back to original test suite");
+						return;
+					}
+					if (goal.isCovered(test)) {
+						if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
+							StructuredTestCase structuredTest = (StructuredTestCase) test.getTestCase();
+							if (structuredTest.getTargetMethods().contains(goal.getTargetMethod())) {
+								logger.info("Covered by minimized test targeting "
+										+ structuredTest.getTargetMethods() + ": " + goal
+										+ " ");
+								covered.add(goal);
+								if (!branchGoals.contains(goal))
+									numCovered++;
+								structuredTest.addPrimaryGoal(goal);
+								break;
+							}
+
+						} else {
+							logger.info("Covered by minimized test: " + goal);
 							covered.add(goal);
 							if (!branchGoals.contains(goal))
 								numCovered++;
-							structuredTest.addPrimaryGoal(goal);
+							test.getTestCase().addCoveredGoal(goal);
 							break;
 						}
-
-					} else {
-						logger.info("Covered by minimized test: " + goal);
-						covered.add(goal);
-						if (!branchGoals.contains(goal))
-							numCovered++;
-						test.getTestCase().addCoveredGoal(goal);
-						break;
 					}
 				}
 			}
@@ -282,7 +284,9 @@ public class TestSuiteMinimizer {
 		
 		logger.info("Setting coverage to: "+suite.getCoverage());
 
-		removeRedundantTestCases(suite);
+		if(Properties.MINIMIZE_SECOND_PASS) {
+			removeRedundantTestCases(suite);
+		}
 
 		ClientState state = ClientState.MINIMIZATION;
 		ClientStateInformation information = new ClientStateInformation(state);
