@@ -80,8 +80,7 @@ public class SystemTest {
 		Properties.CLIENT_ON_THREAD = true;
 		Properties.SANDBOX = false;
 		Properties.ERROR_BRANCHES = false;
-		Properties.CRITERION = new Criterion[1];
-		Properties.CRITERION[0] = Criterion.BRANCH;
+		Properties.CRITERION = new Criterion[] { Criterion.BRANCH };
 
 		Properties.NEW_STATISTICS = true;
 		//Properties.OLD_STATISTICS = false;
