@@ -37,6 +37,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.seeding.CastClassManager;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
@@ -81,6 +82,18 @@ public class TestCluster {
 	private final static Map<GenericClass, Set<GenericAccessibleObject<?>>> modifiers = new LinkedHashMap<GenericClass, Set<GenericAccessibleObject<?>>>();
 
 	private static InheritanceTree inheritanceTree = null;
+
+    private final EnvironmentTestClusterAugmenter environmentAugmenter;
+
+    //-------------------------------------------------------------------
+
+    protected TestCluster(){
+        environmentAugmenter = new EnvironmentTestClusterAugmenter(this);
+    }
+
+    public void handleRuntimeAccesses(TestCase test) {
+        environmentAugmenter.handleRuntimeAccesses(test);
+    }
 
 	/**
 	 * @return the inheritancetree
