@@ -352,11 +352,13 @@ public class TestCaseExecutor implements ThreadFactory {
 			SystemInUtil.getInstance().initForTestCase();
 			
 			Sandbox.goingToExecuteSUTCode();
+            TestGenerationContext.getInstance().goingToExecuteSUTCode();
 			try {
 				result = handler.execute(callable, executor, timeout,
 				                         Properties.CPU_TIMEOUT);
 			} finally {
 				Sandbox.doneWithExecutingSUTCode();
+                TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 			}
 
 			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
