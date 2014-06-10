@@ -48,6 +48,7 @@ import org.evosuite.executionmode.PrintStats;
 import org.evosuite.executionmode.Setup;
 import org.evosuite.executionmode.TestGeneration;
 import org.evosuite.runtime.agent.ToolsJarLocator;
+import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.InheritanceTreeGenerator;
 import org.evosuite.utils.LoggingUtils;
@@ -151,7 +152,7 @@ public class EvoSuite {
 				 *
 				 * This throws an exception if not available
 				 */
-                ToolsJarLocator locator = new ToolsJarLocator();
+                ToolsJarLocator locator = new ToolsJarLocator(Properties.TOOLS_JAR_LOCATION);
                 locator.getLoaderForToolsJar();
                 if (locator.getLocationNotOnClasspath() != null) {
                     try {
@@ -219,6 +220,10 @@ public class EvoSuite {
 					 */
                     LoggingUtils.getEvoLogger().info("* Configuration: " + conf);
                 }
+            }
+
+            if(Properties.CLIENT_ON_THREAD){
+                MSecurityManager.setRunningClientOnThread(true);
             }
 
 

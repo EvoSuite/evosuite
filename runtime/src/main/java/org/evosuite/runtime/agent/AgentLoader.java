@@ -52,9 +52,14 @@ public class AgentLoader {
 
 		/*
 		 * We need to use reflection on a new instantiated ClassLoader because
-		 * we can make no assumption whatsoever on the class loader of AgentLoader 
+		 * we can make no assumption whatsoever on the class loader of AgentLoader
+		  *
+		  * TODO: it is likely that here, instead of null, we should access to an environment variable
+		  * to identify where tools.jar is.
+		  * This is because maybe there can be problems if tests generated on local machine are then
+		  * published on a remote Continuous Integration server
 		 */
-		ClassLoader toolLoader = new ToolsJarLocator().getLoaderForToolsJar();
+		ClassLoader toolLoader = new ToolsJarLocator(null).getLoaderForToolsJar();
 
 		logger.info("Classpath: "+System.getProperty("java.class.path"));
 

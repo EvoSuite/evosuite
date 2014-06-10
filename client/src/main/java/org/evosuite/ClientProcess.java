@@ -26,9 +26,11 @@ import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.MasterNodeRemote;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.AgentLoader;
 import org.evosuite.runtime.agent.ToolsJarLocator;
 import org.evosuite.runtime.sandbox.MSecurityManager;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -57,7 +59,9 @@ public class ClientProcess {
 	 */
 	public void run() {
 		Properties.getInstance();
-		
+        setupRuntimeProperties();
+        Sandbox.setCheckForInitialization(Properties.SANDBOX);
+
 		if(Properties.ENABLE_ASSERTS_FOR_EVOSUITE){
 			/*
 			 * TODO: We load the agent although we do not use it.
@@ -67,7 +71,7 @@ public class ClientProcess {
 			 */
 			AgentLoader.loadAgent();
 
-            ToolsJarLocator locator = new ToolsJarLocator();
+            ToolsJarLocator locator = new ToolsJarLocator(Properties.TOOLS_JAR_LOCATION);
             locator.getLoaderForToolsJar();
             if (locator.getLocationNotOnClasspath() != null) {
                 try {
@@ -105,6 +109,13 @@ public class ClientProcess {
 		ClientServices.getInstance().getClientNode().waitUntilDone();
 		ClientServices.getInstance().stopServices();
 	}
+
+    private static void setupRuntimeProperties(){
+        RuntimeSettings.useVFS = Properties.VIRTUAL_FS;
+        RuntimeSettings.mockJVMNonDeterminism = Properties.REPLACE_CALLS;
+        RuntimeSettings.mockSystemIn = Properties.REPLACE_SYSTEM_IN;
+        RuntimeSettings.sandboxMode = Properties.SANDBOX_MODE;
+    }
 
 	/**
 	 * <p>

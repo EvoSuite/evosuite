@@ -20,10 +20,7 @@
  */
 package org.evosuite.runtime;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 
-import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,13 +58,13 @@ public class Runtime {
 	public void resetRuntime() {
 
 
-		if (Properties.REPLACE_CALLS) {
+		if (RuntimeSettings.mockJVMNonDeterminism) {
 			Random.reset();
 			System.resetRuntime();
 			Thread.reset();
 		}
 
-		if (Properties.VIRTUAL_FS) {			
+		if (RuntimeSettings.useVFS) {
 			logger.debug("Resetting the VFS...");
 			VirtualFileSystem.getInstance().resetSingleton();
 			VirtualFileSystem.getInstance().init();
