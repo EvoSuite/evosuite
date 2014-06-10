@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.Properties;
-import org.evosuite.setup.TestCluster;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +44,6 @@ public class SystemInUtil extends InputStream{
 	 */
 	private volatile AtomicInteger counter;
 
-	/**
-	 * Need to add support function to EvoSuite search just once
-	 */
-	private boolean hasAddedSupport;
 
 	/**
 	 * This is needed to simulate blocking calls when there is 
@@ -78,7 +71,6 @@ public class SystemInUtil extends InputStream{
 	 */
 	public static synchronized void resetSingleton(){
 		singleton.beingUsed = false;	
-		singleton.hasAddedSupport = false;
 		singleton.data = new ArrayList<Byte>();
 		singleton.counter = new AtomicInteger(0);
 		singleton.endReached = false;
@@ -122,29 +114,6 @@ public class SystemInUtil extends InputStream{
 			singleton.endReached = false;
 		}
 	}
-
-	/**
-	 * If System.in was used, add methods to handle/simulate it
-	 */
-	public void addSupportInTestClusterIfNeeded(){
-		if(!beingUsed || hasAddedSupport){
-			return;
-		}
-
-		logger.debug("Going to add support for System.in");
-		hasAddedSupport = true;
-
-		try {
-			TestCluster.getInstance().addTestCall(new GenericMethod(
-					SystemInUtil.class.getMethod("addInputLine",new Class<?>[] { String.class }),
-					new GenericClass(SystemInUtil.class)));
-		} catch (SecurityException e) {
-			logger.error("Error while handling Random: "+e.getMessage(),e);
-		} catch (NoSuchMethodException e) {
-			logger.error("Error while handling Random: "+e.getMessage(),e);
-		}
-	}
-
 
 	@Override
 	public int read() throws IOException {
