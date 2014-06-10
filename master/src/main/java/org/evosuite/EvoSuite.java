@@ -1,22 +1,22 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite;
 
@@ -36,6 +36,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
+import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
@@ -58,237 +59,250 @@ import org.slf4j.LoggerFactory;
  * <p>
  * EvoSuite class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class EvoSuite {
 
-	static {
-		LoggingUtils.loadLogbackForEvoSuite();
-	}
+    static {
+        LoggingUtils.loadLogbackForEvoSuite();
+    }
 
-	private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
+    private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
 
-	private static String separator = System.getProperty("file.separator");
-	private static String javaHome = System.getProperty("java.home");
+    private static String separator = System.getProperty("file.separator");
+    private static String javaHome = System.getProperty("java.home");
 
-	/**
-	 * Constant
-	 * <code>JAVA_CMD="javaHome + separator + bin + separatorj"{trunked}</code>
-	 */
-	public final static String JAVA_CMD = javaHome + separator + "bin" + separator
-			+ "java";
+    /**
+     * Constant
+     * <code>JAVA_CMD="javaHome + separator + bin + separatorj"{trunked}</code>
+     */
+    public final static String JAVA_CMD = javaHome + separator + "bin" + separator
+            + "java";
 
-	public static String base_dir_path = System.getProperty("user.dir");
+    public static String base_dir_path = System.getProperty("user.dir");
 
-	public static String generateInheritanceTree(String cp) throws IOException {
-		LoggingUtils.getEvoLogger().info("* Analyzing classpath");
-		List<String> cpList = Arrays.asList(cp.split(File.pathSeparator));
-		// Clear current inheritance file to make sure a new one is generated
-		Properties.INHERITANCE_FILE = "";
-		InheritanceTree tree = InheritanceTreeGenerator.createFromClassPath(cpList);
-		File outputFile = File.createTempFile("ES_inheritancetree", ".xml.gz");
-		outputFile.deleteOnExit();
-		InheritanceTreeGenerator.writeInheritanceTree(tree, outputFile);
-		return outputFile.getAbsolutePath();
-	}
+    public static String generateInheritanceTree(String cp) throws IOException {
+        LoggingUtils.getEvoLogger().info("* Analyzing classpath");
+        List<String> cpList = Arrays.asList(cp.split(File.pathSeparator));
+        // Clear current inheritance file to make sure a new one is generated
+        Properties.INHERITANCE_FILE = "";
+        InheritanceTree tree = InheritanceTreeGenerator.createFromClassPath(cpList);
+        File outputFile = File.createTempFile("ES_inheritancetree", ".xml.gz");
+        outputFile.deleteOnExit();
+        InheritanceTreeGenerator.writeInheritanceTree(tree, outputFile);
+        return outputFile.getAbsolutePath();
+    }
 
-	private void setupProperties() {
-		if (base_dir_path.equals("")) {
-			Properties.getInstanceSilent();
-		} else {
-			Properties.getInstanceSilent().loadProperties(base_dir_path
-					+ separator
-					+ Properties.PROPERTIES_FILE,
-					true);
-		}
-	}
+    private void setupProperties() {
+        if (base_dir_path.equals("")) {
+            Properties.getInstanceSilent();
+        } else {
+            Properties.getInstanceSilent().loadProperties(base_dir_path
+                            + separator
+                            + Properties.PROPERTIES_FILE,
+                    true);
+        }
+    }
 
-	/**
-	 * <p>
-	 * parseCommandLine
-	 * </p>
-	 * 
-	 * @param args
-	 *            an array of {@link java.lang.String} objects.
-	 * @return a {@link java.lang.Object} object.
-	 */
-	public Object parseCommandLine(String[] args) {
-		Options options = CommandLineParameters.getCommandLineOptions();
+    /**
+     * <p>
+     * parseCommandLine
+     * </p>
+     *
+     * @param args an array of {@link java.lang.String} objects.
+     * @return a {@link java.lang.Object} object.
+     */
+    public Object parseCommandLine(String[] args) {
+        Options options = CommandLineParameters.getCommandLineOptions();
 
-		List<String> javaOpts = new ArrayList<String>();
+        List<String> javaOpts = new ArrayList<String>();
 
-		String version = EvoSuite.class.getPackage().getImplementationVersion();
-		if (version == null) {
-			version = "";
-		}
+        String version = EvoSuite.class.getPackage().getImplementationVersion();
+        if (version == null) {
+            version = "";
+        }
 
 
-		// create the parser
-		CommandLineParser parser = new GnuParser();
-		try {
-			// parse the command line arguments
-			CommandLine line = parser.parse(options, args);
+        // create the parser
+        CommandLineParser parser = new GnuParser();
+        try {
+            // parse the command line arguments
+            CommandLine line = parser.parse(options, args);
 
-			if (!line.hasOption(Setup.NAME)){
-				/*
+            if (!line.hasOption(Setup.NAME)) {
+                /*
 				 * -setup is treated specially because it uses the extra input arguments
 				 * 
 				 * TODO: Setup should be refactored/fixed
 				 */
-				String[] unrecognized = line.getArgs();
-				if(unrecognized.length > 0){
-					throw new IllegalArgumentException("There are "+unrecognized.length+" unrecognized inputs: "+Arrays.toString(unrecognized));
-				}
-			}
+                String[] unrecognized = line.getArgs();
+                if (unrecognized.length > 0) {
+                    throw new IllegalArgumentException("There are " + unrecognized.length + " unrecognized inputs: " + Arrays.toString(unrecognized));
+                }
+            }
 
-			setupProperties();
+            setupProperties();
 
-			if(Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS){
-				//TODO check if/why it is set here
+            if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
 				/*
+				 * if we need to activate JavaAgent (eg to handle environment in generated tests), we need
+				 * to be sure we can use tools.jar
+				 *
 				 * This throws an exception if not available
 				 */
-				ToolsJarLocator.getLoaderForToolsJar();
-			}
+                ToolsJarLocator locator = new ToolsJarLocator();
+                locator.getLoaderForToolsJar();
+                if (locator.getLocationNotOnClasspath() != null) {
+                    try {
+			            /*
+			             * it is important that tools.jar ends up in the classpath of the _system_ classloader,
+			             * otherwise exceptions in EvoSuite classes using tools.jar
+			             */
+                        logger.info("Using JDK libraries at: " + locator.getLocationNotOnClasspath());
+                        ClassPathHacker.addFile(locator.getLocationNotOnClasspath());  //FIXME needs refactoring
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to add " + locator.getLocationNotOnClasspath() + " to system classpath");
+                    }
+                }
+            }
 
 			/*
 			 * FIXME: every time in the Master we set a parameter with -D,
 			 * we should check if it actually exists (ie detect typos)
 			 */
 
-			CommandLineParameters.handleSeed(javaOpts, line);
+            CommandLineParameters.handleSeed(javaOpts, line);
 
-			CommandLineParameters.addJavaDOptions(javaOpts, line);
+            CommandLineParameters.addJavaDOptions(javaOpts, line);
 
-			CommandLineParameters.handleClassPath(line); 
+            CommandLineParameters.handleClassPath(line);
 
-			CommandLineParameters.handleJVMOptions(javaOpts, line);
+            CommandLineParameters.handleJVMOptions(javaOpts, line);
 
-			if (!line.hasOption("regressionSuite")) {
-				if (line.hasOption("criterion")) {
-					javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
-				}
-			} else {
-				javaOpts.add("-Dcriterion=regression");
-			}
+            if (!line.hasOption("regressionSuite")) {
+                if (line.hasOption("criterion")) {
+                    javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
+                }
+            } else {
+                javaOpts.add("-Dcriterion=regression");
+            }
 
-			if (line.hasOption("base_dir")) {
-				base_dir_path = line.getOptionValue("base_dir");
-				File baseDir = new File(base_dir_path);
-				if (!baseDir.exists()) {
-					LoggingUtils.getEvoLogger().error("Base directory does not exist: "
-							+ base_dir_path);
-					return null;
-				}
-				if (!baseDir.isDirectory()) {
-					LoggingUtils.getEvoLogger().error("Specified base directory is not a directory: "
-							+ base_dir_path);
-					return null;
-				}
-			}
+            if (line.hasOption("base_dir")) {
+                base_dir_path = line.getOptionValue("base_dir");
+                File baseDir = new File(base_dir_path);
+                if (!baseDir.exists()) {
+                    LoggingUtils.getEvoLogger().error("Base directory does not exist: "
+                            + base_dir_path);
+                    return null;
+                }
+                if (!baseDir.isDirectory()) {
+                    LoggingUtils.getEvoLogger().error("Specified base directory is not a directory: "
+                            + base_dir_path);
+                    return null;
+                }
+            }
 
-			CommandLineParameters.validateInputOptionsAndParameters(line);
+            CommandLineParameters.validateInputOptionsAndParameters(line);
 
 			/*
 			 * We shouldn't print when -listClasses, as we do not want to have
 			 * side effects (eg, important when using it in shell scripts)
 			 */
-			if (! line.hasOption(ListClasses.NAME)) {
-				LoggingUtils.getEvoLogger().info("* EvoSuite " + version);
-				
-				String conf = Properties.CONFIGURATION_ID;
-				if(conf!=null && !conf.isEmpty()){
+            if (!line.hasOption(ListClasses.NAME)) {
+                LoggingUtils.getEvoLogger().info("* EvoSuite " + version);
+
+                String conf = Properties.CONFIGURATION_ID;
+                if (conf != null && !conf.isEmpty()) {
 					/*
 					 * This is useful for debugging on cluster
 					 */
-					LoggingUtils.getEvoLogger().info("* Configuration: " + conf);
-				}
-			}
+                    LoggingUtils.getEvoLogger().info("* Configuration: " + conf);
+                }
+            }
 
 
 			/*
 			 * Following "options" are the actual (mutually exclusive) execution modes of EvoSuite
-			 */			
+			 */
 
-			if (line.hasOption(Help.NAME)) {
-				return Help.execute(options);
-			}
+            if (line.hasOption(Help.NAME)) {
+                return Help.execute(options);
+            }
 
-			if (line.hasOption(Setup.NAME)) {
-				return Setup.execute(javaOpts, line);
-			}
+            if (line.hasOption(Setup.NAME)) {
+                return Setup.execute(javaOpts, line);
+            }
 
-			if (line.hasOption(MeasureCoverage.NAME)) {
-				return MeasureCoverage.execute(options, javaOpts, line);
-			}
+            if (line.hasOption(MeasureCoverage.NAME)) {
+                return MeasureCoverage.execute(options, javaOpts, line);
+            }
 
-			if (line.hasOption(ListClasses.NAME)) {
-				return ListClasses.execute(options, line);
-			}
+            if (line.hasOption(ListClasses.NAME)) {
+                return ListClasses.execute(options, line);
+            }
 
-			if(line.hasOption(WriteDependencies.NAME)) {
-				return WriteDependencies.execute(options, javaOpts, line);
-			}
+            if (line.hasOption(WriteDependencies.NAME)) {
+                return WriteDependencies.execute(options, javaOpts, line);
+            }
 
-			if (line.hasOption(PrintStats.NAME)) {
-				return PrintStats.execute(options, javaOpts, line);
-			}
+            if (line.hasOption(PrintStats.NAME)) {
+                return PrintStats.execute(options, javaOpts, line);
+            }
 
-			if (line.hasOption(ListParameters.NAME)) {
-				return ListParameters.execute();
-			}
+            if (line.hasOption(ListParameters.NAME)) {
+                return ListParameters.execute();
+            }
 
-			if(line.hasOption(Continuous.NAME)){
-				return Continuous.execute(options, javaOpts, line);
-			}
+            if (line.hasOption(Continuous.NAME)) {
+                return Continuous.execute(options, javaOpts, line);
+            }
 
-			return TestGeneration.executeTestGeneration(options, javaOpts, line);
+            return TestGeneration.executeTestGeneration(options, javaOpts, line);
 
-		} catch (ParseException exp) {
-			// oops, something went wrong
-			logger.error("Parsing failed.  Reason: " + exp.getMessage()); 
-			// automatically generate the help statement
-			Help.execute(options);
-		}
+        } catch (ParseException exp) {
+            // oops, something went wrong
+            logger.error("Parsing failed.  Reason: " + exp.getMessage());
+            // automatically generate the help statement
+            Help.execute(options);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	
-	public static boolean hasLegacyTargets() {
-		File directory = new File(Properties.OUTPUT_DIR);
-		if (!directory.exists()) {
-			return false;
-		}
-		String[] extensions = { "task" };
-		return !FileUtils.listFiles(directory, extensions, false).isEmpty();
-	}
 
-	/**
-	 * <p>
-	 * main
-	 * </p>
-	 * 
-	 * @param args
-	 *            an array of {@link java.lang.String} objects.
-	 */
-	public static void main(String[] args) {
+    public static boolean hasLegacyTargets() {
+        File directory = new File(Properties.OUTPUT_DIR);
+        if (!directory.exists()) {
+            return false;
+        }
+        String[] extensions = {"task"};
+        return !FileUtils.listFiles(directory, extensions, false).isEmpty();
+    }
 
-		try {
-			EvoSuite evosuite = new EvoSuite();
-			evosuite.parseCommandLine(args);
-		} catch (Throwable t) {
-			logger.error("Fatal crash on main EvoSuite process. Class "
-					+ Properties.TARGET_CLASS + " using seed " + Randomness.getSeed()
-					+ ". Configuration id : " + Properties.CONFIGURATION_ID, t);
-			System.exit(-1);
-		}
+    /**
+     * <p>
+     * main
+     * </p>
+     *
+     * @param args an array of {@link java.lang.String} objects.
+     */
+    public static void main(String[] args) {
+
+        try {
+            EvoSuite evosuite = new EvoSuite();
+            evosuite.parseCommandLine(args);
+        } catch (Throwable t) {
+            logger.error("Fatal crash on main EvoSuite process. Class "
+                    + Properties.TARGET_CLASS + " using seed " + Randomness.getSeed()
+                    + ". Configuration id : " + Properties.CONFIGURATION_ID, t);
+            System.exit(-1);
+        }
 
 		/*
 		 * Some threads could still be running, so we need to kill the process explicitly
 		 */
-		System.exit(0);
-	}
+        System.exit(0);
+    }
 
 }

@@ -54,15 +54,11 @@ public class AgentLoader {
 		 * We need to use reflection on a new instantiated ClassLoader because
 		 * we can make no assumption whatsoever on the class loader of AgentLoader 
 		 */
-		ClassLoader toolLoader = ToolsJarLocator.getLoaderForToolsJar();		
+		ClassLoader toolLoader = new ToolsJarLocator().getLoaderForToolsJar();
 
-
-		logger.info("System classloader class: "+ClassLoader.getSystemClassLoader().getClass()); //TODO remove
 		logger.info("Classpath: "+System.getProperty("java.class.path"));
 
 		try {
-			//ClassPathHacker.addFile(jarFilePath); //FIXME should check if already there and why it failed to get the default one
-
 			Class<?> string = toolLoader.loadClass("java.lang.String");
 
 			Class<?> clazz = toolLoader.loadClass("com.sun.tools.attach.VirtualMachine");
