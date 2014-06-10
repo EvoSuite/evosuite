@@ -43,6 +43,7 @@ public class ClassStatisticsPrinter {
 	 */
 	public static void printClassStatistics() {
 		Sandbox.goingToExecuteSUTCode();
+        TestGenerationContext.getInstance().goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
 			// Load SUT without initialising it
@@ -62,6 +63,7 @@ public class ClassStatisticsPrinter {
 		} finally {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
+            TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 		}
 		Properties.Criterion[] backup = Properties.CRITERION;
 		for (Properties.Criterion criterion : criteria) {

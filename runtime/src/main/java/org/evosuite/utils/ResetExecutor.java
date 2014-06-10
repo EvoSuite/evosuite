@@ -83,11 +83,13 @@ public class ResetExecutor {
 				confirmedResettableClasses.add(className);
 				//execute __STATIC_RESET()
 				Sandbox.goingToExecuteSUTCode();
+                TestGenerationContext.getInstance().goingToExecuteSUTCode();
 
 				Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
 				resetMethod.invoke(null, (Object[]) null);
 				
 				Sandbox.doneWithExecutingSUTCode();
+                TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 
 			}
 		} catch (SecurityException e) {

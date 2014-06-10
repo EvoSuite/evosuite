@@ -20,7 +20,6 @@ package org.evosuite.runtime.sandbox;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,8 +117,6 @@ public class Sandbox {
 		}
 		manager.goingToExecuteTestCase();
 		PermissionStatistics.getInstance().getAndResetExceptionInfo();
-		
-		TestGenerationContext.getInstance().goingToExecuteSUTCode();
 	}
 
 	public static void doneWithExecutingSUTCode() {
@@ -130,7 +127,6 @@ public class Sandbox {
 			return;
 		}
 		manager.goingToEndTestCase();
-		TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 	}
 
 	public static void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException,
