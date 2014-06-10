@@ -27,6 +27,7 @@ public class EnvironmentTestClusterAugmenter {
     private volatile boolean hasAddedRandom;
     private volatile boolean hasAddedSystem;
     private volatile boolean hasAddedFiles;
+    private volatile boolean hasAddedSystemIn;
 
     private final TestCluster cluster;
 
@@ -57,7 +58,30 @@ public class EnvironmentTestClusterAugmenter {
             handleVirtualFS(test);
         }
 
-        SystemInUtil.getInstance().addSupportInTestClusterIfNeeded();
+        if(Properties.REPLACE_SYSTEM_IN){
+            handleSystemIn();
+        }
+
+
+    }
+
+    /**
+     * If System.in was used, add methods to handle/simulate it
+     */
+    private void handleSystemIn(){
+        if(!hasAddedSystemIn && SystemInUtil.getInstance().hasBeenUsed()){
+            hasAddedSystemIn = true;
+
+            try {
+                TestCluster.getInstance().addTestCall(new GenericMethod(
+                        SystemInUtil.class.getMethod("addInputLine",new Class<?>[] { String.class }),
+                        new GenericClass(SystemInUtil.class)));
+            } catch (SecurityException e) {
+                logger.error("Error while handling Random: "+e.getMessage(),e);
+            } catch (NoSuchMethodException e) {
+                logger.error("Error while handling Random: "+e.getMessage(),e);
+            }
+        }
     }
 
 
