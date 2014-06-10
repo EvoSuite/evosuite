@@ -251,7 +251,7 @@ public class TestSuiteGenerator {
 
 		List<TestSuiteChromosome> testCases = generateTests();
         ClientServices.getInstance().getClientNode().publishPermissionStatistics();
-		PermissionStatistics.getInstance().printStatistics();
+		PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
 		
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
 		List<TestGenerationResult> results = writeJUnitTestsAndCreateResult(testCases);
