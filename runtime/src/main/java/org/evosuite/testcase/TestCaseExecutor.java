@@ -101,6 +101,11 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public volatile int threadCounter;
 
+
+    static{
+        PermissionStatistics.getInstance().setThreadGroupToMonitor(TEST_EXECUTION_THREAD);
+    }
+
 	/**
 	 * <p>
 	 * Getter for the field <code>instance</code>.

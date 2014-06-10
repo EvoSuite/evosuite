@@ -24,10 +24,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import org.evosuite.Properties;
-import org.evosuite.setup.TestCluster;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
