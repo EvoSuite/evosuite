@@ -5,7 +5,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,13 @@ public class ToolsJarLocator {
 
     private String locationNotOnClasspath;
 
-	/**
+    private String manuallySpecifiedToolLocation;
+
+    public ToolsJarLocator(String manuallySpecifiedToolLocation) {
+        this.manuallySpecifiedToolLocation = manuallySpecifiedToolLocation;
+    }
+
+    /**
 	 * Try to locate tools.jar and return a classloader for it
 	 * 
 	 * @throws RuntimeException  if it was not possible to locate/load tools.jar
@@ -44,7 +49,7 @@ public class ToolsJarLocator {
 			//OK, it is missing, so lets try to locate it
 		}
 		
-		if(Properties.TOOLS_JAR_LOCATION != null){
+		if(manuallySpecifiedToolLocation != null){
 			//if defined, then use it, and throws exception if it is not valid
 			return considerPathInProperties();
 		}
@@ -67,11 +72,11 @@ public class ToolsJarLocator {
 	}
 
 	private  ClassLoader considerPathInProperties() {
-		if(!Properties.TOOLS_JAR_LOCATION.endsWith(".jar")){
-			throw new RuntimeException("Property tools_jar_location does not point to a jar file: "+Properties.TOOLS_JAR_LOCATION);
+		if(manuallySpecifiedToolLocation.endsWith(".jar")){
+			throw new RuntimeException("Property tools_jar_location does not point to a jar file: "+manuallySpecifiedToolLocation);
 		}
 
-		return validateAndGetLoader(Properties.TOOLS_JAR_LOCATION);		
+		return validateAndGetLoader(manuallySpecifiedToolLocation);
 	}
 
 	private  ClassLoader validateAndGetLoader(String location) {

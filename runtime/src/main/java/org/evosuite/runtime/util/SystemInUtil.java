@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.evosuite.Properties;
+import org.evosuite.runtime.RuntimeSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +84,7 @@ public class SystemInUtil extends InputStream{
 		data = new ArrayList<Byte>();
 		counter = new AtomicInteger(0);
 		endReached = false;
-		if(Properties.REPLACE_SYSTEM_IN){
+		if(RuntimeSettings.mockSystemIn){
 			System.setIn(this);
 		}
 	}

@@ -19,7 +19,7 @@ package org.evosuite.runtime.sandbox;
 
 import java.util.Set;
 
-import org.evosuite.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +29,10 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Sandbox {
+
+    public static enum SandboxMode {
+        OFF, RECOMMENDED, IO
+    }
 
 	private static Logger logger = LoggerFactory.getLogger(Sandbox.class);
 
@@ -44,8 +48,14 @@ public class Sandbox {
 	 * are stable, etc), and those test cases do init/reset the sandbox
 	 */
 	private static volatile int counter;
-	
-	/**
+
+    private static boolean checkForInitialization = false;
+
+    public static void setCheckForInitialization(boolean checkForInitialization) {
+        Sandbox.checkForInitialization = checkForInitialization;
+    }
+
+    /**
 	 * Create and initialize security manager for SUT
 	 */
 	public static synchronized void initializeSecurityManagerForSUT(Set<Thread> privileged) {
@@ -110,7 +120,7 @@ public class Sandbox {
 
 	public static void goingToExecuteSUTCode() {
 		if (!isSecurityManagerInitialized()) {
-			if(Properties.SANDBOX){
+			if(checkForInitialization){
 				logger.error("Sandbox is not initialized!");
 			}
 			return;
@@ -121,7 +131,7 @@ public class Sandbox {
 
 	public static void doneWithExecutingSUTCode() {
 		if (!isSecurityManagerInitialized()) {
-			if(Properties.SANDBOX){
+			if(checkForInitialization){
 				logger.error("Sandbox is not initialized!");
 			}
 			return;
