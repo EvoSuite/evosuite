@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.instrumentation;
+package org.evosuite.runtime.instrumentation;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.LabelNode;

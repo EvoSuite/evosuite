@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.instrumentation;
+package org.evosuite.runtime.instrumentation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -28,8 +28,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.Properties;
+
 import org.evosuite.runtime.MockList;
+import org.evosuite.runtime.RuntimeSettings;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -183,7 +184,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		if (methodName.equals("<init>")) {
 			needToWaitForSuperConstructor = true;
 		}
-		if (Properties.REPLACE_CALLS) {
+		if (RuntimeSettings.mockJVMNonDeterminism) {
 
 			//java.lang.*
 			addJavaLangCalls();
