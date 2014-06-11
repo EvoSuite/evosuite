@@ -131,7 +131,7 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 	}
 	
 	public static void copyFile(String name) {
-		URL systemResource = ClassLoader.getSystemResource("report/" + name);
+		URL systemResource = ClassLoader.getSystemResource("src/main/resources/report/" + name);
 		logger.debug("Copying from resource: " + systemResource);
 		copyFile(systemResource, new File(getReportDir(), "files/" + name));
 		copyFile(systemResource, new File(getReportDir().getAbsolutePath()
