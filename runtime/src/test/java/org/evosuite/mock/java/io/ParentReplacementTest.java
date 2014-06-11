@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.junit.After;
 import org.junit.Before;
@@ -20,6 +21,7 @@ public class ParentReplacementTest {
 	
 	@After
 	public void reset(){
+		RuntimeSettings.useVFS = USING_VFS;
 		Properties.VIRTUAL_FS = USING_VFS;
 	}
 	
@@ -31,6 +33,7 @@ public class ParentReplacementTest {
 	@Test
 	public void testNoVFS() throws ClassNotFoundException{
 		
+		RuntimeSettings.useVFS = false;
 		Properties.VIRTUAL_FS = false;
 		InstrumentingClassLoader cl = new InstrumentingClassLoader();
 		Class<?> clazz = cl.loadClass(ExtendingFile.class.getCanonicalName());
@@ -42,6 +45,7 @@ public class ParentReplacementTest {
 	@Test
 	public void testWithVFS() throws ClassNotFoundException{
 		
+		RuntimeSettings.useVFS = true;
 		Properties.VIRTUAL_FS = true;
 		InstrumentingClassLoader cl = new InstrumentingClassLoader();
 		Class<?> clazz = cl.loadClass(ExtendingFile.class.getCanonicalName());
