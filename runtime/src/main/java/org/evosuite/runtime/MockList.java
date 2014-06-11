@@ -3,7 +3,7 @@ package org.evosuite.runtime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.Properties;
+
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.evosuite.runtime.mock.java.io.MockFileInputStream;
 import org.evosuite.runtime.mock.java.io.MockFileOutputStream;
@@ -49,7 +49,7 @@ public class MockList {
 		
 		List<Class<?>>  list = new ArrayList<Class<?>>();
 		
-		if(Properties.VIRTUAL_FS){
+		if(RuntimeSettings.useVFS){
 			list.add(MockFile.class);
 			list.add(MockFileInputStream.class);
 			list.add(MockFileOutputStream.class);
@@ -63,7 +63,7 @@ public class MockList {
 			list.add(MockFileSystemView.class);
 		}
 		
-		if(Properties.REPLACE_CALLS) {
+		if(RuntimeSettings.mockJVMNonDeterminism) {
 			list.add(MockDate.class);
 			list.add(MockRandom.class);
 			list.add(MockGregorianCalendar.class);

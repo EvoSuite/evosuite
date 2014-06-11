@@ -29,9 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.TestCaseExecutor;
-import org.evosuite.utils.LoggingUtils;
+import org.slf4j.Logger;
 
 /**
  * <p>
@@ -68,6 +66,8 @@ public class PermissionStatistics {
 
 	private boolean hasNewExceptions = false;
 
+
+    private String threadGroupToMonitor;
   
 
     // Private constructor
@@ -434,12 +434,12 @@ public class PermissionStatistics {
 	 * printStatistics
 	 * </p>
 	 */
-	public void printStatistics() {
+	public void printStatistics(Logger inputLog) {
         forcePermissionInit();
 		if (hasDeniedPermissions()) {
-			LoggingUtils.getEvoLogger().info("* Permissions denied during test execution: ");
+            inputLog.info("* Permissions denied during test execution: ");
 			for (String name : deniedCount.keySet()) {
-				LoggingUtils.getEvoLogger().info("  - " + name + ": ");
+                inputLog.info("  - " + name + ": ");
 
 				/*
 				 * We don't want to print all the exceptions if they are too many
@@ -449,10 +449,10 @@ public class PermissionStatistics {
 				int total = deniedCount.get(name).keySet().size();
 				boolean printAll = (total <= MAX_TO_PRINT);
 				for (String type : deniedCount.get(name).keySet()) {
-					LoggingUtils.getEvoLogger().info("         "
-					                                         + type
-					                                         + ": "
-					                                         + deniedCount.get(name).get(type));
+                    inputLog.info("         "
+                            + type
+                            + ": "
+                            + deniedCount.get(name).get(type));
 					counter++;
 					if (!printAll && counter >= (MAX_TO_PRINT - 1)) {
 						break;
@@ -460,9 +460,9 @@ public class PermissionStatistics {
 				}
 				int remaining = total - counter;
 				if (remaining > 1) {
-					LoggingUtils.getEvoLogger().info("         and other "
-					                                         + remaining
-					                                         + " cases of action/name for this exception class");
+                    inputLog.info("         and other "
+                            + remaining
+                            + " cases of action/name for this exception class");
 				}
 			}
 		}
@@ -504,7 +504,7 @@ public class PermissionStatistics {
 	 *            a int.
 	 */
 	public void countThreads(int numThreads) {
-		if(Thread.currentThread().getThreadGroup().getName().equals(TestCaseExecutor.TEST_EXECUTION_THREAD_GROUP)){
+		if(threadGroupToMonitor!=null && Thread.currentThread().getThreadGroup().getName().equals(threadGroupToMonitor)){
 			maxThreads = Math.max(maxThreads, numThreads);
 		}
 	}
@@ -527,5 +527,9 @@ public class PermissionStatistics {
 		}
 		return false;
 	}
+
+    public void setThreadGroupToMonitor(String threadGroupToMonitor) {
+        this.threadGroupToMonitor = threadGroupToMonitor;
+    }
 
 }

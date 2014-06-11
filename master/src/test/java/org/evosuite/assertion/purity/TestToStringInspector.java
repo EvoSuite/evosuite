@@ -54,6 +54,7 @@ public class TestToStringInspector extends SystemTest {
 
 		String targetClass = ToStringInspector.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 

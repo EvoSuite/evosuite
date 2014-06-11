@@ -37,6 +37,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.runtime.Runtime;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.ResetExecutor;
 import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
@@ -99,6 +100,11 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * Used when we spawn a new thread to give a unique name
 	 */
 	public volatile int threadCounter;
+
+
+    static{
+        PermissionStatistics.getInstance().setThreadGroupToMonitor(TEST_EXECUTION_THREAD);
+    }
 
 	/**
 	 * <p>
@@ -346,11 +352,13 @@ public class TestCaseExecutor implements ThreadFactory {
 			SystemInUtil.getInstance().initForTestCase();
 			
 			Sandbox.goingToExecuteSUTCode();
+            TestGenerationContext.getInstance().goingToExecuteSUTCode();
 			try {
 				result = handler.execute(callable, executor, timeout,
 				                         Properties.CPU_TIMEOUT);
 			} finally {
 				Sandbox.doneWithExecutingSUTCode();
+                TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 			}
 
 			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
@@ -493,8 +501,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			return result;
 		} finally {
 			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
-			Runtime.getInstance().handleRuntimeAccesses(tc);
-			SystemInUtil.getInstance().addSupportInTestClusterIfNeeded();
+			TestCluster.getInstance().handleRuntimeAccesses(tc);
 		}
 	}
 

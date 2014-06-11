@@ -6,6 +6,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.junit.*;
 
@@ -36,6 +37,7 @@ public class SandboxFromJUnitTest {
 	@Before
 	public void initTest(){		
 		Sandbox.goingToExecuteSUTCode();
+        TestGenerationContext.getInstance().goingToExecuteSUTCode();
 	}
 	
 	@After

@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.TimeController;
 import org.evosuite.classpath.ClassPathHandler;
@@ -394,6 +395,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 			public void run() {
 				changeState(ClientState.STARTED);
 				Sandbox.goingToExecuteSUTCode();
+                TestGenerationContext.getInstance().goingToExecuteSUTCode();
 				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 
 				try {
@@ -415,6 +417,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 				} finally {
 					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 					Sandbox.doneWithExecutingSUTCode();
+                    TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 				}
 
 				changeState(ClientState.DONE);

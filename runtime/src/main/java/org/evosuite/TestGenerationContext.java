@@ -61,17 +61,21 @@ public class TestGenerationContext {
 		return singleton;
 	}
 
-	public void goingToExecuteSUTCode(){
-		/*
+    /**
 		 * This is pretty important if the SUT use classloader of the running thread.
 		 * If we do not set this up, we will end up with cast exceptions.
-		 * 
+		 *
+     * <p>
 		 * Note, an example in which this happens is in
-		 * 
+		 *
+     * <p>
 		 * org.dom4j.bean.BeanAttribute
-		 * 
+		 *
+     * <p>
 		 * in SF100 project 62_dom4j
-		 */		
+		 */
+    public void goingToExecuteSUTCode(){
+
 		Thread.currentThread().setContextClassLoader(classLoader);
 	}
 	
