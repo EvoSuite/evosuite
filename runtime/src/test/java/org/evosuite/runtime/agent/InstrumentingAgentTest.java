@@ -1,4 +1,4 @@
-package org.evosuite.agent;
+package org.evosuite.runtime.agent;
 
 import org.junit.Assert;
 
@@ -13,6 +13,13 @@ import org.junit.Test;
 import com.examples.with.different.packagename.agent.TimeA;
 import com.examples.with.different.packagename.agent.TimeB;
 
+/**
+ * FIXME: this should really be run as an integration test, as it requires
+ * the creation of the jar file first
+ * 
+ * @author arcuri
+ *
+ */
 public class InstrumentingAgentTest {
 
 	private final boolean replaceCalls = RuntimeSettings.mockJVMNonDeterminism;
