@@ -101,7 +101,7 @@ public class AgentLoader {
 		
 		String name = file.getName();
 
-		if(name.toLowerCase().contains("evosuite") && name.endsWith(".jar")){			
+		if(name.toLowerCase().contains("evosuite") && name.endsWith(".jar")){
 			try (JarFile jar = new JarFile(file);){
 				Manifest manifest = jar.getManifest();
 				if(manifest == null){
@@ -159,8 +159,9 @@ public class AgentLoader {
 		if(jarFilePath==null){
 			/*
 			 * nothing seems to work, so try .m2 folder
-			 */    			
-			jarFilePath = searchInM2();    			
+			 */
+			//this can really mess up things
+			//jarFilePath = searchInM2();    			
 		}
 
 		return jarFilePath; 
@@ -202,6 +203,7 @@ public class AgentLoader {
 		return null;
 	}
 
+	@Deprecated
 	private static String searchInM2() {
 
 		File home = new File(System.getProperty("user.home"));
