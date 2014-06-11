@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -35,6 +36,7 @@ import java.util.jar.JarFile;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -244,7 +246,15 @@ public class ResourceList {
 		return isClassAnInterface(input);
 	}
 
-
+	public static boolean isClassDeprecated(String className) throws IOException {
+		InputStream input = getClassAsStream(className);		
+		return isClassDeprecated(input);
+	}
+	
+	public static boolean isClassTestable(String className) throws IOException {
+		InputStream input = getClassAsStream(className);		
+		return isClassTestable(input);
+	}
 
 	/**
 	 * <p>
@@ -289,6 +299,49 @@ public class ResourceList {
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES);		
 			return (cn.access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE;
+		} finally{
+			input.close(); //VERY IMPORTANT, as ASM does not close the stream
+		}
+	}
+
+	/**
+	 * Returns {@code true} if the class is deprecated; returns {@code false} otherwise.
+	 * 
+	 * @param input the input stream
+	 * @return {@code true} if the class is deprecated, {@code false} otherwise
+	 * @throws IOException if an error occurs while reading the input stream
+	 */
+
+	private static boolean isClassDeprecated(InputStream input) throws IOException{
+		try{
+			ClassReader reader = new ClassReader(input);
+			ClassNode cn = new ClassNode();
+			reader.accept(cn, ClassReader.SKIP_FRAMES);		
+			return (cn.access & Opcodes.ACC_DEPRECATED) == Opcodes.ACC_DEPRECATED;
+		} finally{
+			input.close(); //VERY IMPORTANT, as ASM does not close the stream
+		}
+	}
+	
+	/**
+	 * Returns {@code true} if there is at least one public method in the class; returns {@code false} otherwise.
+	 * 
+	 * @param input the input stream
+	 * @return {@code true} if there is at least one public method in the class, {@code false} otherwise
+	 * @throws IOException if an error occurs while reading the input stream
+	 */
+	private static boolean isClassTestable(InputStream input) throws IOException{
+		try{
+			ClassReader reader = new ClassReader(input);
+			ClassNode cn = new ClassNode();
+			reader.accept(cn, ClassReader.SKIP_FRAMES);
+			List<MethodNode> l = cn.methods; 
+			for (MethodNode m : l) {
+				if ((m.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
+					return true;
+		        }
+			}
+			return false;
 		} finally{
 			input.close(); //VERY IMPORTANT, as ASM does not close the stream
 		}
