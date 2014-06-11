@@ -2,7 +2,7 @@ package org.evosuite.runtime.vfs;
 
 import java.io.File;
 
-import org.evosuite.Properties;
+import org.evosuite.runtime.RuntimeSettings;
 
 /**
  * Parent class for both files and folders
@@ -54,7 +54,7 @@ public abstract class FSObject {
 	}
 
 	protected long getCurrentTimeMillis(){
-		if(Properties.REPLACE_CALLS){
+		if(RuntimeSettings.mockJVMNonDeterminism){
 			return org.evosuite.runtime.System.getCurrentTimeMillisForVFS();
 		} else {
 			return java.lang.System.currentTimeMillis();

@@ -52,9 +52,8 @@ import javax.security.auth.kerberos.ServicePermission;
 import javax.sound.sampled.AudioPermission;
 import javax.xml.ws.WebServicePermission;
 
-import org.evosuite.Properties;
-import org.evosuite.Properties.SandboxMode;
-import org.evosuite.rmi.service.MasterNodeRemote;
+
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.VirtualFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +152,9 @@ public class MSecurityManager extends SecurityManager {
 	 * This is used to allow RMI communications even on non-privileged threads,
 	 * but only if coming from EvoSuite (and not from SUT)
 	 */
-	private final Set<String> masterNodeRemoteMethodNames;
+	private static Set<String> masterNodeRemoteMethodNames;
+
+    private static boolean runningClientOnThread = false;
 
 	/**
 	 * It can happen that EvoSuite encounters permissions it does not recognize.
@@ -175,15 +176,23 @@ public class MSecurityManager extends SecurityManager {
 		privilegedThreadToIgnore = null;
 		unrecognizedPermissions = new CopyOnWriteArraySet<Permission>();
 
-		Method[] methods = MasterNodeRemote.class.getMethods();
-		Set<String> names = new HashSet<String>();
-		for(Method m : methods){
-			names.add(m.getName());
-		}
-		masterNodeRemoteMethodNames = Collections.unmodifiableSet(names);
-
 		filesToDelete = new CopyOnWriteArraySet<File>();
 	}
+
+    /**
+     * We need to use reflection to avoid the runtime module to have a dependency
+     * on MasterNodeRemote
+     *
+     * @param remoteNode
+     */
+    public static void setupMasterNodeRemoteHandling(Class<?> remoteNode){
+        Method[] methods = remoteNode.getMethods();
+        Set<String> names = new HashSet<String>();
+        for(Method m : methods){
+            names.add(m.getName());
+        }
+        masterNodeRemoteMethodNames = Collections.unmodifiableSet(names);
+    }
 
 	public Set<Thread> getPriviledThreads(){
 		Set<Thread> set = new LinkedHashSet<Thread>();
@@ -191,7 +200,11 @@ public class MSecurityManager extends SecurityManager {
 		return set;
 	}
 
-	/**
+    public static void setRunningClientOnThread(boolean runningClientOnThread) {
+        MSecurityManager.runningClientOnThread = runningClientOnThread;
+    }
+
+    /**
 	 * This security manager creates one file when its class is loaded.
 	 * This file will be used for example by the virtual file system.
 	 * The file has to be created here, because creating new files 
@@ -420,7 +433,7 @@ public class MSecurityManager extends SecurityManager {
 	 */
 	private boolean allowPermission(Permission perm) {
 
-		if (Properties.SANDBOX_MODE.equals(SandboxMode.OFF)) {
+		if (RuntimeSettings.sandboxMode.equals(Sandbox.SandboxMode.OFF)) {
 			/*
 			 * allow everything
 			 */
@@ -460,7 +473,7 @@ public class MSecurityManager extends SecurityManager {
 			}
 		}
 
-		if (Properties.SANDBOX_MODE.equals(SandboxMode.IO)) {
+		if (RuntimeSettings.sandboxMode.equals(Sandbox.SandboxMode.IO)) {
 			PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
 
 			if (perm instanceof FilePermission) {
@@ -697,7 +710,7 @@ public class MSecurityManager extends SecurityManager {
 		 * this is particularly true as we do have RMI in the Master as well, which usually
 		 * would run without a sandbox
 		 */
-		if(Properties.CLIENT_ON_THREAD && Thread.currentThread().getName().startsWith("RMI TCP")){
+		if(runningClientOnThread && Thread.currentThread().getName().startsWith("RMI TCP")){
 			return true;
 		}
 		
@@ -1134,7 +1147,7 @@ public class MSecurityManager extends SecurityManager {
 			return true;
 		}
 
-		if(Properties.VIRTUAL_FS){  
+		if(RuntimeSettings.useVFS){
 
 			//we need at least one real file with all permissions, otherwise the VFS will not work
 			boolean isTmpFile = fp.getName().equals(VirtualFileSystem.getInstance().getRealTmpFile().getPath());
