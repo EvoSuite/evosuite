@@ -50,6 +50,7 @@ import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.reset.ClassResetter;
 import org.evosuite.runtime.reset.ResetManager;
@@ -412,7 +413,7 @@ public class TestSuiteWriter implements Opcodes {
 			//Add import info for EvoSuite classes used in the generated test suite
 			imports_sorted.add(Sandbox.class.getCanonicalName());
 			// imports_sorted.add(Properties.class.getCanonicalName());
-			imports_sorted.add(Properties.SandboxMode.class.getCanonicalName());
+			imports_sorted.add(Sandbox.SandboxMode.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.Executors.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.Future.class.getCanonicalName());
@@ -978,18 +979,30 @@ public class TestSuiteWriter implements Opcodes {
 
 			if (Properties.REPLACE_CALLS) {
 				bd.append(BLOCK_SPACE);
-				bd.append(Properties.class.getName()+".REPLACE_CALLS = true; \n");
+				bd.append(RuntimeSettings.class.getName()+".mockJVMNonDeterminism = true; \n");
 			}
 
-			if (Properties.VIRTUAL_FS) {
-				bd.append(BLOCK_SPACE);
-				bd.append(Properties.class.getName()+".VIRTUAL_FS = true; \n");
-			}
+            if (Properties.VIRTUAL_FS) {
+                bd.append(BLOCK_SPACE);
+                bd.append(RuntimeSettings.class.getName()+".useVFS = true; \n");
+            }
 
-			if (Properties.RESET_STATIC_FIELDS) {
+            if (Properties.REPLACE_SYSTEM_IN) {
+                bd.append(BLOCK_SPACE);
+                bd.append(RuntimeSettings.class.getName()+".mockSystemIn = true; \n");
+            }
+
+            /*
+            Note: this one does not seem to be used inside prg.evosuite.runtime.*
+            If it is needed, it should be added to RuntimeSettings
+
+            if (Properties.RESET_STATIC_FIELDS) {
 				bd.append(BLOCK_SPACE);
 				bd.append(Properties.class.getName()+".RESET_STATIC_FIELDS = true; \n");
 			}
+            */
+
+            //TODO sanbox mode?
 
 			bd.append(BLOCK_SPACE);
 			bd.append(InstrumentingAgent.class.getName()+".initialize(); \n");

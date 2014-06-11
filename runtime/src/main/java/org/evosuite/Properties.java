@@ -36,6 +36,7 @@ import java.util.Set;
 
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
@@ -842,13 +843,9 @@ public class Properties {
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
 	public static boolean SANDBOX = true;
 
-	public enum SandboxMode {
-		OFF, RECOMMENDED, IO
-	}
-
 	/** Constant <code>SANDBOX=false</code> */
 	@Parameter(key = "sandbox_mode", group = "Sandbox", description = "Mode in which the sandbox is applied")
-	public static SandboxMode SANDBOX_MODE = SandboxMode.RECOMMENDED;
+	public static Sandbox.SandboxMode SANDBOX_MODE = Sandbox.SandboxMode.RECOMMENDED;
 
 	@Parameter(key = "filter_sandbox_tests", group = "Sandbox", description = "Drop tests that require the sandbox")
 	public static boolean FILTER_SANDBOX_TESTS = false;

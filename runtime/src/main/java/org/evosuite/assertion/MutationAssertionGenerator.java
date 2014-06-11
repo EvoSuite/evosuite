@@ -174,6 +174,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		        && !ArrayUtil.contains(oldCriterion, Criterion.STRONGMUTATION)) {
 		    Properties.CRITERION = new Criterion[] { Criterion.MUTATION };
 			Sandbox.goingToExecuteSUTCode();
+            TestGenerationContext.getInstance().goingToExecuteSUTCode();
 			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 			try {
 
@@ -206,6 +207,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 				TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 				Sandbox.doneWithExecutingSUTCode();
+                TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 			}
 			for (Mutation m : MutationPool.getMutants()) {
 				mutants.put(m.getId(), m);

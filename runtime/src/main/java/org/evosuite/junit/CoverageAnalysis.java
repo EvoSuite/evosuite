@@ -74,6 +74,7 @@ public class CoverageAnalysis {
 	 */
 	public static void analyzeCoverage() {
 		Sandbox.goingToExecuteSUTCode();
+        TestGenerationContext.getInstance().goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
 			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
@@ -89,6 +90,7 @@ public class CoverageAnalysis {
 		} finally {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
+            TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 		}
 		// TestCluster.getInstance();
 
