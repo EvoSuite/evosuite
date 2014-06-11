@@ -3,6 +3,7 @@ package org.evosuite.agent;
 import org.junit.Assert;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.junit.After;
 import org.junit.Before;
@@ -14,7 +15,7 @@ import com.examples.with.different.packagename.agent.TimeB;
 
 public class InstrumentingAgentTest {
 
-	private final boolean replaceCalls = Properties.REPLACE_CALLS;
+	private final boolean replaceCalls = RuntimeSettings.mockJVMNonDeterminism;
 
 	@BeforeClass
 	public static void initClass(){
@@ -23,12 +24,12 @@ public class InstrumentingAgentTest {
 	
 	@Before
 	public void storeValues() {
-		Properties.REPLACE_CALLS = true;
+		RuntimeSettings.mockJVMNonDeterminism = true;
 	}
 
 	@After
 	public void resetValues() {
-		Properties.REPLACE_CALLS = replaceCalls;
+		RuntimeSettings.mockJVMNonDeterminism = replaceCalls;
 	}
 
 	@Test

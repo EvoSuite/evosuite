@@ -2,6 +2,7 @@ package org.evosuite.utils;
 
 import java.util.Scanner;
 
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.junit.Assert;
 import org.junit.After;
@@ -14,8 +15,10 @@ public class SystemInUtilTest {
 		SystemInUtil.resetSingleton();
 	}
 	
-	@Test
+	@Test(timeout=3000)
 	public void testDoubleExecution(){
+		
+		RuntimeSettings.mockSystemIn = true;
 		
 		String data = "Hello World!";
 		SystemInUtil.getInstance().initForTestCase(); 

@@ -36,6 +36,8 @@ import org.evosuite.instrumentation.error.OverflowInstrumentation;
 import org.evosuite.instrumentation.error.QueueInstrumentation;
 import org.evosuite.instrumentation.error.StackInstrumentation;
 import org.evosuite.instrumentation.error.VectorInstrumentation;
+import org.evosuite.runtime.instrumentation.AnnotatedLabel;
+import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.instrumentation;
+package org.evosuite.runtime.instrumentation;
 
 import java.util.List;
 
