@@ -21,14 +21,22 @@
 			<groupId>org.evosuite</groupId>
 			<artifactId>evosuite-runtime</artifactId>
 			<version>${project.version}</version>
-		</dependency>	
-		<dependency> <!--  FIXME this is temporary -->
-			<groupId>org.evosuite</groupId>
-			<artifactId>evosuite-runtime</artifactId>
-			<version>${project.version}</version>
-			<type>test-jar</type>
-      		<scope>test</scope></dependency>	
-		<dependency>
+		</dependency>
+        <dependency> <!--  FIXME this is temporary -->
+            <groupId>org.evosuite</groupId>
+            <artifactId>evosuite-runtime</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency> <!--  FIXME this is temporary -->
+            <groupId>org.evosuite</groupId>
+            <artifactId>evosuite-client</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
 			<groupId>org.evosuite</groupId>
 			<artifactId>evosuite-client</artifactId>
 			<version>${project.version}</version>
