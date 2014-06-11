@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 import org.evosuite.Properties;
 import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.java.io.MockFileInputStream;
 import org.evosuite.runtime.mock.java.io.MockFileOutputStream;
 import org.evosuite.runtime.mock.java.io.MockFileReader;
@@ -17,17 +18,17 @@ import org.junit.Test;
 
 public class CharByteReadWriteTest {
 
-	private static final boolean VFS = Properties.VIRTUAL_FS;
+	private static final boolean VFS = RuntimeSettings.useVFS;
 
 	@Before
 	public void init(){		
-		Properties.VIRTUAL_FS = true;
+		RuntimeSettings.useVFS = true;
 		Runtime.getInstance().resetRuntime();		
 	}
 	
 	@After
 	public void restoreProperties(){
-		Properties.VIRTUAL_FS = VFS;
+		RuntimeSettings.useVFS = VFS;
 	}
 
 	@Test
