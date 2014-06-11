@@ -17,18 +17,14 @@
  */
 package org.evosuite.testcarver.extraction;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.testcarver.instrument.Instrumenter;
-import org.evosuite.testcarver.instrument.JSRInlinerClassVisitor;
+import org.evosuite.runtime.instrumentation.JSRInlinerClassVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;

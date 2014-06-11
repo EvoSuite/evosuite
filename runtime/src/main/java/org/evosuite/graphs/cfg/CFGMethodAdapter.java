@@ -29,7 +29,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.instrumentation.AnnotatedMethodNode;
+import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
 import org.evosuite.instrumentation.coverage.BranchInstrumentation;
 import org.evosuite.instrumentation.coverage.DefUseInstrumentation;
 import org.evosuite.instrumentation.coverage.LCSAJsInstrumentation;

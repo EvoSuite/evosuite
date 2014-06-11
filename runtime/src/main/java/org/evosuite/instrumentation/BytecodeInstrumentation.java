@@ -26,14 +26,18 @@ import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
+import org.evosuite.runtime.instrumentation.AnnotatedClassNode;
+import org.evosuite.runtime.instrumentation.CreateClassResetClassAdapter;
+import org.evosuite.runtime.instrumentation.MethodCallReplacementClassAdapter;
+import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.seeding.PrimitiveClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcarver.instrument.Instrumenter;
-import org.evosuite.testcarver.instrument.JSRInlinerClassVisitor;
+import org.evosuite.runtime.instrumentation.JSRInlinerClassVisitor;
 import org.evosuite.testcarver.instrument.TransformerUtil;
-import org.evosuite.utils.ComputeClassWriter;
+import org.evosuite.runtime.util.ComputeClassWriter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -92,34 +96,7 @@ public class BytecodeInstrumentation {
 	}
 
 	
-	/**
-	 * <p>
-	 * getPackagesShouldNotBeInstrumented
-	 * </p>
-	 * 
-	 * @return the names of class packages EvoSuite is not going to instrument
-	 */
-	public static String[] getPackagesShouldNotBeInstrumented() {
-		//explicitly blocking client projects such as specmate is only a
-		//temporary solution, TODO allow the user to specify 
-		//packages that should not be instrumented
-		return new String[] { "java.", "javax.", "sun.", "org.evosuite", "org.exsyst",
-					          "de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite",  "org.uispec4j", 
-					          "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
-					          "testing.generation.evosuite", "com.yourkit", "com.vladium.emma.", "daikon.",
-					          // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
-					          "apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
-					          "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc", "org.mozilla.javascript.gen.c",
-					          "corina.cross.Single",  // I really don't know what is wrong with this class, but we need to exclude it
-					          "org.slf4j", 
-					          "org.apache.commons.discovery.tools.DiscoverSingleton",
-					          "org.apache.commons.discovery.resource.ClassLoaders",
-					          "org.apache.commons.discovery.resource.classes.DiscoverClasses",
-					          "org.apache.commons.logging.Log",// Leads to ExceptionInInitializerException when re-instrumenting classes that use a logger
-					          "org.jcp.xml.dsig.internal.dom." //Security exception in ExecutionTracer?
-		};
-	}
-	
+
 	private static String[] getEvoSuitePackages() {
 		return new String[] {"org.evosuite", 
 				"org.exsyst", 
@@ -137,12 +114,7 @@ public class BytecodeInstrumentation {
 	 * @return a boolean.
 	 */
 	public static boolean checkIfCanInstrument(String className) {
-		for (String s : BytecodeInstrumentation.getPackagesShouldNotBeInstrumented()) {
-			if (className.startsWith(s)) {
-				return false;
-			}
-		}
-		return true;
+		return RuntimeInstrumentation.checkIfCanInstrument(className);
 	}
 	
 	/**
@@ -261,7 +233,7 @@ public class BytecodeInstrumentation {
 			cv = new TraceClassVisitor(cv, new PrintWriter(System.err));
 		}
 
-		if (Properties.RESET_STATIC_FIELDS && !isIntrumentationUnderJavaAgent()) {
+		if (Properties.RESET_STATIC_FIELDS) {
 			cv = new PutStaticClassAdapter(cv, className);
 		}
 
@@ -297,7 +269,7 @@ public class BytecodeInstrumentation {
 				cv = factory.getVisitor(cv, className);
 			}
 
-		} else if (!isIntrumentationUnderJavaAgent()) {
+		} else  {
 			logger.debug("Not applying target transformation");
 			cv = new NonTargetClassAdapter(cv, className);
 
@@ -311,27 +283,24 @@ public class BytecodeInstrumentation {
 			}
 		}
 
-		if (!isIntrumentationUnderJavaAgent()) {
-			// Collect constant values for the value pool
-			cv = new PrimitiveClassAdapter(cv, className);
-		}
+		// Collect constant values for the value pool
+		cv = new PrimitiveClassAdapter(cv, className);
 
 		// If we need to reset static constructors, make them
 		// explicit methods
 		if (Properties.RESET_STATIC_FIELDS) {
 			// Create a __STATIC_RESET() cloning the original <clinit> method or create one by default
 			CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
-			if (ResetManager.getInstance().getResetFinalFields() || isIntrumentationUnderJavaAgent()) {
+			if (ResetManager.getInstance().getResetFinalFields()) {
 				resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
 			} else {
 				resetClassAdapter.setRemoveFinalModifierOnStaticFields(false);
 			}
 			cv = resetClassAdapter;
 			// Add a callback before leaving the <clinit> method
-			if (!isIntrumentationUnderJavaAgent()) {
-				ExitClassInitAdapter exitClassInitAdapter = new ExitClassInitAdapter(cv, className);
-				cv = exitClassInitAdapter;
-			}
+
+			ExitClassInitAdapter exitClassInitAdapter = new ExitClassInitAdapter(cv, className);
+			cv = exitClassInitAdapter;
 		}
 
 		// Replace calls to System.exit, Random.*, and System.currentTimeMillis
@@ -340,16 +309,7 @@ public class BytecodeInstrumentation {
 			cv = new MethodCallReplacementClassAdapter(cv, className);
 		}
 
-		if (isIntrumentationUnderJavaAgent()) {
-			ClassNode cn = new AnnotatedClassNode();
-			reader.accept(cn, readFlags);
-			cv = new JSRInlinerClassVisitor(cv);
-			try {
-				cn.accept(cv);
-			} catch (Throwable ex) {
-				ex.printStackTrace();
-			}
-		} else {
+
 		// Testability Transformations
 			if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
 			        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
@@ -420,20 +380,12 @@ public class BytecodeInstrumentation {
 			} else {
 				reader.accept(cv, readFlags);
 			}
-		}
+
 			
 		// Print out bytecode if debug is enabled
 		// if(logger.isDebugEnabled())
 		// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 		return writer.toByteArray();
-	}
-
-	private boolean instrumentationUnderJavaAgent = false;
-	public void setIntrumentationUnderJavaAgent(boolean instrumentationUnderJavaAgent ) {
-		this.instrumentationUnderJavaAgent = instrumentationUnderJavaAgent ; 
-	}
-	private boolean isIntrumentationUnderJavaAgent() {
-		return instrumentationUnderJavaAgent;
 	}
 
 }

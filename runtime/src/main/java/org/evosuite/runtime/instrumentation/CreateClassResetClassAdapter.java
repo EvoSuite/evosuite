@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.instrumentation;
+package org.evosuite.runtime.instrumentation;
 
 import java.io.ObjectStreamClass;
 import java.io.Serializable;

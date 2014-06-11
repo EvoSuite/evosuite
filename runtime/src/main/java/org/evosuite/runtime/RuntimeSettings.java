@@ -9,7 +9,9 @@ public class RuntimeSettings {
 
     /*
      * Bt default, all these properties should be false.
-     * If this is changed, we also need to change how JUnit code is generated
+     *
+     * WARNINGL If this behavior is changed, or any variable name is changed,
+     * we HAVE TO update how JUnit code is generated
      */
 
     /**
@@ -27,6 +29,11 @@ public class RuntimeSettings {
      * Shall the test cases use a virtual file system?
      */
     public static boolean useVFS = false;
+
+    /**
+     * Should the static state be reset after each test execution?
+     */
+    public static boolean resetStaticState = false;
 
     /**
      * How is the sandbox configured?

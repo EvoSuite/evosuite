@@ -28,7 +28,7 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
-import org.evosuite.instrumentation.AnnotatedLabel;
+import org.evosuite.runtime.instrumentation.AnnotatedLabel;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;

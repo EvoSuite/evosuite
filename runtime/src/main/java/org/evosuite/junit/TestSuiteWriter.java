@@ -992,15 +992,10 @@ public class TestSuiteWriter implements Opcodes {
                 bd.append(RuntimeSettings.class.getName()+".mockSystemIn = true; \n");
             }
 
-            /*
-            Note: this one does not seem to be used inside prg.evosuite.runtime.*
-            If it is needed, it should be added to RuntimeSettings
-
             if (Properties.RESET_STATIC_FIELDS) {
 				bd.append(BLOCK_SPACE);
-				bd.append(Properties.class.getName()+".RESET_STATIC_FIELDS = true; \n");
+				bd.append(RuntimeSettings.class.getName()+".resetStaticState = true; \n");
 			}
-            */
 
             //TODO sanbox mode?
 
