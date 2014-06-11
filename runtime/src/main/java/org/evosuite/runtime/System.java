@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.PropertyPermission;
 import java.util.Set;
 
-import org.evosuite.Properties;
-
 
 
 /**
@@ -106,7 +104,7 @@ public class System {
 		
 		if (perm.getActions().contains("write")) {
 						
-			if(!Properties.REPLACE_CALLS){
+			if(!RuntimeSettings.mockJVMNonDeterminism){
 				if(isSystemProperty(perm.getName())) {
 					return false;
 				} else {

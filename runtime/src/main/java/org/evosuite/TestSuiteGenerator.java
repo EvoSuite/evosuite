@@ -221,6 +221,7 @@ public class TestSuiteGenerator {
 		ClientServices.getInstance().getClientNode().changeState(ClientState.INITIALIZATION);
 
 		Sandbox.goingToExecuteSUTCode();
+        TestGenerationContext.getInstance().goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
 			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
@@ -238,6 +239,7 @@ public class TestSuiteGenerator {
 		} finally {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
+            TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 		}
 
 		TestCaseExecutor.initExecutor();
