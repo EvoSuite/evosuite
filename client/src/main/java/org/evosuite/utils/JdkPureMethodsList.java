@@ -27,7 +27,7 @@ public enum JdkPureMethodsList {
 
 		try {
 			InputStream fstream = this.getClass().getResourceAsStream(
-					"/jdkPureMethods.txt");
+                    "/src/main/resources/jdkPureMethods.txt");
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String strLine;

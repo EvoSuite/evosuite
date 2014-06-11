@@ -3,23 +3,24 @@ package org.evosuite.setup;
 import java.io.File;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.RuntimeSettings;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestClusterGeneratorTest {
 
-	private static final boolean defaultVFS = Properties.VIRTUAL_FS;
+	private static final boolean defaultVFS = RuntimeSettings.useVFS;
 	
 	@After
 	public void tearDown(){
-		Properties.VIRTUAL_FS = defaultVFS;
+		RuntimeSettings.useVFS = defaultVFS;
 	}
 	
 	@Test
 	public void test_checkIfCanUse_noVFS(){
 		
-		Properties.VIRTUAL_FS = false;
+		RuntimeSettings.useVFS = false;
 		boolean canUse = TestClusterGenerator.checkIfCanUse(File.class.getCanonicalName());
 		Assert.assertTrue(canUse);
 	}
@@ -27,7 +28,7 @@ public class TestClusterGeneratorTest {
 	@Test
 	public void test_checkIfCanUse_withVFS(){
 		
-		Properties.VIRTUAL_FS = true;
+		RuntimeSettings.useVFS = true;
 		boolean canUse = TestClusterGenerator.checkIfCanUse(File.class.getCanonicalName());
 		Assert.assertFalse(canUse);
 	}

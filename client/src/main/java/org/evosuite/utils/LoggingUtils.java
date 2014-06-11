@@ -313,7 +313,7 @@ public class LoggingUtils {
 
 	public static String getLogbackFileName() {
 		return System.getProperty(USE_DIFFERENT_LOGGING_XML_PARAMETER,
-		                          "logback-evosuite.xml");
+                "src/main/resources/logback-evosuite.xml");
 	}
 
 }

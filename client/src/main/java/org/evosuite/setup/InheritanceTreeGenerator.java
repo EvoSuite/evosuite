@@ -41,7 +41,6 @@ import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
@@ -402,7 +401,7 @@ public class InheritanceTreeGenerator {
 		// Write data to XML file
 		try {
 			FileOutputStream stream = new FileOutputStream(
-			        new File("JDK_inheritance.xml"));
+			        new File("src/main/resources/JDK_inheritance.xml"));
 			XStream xstream = new XStream();
 			xstream.toXML(inheritanceTree, stream);
 		} catch (FileNotFoundException e) {
@@ -412,7 +411,7 @@ public class InheritanceTreeGenerator {
 
 	public static InheritanceTree readJDKData() {
 		XStream xstream = new XStream();
-		String fileName = "/JDK_inheritance.xml";
+		String fileName = "/src/main/resources/JDK_inheritance.xml";
 		InputStream inheritance = InheritanceTreeGenerator.class.getResourceAsStream(fileName);
 		if (inheritance != null)
 			return (InheritanceTree) xstream.fromXML(inheritance);
