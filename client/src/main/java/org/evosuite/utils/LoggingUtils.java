@@ -280,8 +280,10 @@ public class LoggingUtils {
 	 * Load the EvoSuite xml configuration file for Logback, unless a
 	 * non-default one is already in use. The file has to be on the classpath.
 	 */
-	public static void loadLogbackForEvoSuite() {
+	public static boolean loadLogbackForEvoSuite() {
 		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+        boolean isOK = true;
 
 		// Only overrule default configurations		
 		if (isDefaultLoggingConfiguration(context)) {
@@ -301,19 +303,24 @@ public class LoggingUtils {
 					String msg = xmlFileName + " not found on classpath";
 					System.err.println(msg);
 					logger.error(msg);
-				}
-				context.reset();
-				configurator.doConfigure(f);
+                    isOK = false;
+				} else {
+                    context.reset();
+                    configurator.doConfigure(f);
+                }
 			} catch (JoranException je) {
 				// StatusPrinter will handle this
+                isOK = false;
 			}
 			StatusPrinter.printInCaseOfErrorsOrWarnings(context);
 		}
+        return isOK;
 	}
 
 	public static String getLogbackFileName() {
 		return System.getProperty(USE_DIFFERENT_LOGGING_XML_PARAMETER,
-                "src/main/resources/logback-evosuite.xml");
+                //"src/main/resources/logback-evosuite.xml"); //Why was it working before??? Maybe refactoring changed it?
+                "logback-evosuite.xml");
 	}
 
 }
