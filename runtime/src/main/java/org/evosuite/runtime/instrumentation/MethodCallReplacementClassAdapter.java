@@ -18,10 +18,10 @@
 /**
  * 
  */
-package org.evosuite.instrumentation;
+package org.evosuite.runtime.instrumentation;
 
-import org.evosuite.Properties;
 import org.evosuite.runtime.MockList;
+import org.evosuite.runtime.RuntimeSettings;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -110,7 +110,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	
 	@Override
 	public void visitEnd() {
-		if(!definesHashCode && !isInterface && Properties.REPLACE_CALLS) {
+		if(!definesHashCode && !isInterface && RuntimeSettings.mockJVMNonDeterminism) {
 			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
 			if(superClassName.equals("java.lang.Object")) {
 				Method hashCodeMethod = Method.getMethod("int hashCode()");

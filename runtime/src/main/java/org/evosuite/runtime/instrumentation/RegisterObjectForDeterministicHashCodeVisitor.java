@@ -1,4 +1,4 @@
-package org.evosuite.instrumentation;
+package org.evosuite.runtime.instrumentation;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
