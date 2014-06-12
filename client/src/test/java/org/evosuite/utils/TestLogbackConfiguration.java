@@ -44,7 +44,8 @@ public class TestLogbackConfiguration {
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 		System.setErr(new PrintStream(err));
 
-		LoggingUtils.loadLogbackForEvoSuite();
+		boolean loaded = LoggingUtils.loadLogbackForEvoSuite();
+        Assert.assertTrue(loaded);
 		org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestLogbackConfiguration.class);
 
 		final String warnMsg = "this should go to std out";
