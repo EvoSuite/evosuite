@@ -129,8 +129,8 @@ public class MSecurityManager extends SecurityManager {
 		 * We need to force the loading of RuntimeSettings here,
 		 * otherwise we end up in a infinite loop when its jar
 		 * is accessed during the security checks
-		 */
-		RuntimeSettings.class.toString();
+		 */		
+		boolean forceLoading = RuntimeSettings.mockJVMNonDeterminism;
 	}
 
 	private final PermissionStatistics statistics = PermissionStatistics.getInstance();
@@ -318,6 +318,7 @@ public class MSecurityManager extends SecurityManager {
 		if (executingTestCase) {
 			throw new IllegalStateException();
 		}
+		
 		executingTestCase = true;		
 	}
 
@@ -479,7 +480,8 @@ public class MSecurityManager extends SecurityManager {
 				}
 			}
 		}
-
+		
+		
 		if (RuntimeSettings.sandboxMode.equals(Sandbox.SandboxMode.IO)) {
 			PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
 
@@ -489,7 +491,8 @@ public class MSecurityManager extends SecurityManager {
 
 			return true;
 		}
-
+		 
+		
 		/*
 		 * Note: we had to remove this check, as some EvoSuite-RMI threads would be blocked by it 
 		 * 
