@@ -70,6 +70,7 @@ import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
 import org.evosuite.coverage.mutation.WeakMutationSuiteFitness;
 import org.evosuite.coverage.path.PrimePathCoverageFactory;
 import org.evosuite.coverage.path.PrimePathSuiteFitness;
+import org.evosuite.coverage.readability.ReadabilitySuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageFactory;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.coverage.statement.StatementCoverageFactory;
@@ -866,11 +867,8 @@ public class TestSuiteGenerator {
 	 */
 	public static List<TestSuiteFitnessFunction> getFitnessFunction() {
 	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
-	    if (Properties.CRITERION.length == 0)
-	        ffs.add(getFitnessFunction(Criterion.BRANCH));
-	    else {
-	        for (int i = 0; i < Properties.CRITERION.length; i++)
-	            ffs.add(getFitnessFunction(Properties.CRITERION[i]));
+	    for (int i = 0; i < Properties.CRITERION.length; i++) {
+	        ffs.add(getFitnessFunction(Properties.CRITERION[i]));
 	    }
 
 		return ffs;
@@ -915,6 +913,8 @@ public class TestSuiteGenerator {
 			return new ExceptionCoverageSuiteFitness();
 		case REGRESSION:
 			return new RegressionSuiteFitness();
+		case READABILITY:
+		    return new ReadabilitySuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");
@@ -931,12 +931,9 @@ public class TestSuiteGenerator {
 	 */
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactory() {
 	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
-	    if (Properties.CRITERION.length == 0)
-            goalsFactory.add(getFitnessFactory(Criterion.BRANCH));
-        else {
-            for (int i = 0; i < Properties.CRITERION.length; i++)
-                goalsFactory.add(getFitnessFactory(Properties.CRITERION[i]));
-        }
+	    for (int i = 0; i < Properties.CRITERION.length; i++) {
+	        goalsFactory.add(getFitnessFactory(Properties.CRITERION[i]));
+	    }
 
 		return goalsFactory;
 	}

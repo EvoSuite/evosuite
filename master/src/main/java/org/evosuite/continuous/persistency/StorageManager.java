@@ -291,7 +291,7 @@ public class StorageManager {
 		for(File test : generatedTests){
 			
 			String testName = extractClassName(tmpTests,test);
-			String cut = testName.substring(0, testName.length() - junitSuffix.length());
+			String cut = testName.substring(0, testName.indexOf(junitSuffix));
 						
 			CsvJUnitData data = reports.get(cut); 
 			
