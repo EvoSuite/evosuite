@@ -9,19 +9,21 @@ import com.examples.with.different.packagename.agent.TimeA;
 import com.examples.with.different.packagename.agent.TimeB;
 
 /**
- * FIXME: this should really be run as an integration test, as it requires
- * the creation of the jar file first
+ * Note: this needs be run as an integration test (IT), as it requires
+ * the creation of the jar file first.
+ * This is automatically set up in the pom file, but the test might fail
+ * if run directly from an IDE
  * 
  * @author arcuri
  *
  */
-public class InstrumentingAgentTest {
+public class InstrumentingAgent_IT {
 
 	private final boolean replaceCalls = RuntimeSettings.mockJVMNonDeterminism;
 
 	@BeforeClass
 	public static void initClass(){
-		//InstrumentingAgent.initialize();
+		InstrumentingAgent.initialize();
 	}
 	
 	@Before
@@ -36,8 +38,6 @@ public class InstrumentingAgentTest {
 
 	@Test
 	public void testTime(){
-
-        InstrumentingAgent.initialize();
 
 		long now = System.currentTimeMillis();
 		Assert.assertTrue("",TimeB.getTime() >= now);
