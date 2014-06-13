@@ -2,7 +2,6 @@ package org.evosuite.mock.java.io;
 
 import java.util.Scanner;
 
-import org.evosuite.Properties;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.java.io.MockFileInputStream;
