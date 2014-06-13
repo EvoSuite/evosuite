@@ -5,8 +5,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.junit.*;
 
 public class SandboxFromJUnitTest {
@@ -17,7 +15,6 @@ public class SandboxFromJUnitTest {
 	public static void initEvoSuiteFramework(){
 		Assert.assertNull(System.getSecurityManager());
 		
-		Properties.getInstance();
 		Sandbox.initializeSecurityManagerForSUT();
 		executor = Executors.newCachedThreadPool();
 
@@ -36,7 +33,7 @@ public class SandboxFromJUnitTest {
 	@Before
 	public void initTest(){		
 		Sandbox.goingToExecuteSUTCode();
-        TestGenerationContext.getInstance().goingToExecuteSUTCode();
+        //TestGenerationContext.getInstance().goingToExecuteSUTCode();
 	}
 	
 	@After
