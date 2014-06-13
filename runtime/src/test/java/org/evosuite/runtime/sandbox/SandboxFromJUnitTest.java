@@ -1,4 +1,4 @@
-package org.evosuite.sandbox;
+package org.evosuite.runtime.sandbox;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.runtime.sandbox.Sandbox;
 import org.junit.*;
 
 public class SandboxFromJUnitTest {

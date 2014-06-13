@@ -2,7 +2,6 @@ package org.evosuite.runtime.agent;
 
 import org.junit.*;
 
-import org.evosuite.Properties;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 
