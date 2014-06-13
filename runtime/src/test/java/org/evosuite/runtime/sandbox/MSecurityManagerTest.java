@@ -1,4 +1,4 @@
-package org.evosuite.sandbox;
+package org.evosuite.runtime.sandbox;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -18,8 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.LogManager;
 
-import org.evosuite.Properties;
-import org.evosuite.runtime.sandbox.MSecurityManager;
 import  org.junit.*;
 
 public class MSecurityManagerTest {
@@ -31,7 +29,6 @@ public class MSecurityManagerTest {
 	public static void initClass(){
 		executor = Executors.newCachedThreadPool();
 		securityManager = new MSecurityManager();
-		Properties.getInstance();
 	}
 	
 	@AfterClass
