@@ -549,7 +549,14 @@
 						- MSITE-262, MSITE-293, MSITE-297 -->
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.3</version>
+					<!-- Temporarily downgraded from 3.3 because "reportPlugins" shouldn't be used.
+					     IntelliJ flaged it as an error. See:
+
+					     http://maven.apache.org/plugins/maven-site-plugin/maven-3.html#New_Configuration_Maven_3_only_no_reports_configuration_inheritance
+
+					     FIXME: re-upgrade to 3.3 with right parameters
+					-->
+                    <version>3.2</version>
 					<configuration>
 						<reportPlugins>
 							<plugin>

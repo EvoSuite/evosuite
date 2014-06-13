@@ -111,9 +111,10 @@ public class SystemTest {
 
 		String master = getMasterTestsTarget();
 		String runtime = getRuntimeTestsTarget();
-		
+		String client = getClientTestsTarget();
+
 		EvoSuite evosuite = new EvoSuite();
-		String[] command = new String[] { "-setup", master,runtime };
+		String[] command = new String[] { "-setup", master,runtime, client };
 
 		Object result = evosuite.parseCommandLine(command);
 		Assert.assertNull(result);
@@ -124,6 +125,8 @@ public class SystemTest {
 
 		hasBeenAlreadyRun = true;
 	}
+
+    //FIXME: these will change once com.examples goes to its own module
 
 	private static String getMasterTestsTarget() {
 		String target = System.getProperty("user.dir") + File.separator + "target"
@@ -144,6 +147,18 @@ public class SystemTest {
 		checkFile(target);
 		return target;
 	}
+
+    private static String getClientTestsTarget() {
+        String target =
+                System.getProperty("user.dir") +
+                        File.separator +".." +
+                        File.separator +"client" +
+                        File.separator + "target"
+                        + File.separator + "test-classes";
+
+        checkFile(target);
+        return target;
+    }
 
 	private static void checkFile(String target) {
 		File targetDir = new File(target);
