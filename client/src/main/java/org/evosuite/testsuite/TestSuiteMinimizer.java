@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -33,6 +34,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.rmi.ClientServices;
@@ -413,19 +415,23 @@ public class TestSuiteMinimizer {
 		// double fitness = fitness_function.getFitness(suite);
 		// double coverage = suite.coverage;
 
-		boolean branch = false;
+		/*boolean branch = false;
 		if (testFitnessFactory instanceof BranchCoverageFactory) {
 			logger.info("Using old branch minimization function");
 			branch = true;
-		}
+		}*/ // FIXME: remove me
 
-		double fitness = 0;
+		/*double fitness = 0;
 
 		if (branch)
 			fitness = getNumUncoveredBranches(suite);
 		else
 			//logger.fatal("type:::: " + testFitnessFactory.getClass());
-			fitness = testFitnessFactory.getFitness(suite);
+			fitness = testFitnessFactory.getFitness(suite);*/ // FIXME: remove me
+
+		List<Double> fitness = new ArrayList<Double>();
+		for (Double d : suite.getFitnesses().values())
+		    fitness.add(d);
 
 		boolean changed = true;
 		while (changed && !isTimeoutReached()) {
@@ -462,13 +468,28 @@ public class TestSuiteMinimizer {
 					// logger.debug("Trying: ");
 					// logger.debug(test.test.toCode());
 
-					double modifiedVerFitness = 0;
+					/*double modifiedVerFitness = 0;
 					if (branch)
 						modifiedVerFitness = getNumUncoveredBranches(suite);
 					else
-						modifiedVerFitness = testFitnessFactory.getFitness(suite);
+						modifiedVerFitness = testFitnessFactory.getFitness(suite);*/ // FIXME: remove me
+					boolean compare_ff = false;
 
-					if (Double.compare(modifiedVerFitness, fitness) <= 0) {
+					List<Double> modifiedVerFitness = new ArrayList<Double>();
+					for (Double d : suite.getFitnesses().values())
+					    modifiedVerFitness.add(d);
+
+					for (int i_fit = 0; i_fit < modifiedVerFitness.size(); i_fit++)
+					{
+					    if (Double.compare(modifiedVerFitness.get(i_fit), fitness.get(i_fit)) <= 0) {
+					        compare_ff = true;
+					        break;
+					    }
+					}
+
+					//if (Double.compare(modifiedVerFitness, fitness) <= 0) { // FIXME: remove me
+					if (compare_ff)
+					{
 						fitness = modifiedVerFitness;
 						changed = true;
 						// 
@@ -499,7 +520,7 @@ public class TestSuiteMinimizer {
 		}
 		// suite.coverage = coverage;
 		removeEmptyTestCases(suite);
-		removeRedundantTestCases(suite);
+		//removeRedundantTestCases(suite);
 
 		//assert (checkFitness(suite) == fitness);
 	}
