@@ -17,6 +17,9 @@
 		should try to keep the number of external dependencies to a minimum -->
 
 	<dependencies>
+
+        <!-- test dependencies  -->
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -29,6 +32,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope> <!-- shouldn't end up in final jar-->
+        </dependency>
+
+        <!-- ////////////////////////////////// -->
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -40,6 +51,7 @@
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-all</artifactId>
         </dependency>
+
 	</dependencies>
 
 	<build>
