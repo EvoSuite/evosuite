@@ -124,6 +124,13 @@ public class MSecurityManager extends SecurityManager {
 			logger.error("Error while trying to create tmp file: "+e.getMessage());
 		}		
 		tmpFile = tmp;
+		
+		/*
+		 * We need to force the loading of RuntimeSettings here,
+		 * otherwise we end up in a infinite loop when its jar
+		 * is accessed during the security checks
+		 */
+		RuntimeSettings.class.toString();
 	}
 
 	private final PermissionStatistics statistics = PermissionStatistics.getInstance();
