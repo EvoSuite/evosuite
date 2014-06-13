@@ -1113,7 +1113,8 @@ public class Properties {
 		RHO,
 		AMBIGUITY,
 		IBRANCH,
-		REGRESSION
+		REGRESSION,
+		READABILITY
 	}
 
 	/** Cache target class */
@@ -1167,7 +1168,7 @@ public class Properties {
 
 	/** Constant <code>CRITERION</code> */
 	@Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion")
-	public static Criterion[] CRITERION = new Criterion[] { /* empty */ };
+	public static Criterion[] CRITERION = new Criterion[] { Criterion.BRANCH };
 
 	public enum Strategy {
 		ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, REGRESSION
