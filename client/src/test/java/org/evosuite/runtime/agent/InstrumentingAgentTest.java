@@ -1,14 +1,10 @@
 package org.evosuite.runtime.agent;
 
-import org.junit.Assert;
+import org.junit.*;
 
 import org.evosuite.Properties;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.examples.with.different.packagename.agent.TimeA;
 import com.examples.with.different.packagename.agent.TimeB;
@@ -26,7 +22,7 @@ public class InstrumentingAgentTest {
 
 	@BeforeClass
 	public static void initClass(){
-		InstrumentingAgent.initialize();
+		//InstrumentingAgent.initialize();
 	}
 	
 	@Before
@@ -41,6 +37,8 @@ public class InstrumentingAgentTest {
 
 	@Test
 	public void testTime(){
+
+        InstrumentingAgent.initialize();
 
 		long now = System.currentTimeMillis();
 		Assert.assertTrue("",TimeB.getTime() >= now);
