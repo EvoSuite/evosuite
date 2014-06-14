@@ -84,6 +84,9 @@ public class InheritanceTreeGenerator {
 		
 		logger.debug("Reading JDK data");
 		InheritanceTree inheritanceTree = readJDKData();
+        if(inheritanceTree==null){
+            inheritanceTree = new InheritanceTree();
+        }
 
 		logger.debug("CP: "+classPath);
 		for (String classPathEntry : classPath) {
@@ -411,12 +414,15 @@ public class InheritanceTreeGenerator {
 
 	public static InheritanceTree readJDKData() {
 		XStream xstream = new XStream();
-		String fileName = "/src/main/resources/JDK_inheritance.xml";
+		String fileName = "/JDK_inheritance.xml";
 		InputStream inheritance = InheritanceTreeGenerator.class.getResourceAsStream(fileName);
-		if (inheritance != null)
-			return (InheritanceTree) xstream.fromXML(inheritance);
-		else
-			return new InheritanceTree();
+
+        if (inheritance != null) {
+            return (InheritanceTree) xstream.fromXML(inheritance);
+        } else {
+            logger.warn("Found no JDK inheritance tree in the resource path: "+fileName);
+            return null;
+        }
 	}
 
 	public static InheritanceTree readInheritanceTree(String fileName) throws IOException {
