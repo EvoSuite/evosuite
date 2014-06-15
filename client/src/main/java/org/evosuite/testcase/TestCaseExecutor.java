@@ -64,7 +64,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	/**
 	 * Used to identify the threads spawn by the SUT
 	 */
-	public static final String TEST_EXECUTION_THREAD_GROUP = "Test Execution";
+	public static final String TEST_EXECUTION_THREAD_GROUP = "Test_Execution_Group";
 
 	/**
 	 * Name used to define the threads spawn by this factory
@@ -103,7 +103,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 
     static{
-        PermissionStatistics.getInstance().setThreadGroupToMonitor(TEST_EXECUTION_THREAD);
+        PermissionStatistics.getInstance().setThreadGroupToMonitor(TEST_EXECUTION_THREAD_GROUP);
     }
 
 	/**
