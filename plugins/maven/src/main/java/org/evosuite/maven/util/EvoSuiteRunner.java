@@ -97,7 +97,7 @@ public class EvoSuiteRunner {
 
 		for(Artifact art : artifacts){
 			//first find the main EvoSuite jar among the dependencies
-			if(art.getArtifactId().equals("evosuite")){
+			if(art.getArtifactId().equals("evosuite-master")){
 				evosuite = art;
 				break;
 			}

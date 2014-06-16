@@ -116,7 +116,9 @@ public class ContinuousTestGeneration {
     		ProjectStaticData data = analyzer.analyze();
     		
     		if(data.getTotalNumberOfTestableCUTs() == 0){
-    			return "There is no class to test in the chosen project";
+    			return "There is no class to test in the chosen project\n" +
+                        "Target: "+target+"\n"+
+                        "Prefix: '"+prefix+"'\n";
     		}
     		
     		if(Properties.CTG_TIME_PER_CLASS != null){
