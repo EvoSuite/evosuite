@@ -30,9 +30,31 @@
 			<groupId>org.evosuite</groupId>
 			<artifactId>evosuite-runtime</artifactId>
 			<version>${evosuiteVersion}</version>
-			<scope>test</scope>
+			<scope>system</scope>
+            <systemPath>${basedir}/../../../../runtime/target/evosuite-runtime-${evosuiteVersion}.jar</systemPath>
 		</dependency>
 	</dependencies>
+
+    <!--
+        this does not work, as we would need a full formatted repository.
+        Maybe we could use some special plugin to test this plugin:
+
+        http://maven.apache.org/plugin-testing/
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>localPackaged</id>
+            <url>file://${basedir}/../../target/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+    -->
+
 
 	<build>
 
