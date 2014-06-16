@@ -505,7 +505,27 @@
 					</excludes>
 				</configuration>
 			</plugin>
-			
+
+            <!-- pluging to run tests after 'package' phase in 'integration-test' -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.17</version>
+                <configuration>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>failsafe-integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
 		</plugins>
 
@@ -595,6 +615,7 @@
 				</plugin>
 				<!-- Removed Eclipse m2e lifecycle mapping plugin. For a better solution 
 					see: http://stackoverflow.com/questions/7409823/m2e-lifecycle-mapping-not-found -->
+
 			</plugins>
 		</pluginManagement>
 	</build>

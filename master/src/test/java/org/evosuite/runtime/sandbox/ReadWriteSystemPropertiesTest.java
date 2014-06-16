@@ -1,4 +1,4 @@
-package org.evosuite.sandbox;
+package org.evosuite.runtime.sandbox;
 
 import static org.junit.Assert.fail;
 
@@ -10,18 +10,15 @@ import org.junit.BeforeClass;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
-import org.evosuite.assertion.stable.TestStabilityChecker;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
-import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.DeleteFileCommonsIO;
 import com.examples.with.different.packagename.sandbox.ReadLineSeparator;
 import com.examples.with.different.packagename.sandbox.ReadWriteSystemProperties;
 

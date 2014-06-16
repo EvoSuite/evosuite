@@ -20,7 +20,6 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
-import org.evosuite.runtime.EvoSuiteXStream;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.CaptureUtil;
 import org.evosuite.testcarver.codegen.ICodeGenerator;

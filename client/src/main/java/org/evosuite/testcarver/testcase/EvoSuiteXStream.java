@@ -1,4 +1,4 @@
-package org.evosuite.runtime;
+package org.evosuite.testcarver.testcase;
 
 import com.thoughtworks.xstream.XStream;
 
