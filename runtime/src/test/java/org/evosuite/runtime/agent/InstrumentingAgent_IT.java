@@ -1,26 +1,23 @@
 package org.evosuite.runtime.agent;
 
-import org.junit.Assert;
+import org.junit.*;
 
-import org.evosuite.Properties;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.examples.with.different.packagename.agent.TimeA;
 import com.examples.with.different.packagename.agent.TimeB;
 
 /**
- * FIXME: this should really be run as an integration test, as it requires
- * the creation of the jar file first
+ * Note: this needs be run as an integration test (IT), as it requires
+ * the creation of the jar file first.
+ * This is automatically set up in the pom file, but the test might fail
+ * if run directly from an IDE
  * 
  * @author arcuri
  *
  */
-public class InstrumentingAgentTest {
+public class InstrumentingAgent_IT {
 
 	private final boolean replaceCalls = RuntimeSettings.mockJVMNonDeterminism;
 

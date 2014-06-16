@@ -8,9 +8,9 @@ import org.evosuite.runtime.sandbox.Sandbox;
 public class RuntimeSettings {
 
     /*
-     * Bt default, all these properties should be false.
+     * By default, all these properties should be false.
      *
-     * WARNINGL If this behavior is changed, or any variable name is changed,
+     * WARNING If this behavior is changed, or any variable name is changed,
      * we HAVE TO update how JUnit code is generated
      */
 
