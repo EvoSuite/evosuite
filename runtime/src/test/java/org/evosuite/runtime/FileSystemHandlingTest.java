@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Scanner;
 
-import org.evosuite.Properties;
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.evosuite.runtime.mock.java.io.MockFileInputStream;
 import org.junit.After;
@@ -16,17 +15,17 @@ import org.junit.Test;
 
 public class FileSystemHandlingTest {
 
-	private static final boolean VFS = Properties.VIRTUAL_FS;
+	private static final boolean VFS = RuntimeSettings.useVFS;
 
 	@After
 	public void restoreProperties(){
-		Properties.VIRTUAL_FS = VFS;
+		RuntimeSettings.useVFS = VFS;
 	}
 
 	@Test
 	public void createNewFileByAddingData() throws IOException{
 
-		Properties.VIRTUAL_FS = true;
+		RuntimeSettings.useVFS = true;
 		Runtime.getInstance().resetRuntime();
 
 		byte[] data = new byte[]{42,66};
@@ -53,7 +52,7 @@ public class FileSystemHandlingTest {
 	@Test
 	public void createNewFileByAddingLine() throws IOException{
 
-		Properties.VIRTUAL_FS = true;
+		RuntimeSettings.useVFS = true;
 		Runtime.getInstance().resetRuntime();
 
 		String data = "A new line to be added";

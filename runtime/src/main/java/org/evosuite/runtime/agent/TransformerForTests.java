@@ -4,7 +4,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
-import org.evosuite.instrumentation.BytecodeInstrumentation;
+import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.runtime.reset.ClassResetter;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
@@ -23,12 +23,11 @@ public class TransformerForTests implements ClassFileTransformer {
 	private static final Logger logger = LoggerFactory.getLogger(TransformerForTests.class);
 
 	private volatile boolean active;
-	private BytecodeInstrumentation instrumenter;
+	private RuntimeInstrumentation instrumenter;
 	
 	public TransformerForTests(){
 		active = false;
-		instrumenter = new BytecodeInstrumentation();
-		instrumenter.setIntrumentationUnderJavaAgent(true);
+		instrumenter = new RuntimeInstrumentation();
 	}
 	
 	@Override
@@ -37,7 +36,7 @@ public class TransformerForTests implements ClassFileTransformer {
 					throws IllegalClassFormatException {
 		
 		String classWithDots = className.replace("/", ".");
-		if(!active || !BytecodeInstrumentation.checkIfCanInstrument(classWithDots) || classWithDots.startsWith("org.evosuite")){	
+		if(!active || !RuntimeInstrumentation.checkIfCanInstrument(classWithDots) || classWithDots.startsWith("org.evosuite")){
 			return classfileBuffer;
 		} else {
 			ClassResetter.getInstance().setClassLoader(loader);

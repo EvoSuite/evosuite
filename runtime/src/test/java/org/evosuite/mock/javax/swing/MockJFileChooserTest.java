@@ -4,8 +4,9 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 
-import org.evosuite.Properties;
+
 import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.evosuite.runtime.mock.javax.swing.MockJFileChooser;
 import org.junit.After;
@@ -15,17 +16,17 @@ import org.junit.Test;
 
 public class MockJFileChooserTest {
 
-	private static final boolean VFS = Properties.VIRTUAL_FS;
+	private static final boolean VFS = RuntimeSettings.useVFS;
 
 	@Before
 	public void init(){		
-		Properties.VIRTUAL_FS = true;
+		RuntimeSettings.useVFS = true;
 		Runtime.getInstance().resetRuntime();		
 	}
 	
 	@After
 	public void restoreProperties(){
-		Properties.VIRTUAL_FS = VFS;
+		RuntimeSettings.useVFS = VFS;
 	}
 	
 	@Test

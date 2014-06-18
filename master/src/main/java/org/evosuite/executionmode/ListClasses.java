@@ -54,6 +54,12 @@ public class ListClasses {
 				if (ResourceList.isClassAnInterface(sut)) {
 					continue;
 				}
+				if (ResourceList.isClassDeprecated(sut)) {
+					continue;
+				}
+				if (! ResourceList.isClassTestable(sut)) {
+					continue;
+				}
 			} catch (IOException e) {
 				LoggingUtils.getEvoLogger().error("Could not load class: " + sut);
 				continue;
