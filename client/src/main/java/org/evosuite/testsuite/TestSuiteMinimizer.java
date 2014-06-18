@@ -443,7 +443,8 @@ public class TestSuiteMinimizer {
 				if (isTimeoutReached())
 					break;
 
-				for (int i = testChromosome.size() - 1; i >= 0; i--) {
+				for (int i = testChromosome.size() - 1; i >= 0; i--)
+				{
 					if (isTimeoutReached())
 						break;
 
@@ -456,8 +457,7 @@ public class TestSuiteMinimizer {
 
 					try {
 						TestFactory testFactory = TestFactory.getInstance();
-						testFactory.deleteStatementGracefully(testChromosome.getTestCase(),
-						                                      i);
+						testFactory.deleteStatementGracefully(testChromosome.getTestCase(), i);
 						testChromosome.setChanged(true);
 					} catch (ConstructionFailedException e) {
 						testChromosome.setChanged(false);
@@ -465,19 +465,12 @@ public class TestSuiteMinimizer {
 						logger.debug("Deleting failed");
 						continue;
 					}
-					// logger.debug("Trying: ");
-					// logger.debug(test.test.toCode());
 
-					/*double modifiedVerFitness = 0;
-					if (branch)
-						modifiedVerFitness = getNumUncoveredBranches(suite);
-					else
-						modifiedVerFitness = testFitnessFactory.getFitness(suite);*/ // FIXME: remove me
 					boolean compare_ff = false;
 
 					List<Double> modifiedVerFitness = new ArrayList<Double>();
-					for (Double d : suite.getFitnesses().values())
-					    modifiedVerFitness.add(d);
+                    for (FitnessFunction<?> ff : suite.getFitnesses().keySet())
+                        modifiedVerFitness.add(((TestSuiteFitnessFunction) ff).getFitness(suite));
 
 					for (int i_fit = 0; i_fit < modifiedVerFitness.size(); i_fit++)
 					{
@@ -487,7 +480,6 @@ public class TestSuiteMinimizer {
 					    }
 					}
 
-					//if (Double.compare(modifiedVerFitness, fitness) <= 0) { // FIXME: remove me
 					if (compare_ff)
 					{
 						fitness = modifiedVerFitness;
@@ -512,17 +504,14 @@ public class TestSuiteMinimizer {
 						testChromosome.setTestCase(orgiginalTestChromosome.getTestCase());
 						testChromosome.setLastExecutionResult(orgiginalTestChromosome.getLastExecutionResult());
 						testChromosome.setChanged(false);
-						// suite.setFitness(fitness); // Redo new fitness value
-						// determined by fitness function
 					}
 				}
 			}
 		}
-		// suite.coverage = coverage;
-		removeEmptyTestCases(suite);
-		//removeRedundantTestCases(suite);
 
-		//assert (checkFitness(suite) == fitness);
+		removeEmptyTestCases(suite);
+		if (testFitnessFactory != null)
+		    this.removeRedundantTestCases(suite);
 	}
 
 	private void removeEmptyTestCases(TestSuiteChromosome suite) {

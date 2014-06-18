@@ -402,4 +402,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 		return num;
 	}
+
+	public static void reset() {
+        methods.clear();
+    }
 }
