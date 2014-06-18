@@ -1,0 +1,485 @@
+/**
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * 
+ * You should have received a copy of the GNU Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.evosuite.classpath;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * <p>
+ * Utilities to list class resources (ie .class files) available from the classpath 
+ * </p>
+ * 
+ * 
+ * @author Gordon Fraser
+ */
+public class ResourceList {
+
+	private static Logger logger = LoggerFactory.getLogger(ResourceList.class);
+
+	private static class Cache{
+		/**
+		 * Key -> a classpath entry (eg folder or jar file)
+		 * <p>
+		 * Value -> set of all classes in that CP entry
+		 */
+		public  Map<String,Set<String>> mapCPtoClasses = new LinkedHashMap<>(); 
+
+		/**
+		 * Key -> full qualifying name of a class, eg org.some.Foo
+		 * <p>
+		 * Value -> the classpath entry in which it can be found
+		 */
+		public  Map<String,String> mapClassToCP = new LinkedHashMap<>();
+
+		/**
+		 * Key -> package prefix
+		 * <p>
+		 * Value -> set of classpath entries having such prefix
+		 */
+		public Map<String,Set<String>> mapPrefixToCPs = new LinkedHashMap<>();
+
+		public void addPrefix(String prefix, String cpEntry){
+			Set<String> classPathEntries = mapPrefixToCPs.get(prefix);
+			if(classPathEntries==null){
+				classPathEntries = new LinkedHashSet<String>();
+				mapPrefixToCPs.put(prefix, classPathEntries);
+			}
+			classPathEntries.add(cpEntry);
+
+			if(!prefix.isEmpty()){
+				String parent = getParentPackageName(prefix);
+				addPrefix(parent,cpEntry);
+			}
+		}
+
+	}
+
+	/**
+	 * Current cache. Do not access directly, but rather use getCache(), as it can be null
+	 */
+	private static Cache cache;
+
+
+	// -------------------------------------------
+	// --------- public methods  ----------------- 
+	// -------------------------------------------
+
+	protected static void resetCache(){
+		cache = null;
+	}
+
+
+	/**
+	 * is the target class among the ones in the SUT classpath?
+	 * 
+	 * @param className
+	 *            a fully qualified class name
+	 * @return
+	 */
+	public static boolean hasClass(String className) {
+		return getCache().mapClassToCP.containsKey(className);
+	}
+
+	/**
+	 * 
+	 * @param name  a fully qualifying name, e.g. org.some.Foo
+	 * @return
+	 */
+	public static InputStream getClassAsStream(String name) {
+		String path = name.replace('.', '/') + ".class";
+		String windowsPath = name.replace(".", "\\") + ".class";
+
+		//first try with system classloader
+		InputStream is = ClassLoader.getSystemResourceAsStream(path);
+		if(is!=null){
+			return is;
+		}
+		if (File.separatorChar != '/') {			
+			is = ClassLoader.getSystemResourceAsStream(windowsPath);
+			if(is!=null){
+				return is;
+			}
+		}
+
+		String cpEntry = getCache().mapClassToCP.get(name);
+		if(cpEntry==null){
+			logger.warn("The class "+name+" is not on the classapath");
+			return null;
+		}
+
+		if(cpEntry.endsWith(".jar")){
+			try(JarFile jar = new JarFile(cpEntry)){
+				JarEntry entry = jar.getJarEntry(path);
+				if(entry == null){
+					logger.error("Error: could not find "+path+" inside of jar file "+cpEntry);
+					return null;
+				}
+				return jar.getInputStream(entry);
+			} catch (IOException e) {
+				logger.error("Error while reading jar file "+cpEntry+": "+e.getMessage(),e);
+				return null;
+			} 
+		} else {
+			//if not a jar, it is a folder
+			File classFile = null;
+			if (File.separatorChar != '/') {	
+				classFile = new File(cpEntry+File.separator+windowsPath);
+			} else {
+				classFile = new File(cpEntry+File.separator+path);
+			}
+			if(!classFile.exists()){
+				logger.error("Could not find "+classFile);
+			}
+
+			try {
+				return new FileInputStream(classFile);
+			} catch (FileNotFoundException e) {
+				logger.error("Error while trying to open stream on: "+classFile.getAbsolutePath());
+				return null;
+			}
+		}
+
+	}
+
+
+	/**
+	 * Given the target classpath entry (eg folder or jar file), return all the classes (.class files)
+	 * inside
+	 * 
+	 * @param classPathEntry
+	 * @param includeAnonymousClasses
+	 * @return
+	 */
+	public static Set<String> getAllClasses(String classPathEntry, boolean includeAnonymousClasses){
+		return getAllClasses(classPathEntry,"",includeAnonymousClasses);
+	}
+
+	/**
+	 * Given the target classpath entry (eg folder or jar file), return all the classes (.class files)
+	 * inside
+	 * 
+	 * @param classPathEntry
+	 * @param prefix
+	 * @param includeAnonymousClasses
+	 * @return
+	 */
+	public static Set<String> getAllClasses(String classPathEntry, String prefix, boolean includeAnonymousClasses){
+
+		if(classPathEntry.contains(File.pathSeparator)){
+			Set<String> retval = new LinkedHashSet<String>();
+			for(String element : classPathEntry.split(File.pathSeparator)){
+				retval.addAll(getAllClasses(element,prefix,includeAnonymousClasses));
+			}
+			return retval;
+		} else {
+
+			classPathEntry = (new File(classPathEntry)).getAbsolutePath();
+
+			addEntry(classPathEntry);
+
+			//no need to scan the classpath entry cache if it does not have the given prefix
+			Set<String> cps = getCache().mapPrefixToCPs.get(prefix);
+			if(cps==null || !cps.contains(classPathEntry)){
+				return Collections.emptySet();
+			}
+
+			Set<String> classes = new LinkedHashSet<>();
+
+			for(String className : getCache().mapCPtoClasses.get(classPathEntry)){
+				if(!className.startsWith(prefix)){
+					continue;
+				}
+				if(!includeAnonymousClasses && className.contains("$")){
+					continue;
+				}
+
+				classes.add(className);
+			}
+
+			return classes;
+		}
+	}
+
+	public static boolean isInterface(String resource) throws IOException {
+		InputStream input = ResourceList.class.getClassLoader().getResourceAsStream(resource);
+		return isClassAnInterface(input);
+	}
+
+	public static boolean isClassAnInterface(String className) throws IOException {
+		InputStream input = getClassAsStream(className);		
+		return isClassAnInterface(input);
+	}
+
+	public static boolean isClassDeprecated(String className) throws IOException {
+		InputStream input = getClassAsStream(className);		
+		return isClassDeprecated(input);
+	}
+	
+	public static boolean isClassTestable(String className) throws IOException {
+		InputStream input = getClassAsStream(className);		
+		return isClassTestable(input);
+	}
+
+	/**
+	 * <p>
+	 * Given a resource path, eg foo/Foo.class, return the class name, eg foo.Foo
+	 * 
+	 * <p>
+	 * This method is able to handle different operating systems (Unix/Windows) and whether
+	 * the resource is in a folder or inside a jar file ('/' separator independent of operating system).  
+	 *
+	 */
+	public static String getClassNameFromResourcePath(String resource){
+		if(resource==null || resource.isEmpty()){
+			return resource;
+		}
+
+		// check file ending
+		final String CLASS = ".class";		 
+		if(resource.endsWith(CLASS)){
+			resource = resource.substring(0, resource.length() - CLASS.length());
+		}
+
+		//in Jar it is always '/'
+		resource = resource.replace('/', '.');
+
+		if(File.separatorChar != '/'){
+			//this would happen on a Windows machine for example
+			resource = resource.replace(File.separatorChar, '.');
+		}
+
+		return resource;
+	}
+
+
+
+	// -------------------------------------------
+	// --------- private/protected methods  ------ 
+	// -------------------------------------------
+
+	private static boolean isClassAnInterface(InputStream input) throws IOException{
+		try{
+			ClassReader reader = new ClassReader(input);
+			ClassNode cn = new ClassNode();
+			reader.accept(cn, ClassReader.SKIP_FRAMES);		
+			return (cn.access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE;
+		} finally{
+			input.close(); //VERY IMPORTANT, as ASM does not close the stream
+		}
+	}
+
+	/**
+	 * Returns {@code true} if the class is deprecated; returns {@code false} otherwise.
+	 * 
+	 * @param input the input stream
+	 * @return {@code true} if the class is deprecated, {@code false} otherwise
+	 * @throws IOException if an error occurs while reading the input stream
+	 */
+
+	private static boolean isClassDeprecated(InputStream input) throws IOException{
+		try{
+			ClassReader reader = new ClassReader(input);
+			ClassNode cn = new ClassNode();
+			reader.accept(cn, ClassReader.SKIP_FRAMES);		
+			return (cn.access & Opcodes.ACC_DEPRECATED) == Opcodes.ACC_DEPRECATED;
+		} finally{
+			input.close(); //VERY IMPORTANT, as ASM does not close the stream
+		}
+	}
+	
+	/**
+	 * Returns {@code true} if there is at least one public method in the class; returns {@code false} otherwise.
+	 * 
+	 * @param input the input stream
+	 * @return {@code true} if there is at least one public method in the class, {@code false} otherwise
+	 * @throws IOException if an error occurs while reading the input stream
+	 */
+	private static boolean isClassTestable(InputStream input) throws IOException{
+		try{
+			ClassReader reader = new ClassReader(input);
+			ClassNode cn = new ClassNode();
+			reader.accept(cn, ClassReader.SKIP_FRAMES);
+			List<MethodNode> l = cn.methods; 
+			for (MethodNode m : l) {
+				if ((m.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
+					return true;
+		        }
+			}
+			return false;
+		} finally{
+			input.close(); //VERY IMPORTANT, as ASM does not close the stream
+		}
+	}
+	
+	/**
+	 * Remove last '.' token
+	 * 
+	 * @param className
+	 * @return
+	 */
+	protected static String getParentPackageName(String className){
+		if(className==null || className.isEmpty()){
+			return className;
+		}
+
+		int index = className.lastIndexOf('.');
+		if(index<0){
+			return "";
+		}
+
+		return className.substring(0,index);
+	}
+
+	/**
+	 * Init the cache if null
+	 * @return
+	 */
+	private static Cache getCache(){
+		if(cache == null){
+			initCache();
+		}
+
+		return cache;
+	}
+
+	
+	private static void initCache() {
+		cache = new Cache();
+
+		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+		for(String entry : cp.split(File.pathSeparator)){
+			addEntry(entry);
+		}		
+	}
+
+	private static void addEntry(String classPathElement) throws IllegalArgumentException{
+		final File file = new File(classPathElement);
+
+		classPathElement = file.getAbsolutePath();
+
+		if(getCache().mapCPtoClasses.containsKey(classPathElement)){
+			return; //this classpath entry has already been analyzed
+		}
+
+		getCache().mapCPtoClasses.put(classPathElement, new LinkedHashSet<String>());
+
+
+		if (!file.exists()) {
+			throw new IllegalArgumentException("The class path resource "
+					+ file.getAbsolutePath() + " does not exist");
+		}
+
+		if (file.isDirectory()) {
+			scanDirectory(file,classPathElement);
+		} else if (file.getName().endsWith(".jar")) {
+			scanJar(classPathElement);
+		} else {
+			throw new IllegalArgumentException("The class path resource "
+					+ file.getAbsolutePath() + " is not valid");
+		}		
+	}
+
+	private static void scanDirectory(final File directory,
+			final String classPathFolder) {
+
+		if (!directory.exists()) {
+			return;
+		}
+		if (!directory.isDirectory()) {
+			return;
+		}
+		if (!directory.canRead()) {
+			logger.warn("No permission to read: "+directory.getAbsolutePath());
+			return;
+		}
+
+		String prefix =  directory.getAbsolutePath().replace(classPathFolder + File.separator,"");
+		prefix = prefix.replace(File.separatorChar, '.');
+
+		File[] fileList = directory.listFiles();
+		for (final File file : fileList) {
+			if (file.isDirectory()) {
+				/*
+				 * recursion till we get to a file that is not a folder.
+				 */
+				scanDirectory(file, classPathFolder);
+			} else {
+				if(! file.getName().endsWith(".class")){
+					continue; // we are only interested in class files
+				}
+				String relativeFilePath = file.getAbsolutePath().replace(classPathFolder + File.separator,"");
+				String className = getClassNameFromResourcePath(relativeFilePath);
+
+				getCache().mapClassToCP.put(className, classPathFolder);
+				getCache().mapCPtoClasses.get(classPathFolder).add(className);
+				getCache().addPrefix(prefix, classPathFolder);
+			}
+		}
+	}
+
+	private static void scanJar(String jarEntry) {
+		JarFile zf;
+		try {
+			zf = new JarFile(jarEntry);
+		} catch (final Exception e) {
+			throw new Error(e);
+		}
+
+		Enumeration<?> e = zf.entries();
+		while (e.hasMoreElements()) {
+			JarEntry ze = (JarEntry) e.nextElement();
+			String entryName = ze.getName();
+
+			if(! entryName.endsWith(".class")){
+				continue;
+			}
+
+			String className = getClassNameFromResourcePath(entryName);
+			getCache().mapClassToCP.put(className, jarEntry);//getPackageName
+			getCache().mapCPtoClasses.get(jarEntry).add(className);
+			getCache().addPrefix(getParentPackageName(className), jarEntry);
+		}
+		try {
+			zf.close();
+		} catch (final IOException e1) {
+			throw new Error(e1);
+		}
+	}
+
+}

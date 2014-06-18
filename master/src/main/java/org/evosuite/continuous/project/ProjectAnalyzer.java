@@ -62,7 +62,7 @@ public class ProjectAnalyzer {
 	public ProjectAnalyzer(String target, String prefix) {
 		super();
 		this.target = target;
-		this.prefix = prefix;
+		this.prefix = prefix==null ? "" : prefix;
 		this.cutsToAnalyze = null;
 	}
 
@@ -118,7 +118,14 @@ public class ProjectAnalyzer {
 				}
 			} catch (ClassNotFoundException e) {
 				logger.error(""+e,e);
-			}
+			} catch(ExceptionInInitializerError | NoClassDefFoundError e){
+                /**
+                 * TODO: for now we skip it, but at a certain point
+                 * we should able to handle it, especially if it
+                 * is due to static state initialization
+                 */
+                logger.warn("Cannot initialize class: "+className);
+            }
 
 		}
 		return cuts;

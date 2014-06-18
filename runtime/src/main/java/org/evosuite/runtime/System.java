@@ -28,6 +28,10 @@ import java.util.Map;
 import java.util.PropertyPermission;
 import java.util.Set;
 
+import org.evosuite.runtime.sandbox.Sandbox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 
 /**
@@ -39,30 +43,45 @@ import java.util.Set;
  */
 public class System {
 
+	private static final Logger logger = LoggerFactory.getLogger(System.class);
+	
 	private static boolean wasTimeAccessed = false;
 
 	/**
 	 * Default Java properties before we run the SUT
 	 */
-	private static final java.util.Properties defaultProperties  =  
-			(java.util.Properties) java.lang.System.getProperties().clone();
+	private static final java.util.Properties defaultProperties;
 
-	
-	private static final Set<String> systemProperties = new HashSet<String>(Arrays.asList(new String[]{"java.version", "java.vendor", "java.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor",	
-			"java.vm.specification.name", "java.vm.version", "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor", 	
-			"java.specification.name", "java.class.version", "java.class.path", "java.library.path", "java.io.tmpdir", "java.compiler", "java.ext.dirs",	
-			"os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "user.name", "user.home", "user.dir"}));
-	
+	private static final Set<String> systemProperties; 
+
+	static {
+		java.util.Properties prop = null;
+		try{
+			prop =  (java.util.Properties) java.lang.System.getProperties().clone();
+		} catch(Exception e){
+			//logger.error("Error while initializing System: "+e.getMessage(),e);
+		}
+		defaultProperties = prop;
+
+		systemProperties = new HashSet<String>(Arrays.asList(new String[]{"java.version", "java.vendor", "java.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor",	
+				"java.vm.specification.name", "java.vm.version", "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor", 	
+				"java.specification.name", "java.class.version", "java.class.path", "java.library.path", "java.io.tmpdir", "java.compiler", "java.ext.dirs",	
+				"os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "user.name", "user.home", "user.dir"}));	
+	}
+
+
+
+
 	/**
 	 * If SUT changed some properties, we need to re-set the default values
 	 */
 	private static volatile boolean needToRestoreProperties;
-	
+
 	/**
 	 * Keep track of which System properties were read
 	 */
 	private static final Set<String> readProperties = new LinkedHashSet<String>();
-	
+
 	/**
 	 * Restore to their original values all the properties that have
 	 * been modified during test execution
@@ -83,11 +102,11 @@ public class System {
 	public static boolean wasAnyPropertyWritten(){
 		return needToRestoreProperties;
 	}
-	
+
 	public static boolean isSystemProperty(String property) {
 		return systemProperties.contains(property);
 	}
-	
+
 	public static boolean handlePropertyPermission(PropertyPermission perm){
 		/*
 		 * we allow both writing and reading any properties. But, if SUT writes anything, then we need to re-store the values to their default. this
@@ -101,9 +120,9 @@ public class System {
 			 */
 			return true;
 		}
-		
+
 		if (perm.getActions().contains("write")) {
-						
+
 			if(!RuntimeSettings.mockJVMNonDeterminism){
 				if(isSystemProperty(perm.getName())) {
 					return false;
@@ -111,7 +130,7 @@ public class System {
 					return true;
 				}
 			}
-			
+
 			synchronized (defaultProperties) {				
 				needToRestoreProperties = true;
 			}
@@ -122,13 +141,13 @@ public class System {
 
 		return true;
 	}
-	
+
 	public static Set<String> getAllPropertiesReadSoFar(){
 		Set<String> copy = new LinkedHashSet<String>();
 		copy.addAll(readProperties);
 		return copy;
 	}
-	
+
 	/**
 	 * <p >
 	 * This exception tells the test execution that it should stop at this point
@@ -174,7 +193,7 @@ public class System {
 		wasTimeAccessed = true;
 		return currentTime; //++;
 	}
-	
+
 	/**
 	 * Get time without modifying whether the time was accessed.
 	 * This is important as otherwise the use of VFS would always
@@ -186,21 +205,21 @@ public class System {
 		//wasTimeAccessed = true;
 		return currentTime; //++;
 	}
-	
+
 	private static Map<Integer, Integer> hashKeys = new HashMap<Integer, Integer>();
-	
+
 	public static void registerObjectForIdentityHashCode(Object o) {
 		identityHashCode(o);
 	}
-	
+
 	public static int identityHashCode(Object o) {
 		if(o == null)
 			return 0;
-		
+
 		Integer realId = java.lang.System.identityHashCode(o);
 		if(!hashKeys.containsKey(realId))
 			hashKeys.put(realId, hashKeys.size() + 1);
-		
+
 		return hashKeys.get(realId);
 	}
 
@@ -213,7 +232,7 @@ public class System {
 		wasTimeAccessed = true;
 		return currentTime * 1000; //++;
 	}
-	
+
 	/**
 	 * Replacement function for for Runtime.freeMemory()
 	 * @return
@@ -229,7 +248,7 @@ public class System {
 	public static long maxMemory() {
 		return 0L;
 	}
-	
+
 	/**
 	 * Replacement function for for Runtime.totalMemory()
 	 * @return
@@ -237,7 +256,7 @@ public class System {
 	public static long totalMemory() {
 		return 0L;
 	}
-	
+
 	/**
 	 * Replacement function for for Runtime.availableProcessors()
 	 * @return
@@ -275,7 +294,7 @@ public class System {
 	 */
 	public static void fullReset(){
 		resetRuntime();
-		
+
 		/*
 		 * System properties have to be treated very specially because
 		 * we want to keep track of them when they are accessed in
@@ -283,7 +302,7 @@ public class System {
 		 */
 		readProperties.clear();
 	}
-	
+
 	/**
 	 * Getter to check whether the runtime replacement for time was accessed during test
 	 * execution

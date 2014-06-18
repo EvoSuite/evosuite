@@ -11,9 +11,13 @@
 	<modules>
 		<module>SimpleModule</module>
 		<module>ModuleWithOneDependency</module>
+        <!-- TODO a module with runtime dependency -->
 	</modules>
 
 
+    <properties>
+        <evosuiteVersion>0.1-SNAPSHOT</evosuiteVersion>  <!-- this needs to be overriden with -D -->
+    </properties>
 
 	<dependencies>
 		<dependency>
@@ -24,44 +28,70 @@
 		</dependency>
 		<dependency>
 			<groupId>org.evosuite</groupId>
-			<artifactId>evosuite</artifactId>
-			<version>0.1-SNAPSHOT</version>
-			<scope>test</scope>
+			<artifactId>evosuite-runtime</artifactId>
+			<version>${evosuiteVersion}</version>
+			<scope>system</scope>
+            <systemPath>${basedir}/../../../../runtime/target/evosuite-runtime-${evosuiteVersion}.jar</systemPath>
 		</dependency>
 	</dependencies>
 
+    <!--
+        this does not work, as we would need a full formatted repository.
+        Maybe we could use some special plugin to test this plugin:
+
+        http://maven.apache.org/plugin-testing/
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>localPackaged</id>
+            <url>file://${basedir}/../../target/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+    -->
+
+
 	<build>
+
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>.continuous_evosuite/evosuite-tests</source>
+                                <source>foo</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>org.evosuite</groupId>
+					<groupId>org.evosuite.plugins</groupId>
 					<artifactId>evosuite-maven-plugin</artifactId>
-					<version>1.0</version> <!-- NOTE: this needs to be modified at each new release -->
+					<version>${evosuiteVersion}</version>
 				</plugin>
-
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>1.8</version>
-					<executions>
-						<execution>
-							<id>add-test-source</id>
-							<phase>generate-test-sources</phase>
-							<goals>
-								<goal>add-test-source</goal>
-							</goals>
-							<configuration>
-								<sources>
-									<source>.continuous_evosuite/evosuite-tests</source>
-									<source>foo</source>
-								</sources>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-
-			</plugins>
+            </plugins>
 		</pluginManagement>
+
 	</build>
 
 </project>
