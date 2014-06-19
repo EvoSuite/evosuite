@@ -16,7 +16,32 @@ public class ProjectAnalyzerTest {
 		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
 	}
 
-	@Test
+    @Test
+    public void testActualScanWithPrefix(){
+        String target = "target/test-classes";
+        String prefix = "com.examples";
+
+        ProjectAnalyzer pa = new ProjectAnalyzer(target,prefix);
+
+        ProjectStaticData data = pa.analyze();
+
+        Assert.assertTrue(data.getTotalNumberOfClasses() > 0);
+    }
+
+    @Test
+    public void testActualScanWithNoPrefix(){
+        String target = "target/test-classes";
+        String prefix = null;
+
+        ProjectAnalyzer pa = new ProjectAnalyzer(target,prefix);
+
+        ProjectStaticData data = pa.analyze();
+
+        Assert.assertTrue(data.getTotalNumberOfClasses() > 0);
+    }
+
+
+    @Test
 	public void testBranches() {
 
 		String[] cuts = new String[] { Simple.class.getName(), Trivial.class.getName() };

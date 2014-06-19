@@ -66,7 +66,7 @@ public class Continuous {
 			}
 		}
 
-		String prefix = null;
+		String prefix = "";
 		if (line.hasOption("prefix")) {
 			prefix = line.getOptionValue("prefix");
 		} 
