@@ -466,31 +466,38 @@ public class TestSuiteMinimizer {
 
 		Collections.reverse(tests);
 		List<TestChromosome> finalTests = new ArrayList<TestChromosome>();
-		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(
-		        testFitnessFactory.get(0).getCoverageGoals()); // FIXME: check goals of every test fitness
-		
+		Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
+		//List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(testFitnessFactory.get(0).getCoverageGoals()); // FIXME: check goals of every test fitness
+		List<List<TestFitnessFunction>> goals = new ArrayList<List<TestFitnessFunction>>(); // FIXME: check goals of every test fitness
+
+		for (TestFitnessFactory<?> tf : testFitnessFactory) {
+		    goals.add((List<TestFitnessFunction>) tf.getCoverageGoals());
+		}
+
 		for(TestChromosome test : tests) {
 			boolean addsNewGoals = false;
-			for (TestFitnessFunction goal : goals) {
-				
-				if(!coveredGoals.contains(goal)) {
-					if(goal.isCovered(test)) {
-						addsNewGoals = true;
-						coveredGoals.add(goal);
-					}
-				}
+			for (List<TestFitnessFunction> l_goals : goals)
+			{
+    			for (TestFitnessFunction goal : l_goals) {
+    				if(!coveredGoals.contains(goal)) {
+    					if(goal.isCovered(test)) {
+    						addsNewGoals = true;
+    						coveredGoals.add(goal);
+    					}
+    				}
+    			}
 			}
+
 			if(addsNewGoals) {
 				coveredGoals.addAll(test.getTestCase().getCoveredGoals());
 				finalTests.add(test);
 			}
 		}
+
 		Collections.reverse(finalTests);
 		suite.getTestChromosomes().clear();
 		suite.getTestChromosomes().addAll(finalTests);
 		logger.debug("After removing redundant tests: " + tests.size());
-
 	}
 
 }
