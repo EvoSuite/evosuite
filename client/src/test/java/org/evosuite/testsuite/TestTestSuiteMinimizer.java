@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.ga.ConstructionFailedException;
@@ -17,6 +19,7 @@ import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.IntPrimitiveStatement;
 import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
@@ -34,9 +37,7 @@ public class TestTestSuiteMinimizer
     @Before
     public void setUp()
     {
-        Properties.MINIMIZE_OLD = true;
         Randomness.setSeed(42);
-
         Properties.TARGET_CLASS = "";
     }
 
@@ -55,8 +56,8 @@ public class TestTestSuiteMinimizer
         tsc.setFitness(ff, previous_fitness);
         assertEquals(previous_fitness, 0.0, 0.0);
 
-        TestSuiteMinimizer minimizer = new TestSuiteMinimizer(null);
-        minimizer.minimize(tsc);
+        TestSuiteMinimizer minimizer = new TestSuiteMinimizer(new BranchCoverageFactory());
+        minimizer.minimize(tsc, false);
         assertTrue(tsc.getTestChromosomes().size() == 0);
 
         double fitness = ff.getFitness(tsc);
@@ -84,8 +85,8 @@ public class TestTestSuiteMinimizer
         tsc.setFitness(ff, previous_fitness);
         assertEquals(previous_fitness, 0.0, 0.0);
 
-        TestSuiteMinimizer minimizer = new TestSuiteMinimizer(null);
-        minimizer.minimize(tsc);
+        TestSuiteMinimizer minimizer = new TestSuiteMinimizer(new BranchCoverageFactory());
+        minimizer.minimize(tsc, false);
         assertTrue(tsc.getTestChromosomes().size() == 0);
 
         double fitness = ff.getFitness(tsc);
@@ -127,8 +128,9 @@ public class TestTestSuiteMinimizer
         tsc.setFitness(ff, previous_fitness);
         assertEquals(previous_fitness, 2.0, 0.0);
 
-        TestSuiteMinimizer minimizer = new TestSuiteMinimizer(null);
-        minimizer.minimize(tsc);
+        TestSuiteMinimizer minimizer = new TestSuiteMinimizer(new BranchCoverageFactory());
+        minimizer.minimize(tsc, false);
+        System.out.println(tsc.getTests().get(0).toCode());
         assertTrue(tsc.getTests().get(0).toCode().equals("FlagExample1 flagExample1_0 = new FlagExample1();\nint int0 = 28234;\nboolean boolean0 = flagExample1_0.testMe(int0);\n"));
 
         double fitness = ff.getFitness(tsc);
@@ -179,8 +181,8 @@ public class TestTestSuiteMinimizer
         tsc.setFitness(ff, previous_fitness);
         assertEquals(previous_fitness, 0.0, 0.0);
 
-        TestSuiteMinimizer minimizer = new TestSuiteMinimizer(null);
-        minimizer.minimize(tsc);
+        TestSuiteMinimizer minimizer = new TestSuiteMinimizer(new BranchCoverageFactory());
+        minimizer.minimize(tsc, false);
         assertTrue(tsc.getTests().get(0).toCode().equals("FlagExample1 flagExample1_0 = new FlagExample1();\nint int0 = 28234;\nint int1 = 28241;\nboolean boolean0 = flagExample1_0.testMe(int1);\nboolean boolean1 = flagExample1_0.testMe(int0);\n"));
 
         double fitness = ff.getFitness(tsc);

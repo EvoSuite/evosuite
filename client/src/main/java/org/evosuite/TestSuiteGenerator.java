@@ -728,19 +728,23 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		if (Properties.CRITERION.length == 1) {
-    		if (Properties.MINIMIZE) {
-    			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
-    			LoggingUtils.getEvoLogger().info("* Minimizing result");
-    			// progressMonitor.setCurrentPhase("Minimizing test cases");
-    			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories.get(0));
-    			minimizer.minimize(bests.get(0));
-    		} else {
-    		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, bests.get(0).size());
-    		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, bests.get(0).size());
-    		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, bests.get(0).totalLengthOfTestCases());
-                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, bests.get(0).totalLengthOfTestCases());
-    		}
+		if (Properties.MINIMIZE) {
+			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
+			LoggingUtils.getEvoLogger().info("* Minimizing test suite(s)");
+			// progressMonitor.setCurrentPhase("Minimizing test cases");
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
+			if (Properties.CRITERION.length == 1) {
+			    minimizer.minimize(bests.get(0), true);
+			}
+			else {
+			    for (TestSuiteChromosome best : bests)
+			        minimizer.minimize(best, false);
+			}
+		} else {
+		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, bests.get(0).size());
+		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, bests.get(0).size());
+		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, bests.get(0).totalLengthOfTestCases());
+            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, bests.get(0).totalLengthOfTestCases());
 		}
 
 		if (Properties.COVERAGE) {
@@ -1009,7 +1013,7 @@ public class TestSuiteGenerator {
 		TestSuiteChromosome suite = factory.getChromosome();
 		if (Properties.RANDOM_TESTS > 0) {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
-			minimizer.minimize(suite);
+			minimizer.minimize(suite, true);
 			LoggingUtils.getEvoLogger().info("* Initial test suite contains "
 			                                         + suite.size() + " tests");
 		}
@@ -1146,8 +1150,8 @@ public class TestSuiteGenerator {
 		if (Properties.MINIMIZE) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
-			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory().get(0)); // FIXME: just one FitnessFactory?
-			minimizer.minimize((TestSuiteChromosome) suiteGA.getBestIndividual());
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
+			minimizer.minimize((TestSuiteChromosome) suiteGA.getBestIndividual(), true);
 		}
 		//statistics.minimized(suiteGA.getBestIndividual()); // FIXME: only best individual or ALL best individuals?
 
@@ -1290,7 +1294,7 @@ public class TestSuiteGenerator {
 					logger.info("Found solution, adding to test suite at "
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
-					if (Properties.MINIMIZE && !Properties.MINIMIZE_OLD) {
+					if (Properties.MINIMIZE) {
 						ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 						TestCaseMinimizer minimizer = new TestCaseMinimizer(
 						        fitnessFunction);
@@ -1416,11 +1420,11 @@ public class TestSuiteGenerator {
 		        + suite.totalLengthOfTestCases());
 
 		// Generate a test suite chromosome once all test cases are done?
-		if (Properties.MINIMIZE && Properties.MINIMIZE_OLD && Properties.CRITERION.length == 1) {
+		if (Properties.MINIMIZE) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
 			logger.info("Size before: " + suite.totalLengthOfTestCases());
-			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories.get(0));
-			minimizer.minimize(suite);
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
+			minimizer.minimize(suite, true);
 			logger.info("Size after: " + suite.totalLengthOfTestCases());
 		}
 
