@@ -61,6 +61,11 @@ public class CommandLineParameters {
 				}
 			}
 		}
+
+        String junitSuffix = properties.getProperty("junit_suffix");
+        if(junitSuffix!=null && !junitSuffix.endsWith("Test")){
+            throw new IllegalArgumentException("A JUnit suffix should always end with a 'Test'");
+        }
 	}
 	
 	

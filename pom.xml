@@ -17,6 +17,7 @@
 		<module>client</module>
 		<module>runtime</module>
 		<module>plugins</module>
+        <module>dsc</module>
 	</modules>
 
 	<developers>
@@ -264,13 +265,6 @@
 				<version>2.3</version>
 			</dependency>
 			<dependency>
-				<!-- Based on DSC: adhoc license, copyright holder is The University 
-					of Texas at Arlington -->
-				<groupId>org.evosuite</groupId>
-				<artifactId>dsc-evosuite</artifactId>
-				<version>0.3.18</version>
-			</dependency>
-			<dependency>
 				<!-- BSD -->
 				<groupId>dk.brics.automaton</groupId>
 				<artifactId>automaton</artifactId>
@@ -433,7 +427,7 @@
 			<!-- <configuration> -->
 			<!-- <header>src/etc/header.txt</header> -->
 			<!-- <excludes> -->
-			<!-- <exclude>LICENSE.txt</exclude> -->
+			<!-- <exclude>DSC_LICENSE.txt</exclude> -->
 			<!-- </excludes> -->
 			<!-- </configuration> -->
 			<!-- </plugin> -->
