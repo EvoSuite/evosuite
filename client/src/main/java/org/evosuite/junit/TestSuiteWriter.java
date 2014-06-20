@@ -1006,7 +1006,7 @@ public class TestSuiteWriter implements Opcodes {
 			//need to setup the Sandbox mode
 			bd.append(BLOCK_SPACE);
 			bd.append(RuntimeSettings.class.getName()+".sandboxMode = "+
-                    Sandbox.SandboxMode.class.getName() + Properties.SANDBOX_MODE + "; \n");
+                    Sandbox.SandboxMode.class.getCanonicalName() + "." + Properties.SANDBOX_MODE + "; \n");
 
 			bd.append(BLOCK_SPACE);
 			bd.append(Sandbox.class.getName()+".initializeSecurityManagerForSUT(); \n");

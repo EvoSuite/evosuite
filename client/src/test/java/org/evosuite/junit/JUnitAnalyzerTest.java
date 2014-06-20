@@ -90,7 +90,7 @@ public class JUnitAnalyzerTest {
 		
 		TestCase test = carved.getTestCase();
 		
-		Assert.assertEquals("Shouble be: constructor, 1 variable and 1 method", 3, test.size());
+		Assert.assertEquals("Should be: constructor, 1 variable and 1 method", 3, test.size());
 
 		//Now that we have a test case, we check its execution after
 		//recompiling it to JUnit, and see if sandbox kicks in
