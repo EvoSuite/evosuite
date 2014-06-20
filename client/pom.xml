@@ -21,8 +21,15 @@
 			<artifactId>evosuite-runtime</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>org.evosuite</groupId>
+            <artifactId>evosuite-dsc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
 
         <!-- Third-party modules -->
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -46,10 +53,6 @@
         <dependency>
             <groupId>net.sf.opencsv</groupId>
             <artifactId>opencsv</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.evosuite</groupId>
-            <artifactId>dsc-evosuite</artifactId>
         </dependency>
         <dependency>
             <groupId>dk.brics.automaton</groupId>

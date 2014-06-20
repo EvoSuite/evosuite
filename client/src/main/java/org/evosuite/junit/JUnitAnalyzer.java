@@ -272,7 +272,7 @@ public class JUnitAnalyzer {
 		suite.insertTests(tests);
 
 		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-		name += "Test_" + NUM++; //postfix
+		name += (NUM++) + "_Test" ; //postfix
 
 		try {
 			//now generate the JUnit test case
