@@ -69,7 +69,6 @@ public class ClientProcess {
 			 * EvoSuite, those will use the agent.
 			 * But for some arcane reason, the loading there fails.
 			 */
-			AgentLoader.loadAgent();
 
             ToolsJarLocator locator = new ToolsJarLocator(Properties.TOOLS_JAR_LOCATION);
             locator.getLoaderForToolsJar();
@@ -85,6 +84,8 @@ public class ClientProcess {
                     throw new RuntimeException("Failed to add " + locator.getLocationNotOnClasspath() + " to system classpath");
                 }
             }
+
+            AgentLoader.loadAgent();
 		}
 
         MSecurityManager.setupMasterNodeRemoteHandling(MasterNodeRemote.class);
