@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.jdt.core.IJavaElement"
+            id="org.evosuite.contribution">
+         <menu
+               label="EvoSuite"
+               path="additions"
+               icon="icons/evosuite.gif"
+               id="org.evosuite.menu">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <!--
+         <action
+               label="Extend JUnit Test Suite"
+               class="org.evosuite.eclipse.popup.actions.ExtendSuiteAction"
+               menubarPath="org.evosuite.menu/group1"
+               state="true"
+               style="push"
+               tooltip="Generate further tests for existing JUnit test class"
+               enablesFor="1"
+               id="org.evosuite.EvoSuiteExtendAction">
+               <visibility>
+               <with variable="selection">
+                  <count value="1"/>
+                  <iterate> 
+                     <adapt type="org.eclipse.jdt.core.IJavaElement"> 
+                        <test property="org.eclipse.jdt.core.isInJavaProject"/>
+                        <test property="org.eclipse.jdt.core.hasTypeOnClasspath" value="junit.framework.Test"/>
+                        <test property="org.eclipse.jdt.junit.canLaunchAsJUnit" forcePluginActivation="true"/> 
+                      </adapt>
+                  </iterate>
+               </with>
+            </visibility>
+         </action>  
+         -->
+         <action
+               label="Generate JUnit Test Suite"
+               class="org.evosuite.eclipse.popup.actions.GenerateTestsAction"
+               menubarPath="org.evosuite.menu/group1"
+               state="true"
+               style="push"
+               tooltip="Make EvoSuite generate JUnit test classes"
+               enablesFor="1"
+               id="org.evosuite.EvoSuiteAction">
+         </action>
+      </objectContribution>
+            <objectContribution
+            id="org.evosuite.EditorContribution"
+            objectClass="org.eclipse.ui.IEditorInput"
+            nameFilter="*.java">
+            <menu
+                label="EvoSuite"
+                path="additions"
+                id="org.evosuite.EditorMenu"
+                icon="icons/evosuite.gif">
+                <separator
+                    name="group">
+                </separator>
+            </menu>
+            <!--
+            <action
+                label="Extend JUnit Test Suite"
+                class="org.evosuite.eclipse.popup.actions.ExtendSuiteEditorAction"
+                menubarPath="org.evosuite.EditorMenu/group"
+                enablesFor="1"
+                id="org.evosuite.EvoSuiteExtendAction2">
+            </action>
+            -->
+            <action
+                label="Generate JUnit Test Suite"
+                class="org.evosuite.eclipse.popup.actions.GenerateTestsEditorAction"
+                menubarPath="org.evosuite.EditorMenu/group"
+                enablesFor="1"
+                id="org.evosuite.EvoSuiteAction2">
+            </action>
+            
+        </objectContribution>
+      
+      <!--
+      <objectContribution
+            id="org.evosuite.EditorContribution"
+            objectClass="org.eclipse.ui.IEditorInput"
+            nameFilter="*.java">
+            <menu
+                label="EvoSuite"
+                path="additions"
+                id="org.evosuite.EditorMenu"
+                icon="icons/evosuite.gif">
+                <separator
+                    name="group">
+                </separator>
+            </menu>
+            <action
+                label="Replace Test"
+                class="org.evosuite.eclipse.popup.actions.ReplaceTestAction"
+                menubarPath="org.evosuite.EditorMenu/group"
+                enablesFor="1"
+                id="org.evosuite.ReplaceTestAction">
+            </action>
+        </objectContribution>
+        --> 
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            adaptable="true"
+            class="org.evosuite.eclipse.properties.EvosuitePropertyPage"
+            id="org.evosuite.properties.propertyPage"
+            name="EvoSuite"
+            nameFilter="*"
+            objectClass="org.eclipse.jdt.core.IJavaProject">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.jdt.core.classpathContainerInitializer">
+      <classpathContainerInitializer
+            class="org.evosuite.eclipse.properties.EvoSuiteClasspathContainerInitializer"
+            id="org.evosuite.eclipse.classpathContainerInitializer">
+      </classpathContainerInitializer>
+   </extension>
+   <extension
+         point="org.eclipse.jdt.ui.classpathContainerPage">
+      <classpathContainerPage
+            id="org.evosuite.eclipse.classpathContainerPage"
+            class="org.evosuite.eclipse.properties.EvoSuiteClasspathContainerPage"
+            name="EvoSuite runtime library">
+      </classpathContainerPage>
+   </extension>
+</plugin>
