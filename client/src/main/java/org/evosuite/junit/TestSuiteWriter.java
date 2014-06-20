@@ -997,8 +997,6 @@ public class TestSuiteWriter implements Opcodes {
 				bd.append(RuntimeSettings.class.getName()+".resetStaticState = true; \n");
 			}
 
-            //TODO sanbox mode?
-
 			bd.append(BLOCK_SPACE);
 			bd.append(InstrumentingAgent.class.getName()+".initialize(); \n");
 
@@ -1007,8 +1005,8 @@ public class TestSuiteWriter implements Opcodes {
 		if (wasSecurityException) {
 			//need to setup the Sandbox mode
 			bd.append(BLOCK_SPACE);
-			bd.append(Properties.class.getName()+".SANDBOX_MODE = SandboxMode."
-			        + Properties.SANDBOX_MODE + "; \n");
+			bd.append(RuntimeSettings.class.getName()+".sandboxMode = "+
+                    Sandbox.SandboxMode.class.getName() + Properties.SANDBOX_MODE + "; \n");
 
 			bd.append(BLOCK_SPACE);
 			bd.append(Sandbox.class.getName()+".initializeSecurityManagerForSUT(); \n");
