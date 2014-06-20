@@ -641,7 +641,7 @@ public class TestSuiteGenerator {
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
 		                                                                 goals.size());
 
-		List<TestSuiteChromosome> bests = new ArrayList<TestSuiteChromosome>();
+		List<TestSuiteChromosome> bestSuites = new ArrayList<TestSuiteChromosome>();
 		if (!(Properties.STOP_ZERO && goals.isEmpty())) {
 			// Perform search
 			LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed() );
@@ -649,16 +649,16 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 			ga.generateSolution();
-			bests = (List<TestSuiteChromosome>) ga.getBestIndividuals();
-			if (bests.isEmpty()) {
+			bestSuites = (List<TestSuiteChromosome>) ga.getBestIndividuals();
+			if (bestSuites.isEmpty()) {
 				LoggingUtils.getEvoLogger().warn("Could not find any suiteable chromosome");
-				return bests;
+				return bestSuites;
 			}
 		} else {
 			//statistics.searchStarted(ga);
 			//statistics.searchFinished(ga);
 			zero_fitness.setFinished();
-			for (TestSuiteChromosome best : bests)
+			for (TestSuiteChromosome best : bestSuites)
 			    best.setCoverage(1.0);
 		}
 
@@ -685,7 +685,7 @@ public class TestSuiteGenerator {
 			 * but one could use the test carver to produce a test on X out of it.
 			 */
 
-		    for (TestSuiteChromosome best : bests) {
+		    for (TestSuiteChromosome best : bestSuites) {
 		        // execute all tests to carve them
 		        final List<TestCase> carvedTests = this.carveTests(best.getTests());
 
@@ -697,18 +697,18 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
-		    SerializationSuiteChromosomeFactory.saveTests(bests);
+		    SerializationSuiteChromosomeFactory.saveTests(bestSuites);
         }
 
 		if (Properties.MINIMIZE_VALUES && 
 		                Properties.CRITERION.length == 1) {
-		    double fitness = bests.get(0).getFitness();
+		    double fitness = bestSuites.get(0).getFitness();
 
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZING_VALUES);
 			LoggingUtils.getEvoLogger().info("* Minimizing values");
 			ValueMinimizer minimizer = new ValueMinimizer();
-			minimizer.minimize(bests.get(0), (TestSuiteFitnessFunction) fitness_functions.get(0));
-			assert (fitness >= bests.get(0).getFitness());
+			minimizer.minimize(bestSuites.get(0), (TestSuiteFitnessFunction) fitness_functions.get(0));
+			assert (fitness >= bestSuites.get(0).getFitness());
 		}
 		// progressMonitor.updateStatus(33);
 
@@ -719,7 +719,7 @@ public class TestSuiteGenerator {
 			ConstantInliner inliner = new ConstantInliner();
 			// progressMonitor.setCurrentPhase("Inlining constants");
 
-			for (TestSuiteChromosome best : bests) {
+			for (TestSuiteChromosome best : bestSuites) {
                 Map<FitnessFunction<?>, Double> fitnesses = best.getFitnesses();
 
                 inliner.inline(best);
@@ -728,24 +728,28 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		if (Properties.CRITERION.length == 1) {
-    		if (Properties.MINIMIZE) {
-    			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
-    			LoggingUtils.getEvoLogger().info("* Minimizing result");
-    			// progressMonitor.setCurrentPhase("Minimizing test cases");
-    			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories.get(0));
-    			minimizer.minimize(bests.get(0));
-    		} else {
-    		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, bests.get(0).size());
-    		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, bests.get(0).size());
-    		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, bests.get(0).totalLengthOfTestCases());
-                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, bests.get(0).totalLengthOfTestCases());
-    		}
+		if (Properties.MINIMIZE) {
+			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
+			LoggingUtils.getEvoLogger().info("* Minimizing test suite(s)");
+			// progressMonitor.setCurrentPhase("Minimizing test cases");
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
+			if (Properties.CRITERION.length == 1) {
+			    minimizer.minimize(bestSuites.get(0), true);
+			}
+			else {
+			    for (TestSuiteChromosome best : bestSuites)
+			        minimizer.minimize(best, false);
+			}
+		} else {
+		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, bestSuites.get(0).size());
+		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, bestSuites.get(0).size());
+		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, bestSuites.get(0).totalLengthOfTestCases());
+            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, bestSuites.get(0).totalLengthOfTestCases());
 		}
 
 		if (Properties.COVERAGE) {
 		    for (Properties.Criterion pc : Properties.CRITERION)
-		        CoverageAnalysis.analyzeCoverage(bests.get(0), pc); // FIXME: can we send all bests?
+		        CoverageAnalysis.analyzeCoverage(bestSuites.get(0), pc); // FIXME: can we send all bestSuites?
 		}
 
 		// progressMonitor.updateStatus(99);
@@ -754,21 +758,21 @@ public class TestSuiteGenerator {
         int totalLengthOfTestCases = 0;
         double coverage = 0.0;
 
-        for (TestSuiteChromosome tsc : bests) {
+        for (TestSuiteChromosome tsc : bestSuites) {
             number_of_test_cases += tsc.size();
             totalLengthOfTestCases += tsc.totalLengthOfTestCases();
             coverage += tsc.getCoverage();
         }
-        coverage = coverage / ((double)bests.size());
+        coverage = coverage / ((double)bestSuites.size());
 
         if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
                 || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 		    //SearchStatistics.getInstance().mutationScore(coverage);
 		}
 
-		StatisticsSender.executedAndThenSendIndividualToMaster(bests.get(0)); // FIXME: can we send all bests?
+		StatisticsSender.executedAndThenSendIndividualToMaster(bestSuites.get(0)); // FIXME: can we send all bestSuites?
 		//statistics.iteration(ga);
-		//statistics.minimized(bests.get(0)); // FIXME: can we send all bests?
+		//statistics.minimized(bestSuites.get(0)); // FIXME: can we send all bestSuites?
 		LoggingUtils.getEvoLogger().info("* Generated " + number_of_test_cases
 		                                         + " tests with total length "
 		                                         + totalLengthOfTestCases);
@@ -776,7 +780,7 @@ public class TestSuiteGenerator {
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
 		    //SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), coverage);
-		    CoverageAnalysis.analyzeCriteria(bests.get(0), Properties.ANALYSIS_CRITERIA); // FIXME: can we send all bests?
+		    CoverageAnalysis.analyzeCriteria(bestSuites.get(0), Properties.ANALYSIS_CRITERIA); // FIXME: can we send all bestSuites?
 		}
 
 		LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "
@@ -792,7 +796,7 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.FILTER_SANDBOX_TESTS) {
-		    for (TestSuiteChromosome best : bests) {
+		    for (TestSuiteChromosome best : bestSuites) {
     			for (TestChromosome test : best.getTestChromosomes()) {
     				// delete all statements leading to security exceptions
     				ExecutionResult result = test.getLastExecutionResult();
@@ -811,7 +815,7 @@ public class TestSuiteGenerator {
 		    }
 		}
 
-		return bests;
+		return bestSuites;
 	}
 
 	private void printTestCriterion() {
@@ -1009,7 +1013,7 @@ public class TestSuiteGenerator {
 		TestSuiteChromosome suite = factory.getChromosome();
 		if (Properties.RANDOM_TESTS > 0) {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
-			minimizer.minimize(suite);
+			minimizer.minimize(suite, true);
 			LoggingUtils.getEvoLogger().info("* Initial test suite contains "
 			                                         + suite.size() + " tests");
 		}
@@ -1143,11 +1147,11 @@ public class TestSuiteGenerator {
 		//statistics.searchFinished(suiteGA);
 		suiteGA.printBudget();
 
-		if (Properties.MINIMIZE) {
+		if (Properties.MINIMIZE && Properties.CRITERION.length == 1) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
-			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory().get(0)); // FIXME: just one FitnessFactory?
-			minimizer.minimize((TestSuiteChromosome) suiteGA.getBestIndividual());
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
+			minimizer.minimize((TestSuiteChromosome) suiteGA.getBestIndividual(), true);
 		}
 		//statistics.minimized(suiteGA.getBestIndividual()); // FIXME: only best individual or ALL best individuals?
 
@@ -1290,7 +1294,7 @@ public class TestSuiteGenerator {
 					logger.info("Found solution, adding to test suite at "
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
-					if (Properties.MINIMIZE && !Properties.MINIMIZE_OLD) {
+					if (Properties.MINIMIZE && Properties.CRITERION.length == 1) {
 						ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 						TestCaseMinimizer minimizer = new TestCaseMinimizer(
 						        fitnessFunction);
@@ -1416,11 +1420,11 @@ public class TestSuiteGenerator {
 		        + suite.totalLengthOfTestCases());
 
 		// Generate a test suite chromosome once all test cases are done?
-		if (Properties.MINIMIZE && Properties.MINIMIZE_OLD && Properties.CRITERION.length == 1) {
+		if (Properties.MINIMIZE && Properties.CRITERION.length == 1) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
 			logger.info("Size before: " + suite.totalLengthOfTestCases());
-			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories.get(0));
-			minimizer.minimize(suite);
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
+			minimizer.minimize(suite, true);
 			logger.info("Size after: " + suite.totalLengthOfTestCases());
 		}
 
