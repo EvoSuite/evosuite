@@ -10,7 +10,6 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.utils.DebuggingObjectOutputStream;
@@ -91,9 +90,9 @@ public class SerializationSuiteChromosomeFactory
     /**
      * Serialize tests
      */
-    public static void saveTests(List<TestSuiteChromosome> bests)
+    public static void saveTests(List<TestSuiteChromosome> bestSuites)
     {
-        if (bests.size() > 0/* || previousSuite.getTestChromosomes().size() > 0*/)
+        if (bestSuites.size() > 0/* || previousSuite.getTestChromosomes().size() > 0*/)
         {
             try
             {
@@ -105,8 +104,7 @@ public class SerializationSuiteChromosomeFactory
                 /*for (TestChromosome tc : previousTests)
                     out.writeObject(tc);*/
 
-                // FIXME: we want to serialize several bests or all test cases?
-                for (TestSuiteChromosome best : bests)
+                for (TestSuiteChromosome best : bestSuites)
                 {
                     /*if (best instanceof TestChromosome)
                     {
