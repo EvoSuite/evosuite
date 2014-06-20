@@ -291,7 +291,22 @@ public class StorageManager {
 		for(File test : generatedTests){
 			
 			String testName = extractClassName(tmpTests,test);
-			String cut = testName.substring(0, testName.indexOf(junitSuffix));
+			
+			String cut = "";
+			for(String className : reports.keySet()){
+				/*
+				 * This is tricky. We cannot be 100% what is going to be appended to the
+				 * class name to form the test name, although the class name should still
+				 * be a prefix. We need to check for the longest prefix as to avoid cases like
+				 * 
+				 * org.Foo
+				 * org.Foo2
+				 */
+				if(testName.startsWith(className) && className.length() > cut.length()){
+					cut = className;
+				}
+			}
+			//String cut = testName.substring(0, testName.indexOf(junitSuffix)); //This does not work, eg cases like _N_suffix
 						
 			CsvJUnitData data = reports.get(cut); 
 			
