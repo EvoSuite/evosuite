@@ -454,7 +454,7 @@ public class TestSuiteGenerator {
 	public static List<TestGenerationResult> writeJUnitTestsAndCreateResult(List<TestSuiteChromosome> tests) {
 	    List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
 	    for (int i = 0; i < tests.size(); i++)
-	        results.add(writeJUnitTestsAndCreateResult(tests.get(i).getTests(), Properties.JUNIT_SUFFIX + "_" + i));
+	        results.add(writeJUnitTestsAndCreateResult(tests.get(i).getTests(), "_"+i+"_" + Properties.JUNIT_SUFFIX  ));
 	    return results;
 	}
 
