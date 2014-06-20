@@ -1276,7 +1276,18 @@ public class TestSuiteWriter implements Opcodes {
 	 * @param directory
 	 *            Output directory
 	 */
-	public List<File> writeTestSuite(String name, String directory) {
+	public List<File> writeTestSuite(String name, String directory) throws IllegalArgumentException {
+
+        if(name==null || name.isEmpty()){
+            throw new IllegalArgumentException("Empty test class name");
+        }
+        if(!name.endsWith("Test")){
+            /*
+             * This is VERY important, as otherwise tests can get ignored by "mvn test"
+             */
+            throw new IllegalArgumentException("Test classes should have name ending with 'Test'. Invalid input name: "+name);
+        }
+
 		List<File> generated = new ArrayList<File>();
 		String dir = makeDirectory(directory);
 		String content = "";
@@ -1289,7 +1300,7 @@ public class TestSuiteWriter implements Opcodes {
 			generated.add(file);
 		} else {
 			for (int i = 0; i < testCases.size(); i++) {
-				String testSuiteName = name + "_" + i;
+				String testSuiteName = name.substring(0,name.length()-"Test".length()) + "_" + i+"_Test";
 				File file = new File(dir + "/" + testSuiteName + ".java");
 				executor.newObservers();
 				String testCode = getUnitTest(name, i);
