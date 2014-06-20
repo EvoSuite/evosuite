@@ -1147,7 +1147,7 @@ public class TestSuiteGenerator {
 		//statistics.searchFinished(suiteGA);
 		suiteGA.printBudget();
 
-		if (Properties.MINIMIZE) {
+		if (Properties.MINIMIZE && Properties.CRITERION.length == 1) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
@@ -1294,7 +1294,7 @@ public class TestSuiteGenerator {
 					logger.info("Found solution, adding to test suite at "
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
-					if (Properties.MINIMIZE) {
+					if (Properties.MINIMIZE && Properties.CRITERION.length == 1) {
 						ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 						TestCaseMinimizer minimizer = new TestCaseMinimizer(
 						        fitnessFunction);
@@ -1420,7 +1420,7 @@ public class TestSuiteGenerator {
 		        + suite.totalLengthOfTestCases());
 
 		// Generate a test suite chromosome once all test cases are done?
-		if (Properties.MINIMIZE) {
+		if (Properties.MINIMIZE && Properties.CRITERION.length == 1) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
 			logger.info("Size before: " + suite.totalLengthOfTestCases());
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);

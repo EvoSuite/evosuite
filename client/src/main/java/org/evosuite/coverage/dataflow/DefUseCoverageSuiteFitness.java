@@ -489,8 +489,4 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 		return pairs;
 	}
-
-	public static void reset() {
-	    mostCoveredGoals.clear();
-	}
 }

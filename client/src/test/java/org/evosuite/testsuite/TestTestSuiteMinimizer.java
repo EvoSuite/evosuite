@@ -12,14 +12,10 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
-import org.evosuite.coverage.dataflow.DefUsePool;
-import org.evosuite.coverage.statement.StatementCoverageFactory;
-import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.graphs.cfg.CFGMethodAdapter;
+import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.IntPrimitiveStatement;
@@ -31,7 +27,6 @@ import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.Randomness;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.FlagExample1;
@@ -39,32 +34,35 @@ import com.examples.with.different.packagename.FlagExample1;
 @SuppressWarnings("unused")
 public class TestTestSuiteMinimizer
 {
+    private static java.util.Properties currentProperties;
+
     @Before
     public void setUp()
     {
+        Properties.getInstance().resetToDefaults();
+
         Randomness.setSeed(42);
         Properties.TARGET_CLASS = "";
+
+        TestGenerationContext.getInstance().resetContext();
+        ResetManager.getInstance().clearManager();
+        Randomness.setSeed(42);
+
+        currentProperties = (java.util.Properties) System.getProperties().clone();
     }
 
     @After
-    public void setDown()
+    public void tearDown()
     {
-        /*CFGMethodAdapter.reset();
-        BranchPool.reset();
-        DefUseCoverageSuiteFitness.reset();
-        DefUseCoverageFactory.clear();
-        DefUsePool.clear();*/
+        TestGenerationContext.getInstance().resetContext();
+        ResetManager.getInstance().clearManager();
+        System.setProperties(currentProperties);
+        Properties.getInstance().resetToDefaults();
     }
 
     @Test
     public void minimizeEmptySuite() throws ClassNotFoundException
     {
-        CFGMethodAdapter.reset();
-        BranchPool.reset();
-        DefUseCoverageSuiteFitness.reset();
-        DefUseCoverageFactory.clear();
-        DefUsePool.clear();
-
         DefaultTestCase test = new DefaultTestCase();
 
         TestSuiteChromosome tsc = new TestSuiteChromosome();
