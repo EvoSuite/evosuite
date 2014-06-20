@@ -719,6 +719,7 @@ public class Properties {
 
 	/** Constant <code>MINIMIZE_OLD=false</code> */
 	@Parameter(key = "minimize_old", group = "Output", description = "Minimize test suite using old algorithm")
+	@Deprecated
 	public static boolean MINIMIZE_OLD = false;
 
 	/** Constant <code>INLINE=false</code> */

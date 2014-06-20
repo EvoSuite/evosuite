@@ -123,6 +123,6 @@ public class TestZDT4
         double spdt = sp.evaluate(trueParetoFront);
         System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
                             + Math.abs(spd - spdt));
-        Assert.assertEquals(Math.abs(spd - spdt), 0.20, 0.05);
+        Assert.assertEquals(Math.abs(spd - spdt), 0.20, 0.10);
     }
 }

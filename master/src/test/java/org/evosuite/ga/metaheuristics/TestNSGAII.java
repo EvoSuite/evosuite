@@ -291,7 +291,7 @@ public class TestNSGAII extends SystemTest
             "-Dselection_function=BINARY_TOURNAMENT",
             "-Dminimize_values=false",
             "-Dinline=false",
-            "-Dminimize=false",
+            "-Dminimize=true",
             "-Dstop_zero=false",
             "-Dcoverage=true",
             "-Djunit_tests=true",
