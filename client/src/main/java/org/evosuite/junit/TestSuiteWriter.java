@@ -944,8 +944,13 @@ public class TestSuiteWriter implements Opcodes {
 					bd.append("java.lang.System.setProperty(\"" + escaped_prop + "\", \""
 					        + escaped_currentValue + "\"); \n");
 				} else {
-					bd.append("java.lang.System.clearProperty(\"" + escaped_prop
-					        + "\"); \n");
+					/*
+					 * In theory, we do not need to clear properties, as that is done with the reset to default.
+					 * Avoiding doing the clear is not only good for readability (ie, less commands) but also
+					 * to avoid crashes when properties are set based on SUT inputs. Eg, in classes like
+					 *  SassToCssBuilder in 108_liferay we ended up with hundreds of thousands set properties... 
+					 */
+					//bd.append("java.lang.System.clearProperty(\"" + escaped_prop + "\"); \n");
 				}
 			}
 		} else {
