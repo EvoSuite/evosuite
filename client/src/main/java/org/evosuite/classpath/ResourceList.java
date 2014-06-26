@@ -74,6 +74,12 @@ public class ResourceList {
 		 */
 		public Map<String,Set<String>> mapPrefixToCPs = new LinkedHashMap<>();
 
+		/**
+		 * Keep track of the classes that should be on the classpath but they are not
+		 */
+		public Set<String> missingClasses = new LinkedHashSet<>();
+		
+		
 		public void addPrefix(String prefix, String cpEntry){
 			Set<String> classPathEntries = mapPrefixToCPs.get(prefix);
 			if(classPathEntries==null){
@@ -139,7 +145,10 @@ public class ResourceList {
 
 		String cpEntry = getCache().mapClassToCP.get(name);
 		if(cpEntry==null){
-			logger.warn("The class "+name+" is not on the classapath");
+			if(!getCache().missingClasses.contains(name)){
+				getCache().missingClasses.add(name);
+				logger.warn("The class "+name+" is not on the classapath"); //only log once
+			}
 			return null;
 		}
 
