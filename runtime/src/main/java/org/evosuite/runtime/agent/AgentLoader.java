@@ -64,24 +64,30 @@ public class AgentLoader {
 		logger.info("Classpath: "+System.getProperty("java.class.path"));
 
 		try {
-			Class<?> string = toolLoader.loadClass("java.lang.String");
+			logger.info("Going to attach agent to process "+pid);
 
+			// FIXME giving problems with library loading
+						  
+			Class<?> string = toolLoader.loadClass("java.lang.String");
 			Class<?> clazz = toolLoader.loadClass("com.sun.tools.attach.VirtualMachine");
 			Method attach = clazz.getMethod("attach", string);
 
-			logger.info("Going to attach agent to process "+pid);
+			Object instance = attach.invoke(null, pid);
 
+			Method loadAgent = clazz.getMethod("loadAgent", string, string);
+			loadAgent.invoke(instance, jarFilePath, "");
+
+			Method detach = clazz.getMethod("detach");
+			detach.invoke(instance);
+			
+			
+			
+			//FIXME: This will fail if tools.jar not on classpath
+			/*
 			VirtualMachine vm = VirtualMachine.attach(pid);
-			//Object instance = attach.invoke(null, pid);
-
 			vm.loadAgent(jarFilePath, "");
-			//Method loadAgent = clazz.getMethod("loadAgent", string, string);
-			//loadAgent.invoke(instance, jarFilePath, "");
-
 			vm.detach(); 
-			//Method detach = clazz.getMethod("detach");
-			//detach.invoke(instance);
-
+			*/
 		} catch (Exception e) {
 			Throwable cause = e.getCause();
 			String causeDescription = cause==null ? "" : " , cause "+cause.getClass()+" "+cause.getMessage();
