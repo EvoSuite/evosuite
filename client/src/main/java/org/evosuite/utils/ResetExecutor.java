@@ -49,27 +49,22 @@ public class ResetExecutor {
 		try {
 			ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
 			Class<?> clazz = Class.forName(className, true, classLoader);
-			Method m = clazz.getMethod(ClassResetter.STATIC_RESET,
-		            (Class<?>[]) null);
+			Method m = clazz.getMethod(ClassResetter.STATIC_RESET, (Class<?>[]) null);
 			m.setAccessible(true);
 			return m;
 		
 		} catch (ClassNotFoundException e) {
 			logger.debug("Class " + className + " could not be found during setting up of assertion generation ");
-			return null;
 		} catch (NoSuchMethodException e) {
 			logger.debug("__STATIC_RESET() method does not exists in class " + className);
-			return null;
 		} catch (SecurityException e) {
 			logger.warn("Security exception thrown during loading of method  __STATIC_RESET() for class " + className);
-			return null;
 		} catch (ExceptionInInitializerError ex) {
-			logger.warn("Class " + className + " could not be initialized during __STATIC_RESET() execution ");;
-			return null;
+			logger.warn("Class " + className + " could not be initialized during __STATIC_RESET() execution: "+ex.getMessage());
 		} catch (LinkageError ex) {
-			logger.warn("Class " + className + "  initialization led to a Linkage error during during __STATIC_RESET() execution");;
-			return null;
+			logger.warn("Class " + className + "  initialization led to a Linkage error during during __STATIC_RESET() execution: "+ex.getMessage());
 		}
+		return null;
 	}
 
 	private void resetClass(String className) {
