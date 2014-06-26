@@ -183,7 +183,7 @@ public class TestGeneration {
 	private static List<List<TestGenerationResult>> generateTests(Properties.Strategy strategy, String target,
 	        List<String> args) {
 		
-		LoggingUtils.getEvoLogger().info("Going to generate test cases for class: "+target);
+		LoggingUtils.getEvoLogger().info("* Going to generate test cases for class: "+target);
 		
 		String classPath = ClassPathHandler.getInstance().getEvoSuiteClassPath();		
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();

@@ -46,7 +46,7 @@ public class StorageManager {
 
 	private static Logger logger = LoggerFactory.getLogger(StorageManager.class);
 
-	public static final String junitSuffix = "ContinuousEvoSuiteTest"; 
+	public static final String junitSuffix = "ES_Test"; 
 	
 	private final String rootFolderName;
 
