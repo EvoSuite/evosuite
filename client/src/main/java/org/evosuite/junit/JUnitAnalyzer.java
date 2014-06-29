@@ -25,6 +25,8 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.junit.writer.TestSuiteWriter;
+import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.junit.xml.JUnitProcessLauncher;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
@@ -152,7 +154,7 @@ public class JUnitAnalyzer {
 			failure_loop: for (JUnitFailure failure : result.getFailures()) {
 				String testName = failure.getDescriptionMethodName();//TODO check if correct
 				for (int i = 0; i < tests.size(); i++) {
-					if (TestSuiteWriter.getNameOfTest(tests, i).equals(testName)) {
+					if (TestSuiteWriterUtils.getNameOfTest(tests, i).equals(testName)) {
 						if (tests.get(i).isFailing()) {
 							logger.info("Failure is expected, continuing...");
 							continue failure_loop;
@@ -168,7 +170,7 @@ public class JUnitAnalyzer {
 				boolean toRemove = !(failure.isAssertionError());
 
 				for (int i = 0; i < tests.size(); i++) {
-					if (TestSuiteWriter.getNameOfTest(tests, i).equals(testName)) {
+					if (TestSuiteWriterUtils.getNameOfTest(tests, i).equals(testName)) {
 						logger.warn("Failing test: " + tests.get(i).toCode());
 						numUnstable++;
 						/*
