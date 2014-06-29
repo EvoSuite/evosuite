@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.junit.TestSuiteWriter;
+import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;

@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.junit;
+package org.evosuite.junit.writer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,6 +50,9 @@ import org.evosuite.Properties.OutputFormat;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
+import org.evosuite.junit.JUnit3TestAdapter;
+import org.evosuite.junit.JUnit4TestAdapter;
+import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
@@ -98,7 +102,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	protected Map<Integer, String> testComment = new HashMap<Integer, String>();
 
-	private final UnitTestAdapter adapter = TestSuiteWriter.getAdapter();
+	private final UnitTestAdapter adapter = TestSuiteWriterUtils.getAdapter();
 
 	private TestCodeVisitor visitor = Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED ? visitor = new StructuredTestCodeVisitor()
 	        : new TestCodeVisitor();
@@ -109,68 +113,11 @@ public class TestSuiteWriter implements Opcodes {
 	private static final String INNER_INNER_BLOCK_SPACE = "        ";
 	private static final String INNER_INNER_INNER_BLOCK_SPACE = "          ";
 
-	private final String EXECUTOR_SERVICE = "executor";
+	private static final String EXECUTOR_SERVICE = "executor";
+	private static final String DEFAULT_PROPERTIES = "defaultProperties";
 
-	private final String DEFAULT_PROPERTIES = "defaultProperties";
+	private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
 
-	/**
-	 * FIXME: this filter assumes "Test" as prefix, but would be better to have
-	 * it as postfix (and as a variable)
-	 * 
-	 */
-	class TestFilter implements IOFileFilter {
-		@Override
-		public boolean accept(File f, String s) {
-			return s.toLowerCase().endsWith(".java") && s.startsWith("Test");
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.apache.commons.io.filefilter.IOFileFilter#accept(java.io.File)
-		 */
-		@Override
-		public boolean accept(File file) {
-			return file.getName().toLowerCase().endsWith(".java")
-			        && file.getName().startsWith("Test");
-		}
-	}
-
-	/**
-	 * Check if there are test cases
-	 * 
-	 * @return True if there are no test cases
-	 */
-	public boolean isEmpty() {
-		return testCases.isEmpty();
-	}
-
-	/**
-	 * <p>
-	 * size
-	 * </p>
-	 * 
-	 * @return a int.
-	 */
-	public int size() {
-		return testCases.size();
-	}
-
-	/**
-	 * Check if test suite has a test case that is a prefix of test.
-	 * 
-	 * @param test
-	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 * @return a boolean.
-	 */
-	public boolean hasPrefix(TestCase test) {
-		for (TestCase t : testCases) {
-			if (t.isPrefix(test))
-				return true;
-		}
-		return false;
-	}
 
 	/**
 	 * Add test to suite. If the test is a prefix of an existing test, just keep
@@ -265,6 +212,111 @@ public class TestSuiteWriter implements Opcodes {
 		return testCases;
 	}
 
+	
+	/**
+	 * Create JUnit test suite for class
+	 * 
+	 * @param name
+	 *            Name of the class
+	 * @param directory
+	 *            Output directory
+	 */
+	public List<File> writeTestSuite(String name, String directory) throws IllegalArgumentException {
+
+        if(name==null || name.isEmpty()){
+            throw new IllegalArgumentException("Empty test class name");
+        }
+        if(!name.endsWith("Test")){
+            /*
+             * This is VERY important, as otherwise tests can get ignored by "mvn test"
+             */
+            throw new IllegalArgumentException("Test classes should have name ending with 'Test'. Invalid input name: "+name);
+        }
+
+		List<File> generated = new ArrayList<File>();
+		String dir = TestSuiteWriterUtils.makeDirectory(directory);
+		String content = "";
+
+		if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
+			File file = new File(dir + "/" + name + ".java");
+			executor.newObservers();
+			content = getUnitTest(name);
+			Utils.writeFile(content, file);
+			generated.add(file);
+		} else {
+			for (int i = 0; i < testCases.size(); i++) {
+				String testSuiteName = name.substring(0,name.length()-"Test".length()) + "_" + i+"_Test";
+				File file = new File(dir + "/" + testSuiteName + ".java");
+				executor.newObservers();
+				String testCode = getUnitTest(name, i);
+				Utils.writeFile(testCode, file);
+				content += testCode;
+				generated.add(file);
+			}
+		}
+		TestGenerationResultBuilder.getInstance().setTestSuiteCode(content);
+		return generated;
+	}
+	
+	/**
+	 * Create JUnit file for given class name
+	 * 
+	 * @param name
+	 *            Name of the class file
+	 * @return String representation of JUnit test file
+	 */
+	private String getUnitTest(String name) {
+		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
+
+		for (int i = 0; i < testCases.size(); i++) {
+			ExecutionResult result = runTest(testCases.get(i));
+			results.add(result);
+		}
+
+		/*
+		 * if there was any security exception, then we need to scaffold the
+		 * test cases with a sandbox
+		 */
+		boolean wasSecurityException = TestSuiteWriterUtils.hasAnySecurityException(results);
+
+		StringBuilder builder = new StringBuilder();
+
+		builder.append(getHeader(name, results));
+		builder.append(getBeforeAndAfterMethods(name, wasSecurityException, results));
+
+		for (int i = 0; i < testCases.size(); i++) {
+			builder.append(testToString(i, i, results.get(i)));
+		}
+		builder.append(getFooter());
+
+		return builder.toString();
+	}
+
+	/**
+	 * Create JUnit file for given class name
+	 * 
+	 * @param name
+	 *            Name of the class file
+	 * @return String representation of JUnit test file
+	 * @param testId
+	 *            a int.
+	 */
+	private String getUnitTest(String name, int testId) {
+		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
+		ExecutionResult result = runTest(testCases.get(testId));
+		results.add(result);
+		boolean wasSecurityException = result.hasSecurityException();
+
+		StringBuilder builder = new StringBuilder();
+
+		builder.append(getHeader(name + "_" + testId, results));
+		builder.append(getBeforeAndAfterMethods(name, wasSecurityException, results));
+		builder.append(testToString(testId, testId, results.get(0)));
+		builder.append(getFooter());
+
+		return builder.toString();
+	}
+	
 	/**
 	 * <p>
 	 * runTest
@@ -274,7 +326,7 @@ public class TestSuiteWriter implements Opcodes {
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
-	ExecutionResult runTest(TestCase test) {
+	protected ExecutionResult runTest(TestCase test) {
 
 		ExecutionResult result = new ExecutionResult(test, null);
 
@@ -288,46 +340,11 @@ public class TestSuiteWriter implements Opcodes {
 		return result;
 	}
 
-	/**
-	 * Create subdirectory for package in test directory
-	 * 
-	 * @param directory
-	 *            a {@link java.lang.String} object.
-	 * @return a {@link java.lang.String} object.
-	 */
-	protected String makeDirectory(String directory) {
-		String dirname = directory + File.separator
-		        + Properties.CLASS_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
-		File dir = new File(dirname);
-		logger.debug("Target directory: " + dirname);
-		dir.mkdirs();
-		return dirname;
-	}
 
-	/**
-	 * Create subdirectory for package in test directory
-	 * 
-	 * @param directory
-	 *            a {@link java.lang.String} object.
-	 * @return a {@link java.lang.String} object.
-	 */
-	protected String mainDirectory(String directory) {
-		String dirname = directory + File.separator
-		        + Properties.PROJECT_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
-		File dir = new File(dirname);
-		logger.debug("Target directory: " + dirname);
-		dir.mkdirs();
-		return dirname;
-	}
-
-	protected static boolean hasAnySecurityException(List<ExecutionResult> results) {
-		for (ExecutionResult result : results) {
-			if (result.hasSecurityException()) {
-				return true;
-			}
-		}
-		return false;
-	}
+	// -----------------------------------------------------------
+	// --------------   code generation methods ------------------
+	// -----------------------------------------------------------
+	
 
 	/**
 	 * Determine packages that need to be imported in the JUnit file
@@ -339,21 +356,10 @@ public class TestSuiteWriter implements Opcodes {
 	protected String getImports(List<ExecutionResult> results) {
 		StringBuilder builder = new StringBuilder();
 		Set<Class<?>> imports = new HashSet<Class<?>>();
-		boolean wasSecurityException = hasAnySecurityException(results);
+		boolean wasSecurityException = TestSuiteWriterUtils.hasAnySecurityException(results);
 
 		for (ExecutionResult result : results) {
 			result.test.accept(visitor);
-
-			// TODO: This should be unnecessary 
-			// Iterate over declared exceptions to make sure they are known to the visitor
-			/*
-			Set<Class<?>> exceptions = result.test.getDeclaredExceptions();
-			if (!exceptions.isEmpty()) {
-				for (Class<?> exception : exceptions) {
-					visitor.getClassName(exception);
-				}
-			}
-			 */
 
 			// Also include thrown exceptions
 			for (Throwable t : result.getAllThrownExceptions()) {
@@ -383,15 +389,11 @@ public class TestSuiteWriter implements Opcodes {
 				continue;
 			// TODO: Check for anonymous type?
 			if (imp.getName().contains("$"))
-				//	import_names.add(imp.getName().substring(0, imp.getName().indexOf("$")));
 				import_names.add(imp.getName().replace("$", "."));
 			else
 				import_names.add(imp.getName());
 		}
 		List<String> imports_sorted = new ArrayList<String>(import_names);
-
-		// FIXME: I disagree - it should be covered by the below branches
-		//we always need this one, due to for example logging setup
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		        || Properties.RESET_STATIC_FIELDS || wasSecurityException
@@ -401,7 +403,7 @@ public class TestSuiteWriter implements Opcodes {
 			imports_sorted.add(org.junit.After.class.getCanonicalName());
 		}
 
-		if (wasSecurityException || shouldResetProperties(results)) {
+		if (wasSecurityException || TestSuiteWriterUtils.shouldResetProperties(results)) {
 			imports_sorted.add(org.junit.AfterClass.class.getCanonicalName());
 		}
 
@@ -412,7 +414,6 @@ public class TestSuiteWriter implements Opcodes {
 		if (wasSecurityException) {
 			//Add import info for EvoSuite classes used in the generated test suite
 			imports_sorted.add(Sandbox.class.getCanonicalName());
-			// imports_sorted.add(Properties.class.getCanonicalName());
 			imports_sorted.add(Sandbox.SandboxMode.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.Executors.class.getCanonicalName());
@@ -431,66 +432,7 @@ public class TestSuiteWriter implements Opcodes {
 		return builder.toString();
 	}
 
-	/**
-	 * When writing out the JUnit test file, each test can have a text comment
-	 * 
-	 * @param num
-	 *            Index of test case
-	 * @return Comment for test case
-	 */
-	protected String getInformation(int num) {
-
-		if (testComment.containsKey(num)) {
-			String comment = testComment.get(num);
-			if (!comment.endsWith("\n"))
-				comment = comment + "\n";
-			return comment;
-		}
-
-		TestCase test = testCases.get(num);
-		Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
-
-		StringBuilder builder = new StringBuilder();
-		builder.append("Test case number: " + num);
-
-		if (!coveredGoals.isEmpty()) {
-			builder.append("\n  /*\n");
-			builder.append("   * ");
-			builder.append(coveredGoals.size() + " covered goal");
-			if (coveredGoals.size() != 1)
-				builder.append("s");
-			builder.append(":");
-			int nr = 1;
-			for (TestFitnessFunction goal : coveredGoals) {
-				builder.append("\n   * " + nr + " " + goal.toString());
-				// TODO only for debugging purposes
-				if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
-				        && (goal instanceof DefUseCoverageTestFitness)) {
-					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness) goal;
-					if (duGoal.getCoveringTrace() != null) {
-						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),
-						                                                                             duGoal.getCoveringObjectId());
-						traceInformation = traceInformation.replaceAll("\n", "");
-						builder.append("\n     * DUTrace: " + traceInformation);
-					}
-				}
-				nr++;
-			}
-
-			builder.append("\n   */\n");
-		}
-
-		return builder.toString();
-	}
-
-	private static UnitTestAdapter getAdapter() {
-		if (Properties.TEST_FORMAT == OutputFormat.JUNIT3)
-			return new JUnit3TestAdapter();
-		else if (Properties.TEST_FORMAT == OutputFormat.JUNIT4)
-			return new JUnit4TestAdapter();
-		else
-			throw new RuntimeException("Unknown output format: " + Properties.TEST_FORMAT);
-	}
+	
 
 	/**
 	 * JUnit file header
@@ -505,6 +447,7 @@ public class TestSuiteWriter implements Opcodes {
 		StringBuilder builder = new StringBuilder();
 		builder.append("/*\n");
 		builder.append(" * This file was automatically generated by EvoSuite\n");
+		builder.append(" * "+new Date()+"\n");
 		builder.append(" */\n\n");
 
 		if (!Properties.CLASS_PREFIX.equals("")) {
@@ -531,64 +474,7 @@ public class TestSuiteWriter implements Opcodes {
 		return "}\n";
 	}
 
-	/**
-	 * Create JUnit file for given class name
-	 * 
-	 * @param name
-	 *            Name of the class file
-	 * @return String representation of JUnit test file
-	 */
-	public String getUnitTest(String name) {
-		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
-
-		for (int i = 0; i < testCases.size(); i++) {
-			ExecutionResult result = runTest(testCases.get(i));
-			results.add(result);
-		}
-
-		/*
-		 * if there was any security exception, then we need to scaffold the
-		 * test cases with a sandbox
-		 */
-		boolean wasSecurityException = hasAnySecurityException(results);
-
-		StringBuilder builder = new StringBuilder();
-
-		builder.append(getHeader(name, results));
-		builder.append(getBeforeAndAfterMethods(name, wasSecurityException, results));
-
-		for (int i = 0; i < testCases.size(); i++) {
-			builder.append(testToString(i, i, results.get(i)));
-		}
-		builder.append(getFooter());
-
-		return builder.toString();
-	}
-
-	/**
-	 * Create JUnit file for given class name
-	 * 
-	 * @param name
-	 *            Name of the class file
-	 * @return String representation of JUnit test file
-	 * @param testId
-	 *            a int.
-	 */
-	public String getUnitTest(String name, int testId) {
-		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
-		ExecutionResult result = runTest(testCases.get(testId));
-		results.add(result);
-		boolean wasSecurityException = result.hasSecurityException();
-
-		StringBuilder builder = new StringBuilder();
-
-		builder.append(getHeader(name + "_" + testId, results));
-		builder.append(getBeforeAndAfterMethods(name, wasSecurityException, results));
-		builder.append(testToString(testId, testId, results.get(0)));
-		builder.append(getFooter());
-
-		return builder.toString();
-	}
+	
 
 	/**
 	 * Get the code of methods for @BeforeClass, @Before, @AfterClass and
@@ -805,7 +691,7 @@ public class TestSuiteWriter implements Opcodes {
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException,
 	        List<ExecutionResult> results) {
 
-		if (!Properties.RESET_STANDARD_STREAMS && !shouldResetProperties(results)
+		if (!Properties.RESET_STANDARD_STREAMS && !TestSuiteWriterUtils.shouldResetProperties(results)
 		        && !wasSecurityException && !Properties.REPLACE_CALLS
 		        && !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS
 		        && !SystemInUtil.getInstance().hasBeenUsed()) {
@@ -831,7 +717,7 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append(" \n");
 		}
 
-		if (shouldResetProperties(results)) {
+		if (TestSuiteWriterUtils.shouldResetProperties(results)) {
 			bd.append(BLOCK_SPACE);
 			bd.append("setSystemProperties();");
 			bd.append(" \n");
@@ -861,24 +747,7 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("\n");
 	}
 
-	private boolean shouldResetProperties(List<ExecutionResult> results) {
-		/*
-		 * Note: we need to reset the properties even if the SUT only read them. Reason is
-		 * that we are modifying them in the test case in the @Before method
-		 */
-		Set<String> readProperties = null;
-		if (Properties.REPLACE_CALLS) {
-			readProperties = mergeProperties(results);
-			if (readProperties.isEmpty()) {
-				readProperties = null;
-			}
-		}
-
-		boolean shouldResetProperties = Properties.REPLACE_CALLS
-		        && (wasAnyWrittenProperty(results) || readProperties != null);
-
-		return shouldResetProperties;
-	}
+	
 
 	private String getResetPropertiesCommand() {
 		return "java.lang.System.setProperties((java.util.Properties)" + " "
@@ -888,7 +757,7 @@ public class TestSuiteWriter implements Opcodes {
 	private void generateAfterClass(StringBuilder bd, boolean wasSecurityException,
 	        List<ExecutionResult> results) {
 
-		if (wasSecurityException || shouldResetProperties(results)) {
+		if (wasSecurityException || TestSuiteWriterUtils.shouldResetProperties(results)) {
 			bd.append(METHOD_SPACE);
 			bd.append("@AfterClass \n");
 			bd.append(METHOD_SPACE);
@@ -901,7 +770,7 @@ public class TestSuiteWriter implements Opcodes {
 				bd.append("Sandbox.resetDefaultSecurityManager(); \n");
 			}
 
-			if (shouldResetProperties(results)) {
+			if (TestSuiteWriterUtils.shouldResetProperties(results)) {
 				bd.append(BLOCK_SPACE);
 				bd.append(getResetPropertiesCommand());
 				bd.append(" \n");
@@ -925,7 +794,7 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append(METHOD_SPACE);
 		bd.append("public void setSystemProperties() {\n");
 		bd.append(" \n");
-		if (shouldResetProperties(results)) {
+		if (TestSuiteWriterUtils.shouldResetProperties(results)) {
 			/*
 			 * even if we set all the properties that were read, we still need
 			 * to reset everything to handle the properties that were written 
@@ -934,7 +803,7 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append(getResetPropertiesCommand());
 			bd.append(" \n");
 
-			Set<String> readProperties = mergeProperties(results);
+			Set<String> readProperties = TestSuiteWriterUtils.mergeProperties(results);
 			for (String prop : readProperties) {
 				bd.append(BLOCK_SPACE);
 				String currentValue = System.getProperty(prop);
@@ -1058,7 +927,7 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append("\n");
 		}
 
-		if (shouldResetProperties(results)) {
+		if (TestSuiteWriterUtils.shouldResetProperties(results)) {
 			/*
 			 * some System properties were read/written. so, let's be sure we ll have the same
 			 * properties in the generated JUnit file, regardless of where it will be executed
@@ -1073,30 +942,8 @@ public class TestSuiteWriter implements Opcodes {
 		}
 	}
 
-	private boolean wasAnyWrittenProperty(List<ExecutionResult> results) {
-		for (ExecutionResult res : results) {
-			if (res.wasAnyPropertyWritten()) {
-				return true;
-			}
-		}
-		return false;
-	}
 
-	private Set<String> mergeProperties(List<ExecutionResult> results) {
-		if (results == null) {
-			return null;
-		}
-		Set<String> set = new LinkedHashSet<String>();
-		for (ExecutionResult res : results) {
-			Set<String> props = res.getReadProperties();
-			if (props != null) {
-				set.addAll(props);
-			}
-		}
-		return set;
-	}
 
-	private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
 
 	/**
 	 * Convert one test case to a Java method
@@ -1137,7 +984,7 @@ public class TestSuiteWriter implements Opcodes {
 			methodName = "test" + targetMethod + num;
 			builder.append(adapter.getMethodDefinition(methodName));
 		} else {
-			methodName = getNameOfTest(testCases, number);
+			methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
 			builder.append(adapter.getMethodDefinition(methodName));
 		}
 
@@ -1222,197 +1069,56 @@ public class TestSuiteWriter implements Opcodes {
 		return testCode;
 	}
 
-	public static String getNameOfTest(List<TestCase> tests, int position) {
+	/**
+	 * When writing out the JUnit test file, each test can have a text comment
+	 * 
+	 * @param num
+	 *            Index of test case
+	 * @return Comment for test case
+	 */
+	protected String getInformation(int num) {
 
-		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
-			throw new IllegalStateException(
-			        "For the moment, structured tests are not supported");
+		if (testComment.containsKey(num)) {
+			String comment = testComment.get(num);
+			if (!comment.endsWith("\n"))
+				comment = comment + "\n";
+			return comment;
 		}
 
-		int totalNumberOfTests = tests.size();
-		String totalNumberOfTestsString = String.valueOf(totalNumberOfTests - 1);
-		String testNumber = StringUtils.leftPad(String.valueOf(position),
-		                                        totalNumberOfTestsString.length(), "0");
-		String testName = "test" + testNumber;
-		return testName;
-	}
-
-	/**
-	 * Update/create the main file of the test suite. The main test file simply
-	 * includes all automatically generated test suites in the same directory
-	 * 
-	 * @param directory
-	 *            Directory of generated test files
-	 */
-	public void writeTestSuiteMainFile(String directory) {
-
-		File file = new File(mainDirectory(directory) + "/GeneratedTestSuite.java");
+		TestCase test = testCases.get(num);
+		Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
 
 		StringBuilder builder = new StringBuilder();
-		if (!Properties.PROJECT_PREFIX.equals("")) {
-			builder.append("package ");
-			builder.append(Properties.PROJECT_PREFIX);
-			// builder.append(".GeneratedTests;");
-			builder.append(";\n\n");
-		}
-		List<String> suites = new ArrayList<String>();
+		builder.append("Test case number: " + num);
 
-		File basedir = new File(directory);
-		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(),
-		                                          TrueFileFilter.INSTANCE);
-		while (i.hasNext()) {
-			File f = i.next();
-			String name = f.getPath().replace(directory, "").replace(".java", "").replace("/",
-			                                                                              ".");
-
-			if (name.startsWith("."))
-				name = name.substring(1);
-			suites.add(name);
-		}
-		builder.append(adapter.getSuite(suites));
-		Utils.writeFile(builder.toString(), file);
-	}
-
-	/**
-	 * Create JUnit test suite for class
-	 * 
-	 * @param name
-	 *            Name of the class
-	 * @param directory
-	 *            Output directory
-	 */
-	public List<File> writeTestSuite(String name, String directory) throws IllegalArgumentException {
-
-        if(name==null || name.isEmpty()){
-            throw new IllegalArgumentException("Empty test class name");
-        }
-        if(!name.endsWith("Test")){
-            /*
-             * This is VERY important, as otherwise tests can get ignored by "mvn test"
-             */
-            throw new IllegalArgumentException("Test classes should have name ending with 'Test'. Invalid input name: "+name);
-        }
-
-		List<File> generated = new ArrayList<File>();
-		String dir = makeDirectory(directory);
-		String content = "";
-
-		if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
-			File file = new File(dir + "/" + name + ".java");
-			executor.newObservers();
-			content = getUnitTest(name);
-			Utils.writeFile(content, file);
-			generated.add(file);
-		} else {
-			for (int i = 0; i < testCases.size(); i++) {
-				String testSuiteName = name.substring(0,name.length()-"Test".length()) + "_" + i+"_Test";
-				File file = new File(dir + "/" + testSuiteName + ".java");
-				executor.newObservers();
-				String testCode = getUnitTest(name, i);
-				Utils.writeFile(testCode, file);
-				content += testCode;
-				generated.add(file);
+		if (!coveredGoals.isEmpty()) {
+			builder.append("\n  /*\n");
+			builder.append("   * ");
+			builder.append(coveredGoals.size() + " covered goal");
+			if (coveredGoals.size() != 1)
+				builder.append("s");
+			builder.append(":");
+			int nr = 1;
+			for (TestFitnessFunction goal : coveredGoals) {
+				builder.append("\n   * " + nr + " " + goal.toString());
+				// TODO only for debugging purposes
+				if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+				        && (goal instanceof DefUseCoverageTestFitness)) {
+					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness) goal;
+					if (duGoal.getCoveringTrace() != null) {
+						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),
+						                                                                             duGoal.getCoveringObjectId());
+						traceInformation = traceInformation.replaceAll("\n", "");
+						builder.append("\n     * DUTrace: " + traceInformation);
+					}
+				}
+				nr++;
 			}
-		}
-		TestGenerationResultBuilder.getInstance().setTestSuiteCode(content);
-		return generated;
-	}
 
-	private void testToBytecode(TestCase test, GeneratorAdapter mg,
-	        Map<Integer, Throwable> exceptions) {
-		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
-		mg.visitAnnotation("Lorg/junit/Test;", true);
-		int num = 0;
-		for (StatementInterface statement : test) {
-			logger.debug("Current statement: " + statement.getCode());
-			statement.getBytecode(mg, locals, exceptions.get(num));
-			num++;
-		}
-		mg.visitInsn(Opcodes.RETURN);
-		mg.endMethod();
-
-	}
-
-	/**
-	 * Get bytecode representation of test class
-	 * 
-	 * @param name
-	 *            a {@link java.lang.String} object.
-	 * @return an array of byte.
-	 */
-	public byte[] getBytecode(String name) {
-		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		String prefix = Properties.TARGET_CLASS.substring(0,
-		                                                  Properties.TARGET_CLASS.lastIndexOf(".")).replace(".",
-		                                                                                                    "/");
-		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, prefix + "/" + name, null,
-		         "junit/framework/TestCase", null);
-
-		Method m = Method.getMethod("void <init> ()");
-		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
-		mg.loadThis();
-		mg.invokeConstructor(Type.getType(junit.framework.TestCase.class), m);
-		mg.returnValue();
-		mg.endMethod();
-
-		int num = 0;
-		for (TestCase test : testCases) {
-			ExecutionResult result = runTest(test);
-			m = Method.getMethod("void test" + num + " ()");
-			mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
-			testToBytecode(test, mg, result.exposeExceptionMapping());
-			num++;
+			builder.append("\n   */\n");
 		}
 
-		// main method
-		m = Method.getMethod("void main (String[])");
-		mg = new GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, m, null, null, cw);
-		mg.push(1);
-		mg.newArray(Type.getType(String.class));
-		mg.dup();
-		mg.push(0);
-		mg.push(Properties.CLASS_PREFIX + "." + name);
-		mg.arrayStore(Type.getType(String.class));
-		// mg.invokeStatic(Type.getType(org.junit.runner.JUnitCore.class),
-		// Method.getMethod("void main (String[])"));
-		mg.invokeStatic(Type.getType(junit.textui.TestRunner.class),
-		                Method.getMethod("void main (String[])"));
-		mg.returnValue();
-		mg.endMethod();
-
-		cw.visitEnd();
-		return cw.toByteArray();
+		return builder.toString();
 	}
 
-	/**
-	 * Create JUnit test suite in bytecode
-	 * 
-	 * @param name
-	 *            a {@link java.lang.String} object.
-	 * @param directory
-	 *            a {@link java.lang.String} object.
-	 */
-	public void writeTestSuiteClass(String name, String directory) {
-		String dir = makeDirectory(directory);
-		File file = new File(dir + "/" + name + ".class");
-		byte[] bytecode = getBytecode(name);
-		try {
-			FileOutputStream stream = new FileOutputStream(file);
-			try {
-				stream.write(bytecode);
-			} finally {
-				stream.close();
-			}
-		} catch (FileNotFoundException e) {
-		} catch (IOException e) {
-		}
-
-		/*
-		 * ClassReader reader = new ClassReader(bytecode); ClassVisitor cv = new
-		 * TraceClassVisitor(new PrintWriter(System.out)); cv = new
-		 * CheckClassAdapter(cv); reader.accept(cv, ClassReader.SKIP_FRAMES);
-		 */
-
-		// getBytecode(name);
-	}
 }
