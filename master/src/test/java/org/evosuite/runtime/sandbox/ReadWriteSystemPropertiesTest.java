@@ -78,12 +78,17 @@ public class ReadWriteSystemPropertiesTest extends SystemTest {
 		}
 		Assert.assertEquals(n, list.size());
 
-		TestGenerationResult tgr = TestGenerationResultBuilder
-				.buildSuccessResult();
+		TestGenerationResult tgr = TestGenerationResultBuilder.buildSuccessResult();
 		String code = tgr.getTestSuiteCode();
-		Assert.assertTrue("Test code:\n" + code,
-				code.contains("line.separator"));
-		Assert.assertTrue("Test code:\n" + code, code.contains("debug"));
+		Assert.assertTrue("Test code:\n" + code, code.contains("line.separator"));
+		
+		/*
+		 * This is tricky. The property 'debug' is read, but it does not exist. 
+		 * Ideally, we should still have in the test case a call to be sure the variable
+		 * is set to null. But that would lead to a lot of problems :( eg cases
+		 * in which we end up in reading hundreds of thousands variables that do not exist
+		 */
+		Assert.assertTrue("Test code:\n" + code, ! code.contains("debug"));
 	}
 
 	@Test
