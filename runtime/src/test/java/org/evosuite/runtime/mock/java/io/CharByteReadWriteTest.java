@@ -1,4 +1,4 @@
-package org.evosuite.mock.java.io;
+package org.evosuite.runtime.mock.java.io;
 
 import java.util.Scanner;
 

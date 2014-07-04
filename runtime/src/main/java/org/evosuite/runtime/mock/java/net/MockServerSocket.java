@@ -1,6 +1,5 @@
 package org.evosuite.runtime.mock.java.net;
 
-import java.io.FileDescriptor;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -8,13 +7,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.SocketImpl;
 import java.net.SocketImplFactory;
 import java.net.SocketOptions;
-import java.net.SocketTimeoutException;
 import java.nio.channels.ServerSocketChannel;
-import java.security.AccessController;
-import java.security.PrivilegedExceptionAction;
 
 /**
  * Created by arcuri on 6/29/14.
@@ -42,6 +37,23 @@ public class MockServerSocket extends ServerSocket{
 	 */
 
 	public MockServerSocket() throws IOException {
+		super();
+		/*
+		 * the super constructor is only colling setImpl, which is implemented with:
+		 
+		  	if (factory != null) {
+            		impl = factory.createSocketImpl();
+            		checkOldImpl();
+        		} else {
+            		// No need to do a checkOldImpl() here, we know it's an up to date
+            		// SocketImpl!
+            		impl = new SocksSocketImpl();
+        		}
+        		if (impl != null)
+            		impl.setServerSocket(this);
+            		
+         * ie, the only side effect is to set the variable "impl"            		
+		 */
 		setImpl();
 	}
 
@@ -55,7 +67,7 @@ public class MockServerSocket extends ServerSocket{
 	}
 
 	public MockServerSocket(int port, int backlog, InetAddress bindAddr) throws IOException {
-		setImpl();
+		this();
 		if (port < 0 || port > 0xFFFF)
 			throw new IllegalArgumentException(
 					"Port value out of range: " + port);
@@ -79,39 +91,19 @@ public class MockServerSocket extends ServerSocket{
 		throw new IOException("Setting of factory is not supported in virtual network");
 	}
 
-	MockSocketImpl getImpl() throws SocketException {
+	private void setImpl() {		
+		impl = new EvoSuiteSocket();		
+		impl.setServerSocket(this);
+	}
+	
+	private MockSocketImpl getImpl() throws SocketException {
 		if (!created)
 			createImpl();
 		return impl;
 	}
 
-	private void checkOldImpl() {
-		if (impl == null)
-			return;
-		// SocketImpl.connect() is a protected method, therefore we need to use
-		// getDeclaredMethod, therefore we need permission to access the member
-		try {
-			AccessController.doPrivileged(
-					new PrivilegedExceptionAction<Void>() {
-						public Void run() throws NoSuchMethodException {
-							Class[] cl = new Class[2];
-							cl[0] = SocketAddress.class;
-							cl[1] = Integer.TYPE;
-							impl.getClass().getDeclaredMethod("connect", cl);
-							return null;
-						}
-					});
-		} catch (java.security.PrivilegedActionException e) {
-			oldImpl = true;
-		}
-	}
-
-	private void setImpl() {		
-		impl = new EvoSuiteSocket();		
-		impl.setServerSocket(this);
-	}
-
-	void createImpl() throws SocketException {
+	
+	private void createImpl() throws SocketException {
 		if (impl == null)
 			setImpl();
 		try {
@@ -135,36 +127,31 @@ public class MockServerSocket extends ServerSocket{
 			endpoint = new InetSocketAddress(0);
 		if (!(endpoint instanceof InetSocketAddress))
 			throw new IllegalArgumentException("Unsupported address type");
+		
 		InetSocketAddress epoint = (InetSocketAddress) endpoint;
 		if (epoint.isUnresolved())
 			throw new SocketException("Unresolved address");
 		if (backlog < 1)
 			backlog = 50;
-		try {
-			SecurityManager security = System.getSecurityManager();
-			if (security != null)
-				security.checkListen(epoint.getPort());
+		
+		try {			
 			getImpl().bind(epoint.getAddress(), epoint.getPort());
 			getImpl().listen(backlog);
 			bound = true;
-		} catch(SecurityException e) {
-			bound = false;
-			throw e;
-		} catch(IOException e) {
+		}  catch(IOException e) {
 			bound = false;
 			throw e;
 		}
 	}
 
+	@Override
 	public InetAddress getInetAddress() {
 		if (!isBound())
 			return null;
 		try {
 			InetAddress in = getImpl().getInetAddress();			
 			return in;
-		} catch (SecurityException e) {
-			return InetAddress.getLoopbackAddress();
-		} catch (SocketException e) {
+		}  catch (SocketException e) {
 			// nothing
 			// If we're bound, the impl has been created
 			// so we shouldn't get here
@@ -172,6 +159,7 @@ public class MockServerSocket extends ServerSocket{
 		return null;
 	}
 
+	@Override
 	public int getLocalPort() {
 		if (!isBound())
 			return -1;
@@ -197,13 +185,38 @@ public class MockServerSocket extends ServerSocket{
 			throw new SocketException("Socket is closed");
 		if (!isBound())
 			throw new SocketException("Socket is not bound yet");
-		Socket s = new MockSocket((MockSocketImpl) null);
+		MockSocket s = new MockSocket((MockSocketImpl) null);
 		
-		//implAccept(s); //FIXME
+		_implAccept(s); 
 		
 		return s;
 	}
 
+	protected void _implAccept(MockSocket s) throws IOException {
+		MockSocketImpl si = null;
+		try {
+			if (s.impl == null)
+				s.setImpl();
+			else {
+				s.impl.reset();
+			}
+			si = s.impl;
+			s.impl = null;
+			//si.address = new InetAddress(); //FIXME
+			//si.fd = new FileDescriptor(); //FIXME
+			getImpl().accept(si);
+			
+		} catch (IOException e) {
+			if (si != null)
+				si.reset();
+			s.impl = si;
+			throw e;
+		} 
+		s.impl = si;
+		s.postAccept();
+	}
+
+	
 	/* Cannot override because final 
 	protected final void implAccept(Socket s) throws IOException {
 		SocketImpl si = null;
@@ -240,6 +253,7 @@ public class MockServerSocket extends ServerSocket{
 	}
 	*/
 	
+	@Override
 	public void close() throws IOException {
 		synchronized(closeLock) {
 			if (isClosed())
@@ -250,27 +264,32 @@ public class MockServerSocket extends ServerSocket{
 		}
 	}
 
+	@Override
 	public ServerSocketChannel getChannel() {
 		return null;
 	}
 
+	@Override
 	public boolean isBound() {
 		// Before 1.3 ServerSockets were always bound during creation
 		return bound || oldImpl;
 	}
 
+	@Override
 	public boolean isClosed() {
 		synchronized(closeLock) {
 			return closed;
 		}
 	}
 
+	@Override
 	public synchronized void setSoTimeout(int timeout) throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
 		getImpl().setOption(SocketOptions.SO_TIMEOUT, new Integer(timeout));
 	}
 
+	@Override
 	public synchronized int getSoTimeout() throws IOException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -283,47 +302,30 @@ public class MockServerSocket extends ServerSocket{
 		}
 	}
 
+	@Override
 	public void setReuseAddress(boolean on) throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
 		getImpl().setOption(SocketOptions.SO_REUSEADDR, Boolean.valueOf(on));
 	}
 
+	@Override
 	public boolean getReuseAddress() throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
 		return ((Boolean) (getImpl().getOption(SocketOptions.SO_REUSEADDR))).booleanValue();
 	}
 
+	@Override
 	public String toString() {
 		if (!isBound())
 			return "ServerSocket[unbound]";
-		InetAddress in;
-
-		/*
-		if (!NetUtil.doRevealLocalAddress() &&
-				System.getSecurityManager() != null)
-		{
-			in = InetAddress.getLoopbackAddress();
-		} else {
-			in = impl.getInetAddress();
-		}
-		 */
-		in = impl.getInetAddress();
+		
+		InetAddress in = impl.getInetAddress();
 
 		return "ServerSocket[addr=" + in +
 				",localport=" + impl.getLocalPort()  + "]";
 	}
-
-	void setBound() {
-		bound = true;
-	}
-
-	void setCreated() {
-		created = true;
-	}
-
-
 
 
 	@Override

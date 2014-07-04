@@ -8,6 +8,14 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
 
+import org.evosuite.runtime.VirtualNetwork;
+
+/*
+ * An actual implementation is 
+ * 
+ * SocksSocketImpl -> PlainSocketImpl -> AbstractPlainSocketImpl -> SocketImpl
+ */
+
 public class EvoSuiteSocket extends MockSocketImpl{
 
 	@Override
@@ -48,9 +56,12 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	}
 
 	@Override
-	protected void bind(InetAddress host, int port) throws IOException {
-		// TODO Auto-generated method stub
-		
+	protected void bind(InetAddress host, int port) throws IOException {		
+		//TODO: need to check special cases like multicast and 0.0.0.0
+		boolean opened = VirtualNetwork.getInstance().openTcpServer(host.getHostAddress(), port);
+		if(!opened){
+			throw new IOException("Failed to opened TCP port");
+		}
 	}
 
 	@Override
@@ -61,8 +72,20 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 	@Override
 	protected void accept(SocketImpl s) throws IOException {
-		// TODO Auto-generated method stub
-		
+		/*
+		 * If the test case has set up an incoming connection, then
+		 * simulate an immediate connection.
+		 * If not, there is no point in blocking the SUT for
+		 * a connection that will never arrive: just throw an exception
+		 */
+		//FIXME proper value
+		Object obj = VirtualNetwork.getInstance().pullTcpConnection(
+				getInetAddress().getHostAddress(),getLocalPort());
+		if(obj == null){
+			throw new IOException("Simulated exception on waiting server");
+		} else {
+			//TODO
+		}
 	}
 
 	@Override
