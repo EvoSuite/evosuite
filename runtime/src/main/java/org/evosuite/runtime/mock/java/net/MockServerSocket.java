@@ -39,7 +39,7 @@ public class MockServerSocket extends ServerSocket{
 	public MockServerSocket() throws IOException {
 		super();
 		/*
-		 * the super constructor is only colling setImpl, which is implemented with:
+		 * the super constructor is only calling setImpl, which is implemented with:
 		 
 		  	if (factory != null) {
             		impl = factory.createSocketImpl();
