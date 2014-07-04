@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.evosuite.runtime.VirtualNetwork;
 
@@ -18,16 +20,26 @@ import org.evosuite.runtime.VirtualNetwork;
 
 public class EvoSuiteSocket extends MockSocketImpl{
 
+	private final Map<Integer,Object> options;
+	
+	public EvoSuiteSocket(){
+		options = new ConcurrentHashMap<>();
+		initOptions();
+	}
+	
+	private void initOptions(){
+		//options.put(SocketOptions, );
+		//TODO
+	}
+	
 	@Override
 	public void setOption(int optID, Object value) throws SocketException {
-		// TODO Auto-generated method stub
-		
+		options.put(optID, value);
 	}
 
 	@Override
 	public Object getOption(int optID) throws SocketException {
-		// TODO Auto-generated method stub
-		return null;
+		return options.get(optID);
 	}
 
 	@Override
@@ -108,8 +120,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 	@Override
 	protected void close() throws IOException {
-		// TODO Auto-generated method stub
-		
+		//nothing to do as already handled in MockSocket?		
 	}
 
 	@Override
