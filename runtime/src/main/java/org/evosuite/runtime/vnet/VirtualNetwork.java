@@ -1,4 +1,4 @@
-package org.evosuite.runtime;
+package org.evosuite.runtime.vnet;
 
 import java.util.Map;
 import java.util.Queue;
@@ -16,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class VirtualNetwork {
 
-	private enum ConnectionType {UDP,TCP};
+	public enum ConnectionType {UDP,TCP};
 	
 	/**
 	 * Singleton instance
@@ -40,9 +40,17 @@ public class VirtualNetwork {
 	 */
 	private final Map<EndPointInfo,Queue<EndPointInfo>> incomingConnections;
 	
+	/**
+	 * Keep track of all TCP connection opened during the tests.
+	 * This is for example useful to check what data the SUT sent.
+	 */
+	private final Set<NativeTcp> openedTcpConnections;
+	
+	
 	private VirtualNetwork(){
         localListeningPorts = new CopyOnWriteArraySet<>();
         incomingConnections = new ConcurrentHashMap<>();
+        openedTcpConnections = new CopyOnWriteArraySet<>();
 	}
 	
 	public static VirtualNetwork getInstance(){
@@ -80,16 +88,22 @@ public class VirtualNetwork {
 		
 		queue.add(origin);
 	}
-	
-	//TODO proper return type
-	public synchronized Object pullTcpConnection(String localAddress, int localPort){
+
+	/**
+	 * Return a TCP connection for the given local address if there is any inbound remote connection to it
+	 * 
+	 * @param localAddress
+	 * @param localPort
+	 * @return  {@code null} if the test case has not set up it an incoming TCP connection
+	 */
+	public synchronized NativeTcp pullTcpConnection(String localAddress, int localPort){
 		EndPointInfo local = new EndPointInfo(localAddress,localPort,ConnectionType.TCP);
 		Queue<EndPointInfo> queue = incomingConnections.get(local);
 		if(queue == null || queue.isEmpty()){
 			return null;
 		}
 		
-		return ""; //FIXME
+		return new NativeTcp(local,queue.poll()); 
 	}
 	
 	
@@ -123,51 +137,4 @@ public class VirtualNetwork {
 	}
 	
 	//------------------------------------------
-	
-	/**
-	 * Convenience class used to store connection info 
-	 */
-	private static class EndPointInfo{
-		public final String host;
-		public final int port;
-		public final ConnectionType type;
-		
-		public EndPointInfo(String host, int port, ConnectionType type) {
-			super();
-			this.host = host;
-			this.port = port;
-			this.type = type;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((host == null) ? 0 : host.hashCode());
-			result = prime * result + port;
-			result = prime * result + ((type == null) ? 0 : type.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			EndPointInfo other = (EndPointInfo) obj;
-			if (host == null) {
-				if (other.host != null)
-					return false;
-			} else if (!host.equals(other.host))
-				return false;
-			if (port != other.port)
-				return false;
-			if (type != other.type)
-				return false;
-			return true;
-		}
-	}
 }

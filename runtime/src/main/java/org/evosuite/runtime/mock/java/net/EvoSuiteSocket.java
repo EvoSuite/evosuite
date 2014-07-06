@@ -10,7 +10,8 @@ import java.net.SocketImpl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.evosuite.runtime.VirtualNetwork;
+import org.evosuite.runtime.vnet.NativeTcp;
+import org.evosuite.runtime.vnet.VirtualNetwork;
 
 /*
  * An actual implementation is 
@@ -22,9 +23,14 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 	private final Map<Integer,Object> options;
 	
+	private NativeTcp openedConnection;
+	
+	private boolean isClosed;
+	
 	public EvoSuiteSocket(){
 		options = new ConcurrentHashMap<>();
 		initOptions();
+		isClosed = false;
 	}
 	
 	private void initOptions(){
@@ -78,8 +84,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 	@Override
 	protected void listen(int backlog) throws IOException {
-		// TODO Auto-generated method stub
-		
+		// TODO 		
 	}
 
 	@Override
@@ -90,13 +95,13 @@ public class EvoSuiteSocket extends MockSocketImpl{
 		 * If not, there is no point in blocking the SUT for
 		 * a connection that will never arrive: just throw an exception
 		 */
-		//FIXME proper value
-		Object obj = VirtualNetwork.getInstance().pullTcpConnection(
+		
+		NativeTcp tcp = VirtualNetwork.getInstance().pullTcpConnection(
 				getInetAddress().getHostAddress(),getLocalPort());
-		if(obj == null){
+		if(tcp == null){
 			throw new IOException("Simulated exception on waiting server");
 		} else {
-			//TODO
+			openedConnection = tcp;
 		}
 	}
 
@@ -114,19 +119,27 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 	@Override
 	protected int available() throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		checkIfClosed();
+		if(openedConnection==null){
+			return 0;
+		}
+		return openedConnection.getAmountOfDataInLocalBuffer();
 	}
 
 	@Override
 	protected void close() throws IOException {
-		//nothing to do as already handled in MockSocket?		
+		isClosed = true;
 	}
 
 	@Override
 	protected void sendUrgentData(int data) throws IOException {
-		// TODO Auto-generated method stub
-		
+		// TODO this is off by default, but can be activated with the option SO_OOBINLINE
+		checkIfClosed();
 	}
 
+	private void checkIfClosed() throws IOException{
+		if(isClosed){
+			throw new IOException("Connection is closed");
+		}
+	}
 }
