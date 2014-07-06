@@ -1,4 +1,4 @@
-package org.evosuite.runtime;
+package org.evosuite.runtime.vfs;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,6 +8,7 @@ import java.util.Arrays;
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.evosuite.runtime.mock.java.io.MockFileInputStream;
 import org.evosuite.runtime.mock.java.io.MockFileOutputStream;
+import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
