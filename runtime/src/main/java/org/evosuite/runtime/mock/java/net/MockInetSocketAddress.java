@@ -11,6 +11,10 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 //import java.net.InetSocketAddress.InetSocketAddressHolder;
 
+/*
+ * This is not needed till we mock InetAddress
+ */
+@Deprecated
 public class MockInetSocketAddress extends InetSocketAddress{
 
 	/*
