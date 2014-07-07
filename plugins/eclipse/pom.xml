@@ -28,13 +28,11 @@
 
 	<name>Eclipse Plugin for EvoSuite</name>
 	<modules>
-	  <module>evosuite-eclipse-core</module>
-<!--	  <module>evosuite-eclipse</module> -->
-	 <!--
-	  <module>evosuite-eclipse-feature</module>
-	  <module>evosuite-eclipse-site</module> -->
+	  <!-- <module>evosuite-eclipse-core</module> -->
+	  <!-- <module>evosuite-eclipse</module> -->
+	  <!-- <module>evosuite-eclipse-feature</module> -->
+	  <!-- <module>evosuite-eclipse-site</module> -->
 	</modules>
-	<!--
 <build>
     <plugins>
       <plugin>
@@ -46,38 +44,40 @@
  <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho.version}</version>
         <configuration>
-          <environments>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>macosx</os>
-              <ws>cocoa</ws>
-              <arch>x86_64</arch>
-            </environment>
-          </environments>
+            <resolver>p2</resolver>
+            <pomDependencies>consider</pomDependencies>
+            <environments>
+              <environment>
+		<os>linux</os>
+		<ws>gtk</ws>
+		<arch>x86</arch>
+              </environment>
+              <environment>
+		<os>linux</os>
+		<ws>gtk</ws>
+		<arch>x86_64</arch>
+              </environment>
+              <environment>
+		<os>win32</os>
+		<ws>win32</ws>
+		<arch>x86</arch>
+              </environment>
+              <environment>
+		<os>win32</os>
+		<ws>win32</ws>
+		<arch>x86_64</arch>
+              </environment>
+              <environment>
+		<os>macosx</os>
+		<ws>cocoa</ws>
+		<arch>x86_64</arch>
+              </environment>
+            </environments>
         </configuration>
       </plugin>
     </plugins>
     
  </build>
- -->
 </project>
