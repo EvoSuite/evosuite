@@ -453,8 +453,12 @@ public class TestSuiteGenerator {
 	 */
 	public static List<TestGenerationResult> writeJUnitTestsAndCreateResult(List<TestSuiteChromosome> tests) {
 	    List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
-	    for (int i = 0; i < tests.size(); i++)
-	        results.add(writeJUnitTestsAndCreateResult(tests.get(i).getTests(), "_"+i+"_" + Properties.JUNIT_SUFFIX  ));
+	    if(tests.size() > 1) {
+	    	for (int i = 0; i < tests.size(); i++)
+	    		results.add(writeJUnitTestsAndCreateResult(tests.get(i).getTests(), "_"+i+"_" + Properties.JUNIT_SUFFIX  ));
+	    } else {
+	    	results.add(writeJUnitTestsAndCreateResult(tests.get(0).getTests(), "_" + Properties.JUNIT_SUFFIX  ));
+	    }
 	    return results;
 	}
 

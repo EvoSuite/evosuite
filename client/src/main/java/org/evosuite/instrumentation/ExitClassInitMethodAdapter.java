@@ -22,6 +22,9 @@ package org.evosuite.instrumentation;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.evosuite.runtime.reset.ResetManager;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -78,11 +81,9 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 	public void visitCode() {
 		super.visitCode();
 		if (methodName.equals("<clinit>")) {
+
 			startingTryLabel = new Label();
 			endingTryLabel = new Label();
-			super.visitTryCatchBlock(startingTryLabel, endingTryLabel,
-					endingTryLabel, null);
-			
 			super.visitLabel(startingTryLabel);
 		}
 	}
@@ -102,8 +103,43 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 					EXIT_CLASS_INIT, executionTracerDescriptor);
 			super.visitInsn(Opcodes.ATHROW);
 
+			// regenerate try-catch table
+			for (TryCatchBlock tryCatchBlock : tryCatchBlocks) {
+				super.visitTryCatchBlock(tryCatchBlock.start,
+						tryCatchBlock.end, tryCatchBlock.handler,
+						tryCatchBlock.type);
+			}
+			// add new try-catch for exiting method
+			super.visitTryCatchBlock(startingTryLabel, endingTryLabel,
+					endingTryLabel, null);
 		}
 		super.visitEnd();
+	}
+
+	private static class TryCatchBlock {
+		public TryCatchBlock(Label start, Label end, Label handler, String type) {
+			this.start = start;
+			this.end = end;
+			this.handler = handler;
+			this.type = type;
+		}
+
+		Label start;
+		Label end;
+		Label handler;
+		String type;
+	}
+
+	private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<TryCatchBlock>();
+
+	@Override
+	public void visitTryCatchBlock(Label start, Label end, Label handler,
+			String type) {
+		if (methodName.equals("<clinit>")) {
+			TryCatchBlock block = new TryCatchBlock(start, end, handler, type);
+			tryCatchBlocks.add(block);
+		}
+		super.visitTryCatchBlock(start, end, handler, type);
 	}
 
 }
