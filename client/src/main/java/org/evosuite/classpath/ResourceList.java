@@ -147,7 +147,12 @@ public class ResourceList {
 		if(cpEntry==null){
 			if(!getCache().missingClasses.contains(name)){
 				getCache().missingClasses.add(name);
-				logger.warn("The class "+name+" is not on the classapath"); //only log once
+				/*
+				 * Note: can't really have "warn" here, as the SUT can use the classloader,
+				 * and try to load garbage (eg random string generated as test data) that
+				 * would fill the logs 
+				 */
+				logger.debug("The class "+name+" is not on the classapath"); //only log once
 			}
 			return null;
 		}
