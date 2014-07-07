@@ -340,7 +340,7 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 		if (EVOSUITE_CP != null)
 			return EVOSUITE_CP;
 
-		URL url = Platform.getBundle("org.evosuite.eclipse.core").getEntry(EVOSUITE_JAR);
+		URL url = Platform.getBundle("org.evosuite.plugins.eclipse.core").getEntry(EVOSUITE_JAR);
 		// URL url = org.eclipse.core.runtime.Platform.getPlugin("evosuite-eclipse-core").getBundle().getEntry("evosuite-0.1-SNAPSHOT-jar-minimal.jar");
 		try {
 			URL evosuiteLib = FileLocator.resolve(url);

@@ -21,37 +21,26 @@
 package org.evosuite.junit.writer;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.swing.DebugGraphics;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.Properties.OutputFormat;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
-import org.evosuite.junit.JUnit3TestAdapter;
-import org.evosuite.junit.JUnit4TestAdapter;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.RuntimeSettings;
@@ -62,7 +51,6 @@ import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.StructuredTestCase;
 import org.evosuite.testcase.StructuredTestCodeVisitor;
 import org.evosuite.testcase.TestCase;
@@ -71,11 +59,7 @@ import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.Utils;
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.commons.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

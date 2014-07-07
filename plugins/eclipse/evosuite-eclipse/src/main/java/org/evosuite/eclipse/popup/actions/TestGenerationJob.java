@@ -225,9 +225,7 @@ public class TestGenerationJob extends Job {
 
 			if (!"true".equals(target.getProject().getPersistentProperty(EvosuitePropertyPage.REPORT_PROP_KEY))) {
 				commands.add("-Dhtml=false");
-				commands.add("-Dnew_statistics=false");
-				commands.add("-Dold_statistics=false");
-				commands.add("-Dstatistics_backend=none");
+				//commands.add("-Dstatistics_backend=none");
 			} else {
 				if ("true".equals(target.getProject().getPersistentProperty(EvosuitePropertyPage.PLOT_PROP_KEY))) {
 					commands.add("-Dplot=true");
@@ -303,11 +301,11 @@ public class TestGenerationJob extends Job {
 			};
 
 			progressMonitor.start();
-			List<TestGenerationResult> results = (List<TestGenerationResult>) evosuite.parseCommandLine(command);
+			List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>) evosuite.parseCommandLine(command);
 			System.out.println("Results: "+results.size());
-			for(TestGenerationResult result : results) {
-				System.out.println("Covered lines: "+result.getCoveredLines());
-			}
+			// for(TestGenerationResult result : results) {
+			//	System.out.println("Covered lines: "+result.getCoveredLines());
+			// }
 			progressMonitor.interrupt();
 
 			try {
