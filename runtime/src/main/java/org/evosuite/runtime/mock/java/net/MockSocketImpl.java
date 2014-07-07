@@ -76,7 +76,7 @@ public abstract class MockSocketImpl extends SocketImpl{
         //return localport;
     		return super.getLocalPort();
     }
-
+        
     @Override
     protected boolean supportsUrgentData () {
         //return false; // must be overridden in sub-class
@@ -97,7 +97,21 @@ public abstract class MockSocketImpl extends SocketImpl{
           //  ",port=" + getPort() + ",localport=" + getLocalPort()  + "]";
     }
 
+    //-----------------------------------------------
+
+    protected void setRemoteAddress(InetAddress remoteAddress){
+    		address = remoteAddress;
+    }
     
+    protected void setLocalPort(int p){
+    		localport = p;
+    }
+    
+    protected void setRemotePort(int p){
+    		port = p;
+    }
+    
+    //-----------------------------------------------
     
     /*
      *  Following are methods that are package level 

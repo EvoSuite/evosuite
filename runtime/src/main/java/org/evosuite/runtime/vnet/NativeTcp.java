@@ -31,8 +31,14 @@ public class NativeTcp {
 	 */
 	private final Queue<Byte> remoteBuffer;
 	
-	
+	/**
+	 * Info on local (SUT) address/port
+	 */
 	private final EndPointInfo localEndPoint;
+	
+	/**
+	 * Info on remote (EvoSuite tests) address/port
+	 */
 	private final EndPointInfo remoteEndPoint;
 	
 	
@@ -102,5 +108,13 @@ public class NativeTcp {
 	 */
 	public synchronized int getAmountOfDataInRemoteBuffer(){
 		return remoteBuffer.size();
+	}
+
+	public EndPointInfo getLocalEndPoint() {
+		return localEndPoint;
+	}
+
+	public EndPointInfo getRemoteEndPoint() {
+		return remoteEndPoint;
 	}
 }
