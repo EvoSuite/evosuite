@@ -204,6 +204,8 @@ public class MockServerSocket extends ServerSocket{
 			s.impl = null;
 			//si.address = new InetAddress(); 
 			//si.fd = new FileDescriptor(); 
+			
+			si.setServerSocket(this);// TODO not sure if correct
 			getImpl().accept(si);
 			
 		} catch (IOException e) {

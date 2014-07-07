@@ -195,7 +195,7 @@ public class MockSocket extends Socket{
 	}
 
 
-	void setImpl() {
+	protected void setImpl() {
 		impl = new EvoSuiteSocket();
 		impl.setSocket(this);
 	}
@@ -315,6 +315,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public InetAddress getInetAddress() {
 		if (!isConnected())
 			return null;
@@ -326,32 +327,22 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public InetAddress getLocalAddress() {
 
-		//FIXME
-		//if (!isBound())
-		//	return InetAddress.anyLocalAddress();
+		if (!isBound())
+			return NetReflectionUtil.anyLocalAddress();
 
 		InetAddress in = null;
 		try {
 			in = (InetAddress) getImpl().getOption(SocketOptions.SO_BINDADDR);
-
-			/*
-					if (!NetUtil.doRevealLocalAddress()) {
-						SecurityManager sm = System.getSecurityManager();
-						if (sm != null)
-							sm.checkConnect(in.getHostAddress(), -1);
-					}
-			 */
 			if (in.isAnyLocalAddress()) {
-				//FIXME
-				//in = InetAddress.anyLocalAddress();
+				in = NetReflectionUtil.anyLocalAddress();
 			}
 		} catch (SecurityException e) {
 			in = InetAddress.getLoopbackAddress();
-		} catch (Exception e) {
-			//FIXME
-			//in = InetAddress.anyLocalAddress(); // "0.0.0.0"
+		} catch (Exception e) {			
+			in = NetReflectionUtil.anyLocalAddress(); // "0.0.0.0"
 		}
 		return in;
 	}
@@ -408,19 +399,7 @@ public class MockSocket extends Socket{
 			throw new SocketException("Socket is not connected");
 		if (isInputShutdown())
 			throw new SocketException("Socket input is shutdown");
-		final Socket s = this;
-		InputStream is = null;
-		try {
-			is = AccessController.doPrivileged(
-					new PrivilegedExceptionAction<InputStream>() {
-						public InputStream run() throws IOException {
-							return impl.getInputStream();
-						}
-					});
-		} catch (java.security.PrivilegedActionException e) {
-			throw (IOException) e.getException();
-		}
-		return is;
+		return impl.getInputStream();
 	}
 
 
@@ -431,19 +410,7 @@ public class MockSocket extends Socket{
 			throw new SocketException("Socket is not connected");
 		if (isOutputShutdown())
 			throw new SocketException("Socket output is shutdown");
-		final Socket s = this;
-		OutputStream os = null;
-		try {
-			os = AccessController.doPrivileged(
-					new PrivilegedExceptionAction<OutputStream>() {
-						public OutputStream run() throws IOException {
-							return impl.getOutputStream();
-						}
-					});
-		} catch (java.security.PrivilegedActionException e) {
-			throw (IOException) e.getException();
-		}
-		return os;
+		return impl.getOutputStream();
 	}
 
 

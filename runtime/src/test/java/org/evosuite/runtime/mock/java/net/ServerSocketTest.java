@@ -64,7 +64,7 @@ public class ServerSocketTest {
 		second.close();
 	}
 	
-	/*
+	
 	@Test
 	public void testIncomingConnection() throws IOException{
 		//first bind a listening server
@@ -88,5 +88,5 @@ public class ServerSocketTest {
 		server.close();
 		socket.close();
 	}
-	*/
+	
 }

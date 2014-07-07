@@ -102,13 +102,13 @@ public abstract class MockSocketImpl extends SocketImpl{
     protected void setRemoteAddress(InetAddress remoteAddress){
     		address = remoteAddress;
     }
+        
+    protected void setRemotePort(int p){
+    		port = p;
+    }
     
     protected void setLocalPort(int p){
     		localport = p;
-    }
-    
-    protected void setRemotePort(int p){
-    		port = p;
     }
     
     //-----------------------------------------------
