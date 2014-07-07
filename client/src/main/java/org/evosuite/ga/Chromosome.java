@@ -138,8 +138,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	
 	public boolean hasFitnessChanged() {
 	    for (FitnessFunction<?> ff : fitnesses.keySet()) {
-	        if (fitnesses.get(ff) != lastFitnesses.get(ff))
+	        if (!fitnesses.get(ff).equals(lastFitnesses.get(ff))) {
 	            return true;
+	        }
 	    }
 	    return false;
 	}
