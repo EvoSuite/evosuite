@@ -202,8 +202,8 @@ public class MockServerSocket extends ServerSocket{
 			}
 			si = s.impl;
 			s.impl = null;
-			//si.address = new InetAddress(); //FIXME
-			//si.fd = new FileDescriptor(); //FIXME
+			//si.address = new InetAddress(); 
+			//si.fd = new FileDescriptor(); 
 			getImpl().accept(si);
 			
 		} catch (IOException e) {

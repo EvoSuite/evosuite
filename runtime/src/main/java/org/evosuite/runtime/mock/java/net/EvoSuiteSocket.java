@@ -89,6 +89,13 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 	@Override
 	protected void accept(SocketImpl s) throws IOException {
+		
+		if(! (s instanceof MockSocketImpl)){
+			throw new IOException("Can only hanlded mocked socketsa");
+		}
+		
+		MockSocketImpl mock = (MockSocketImpl) s;
+		
 		/*
 		 * If the test case has set up an incoming connection, then
 		 * simulate an immediate connection.
@@ -96,12 +103,18 @@ public class EvoSuiteSocket extends MockSocketImpl{
 		 * a connection that will never arrive: just throw an exception
 		 */
 		
+		String localAddress = serverSocket.getInetAddress().getHostAddress();
+		int localPort = serverSocket.getLocalPort();
+		
 		NativeTcp tcp = VirtualNetwork.getInstance().pullTcpConnection(
-				getInetAddress().getHostAddress(),getLocalPort());
+				localAddress,localPort);
 		if(tcp == null){
 			throw new IOException("Simulated exception on waiting server");
 		} else {
 			openedConnection = tcp;
+			mock.setLocalPort(localPort);
+			mock.setRemoteAddress(InetAddress.getByName(tcp.getRemoteEndPoint().getHost()));
+			mock.setRemotePort(tcp.getRemoteEndPoint().getPort());
 		}
 	}
 
