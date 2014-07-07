@@ -64,13 +64,15 @@ public class EvoSuiteClasspathContainerPage extends org.eclipse.jface.wizard.Wiz
 
 	@SuppressWarnings("deprecation")
 	public IPath getPath() {
-		URL url = org.eclipse.core.runtime.Platform.getPlugin("org.evosuite.eclipse.core").getBundle().getEntry("evosuite.jar");
+		URL url = org.eclipse.core.runtime.Platform.getPlugin("org.evosuite.plugins.eclipse.core").getBundle().getEntry("evosuite.jar");
 		try {
 			URL evosuiteLib = org.eclipse.core.runtime.Platform.resolve(url);
 			System.out.println("Evosuite jar is at " + evosuiteLib.getPath());
 			return new Path(evosuiteLib.getPath());
 		} catch (Exception e) {
+			System.err.println("Error accessing Evosuite jar at " + url);
 		}
+		System.err.println("Did not find Evosuite jar!");
 
 		return null;
 	}
