@@ -12,8 +12,8 @@ import java.net.SocketImpl;
 
 public abstract class MockSocketImpl extends SocketImpl{
 
-    Socket socket = null;
-    ServerSocket serverSocket = null;
+    protected Socket socket = null;
+    protected ServerSocket serverSocket = null;
 
     /*
     protected FileDescriptor fd;
@@ -107,24 +107,24 @@ public abstract class MockSocketImpl extends SocketImpl{
      */
     
     
-    void setSocket(Socket soc) {
+    protected void setSocket(Socket soc) {
         this.socket = soc;
     }
 
-    Socket getSocket() {
+    protected Socket getSocket() {
         return socket;
     }
 
-    void setServerSocket(ServerSocket soc) {
+    protected void setServerSocket(ServerSocket soc) {
         this.serverSocket = soc;
     }
 
-    ServerSocket getServerSocket() {
+    protected ServerSocket getServerSocket() {
         return serverSocket;
     }
 
 
-    void reset() throws IOException {
+    protected void reset() throws IOException {
         address = null;
         port = 0;
         localport = 0;

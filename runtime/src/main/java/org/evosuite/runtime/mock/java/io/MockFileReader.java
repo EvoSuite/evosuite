@@ -7,7 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.evosuite.runtime.VirtualFileSystem;
+import org.evosuite.runtime.vfs.VirtualFileSystem;
 
 public class MockFileReader extends FileReader{
 

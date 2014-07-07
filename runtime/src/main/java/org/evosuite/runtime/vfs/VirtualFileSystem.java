@@ -1,4 +1,4 @@
-package org.evosuite.runtime;
+package org.evosuite.runtime.vfs;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,10 +9,9 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.evosuite.runtime.EvoSuiteFile;
+import org.evosuite.runtime.LeakingResource;
 import org.evosuite.runtime.sandbox.MSecurityManager;
-import org.evosuite.runtime.vfs.FSObject;
-import org.evosuite.runtime.vfs.VFile;
-import org.evosuite.runtime.vfs.VFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

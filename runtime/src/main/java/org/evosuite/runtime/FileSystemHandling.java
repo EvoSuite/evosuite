@@ -2,6 +2,7 @@ package org.evosuite.runtime;
 
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
+import org.evosuite.runtime.vfs.VirtualFileSystem;
 
 /**
  * This class is used create files as test data

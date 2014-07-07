@@ -4,6 +4,9 @@ package org.evosuite.runtime.mock.java.net;
  * This approach does not work, as no public/protected constructor to call :(
  * 
  *  Need a "static replacement" approach 
+ *  
+ *  Mocking this class is only needed for DNS resolution, and possibly to handle isReachable() method.
+ *  So maybe not needed in a first phase
  */
 public class MockInetAddress { 
 }	

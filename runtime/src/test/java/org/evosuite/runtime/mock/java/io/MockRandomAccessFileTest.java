@@ -1,13 +1,13 @@
-package org.evosuite.mock.java.io;
+package org.evosuite.runtime.mock.java.io;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.evosuite.runtime.VirtualFileSystem;
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.evosuite.runtime.mock.java.io.MockRandomAccessFile;
+import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -9,10 +9,10 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 
-import org.evosuite.runtime.VirtualFileSystem;
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VFolder;
+import org.evosuite.runtime.vfs.VirtualFileSystem;
 
 /**
  * This class is used in the mocking framework to replace File instances.
