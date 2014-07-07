@@ -147,7 +147,7 @@ public class ResourceList {
 		if(cpEntry==null){
 			if(!getCache().missingClasses.contains(name)){
 				getCache().missingClasses.add(name);
-				logger.warn("The class "+name+" is not on the classapath"); //only log once
+				logger.warn("The class "+name+" is not on the classpath"); //only log once
 			}
 			return null;
 		}
@@ -344,6 +344,7 @@ public class ResourceList {
 			ClassReader reader = new ClassReader(input);
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES);
+			@SuppressWarnings("unchecked")
 			List<MethodNode> l = cn.methods; 
 			for (MethodNode m : l) {
 				if ((m.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
