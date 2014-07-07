@@ -671,13 +671,17 @@ public class TestSuiteGenerator {
 		// Newline after progress bar
 		if (Properties.SHOW_PROGRESS)
 			LoggingUtils.getEvoLogger().info("");
+		String text = " statements, best individual has fitness: ";
+		if(bestSuites.size() > 1) {
+			text = " statements, best individuals have fitness: ";			
+		}
 		LoggingUtils.getEvoLogger().info("* Search finished after "
 		                                         + (end_time - start_time)
 		                                         + "s and "
 		                                         + ga.getAge()
 		                                         + " generations, "
 		                                         + MaxStatementsStoppingCondition.getNumExecutedStatements()
-		                                         + " statements, best individual(s) has(have) fitness: "
+		                                         + text
 		                                         + ga.toString());
 
 		// TODO also consider time for test carving in end_time?
