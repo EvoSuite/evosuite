@@ -113,7 +113,6 @@ public class EvoSuiteSocket extends MockSocketImpl{
 			throw new IOException("Simulated exception on waiting server");
 		} else {
 			openedConnection = tcp;
-			//TODO check if correct/needed
 			mock.setOption(SocketOptions.SO_BINDADDR, localHost);		
 			mock.setLocalPort(localport);
 			mock.setRemoteAddress(InetAddress.getByName(tcp.getRemoteEndPoint().getHost()));
@@ -123,14 +122,14 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 	@Override
 	protected InputStream getInputStream() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		checkIfClosed();
+		return new SocketIn(openedConnection,true);
 	}
 
 	@Override
-	protected OutputStream getOutputStream() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+	protected OutputStream getOutputStream() throws IOException {		
+		checkIfClosed();
+		return new SocketOut(openedConnection,true);
 	}
 
 	@Override
