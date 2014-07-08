@@ -152,7 +152,7 @@ public class ResourceList {
 				 * and try to load garbage (eg random string generated as test data) that
 				 * would fill the logs 
 				 */
-				logger.debug("The class "+name+" is not on the classapath"); //only log once
+				logger.debug("The class "+name+" is not on the classpath"); //only log once			
 			}
 			return null;
 		}
@@ -349,6 +349,7 @@ public class ResourceList {
 			ClassReader reader = new ClassReader(input);
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES);
+			@SuppressWarnings("unchecked")
 			List<MethodNode> l = cn.methods; 
 			for (MethodNode m : l) {
 				if ((m.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
