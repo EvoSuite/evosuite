@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
+import java.net.SocketOptions;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -80,6 +81,8 @@ public class EvoSuiteSocket extends MockSocketImpl{
 		if(!opened){
 			throw new IOException("Failed to opened TCP port");
 		}
+		super.localport = port;
+		setOption(SocketOptions.SO_BINDADDR, host);		
 	}
 
 	@Override
@@ -89,19 +92,32 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 	@Override
 	protected void accept(SocketImpl s) throws IOException {
+		
+		if(! (s instanceof MockSocketImpl)){
+			throw new IOException("Can only hanlded mocked socketsa");
+		}
+		
+		MockSocketImpl mock = (MockSocketImpl) s;
+		
 		/*
 		 * If the test case has set up an incoming connection, then
 		 * simulate an immediate connection.
 		 * If not, there is no point in blocking the SUT for
 		 * a connection that will never arrive: just throw an exception
 		 */
+			
+		InetAddress localHost = (InetAddress) options.get(SocketOptions.SO_BINDADDR); 
+		NativeTcp tcp = VirtualNetwork.getInstance().pullTcpConnection(localHost.getHostAddress(),localport);
 		
-		NativeTcp tcp = VirtualNetwork.getInstance().pullTcpConnection(
-				getInetAddress().getHostAddress(),getLocalPort());
 		if(tcp == null){
 			throw new IOException("Simulated exception on waiting server");
 		} else {
 			openedConnection = tcp;
+			//TODO check if correct/needed
+			mock.setOption(SocketOptions.SO_BINDADDR, localHost);		
+			mock.setLocalPort(localport);
+			mock.setRemoteAddress(InetAddress.getByName(tcp.getRemoteEndPoint().getHost()));
+			mock.setRemotePort(tcp.getRemoteEndPoint().getPort());
 		}
 	}
 

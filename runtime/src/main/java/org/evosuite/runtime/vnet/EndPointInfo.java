@@ -3,7 +3,7 @@ package org.evosuite.runtime.vnet;
 import org.evosuite.runtime.vnet.VirtualNetwork.ConnectionType;
 
 /**
- * Convenience class used to store connection info 
+ * Immutable class used to store connection info 
  */
 public class EndPointInfo {
 	
