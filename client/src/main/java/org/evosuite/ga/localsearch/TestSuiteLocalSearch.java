@@ -39,6 +39,8 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 	 * @return
 	 */
 	protected TestSuiteChromosome expandTestSuite(TestSuiteChromosome individual) {
+		logger.debug("Expanding tests for local search");
+
 		TestSuiteChromosome newTestSuite = new TestSuiteChromosome();
 		for (TestChromosome test : individual.getTestChromosomes()) {
 
@@ -85,7 +87,8 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 	 * Ensure that all branches are executed twice
 	 */
 	protected void ensureDoubleExecution(TestSuiteChromosome individual, TestSuiteFitnessFunction objective) {
-
+		logger.debug("Ensuring double execution");
+		
 		Set<TestChromosome> duplicates = new HashSet<TestChromosome>();
 
 		Map<Integer, Integer> covered = new HashMap<Integer, Integer>();
@@ -158,6 +161,8 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 	 * Ensure that all branches are executed twice
 	 */
 	protected void restoreBranchCoverage(TestSuiteChromosome individual, TestSuiteFitnessFunction objective) {
+		logger.debug("Adding branches already covered previously");
+
 		BranchCoverageMap branchMap = BranchCoverageMap.getInstance();
 
 		Set<Integer> uncoveredTrueBranches  = new LinkedHashSet<Integer>(branchMap.getCoveredTrueBranches());
