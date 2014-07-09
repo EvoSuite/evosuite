@@ -51,8 +51,7 @@ public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalS
 	/** {@inheritDoc} */
 	@Override
 	public boolean hasImproved(T individual) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Not implemented for default objective");
 	}
 
 	/* (non-Javadoc)
@@ -70,8 +69,7 @@ public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalS
 	/** {@inheritDoc} */
 	@Override
 	public int hasChanged(T individual) {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new UnsupportedOperationException("Not implemented for default objective");
 	}
 
 	/* (non-Javadoc)
@@ -80,8 +78,7 @@ public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalS
 	/** {@inheritDoc} */
 	@Override
 	public boolean hasNotWorsened(T individual) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Not implemented for default objective");
 	}
 
 	@Override
