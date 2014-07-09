@@ -143,7 +143,8 @@
 			<dependency>
 				<groupId>com.sun</groupId>
 				<artifactId>tools</artifactId>
-				<version>${toolsVersion}</version>
+<!--				<version>${toolsVersion}</version> -->
+				<version>1.0.0</version>
 				<scope>system</scope>
 				<systemPath>${toolsjar}</systemPath>
 			</dependency>

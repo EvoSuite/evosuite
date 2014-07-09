@@ -92,7 +92,25 @@ public class AgentLoader {
 			Throwable cause = e.getCause();
 			String causeDescription = cause==null ? "" : " , cause "+cause.getClass()+" "+cause.getMessage();
 			logger.error("Exception "+e.getClass()+": "+e.getMessage()+causeDescription,e);
-			throw new RuntimeException(e);
+			try {
+				Thread.sleep(5000);
+				logger.error("Trying again:");
+				logger.error("VM: "+nameOfRunningVM);
+				logger.error("PID: "+pid);
+				Class<?> string = toolLoader.loadClass("java.lang.String");
+				Class<?> clazz = toolLoader.loadClass("com.sun.tools.attach.VirtualMachine");
+				Method attach = clazz.getMethod("attach", string);
+
+				Object instance = attach.invoke(null, pid);
+
+				Method loadAgent = clazz.getMethod("loadAgent", string, string);
+				loadAgent.invoke(instance, jarFilePath, "");
+
+				Method detach = clazz.getMethod("detach");
+				detach.invoke(instance);
+			} catch(Exception e2) {
+				throw new RuntimeException(e2);				
+			}
 		}
 
 		alreadyLoaded = true;

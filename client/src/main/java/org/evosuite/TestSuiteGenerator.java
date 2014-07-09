@@ -155,7 +155,6 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.UncompilableCodeException;
 import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.FixedSizeTestSuiteChromosomeFactory;
 import org.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective;
 import org.evosuite.testsuite.MinimizeExceptionsSecondaryObjective;
@@ -457,7 +456,7 @@ public class TestSuiteGenerator {
 	    	for (int i = 0; i < tests.size(); i++)
 	    		results.add(writeJUnitTestsAndCreateResult(tests.get(i).getTests(), "_"+i+"_" + Properties.JUNIT_SUFFIX  ));
 	    } else {
-	    	results.add(writeJUnitTestsAndCreateResult(tests.get(0).getTests(), "_" + Properties.JUNIT_SUFFIX  ));
+	    	results.add(writeJUnitTestsAndCreateResult(tests.get(0).getTests(), Properties.JUNIT_SUFFIX  ));
 	    }
 	    return results;
 	}
@@ -659,6 +658,7 @@ public class TestSuiteGenerator {
 				return bestSuites;
 			}
 		} else {
+			bestSuites.add(new TestSuiteChromosome());
 			//statistics.searchStarted(ga);
 			//statistics.searchFinished(ga);
 			zero_fitness.setFinished();
