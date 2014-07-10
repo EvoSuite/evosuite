@@ -80,7 +80,7 @@ public class NativeTcp {
 	public synchronized void writeToSUT(byte b){
 		localBuffer.add(b);
 	}
-	
+		
 	/**
 	 * Get the data sent by the SUT.
 	 * This would mainly be useful for assertion generation and
