@@ -42,7 +42,6 @@ import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
-import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -303,7 +302,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				this.oidToVarRefMap.put(returnValueOID, varRef);
 
 			} catch (final Exception e) {
-				LoggingUtils.getEvoLogger().debug("Error while trying to get field "
+				logger.debug("Error while trying to get field "
 				                                          + fieldName + " of class "
 				                                          + getClassForName(typeName)+": "+e);
 				CodeGeneratorException.propagateError(e, "[logRecNo = %s] - an unexpected error occurred while creating field read access stmt. Log: %s", logRecNo, log);
@@ -434,7 +433,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 	private Method getDeclaredMethod(final Class<?> clazz, final String methodName,
 	        Class<?>[] paramTypes) throws NoSuchMethodException {
-		logger.info("Trying to get method "+methodName +" from class "+clazz+" with parameters "+Arrays.asList(paramTypes));
+		// logger.info("Trying to get method "+methodName +" from class "+clazz+" with parameters "+Arrays.asList(paramTypes));
 		if (clazz == null || Object.class.equals(clazz)) {
 			throw new NoSuchMethodException(methodName + "(" + Arrays.toString(paramTypes)
 			        + ")");
@@ -445,7 +444,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			m.setAccessible(true);
 			return m;
 		} catch (final NoSuchMethodException e) {			
-			logger.info("Available methods: "+Arrays.asList(clazz.getDeclaredMethods()));
+			//logger.info("Not found {}, available methods: {}", methodName, Arrays.asList(clazz.getDeclaredMethods()));
 			return getDeclaredMethod(clazz.getSuperclass(), methodName, paramTypes);
 		}
 	}

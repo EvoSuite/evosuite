@@ -56,7 +56,7 @@ public class JUnitTestCarvedChromosomeFactory implements
 		if (junitTests.size() > 0) {
 			totalNumberOfTestsCarved = junitTests.size();
 
-			LoggingUtils.getEvoLogger().info("* Carved {} tests from existing JUnit tests",
+			LoggingUtils.getEvoLogger().info("* Using {} carved tests from existing JUnit tests for seeding",
 			                                 junitTests.size());
 			if (logger.isDebugEnabled()) {
 				for (TestCase test : junitTests) {
