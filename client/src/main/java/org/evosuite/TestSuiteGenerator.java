@@ -220,6 +220,7 @@ public class TestSuiteGenerator {
 
 		ClientServices.getInstance().getClientNode().changeState(ClientState.INITIALIZATION);
 
+		TestCaseExecutor.initExecutor();
 		Sandbox.goingToExecuteSUTCode();
         TestGenerationContext.getInstance().goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
@@ -228,7 +229,6 @@ public class TestSuiteGenerator {
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
 			                           Arrays.asList(cp.split(File.pathSeparator)));
 			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
-			ObjectPoolManager.getInstance();
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 			                                          + (e.getMessage() != null ? e.getMessage()
@@ -241,8 +241,10 @@ public class TestSuiteGenerator {
 			Sandbox.doneWithExecutingSUTCode();
             TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 		}
+		
+		// TODO: Do parts of this need to be wrapped into sandbox statements?
+		ObjectPoolManager.getInstance();
 
-		TestCaseExecutor.initExecutor();
 
 		LoggingUtils.getEvoLogger().info("* Generating tests for class "
 		                                         + Properties.TARGET_CLASS);
@@ -456,7 +458,8 @@ public class TestSuiteGenerator {
 	    	for (int i = 0; i < tests.size(); i++)
 	    		results.add(writeJUnitTestsAndCreateResult(tests.get(i).getTests(), "_"+i+"_" + Properties.JUNIT_SUFFIX  ));
 	    } else {
-	    	results.add(writeJUnitTestsAndCreateResult(tests.get(0).getTests(), Properties.JUNIT_SUFFIX  ));
+		    if (tests.size() == 1 && tests.get(0).getTests().size() > 0)
+		    	results.add(writeJUnitTestsAndCreateResult(tests.get(0).getTests(), Properties.JUNIT_SUFFIX  ));
 	    }
 	    return results;
 	}

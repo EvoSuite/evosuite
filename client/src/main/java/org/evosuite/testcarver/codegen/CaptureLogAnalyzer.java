@@ -43,7 +43,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		
 		final CaptureLog log = originalLog.clone();
 
-		final HashSet<String> observedClassNames = extracObservedClassNames(observedClasses);
+		final HashSet<String> observedClassNames = extractObservedClassNames(observedClasses);
 		CaptureLogAnalyzerException.check(! CollectionUtil.isNullOrEmpty(observedClassNames), "could not extract class names for ", Arrays.toString(observedClasses));
 
 		final List<Integer> targetOIDs = log.getTargetOIDs(observedClassNames);
@@ -114,7 +114,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			{
 				logger.debug("Analyzing record in position {}", currentRecord);
 
-				oidExchange = this.restorceCodeFromLastPosTo(log, generator, currentOID, currentRecord + 1, blackList);
+				oidExchange = this.restoreCodeFromLastPosTo(log, generator, currentOID, currentRecord + 1, blackList);
 				if(oidExchange != null){
 					break;
 				}
@@ -137,7 +137,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 	
 
-	private HashSet<String> extracObservedClassNames(
+	private HashSet<String> extractObservedClassNames(
 			final Class<?>... observedClasses) {
 		//--- 1. step: extract class names
 		final HashSet<String> observedClassNames = new HashSet<String>();
@@ -317,14 +317,14 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 			if(oid != null)
 			{
-				this.restorceCodeFromLastPosTo(log, generator, oid, currentRecord, blackList);
+				this.restoreCodeFromLastPosTo(log, generator, oid, currentRecord, blackList);
 			}
 		}
 	}
 
 
 	@SuppressWarnings({ "rawtypes" })
-	private int[] restorceCodeFromLastPosTo(final CaptureLog log, final ICodeGenerator generator,final int oid, final int end, final Set<Class<?>> blackList){
+	private int[] restoreCodeFromLastPosTo(final CaptureLog log, final ICodeGenerator generator,final int oid, final int end, final Set<Class<?>> blackList){
 
 		// start from last OID modification point
 		int currentRecord = log.getRecordIndexOfWhereObjectWasInitializedFirst(oid);
@@ -368,7 +368,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 					// currentOID differs to the targetOID. this happens if the targetOID appears the first time as return value 
 	     			// -> so we have to make sure that currentOID is restored till this position in order to deliver the correct 
 	     			//    target instance
-	     			exchange = this.restorceCodeFromLastPosTo(log, generator, currentOID, currentRecord, blackList);
+	     			exchange = this.restoreCodeFromLastPosTo(log, generator, currentOID, currentRecord, blackList);
 					if(exchange != null)
 					{
 						return exchange;
@@ -396,7 +396,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 					if(dependencyOID != CaptureLog.NO_DEPENDENCY)
 					{
-						exchange = this.restorceCodeFromLastPosTo(log, generator, dependencyOID, currentRecord, blackList);
+						exchange = this.restoreCodeFromLastPosTo(log, generator, dependencyOID, currentRecord, blackList);
 						if(exchange != null)
 						{
 							return exchange;
@@ -413,7 +413,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 					if(dependencyOID != CaptureLog.NO_DEPENDENCY)
 					{
-						exchange = this.restorceCodeFromLastPosTo(log, generator, dependencyOID, currentRecord, blackList);
+						exchange = this.restoreCodeFromLastPosTo(log, generator, dependencyOID, currentRecord, blackList);
 						if(exchange != null)
 						{
 							return exchange;
@@ -428,7 +428,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 						if(methodArgOID != null && methodArgOID != oid)
 						{
 							// create history of assigned value
-							exchange = this.restorceCodeFromLastPosTo(log, generator, methodArgOID, currentRecord, blackList);
+							exchange = this.restoreCodeFromLastPosTo(log, generator, methodArgOID, currentRecord, blackList);
 							if(exchange != null) {
 								return exchange;
 							}
@@ -460,7 +460,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 					if(dependencyOID != CaptureLog.NO_DEPENDENCY)
 					{
-						exchange = this.restorceCodeFromLastPosTo(log, generator, dependencyOID, currentRecord, blackList);
+						exchange = this.restoreCodeFromLastPosTo(log, generator, dependencyOID, currentRecord, blackList);
 						if(exchange != null)
 						{
 							return exchange;
@@ -497,7 +497,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 						//====================================================
 
 						if(methodArgOID != null && methodArgOID != oid) {
-							exchange = this.restorceCodeFromLastPosTo(log, generator, methodArgOID, currentRecord, blackList);
+							exchange = this.restoreCodeFromLastPosTo(log, generator, methodArgOID, currentRecord, blackList);
 							if(exchange != null) {
 								// we can not resolve all dependencies because they rely on other unresolvable object
 								blackList.add(this.getClassFromOID(log, oid));
