@@ -314,10 +314,12 @@ public final class CaptureLog implements Cloneable {
 			final Class<?> c = (Class<?>) receiver;
 			this.oidClassNames.add(c.getName());//.replaceFirst("\\$\\d+$", ""));
 			
-		// TODO: I don't understand why we would want to shorten the name if it's a primitive.
-		//       It makes it more difficult later to identify the classes contained in the log.
-		//} else if (this.isPlain(receiver)) {
+		} else if (this.isPlain(receiver)) {
 			// we don't need fully qualified name for plain types
+
+			// TODO: I don't understand why we would want to shorten the name if it's a primitive.
+			//       It makes it more difficult later to identify the classes contained in the log.
+			this.oidClassNames.add(receiver.getClass().getName());//.replaceFirst("\\$\\d+$", ""));
 		//	this.oidClassNames.add(receiver.getClass().getSimpleName());//.replaceFirst("\\$\\d+$", ""));
 		} else if (isProxy(receiver) || isAnonymous(receiver)) {
 			// TODO what if there is more than one interface?
@@ -847,7 +849,7 @@ public final class CaptureLog implements Cloneable {
 
 		builder.append('\n').append('\n');
 
-		builder.append("META INF:\n").append("-------------------------------------------------------------------").append('\n').append("OID").append(delimiter).append("INIT RECNO").append(delimiter).append("OID CLASS").append(delimiter).append("ACCESSED FIELDS").append(delimiter).append("FIRST INIT").append(delimiter).append("DEPENCENCY").append('\n').append("-------------------------------------------------------------------").append('\n');
+		builder.append("META INF:\n").append("-------------------------------------------------------------------").append('\n').append("OID").append(delimiter).append("INIT RECNO").append(delimiter).append("OID CLASS").append(delimiter).append("ACCESSED FIELDS").append(delimiter).append("FIRST INIT").append(delimiter).append("DEPENDENCY").append('\n').append("-------------------------------------------------------------------").append('\n');
 
 		final int numMetaInfRecords = this.oids.size();
 		for (int i = 0; i < numMetaInfRecords; i++) {

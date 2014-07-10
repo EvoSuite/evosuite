@@ -81,12 +81,12 @@ public class CarvingManager {
 	
 	private void readTestCases() throws IllegalStateException {
 		ClientServices.getInstance().getClientNode().changeState(ClientState.CARVING);
-
+		Collection<String> junitTestNames = getListOfJUnitClassNames();
+		LoggingUtils.getEvoLogger().info("* Executing tests from {} test classes for carving", junitTestNames.size());
 		final JUnitCore runner = new JUnitCore();
 		final CarvingRunListener listener = new CarvingRunListener();
 		runner.addListener(listener);
 
-		Collection<String> junitTestNames = getListOfJUnitClassNames();
 
 		final List<Class<?>> junitTestClasses = new ArrayList<Class<?>>();
 		final org.evosuite.testcarver.extraction.CarvingClassLoader classLoader = new org.evosuite.testcarver.extraction.CarvingClassLoader();
@@ -116,6 +116,8 @@ public class CarvingManager {
 		
 		Map<Class<?>, List<TestCase>> testMap = listener.getTestCases();
 		for(Class<?> targetClass : testMap.keySet()) {
+			LoggingUtils.getEvoLogger().info("* Processing carved tests for class {}", targetClass.getName());
+
 			List<TestCase> processedTests = new ArrayList<TestCase>();
 			
 			for (TestCase test : testMap.get(targetClass)) {
