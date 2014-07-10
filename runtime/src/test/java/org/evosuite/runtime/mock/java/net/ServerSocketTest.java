@@ -89,4 +89,8 @@ public class ServerSocketTest {
 		socket.close();
 	}
 	
+	@Test 
+	public void testReceiveMessage(){
+		//TODO
+	}
 }

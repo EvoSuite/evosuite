@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Singleton class used to simulate a virtual network.
@@ -22,6 +23,14 @@ public class VirtualNetwork {
 	 * Singleton instance
 	 */
 	private static final VirtualNetwork instance = new VirtualNetwork();
+
+	/**
+	 * When we simulate a remote incoming connection, we still need a remote port.
+	 * Note: in theory we could have the same port if we simulate several different
+	 * remote hosts. But, for unit testing purposes, it is likely an unnecessary
+	 * overhead/complication
+	 */
+	private static final int START_OF_REMOTE_EPHEMERAL_PORTS = 40000; 
 	
 	/**
 	 * Set of listening ports locally opened by the SUTs.
@@ -38,19 +47,27 @@ public class VirtualNetwork {
 	 * <p>
 	 * Value -> queue of foreign addresses/ports waiting to connect to the given local address (key)
 	 */
-	private final Map<EndPointInfo,Queue<EndPointInfo>> incomingConnections;
+	private final Map<EndPointInfo,Queue<NativeTcp>> incomingConnections;
 	
 	/**
-	 * Keep track of all TCP connection opened during the tests.
+	 * Keep track of all TCP connections opened during the tests.
 	 * This is for example useful to check what data the SUT sent.
 	 */
 	private final Set<NativeTcp> openedTcpConnections;
 	
+	/**
+	 * Current remote port number that can be opened
+	 */
+	private final AtomicInteger remotePortIndex;
 	
+	/**
+	 * private, singleton constructor
+	 */
 	private VirtualNetwork(){
         localListeningPorts = new CopyOnWriteArraySet<>();
         incomingConnections = new ConcurrentHashMap<>();
         openedTcpConnections = new CopyOnWriteArraySet<>();
+        remotePortIndex = new AtomicInteger(START_OF_REMOTE_EPHEMERAL_PORTS);
 	}
 	
 	public static VirtualNetwork getInstance(){
@@ -62,6 +79,17 @@ public class VirtualNetwork {
 	public void reset(){
 		localListeningPorts.clear();
 		incomingConnections.clear();
+		//TODO handle openedTcpConnections
+		remotePortIndex.set(START_OF_REMOTE_EPHEMERAL_PORTS);
+	}
+	
+	/**
+	 * Create new port to open on remote host
+	 * 
+	 * @return a integer representing a port number on remote host
+	 */
+	public int getNewRemoteEphemeralPort(){
+		return remotePortIndex.getAndIncrement();
 	}
 	
 	/**
@@ -73,20 +101,22 @@ public class VirtualNetwork {
 	 * @param destAddr
 	 * @param destPort
 	 */
-	public synchronized void registerIncomingTcpConnection(
+	public synchronized NativeTcp registerIncomingTcpConnection(
 			String originAddr, int originPort,
 			String destAddr, int destPort){
 		
 		EndPointInfo origin = new EndPointInfo(originAddr,originPort,ConnectionType.TCP);
 		EndPointInfo dest = new EndPointInfo(destAddr,destPort,ConnectionType.TCP);
 		
-		Queue<EndPointInfo> queue = incomingConnections.get(dest);
+		Queue<NativeTcp> queue = incomingConnections.get(dest);
 		if(queue == null){
 			queue = new ConcurrentLinkedQueue<>();
 			incomingConnections.put(dest, queue);
 		}
 		
-		queue.add(origin);
+		NativeTcp connection = new NativeTcp(dest,origin);		
+		queue.add(connection);
+		return connection;
 	}
 
 	/**
@@ -98,12 +128,15 @@ public class VirtualNetwork {
 	 */
 	public synchronized NativeTcp pullTcpConnection(String localAddress, int localPort){
 		EndPointInfo local = new EndPointInfo(localAddress,localPort,ConnectionType.TCP);
-		Queue<EndPointInfo> queue = incomingConnections.get(local);
+		Queue<NativeTcp> queue = incomingConnections.get(local);
 		if(queue == null || queue.isEmpty()){
 			return null;
 		}
 		
-		return new NativeTcp(local,queue.poll()); 
+		NativeTcp connection = queue.poll();
+		openedTcpConnections.add(connection);
+		
+		return connection; 
 	}
 	
 	
