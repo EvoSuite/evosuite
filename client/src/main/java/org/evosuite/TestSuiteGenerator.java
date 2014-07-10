@@ -229,7 +229,6 @@ public class TestSuiteGenerator {
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
 			                           Arrays.asList(cp.split(File.pathSeparator)));
 			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
-			ObjectPoolManager.getInstance();
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 			                                          + (e.getMessage() != null ? e.getMessage()
@@ -242,6 +241,9 @@ public class TestSuiteGenerator {
 			Sandbox.doneWithExecutingSUTCode();
             TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 		}
+		
+		// TODO: Do parts of this need to be wrapped into sandbox statements?
+		ObjectPoolManager.getInstance();
 
 
 		LoggingUtils.getEvoLogger().info("* Generating tests for class "
