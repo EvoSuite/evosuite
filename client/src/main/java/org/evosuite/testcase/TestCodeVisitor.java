@@ -20,6 +20,7 @@ package org.evosuite.testcase;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -1093,7 +1094,18 @@ public class TestCodeVisitor extends TestVisitor {
 				callee_str += "((" + getClassName(method.getMethod().getDeclaringClass())
 				        + ")" + getVariableName(callee) + ")";
 			} else {
-				callee_str += getVariableName(callee);
+				if(!callee.isAssignableTo(method.getMethod().getDeclaringClass())) {
+					try {
+						// If the concrete callee class has that method then it's ok
+						callee.getVariableClass().getMethod(method.getName(), method.getRawParameterTypes()); 
+						callee_str += getVariableName(callee);						
+					} catch(NoSuchMethodException e) {
+						// If not we need to cast to the subtype
+						callee_str += "((" + getTypeName(method.getMethod().getDeclaringClass()) + ") "+ getVariableName(callee) +")";						
+					}
+				} else {
+					callee_str += getVariableName(callee);
+				}
 			}
 		}
 
