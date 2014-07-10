@@ -458,7 +458,8 @@ public class TestSuiteGenerator {
 	    	for (int i = 0; i < tests.size(); i++)
 	    		results.add(writeJUnitTestsAndCreateResult(tests.get(i).getTests(), "_"+i+"_" + Properties.JUNIT_SUFFIX  ));
 	    } else {
-	    	results.add(writeJUnitTestsAndCreateResult(tests.get(0).getTests(), Properties.JUNIT_SUFFIX  ));
+		    if (tests.size() == 1 && tests.get(0).getTests().size() > 0)
+		    	results.add(writeJUnitTestsAndCreateResult(tests.get(0).getTests(), Properties.JUNIT_SUFFIX  ));
 	    }
 	    return results;
 	}
