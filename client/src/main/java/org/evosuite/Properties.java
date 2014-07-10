@@ -176,6 +176,9 @@ public class Properties {
 	@Parameter(key = "object_pools", group = "Test Creation", description = "List of object pools")
 	public static String OBJECT_POOLS = "";
 
+	@Parameter(key = "carve_object_pool", group = "Test Creation", description = "Carve junit tests for pool")
+	public static boolean CARVE_OBJECT_POOL = false;
+
 	@Parameter(key = "seed_types", group = "Test Creation", description = "Use type information gathered from casts to instantiate generics")
 	public static boolean SEED_TYPES = true;
 

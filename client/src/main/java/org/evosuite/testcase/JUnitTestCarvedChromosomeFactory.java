@@ -1,26 +1,18 @@
 package org.evosuite.testcase;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientNodeLocal;
-import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcarver.extraction.CarvingRunListener;
+import org.evosuite.testcarver.extraction.CarvingManager;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,82 +47,11 @@ public class JUnitTestCarvedChromosomeFactory implements
 		readTestCases();
 	}
 
-	private void chopException(TestCase test, ExecutionResult result) {
-		if (!result.noThrownExceptions()) {
-			// No code including or after an exception should be in the pool
-			Integer pos = result.getFirstPositionOfThrownException();
-			if (pos != null) {
-				test.chop(pos);
-			} else {
-				test.chop(test.size() - 1);
-			}
-		}
-	}
 
 	private void readTestCases() throws IllegalStateException {
-		ClientServices.getInstance().getClientNode().changeState(ClientState.CARVING);
-
-		final JUnitCore runner = new JUnitCore();
-		final CarvingRunListener listener = new CarvingRunListener();
-		runner.addListener(listener);
-
-		Collection<String> junitTestNames = getListOfJUnitClassNames();
-
-		final List<Class<?>> junitTestClasses = new ArrayList<Class<?>>();
-		final org.evosuite.testcarver.extraction.CarvingClassLoader classLoader = new org.evosuite.testcarver.extraction.CarvingClassLoader();
-
-		try {
-			// instrument target class
-			classLoader.loadClass(Properties.getTargetClass().getCanonicalName());
-		} catch (final ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-
-		for (String className : junitTestNames) {
-
-			String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
-			try {
-				final Class<?> junitClass = classLoader.loadClass(classNameWithDots);
-				junitTestClasses.add(junitClass);
-			} catch (ClassNotFoundException e) {
-				logger.warn("Error trying to load JUnit test class " + classNameWithDots
-				        + ": " + e);
-			}
-		}
-
-		final Class<?>[] classes = new Class<?>[junitTestClasses.size()];
-		junitTestClasses.toArray(classes);
-		final Result result = runner.run(classes);
-		for (TestCase test : listener.getTestCases()) {
-			if (test.isEmpty())
-				continue;
-
-			ExecutionResult executionResult = TestCaseExecutor.runTest(test);
-			if (executionResult.noThrownExceptions()) {
-				logger.info("Adding carved test without exception");
-				logger.info(test.toCode());
-				junitTests.add(test);
-			} else {
-				logger.info("Exception thrown in carved test: "
-				        + executionResult.getExceptionThrownAtPosition(executionResult.getFirstPositionOfThrownException()));
-				for (StackTraceElement elem : executionResult.getExceptionThrownAtPosition(executionResult.getFirstPositionOfThrownException()).getStackTrace()) {
-					logger.info(elem.toString());
-				}
-				logger.info(test.toCode(executionResult.exposeExceptionMapping()));
-				if (Properties.CHOP_CARVED_EXCEPTIONS) {
-					logger.info("Chopping exception of carved test");
-					chopException(test, executionResult);
-					if (test.hasObject(Properties.getTargetClass(), test.size())) {
-						junitTests.add(test);
-					} else {
-						logger.info("Chopped test is empty");
-					}
-				} else {
-					logger.info("Not adding carved test with exception: ");
-				}
-			}
-		}
-		// junitTests.addAll(listener.getTestCases());
+		CarvingManager manager = CarvingManager.getInstance();
+		List<TestCase> tests = manager.getTestsForClass(Properties.getTargetClass());
+		junitTests.addAll(tests);
 
 		if (junitTests.size() > 0) {
 			totalNumberOfTestsCarved = junitTests.size();
@@ -149,15 +70,6 @@ public class JUnitTestCarvedChromosomeFactory implements
 			}
 			f.getFitness(suite);
 			carvedCoverage = suite.getCoverage();
-		} else {
-			String outcome = "";
-			for (Failure failure : result.getFailures()) {
-				outcome += "(" + failure.getDescription() + ", " + failure.getTrace()
-				        + ") ";
-			}
-			logger.warn("It was not possible to carve any test case from: "
-			        + Arrays.toString(junitTestNames.toArray())
-			        + ". Test execution results: " + outcome);
 		}
 		
 		ClientNodeLocal client = ClientServices.getInstance().getClientNode();
@@ -171,28 +83,6 @@ public class JUnitTestCarvedChromosomeFactory implements
 
 	public int getNumCarvedTestCases() {
 		return junitTests.size();
-	}
-
-	private Collection<String> getListOfJUnitClassNames() throws IllegalStateException {
-
-		String prop = Properties.SELECTED_JUNIT;
-		if (prop == null || prop.trim().isEmpty()) {
-			throw new IllegalStateException(
-			        "Trying to use a test carver factory, but empty Properties.SELECTED_JUNIT");
-		}
-
-		String[] paths = prop.split(":");
-		Collection<String> junitTestNames = new HashSet<String>();
-		for (String s : paths) {
-			junitTestNames.add(s.trim());
-		}
-
-		/* 
-		Pattern pattern = Pattern.compile(Properties.JUNIT_PREFIX+".*.class");
-		Collection<String> junitTestNames = ResourceList.getResources(pattern);		
-		logger.info("Found "+junitTestNames.size()+" candidate junit classes for pattern "+pattern);
-		*/
-		return junitTestNames;
 	}
 
 	@Override
