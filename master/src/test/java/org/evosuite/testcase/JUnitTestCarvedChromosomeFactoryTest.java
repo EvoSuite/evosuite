@@ -4,7 +4,6 @@ import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {

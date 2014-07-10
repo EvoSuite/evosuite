@@ -198,7 +198,7 @@ public class TimeController {
 			long timeoutInMs = getCurrentPhaseTimeout();
 			long timeSincePhaseStarted = System.currentTimeMillis() - currentPhaseStartTime;
 			long phaseLeft = timeoutInMs - timeSincePhaseStarted;
-			logger.info("Time left for current phase "+state+": "+phaseLeft);
+			// logger.info("Time left for current phase "+state+": "+phaseLeft);
 			if(ms > phaseLeft){
 				return false;
 			}

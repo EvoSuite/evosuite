@@ -76,13 +76,13 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		final Object[] methodArgs = log.params.get(logRecNo);
 		final String methodName = log.methodNames.get(logRecNo);
 
-		final Class<?>[] methodParamTypeClasses = getMethodParamTypeClasses(log, logRecNo);
-		final ArrayList<VariableReference> args = getArguments(methodArgs,
-		                                                       methodParamTypeClasses);
-
-		final String typeName = log.getTypeName(oid);
 		Class<?> type;
 		try {
+			final Class<?>[] methodParamTypeClasses = getMethodParamTypeClasses(log, logRecNo);
+			final ArrayList<VariableReference> args = getArguments(methodArgs,
+			                                                       methodParamTypeClasses);
+
+			final String typeName = log.getTypeName(oid);
 			type = getClassForName(typeName);
 
 			if (CaptureLog.OBSERVED_INIT.equals(methodName)) {
@@ -128,8 +128,11 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				}
 			}
 		} catch (final Exception e) {
+			logger.info("Error at log record number {}: {}", logRecNo, e.toString());
 			logger.info("Test case so far: "+testCase.toCode());
-			CodeGeneratorException.propagateError(e, "[logRecNo = %s] - an unexpected error occurred while creating method call stmt.\n%s", logRecNo, log);
+			logger.info(log.toString());
+
+			CodeGeneratorException.propagateError(e, "[logRecNo = %s] - an unexpected error occurred while creating method call stmt.", logRecNo);
 		}
 	}
 
@@ -159,7 +162,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				VariableReference ref = this.oidToVarRefMap.get(argOID);
 				if (ref == null) {
 					throw new RuntimeException("VariableReference is null for argOID "
-					        + argOID);
+					        + argOID+"; have oids: "+this.oidToVarRefMap.keySet());
 				} else {
 					args.add(ref);
 				}
@@ -362,25 +365,25 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 	private final Class<?> getClassForName(String type) {
 		try {
-			if (type.equals("boolean") || type.equals("Boolean")) {
+			if (type.equals("boolean") || type.equals("java.lang.Boolean")) {
 				return Boolean.TYPE;
-			} else if (type.equals("byte") || type.equals("Byte")) {
+			} else if (type.equals("byte") || type.equals("java.lang.Byte")) {
 				return Byte.TYPE;
-			} else if (type.equals("char") || type.equals("Character")) {
+			} else if (type.equals("char") || type.equals("java.lang.Character")) {
 				return Character.TYPE;
-			} else if (type.equals("double") || type.equals("Double")) {
+			} else if (type.equals("double") || type.equals("java.lang.Double")) {
 				return Double.TYPE;
-			} else if (type.equals("float") || type.equals("Float")) {
+			} else if (type.equals("float") || type.equals("java.lang.Float")) {
 				return Float.TYPE;
-			} else if (type.equals("int") || type.equals("Integer")) {
+			} else if (type.equals("int") || type.equals("java.lang.Integer")) {
 				return Integer.TYPE;
-			} else if (type.equals("long") || type.equals("Long")) {
+			} else if (type.equals("long") || type.equals("java.lang.Long")) {
 				return Long.TYPE;
-			} else if (type.equals("short") || type.equals("Short")) {
+			} else if (type.equals("short") || type.equals("java.lang.Short")) {
 				return Short.TYPE;
 			} else if (type.equals("String")) {
 				return Class.forName("java.lang." + type, true,
-				                     TestGenerationContext.getClassLoader());
+				                     TestGenerationContext.getInstance().getClassLoaderForSUT());
 			}
 
 			if (type.endsWith("[]")) {
@@ -404,10 +407,10 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				arrayTypeNameBuilder.append(';'); // finalize object array name
 				
 				return Class.forName(arrayTypeNameBuilder.toString(), true,
-				                     TestGenerationContext.getClassLoader());
+				                     TestGenerationContext.getInstance().getClassLoaderForSUT());
 			} else {
 				return Class.forName(ResourceList.getClassNameFromResourcePath(type), true,
-				                     TestGenerationContext.getClassLoader());
+				                     TestGenerationContext.getInstance().getClassLoaderForSUT());
 			}
 		} catch (final ClassNotFoundException e) {
 			throw new RuntimeException(e);
