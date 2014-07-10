@@ -120,8 +120,8 @@ public class AdaptiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			}
 			
 			// Return true if fitness has improved
-			return objective.getFitnessFunction().isMaximizationFunction() ? fitnessBefore > individual.getFitness()
-			        : fitnessBefore < individual.getFitness();
+			return objective.getFitnessFunction().isMaximizationFunction() ? fitnessBefore < individual.getFitness()
+			        : fitnessBefore > individual.getFitness();
 		}
 	}
 
