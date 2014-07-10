@@ -49,7 +49,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		final List<Integer> targetOIDs = log.getTargetOIDs(observedClassNames);
 		if(targetOIDs.isEmpty())
 		{
-			logger.info("could not find any oids for {} -> {} ==> no code is generated\n{}", observedClassNames, Arrays.toString(observedClasses), log);
+			logger.info("could not find any oids for {} -> {} ==> no code is generated\n", observedClassNames, Arrays.toString(observedClasses));
 			return;
 		}
 		
@@ -108,7 +108,10 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		{
 			currentOID = log.objectIds.get(currentRecord);
 			
-			
+			if(generator.isMaximumLengthReached()) {
+				logger.debug("Max length reached, stopping carving");
+				break;
+			}
 			
 			if( targetOIDs.contains(currentOID) && ! blackList.contains(getClassFromOID(log, currentOID)))
 			{
@@ -566,7 +569,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		}
 		catch(final Exception e)
 		{
-			CaptureLogAnalyzerException.propagateError(e, "[currentRecord = %s, currentOID = %s, blackList = %s] - an error occurred while creating array init stmt\n%s", currentRecord, currentOID, blackList, log);
+			CaptureLogAnalyzerException.propagateError(e, "[currentRecord = %s, currentOID = %s, blackList = %s] - an error occurred while creating array init stmt\n", currentRecord, currentOID, blackList);
 			return -1; // just to satisfy compiler
 		}
 
@@ -586,7 +589,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		}
 		catch(final Exception e)
 		{
-			CaptureLogAnalyzerException.propagateError(e, "[currentRecord = %s, currentOID = %s, blackList = %s] - an error occurred while creating map init stmt\n%s", currentRecord, currentOID, blackList, log);
+			CaptureLogAnalyzerException.propagateError(e, "[currentRecord = %s, currentOID = %s, blackList = %s] - an error occurred while creating map init stmt\n", currentRecord, currentOID, blackList);
 			return -1; // just to satisfy compiler
 		}
 	}
@@ -606,7 +609,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		}
 		catch(final Exception e)
 		{
-			CaptureLogAnalyzerException.propagateError(e, "[currentRecord = %s, currentOID = %s, blackList = %s] - an error occurred while creating collection init stmt\n%s", currentRecord, currentOID, blackList, log);
+			CaptureLogAnalyzerException.propagateError(e, "[currentRecord = %s, currentOID = %s, blackList = %s] - an error occurred while creating collection init stmt\n", currentRecord, currentOID, blackList);
 			return -1; // just to satisfy compiler
 		}
 	}

@@ -116,7 +116,7 @@ public class CarvingManager {
 		
 		Map<Class<?>, List<TestCase>> testMap = listener.getTestCases();
 		for(Class<?> targetClass : testMap.keySet()) {
-			LoggingUtils.getEvoLogger().info("* Processing carved tests for class {}", targetClass.getName());
+			// LoggingUtils.getEvoLogger().info("* Processing carved tests for class {}", targetClass.getName());
 
 			List<TestCase> processedTests = new ArrayList<TestCase>();
 			
@@ -166,14 +166,14 @@ public class CarvingManager {
 					}
 				}
 			} else {
-				String outcome = "";
-				for (Failure failure : result.getFailures()) {
-					outcome += "(" + failure.getDescription() + ", " + failure.getTrace()
-							+ ") ";
-				}
-				logger.warn("It was not possible to carve any test case from: "
-						+ Arrays.toString(junitTestNames.toArray())
-						+ ". Test execution results: " + outcome);
+				//String outcome = "";
+				//for (Failure failure : result.getFailures()) {
+				//	outcome += "(" + failure.getDescription() + ", " + failure.getTrace()
+				//			+ ") ";
+				//}
+				logger.warn("It was not possible to carve any test case for class {} from {}", targetClass.getName(),
+						Arrays.toString(junitTestNames.toArray()));
+				//		+ ". Test execution results: " + outcome);
 			}
 			carvedTests.put(targetClass, processedTests);
 		}

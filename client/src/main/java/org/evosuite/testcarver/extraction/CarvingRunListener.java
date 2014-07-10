@@ -118,7 +118,7 @@ public class CarvingRunListener extends RunListener {
 		List<Class<?>> observedClasses = getObservedClasses(log);
 		logger.info("Observed classes: "+observedClasses);
 		for(Class<?> targetClass : observedClasses) {
-			LoggingUtils.getEvoLogger().info("   -> Carving tests for class {}", targetClass.getName());
+			// LoggingUtils.getEvoLogger().info("   -> Carving tests for class {}", targetClass.getName());
 			logger.info("Carved tests for class "+targetClass +" classloader "+targetClass.getClassLoader());
 
 			Class<?>[] targetClasses = new Class<?>[1];
@@ -130,7 +130,7 @@ public class CarvingRunListener extends RunListener {
 
 			DefaultTestCase test = (DefaultTestCase) codeGen.getCode();
 			if(test == null) {
-				logger.warn("Failed to carve test for "+Arrays.asList(targetClasses));
+				logger.info("Failed to carve test for "+Arrays.asList(targetClasses));
 				return;
 			}
 			logger.info("Carved test of length " + test.size());
