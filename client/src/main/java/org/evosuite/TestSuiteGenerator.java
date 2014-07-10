@@ -220,6 +220,7 @@ public class TestSuiteGenerator {
 
 		ClientServices.getInstance().getClientNode().changeState(ClientState.INITIALIZATION);
 
+		TestCaseExecutor.initExecutor();
 		Sandbox.goingToExecuteSUTCode();
         TestGenerationContext.getInstance().goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
@@ -242,7 +243,6 @@ public class TestSuiteGenerator {
             TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 		}
 
-		TestCaseExecutor.initExecutor();
 
 		LoggingUtils.getEvoLogger().info("* Generating tests for class "
 		                                         + Properties.TARGET_CLASS);

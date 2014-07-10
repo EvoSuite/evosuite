@@ -43,7 +43,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		
 		final CaptureLog log = originalLog.clone();
 
-		final HashSet<String> observedClassNames = extracObservedClassNames(observedClasses);
+		final HashSet<String> observedClassNames = extractObservedClassNames(observedClasses);
 		CaptureLogAnalyzerException.check(! CollectionUtil.isNullOrEmpty(observedClassNames), "could not extract class names for ", Arrays.toString(observedClasses));
 
 		final List<Integer> targetOIDs = log.getTargetOIDs(observedClassNames);
@@ -137,7 +137,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 	
 
-	private HashSet<String> extracObservedClassNames(
+	private HashSet<String> extractObservedClassNames(
 			final Class<?>... observedClasses) {
 		//--- 1. step: extract class names
 		final HashSet<String> observedClassNames = new HashSet<String>();

@@ -180,6 +180,10 @@ public final class CaptureLog implements Cloneable {
 		}
 		return oids.get(recordIndex);
 	}
+	
+	public List<String> getObservedClasses() {
+		return oidClassNames;
+	}
 
 	public int getRecordIndexOfWhereObjectWasInitializedFirst(int oid)
 	        throws IllegalArgumentException {
@@ -309,9 +313,12 @@ public final class CaptureLog implements Cloneable {
 		{
 			final Class<?> c = (Class<?>) receiver;
 			this.oidClassNames.add(c.getName());//.replaceFirst("\\$\\d+$", ""));
-		} else if (this.isPlain(receiver)) {
+			
+		// TODO: I don't understand why we would want to shorten the name if it's a primitive.
+		//       It makes it more difficult later to identify the classes contained in the log.
+		//} else if (this.isPlain(receiver)) {
 			// we don't need fully qualified name for plain types
-			this.oidClassNames.add(receiver.getClass().getSimpleName());//.replaceFirst("\\$\\d+$", ""));
+		//	this.oidClassNames.add(receiver.getClass().getSimpleName());//.replaceFirst("\\$\\d+$", ""));
 		} else if (isProxy(receiver) || isAnonymous(receiver)) {
 			// TODO what if there is more than one interface?
 			final Class<?> c = receiver.getClass();
