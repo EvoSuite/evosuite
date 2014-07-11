@@ -2,6 +2,8 @@ package org.evosuite.symbolic;
 
 import java.text.NumberFormat;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
@@ -115,7 +117,27 @@ public abstract class DSEStats {
 		LoggingUtils.getEvoLogger().info("");
 		printCacheStatistics();
 		LoggingUtils.getEvoLogger().info("");
+		
+		LoggingUtils.getEvoLogger().info("");
+		printAdaptationStatistics();
+		LoggingUtils.getEvoLogger().info("");
 
+	}
+
+	private static void printAdaptationStatistics() {
+		StringBuffer buff = new StringBuffer();
+		buff.append("[");
+		for (Boolean change : changes) {
+			if (change) {
+				buff.append("+");
+			} else {
+				buff.append("-");
+			}
+		}
+		buff.append("]");
+		
+		LoggingUtils.getEvoLogger().info("* DSE) Adaptation statistics");
+		LoggingUtils.getEvoLogger().info("* DSE)   Adaptations: " + buff.toString());		
 	}
 
 	private static void printCacheStatistics() {
@@ -349,6 +371,16 @@ public abstract class DSEStats {
 
 	public static long getTimeouts() {
 		return nrOfTimeouts;
+	}
+
+	private static List<Boolean> changes = new LinkedList<Boolean>();
+
+	public static void reportNewIncrease() {
+		changes.add(true);
+	}
+
+	public static void reportNewDecrease() {
+		changes.add(false);
 	}
 
 }

@@ -41,6 +41,7 @@ import org.evosuite.ga.populationlimit.IndividualPopulationLimit;
 import org.evosuite.ga.populationlimit.PopulationLimit;
 import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.symbolic.DSEStats;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -157,10 +158,12 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		}
 		
 		if (improvement) {
+			DSEStats.reportNewIncrease();
 			localSearchProbability *= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
 			localSearchProbability = Math.min(localSearchProbability, 1.0);
 			logger.debug("Increasing probability of applying LS to "+localSearchProbability);
 		} else {
+			DSEStats.reportNewDecrease();
 			localSearchProbability /= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
 			localSearchProbability = Math.max(localSearchProbability, Double.MIN_VALUE);
 			logger.debug("Decreasing probability of applying LS to "+localSearchProbability);

@@ -64,7 +64,7 @@ public class AdaptiveTestCaseLocalSearch extends TestCaseLocalSearch {
 		if (!targetPositions.isEmpty()) {
 			logger.info("Yes, now applying the search at positions {}!", targetPositions);
 			DSELocalSearch dse = new DSELocalSearch();
-			dse.doSearch(individual, targetPositions,
+			boolean dseWasSuccessfull = dse.doSearch(individual, targetPositions,
 			             (LocalSearchObjective<TestChromosome>) objective);
 		}
 		individual.getMutationHistory().clear();
@@ -73,7 +73,7 @@ public class AdaptiveTestCaseLocalSearch extends TestCaseLocalSearch {
 
 		assert individual.getFitness() <= oldFitness;
 		// Return true if fitness has improved
-		return objective.getFitnessFunction().isMaximizationFunction() ? oldFitness > individual.getFitness(): oldFitness < individual.getFitness();
+		return objective.getFitnessFunction().isMaximizationFunction() ? oldFitness < individual.getFitness(): oldFitness > individual.getFitness();
 
 		//logger.info("Test after local search: " + test.toCode());
 
