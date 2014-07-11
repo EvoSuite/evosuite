@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.ClassReader;
@@ -267,6 +268,7 @@ public class DetermineSUT {
 			System.err.println("Expected parameters: <TestCase> <Target Classpath>");
 			return;
 		}
+		Properties.getInstanceSilent();
 		DetermineSUT det = new DetermineSUT();
 		try {
 			System.out.println(det.getSUTName(args[0], args[1]));
