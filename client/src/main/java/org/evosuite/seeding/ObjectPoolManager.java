@@ -75,6 +75,7 @@ public class ObjectPoolManager extends ObjectPool {
 		
 	public void reset() {
 		pool.clear();
+		ObjectPoolManager.instance = null;
 	}
 
 }
