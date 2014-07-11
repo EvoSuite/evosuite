@@ -18,8 +18,6 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.utils.LoggingUtils;
 import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,11 +110,10 @@ public class CarvingManager {
 
 		final Class<?>[] classes = new Class<?>[junitTestClasses.size()];
 		junitTestClasses.toArray(classes);
-		final Result result = runner.run(classes);
+		runner.run(classes);
 		
 		Map<Class<?>, List<TestCase>> testMap = listener.getTestCases();
 		for(Class<?> targetClass : testMap.keySet()) {
-			// LoggingUtils.getEvoLogger().info("* Processing carved tests for class {}", targetClass.getName());
 
 			List<TestCase> processedTests = new ArrayList<TestCase>();
 			
@@ -158,7 +155,7 @@ public class CarvingManager {
 			// junitTests.addAll(listener.getTestCases());
 
 			if (processedTests.size() > 0) {
-				LoggingUtils.getEvoLogger().info("* Carved {} tests for class {} from existing JUnit tests",
+				LoggingUtils.getEvoLogger().info(" -> Carved {} tests for class {} from existing JUnit tests",
 						processedTests.size(), targetClass);
 				if (logger.isDebugEnabled()) {
 					for (TestCase test : processedTests) {
@@ -171,7 +168,7 @@ public class CarvingManager {
 				//	outcome += "(" + failure.getDescription() + ", " + failure.getTrace()
 				//			+ ") ";
 				//}
-				logger.warn("It was not possible to carve any test case for class {} from {}", targetClass.getName(),
+				logger.info("It was not possible to carve any test case for class {} from {}", targetClass.getName(),
 						Arrays.toString(junitTestNames.toArray()));
 				//		+ ". Test execution results: " + outcome);
 			}

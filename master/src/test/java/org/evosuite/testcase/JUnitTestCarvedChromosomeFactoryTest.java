@@ -1,10 +1,18 @@
 package org.evosuite.testcase;
 
+import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
+import org.evosuite.Properties.TestFactory;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.examples.with.different.packagename.testcarver.DifficultClassTest;
+import com.examples.with.different.packagename.testcarver.DifficultClassWithoutCarving;
+import com.examples.with.different.packagename.testcarver.DifficultClassWithoutCarvingTest;
 
 public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 
@@ -475,6 +483,44 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 		String code = test.getTestCase().toCode();
 		Assert.assertFalse(code.contains("XStream"));
 		Assert.assertTrue(code.contains("classWithPublicField0.x"));
+	}
+	
+	@Test
+	public void testDifficultClassWithWrongTestFails() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = DifficultClassWithoutCarving.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		Properties.TEST_FACTORY = TestFactory.JUNIT;
+		Properties.SELECTED_JUNIT = DifficultClassTest.class.getCanonicalName();
+		
+		String[] command = new String[] { "-generateSuite", "-class", targetClass};
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);		
+	}
+	
+	@Test
+	public void testDifficultClassWithRightTestPasses() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = DifficultClassWithoutCarving.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		Properties.TEST_FACTORY = TestFactory.JUNIT;
+		Properties.SELECTED_JUNIT = DifficultClassWithoutCarvingTest.class.getCanonicalName();
+		
+		String[] command = new String[] { "-generateSuite", "-class", targetClass};
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		Assert.assertEquals("Expected optimal coverage: ", 1d, best.getCoverage(), 0.001);		
 	}
 
 }
