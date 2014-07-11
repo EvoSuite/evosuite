@@ -364,7 +364,8 @@ public class TestSuiteGenerator {
 
     		if (Properties.JUNIT_TESTS) {
     			if (Properties.JUNIT_CHECK && JUnitAnalyzer.isJavaCompilerAvailable()) {
-    			    LoggingUtils.getEvoLogger().info("  - Compiling and checking test " + i);
+    				if(tests.size() > 1)
+    					LoggingUtils.getEvoLogger().info("  - Compiling and checking test " + i);
 
     				JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
 
@@ -638,12 +639,18 @@ public class TestSuiteGenerator {
 
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactory();
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-        LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
-        for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-            goals.addAll(goalFactory.getCoverageGoals());
-            LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
-                    + " " + goalFactory.getCoverageGoals().size());
-        }
+		if(goalFactories.size() == 1) {
+			TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
+			LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
+			goals.addAll(factory.getCoverageGoals());
+		} else {
+			LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
+			for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+				goals.addAll(goalFactory.getCoverageGoals());
+				LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
+						+ " " + goalFactory.getCoverageGoals().size());
+			}
+		}
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
 		                                                                 goals.size());
 
@@ -741,13 +748,14 @@ public class TestSuiteGenerator {
 
 		if (Properties.MINIMIZE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
-			LoggingUtils.getEvoLogger().info("* Minimizing test suite(s)");
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
 			if (Properties.CRITERION.length == 1) {
+				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 			    minimizer.minimize(bestSuites.get(0), true);
 			}
 			else {
+				LoggingUtils.getEvoLogger().info("* Minimizing test suites");
 			    for (TestSuiteChromosome best : bestSuites)
 			        minimizer.minimize(best, false);
 			}
