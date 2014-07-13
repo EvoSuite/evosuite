@@ -361,7 +361,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BytecodeInstruction> getInstructionsAfterGoalDefinition() {
-		RawControlFlowGraph cfg = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getRawCFG(goalDefinition.getClassName(),
+		RawControlFlowGraph cfg = GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getRawCFG(goalDefinition.getClassName(),
 		                                                                                                  goalDefinition.getMethodName());
 		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getInstructionId());
 		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
@@ -381,7 +381,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BytecodeInstruction> getInstructionsBeforeGoalUse() {
-		RawControlFlowGraph cfg = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getRawCFG(goalUse.getClassName(),
+		RawControlFlowGraph cfg = GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getRawCFG(goalUse.getClassName(),
 		                                                                                                  goalUse.getMethodName());
 		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getInstructionId());
 		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);

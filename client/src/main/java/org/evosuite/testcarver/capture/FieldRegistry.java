@@ -177,7 +177,7 @@ public final class FieldRegistry {
 			while ((ref = refQueue.poll()) != null) {
 				instances.remove(ref);
 
-				instanceRecentFieldValuesMapping.remove(((MyWeakRef) ref).oid);
+				instanceRecentFieldValuesMapping.remove(((MyWeakRef<?>) ref).oid);
 			}
 
 			if (instances.isEmpty()) {

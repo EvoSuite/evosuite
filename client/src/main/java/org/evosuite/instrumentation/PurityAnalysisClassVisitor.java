@@ -24,8 +24,6 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import com.sun.org.apache.bcel.internal.generic.Type;
-
 /**
  * It launches a <code>PurityAnalysisMethodVisitor</code> on each method.
  * This class only reads the existing bytecode.

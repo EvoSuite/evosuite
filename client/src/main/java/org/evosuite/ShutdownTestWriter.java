@@ -33,6 +33,7 @@ import sun.misc.SignalHandler;
  * 
  * @author Gordon Fraser
  */
+@SuppressWarnings("restriction")
 public class ShutdownTestWriter extends StoppingConditionImpl implements SignalHandler {
 
 	private static final long serialVersionUID = -5703624299360241009L;

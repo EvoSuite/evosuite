@@ -120,7 +120,7 @@ public class DefUseCoverageFactory extends
 		long start = System.currentTimeMillis();
 		LoggingUtils.getEvoLogger().info("starting DefUse-Coverage goal generation");
 		duGoals = new ArrayList<DefUseCoverageTestFitness>();
-		if(!GraphPool.getInstance(TestGenerationContext.getClassLoader()).canMakeCCFGForClass(Properties.TARGET_CLASS)) {
+		if(!GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).canMakeCCFGForClass(Properties.TARGET_CLASS)) {
 			goals = new ArrayList<DefUseCoverageTestFitness>();
 			logger.info("Have no CFGs, is this an interface?");
 			return;
@@ -179,8 +179,8 @@ public class DefUseCoverageFactory extends
 		                                         + fieldMethodCalls.size());
 
 		for (BytecodeInstruction fieldMethodCall : fieldMethodCalls) {
-			if (GraphPool.getInstance(TestGenerationContext.getClassLoader()).canMakeCCFGForClass(fieldMethodCall.getCalledMethodsClass())) {
-				ClassControlFlowGraph ccfg = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getCCFG(fieldMethodCall.getCalledMethodsClass());
+			if (GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).canMakeCCFGForClass(fieldMethodCall.getCalledMethodsClass())) {
+				ClassControlFlowGraph ccfg = GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getCCFG(fieldMethodCall.getCalledMethodsClass());
 				if (ccfg.isPure(fieldMethodCall.getCalledMethod())) {
 					if (!DefUsePool.addAsUse(fieldMethodCall))
 						throw new IllegalStateException(
@@ -233,7 +233,7 @@ public class DefUseCoverageFactory extends
 	}
 
 	private static Set<DefUseCoverageTestFitness> getCCFGPairs() {
-		ClassControlFlowGraph ccfg = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getCCFG(Properties.TARGET_CLASS);
+		ClassControlFlowGraph ccfg = GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getCCFG(Properties.TARGET_CLASS);
 		AllUsesAnalysis aua = new AllUsesAnalysis(ccfg);
 		Set<DefUseCoverageTestFitness> r = aua.determineDefUsePairs();
 

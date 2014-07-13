@@ -113,7 +113,7 @@ public class CoverageAnalysis {
 		                                         + criterion);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
-			dtest.changeClassLoader(TestGenerationContext.getClassLoader());
+			dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
 		}
 
 	}
@@ -190,8 +190,6 @@ public class CoverageAnalysis {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void analyzeCoverage(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
-
-	    Properties.Criterion oldCriterion[] = Properties.CRITERION;
 
 		reinstrument(testSuite, criterion);
 		TestFitnessFactory factory = TestSuiteGenerator.getFitnessFactory(criterion);
