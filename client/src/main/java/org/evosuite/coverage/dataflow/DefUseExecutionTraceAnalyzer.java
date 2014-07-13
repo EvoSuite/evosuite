@@ -256,7 +256,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		for (BytecodeInstruction vertex : vertices) {
 			if (!vertex.isDefinition())
 				continue;
-			BytecodeInstruction vertexInOtherGraph = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getRawCFG(vertex.getClassName(),
+			BytecodeInstruction vertexInOtherGraph = GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getRawCFG(vertex.getClassName(),
 			                                                                                                                 vertex.getMethodName()).getInstruction(vertex.getInstructionId());
 			Definition currentDefinition = DefUseFactory.makeDefinition(vertexInOtherGraph);
 			if (isOverwritingDefinition(targetDefinition, currentDefinition))

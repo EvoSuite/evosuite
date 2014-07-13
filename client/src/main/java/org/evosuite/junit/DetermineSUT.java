@@ -6,7 +6,6 @@ package org.evosuite.junit;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -41,8 +40,6 @@ public class DetermineSUT {
 
 	private String targetName = "";
 
-	private String targetClassPath = "";
-
 	private Set<String> superClasses = new HashSet<String>();
 
 	public static class NoJUnitClassException extends Exception {
@@ -69,7 +66,6 @@ public class DetermineSUT {
 	public String getSUTName(String fullyQualifiedTargetClass, String targetClassPath)
 	        throws NoJUnitClassException {
 		this.targetName = fullyQualifiedTargetClass;
-		this.targetClassPath = targetClassPath;
 		try {
 			ClassPathHacker.addFile(targetClassPath);
 		} catch (IOException e1) {

@@ -88,7 +88,7 @@ public class CastClassManager {
 
 	public void addCastClass(String className, int depth) {
 		try {
-			Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
+			Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
 			GenericClass castClazz = new GenericClass(clazz);
 			addCastClass(castClazz.getWithWildcardTypes(), depth);
 		} catch (ClassNotFoundException e) {

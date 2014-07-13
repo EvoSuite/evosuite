@@ -184,7 +184,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private int getNextLocalVariable(MethodNode mn) {
 		int var = 1;
 		List<LocalVariableNode> nodes = mn.localVariables;

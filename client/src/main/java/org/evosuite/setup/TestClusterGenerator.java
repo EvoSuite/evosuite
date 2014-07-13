@@ -1716,14 +1716,14 @@ public class TestClusterGenerator {
 		return comparableClasses;
 	}
 
-	private Set<Class<?>> getConcreteClassesEnum() {
-		Set<Class<?>> enumClasses = new LinkedHashSet<Class<?>>();
-		for (String className : inheritanceTree.getSubclasses("java.lang.Enum")) {
-			logger.warn("Enum candidate: " + className);
-		}
-
-		return enumClasses;
-	}
+	// private Set<Class<?>> getConcreteClassesEnum() {
+	//	Set<Class<?>> enumClasses = new LinkedHashSet<Class<?>>();
+	//	for (String className : inheritanceTree.getSubclasses("java.lang.Enum")) {
+	//		logger.warn("Enum candidate: " + className);
+	//	}
+    //
+	//	return enumClasses;
+	//}
 
 	/**
 	 * Calculate package distance between two classnames
