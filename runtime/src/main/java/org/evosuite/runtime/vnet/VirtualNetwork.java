@@ -1,5 +1,6 @@
 package org.evosuite.runtime.vnet;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -162,6 +163,9 @@ public class VirtualNetwork {
 		return true;
 	}
 	
+	public Set<NativeTcp> getViewOfOpenedTcpConnections(){
+		return  Collections.unmodifiableSet(openedTcpConnections);
+	}
 	
 	//------------------------------------------
 

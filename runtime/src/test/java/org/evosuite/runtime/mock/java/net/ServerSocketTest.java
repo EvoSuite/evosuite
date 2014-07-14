@@ -1,10 +1,16 @@
 package org.evosuite.runtime.mock.java.net;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.Scanner;
 
+import org.evosuite.runtime.EvoSuiteAddress;
+import org.evosuite.runtime.NetworkHandling;
+import org.evosuite.runtime.vnet.NativeTcp;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.junit.Assert;
 import org.junit.Before;
@@ -90,7 +96,43 @@ public class ServerSocketTest {
 	}
 	
 	@Test 
-	public void testReceiveMessage(){
-		//TODO
+	public void testReceiveAndReplyMessage() throws IOException{
+
+		//first bind a listening server
+		MockServerSocket server = new MockServerSocket();
+		String localAddress = "127.0.0.1";
+		int localPort = 42;
+		server.bind(new InetSocketAddress(localAddress,localPort));
+
+		int n = VirtualNetwork.getInstance().getViewOfOpenedTcpConnections().size();
+		Assert.assertEquals(0, n);
+		
+		//send a message on tcp connection, although SUT is not listening yet
+		String msg = "Hello World! Sent from mocked TCP connection";
+		EvoSuiteAddress addr = new EvoSuiteAddress(localAddress,localPort);
+		NetworkHandling.sendMessageOnTcp(addr, msg);
+		
+		//open listening port, and read message
+		Socket socket = server.accept();
+		Assert.assertNotNull(socket);
+		InputStream in = socket.getInputStream();
+		Assert.assertNotNull(in);
+		Scanner inScan = new Scanner(in);
+		String received = inScan.nextLine();
+		inScan.close();
+		Assert.assertEquals(msg, received);
+		
+		
+		//send a reply to remote host on same TCP connection		
+		String reply = "Reply to Hello Message";
+		OutputStream out = socket.getOutputStream();
+		out.write(reply.getBytes());
+
+		n = VirtualNetwork.getInstance().getViewOfOpenedTcpConnections().size();
+		Assert.assertEquals(1, n);
+		NativeTcp connection = VirtualNetwork.getInstance().getViewOfOpenedTcpConnections().iterator().next();
+		Assert.assertEquals(reply.length(), connection.getAmountOfDataInRemoteBuffer());
+		
+		server.close();
 	}
 }

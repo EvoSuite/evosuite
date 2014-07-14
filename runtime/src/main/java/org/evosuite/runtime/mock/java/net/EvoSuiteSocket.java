@@ -93,11 +93,11 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	@Override
 	protected void accept(SocketImpl s) throws IOException {
 		
-		if(! (s instanceof MockSocketImpl)){
-			throw new IOException("Can only hanlded mocked socketsa");
+		if(! (s instanceof EvoSuiteSocket)){
+			throw new IOException("Can only hanlded mocked sockets");
 		}
 		
-		MockSocketImpl mock = (MockSocketImpl) s;
+		EvoSuiteSocket mock = (EvoSuiteSocket) s;
 		
 		/*
 		 * If the test case has set up an incoming connection, then
@@ -112,7 +112,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 		if(tcp == null){
 			throw new IOException("Simulated exception on waiting server");
 		} else {
-			openedConnection = tcp;
+			mock.openedConnection = tcp;
 			mock.setOption(SocketOptions.SO_BINDADDR, localHost);		
 			mock.setLocalPort(localport);
 			mock.setRemoteAddress(InetAddress.getByName(tcp.getRemoteEndPoint().getHost()));
