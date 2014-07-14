@@ -26,8 +26,13 @@ public class SocketIn extends InputStream{
 	private volatile boolean closed;
 
 
-	public SocketIn(NativeTcp tcp, boolean isLocal) {
+	public SocketIn(NativeTcp tcp, boolean isLocal) throws IllegalArgumentException{
 		super();
+		
+		if(tcp == null){
+			throw new IllegalArgumentException("Input connection cannot be null");
+		}
+		
 		this.tcp = tcp;
 		this.isLocal = isLocal;
 		closed = false;
