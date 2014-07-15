@@ -116,10 +116,7 @@ public class CarvingRunListener extends RunListener {
 		final EvoTestCaseCodeGenerator codeGen = new EvoTestCaseCodeGenerator();
 
 		List<Class<?>> observedClasses = getObservedClasses(log);
-		logger.info("Observed classes: "+observedClasses);
 		for(Class<?> targetClass : observedClasses) {
-			// LoggingUtils.getEvoLogger().info("   -> Carving tests for class {}", targetClass.getName());
-
 			Class<?>[] targetClasses = new Class<?>[1];
 			targetClasses[0] = targetClass;
 			if(!carvedTests.containsKey(targetClass))

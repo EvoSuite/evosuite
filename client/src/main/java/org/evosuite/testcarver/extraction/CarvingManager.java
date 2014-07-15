@@ -13,6 +13,7 @@ import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
+import org.evosuite.testcarver.capture.FieldRegistry;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
@@ -88,7 +89,8 @@ public class CarvingManager {
 
 		final List<Class<?>> junitTestClasses = new ArrayList<Class<?>>();
 		final org.evosuite.testcarver.extraction.CarvingClassLoader classLoader = new org.evosuite.testcarver.extraction.CarvingClassLoader();
-
+		// TODO: This really needs to be done in a nicer way!
+		FieldRegistry.carvingClassLoader = classLoader;
 		try {
 			// instrument target class
 			classLoader.loadClass(Properties.getTargetClass().getCanonicalName());
@@ -175,6 +177,9 @@ public class CarvingManager {
 			carvedTests.put(targetClass, processedTests);
 		}
 		carvingDone = true;
+		
+		// TODO: Argh.
+		FieldRegistry.carvingClassLoader = null;
 		// TODO:
 		// ClientNodeLocal client = ClientServices.getInstance().getClientNode();
 		// client.trackOutputVariable(RuntimeVariable.CarvedTests, totalNumberOfTestsCarved);

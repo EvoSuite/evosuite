@@ -40,7 +40,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			throw new IllegalArgumentException("array of observed classes must not be null");
 		if(observedClasses.length == 0)
 			throw new IllegalArgumentException("array of observed classes must not be empty");
-		
+
 		final CaptureLog log = originalLog.clone();
 
 		final HashSet<String> observedClassNames = extractObservedClassNames(observedClasses);
@@ -52,7 +52,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			logger.info("could not find any oids for {} -> {} ==> no code is generated\n", observedClassNames, Arrays.toString(observedClasses));
 			return;
 		}
-		
+
 		final int[] oidExchange = analyzeLog(generator, blackList, log, targetOIDs);		
 		postProcessLog(originalLog, generator, blackList, log, oidExchange, observedClasses);
 	}
@@ -100,14 +100,13 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		
 		int currentOID    = targetOIDs.get(0);
 		int[] oidExchange = null;
-
 		
 		// TODO knowing last logRecNo for termination criterion belonging to an observed instance would prevent processing unnecessary statements
 		for(int currentRecord = Math.abs(log.getRecordIndexOfWhereObjectWasInitializedFirst(currentOID)); currentRecord < numLogRecords; currentRecord++)
 		//for(int currentRecord = log.getRecordIndex(currentOID); currentRecord < numLogRecords; currentRecord++)	
 		{
 			currentOID = log.objectIds.get(currentRecord);
-			
+			logger.debug("Current record {}, current oid {}", currentRecord, currentOID);
 			if(generator.isMaximumLengthReached()) {
 				logger.debug("Max length reached, stopping carving");
 				break;
@@ -363,7 +362,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			currentOID     = log.objectIds.get(currentRecord);
 			returnValueObj = log.returnValues.get(currentRecord);
 			returnValue    = returnValueObj.equals(CaptureLog.RETURN_TYPE_VOID) ? -1 : (Integer) returnValueObj;
-
+			
 			if(oid == currentOID ||	returnValue == oid) {
 
 	     		if(oid != currentOID)
@@ -455,7 +454,6 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 						}
 					}
 				} else {
-
 					//the rest
 
 					// var0.call(someArg) or Person var0 = new Person()
@@ -521,7 +519,6 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 					generator.createMethodCallStmt(log, currentRecord);
 
 					// forward to end of method call sequence
-
 					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
 
 					// each method call is considered as object state modification -> so save last object modification
