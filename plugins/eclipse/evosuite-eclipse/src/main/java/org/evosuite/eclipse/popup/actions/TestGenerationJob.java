@@ -33,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.eclipse.properties.EvosuitePropertyPage;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.rmi.MasterServices;
@@ -160,6 +161,7 @@ public class TestGenerationJob extends Job {
 					System.out.println("CP type: " + curr.getEntryKind());
 				}
 			}
+			ResourceList.resetCache();
 			if(!first)
 				classPath += File.pathSeparator;
 			

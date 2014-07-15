@@ -106,7 +106,7 @@ public class ResourceList {
 	// --------- public methods  ----------------- 
 	// -------------------------------------------
 
-	protected static void resetCache(){
+	public static void resetCache(){
 		cache = null;
 	}
 
