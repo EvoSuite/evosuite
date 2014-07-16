@@ -68,7 +68,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			throw new IllegalArgumentException("captured log must not be null");
 		if(logRecNo <= -1)
 			throw new IllegalArgumentException("log record number is invalid: " + logRecNo);
-		
+		if(isMaximumLengthReached())
+			return;
 		
 		// assumption: all necessary statements are created and there is one variable for each referenced object
 		final int oid = log.objectIds.get(logRecNo);
