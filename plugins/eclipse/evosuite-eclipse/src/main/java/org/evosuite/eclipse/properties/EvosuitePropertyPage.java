@@ -45,6 +45,8 @@ public class EvosuitePropertyPage extends PropertyPage {
 
 	private Spinner time;
 
+	private Spinner seed;
+
 	private Spinner time2;
 
 	public static QualifiedName CRITERION_PROP_KEY = new QualifiedName("EvoSuite",
@@ -84,6 +86,9 @@ public class EvosuitePropertyPage extends PropertyPage {
 
 	public static QualifiedName DSE_PROP_KEY = new QualifiedName("EvoSuite",
 	        "Use GA+DSE hybrid search");
+	
+	public static QualifiedName SEED_PROP_KEY = new QualifiedName("EvoSuite",
+	        "Use user-provided seed");	
 
 	// public static QualifiedName RUNNER_PROP_KEY = new QualifiedName("EvoSuite",
 	//        "Use EvoSuite JUnit runner in generated test suites");
@@ -164,6 +169,14 @@ public class EvosuitePropertyPage extends PropertyPage {
 		time2.setSelection(getReplacementTime());
 		 */
 
+		Label seedLabel= new Label(myComposite, SWT.NONE);
+		seedLabel.setLayoutData(new GridData());
+		seedLabel.setText("Random seed");
+		seed = new Spinner(myComposite, SWT.BORDER);
+		seed.setMinimum(0);
+		seed.setMaximum(60000);
+		seed.setSelection(getSeed());
+		
 		Label mylabel2 = new Label(myComposite, SWT.NONE);
 		mylabel2.setLayoutData(new GridData());
 		mylabel2.setText("Show report after test generation");
@@ -641,6 +654,30 @@ public class EvosuitePropertyPage extends PropertyPage {
 		}
 	}
 
+	protected int getSeed() {
+		IResource resource = ((IJavaProject) getElement()).getResource();
+		try {
+			String value = resource.getPersistentProperty(SEED_PROP_KEY);
+			if (value == null)
+				return 42;
+			return Integer.parseInt(value);
+		} catch (CoreException e) {
+			return 42;
+		}
+	}
+
+
+	protected void setSeed(int seed) {
+		IResource resource = ((IJavaProject) getElement()).getResource();
+		String value = Integer.toString(seed);
+		if (value.equals(""))
+			value = "42";
+		try {
+			resource.setPersistentProperty(SEED_PROP_KEY, value);
+		} catch (CoreException e) {
+		}
+	}
+	
 	protected String getCriterion() {
 		IResource resource = ((IJavaProject) getElement()).getResource();
 		try {

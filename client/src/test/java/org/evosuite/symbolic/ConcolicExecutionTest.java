@@ -111,6 +111,7 @@ import com.examples.with.different.packagename.concolic.TestCase94;
 import com.examples.with.different.packagename.concolic.TestCase95;
 import com.examples.with.different.packagename.concolic.TestCase96;
 import com.examples.with.different.packagename.concolic.TestCase97;
+import com.examples.with.different.packagename.concolic.TestCase98;
 
 public class ConcolicExecutionTest {
 
@@ -2157,6 +2158,16 @@ public class ConcolicExecutionTest {
 		return tc.getDefaultTestCase();
 	}
 
+	private DefaultTestCase buildTestCase98() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		Method method = TestCase98.class.getMethod("test");
+		tc.appendMethod(null, method);
+
+		return tc.getDefaultTestCase();
+	}
+
 	@Test
 	public void testCase94() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase94();
@@ -2190,6 +2201,15 @@ public class ConcolicExecutionTest {
 		DefaultTestCase tc = buildTestCase97();
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(18, branch_conditions.size());
+
+	}
+	
+
+	@Test
+	public void testCase98() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase98();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(0, branch_conditions.size());
 
 	}
 }

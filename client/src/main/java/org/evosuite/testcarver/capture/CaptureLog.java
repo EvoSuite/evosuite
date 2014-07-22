@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +53,7 @@ public final class CaptureLog implements Cloneable {
 	public static final Object RETURN_TYPE_VOID = CaptureLog.class.getName()
 	        + ".RETURN_VOID";
 
-	private static final Set<String> NOT_OBSERVED_INIT_METHODS = Collections.synchronizedSet(new HashSet<String>());
+	private static final Set<String> NOT_OBSERVED_INIT_METHODS = Collections.synchronizedSet(new LinkedHashSet<String>());
 	static {
 		NOT_OBSERVED_INIT_METHODS.add(NOT_OBSERVED_INIT);
 		NOT_OBSERVED_INIT_METHODS.add(COLLECTION_INIT);
@@ -128,7 +128,7 @@ public final class CaptureLog implements Cloneable {
 		this.returnValues = new ArrayList<Object>();
 		this.descList = new ArrayList<String>();
 
-		this.oidRecMapping = new HashMap<Integer, Integer>();
+		this.oidRecMapping = new LinkedHashMap<Integer, Integer>();
 		this.oidInitRecNo = new ArrayList<Integer>();
 		this.oidClassNames = new ArrayList<String>();
 		this.oids = new ArrayList<Integer>();
@@ -137,7 +137,7 @@ public final class CaptureLog implements Cloneable {
 
 		this.isStaticCallList = new ArrayList<Boolean>();
 
-		this.oidNamesOfAccessedFields = new HashMap<Integer, String>();
+		this.oidNamesOfAccessedFields = new LinkedHashMap<Integer, String>();
 
 		this.xstream = new XStream();
 	}
@@ -272,6 +272,7 @@ public final class CaptureLog implements Cloneable {
 		this.oids.clear();
 		this.oidFirstInits.clear();
 		this.oidDependencies.clear();
+		this.isStaticCallList.clear();
 
 		this.oidNamesOfAccessedFields.clear();
 	}
