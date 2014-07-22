@@ -23,11 +23,13 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 
 public class MockSocket extends Socket{
+	
+	private Object closeLock = new Object();
+
 	private boolean created = false;
 	private boolean bound = false;
 	private boolean connected = false;
 	private boolean closed = false;
-	private Object closeLock = new Object();
 	private boolean shutIn = false;
 	private boolean shutOut = false;
 
@@ -39,6 +41,7 @@ public class MockSocket extends Socket{
 	//-------- constructors  ---------------------------
 
 	public MockSocket() {
+		super();
 		setImpl();
 	}
 
@@ -48,25 +51,19 @@ public class MockSocket extends Socket{
 		if (proxy == null) {
 			throw new IllegalArgumentException("Invalid Proxy");
 		}
-		Proxy p = proxy == Proxy.NO_PROXY ? Proxy.NO_PROXY : sun.net.ApplicationProxy.create(proxy);
+		
+		Proxy p =  proxy; 
+		//Note: not needed as only used in EvoSuiteSocket constructor
+		//  == Proxy.NO_PROXY ? Proxy.NO_PROXY : sun.net.ApplicationProxy.create(proxy);
+		
 		if (p.type() == Proxy.Type.SOCKS) {
-			SecurityManager security = System.getSecurityManager();
+			
 			InetSocketAddress epoint = (InetSocketAddress) p.address();
 			if (epoint.getAddress() != null) {
 				checkAddress (epoint.getAddress(), "Socket");
 			}
-			if (security != null) {
-				if (epoint.isUnresolved())
-					epoint = new InetSocketAddress(epoint.getHostName(), epoint.getPort());
-				if (epoint.isUnresolved())
-					security.checkConnect(epoint.getHostName(), epoint.getPort());
-				else
-					security.checkConnect(epoint.getAddress().getHostAddress(),
-							epoint.getPort());
-			}
 
-			//impl = new SocksSocketImpl(p); //FIXME
-			//impl = new EvoSuiteSocket(p);
+			impl = new EvoSuiteSocket(p); 
 			impl.setSocket(this);
 		} else {
 			if (p == Proxy.NO_PROXY) {
@@ -81,7 +78,6 @@ public class MockSocket extends Socket{
 	protected MockSocket(MockSocketImpl impl) throws SocketException {
 		this.impl = impl;
 		if (impl != null) {
-			checkOldImpl();
 			this.impl.setSocket(this);
 		}
 	}
@@ -152,7 +148,7 @@ public class MockSocket extends Socket{
 
 	//---------------------------------------------------------------
 
-	void createImpl(boolean stream) throws SocketException {
+	protected void createImpl(boolean stream) throws SocketException {
 		if (impl == null)
 			setImpl();
 		try {
@@ -163,38 +159,8 @@ public class MockSocket extends Socket{
 		}
 	}
 
-	private void checkOldImpl() {
-		if (impl == null)
-			return;
-		// SocketImpl.connect() is a protected method, therefore we need to use
-		// getDeclaredMethod, therefore we need permission to access the member
-
-		oldImpl = AccessController.doPrivileged
-				(new PrivilegedAction<Boolean>() {
-					public Boolean run() {
-						Class[] cl = new Class[2];
-						cl[0] = SocketAddress.class;
-						cl[1] = Integer.TYPE;
-						Class clazz = impl.getClass();
-						while (true) {
-							try {
-								clazz.getDeclaredMethod("connect", cl);
-								return Boolean.FALSE;
-							} catch (NoSuchMethodException e) {
-								clazz = clazz.getSuperclass();
-								// java.net.SocketImpl class will always have this abstract method.
-								// If we have not found it by now in the hierarchy then it does not
-								// exist, we are an old style impl.
-								if (clazz.equals(java.net.SocketImpl.class)) {
-									return Boolean.TRUE;
-								}
-							}
-						}
-					}
-				});
-	}
-
-
+	
+	
 	protected void setImpl() {
 		impl = new EvoSuiteSocket();
 		impl.setSocket(this);
@@ -202,18 +168,43 @@ public class MockSocket extends Socket{
 
 
 
-	MockSocketImpl getImpl() throws SocketException {
+	protected MockSocketImpl getImpl() throws SocketException {
 		if (!created)
 			createImpl(true);
 		return impl;
 	}
 
+	/*
+	 *  note: super postAccept is final.
+	 *  but it is called only in ServerSocket
+	 */
+	protected void _postAccept() {
+		connected = true;
+		created = true;
+		bound = true;
+	}
 
+	protected void setCreated() {
+		created = true;
+	}
+
+	protected void setBound() {
+		bound = true;
+	}
+
+	protected void setConnected() {
+		connected = true;
+	}
+	
+	//--------   public methods  ----------------
+	
+	@Override
 	public void connect(SocketAddress endpoint) throws IOException {
 		connect(endpoint, 0);
 	}
 
 
+	@Override
 	public void connect(SocketAddress endpoint, int timeout) throws IOException {
 		if (endpoint == null)
 			throw new IllegalArgumentException("connect: The address can't be null");
@@ -235,16 +226,6 @@ public class MockSocket extends Socket{
 		int port = epoint.getPort();
 		checkAddress(addr, "connect");
 
-		/*
-		SecurityManager security = System.getSecurityManager();
-		if (security != null) {
-			if (epoint.isUnresolved())
-				security.checkConnect(epoint.getHostName(), port);
-			else
-				security.checkConnect(addr.getHostAddress(), port);
-		}
-		 */
-
 		if (!created)
 			createImpl(true);
 		if (!oldImpl)
@@ -265,6 +246,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public void bind(SocketAddress bindpoint) throws IOException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -290,29 +272,14 @@ public class MockSocket extends Socket{
 		if (addr == null) {
 			return;
 		}
+		/*
+		 * TODO: this likely will need to be changed once we mock  InetAddress
+		 */
 		if (!(addr instanceof Inet4Address || addr instanceof Inet6Address)) {
 			throw new IllegalArgumentException(op + ": invalid address type");
 		}
 	}
 
-
-	final void postAccept() {
-		connected = true;
-		created = true;
-		bound = true;
-	}
-
-	void setCreated() {
-		created = true;
-	}
-
-	void setBound() {
-		bound = true;
-	}
-
-	void setConnected() {
-		connected = true;
-	}
 
 
 	@Override
@@ -347,7 +314,7 @@ public class MockSocket extends Socket{
 		return in;
 	}
 
-
+	@Override
 	public int getPort() {
 		if (!isConnected())
 			return 0;
@@ -360,6 +327,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public int getLocalPort() {
 		if (!isBound())
 			return -1;
@@ -372,6 +340,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public SocketAddress getRemoteSocketAddress() {
 		if (!isConnected())
 			return null;
@@ -379,7 +348,7 @@ public class MockSocket extends Socket{
 	}
 
 
-
+	@Override
 	public SocketAddress getLocalSocketAddress() {
 		if (!isBound())
 			return null;
@@ -387,11 +356,13 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public SocketChannel getChannel() {
-		return null;
+		return null; //TODO check it
 	}
 
 
+	@Override
 	public InputStream getInputStream() throws IOException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -403,6 +374,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public OutputStream getOutputStream() throws IOException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -413,7 +385,7 @@ public class MockSocket extends Socket{
 		return impl.getOutputStream();
 	}
 
-
+	@Override
 	public void setTcpNoDelay(boolean on) throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -421,6 +393,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public boolean getTcpNoDelay() throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -428,6 +401,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public void setSoLinger(boolean on, int linger) throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -444,6 +418,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public int getSoLinger() throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -456,6 +431,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public void sendUrgentData (int data) throws IOException  {
 		if (!getImpl().supportsUrgentData ()) {
 			throw new SocketException ("Urgent data not supported");
@@ -464,6 +440,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public void setOOBInline(boolean on) throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -471,6 +448,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public boolean getOOBInline() throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -478,6 +456,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public synchronized void setSoTimeout(int timeout) throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -488,11 +467,11 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public synchronized int getSoTimeout() throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
 		Object o = getImpl().getOption(SocketOptions.SO_TIMEOUT);
-		/* extra type safety */
 		if (o instanceof Integer) {
 			return ((Integer) o).intValue();
 		} else {
@@ -500,7 +479,7 @@ public class MockSocket extends Socket{
 		}
 	}
 
-
+	@Override
 	public synchronized void setSendBufferSize(int size) throws SocketException{
 		if (!(size > 0)) {
 			throw new IllegalArgumentException("negative send size");
@@ -510,6 +489,7 @@ public class MockSocket extends Socket{
 		getImpl().setOption(SocketOptions.SO_SNDBUF, new Integer(size));
 	}
 
+	@Override
 	public synchronized int getSendBufferSize() throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -522,6 +502,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public synchronized void setReceiveBufferSize(int size) throws SocketException{
 		if (size <= 0) {
 			throw new IllegalArgumentException("invalid receive size");
@@ -532,6 +513,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public synchronized int getReceiveBufferSize() throws SocketException{
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -544,6 +526,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public void setKeepAlive(boolean on) throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -551,6 +534,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public boolean getKeepAlive() throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
@@ -558,6 +542,7 @@ public class MockSocket extends Socket{
 	}
 
 
+	@Override
 	public void setTrafficClass(int tc) throws SocketException {
 		if (tc < 0 || tc > 255)
 			throw new IllegalArgumentException("tc is not in range 0 -- 255");
@@ -567,22 +552,27 @@ public class MockSocket extends Socket{
 		getImpl().setOption(SocketOptions.IP_TOS, new Integer(tc));
 	}
 
+	@Override
 	public int getTrafficClass() throws SocketException {
 		return ((Integer) (getImpl().getOption(SocketOptions.IP_TOS))).intValue();
 	}
 
+	@Override
 	public void setReuseAddress(boolean on) throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
 		getImpl().setOption(SocketOptions.SO_REUSEADDR, Boolean.valueOf(on));
 	}
 
+	@Override
 	public boolean getReuseAddress() throws SocketException {
 		if (isClosed())
 			throw new SocketException("Socket is closed");
 		return ((Boolean) (getImpl().getOption(SocketOptions.SO_REUSEADDR))).booleanValue();
 	}
 
+	
+	@Override
 	public synchronized void close() throws IOException {
 		synchronized(closeLock) {
 			if (isClosed())
@@ -593,6 +583,7 @@ public class MockSocket extends Socket{
 		}
 	}
 
+	@Override
 	public void shutdownInput() throws IOException
 	{
 		if (isClosed())
@@ -605,6 +596,7 @@ public class MockSocket extends Socket{
 		shutIn = true;
 	}
 
+	@Override
 	public void shutdownOutput() throws IOException
 	{
 		if (isClosed())
@@ -617,6 +609,7 @@ public class MockSocket extends Socket{
 		shutOut = true;
 	}
 
+	@Override
 	public String toString() {
 		try {
 			if (isConnected())
@@ -628,30 +621,39 @@ public class MockSocket extends Socket{
 		return "Socket[unconnected]";
 	}
 
+	// -------- boolean methods --------
+	
+	@Override
 	public boolean isConnected() {
 		// Before 1.3 Sockets were always connected during creation
 		return connected || oldImpl;
 	}
 
+	@Override
 	public boolean isBound() {
 		// Before 1.3 Sockets were always bound during creation
 		return bound || oldImpl;
 	}
 
+	@Override
 	public boolean isClosed() {
 		synchronized(closeLock) {
 			return closed;
 		}
 	}
 
+	@Override
 	public boolean isInputShutdown() {
 		return shutIn;
 	}
 
+	@Override
 	public boolean isOutputShutdown() {
 		return shutOut;
 	}
 
+	//---------------------------------------
+	
 	//private static SocketImplFactory factory = null;
 
 	public static synchronized void setSocketImplFactory(SocketImplFactory fac) throws IOException{

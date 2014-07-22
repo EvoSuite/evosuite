@@ -102,6 +102,14 @@ public class MockServerSocket extends ServerSocket{
 		return impl;
 	}
 
+    protected void setBound() {
+        bound = true;
+    }
+
+    protected void setCreated() {
+        created = true;
+    }
+
 	
 	private void createImpl() throws SocketException {
 		if (impl == null)
@@ -215,7 +223,7 @@ public class MockServerSocket extends ServerSocket{
 			throw e;
 		} 
 		s.impl = si;
-		s.postAccept();
+		s._postAccept();
 	}
 
 	
