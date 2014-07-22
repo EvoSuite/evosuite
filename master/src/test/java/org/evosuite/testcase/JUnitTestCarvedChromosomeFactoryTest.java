@@ -486,6 +486,44 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 	}
 	
 	@Test
+	public void testReadPublicStaticField() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.ClassWithPublicStaticFieldReadingTestCase.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.ClassWithPublicStaticField.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 0;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+
+		TestChromosome test = factory.getChromosome();
+		String code = test.getTestCase().toCode();
+		System.out.println(code);
+		Assert.assertFalse(code.contains("XStream"));
+		Assert.assertTrue(code.contains("ClassWithPublicStaticField.x"));
+	}
+	
+	@Test
+	public void testReadPublicStaticFieldInOtherClass() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.ClassDependingOnStaticFieldInOtherClassTestCase.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.ClassDependingOnStaticFieldInOtherClass.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 0;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+
+		TestChromosome test = factory.getChromosome();
+		String code = test.getTestCase().toCode();
+		System.out.println(code);
+		Assert.assertFalse(code.contains("XStream"));
+		Assert.assertTrue(code.contains("StaticFieldInOtherClass.x"));
+	}
+	
+	@Test
 	public void testDifficultClassWithWrongTestFails() {
 		EvoSuite evosuite = new EvoSuite();
 
