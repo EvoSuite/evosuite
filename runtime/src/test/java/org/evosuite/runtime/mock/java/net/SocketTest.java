@@ -14,12 +14,12 @@ public class SocketTest {
 	}
 	
 	@Test
-	public void testConnect(){
+	public void testConnect() throws IOException{
 		
 		MockSocket s = new MockSocket();
 		try {
 			s.connect(null);
-		} catch (IOException e) {
+		} catch (IllegalArgumentException e) {
 			//expected
 		}
 	}

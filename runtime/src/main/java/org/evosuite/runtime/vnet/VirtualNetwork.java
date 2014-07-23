@@ -80,8 +80,10 @@ public class VirtualNetwork {
 	public void reset(){
 		localListeningPorts.clear();
 		incomingConnections.clear();
-		//TODO handle openedTcpConnections
 		remotePortIndex.set(START_OF_REMOTE_EPHEMERAL_PORTS);
+
+		//TODO most likely it ll need different handling, as needed after the search
+		openedTcpConnections.clear();
 	}
 	
 	/**
