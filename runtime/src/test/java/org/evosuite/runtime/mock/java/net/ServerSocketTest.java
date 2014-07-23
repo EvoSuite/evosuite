@@ -98,13 +98,16 @@ public class ServerSocketTest {
 	@Test 
 	public void testReceiveAndReplyMessage() throws IOException{
 
+		int n = VirtualNetwork.getInstance().getViewOfOpenedTcpConnections().size();
+		Assert.assertEquals(0, n);
+
 		//first bind a listening server
 		MockServerSocket server = new MockServerSocket();
 		String localAddress = "127.0.0.1";
 		int localPort = 42;
 		server.bind(new InetSocketAddress(localAddress,localPort));
 
-		int n = VirtualNetwork.getInstance().getViewOfOpenedTcpConnections().size();
+		n = VirtualNetwork.getInstance().getViewOfOpenedTcpConnections().size();
 		Assert.assertEquals(0, n);
 		
 		//send a message on tcp connection, although SUT is not listening yet
