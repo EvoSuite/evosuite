@@ -44,7 +44,7 @@ The "evosuite" plugin provides the following targets:
 1) "generate" ->  this is used to generate test cases with EvoSuite. Tests will be generated for
 all classes in all submodules. This target as the following parameters:
 - "memoryInMB": total amount of megabytes EvoSuite is allowed to allocate (default 800)
-- "numberOfCores": total number of CPU cores EvoSuite can use (default 1)
+- "cores": total number of CPU cores EvoSuite can use (default 1)
 - "timeInMinutesPerClass": how many minutes EvoSuite can spend generating tests for each class (default 2)
 
 
@@ -86,7 +86,7 @@ store all the best tests generated so far.
 
 Usage example:
 
-mvn -DmemoryInMB=2000 -DnumberOfCores=2 evosuite:generate evosuite:export  test 
+mvn -DmemoryInMB=2000 -Dcores=2 evosuite:generate evosuite:export  test 
 
 This will generate tests for all classes using 2 cores and 2GB of memory, copy the generated
 tests to "src/test/java" and then execute them.
