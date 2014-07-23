@@ -137,7 +137,7 @@ public class EvoSuiteRunner {
 		for(Artifact dep  : res.getProject().getArtifacts()){
 			cp += File.pathSeparator+dep.getFile().getAbsolutePath();
 		}
-		logger.info("EvoSuite classpath: "+cp);
+		logger.debug("EvoSuite classpath: "+cp);
 		
 		String entryPoint = EvoSuite.class.getName();
 		
