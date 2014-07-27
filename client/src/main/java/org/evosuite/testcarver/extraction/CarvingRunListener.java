@@ -114,9 +114,10 @@ public class CarvingRunListener extends RunListener {
 	private void processLog(final CaptureLog log) {
 		final CaptureLogAnalyzer analyzer = new CaptureLogAnalyzer();
 		final EvoTestCaseCodeGenerator codeGen = new EvoTestCaseCodeGenerator();
-
+		logger.debug("Current log: "+log);
 		List<Class<?>> observedClasses = getObservedClasses(log);
 		for(Class<?> targetClass : observedClasses) {
+			logger.debug("Current observed class: {}", targetClass.getName());
 			Class<?>[] targetClasses = new Class<?>[1];
 			targetClasses[0] = targetClass;
 			if(!carvedTests.containsKey(targetClass))

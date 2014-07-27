@@ -43,7 +43,7 @@ public final class TestCarvingExecutionObserver extends ExecutionObserver {
 				final FieldReference fieldRef = (FieldReference) left;
 				final GenericField field = fieldRef.getField();
 
-				FieldRegistry.notifyModification(this.captureId,
+				FieldRegistry.notifyModification(field.isStatic() ? null : scope.getObject(fieldRef.getSource()), this.captureId,
 				                                 Type.getInternalName(field.getDeclaringClass()),
 				                                 field.getName(),
 				                                 Type.getDescriptor(field.getField().getType()));

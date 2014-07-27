@@ -152,6 +152,9 @@ public class CarvingClassLoader extends ClassLoader {
 			return result;
 		} catch (Throwable t) {
 			logger.info("Error: " + t);
+			for(StackTraceElement e : t.getStackTrace()) {
+				logger.info(e.toString());
+			}
 			throw new ClassNotFoundException(t.getMessage(), t);
 		}
 	}

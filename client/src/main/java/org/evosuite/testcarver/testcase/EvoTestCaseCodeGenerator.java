@@ -112,7 +112,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 					testCase.addStatement(m);
 				} else {
 					// final org.objectweb.asm.Type returnType = org.objectweb.asm.Type.getReturnType(methodDesc);
-
+					logger.debug("Callee: {} ({})", this.oidToVarRefMap.get(oid), this.oidToVarRefMap.keySet());
 					// Person var0 = var.getPerson();
 					final MethodStatement m = new MethodStatement(
 					        testCase,
@@ -120,8 +120,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 					                this.getDeclaredMethod(type, methodName,
 					                                       methodParamTypeClasses), type),
 					        
-					        this.oidToVarRefMap.get(oid), 
-					        
+					        this.oidToVarRefMap.get(oid), 					        
 					        args);
 					final Integer returnValueOID = (Integer) returnValue;
 					this.oidToVarRefMap.put(returnValueOID, testCase.addStatement(m));

@@ -19,6 +19,8 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.utils.LoggingUtils;
 import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +114,12 @@ public class CarvingManager {
 
 		final Class<?>[] classes = new Class<?>[junitTestClasses.size()];
 		junitTestClasses.toArray(classes);
-		runner.run(classes);
+		Result result = runner.run(classes);
+		logger.info("Result: "+result.getFailureCount() +"/"+result.getRunCount());
+		for(Failure failure : result.getFailures()) {
+			logger.info("Failure: "+failure.getMessage());
+			logger.info("Exception: "+failure.getException());
+		}
 		
 		Map<Class<?>, List<TestCase>> testMap = listener.getTestCases();
 		for(Class<?> targetClass : testMap.keySet()) {
