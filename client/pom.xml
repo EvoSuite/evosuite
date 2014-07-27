@@ -67,8 +67,14 @@
             <artifactId>gentyref</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.sf.jgrapht</groupId>
-            <artifactId>jgrapht</artifactId>
+<!--            <groupId>net.sf.jgrapht</groupId> -->
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+        </dependency>
+        <dependency>
+<!--            <groupId>net.sf.jgrapht</groupId> -->
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-ext</artifactId>
         </dependency>
         <dependency>
             <groupId>com.panayotis</groupId>
