@@ -10,6 +10,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.testcarver.ConcreteSubClassWithFields;
+import com.examples.with.different.packagename.testcarver.ConcreteSubClassWithFieldsTestCase;
 import com.examples.with.different.packagename.testcarver.DifficultClassTest;
 import com.examples.with.different.packagename.testcarver.DifficultClassWithoutCarving;
 import com.examples.with.different.packagename.testcarver.DifficultClassWithoutCarvingTest;
@@ -19,12 +21,14 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 	private static final String defaultSelectedJUnit = Properties.SELECTED_JUNIT;
 	private static final int defaultSeedMutations = Properties.SEED_MUTATIONS;
 	private static final double defaultSeedClone = Properties.SEED_CLONE;
+	private static final boolean defaultChopExceptions = Properties.CHOP_CARVED_EXCEPTIONS;
 
 	@After
 	public void reset() {
 		Properties.SELECTED_JUNIT = defaultSelectedJUnit;
 		Properties.SEED_MUTATIONS = defaultSeedMutations;
 		Properties.SEED_CLONE = defaultSeedClone;
+		Properties.CHOP_CARVED_EXCEPTIONS = defaultChopExceptions;
 	}
 
 	@SuppressWarnings("unused")
@@ -432,9 +436,180 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
-		Assert.assertEquals(10, factory.getNumCarvedTestCases());
+		Assert.assertEquals(11, factory.getNumCarvedTestCases());
 	}
 
+	@Test
+	public void testBeanDateConverterUtils1() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest1.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.DateConverter.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+		
+		String code = factory.getChromosome().getTestCase().toCode();
+		System.out.println(code);
+	}
+	
+	@Test
+	public void testBeanDateConverterUtils2() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest2.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.DateConverter.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+		
+		String code = factory.getChromosome().getTestCase().toCode();
+		System.out.println(code);
+	}
+
+	@Test
+	public void testBeanDateConverterUtils3() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest3.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.DateConverter.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+		
+		String code = factory.getChromosome().getTestCase().toCode();
+		System.out.println(code);
+	}
+
+	@Test
+	public void testBeanDateConverterUtils4() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest4.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.DateConverter.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+		
+		String code = factory.getChromosome().getTestCase().toCode();
+		System.out.println(code);
+	}
+	@Test
+	public void testBeanDateConverterUtils5() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest5.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.DateConverter.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+		
+		String code = factory.getChromosome().getTestCase().toCode();
+		System.out.println(code);
+	}
+	
+	@Test
+	public void testBeanDateConverterUtils6() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest6.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.DateConverter.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+		
+		String code = factory.getChromosome().getTestCase().toCode();
+		System.out.println(code);
+	}
+	@Test
+	public void testBeanDateConverterUtils7() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest7.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.DateConverter.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+		Properties.CHOP_CARVED_EXCEPTIONS = false; 
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+		
+		String code = factory.getChromosome().getTestCase().toCode();
+		System.out.println(code);
+	}
+	@Test
+	public void testBeanDateConverterUtils8() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest8.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.DateConverter.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+		
+		String code = factory.getChromosome().getTestCase().toCode();
+		System.out.println(code);
+	}
+	@Test
+	public void testBeanDateConverterUtils9() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest9.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.DateConverter.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+		
+		String code = factory.getChromosome().getTestCase().toCode();
+		System.out.println(code);
+	}
+	@Test
+	public void testBeanDateConverterUtils10() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest10.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.DateConverter.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+		
+		String code = factory.getChromosome().getTestCase().toCode();
+		System.out.println(code);
+	}
+	@Test
+	public void testBeanDateConverterUtils11() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest11.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.DateConverter.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+		
+		String code = factory.getChromosome().getTestCase().toCode();
+		System.out.println(code);
+	}
+	
 	@Test
 	public void testBeanIntegerConverterUtils() {
 		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.IntegerConverterTestCase.class.getCanonicalName();
@@ -445,7 +620,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
-		Assert.assertEquals(17, factory.getNumCarvedTestCases());
+		Assert.assertEquals(18, factory.getNumCarvedTestCases());
 
 	}
 
@@ -463,7 +638,8 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 
 		TestChromosome test = factory.getChromosome();
 		String code = test.getTestCase().toCode();
-		// Assert.assertFalse(code.contains("XStream"));
+		Assert.assertFalse(code.contains("XStream"));
+		System.out.println(code);
 		Assert.assertTrue(code.contains("classWithPublicField0.x"));
 	}
 
@@ -481,8 +657,9 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 
 		TestChromosome test = factory.getChromosome();
 		String code = test.getTestCase().toCode();
+		System.out.println(code);
 		Assert.assertFalse(code.contains("XStream"));
-		Assert.assertTrue(code.contains("classWithPublicField0.x"));
+		Assert.assertTrue(code.contains("classWithPublicField0.x") || code.contains("Locale.CHINESE"));
 	}
 	
 	@Test
@@ -522,6 +699,26 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 		Assert.assertFalse(code.contains("XStream"));
 		Assert.assertTrue(code.contains("StaticFieldInOtherClass.x"));
 	}
+
+	@Test
+	public void testClassWithStaticMethod() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.ClassWithStaticMethodTestCase.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.ClassWithStaticMethod.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 0;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+
+		TestChromosome test = factory.getChromosome();
+		String code = test.getTestCase().toCode();
+		System.out.println(code);
+		Assert.assertFalse(code.contains("XStream"));
+		Assert.assertTrue(code.contains("classWithStaticMethod0.testMe"));
+	}
+
 	
 	@Test
 	public void testDifficultClassWithWrongTestFails() {
@@ -560,5 +757,25 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 
 		Assert.assertEquals("Expected optimal coverage: ", 1d, best.getCoverage(), 0.001);		
 	}
+	
+	
+	@Test
+	public void testConcreteClassWithFields() {
+		Properties.SELECTED_JUNIT = ConcreteSubClassWithFieldsTestCase.class.getCanonicalName();
+		Properties.TARGET_CLASS = ConcreteSubClassWithFields.class.getCanonicalName();
 
+		Properties.SEED_MUTATIONS = 0;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(2, factory.getNumCarvedTestCases());
+
+		TestChromosome test = factory.getChromosome();
+		String code = test.getTestCase().toCode();
+		System.out.println(code);
+		Assert.assertFalse(code.contains("XStream"));
+		Assert.assertTrue(code.contains("concreteSubClassWithFields0"));
+	}
+	
 }

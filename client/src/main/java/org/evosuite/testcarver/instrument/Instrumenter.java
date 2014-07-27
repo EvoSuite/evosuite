@@ -1,10 +1,21 @@
 package org.evosuite.testcarver.instrument;
 
+import java.io.PrintWriter;
 import java.lang.instrument.IllegalClassFormatException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+
+
+
+
+
+
+
 
 
 
@@ -30,6 +41,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,13 +49,19 @@ public final class Instrumenter
 {
 	private int captureId;
 	
+	public static final int CAPTURE_ID_JAVA_UTIL_DATE     = Integer.MIN_VALUE;
+	public static final int CAPTURE_ID_JAVA_UTIL_CALENDAR = Integer.MIN_VALUE + 1;
+	public static final int CAPTURE_ID_JAVA_TEXT_DATEFORMAT = Integer.MIN_VALUE + 2;
+	public static final int CAPTURE_ID_JAVA_TEXT_SIMPLEDATEFORMAT = Integer.MIN_VALUE + 3;
+	
+
 	public static final String WRAP_NAME_PREFIX = "_sw_prototype_original_";
 
 	private static final Logger logger = LoggerFactory.getLogger(Instrumenter.class);
 	
 	public Instrumenter()
 	{
-		this.captureId = Integer.MIN_VALUE;
+		this.captureId = CAPTURE_ID_JAVA_UTIL_DATE + 4;
 	}
 	
 	
@@ -229,11 +247,17 @@ public final class Instrumenter
 				! methodNode.name.equals("<clinit>"))
 			{
 				if(! TransformerUtil.isPublic(methodNode.access)) {
-					if(!Properties.CLASS_PREFIX.equals(packageName))
+					//if(!Properties.CLASS_PREFIX.equals(packageName)) {
+						transformWrapperCalls(methodNode);
 						continue;
+					//}
 				}
 				if(methodNode.name.equals("<init>"))
 				{
+					if(TransformerUtil.isAbstract(cn.access)) {
+						// We cannot invoke constructors of abstract classes directly
+						continue;
+					}
 					this.addFieldRegistryRegisterCall(methodNode);
 				}
 				
@@ -241,6 +265,8 @@ public final class Instrumenter
 				this.instrumentGETXXXFieldAccesses(cn, internalClassName, methodNode);
 				
 				this.instrumentMethod(cn, internalClassName, methodNode, wrappedMethods);
+			} else {
+				transformWrapperCalls(methodNode);				
 			}
 		}
 		
@@ -249,6 +275,9 @@ public final class Instrumenter
 		{
 			cn.methods.add(wrappedMethods.get(i));
 		}
+		
+		TraceClassVisitor tcv = new TraceClassVisitor(new PrintWriter(System.err));
+		cn.accept(tcv);
 	}
 	
 	
@@ -275,12 +304,32 @@ public final class Instrumenter
 					continue;
 				}
 	
-				
 				final int opcode = ins.getOpcode();
 				if(opcode == Opcodes.GETFIELD || opcode == Opcodes.GETSTATIC ) 
 				{
 					final InsnList il = new InsnList();
 		
+					if(opcode == Opcodes.GETFIELD) {
+						Type fieldType = Type.getType(fieldIns.desc);
+						if(fieldType.getSize() == 1) {
+							instructions.insertBefore(fieldIns, new InsnNode(Opcodes.DUP));
+							il.add(new InsnNode(Opcodes.SWAP));
+						} else if(fieldType.getSize() == 2) {
+							instructions.insertBefore(fieldIns, new InsnNode(Opcodes.DUP));
+							// v
+							// GETFIELD
+							// v, w
+							il.add(new InsnNode(Opcodes.DUP2_X1));
+							// w, v, w
+							il.add(new InsnNode(Opcodes.POP2));
+							// w, v
+							// -> Call
+							// w
+						}
+					}
+					else
+						il.add(new InsnNode(Opcodes.ACONST_NULL));
+
 					il.add(new LdcInsnNode(this.captureId));
 					il.add(new LdcInsnNode(fieldIns.owner));
 					il.add(new LdcInsnNode(fieldIns.name));
@@ -289,7 +338,7 @@ public final class Instrumenter
 					il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
 							  "org/evosuite/testcarver/capture/FieldRegistry", 
 							  "notifyReadAccess", 
-							  "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"));
+							  "(Ljava/lang/Object;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"));
 					
 					i += il.size();
 					
@@ -335,20 +384,44 @@ public final class Instrumenter
 					// call
 					final InsnList il = new InsnList();
 		
+					if(opcode == Opcodes.PUTFIELD) {
+						Type fieldType = Type.getType(fieldIns.desc);
+						if(fieldType.getSize() == 1) {
+							instructions.insertBefore(fieldIns, new InsnNode(Opcodes.DUP2));
+							il.add(new InsnNode(Opcodes.POP));
+						} else if(fieldType.getSize() == 2) {
+							InsnList uglyList = new InsnList();
+							// v, w
+							uglyList.add(new InsnNode(Opcodes.DUP2_X1));
+							// w, v, w
+							uglyList.add(new InsnNode(Opcodes.POP2));
+							// w, v
+							uglyList.add(new InsnNode(Opcodes.DUP));
+							// w, v, v
+							uglyList.add(new InsnNode(Opcodes.DUP2_X2));
+							// v, v, w, v, v
+							uglyList.add(new InsnNode(Opcodes.POP2));
+							// v, v, w
+							instructions.insertBefore(fieldIns, uglyList);
+							// PUTFIELD
+							// v
+						}
+					}
+					else
+						il.add(new InsnNode(Opcodes.ACONST_NULL));
+
 					il.add(new LdcInsnNode(this.captureId));
-					
-					
-						il.add(new LdcInsnNode(fieldIns.owner));
-						il.add(new LdcInsnNode(fieldIns.name));
-						il.add(new LdcInsnNode(fieldIns.desc));
-						
-						il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
-								  "org/evosuite/testcarver/capture/FieldRegistry", 
-								  "notifyModification", 
-								  "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"));
-						
-						// PUTFIELDRegistry.notifyModification also adds corresponding GETFIELD capture instructions
-						this.captureId++;
+					il.add(new LdcInsnNode(fieldIns.owner));
+					il.add(new LdcInsnNode(fieldIns.name));
+					il.add(new LdcInsnNode(fieldIns.desc));
+
+					il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
+							"org/evosuite/testcarver/capture/FieldRegistry", 
+							"notifyModification", 
+							"(Ljava/lang/Object;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"));
+
+					// PUTFIELDRegistry.notifyModification also adds corresponding GETFIELD capture instructions
+					this.captureId++;
 					i += il.size();
 					
 					instructions.insert(fieldIns, il);
@@ -512,7 +585,7 @@ public final class Instrumenter
 	@SuppressWarnings("unchecked")
 	private MethodNode wrapMethod(final ClassNode classNode, final String className, final MethodNode methodNode)
 	{
-		methodNode.maxStack++;
+		methodNode.maxStack+=4;
 		
 		// create wrapper for original method
 		final MethodNode wrappingMethodNode = new MethodNode(methodNode.access, 
@@ -520,6 +593,7 @@ public final class Instrumenter
 															 methodNode.desc, 
 															 methodNode.signature, 
 															 (String[])methodNode.exceptions.toArray(new String[methodNode.exceptions.size()]));
+		wrappingMethodNode.maxStack = methodNode.maxStack;
 		
 		// assign annotations to wrapping method
 		wrappingMethodNode.visibleAnnotations          = methodNode.visibleAnnotations;
@@ -744,11 +818,123 @@ public final class Instrumenter
 			wInstructions.add(new VarInsnNode(Opcodes.ALOAD, var));
 			wInstructions.add(new InsnNode(Opcodes.ATHROW));
 		}
-
+		transformWrapperCalls(methodNode);
 		return wrappingMethodNode;
 	}
 	
-	
+	@SuppressWarnings("unchecked")
+	private void transformWrapperCalls(MethodNode mn) {
+		Iterator<AbstractInsnNode> iterator = mn.instructions.iterator();
+		List<Class<?>> wrapperClasses = getWrapperClasses();
+		
+		while(iterator.hasNext()) {
+			AbstractInsnNode insn = iterator.next();
+			if(insn instanceof MethodInsnNode) {
+				MethodInsnNode methodInsnNode = (MethodInsnNode)insn;
+				if(methodInsnNode.name.equals("<init>")) {
+					String ownerName = methodInsnNode.owner.replace('/', '.');
+					for(Class<?> wrapperClass : wrapperClasses) {
+						if(wrapperClass.getName().equals(ownerName)) {
+							logger.debug("Replacing call "+methodInsnNode.name);
+							methodInsnNode.owner = "org/evosuite/testcarver/wrapper/" + methodInsnNode.owner;
+							break;
+						}
+					}
+				} else {
+					String ownerName = methodInsnNode.owner.replace('/', '.');
+					for(Class<?> wrapperClass : wrapperClasses) {
+						if(wrapperClass.getName().equals(ownerName)) {
+							if(methodInsnNode.getOpcode() == Opcodes.INVOKESTATIC) {
+								logger.debug("Replacing call "+methodInsnNode.name);
+								methodInsnNode.owner = "org/evosuite/testcarver/wrapper/" + methodInsnNode.owner;
+							}
+							Type[] parameterTypes = Type.getArgumentTypes(methodInsnNode.desc);
+							try {
+								Class<?>[] parameterClasses = new Class<?>[parameterTypes.length];
+								int pos = 0;
+								for(Type parameter : parameterTypes) {
+									switch(parameter.getSort()) {
+									case Type.OBJECT:
+										parameterClasses[pos++] = Class.forName(parameter.getClassName());
+										break;
+									case Type.BOOLEAN:
+										parameterClasses[pos++] = boolean.class;
+										break;
+									case Type.BYTE:
+										parameterClasses[pos++] = byte.class;
+										break;
+									case Type.CHAR:
+										parameterClasses[pos++] = char.class;
+										break;
+									case Type.DOUBLE:
+										parameterClasses[pos++] = double.class;
+										break;
+									case Type.FLOAT:
+										parameterClasses[pos++] = float.class;
+										break;
+									case Type.INT:
+										parameterClasses[pos++] = int.class;
+										break;
+									case Type.LONG:
+										parameterClasses[pos++] = long.class;
+										break;
+									case Type.SHORT:
+										parameterClasses[pos++] = short.class;
+										break;
+									}
+								}
+								Method method = wrapperClass.getMethod(methodInsnNode.name, parameterClasses);
+								if(Modifier.isFinal(method.getModifiers())) {
+									if(methodInsnNode.getOpcode() != Opcodes.INVOKESTATIC) {
+										methodInsnNode.setOpcode(Opcodes.INVOKESTATIC);
+										Type[] args = Type.getArgumentTypes(methodInsnNode.desc);
+										Type returnType = Type.getReturnType(methodInsnNode.desc);
+										Type[] newargs = new Type[args.length+1];
+										newargs[0] = Type.getObjectType(methodInsnNode.owner);
+										for(int i = 0; i < args.length; i++)
+											newargs[i+1] = args[i];										
+										methodInsnNode.desc = Type.getMethodDescriptor(returnType, newargs); 
+										methodInsnNode.owner = "org/evosuite/testcarver/wrapper/" + methodInsnNode.owner;
+									} else {
+										methodInsnNode.name += "_final";										
+									}
+									logger.debug("Method is final: "+methodInsnNode.owner+"."+methodInsnNode.name);
+								} else {
+									logger.debug("Method is not final: "+methodInsnNode.owner+"."+methodInsnNode.name);
+								}
+							} catch(Exception e) {
+								logger.warn("Error while instrumenting: "+e);
+							}
+
+							break;
+						}
+					}
+					//				} else if(methodInsnNode.name.equals("getTime")) {
+					//					if(methodInsnNode.owner.equals("java/util/Calendar")) {
+					//						logger.debug("Replacing call "+methodInsnNode.name);
+					//						methodInsnNode.owner = "org/evosuite/testcarver/wrapper/java/util/Calendar";
+					//						methodInsnNode.name = "getTime";
+					//						methodInsnNode.desc = "(Ljava/util/Calendar;)Ljava/util/Date;";
+					//						methodInsnNode.setOpcode(Opcodes.INVOKESTATIC);
+					//					}
+					//				}
+				}
+			} else if(insn.getOpcode() == Opcodes.NEW || insn.getOpcode() == Opcodes.CHECKCAST) {
+				TypeInsnNode typeInsnNode = (TypeInsnNode)insn;
+				Type generatedType = Type.getType(typeInsnNode.desc);
+				String name = generatedType.getInternalName().replace('/', '.');
+				logger.debug("Checking for replacement of "+name);
+				for(Class<?> wrapperClass : wrapperClasses) {
+					if(wrapperClass.getName().equals(name)) {
+						logger.debug("Replacing new "+name);
+						typeInsnNode.desc = "org/evosuite/testcarver/wrapper/" + generatedType.getInternalName();
+						break;
+					}
+				}
+
+			}
+		}
+	}
 	
 	private void addReturnInsn(final InsnList il, final Type type) 
 	{
@@ -1019,4 +1205,10 @@ public final class Instrumenter
 		} 
 	}
 	
+	private List<Class<?>> getWrapperClasses() {
+		return Arrays.asList(new Class<?>[] {java.util.Date.class,
+											 java.util.Calendar.class,
+											 java.text.DateFormat.class,
+											 java.text.SimpleDateFormat.class});
+	}
 }

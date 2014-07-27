@@ -313,7 +313,8 @@ public final class CaptureLog implements Cloneable {
 		if (receiver instanceof Class) //this can only happen, if there is a static method call 
 		{
 			final Class<?> c = (Class<?>) receiver;
-			this.oidClassNames.add(c.getName());//.replaceFirst("\\$\\d+$", ""));
+			this.oidClassNames.add(c.getName().replace("org.evosuite.testcarver.wrapper.", ""));
+			//.replaceFirst("\\$\\d+$", ""));
 			
 		} else if (this.isPlain(receiver)) {
 			// we don't need fully qualified name for plain types
@@ -333,7 +334,8 @@ public final class CaptureLog implements Cloneable {
 				this.oidClassNames.add(interfaces[0].getName());
 			}
 		} else {
-			this.oidClassNames.add(receiver.getClass().getName());//.replaceFirst("\\$\\d+$", ""));
+			String name = receiver.getClass().getName().replace("org.evosuite.testcarver.wrapper.", "");
+			this.oidClassNames.add(name);//.replaceFirst("\\$\\d+$", ""));
 		}
 	}
 

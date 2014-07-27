@@ -51,9 +51,12 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		{
 			logger.info("could not find any oids for {} -> {} ==> no code is generated\n", observedClassNames, Arrays.toString(observedClasses));
 			return;
+		} else {
+			logger.debug("Target oids: {}", targetOIDs);
 		}
 
-		final int[] oidExchange = analyzeLog(generator, blackList, log, targetOIDs);		
+		final int[] oidExchange = analyzeLog(generator, blackList, log, targetOIDs);
+		logger.debug("Going to postprocess stage");
 		postProcessLog(originalLog, generator, blackList, log, oidExchange, observedClasses);
 	}
 
@@ -106,7 +109,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		//for(int currentRecord = log.getRecordIndex(currentOID); currentRecord < numLogRecords; currentRecord++)	
 		{
 			currentOID = log.objectIds.get(currentRecord);
-			logger.debug("Current record {}, current oid {}", currentRecord, currentOID);
+			logger.debug("Current record {}, current oid {} type {}", currentRecord, currentOID, log.getTypeName(currentOID));
 			if(generator.isMaximumLengthReached()) {
 				logger.debug("Max length reached, stopping carving");
 				break;
@@ -116,20 +119,30 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			{
 				logger.debug("Analyzing record in position {}", currentRecord);
 
-				oidExchange = this.restoreCodeFromLastPosTo(log, generator, currentOID, currentRecord + 1, blackList);
+				try {
+					oidExchange = this.restoreCodeFromLastPosTo(log, generator, currentOID, currentRecord + 1, blackList);
+				} catch(Throwable t) {
+					logger.debug("Error: "+t);
+					for(StackTraceElement elem : t.getStackTrace()) {
+						logger.debug(elem.toString());
+					}
+					break;
+				}
 				if(oidExchange != null){
+					logger.debug("oidExchange is not null");
 					break;
 				}
 
 				// forward to end of method call sequence
 				currentRecord = findEndOfMethod(log, currentRecord, currentOID);
-
+				logger.debug("Current record: {}", currentRecord);
 				// each method call is considered as object state modification -> so save last object modification
 				/*
 				 * FIXME: a log object is got as input to be analyzed, but then in the analyzer there are side effects on it...
 				 * need re-factoring
 				 */
-				log.updateWhereObjectWasInitializedFirst(currentOID, currentRecord);				
+				log.updateWhereObjectWasInitializedFirst(currentOID, currentRecord);
+				logger.debug("Log updated");
 			} else {
 				logger.debug("Skipping record in position {}",currentRecord);
 			}
@@ -232,19 +245,24 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	 */
 	private int findCaller(final CaptureLog log, final int currentRecord)
 	{
+		logger.debug("Looking for caller of {}", currentRecord);
 		final int numRecords = log.objectIds.size();
+		logger.debug("numRecords = {}", numRecords);
 
 		//--- look for the end of the calling method
 		int record = currentRecord;
+		logger.debug("Starting with {}", record);
 		do
 		{
 			record = this.findEndOfMethod(log, record, log.objectIds.get(record));
 			record++;
+			logger.debug("Now is {}", record);
 		}
 		while(  record < numRecords &&
 				! log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD));  // is not the end of the calling method
+		logger.debug("records = {}", record);
 
-		if(record == numRecords)
+		if(record >= numRecords)
 		{
 			// did not find any caller -> must be very first method call
 			logger.info("[currentRecord={}] - could not find caller for currentRecord -> must be very first method call", currentRecord);
@@ -252,6 +270,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		}
 		else
 		{
+			logger.debug("Found caller {}: {}", record, log.objectIds.size());
 			// found caller
 			return log.objectIds.get(record);
 		}
@@ -286,11 +305,17 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		int record = currentRecord;
 		
 		final int captureId = log.captureIds.get(record);
+		logger.debug("captureId {}, record {}", captureId, record);
 		int nestedCalls = 0;
 		while(true){
+			if(log.captureIds.size() <= record || log.objectIds.size() <= record) {
+				logger.debug("Screw this: {}, {}, {}", log.captureIds.size(), log.objectIds.size(), record);
+				break;
+			}
+			logger.debug("Current record: {}: {} <-> {}, {} <-> {}", record, captureId, log.captureIds.get(record), currentOID, log.objectIds.get(record));
 			if(log.captureIds.get(record) == captureId &&
 					log.objectIds.get(record)  == currentOID){
-				
+				logger.debug(log.methodNames.get(record));
 				if(log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)){
 					nestedCalls--;
 					if(nestedCalls == 0)
@@ -327,9 +352,11 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 	@SuppressWarnings({ "rawtypes" })
 	private int[] restoreCodeFromLastPosTo(final CaptureLog log, final ICodeGenerator generator,final int oid, final int end, final Set<Class<?>> blackList){
+		logger.debug("Restoring code from last pos");
 
 		// start from last OID modification point
 		int currentRecord = log.getRecordIndexOfWhereObjectWasInitializedFirst(oid);
+		logger.debug("Current record: "+currentRecord);
 		if(currentRecord > 0){
 			// last modification of object happened here
 			// -> we start looking for interesting records after retrieved record
@@ -340,6 +367,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			// -> retrieved loc record no is included
 			currentRecord = -currentRecord;
 		}
+		logger.debug("-> Current record {}, end {} ", currentRecord, end);
 
 		String methodName;
 		int    currentOID;
@@ -362,11 +390,15 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			currentOID     = log.objectIds.get(currentRecord);
 			returnValueObj = log.returnValues.get(currentRecord);
 			returnValue    = returnValueObj.equals(CaptureLog.RETURN_TYPE_VOID) ? -1 : (Integer) returnValueObj;
-			
+			logger.debug("Checking: "+currentRecord+": "+log.getTypeName(currentOID) +" to generate "+log.getTypeName(oid));
+
 			if(oid == currentOID ||	returnValue == oid) {
+				logger.debug("Current record is currentOID {} or returnvalue", currentOID);
 
 	     		if(oid != currentOID)
 				{
+	     			logger.debug("No, is not currentOID");
+
 					// currentOID differs to the targetOID. this happens if the targetOID appears the first time as return value 
 	     			// -> so we have to make sure that currentOID is restored till this position in order to deliver the correct 
 	     			//    target instance
@@ -379,20 +411,25 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 				
 				
 				methodName = log.methodNames.get(currentRecord);
-
+				
 				if(CaptureLog.PLAIN_INIT.equals(methodName)) {
+					logger.debug("Plain init");
 					currentRecord = handlePlainInit(log, generator, currentRecord, currentOID);
 				}
 				else if(CaptureLog.COLLECTION_INIT.equals(methodName)){
+					logger.debug("Collection init");
 					currentRecord = handleCollectionInit(log, generator, blackList, currentRecord, currentOID);
 				}
 				else if(CaptureLog.MAP_INIT.equals(methodName)){
+					logger.debug("Map init");
 					currentRecord = handleMapInit(log, generator, blackList, currentRecord, currentOID);
 				}
 				else if(CaptureLog.ARRAY_INIT.equals(methodName)){
+					logger.debug("Array init");
 					currentRecord = handleArrayInit(log, generator, blackList, currentRecord, currentOID);
 				}
 				else if(CaptureLog.NOT_OBSERVED_INIT.equals(methodName)) {
+					logger.debug("Unobserved init");
 					// e.g. Person var = (Person) XSTREAM.fromXML("<xml/>");
 					final int dependencyOID = log.getDependencyOID(oid);
 
@@ -411,6 +448,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 				else if(CaptureLog.PUTFIELD.equals(methodName) || CaptureLog.PUTSTATIC.equals(methodName) || // field write access such as p.id = id or Person.staticVar = "something"
 						CaptureLog.GETFIELD.equals(methodName) || CaptureLog.GETSTATIC.equals(methodName))   // field READ access such as "int a =  p.id" or "String var = Person.staticVar"
 				{
+					logger.debug("Field access");
 					final int dependencyOID = log.getDependencyOID(oid);
 
 					if(dependencyOID != CaptureLog.NO_DEPENDENCY)
@@ -455,12 +493,14 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 					}
 				} else {
 					//the rest
+					logger.debug("The rest: "+methodName);
 
 					// var0.call(someArg) or Person var0 = new Person()
 					final int dependencyOID = log.getDependencyOID(oid);
-
+					logger.debug("Dependency oid for {} is {} ", oid, dependencyOID);
 					if(dependencyOID != CaptureLog.NO_DEPENDENCY)
 					{
+						logger.debug("Dependencies");
 						exchange = this.restoreCodeFromLastPosTo(log, generator, dependencyOID, currentRecord, blackList);
 						if(exchange != null)
 						{
@@ -469,12 +509,15 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 					}
 
 					int callerOID = this.findCaller(log, currentRecord);
-					methodArgs = log.params.get(currentRecord);
+					logger.debug("Caller oid {} ", callerOID);
 
+					methodArgs = log.params.get(currentRecord);
+					logger.debug("Getting "+methodArgs.length+" method args: {}", methodArgs);
 					for(int i = 0; i < methodArgs.length; i++)
 					{
 						// there can only be OIDs or null
 						methodArgOID = (Integer) methodArgs[i];
+						logger.debug("Argument {}", methodArgOID);
 
 						//====================================================
 
@@ -498,6 +541,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 						//====================================================
 
 						if(methodArgOID != null && methodArgOID != oid) {
+							logger.debug("Setting up code for argument {}", methodArgOID);
 							exchange = this.restoreCodeFromLastPosTo(log, generator, methodArgOID, currentRecord, blackList);
 							if(exchange != null) {
 								// we can not resolve all dependencies because they rely on other unresolvable object
@@ -515,6 +559,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 						blackList.add(this.getClassFromOID(log, oid));
 						return getExchange(log, currentRecord, currentOID, blackList);
 					}
+					logger.debug("Adding method call {}", methodName);
 
 					generator.createMethodCallStmt(log, currentRecord);
 

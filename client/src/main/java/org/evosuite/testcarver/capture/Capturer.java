@@ -116,7 +116,7 @@ public final class Capturer {
 		logs.addAll((ArrayList<CaptureLog>) xstream.fromXML(in));
 	}
 
-	synchronized public static void clear() {
+	 public static void clear() {
 		currentLog = null;
 		logs.clear();
 		classesToBeObserved.clear();
@@ -125,7 +125,7 @@ public final class Capturer {
 		FieldRegistry.clear();
 	}
 
-	synchronized public static void startCapture() {
+	 public static void startCapture() {
 		logger.info("Starting Capturer...");
 
 		if (isCaptureStarted) {
@@ -141,7 +141,7 @@ public final class Capturer {
 
 	}
 
-	synchronized public static void startCapture(final String classesToBeObservedString) {
+	 public static void startCapture(final String classesToBeObservedString) {
 		if (classesToBeObservedString == null) {
 			final String msg = "no arguments specified";
 			logger.error(msg);
@@ -162,7 +162,7 @@ public final class Capturer {
 		Capturer.startCapture(args);
 	}
 
-	synchronized public static void startCapture(final List<String> classesToBeObserved) {
+	 public static void startCapture(final List<String> classesToBeObserved) {
 		logger.info("Starting Capturer...");
 
 		if (isCaptureStarted) {
@@ -193,7 +193,7 @@ public final class Capturer {
 		logger.info("Capturer has been started successfully");
 	}
 
-	synchronized public static CaptureLog stopCapture() {
+	 public static CaptureLog stopCapture() {
 		logger.info("Stopping Capturer...");
 
 		if (isCaptureStarted) {
@@ -207,41 +207,45 @@ public final class Capturer {
 			logger.info("Capturer has been stopped successfully");
 
 			FieldRegistry.clear();
-
+			logger.debug("Done");
 			return log;
 		}
 
+		logger.debug("Done");
 		return null;
 	}
 
-	synchronized public static boolean isCapturing() {
+	 public static boolean isCapturing() {
 		return isCaptureStarted;
 	}
 
-	synchronized public static void setCapturing(final boolean isCapturing) {
+	 public static void setCapturing(final boolean isCapturing) {
 		Capturer.isCaptureStarted = isCapturing;
 	}
 
 	public static void capture(final int captureId, final Object receiver,
 	        final String methodName, final String methodDesc, final Object[] methodParams) {
-
-		if (isCapturing()) {
-			synchronized (currentLog) {
+		try {
+			if (isCapturing()) {
+				//(currentLog) {
 				setCapturing(false);
 
 				if (logger.isDebugEnabled()) {
 					logger.debug("captured:  captureId={} receiver={} type={} method={} methodDesc={} "
-					                     + Arrays.toString(methodParams), new Object[] {
-					                     captureId, System.identityHashCode(receiver),
-					                     receiver.getClass().getName(), methodName,
-					                     methodDesc });
-
+							+ Arrays.toString(methodParams), new Object[] {
+								captureId, System.identityHashCode(receiver),
+								receiver.getClass().getName(), methodName,
+								methodDesc });
 				}
-
+				
 				currentLog.log(captureId, receiver, methodName, methodDesc, methodParams);
 				if(TimeController.getInstance().isThereStillTimeInThisPhase())
 					setCapturing(true);
+				//}
 			}
+		} catch(Throwable t) {
+			// TODO: Handle properly?
+			logger.debug(t.toString());
 		}
 	}
 
@@ -252,20 +256,27 @@ public final class Capturer {
 
 	public static void enable(final int captureId, final Object receiver,
 	        final Object returnValue) {
-		if (isCapturing()) {
-			synchronized (currentLog) {
+		try {
+			if (isCapturing()) {
+				//(currentLog) {
 				setCapturing(false);
 
 				if (logger.isDebugEnabled()) {
-					logger.debug("enabled: capturedId={} receiver={} returnValue={} returnValueOID={}",
-					             new Object[] { captureId,
-					                     System.identityHashCode(receiver), returnValue,
-					                     System.identityHashCode(returnValue) });
+					logger.debug("enabled: capturedId={}", captureId);
+					//logger.debug("enabled: capturedId={} receiver={} returnValue={} returnValueOID={}",
+					//            new Object[] { captureId,
+					//                   System.identityHashCode(receiver), System.identityHashCode(returnValue),
+					//                  System.identityHashCode(returnValue) });
 				}
 
 				currentLog.logEnd(captureId, receiver, returnValue);
 				setCapturing(true);
+				//}
 			}
+		} catch(Throwable t) {
+			// TODO: Handle properly
+			logger.debug(t.toString());
+
 		}
 	}
 }
