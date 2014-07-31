@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
  */
 public class GuiSupport {
 
+	
 	/**
 	 * Where the tests run in headless mode?
 	 */
@@ -29,6 +30,17 @@ public class GuiSupport {
 		
 		setHeadless(true);
 	}
+
+	public static void initialize(){
+		/*
+		 * Force the loading of fonts.
+		 * This is needed because font loading in the JVM can take several seconds (done only once),
+		 * and that can mess up the the JUnit test execution timeouts...   
+		 */
+		(new javax.swing.JButton()).getFontMetrics(new java.awt.Font(null));
+	}
+	
+
 	
 	/**
 	 *  Restore the original headless setting of when the JVM was started.
