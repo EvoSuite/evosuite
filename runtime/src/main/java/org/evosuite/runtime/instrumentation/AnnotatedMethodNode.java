@@ -21,6 +21,7 @@
 package org.evosuite.runtime.instrumentation;
 
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -30,7 +31,7 @@ import org.objectweb.asm.tree.MethodNode;
  * @author fraser
  */
 public class AnnotatedMethodNode extends MethodNode {
-
+	
 	/**
 	 * <p>Constructor for AnnotatedMethodNode.</p>
 	 *
@@ -42,7 +43,7 @@ public class AnnotatedMethodNode extends MethodNode {
 	 */
 	public AnnotatedMethodNode(int access, String name, String desc, String signature,
 	        String[] exceptions) {
-		super(access, name, desc, signature, exceptions);
+		super(Opcodes.ASM4, access, name, desc, signature, exceptions);
 	}
 
 	/**
