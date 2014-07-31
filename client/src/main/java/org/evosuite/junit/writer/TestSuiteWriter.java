@@ -43,6 +43,7 @@ import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.runtime.GuiSupport;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.reset.ClassResetter;
@@ -491,6 +492,8 @@ public class TestSuiteWriter implements Opcodes {
 		 * not much of the point to try to optimize it 
 		 */
 
+		generateTimeoutRule(bd);
+		
 		generateFields(bd, wasSecurityException, results);
 
 		generateBeforeClass(bd, wasSecurityException);
@@ -512,6 +515,23 @@ public class TestSuiteWriter implements Opcodes {
 		return bd.toString();
 	}
 
+	/**
+	 * Hanging tests have very, very high negative impact.
+	 * They can mess up everything (eg when running "mvn test").
+	 * As such, we should always have timeouts.
+	 * Adding timeouts only in certain conditions is too risky
+	 * 
+	 * @param bd
+	 */
+	private void generateTimeoutRule(StringBuilder bd) {
+		bd.append(METHOD_SPACE);
+		bd.append("@org.junit.Rule \n");
+		bd.append(METHOD_SPACE);
+		int timeout = Properties.TIMEOUT + 1000;
+		bd.append("public org.junit.rules.Timeout globalTimeout = new org.junit.rules.Timeout("+timeout+"); \n");
+		bd.append("\n");
+	}
+	
 	private void generateResetClasses(StringBuilder bd) {
 		List<String> classesToReset = ResetManager.getInstance().getClassResetOrder();
 
@@ -849,6 +869,9 @@ public class TestSuiteWriter implements Opcodes {
 		// FIXME: This is just commented out for experiments
 		//bd.append("org.evosuite.utils.LoggingUtils.setLoggingForJUnit(); \n");
 
+		bd.append(METHOD_SPACE);
+		bd.append(""+GuiSupport.class.getName()+".initialize(); \n");
+		
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 		        || Properties.RESET_STATIC_FIELDS) {
 			//need to setup REPLACE_CALLS and instrumentator
