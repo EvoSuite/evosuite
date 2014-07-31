@@ -34,7 +34,7 @@ public class TestSuiteWriterUtils {
 		}
 		return false;
 	}
-
+	
 	private static boolean wasAnyWrittenProperty(List<ExecutionResult> results) {
 		for (ExecutionResult res : results) {
 			if (res.wasAnyPropertyWritten()) {

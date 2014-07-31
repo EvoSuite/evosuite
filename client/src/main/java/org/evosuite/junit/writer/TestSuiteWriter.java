@@ -403,7 +403,6 @@ public class TestSuiteWriter implements Opcodes {
 			imports_sorted.add(java.util.concurrent.Executors.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.Future.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
-
 		}
 
 		Collections.sort(imports_sorted);
@@ -666,6 +665,11 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append(InstrumentingAgent.class.getName()+".deactivate(); \n");
 		}
 
+		//TODO: see comment in @Before 
+		bd.append(BLOCK_SPACE);
+		bd.append(org.evosuite.runtime.GuiSupport.class.getName()+".restoreHeadlessMode(); \n");
+
+		
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
@@ -707,6 +711,20 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append(" \n");
 		}
 
+		/*
+		 * We do not mock GUI yet, but still we need to make the JUnit tests to 
+		 * run in headless mode. Checking if SUT needs headless is tricky: check
+		 * for headless exception is brittle if those exceptions are caught before
+		 * propagating to test.
+		 * 
+		 * TODO: These things would be handled once we mock GUI. For the time being
+		 * we just always include a reset call if @Before/@After methods are
+		 * generated
+		 */
+		bd.append(BLOCK_SPACE);
+		bd.append(org.evosuite.runtime.GuiSupport.class.getName()+".setHeadless(); \n");
+		
+		
 		if (wasSecurityException) {
 			bd.append(BLOCK_SPACE);
 			bd.append(Sandbox.class.getName()+".goingToExecuteSUTCode(); \n");
@@ -884,6 +902,7 @@ public class TestSuiteWriter implements Opcodes {
 			bd.append(org.evosuite.runtime.Runtime.class.getName()+".getInstance().resetRuntime(); \n");
 		}
 
+		
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
