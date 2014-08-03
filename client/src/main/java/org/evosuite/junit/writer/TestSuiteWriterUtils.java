@@ -24,6 +24,12 @@ import org.slf4j.LoggerFactory;
  */
 public class TestSuiteWriterUtils {
 
+	public static final String METHOD_SPACE = "  ";
+	public static final String BLOCK_SPACE = "    ";
+	public static final String INNER_BLOCK_SPACE = "      ";
+	public static final String INNER_INNER_BLOCK_SPACE = "        ";
+	public static final String INNER_INNER_INNER_BLOCK_SPACE = "          ";
+	
 	protected final static Logger logger = LoggerFactory.getLogger(TestSuiteWriterUtils.class);
 
 	public static boolean hasAnySecurityException(List<ExecutionResult> results) {
