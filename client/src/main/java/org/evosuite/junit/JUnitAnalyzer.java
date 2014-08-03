@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -49,6 +50,10 @@ public class JUnitAnalyzer {
 
 	private static int dirCounter = 0;
 
+	private static final String JAVA = ".java";
+	private static final String CLASS = ".class";
+
+	
 	/**
 	 * Try to compile each test separately, and remove the ones that cannot be
 	 * compiled
@@ -137,7 +142,7 @@ public class JUnitAnalyzer {
 				return numUnstable;
 			}
 
-			Class<?>[] testClasses = loadTests(generated, dir);
+			Class<?>[] testClasses = loadTests(generated);
 
 			if (testClasses == null) {
 				logger.error("Found no classes for compiled tests");
@@ -371,7 +376,7 @@ public class JUnitAnalyzer {
 		return dir;
 	}
 
-	private static Class<?>[] loadTests(List<File> tests, File dir) {
+	private static Class<?>[] loadTests(List<File> tests) {
 
 		/*
 		 * Ideally, when we run a generated test case, it
@@ -397,7 +402,44 @@ public class JUnitAnalyzer {
 		return testClasses;
 	}
 
-	private static List<File> listOnlyFiles(List<File> tests) {
+	private static List<File> listOnlyFiles(List<File> tests) throws IllegalArgumentException{
+		if(tests==null || tests.isEmpty()){
+			return null;
+		}
+
+		Set<String> classNames = new LinkedHashSet<>();
+		
+		File parentFolder = tests.get(0).getParentFile();
+		for(File file : tests){
+			if(!file.getParentFile().equals(parentFolder)){
+				throw new IllegalArgumentException("Tests file are not in the same folder");
+			}
+			classNames.add(removeFileExtension(file.getName()));
+		}
+		
+		/*
+		 * if we already loaded a CUT due to its .java, do not want
+		 * to re-loaded it for a .class file that is in the same folder
+		 */
+		
+		List<File> otherClasses = new LinkedList<File>();
+		
+		for(File file : parentFolder.listFiles()){
+			String  name = removeFileExtension(file.getName());
+
+			if(classNames.contains(name)){
+				continue;
+			}
+			
+			classNames.add(name);
+			otherClasses.add(file);
+		}
+		
+		return otherClasses;
+	}
+	
+	@Deprecated // this code looks wrong
+	private static List<File> _listOnlyFiles(List<File> tests) {
 		List<File> otherClasses = new LinkedList<File>();
 
 		for (File test : tests) {
@@ -479,7 +521,7 @@ public class JUnitAnalyzer {
 
 			//as last step, execute the generated/compiled test cases
 
-			Class<?>[] testClasses = loadTests(generated, dir);
+			Class<?>[] testClasses = loadTests(generated);
 
 			if (testClasses == null) {
 				logger.error("Found no classes for compiled tests");
@@ -534,57 +576,85 @@ public class JUnitAnalyzer {
 	 * @return
 	 */
 	private static Class<?>[] getClassesFromFiles(Collection<File> files) {
-		List<Class<?>> classes = new ArrayList<Class<?>>();
+		/*
+		 * first load only the scaffolding files
+		 */
 		for (File file : files) {
-
-			if (!file.isFile()) {
+			if(!isScaffolding(file)){
 				continue;
 			}
-
-			String packagePrefix = Properties.CLASS_PREFIX;
-			if (!packagePrefix.isEmpty() && !packagePrefix.endsWith(".")) {
-				packagePrefix += ".";
-			}
-
-			final String JAVA = ".java";
-			final String CLASS = ".class";
-
-			String name = file.getName();
-
-			if (!name.endsWith(JAVA) && !name.endsWith(CLASS)) {
-				/*
-				 * this could happen when we scan a folder for all src/compiled
-				 * files
-				 */
-				continue;
-			}
-
-			String fileName = file.getAbsolutePath();
-
-			if (name.endsWith(JAVA)) {
-				name = name.substring(0, name.length() - JAVA.length());
-				fileName = fileName.substring(0, fileName.length() - JAVA.length())
-				        + ".class";
-			} else {
-				assert name.endsWith(CLASS);
-				name = name.substring(0, name.length() - CLASS.length());
-			}
-
-			String className = packagePrefix + name;
-
-			Class<?> testClass = null;
-			try {
-				logger.info("Loading class " + className);
-				testClass = ((InstrumentingClassLoader) TestGenerationContext.getInstance().getClassLoaderForSUT()).loadClassFromFile(className,
-				                                                                                                                      fileName);
-			} catch (ClassNotFoundException e) {
-				logger.error("Failed to load test case " + className + " from file "
-				        + file.getAbsolutePath() + " , error " + e, e);
-				return null;
-			}
-			classes.add(testClass);
+			loadClass(file);			
 		}
+		
+		List<Class<?>> classes = new ArrayList<Class<?>>();
+		
+		/*
+		 * once the scaffoldings are loaded, we can load the tests that
+		 * depend on them 
+		 */
+		for (File file : files) {
+			if(isScaffolding(file)){
+				continue;
+			}
+			Class<?> clazz = loadClass(file);
+			if(clazz != null){
+				classes.add(clazz);
+			}
+		}
+		
 		return classes.toArray(new Class<?>[classes.size()]);
 	}
 
+	private static boolean isScaffolding(File file){
+		String name = file.getName();
+		return name.endsWith("_"+Properties.SCAFFOLDING_SUFFIX+JAVA) || 
+				name.endsWith("_"+Properties.SCAFFOLDING_SUFFIX+CLASS);
+	}
+	
+	private static Class<?> loadClass(File file){
+		if (!file.isFile()) {
+			return null;
+		}
+
+		String packagePrefix = Properties.CLASS_PREFIX;
+		if (!packagePrefix.isEmpty() && !packagePrefix.endsWith(".")) {
+			packagePrefix += ".";
+		}
+
+
+		String name = file.getName();
+
+		if (!name.endsWith(JAVA) && !name.endsWith(CLASS)) {
+			/*
+			 * this could happen when we scan a folder for all src/compiled
+			 * files
+			 */
+			return null;
+		}
+
+		String fileName = file.getAbsolutePath();
+
+		if (name.endsWith(JAVA)) {
+			name = name.substring(0, name.length() - JAVA.length());
+			fileName = fileName.substring(0, fileName.length() - JAVA.length())
+			        + ".class";
+		} else {
+			assert name.endsWith(CLASS);
+			name = name.substring(0, name.length() - CLASS.length());
+		}
+
+		String className = packagePrefix + name;
+
+		Class<?> testClass = null;
+		try {
+			logger.info("Loading class " + className);
+			testClass = ((InstrumentingClassLoader) TestGenerationContext.getInstance().getClassLoaderForSUT()).loadClassFromFile(className,
+			                                                                                                                      fileName);
+		} catch (ClassNotFoundException e) {
+			logger.error("Failed to load test case " + className + " from file "
+			        + file.getAbsolutePath() + " , error " + e, e);
+			return null;
+		}
+		return testClass;
+	}
 }
