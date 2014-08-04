@@ -128,13 +128,28 @@ public class StorageManager {
 		return true;		
 	}
 
+	
+	/**
+	 * Delete all current tmp files 
+	 * 
+	 * @return
+	 */
+	public void deleteOldTmpFolders(){
+		File f = new File(getTmpFolderPath());
+		FileUtils.deleteQuietly(f);
+	}
+	
+	private String getTmpFolderPath(){
+		return rootFolderName+"/"+Properties.CTG_TMP_FOLDER;
+	}
+	
 	/**
 	 * Create a new tmp folder for this CTG session
 	 * 
 	 * @return
 	 */
 	public boolean createNewTmpFolders(){
-		String tmpPath = rootFolderName+"/"+Properties.CTG_TMP_FOLDER;
+		String tmpPath = getTmpFolderPath();
 
 		Date now = new Date();
 		String time = DateFormatUtils.format(

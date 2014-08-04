@@ -106,6 +106,7 @@ public class ContinuousTestGeneration {
     		if(!storageOK){
     			return "Failed to initialize local storage system";
     		}
+    		storage.deleteOldTmpFolders();
     		storageOK = storage.createNewTmpFolders();
 		if(!storageOK){
 			return "Failed to create tmp folders";
