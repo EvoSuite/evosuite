@@ -57,13 +57,38 @@ public class ProjectAnalyzer {
 	 */
 	private final String prefix;
 
-	private transient String[] cutsToAnalyze;
+	private transient Set<String> cutsToAnalyze;
+	
+	/**
+	 * When specifying a set of CUTs, still check if they do exist (eg scan folder to search for
+	 * them), instead of justing using them directly (and get errors later)
+	 * 
+	 */
+	private boolean validateCutsToAnalyze;
 
-	public ProjectAnalyzer(String target, String prefix) {
+	/**
+	 * Main constructor
+	 * 
+	 * @param target
+	 * @param prefix
+	 * @param cuts
+	 */
+	public ProjectAnalyzer(String target, String prefix, String[] cuts) {
 		super();
 		this.target = target;
 		this.prefix = prefix==null ? "" : prefix;
-		this.cutsToAnalyze = null;
+		this.validateCutsToAnalyze = true;
+
+		if(cuts == null){
+			this.cutsToAnalyze = null;			
+		} else {
+			this.cutsToAnalyze = new LinkedHashSet<>();
+			for(String s : cuts){
+				if(s!=null && !s.isEmpty()){
+					cutsToAnalyze.add(s.trim());
+				}
+			}
+		}
 	}
 
 	/**
@@ -81,13 +106,16 @@ public class ProjectAnalyzer {
 		}
 		this.target = null;
 		this.prefix = null;
-		this.cutsToAnalyze = cuts;
+		this.validateCutsToAnalyze = false;
+		this.cutsToAnalyze = new LinkedHashSet<>();		
+		cutsToAnalyze.addAll(Arrays.asList(cuts));
 	}
 
 	private Collection<String> getCutsToAnalyze(){
 
-		if(cutsToAnalyze!=null){
-			return Arrays.asList(cutsToAnalyze);
+		if(cutsToAnalyze!=null && !validateCutsToAnalyze){
+			// this is meanly in test cases
+			return cutsToAnalyze;
 		}
 
 		Set<String> suts = null;
@@ -111,6 +139,16 @@ public class ProjectAnalyzer {
 		List<String> cuts = new LinkedList<String>();
 
 		for (String className : suts) {
+			
+			if(cutsToAnalyze!=null && !cutsToAnalyze.contains(className)){
+				/*
+				 * Note: if this is happens, it is not necessarily an error.
+				 * For example, this will happen when CTG is run on a multi-module
+				 * maven project 
+				 */
+				continue;
+			}
+			
 			try {
 				Class<?> clazz = Class.forName(className);
 				if (!CoverageAnalysis.isTest(clazz)){

@@ -605,6 +605,9 @@ public class Properties {
     @Parameter(key = "ctg_history_file", group = "Continuous Test Generation", description = "File with the history of every class")
     public static String CTG_HISTORY_FILE = "";
 
+    @Parameter(key = "ctg_selected_cuts", group = "Continuous Test Generation", description = "Comma ',' separated list of CUTs to use in CTG. If none specified, then test all classes")
+    public static String CTG_SELECTED_CUTS = null;
+
     
 	/**
 	 * The types of CTG schedules that can be used

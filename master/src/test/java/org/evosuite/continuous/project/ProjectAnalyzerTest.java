@@ -21,7 +21,7 @@ public class ProjectAnalyzerTest {
         String target = "target/test-classes";
         String prefix = "com.examples";
 
-        ProjectAnalyzer pa = new ProjectAnalyzer(target,prefix);
+        ProjectAnalyzer pa = new ProjectAnalyzer(target,prefix,null);
 
         ProjectStaticData data = pa.analyze();
 
@@ -33,7 +33,7 @@ public class ProjectAnalyzerTest {
         String target = "target/test-classes";
         String prefix = null;
 
-        ProjectAnalyzer pa = new ProjectAnalyzer(target,prefix);
+        ProjectAnalyzer pa = new ProjectAnalyzer(target,prefix,null);
 
         ProjectStaticData data = pa.analyze();
 
