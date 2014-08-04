@@ -30,6 +30,7 @@ public class JUnitAnalyzerTest {
 	private static final boolean DEFAULT_VFS = Properties.VIRTUAL_FS; 
 	private static final boolean DEFAULT_SANDBOX = Properties.SANDBOX; 
 	private static final boolean DEFAULT_ASSERTS_FOR_EVO = Properties.ENABLE_ASSERTS_FOR_EVOSUITE;
+	private static final boolean DEFAULT_SCAFFOLDING = Properties.TEST_SCAFFOLDING;
 	
 	private File file = new File(OpenStream.FILE_NAME);
 
@@ -53,6 +54,7 @@ public class JUnitAnalyzerTest {
 		Properties.VIRTUAL_FS = DEFAULT_VFS;	
 		Properties.SANDBOX = DEFAULT_SANDBOX;
 		Properties.ENABLE_ASSERTS_FOR_EVOSUITE = DEFAULT_ASSERTS_FOR_EVO;
+		Properties.TEST_SCAFFOLDING = DEFAULT_SCAFFOLDING;
 	}
 	
 	@Test 
@@ -68,7 +70,7 @@ public class JUnitAnalyzerTest {
 		Properties.VIRTUAL_FS = false;		
 		Properties.SANDBOX = true;
 		Properties.ENABLE_ASSERTS_FOR_EVOSUITE = true; //needed for setLoggingForJUnit
-		
+		Properties.TEST_SCAFFOLDING = false;
 		
 		//FIXME
 		Sandbox.initializeSecurityManagerForSUT();
