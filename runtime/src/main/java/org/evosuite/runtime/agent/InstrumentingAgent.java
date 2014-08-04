@@ -26,6 +26,8 @@ public class  InstrumentingAgent {
 
 	private static volatile TransformerForTests transformer;
 
+	private static Instrumentation instrumentation;
+	
 	static{
 		try{
 			transformer = new TransformerForTests();
@@ -45,6 +47,7 @@ public class  InstrumentingAgent {
 		logger.info("Executing premain of JavaAgent");
 		checkTransformerState();
 		inst.addTransformer(transformer);
+		instrumentation = inst;
 	}
 
 	/**
@@ -57,6 +60,7 @@ public class  InstrumentingAgent {
 		logger.info("Executing agentmain of JavaAgent");
 		checkTransformerState();
 		inst.addTransformer(transformer);
+		instrumentation = inst;
 	}
 
 	private static void checkTransformerState() throws IllegalStateException{
@@ -79,6 +83,10 @@ public class  InstrumentingAgent {
 		return transformer;
 	}
 
+	public static Instrumentation getInstumentation(){
+		return instrumentation;
+	}
+	
 	/**
 	 * Once loaded, an agent will always read the byte[] 
 	 * of the loaded classes. Here we tell it if those byte[]
