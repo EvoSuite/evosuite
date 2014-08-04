@@ -250,7 +250,7 @@ public class JUnitAnalyzer {
 		
 		Set<Thread> privileged = null;
 		if(wasSandboxOn){
-			Sandbox.resetDefaultSecurityManager();
+			privileged = Sandbox.resetDefaultSecurityManager();
 		}
 		
 		TestGenerationContext.getInstance().goingToExecuteSUTCode();
@@ -262,6 +262,11 @@ public class JUnitAnalyzer {
 		if(wasSandboxOn){
 			//only activate Sandbox if it was already active before
 			Sandbox.initializeSecurityManagerForSUT(privileged);
+		} else {
+			if(Sandbox.isSecurityManagerInitialized()){
+				logger.warn("EvoSuite problem: tests set up a security manager, but they do not remove it after execution");
+				Sandbox.resetDefaultSecurityManager();
+			}
 		}
 		
 		JUnitResultBuilder builder = new JUnitResultBuilder();
