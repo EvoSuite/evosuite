@@ -246,14 +246,24 @@ public class JUnitAnalyzer {
 		 * to do that by their self. When they do it, the initialization 
 		 * will be after the agent is already loaded. 
 		 */
-		Set<Thread> privileged = Sandbox.resetDefaultSecurityManager();
+		boolean wasSandboxOn = Sandbox.isSecurityManagerInitialized();
+		
+		Set<Thread> privileged = null;
+		if(wasSandboxOn){
+			Sandbox.resetDefaultSecurityManager();
+		}
+		
 		TestGenerationContext.getInstance().goingToExecuteSUTCode();
 
 		Result result = runner.run(testClasses);
 
 		TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
-		Sandbox.initializeSecurityManagerForSUT(privileged);
-
+		
+		if(wasSandboxOn){
+			//only activate Sandbox if it was already active before
+			Sandbox.initializeSecurityManagerForSUT(privileged);
+		}
+		
 		JUnitResultBuilder builder = new JUnitResultBuilder();
 		JUnitResult junitResult = builder.build(result);
 		return junitResult;
