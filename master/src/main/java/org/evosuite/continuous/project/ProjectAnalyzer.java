@@ -139,7 +139,10 @@ public class ProjectAnalyzer {
 	public ProjectStaticData analyze(){		
 
 		ProjectStaticData data = new ProjectStaticData();
-
+		if(Properties.CTG_SCHEDULE.equals(AvailableSchedule.HISTORY)){
+			data.initializeLocalHistory();
+		}
+		
 		for (String className : getCutsToAnalyze()) {
 			Class<?> theClass = null; 
 			int numberOfBranches = -1;			

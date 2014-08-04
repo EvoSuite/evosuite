@@ -106,7 +106,10 @@ public class ContinuousTestGeneration {
     		if(!storageOK){
     			return "Failed to initialize local storage system";
     		}
-    		storage.deleteOldTmpFolders();
+    		
+    		//TODO: it seems like this cannot be done, as history depends on it
+    		//storage.deleteOldTmpFolders();
+    		
     		storageOK = storage.createNewTmpFolders();
 		if(!storageOK){
 			return "Failed to create tmp folders";
