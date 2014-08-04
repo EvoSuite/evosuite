@@ -40,6 +40,7 @@ public class CleanMojo extends AbstractMojo{
 		params.add("clean");
 		
 		EvoSuiteRunner runner = new EvoSuiteRunner(getLog(),artifacts,projectBuilder,repoSession);
+		runner.registerShutDownHook();
 		boolean ok = runner.runEvoSuite(project.getBasedir().toString(),params);
 		
 		if(!ok){
