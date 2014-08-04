@@ -1,5 +1,7 @@
 package org.evosuite.runtime.agent;
 
+import java.lang.instrument.Instrumentation;
+
 import org.junit.*;
 
 import org.evosuite.runtime.RuntimeSettings;
@@ -109,5 +111,24 @@ public class InstrumentingAgent_IT {
 		}
 	}
 
+	@Test
+	public void testInstrumetation() throws Exception{
+		try{
+			InstrumentingAgent.activate();
+			
+			Instrumentation inst = InstrumentingAgent.getInstumentation();
+			Assert.assertNotNull(inst);
+			ClassLoader loader = this.getClass().getClassLoader();
+			Assert.assertTrue(inst.isModifiableClass(loader.loadClass(TimeA.class.getName())));
+			Assert.assertTrue(inst.isModifiableClass(loader.loadClass(TimeB.class.getName())));
+			Assert.assertTrue(inst.isModifiableClass(loader.loadClass(TimeC.class.getName())));
+			Assert.assertTrue(inst.isModifiableClass(loader.loadClass(ExtendingTimeC.class.getName())));
+			Assert.assertTrue(inst.isModifiableClass(loader.loadClass(ConcreteTime.class.getName())));
+			Assert.assertTrue(inst.isModifiableClass(loader.loadClass(AbstractTime.class.getName())));
+			
+		} finally{
+			InstrumentingAgent.deactivate();
+		}
+	}
 }
 
