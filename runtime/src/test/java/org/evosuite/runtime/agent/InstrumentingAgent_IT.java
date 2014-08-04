@@ -5,6 +5,8 @@ import org.junit.*;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 
+import com.examples.with.different.packagename.agent.AbstractTime;
+import com.examples.with.different.packagename.agent.ConcreteTime;
 import com.examples.with.different.packagename.agent.TimeA;
 import com.examples.with.different.packagename.agent.TimeB;
 
@@ -48,6 +50,19 @@ public class InstrumentingAgent_IT {
 		try{
 			InstrumentingAgent.activate();
 			Assert.assertEquals(expected, TimeA.getTime());
+		} finally {
+			InstrumentingAgent.deactivate();
+		}
+	}
+	
+	@Test
+	public void testTransformationInAbstractClass(){
+		long expected = 42;
+		org.evosuite.runtime.System.setCurrentTimeMillis(expected);
+		try{
+			InstrumentingAgent.activate();
+			AbstractTime time = new ConcreteTime();
+			Assert.assertEquals(expected, time.getTime());
 		} finally {
 			InstrumentingAgent.deactivate();
 		}
