@@ -614,7 +614,7 @@ public class Scaffolding {
 
 		if (wasSecurityException) {
 			bd.append(METHOD_SPACE);
-			bd.append("private static ExecutorService " + EXECUTOR_SERVICE + "; \n");
+			bd.append("protected static ExecutorService " + EXECUTOR_SERVICE + "; \n");
 
 			bd.append("\n");
 		}
