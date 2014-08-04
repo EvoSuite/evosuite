@@ -57,7 +57,7 @@ public class EvoSuiteRunner {
 
 	private final RepositorySystemSession repoSession;
 
-
+	private Process process; 
 
 	public EvoSuiteRunner(Log logger, List<Artifact> artifacts,
 			ProjectBuilder projectBuilder, RepositorySystemSession repoSession) {
@@ -68,6 +68,17 @@ public class EvoSuiteRunner {
 		this.repoSession = repoSession;
 	}
 
+	public void registerShutDownHook(){
+		Runtime.getRuntime().addShutdownHook(new Thread(){
+			@Override
+			public void run() {
+				if(process != null){
+					process.destroy();
+				}
+			}
+		});
+	}
+	
 	/**
 	 * This is blocking
 	 * @param params
@@ -218,8 +229,6 @@ public class EvoSuiteRunner {
 
 	private boolean runProcess(String baseDir, List<String> cmd){
 
-		Process process = null;
-
 		try{
 			if(baseDir==null){
 				baseDir = System.getProperty("user.dir");
@@ -236,7 +245,7 @@ public class EvoSuiteRunner {
 
 			process = builder.start();
 			handleProcessOutput(process,logger);
-
+			
 			//output
 			int exitCode = process.waitFor(); 				
 
@@ -257,6 +266,8 @@ public class EvoSuiteRunner {
 			return false;
 		}
 
+		process = null;
+		
 		return true;
 	}
 

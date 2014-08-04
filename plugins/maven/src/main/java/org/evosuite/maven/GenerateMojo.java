@@ -122,6 +122,7 @@ public class GenerateMojo extends AbstractMojo{
 		params.add("-DCP="+cp);
 		
 		EvoSuiteRunner runner = new EvoSuiteRunner(getLog(),artifacts,projectBuilder,repoSession);
+		runner.registerShutDownHook();
 		boolean ok = runner.runEvoSuite(dir,params);
 		
 		if(!ok){
