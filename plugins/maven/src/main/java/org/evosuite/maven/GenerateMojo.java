@@ -98,7 +98,7 @@ public class GenerateMojo extends AbstractMojo{
 		File basedir = project.getBasedir();
 		
 		getLog().info("Target: "+target);
-		getLog().info("Classpath: "+cp);
+		getLog().debug("Classpath: "+cp);
 		getLog().info("Basedir: "+basedir.getAbsolutePath());
 		if(target==null || cp==null || basedir==null){
 			getLog().info("Nothing to test");

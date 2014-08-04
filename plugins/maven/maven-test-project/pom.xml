@@ -30,8 +30,9 @@
 			<groupId>org.evosuite</groupId>
 			<artifactId>evosuite-runtime</artifactId>
 			<version>${evosuiteVersion}</version>
-			<scope>system</scope>
+			<!--  <scope>system</scope>
             <systemPath>${basedir}/../../../../runtime/target/evosuite-runtime-${evosuiteVersion}.jar</systemPath>
+            -->
 		</dependency>
 	</dependencies>
 

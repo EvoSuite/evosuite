@@ -108,7 +108,7 @@ public class EvoSuiteRunner {
 			return null;
 		}
 
-		logger.info("EvoSuite located at: "+evosuite.getFile());
+		logger.debug("EvoSuite located at: "+evosuite.getFile());
 
 		/*
 		 * now, build a project descriptor for evosuite, which is needed to
@@ -225,8 +225,8 @@ public class EvoSuiteRunner {
 				baseDir = System.getProperty("user.dir");
 			}
 
-			logger.info("Workind directory: "+baseDir);
-			logger.info("Going to execute command: "+Arrays.toString(cmd.toArray()));
+			logger.debug("Workind directory: "+baseDir);
+			logger.debug("Going to execute command: "+Arrays.toString(cmd.toArray()));
 			
 			File dir = new File(baseDir);
 
@@ -244,7 +244,7 @@ public class EvoSuiteRunner {
 				logger.error("Error in EvoSuite");
 				return false;
 			} else {
-				logger.info("EvoSuite terminated");
+				logger.debug("EvoSuite terminated");
 			}
 
 		} catch (IOException e) {
