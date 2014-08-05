@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.runtime.ClassStateSupport;
 import org.evosuite.runtime.GuiSupport;
@@ -288,16 +289,28 @@ public class Scaffolding {
 			bd.append(");\n");
 		}
 
-		/*
-		 * TODO: need to pick up all SUT classes, not just the ones with static state.
-		 */
 		
+		bd.append("\n");
+
+		List<String> allInstrumentedClasses = TestGenerationContext.getInstance().getClassLoaderForSUT().getViewOfInstrumentedClasses();
+				
 		//this have to be done AFTER the classes have been loaded in a specific order
+		bd.append(BLOCK_SPACE);		
+		bd.append(ClassStateSupport.class.getName()+".retransformIfNeeded(");
+		bd.append(testClassName+ ".class.getClassLoader()");
+
+		for(int i=0; i<allInstrumentedClasses.size(); i++){
+			String s = allInstrumentedClasses.get(i);
+			bd.append(",\n");
+			bd.append(INNER_BLOCK_SPACE);
+			bd.append("\""+s+"\"");
+		}
+		bd.append("\n");
 		bd.append(BLOCK_SPACE);
-		bd.append(ClassStateSupport.class.getName()+".retransformIfNeeded(null);\n"); //TODO
+		bd.append(");\n"); 
 		
 		bd.append(METHOD_SPACE);
-		bd.append("}" + "\n");
+		bd.append("} \n");
 
 
 		/*

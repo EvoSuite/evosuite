@@ -49,6 +49,22 @@ public class ClassStateSupport {
 	/**
 	 * If any of the loaded class was not instrumented yet, then re-instrument them.
 	 * Note: re-instrumentation is more limited, as cannot change class signature
+	 */
+	public static void retransformIfNeeded(ClassLoader classLoader, String... classNames){
+		List<Class<?>> classes = new ArrayList<>();
+		for(String name : classNames){
+			try {
+				classes.add(classLoader.loadClass(name));
+			} catch (ClassNotFoundException e) {
+				java.lang.System.err.println("Could not load: "+name);
+			}
+		}
+		retransformIfNeeded(classes);
+	}
+	
+	/**
+	 * If any of the loaded class was not instrumented yet, then re-instrument them.
+	 * Note: re-instrumentation is more limited, as cannot change class signature
 	 * @param classes
 	 */
 	public static void retransformIfNeeded(List<Class<?>> classes) {
@@ -79,7 +95,9 @@ public class ClassStateSupport {
 
 		InstrumentingAgent.setRetransformingMode(true);
 		try {
-			InstrumentingAgent.getInstumentation().retransformClasses(classToReInstument.toArray(new Class<?>[0]));
+			if(!classToReInstument.isEmpty()){
+				InstrumentingAgent.getInstumentation().retransformClasses(classToReInstument.toArray(new Class<?>[0]));
+			}
 		} catch (UnmodifiableClassException e) {
 			//this shouldn't really happen, as already checked in previous loop
 			java.lang.System.err.println("Could not re-instrument classes");
