@@ -202,10 +202,32 @@ public class Scaffolding {
 	private void generateResetClasses(StringBuilder bd) {
 		List<String> classesToReset = ResetManager.getInstance().getClassResetOrder();
 
+		bd.append("\n");
 		bd.append(METHOD_SPACE);
 		bd.append("private static void resetClasses() {\n");
 
-		bd.append(BLOCK_SPACE);
+		if(classesToReset.size()!=0){			
+			bd.append(BLOCK_SPACE);
+			bd.append(ClassStateSupport.class.getName()+".resetClasses(");
+						
+			for (int i = 0; i < classesToReset.size(); i++) {
+				String className = classesToReset.get(i);						
+				bd.append("\n"+INNER_BLOCK_SPACE+"\""+className+"\"");
+				if(i<classesToReset.size()-1){
+					bd.append(",");
+				}
+			}
+			
+			bd.append("\n");
+			bd.append(BLOCK_SPACE);
+			bd.append(");\n");
+		}
+		
+		bd.append(METHOD_SPACE);
+		bd.append("}" + "\n");
+
+		/*
+		bd.append(BLOCK_SPACE);				
 		bd.append("String[] classNames = new String[" + classesToReset.size() + "];\n");
 
 		for (int i = 0; i < classesToReset.size(); i++) {
@@ -238,13 +260,14 @@ public class Scaffolding {
 
 		bd.append(METHOD_SPACE);
 		bd.append("}" + "\n");
-
+		*/
 	}
 
 	private void generateInitializeClasses(String testClassName, StringBuilder bd) {
 		
 		List<String> classesToBeReset = ResetManager.getInstance().getClassResetOrder(); 
 
+		bd.append("\n");
 		bd.append(METHOD_SPACE);
 		bd.append("private static void initializeClasses() {\n");
 
@@ -367,14 +390,14 @@ public class Scaffolding {
 			bd.append("DebugGraphics.setLogStream(logStream); \n");
 		}
 
-		if (wasSecurityException) {
-			bd.append(BLOCK_SPACE);
-			bd.append(Sandbox.class.getName()+".doneWithExecutingSUTCode(); \n");
-		}
-
 		if (Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("resetClasses(); \n");
+		}
+
+		if (wasSecurityException) {
+			bd.append(BLOCK_SPACE);
+			bd.append(Sandbox.class.getName()+".doneWithExecutingSUTCode(); \n");
 		}
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
