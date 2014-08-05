@@ -1,6 +1,7 @@
 package org.evosuite.runtime.agent;
 
 import java.lang.instrument.Instrumentation;
+import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Constructor;
 
 import org.junit.*;
@@ -47,14 +48,16 @@ public class InstrumentingAgent_IT {
 
 
 	@Test
-	public void testTransformationInClassExtendingAbstract(){
+	public void testTransformationInClassExtendingAbstract() throws Exception{
 		long expected = 42;
 		org.evosuite.runtime.System.setCurrentTimeMillis(expected);
 		try{
 			InstrumentingAgent.activate();
+			//even if re-instrument, they should be fine
+			InstrumentingAgent.getInstumentation().retransformClasses(AbstractTime.class,ConcreteTime.class);
 			ConcreteTime time = new ConcreteTime();
 			/*
-			 * Using abstract class here would fail, as it would be loaded 
+			 * Using abstract class here would fail without retransformClasses, as it would be loaded 
 			 * by JUnit before any method (static, BeforeClass) of this test
 			 * suite is executed, and so it would not get instrumented
 			 */
@@ -66,11 +69,33 @@ public class InstrumentingAgent_IT {
 	}
 
 	@Test
-	public void testFailingTransformation(){
+	public void checkRetransformIsSupported(){
+		Assert.assertTrue(InstrumentingAgent.getInstumentation().isRetransformClassesSupported());
+	}
+	
+	@Test
+	public void testFailingTransformation() throws UnmodifiableClassException{
 		long expected = 42;
 		org.evosuite.runtime.System.setCurrentTimeMillis(expected);
+
 		try{
-			InstrumentingAgent.activate();
+			InstrumentingAgent.activate();			
+			InstrumentingAgent.getInstumentation().retransformClasses(SecondAbstractTime.class,SecondConcreteTime.class);
+			Assert.fail(); 
+		} catch(UnsupportedOperationException e){ 
+			/*
+			 * this is expected, as default instrumentation adds methods (eg hashCode in this case), and
+			 * that is currently not permitted in Java.
+			 * 
+			 * Note: once we change instrumentation to do not add any method, or Java will support this kind
+			 * of re-transformation, then this check should be changed
+			 */
+		}finally {
+			InstrumentingAgent.deactivate();
+		} 
+		
+		try{
+			InstrumentingAgent.activate();			
 			SecondAbstractTime time = new SecondConcreteTime();
 			/*
 			 * Using abstract class here fails, as it would be loaded 
@@ -81,6 +106,20 @@ public class InstrumentingAgent_IT {
 		} finally {
 			InstrumentingAgent.deactivate();
 		}
+		
+		//to do re-instrumentation without adding new methods, we need to set it up with setRetransformingMode
+		try{
+			InstrumentingAgent.activate();
+			InstrumentingAgent.setRetransformingMode(true);
+			InstrumentingAgent.getInstumentation().retransformClasses(SecondAbstractTime.class,SecondConcreteTime.class);
+		} finally {
+			InstrumentingAgent.setRetransformingMode(false);
+			InstrumentingAgent.deactivate();
+		} 
+		
+		//finally it should work
+		SecondAbstractTime time = new SecondConcreteTime();
+		Assert.assertEquals(expected, time.getTime());
 	}
 
 

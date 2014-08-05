@@ -48,6 +48,8 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	private boolean isInterface = false;
 
 	private boolean definesUid = false;
+	
+	private boolean canAddMethods = true; 
 
 	/**
 	 * <p>Constructor for MethodCallReplacementClassAdapter.</p>
@@ -56,11 +58,17 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	 * @param className a {@link java.lang.String} object.
 	 */
 	public MethodCallReplacementClassAdapter(ClassVisitor cv, String className) {
+		this(cv,className,true);
+	}
+
+	public MethodCallReplacementClassAdapter(ClassVisitor cv, String className, boolean canAddMethods) {
 		super(Opcodes.ASM4, cv);
 		this.className = className;
 		this.superClassName = null;
+		this.canAddMethods = canAddMethods;
 	}
 
+	
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassVisitor#visitMethod(int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
 	 */
@@ -110,7 +118,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	
 	@Override
 	public void visitEnd() {
-		if(!definesHashCode && !isInterface && RuntimeSettings.mockJVMNonDeterminism) {
+		if(canAddMethods && !definesHashCode && !isInterface && RuntimeSettings.mockJVMNonDeterminism) {
 			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
 			if(superClassName.equals("java.lang.Object")) {
 				Method hashCodeMethod = Method.getMethod("int hashCode()");

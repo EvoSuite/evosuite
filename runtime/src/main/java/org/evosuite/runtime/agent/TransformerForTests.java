@@ -24,10 +24,16 @@ public class TransformerForTests implements ClassFileTransformer {
 
 	private volatile boolean active;
 	private RuntimeInstrumentation instrumenter;
+
+	
 	
 	public TransformerForTests(){
 		active = false;
 		instrumenter = new RuntimeInstrumentation();
+	}
+	
+	public void setRetransformingMode(boolean on){
+		instrumenter.setRetransformingMode(on);
 	}
 	
 	@Override
