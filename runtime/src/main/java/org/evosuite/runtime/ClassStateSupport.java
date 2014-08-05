@@ -86,9 +86,9 @@ public class ClassStateSupport {
 				 * and re-instrumentation do change the signature 
 				 */
 				classToReInstument.add(cl);
-			} catch(UnmodifiableClassException e){
+			} catch(Exception | Error e){
 				//this shouldn't really happen
-				java.lang.System.err.println("Could not instrument: "+cl.getName());
+				java.lang.System.err.println("Could not instrument "+cl.getName()+". Exception "+e.toString());
 			}
 
 		}

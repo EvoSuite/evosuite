@@ -170,9 +170,7 @@ public class ReadWriteSystemPropertiesTest extends SystemTest {
 
 			Assert.assertEquals(userDir, currentUserDir);
 			Assert.assertEquals(aProperty, currentAProperty);
-		} catch (Throwable ex) {
-			fail();
-		} finally {
+		}  finally {
 			Sandbox.resetDefaultSecurityManager();
 		}
 	}
