@@ -10,6 +10,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
+import org.evosuite.runtime.ClassStateSupport;
 import org.evosuite.runtime.GuiSupport;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
@@ -32,7 +33,7 @@ public class Scaffolding {
 
 	private static final String DEFAULT_PROPERTIES = "defaultProperties";
 
-	
+
 	/**
 	 * Return full JUnit code for scaffolding file for the give test 
 	 * 
@@ -40,9 +41,9 @@ public class Scaffolding {
 	 * @return
 	 */
 	public static String getScaffoldingFileContent(String testName, List<ExecutionResult> results, boolean wasSecurityException){
-		
+
 		String name = getFileName(testName);
-		
+
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getHeader(name, results, wasSecurityException));		
@@ -51,11 +52,11 @@ public class Scaffolding {
 
 		return builder.toString();
 	}
-	
+
 	protected static String getFooter() {
 		return "}\n";
 	}
-	
+
 	protected static String getHeader(String name, List<ExecutionResult> results, boolean wasSecurityException) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("/**\n");
@@ -70,27 +71,27 @@ public class Scaffolding {
 			builder.append(";\n");
 		}
 		builder.append("\n");
-		
+
 		for (String imp : getScaffoldingImports(wasSecurityException, results)) {
 			builder.append("import ");
 			builder.append(imp);
 			builder.append(";\n");
 		}
 		builder.append("\n");
-				
+
 		builder.append(TestSuiteWriterUtils.getAdapter().getClassDefinition(name));		
 		builder.append(" {\n");
-		
+
 		return builder.toString();
 	}
-	
+
 	public static String getFileName(String testName) throws IllegalArgumentException{
 		if(testName==null || testName.isEmpty()){
 			throw new IllegalArgumentException("Empty test name");
 		}
 		return testName + "_" + Properties.SCAFFOLDING_SUFFIX;
 	}
-	
+
 	/**
 	 * Return all classes for which we need an import statement
 	 * 
@@ -102,8 +103,8 @@ public class Scaffolding {
 		List<String> list = new ArrayList<String>();
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-		        || Properties.RESET_STATIC_FIELDS || wasSecurityException
-		        || SystemInUtil.getInstance().hasBeenUsed()) {
+				|| Properties.RESET_STATIC_FIELDS || wasSecurityException
+				|| SystemInUtil.getInstance().hasBeenUsed()) {
 			list.add(org.junit.BeforeClass.class.getCanonicalName());
 			list.add(org.junit.Before.class.getCanonicalName());
 			list.add(org.junit.After.class.getCanonicalName());
@@ -125,7 +126,7 @@ public class Scaffolding {
 
 		return list;
 	}
-	
+
 	/**
 	 * Get the code of methods for @BeforeClass, @Before, @AfterClass and
 	 * 
@@ -139,7 +140,7 @@ public class Scaffolding {
 	 * @return
 	 */
 	public String getBeforeAndAfterMethods(String name, boolean wasSecurityException,
-	        List<ExecutionResult> results) {
+			List<ExecutionResult> results) {
 
 		/*
 		 * Usually, we need support methods (ie @BeforeClass,@Before,@After and @AfterClass)
@@ -158,8 +159,9 @@ public class Scaffolding {
 		 * not much of the point to try to optimize it 
 		 */
 
-		generateTimeoutRule(bd);
-		
+		//TODO put it back once its side-effects on Sandbox are fixed
+		//generateTimeoutRule(bd);
+
 		generateFields(bd, wasSecurityException, results);
 
 		generateBeforeClass(bd, wasSecurityException);
@@ -174,7 +176,6 @@ public class Scaffolding {
 
 		if (Properties.RESET_STATIC_FIELDS) {
 			generateInitializeClasses(name, bd);
-
 			generateResetClasses(bd);
 		}
 
@@ -197,7 +198,7 @@ public class Scaffolding {
 		bd.append("public org.junit.rules.Timeout globalTimeout = new org.junit.rules.Timeout("+timeout+"); \n");
 		bd.append("\n");
 	}
-	
+
 	private void generateResetClasses(StringBuilder bd) {
 		List<String> classesToReset = ResetManager.getInstance().getClassResetOrder();
 
@@ -224,7 +225,7 @@ public class Scaffolding {
 
 		bd.append(INNER_INNER_BLOCK_SPACE);
 		bd.append(ClassResetter.class.getCanonicalName()
-		        + ".getInstance().reset(classNameToReset); \n");
+				+ ".getInstance().reset(classNameToReset); \n");
 
 		bd.append(INNER_BLOCK_SPACE);
 		bd.append("} catch (Throwable t) {" + "\n");
@@ -241,11 +242,42 @@ public class Scaffolding {
 	}
 
 	private void generateInitializeClasses(String testClassName, StringBuilder bd) {
+		
+		List<String> classesToBeReset = ResetManager.getInstance().getClassResetOrder(); 
 
-		List<String> classesToBeReset = ResetManager.getInstance().getClassResetOrder();
 		bd.append(METHOD_SPACE);
 		bd.append("private static void initializeClasses() {\n");
 
+		if(classesToBeReset.size()!=0){			
+			bd.append(BLOCK_SPACE);
+			bd.append(ClassStateSupport.class.getName()+".initializeClasses(");
+			bd.append(testClassName+ ".class.getClassLoader() ");
+
+			for (int i = 0; i < classesToBeReset.size(); i++) {
+				String className = classesToBeReset.get(i);
+				if (! BytecodeInstrumentation.checkIfCanInstrument(className)) {
+					continue;
+				}			
+				bd.append(",\n"+INNER_BLOCK_SPACE+"\""+className+"\"");
+			}
+			bd.append("\n");
+			bd.append(BLOCK_SPACE);
+			bd.append(");\n");
+		}
+
+		/*
+		 * TODO: need to pick up all SUT classes, not just the ones with static state.
+		 */
+		
+		//this have to be done AFTER the classes have been loaded in a specific order
+		bd.append(BLOCK_SPACE);
+		bd.append(ClassStateSupport.class.getName()+".retransformIfNeeded(null);\n"); //TODO
+		
+		bd.append(METHOD_SPACE);
+		bd.append("}" + "\n");
+
+
+		/*
 		bd.append(BLOCK_SPACE);
 		bd.append("String[] classNames = new String[" + classesToBeReset.size() + "];\n");
 
@@ -308,14 +340,14 @@ public class Scaffolding {
 
 		bd.append(METHOD_SPACE);
 		bd.append("}" + "\n");
-
+		 */
 	}
 
 	private void generateAfter(StringBuilder bd, boolean wasSecurityException) {
 
 		if (!Properties.RESET_STANDARD_STREAMS && !wasSecurityException
-		        && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS
-		        && !Properties.RESET_STATIC_FIELDS) {
+				&& !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS
+				&& !Properties.RESET_STATIC_FIELDS) {
 			return;
 		}
 
@@ -346,7 +378,7 @@ public class Scaffolding {
 		}
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-		        || Properties.RESET_STATIC_FIELDS) {
+				|| Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
 			bd.append(InstrumentingAgent.class.getName()+".deactivate(); \n");
 		}
@@ -355,7 +387,7 @@ public class Scaffolding {
 		bd.append(BLOCK_SPACE);
 		bd.append(org.evosuite.runtime.GuiSupport.class.getName()+".restoreHeadlessMode(); \n");
 
-		
+
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
@@ -363,12 +395,12 @@ public class Scaffolding {
 	}
 
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException,
-	        List<ExecutionResult> results) {
+			List<ExecutionResult> results) {
 
 		if (!Properties.RESET_STANDARD_STREAMS && !TestSuiteWriterUtils.shouldResetProperties(results)
-		        && !wasSecurityException && !Properties.REPLACE_CALLS
-		        && !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS
-		        && !SystemInUtil.getInstance().hasBeenUsed()) {
+				&& !wasSecurityException && !Properties.REPLACE_CALLS
+				&& !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS
+				&& !SystemInUtil.getInstance().hasBeenUsed()) {
 			return;
 		}
 
@@ -409,15 +441,15 @@ public class Scaffolding {
 		 */
 		bd.append(BLOCK_SPACE);
 		bd.append(org.evosuite.runtime.GuiSupport.class.getName()+".setHeadless(); \n");
-		
-		
+
+
 		if (wasSecurityException) {
 			bd.append(BLOCK_SPACE);
 			bd.append(Sandbox.class.getName()+".goingToExecuteSUTCode(); \n");
 		}
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-		        || Properties.RESET_STATIC_FIELDS) {
+				|| Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
 			bd.append(org.evosuite.runtime.Runtime.class.getName()+".getInstance().resetRuntime(); \n");
 			bd.append(BLOCK_SPACE);
@@ -435,15 +467,15 @@ public class Scaffolding {
 		bd.append("\n");
 	}
 
-	
+
 
 	private String getResetPropertiesCommand() {
 		return "java.lang.System.setProperties((java.util.Properties)" + " "
-		        + DEFAULT_PROPERTIES + ".clone());";
+				+ DEFAULT_PROPERTIES + ".clone());";
 	}
 
 	private void generateAfterClass(StringBuilder bd, boolean wasSecurityException,
-	        List<ExecutionResult> results) {
+			List<ExecutionResult> results) {
 
 		if (wasSecurityException || TestSuiteWriterUtils.shouldResetProperties(results)) {
 			bd.append(METHOD_SPACE);
@@ -473,7 +505,7 @@ public class Scaffolding {
 	}
 
 	private void generateSetSystemProperties(StringBuilder bd,
-	        List<ExecutionResult> results) {
+			List<ExecutionResult> results) {
 
 		if (!Properties.REPLACE_CALLS) {
 			return;
@@ -499,7 +531,7 @@ public class Scaffolding {
 				if (currentValue != null) {
 					String escaped_currentValue = StringEscapeUtils.escapeJava(currentValue);
 					bd.append("java.lang.System.setProperty(\"" + escaped_prop + "\", \""
-					        + escaped_currentValue + "\"); \n");
+							+ escaped_currentValue + "\"); \n");
 				} else {
 					/*
 					 * In theory, we do not need to clear properties, as that is done with the reset to default.
@@ -522,7 +554,7 @@ public class Scaffolding {
 	private void generateBeforeClass(StringBuilder bd, boolean wasSecurityException) {
 
 		if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS
-		        && !Properties.RESET_STATIC_FIELDS) {
+				&& !Properties.RESET_STATIC_FIELDS) {
 			return;
 		}
 
@@ -537,9 +569,9 @@ public class Scaffolding {
 
 		bd.append(BLOCK_SPACE);
 		bd.append(""+GuiSupport.class.getName()+".initialize(); \n");
-		
+
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-		        || Properties.RESET_STATIC_FIELDS) {
+				|| Properties.RESET_STATIC_FIELDS) {
 			//need to setup REPLACE_CALLS and instrumentator
 
 			if (Properties.REPLACE_CALLS) {
@@ -547,17 +579,17 @@ public class Scaffolding {
 				bd.append(RuntimeSettings.class.getName()+".mockJVMNonDeterminism = true; \n");
 			}
 
-            if (Properties.VIRTUAL_FS) {
-                bd.append(BLOCK_SPACE);
-                bd.append(RuntimeSettings.class.getName()+".useVFS = true; \n");
-            }
+			if (Properties.VIRTUAL_FS) {
+				bd.append(BLOCK_SPACE);
+				bd.append(RuntimeSettings.class.getName()+".useVFS = true; \n");
+			}
 
-            if (Properties.REPLACE_SYSTEM_IN) {
-                bd.append(BLOCK_SPACE);
-                bd.append(RuntimeSettings.class.getName()+".mockSystemIn = true; \n");
-            }
+			if (Properties.REPLACE_SYSTEM_IN) {
+				bd.append(BLOCK_SPACE);
+				bd.append(RuntimeSettings.class.getName()+".mockSystemIn = true; \n");
+			}
 
-            if (Properties.RESET_STATIC_FIELDS) {
+			if (Properties.RESET_STATIC_FIELDS) {
 				bd.append(BLOCK_SPACE);
 				bd.append(RuntimeSettings.class.getName()+".resetStaticState = true; \n");
 			}
@@ -571,7 +603,7 @@ public class Scaffolding {
 			//need to setup the Sandbox mode
 			bd.append(BLOCK_SPACE);
 			bd.append(RuntimeSettings.class.getName()+".sandboxMode = "+
-                    Sandbox.SandboxMode.class.getCanonicalName() + "." + Properties.SANDBOX_MODE + "; \n");
+					Sandbox.SandboxMode.class.getCanonicalName() + "." + Properties.SANDBOX_MODE + "; \n");
 
 			bd.append(BLOCK_SPACE);
 			bd.append(Sandbox.class.getName()+".initializeSecurityManagerForSUT(); \n");
@@ -586,12 +618,12 @@ public class Scaffolding {
 		}
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-		        || Properties.RESET_STATIC_FIELDS) {
+				|| Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
 			bd.append(org.evosuite.runtime.Runtime.class.getName()+".getInstance().resetRuntime(); \n");
 		}
 
-		
+
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
@@ -599,7 +631,7 @@ public class Scaffolding {
 	}
 
 	private void generateFields(StringBuilder bd, boolean wasSecurityException,
-	        List<ExecutionResult> results) {
+			List<ExecutionResult> results) {
 
 		if (Properties.RESET_STANDARD_STREAMS) {
 			bd.append(METHOD_SPACE);

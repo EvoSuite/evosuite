@@ -362,8 +362,8 @@ public class TestSuiteGenerator {
     		//List<TestCase> testCases = tests.getTests();
 		    List<TestCase> testCases = test.getTests();
 
-    		if (Properties.JUNIT_TESTS) {
-    			if (Properties.JUNIT_CHECK && JUnitAnalyzer.isJavaCompilerAvailable()) {
+    		if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
+    			if (JUnitAnalyzer.isJavaCompilerAvailable()) {
     				if(tests.size() > 1)
     					LoggingUtils.getEvoLogger().info("  - Compiling and checking test " + i);
 
