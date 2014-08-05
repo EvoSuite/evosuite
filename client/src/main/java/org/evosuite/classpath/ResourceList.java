@@ -74,6 +74,12 @@ public class ResourceList {
 		 */
 		public Map<String,Set<String>> mapPrefixToCPs = new LinkedHashMap<>();
 
+		/**
+		 * Keep track of the classes that should be on the classpath but they are not
+		 */
+		public Set<String> missingClasses = new LinkedHashSet<>();
+		
+		
 		public void addPrefix(String prefix, String cpEntry){
 			Set<String> classPathEntries = mapPrefixToCPs.get(prefix);
 			if(classPathEntries==null){
@@ -100,7 +106,7 @@ public class ResourceList {
 	// --------- public methods  ----------------- 
 	// -------------------------------------------
 
-	protected static void resetCache(){
+	public static void resetCache(){
 		cache = null;
 	}
 
@@ -139,7 +145,15 @@ public class ResourceList {
 
 		String cpEntry = getCache().mapClassToCP.get(name);
 		if(cpEntry==null){
-			logger.warn("The class "+name+" is not on the classapath");
+			if(!getCache().missingClasses.contains(name)){
+				getCache().missingClasses.add(name);
+				/*
+				 * Note: can't really have "warn" here, as the SUT can use the classloader,
+				 * and try to load garbage (eg random string generated as test data) that
+				 * would fill the logs 
+				 */
+				logger.debug("The class "+name+" is not on the classpath"); //only log once			
+			}
 			return null;
 		}
 
@@ -335,6 +349,7 @@ public class ResourceList {
 			ClassReader reader = new ClassReader(input);
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES);
+			@SuppressWarnings("unchecked")
 			List<MethodNode> l = cn.methods; 
 			for (MethodNode m : l) {
 				if ((m.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {

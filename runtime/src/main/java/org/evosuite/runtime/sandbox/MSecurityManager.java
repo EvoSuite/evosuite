@@ -54,7 +54,7 @@ import javax.xml.ws.WebServicePermission;
 
 
 import org.evosuite.runtime.RuntimeSettings;
-import org.evosuite.runtime.VirtualFileSystem;
+import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

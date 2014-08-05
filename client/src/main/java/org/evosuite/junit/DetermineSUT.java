@@ -6,7 +6,6 @@ package org.evosuite.junit;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.ClassReader;
@@ -39,8 +39,6 @@ public class DetermineSUT {
 	private final static Logger logger = LoggerFactory.getLogger(DetermineSUT.class);
 
 	private String targetName = "";
-
-	private String targetClassPath = "";
 
 	private Set<String> superClasses = new HashSet<String>();
 
@@ -68,7 +66,6 @@ public class DetermineSUT {
 	public String getSUTName(String fullyQualifiedTargetClass, String targetClassPath)
 	        throws NoJUnitClassException {
 		this.targetName = fullyQualifiedTargetClass;
-		this.targetClassPath = targetClassPath;
 		try {
 			ClassPathHacker.addFile(targetClassPath);
 		} catch (IOException e1) {
@@ -267,6 +264,7 @@ public class DetermineSUT {
 			System.err.println("Expected parameters: <TestCase> <Target Classpath>");
 			return;
 		}
+		Properties.getInstanceSilent();
 		DetermineSUT det = new DetermineSUT();
 		try {
 			System.out.println(det.getSUTName(args[0], args[1]));

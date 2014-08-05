@@ -42,7 +42,6 @@ import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
-import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,20 +68,21 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			throw new IllegalArgumentException("captured log must not be null");
 		if(logRecNo <= -1)
 			throw new IllegalArgumentException("log record number is invalid: " + logRecNo);
-		
+		if(isMaximumLengthReached())
+			return;
 		
 		// assumption: all necessary statements are created and there is one variable for each referenced object
 		final int oid = log.objectIds.get(logRecNo);
 		final Object[] methodArgs = log.params.get(logRecNo);
 		final String methodName = log.methodNames.get(logRecNo);
 
-		final Class<?>[] methodParamTypeClasses = getMethodParamTypeClasses(log, logRecNo);
-		final ArrayList<VariableReference> args = getArguments(methodArgs,
-		                                                       methodParamTypeClasses);
-
-		final String typeName = log.getTypeName(oid);
 		Class<?> type;
 		try {
+			final Class<?>[] methodParamTypeClasses = getMethodParamTypeClasses(log, logRecNo);
+			final ArrayList<VariableReference> args = getArguments(methodArgs,
+			                                                       methodParamTypeClasses);
+
+			final String typeName = log.getTypeName(oid);
 			type = getClassForName(typeName);
 
 			if (CaptureLog.OBSERVED_INIT.equals(methodName)) {
@@ -112,7 +112,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 					testCase.addStatement(m);
 				} else {
 					// final org.objectweb.asm.Type returnType = org.objectweb.asm.Type.getReturnType(methodDesc);
-
+					logger.debug("Callee: {} ({})", this.oidToVarRefMap.get(oid), this.oidToVarRefMap.keySet());
 					// Person var0 = var.getPerson();
 					final MethodStatement m = new MethodStatement(
 					        testCase,
@@ -120,16 +120,18 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 					                this.getDeclaredMethod(type, methodName,
 					                                       methodParamTypeClasses), type),
 					        
-					        this.oidToVarRefMap.get(oid), 
-					        
+					        this.oidToVarRefMap.get(oid), 					        
 					        args);
 					final Integer returnValueOID = (Integer) returnValue;
 					this.oidToVarRefMap.put(returnValueOID, testCase.addStatement(m));
 				}
 			}
 		} catch (final Exception e) {
+			logger.info("Error at log record number {}: {}", logRecNo, e.toString());
 			logger.info("Test case so far: "+testCase.toCode());
-			CodeGeneratorException.propagateError(e, "[logRecNo = %s] - an unexpected error occurred while creating method call stmt.\n%s", logRecNo, log);
+			logger.info(log.toString());
+
+			CodeGeneratorException.propagateError(e, "[logRecNo = %s] - an unexpected error occurred while creating method call stmt.", logRecNo);
 		}
 	}
 
@@ -159,7 +161,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				VariableReference ref = this.oidToVarRefMap.get(argOID);
 				if (ref == null) {
 					throw new RuntimeException("VariableReference is null for argOID "
-					        + argOID);
+					        + argOID+"; have oids: "+this.oidToVarRefMap.keySet());
 				} else {
 					args.add(ref);
 				}
@@ -300,7 +302,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				this.oidToVarRefMap.put(returnValueOID, varRef);
 
 			} catch (final Exception e) {
-				LoggingUtils.getEvoLogger().debug("Error while trying to get field "
+				logger.debug("Error while trying to get field "
 				                                          + fieldName + " of class "
 				                                          + getClassForName(typeName)+": "+e);
 				CodeGeneratorException.propagateError(e, "[logRecNo = %s] - an unexpected error occurred while creating field read access stmt. Log: %s", logRecNo, log);
@@ -362,25 +364,25 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 	private final Class<?> getClassForName(String type) {
 		try {
-			if (type.equals("boolean") || type.equals("Boolean")) {
+			if (type.equals("boolean") || type.equals("java.lang.Boolean")) {
 				return Boolean.TYPE;
-			} else if (type.equals("byte") || type.equals("Byte")) {
+			} else if (type.equals("byte") || type.equals("java.lang.Byte")) {
 				return Byte.TYPE;
-			} else if (type.equals("char") || type.equals("Character")) {
+			} else if (type.equals("char") || type.equals("java.lang.Character")) {
 				return Character.TYPE;
-			} else if (type.equals("double") || type.equals("Double")) {
+			} else if (type.equals("double") || type.equals("java.lang.Double")) {
 				return Double.TYPE;
-			} else if (type.equals("float") || type.equals("Float")) {
+			} else if (type.equals("float") || type.equals("java.lang.Float")) {
 				return Float.TYPE;
-			} else if (type.equals("int") || type.equals("Integer")) {
+			} else if (type.equals("int") || type.equals("java.lang.Integer")) {
 				return Integer.TYPE;
-			} else if (type.equals("long") || type.equals("Long")) {
+			} else if (type.equals("long") || type.equals("java.lang.Long")) {
 				return Long.TYPE;
-			} else if (type.equals("short") || type.equals("Short")) {
+			} else if (type.equals("short") || type.equals("java.lang.Short")) {
 				return Short.TYPE;
 			} else if (type.equals("String")) {
 				return Class.forName("java.lang." + type, true,
-				                     TestGenerationContext.getClassLoader());
+				                     TestGenerationContext.getInstance().getClassLoaderForSUT());
 			}
 
 			if (type.endsWith("[]")) {
@@ -404,10 +406,10 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				arrayTypeNameBuilder.append(';'); // finalize object array name
 				
 				return Class.forName(arrayTypeNameBuilder.toString(), true,
-				                     TestGenerationContext.getClassLoader());
+				                     TestGenerationContext.getInstance().getClassLoaderForSUT());
 			} else {
 				return Class.forName(ResourceList.getClassNameFromResourcePath(type), true,
-				                     TestGenerationContext.getClassLoader());
+				                     TestGenerationContext.getInstance().getClassLoaderForSUT());
 			}
 		} catch (final ClassNotFoundException e) {
 			throw new RuntimeException(e);
@@ -431,7 +433,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 	private Method getDeclaredMethod(final Class<?> clazz, final String methodName,
 	        Class<?>[] paramTypes) throws NoSuchMethodException {
-		logger.info("Trying to get method "+methodName +" from class "+clazz+" with parameters "+Arrays.asList(paramTypes));
+		// logger.info("Trying to get method "+methodName +" from class "+clazz+" with parameters "+Arrays.asList(paramTypes));
 		if (clazz == null || Object.class.equals(clazz)) {
 			throw new NoSuchMethodException(methodName + "(" + Arrays.toString(paramTypes)
 			        + ")");
@@ -442,7 +444,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			m.setAccessible(true);
 			return m;
 		} catch (final NoSuchMethodException e) {			
-			logger.info("Available methods: "+Arrays.asList(clazz.getDeclaredMethods()));
+			//logger.info("Not found {}, available methods: {}", methodName, Arrays.asList(clazz.getDeclaredMethods()));
 			return getDeclaredMethod(clazz.getSuperclass(), methodName, paramTypes);
 		}
 	}

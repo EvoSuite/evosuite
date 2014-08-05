@@ -63,7 +63,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	public MutationTestFitness(Mutation mutation) {
 		this.mutation = mutation;
 		controlDependencies.addAll(mutation.getControlDependencies());
-		ActualControlFlowGraph cfg = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getActualCFG(mutation.getClassName(),
+		ActualControlFlowGraph cfg = GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getActualCFG(mutation.getClassName(),
 		                                                                                                        mutation.getMethodName());
 		diameter = cfg.getDiameter();
 	}

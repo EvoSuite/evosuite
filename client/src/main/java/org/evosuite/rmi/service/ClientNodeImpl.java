@@ -19,7 +19,6 @@ import org.evosuite.TimeController;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.ClassStatisticsPrinter;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.result.TestGenerationResult;
@@ -124,7 +123,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 					// Starting a new search
 					TestSuiteGenerator generator = new TestSuiteGenerator();
 					results = generator.generateTestSuite();
-					GeneticAlgorithm<?> ga = generator.getEmployedGeneticAlgorithm();
+					// TODO: Why?
+					// GeneticAlgorithm<?> ga = generator.getEmployedGeneticAlgorithm();
 
 					masterNode.evosuite_collectTestGenerationResult(clientRmiIdentifier, results);
 				} catch (Throwable t) {

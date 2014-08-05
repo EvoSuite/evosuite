@@ -57,7 +57,7 @@ public class EvoSuiteRunner {
 
 	private final RepositorySystemSession repoSession;
 
-
+	private Process process; 
 
 	public EvoSuiteRunner(Log logger, List<Artifact> artifacts,
 			ProjectBuilder projectBuilder, RepositorySystemSession repoSession) {
@@ -68,6 +68,17 @@ public class EvoSuiteRunner {
 		this.repoSession = repoSession;
 	}
 
+	public void registerShutDownHook(){
+		Runtime.getRuntime().addShutdownHook(new Thread(){
+			@Override
+			public void run() {
+				if(process != null){
+					process.destroy();
+				}
+			}
+		});
+	}
+	
 	/**
 	 * This is blocking
 	 * @param params
@@ -108,7 +119,7 @@ public class EvoSuiteRunner {
 			return null;
 		}
 
-		logger.info("EvoSuite located at: "+evosuite.getFile());
+		logger.debug("EvoSuite located at: "+evosuite.getFile());
 
 		/*
 		 * now, build a project descriptor for evosuite, which is needed to
@@ -137,7 +148,7 @@ public class EvoSuiteRunner {
 		for(Artifact dep  : res.getProject().getArtifacts()){
 			cp += File.pathSeparator+dep.getFile().getAbsolutePath();
 		}
-		logger.info("EvoSuite classpath: "+cp);
+		logger.debug("EvoSuite classpath: "+cp);
 		
 		String entryPoint = EvoSuite.class.getName();
 		
@@ -218,15 +229,13 @@ public class EvoSuiteRunner {
 
 	private boolean runProcess(String baseDir, List<String> cmd){
 
-		Process process = null;
-
 		try{
 			if(baseDir==null){
 				baseDir = System.getProperty("user.dir");
 			}
 
-			logger.info("Workind directory: "+baseDir);
-			logger.info("Going to execute command: "+Arrays.toString(cmd.toArray()));
+			logger.debug("Workind directory: "+baseDir);
+			logger.debug("Going to execute command: "+Arrays.toString(cmd.toArray()));
 			
 			File dir = new File(baseDir);
 
@@ -236,7 +245,7 @@ public class EvoSuiteRunner {
 
 			process = builder.start();
 			handleProcessOutput(process,logger);
-
+			
 			//output
 			int exitCode = process.waitFor(); 				
 
@@ -244,7 +253,7 @@ public class EvoSuiteRunner {
 				logger.error("Error in EvoSuite");
 				return false;
 			} else {
-				logger.info("EvoSuite terminated");
+				logger.debug("EvoSuite terminated");
 			}
 
 		} catch (IOException e) {
@@ -257,6 +266,8 @@ public class EvoSuiteRunner {
 			return false;
 		}
 
+		process = null;
+		
 		return true;
 	}
 

@@ -8,8 +8,8 @@ import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.runtime.LeakingResource;
-import org.evosuite.runtime.VirtualFileSystem;
 import org.evosuite.runtime.vfs.VFile;
+import org.evosuite.runtime.vfs.VirtualFileSystem;
 
 public class MockRandomAccessFile extends RandomAccessFile implements LeakingResource{
 

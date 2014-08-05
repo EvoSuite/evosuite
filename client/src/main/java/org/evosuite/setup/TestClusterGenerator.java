@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -814,6 +815,24 @@ public class TestClusterGenerator {
 	private static final Pattern ANONYMOUS_MATCHER1 = Pattern.compile(".*\\$\\d+.*$");
 	private static final Pattern ANONYMOUS_MATCHER2 = Pattern.compile(".*\\.\\d+.*$");
 
+	public static boolean canUse(java.lang.reflect.Type t) {
+		if(t instanceof Class<?>) {
+			return canUse((Class<?>) t);
+		}
+		else if(t instanceof ParameterizedType) {
+			ParameterizedType pt = (ParameterizedType)t;
+			for(java.lang.reflect.Type parameterType : pt.getActualTypeArguments()) {
+				if(!canUse(parameterType))
+					return false;
+			}
+			if(!canUse(pt.getOwnerType())) {
+				return false;
+			}
+		}
+		// If it's not declared, let's assume it's ok
+		return true;
+	}
+	
 	public static boolean canUse(Class<?> c) {
 		//if (Throwable.class.isAssignableFrom(c))
 		//	return false;
@@ -973,8 +992,8 @@ public class TestClusterGenerator {
 		if (m.getDeclaringClass().equals(java.lang.Object.class)) {
 			return false;
 		}
-
-		if (!m.getReturnType().equals(String.class) && !canUse(m.getReturnType())) {
+		
+		if (!m.getReturnType().equals(String.class) && !canUse(m.getGenericReturnType())) {
 			return false;
 		}
 
@@ -1697,14 +1716,14 @@ public class TestClusterGenerator {
 		return comparableClasses;
 	}
 
-	private Set<Class<?>> getConcreteClassesEnum() {
-		Set<Class<?>> enumClasses = new LinkedHashSet<Class<?>>();
-		for (String className : inheritanceTree.getSubclasses("java.lang.Enum")) {
-			logger.warn("Enum candidate: " + className);
-		}
-
-		return enumClasses;
-	}
+	// private Set<Class<?>> getConcreteClassesEnum() {
+	//	Set<Class<?>> enumClasses = new LinkedHashSet<Class<?>>();
+	//	for (String className : inheritanceTree.getSubclasses("java.lang.Enum")) {
+	//		logger.warn("Enum candidate: " + className);
+	//	}
+    //
+	//	return enumClasses;
+	//}
 
 	/**
 	 * Calculate package distance between two classnames

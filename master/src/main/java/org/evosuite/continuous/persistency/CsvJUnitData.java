@@ -41,7 +41,7 @@ public class CsvJUnitData {
 	}
 
 	/**
-	 * Open an extract all data from the give csv file.
+	 * Open and extract all data from the given csv file.
 	 * 
 	 * @param file the csv file, having 1 line of header, and 1 line of data
 	 * @return <code>null</code> in case of any problem in reading the file

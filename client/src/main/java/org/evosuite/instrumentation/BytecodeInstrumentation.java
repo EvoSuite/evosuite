@@ -35,7 +35,6 @@ import org.evosuite.seeding.PrimitiveClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcarver.instrument.Instrumenter;
-import org.evosuite.runtime.instrumentation.JSRInlinerClassVisitor;
 import org.evosuite.testcarver.instrument.TransformerUtil;
 import org.evosuite.runtime.util.ComputeClassWriter;
 import org.objectweb.asm.ClassReader;

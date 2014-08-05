@@ -193,7 +193,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 
 				for(TestChromosome test : suite.getTestChromosomes()) {
 					DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
-					dtest.changeClassLoader(TestGenerationContext.getClassLoader());
+					dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
 					test.setChanged(true);
 					test.clearCachedMutationResults();
 					test.clearCachedResults();

@@ -85,12 +85,18 @@ public class ContinuousTestGeneration {
 	
     private CtgConfiguration configuration;
     
-    public ContinuousTestGeneration(String target, String projectClassPath, String prefix, CtgConfiguration conf) {
+    /**
+     * Specify which CUT to use. If {@code null} then use everything in target/prefix
+     */
+    private String[] cuts; 
+    
+    public ContinuousTestGeneration(String target, String projectClassPath, String prefix, CtgConfiguration conf, String[] cuts) {
 		super();		
 		this.target = target;
 		this.prefix = prefix;
 		this.projectClassPath = projectClassPath;
 		this.configuration = conf;
+		this.cuts = cuts;
 	}
 	
     /**
@@ -106,13 +112,17 @@ public class ContinuousTestGeneration {
     		if(!storageOK){
     			return "Failed to initialize local storage system";
     		}
+    		
+    		//TODO: it seems like this cannot be done, as history depends on it
+    		//storage.deleteOldTmpFolders();
+    		
     		storageOK = storage.createNewTmpFolders();
 		if(!storageOK){
 			return "Failed to create tmp folders";
 		}  
 			
     		//check project
-    		ProjectAnalyzer analyzer = new ProjectAnalyzer(target,prefix);
+    		ProjectAnalyzer analyzer = new ProjectAnalyzer(target,prefix,cuts);
     		ProjectStaticData data = analyzer.analyze();
     		
     		if(data.getTotalNumberOfTestableCUTs() == 0){

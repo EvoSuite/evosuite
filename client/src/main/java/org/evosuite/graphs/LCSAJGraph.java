@@ -51,7 +51,7 @@ public class LCSAJGraph {
 	 *            a boolean.
 	 */
 	public LCSAJGraph(LCSAJ lcsaj, boolean fitnessGraph) {
-		graph = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getRawCFG(lcsaj.getClassName(),
+		graph = GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getRawCFG(lcsaj.getClassName(),
 		                                                                                lcsaj.getMethodName());
 		this.lcsaj = lcsaj;
 		this.fitnessGraph = fitnessGraph;

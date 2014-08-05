@@ -395,7 +395,7 @@ public class InheritanceTreeGenerator {
 				logger.info("Skipping anonymous class");
 				continue;
 			}
-			InputStream stream = TestGenerationContext.getClassLoader().getResourceAsStream(name);
+			InputStream stream = TestGenerationContext.getInstance().getClassLoaderForSUT().getResourceAsStream(name);
 			analyzeClassStream(inheritanceTree, stream, true);
 		}
 

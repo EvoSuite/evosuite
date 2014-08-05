@@ -3,6 +3,8 @@ package org.evosuite.utils;
 import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
+//import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -614,6 +616,10 @@ public class TestGenericClass {
 
 		TypeVariable<?> var = new TypeVariable() {
 
+			//public AnnotatedType[] getAnnotatedBounds() {
+			//	return null;
+			//}
+			
 			@Override
 			public Type[] getBounds() {
 				return new Type[] { iterableIntegerClass.getType() };
@@ -636,6 +642,22 @@ public class TestGenericClass {
 			@Override
 			public String toString() {
 				return "Dummy Variable";
+			}
+
+			public <T extends Annotation> T getAnnotation(
+					Class<T> annotationClass) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			public Annotation[] getAnnotations() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			public Annotation[] getDeclaredAnnotations() {
+				// TODO Auto-generated method stub
+				return null;
 			}
 
 		};

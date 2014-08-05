@@ -115,7 +115,7 @@ import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.LCSAJGraph;
 import org.evosuite.junit.JUnitAnalyzer;
-import org.evosuite.junit.TestSuiteWriter;
+import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
@@ -155,7 +155,6 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.UncompilableCodeException;
 import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.FixedSizeTestSuiteChromosomeFactory;
 import org.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective;
 import org.evosuite.testsuite.MinimizeExceptionsSecondaryObjective;
@@ -221,6 +220,7 @@ public class TestSuiteGenerator {
 
 		ClientServices.getInstance().getClientNode().changeState(ClientState.INITIALIZATION);
 
+		TestCaseExecutor.initExecutor();
 		Sandbox.goingToExecuteSUTCode();
         TestGenerationContext.getInstance().goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
@@ -229,7 +229,6 @@ public class TestSuiteGenerator {
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
 			                           Arrays.asList(cp.split(File.pathSeparator)));
 			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
-			ObjectPoolManager.getInstance();
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 			                                          + (e.getMessage() != null ? e.getMessage()
@@ -242,8 +241,10 @@ public class TestSuiteGenerator {
 			Sandbox.doneWithExecutingSUTCode();
             TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 		}
+		
+		// TODO: Do parts of this need to be wrapped into sandbox statements?
+		ObjectPoolManager.getInstance();
 
-		TestCaseExecutor.initExecutor();
 
 		LoggingUtils.getEvoLogger().info("* Generating tests for class "
 		                                         + Properties.TARGET_CLASS);
@@ -363,7 +364,8 @@ public class TestSuiteGenerator {
 
     		if (Properties.JUNIT_TESTS) {
     			if (Properties.JUNIT_CHECK && JUnitAnalyzer.isJavaCompilerAvailable()) {
-    			    LoggingUtils.getEvoLogger().info("  - Compiling and checking test " + i);
+    				if(tests.size() > 1)
+    					LoggingUtils.getEvoLogger().info("  - Compiling and checking test " + i);
 
     				JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
 
@@ -453,8 +455,13 @@ public class TestSuiteGenerator {
 	 */
 	public static List<TestGenerationResult> writeJUnitTestsAndCreateResult(List<TestSuiteChromosome> tests) {
 	    List<TestGenerationResult> results = new ArrayList<TestGenerationResult>();
-	    for (int i = 0; i < tests.size(); i++)
-	        results.add(writeJUnitTestsAndCreateResult(tests.get(i).getTests(), Properties.JUNIT_SUFFIX + "_" + i));
+	    if(tests.size() > 1) {
+	    	for (int i = 0; i < tests.size(); i++)
+	    		results.add(writeJUnitTestsAndCreateResult(tests.get(i).getTests(), "_"+i+"_" + Properties.JUNIT_SUFFIX  ));
+	    } else {
+		    if (tests.size() == 1 && tests.get(0).getTests().size() > 0)
+		    	results.add(writeJUnitTestsAndCreateResult(tests.get(0).getTests(), Properties.JUNIT_SUFFIX  ));
+	    }
 	    return results;
 	}
 
@@ -632,12 +639,18 @@ public class TestSuiteGenerator {
 
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactory();
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-        LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
-        for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-            goals.addAll(goalFactory.getCoverageGoals());
-            LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
-                    + " " + goalFactory.getCoverageGoals().size());
-        }
+		if(goalFactories.size() == 1) {
+			TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
+			LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
+			goals.addAll(factory.getCoverageGoals());
+		} else {
+			LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
+			for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+				goals.addAll(goalFactory.getCoverageGoals());
+				LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
+						+ " " + goalFactory.getCoverageGoals().size());
+			}
+		}
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
 		                                                                 goals.size());
 
@@ -655,6 +668,7 @@ public class TestSuiteGenerator {
 				return bestSuites;
 			}
 		} else {
+			bestSuites.add(new TestSuiteChromosome());
 			//statistics.searchStarted(ga);
 			//statistics.searchFinished(ga);
 			zero_fitness.setFinished();
@@ -667,13 +681,17 @@ public class TestSuiteGenerator {
 		// Newline after progress bar
 		if (Properties.SHOW_PROGRESS)
 			LoggingUtils.getEvoLogger().info("");
+		String text = " statements, best individual has fitness: ";
+		if(bestSuites.size() > 1) {
+			text = " statements, best individuals have fitness: ";			
+		}
 		LoggingUtils.getEvoLogger().info("* Search finished after "
 		                                         + (end_time - start_time)
 		                                         + "s and "
 		                                         + ga.getAge()
 		                                         + " generations, "
 		                                         + MaxStatementsStoppingCondition.getNumExecutedStatements()
-		                                         + " statements, best individual(s) has(have) fitness: "
+		                                         + text
 		                                         + ga.toString());
 
 		// TODO also consider time for test carving in end_time?
@@ -730,13 +748,14 @@ public class TestSuiteGenerator {
 
 		if (Properties.MINIMIZE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
-			LoggingUtils.getEvoLogger().info("* Minimizing test suite(s)");
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
 			if (Properties.CRITERION.length == 1) {
+				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 			    minimizer.minimize(bestSuites.get(0), true);
 			}
 			else {
+				LoggingUtils.getEvoLogger().info("* Minimizing test suites");
 			    for (TestSuiteChromosome best : bestSuites)
 			        minimizer.minimize(best, false);
 			}

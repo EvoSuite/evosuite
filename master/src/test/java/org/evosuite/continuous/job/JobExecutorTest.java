@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.junit.Assert;
 
+import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.Properties.AvailableSchedule;
@@ -34,6 +35,8 @@ public class JobExecutorTest {
 	@Test(timeout = 90000)
 	public void testActualExecutionOfSchedule(){
 
+		Properties.TEST_SCAFFOLDING = true;
+		
 		boolean storageOK = storage.openForWriting();
 		Assert.assertTrue(storageOK);
 		storageOK = storage.createNewTmpFolders();
@@ -67,7 +70,7 @@ public class JobExecutorTest {
 		exe.waitForJobs();
 
 		data = storage.gatherGeneratedTestsOnDisk();
-		Assert.assertEquals(2, data.size());		
+		Assert.assertEquals(4, data.size());	 // this depends on Properties.TEST_SCAFFOLDING	
 
 		storage.clean();
 	}

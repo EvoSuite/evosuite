@@ -176,6 +176,9 @@ public class Properties {
 	@Parameter(key = "object_pools", group = "Test Creation", description = "List of object pools")
 	public static String OBJECT_POOLS = "";
 
+	@Parameter(key = "carve_object_pool", group = "Test Creation", description = "Carve junit tests for pool")
+	public static boolean CARVE_OBJECT_POOL = false;
+
 	@Parameter(key = "seed_types", group = "Test Creation", description = "Use type information gathered from casts to instantiate generics")
 	public static boolean SEED_TYPES = true;
 
@@ -602,6 +605,9 @@ public class Properties {
     @Parameter(key = "ctg_history_file", group = "Continuous Test Generation", description = "File with the history of every class")
     public static String CTG_HISTORY_FILE = "";
 
+    @Parameter(key = "ctg_selected_cuts", group = "Continuous Test Generation", description = "Comma ',' separated list of CUTs to use in CTG. If none specified, then test all classes")
+    public static String CTG_SELECTED_CUTS = null;
+
     
 	/**
 	 * The types of CTG schedules that can be used
@@ -651,6 +657,9 @@ public class Properties {
 	@Parameter(key = "test_comments", group = "Output", description = "Include a header with coverage information for each test")
 	public static boolean TEST_COMMENTS = true;
 
+	@Parameter(key = "test_scaffolding", group = "Output", description = "Generate all the scaffolding needed to run EvoSuite JUnit tests in a separate file")
+	public static boolean TEST_SCAFFOLDING = true;  
+
 	/** Constant <code>PRINT_TO_SYSTEM=false</code> */
 	@Parameter(key = "print_to_system", group = "Output", description = "Allow test output on console")
 	public static boolean PRINT_TO_SYSTEM = false;
@@ -679,6 +688,9 @@ public class Properties {
 
 	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
 	public static String JUNIT_SUFFIX = "EvoSuiteTest";
+
+	@Parameter(key = "scaffolding_suffix", group = "Output", description = "Suffix used to specify scaffolding files")
+	public static String SCAFFOLDING_SUFFIX = "scaffolding";
 
 	@Parameter(key = "tools_jar_location", group = "Output", description = "Location of where to locate tools.jar")
 	public static String TOOLS_JAR_LOCATION = null;
@@ -713,6 +725,15 @@ public class Properties {
 	@Parameter(key = "minimize", group = "Output", description = "Minimize test suite after generation")
 	public static boolean MINIMIZE = true;
 
+	/** Constant <code>MINIMIZE=true</code> */
+	@Parameter(key = "minimize_second_pass", group = "Output", description = "Minimize test suite after generation")
+	public static boolean MINIMIZE_SECOND_PASS = true;
+
+	/** Constant <code>MINIMIZE=true</code> */
+	@Parameter(key = "minimize_skip_coincidental", group = "Output", description = "Minimize test suite after generation")
+	public static boolean MINIMIZE_SKIP_COINCIDENTAL = true;
+
+	
 	/** Constant <code>COVERAGE=true</code> */
 	@Parameter(key = "coverage", group = "Output", description = "Minimize test suite after generation")
 	public static boolean COVERAGE = true;

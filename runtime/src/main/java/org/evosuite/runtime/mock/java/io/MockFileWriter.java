@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-import org.evosuite.runtime.VirtualFileSystem;
+import org.evosuite.runtime.vfs.VirtualFileSystem;
 
 public class MockFileWriter extends FileWriter{
 

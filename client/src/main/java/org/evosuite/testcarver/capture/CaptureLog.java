@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +53,7 @@ public final class CaptureLog implements Cloneable {
 	public static final Object RETURN_TYPE_VOID = CaptureLog.class.getName()
 	        + ".RETURN_VOID";
 
-	private static final Set<String> NOT_OBSERVED_INIT_METHODS = Collections.synchronizedSet(new HashSet<String>());
+	private static final Set<String> NOT_OBSERVED_INIT_METHODS = Collections.synchronizedSet(new LinkedHashSet<String>());
 	static {
 		NOT_OBSERVED_INIT_METHODS.add(NOT_OBSERVED_INIT);
 		NOT_OBSERVED_INIT_METHODS.add(COLLECTION_INIT);
@@ -128,7 +128,7 @@ public final class CaptureLog implements Cloneable {
 		this.returnValues = new ArrayList<Object>();
 		this.descList = new ArrayList<String>();
 
-		this.oidRecMapping = new HashMap<Integer, Integer>();
+		this.oidRecMapping = new LinkedHashMap<Integer, Integer>();
 		this.oidInitRecNo = new ArrayList<Integer>();
 		this.oidClassNames = new ArrayList<String>();
 		this.oids = new ArrayList<Integer>();
@@ -137,7 +137,7 @@ public final class CaptureLog implements Cloneable {
 
 		this.isStaticCallList = new ArrayList<Boolean>();
 
-		this.oidNamesOfAccessedFields = new HashMap<Integer, String>();
+		this.oidNamesOfAccessedFields = new LinkedHashMap<Integer, String>();
 
 		this.xstream = new XStream();
 	}
@@ -179,6 +179,10 @@ public final class CaptureLog implements Cloneable {
 			        + " is invalid as there are " + oids.size() + " OIDs");
 		}
 		return oids.get(recordIndex);
+	}
+	
+	public List<String> getObservedClasses() {
+		return oidClassNames;
 	}
 
 	public int getRecordIndexOfWhereObjectWasInitializedFirst(int oid)
@@ -268,6 +272,7 @@ public final class CaptureLog implements Cloneable {
 		this.oids.clear();
 		this.oidFirstInits.clear();
 		this.oidDependencies.clear();
+		this.isStaticCallList.clear();
 
 		this.oidNamesOfAccessedFields.clear();
 	}
@@ -308,10 +313,16 @@ public final class CaptureLog implements Cloneable {
 		if (receiver instanceof Class) //this can only happen, if there is a static method call 
 		{
 			final Class<?> c = (Class<?>) receiver;
-			this.oidClassNames.add(c.getName());//.replaceFirst("\\$\\d+$", ""));
+			this.oidClassNames.add(c.getName().replace("org.evosuite.testcarver.wrapper.", ""));
+			//.replaceFirst("\\$\\d+$", ""));
+			
 		} else if (this.isPlain(receiver)) {
 			// we don't need fully qualified name for plain types
-			this.oidClassNames.add(receiver.getClass().getSimpleName());//.replaceFirst("\\$\\d+$", ""));
+
+			// TODO: I don't understand why we would want to shorten the name if it's a primitive.
+			//       It makes it more difficult later to identify the classes contained in the log.
+			this.oidClassNames.add(receiver.getClass().getName());//.replaceFirst("\\$\\d+$", ""));
+		//	this.oidClassNames.add(receiver.getClass().getSimpleName());//.replaceFirst("\\$\\d+$", ""));
 		} else if (isProxy(receiver) || isAnonymous(receiver)) {
 			// TODO what if there is more than one interface?
 			final Class<?> c = receiver.getClass();
@@ -323,7 +334,8 @@ public final class CaptureLog implements Cloneable {
 				this.oidClassNames.add(interfaces[0].getName());
 			}
 		} else {
-			this.oidClassNames.add(receiver.getClass().getName());//.replaceFirst("\\$\\d+$", ""));
+			String name = receiver.getClass().getName().replace("org.evosuite.testcarver.wrapper.", "");
+			this.oidClassNames.add(name);//.replaceFirst("\\$\\d+$", ""));
 		}
 	}
 
@@ -840,7 +852,7 @@ public final class CaptureLog implements Cloneable {
 
 		builder.append('\n').append('\n');
 
-		builder.append("META INF:\n").append("-------------------------------------------------------------------").append('\n').append("OID").append(delimiter).append("INIT RECNO").append(delimiter).append("OID CLASS").append(delimiter).append("ACCESSED FIELDS").append(delimiter).append("FIRST INIT").append(delimiter).append("DEPENCENCY").append('\n').append("-------------------------------------------------------------------").append('\n');
+		builder.append("META INF:\n").append("-------------------------------------------------------------------").append('\n').append("OID").append(delimiter).append("INIT RECNO").append(delimiter).append("OID CLASS").append(delimiter).append("ACCESSED FIELDS").append(delimiter).append("FIRST INIT").append(delimiter).append("DEPENDENCY").append('\n').append("-------------------------------------------------------------------").append('\n');
 
 		final int numMetaInfRecords = this.oids.size();
 		for (int i = 0; i < numMetaInfRecords; i++) {

@@ -523,10 +523,10 @@ public final class HeapVM extends AbstractVM {
 			return;
 
 		// create array class
-
-		Class<? >componentType = classLoader.getClassForName(componentTypeName.replace("/", "."));
+		Type componentType = Type.getType(componentTypeName.replace("/", "."));
+		Class<? >componentClass = classLoader.getClassForType(componentType);
 		int[] lenghts = new int[] { 0 };
-		Class<?> array_class = Array.newInstance(componentType, lenghts)
+		Class<?> array_class = Array.newInstance(componentClass, lenghts)
 				.getClass();
 
 		Type arrayType = Type.getType(array_class);

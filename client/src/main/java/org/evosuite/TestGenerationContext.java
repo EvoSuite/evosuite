@@ -22,6 +22,7 @@ import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.testcarver.extraction.CarvingManager;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
@@ -139,6 +140,7 @@ public class TestGenerationContext {
 		// Constant pool
 		ConstantPoolManager.getInstance().reset();
 		ObjectPoolManager.getInstance().reset();
+		CarvingManager.getInstance().clear();
 
 		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)) {
 			try {

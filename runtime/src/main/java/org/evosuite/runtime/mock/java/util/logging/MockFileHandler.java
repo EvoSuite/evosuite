@@ -9,8 +9,8 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-import org.evosuite.runtime.VirtualFileSystem;
 import org.evosuite.runtime.sandbox.MSecurityManager;
+import org.evosuite.runtime.vfs.VirtualFileSystem;
 
 /**
  * Mock class for FileHandler.

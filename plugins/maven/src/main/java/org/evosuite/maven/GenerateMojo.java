@@ -28,6 +28,9 @@ public class GenerateMojo extends AbstractMojo{
 	@Parameter( property = "cores", defaultValue = "1" )
 	private int numberOfCores;
 
+	@Parameter( property = "cuts" )
+	private String cuts;
+
 	@Parameter( property = "timeInMinutesPerClass", defaultValue = "2" )
 	private int timeInMinutesPerClass;
 
@@ -50,6 +53,10 @@ public class GenerateMojo extends AbstractMojo{
 		getLog().info("Total memory: "+memoryInMB+"mb");
 		getLog().info("Time per class: "+timeInMinutesPerClass+" minutes");
 		getLog().info("Number of used cores: "+numberOfCores);
+		
+		if(cuts!=null){
+			getLog().info("Specified classes under test: "+cuts);
+		}
 		
 		String target = null;
 		String cp = null;
@@ -98,7 +105,7 @@ public class GenerateMojo extends AbstractMojo{
 		File basedir = project.getBasedir();
 		
 		getLog().info("Target: "+target);
-		getLog().info("Classpath: "+cp);
+		getLog().debug("Classpath: "+cp);
 		getLog().info("Basedir: "+basedir.getAbsolutePath());
 		if(target==null || cp==null || basedir==null){
 			getLog().info("Nothing to test");
@@ -119,9 +126,13 @@ public class GenerateMojo extends AbstractMojo{
 		params.add("-Dctg_memory="+memoryInMB);
 		params.add("-Dctg_cores="+numberOfCores);
 		params.add("-Dctg_time_per_class="+timeInMinutesPerClass);
+		if(cuts!=null){
+			params.add("-Dctg_selected_cuts="+cuts);
+		}
 		params.add("-DCP="+cp);
 		
 		EvoSuiteRunner runner = new EvoSuiteRunner(getLog(),artifacts,projectBuilder,repoSession);
+		runner.registerShutDownHook();
 		boolean ok = runner.runEvoSuite(dir,params);
 		
 		if(!ok){
