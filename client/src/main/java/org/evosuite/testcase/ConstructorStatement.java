@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
@@ -196,10 +197,6 @@ public class ConstructorStatement extends AbstractStatement {
 					java.lang.reflect.Type[] parameterTypes = constructor.getParameterTypes();
 					for (int i = 0; i < parameters.size(); i++) {
 						VariableReference parameterVar = parameters.get(i);
-						if (!parameterVar.isAssignableTo(parameterTypes[i])) {
-							throw new CodeUnderTestException(
-							        new UncompilableCodeException());
-						}
 						try {
 							inputs[i] = parameterVar.getObject(scope);
 						} catch (CodeUnderTestException e) {
@@ -212,6 +209,13 @@ public class ConstructorStatement extends AbstractStatement {
 							        + ". Error encountered: " + e);
 							assert (false);
 							throw new EvosuiteError(e);
+						}
+						if (inputs[i] != null && !TypeUtils.isAssignable(inputs[i].getClass(), parameterTypes[i])) {
+							// TODO: This used to be a check of the declared type, but the problem is that
+							//       Generic types are not updated during execution, so this may fail:
+							//!parameterVar.isAssignableTo(parameterTypes[i])) {
+							throw new CodeUnderTestException(
+							        new UncompilableCodeException("Cannot assign "+parameterVar.getVariableClass().getName() +" to "+parameterTypes[i]));
 						}
 						if(inputs[i] == null && constructor.getConstructor().getParameterTypes()[i].isPrimitive()) {
 							throw new CodeUnderTestException(new NullPointerException());

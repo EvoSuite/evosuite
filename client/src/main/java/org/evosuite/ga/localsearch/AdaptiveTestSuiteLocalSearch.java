@@ -112,14 +112,16 @@ public class AdaptiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		} else {
 			// Determine tests that were changed
 			List<TestChromosome> candidates = getCandidateTests(individual);
-			boolean result = false;
-			
+			double fitnessBefore = individual.getFitness();
+
 			// Apply local search on individual tests
 			for(TestChromosome clone : candidates) {
-				if(applyLocalSearchToTest(clone, individual, objective))
-					result = true;
+				applyLocalSearchToTest(clone, individual, objective);
 			}
-			return result;
+			
+			// Return true if fitness has improved
+			return objective.getFitnessFunction().isMaximizationFunction() ? fitnessBefore < individual.getFitness()
+			        : fitnessBefore > individual.getFitness();
 		}
 	}
 

@@ -1,9 +1,11 @@
 package org.evosuite.seeding;
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.testcarver.extraction.CarvingManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.LoggingUtils;
@@ -57,10 +59,23 @@ public class ObjectPoolManager extends ObjectPool {
 				}
 			}
 		}
+		if(Properties.CARVE_OBJECT_POOL) {
+			CarvingManager manager = CarvingManager.getInstance();
+			for(Class<?> targetClass : manager.getClassesWithTests()) {
+				List<TestCase> tests = manager.getTestsForClass(targetClass);
+				logger.info("Carved tests for {}: {}", targetClass.getName(), tests.size());
+				GenericClass cut = new GenericClass(targetClass);
+				for(TestCase test : tests) {
+					this.addSequence(cut, test);
+				}
+			}
+			logger.info("Pool after carving: "+this.getNumberOfClasses()+"/"+this.getNumberOfSequences());
+		}
 	}
-	
+		
 	public void reset() {
 		pool.clear();
+		ObjectPoolManager.instance = null;
 	}
 
 }

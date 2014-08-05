@@ -5,40 +5,41 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class FieldRegistry {
-	private static final HashMap<String, ReferenceQueue<?>> classRefQueueMapping = new HashMap<String, ReferenceQueue<?>>();
-	private static final HashMap<String, List<MyWeakRef<?>>> classInstanceMapping = new HashMap<String, List<MyWeakRef<?>>>();
+	private static final Map<String, ReferenceQueue<?>> classRefQueueMapping = new LinkedHashMap<String, ReferenceQueue<?>>();
+	private static final Map<String, List<MyWeakRef<?>>> classInstanceMapping = new LinkedHashMap<String, List<MyWeakRef<?>>>();
 
-	private static final HashMap<Integer, Map<String, WeakReference<?>>> instanceRecentFieldValuesMapping = new HashMap<Integer, Map<String, WeakReference<?>>>();
+	private static final Map<Integer, Map<String, WeakReference<?>>> instanceRecentFieldValuesMapping = new LinkedHashMap<Integer, Map<String, WeakReference<?>>>();
 
-	private static final HashMap<String, Map<String, Field>> classFieldsMapping = new HashMap<String, Map<String, Field>>();
+	private static final Map<String, Map<String, Field>> classFieldsMapping = new LinkedHashMap<String, Map<String, Field>>();
 
-	private static final HashSet<Class<?>> CLASSES = new HashSet<Class<?>>();
+	private static final Set<Class<?>> CLASSES = new LinkedHashSet<Class<?>>();
 
+	private static final Set<Integer> registeredObjects = new LinkedHashSet<Integer>();
+	
 	private static final Logger logger = LoggerFactory.getLogger(FieldRegistry.class);
 
 	private static int captureId = Integer.MAX_VALUE;
 
+	public static ClassLoader carvingClassLoader = null;
+	
 	private FieldRegistry() {
 	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	
 	synchronized public static void register(final Object instance) {
 		if (!Capturer.isCapturing()) {
 			return;
 		}
-
+		try {
 		final Class<?> clazz;
 
 		if (instance instanceof Class) {
@@ -48,103 +49,110 @@ public final class FieldRegistry {
 		}
 
 		final String internalClassName = clazz.getName().replace('.', '/');
-
+		registeredObjects.add(System.identityHashCode(instance));
 		cleanUpReferences(internalClassName);
 
 		Map<String, Field> observedFields = classFieldsMapping.get(internalClassName);
 		if (observedFields == null) {
 			// determine observable fields
 
-			observedFields = new HashMap<String, Field>();
+			observedFields = new LinkedHashMap<String, Field>();
 
 			collectAccessibleFields(observedFields, clazz, null);
 
-			if (observedFields.isEmpty()) {
-				logger.debug("Class {} has no observable fields", clazz);
-				classFieldsMapping.put(internalClassName, Collections.EMPTY_MAP);
-			} else {
-				classFieldsMapping.put(internalClassName, observedFields);
-			}
+			//if (observedFields.isEmpty()) {
+			//	logger.debug("Class {} has no observable fields", clazz);
+			//	classFieldsMapping.put(internalClassName, Collections.EMPTY_MAP);
+			//} else {
+			//	classFieldsMapping.put(internalClassName, observedFields);
+			//}
+		}
+		} catch(Throwable t) {
+			logger.debug("ARgh");
 		}
 
-		if (!observedFields.isEmpty()) {
-			List<MyWeakRef<?>> instances = classInstanceMapping.get(internalClassName);
-			ReferenceQueue<?> refQueue = classRefQueueMapping.get(internalClassName);
-			if (instances == null) {
-				instances = new ArrayList<MyWeakRef<?>>();
-				refQueue = new ReferenceQueue();
-				classInstanceMapping.put(internalClassName, instances);
-				classRefQueueMapping.put(internalClassName, refQueue);
-			}
-			instances.add(new MyWeakRef(instance, refQueue));
+//		if (!observedFields.isEmpty()) {
+//			List<MyWeakRef<?>> instances = classInstanceMapping.get(internalClassName);
+//			ReferenceQueue<?> refQueue = classRefQueueMapping.get(internalClassName);
+//			if (instances == null) {
+//				instances = new ArrayList<MyWeakRef<?>>();
+//				refQueue = new ReferenceQueue();
+//				classInstanceMapping.put(internalClassName, instances);
+//				classRefQueueMapping.put(internalClassName, refQueue);
+//			}
+//			instances.add(new MyWeakRef(instance, refQueue));
 
 			// determine current field values
 
-			final HashMap<String, WeakReference<?>> fieldValues = new HashMap<String, WeakReference<?>>();
-
-			Field f;
-			Object v;
-			for (Map.Entry<String, Field> entry : observedFields.entrySet()) {
-				try {
-					f = entry.getValue();
-					if (Modifier.isStatic(f.getModifiers())) {
-						v = f.get(null);
-						fieldValues.put(entry.getKey(), new WeakReference(v));
-
-						// TODO remove final fields from map of observed fields
-						if (v != null) {
-							// as PUTFIELD only access public (and protected) fields we can also add a corresponding GETFIELD entry to the log
-							// to know the instances stored in the static fields
-
-							final Object receiver = instance instanceof Class ? instance
-							        : instance.getClass();
-
-							Capturer.capture(captureId, receiver, CaptureLog.GETSTATIC,
-							                 Type.getDescriptor(f.getType()),
-							                 new Object[] { f.getName() });
-							Capturer.enable(captureId, receiver, v);
-
-							CLASSES.add((Class<?>) receiver);
-
-							// TODO proper capture id handling
-							captureId--;
-						}
-					} else {
-						// we can't collect instance field values from the class itself
-						if (!(instance instanceof Class)) {
-							fieldValues.put(entry.getKey(),
-							                new WeakReference(f.get(instance)));
-						}
-					}
-				} catch (final Exception e) {
-					logger.error("class={} field={} fieldOwner={} instance={}",
-					             new Object[] { internalClassName, entry.getKey(),
-					                     entry.getValue().getDeclaringClass().getName(),
-					                     instance });
-
-					logger.error("an error occurred while determining current field values",
-					             e);
-					throw new RuntimeException(e); // TODO better exception type
-				}
-			}
-
-			instanceRecentFieldValuesMapping.put(System.identityHashCode(instance),
-			                                     fieldValues);
-		}
+//			final Map<String, WeakReference<?>> fieldValues = new LinkedHashMap<String, WeakReference<?>>();
+//
+//			Field f;
+//			Object v;
+//			for (Map.Entry<String, Field> entry : observedFields.entrySet()) {
+//				try {
+//					f = entry.getValue();
+//					if (Modifier.isStatic(f.getModifiers())) {
+//						v = f.get(null);
+//						fieldValues.put(entry.getKey(), new WeakReference(v));
+//
+//						// TODO remove final fields from map of observed fields
+//						if (v != null) {
+//							// as PUTFIELD only access public (and protected) fields we can also add a corresponding GETFIELD entry to the log
+//							// to know the instances stored in the static fields
+//
+//							final Object receiver = instance instanceof Class ? instance
+//							        : instance.getClass();
+//
+//							Capturer.capture(captureId, receiver, CaptureLog.GETSTATIC,
+//							                 Type.getDescriptor(f.getType()),
+//							                 new Object[] { f.getName() });
+//							Capturer.enable(captureId, receiver, v);
+//
+//							CLASSES.add((Class<?>) receiver);
+//
+//							// TODO proper capture id handling
+//							captureId--;
+//						}
+//					} else {
+//						// we can't collect instance field values from the class itself
+//						if (!(instance instanceof Class)) {
+//							fieldValues.put(entry.getKey(),
+//							                new WeakReference(f.get(instance)));
+//						}
+//					}
+//				} catch (final Exception e) {
+//					logger.error("class={} field={} fieldOwner={} instance={}",
+//					             new Object[] { internalClassName, entry.getKey(),
+//					                     entry.getValue().getDeclaringClass().getName(),
+//					                     instance });
+//
+//					logger.error("an error occurred while determining current field values",
+//					             e);
+//					throw new RuntimeException(e); // TODO better exception type
+//				}
+//			}
+//
+//			instanceRecentFieldValuesMapping.put(System.identityHashCode(instance),
+//			                                     fieldValues);
+//		}
 	}
 
-	private static void collectAccessibleFields(Map<String, Field> accessibleFields,
+	private static Map<String, Field> collectAccessibleFields(Map<String, Field> accessibleFields,
 	        final Class<?> clazz, final Package childPackage) {
 		if (clazz == null || Object.class.equals(clazz)) {
-			return;
+			logger.debug("Trying to get fields for null class");
+			return new LinkedHashMap<String, Field>();
 		}
+		logger.debug("Getting fields for {} "+clazz);
 
+		Map<String, Field> currentAccessibleFields = new LinkedHashMap<String, Field>();
+		try {
 		final Field[] fields = clazz.getDeclaredFields();
 
 		int modifier;
-
 		Field f;
 		for (int i = 0; i < fields.length; i++) {
+			try {
 			f = fields[i];
 
 			modifier = f.getModifiers();
@@ -152,18 +160,28 @@ public final class FieldRegistry {
 			if (Modifier.isPublic(modifier)
 			        || (Modifier.isProtected(modifier) && (childPackage == null || childPackage.equals(clazz.getPackage())))) {
 				f.setAccessible(true);
-				accessibleFields.put(f.getName(), f);
+				currentAccessibleFields.put(f.getName(), f);
 			}
-
+			} catch(Throwable t) {
+				logger.debug("AHA " + t.toString());
+			}
 			//			if(! Modifier.isPrivate(modifier) )
 			//			{
 			//			    f.setAccessible(true);
 			//				accessibleFields.put(f.getName(), f);
 			//			}
 		}
+		} catch(Throwable t) {
+			logger.debug("Arglquargl " + t.toString());
+		}
 
-		collectAccessibleFields(accessibleFields, clazz.getSuperclass(),
+		logger.debug("Looking at fields of superclass "+clazz.getSuperclass());
+		Map<String, Field> superFieldMap = collectAccessibleFields(accessibleFields, clazz.getSuperclass(),
 		                        clazz.getPackage());
+		currentAccessibleFields.putAll(superFieldMap);
+		classFieldsMapping.put(clazz.getName().replace('.', '/'), currentAccessibleFields);
+		logger.debug("Storing fields for {} to {}", clazz.getName().replace('.', '/'), currentAccessibleFields);
+		return currentAccessibleFields;
 	}
 
 	private static void cleanUpReferences(final String internalClassName) {
@@ -177,7 +195,7 @@ public final class FieldRegistry {
 			while ((ref = refQueue.poll()) != null) {
 				instances.remove(ref);
 
-				instanceRecentFieldValuesMapping.remove(((MyWeakRef) ref).oid);
+				instanceRecentFieldValuesMapping.remove(((MyWeakRef<?>) ref).oid);
 			}
 
 			if (instances.isEmpty()) {
@@ -188,225 +206,257 @@ public final class FieldRegistry {
 		}
 	}
 
-	synchronized public static void notifyModification(final int captureId,
+	synchronized public static void notifyModification(Object receiver, final int captureId, 
 	        final String internalClassName, final String fieldName, final String desc) {
 		cleanUpReferences(internalClassName);
 
 		if (!Capturer.isCapturing()) {
 			return;
 		}
-
-		if (classInstanceMapping.containsKey(internalClassName)) {
+		Map<String, Field> observedFields = classFieldsMapping.get(internalClassName);
+		if (observedFields == null) {
+			// determine observable fields
+			populateFieldMap(internalClassName, fieldName);
+		}
+		try {
 			final Map<String, Field> fields = classFieldsMapping.get(internalClassName);
 			if (fields == null) {
 				logger.error("Fields map for class {} should not be null",
-				             internalClassName);
+						internalClassName);
 				throw new IllegalStateException("Fields map for class "
-				        + internalClassName + " should not be null");
+						+ internalClassName + " should not be null");
 			}
 
-			if (!fields.isEmpty()) {
-				final Field targetField = fields.get(fieldName);
-				if (targetField == null) {
-					// happens if field is private
-					logger.debug("Could not find field {} for class {}", fieldName,
-					             internalClassName);
+			if (fields.isEmpty()) {
+				logger.debug(classFieldsMapping.toString());
+				logger.debug("Done modify - no fields");
+				return;
+			}
+			final Field targetField = fields.get(fieldName);
+			
+			
+			if (targetField == null) {
+				// happens if field is private
+				logger.debug("Could not find field {} for class {}", fieldName,
+						internalClassName);
+			} else {
+				final Object currentValue;
+				if (Modifier.isStatic(targetField.getModifiers())) {
+					currentValue = targetField.get(null);
 				} else {
-					List<MyWeakRef<?>> instances = classInstanceMapping.get(internalClassName);
-					if (instances == null) {
-						logger.error("List of instances for class {} should not be null",
-						             internalClassName);
+					// we can't get instance field values from the class itself
+					if (receiver instanceof Class) {
 						return;
-						//						throw new IllegalStateException("List of instances for class " + internalClassName + " should not be null");
+					}
+					if(!registeredObjects.contains(System.identityHashCode(receiver))) {
+						return;
 					}
 
-					Object instance;
-					Map<String, WeakReference<?>> recentFieldValues;
-					for (WeakReference<?> r : instances) {
-						instance = r.get();
-						if (instance == null) {
-							logger.debug("notify: garbagge collected?");
-							continue;
-						}
-
-						recentFieldValues = instanceRecentFieldValuesMapping.get(System.identityHashCode(instance));
-
-						if (recentFieldValues == null) {
-							logger.error("map of recent field values (instance={} class={}) should not be null",
-							             instance, internalClassName);
-							throw new IllegalStateException(
-							        "map of recent field values (instance=" + instance
-							                + " class=" + internalClassName
-							                + ") should not be null");
-						} else {
-							try {
-								final Object currentValue;
-								if (Modifier.isStatic(targetField.getModifiers())) {
-									currentValue = targetField.get(null);
-								} else {
-									// we can't get instance field values from the class itself
-									if (instance instanceof Class) {
-										continue;
-									}
-
-									currentValue = targetField.get(instance);
-								}
-
-								if (instance instanceof Class) {
-									// TODO error?
-									final WeakReference<?> recentRef = recentFieldValues.get(fieldName);
-									final Object recentValue = recentRef.get();
-
-									if ((recentValue != currentValue)
-									        || (recentValue != null && !recentValue.equals(currentValue))) {
-										Capturer.capture(captureId, instance,
-										                 CaptureLog.PUTSTATIC, desc,
-										                 new Object[] { fieldName,
-										                         currentValue });
-										Capturer.enable(captureId, instance,
-										                CaptureLog.RETURN_TYPE_VOID);
-
-										// as PUTFIELD only access public fields we can also add a corresponding GETFIELD entry to the log
-										Capturer.capture(captureId + 1, instance,
-										                 CaptureLog.GETSTATIC, desc,
-										                 new Object[] { fieldName });
-										Capturer.enable(captureId + 1, instance,
-										                currentValue);
-
-										break; // there can only be on field access at a time
-									}
-								} else {
-									final WeakReference<?> recentRef = recentFieldValues.get(fieldName);
-									final Object recentValue = recentRef.get();
-
-									if (recentValue != currentValue) //|| (recentValue != null && ! recentValue.equals(currentValue)))
-									{
-										Capturer.capture(captureId, instance,
-										                 CaptureLog.PUTFIELD, desc,
-										                 new Object[] { fieldName,
-										                         currentValue });
-										Capturer.enable(captureId, instance,
-										                CaptureLog.RETURN_TYPE_VOID);
-
-										// as PUTFIELD only access public fields we can also add a corresponding GETFIELD entry to the log
-										Capturer.capture(captureId + 1, instance,
-										                 CaptureLog.GETFIELD, desc,
-										                 new Object[] { fieldName });
-										Capturer.enable(captureId + 1, instance,
-										                currentValue);
-
-										break; // there can only be on field access at a time
-									}
-								}
-
-							} catch (final Exception e) {
-								logger.error("an error occurred while comparing field values for class {}",
-								             internalClassName, e);
-								throw new RuntimeException(e); // TODO better exception type
-							}
-
-						}
-					}
+					currentValue = targetField.get(receiver);
 				}
+				logger.debug("Notify modification of field "+fieldName+" on class "+internalClassName);
+				if(Modifier.isStatic(targetField.getModifiers())) {
+					Capturer.capture(captureId, receiver,
+			                 CaptureLog.PUTSTATIC, desc,
+			                 new Object[] { fieldName,
+			                         currentValue });
+					Capturer.enable(captureId, receiver,
+			                CaptureLog.RETURN_TYPE_VOID);
+
+				} else {
+					Capturer.capture(captureId, receiver,
+			                 CaptureLog.PUTFIELD, desc,
+			                 new Object[] { fieldName,
+			                         currentValue });
+					Capturer.enable(captureId, receiver,
+			                CaptureLog.RETURN_TYPE_VOID);
+
+				}
+//				
+//								if (instance instanceof Class) {
+//									// TODO error?
+//									final WeakReference<?> recentRef = recentFieldValues.get(fieldName);
+//									final Object recentValue = recentRef.get();
+//
+//									if ((recentValue != currentValue)
+//									        || (recentValue != null && !recentValue.equals(currentValue))) {
+//										Capturer.capture(captureId, instance,
+//										                 CaptureLog.PUTSTATIC, desc,
+//										                 new Object[] { fieldName,
+//										                         currentValue });
+//										Capturer.enable(captureId, instance,
+//										                CaptureLog.RETURN_TYPE_VOID);
+//
+//										// as PUTFIELD only access public fields we can also add a corresponding GETFIELD entry to the log
+//										Capturer.capture(captureId + 1, instance,
+//										                 CaptureLog.GETSTATIC, desc,
+//										                 new Object[] { fieldName });
+//										Capturer.enable(captureId + 1, instance,
+//										                currentValue);
+//
+//										break; // there can only be on field access at a time
+//									}
+//								} else {
+//									final WeakReference<?> recentRef = recentFieldValues.get(fieldName);
+//									final Object recentValue = recentRef.get();
+//
+//									if (recentValue != currentValue) //|| (recentValue != null && ! recentValue.equals(currentValue)))
+//									{
+//										Capturer.capture(captureId, instance,
+//										                 CaptureLog.PUTFIELD, desc,
+//										                 new Object[] { fieldName,
+//										                         currentValue });
+//										Capturer.enable(captureId, instance,
+//										                CaptureLog.RETURN_TYPE_VOID);
+//
+//										// as PUTFIELD only access public fields we can also add a corresponding GETFIELD entry to the log
+//										Capturer.capture(captureId + 1, instance,
+//										                 CaptureLog.GETFIELD, desc,
+//										                 new Object[] { fieldName });
+//										Capturer.enable(captureId + 1, instance,
+//										                currentValue);
+//
+//										break; // there can only be on field access at a time
+//									}
+//								}
+//
+//							} catch (final Exception e) {
+//								logger.error("an error occurred while comparing field values for class {}",
+//								             internalClassName, e);
+//								throw new RuntimeException(e); // TODO better exception type
+//							}
+//
+//						}
+					//}
+				//}
+//			}
+//		} else {
+//			logger.debug("No observed fields for class {}  [MODIFY]", internalClassName);
+//		}
 			}
-		} else {
-			logger.debug("No observed fields for class {}", internalClassName);
+		} catch (final Throwable e) {
+			logger.error("an error occurred while comparing field values for class {}",
+					internalClassName, e);
+			throw new RuntimeException(e); // TODO better exception type
+		}
+		logger.debug("Done field write");
+
+	}
+	
+	private static void populateFieldMap(String internalClassName, String fieldName) {
+		Map<String, Field> observedFields = new LinkedHashMap<String, Field>();
+		try {
+			Class<?> clazz = Class.forName(internalClassName.replace('/', '.'), true, carvingClassLoader);
+			logger.debug("Collecting fields for {}", clazz);
+			collectAccessibleFields(observedFields, clazz, null);
+			if(!observedFields.containsKey(fieldName)) {
+				logger.debug("Not observed: "+fieldName);
+				return;
+			}
+			logger.debug("Trying to get field {} for class {}", fieldName, internalClassName);
+			if(Modifier.isStatic(observedFields.get(fieldName).getModifiers())) {
+				register(clazz);
+			}
+
+//			if (observedFields.isEmpty()) {
+//				logger.debug("Class {} has no observable fields", internalClassName);
+//				classFieldsMapping.put(internalClassName, Collections.EMPTY_MAP);
+//			} else {
+//				logger.debug("Setting field map for class "+internalClassName +" to "+observedFields);
+//				classFieldsMapping.put(internalClassName, observedFields);
+//			}
+
+		} catch(ClassNotFoundException e) {
+			logger.info("Error loading class "+internalClassName+": "+e);
+		} catch(Throwable e) {
+			logger.debug("Carving classloader: "+carvingClassLoader);
+			logger.info("TODO Error loading class "+internalClassName+": "+e);
+			logger.info("TODO Error loading class "+internalClassName+": "+e.getCause());
+			for(StackTraceElement elem : e.getStackTrace()) {
+				logger.debug(elem.toString());
+			}
+			if(e.getCause() != null)
+			for(StackTraceElement elem : e.getCause().getStackTrace()) {
+				logger.debug(elem.toString());
+			}
 		}
 	}
 
-	synchronized public static void notifyReadAccess(final int captureId,
+	synchronized public static void notifyReadAccess(Object receiver, final int captureId, 
 	        final String internalClassName, final String fieldName, final String desc) {
 		cleanUpReferences(internalClassName);
 
 		if (!Capturer.isCapturing()) {
 			return;
 		}
-
-		if (classInstanceMapping.containsKey(internalClassName)) {
+		
+		
+		Map<String, Field> observedFields = classFieldsMapping.get(internalClassName);
+		if (observedFields == null) {
+			// determine observable fields
+			logger.debug("Haven't seen {} {} yet", internalClassName, fieldName);
+			populateFieldMap(internalClassName, fieldName);
+		}
+		try {
 			final Map<String, Field> fields = classFieldsMapping.get(internalClassName);
 			if (fields == null) {
 				logger.error("Fields map for class {} should not be null",
-				             internalClassName);
+						internalClassName);
 				throw new IllegalStateException("Fields map for class "
-				        + internalClassName + " should not be null");
+						+ internalClassName + " should not be null");
 			}
 
-			if (!fields.isEmpty()) {
-				final Field targetField = fields.get(fieldName);
-				if (targetField == null) {
-					// happens if field is private
-					logger.debug("Could not find field {} for class {}", fieldName,
-					             internalClassName);
-				} else {
-					List<MyWeakRef<?>> instances = classInstanceMapping.get(internalClassName);
-					if (instances == null) {
-						logger.error("List of instances for class {} should not be null",
-						             internalClassName);
-						throw new IllegalStateException("List of instances for class "
-						        + internalClassName + " should not be null");
-					}
-
-					Object instance;
-					Map<String, WeakReference<?>> recentFieldValues;
-					for (WeakReference<?> r : instances) {
-						instance = r.get();
-						if (instance == null) {
-							logger.debug("notifyRead: garbagge collected?");
-							continue;
-						}
-
-						recentFieldValues = instanceRecentFieldValuesMapping.get(System.identityHashCode(instance));
-
-						if (recentFieldValues == null) {
-							logger.error("map of recent field values (instance={} class={}) should not be null",
-							             instance, internalClassName);
-							throw new IllegalStateException(
-							        "map of recent field values (instance=" + instance
-							                + " class=" + internalClassName
-							                + ") should not be null");
-						} else {
-							try {
-								final Object currentValue;
-								if (Modifier.isStatic(targetField.getModifiers())) {
-									currentValue = targetField.get(null);
-								} else {
-									// we can't get instance field values from the class itself
-									if (instance instanceof Class) {
-										continue;
-									}
-
-									currentValue = targetField.get(instance);
-								}
-
-								if (instance instanceof Class) {
-									Capturer.capture(captureId, instance,
-									                 CaptureLog.GETSTATIC, desc,
-									                 new Object[] { fieldName });
-									Capturer.enable(captureId, instance, currentValue);
-
-									break; // there can only be on field access at a time
-								} else {
-									Capturer.capture(captureId, instance,
-									                 CaptureLog.GETFIELD, desc,
-									                 new Object[] { fieldName });
-									Capturer.enable(captureId, instance, currentValue);
-
-									break; // there can only be on field access at a time
-								}
-
-							} catch (final Exception e) {
-								logger.error("an error occurred while comparing field values for class {}",
-								             internalClassName, e);
-								throw new RuntimeException(e); // TODO better exception type
-							}
-
-						}
-					}
+			if (fields.isEmpty()) {
+				logger.debug("Done read - no fields");
+				return;
+			}
+			final Field targetField = fields.get(fieldName);
+			if (targetField == null) {
+				// happens if field is private
+				logger.debug("Could not find field {} for class {}", fieldName,
+						internalClassName);
+				return;
+			} 
+					
+			final Object currentValue;
+			if (Modifier.isStatic(targetField.getModifiers())) {
+				currentValue = targetField.get(null);
+			} else {
+				// we can't get instance field values from the class itself
+				if (receiver instanceof Class) {
+					logger.debug("WTF read");
+					return;
 				}
+				if(!registeredObjects.contains(System.identityHashCode(receiver))) {
+					return;
+				}
+
+				currentValue = targetField.get(receiver);
 			}
-		} else {
-			logger.debug("No observed fields for class {}", internalClassName);
-		}
+			logger.debug("Notify read access {}, {}, {}", internalClassName, fieldName, receiver == null ? "null" : receiver.getClass());
+
+			if (receiver instanceof Class) {
+				Capturer.capture(captureId, receiver,
+						CaptureLog.GETSTATIC, desc,
+						new Object[] { fieldName });
+				Capturer.enable(captureId, receiver, currentValue);
+			} else if(receiver == null) {
+				Capturer.capture(captureId, targetField.getDeclaringClass(),
+						CaptureLog.GETSTATIC, desc,
+						new Object[] { fieldName });
+				Capturer.enable(captureId, targetField.getDeclaringClass(), currentValue);				
+			} else {
+				Capturer.capture(captureId, receiver,
+						CaptureLog.GETFIELD, desc,
+						new Object[] { fieldName });
+				Capturer.enable(captureId, receiver, currentValue);
+			}
+			logger.debug("Done field read");
+		} catch (final Throwable e) {
+			logger.error("an error occurred while comparing field values for class {}",
+					internalClassName, e);
+			throw new RuntimeException(e); // TODO better exception type
+		}			
 	}
 
 	synchronized public static void clear() {
@@ -414,6 +464,7 @@ public final class FieldRegistry {
 		classFieldsMapping.clear();
 		instanceRecentFieldValuesMapping.clear();
 		classRefQueueMapping.clear();
+		registeredObjects.clear();
 		captureId = Integer.MAX_VALUE;
 	}
 
@@ -445,6 +496,10 @@ public final class FieldRegistry {
 		}
 
 		return builder.toString();
+	}
+	
+	public static boolean isKnownObject(Object obj) {
+		return registeredObjects.contains(obj);
 	}
 
 	public static class MyWeakRef<T> extends WeakReference<T> {

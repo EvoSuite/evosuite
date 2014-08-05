@@ -14,7 +14,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.evosuite.runtime.VirtualFileSystem;
+import org.evosuite.runtime.vfs.VirtualFileSystem;
 
 
 /**

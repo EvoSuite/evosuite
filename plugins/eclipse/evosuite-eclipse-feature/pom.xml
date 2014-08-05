@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <relativePath>../pom.xml</relativePath>
+    <groupId>org.evosuite.plugins</groupId>
+    <artifactId>evosuite-eclipse-plugin</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>org.evosuite.plugins.eclipse.feature</artifactId>
+  <packaging>eclipse-feature</packaging>
+
+  <properties>
+     <tycho-version>0.20.0</tycho-version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.evosuite.plugins</groupId>
+      <artifactId>org.evosuite.plugins.eclipse.core</artifactId>
+     <version>${project.version}</version>
+    </dependency>
+  </dependencies>  
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+      </plugin>
+        <plugin>
+            <!-- Copy non-Ecipse plugins to target/dependency so that may be referenced 
+                for runtime use. -->
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.1</version>
+            <executions>
+                <execution>
+                    <id>copy-dependencies</id>
+                    <goals>
+                        <goal>copy-dependencies</goal>
+                    </goals>
+<!--
+                    <configuration>
+                        <excludeGroupIds>org.XXX</excludeGroupIds>
+                    </configuration>
+-->
+                </execution>
+                <execution>
+                    <id>classpath</id>
+                    <goals>
+                        <goal>build-classpath</goal>
+                    </goals>
+                    <configuration>
+                        <fileSeparator>/</fileSeparator>
+                        <prefix>target/dependency</prefix>
+                        <outputFile>${project.build.directory}/classPath.txt
+                        </outputFile>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <pomDependencies>consider</pomDependencies>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>

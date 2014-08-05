@@ -21,6 +21,7 @@
 package org.evosuite.runtime.instrumentation;
 
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -30,6 +31,11 @@ import org.objectweb.asm.tree.MethodNode;
  * @author fraser
  */
 public class AnnotatedClassNode extends ClassNode {
+	
+	public AnnotatedClassNode() {
+		super(Opcodes.ASM4);
+	}
+	
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override

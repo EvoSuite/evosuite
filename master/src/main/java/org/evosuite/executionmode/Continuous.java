@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.continuous.ContinuousTestGeneration;
@@ -28,8 +29,6 @@ public class Continuous {
 
 	public static Object execute(Options options, List<String> javaOpts,
 			CommandLine line) {
-
-
 
 		String opt = line.getOptionValue(NAME);
 		if(opt == null){
@@ -52,9 +51,9 @@ public class Continuous {
 			target = line.getOptionValue("target");				
 		}
 
-		
+
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-		
+
 		/*
 		 * Setup the classpath
 		 */
@@ -71,11 +70,17 @@ public class Continuous {
 			prefix = line.getOptionValue("prefix");
 		} 
 
+		String[] cuts = null;
+		if(Properties.CTG_SELECTED_CUTS != null && !Properties.CTG_SELECTED_CUTS.isEmpty()){
+			cuts  = Properties.CTG_SELECTED_CUTS.trim().split(",");
+		} 
+
 		ContinuousTestGeneration ctg = new ContinuousTestGeneration(
 				target,
 				cp,
 				prefix,
-				CtgConfiguration.getFromParameters()
+				CtgConfiguration.getFromParameters(),
+				cuts
 				);
 
 		/*

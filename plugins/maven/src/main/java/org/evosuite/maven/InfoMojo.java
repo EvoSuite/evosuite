@@ -38,6 +38,7 @@ public class InfoMojo extends AbstractMojo{
 		params.add("info");
 		
 		EvoSuiteRunner runner = new EvoSuiteRunner(getLog(),artifacts,projectBuilder,repoSession);
+		runner.registerShutDownHook();
 		boolean ok = runner.runEvoSuite(project.getBasedir().toString(),params);
 		
 		if(!ok){

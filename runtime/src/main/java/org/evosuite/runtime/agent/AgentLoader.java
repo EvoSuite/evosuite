@@ -3,6 +3,7 @@ package org.evosuite.runtime.agent;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
@@ -64,32 +65,44 @@ public class AgentLoader {
 		logger.info("Classpath: "+System.getProperty("java.class.path"));
 
 		try {
-			Class<?> string = toolLoader.loadClass("java.lang.String");
-
-			Class<?> clazz = toolLoader.loadClass("com.sun.tools.attach.VirtualMachine");
-			Method attach = clazz.getMethod("attach", string);
-
 			logger.info("Going to attach agent to process "+pid);
 
-			VirtualMachine vm = VirtualMachine.attach(pid);
-			//Object instance = attach.invoke(null, pid);
-
-			vm.loadAgent(jarFilePath, "");
-			//Method loadAgent = clazz.getMethod("loadAgent", string, string);
-			//loadAgent.invoke(instance, jarFilePath, "");
-
-			vm.detach(); 
-			//Method detach = clazz.getMethod("detach");
-			//detach.invoke(instance);
-
+			attachAgent(pid, jarFilePath, toolLoader);
+						
 		} catch (Exception e) {
 			Throwable cause = e.getCause();
 			String causeDescription = cause==null ? "" : " , cause "+cause.getClass()+" "+cause.getMessage();
 			logger.error("Exception "+e.getClass()+": "+e.getMessage()+causeDescription,e);
-			throw new RuntimeException(e);
+			try {
+				Thread.sleep(5000);
+				logger.error("Trying again to attach agent:");
+				logger.error("VM: "+nameOfRunningVM);
+				logger.error("PID: "+pid);
+				
+				attachAgent(pid, jarFilePath, toolLoader);
+				
+			} catch(Exception e2) {
+				throw new RuntimeException(e2);				
+			}
 		}
 
 		alreadyLoaded = true;
+	}
+
+	private static void attachAgent(String pid, String jarFilePath,
+			ClassLoader toolLoader) throws Exception {
+		
+		Class<?> string = toolLoader.loadClass("java.lang.String");
+		Class<?> clazz = toolLoader.loadClass("com.sun.tools.attach.VirtualMachine");
+		Method attach = clazz.getMethod("attach", string);
+
+		Object instance = attach.invoke(null, pid);
+
+		Method loadAgent = clazz.getMethod("loadAgent", string, string);
+		loadAgent.invoke(instance, jarFilePath, "");
+
+		Method detach = clazz.getMethod("detach");
+		detach.invoke(instance);
 	}
 
 	private static boolean isEvoSuiteMainJar(String path) throws IllegalArgumentException{

@@ -1414,9 +1414,12 @@ public class GenericClass implements Serializable {
 					logger.debug("Is set to type var: "+ownerVariableMap.get(var)+" of "+((TypeVariable<?>)ownerVariableMap.get(var)).getGenericDeclaration());
 					TypeVariable<?> value = (TypeVariable<?>)ownerVariableMap.get(var);
 					if(ownerVariableMap.containsKey(value)) {
-						logger.debug("Replacing "+var+" with "+ownerVariableMap.get(value));
-						ownerVariableMap.put(var, ownerVariableMap.get(value));
-						changed = true;
+						Type other = ownerVariableMap.get(value);
+						if(var != other) {
+							logger.debug("Replacing "+var+" with "+other);
+							ownerVariableMap.put(var, other);
+							changed = true;
+						}
 					} else {
 						logger.debug("Not in map: "+value);
 					}

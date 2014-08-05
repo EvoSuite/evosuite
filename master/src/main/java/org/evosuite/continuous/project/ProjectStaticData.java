@@ -70,8 +70,11 @@ public class ProjectStaticData {
 
 		this.filesChanged = new HashSet<String>();
         this.coverage = new HashMap<String, List<Double>>();
+        
+	}
 
-        // Load history file
+	public void initializeLocalHistory() {
+		// Load history file
         BufferedReader br = null;
         try {
             String sCurrentLine;

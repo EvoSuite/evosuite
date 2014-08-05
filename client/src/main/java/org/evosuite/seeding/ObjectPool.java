@@ -248,7 +248,8 @@ public class ObjectPool implements Serializable {
 		ObjectPool pool = new ObjectPool();
 		//final Result result = 
 		runner.run(testSuite);
-		for (TestCase test : listener.getTestCases()) {
+		
+		for (TestCase test : listener.getTestCases().get(Properties.getTargetClass())) {
 			// TODO: Maybe we would get the targetClass from the last object generated in the sequence?
 			pool.addSequence(targetClass, test);
 		}

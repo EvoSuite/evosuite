@@ -1,24 +1,17 @@
 package org.evosuite.setup;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Collects a set of MethodIdentifier of those 
@@ -99,8 +92,8 @@ public class PutStaticMethodCollector {
 		}
 	}
 
-	private static Logger logger = LoggerFactory
-			.getLogger(PutStaticMethodCollector.class);
+	//private static final Logger logger = LoggerFactory
+	//		.getLogger(PutStaticMethodCollector.class);
 
 	private static Map<String, Set<String>> createStaticFields(
 			String targetClassName) {
@@ -116,11 +109,12 @@ public class PutStaticMethodCollector {
 	public PutStaticMethodCollector(String targetClassName,
 			Map<String, Set<String>> getStaticFields) {
 		this.getStaticFields = getStaticFields;
-		this.targetClassName = targetClassName;
+		// this.targetClassName = targetClassName;
 	}
 
 	private final Map<String, Set<String>> getStaticFields;
 
+	@SuppressWarnings("unchecked")
 	public Set<MethodIdentifier> collectMethods() {
 
 		Set<MethodIdentifier> methods = new HashSet<MethodIdentifier>();
@@ -163,7 +157,7 @@ public class PutStaticMethodCollector {
 		return methods;
 	}
 
-	private final String targetClassName;
+	// private final String targetClassName;
 
 	private boolean contains(Map<String, Set<String>> fields, String className,
 			String fieldName) {

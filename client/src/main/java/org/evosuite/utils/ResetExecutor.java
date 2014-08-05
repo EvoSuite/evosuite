@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.MutationObserver;
@@ -18,8 +19,14 @@ public class ResetExecutor {
 
 	private final static Logger logger = LoggerFactory.getLogger(ResetExecutor.class);
 
+	/**
+	 * Keep track of all classes for which we have already issued a warning
+	 * if problems.
+	 */
+	private final Set<String> alreadyLoggedErrors;
+	
 	private ResetExecutor() {
-		
+		alreadyLoggedErrors = new HashSet<>();
 	}
 	
 	private static ResetExecutor instance;
@@ -45,33 +52,41 @@ public class ResetExecutor {
 
 	private final HashSet<String> confirmedResettableClasses = new HashSet<String>();
 
-	private static Method getResetMethod(String className) {
+	private Method getResetMethod(String className) {
 		try {
 			ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
 			Class<?> clazz = Class.forName(className, true, classLoader);
-			Method m = clazz.getMethod(ClassResetter.STATIC_RESET,
-		            (Class<?>[]) null);
+			Method m = clazz.getMethod(ClassResetter.STATIC_RESET, (Class<?>[]) null);
 			m.setAccessible(true);
 			return m;
 		
 		} catch (ClassNotFoundException e) {
 			logger.debug("Class " + className + " could not be found during setting up of assertion generation ");
-			return null;
 		} catch (NoSuchMethodException e) {
 			logger.debug("__STATIC_RESET() method does not exists in class " + className);
-			return null;
 		} catch (SecurityException e) {
-			logger.warn("Security exception thrown during loading of method  __STATIC_RESET() for class " + className);
-			return null;
+			logWarn(className,"Security exception thrown during loading of method  __STATIC_RESET() for class " + className);
 		} catch (ExceptionInInitializerError ex) {
-			logger.warn("Class " + className + " could not be initialized during __STATIC_RESET() execution ");;
-			return null;
+			logWarn(className,"Class " + className + " could not be initialized during __STATIC_RESET() execution: "+ex.getMessage());
 		} catch (LinkageError ex) {
-			logger.warn("Class " + className + "  initialization led to a Linkage error during during __STATIC_RESET() execution");;
-			return null;
+			logWarn(className,"Class " + className + "  initialization led to a Linkage error during during __STATIC_RESET() execution: "+ex.getMessage());
 		}
+		return null;
 	}
 
+	/**
+	 * Only log once for a class
+	 * @param className
+	 * @param msg
+	 */
+	private synchronized void logWarn(String className, String msg){
+		if(alreadyLoggedErrors.contains(className)){
+			return; // do not log a second time
+		}
+		alreadyLoggedErrors.add(className);
+		logger.warn(msg);
+	}
+	
 	private void resetClass(String className) {
 		int mutationActive = MutationObserver.activeMutation;
 		MutationObserver.deactivateMutation();
@@ -93,17 +108,13 @@ public class ResetExecutor {
 
 			}
 		} catch (SecurityException e) {
-			logger.warn("Security exception thrown during loading of method  __STATIC_RESET() for class " + className);
-			logger.warn(""+e.getCause());
+			logWarn(className,"Security exception thrown during loading of method  __STATIC_RESET() for class " + className+", "+e.getCause());
 		} catch (IllegalAccessException e) {
-			logger.warn("IllegalAccessException during execution of method  __STATIC_RESET() for class " + className);
-			logger.warn(""+e.getCause());
+			logWarn(className,"IllegalAccessException during execution of method  __STATIC_RESET() for class " + className+", "+e.getCause());
 		} catch (IllegalArgumentException e) {
-			logger.warn("IllegalArgumentException during execution of method  __STATIC_RESET() for class " + className);
-			logger.warn(""+e.getCause());
+			logWarn(className,"IllegalArgumentException during execution of method  __STATIC_RESET() for class " + className+", "+e.getCause()); 
 		} catch (InvocationTargetException e) {
-			logger.warn("InvocationTargetException during execution of method  __STATIC_RESET() for class " + className);
-			logger.warn(""+e.getCause());
+			logWarn(className,"InvocationTargetException during execution of method  __STATIC_RESET() for class " + className+", "+e.getCause());
 		} finally {
 			MutationObserver.activateMutation(mutationActive);
 		}
@@ -116,11 +127,11 @@ public class ResetExecutor {
 				ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
 				Class.forName(className, true, classLoader);
 			} catch (ClassNotFoundException e) {
-				logger.warn("Class " + className + " could not be found during setting up of assertion generation ");;
+				logWarn(className,"Class " + className + " could not be found during setting up of assertion generation ");;
 			} catch (ExceptionInInitializerError ex) {
-				logger.warn("Class " + className + " could not be initialized during setting up of assertion generation ");;
+				logWarn(className,"Class " + className + " could not be initialized during setting up of assertion generation ");;
 			} catch (LinkageError ex) {
-				logger.warn("Class " + className + "  initialization led to a Linkage error ");;
+				logWarn(className,"Class " + className + "  initialization led to a Linkage error ");;
 			}
 		}
 	

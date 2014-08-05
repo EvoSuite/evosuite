@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericMethod;
@@ -222,29 +223,16 @@ public class MethodStatement extends AbstractStatement {
 						java.lang.reflect.Type[] parameterTypes = method.getParameterTypes();
 						for (int i = 0; i < parameters.size(); i++) {
 							VariableReference parameterVar = parameters.get(i);
-							try {
-								// Try exact parameter types if known
-								if (!parameterVar.isAssignableTo(parameterTypes[i])) {
-									throw new CodeUnderTestException(
-									        new UncompilableCodeException(
-									                "Not assignable: " + parameterVar
-									                        + " to " + parameterTypes[i]));
-								}
-							} catch (CodeUnderTestException e) {
-								throw e;
-							} catch (Throwable t) {
-								// GenericTypeReflector.getExactParameterTypes is buggy and may return null
-								if (!parameterVar.isAssignableTo(parameterTypes[i])) {
-									logger.debug("Not assignable: " + parameterVar
-									        + " to parameter of type "
-									        + parameterTypes[i]);
-									throw new CodeUnderTestException(
-									        new UncompilableCodeException());
-								}
-							}
 							inputs[i] = parameterVar.getObject(scope);
 							if(inputs[i] == null && method.getMethod().getParameterTypes()[i].isPrimitive()) {
 								throw new CodeUnderTestException(new NullPointerException());
+							}
+							if (inputs[i] != null && !TypeUtils.isAssignable(inputs[i].getClass(), parameterTypes[i])) {
+								// TODO: This used to be a check of the declared type, but the problem is that
+								//       Generic types are not updated during execution, so this may fail:
+								//!parameterVar.isAssignableTo(parameterTypes[i])) {
+								throw new CodeUnderTestException(
+								        new UncompilableCodeException("Cannot assign "+parameterVar.getVariableClass().getName() +" to "+parameterTypes[i]));
 							}
 						}
 

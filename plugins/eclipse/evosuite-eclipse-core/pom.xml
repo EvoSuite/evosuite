@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+     <relativePath>../pom.xml</relativePath>
+    <groupId>org.evosuite.plugins</groupId>
+    <artifactId>evosuite-eclipse-plugin</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>org.evosuite.plugins.eclipse.core</artifactId>
+
+  <packaging>bundle</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.evosuite</groupId>
+      <artifactId>evosuite-master</artifactId>
+<!--      <version>${project.version}</version> -->
+      <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Embed-Dependency>
+              *;scope=compile|runtime;inline=true
+            </Embed-Dependency>
+            <!--
+            <Export-Package>org.evosuite.*</Export-Package>            
+            <Private-Package>sun.reflect,sun.misc,sun.security.util,sun.util.calendar,sun.security.x509,sun.security.timestamp,sun.security.provider
+                             sun.jkernel,sun.net.util,sun.net.www,sun.nio,sun.nio.ch,sun.reflect.annotation,sun.security.action,sun.security.ec,
+                             sun.security.jca,sun.security.krb5,sun.security.pkcs,sun.*,sun
+            </Private-Package> -->
+            <Import-Package></Import-Package>
+            
+            <_exportcontents>
+              org.evosuite.*;version="0.1.0"
+            </_exportcontents>
+            <Bundle-ClassPath>{maven-dependencies}</Bundle-ClassPath>
+            <Embed-Transitive>true</Embed-Transitive>
+<!--            <Embed-Directory>jars</Embed-Directory> -->
+            <_failok>true</_failok>
+            <_nouses>true</_nouses>
+	    <unpackBundle>true</unpackBundle>
+	    <excludeDependencies>true</excludeDependencies>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+
+<!-- 
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <lifecycleMappings>
+                <lifecycleMapping>
+                  <packagingType>bundle</packagingType>
+                  <lifecycleMappingId>org.sonatype.tycho.m2e.wrapperBundle</lifecycleMappingId>
+                </lifecycleMapping>
+              </lifecycleMappings>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <versionRange>2.1.0</versionRange>
+                    <goals>
+                      <goal>bundle</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <configurator>
+                      <id>org.sonatype.tycho.m2e.wrapperBundle</id>
+                    </configurator>
+                  </action>
+                </pluginExecution>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <versionRange>2.1.0</versionRange>
+                    <goals>
+                      <goal>manifest</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore />
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+ -->
+  </build>
+</project>

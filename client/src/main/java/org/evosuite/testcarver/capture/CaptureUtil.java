@@ -2,13 +2,9 @@ package org.evosuite.testcarver.capture;
 
 import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public final class CaptureUtil {
-	
-	private static final transient Logger logger = LoggerFactory.getLogger(CaptureUtil.class);
 	
 	private CaptureUtil(){}
 	
