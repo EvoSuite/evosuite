@@ -1,15 +1,18 @@
 package org.evosuite.runtime.agent;
 
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Constructor;
 
 import org.junit.*;
 
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 
-import com.examples.with.different.packagename.agent.AbstractTime;
 import com.examples.with.different.packagename.agent.ConcreteTime;
+import com.examples.with.different.packagename.agent.AbstractTime;
 import com.examples.with.different.packagename.agent.ExtendingTimeC;
+import com.examples.with.different.packagename.agent.SecondAbstractTime;
+import com.examples.with.different.packagename.agent.SecondConcreteTime;
 import com.examples.with.different.packagename.agent.TimeA;
 import com.examples.with.different.packagename.agent.TimeB;
 import com.examples.with.different.packagename.agent.TimeC;
@@ -42,6 +45,45 @@ public class InstrumentingAgent_IT {
 		RuntimeSettings.mockJVMNonDeterminism = replaceCalls;
 	}
 
+
+	@Test
+	public void testTransformationInClassExtendingAbstract(){
+		long expected = 42;
+		org.evosuite.runtime.System.setCurrentTimeMillis(expected);
+		try{
+			InstrumentingAgent.activate();
+			ConcreteTime time = new ConcreteTime();
+			/*
+			 * Using abstract class here would fail, as it would be loaded 
+			 * by JUnit before any method (static, BeforeClass) of this test
+			 * suite is executed, and so it would not get instrumented
+			 */
+			//AbstractTime time = new ConcreteTime();
+			Assert.assertEquals(expected, time.getTime());
+		} finally {
+			InstrumentingAgent.deactivate();
+		}
+	}
+
+	@Test
+	public void testFailingTransformation(){
+		long expected = 42;
+		org.evosuite.runtime.System.setCurrentTimeMillis(expected);
+		try{
+			InstrumentingAgent.activate();
+			SecondAbstractTime time = new SecondConcreteTime();
+			/*
+			 * Using abstract class here fails, as it would be loaded 
+			 * by JUnit before any method (static, BeforeClass) of this test
+			 * suite is executed, and so it is not instrumented
+			 */			
+			Assert.assertNotEquals(expected, time.getTime());
+		} finally {
+			InstrumentingAgent.deactivate();
+		}
+	}
+
+
 	@Test
 	public void testTime(){
 
@@ -59,32 +101,22 @@ public class InstrumentingAgent_IT {
 		}
 	}
 	
+	
 	@Test
 	public void testTransformationInAbstractClass(){
 		long expected = 42;
 		org.evosuite.runtime.System.setCurrentTimeMillis(expected);
 		try{
 			InstrumentingAgent.activate();
-			AbstractTime time = new ConcreteTime();
-			Assert.assertEquals(expected, time.getTime());
+			//com.examples.with.different.packagename.agent.AbstractTime time = new com.examples.with.different.packagename.agent.ConcreteTime();
+			//Assert.assertEquals(expected, time.getTime());
 		} finally {
 			InstrumentingAgent.deactivate();
 		}
 	}
 
-	@Test
-	public void testTransformationInClassExtendingAbstract(){
-		long expected = 42;
-		org.evosuite.runtime.System.setCurrentTimeMillis(expected);
-		try{
-			InstrumentingAgent.activate();
-			ConcreteTime time = new ConcreteTime();
-			Assert.assertEquals(expected, time.getTime());
-		} finally {
-			InstrumentingAgent.deactivate();
-		}
-	}
-
+	
+	
 	@Test
 	public void testTransformation(){
 		long expected = 42;
@@ -111,8 +143,11 @@ public class InstrumentingAgent_IT {
 		}
 	}
 
+
+	
 	@Test
 	public void testInstrumetation() throws Exception{
+	
 		try{
 			InstrumentingAgent.activate();
 			
