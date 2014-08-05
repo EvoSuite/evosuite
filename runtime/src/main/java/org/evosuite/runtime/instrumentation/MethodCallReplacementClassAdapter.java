@@ -49,7 +49,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 
 	private boolean definesUid = false;
 	
-	private boolean canAddMethods = true; 
+	private boolean canChangeSignature = true; 
 
 	/**
 	 * <p>Constructor for MethodCallReplacementClassAdapter.</p>
@@ -65,7 +65,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 		super(Opcodes.ASM4, cv);
 		this.className = className;
 		this.superClassName = null;
-		this.canAddMethods = canAddMethods;
+		this.canChangeSignature = canAddMethods;
 	}
 
 	
@@ -105,6 +105,11 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 			isInterface = true;
 		
 		if(MockList.shouldBeMocked(superNameWithDots)) {
+			
+			/*
+			 * TODO: likely need to suppress the change of superclass if !canChangeSignature
+			 */
+			
 			Class<?> mockSuperClass = MockList.getMockClass(superNameWithDots);
 			String mockSuperClassName = mockSuperClass.getCanonicalName().replace('.', '/');
 			
@@ -118,7 +123,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	
 	@Override
 	public void visitEnd() {
-		if(canAddMethods && !definesHashCode && !isInterface && RuntimeSettings.mockJVMNonDeterminism) {
+		if(canChangeSignature && !definesHashCode && !isInterface && RuntimeSettings.mockJVMNonDeterminism) {
 			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
 			if(superClassName.equals("java.lang.Object")) {
 				Method hashCodeMethod = Method.getMethod("int hashCode()");
