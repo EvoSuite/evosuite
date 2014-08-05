@@ -18,6 +18,7 @@
 package org.evosuite.ga.metaheuristics;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -363,15 +364,16 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
     public String toString() {
         StringBuilder str = new StringBuilder();
 
-        for (FitnessFunction<T> ff : this.fitnessFunctions) {
-            double ff_limit = ff.isMaximizationFunction() ?
-                                Double.MIN_VALUE : Double.MAX_VALUE;
+        int i = 0;
+        for (Chromosome c : population) {
+            str.append("\n  - test " + i);
 
-            for (Chromosome c : population)
-                ff_limit = ff.isMaximizationFunction() ?
-                                Math.max(ff_limit, c.getFitness(ff)) : Math.min(ff_limit, c.getFitness(ff));
+            for (FitnessFunction<T> ff : this.fitnessFunctions) {
+                DecimalFormat df = new DecimalFormat("#.#####");
+                str.append(", " + ff.getClass().getSimpleName().replace("CoverageSuiteFitness", "") + " " + df.format(c.getFitness(ff)));
+            }
 
-            str.append("\n  - " + ff.getClass().getSimpleName().replace("CoverageSuiteFitness", "") + " " + ff_limit);
+            i++;
         }
 
         return str.toString();
