@@ -318,7 +318,7 @@ public class TestSuiteGenerator {
 		else if (Properties.STRATEGY == Strategy.RANDOM_FIXED)
 		    tests.add(generateFixedRandomTests());
 		else
-		    tests.add(generateFixedRandomTests());
+		    tests.add(generateIndividualTests());
 		if (Properties.CHECK_CONTRACTS) {
 			TestCaseExecutor.getInstance().removeObserver(checker);
 		}
