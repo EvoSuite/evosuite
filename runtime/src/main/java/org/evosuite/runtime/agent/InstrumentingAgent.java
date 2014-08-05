@@ -27,6 +27,7 @@ public class  InstrumentingAgent {
 	private static volatile TransformerForTests transformer;
 
 	private static Instrumentation instrumentation;
+		
 	
 	static{
 		try{
@@ -46,7 +47,7 @@ public class  InstrumentingAgent {
 	public static void premain(String args, Instrumentation inst) throws Exception {
 		logger.info("Executing premain of JavaAgent");
 		checkTransformerState();
-		inst.addTransformer(transformer);
+		inst.addTransformer(transformer,true);
 		instrumentation = inst;
 	}
 
@@ -59,7 +60,7 @@ public class  InstrumentingAgent {
 	public static void agentmain(String args, Instrumentation inst) throws Exception {
 		logger.info("Executing agentmain of JavaAgent");
 		checkTransformerState();
-		inst.addTransformer(transformer);
+		inst.addTransformer(transformer,true);
 		instrumentation = inst;
 	}
 
@@ -103,5 +104,15 @@ public class  InstrumentingAgent {
 	public static void deactivate(){
 		checkTransformerState();
 		transformer.deacitvate();
+	}
+	
+	/**
+	 *  Tells EvoSuite that we are going to re-instrument classes.
+	 *  In these cases, we cannot change the class signatures
+	 *  
+	 * @param on
+	 */
+	public static void setRetransformingMode(boolean on){
+		transformer.setRetransformingMode(on);
 	}
 }

@@ -1,5 +1,7 @@
 package com.examples.with.different.packagename.agent;
 
-public class SecondConcreteTime extends SecondAbstractTime{
+import java.io.Serializable;
+
+public class SecondConcreteTime extends SecondAbstractTime {
 
 }
