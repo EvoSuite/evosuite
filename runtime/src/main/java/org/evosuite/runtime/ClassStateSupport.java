@@ -75,16 +75,17 @@ public class ClassStateSupport {
 		
 		List<Class<?>> classToReInstument = new ArrayList<>();
 
+		/*
 		InstrumentingAgent.activate(); 
 		for(Class<?> cl : classes){
 
 			try{
 				InstrumentingAgent.getInstumentation().retransformClasses(cl);
 			} catch(UnsupportedOperationException e){ 
-				/*
+				/ *
 				 * this happens if class was already loaded by JUnit (eg the abstract class problem)
 				 * and re-instrumentation do change the signature 
-				 */
+				 * /
 				classToReInstument.add(cl);
 			} catch(Exception | Error e){
 				//this shouldn't really happen
@@ -92,7 +93,18 @@ public class ClassStateSupport {
 			}
 
 		}
-
+		*/
+		
+		for(Class<?> cl : classes){
+			if(! InstrumentingAgent.getTransformer().isClassAlreadyTransformed(cl.getName())){
+				classToReInstument.add(cl);
+			}
+		}
+		
+		if(classToReInstument.isEmpty()){
+			return;
+		}
+		
 		InstrumentingAgent.setRetransformingMode(true);
 		try {
 			if(!classToReInstument.isEmpty()){
