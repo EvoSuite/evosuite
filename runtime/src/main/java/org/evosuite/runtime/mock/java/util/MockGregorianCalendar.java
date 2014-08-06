@@ -4,7 +4,9 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class MockGregorianCalendar extends GregorianCalendar {
+import org.evosuite.runtime.mock.OverrideMock;
+
+public class MockGregorianCalendar extends GregorianCalendar  implements OverrideMock{
 
 	private static final long serialVersionUID = 4768096296715665262L;
 	

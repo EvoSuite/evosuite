@@ -1,7 +1,9 @@
 package org.evosuite.runtime.mock.java.util;
 
+import org.evosuite.runtime.mock.OverrideMock;
+
 @SuppressWarnings("deprecation")
-public class MockDate extends java.util.Date {
+public class MockDate extends java.util.Date  implements OverrideMock{
 
 	private static final long serialVersionUID = 6252798426594925071L;
 

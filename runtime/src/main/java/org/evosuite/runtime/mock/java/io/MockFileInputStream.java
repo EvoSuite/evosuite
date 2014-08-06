@@ -9,10 +9,11 @@ import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.runtime.LeakingResource;
+import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 
-public class MockFileInputStream extends FileInputStream implements LeakingResource{
+public class MockFileInputStream extends FileInputStream implements LeakingResource, OverrideMock{
 
 	
 	private FileChannel channel = null;

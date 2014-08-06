@@ -8,10 +8,11 @@ import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.runtime.LeakingResource;
+import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 
-public class MockRandomAccessFile extends RandomAccessFile implements LeakingResource{
+public class MockRandomAccessFile extends RandomAccessFile implements LeakingResource,  OverrideMock{
 
 	private FileChannel channel = null;
 	private final Object closeLock = new Object();

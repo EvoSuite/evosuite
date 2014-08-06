@@ -48,7 +48,8 @@ public class TransformerForTests implements ClassFileTransformer {
 		if(!active || !RuntimeInstrumentation.checkIfCanInstrument(classWithDots) || classWithDots.startsWith("org.evosuite")){
 			return classfileBuffer;
 		} else {
-			ClassResetter.getInstance().setClassLoader(loader);
+			//ClassResetter.getInstance().setClassLoader(loader);
+			
 			ClassReader reader = new ClassReader(classfileBuffer);
 			synchronized(instrumentedClasses){
 				instrumentedClasses.add(classWithDots);

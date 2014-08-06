@@ -30,11 +30,16 @@ import java.util.Set;
 
 
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockList;
+import org.evosuite.runtime.mock.OverrideMock;
+import org.evosuite.runtime.mock.StaticReplacementMock;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -45,6 +50,8 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  */
 public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
+	private static final Logger logger = LoggerFactory.getLogger(MethodCallReplacementMethodAdapter.class);
+	
 	private class MethodCallReplacement {
 		private final String className;
 		private final String methodName;
@@ -189,18 +196,9 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			//java.lang.*
 			addJavaLangCalls();
 
-			/*
-			replacementCalls.add(new MethodCallReplacement("java/util/Date", "<init>",
-				"()V", "org/evosuite/runtime/Date", "getDate", "()Ljava/util/Date;",
-				true, true));
-			*/
 
 			//java.util.Calendar
 			addCalendarCalls();
-
-			// java.util.Random
-			// Is now handled by MockRandom
-			// addRandomCalls();
 
 			// java.security.SecureRandom
 			addSecureRandomCalls();
@@ -214,16 +212,45 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 		}
 
-		for (Class<?> mock : MockList.getList()) {
-			replaceAllConstructors(mock, mock.getSuperclass());
-			replaceAllStaticMethods(mock, mock.getSuperclass());
-			replaceAllInvokeSpecial(mock, mock.getSuperclass());
+		handleMockList();
+	}
+
+	private void handleMockList() {
+		for (Class<? extends EvoSuiteMock> mock : MockList.getList()) {
+			
+			if(OverrideMock.class.isAssignableFrom(mock)){
+				replaceAllConstructors(mock, mock.getSuperclass());
+				replaceAllStaticMethods(mock, mock.getSuperclass());
+				replaceAllInvokeSpecial(mock, mock.getSuperclass());
+				
+			} else if(StaticReplacementMock.class.isAssignableFrom(mock)){
+				
+				String mockedName;
+				try {
+					mockedName = ((StaticReplacementMock)mock.newInstance()).getMockedClassName();
+				} catch (InstantiationException | IllegalAccessException e1) {
+					logger.error("Cannot instantiate mock "+mock.getCanonicalName());
+					continue;
+				}
+				Class<?> mocked;
+				try {
+					mocked = StaticReplacementMock.class.getClassLoader().loadClass(mockedName);
+				} catch (ClassNotFoundException e) {
+					//should never happen
+					logger.error("Mock class "+mock.getCanonicalName()+" has non-existent mocked target "+mockedName);
+					continue;
+				}
+
+				replaceAllStaticMethods(mock, mocked);
+				replaceAllInstanceMethodsWithStatic(mock,mocked);
+			}
 		}
 	}
 
 	private void addJavaLangCalls() {
 		
-		//java/lang/Runtime
+		/*
+		//java/lang/Runtime  
 		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "freeMemory",
 		        "()J", "org/evosuite/runtime/System", "freeMemory", "()J", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "maxMemory",
@@ -232,6 +259,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		        "()J", "org/evosuite/runtime/System", "totalMemory", "()J", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "availableProcessors",
 		        "()I", "org/evosuite/runtime/System", "availableProcessors", "()I", true, false));		
+		*/
 		
 		//java/lang/System
 		replacementCalls.add(new MethodCallReplacement("java/lang/System", "exit",
@@ -426,6 +454,26 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 				"([B)V", "org/evosuite/runtime/Random", "nextBytes", "([B)V", true, false));
 	}
 
+	
+	private void replaceAllInstanceMethodsWithStatic(Class<?> mockClass, Class<?> target){
+
+		/*
+		 *  replace "fooInstance.bar(x)"  with "MockFooClass.bar(fooInstance,x)"
+		 */
+
+		for (Method m : target.getMethods()) {
+			if (Modifier.isStatic(m.getModifiers())) {
+				continue;
+			}
+
+			String desc = Type.getMethodDescriptor(m);
+			replacementCalls.add(new MethodCallReplacement(
+			        target.getCanonicalName().replace('.', '/'), m.getName(), desc,
+			        mockClass.getCanonicalName().replace('.', '/'), m.getName(), desc,
+			        false, false));
+		}
+	}	
+	
 	private void replaceAllStaticMethods(Class<?> mockClass, Class<?> target)
 	        throws IllegalArgumentException {
 

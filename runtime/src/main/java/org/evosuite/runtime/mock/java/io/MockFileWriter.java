@@ -6,9 +6,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 
-public class MockFileWriter extends FileWriter{
+public class MockFileWriter extends FileWriter  implements OverrideMock{
 
 	/*
 	 * This class is specular to MockFileReader

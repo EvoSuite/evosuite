@@ -11,9 +11,17 @@ package org.evosuite.runtime.mock;
  * This type of mock is particularly useful for singleton classes that cannot be
  * extended (ie no OverrideMock)
  * 
+ * 
  * @author arcuri
  *
  */
 public interface StaticReplacementMock extends EvoSuiteMock{
 
+	/**
+	 * Determine which class this mock is mocking
+	 * 
+	 * @return a fully qualifying String
+	 */
+	public String getMockedClassName();
+	
 }

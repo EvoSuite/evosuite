@@ -10,11 +10,12 @@ import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.runtime.LeakingResource;
+import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 
-public class MockFileOutputStream extends FileOutputStream implements LeakingResource{
+public class MockFileOutputStream extends FileOutputStream implements LeakingResource , OverrideMock{
 	
 	/**
 	 * The path to the file
