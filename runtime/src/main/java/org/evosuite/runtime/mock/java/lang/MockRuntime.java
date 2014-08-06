@@ -17,7 +17,8 @@ public class MockRuntime implements StaticReplacementMock{
 		return java.lang.Runtime.class.getName();
 	}
 	
-		
+	// ---- static methods -------
+ 		
 	public static Runtime getRuntime() {
 		/*
 		 * return actual instance, because we cannot instantiate a new one,
@@ -26,7 +27,13 @@ public class MockRuntime implements StaticReplacementMock{
 		return java.lang.Runtime.getRuntime();
 	}
 
+	public static void runFinalizersOnExit(boolean value) {		
+		//Shutdown.setRunFinalizersOnExit(value);
+		//nothing to do
+	}
 
+	// ----- instance replacement methods -------------
+	
 	public static void exit(Runtime runtime, int status) {
 		/*
 		 * TODO: move this exception class here once we remove old System mock
@@ -49,11 +56,6 @@ public class MockRuntime implements StaticReplacementMock{
 		
 		throw new SystemExitException();
 		//TODO remove shutdown hooks
-	}
-
-	public static void runFinalizersOnExit(boolean value) {		
-		//Shutdown.setRunFinalizersOnExit(value);
-		//nothing to do
 	}
 
 	public static Process exec(Runtime runtime, String command) throws IOException {
