@@ -23,11 +23,11 @@ package org.evosuite.runtime.instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.EvoSuiteMock;
@@ -467,9 +467,15 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			}
 
 			String desc = Type.getMethodDescriptor(m);
+			Type[] argumentTypes = Type.getArgumentTypes(m);
+			Type[] mockedArgumentTypes = new Type[argumentTypes.length + 1];
+			mockedArgumentTypes[0] = Type.getType(target);
+			for(int i = 0; i < argumentTypes.length; i++)
+				mockedArgumentTypes[i+1] = argumentTypes[i];
+			String mockedDesc = Type.getMethodDescriptor(Type.getReturnType(m), mockedArgumentTypes);
 			replacementCalls.add(new MethodCallReplacement(
 			        target.getCanonicalName().replace('.', '/'), m.getName(), desc,
-			        mockClass.getCanonicalName().replace('.', '/'), m.getName(), desc,
+			        mockClass.getCanonicalName().replace('.', '/'), m.getName(), mockedDesc,
 			        false, false));
 		}
 	}	
