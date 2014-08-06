@@ -111,6 +111,14 @@ public class ShutdownHookHandler {
 	}
 	
 	/**
+	 * If the JVM is halted, then no shutdown hook should be executed.
+	 * This usually happen when Runtime.getRuntime().halt() is called. 
+	 */
+	public void processWasHalted(){
+		removeNewHooks();
+	}
+	
+	/**
 	 * Execute all added shutdown hooks on this thread.
 	 * They are removed from the JVM.
 	 * 
