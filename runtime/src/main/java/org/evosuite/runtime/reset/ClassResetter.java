@@ -77,17 +77,13 @@ public class ClassResetter {
 	 *  
 	 * @param classNameWithDots the class for invoking the duplicated version of class initializer <clinit>
 	 */
-	public void reset(String classNameWithDots) throws IllegalArgumentException{
+	public void reset(String classNameWithDots) throws IllegalArgumentException, IllegalStateException{
 		if(classNameWithDots==null || classNameWithDots.isEmpty()){
 			throw new IllegalArgumentException("Empty class name in input");
 		}
 		
-		if(loader == null){
-			/*
-			 * this can happen in the EvoSuite regression tests in which classes are already instrumented
-			 * during the search, and so Agent does not set up the loader as never called
-			 */			
-			return;
+		if(loader == null){					
+			new IllegalStateException("No specified loader");
 		}
 		
 		Method m = getResetMethod(classNameWithDots);
