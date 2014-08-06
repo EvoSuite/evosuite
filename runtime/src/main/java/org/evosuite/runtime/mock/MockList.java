@@ -14,6 +14,7 @@ import org.evosuite.runtime.mock.java.io.MockPrintStream;
 import org.evosuite.runtime.mock.java.io.MockPrintWriter;
 import org.evosuite.runtime.mock.java.io.MockRandomAccessFile;
 import org.evosuite.runtime.mock.java.lang.MockException;
+import org.evosuite.runtime.mock.java.lang.MockRuntime;
 import org.evosuite.runtime.mock.java.lang.MockThrowable;
 import org.evosuite.runtime.mock.java.util.MockDate;
 import org.evosuite.runtime.mock.java.util.MockGregorianCalendar;
@@ -22,6 +23,8 @@ import org.evosuite.runtime.mock.java.util.logging.MockFileHandler;
 import org.evosuite.runtime.mock.java.util.logging.MockLogRecord;
 import org.evosuite.runtime.mock.javax.swing.MockJFileChooser;
 import org.evosuite.runtime.mock.javax.swing.filechooser.MockFileSystemView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,7 +33,7 @@ import org.evosuite.runtime.mock.javax.swing.filechooser.MockFileSystemView;
  * to the source code of this class.
  * 
  * <p>
- * Recall that a mock M of class X has to extend X (ie 'class M extends X'),
+ * Recall that a "override" mock M of class X has to extend X (ie 'class M extends X'),
  * and have the same constructors with same inputs, and same static methods.
  * Note: cannot use override for constructors and static methods.
  * 
@@ -39,6 +42,8 @@ import org.evosuite.runtime.mock.javax.swing.filechooser.MockFileSystemView;
  */
 public class MockList {
 
+	private static final Logger logger = LoggerFactory.getLogger(MockList.class);
+	
 	/**
 	 * Return a list of all mock object classes used in EvoSuite.
 	 * What is returned depend on which mock types are going to 
@@ -46,10 +51,10 @@ public class MockList {
 	 * 
 	 * @return a list of Class objects
 	 */
-	public static List<Class<?>> getList(){
-		
-		List<Class<?>>  list = new ArrayList<Class<?>>();
-		
+	public static List<Class<? extends EvoSuiteMock>> getList(){
+
+		List<Class<? extends EvoSuiteMock>>  list = new ArrayList<>();
+
 		if(RuntimeSettings.useVFS){
 			list.add(MockFile.class);
 			list.add(MockFileInputStream.class);
@@ -63,7 +68,7 @@ public class MockList {
 			list.add(MockJFileChooser.class);
 			list.add(MockFileSystemView.class);
 		}
-		
+
 		if(RuntimeSettings.mockJVMNonDeterminism) {
 			list.add(MockDate.class);
 			list.add(MockRandom.class);
@@ -71,8 +76,9 @@ public class MockList {
 			list.add(MockLogRecord.class);
 			list.add(MockThrowable.class);
 			list.add(MockException.class);
+			list.add(MockRuntime.class);
 		}
-		
+
 		return list;
 	}
 
@@ -86,8 +92,8 @@ public class MockList {
 	public static boolean shouldBeMocked(String originalClass) throws IllegalArgumentException{		
 		return getMockClass(originalClass) != null;
 	}
-	
-	
+
+
 	/**
 	 * Check if the given class is among the mock classes
 	 * 
@@ -98,16 +104,16 @@ public class MockList {
 		if(mockClass == null){
 			return false;
 		}
-		
+
 		for(Class<?> mock : getList()){
 			if(mock.getCanonicalName().equals(mockClass)){
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Return the mock class for the given target
 	 * 
@@ -118,19 +124,38 @@ public class MockList {
 		if(originalClass==null || originalClass.isEmpty()){
 			throw new IllegalArgumentException("Empty className");
 		}
-		
-		for(Class<?> mock : getList()){
-			Class<?> target = mock.getSuperclass();
+
+		for(Class<? extends EvoSuiteMock> mock : getList()){
+
+			String name = null;
 			
-			if(target==null){
+			if(OverrideMock.class.isAssignableFrom(mock)){
+				Class<?> target = mock.getSuperclass();
+				if(target==null){
+					logger.error("Override mock "+mock.getCanonicalName()+" does not have a superclass");
+					continue;
+				}
+				name = target.getCanonicalName();
+				
+			} else if(StaticReplacementMock.class.isAssignableFrom(mock)){
+				try {
+					StaticReplacementMock m = (StaticReplacementMock) mock.newInstance();
+					name = m.getMockedClassName();
+				} catch (Exception e) {
+					logger.error("Failed to create instance of mock "+mock.getCanonicalName());
+					continue;
+				} 
+			} else {
+				//should never happen
+				logger.error("Cannot handle "+mock);
 				continue;
 			}
-			
-			if(originalClass.equals(target.getCanonicalName())){
+
+			if(originalClass.equals(name)){
 				return mock;
 			}
 		}
-		
+
 		return null;
 	}
 }

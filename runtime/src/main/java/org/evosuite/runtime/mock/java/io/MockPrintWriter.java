@@ -12,7 +12,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 
-public class MockPrintWriter extends PrintWriter{
+import org.evosuite.runtime.mock.OverrideMock;
+
+public class MockPrintWriter extends PrintWriter  implements OverrideMock{
 
 	/*
 	 * -- constructors from PrintWriter

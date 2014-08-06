@@ -7,80 +7,65 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.StringTokenizer;
 
-// import sun.reflect.CallerSensitive;
-// import sun.reflect.Reflection;
+import org.evosuite.runtime.System.SystemExitException;
+import org.evosuite.runtime.mock.StaticReplacementMock;
 
-public class MockRuntime{// extends java.lang.Runtime{
-/*
-	TODO: cannot subclass java.lang.Runtime
-	Need to use static methods here 
-	
-	private static Runtime currentMockRuntime = new MockRuntime();
 
-	
-	public static Runtime getRuntime() {
-		return currentMockRuntime;
+public class MockRuntime implements StaticReplacementMock{
+
+	public String getMockedClassName(){
+		return java.lang.Runtime.class.getName();
 	}
-
-	private MockRuntime() {
+	
 		
+	public static Runtime getRuntime() {
+		/*
+		 * return actual instance, because we cannot instantiate a new one,
+		 * and anyway will never been used directly in an unsafe mode
+		 */ 
+		return java.lang.Runtime.getRuntime();
 	}
 
-	public void exit(int status) {
-		SecurityManager security = System.getSecurityManager();
-		if (security != null) {
-			security.checkExit(status);
-		}
-		Shutdown.exit(status);
+
+	public static void exit(Runtime runtime, int status) {
+		/*
+		 * TODO: move this exception class here once we remove old System mock
+		 */
+		throw new SystemExitException();
 	}
 
-	public void addShutdownHook(Thread hook) {
-		SecurityManager sm = System.getSecurityManager();
-		if (sm != null) {
-			sm.checkPermission(new RuntimePermission("shutdownHooks"));
-		}
-		ApplicationShutdownHooks.add(hook);
+	public static void addShutdownHook(Runtime runtime,Thread hook) {
+		//ApplicationShutdownHooks.add(hook);
+		//TODO
 	}
 
-	public boolean removeShutdownHook(Thread hook) {
-		SecurityManager sm = System.getSecurityManager();
-		if (sm != null) {
-			sm.checkPermission(new RuntimePermission("shutdownHooks"));
-		}
-		return ApplicationShutdownHooks.remove(hook);
+	public static boolean removeShutdownHook(Runtime runtime, Thread hook) {		
+		//return ApplicationShutdownHooks.remove(hook);
+		return false; //TODO
 	}
 
-	public void halt(int status) {
-		SecurityManager sm = System.getSecurityManager();
-		if (sm != null) {
-			sm.checkExit(status);
-		}
-		Shutdown.halt(status);
+	public static void halt(Runtime runtime, int status) {		
+		//Shutdown.halt(status);
+		
+		throw new SystemExitException();
+		//TODO remove shutdown hooks
 	}
 
-	@Deprecated
-	public static void runFinalizersOnExit(boolean value) {
-		SecurityManager security = System.getSecurityManager();
-		if (security != null) {
-			try {
-				security.checkExit(0);
-			} catch (SecurityException e) {
-				throw new SecurityException("runFinalizersOnExit");
-			}
-		}
-		Shutdown.setRunFinalizersOnExit(value);
+	public static void runFinalizersOnExit(boolean value) {		
+		//Shutdown.setRunFinalizersOnExit(value);
+		//nothing to do
 	}
 
-	public Process exec(String command) throws IOException {
-		return exec(command, null, null);
+	public static Process exec(Runtime runtime, String command) throws IOException {
+		return exec(runtime, command, null, null);
 	}
 
-	public Process exec(String command, String[] envp) throws IOException {
-		return exec(command, envp, null);
+	public static Process exec(Runtime runtime, String command, String[] envp) throws IOException {
+		return exec(runtime, command, envp, null);
 	}
 
-	public Process exec(String command, String[] envp, File dir)
-			throws IOException {
+	public static Process exec(Runtime runtime, String command, String[] envp, File dir) throws IOException {
+		
 		if (command.length() == 0)
 			throw new IllegalArgumentException("Empty command");
 
@@ -88,87 +73,91 @@ public class MockRuntime{// extends java.lang.Runtime{
 		String[] cmdarray = new String[st.countTokens()];
 		for (int i = 0; st.hasMoreTokens(); i++)
 			cmdarray[i] = st.nextToken();
-		return exec(cmdarray, envp, dir);
+		return exec(runtime, cmdarray, envp, dir);
 	}
 
-	public Process exec(String cmdarray[]) throws IOException {
-		return exec(cmdarray, null, null);
+	public static Process exec(Runtime runtime, String cmdarray[]) throws IOException {
+		return exec(runtime, cmdarray, null, null);
 	}
 
-	public Process exec(String[] cmdarray, String[] envp) throws IOException {
-		return exec(cmdarray, envp, null);
+	public static Process exec(Runtime runtime, String[] cmdarray, String[] envp) throws IOException {
+		return exec(runtime, cmdarray, envp, null);
 	}
 
 
-	public Process exec(String[] cmdarray, String[] envp, File dir)
+	public static Process exec(Runtime runtime, String[] cmdarray, String[] envp, File dir)
 			throws IOException {
+		/*
 		return new ProcessBuilder(cmdarray)
 		.environment(envp)
 		.directory(dir)
 		.start();
+		*/
+		//TODO mock ProcessBuilder 
+		throw new IOException("Cannot start processes in a unit test");
 	}
 
-	public native int availableProcessors();
-
-	public native long freeMemory();
-
-	public native long totalMemory();
-
-	public native long maxMemory();
-
-	public native void gc();
-
-	private static native void runFinalization0();
-
-	public void runFinalization() {
-		runFinalization0();
+	public static  void gc(Runtime runtime){
+		//do nothing
 	}
 
-	public native void traceInstructions(boolean on);
-
-	public native void traceMethodCalls(boolean on);
-
-	public void load(String filename) {
-		load0(Reflection.getCallerClass(), filename);
+	public static void runFinalization(Runtime runtime) {
+		//runFinalization0();
+		//do nothing
 	}
 
-	synchronized void load0(Class fromClass, String filename) {
-		SecurityManager security = System.getSecurityManager();
-		if (security != null) {
-			security.checkLink(filename);
-		}
-		if (!(new File(filename).isAbsolute())) {
-			throw new UnsatisfiedLinkError(
-					"Expecting an absolute path of the library: " + filename);
-		}
-		ClassLoader.loadLibrary(fromClass, filename, true);
+	
+	public static void traceInstructions(Runtime runtime, boolean on){
+		//do nothing
 	}
 
-	public void loadLibrary(String libname) {
-		loadLibrary0(Reflection.getCallerClass(), libname);
+	public static void traceMethodCalls(Runtime runtime, boolean on){
+		//do nothing
 	}
 
-	synchronized void loadLibrary0(Class fromClass, String libname) {
-		SecurityManager security = System.getSecurityManager();
-		if (security != null) {
-			security.checkLink(libname);
-		}
-		if (libname.indexOf((int)File.separatorChar) != -1) {
-			throw new UnsatisfiedLinkError(
-					"Directory separator should not appear in library name: " + libname);
-		}
-		ClassLoader.loadLibrary(fromClass, libname, false);
+	
+	public static void load(Runtime runtime, String filename) {
+		//load0(Reflection.getCallerClass(), filename);
+		runtime.load(filename);  // we need to load the actuall stuff
 	}
 
-	@Deprecated
-	public InputStream getLocalizedInputStream(InputStream in) {
-		return in;
+	public static void loadLibrary(Runtime runtime, String libname) {
+		//loadLibrary0(Reflection.getCallerClass(), libname);
+		runtime.loadLibrary(libname); // we need to load the actuall stuff
 	}
 
-	@Override
-	public OutputStream getLocalizedOutputStream(OutputStream out) {
-		return super;
+
+	
+	public static InputStream getLocalizedInputStream(Runtime runtime, InputStream in) {
+		return runtime.getLocalizedInputStream(in);
 	}
 
-*/
+	public static OutputStream getLocalizedOutputStream(Runtime runtime, OutputStream out) {
+		return runtime.getLocalizedOutputStream(out);
+	}
+
+	//-------------------------------------------------
+	// for the following methods, we return reasonable values. Technically those returned values could
+	// be part of the search. But most likely it would be not useful to increase coverage in typical cases
+	// Note: we still need them to be deterministic, and not based on actual Runtime
+	
+	public static int availableProcessors(Runtime runtime){
+		return 1; 
+	}
+
+	public static  long freeMemory(Runtime runtime){
+		return 200;
+	}
+
+
+	public static  long totalMemory(Runtime runtime){
+		return 400; 
+	}
+
+
+	public static  long maxMemory(Runtime runtime){
+		return 500; 
+	}
+	
+	//-------------------------------------------------
 }

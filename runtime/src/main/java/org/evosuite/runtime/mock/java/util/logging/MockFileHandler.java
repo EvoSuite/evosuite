@@ -9,6 +9,7 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 
@@ -27,7 +28,7 @@ import org.evosuite.runtime.vfs.VirtualFileSystem;
  * @author arcuri
  *
  */
-public class MockFileHandler extends FileHandler{
+public class MockFileHandler extends FileHandler  implements OverrideMock{
 
     private static final int offValue = Level.OFF.intValue();
 
