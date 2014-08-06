@@ -1,9 +1,10 @@
-package org.evosuite.runtime;
+package org.evosuite.runtime.mock;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.evosuite.runtime.mock.java.io.MockFileInputStream;
 import org.evosuite.runtime.mock.java.io.MockFileOutputStream;
