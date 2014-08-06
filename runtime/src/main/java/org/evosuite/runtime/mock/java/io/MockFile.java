@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 
+import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VFolder;
@@ -23,7 +24,7 @@ import org.evosuite.runtime.vfs.VirtualFileSystem;
  * @author arcuri
  *
  */
-public class MockFile extends File{
+public class MockFile extends File implements OverrideMock {
 
 	private static final long serialVersionUID = -8217763202925800733L;
 

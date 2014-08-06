@@ -38,9 +38,10 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.filechooser.FileView;
 import javax.swing.plaf.FileChooserUI;
 
+import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.mock.javax.swing.filechooser.MockFileSystemView;
 
-public class MockJFileChooser extends  javax.swing.JFileChooser{
+public class MockJFileChooser extends  javax.swing.JFileChooser  implements OverrideMock{
 
 	private static final long serialVersionUID = 1062809726268959728L;
 

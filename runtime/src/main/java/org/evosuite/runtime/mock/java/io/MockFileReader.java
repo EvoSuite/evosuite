@@ -7,9 +7,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 
-public class MockFileReader extends FileReader{
+public class MockFileReader extends FileReader  implements OverrideMock{
 
 	/**
 	 * As all the constructors of FileReader instantiate

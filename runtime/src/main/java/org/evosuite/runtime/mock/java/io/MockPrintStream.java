@@ -6,7 +6,9 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
-public class MockPrintStream extends PrintStream{
+import org.evosuite.runtime.mock.OverrideMock;
+
+public class MockPrintStream extends PrintStream  implements OverrideMock{
 
 	
 	/* -- constructors  from PrintStream ----------

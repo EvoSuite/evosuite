@@ -13,13 +13,14 @@ import javax.swing.Icon;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
 
+import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFolder;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 
 
-public abstract class MockFileSystemView extends FileSystemView{
+public abstract class MockFileSystemView extends FileSystemView  implements OverrideMock{
 
 	static FileSystemView windowsFileSystemView = null;
 	static FileSystemView unixFileSystemView = null;
