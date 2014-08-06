@@ -9,6 +9,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -172,6 +173,10 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		return new GenericClass(getGeneratedType());
 	}
 
+	public Type[] getGenericParameterTypes() {
+		return new Type[] {};
+	}
+	
 	public abstract Type getGenericGeneratedType();
 
 	/**
@@ -224,6 +229,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		        + " of method: " + toString() + " for callee " + calleeType);
 		Map<TypeVariable<?>, Type> typeMap = calleeType.getTypeVariableMap();
 		if (!hasTypeParameters()) {
+			logger.debug("Have no type parameters, just using typeMap of callee");
 			copy.owner = copy.getOwnerClass().getGenericInstantiation(typeMap);
 			return copy;
 		}
@@ -251,12 +257,15 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	public T getGenericInstantiationFromReturnValue(GenericClass generatedType)
 	        throws ConstructionFailedException {
 
+		logger.debug("Instantiating generic return for generated Type "+generatedType);
 		T copy = copy();
 
 		// We just want to have the type variables defined in the generic method here
 		// and not type variables defined in the owner
 		Map<TypeVariable<?>, Type> concreteTypes = new HashMap<TypeVariable<?>, Type>();
+		logger.debug("Getting type map of generated type");
 		Map<TypeVariable<?>, Type> generatorTypes = generatedType.getTypeVariableMap();
+		logger.debug("Got type map of generated type: "+generatorTypes);
 		Type genericReturnType = getGenericGeneratedType();
 
 		logger.debug("Getting generic instantiation for return type " + generatedType
@@ -271,11 +280,33 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 			generatorTypes.put((TypeVariable<?>) genericReturnType,
 			                   generatedType.getType());
 		}
+		
+		for(Type parameterType : getGenericParameterTypes()) {
+			logger.debug("Checking parameter "+parameterType);
+			if(parameterType instanceof ParameterizedType) {
+				Map<TypeVariable<?>, Type> matchedMap = GenericUtils.getMatchingTypeParameters((ParameterizedType) parameterType,
+                        (ParameterizedType) genericReturnType);
+				for(TypeVariable<?> var : matchedMap.keySet()) {
+					if(!generatorTypes.containsKey(var))
+						generatorTypes.put(var, matchedMap.get(var));
+				}
+				logger.debug("Map is now "+generatorTypes);
 
+			}
+		}
+		logger.debug("GeneratorTypes is now: "+generatorTypes);
 		List<TypeVariable<?>> parameters = Arrays.asList(getTypeParameters());
 		for (TypeVariable<?> var : generatorTypes.keySet()) {
-			if (parameters.contains(var))
+			if (parameters.contains(var) && !(generatorTypes.get(var) instanceof WildcardType)) {
+				logger.debug("Parameter "+var+" in map, adding to concrete types: "+generatorTypes.get(var));
 				concreteTypes.put(var, generatorTypes.get(var));
+			} else {
+				logger.debug("Parameter "+var+" not in map, not adding to concrete types: "+generatorTypes.get(var));
+				logger.debug("Key: "+var.getGenericDeclaration());
+				for(TypeVariable<?> k : parameters) {
+					logger.debug("Param: "+k.getGenericDeclaration());
+				}
+			}
 		}
 
 		// When resolving the type variables on a non-static generic method

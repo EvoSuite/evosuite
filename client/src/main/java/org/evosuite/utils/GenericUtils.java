@@ -8,6 +8,7 @@ import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,15 +155,85 @@ public class GenericUtils {
 		}
 	}
 
+	/**
+	 * TODO: Try to match p2 superclasses? 
+	 * 
+	 * @param p1 Desired TypeVariable assignment
+	 * @param p2 Generic type with the TypeVariables that need assignment
+	 * @return
+	 */
 	public static Map<TypeVariable<?>, Type> getMatchingTypeParameters(
 	        ParameterizedType p1, ParameterizedType p2) {
+		logger.debug("Matching generic types between "+p1+" and "+p2);
 		Map<TypeVariable<?>, Type> map = new HashMap<TypeVariable<?>, Type>();
-		if (!p1.getRawType().equals(p2.getRawType()))
+		if (!p1.getRawType().equals(p2.getRawType())) {
+			logger.debug("Raw types do not match!");
+			
+			GenericClass ownerClass = new GenericClass(p2);
+			
+			if(GenericClass.isSubclass(p1.getRawType(), p2.getRawType())) {
+				logger.debug(p1 +" is a super type of "+p2);
+				Map<TypeVariable<?>, Type> commonsMap = TypeUtils.determineTypeArguments((Class<?>)p2.getRawType(), p1);
+				logger.debug("Adding to map: "+commonsMap);
+				// TODO: Now we would need to iterate over the type parameters, and update the map?
+				//map.putAll(commonsMap);
+				
+				for(TypeVariable<?> t : map.keySet()) {
+					logger.debug(t+": "+t.getGenericDeclaration());
+				}
+				
+				// For each type variable of the raw type, map the parameter type to that type
+				Type[] p2TypesA = ((Class<?>)p2.getRawType()).getTypeParameters();
+				Type[] p2TypesB = p2.getActualTypeArguments();
+				for(int i = 0 ; i < p2TypesA.length; i++) {
+					Type a = p2TypesA[i];
+					Type b = p2TypesB[i];
+					logger.debug("Should be mapping "+a+" and "+b);
+					if(a instanceof TypeVariable<?>) {
+						logger.debug(a+" is a type variable: "+((TypeVariable<?>)a).getGenericDeclaration());
+						if(b instanceof TypeVariable<?>) {
+							logger.debug(b+" is a type variable: "+((TypeVariable<?>)b).getGenericDeclaration());
+							if(commonsMap.containsKey((TypeVariable<?>)a) && !(commonsMap.get((TypeVariable<?>)a) instanceof WildcardType) && !(commonsMap.get((TypeVariable<?>)a) instanceof TypeVariable<?>))
+								map.put((TypeVariable<?>)b, commonsMap.get((TypeVariable<?>)a));
+							//else
+							//	map.put((TypeVariable<?>)a, b);
+						}
+					}
+					
+//					if(b instanceof TypeVariable<?>) {
+//						if(map.containsKey(a))
+//							map.put((TypeVariable<?>)b, map.get(a));
+//						//else
+//						//	map.put((TypeVariable<?>)b, a);
+//					}
+				
+					logger.debug("Updated map: "+map);
+				}
+				
+			}
+
+			
+			for(GenericClass interfaceClass : ownerClass.getInterfaces()) {
+				if(interfaceClass.isParameterizedType())
+					map.putAll(getMatchingTypeParameters(p1, (ParameterizedType)interfaceClass.getType()));
+				else
+					logger.debug("Interface "+interfaceClass+" is not parameterized");
+			}
+			if(ownerClass.getRawClass().getSuperclass() != null) {
+				GenericClass ownerSuperClass = ownerClass.getSuperClass();
+				if(ownerSuperClass.isParameterizedType()) 
+					map.putAll(getMatchingTypeParameters(p1, (ParameterizedType)ownerSuperClass.getType()));
+				else
+					logger.debug("Super type "+ownerSuperClass+" is not parameterized");
+			}
 			return map;
+		}
 
 		for (int i = 0; i < p1.getActualTypeArguments().length; i++) {
 			Type t1 = p1.getActualTypeArguments()[i];
 			Type t2 = p2.getActualTypeArguments()[i];
+			if(t1 == t2)
+				continue;
 			logger.debug("First match: " + t1 + " - " + t2);
 			if (t1 instanceof TypeVariable<?>) {
 				map.put((TypeVariable<?>) t1, t2);
@@ -173,6 +244,8 @@ public class GenericUtils {
 				map.putAll(getMatchingTypeParameters((ParameterizedType) t1,
 				                                     (ParameterizedType) t2));
 			}
+			logger.debug("Updated map: "+map);
+
 		}
 
 		if (p1.getOwnerType() != null && p1.getOwnerType() instanceof ParameterizedType

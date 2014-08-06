@@ -356,7 +356,7 @@ public class TestFactory {
 	 */
 	public VariableReference addMethodFor(TestCase test, VariableReference callee,
 	        GenericMethod method, int position) throws ConstructionFailedException {
-		logger.debug("Adding method " + method + " for " + callee);
+		logger.debug("Adding method " + method + " for " + callee + "(Generating "+method.getGeneratedClass()+")");
 		if(position <= callee.getStPosition())
 			throw new ConstructionFailedException("Cannot insert call on object before the object is defined");
 		
@@ -499,6 +499,11 @@ public class TestFactory {
 			        + array.getComponentType());
 			VariableReference var = attemptGeneration(test, array.getComponentType(),
 			                                          position);
+			// Generics instantiation may lead to invalid types, so better double check
+			if(!var.isAssignableTo(arrRef.getComponentType())) {
+				throw new ConstructionFailedException("Error");
+			}
+
 			position += test.size() - oldLength;
 			ArrayIndex index = new ArrayIndex(test, arrRef, arrayIndex);
 			StatementInterface st = new AssignmentStatement(test, index, var);
@@ -989,7 +994,11 @@ public class TestFactory {
 
 		} else {
 			if (clazz.hasWildcardOrTypeVariables()) {
-				clazz = clazz.getGenericInstantiation();
+				logger.debug("Getting generic instantiation of "+clazz);
+				if(exclude != null)
+					clazz = clazz.getGenericInstantiation(exclude.getGenericClass().getTypeVariableMap());
+				else
+					clazz = clazz.getGenericInstantiation();
 				parameterType = clazz.getType();
 			}
 			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isObject() || 
@@ -1544,10 +1553,11 @@ public class TestFactory {
 		int position = Randomness.nextInt(max);
 
 		if (logger.isDebugEnabled()) {
-			for (int i = 0; i < test.size(); i++) {
-				logger.debug(test.getStatement(i).getCode() + ": Distance = "
-				        + test.getStatement(i).getReturnValue().getDistance());
-			}
+			//for (int i = 0; i < test.size(); i++) {
+			//	logger.debug(test.getStatement(i).getCode() + ": Distance = "
+			//	        + test.getStatement(i).getReturnValue().getDistance());
+			//}
+			logger.debug(test.toCode());
 		}
 
 		//		if (r <= P_UUT) {
@@ -1606,6 +1616,11 @@ public class TestFactory {
 
 			VariableReference var = createOrReuseVariable(test, parameterType, position,
 			                                              recursionDepth, callee, true);
+			
+			// Generics instantiation may lead to invalid types, so better double check
+			if(!var.isAssignableTo(parameterType)) {
+				throw new ConstructionFailedException("Error");
+			}
 			parameters.add(var);
 
 			int currentLength = test.size();

@@ -459,7 +459,7 @@ public class TestClusterGenerator {
 					        constructor, clazz);
 					cluster.addTestCall(genericConstructor);
 					// TODO: Add types!
-					cluster.addGenerator(new GenericClass(clazz).getWithWildcardTypes(),
+					cluster.addGenerator(new GenericClass(clazz), //.getWithWildcardTypes(),
 					                     genericConstructor);
 					addDependencies(genericConstructor, 1);
 					logger.debug("Keeping track of "
@@ -495,14 +495,14 @@ public class TestClusterGenerator {
 
 					GenericMethod genericMethod = new GenericMethod(method, clazz);
 					cluster.addTestCall(genericMethod);
-					cluster.addModifier(new GenericClass(clazz).getWithWildcardTypes(),
+					cluster.addModifier(new GenericClass(clazz), //.getWithWildcardTypes(),
 					                    genericMethod);
 					addDependencies(genericMethod, 1);
 					GenericClass retClass = new GenericClass(method.getReturnType());
 
 					if (!retClass.isPrimitive() && !retClass.isVoid()
 					        && !retClass.isObject())
-						cluster.addGenerator(retClass.getWithWildcardTypes(),
+						cluster.addGenerator(retClass, //.getWithWildcardTypes(),
 						                     genericMethod);
 				} else {
 					logger.debug("Method cannot be used: " + method);
@@ -515,7 +515,7 @@ public class TestClusterGenerator {
 				if (canUse(field, clazz)) {
 					GenericField genericField = new GenericField(field, clazz);
 					addDependencies(genericField, 1);
-					cluster.addGenerator(new GenericClass(field.getGenericType()).getWithWildcardTypes(),
+					cluster.addGenerator(new GenericClass(field.getGenericType()), //.getWithWildcardTypes(),
 					                     genericField);
 					logger.debug("Adding field " + field);
 					if (!Modifier.isFinal(field.getModifiers())) {
@@ -1446,7 +1446,7 @@ public class TestClusterGenerator {
 					GenericConstructor genericConstructor = new GenericConstructor(
 					        constructor, clazz);
 					try {
-						cluster.addGenerator(clazz.getWithWildcardTypes(),
+						cluster.addGenerator(clazz, //.getWithWildcardTypes(),
 						                     genericConstructor);
 						addDependencies(genericConstructor, recursionLevel + 1);
 						logger.debug("Keeping track of "
@@ -1493,14 +1493,15 @@ public class TestClusterGenerator {
 					GenericMethod genericMethod = new GenericMethod(method, clazz);
 					try {
 						addDependencies(genericMethod, recursionLevel + 1);
-						cluster.addModifier(clazz.getWithWildcardTypes(), genericMethod);
+						cluster.addModifier(clazz, //.getWithWildcardTypes(), 
+								genericMethod);
 						//					GenericClass retClass = new GenericClass(
 						//					        genericMethod.getReturnType(), method.getReturnType());
 						GenericClass retClass = new GenericClass(method.getReturnType());
 
 						if (!retClass.isPrimitive() && !retClass.isVoid()
 						        && !retClass.isObject()) {
-							cluster.addGenerator(retClass.getWithWildcardTypes(),
+							cluster.addGenerator(retClass, //.getWithWildcardTypes(),
 							                     genericMethod);
 						}
 					} catch (Throwable t) {
@@ -1519,10 +1520,10 @@ public class TestClusterGenerator {
 					logger.debug("Adding field " + field + " for class " + clazz);
 					try {
 						GenericField genericField = new GenericField(field, clazz);
-						cluster.addGenerator(new GenericClass(field.getGenericType()).getWithWildcardTypes(),
+						cluster.addGenerator(new GenericClass(field.getGenericType()), //.getWithWildcardTypes(),
 						                     genericField);
 						if (!Modifier.isFinal(field.getModifiers())) {
-							cluster.addModifier(clazz.getWithWildcardTypes(),
+							cluster.addModifier(clazz, //.getWithWildcardTypes(),
 							                    genericField);
 							addDependencies(genericField, recursionLevel + 1);
 						}

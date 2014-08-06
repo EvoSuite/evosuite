@@ -524,14 +524,14 @@ public class GenericClass implements Serializable {
 
 		logger.debug("Instantiation " + toString() + " with type map " + typeMap);
 		// If there are no type variables, create copy
-		if (isRawClass() || !hasWildcardOrTypeVariables()) {
+		if (isRawClass() || !hasWildcardOrTypeVariables() || recursionLevel > Properties.MAX_GENERIC_DEPTH) {
 			logger.debug("Nothing to replace: " + toString() + ", " + isRawClass() + ", "
 			        + hasWildcardOrTypeVariables());
 			return new GenericClass(this);
 		}
 
 		if (isWildcardType()) {
-			logger.debug("Is wildcard type");
+			logger.debug("Is wildcard type.");
 			return getGenericWildcardInstantiation(typeMap, recursionLevel);
 		} else if (isArray()) {
 			return getGenericArrayInstantiation(typeMap, recursionLevel);
@@ -642,6 +642,14 @@ public class GenericClass implements Serializable {
 		                                                                            typeMap);
 		return selectedClass.getGenericInstantiation(typeMap, recursionLevel + 1);
 	}
+	
+	public List<GenericClass> getInterfaces() {
+		List<GenericClass> ret = new ArrayList<GenericClass>();
+		for(Class<?> intf : rawClass.getInterfaces()) {
+			ret.add(new GenericClass(intf));
+		}
+		return ret;
+	}
 
 	/**
 	 * Instantiate all type parameters of a parameterized type
@@ -659,8 +667,9 @@ public class GenericClass implements Serializable {
 
 		Type[] parameterTypes = new Type[typeParameters.size()];
 		Type ownerType = null;
-
+		
 		int numParam = 0;
+		
 		for (GenericClass parameterClass : getParameterClasses()) {
 			logger.debug("Current parameter to instantiate: " + parameterClass);
 			/*
@@ -676,13 +685,16 @@ public class GenericClass implements Serializable {
 				Map<TypeVariable<?>, Type> extendedMap = new HashMap<TypeVariable<?>, Type>(
 				        typeMap);
 				extendedMap.putAll(parameterClass.getTypeVariableMap());
+				if(!extendedMap.containsKey(typeParameters.get(numParam)) && !parameterClass.isTypeVariable())
+					extendedMap.put(typeParameters.get(numParam), parameterClass.getType());
 				logger.debug("New type map: " + extendedMap);
 
 				if (parameterClass.isWildcardType()) {
-					logger.debug("Is wildcard type");
-					GenericClass parameterInstance = new GenericClass(
-					        typeParameters.get(numParam)).getGenericInstantiation(extendedMap,
-					                                                              recursionLevel + 1);
+					logger.debug("Is wildcard type, here we should value the wildcard boundaries");
+					GenericClass parameterInstance = parameterClass.getGenericWildcardInstantiation(extendedMap, recursionLevel + 1);
+					//GenericClass parameterInstance = new GenericClass(
+					//        typeParameters.get(numParam)).getGenericInstantiation(extendedMap,
+					//                                                              recursionLevel + 1);
 					parameterTypes[numParam++] = parameterInstance.getType();
 				} else {
 					logger.debug("Is not wildcard but type variable? "
@@ -1521,6 +1533,7 @@ public class GenericClass implements Serializable {
 
 		// ? extends X
 		for (Type theType : wildcardType.getUpperBounds()) {
+			logger.debug("Checking upper bound "+theType);
 			// Special case: Enum is defined as Enum<T extends Enum>
 			if (GenericTypeReflector.erase(theType).equals(Enum.class)) {
 				// if this is an enum then it's ok. 
@@ -1563,9 +1576,12 @@ public class GenericClass implements Serializable {
 		Type[] lowerBounds = wildcardType.getLowerBounds();
 		if (lowerBounds != null && lowerBounds.length > 0) {
 			for (Type theType : wildcardType.getLowerBounds()) {
+				logger.debug("Checking lower bound "+theType);
 				Type type = GenericUtils.replaceTypeVariables(theType, ownerVariableMap);
 				logger.debug("Bound after variable replacement: " + type);
-				if (!isAssignableTo(type)) {
+				logger.debug("Is assignable from "+toString()+"?");
+				if (!isAssignableFrom(type)) {
+					logger.debug("Not assignable from "+toString());
 					// If the boundary is not assignable it may still be possible 
 					// to instantiate the generic to an assignable type
 					if (GenericTypeReflector.erase(type).isAssignableFrom(getRawClass())) {
@@ -1586,6 +1602,8 @@ public class GenericClass implements Serializable {
 					}
 					isAssignable = false;
 					break;
+				} else {
+					logger.debug("Is assignable from "+toString());
 				}
 			}
 		}

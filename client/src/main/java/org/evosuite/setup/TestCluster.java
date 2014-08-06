@@ -368,10 +368,12 @@ public class TestCluster {
 	        GenericClass clazz) throws ConstructionFailedException {
 		Set<GenericAccessibleObject<?>> genericModifiers = new LinkedHashSet<GenericAccessibleObject<?>>();
 		if (clazz.isParameterizedType()) {
+			logger.debug("Is parameterized class");
 			for (Entry<GenericClass, Set<GenericAccessibleObject<?>>> entry : modifiers.entrySet()) {
 				logger.debug("Considering " + entry.getKey());
-				// if (entry.getKey().canBeInstantiatedTo(clazz)) {
-				if (entry.getKey().isGenericSuperTypeOf(clazz)) {
+				//if (entry.getKey().canBeInstantiatedTo(clazz)) {
+				
+				if (entry.getKey().getWithWildcardTypes().isGenericSuperTypeOf(clazz)) {
 					logger.debug(entry.getKey() + " can be instantiated to " + clazz);
 					for (GenericAccessibleObject<?> modifier : entry.getValue()) {
 						try {
@@ -383,6 +385,8 @@ public class TestCluster {
 							logger.debug("Cannot be added: " + modifier);
 						}
 					}
+				} else {
+					logger.debug("Nope");
 				}
 				/*
 				if (entry.getKey().getRawClass().equals(clazz.getRawClass())) {
@@ -449,6 +453,8 @@ public class TestCluster {
 				}
 				*/
 			}
+		} else {
+			logger.debug("Is NOT parameterized class!");
 		}
 		return genericModifiers;
 	}
@@ -469,7 +475,9 @@ public class TestCluster {
 	 */
 	public Set<GenericAccessibleObject<?>> getCallsFor(GenericClass clazz, boolean resolve)
 	        throws ConstructionFailedException {
+		logger.debug("Getting calls for "+clazz);
 		if (clazz.hasWildcardOrTypeVariables()) {
+			logger.debug("Resolving generic type before getting modifiers");
 			GenericClass concreteClass = clazz.getGenericInstantiation();
 			if (!concreteClass.equals(clazz))
 				return getCallsFor(concreteClass, false);
@@ -513,8 +521,10 @@ public class TestCluster {
 	        throws ConstructionFailedException {
 		Set<GenericAccessibleObject<?>> all = new LinkedHashSet<GenericAccessibleObject<?>>();
 		if (!modifiers.containsKey(clazz)) {
+			logger.debug("Don't have that specific class, so have to check generic modifiers");
 			all.addAll(determineGenericModifiersFor(clazz));
 		} else {
+			logger.debug("Got modifiers");
 			all.addAll(modifiers.get(clazz));
 		}
 		Set<GenericAccessibleObject<?>> calls = new LinkedHashSet<GenericAccessibleObject<?>>();
@@ -819,6 +829,8 @@ public class TestCluster {
 
 		if (clazz.hasWildcardOrTypeVariables()) {
 			GenericClass concreteClass = clazz.getGenericInstantiation();
+			if(concreteClass.hasWildcardOrTypeVariables())
+				throw new ConstructionFailedException("Could not found concrete instantiation of generic type");
 			return getRandomGenerator(concreteClass);
 		}
 
@@ -901,6 +913,9 @@ public class TestCluster {
 		if (generator.hasTypeParameters()) {
 			logger.debug("Generator has a type parameter: " + generator);
 			generator = generator.getGenericInstantiationFromReturnValue(clazz);
+			if(!generator.getGeneratedClass().isAssignableTo(clazz)) {
+				throw new ConstructionFailedException("Generics error");
+			}
 		}
 
 		return generator;
@@ -1089,13 +1104,13 @@ public class TestCluster {
 		for (GenericClass clazz : modifiers.keySet()) {
 			result.append(" Modifiers for " + clazz.getSimpleName() + ": "
 			        + modifiers.get(clazz).size() + "\n");
-			try {
-				for (GenericAccessibleObject<?> o : getCallsFor(clazz, true)) {
+			//try {
+				for (GenericAccessibleObject<?> o : modifiers.get(clazz)) { //getCallsFor(clazz, true)) {
 					result.append(" " + clazz.getSimpleName() + " <- " + o + "\n");
 				}
-			} catch (ConstructionFailedException e) {
-				result.append("ERROR");
-			}
+			//} catch (ConstructionFailedException e) {
+			//	result.append("ERROR");
+			//}
 		}
 		result.append("Test calls\n");
 		for (GenericAccessibleObject<?> testCall : testMethods) {

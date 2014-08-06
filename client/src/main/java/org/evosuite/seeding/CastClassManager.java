@@ -374,12 +374,15 @@ public class CastClassManager {
 			logger.debug("Current class for wildcard " + wildcardType + ": " + key);
 
 			if (!key.satisfiesBoundaries(wildcardType, ownerVariableMap)) {
+				logger.debug("Does not satisfy boundaries");
 				continue;
 			}
 
 			if (!allowRecursion && key.hasWildcardOrTypeVariables()) {
+				logger.debug("Stopping because of type recursion");
 				continue;
 			}
+			logger.debug("Is assignable");
 
 			assignableClasses.put(entry.getKey(), entry.getValue());
 		}
@@ -452,6 +455,7 @@ public class CastClassManager {
 	        boolean allowRecursion, Map<TypeVariable<?>, Type> ownerVariableMap)
 	        throws ConstructionFailedException {
 
+		logger.debug("Getting assignable classes for wildcard");
 		List<GenericClass> assignableClasses = getAssignableClasses(wildcardType,
 		                                                            allowRecursion,
 		                                                            ownerVariableMap);
