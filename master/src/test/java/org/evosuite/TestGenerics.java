@@ -16,6 +16,7 @@ import com.examples.with.different.packagename.generic.GenericArrayWithGenericTy
 import com.examples.with.different.packagename.generic.GenericArrayWithGenericTypeVariable;
 import com.examples.with.different.packagename.generic.GenericClassWithGenericMethod;
 import com.examples.with.different.packagename.generic.GenericClassWithGenericMethodAndSubclass;
+import com.examples.with.different.packagename.generic.GenericCollectionUtil;
 import com.examples.with.different.packagename.generic.GenericConstructorParameterOnRawList;
 import com.examples.with.different.packagename.generic.GenericGenericParameter;
 import com.examples.with.different.packagename.generic.GenericMemberclass;
@@ -39,6 +40,10 @@ import com.examples.with.different.packagename.generic.GenericSUT;
 import com.examples.with.different.packagename.generic.GenericSUTString;
 import com.examples.with.different.packagename.generic.GenericSUTTwoParameters;
 import com.examples.with.different.packagename.generic.GenericStaticMemberclass;
+import com.examples.with.different.packagename.generic.GenericStaticMethod1;
+import com.examples.with.different.packagename.generic.GenericStaticMethod2;
+import com.examples.with.different.packagename.generic.GenericStaticMethod3;
+import com.examples.with.different.packagename.generic.GenericStaticMethod4;
 import com.examples.with.different.packagename.generic.GenericSuperclassOmittingTypeParameters;
 import com.examples.with.different.packagename.generic.GenericTripleParameter;
 import com.examples.with.different.packagename.generic.GenericTwoDimensionalArray;
@@ -980,4 +985,105 @@ public class TestGenerics extends SystemTest {
 		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
+	
+	@Test
+	public void testStaticGenericMethod1() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = GenericStaticMethod1.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+	
+	@Test
+	public void testStaticGenericMethod2() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = GenericStaticMethod2.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+	
+	@Test
+	public void testStaticGenericMethod3() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = GenericStaticMethod3.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+	
+	@Test
+	public void testStaticGenericMethod4() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = GenericStaticMethod4.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+	
+	@Test
+	public void testStaticGenericUtils1() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = GenericCollectionUtil.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
 }
