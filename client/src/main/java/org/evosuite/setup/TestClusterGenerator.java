@@ -55,7 +55,7 @@ import org.evosuite.annotation.EvoSuiteExclude;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.instrumentation.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.runtime.MockList;
+import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.reset.ClassResetter;
 import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;

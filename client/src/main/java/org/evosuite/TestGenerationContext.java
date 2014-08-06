@@ -43,7 +43,7 @@ public class TestGenerationContext {
 	 * This is the classloader that does the instrumentation - it needs to be
 	 * used by all test code
 	 */
-	private ClassLoader classLoader;
+	private InstrumentingClassLoader classLoader;
 
 	/**
 	 * The classloader used to load this class
@@ -84,7 +84,7 @@ public class TestGenerationContext {
 		Thread.currentThread().setContextClassLoader(originalClassLoader);
 	}
 	
-	public ClassLoader getClassLoaderForSUT() {
+	public InstrumentingClassLoader getClassLoaderForSUT() {
 		return classLoader;
 	}	
 	

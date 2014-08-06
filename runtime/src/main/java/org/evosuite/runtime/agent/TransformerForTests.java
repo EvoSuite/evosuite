@@ -3,6 +3,8 @@ package org.evosuite.runtime.agent;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.runtime.reset.ClassResetter;
@@ -24,10 +26,17 @@ public class TransformerForTests implements ClassFileTransformer {
 
 	private volatile boolean active;
 	private RuntimeInstrumentation instrumenter;
+
+	private Set<String> instrumentedClasses;
 	
 	public TransformerForTests(){
 		active = false;
 		instrumenter = new RuntimeInstrumentation();
+		instrumentedClasses = new LinkedHashSet<>();
+	}
+	
+	public void setRetransformingMode(boolean on){
+		instrumenter.setRetransformingMode(on);
 	}
 	
 	@Override
@@ -41,7 +50,16 @@ public class TransformerForTests implements ClassFileTransformer {
 		} else {
 			ClassResetter.getInstance().setClassLoader(loader);
 			ClassReader reader = new ClassReader(classfileBuffer);
+			synchronized(instrumentedClasses){
+				instrumentedClasses.add(classWithDots);
+			}
 			return instrumenter.transformBytes(loader, className, reader); 
+		}
+	}
+	
+	public boolean isClassAlreadyTransformed(String className){
+		synchronized(instrumentedClasses){
+			return instrumentedClasses.contains(className);
 		}
 	}
 	

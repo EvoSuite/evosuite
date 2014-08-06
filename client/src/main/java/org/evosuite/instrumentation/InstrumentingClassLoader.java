@@ -21,8 +21,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
@@ -68,6 +72,13 @@ public class InstrumentingClassLoader extends ClassLoader {
 		classLoader = InstrumentingClassLoader.class.getClassLoader();
 		this.instrumentation = instrumentation;
 	}
+
+	public List<String> getViewOfInstrumentedClasses(){
+		List<String> list = new ArrayList<>();
+		list.addAll(classes.keySet());
+		return list;
+	}
+	
 	
 	public Class<?> loadClassFromFile(String fullyQualifiedTargetClass, String fileName) throws ClassNotFoundException {
 
