@@ -35,7 +35,7 @@ public class TestHasClinit extends SystemTest {
 		Properties.JUNIT_CHECK = true;
 		Properties.JUNIT_TESTS = true;
 		Properties.PURE_INSPECTORS = true;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS =true;
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 
 	}
 

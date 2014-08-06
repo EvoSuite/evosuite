@@ -3,7 +3,9 @@ package org.evosuite.runtime.mock.java.util.logging;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-public class MockLogRecord extends LogRecord {
+import org.evosuite.runtime.mock.OverrideMock;
+
+public class MockLogRecord extends LogRecord  implements OverrideMock{
 
 	public MockLogRecord(Level level, String msg) {
 		super(level, msg);

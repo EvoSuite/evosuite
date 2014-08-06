@@ -4,8 +4,9 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import org.evosuite.runtime.Thread;
+import org.evosuite.runtime.mock.OverrideMock;
 
-public class MockException extends Exception {
+public class MockException extends Exception  implements OverrideMock{
 
 	private static final long serialVersionUID = 8001149552489118355L;
 

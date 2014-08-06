@@ -2,7 +2,9 @@ package org.evosuite.runtime.mock.java.util;
 
 import java.util.Random;
 
-public class MockRandom extends Random {
+import org.evosuite.runtime.mock.OverrideMock;
+
+public class MockRandom extends Random  implements OverrideMock{
 
 	private static final long serialVersionUID = 7095505244285248683L;
 
