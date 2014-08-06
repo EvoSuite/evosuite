@@ -29,7 +29,7 @@ public class TestHashCodeClassInit extends SystemTest {
 	@Before
 	public void configureProperties() {
 		Properties.SANDBOX = true;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = true;
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 		Properties.RESET_STATIC_FIELDS = true;
 		Properties.REPLACE_CALLS = true;
 		Properties.JUNIT_CHECK = true;

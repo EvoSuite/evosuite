@@ -12,7 +12,7 @@ public abstract class TestStabilityChecker {
 	public static boolean checkStability(List<TestCase> list) {
 		int n = list.size();
 		boolean previousRunOnSeparateProcess = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = true;
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 		
 		TestCaseExecutor.initExecutor(); //needed because it gets pulled down after the search
 
