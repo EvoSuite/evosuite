@@ -20,8 +20,8 @@
  */
 package org.evosuite.runtime.instrumentation;
 
-import org.evosuite.runtime.MockList;
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.mock.MockList;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;

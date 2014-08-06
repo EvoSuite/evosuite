@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Set;
 
 
-import org.evosuite.runtime.MockList;
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.mock.MockList;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
