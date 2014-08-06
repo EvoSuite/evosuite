@@ -52,7 +52,7 @@ public class GeneratedFilesEvenWithSandboxTest extends SystemTest{
 		Properties.SANDBOX = true;
 		Properties.JUNIT_TESTS = true;
 		Properties.VIRTUAL_FS = false;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = true;
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

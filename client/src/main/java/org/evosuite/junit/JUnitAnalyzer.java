@@ -156,6 +156,7 @@ public class JUnitAnalyzer {
 			}
 
 			logger.error("" + result.getFailureCount() + " test cases failed");
+			
 			failure_loop: for (JUnitFailure failure : result.getFailures()) {
 				String testName = failure.getDescriptionMethodName();//TODO check if correct
 				for (int i = 0; i < tests.size(); i++) {
@@ -166,8 +167,24 @@ public class JUnitAnalyzer {
 						}
 					}
 				}
+				
+				if(testName == null){
+					/*
+					 * this can happen if there is a failure in the scaffolding (eg @After/@Before).
+					 * in such case, everything need to be deleted
+					 */
+					logger.error("Issue in scaffolding of the test suite. Stack trace:");
+					for (String elem : failure.getExceptionStackTrace()) {
+						logger.error(elem);
+					}
+					numUnstable = tests.size();
+					tests.clear();
+					return numUnstable;
+				}
+				
 				logger.warn("Found unstable test named " + testName + " -> "
 				        + failure.getExceptionClassName() + ": " + failure.getMessage());
+				
 				for (String elem : failure.getExceptionStackTrace()) {
 					logger.info(elem);
 				}

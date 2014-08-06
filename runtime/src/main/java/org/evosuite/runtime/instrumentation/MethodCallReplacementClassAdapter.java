@@ -20,8 +20,8 @@
  */
 package org.evosuite.runtime.instrumentation;
 
-import org.evosuite.runtime.MockList;
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.mock.MockList;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -48,6 +48,8 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	private boolean isInterface = false;
 
 	private boolean definesUid = false;
+	
+	private boolean canChangeSignature = true; 
 
 	/**
 	 * <p>Constructor for MethodCallReplacementClassAdapter.</p>
@@ -56,11 +58,17 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	 * @param className a {@link java.lang.String} object.
 	 */
 	public MethodCallReplacementClassAdapter(ClassVisitor cv, String className) {
+		this(cv,className,true);
+	}
+
+	public MethodCallReplacementClassAdapter(ClassVisitor cv, String className, boolean canAddMethods) {
 		super(Opcodes.ASM4, cv);
 		this.className = className;
 		this.superClassName = null;
+		this.canChangeSignature = canAddMethods;
 	}
 
+	
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassVisitor#visitMethod(int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
 	 */
@@ -97,6 +105,11 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 			isInterface = true;
 		
 		if(MockList.shouldBeMocked(superNameWithDots)) {
+			
+			/*
+			 * TODO: likely need to suppress the change of superclass if !canChangeSignature
+			 */
+			
 			Class<?> mockSuperClass = MockList.getMockClass(superNameWithDots);
 			String mockSuperClassName = mockSuperClass.getCanonicalName().replace('.', '/');
 			
@@ -110,7 +123,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	
 	@Override
 	public void visitEnd() {
-		if(!definesHashCode && !isInterface && RuntimeSettings.mockJVMNonDeterminism) {
+		if(canChangeSignature && !definesHashCode && !isInterface && RuntimeSettings.mockJVMNonDeterminism) {
 			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
 			if(superClassName.equals("java.lang.Object")) {
 				Method hashCodeMethod = Method.getMethod("int hashCode()");

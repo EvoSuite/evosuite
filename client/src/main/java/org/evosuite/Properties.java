@@ -115,7 +115,7 @@ public class Properties {
 
 	/** Constant <code>RESET_STATIC_FIELDS =false</code> */
 	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each a static field was modified")
-	public static boolean RESET_STATIC_FIELDS = false;
+	public static boolean RESET_STATIC_FIELDS = true;
 
 	/** Constant <code>RESET_STANDARD_STREAMS =false</code> */
 	@Parameter(key = "reset_standard_streams", group = "Test Creation", description = "Restore System.out, System.in and DebugGraphics.logStream after test execution")
@@ -684,6 +684,7 @@ public class Properties {
 	public static boolean JUNIT_CHECK = true;
 
 	@Parameter(key = "junit_check_on_separate_process", group = "Output", description = "Compile and run resulting JUnit test suite on a separate process")
+	@Deprecated //this gives quite a few issues. and hopefully the problems it was aimed to fix are no longer
 	public static boolean JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 
 	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
@@ -874,7 +875,7 @@ public class Properties {
 
 	/** Constant <code>VIRTUAL_FS=false</code> */
 	@Parameter(key = "virtual_fs", group = "Sandbox", description = "Usa a virtual file system for all File I/O operations")
-	public static boolean VIRTUAL_FS = false;
+	public static boolean VIRTUAL_FS = true;
 
 	/** Constant <code>READ_ONLY_FROM_SANDBOX_FOLDER = false;</code> */
 	//@Parameter(key = "restricted_read", group = "Sandbox", description = "Determines if the VFS shall only be allowed to read files from the sandbox read folder")
@@ -944,7 +945,7 @@ public class Properties {
 
 	/** Constant <code>HANDLE_STATIC_FIELDS=false</code> */
 	@Parameter(key = "handle_static_fields", description = "Include methods that update required static fields")
-	public static boolean HANDLE_STATIC_FIELDS = false;
+	public static boolean HANDLE_STATIC_FIELDS = true;
 
 	public enum TestFactory {
 		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT, SERIALIZATION
@@ -1062,7 +1063,7 @@ public class Properties {
 
 	/** Constant <code>REPLACE_CALLS=false</code> */
 	@Parameter(key = "replace_calls", group = "Test Execution", description = "Replace nondeterministic calls and System.exit")
-	public static boolean REPLACE_CALLS = false;
+	public static boolean REPLACE_CALLS = true;
 
 	@Parameter(key = "replace_system_in", group = "Test Execution", description = "Replace System.in with a smart stub/mock")
 	public static boolean REPLACE_SYSTEM_IN = true;

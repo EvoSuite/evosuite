@@ -11,7 +11,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class is responsible for the bytecode instrumentations
- * needed for the generated JUnit test cases
+ * needed for the generated JUnit test cases.
+ * 
+ * <p>
+ * Note: the instrumentation 
  *
  * Created by arcuri on 6/11/14.
  */
@@ -19,6 +22,22 @@ public class RuntimeInstrumentation {
 
     private static Logger logger = LoggerFactory.getLogger(RuntimeInstrumentation.class);
 
+    /**
+     * If we are re-instrumenting a class, then we cannot change its
+     * signature: eg add new methods
+     * 
+	 * TODO: remove once we fix instrumentation
+	 */
+	private volatile boolean retransformingMode;
+	
+	public RuntimeInstrumentation(){
+		retransformingMode = false;
+	}
+    
+	public void setRetransformingMode(boolean on){
+		retransformingMode = on;
+	}
+	
     public static boolean checkIfCanInstrument(String className) {
         for (String s : RuntimeInstrumentation.getPackagesShouldNotBeInstrumented()) {
             if (className.startsWith(s)) {
@@ -73,14 +92,18 @@ public class RuntimeInstrumentation {
 
         ClassVisitor cv = writer;
 
-        if(RuntimeSettings.resetStaticState) {
+        if(RuntimeSettings.resetStaticState && !retransformingMode) {
+        		/*
+        		 * FIXME: currently reset does add a new method, but that does no work 
+        		 * when retransformingMode :( 
+        		 */
             CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
             resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
             cv = resetClassAdapter;
         }
 
         if(RuntimeSettings.mockJVMNonDeterminism || RuntimeSettings.useVFS) {
-            cv = new MethodCallReplacementClassAdapter(cv, className);
+            cv = new MethodCallReplacementClassAdapter(cv, className, !retransformingMode);
         }
 
         //Note: handling of System.in does not require bytecode instrumentation
