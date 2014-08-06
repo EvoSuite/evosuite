@@ -398,7 +398,7 @@ public class TestGenericClass {
 		Assert.assertFalse(integerClass.satisfiesBoundaries(objectType));
 		Assert.assertFalse(comparableClass.satisfiesBoundaries(objectType));
 		Assert.assertTrue(dateClass.satisfiesBoundaries(objectType));
-		Assert.assertTrue(sqlDateClass.satisfiesBoundaries(objectType));
+		Assert.assertFalse(sqlDateClass.satisfiesBoundaries(objectType));
 	}
 
 	@Test
@@ -415,7 +415,8 @@ public class TestGenericClass {
 		Assert.assertFalse(integerClass.satisfiesBoundaries(objectType));
 		Assert.assertFalse(comparableClass.satisfiesBoundaries(objectType));
 		Assert.assertTrue(dateClass.satisfiesBoundaries(objectType));
-		Assert.assertTrue(sqlDateClass.satisfiesBoundaries(objectType));
+		// Does not satisfy lower bound, so needs to be false
+		Assert.assertFalse(sqlDateClass.satisfiesBoundaries(objectType));
 	}
 
 	@Test
@@ -432,7 +433,8 @@ public class TestGenericClass {
 		Assert.assertFalse(integerClass.satisfiesBoundaries(objectType));
 		Assert.assertFalse(comparableClass.satisfiesBoundaries(objectType));
 		Assert.assertTrue(dateClass.satisfiesBoundaries(objectType));
-		Assert.assertTrue(sqlDateClass.satisfiesBoundaries(objectType));
+		// Does not satisfy lower boundary
+		Assert.assertFalse(sqlDateClass.satisfiesBoundaries(objectType));
 	}
 
 	@Test
@@ -717,7 +719,81 @@ public class TestGenericClass {
 		ClassLoader loader = new InstrumentingClassLoader();
 		arrayClass.changeClassLoader(loader);
 		Class<?> rawClass = arrayClass.getRawClass();
-		Assert.assertFalse(rawClass.isArray());
-		
+		Assert.assertFalse(rawClass.isArray());		
 	}
+	
+	@Test
+	public void testWildcardInstantiation() throws ConstructionFailedException {
+
+		GenericClass integerWildcardListClass = new GenericClass(
+		        new TypeToken<java.util.List<? extends Integer>>() {
+		        }.getType());
+
+		GenericClass integerListClass = new GenericClass(
+		        new TypeToken<java.util.List<Integer>>() {
+		        }.getType());
+		GenericClass objectListClass = new GenericClass(
+		        new TypeToken<java.util.List<Object>>() {
+		        }.getType());
+
+		Assert.assertTrue(integerWildcardListClass.isAssignableFrom(integerListClass));
+		Assert.assertFalse(integerWildcardListClass.isAssignableFrom(objectListClass));
+
+		GenericClass integerWildcardListInstantiation = integerWildcardListClass.getGenericInstantiation(); 
+		Assert.assertTrue(integerWildcardListClass.isAssignableFrom(integerWildcardListInstantiation));
+	}
+	
+	@Test
+	public void testWildcardWithSuperIntegerBoundaryInstantiation() throws ConstructionFailedException {
+
+		GenericClass integerWildcardListClass = new GenericClass(
+		        new TypeToken<java.util.List<? super Integer>>() {
+		        }.getType());
+
+		GenericClass integerListClass = new GenericClass(
+		        new TypeToken<java.util.List<Integer>>() {
+		        }.getType());
+		GenericClass numberListClass = new GenericClass(
+		        new TypeToken<java.util.List<Number>>() {
+		        }.getType());
+		GenericClass objectListClass = new GenericClass(
+		        new TypeToken<java.util.List<Object>>() {
+		        }.getType());
+
+		Assert.assertTrue(integerWildcardListClass.isAssignableFrom(integerListClass));
+		Assert.assertTrue(integerWildcardListClass.isAssignableFrom(numberListClass));
+		Assert.assertTrue(integerWildcardListClass.isAssignableFrom(objectListClass));
+
+		GenericClass integerWildcardListInstantiation = integerWildcardListClass.getGenericInstantiation();
+		Assert.assertTrue(integerWildcardListClass.isAssignableFrom(integerWildcardListInstantiation));
+	}
+	
+	@Test
+	public void testWildcardWithSuperNumberBoundaryInstantiation() throws ConstructionFailedException {
+
+		GenericClass numberWildcardListClass = new GenericClass(
+		        new TypeToken<java.util.List<? super Number>>() {
+		        }.getType());
+
+		GenericClass integerListClass = new GenericClass(
+		        new TypeToken<java.util.List<Integer>>() {
+		        }.getType());
+		GenericClass numberListClass = new GenericClass(
+		        new TypeToken<java.util.List<Number>>() {
+		        }.getType());
+		GenericClass objectListClass = new GenericClass(
+		        new TypeToken<java.util.List<Object>>() {
+		        }.getType());
+
+		Assert.assertFalse(numberWildcardListClass.isAssignableFrom(integerListClass));
+		Assert.assertTrue(numberWildcardListClass.isAssignableFrom(numberListClass));
+		Assert.assertTrue(numberWildcardListClass.isAssignableFrom(objectListClass));
+
+		GenericClass integerWildcardListInstantiation = numberWildcardListClass.getGenericInstantiation();
+		System.out.println(integerWildcardListInstantiation.toString());
+		Assert.assertTrue(numberWildcardListClass.isAssignableFrom(integerWildcardListInstantiation));
+	}
+	
+
+	
 }
