@@ -684,6 +684,7 @@ public class Properties {
 	public static boolean JUNIT_CHECK = true;
 
 	@Parameter(key = "junit_check_on_separate_process", group = "Output", description = "Compile and run resulting JUnit test suite on a separate process")
+	@Deprecated //this gives quite a few issues. and hopefully the problems it was aimed to fix are no longer
 	public static boolean JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 
 	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
