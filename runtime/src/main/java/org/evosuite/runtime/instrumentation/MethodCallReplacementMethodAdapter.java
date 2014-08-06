@@ -225,7 +225,6 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 				
 			} else if(StaticReplacementMock.class.isAssignableFrom(mock)){
 				
-				/* TODO put back once tested
 				String mockedName;
 				try {
 					mockedName = ((StaticReplacementMock)mock.newInstance()).getMockedClassName();
@@ -241,9 +240,9 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					logger.error("Mock class "+mock.getCanonicalName()+" has non-existent mocked target "+mockedName);
 					continue;
 				}
+
 				replaceAllStaticMethods(mock, mocked);
-				//TODO
-				 * */				 
+				replaceAllInstanceMethodsWithStatic(mock,mocked);
 			}
 		}
 	}
@@ -453,6 +452,26 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 				"([B)V", "org/evosuite/runtime/Random", "nextBytes", "([B)V", true, false));
 	}
 
+	
+	private void replaceAllInstanceMethodsWithStatic(Class<?> mockClass, Class<?> target){
+
+		/*
+		 *  replace "fooInstance.bar(x)"  with "MockFooClass.bar(fooInstance,x)"
+		 */
+
+		for (Method m : target.getMethods()) {
+			if (Modifier.isStatic(m.getModifiers())) {
+				continue;
+			}
+
+			String desc = Type.getMethodDescriptor(m);
+			replacementCalls.add(new MethodCallReplacement(
+			        target.getCanonicalName().replace('.', '/'), m.getName(), desc,
+			        mockClass.getCanonicalName().replace('.', '/'), m.getName(), desc,
+			        false, false));
+		}
+	}	
+	
 	private void replaceAllStaticMethods(Class<?> mockClass, Class<?> target)
 	        throws IllegalArgumentException {
 
