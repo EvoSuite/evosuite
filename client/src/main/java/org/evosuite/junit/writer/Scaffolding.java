@@ -272,6 +272,10 @@ public class Scaffolding {
 		bd.append(METHOD_SPACE);
 		bd.append("private static void initializeClasses() {\n");
 
+		bd.append(BLOCK_SPACE);
+		bd.append(ClassResetter.class.getName()+".getInstance().setClassLoader(");
+		bd.append(testClassName+ ".class.getClassLoader()); \n\n");
+		
 		if(classesToBeReset.size()!=0){			
 			bd.append(BLOCK_SPACE);
 			bd.append(ClassStateSupport.class.getName()+".initializeClasses(");
