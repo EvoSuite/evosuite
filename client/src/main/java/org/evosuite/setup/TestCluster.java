@@ -834,8 +834,6 @@ public class TestCluster {
 			return getRandomGenerator(concreteClass);
 		}
 
-		if (!hasGenerator(clazz))
-			throw new ConstructionFailedException("No generators of type " + clazz);
 
 		GenericAccessibleObject<?> generator = null;
 		if (isSpecialCase(clazz)) {
@@ -845,6 +843,9 @@ public class TestCluster {
 			}
 			generator = Randomness.choice(generators);
 		} else {
+			if (!hasGenerator(clazz))
+				throw new ConstructionFailedException("No generators of type " + clazz);
+
 			generator = Randomness.choice(generatorCache.get(clazz));
 		}
 

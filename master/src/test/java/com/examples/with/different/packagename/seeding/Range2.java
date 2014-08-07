@@ -55,7 +55,7 @@ public final class Range2<T> implements Serializable {
      * @param comparator  the comparator to be used, null for natural ordering
      */
     @SuppressWarnings("unchecked")
-    private Range2(T element1, T element2, Comparator<T> comparator) {
+    public Range2(T element1, T element2, Comparator<T> comparator) {
         if (element1 == null || element2 == null) {
             throw new IllegalArgumentException("Elements in a range must not be null: element1=" +
                                                element1 + ", element2=" + element2);
@@ -98,7 +98,7 @@ public final class Range2<T> implements Serializable {
 
     //-----------------------------------------------------------------------
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private enum ComparableComparator implements Comparator {
+    public static enum ComparableComparator implements Comparator {
         INSTANCE;
         /**
          * Comparable based compare implementation. 
