@@ -50,6 +50,10 @@ public class EqualsSymmetricContract extends Contract {
 	public ContractViolation check(StatementInterface statement, Scope scope,
 	        Throwable exception) {
 		for (Pair<VariableReference> pair : getAllVariablePairs(scope)) {
+			// Equals self is covered by EqualsContract
+			if(pair.object1 == pair.object2)
+				continue;
+			
 			Object object1 = scope.getObject(pair.object1);
 			Object object2 = scope.getObject(pair.object2);
 			if (object1 == null || object2 == null)
