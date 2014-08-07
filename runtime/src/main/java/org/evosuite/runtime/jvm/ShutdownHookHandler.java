@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +63,7 @@ public class ShutdownHookHandler {
 	}
 	
 	/**
-	 * Importat to check what hooks are currently registered
+	 * Important to check what hooks are currently registered
 	 */
 	public void initHandler(){
 		if(hooksReference == null){
@@ -117,6 +118,35 @@ public class ShutdownHookHandler {
 	public void processWasHalted(){
 		removeNewHooks();
 	}
+
+
+		
+	/**
+	 * Run {@link ShutdownHookHandler#executeAddedHooks()} in a try/catch
+	 * 
+	 * @return a negative value if there was any exception
+	 */
+	public int safeExecuteAddedHooks(){
+		
+		//the shutdown hook threads should still be checked against the sandbox
+		boolean safe = Sandbox.isSafeToExecuteSUTCode();
+		int n = -1;
+		
+		try{
+			if(!safe){
+				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+			}
+			n =  executeAddedHooks();
+		} catch(Throwable t){
+			logger.debug("Shutdown hooks threw exception: "+t);
+		} finally{
+			if(!safe){
+				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+			}
+		}
+		
+		return n;
+	}
 	
 	/**
 	 * Execute all added shutdown hooks on this thread.
@@ -148,6 +178,8 @@ public class ShutdownHookHandler {
 
 	private List<Thread> removeNewHooks() {
 		List<Thread> list = getAddedHooks();
+		existingHooks = null;
+
 		if(list==null || list.isEmpty()){
 			return null;
 		}
@@ -157,7 +189,6 @@ public class ShutdownHookHandler {
 			hooksReference.remove(t);
 		}
 
-		existingHooks = null;
 		return list;
 	}
 }

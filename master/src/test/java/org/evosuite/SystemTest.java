@@ -20,6 +20,7 @@ package org.evosuite;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StatisticsBackend;
@@ -27,6 +28,9 @@ import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.runtime.reset.ResetManager;
+import org.evosuite.statistics.OutputVariable;
+import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.utils.Randomness;
 import org.junit.After;
 import org.junit.Assert;
@@ -83,7 +87,6 @@ public class SystemTest {
 		Properties.CRITERION = new Criterion[] { Criterion.BRANCH };
 
 		Properties.NEW_STATISTICS = true;
-		//Properties.OLD_STATISTICS = false;
 		Properties.STATISTICS_BACKEND = StatisticsBackend.DEBUG;
 		
 		TestGenerationContext.getInstance().resetContext();
@@ -93,6 +96,19 @@ public class SystemTest {
 		currentProperties = (java.util.Properties) System.getProperties().clone();
 	}
 
+	protected void checkUnstable() throws IllegalStateException{
+		
+		if(!Properties.OUTPUT_VARIABLES.contains(RuntimeVariable.HadUnstableTests.toString())){
+			throw new IllegalStateException("Properties.OUTPUT_VARIABLES needs to contain RuntimeVariable.HadUnstableTests");
+		}
+		
+		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+		Assert.assertNotNull(map);
+		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+		Assert.assertNotNull(unstable);
+		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
+	}
+	
 	/*
 	 * this static variable is a safety net to be sure it is called only once. 
 	 * static variables are shared and not re-initialized

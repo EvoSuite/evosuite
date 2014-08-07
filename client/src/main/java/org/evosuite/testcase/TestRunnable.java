@@ -19,16 +19,19 @@ package org.evosuite.testcase;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.Properties;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.System.SystemExitException;
+import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -269,8 +272,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		Runtime.getInstance().resetRuntime();
 		ExecutionTracer.enable();
 
-		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(
-		        byteStream));
+		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(byteStream));
 		byteStream.reset();
 
 		if (!Properties.PRINT_TO_SYSTEM) {
@@ -279,109 +281,22 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 		startTime = System.currentTimeMillis();
 
-		int num = 0;
+		/*
+		 *  need AtomicInteger as we want to get latest updated value even if exception is thrown in the 'try' block.
+		 *  we practically use it as wrapper for int, which we can then pass by reference
+		 */
+		AtomicInteger num = new AtomicInteger(0);
+
 		try {
-			for (StatementInterface s : test) {
-
-				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
-					logger.info("Thread interrupted at statement " + num + ": "
-					        + s.getCode());
-					throw new TimeoutException();
-				}
-
-				if (logger.isDebugEnabled()) {
-					logger.debug("Executing statement " + s.getCode());
-				}
-
-				ExecutionTracer.statementExecuted();
-				informObservers_before(s);
-
-				/*
-				 * Here actually execute a statement of the SUT
-				 */
-				Throwable exceptionThrown = s.execute(scope, out);
-
-				if (exceptionThrown != null) {
-					// if internal error, then throw exception
-					// -------------------------------------------------------
-					if (exceptionThrown instanceof VMError) {
-						throw (VMError) exceptionThrown;
-					}
-					if (exceptionThrown instanceof EvosuiteError) {
-						throw (EvosuiteError) exceptionThrown;
-					}
-					// -------------------------------------------------------
-
-					// FIXME: why???
-					if (exceptionThrown instanceof TestCaseExecutor.TimeoutExceeded) {
-						logger.debug("Test timed out!");
-						exceptionsThrown.put(test.size(), exceptionThrown);
-						result.setThrownExceptions(exceptionsThrown);
-						result.reportNewThrownException(test.size(), exceptionThrown);
-						result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
-						break;
-					}
-
-					// keep track if the exception and where it was thrown
-					exceptionsThrown.put(num, exceptionThrown);
-
-					// check if it was an explicit exception
-					// --------------------------------------------------------
-					if (ExecutionTracer.getExecutionTracer().getLastException() == exceptionThrown) {
-						result.explicitExceptions.put(num, true);
-					} else {
-						result.explicitExceptions.put(num, false);
-					}
-					// --------------------------------------------------------
-
-					// some debugging info
-					// --------------------------------------------------------
-
-					if (logger.isDebugEnabled()) {
-						logger.debug("Exception thrown in statement: " + s.getCode()
-						        + " - " + exceptionThrown.getClass().getName() + " - "
-						        + exceptionThrown.getMessage());
-						for (StackTraceElement elem : exceptionThrown.getStackTrace()) {
-							logger.debug(elem.toString());
-						}
-						if (exceptionThrown.getCause() != null) {
-							logger.debug("Cause: "
-							        + exceptionThrown.getCause().getClass().getName()
-							        + " - " + exceptionThrown.getCause().getMessage());
-							for (StackTraceElement elem : exceptionThrown.getCause().getStackTrace()) {
-								logger.debug(elem.toString());
-							}
-						} else {
-							logger.debug("Cause is null");
-						}
-					}
-					// --------------------------------------------------------
-
-					/*
-					 * If an exception is thrown, we stop the execution of the test case, because the internal state could be corrupted, and not
-					 * possible to verify the behavior of any following function call. Predicate should be true by default
-					 */
-					if (Properties.BREAK_ON_EXCEPTION
-					        || exceptionThrown instanceof SystemExitException) {
-						informObservers_after(s, exceptionThrown);
-						break;
-					}
-				}
-
-				if (logger.isDebugEnabled()) {
-					logger.debug("Done statement " + s.getCode());
-				}
-
-				informObservers_after(s, exceptionThrown);
-
-				num++;
-			} // end of loop
+			if(Properties.REPLACE_CALLS){
+				ShutdownHookHandler.getInstance().initHandler();
+			}
+			
+			executeStatements(result, out, num);
 		} catch (ThreadDeath e) {// can't stop these guys
 			logger.info("Found error in " + test.toCode(), e);
 			throw e; // this needs to be propagated
-		} catch (TimeoutException e) {
-			logger.info("Test timed out!");
-		} catch (TestCaseExecutor.TimeoutExceeded e) {
+		} catch (TimeoutException | TestCaseExecutor.TimeoutExceeded e) {
 			logger.info("Test timed out!");
 		} catch (Throwable e) {
 			if (e instanceof EvosuiteError) {
@@ -403,12 +318,10 @@ public class TestRunnable implements InterfaceTestRunnable {
 			if (e instanceof AssertionError
 			        && e.getStackTrace()[0].getClassName().contains("org.evosuite")) {
 				logger.error("Assertion Error in evosuitecode, for statement \n"
-				        + test.getStatement(num).getCode() + " \n which is number: "
+				        + test.getStatement(num.get()).getCode() + " \n which is number: "
 				        + num + " testcase \n" + test.toCode(), e);
 				throw (AssertionError) e;
 			}
-			// FIXME: why this "clear()"?
-			// ExecutionTracer.getExecutionTracer().clear();
 
 			logger.error("Suppressed/ignored exception during test case execution on class "
 			                     + Properties.TARGET_CLASS + ": " + e.getMessage(), e);
@@ -416,17 +329,148 @@ public class TestRunnable implements InterfaceTestRunnable {
 			if (!Properties.PRINT_TO_SYSTEM) {
 				LoggingUtils.restorePreviousOutAndErrStream();
 			}
+			if(Properties.REPLACE_CALLS){
+				/*
+				 * For simplicity, we call it here. Ideally, we could call it among the
+				 * statements, with "non-safe" version, to check if any exception is thrown.
+				 * But that would be quite a bit of work, which maybe is not really warranted 
+				 */
+				ShutdownHookHandler.getInstance().safeExecuteAddedHooks();
+			}
+			
 			runFinished = true;
 		}
 
 		result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 		result.setExecutionTime(System.currentTimeMillis() - startTime);
-		result.setExecutedStatements(num);
+		result.setExecutedStatements(num.get());
 		result.setThrownExceptions(exceptionsThrown);
 		result.setReadProperties(org.evosuite.runtime.System.getAllPropertiesReadSoFar());
 		result.setWasAnyPropertyWritten(org.evosuite.runtime.System.wasAnyPropertyWritten());
 		
 		return result;
+	}
+
+	/**
+	 * Iterate over all statements in the test case, and execute them one at a time
+	 * 
+	 * @param result
+	 * @param out
+	 * @param num
+	 * @throws TimeoutException
+	 * @throws InvocationTargetException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws VMError
+	 * @throws EvosuiteError
+	 */
+	private void executeStatements(ExecutionResult result, PrintStream out,
+			AtomicInteger num) throws TimeoutException,
+			InvocationTargetException, IllegalAccessException,
+			InstantiationException, VMError, EvosuiteError {
+		
+		for (StatementInterface s : test) {
+
+			if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
+				logger.info("Thread interrupted at statement " + num + ": " + s.getCode());
+				throw new TimeoutException();
+			}
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("Executing statement " + s.getCode());
+			}
+
+			ExecutionTracer.statementExecuted();
+			informObservers_before(s);
+
+			/*
+			 * Here actually execute a statement of the SUT
+			 */
+			Throwable exceptionThrown = s.execute(scope, out);
+
+			if (exceptionThrown != null) {
+				// if internal error, then throw exception
+				// -------------------------------------------------------
+				if (exceptionThrown instanceof VMError) {
+					throw (VMError) exceptionThrown;
+				}
+				if (exceptionThrown instanceof EvosuiteError) {
+					throw (EvosuiteError) exceptionThrown;
+				}
+				// -------------------------------------------------------
+
+				/*
+				 * This is implemented in this way due to ExecutionResult.hasTimeout()
+				 */
+				if (exceptionThrown instanceof TestCaseExecutor.TimeoutExceeded) {
+					logger.debug("Test timed out!");
+					exceptionsThrown.put(test.size(), exceptionThrown);
+					result.setThrownExceptions(exceptionsThrown);
+					result.reportNewThrownException(test.size(), exceptionThrown);
+					result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
+					break;
+				}
+
+				// keep track if the exception and where it was thrown
+				exceptionsThrown.put(num.get(), exceptionThrown);
+
+				// check if it was an explicit exception
+				// --------------------------------------------------------
+				if (ExecutionTracer.getExecutionTracer().getLastException() == exceptionThrown) {
+					result.explicitExceptions.put(num.get(), true);
+				} else {
+					result.explicitExceptions.put(num.get(), false);
+				}
+				// --------------------------------------------------------
+
+				printDebugInfo(s, exceptionThrown);
+				// --------------------------------------------------------
+
+				/*
+				 * If an exception is thrown, we stop the execution of the test case, because the internal state could be corrupted, and not
+				 * possible to verify the behavior of any following function call. Predicate should be true by default
+				 */
+				if (Properties.BREAK_ON_EXCEPTION
+				        || exceptionThrown instanceof SystemExitException) {
+					informObservers_after(s, exceptionThrown);
+					break;
+				}
+			}
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("Done statement " + s.getCode());
+			}
+
+			informObservers_after(s, exceptionThrown);
+
+			num.incrementAndGet();
+		} // end of loop
+		
+		//TODO
+	}
+
+	private void printDebugInfo(StatementInterface s, Throwable exceptionThrown) {
+		// some debugging info
+		// --------------------------------------------------------
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("Exception thrown in statement: " + s.getCode()
+			        + " - " + exceptionThrown.getClass().getName() + " - "
+			        + exceptionThrown.getMessage());
+			for (StackTraceElement elem : exceptionThrown.getStackTrace()) {
+				logger.debug(elem.toString());
+			}
+			if (exceptionThrown.getCause() != null) {
+				logger.debug("Cause: "
+				        + exceptionThrown.getCause().getClass().getName()
+				        + " - " + exceptionThrown.getCause().getMessage());
+				for (StackTraceElement elem : exceptionThrown.getCause().getStackTrace()) {
+					logger.debug(elem.toString());
+				}
+			} else {
+				logger.debug("Cause is null");
+			}
+		}
 	}
 
 	/** {@inheritDoc} */

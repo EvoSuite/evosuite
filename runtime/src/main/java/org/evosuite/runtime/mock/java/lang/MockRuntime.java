@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.util.StringTokenizer;
 
 import org.evosuite.runtime.System.SystemExitException;
+import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.mock.StaticReplacementMock;
 
 
@@ -42,20 +43,25 @@ public class MockRuntime implements StaticReplacementMock{
 	}
 
 	public static void addShutdownHook(Runtime runtime,Thread hook) {
-		//ApplicationShutdownHooks.add(hook);
-		//TODO
+		/*
+		 * this is going to be handled specially by ShutdownHookHandler.
+		 * The mocking is implemented in this special way to handle all cases in which
+		 * addShutdownHook is called by API that we do not mock and that cannot
+		 * be instrumented
+		 */
+		runtime.addShutdownHook(hook);
 	}
 
 	public static boolean removeShutdownHook(Runtime runtime, Thread hook) {		
-		//return ApplicationShutdownHooks.remove(hook);
-		return false; //TODO
+		/*
+		 * this is going to be handled specially by ShutdownHookHandler
+		 */
+		return runtime.removeShutdownHook(hook);
 	}
 
 	public static void halt(Runtime runtime, int status) {		
-		//Shutdown.halt(status);
-		
+		ShutdownHookHandler.getInstance().processWasHalted();
 		throw new SystemExitException();
-		//TODO remove shutdown hooks
 	}
 
 	public static Process exec(Runtime runtime, String command) throws IOException {
