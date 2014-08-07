@@ -6,6 +6,7 @@ import org.evosuite.SystemTest;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.seeding.Range;
@@ -113,6 +114,7 @@ public class TestRange extends SystemTest {
 		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
+	@Test
 	public void testRange2TypeSeeding() {
 		EvoSuite evosuite = new EvoSuite();
 
@@ -132,7 +134,7 @@ public class TestRange extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+		//int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		//Assert.assertEquals("Wrong number of goals: ", 22, goals);
 		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
@@ -156,8 +158,8 @@ public class TestRange extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+		//int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		//Assert.assertEquals("Wrong number of goals: ", 22, goals);
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);
 	}
 }

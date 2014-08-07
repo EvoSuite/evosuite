@@ -692,7 +692,7 @@ public class TestSuiteGenerator {
 		                                         + " generations, "
 		                                         + MaxStatementsStoppingCondition.getNumExecutedStatements()
 		                                         + text
-		                                         + ga.toString());
+		                                         + bestSuites.get(0).getFitness());
 
 		// TODO also consider time for test carving in end_time?
 		if (Properties.TEST_CARVING) {
