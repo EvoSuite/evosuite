@@ -15,6 +15,7 @@ import org.evosuite.runtime.ClassStateSupport;
 import org.evosuite.runtime.GuiSupport;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
+import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.reset.ClassResetter;
 import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.runtime.sandbox.Sandbox;
@@ -396,6 +397,12 @@ public class Scaffolding {
 		bd.append(METHOD_SPACE);
 		bd.append("public void doneWithTestCase(){ \n");
 
+		if(Properties.REPLACE_CALLS){
+			bd.append(BLOCK_SPACE);
+			bd.append(ShutdownHookHandler.class.getName()+".getInstance().safeExecuteAddedHooks(); \n");
+		}
+
+		
 		if (Properties.RESET_STANDARD_STREAMS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("java.lang.System.setErr(systemErr); \n");
@@ -449,6 +456,12 @@ public class Scaffolding {
 		bd.append(METHOD_SPACE);
 		bd.append("public void initTestCase(){ \n");
 
+		
+		if(Properties.REPLACE_CALLS){
+			bd.append(BLOCK_SPACE);
+			bd.append(ShutdownHookHandler.class.getName()+".getInstance().initHandler(); \n");
+		}
+		
 		if (Properties.RESET_STANDARD_STREAMS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("systemErr = java.lang.System.err;");

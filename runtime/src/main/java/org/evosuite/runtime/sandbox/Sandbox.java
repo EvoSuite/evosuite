@@ -146,12 +146,20 @@ public class Sandbox {
 		}
 		manager.goingToExecuteUnsafeCodeOnSameThread();
 	}
-
+	
 	public static void doneWithExecutingUnsafeCodeOnSameThread()
 	        throws SecurityException, IllegalStateException {
 		if (!isSecurityManagerInitialized()) {
 			return;
 		}
 		manager.doneWithExecutingUnsafeCodeOnSameThread();
+	}
+	
+	
+	public static boolean isSafeToExecuteSUTCode(){
+		if (!isSecurityManagerInitialized()) {
+			return false;
+		}
+		return manager.isSafeToExecuteSUTCode();
 	}
 }

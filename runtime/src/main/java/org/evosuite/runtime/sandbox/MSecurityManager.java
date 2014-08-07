@@ -52,7 +52,6 @@ import javax.security.auth.kerberos.ServicePermission;
 import javax.sound.sampled.AudioPermission;
 import javax.xml.ws.WebServicePermission;
 
-
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.slf4j.Logger;
@@ -233,8 +232,7 @@ public class MSecurityManager extends SecurityManager {
 	public void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException,
 	IllegalStateException {
 		if (!privilegedThreads.contains(Thread.currentThread())) {
-			throw new SecurityException(
-					"Only a privileged thread can execute unsafe code");
+			throw new SecurityException("Current thread is not privileged");
 		}
 		if (privilegedThreadToIgnore != null) {
 			throw new IllegalStateException("The thread is already executing unsafe code");
@@ -242,6 +240,23 @@ public class MSecurityManager extends SecurityManager {
 		privilegedThreadToIgnore = Thread.currentThread();
 	}
 
+	/**
+	 * Check if running SUT code on current thread would be done
+	 * inside the sandbox
+	 * 
+	 * @return
+	 */
+	public boolean isSafeToExecuteSUTCode(){
+		Thread current = Thread.currentThread();
+		if(!privilegedThreads.contains(current)){
+			//the thread is not privileg, so run inside the box
+			return true;
+		} else {
+			// this can happen if the thread is privileged, but already running SUT code
+			return privilegedThreadToIgnore == current;
+		}
+	}
+	
 	/**
 	 * Call after goingToExecuteUnsafeCodeOnSameThread when done with unsafe
 	 * code
@@ -968,8 +983,16 @@ public class MSecurityManager extends SecurityManager {
 		/*
 		 * Note: this actually should never be called, as the instrumenting class loader should replace System.exit
 		 */
-		if (name.startsWith("exitVM") || name.equals("shutdownHooks")) {
+		if (name.startsWith("exitVM")){
 			return false;
+		}
+		
+		if(name.equals("shutdownHooks")) {
+			if(RuntimeSettings.mockJVMNonDeterminism){
+				return true; // the hooks will be handled by mocking framework
+			} else {
+				return false;
+			}
 		}
 
 		/*
