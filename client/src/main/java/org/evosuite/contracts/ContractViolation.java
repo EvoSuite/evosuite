@@ -156,7 +156,7 @@ public class ContractViolation {
 					continue;
 
 				try {
-					testFactory.deleteStatementGracefully(test, i);
+					testFactory.deleteStatement(test, i);
 					if (!contract.fails(test)) {
 						test = origTest.clone();
 					} else {

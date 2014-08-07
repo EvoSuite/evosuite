@@ -183,7 +183,7 @@ public class Properties {
 	public static boolean SEED_TYPES = true;
 
 	@Parameter(key = "max_generic_depth", group = "Test Creation", description = "Maximum level of nesting for generic types")
-	public static int MAX_GENERIC_DEPTH = 2;
+	public static int MAX_GENERIC_DEPTH = 3;
 
 	/** Constant <code>STRING_LENGTH=20</code> */
 	@Parameter(key = "string_length", group = "Test Creation", description = "Maximum length of randomly generated strings")

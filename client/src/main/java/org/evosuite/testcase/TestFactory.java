@@ -1001,7 +1001,7 @@ public class TestFactory {
 					clazz = clazz.getGenericInstantiation();
 				parameterType = clazz.getType();
 			}
-			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isObject() || 
+			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isWrapperType() || clazz.isObject() || 
 					clazz.isClass() || clazz.getRawClass().equals(EvoSuiteFile.class) || 
 					clazz.isString() || clazz.isArray() || TestCluster.getInstance().hasGenerator(parameterType)) {
 				logger.debug(" Generating new object of type " + parameterType);
@@ -1047,7 +1047,7 @@ public class TestFactory {
 			if (!candidates.isEmpty())
 				return Randomness.choice(candidates);
 		}
-		logger.debug("Attenmpting object generation");
+		logger.debug("Attempting object generation");
 
 		return attemptObjectGeneration(test, position, recursionDepth, true);
 
