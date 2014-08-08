@@ -19,15 +19,12 @@
  */
 package org.evosuite.testcase;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.assertion.OutputTrace;
 import org.evosuite.coverage.mutation.Mutation;
 import org.slf4j.Logger;

@@ -63,7 +63,9 @@ public class MeasureCoverage {
 		cmdLine.add("-cp");
 		cmdLine.add(classPath);
 		cmdLine.add("-Dprocess_communication_port=" + port);
-		cmdLine.add("-Djava.awt.headless=true");
+		if(Properties.HEADLESS_MODE) {
+			cmdLine.add("-Djava.awt.headless=true");
+		}
 		cmdLine.add("-Dlogback.configurationFile="+LoggingUtils.getLogbackFileName());
 		cmdLine.add("-Djava.library.path=lib");
 		cmdLine.add("-DCP=" + projectCP);

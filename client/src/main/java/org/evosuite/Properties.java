@@ -265,6 +265,10 @@ public class Properties {
 	@Parameter(key = "consider_main_methods", group = "Test Creation", description = "Generate unit tests for 'main(String[] args)' methods as well")
 	public static boolean CONSIDER_MAIN_METHODS = false; //TODO should be set to true once "context" will work
 
+	@Parameter(key = "headless_mode", group = "Test Generation", description = "Run Java in AWT Headless mode")
+	public static boolean HEADLESS_MODE = true;
+	
+
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
@@ -1212,7 +1216,10 @@ public class Properties {
 	/** Constant <code>MAX_STALLED_THREADS=10</code> */
 	@Parameter(key = "max_stalled_threads", group = "Runtime", description = "Number of stalled threads")
 	public static int MAX_STALLED_THREADS = 10;
-
+	
+	@Parameter(key = "ignore_threads", group = "Runtime", description = "Do not attempt to kill threads matching this prefix")
+	public static String[] IGNORE_THREADS = new String[] {};
+	
 	/** Constant <code>MIN_FREE_MEM=50 * 1000 * 1000</code> */
 	@Parameter(key = "min_free_mem", group = "Runtime", description = "Minimum amount of available memory")
 	public static int MIN_FREE_MEM = 50 * 1000 * 1000;

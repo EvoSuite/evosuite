@@ -431,8 +431,10 @@ public class Scaffolding {
 		}
 
 		//TODO: see comment in @Before 
-		bd.append(BLOCK_SPACE);
-		bd.append(org.evosuite.runtime.GuiSupport.class.getName()+".restoreHeadlessMode(); \n");
+		if(Properties.HEADLESS_MODE) {
+			bd.append(BLOCK_SPACE);
+			bd.append(org.evosuite.runtime.GuiSupport.class.getName()+".restoreHeadlessMode(); \n");
+		}
 
 
 		bd.append(METHOD_SPACE);
@@ -492,8 +494,10 @@ public class Scaffolding {
 		 * we just always include a reset call if @Before/@After methods are
 		 * generated
 		 */
-		bd.append(BLOCK_SPACE);
-		bd.append(org.evosuite.runtime.GuiSupport.class.getName()+".setHeadless(); \n");
+		if(Properties.HEADLESS_MODE) {
+			bd.append(BLOCK_SPACE);
+			bd.append(org.evosuite.runtime.GuiSupport.class.getName()+".setHeadless(); \n");
+		}
 
 
 		if (wasSecurityException) {

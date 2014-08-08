@@ -20,6 +20,7 @@ package org.evosuite.testcase;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -141,10 +142,12 @@ public class TestRunnable implements InterfaceTestRunnable {
 		/*
 		 * try to interrupt the SUT threads
 		 */
+		checkThreads:
 		for (Thread t : threadArray) {
 			// May happen...
 			if(t == null)
 				continue;
+			
 			/*
 			 * the TestCaseExecutor threads are executing the SUT, so they are not privileged.
 			 * But we don't want to stop/join them, as they just execute Runnable objects, and
@@ -153,8 +156,17 @@ public class TestRunnable implements InterfaceTestRunnable {
 			if (t.getName().startsWith(TestCaseExecutor.TEST_EXECUTION_THREAD)) {
 				continue;
 			}
+			
 
 			if (t.isAlive() && !currentRunningThreads.contains(t)) {
+				/*
+				 * We may want to ignore some threads such as GUI event handlers 
+				 */
+				for(String name : Properties.IGNORE_THREADS) {
+					if(t.getName().startsWith(name)) {
+						continue checkThreads;
+					}
+				}
 				t.interrupt();
 			}
 		}
@@ -163,6 +175,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		 * now, join up to a total of TIMEOUT ms. 
 		 * 
 		 */
+		checkThreads:
 		for (Thread t : threadArray) {
 			// May happen...
 			if(t == null)
@@ -173,6 +186,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 			}
 
 			if (t.isAlive() && !currentRunningThreads.contains(t)) {
+				for(String name : Properties.IGNORE_THREADS) {
+					if(t.getName().startsWith(name)) {
+						continue checkThreads;
+					}
+				}
 
 				logger.info("Found new thread");
 				try {
