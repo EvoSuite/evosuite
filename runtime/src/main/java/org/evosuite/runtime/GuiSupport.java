@@ -35,7 +35,7 @@ public class GuiSupport {
 		/*
 		 * Force the loading of fonts.
 		 * This is needed because font loading in the JVM can take several seconds (done only once),
-		 * and that can mess up the the JUnit test execution timeouts...   
+		 * and that can mess up the JUnit test execution timeouts...   
 		 */
 		(new javax.swing.JButton()).getFontMetrics(new java.awt.Font(null));
 	}

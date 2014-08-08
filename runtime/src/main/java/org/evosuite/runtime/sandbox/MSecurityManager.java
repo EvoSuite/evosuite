@@ -1073,6 +1073,7 @@ public class MSecurityManager extends SecurityManager {
 					|| library.equals("jawt") || library.equals("sunec")  
 					|| library.equals("management") || library.equals("kcms")
 					|| library.startsWith("jaybird") || library.equals("instrument")
+					|| library.startsWith("osxui")
 					) {
 				return true;
 			}

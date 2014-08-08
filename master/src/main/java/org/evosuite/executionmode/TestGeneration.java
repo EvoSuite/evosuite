@@ -233,7 +233,9 @@ public class TestGeneration {
 		
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
-		cmdLine.add("-Djava.awt.headless=true");
+		if(Properties.HEADLESS_MODE == true) {
+			cmdLine.add("-Djava.awt.headless=true");
+		}
 		cmdLine.add("-Dlogback.configurationFile="+LoggingUtils.getLogbackFileName());
 		
 		/*

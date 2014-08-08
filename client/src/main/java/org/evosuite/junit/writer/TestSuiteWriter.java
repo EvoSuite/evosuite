@@ -33,23 +33,14 @@ import java.util.Set;
 
 import javax.swing.DebugGraphics;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
-import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
-import org.evosuite.runtime.GuiSupport;
-import org.evosuite.runtime.RuntimeSettings;
-import org.evosuite.runtime.agent.InstrumentingAgent;
-import org.evosuite.runtime.reset.ClassResetter;
-import org.evosuite.runtime.reset.ResetManager;
-import org.evosuite.runtime.sandbox.Sandbox;
-import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.StructuredTestCase;

@@ -20,11 +20,9 @@
  */
 package org.evosuite.testcase;
 
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.utils.GenericField;
 import org.objectweb.asm.commons.GeneratorAdapter;
