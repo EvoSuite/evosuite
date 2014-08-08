@@ -137,7 +137,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof PrimitiveFieldAssertion) {
 			PrimitiveFieldAssertion ass = (PrimitiveFieldAssertion) assertion;
-			if (ass.source.equals(var))
+			if (ass.source.equals(var) && fieldMap.containsKey(ass.field))
 				return !fieldMap.get(ass.field).equals(ass.value);
 		}
 		return false;
