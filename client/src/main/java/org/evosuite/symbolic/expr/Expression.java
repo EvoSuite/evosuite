@@ -80,4 +80,6 @@ public abstract interface Expression<T extends Object> extends Serializable {
 	public Set<Variable<?>> getVariables();
 
 	public Set<Object> getConstants();
+
+	public <K,V> K accept(ExpressionVisitor<K,V> v, V arg);
 }

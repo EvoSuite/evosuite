@@ -29,6 +29,7 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.MultipleExpression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.Variable;
@@ -227,5 +228,10 @@ public final class StringMultipleToIntegerExpression extends AbstractExpression<
 			result.addAll(other_e.getConstants());
 		}
 		return result;
+	}
+	
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 }

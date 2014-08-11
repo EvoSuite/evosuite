@@ -27,6 +27,7 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
@@ -135,4 +136,8 @@ public final class IntegerUnaryExpression extends AbstractExpression<Long> imple
 		return this.expr.getConstants();
 	}
 
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
 }

@@ -440,4 +440,9 @@ public final class IntegerConstraint extends Constraint<Long> {
 
 		return -1;
 	}
+
+	@Override
+	public <K, V> K accept(ConstraintVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
 }

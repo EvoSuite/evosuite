@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 
 public final class IntegerVariable extends AbstractExpression<Long> implements
@@ -129,5 +130,10 @@ public final class IntegerVariable extends AbstractExpression<Long> implements
 	public Set<Object> getConstants() {
 		// Do not include original values?
 		return new HashSet<Object>();
+	}
+	
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 }

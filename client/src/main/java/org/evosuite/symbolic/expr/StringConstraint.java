@@ -146,11 +146,10 @@ public final class StringConstraint extends Constraint<String> {
 			case CONTAINS:
 				return StrContains(first, second);
 			case PATTERNMATCHES:
-				return RegexMatches(second, first); 
-													
+				return RegexMatches(second, first);
+
 			case APACHE_ORO_PATTERN_MATCHES:
 				return RegexMatches(second, first);
-													
 
 			default:
 				log.warn("StringComparison: unimplemented operator!"
@@ -274,6 +273,11 @@ public final class StringConstraint extends Constraint<String> {
 
 	private static double RegexMatches(String val, String regex) {
 		return RegexDistanceUtils.getDistanceTailoredForStringAVM(val, regex);
+	}
+
+	@Override
+	public <K, V> K accept(ConstraintVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 
 }

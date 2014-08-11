@@ -28,6 +28,7 @@ import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Cast;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 
@@ -106,5 +107,10 @@ public final class IntegerToRealCast extends AbstractExpression<Double> implemen
 	@Override
 	public Set<Object> getConstants() {
 		return this.expr.getConstants();
+	}
+	
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 }

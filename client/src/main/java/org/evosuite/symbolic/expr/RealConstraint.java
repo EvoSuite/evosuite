@@ -121,4 +121,9 @@ public final class RealConstraint extends Constraint<Double> {
 		}
 	}
 
+	@Override
+	public <K, V> K accept(ConstraintVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
+
 }
