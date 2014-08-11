@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.search;
+package org.evosuite.symbolic.solver.search;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.search;
+package org.evosuite.symbolic.solver.search;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.Solver;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.search;
+package org.evosuite.symbolic.solver.search;
 
 import static org.evosuite.symbolic.SymbolicObserverTest.printConstraints;
 import static org.junit.Assert.assertEquals;
@@ -16,6 +16,8 @@ import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.solver.search.ConstraintSolver;
+import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.VariableReference;
 import org.junit.Test;

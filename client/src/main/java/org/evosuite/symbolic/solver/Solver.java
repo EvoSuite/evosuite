@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic;
+package org.evosuite.symbolic.solver;
 
 import java.util.Collection;
 import java.util.Map;
 
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.search.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
 
 /**
  * Interface for SMT solvers

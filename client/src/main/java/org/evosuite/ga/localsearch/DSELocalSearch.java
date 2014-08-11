@@ -13,8 +13,10 @@ import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.search.CachedConstraintSolver;
-import org.evosuite.symbolic.search.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.SolverFactory;
+import org.evosuite.symbolic.solver.search.CachedConstraintSolver;
+import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
@@ -27,10 +29,11 @@ import org.slf4j.LoggerFactory;
 
 public class DSELocalSearch extends StatementLocalSearch {
 
-	private static final Logger logger = LoggerFactory.getLogger(DSELocalSearch.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(DSELocalSearch.class);
 
 	public boolean doSearch(TestChromosome test, Set<Integer> statements,
-	        LocalSearchObjective<TestChromosome> objective) {
+			LocalSearchObjective<TestChromosome> objective) {
 		logger.info("APPLYING DSE EEEEEEEEEEEEEEEEEEEEEEE");
 		logger.info(test.getTestCase().toCode());
 		logger.info("Starting symbolic execution");
@@ -40,7 +43,8 @@ public class DSELocalSearch extends StatementLocalSearch {
 
 		// List<BranchCondition> conditions =
 		// ConcolicExecution.getSymbolicPath(test);
-		List<BranchCondition> conditions = ConcolicExecution.executeConcolic((DefaultTestCase) test.getTestCase().clone());
+		List<BranchCondition> conditions = ConcolicExecution
+				.executeConcolic((DefaultTestCase) test.getTestCase().clone());
 		logger.info("Done symbolic execution");
 		for (BranchCondition c : conditions) {
 			logger.info(" -> " + c.getLocalConstraint());
@@ -48,14 +52,15 @@ public class DSELocalSearch extends StatementLocalSearch {
 
 		Set<VariableReference> targets = new HashSet<VariableReference>();
 		for (Integer position : statements) {
-			targets.add(test.getTestCase().getStatement(position).getReturnValue());
+			targets.add(test.getTestCase().getStatement(position)
+					.getReturnValue());
 		}
 
 		logger.info("Checking {} conditions", conditions.size());
 		int num = 0;
 		for (BranchCondition condition : conditions) {
-			logger.info("Current condition: " + num + "/" + conditions.size() + ": "
-			        + condition.getLocalConstraint());
+			logger.info("Current condition: " + num + "/" + conditions.size()
+					+ ": " + condition.getLocalConstraint());
 			num++;
 			// Determine if this a branch condition depending on the target
 			// statement
@@ -72,7 +77,8 @@ public class DSELocalSearch extends StatementLocalSearch {
 			List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 			constraints.addAll(condition.getReachingConstraints());
 
-			Constraint<?> targetConstraint = condition.getLocalConstraint().negate();
+			Constraint<?> targetConstraint = condition.getLocalConstraint()
+					.negate();
 			constraints.add(targetConstraint);
 
 			// Cone of influence reduction
@@ -86,16 +92,17 @@ public class DSELocalSearch extends StatementLocalSearch {
 			DSEStats.reportNewConstraints(constraints);
 
 			// Get solution
-			CachedConstraintSolver skr = new CachedConstraintSolver();
+			Solver solver = SolverFactory.getInstance().buildNewSolver();
 
 			long startSolvingTime = System.currentTimeMillis();
 			Map<String, Object> values;
 			try {
-				values = skr.solve(constraints);
+				values = solver.solve(constraints);
 			} catch (ConstraintSolverTimeoutException e) {
 				values = null;
 			}
-			long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
+			long estimatedSolvingTime = System.currentTimeMillis()
+					- startSolvingTime;
 			DSEStats.reportNewSolvingTime(estimatedSolvingTime);
 
 			if (values != null && !values.isEmpty()) {
@@ -116,13 +123,15 @@ public class DSELocalSearch extends StatementLocalSearch {
 					DSEStats.reportNewTestUnuseful();
 					if (Properties.DSE_KEEP_ALL_TESTS) {
 						logger.info("Solution does not improve fitness, keeping solution");
-						objective.retainPartialSolution((TestChromosome) test.clone());
+						objective.retainPartialSolution((TestChromosome) test
+								.clone());
 					}
 
 					test.setTestCase(oldTest);
 					// FIXXME: How can this be null?
 					if (clone.getLastExecutionResult() != null)
-						test.setLastExecutionResult(clone.getLastExecutionResult());
+						test.setLastExecutionResult(clone
+								.getLastExecutionResult());
 					// TODO Mutation
 				}
 			} else {
@@ -136,13 +145,14 @@ public class DSELocalSearch extends StatementLocalSearch {
 
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective<TestChromosome> objective) {
+			LocalSearchObjective<TestChromosome> objective) {
 		Set<Integer> statements = new HashSet<Integer>();
 		statements.add(statement);
 		return doSearch(test, statements, objective);
 	}
 
-	private boolean isRelevant(Constraint<?> constraint, Set<VariableReference> targets) {
+	private boolean isRelevant(Constraint<?> constraint,
+			Set<VariableReference> targets) {
 		Set<Variable<?>> variables = constraint.getVariables();
 		Set<String> targetNames = new HashSet<String>();
 		for (VariableReference v : targets) {
@@ -184,15 +194,16 @@ public class DSELocalSearch extends StatementLocalSearch {
 						p.setValue(value.byteValue() > 0);
 					else
 						logger.warn("New value is of an unsupported type: "
-						        + p.getValue().getClass() + val);
+								+ p.getValue().getClass() + val);
 				} else if (val instanceof String) {
 					String name = ((String) key).replace("__SYM", "");
 					PrimitiveStatement p = getStatement(newTest, name);
 					// logger.warn("New string value for " + name + " is " +
 					// val);
-					assert (p != null) : "Could not find variable " + name + " in test: "
-					        + newTest.toCode() + " / Orig test: " + test.toCode()
-					        + ", seed: " + Randomness.getSeed();
+					assert (p != null) : "Could not find variable " + name
+							+ " in test: " + newTest.toCode()
+							+ " / Orig test: " + test.toCode() + ", seed: "
+							+ Randomness.getSeed();
 					if (p.getValue().getClass().equals(Character.class))
 						p.setValue((char) Integer.parseInt(val.toString()));
 					else
@@ -203,16 +214,18 @@ public class DSELocalSearch extends StatementLocalSearch {
 					PrimitiveStatement p = getStatement(newTest, name);
 					// logger.warn("New double value for " + name + " is " +
 					// value);
-					assert (p != null) : "Could not find variable " + name + " in test: "
-					        + newTest.toCode() + " / Orig test: " + test.toCode()
-					        + ", seed: " + Randomness.getSeed();
+					assert (p != null) : "Could not find variable " + name
+							+ " in test: " + newTest.toCode()
+							+ " / Orig test: " + test.toCode() + ", seed: "
+							+ Randomness.getSeed();
 
 					if (p.getValue().getClass().equals(Double.class))
 						p.setValue(value);
 					else if (p.getValue().getClass().equals(Float.class))
 						p.setValue(value.floatValue());
 					else
-						logger.warn("New value is of an unsupported type: " + val);
+						logger.warn("New value is of an unsupported type: "
+								+ val);
 				} else {
 					logger.debug("New value is of an unsupported type: " + val);
 				}
@@ -296,7 +309,8 @@ public class DSELocalSearch extends StatementLocalSearch {
 	 * @param variables
 	 *            a {@link java.util.Set} object.
 	 */
-	public static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
+	public static void getVariables(Expression<?> expr,
+			Set<Variable<?>> variables) {
 		variables.addAll(expr.getVariables());
 	}
 
