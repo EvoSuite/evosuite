@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.search;
+package org.evosuite.symbolic.solver.search;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +13,7 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.symbolic.solver.search.StringAVM;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.junit.Test;
 

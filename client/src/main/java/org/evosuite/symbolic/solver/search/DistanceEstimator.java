@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.search;
+package org.evosuite.symbolic.solver.search;
 
 import java.util.Collection;
 
