@@ -90,13 +90,6 @@ public final class IntegerToRealCast extends AbstractExpression<Double> implemen
 		return this.expr.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Double execute() {
-		Long exprVal = expr.execute();
-		return exprVal.doubleValue();
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

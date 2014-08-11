@@ -115,22 +115,6 @@ public final class StringUnaryToIntegerExpression extends AbstractExpression<Lon
 		return this.op.hashCode() + this.expr.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		String exOn = expr.execute();
-
-		switch (op) {
-
-		case LENGTH:
-			return (long) exOn.length();
-
-		default:
-			log.warn("StringUnaryExpression: unimplemented operator!");
-			return null;
-		}
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

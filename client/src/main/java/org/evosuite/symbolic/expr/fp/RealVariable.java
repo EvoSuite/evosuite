@@ -107,12 +107,6 @@ public final class RealVariable extends AbstractExpression<Double> implements Re
 		return this.name.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Double execute() {
-		return concreteValue;
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

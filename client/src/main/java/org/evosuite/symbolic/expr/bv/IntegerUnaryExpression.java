@@ -100,30 +100,6 @@ public final class IntegerUnaryExpression extends AbstractExpression<Long> imple
 		return this.expr.hashCode() + this.op.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		long leftVal = expr.execute();
-
-		switch (op) {
-
-		case NEG:
-			return -leftVal;
-		case ABS:
-			return Math.abs(leftVal);
-		case GETNUMERICVALUE:
-			return (long) Character.getNumericValue((char) leftVal);
-		case ISLETTER:
-			return Character.isLetter((char) leftVal) ? 1L : 0L;
-		case ISDIGIT:
-			return Character.isDigit((char) leftVal) ? 1L : 0L;
-
-		default:
-			log.warn("IntegerUnaryExpression: unimplemented operator: " + op);
-			return null;
-		}
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

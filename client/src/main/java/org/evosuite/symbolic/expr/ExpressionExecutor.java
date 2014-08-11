@@ -630,7 +630,7 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 
 	@Override
 	public Object visit(StringNextTokenExpr n, Void arg) {
-		StringTokenizer tokenizer = n.getTokenizerExpr().execute();
+		StringTokenizer tokenizer = (StringTokenizer) n.getTokenizerExpr().accept(this,null);
 		return tokenizer.nextToken();
 	}
 

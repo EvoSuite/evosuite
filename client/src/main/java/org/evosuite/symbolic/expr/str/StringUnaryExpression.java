@@ -115,26 +115,6 @@ public final class StringUnaryExpression extends AbstractExpression<String> impl
 		return this.op.hashCode() + this.expr.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public String execute() {
-		String exOn = expr.execute();
-
-		switch (op) {
-
-		case TOLOWERCASE:
-			return exOn.toLowerCase();
-		case TOUPPERCASE:
-			return exOn.toUpperCase();
-		case TRIM:
-			return exOn.trim();
-
-		default:
-			log.warn("StringUnaryExpression: unimplemented operator!" + op);
-			return null;
-		}
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

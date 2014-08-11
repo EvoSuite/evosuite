@@ -39,16 +39,6 @@ public final class StringReaderExpr extends AbstractExpression<Long> implements
 	}
 
 	@Override
-	public Long execute() {
-		String conc_string = this.string.execute();
-		if (readerPosition >= conc_string.length()) {
-			return -1L;
-		} else {
-			return (long) conc_string.charAt(readerPosition);
-		}
-	}
-
-	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		variables.addAll(this.string.getVariables());

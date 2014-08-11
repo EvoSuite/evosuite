@@ -113,13 +113,6 @@ public final class IntegerComparison extends AbstractExpression<Long> implements
 		return "(" + left + " cmp " + right + ")";
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		log.warn("IntegerComparison.execute() invokation");
-		throw new IllegalStateException("This method should not be invoked");
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

@@ -1,7 +1,6 @@
 package org.evosuite.symbolic.expr.token;
 
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
@@ -25,13 +24,6 @@ public final class NextTokenizerExpr extends TokenizerExpr {
 	 * 
 	 */
 	private static final long serialVersionUID = -5041244020293557448L;
-
-	@Override
-	public StringTokenizer execute() {
-		StringTokenizer tokenizer = this.tokenizerExpr.execute();
-		tokenizer.nextToken();
-		return tokenizer;
-	}
 
 	@Override
 	public Set<Variable<?>> getVariables() {

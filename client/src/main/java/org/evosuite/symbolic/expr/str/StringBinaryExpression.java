@@ -128,50 +128,6 @@ public final class StringBinaryExpression extends AbstractExpression<String> imp
 		return this.left.hashCode() + this.op.hashCode() + this.right.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public String execute() {
-		String first = left.execute();
-		Object second = right.execute();
-
-		switch (op) {
-
-		// returns String
-		case CONCAT: {
-			String string = (String) second;
-			return first.concat(string);
-		}
-		case APPEND_BOOLEAN: {
-			Long sndLong = (Long) second;
-			boolean booleabValue = sndLong == 0 ? false : true;
-			return first + booleabValue;
-		}
-		case APPEND_CHAR: {
-			Long sndLong = (Long) second;
-			char charValue = (char) sndLong.longValue();
-			return first + charValue;
-		}
-		case APPEND_INTEGER: {
-			Long sndLong = (Long) second;
-			return first + sndLong;
-		}
-		case APPEND_REAL: {
-			Double sndLong = (Double) second;
-			return first + sndLong;
-		}
-		case APPEND_STRING: {
-			String string = (String) second;
-			return first + (string);
-		}
-
-		default:
-			log.warn("StringBinaryExpression: unimplemented operator! Operator"
-			        + op.toString());
-			return null;
-		}
-
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

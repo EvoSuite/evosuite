@@ -89,13 +89,6 @@ public final class RealToIntegerCast extends AbstractExpression<Long> implements
 		return this.expr.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		Double exprVal = expr.execute();
-		return exprVal.longValue();
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

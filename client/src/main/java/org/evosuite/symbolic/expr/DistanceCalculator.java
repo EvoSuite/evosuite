@@ -70,7 +70,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 			return Math.abs(leftVal - rightVal);
 		case NE:
 
-			return (leftVal - rightVal) != 0 ? 0 : 1;
+			return (leftVal - rightVal) != 0 ? (long) 0 : (long) 1;
 		case LT:
 
 			return leftVal - rightVal < 0 ? 0 : leftVal - rightVal + 1;
@@ -105,7 +105,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 			return Math.abs(left - right);
 		case NE:
 
-			return (left - right) != 0 ? 0 : 1;
+			return (left - right) != 0 ? (double)0 : (double) 1;
 		case LT:
 
 			return left - right < 0 ? 0 : left - right + 1;

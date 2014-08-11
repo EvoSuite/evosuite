@@ -55,12 +55,6 @@ public final class RealToStringCast extends AbstractExpression<String> implement
 
 	/** {@inheritDoc} */
 	@Override
-	public String execute() {
-		return Double.toString(expr.execute());
-	}
-
-	/** {@inheritDoc} */
-	@Override
 	public String toString() {
 		return "(String)" + expr.toString();
 	}

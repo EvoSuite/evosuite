@@ -119,50 +119,6 @@ public final class IntegerBinaryExpression extends AbstractExpression<Long>
 				+ this.right.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		long leftVal = left.execute();
-		long rightVal = right.execute();
-
-		switch (op) {
-
-		case SHL:
-			return leftVal << rightVal;
-		case SHR:
-			return leftVal >> rightVal;
-		case USHR:
-			return leftVal >>> rightVal;
-		case AND:
-		case IAND:
-			return leftVal & rightVal;
-		case OR:
-		case IOR:
-			return leftVal | rightVal;
-		case XOR:
-		case IXOR:
-			return leftVal ^ rightVal;
-		case DIV:
-			return leftVal / rightVal;
-		case MUL:
-			return leftVal * rightVal;
-		case MINUS:
-			return leftVal - rightVal;
-		case PLUS:
-			return leftVal + rightVal;
-		case REM:
-			return leftVal % rightVal;
-		case MAX:
-			return Math.max(leftVal, rightVal);
-		case MIN:
-			return Math.min(leftVal, rightVal);
-
-		default:
-			log.warn("IntegerBinaryExpression: unimplemented operator: " + op);
-			return null;
-		}
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
