@@ -20,6 +20,7 @@ package org.evosuite.symbolic.search;
 import java.util.Collection;
 
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.DistanceCalculator;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.StringConstraint;
@@ -56,6 +57,7 @@ public abstract class DistanceEstimator {
 	public static double getDistance(Collection<Constraint<?>> constraints) {
 		double result = 0;
 
+		DistanceCalculator distanceCalculator = new DistanceCalculator();
 		try {
 			for (Constraint<?> c : constraints) {
 
@@ -63,7 +65,8 @@ public abstract class DistanceEstimator {
 					StringConstraint string_constraint = (StringConstraint) c;
 
 					try {
-						double strD = string_constraint.getStringDist();
+						double strD = (double) string_constraint.accept(
+								distanceCalculator, null);
 						result += normalize(strD);
 						log.debug("S: " + string_constraint + " strDist "
 								+ strD);
@@ -75,25 +78,28 @@ public abstract class DistanceEstimator {
 				} else if (c instanceof IntegerConstraint) {
 
 					IntegerConstraint integer_constraint = (IntegerConstraint) c;
-					long intD = integer_constraint.getIntegerDist();
+					long intD = (long) integer_constraint.accept(
+							distanceCalculator, null);
 					result += normalize(intD);
 					log.debug("C: " + integer_constraint + " intDist " + intD);
 
 				} else if (c instanceof RealConstraint) {
 					RealConstraint real_constraint = (RealConstraint) c;
-					double realD = real_constraint.getRealDist();
+					double realD = (double) real_constraint.accept(
+							distanceCalculator, null);
+					
 					result += normalize(realD);
 					log.debug("C: " + real_constraint + " realDist " + realD);
 
 				} else {
 					throw new IllegalArgumentException(
-							"DistanceEstimator.getDistance(): "
-									+ "got an unknown constraint: " + c);
+							"DistanceCalculator: got an unknown constraint: "
+									+ c);
 				}
 			}
 			log.debug("Resulting distance: " + result);
 			return Math.abs(result);
-			
+
 		} catch (Exception e) {
 			return Double.MAX_VALUE;
 		}

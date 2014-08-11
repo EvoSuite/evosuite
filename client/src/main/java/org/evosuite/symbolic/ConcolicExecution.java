@@ -23,6 +23,7 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.ExpressionExecutor;
 import org.evosuite.symbolic.vm.ArithmeticVM;
 import org.evosuite.symbolic.vm.CallVM;
 import org.evosuite.symbolic.vm.HeapVM;
@@ -150,18 +151,19 @@ public abstract class ConcolicExecution {
 	private static void logNrOfConstraints(List<BranchCondition> branches) {
 		int nrOfConstraints = 0;
 
+		ExpressionExecutor exprExecutor = new ExpressionExecutor();
 		for (BranchCondition branchCondition : branches) {
 
 			for (Constraint<?> supporting_constraint : branchCondition
 					.getSupportingConstraints()) {
-				supporting_constraint.getLeftOperand().execute();
-				supporting_constraint.getRightOperand().execute();
+				supporting_constraint.getLeftOperand().accept(exprExecutor,null);
+				supporting_constraint.getRightOperand().accept(exprExecutor, null);
 				nrOfConstraints++;
 			}
 
 			Constraint<?> constraint = branchCondition.getLocalConstraint();
-			constraint.getLeftOperand().execute();
-			constraint.getRightOperand().execute();
+			constraint.getLeftOperand().accept(exprExecutor,null);
+			constraint.getRightOperand().accept(exprExecutor,null);
 			nrOfConstraints++;
 
 		}

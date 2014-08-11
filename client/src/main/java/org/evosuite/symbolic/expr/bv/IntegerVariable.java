@@ -110,12 +110,6 @@ public final class IntegerVariable extends AbstractExpression<Long> implements
 		return name.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		return concreteValue;
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

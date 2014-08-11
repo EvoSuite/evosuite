@@ -59,12 +59,6 @@ public final class IntegerConstant extends AbstractExpression<Long> implements
 		return false;
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		return this.concreteValue;
-	}
-
 	@Override
 	public int hashCode() {
 		return getConcreteValue().hashCode();

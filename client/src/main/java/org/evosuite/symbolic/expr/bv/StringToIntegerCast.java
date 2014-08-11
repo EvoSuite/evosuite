@@ -96,13 +96,6 @@ public final class StringToIntegerCast extends AbstractExpression<Long> implemen
 		return this.expr.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		String str = expr.execute();
-		return Long.parseLong(str);
-	}
-
 	public Expression<String> getParam() {
 		return this.expr;
 	}

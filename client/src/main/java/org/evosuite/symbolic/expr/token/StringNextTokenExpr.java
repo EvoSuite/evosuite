@@ -22,7 +22,6 @@ package org.evosuite.symbolic.expr.token;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
@@ -93,14 +92,6 @@ public final class StringNextTokenExpr extends AbstractExpression<String> implem
 	@Override
 	public int hashCode() {
 		return this.tokenizerExpr.hashCode();
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public String execute() {
-		StringTokenizer tokenizer = tokenizerExpr.execute();
-		return tokenizer.nextToken();
-
 	}
 
 	@Override

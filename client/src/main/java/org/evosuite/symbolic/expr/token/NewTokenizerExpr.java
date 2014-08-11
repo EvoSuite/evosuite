@@ -2,7 +2,6 @@ package org.evosuite.symbolic.expr.token;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
@@ -28,14 +27,6 @@ public final class NewTokenizerExpr extends TokenizerExpr {
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException(getSize());
-	}
-
-	@Override
-	public StringTokenizer execute() {
-		String stringVal = string.execute();
-		String delimVal = delim.execute();
-		StringTokenizer tokenizer = new StringTokenizer(stringVal, delimVal);
-		return tokenizer;
 	}
 
 	@Override

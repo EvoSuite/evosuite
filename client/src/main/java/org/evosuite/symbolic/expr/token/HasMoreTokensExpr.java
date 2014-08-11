@@ -22,7 +22,6 @@ package org.evosuite.symbolic.expr.token;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
@@ -85,13 +84,6 @@ public final class HasMoreTokensExpr extends AbstractExpression<Long> implements
 	@Override
 	public String toString() {
 		return "hasMoreTokens(" + tokenizerExpr.toString() + ")";
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		StringTokenizer tokenizer = tokenizerExpr.execute();
-		return tokenizer.hasMoreTokens() ? 1L : 0L;
 	}
 
 	@Override

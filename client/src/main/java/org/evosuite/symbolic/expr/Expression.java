@@ -47,15 +47,6 @@ public abstract interface Expression<T extends Object> extends Serializable {
 
 	/**
 	 * <p>
-	 * execute
-	 * </p>
-	 * 
-	 * @return a {@link java.lang.Object} object.
-	 */
-	public T execute();
-
-	/**
-	 * <p>
 	 * getConcreteValue
 	 * </p>
 	 * 

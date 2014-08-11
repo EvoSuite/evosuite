@@ -97,24 +97,6 @@ public final class RealUnaryToIntegerExpression extends AbstractExpression<Long>
 		return false;
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		double leftVal = expr.execute();
-
-		switch (op) {
-
-		case ROUND:
-			return Math.round(leftVal);
-		case GETEXPONENT:
-			return (long) Math.getExponent(leftVal);
-
-		default:
-			log.warn("IntegerUnaryExpression: unimplemented operator: " + op);
-			return null;
-		}
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

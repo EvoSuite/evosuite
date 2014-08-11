@@ -54,13 +54,6 @@ public final class IntegerToStringCast extends AbstractExpression<String> implem
 
 	/** {@inheritDoc} */
 	@Override
-	public String execute() {
-		Long exprVal = expr.execute();
-		return Long.toString(exprVal);
-	}
-
-	/** {@inheritDoc} */
-	@Override
 	public String toString() {
 		return expr.toString();
 	}

@@ -114,51 +114,6 @@ public final class RealBinaryExpression extends AbstractExpression<Double> imple
 		return this.left.hashCode() + this.op.hashCode() + this.right.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Double execute() {
-
-		double leftVal = left.execute();
-		double rightVal = (Double) right.execute();
-
-		switch (op) {
-
-		case DIV:
-			return leftVal / rightVal;
-		case MUL:
-			return leftVal * rightVal;
-		case MINUS:
-			return leftVal - rightVal;
-		case PLUS:
-			return leftVal + rightVal;
-		case REM:
-			return leftVal % rightVal;
-		case ATAN2:
-			return Math.atan2(leftVal, rightVal);
-		case COPYSIGN:
-			return Math.copySign(leftVal, rightVal);
-		case HYPOT:
-			return Math.hypot(leftVal, rightVal);
-		case IEEEREMAINDER:
-			return Math.IEEEremainder(leftVal, rightVal);
-		case MAX:
-			return Math.max(leftVal, rightVal);
-		case MIN:
-			return Math.min(leftVal, rightVal);
-		case NEXTAFTER:
-			return Math.nextAfter(leftVal, rightVal);
-		case POW:
-			return Math.pow(leftVal, rightVal);
-		case SCALB:
-			return Math.scalb(leftVal, (int) rightVal);
-
-		default:
-			log.warn("IntegerBinaryExpression: unimplemented operator: " + op);
-			return null;
-		}
-
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

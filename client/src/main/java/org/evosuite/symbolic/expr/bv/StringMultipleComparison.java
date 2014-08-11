@@ -173,32 +173,6 @@ public final class StringMultipleComparison extends AbstractExpression<Long> imp
 		        + this.other_v.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		String first = left.execute();
-		String second = (String) right.execute();
-
-		switch (op) {
-		case STARTSWITH:
-			long start = (Long) other_v.get(0).execute();
-
-			return first.startsWith(second, (int) start) ? 1L : 0L;
-
-		case REGIONMATCHES:
-			long frstStart = (Long) other_v.get(0).execute();
-			long secStart = (Long) other_v.get(1).execute();
-			long length = (Long) other_v.get(2).execute();
-			long ignoreCase = (Long) other_v.get(3).execute();
-
-			return first.regionMatches(ignoreCase != 0, (int) frstStart, second,
-			                           (int) secStart, (int) length) ? 1L : 0L;
-		default:
-			log.warn("StringMultipleComparison: unimplemented operator!");
-			return null;
-		}
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

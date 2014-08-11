@@ -141,13 +141,6 @@ public final class StringVariable extends AbstractExpression<String> implements
 		return name.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public String execute() {
-		return concreteValue;
-
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();

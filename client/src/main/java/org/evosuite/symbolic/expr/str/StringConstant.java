@@ -73,13 +73,6 @@ public final class StringConstant extends AbstractExpression<String> implements
 		return this.concreteValue.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public String execute() {
-		return this.concreteValue;
-
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
