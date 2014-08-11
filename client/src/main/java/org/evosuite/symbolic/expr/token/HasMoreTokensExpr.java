@@ -28,6 +28,7 @@ import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.StringComparison;
 import org.slf4j.Logger;
@@ -109,4 +110,8 @@ public final class HasMoreTokensExpr extends AbstractExpression<Long> implements
 		return tokenizerExpr;
 	}
 
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
 }

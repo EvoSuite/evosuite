@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 
 /**
@@ -171,6 +172,12 @@ public final class StringVariable extends AbstractExpression<String> implements
 	@Override
 	public String getMinValue() {
 		return concreteValue;
+	}
+
+	
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 
 }

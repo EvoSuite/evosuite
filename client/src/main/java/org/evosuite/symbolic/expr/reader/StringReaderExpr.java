@@ -6,6 +6,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.str.StringValue;
@@ -95,5 +96,10 @@ public final class StringReaderExpr extends AbstractExpression<Long> implements
 		Set<Object> result = new HashSet<Object>();
 		result.add(string.getConcreteValue());
 		return result;
+	}
+	
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 }

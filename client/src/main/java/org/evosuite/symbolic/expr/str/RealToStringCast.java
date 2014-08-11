@@ -28,6 +28,7 @@ import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Cast;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,4 +101,10 @@ public final class RealToStringCast extends AbstractExpression<String> implement
 	public Set<Object> getConstants() {
 		return this.expr.getConstants();
 	}
+	
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
+
 }
