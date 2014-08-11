@@ -367,6 +367,13 @@ public class Properties {
 	@Parameter(key = "dse_keep_all_tests", group = "Search Algorithm", description = "Keep tests even if they do not increase fitness")
 	public static boolean DSE_KEEP_ALL_TESTS = false;
 
+	public enum SolverType {
+		SEARCH_BASED;
+	}
+
+	public static SolverType DSE_SOLVER = SolverType.SEARCH_BASED;
+
+	
 	/** Constant <code>LOCAL_SEARCH_BUDGET=100</code> */
 	@Parameter(key = "local_search_budget", group = "Search Algorithm", description = "Maximum attempts at improving individuals per local search")
 	public static long LOCAL_SEARCH_BUDGET = 100;
