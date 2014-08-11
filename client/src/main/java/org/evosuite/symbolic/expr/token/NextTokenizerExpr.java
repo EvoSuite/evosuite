@@ -87,4 +87,8 @@ public final class NextTokenizerExpr extends TokenizerExpr {
 	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
 		return v.visit(this, arg);
 	}
+	
+	public TokenizerExpr getTokenizerExpr() {
+		return tokenizerExpr;
+	}
 }
