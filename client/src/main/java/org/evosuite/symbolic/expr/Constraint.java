@@ -65,7 +65,7 @@ public abstract class Constraint<T extends Object> implements Serializable {
 
 		} else {
 			hash = getLeftOperand().hashCode() + getComparator().hashCode()
-			        + getRightOperand().hashCode();
+					+ getRightOperand().hashCode();
 		}
 		return hash;
 	}
@@ -98,9 +98,9 @@ public abstract class Constraint<T extends Object> implements Serializable {
 
 		Constraint<?> other = (Constraint<?>) obj;
 		if (this.getComparator().equals(other.getComparator())
-		        // && this.getSize() == other.getSize()
-		        && this.getLeftOperand().equals(other.getLeftOperand())
-		        && this.getRightOperand().equals(other.getRightOperand())) {
+				// && this.getSize() == other.getSize()
+				&& this.getLeftOperand().equals(other.getLeftOperand())
+				&& this.getRightOperand().equals(other.getRightOperand())) {
 			return true;
 		}
 		return false;
@@ -113,8 +113,9 @@ public abstract class Constraint<T extends Object> implements Serializable {
 	 */
 	public boolean isSolveable() {
 		if (getLeftOperand().equals(getRightOperand())) {
-			if (getComparator() == Comparator.LT || getComparator() == Comparator.GT
-			        || getComparator() == Comparator.NE) {
+			if (getComparator() == Comparator.LT
+					|| getComparator() == Comparator.GT
+					|| getComparator() == Comparator.NE) {
 				return false;
 			}
 		}
@@ -146,4 +147,6 @@ public abstract class Constraint<T extends Object> implements Serializable {
 		result.addAll(this.getRightOperand().getConstants());
 		return result;
 	}
+
+	public abstract <K, V> K accept(ConstraintVisitor<K, V> v, V arg);
 }

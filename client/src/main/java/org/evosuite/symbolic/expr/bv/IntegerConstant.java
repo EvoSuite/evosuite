@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 
 public final class IntegerConstant extends AbstractExpression<Long> implements
@@ -58,12 +59,6 @@ public final class IntegerConstant extends AbstractExpression<Long> implements
 		return false;
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		return this.concreteValue;
-	}
-
 	@Override
 	public int hashCode() {
 		return getConcreteValue().hashCode();
@@ -75,4 +70,8 @@ public final class IntegerConstant extends AbstractExpression<Long> implements
 		return variables;
 	}
 
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
 }

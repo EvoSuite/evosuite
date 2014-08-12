@@ -29,6 +29,8 @@ import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.BinaryExpression;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.ExpressionExecutor;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.Variable;
 import org.slf4j.Logger;
@@ -41,12 +43,14 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public final class StringBinaryToIntegerExpression extends AbstractExpression<Long>
-        implements IntegerValue, BinaryExpression<String> {
+public final class StringBinaryToIntegerExpression extends
+		AbstractExpression<Long> implements IntegerValue,
+		BinaryExpression<String> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	protected static final Logger log = LoggerFactory.getLogger(StringBinaryToIntegerExpression.class);
+	protected static final Logger log = LoggerFactory
+			.getLogger(StringBinaryToIntegerExpression.class);
 
 	private final Expression<String> left;
 	private final Operator op;
@@ -66,10 +70,11 @@ public final class StringBinaryToIntegerExpression extends AbstractExpression<Lo
 	 * @param con
 	 *            a {@link java.lang.String} object.
 	 */
-	public StringBinaryToIntegerExpression(Expression<String> left2, Operator op2,
-	        Expression<?> right2, Long con) {
-		super(con, 1 + left2.getSize() + right2.getSize(),
-		        left2.containsSymbolicVariable() || right2.containsSymbolicVariable());
+	public StringBinaryToIntegerExpression(Expression<String> left2,
+			Operator op2, Expression<?> right2, Long con) {
+		super(con, 1 + left2.getSize() + right2.getSize(), left2
+				.containsSymbolicVariable()
+				|| right2.containsSymbolicVariable());
 		this.left = left2;
 		this.op = op2;
 		this.right = right2;
@@ -101,9 +106,13 @@ public final class StringBinaryToIntegerExpression extends AbstractExpression<Lo
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		if (op == Operator.INDEXOFC)
+		if (op == Operator.INDEXOFC) {
+
+			Long longObject = (Long) right.accept(new ExpressionExecutor(),
+					null);
 			return "(" + left + op.toString() + "\'"
-			        + Character.toChars(((Long) right.execute()).intValue())[0] + "\')";
+					+ Character.toChars(longObject.intValue())[0] + "\')";
+		}
 		return "(" + left + op.toString() + right + ")";
 	}
 
@@ -119,7 +128,7 @@ public final class StringBinaryToIntegerExpression extends AbstractExpression<Lo
 		if (obj instanceof StringBinaryToIntegerExpression) {
 			StringBinaryToIntegerExpression other = (StringBinaryToIntegerExpression) obj;
 			return this.op.equals(other.op) && this.left.equals(other.left)
-			        && this.right.equals(other.right);
+					&& this.right.equals(other.right);
 		}
 
 		return false;
@@ -127,52 +136,8 @@ public final class StringBinaryToIntegerExpression extends AbstractExpression<Lo
 
 	@Override
 	public int hashCode() {
-		return this.left.hashCode() + this.op.hashCode() + this.right.hashCode();
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		String first = left.execute();
-		Object second = right.execute();
-
-		switch (op) {
-
-		// returns Int
-		case COMPARETO: {
-			String string = (String) second;
-			return (long) first.compareTo(string);
-		}
-		case COMPARETOIGNORECASE: {
-			String string = (String) second;
-			return (long) first.compareToIgnoreCase(string);
-		}
-		case INDEXOFC: {
-			long ch = (Long) second;
-			return (long) first.indexOf((char) ch);
-		}
-		case INDEXOFS: {
-			String string = (String) second;
-			return (long) first.indexOf(string);
-		}
-		case LASTINDEXOFC: {
-			long ch = (Long) second;
-			return (long) first.lastIndexOf((char) ch);
-		}
-		case LASTINDEXOFS: {
-			String string = (String) second;
-			return (long) first.lastIndexOf(string);
-		}
-		case CHARAT: {
-			int indx = ((Long) second).intValue();
-			return (long) first.charAt(indx);
-		}
-		default:
-			log.warn("StringBinaryToIntegerExpression: unimplemented operator! Operator"
-			        + op.toString());
-			return null;
-		}
-
+		return this.left.hashCode() + this.op.hashCode()
+				+ this.right.hashCode();
 	}
 
 	@Override
@@ -191,4 +156,8 @@ public final class StringBinaryToIntegerExpression extends AbstractExpression<Lo
 		return result;
 	}
 
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
 }

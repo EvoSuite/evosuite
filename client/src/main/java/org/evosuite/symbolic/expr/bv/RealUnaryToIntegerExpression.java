@@ -27,6 +27,7 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
@@ -96,24 +97,6 @@ public final class RealUnaryToIntegerExpression extends AbstractExpression<Long>
 		return false;
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		double leftVal = expr.execute();
-
-		switch (op) {
-
-		case ROUND:
-			return Math.round(leftVal);
-		case GETEXPONENT:
-			return (long) Math.getExponent(leftVal);
-
-		default:
-			log.warn("IntegerUnaryExpression: unimplemented operator: " + op);
-			return null;
-		}
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
@@ -131,4 +114,8 @@ public final class RealUnaryToIntegerExpression extends AbstractExpression<Long>
 		return this.op.hashCode() + this.getSize() + this.expr.hashCode();
 	}
 
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
 }

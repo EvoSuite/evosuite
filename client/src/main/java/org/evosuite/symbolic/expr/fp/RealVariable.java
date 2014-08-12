@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 
 public final class RealVariable extends AbstractExpression<Double> implements RealValue,
@@ -106,12 +107,6 @@ public final class RealVariable extends AbstractExpression<Double> implements Re
 		return this.name.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Double execute() {
-		return concreteValue;
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
@@ -126,5 +121,10 @@ public final class RealVariable extends AbstractExpression<Double> implements Re
 	public Set<Object> getConstants() {
 		// Do not include original values?
 		return new HashSet<Object>();
+	}
+	
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 }

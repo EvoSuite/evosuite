@@ -47,15 +47,6 @@ public abstract interface Expression<T extends Object> extends Serializable {
 
 	/**
 	 * <p>
-	 * execute
-	 * </p>
-	 * 
-	 * @return a {@link java.lang.Object} object.
-	 */
-	public T execute();
-
-	/**
-	 * <p>
 	 * getConcreteValue
 	 * </p>
 	 * 
@@ -80,4 +71,6 @@ public abstract interface Expression<T extends Object> extends Serializable {
 	public Set<Variable<?>> getVariables();
 
 	public Set<Object> getConstants();
+
+	public <K,V> K accept(ExpressionVisitor<K,V> v, V arg);
 }

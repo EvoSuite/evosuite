@@ -38,8 +38,10 @@ import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.search.CachedConstraintSolver;
-import org.evosuite.symbolic.search.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.SolverFactory;
+import org.evosuite.symbolic.solver.search.CachedConstraintSolver;
+import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
@@ -323,13 +325,13 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 		nrConstraints += nrCurrConstraints;
 
 		logger.info("Applying local search");
-		CachedConstraintSolver skr = new CachedConstraintSolver();
+		Solver solver = SolverFactory.getInstance().buildNewSolver();
 		DSEStats.reportNewConstraints(constraints);
 
 		long startSolvingTime = System.currentTimeMillis();
 		Map<String, Object> values;
 		try {
-			values = skr.solve(constraints);
+			values = solver.solve(constraints);
 		} catch (ConstraintSolverTimeoutException e) {
 			values = null;
 		}

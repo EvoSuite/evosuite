@@ -6,6 +6,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.str.StringValue;
@@ -35,16 +36,6 @@ public final class StringReaderExpr extends AbstractExpression<Long> implements
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException(getSize());
-	}
-
-	@Override
-	public Long execute() {
-		String conc_string = this.string.execute();
-		if (readerPosition >= conc_string.length()) {
-			return -1L;
-		} else {
-			return (long) conc_string.charAt(readerPosition);
-		}
 	}
 
 	@Override
@@ -95,5 +86,10 @@ public final class StringReaderExpr extends AbstractExpression<Long> implements
 		Set<Object> result = new HashSet<Object>();
 		result.add(string.getConcreteValue());
 		return result;
+	}
+	
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 }

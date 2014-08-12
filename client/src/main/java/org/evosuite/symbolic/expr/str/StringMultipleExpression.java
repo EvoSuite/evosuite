@@ -29,6 +29,7 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.MultipleExpression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.Variable;
@@ -155,43 +156,6 @@ public final class StringMultipleExpression extends AbstractExpression<String> i
 		        + this.other_v.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public String execute() {
-		String first = left.execute();
-		long secLong, thrdLong;
-		String secStr, thrdStr;
-
-		switch (op) {
-
-		// returns string
-		case SUBSTRING: {
-			secLong = (Long) right.execute();
-			thrdLong = (Long) other_v.get(0).execute();
-			return first.substring((int) secLong, (int) thrdLong);
-		}
-		case REPLACEC:
-			secLong = (Long) right.execute();
-			thrdLong = (Long) other_v.get(0).execute();
-			return first.replace((char) secLong, (char) thrdLong);
-		case REPLACECS:
-			secStr = (String) right.execute();
-			thrdStr = (String) other_v.get(0).execute();
-			return first.replace(secStr, thrdStr);
-		case REPLACEALL:
-			secStr = (String) right.execute();
-			thrdStr = (String) other_v.get(0).execute();
-			return first.replaceAll(secStr, thrdStr);
-		case REPLACEFIRST:
-			secStr = (String) right.execute();
-			thrdStr = (String) other_v.get(0).execute();
-			return first.replaceFirst(secStr, thrdStr);
-		default:
-			log.warn("StringMultipleExpression: unimplemented operator: " + op);
-			return null;
-		}
-	}
-
 	private static boolean containsSymbolicVariable(ArrayList<Expression<?>> list) {
 
 		for (Expression<?> e : list) {
@@ -231,6 +195,11 @@ public final class StringMultipleExpression extends AbstractExpression<String> i
 			result.addAll(other_e.getConstants());
 		}
 		return result;
+	}
+
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 
 }
