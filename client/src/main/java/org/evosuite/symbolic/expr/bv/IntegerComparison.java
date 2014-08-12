@@ -27,6 +27,7 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,13 +113,6 @@ public final class IntegerComparison extends AbstractExpression<Long> implements
 		return "(" + left + " cmp " + right + ")";
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		log.warn("IntegerComparison.execute() invokation");
-		throw new IllegalStateException("This method should not be invoked");
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
@@ -135,4 +129,8 @@ public final class IntegerComparison extends AbstractExpression<Long> implements
 		return result;
 	}
 
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
 }

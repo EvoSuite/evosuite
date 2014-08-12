@@ -27,17 +27,19 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.BinaryExpression;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class IntegerBinaryExpression extends AbstractExpression<Long> implements
-        IntegerValue, BinaryExpression<Long> {
+public final class IntegerBinaryExpression extends AbstractExpression<Long>
+		implements IntegerValue, BinaryExpression<Long> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	protected static final Logger log = LoggerFactory.getLogger(IntegerBinaryExpression.class);
+	protected static final Logger log = LoggerFactory
+			.getLogger(IntegerBinaryExpression.class);
 
 	private final Expression<Long> left;
 	private final Operator op;
@@ -58,9 +60,9 @@ public final class IntegerBinaryExpression extends AbstractExpression<Long> impl
 	 *            a {@link java.lang.Long} object.
 	 */
 	public IntegerBinaryExpression(Expression<Long> left, Operator op2,
-	        Expression<Long> right, Long con) {
-		super(con, 1 + left.getSize() + right.getSize(), left.containsSymbolicVariable()
-		        || right.containsSymbolicVariable());
+			Expression<Long> right, Long con) {
+		super(con, 1 + left.getSize() + right.getSize(), left
+				.containsSymbolicVariable() || right.containsSymbolicVariable());
 		this.left = left;
 		this.right = right;
 		this.op = op2;
@@ -105,7 +107,7 @@ public final class IntegerBinaryExpression extends AbstractExpression<Long> impl
 		if (obj instanceof IntegerBinaryExpression) {
 			IntegerBinaryExpression other = (IntegerBinaryExpression) obj;
 			return this.op.equals(other.op) && this.left.equals(other.left)
-			        && this.right.equals(other.right);
+					&& this.right.equals(other.right);
 		}
 
 		return false;
@@ -113,51 +115,8 @@ public final class IntegerBinaryExpression extends AbstractExpression<Long> impl
 
 	@Override
 	public int hashCode() {
-		return this.left.hashCode() + this.op.hashCode() + this.right.hashCode();
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		long leftVal = left.execute();
-		long rightVal = right.execute();
-
-		switch (op) {
-
-		case SHL:
-			return leftVal << rightVal;
-		case SHR:
-			return leftVal >> rightVal;
-		case USHR:
-			return leftVal >>> rightVal;
-		case AND:
-		case IAND:
-			return leftVal & rightVal;
-		case OR:
-		case IOR:
-			return leftVal | rightVal;
-		case XOR:
-		case IXOR:
-			return leftVal ^ rightVal;
-		case DIV:
-			return leftVal / rightVal;
-		case MUL:
-			return leftVal * rightVal;
-		case MINUS:
-			return leftVal - rightVal;
-		case PLUS:
-			return leftVal + rightVal;
-		case REM:
-			return leftVal % rightVal;
-		case MAX:
-			return Math.max(leftVal, rightVal);
-		case MIN:
-			return Math.min(leftVal, rightVal);
-
-		default:
-			log.warn("IntegerBinaryExpression: unimplemented operator: " + op);
-			return null;
-		}
+		return this.left.hashCode() + this.op.hashCode()
+				+ this.right.hashCode();
 	}
 
 	@Override
@@ -174,6 +133,11 @@ public final class IntegerBinaryExpression extends AbstractExpression<Long> impl
 		result.addAll(this.left.getConstants());
 		result.addAll(this.right.getConstants());
 		return result;
+	}
+
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 
 }

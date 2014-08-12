@@ -28,6 +28,8 @@ public class JobHandler extends Thread {
 
 	private final JobExecutor executor;
 
+	private Process latestProcess;
+	
 	/**
 	 * Main constructor
 	 * 
@@ -38,6 +40,20 @@ public class JobHandler extends Thread {
 		this.executor = executor;
 	}
 
+	public void setUpShutdownHook(){
+		/*
+		 * Just to be sure, in case this thread-class is
+		 * not properly stopped in case of problems
+		 */
+		Runtime.getRuntime().addShutdownHook(new Thread(){
+			@Override public void run(){
+				if(latestProcess!=null){
+					latestProcess.destroy();
+				}
+			}
+		});
+	}
+	
 	/**
 	 * Return a pool of handlers, all sharing same queue and latch
 	 * 
@@ -48,6 +64,7 @@ public class JobHandler extends Thread {
 		JobHandler[] jobs = new JobHandler[n];
 		for (int i = 0; i < jobs.length; i++) {
 			jobs[i] = new JobHandler(executor);
+			jobs[i].setUpShutdownHook();
 		}
 		return jobs;
 	}
@@ -88,7 +105,8 @@ public class JobHandler extends Thread {
 				logger.debug("Commands: " + Arrays.asList(parsedCommand));
 
 				process = builder.start();
-
+				latestProcess = process;
+				
 				int exitCode = process.waitFor(); //no need to have timeout here, as it is handled by the scheduler/executor				
 
 				if (exitCode != 0) {
@@ -179,9 +197,7 @@ public class JobHandler extends Thread {
 
 		commands.add("-Xmx" + masterMB + "m");
 		
-		//FIXME
-		//commands.add(org.evosuite.EvoSuite.class.getName());
-		commands.add("org.evosuite.EvoSuite");
+		commands.add(org.evosuite.EvoSuite.class.getName());
 		
 		commands.add("-mem");
 		commands.add(""+clientMB);

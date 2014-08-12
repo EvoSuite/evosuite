@@ -22,12 +22,12 @@ package org.evosuite.symbolic.expr.token;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.StringComparison;
 import org.slf4j.Logger;
@@ -86,13 +86,6 @@ public final class HasMoreTokensExpr extends AbstractExpression<Long> implements
 		return "hasMoreTokens(" + tokenizerExpr.toString() + ")";
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		StringTokenizer tokenizer = tokenizerExpr.execute();
-		return tokenizer.hasMoreTokens() ? 1L : 0L;
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
@@ -109,4 +102,8 @@ public final class HasMoreTokensExpr extends AbstractExpression<Long> implements
 		return tokenizerExpr;
 	}
 
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
 }

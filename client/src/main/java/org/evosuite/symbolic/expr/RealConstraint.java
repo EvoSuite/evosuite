@@ -88,37 +88,9 @@ public final class RealConstraint extends Constraint<Double> {
 		return new RealConstraint(left, cmp.not(), right);
 	}
 
-	public double getRealDist() {
-		double left = (Double) this.getLeftOperand().execute();
-		double right = (Double) this.getRightOperand().execute();
-
-		Comparator cmpr = this.getComparator();
-
-		switch (cmpr) {
-
-		case EQ:
-
-			return Math.abs(left - right);
-		case NE:
-
-			return (left - right) != 0 ? 0 : 1;
-		case LT:
-
-			return left - right < 0 ? 0 : left - right + 1;
-		case LE:
-
-			return left - right <= 0 ? 0 : left - right;
-		case GT:
-
-			return left - right > 0 ? 0 : right - left + 1;
-		case GE:
-
-			return left - right >= 0 ? 0 : right - left;
-
-		default:
-			log.warn("getIntegerDist: unimplemented comparator");
-			return Double.MAX_VALUE;
-		}
+	@Override
+	public <K, V> K accept(ConstraintVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 
 }

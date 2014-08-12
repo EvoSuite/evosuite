@@ -28,6 +28,7 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
@@ -114,26 +115,6 @@ public final class StringUnaryExpression extends AbstractExpression<String> impl
 		return this.op.hashCode() + this.expr.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public String execute() {
-		String exOn = expr.execute();
-
-		switch (op) {
-
-		case TOLOWERCASE:
-			return exOn.toLowerCase();
-		case TOUPPERCASE:
-			return exOn.toUpperCase();
-		case TRIM:
-			return exOn.trim();
-
-		default:
-			log.warn("StringUnaryExpression: unimplemented operator!" + op);
-			return null;
-		}
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
@@ -145,4 +126,10 @@ public final class StringUnaryExpression extends AbstractExpression<String> impl
 	public Set<Object> getConstants() {
 		return this.expr.getConstants();
 	}
+	
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
+
 }

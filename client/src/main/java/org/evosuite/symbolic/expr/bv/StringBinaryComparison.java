@@ -23,15 +23,12 @@ package org.evosuite.symbolic.expr.bv;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.Variable;
 import org.slf4j.Logger;
@@ -142,41 +139,6 @@ public final class StringBinaryComparison extends AbstractExpression<Long> imple
 		return op;
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		String first = left.execute();
-		String second = (String) right.execute();
-
-		switch (op) {
-		case EQUALSIGNORECASE:
-			return first.equalsIgnoreCase(second) ? 1L : 0L;
-		case EQUALS:
-			return first.equals(second) ? 1L : 0L;
-		case ENDSWITH:
-			return first.endsWith(second) ? 1L : 0L;
-		case CONTAINS:
-			return first.contains(second) ? 1L : 0L;
-		case PATTERNMATCHES:
-			return second.matches(first) ? 1L : 0L;
-		case APACHE_ORO_PATTERN_MATCHES: {
-			Perl5Matcher matcher = new Perl5Matcher();
-			Perl5Compiler compiler = new Perl5Compiler();
-			Pattern pattern;
-			try {
-				pattern = compiler.compile(first);
-			} catch (MalformedPatternException e) {
-				throw new RuntimeException(e);
-			}
-			return matcher.matches(second, pattern) ? 1L : 0L;
-
-		}
-		default:
-			log.warn("StringComparison: unimplemented operator!" + op);
-			return null;
-		}
-	}
-
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
@@ -193,4 +155,8 @@ public final class StringBinaryComparison extends AbstractExpression<Long> imple
 		return result;
 	}
 
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
+	}
 }

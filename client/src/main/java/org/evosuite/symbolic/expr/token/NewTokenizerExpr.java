@@ -2,10 +2,10 @@ package org.evosuite.symbolic.expr.token;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.str.StringValue;
 
@@ -27,14 +27,6 @@ public final class NewTokenizerExpr extends TokenizerExpr {
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException(getSize());
-	}
-
-	@Override
-	public StringTokenizer execute() {
-		String stringVal = string.execute();
-		String delimVal = delim.execute();
-		StringTokenizer tokenizer = new StringTokenizer(stringVal, delimVal);
-		return tokenizer;
 	}
 
 	@Override
@@ -93,5 +85,10 @@ public final class NewTokenizerExpr extends TokenizerExpr {
 		result.add(delim.getConcreteValue());
 		result.add(string.getConcreteValue());
 		return result;
+	}
+	
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 }

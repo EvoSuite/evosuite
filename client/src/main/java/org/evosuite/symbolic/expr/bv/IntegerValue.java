@@ -5,6 +5,4 @@ import org.evosuite.symbolic.expr.SymbolicValue;
 
 
 public interface IntegerValue extends Expression<Long>, SymbolicValue {
-
-	public Long execute();
 }

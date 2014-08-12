@@ -29,6 +29,7 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.MultipleExpression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.Variable;
@@ -155,39 +156,6 @@ public final class StringMultipleToIntegerExpression extends AbstractExpression<
 		        + this.other_v.hashCode();
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Long execute() {
-		String first = left.execute();
-		long secLong, thrdLong;
-		String secStr;
-
-		switch (op) {
-
-		// returns int
-		case INDEXOFCI:
-			secLong = (Long) right.execute();
-			thrdLong = (Long) other_v.get(0).execute();
-			return (long) first.indexOf((int) secLong, (int) thrdLong);
-		case INDEXOFSI:
-			secStr = (String) right.execute();
-			thrdLong = (Long) other_v.get(0).execute();
-			return (long) first.indexOf(secStr, (int) thrdLong);
-		case LASTINDEXOFCI:
-			secLong = (Long) right.execute();
-			thrdLong = (Long) other_v.get(0).execute();
-			return (long) first.lastIndexOf((int) secLong, (int) thrdLong);
-		case LASTINDEXOFSI:
-			secStr = (String) right.execute();
-			thrdLong = (Long) other_v.get(0).execute();
-			return (long) first.lastIndexOf(secStr, (int) thrdLong);
-
-		default:
-			log.warn("StringMultipleToIntegerExpression: unimplemented operator: " + op);
-			return null;
-		}
-	}
-
 	private static boolean containsSymbolicVariable(ArrayList<Expression<?>> list) {
 
 		for (Expression<?> e : list) {
@@ -227,5 +195,10 @@ public final class StringMultipleToIntegerExpression extends AbstractExpression<
 			result.addAll(other_e.getConstants());
 		}
 		return result;
+	}
+	
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 }

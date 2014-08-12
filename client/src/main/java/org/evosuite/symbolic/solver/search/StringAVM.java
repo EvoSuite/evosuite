@@ -1,10 +1,11 @@
-package org.evosuite.symbolic.search;
+package org.evosuite.symbolic.solver.search;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.ExpressionExecutor;
 import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.str.StringVariable;
@@ -40,6 +41,7 @@ public final class StringAVM {
 	 */
 	public boolean applyAVM() {
 
+		ExpressionExecutor exprExecutor = new ExpressionExecutor();
 		// try to remove each
 		log.debug("Trying to remove characters");
 		boolean improvement = false;
@@ -119,7 +121,7 @@ public final class StringAVM {
 		Set<StringValue> delimiters = getTokenDelimiters(cnstr);
 		for (StringValue delimiter : delimiters) {
 			improved = true;
-			String delimiterStr = delimiter.execute();
+			String delimiterStr = (String) delimiter.accept(exprExecutor,null);
 			while (improved) {
 				improved = false;
 				char charToInsert = Randomness.nextChar();
