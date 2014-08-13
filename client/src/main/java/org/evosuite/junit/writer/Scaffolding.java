@@ -227,42 +227,6 @@ public class Scaffolding {
 		
 		bd.append(METHOD_SPACE);
 		bd.append("}" + "\n");
-
-		/*
-		bd.append(BLOCK_SPACE);				
-		bd.append("String[] classNames = new String[" + classesToReset.size() + "];\n");
-
-		for (int i = 0; i < classesToReset.size(); i++) {
-			String className = classesToReset.get(i);
-			bd.append(BLOCK_SPACE);
-			bd.append(String.format("classNames[%s] =\"%s\";\n", i, className));
-		}
-
-		bd.append(BLOCK_SPACE);
-		bd.append("for (int i=0; i< classNames.length;i++) {\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("String classNameToReset = classNames[i];\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("try {" + "\n");
-
-		bd.append(INNER_INNER_BLOCK_SPACE);
-		bd.append(ClassResetter.class.getCanonicalName()
-				+ ".getInstance().reset(classNameToReset); \n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("} catch (Throwable t) {" + "\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("}\n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("}\n");
-
-		bd.append(METHOD_SPACE);
-		bd.append("}" + "\n");
-		*/
 	}
 
 	private void generateInitializeClasses(String testClassName, StringBuilder bd) {
@@ -295,6 +259,8 @@ public class Scaffolding {
 		}
 
 		
+		/* Not needed any longer, since the issue was fixed with a customized @RunWith 
+		 * 
 		bd.append("\n");
 
 		List<String> allInstrumentedClasses = TestGenerationContext.getInstance().getClassLoaderForSUT().getViewOfInstrumentedClasses();
@@ -313,75 +279,10 @@ public class Scaffolding {
 		bd.append("\n");
 		bd.append(BLOCK_SPACE);
 		bd.append(");\n"); 
+		*/
 		
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
-
-
-		/*
-		bd.append(BLOCK_SPACE);
-		bd.append("String[] classNames = new String[" + classesToBeReset.size() + "];\n");
-
-		for (int i = 0; i < classesToBeReset.size(); i++) {
-			String className = classesToBeReset.get(i);
-			if (BytecodeInstrumentation.checkIfCanInstrument(className)) {
-				bd.append(BLOCK_SPACE);
-				bd.append(String.format("classNames[%s] =\"%s\";\n", i, className));
-			}
-		}
-
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-		        || Properties.RESET_STATIC_FIELDS) {
-			bd.append(BLOCK_SPACE);
-			bd.append(InstrumentingAgent.class.getName()+".activate(); \n");
-		}
-
-		bd.append(BLOCK_SPACE);
-		bd.append("for (int i=0; i< classNames.length;i++) {\n");
-
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-		        || Properties.RESET_STATIC_FIELDS) {
-			bd.append(INNER_BLOCK_SPACE);
-			bd.append(org.evosuite.runtime.Runtime.class.getName()+".getInstance().resetRuntime(); \n");
-		}
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("String classNameToLoad = classNames[i];\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("ClassLoader classLoader = " + testClassName
-		        + ".class.getClassLoader();\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("try {" + "\n");
-
-		bd.append(INNER_INNER_BLOCK_SPACE);
-		bd.append("Class.forName(classNameToLoad, true, classLoader);\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("} catch (ExceptionInInitializerError ex) {" + "\n");
-
-		bd.append(INNER_INNER_BLOCK_SPACE);
-		bd.append("java.lang.System.err.println(\"Could not initialize \" + classNameToLoad);\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("} catch (Throwable t) {" + "\n");
-
-		bd.append(INNER_BLOCK_SPACE);
-		bd.append("}\n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append("}\n");
-
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-		        || Properties.RESET_STATIC_FIELDS) {
-			bd.append(BLOCK_SPACE);
-			bd.append(InstrumentingAgent.class.getName()+".deactivate(); \n");
-		}
-
-		bd.append(METHOD_SPACE);
-		bd.append("}" + "\n");
-		 */
 	}
 
 	private void generateAfter(StringBuilder bd, boolean wasSecurityException) {
@@ -627,6 +528,14 @@ public class Scaffolding {
 		bd.append(BLOCK_SPACE);
 		bd.append(""+GuiSupport.class.getName()+".initialize(); \n");
 
+		if (Properties.REPLACE_SYSTEM_IN) {
+			bd.append(BLOCK_SPACE);
+			bd.append(RuntimeSettings.class.getName()+".mockSystemIn = true; \n");
+		}
+
+		/*
+		 * Not needed any more here, as done in @RunWith
+		 * 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 				|| Properties.RESET_STATIC_FIELDS) {
 			//need to setup REPLACE_CALLS and instrumentator
@@ -641,11 +550,6 @@ public class Scaffolding {
 				bd.append(RuntimeSettings.class.getName()+".useVFS = true; \n");
 			}
 
-			if (Properties.REPLACE_SYSTEM_IN) {
-				bd.append(BLOCK_SPACE);
-				bd.append(RuntimeSettings.class.getName()+".mockSystemIn = true; \n");
-			}
-
 			if (Properties.RESET_STATIC_FIELDS) {
 				bd.append(BLOCK_SPACE);
 				bd.append(RuntimeSettings.class.getName()+".resetStaticState = true; \n");
@@ -653,8 +557,8 @@ public class Scaffolding {
 
 			bd.append(BLOCK_SPACE);
 			bd.append(InstrumentingAgent.class.getName()+".initialize(); \n");
-
 		}
+		*/
 
 		if (wasSecurityException) {
 			//need to setup the Sandbox mode

@@ -23,13 +23,11 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <!-- here we want to only have it a test time,
-                and not as part of delivered jar, as Runtime
-                code shouldn't call JUnit directly (as we
-                do in EvoSuite search, eg to run the generated
-                tests)
+            <!-- some code depends on JUnit, but it should not
+            		be part of the distribution: ie users should use
+            		their own version, as long as it is not too old
             -->
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

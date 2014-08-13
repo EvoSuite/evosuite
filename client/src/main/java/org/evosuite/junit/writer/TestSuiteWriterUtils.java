@@ -32,6 +32,12 @@ public class TestSuiteWriterUtils {
 	
 	protected final static Logger logger = LoggerFactory.getLogger(TestSuiteWriterUtils.class);
 
+	
+	public static boolean needToUseAgent(){
+		return Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
+				|| Properties.RESET_STATIC_FIELDS;
+	}
+	
 	public static boolean hasAnySecurityException(List<ExecutionResult> results) {
 		for (ExecutionResult result : results) {
 			if (result.hasSecurityException()) {
