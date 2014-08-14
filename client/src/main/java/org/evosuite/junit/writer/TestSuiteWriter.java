@@ -41,6 +41,8 @@ import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.runtime.EvoRunner;
+import org.evosuite.runtime.EvoRunnerParameters;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.StructuredTestCase;
@@ -51,6 +53,7 @@ import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.Utils;
+import org.junit.runner.RunWith;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -361,6 +364,12 @@ public class TestSuiteWriter implements Opcodes {
 			imports.add(DebugGraphics.class);
 		}
 
+		if(TestSuiteWriterUtils.needToUseAgent()){
+			imports.add(EvoRunner.class);
+			imports.add(EvoRunnerParameters.class);
+			imports.add(RunWith.class);
+		}
+		
 		Set<String> import_names = new HashSet<String>();
 		for (Class<?> imp : imports) {
 			while (imp.isArray())
@@ -437,6 +446,10 @@ public class TestSuiteWriter implements Opcodes {
 		builder.append(adapter.getImports());
 		builder.append(getImports(results));
 
+		if(TestSuiteWriterUtils.needToUseAgent()){
+			builder.append(getRunner());
+		}
+		
 		builder.append(adapter.getClassDefinition(name));
 		
 		if(Properties.TEST_SCAFFOLDING){
@@ -445,6 +458,36 @@ public class TestSuiteWriter implements Opcodes {
 		
 		builder.append(" {\n");
 		return builder.toString();
+	}
+
+	private Object getRunner() {
+		
+		String s = "@RunWith(EvoRunner.class) @EvoRunnerParameters(";
+		List<String> list = new ArrayList<>();
+		
+		if (Properties.REPLACE_CALLS) {
+			list.add("mockJVMNonDeterminism = true");
+		}
+
+		if (Properties.VIRTUAL_FS) {
+			list.add("useVFS = true");
+		}
+
+		if (Properties.RESET_STATIC_FIELDS) {
+			list.add("resetStaticState = true");
+		}
+
+		if(!list.isEmpty()){
+			s += list.get(0);
+			
+			for(int i=1; i<list.size(); i++){
+				s += ", "+list.get(i);
+			}
+		}
+		
+		s += ") \n";
+		
+		return s;
 	}
 
 	/**
