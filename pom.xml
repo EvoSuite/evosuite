@@ -264,7 +264,13 @@
 
 
 
-
+	<distributionManagement>
+		<repository>
+		<id>EvoSuite</id>
+		<name>EvoSuite Repository</name>
+		<url>www.evosuite.org/m2/</url>
+		</repository>
+	</distributionManagement>
 
 	<repositories>
 		<repository>
