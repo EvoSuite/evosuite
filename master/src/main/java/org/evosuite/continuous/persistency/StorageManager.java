@@ -468,8 +468,33 @@ public class StorageManager {
 		 */
 		removeTestSuite(testName);
 		addTestSuite(ondisk.testSuite);
+		
+		File scaffolding = getScaffoldingIfExists(ondisk.testSuite);
+		if(scaffolding!=null){
+			addTestSuite(scaffolding);
+		}
 	}
 
+	private File getScaffoldingIfExists(File testSuite) throws IllegalArgumentException{
+
+		String java = ".java";
+		
+		if(testSuite==null || !testSuite.exists() || !testSuite.getName().endsWith(java)){
+			throw new IllegalArgumentException("Invalid test suite: "+testSuite);
+		}
+		
+		String name = testSuite.getName();
+		String scaffoldingName = name.substring(0, name.length() - java.length()); //remove .java at the end
+		scaffoldingName += "_"+Properties.SCAFFOLDING_SUFFIX;
+		scaffoldingName += java;
+		
+		File scaffolding = new File(testSuite.getParentFile().getAbsolutePath() + File.separator + scaffoldingName);
+		if(scaffolding.exists()){
+			return scaffolding;
+		} else {		
+			return null;
+		}
+	}
 	
 	/**
 	 * From the test suites generated in the last CTG run, add the given
