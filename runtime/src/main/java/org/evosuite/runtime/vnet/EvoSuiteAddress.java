@@ -1,4 +1,4 @@
-package org.evosuite.runtime;
+package org.evosuite.runtime.vnet;
 
 import java.io.Serializable;
 

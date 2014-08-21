@@ -222,7 +222,7 @@ public class MockSocket extends Socket{
 			throw new IllegalArgumentException("Unsupported address type");
 
 		InetSocketAddress epoint = (InetSocketAddress) endpoint;
-		InetAddress addr = epoint.getAddress ();
+		InetAddress addr = epoint.getAddress();
 		int port = epoint.getPort();
 		checkAddress(addr, "connect");
 
