@@ -1,6 +1,8 @@
 package org.evosuite.runtime.vnet;
 
+import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -41,6 +43,13 @@ public class VirtualNetwork {
 	private final Set<EndPointInfo> localListeningPorts;
 	
 	/**
+	 * Set of addresses/ports the SUT tried to contact.
+	 */
+	private final Set<EndPointInfo> remoteContactedPorts;
+	
+	private final Map<EndPointInfo, Queue<RemoteTcpServer>> remoteCurrentServers;
+	
+	/**
 	 * Buffer of incoming connections.
 	 * 
 	 * <p>
@@ -69,6 +78,8 @@ public class VirtualNetwork {
         incomingConnections = new ConcurrentHashMap<>();
         openedTcpConnections = new CopyOnWriteArraySet<>();
         remotePortIndex = new AtomicInteger(START_OF_REMOTE_EPHEMERAL_PORTS);
+        remoteContactedPorts = new CopyOnWriteArraySet<>();
+        remoteCurrentServers = new ConcurrentHashMap<>();
 	}
 	
 	public static VirtualNetwork getInstance(){
@@ -81,9 +92,11 @@ public class VirtualNetwork {
 		localListeningPorts.clear();
 		incomingConnections.clear();
 		remotePortIndex.set(START_OF_REMOTE_EPHEMERAL_PORTS);
-
+		remoteCurrentServers.clear();
+		
 		//TODO most likely it ll need different handling, as needed after the search
 		openedTcpConnections.clear();
+		remoteContactedPorts.clear();
 	}
 	
 	/**
@@ -169,8 +182,48 @@ public class VirtualNetwork {
 		return  Collections.unmodifiableSet(openedTcpConnections);
 	}
 	
+	/**
+	 *  Register a remote server that can reply to SUT's connection requests
+	 */
+	public synchronized void addRemoteTcpServer(RemoteTcpServer server){
+		
+		Queue<RemoteTcpServer> queue = remoteCurrentServers.get(server.getAddress());
+		if(queue==null){
+			queue = new ConcurrentLinkedQueue<>();
+			remoteCurrentServers.put(server.getAddress(), queue);
+		}
+		
+		queue.add(server);
+	}
+	
+	
+	
+	public synchronized NativeTcp connectToRemoteAddress(EndPointInfo localOrigin, EndPointInfo remoteTarget)
+		throws IllegalArgumentException, IOException{
+		
+		if(localOrigin==null || remoteTarget==null){
+			throw new IllegalArgumentException("Null input");
+		}
+		
+		if(!isValidLocalServer(localOrigin)){
+			throw new IllegalArgumentException("Invalid local address: "+localOrigin);
+		}
+		
+		remoteContactedPorts.add(remoteTarget);
+		
+		Queue<RemoteTcpServer> queue = remoteCurrentServers.get(remoteTarget);
+		if(queue==null || queue.isEmpty()){
+			throw new IOException("Remote address/port is not opened: "+remoteTarget);
+		}
+		
+		RemoteTcpServer server = queue.poll();
+		NativeTcp connection = server.connect(localOrigin);
+		return connection;
+	}
+	
 	//------------------------------------------
 
+	
 	private boolean isValidLocalServer(EndPointInfo info){
 		return true; //TODO
 	}

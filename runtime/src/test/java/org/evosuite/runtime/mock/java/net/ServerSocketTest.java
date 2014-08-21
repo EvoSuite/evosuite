@@ -8,9 +8,9 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Scanner;
 
-import org.evosuite.runtime.EvoSuiteAddress;
-import org.evosuite.runtime.NetworkHandling;
+import org.evosuite.runtime.vnet.EvoSuiteAddress;
 import org.evosuite.runtime.vnet.NativeTcp;
+import org.evosuite.runtime.vnet.NetworkHandling;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.junit.Assert;
 import org.junit.Before;
