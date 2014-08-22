@@ -132,7 +132,7 @@ public class MockServerSocket extends ServerSocket{
 		if (!oldImpl && isBound())
 			throw new SocketException("Already bound");
 		if (endpoint == null)
-			endpoint = new InetSocketAddress(0);
+			endpoint = new InetSocketAddress(0); //FIXME 
 		if (!(endpoint instanceof InetSocketAddress))
 			throw new IllegalArgumentException("Unsupported address type");
 		

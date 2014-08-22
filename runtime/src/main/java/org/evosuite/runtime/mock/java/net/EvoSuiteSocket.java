@@ -15,8 +15,10 @@ import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.evosuite.runtime.vnet.EndPointInfo;
 import org.evosuite.runtime.vnet.NativeTcp;
 import org.evosuite.runtime.vnet.VirtualNetwork;
+import org.evosuite.runtime.vnet.VirtualNetwork.ConnectionType;
 
 import sun.net.ResourceManager;
 
@@ -270,7 +272,16 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	}
 
 	protected synchronized void doConnect(InetAddress address, int port, int timeout) throws IOException {
-		//TODO
+		EndPointInfo remoteTarget = new EndPointInfo(address.getHostAddress(), port, ConnectionType.TCP);
+		
+		InetSocketAddress isa = new InetSocketAddress(0);// FIXME
+		EndPointInfo localOrigin = new EndPointInfo(isa.getAddress().getHostAddress(), isa.getPort(), ConnectionType.TCP);
+		this.openedConnection = VirtualNetwork.getInstance().connectToRemoteAddress(localOrigin, remoteTarget);
+		
+		this.setOption(SocketOptions.SO_BINDADDR, isa.getAddress());
+		this.setLocalPort(isa.getPort());
+		this.setRemoteAddress(address);
+		this.setRemotePort(port);
 	}
 
 	protected void checkIfClosed() throws IOException{

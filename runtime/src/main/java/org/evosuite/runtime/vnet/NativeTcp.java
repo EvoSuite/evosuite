@@ -34,7 +34,7 @@ public class NativeTcp {
 	/**
 	 * Info on local (SUT) address/port
 	 */
-	private final EndPointInfo localEndPoint;
+	private volatile EndPointInfo localEndPoint;
 	
 	/**
 	 * Info on remote (EvoSuite tests) address/port
@@ -43,10 +43,26 @@ public class NativeTcp {
 	
 	
 	public NativeTcp(EndPointInfo localEndPoint, EndPointInfo remoteEndPoint){
-		this.localEndPoint = localEndPoint;
+		if(remoteEndPoint==null){
+			throw new IllegalArgumentException("Remote end point cannot be null");
+		}
+		
+		this.localEndPoint = localEndPoint; //this can be null
 		this.remoteEndPoint = remoteEndPoint;
 		localBuffer = new ArrayDeque<>();
 		remoteBuffer = new ArrayDeque<>();
+	}
+	
+	public boolean isBound(){
+		return localEndPoint != null;
+	}
+	
+	
+	public void bind(EndPointInfo local) throws IllegalStateException{
+		if(isBound()){
+			throw new IllegalStateException("Connection is already bound");
+		}
+		localEndPoint = local;
 	}
 	
 	/**

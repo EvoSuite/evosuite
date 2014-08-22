@@ -88,7 +88,7 @@ public class Scaffolding {
 	}
 
 	public static String getFileName(String testName) throws IllegalArgumentException{
-		if(testName==null || testName.isEmpty()){
+		if(testName==null || testName.trim().isEmpty()){
 			throw new IllegalArgumentException("Empty test name");
 		}
 		return testName + "_" + Properties.SCAFFOLDING_SUFFIX;

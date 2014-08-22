@@ -1,7 +1,5 @@
-package org.evosuite.runtime;
+package org.evosuite.runtime.vnet;
 
-import org.evosuite.runtime.vnet.NativeTcp;
-import org.evosuite.runtime.vnet.VirtualNetwork;
 
 /**
  * This class is used to create socket connections as test data
