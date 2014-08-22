@@ -94,6 +94,15 @@ Note: if the project has already some tests, those will be executed as well as p
 of the regular "test" phase.
 
 
+------------------
+
+Clover issues:
+if the system has been instrumented with Clover, then the generation of new tests with EvoSuite
+might fail. This can happen if Clover's runtime libraries are not on the classpath.
+Either you need to be sure of having all needed libraries on the classpath, or just
+simply make a clean build (e.g., "mvn clean compile") before calling the EvoSuite plugin.
+
+
 
 
 

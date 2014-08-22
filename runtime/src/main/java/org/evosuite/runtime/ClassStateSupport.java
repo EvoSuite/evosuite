@@ -134,8 +134,8 @@ public class ClassStateSupport {
 			try {
 				Class<?> aClass = Class.forName(classNameToLoad, true, classLoader);
 				classes.add(aClass);
-			} catch (Exception ex) {
-				java.lang.System.err.println("Could not initialize " + classNameToLoad+": "+ex.getMessage());
+			} catch (Exception | Error ex) {
+				logger.error("Could not initialize " + classNameToLoad+": "+ex.getMessage());
 			} 
 		}
 		InstrumentingAgent.deactivate();
