@@ -281,17 +281,18 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 			                   generatedType.getType());
 		}
 		
-		for(Type parameterType : getGenericParameterTypes()) {
-			logger.debug("Checking parameter "+parameterType);
-			if(parameterType instanceof ParameterizedType) {
-				Map<TypeVariable<?>, Type> matchedMap = GenericUtils.getMatchingTypeParameters((ParameterizedType) parameterType,
-                        (ParameterizedType) genericReturnType);
-				for(TypeVariable<?> var : matchedMap.keySet()) {
-					if(!generatorTypes.containsKey(var))
-						generatorTypes.put(var, matchedMap.get(var));
+		if (genericReturnType instanceof ParameterizedType) {
+			for(Type parameterType : getGenericParameterTypes()) {
+				logger.debug("Checking parameter "+parameterType);
+				if(parameterType instanceof ParameterizedType) {
+					Map<TypeVariable<?>, Type> matchedMap = GenericUtils.getMatchingTypeParameters((ParameterizedType) parameterType,
+							(ParameterizedType) genericReturnType);
+					for(TypeVariable<?> var : matchedMap.keySet()) {
+						if(!generatorTypes.containsKey(var))
+							generatorTypes.put(var, matchedMap.get(var));
+					}
+					logger.debug("Map is now "+generatorTypes);
 				}
-				logger.debug("Map is now "+generatorTypes);
-
 			}
 		}
 		logger.debug("GeneratorTypes is now: "+generatorTypes);
