@@ -1,6 +1,8 @@
 package org.evosuite.runtime.vnet;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -8,8 +10,12 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.evosuite.runtime.mock.java.net.MockInetAddress;
+
 
 /**
  * Singleton class used to simulate a virtual network.
@@ -71,6 +77,13 @@ public class VirtualNetwork {
 	private final AtomicInteger remotePortIndex;
 	
 	/**
+	 * Define with interfaces are available:
+	 * eg, a loopback one and a wifi
+	 */
+	private final List<NetworkInterfaceState> networkInterfaces;
+	
+	
+	/**
 	 * private, singleton constructor
 	 */
 	private VirtualNetwork(){
@@ -80,6 +93,7 @@ public class VirtualNetwork {
         remotePortIndex = new AtomicInteger(START_OF_REMOTE_EPHEMERAL_PORTS);
         remoteContactedPorts = new CopyOnWriteArraySet<>();
         remoteCurrentServers = new ConcurrentHashMap<>();
+        networkInterfaces = new CopyOnWriteArrayList<>();
 	}
 	
 	public static VirtualNetwork getInstance(){
@@ -93,10 +107,17 @@ public class VirtualNetwork {
 		incomingConnections.clear();
 		remotePortIndex.set(START_OF_REMOTE_EPHEMERAL_PORTS);
 		remoteCurrentServers.clear();
+		networkInterfaces.clear();
 		
 		//TODO most likely it ll need different handling, as needed after the search
 		openedTcpConnections.clear();
 		remoteContactedPorts.clear();
+	}
+	
+	public void init(){
+		reset(); //just to be sure
+		
+		initNetworkInterfaces();
 	}
 	
 	/**
@@ -107,6 +128,29 @@ public class VirtualNetwork {
 	public int getNewRemoteEphemeralPort(){
 		return remotePortIndex.getAndIncrement();
 	}
+	
+	/**
+	 * 
+	 * @param name
+	 * @return {@code null} if the interface does not exist
+	 */
+	public NetworkInterfaceState getNetworkInterfaceState(String name){
+		for(NetworkInterfaceState ni : networkInterfaces){
+			if(ni.getNetworkInterface().getName().equals(name)){
+				return ni;
+			}
+		}
+		return null; 
+	}
+	
+	/**
+	 * Get a copy of all available interfaces
+	 * @return
+	 */
+	public List<NetworkInterfaceState> getAllNetworkInterfaceStates(){
+		return new ArrayList<NetworkInterfaceState>(networkInterfaces); 
+	}
+	
 	
 	/**
 	 * Simulate an incoming connection. The connection is put on a buffer till
@@ -227,6 +271,18 @@ public class VirtualNetwork {
 	private boolean isValidLocalServer(EndPointInfo info){
 		return true; //TODO
 	}
-	
+
+	private void initNetworkInterfaces() {
+
+		NetworkInterfaceState loopback = new NetworkInterfaceState(
+				"Evo_lo0", 1, null, 16384, true, MockInetAddress.getByName("127.0.0.1"));
+		networkInterfaces.add(loopback);
+		
+		NetworkInterfaceState wifi = new NetworkInterfaceState(
+				"Evo_en0", 5, new byte[]{0, 42, 0, 42, 0, 42}, 
+				1500, false, MockInetAddress.getByName("142.42.42.42"));
+		networkInterfaces.add(wifi);
+	}
+
 	//------------------------------------------
 }
