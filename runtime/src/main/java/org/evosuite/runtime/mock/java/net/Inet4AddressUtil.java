@@ -22,6 +22,10 @@ public class Inet4AddressUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(Inet4AddressUtil.class);
 
+	/*
+	 * number of bytes in a IPv4 address
+	 */
+	public static final int INADDRSZ = 4;
 	
 	private static Constructor<Inet4Address> constructorStringByteArray;
 	private static Constructor<Inet4Address> constructorStringInt;
@@ -29,13 +33,13 @@ public class Inet4AddressUtil {
 	
 	static{
 		try {
-			constructorStringByteArray = Inet4Address.class.getConstructor(String.class, byte[].class);
+			constructorStringByteArray = Inet4Address.class.getDeclaredConstructor(String.class, byte[].class);
 			constructorStringByteArray.setAccessible(true);
 			
-			constructorStringInt = Inet4Address.class.getConstructor(String.class, byte.class);
+			constructorStringInt = Inet4Address.class.getDeclaredConstructor(String.class, int.class);
 			constructorStringInt.setAccessible(true);
 			
-			holderField = InetAddress.class.getField("holder");
+			holderField = InetAddress.class.getDeclaredField("holder");
 			holderField.setAccessible(true);
 			
 		} catch (NoSuchMethodException | SecurityException | NoSuchFieldException e) {
@@ -69,10 +73,5 @@ public class Inet4AddressUtil {
 		}
 		return null;
 	}
-		
-	
-	public static String getHostName(InetAddress addr){
-		
-		return null;
-	}
+			
 }
