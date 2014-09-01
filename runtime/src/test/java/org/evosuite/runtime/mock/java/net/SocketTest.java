@@ -19,7 +19,7 @@ public class SocketTest {
 
 	@Before
 	public void init(){
-		VirtualNetwork.getInstance().reset();
+		VirtualNetwork.getInstance().init();
 	}
 	
 	@Test
