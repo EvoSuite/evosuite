@@ -1,9 +1,11 @@
 package org.evosuite.runtime.mock.java.net;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.runtime.mock.StaticReplacementMock;
@@ -100,30 +102,57 @@ public class MockInetAddress implements StaticReplacementMock{
 
 	public static boolean isReachable(InetAddress addr, NetworkInterface netif, int ttl,
 			int timeout) throws IOException {
-		//TODO
-		return false;
+
+		if (ttl < 0)
+			throw new IllegalArgumentException("ttl can't be negative");
+		if (timeout < 0)
+			throw new IllegalArgumentException("timeout can't be negative");
+
+		/*
+		 * TODO: for now, we are assuming all hosts are reachable
+		 */
+		return true;
 	}
 
 	public static String getHostName(InetAddress addr) {
-		//TODO
-		return null;
+		/*
+		 * We return the textual IP address instead of a lookup
+		 * as that is what would be returned in case of error 
+		 */
+		return addr.getHostAddress();
 	}
 
 	public static String getCanonicalHostName(InetAddress addr) {
-		//TODO
-		return null;
+		//see the callee
+		return getHostName(addr);
 	}
+
+
+
 	//------ static methods in mocked ---------
 
 	public static InetAddress getByAddress(byte[] addr)
 			throws UnknownHostException {
-		return null; //TODO
+		return getByAddress(null, addr);
 	}
+
 
 	public static InetAddress getByAddress(String host, byte[] addr)
 			throws UnknownHostException {
-		return null; //TODO
+
+		if (host != null && host.length() > 0 && host.charAt(0) == '[') {
+			if (host.charAt(host.length()-1) == ']') {
+				host = host.substring(1, host.length() -1);
+			}
+		}
+
+		if (addr != null && addr.length == Inet4AddressUtil.INADDRSZ) {
+			return Inet4AddressUtil.createNewInstance(host, addr);
+		}
+
+		throw new UnknownHostException("Not IPv4: "+Arrays.toString(addr)); 
 	}
+
 
 	public static InetAddress getByName(String host)
 			throws UnknownHostException{
@@ -157,7 +186,7 @@ public class MockInetAddress implements StaticReplacementMock{
 		if(resolved == null){
 			throw new UnknownHostException("Cannot resolve: "+resolved);
 		}
-		
+
 		byte[] addr = EvoIPAddressUtil.textToNumericFormatV4(resolved);
 		InetAddress[] ret = new InetAddress[1];
 		ret[0] = Inet4AddressUtil.createNewInstance(host, addr); 
@@ -195,4 +224,15 @@ public class MockInetAddress implements StaticReplacementMock{
 		return getLoopbackAddress(); 
 	}
 
+	// ------- package level ----------
+
+
+	public static InetAddress anyLocalAddress() {
+		try {
+			return getByName("0.0.0.0");
+		} catch (UnknownHostException e) {
+			//should never happen
+			return null;
+		}
+	}
 }	

@@ -15,6 +15,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.runtime.mock.java.net.MockInetAddress;
+import org.evosuite.runtime.mock.java.net.MockURL;
 
 
 /**
@@ -123,6 +124,7 @@ public class VirtualNetwork {
 		reset(); //just to be sure
 
 		initNetworkInterfaces();
+		MockURL.initStaticState();
 	}
 
 	/**
