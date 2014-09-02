@@ -1,9 +1,6 @@
 package org.evosuite.runtime.mock.java.net;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URI;
@@ -12,11 +9,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Hashtable;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.evosuite.runtime.mock.StaticReplacementMock;
@@ -29,9 +22,6 @@ public class MockURL implements StaticReplacementMock{
 	public String getMockedClassName() {
 		return URL.class.getName();
 	}
-
-
-	private static final long serialVersionUID = -7627629688361524110L;
 
 	private static URLStreamHandlerFactory factory;
 	private static Map<String, URLStreamHandler> handlers = new ConcurrentHashMap<>();
