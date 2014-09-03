@@ -11,6 +11,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
@@ -40,7 +41,7 @@ public class ListClasses {
 
 
 	private static void listClassesTarget(String target) {
-		Set<String> classes = ResourceList.getAllClasses(target, false);
+		Set<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, false);
 		try {
 			ClassPathHacker.addFile(target);
 		} catch (IOException e) {
@@ -48,13 +49,13 @@ public class ListClasses {
 		}
 		for (String sut : classes) {
 			try {
-				if (ResourceList.isClassAnInterface(sut)) {
+				if (ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isClassAnInterface(sut)) {
 					continue;
 				}
-				if (ResourceList.isClassDeprecated(sut)) {
+				if (ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isClassDeprecated(sut)) {
 					continue;
 				}
-				if (! ResourceList.isClassTestable(sut)) {
+				if (! ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isClassTestable(sut)) {
 					continue;
 				}
 			} catch (IOException e) {
@@ -88,7 +89,7 @@ public class ListClasses {
 		Set<String> classes = new LinkedHashSet<>();
 		
 		for (String classPathElement : cp.split(File.pathSeparator)) {
-			classes.addAll(ResourceList.getAllClasses(classPathElement, prefix, false));
+			classes.addAll(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(classPathElement, prefix, false));
 			try {
 				ClassPathHacker.addFile(classPathElement);
 			} catch (IOException e) {
@@ -97,7 +98,7 @@ public class ListClasses {
 		}
 		for (String sut : classes) {
 			try {
-				if (ResourceList.isClassAnInterface(sut)) {
+				if (ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isClassAnInterface(sut)) {
 					continue;
 				}
 			} catch (IOException e) {

@@ -101,6 +101,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 					assertion.value = fieldMap.get(field);
 					assertion.field = field;
 					assertion.source = var;
+					assertion.setcomment("// Original Value: " + fieldMap.get(field) +" | Regression Value: " + otherEntry.fieldMap.get(field));
 					assertions.add(assertion);
 					assert (assertion.isValid());
 
@@ -137,7 +138,8 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof PrimitiveFieldAssertion) {
 			PrimitiveFieldAssertion ass = (PrimitiveFieldAssertion) assertion;
-			if (ass.source.equals(var) && fieldMap.containsKey(ass.field))
+			//TODO: removed ` && fieldMap.containsKey(ass.field)` for regression testing.
+			if (ass.source.equals(var))
 				return !fieldMap.get(ass.field).equals(ass.value);
 		}
 		return false;

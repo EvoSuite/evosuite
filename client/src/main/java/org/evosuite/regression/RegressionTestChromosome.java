@@ -3,6 +3,7 @@
  */
 package org.evosuite.regression;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
@@ -21,12 +22,23 @@ public class RegressionTestChromosome extends ExecutableChromosome {
 
 	private static final long serialVersionUID = -6345178117840330196L;
 
-	private TestChromosome theTest;
+	private transient TestChromosome theTest;
 
-	private TestChromosome theSameTestForTheOtherClassLoader;
+	private transient  TestChromosome theSameTestForTheOtherClassLoader;
+	
+	public transient String fitnessData = "";
+
+	public transient double objDistance = 0.0;
+	
+	public transient int diffExceptions = 0;
 
 	// TODO: This doesn't really belong here
-	private ClassLoader theClassLoader = null;
+	private transient ClassLoader theClassLoader = null;
+	
+	public RegressionTestChromosome() {
+		// TODO Auto-generated constructor stub
+		theClassLoader = TestGenerationContext.getInstance().getRegressionClassLoaderForSUT();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutableChromosome#copyCachedResults(org.evosuite.testcase.ExecutableChromosome)
@@ -46,7 +58,7 @@ public class RegressionTestChromosome extends ExecutableChromosome {
 	public ExecutionResult executeForFitnessFunction(
 	        TestSuiteFitnessFunction testSuiteFitnessFunction) {
 		// TODO Hmmmm...
-
+		//assert false: "execute for fitness function";
 		return null;
 	}
 
@@ -56,9 +68,12 @@ public class RegressionTestChromosome extends ExecutableChromosome {
 	@Override
 	public Chromosome clone() {
 		RegressionTestChromosome copy = new RegressionTestChromosome();
-		copy.theClassLoader = theClassLoader; // I don't think this should be a member of this class to be honest!
+		copy.theClassLoader = TestGenerationContext.getInstance().getRegressionClassLoaderForSUT(); // I don't think this should be a member of this class to be honest!
 		copy.theTest = (TestChromosome) theTest.clone();
 		copy.theSameTestForTheOtherClassLoader = (TestChromosome) theSameTestForTheOtherClassLoader.clone();
+		copy.setFitnesses(getFitnesses());
+		copy.fitnessData = fitnessData;
+		copy.objDistance = objDistance;
 		return copy;
 	}
 
@@ -136,7 +151,10 @@ public class RegressionTestChromosome extends ExecutableChromosome {
 	private void updateClassloader() {
 		if (theTest.isChanged()) {
 			theSameTestForTheOtherClassLoader = (TestChromosome) theTest.clone();
-			((DefaultTestCase) theSameTestForTheOtherClassLoader.getTestCase()).changeClassLoader(theClassLoader);
+			((DefaultTestCase) theSameTestForTheOtherClassLoader.getTestCase()).changeClassLoader(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
+			ClassLoader a = theTest.getClass().getClassLoader();
+			ClassLoader b = theSameTestForTheOtherClassLoader.getClass().getClassLoader();
+			logger.warn("a {} b {} cl {} rcl {}",a,b,TestGenerationContext.getInstance().getClassLoaderForSUT(),TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
 		}
 	}
 
@@ -179,6 +197,29 @@ public class RegressionTestChromosome extends ExecutableChromosome {
 	 */
 	public TestChromosome getTheSameTestForTheOtherClassLoader() {
 		return theSameTestForTheOtherClassLoader;
+	}
+	
+	public void setLastExecutionResult(ExecutionResult lastExecutionResult) {
+		theTest.setLastExecutionResult(lastExecutionResult);
+	}
+	
+	/**
+	 * <p>Setter for the field <code>lastRegressionExecutionResult</code>.</p>
+	 *
+	 * @param lastRegressionExecutionResult a {@link org.evosuite.testcase.ExecutionResult} object.
+	 */
+	public void setLastRegressionExecutionResult(ExecutionResult lastExecutionResult) {
+		theSameTestForTheOtherClassLoader.setLastExecutionResult(lastExecutionResult);
+	}
+	
+	@Override
+	public ExecutionResult getLastExecutionResult() {
+		return theTest.getLastExecutionResult();
+	}
+	
+	@Override
+	public ExecutionResult getLastRegressionExecutionResult() {
+		return theSameTestForTheOtherClassLoader.getLastExecutionResult();
 	}
 
 }

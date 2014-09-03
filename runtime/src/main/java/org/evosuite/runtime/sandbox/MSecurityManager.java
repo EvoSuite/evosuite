@@ -407,6 +407,13 @@ public class MSecurityManager extends SecurityManager {
 
 		// check access
 		if (!allowPermission(perm)) {
+			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+				if (e.toString().contains(
+						"org.evosuite.regression.ObjectFields")) {
+					statistics.permissionAllowed(perm);
+					return;
+				}
+			}
 			if (executingTestCase) {
 				/*
 				 * report statistics only during test case execution, although still log them. The reason is to avoid EvoSuite threads which might not

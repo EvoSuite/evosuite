@@ -1,0 +1,493 @@
+/**
+ * 
+ */
+package org.evosuite.regression;
+
+import java.io.File;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.evosuite.Properties;
+import org.evosuite.TestSuiteGenerator;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.SearchListener;
+import org.evosuite.junit.JUnitAnalyzer;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @author Sina
+ * 
+ */
+public class RegressionSearchListener implements SearchListener {
+
+	public boolean isFirstRun = true;
+	public boolean isFirst = true;
+	public boolean isLastRun = false;
+	public static List<TestCase> previousTestSuite;
+	public static List<TestCase> currentTestSuite;
+	public static int firstAssertionCount = 0;
+	public static String statsID = "";
+
+	public static long ObjectDistanceTime = 0;
+	public static long branchDistanceTime = 0;
+	public static long odCollectionTime = 0;
+	public static long coverageTime = 0;
+	public static long assertionTime = 0;
+	public static long testExecutionTime = 0;
+
+	public static boolean killTheSearch = false;
+
+	public static long startTime;
+
+	protected static final Logger logger = LoggerFactory
+			.getLogger(RegressionSearchListener.class);
+
+	public static String jdiffReport = "";
+
+	public static String analysisReport = "";
+	
+	public static int exceptionDiff = 0;
+
+	public RegressionSearchListener() {
+		previousTestSuite = new ArrayList<TestCase>();
+		currentTestSuite = new ArrayList<TestCase>();
+	}
+
+	@Override
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+		// TODO Auto-generated method stub
+		String statsDirName = "evosuiter-stats";
+		File statsDir = new File(statsDirName);
+		int filecount = 0;
+		if (statsDir.exists() && statsDir.isDirectory()) {
+			filecount = statsDir.list().length;
+		} else {
+			statsDir.mkdirs();
+		}
+
+		statsFile = new File(statsDirName + "/" + (filecount + 1) + "" + ((int) (Math.random()*1000)) + "_"
+				+ Properties.getTargetClass().getSimpleName() + ".csv");
+
+		if (statsFile.exists())
+			statsFile = new File(statsDirName + "/" + (filecount + 1) + "" + ((int) (Math.random()*1000)) + "_"
+					+ Properties.getTargetClass().getSimpleName() + "_"
+					+ System.currentTimeMillis() + ".csv");
+
+		statsID = statsFile.getName().replaceFirst("[.][^.]+$", "");
+
+		try {
+			String data = "fitness,test_count,test_size,branch_distance,object_distance,coverage,exception_diff,total_exceptions,coverage_old,coverage_new,executed_statements,age,time,assertions,state,exec_time,assert_time,cover_time,state_diff_time,branch_time,obj_time";
+			FileUtils.writeStringToFile(statsFile, data, false);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		startTime = System.currentTimeMillis();
+	}
+
+	public static File statsFile;
+	public static double lastOD = 0.0;
+	public static int lastAssertions = 0;
+
+	@Override
+	public void iteration(GeneticAlgorithm<?> algorithm) {
+		// TODO Auto-generated method stub
+		char runState = (isFirst) ? 'F' : ((isLastRun) ? 'L' : 'P');
+		if (isFirst)
+			isFirst = false;
+		RegressionTestSuiteChromosome ind = null;
+		Chromosome individual = algorithm.getBestIndividual();
+		if(individual instanceof RegressionTestChromosome)
+		{
+			ind = new RegressionTestSuiteChromosome();
+			ind.addTest((RegressionTestChromosome) individual);
+			ind.fitnessData = ((RegressionTestChromosome)individual).fitnessData;
+			ind.objDistance =((RegressionTestChromosome)individual).objDistance;
+			ind.diffExceptions = ((RegressionTestChromosome)individual).diffExceptions;
+		} else {
+		//	assert false;
+		 ind = (RegressionTestSuiteChromosome) individual;
+		 ind.fitnessData = ((RegressionTestSuiteChromosome)individual).fitnessData;
+		 ind.objDistance =((RegressionTestSuiteChromosome)individual).objDistance;
+		 ind.diffExceptions = ((RegressionTestSuiteChromosome)individual).diffExceptions;
+		}
+		
+		
+		try {
+			int curAssertions = getNumAssertions(ind);
+			//curAssertions += ind.diffExceptions;
+			
+			
+			
+			if(curAssertions>0){
+				algorithm.getBestIndividual().setFitness(algorithm.getFitnessFunction(), 0);
+				algorithm.setStoppingConditionLimit(0);
+				//RegressionSearchListener.killTheSearch = false;
+			}
+			
+			double curOD =ind.objDistance;
+			FileUtils
+					.writeStringToFile(
+							statsFile,
+							"\r\n"
+									+ (ind).fitnessData
+									+ ","
+									+ ((isLastRun) ? (algorithm.getAge()+1):algorithm.getAge())
+									+ ","
+									+ (System.currentTimeMillis() - startTime)
+									+ ","
+									+ curAssertions
+									+ ","
+									+ runState
+									+ ((isLastRun) ? (","
+											+ (testExecutionTime + 1) / 1000000
+											+ "," + (assertionTime + 1)
+											/ 1000000 + ","
+											+ (coverageTime + 1) / 1000000
+											+ "," + (ObjectDistanceTime + 1)
+											/ 1000000 + ","
+											+ (branchDistanceTime + 1)
+											/ 1000000 + "," + (odCollectionTime + 1) / 1000000)
+											: ",,,,,,"), true);
+
+			if (!isFirstRun) {
+				if (lastAssertions < curAssertions && lastAssertions == 0
+						&& lastOD <= curOD && (lastOD != 0 && curOD != 0)
+						&& (algorithm.getAge() != 0)) {
+					/*
+					 * int aCount = getNumAssertions(
+					 * algorithm.getBestIndividual(), false);
+					 */
+					String comments = "// Assertions count: " + curAssertions
+							+ "\n" + "// Last assertions count: "
+							+ lastAssertions + "\n"
+							+ "// Current Object Distance: " + curOD + "\n"
+							+ "// Last Object Distance: " + this.lastOD + "\n"
+							+ "// StatsID: " + statsID + "\n" + "// Age: "
+							+ algorithm.getAge() + "\n"
+							+ "//--------------------------------------------"
+							+ "\n" + "//--- CURRENT VERSION" + "\n"
+							+ "//--------------------------------------------"
+							+ "\n" + "\n";
+					/*
+					 * TestSuiteGenerator.keepJUnitTests(
+					 * ((RegressionTestSuiteChromosome) algorithm
+					 * .getBestIndividual()).getTests(), comments);
+					 */
+					/*TestSuiteGenerator.keepJUnitTests(previousTestSuite,
+							comments);
+					TestSuiteGenerator.keepJUnitTests(currentTestSuite,
+							comments);*/
+					// getNumAssertions(algorithm.getBestIndividual());
+				} else if (curAssertions == 0 && lastAssertions > 0
+						&& (algorithm.getAge() != 0)
+						&& previousTestSuite.size() > 0) {
+					/*
+					 * int aCount = getNumAssertions(
+					 * algorithm.getBestIndividual(), false);
+					 */
+					String comments = "// Assertions count: " + curAssertions
+							+ "\n" + "// Last assertions count: "
+							+ lastAssertions + "\n"
+							+ "// Current Object Distance: " + curOD + "\n"
+							+ "// Last Object Distance: " + this.lastOD + "\n"
+							+ "// StatsID: " + statsID + "\n" + "// Age: "
+							+ algorithm.getAge() + "\n"
+							+ "//--------------------------------------------"
+							+ "\n" + "//--- OLD VERSION" + "\n"
+							+ "//--------------------------------------------"
+							+ "\n" + "\n";
+					/*TestSuiteGenerator.keepJUnitTests(previousTestSuite,
+							comments);
+					TestSuiteGenerator.keepJUnitTests(currentTestSuite,
+							comments);*/
+					// getNumAssertions(algorithm.getBestIndividual());
+				}
+
+			}
+
+			// previousTestSuite.clear();
+			if (curAssertions > 0) {
+				/*
+				 * previousTestSuite .addAll( ((RegressionTestSuiteChromosome)
+				 * algorithm .getBestIndividual()).getTests() );
+				 */
+				/*
+				 * previousTestSuite = new
+				 * ArrayList<TestCase>(((RegressionTestSuiteChromosome
+				 * )((RegressionTestSuiteChromosome) algorithm
+				 * .getBestIndividual()).clone()).getTests() );
+				 */
+			}
+
+			this.lastOD = curOD;
+			lastAssertions = curAssertions;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+		// TODO Auto-generated method stub
+		isLastRun = true;
+		this.iteration(algorithm);
+		int iteration = algorithm.getAge();
+		logger.warn("total number of generations: " + iteration);
+		RegressionTestSuiteChromosome ind = null;
+		Chromosome individual = algorithm.getBestIndividual();
+		if(individual instanceof RegressionTestChromosome)
+		{
+			ind = new RegressionTestSuiteChromosome();
+			ind.addTest((RegressionTestChromosome) individual);
+			ind.fitnessData = ((RegressionTestChromosome)individual).fitnessData;
+			ind.objDistance =((RegressionTestChromosome)individual).objDistance;
+			ind.diffExceptions = ((RegressionTestChromosome)individual).diffExceptions;
+		} else {
+		 ind = (RegressionTestSuiteChromosome) individual;
+		 ind.fitnessData = ((RegressionTestSuiteChromosome)individual).fitnessData;
+		 ind.objDistance =((RegressionTestSuiteChromosome)individual).objDistance;
+		 ind.diffExceptions = ((RegressionTestSuiteChromosome)individual).diffExceptions;
+		// assert false;
+		}
+		int totalCount = 0;
+		if (iteration > 0) {
+			totalCount = getNumAssertions(ind);
+			//totalCount += ind.diffExceptions;
+			if (firstAssertionCount == 0 && totalCount > 0) {
+				logger.warn("Successful GA! First Gen: " + firstAssertionCount
+						+ " | Last Gen: " + totalCount);
+			} else {
+				logger.warn("Failed GA! First Gen: " + firstAssertionCount
+						+ " | Last Gen: " + totalCount);
+			}
+		}
+
+		if (Properties.REGRESSION_ANALYZE) {
+			String analyzeDirName = "evosuiter-analyze";
+			File analyzeDir = new File(analyzeDirName);
+			int filecount = 0;
+			if (analyzeDir.exists() && analyzeDir.isDirectory()) {
+				filecount = analyzeDir.list().length;
+			} else {
+				analyzeDir.mkdirs();
+			}
+			File analysisFile = new File(analyzeDirName + "/analysis.txt");
+			String report = "Class: " + Properties.getTargetClass().getName()
+					+ " | " + "gens: " + iteration + " | assertions: "
+					+ totalCount + " | " + analysisReport + " | " + jdiffReport;
+			logger.warn("Analysis report: " + report);
+			try {
+				FileUtils.writeStringToFile(analysisFile, report + "\n", true);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	@Override
+	public void fitnessEvaluation(Chromosome individual) {
+		// TODO Auto-generated method stub
+		if (isFirstRun) {
+			isFirstRun = false;
+			int totalCount = getNumAssertions(individual);
+			RegressionSearchListener.firstAssertionCount = totalCount;
+		}
+	}
+
+	@Override
+	public void modification(Chromosome individual) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public int getNumAssertions(Chromosome individual) {
+		int numAssertions =  getNumAssertions(individual, true);
+		
+		if (numAssertions > 0) {
+			logger.warn("num assertions bigger than 0");
+			//RegressionTestSuiteChromosome clone = new RegressionTestSuiteChromosome();
+
+			List<TestCase> testCases = new ArrayList<TestCase>();
+			
+			if(individual instanceof RegressionTestChromosome)
+			{
+				//clone.addTest((RegressionTestChromosome)individual);
+				testCases.add(((RegressionTestChromosome)individual).getTheTest().getTestCase());
+				
+			} else {
+				RegressionTestSuiteChromosome ind = (RegressionTestSuiteChromosome) individual;
+				testCases.addAll(ind.getTests());
+				/*for (RegressionTestChromosome regressionTest : ind.getTestChromosomes()) {
+
+					clone.addTest(regressionTest);
+				}*/
+			}
+			logger.warn("tests are copied");
+			//List<TestCase> testCases = clone.getTests();
+			numAssertions = 0;
+			logger.warn("checking if compilable ...");
+			
+			boolean compilable = JUnitAnalyzer.verifyCompilationAndExecution(testCases);
+			if(compilable){
+				logger.warn("yep, it was");
+				JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
+				logger.warn("... removeTestsThatDoNotCompile()");
+				JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
+				logger.warn("... handleTestsThatAreUnstable()");
+				if(testCases.size()>0){
+					logger.warn("more test cases than 0");
+					//clone = new RegressionTestSuiteChromosome();
+					
+					/*for(TestCase t: testCases){
+						logger.warn("adding cloned test ...");
+						RegressionTestChromosome rtc = new RegressionTestChromosome();
+						TestChromosome tc = new TestChromosome();
+						tc.setTestCase(t);
+						rtc.setTest(tc);
+						clone.addTest(rtc);
+					}*/
+					//test.set
+					//clone.addTest(testCases);
+					 logger.warn("getting new num assertions ...");
+					numAssertions = RegressionSearchListener.getNumAssertions(
+							individual, false ,true);
+					logger.warn("Keeping {} assertions.", numAssertions);
+
+				} else {
+					logger.warn("ignored assertions. tests were removed.");
+				}
+			} else {
+				logger.warn("ignored assertions. not compilable.");
+			}
+		}
+		
+		return numAssertions;
+		
+	}
+
+	public static int getNumAssertions(Chromosome individual,
+			Boolean removeAssertions) {
+		return getNumAssertions(individual, removeAssertions, false);
+
+	}
+
+	public static int getNumAssertions(Chromosome individual,
+			Boolean removeAssertions, Boolean noExecution) {
+		long startTime = System.nanoTime();
+		RegressionAssertionGenerator rgen = new RegressionAssertionGenerator();
+		int oldTimeout = Properties.TIMEOUT;
+		Properties.TIMEOUT *= 20;
+		int totalCount = 0;
+
+		boolean timedOut = false;
+
+		logger.debug("Running assertion generator...");
+
+		//RegressionTestSuiteChromosome ind = null;
+		
+		previousTestSuite = new ArrayList<TestCase>();
+		previousTestSuite.addAll(currentTestSuite);
+		currentTestSuite.clear();
+		if(individual instanceof RegressionTestChromosome)
+		{
+			totalCount += checkForAssertions(removeAssertions, noExecution,
+					rgen, (RegressionTestChromosome)individual);
+		} else {
+		//	assert false;
+			RegressionTestSuiteChromosome ind = (RegressionTestSuiteChromosome) individual;
+			for (RegressionTestChromosome regressionTest : ind.getTestChromosomes()) {
+
+				totalCount += checkForAssertions(removeAssertions, noExecution,
+						rgen, regressionTest);
+			}
+		}
+		
+		// if(totalCount>0)
+		Properties.TIMEOUT = oldTimeout;
+		logger.warn("Assertions generated for the individual: " + totalCount);
+		RegressionSearchListener.assertionTime += System.nanoTime() - startTime;
+		return totalCount;
+	}
+	public static boolean enable_a = false;
+
+	private static int checkForAssertions(Boolean removeAssertions,
+			Boolean noExecution, RegressionAssertionGenerator rgen,
+			RegressionTestChromosome regressionTest) {
+		long execStartTime = 0;
+		long execEndTime = 0;
+		int totalCount = 0;
+
+		boolean timedOut;
+		if (!noExecution) {
+			 execStartTime = System.currentTimeMillis();
+			 
+			ExecutionResult result1 = rgen.runTest(regressionTest
+					.getTheTest().getTestCase());
+			//enable_a=true;
+//logger.warn("Fitness is: {}", regressionTest.getFitness());
+//rgen = new RegressionAssertionGenerator();
+			ExecutionResult result2 = rgen.runTest(regressionTest
+					.getTheSameTestForTheOtherClassLoader().getTestCase());
+//			enable_a = false;
+			 execEndTime = System.currentTimeMillis();
+			 /*if((execEndTime-execStartTime)>1500)
+					assert false;*/
+			
+			 exceptionDiff += Math
+						.abs((double) (result1.getNumberOfThrownExceptions() - result2.getNumberOfThrownExceptions()));
+			 totalCount += exceptionDiff;
+		/*	logger.warn("Execution for assertions took {} ms",
+			 execEndTime-execStartTime );
+			logger.warn("exec1: {}, exec2: {}",
+					result1.getExecutionTime() / 1000.0,
+					result2.getExecutionTime() / 1000.0);*/
+			if (result1.test == null || result2.test == null
+					|| result1.hasTimeout() || result2.hasTimeout()) {
+
+				logger.warn("================================== HAD TIMEOUT ==================================");
+				timedOut = true;
+				//assert false;
+			} else {
+				if(result1.hasTestException() || result2.hasTestException() || result1.hasUndeclaredException() || result2.hasUndeclaredException())
+					logger.warn("================================== HAD EXCEPTION ==================================");
+
+				for (Class<?> observerClass : RegressionAssertionGenerator.observerClasses) {
+					if (result1.getTrace(observerClass) != null) {
+						result1.getTrace(observerClass).getAssertions(
+								regressionTest.getTheTest().getTestCase(),
+								result2.getTrace(observerClass));
+					}
+
+				}
+
+			}
+
+		}
+		totalCount += regressionTest.getTheTest().getTestCase()
+				.getAssertions().size();
+		
+
+
+		currentTestSuite.add(regressionTest.getTheTest().getTestCase()
+				.clone());
+
+		if (removeAssertions)
+			regressionTest.getTheTest().getTestCase().removeAssertions();
+		return totalCount;
+	}
+
+}

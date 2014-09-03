@@ -456,4 +456,10 @@ public class InputVariable implements VariableReference {
 	public void setOriginalCode(String originalCode) {
 		this.originalCode = originalCode;
 	}
+
+	@Override
+	public TestCase getTestCase() {
+		// TODO Auto-generated method stub
+		return this.getTestCase();
+	}
 }

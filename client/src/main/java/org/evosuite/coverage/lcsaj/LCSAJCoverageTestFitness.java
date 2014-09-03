@@ -18,6 +18,7 @@
 package org.evosuite.coverage.lcsaj;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -142,7 +143,7 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 						logger.debug("LCSAJ position: " + lcsaj_position);
 
 					} else {
-						if (LCSAJPool.isLCSAJBranch(BranchPool.getBranch(actualBranch))) {
+						if (LCSAJPool.isLCSAJBranch(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(actualBranch))) {
 							//						logger.debug("Skipping pseudo branch");
 							continue;
 						}

@@ -20,6 +20,7 @@ package org.evosuite.testcase;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.ExecutionTracer;
@@ -43,7 +44,7 @@ public class TestExecutionTracer {
 		final String methodName = "greaterEqual_IF_CMPLT";
 		ExecutionTrace execTrace = execute(methodName, 5, 5);
 		Assert.assertEquals(methodName + signature,
-		                    BranchPool.getBranch(branchId).getMethodName());
+		                    BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(branchId).getMethodName());
 		Assert.assertEquals(0.0, execTrace.getTrueDistance(branchId), DELTA);
 		Assert.assertEquals(1.0, execTrace.getFalseDistance(branchId), DELTA);
 		execTrace = execute(methodName, 5, 6);
@@ -58,7 +59,7 @@ public class TestExecutionTracer {
 		final String methodName = "greaterThan_IF_CMPLE";
 		ExecutionTrace execTrace = execute(methodName, 5, 5);
 		Assert.assertEquals(methodName + signature,
-		                    BranchPool.getBranch(branchId).getMethodName());
+		                    BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(branchId).getMethodName());
 		Assert.assertEquals(1.0, execTrace.getTrueDistance(branchId), DELTA);
 		Assert.assertEquals(0.0, execTrace.getFalseDistance(branchId), DELTA);
 		execTrace = execute(methodName, 6, 5);
@@ -73,7 +74,7 @@ public class TestExecutionTracer {
 		final String methodName = "lesserEqual_IF_CMPGT";
 		ExecutionTrace execTrace = execute(methodName, 5, 5);
 		Assert.assertEquals(methodName + signature,
-		                    BranchPool.getBranch(branchId).getMethodName());
+		                    BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(branchId).getMethodName());
 		Assert.assertEquals(0.0, execTrace.getTrueDistance(branchId), DELTA);
 		Assert.assertEquals(1.0, execTrace.getFalseDistance(branchId), DELTA);
 		execTrace = execute(methodName, 6, 5);
@@ -91,7 +92,7 @@ public class TestExecutionTracer {
 		final String methodName = "lesserThan_IF_CMPGE";
 		ExecutionTrace execTrace = execute(methodName, 5, 5);
 		Assert.assertEquals(methodName + signature,
-		                    BranchPool.getBranch(branchId).getMethodName());
+		                    BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(branchId).getMethodName());
 		Assert.assertEquals(0.0, execTrace.getTrueDistance(branchId), 1.0);
 		Assert.assertEquals(0.0, execTrace.getFalseDistance(branchId), 0.0);
 		execTrace = execute(methodName, 5, 6);

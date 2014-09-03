@@ -86,6 +86,13 @@ public class TestChromosome extends ExecutableChromosome {
 		assert lastExecutionResult.test.equals(this.test);
 		this.lastExecutionResult = lastExecutionResult;
 	}
+	
+	/** {@inheritDoc} */
+	@Override
+	public void setLastRegressionExecutionResult(ExecutionResult lastExecutionResult) {
+		assert lastExecutionResult.test.equals(this.test);
+		this.lastRegressionExecutionResult = lastExecutionResult;
+	}
 
 	/** {@inheritDoc} */
 	@Override

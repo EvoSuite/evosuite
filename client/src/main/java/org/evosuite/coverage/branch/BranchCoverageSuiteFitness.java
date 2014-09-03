@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
@@ -58,6 +59,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public final Set<Integer> lines;
 	private final Set<String> branchlessMethods;
 	private final Set<String> methods;
+	
+	private final ClassLoader classLoader;
 
 	/**
 	 * <p>
@@ -66,22 +69,34 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	public BranchCoverageSuiteFitness() {
 
+		this(TestGenerationContext.getInstance().getClassLoaderForSUT());
+	}
+	
+	/**
+	 * <p>
+	 * Constructor for BranchCoverageSuiteFitness.
+	 * </p>
+	 */
+	public BranchCoverageSuiteFitness(ClassLoader classLoader) {
+		
+		this.classLoader = classLoader;
+
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
 		if (prefix.isEmpty()) {
 			prefix = Properties.TARGET_CLASS;
-			totalMethods = CFGMethodAdapter.getNumMethods();
-			totalBranches = BranchPool.getBranchCounter();
-			numBranchlessMethods = BranchPool.getNumBranchlessMethods();
-			branchlessMethods = BranchPool.getBranchlessMethods();
-			methods = CFGMethodAdapter.getMethods();
+			totalMethods = CFGMethodAdapter.getNumMethods(classLoader);
+			totalBranches = BranchPool.getInstance(classLoader).getBranchCounter();
+			numBranchlessMethods = BranchPool.getInstance(classLoader).getNumBranchlessMethods();
+			branchlessMethods = BranchPool.getInstance(classLoader).getBranchlessMethods();
+			methods = CFGMethodAdapter.getMethods(classLoader);
 
 		} else {
-			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
-			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
-			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
-			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
-			methods = CFGMethodAdapter.getMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
+			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(classLoader, prefix);
+			totalBranches = BranchPool.getInstance(classLoader).getBranchCountForPrefix(prefix);
+			numBranchlessMethods = BranchPool.getInstance(classLoader).getNumBranchlessMethodsPrefix(prefix);
+			branchlessMethods = BranchPool.getInstance(classLoader).getBranchlessMethodsPrefix(prefix);
+			methods = CFGMethodAdapter.getMethodsPrefix(classLoader, Properties.TARGET_CLASS_PREFIX);
 		}
 
 		/* TODO: Would be nice to use a prefix here */
@@ -189,7 +204,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 			}
 			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
-				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
+				if (!LCSAJPool.isLCSAJBranch(BranchPool.getInstance(classLoader).getBranch(entry.getKey()))) {
 					if (!predicateCount.containsKey(entry.getKey()))
 						predicateCount.put(entry.getKey(), entry.getValue());
 					else {
@@ -200,7 +215,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().getTrueDistances().entrySet()) {
-				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
+				if (!LCSAJPool.isLCSAJBranch(BranchPool.getInstance(classLoader).getBranch(entry.getKey()))) {
 					if (!trueDistance.containsKey(entry.getKey()))
 						trueDistance.put(entry.getKey(), entry.getValue());
 					else {
@@ -214,7 +229,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
-				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
+				if (!LCSAJPool.isLCSAJBranch(BranchPool.getInstance(classLoader).getBranch(entry.getKey()))) {
 					if (!falseDistance.containsKey(entry.getKey()))
 						falseDistance.put(entry.getKey(), entry.getValue());
 					else {
@@ -346,6 +361,12 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		        + suite.getCoverage();
 
 		return fitness;
+	}
+	
+	public double totalCovered = 0.0;
+	
+	public int getMaxValue() {
+		return  totalBranches * 2 + totalMethods;
 	}
 
 	/**

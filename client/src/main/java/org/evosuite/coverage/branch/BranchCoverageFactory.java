@@ -20,6 +20,7 @@ package org.evosuite.coverage.branch;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -53,25 +54,25 @@ public class BranchCoverageFactory extends
 		List<BranchCoverageTestFitness> goals = new ArrayList<BranchCoverageTestFitness>();
 
 		// logger.info("Getting branches");
-		for (String className : BranchPool.knownClasses()) {
+		for (String className : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
 
 			final MethodNameMatcher matcher = new MethodNameMatcher();
 			// Branchless methods
-			for (String method : BranchPool.getBranchlessMethods(className)) {
+			for (String method : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchlessMethods(className)) {
 				if (matcher.fullyQualifiedMethodMatches(method)) {
 					goals.add(createRootBranchTestFitness(className, method));
 				}
 			}
 
 			// Branches
-			for (String methodName : BranchPool.knownMethods(className)) {
+			for (String methodName : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
 				if (!matcher.methodMatches(methodName)) {
 					logger.info("Method " + methodName
 							+ " does not match criteria. ");
 					continue;
 				}
 
-				for (Branch b : BranchPool.retrieveBranchesInMethod(className,
+				for (Branch b : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).retrieveBranchesInMethod(className,
 						methodName)) {
 					if (!(b.getInstruction().isForcedBranch() || LCSAJPool
 							.isLCSAJBranch(b))) {
