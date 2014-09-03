@@ -79,6 +79,7 @@ public class PrimitiveFieldAssertion extends Assertion {
 		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
 		s.value = value;
 		s.field = field;
+		s.comment = comment;
 		s.killedMutants.addAll(killedMutants);
 		return s;
 	}

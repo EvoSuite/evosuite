@@ -55,6 +55,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(BranchInstrumentation.class);
 
+	private ClassLoader classLoader;
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -68,6 +69,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	@Override
 	public void analyze(ClassLoader classLoader, MethodNode mn, String className,
 	        String methodName, int access) {
+		this.classLoader = classLoader;
+		
 		RawControlFlowGraph graph = GraphPool.getInstance(classLoader).getRawCFG(className,
 		                                                                         methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
@@ -84,7 +87,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 								AnnotatedLabel aLabel = (AnnotatedLabel) label.getLabel();
 								if (aLabel.info == Boolean.TRUE) {
 									logger.info("Found artificial branch!");
-									Branch b = BranchPool.getBranchForInstruction(v);
+									Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(v);
 									b.setInstrumented(true);
 								} else {
 									logger.info("Found AnnotatedNode ... confused!");
@@ -125,13 +128,13 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			throw new IllegalArgumentException("null given");
 		if (!instruction.isActualBranch())
 			throw new IllegalArgumentException("branch instruction expected");
-		if (!BranchPool.isKnownAsNormalBranchInstruction(instruction))
+		if (!BranchPool.getInstance(classLoader).isKnownAsNormalBranchInstruction(instruction))
 			throw new IllegalArgumentException(
 			        "expect given instruction to be known by the BranchPool as a normal branch isntruction");
 
 		int opcode = instruction.getASMNode().getOpcode();
 		int instructionId = instruction.getInstructionId();
-		int branchId = BranchPool.getActualBranchIdForNormalBranchInstruction(instruction);
+		int branchId = BranchPool.getInstance(classLoader).getActualBranchIdForNormalBranchInstruction(instruction);
 		if (branchId < 0)
 			throw new IllegalStateException(
 			        "expect BranchPool to know branchId for alle branch instructions");
@@ -256,7 +259,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		if (!v.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
 
-		List<Branch> caseBranches = BranchPool.getCaseBranchesForSwitch(v);
+		List<Branch> caseBranches = BranchPool.getInstance(classLoader).getCaseBranchesForSwitch(v);
 
 		if (caseBranches == null || caseBranches.isEmpty())
 			throw new IllegalStateException(
@@ -400,7 +403,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	        InsnList instrumentation, AbstractInsnNode mySwitch, LabelNode defaultLabel,
 	        LabelNode caseLabel, LabelNode endLabel) {
 
-		int defaultCaseBranchId = BranchPool.getDefaultBranchForSwitch(v).getActualBranchId();
+		int defaultCaseBranchId = BranchPool.getInstance(classLoader).getDefaultBranchForSwitch(v).getActualBranchId();
 
 		// add helper switch
 		instrumentation.add(new InsnNode(Opcodes.DUP));

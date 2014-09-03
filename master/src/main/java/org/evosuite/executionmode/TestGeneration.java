@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.classpath.ClassPathHacker;
@@ -102,7 +103,8 @@ public class TestGeneration {
 				new Option("generateTests", "use individual test generation (old approach for reference purposes)"),
 				new Option("generateRandom", "use random test generation"),
 				new Option("generateNumRandom",true, "generate fixed number of random tests"),	
-				new Option("regressionSuite", "generate a regression test suite")
+				new Option("regressionSuite", "generate a regression test suite"),
+				new Option("regressionTests", "generate a regression test suite of individual tests")
 		};
 	}
 
@@ -116,6 +118,8 @@ public class TestGeneration {
 			strategy = Strategy.RANDOM;
 		} else if (line.hasOption("regressionSuite")) {
 			strategy = Strategy.REGRESSION;
+		} else if (line.hasOption("regressionTests")) {
+			strategy = Strategy.REGRESSIONTESTS;
 		} else if (line.hasOption("generateNumRandom")) {
 			strategy = Strategy.RANDOM_FIXED;
 			javaOpts.add("-Dnum_random_tests="
@@ -132,7 +136,7 @@ public class TestGeneration {
 		Set<String> classes = new HashSet<String>();
 		
 		for (String classPathElement : cp.split(File.pathSeparator)) {
-			classes.addAll(ResourceList.getAllClasses(classPathElement, prefix, false));
+			classes.addAll(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(classPathElement, prefix, false));
 			try {
 				ClassPathHacker.addFile(classPathElement);
 			} catch (IOException e) {
@@ -153,7 +157,7 @@ public class TestGeneration {
 		                                         + prefix);
 		for (String sut : classes) {
 			try {
-				if (ResourceList.isClassAnInterface(sut)) {
+				if (ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isClassAnInterface(sut)) {
 					LoggingUtils.getEvoLogger().info("* Skipping interface: "+sut);
 					continue;
 				}
@@ -169,7 +173,7 @@ public class TestGeneration {
 	
 	private static boolean findTargetClass(String target) {
 
-		if (ResourceList.hasClass(target)) {
+		if (ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).hasClass(target)) {
 			return true;
 		}
 
@@ -292,6 +296,9 @@ public class TestGeneration {
 		case REGRESSION:
 			cmdLine.add("-Dstrategy=Regression");
 			break;
+		case REGRESSIONTESTS:
+			cmdLine.add("-Dstrategy=RegressionTests");
+			break;	
 		default:
 			throw new RuntimeException("Unsupported strategy: " + strategy);
 		}
@@ -580,7 +587,7 @@ public class TestGeneration {
 	    List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		
-		Set<String> classes = ResourceList.getAllClasses(target, false);
+		Set<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, false);
 		
 		LoggingUtils.getEvoLogger().info("* Found " + classes.size()
 		                                         + " matching classes in target "
@@ -602,7 +609,7 @@ public class TestGeneration {
 
 		for (String sut : classes) {
 			try {
-				if (ResourceList.isClassAnInterface(sut)) {
+				if (ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isClassAnInterface(sut)) {
 					LoggingUtils.getEvoLogger().info("* Skipping interface: " + sut );
 					continue;
 				}

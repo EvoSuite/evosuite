@@ -127,7 +127,7 @@ public class BooleanTestabilityTransformation {
 				continue;
 			GraphPool.clearAll(className, mn.name + mn.desc);
 			BytecodeInstructionPool.clearAll(className, mn.name + mn.desc);
-			BranchPool.clear(className, mn.name + mn.desc);
+			BranchPool.getInstance(classLoader).clear(className, mn.name + mn.desc);
 		}
 	}
 
@@ -337,7 +337,7 @@ public class BooleanTestabilityTransformation {
 		assert (mn.instructions.contains(jumpNode));
 		BytecodeInstruction insn = getBytecodeInstruction(mn, jumpNode);
 		logger.info("Found instruction: " + insn);
-		Branch branch = BranchPool.getBranchForInstruction(insn);
+		Branch branch = BranchPool.getInstance(classLoader).getBranchForInstruction(insn);
 		return branch.getActualBranchId();
 	}
 

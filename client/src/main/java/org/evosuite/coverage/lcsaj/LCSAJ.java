@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
@@ -64,18 +65,18 @@ public class LCSAJ implements Comparable<LCSAJ> {
 		this.methodName = methodName;
 		this.lastAccessedNode = start.getASMNode();
 
-		if (!BranchPool.isKnownAsBranch(start)) {
+		if (!BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isKnownAsBranch(start)) {
 			if (methodName.startsWith("<init>") && start.getInstructionId() <= 1) {
 
 			}
 			if (Properties.STRATEGY != Strategy.EVOSUITE) {
 				start.forceBranch();
-				BranchPool.registerAsBranch(start);
+				BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).registerAsBranch(start);
 				logger.info("Registering new branch for start node");
 			}
 		}
 
-		Branch branch = BranchPool.getBranchForInstruction(start);
+		Branch branch = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchForInstruction(start);
 		branches.add(branch);
 	}
 
@@ -226,20 +227,20 @@ public class LCSAJ implements Comparable<LCSAJ> {
 		lastAccessedNode = instruction.getASMNode();
 
 		if (instruction.isBranch()) {
-			Branch branch = BranchPool.getBranchForInstruction(instruction);
+			Branch branch = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchForInstruction(instruction);
 			branches.add(branch);
 
 		} else if (instruction.isReturn() || instruction.isThrow()
 		        || instruction.isGoto()) {
 
 			if (Properties.STRATEGY != Strategy.EVOSUITE
-			        && !BranchPool.isKnownAsBranch(instruction)) {
+			        && !BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isKnownAsBranch(instruction)) {
 				instruction.forceBranch();
-				BranchPool.registerAsBranch(instruction);
+				BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).registerAsBranch(instruction);
 				logger.info("Registering new branch");
 			}
 
-			Branch branch = BranchPool.getBranchForInstruction(instruction);
+			Branch branch = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchForInstruction(instruction);
 			branches.add(branch);
 		}
 	}

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
@@ -47,6 +48,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	private final BytecodeInstrumentation instrumentation;
 	private final ClassLoader classLoader;
 	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
+	private boolean isRegression = false;
 
 	/**
 	 * <p>
@@ -56,6 +58,19 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public InstrumentingClassLoader() {
 		this(new BytecodeInstrumentation());
 		setClassAssertionStatus(Properties.TARGET_CLASS, true);
+		logger.warn("standard classloader running now");
+	}
+	
+	/**
+	 * <p>
+	 * Constructor for InstrumentingClassLoader.
+	 * </p>
+	 */
+	public InstrumentingClassLoader(boolean isRegression) {
+		this(new BytecodeInstrumentation());
+		setClassAssertionStatus(Properties.TARGET_CLASS, true);
+		this.isRegression  = isRegression;
+		logger.warn("regression classloader running now");
 	}
 
 	/**
@@ -132,7 +147,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 				if (result != null) {
 					return result;
 				} else {
-					logger.info("Seeing class for first time: " + name);
+					logger.warn("Seeing class for first time: " + name);
 					Class<?> instrumentedClass = null;
 					//LoggingUtils.muteCurrentOutAndErrStream();
 					try {
@@ -166,7 +181,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
 
-			is = ResourceList.getClassAsStream(fullyQualifiedTargetClass);
+			is = isRegression?ResourceList.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass)
+					:ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
 			
 			if (is == null) {
 				throw new ClassNotFoundException("Class '" + className + ".class"

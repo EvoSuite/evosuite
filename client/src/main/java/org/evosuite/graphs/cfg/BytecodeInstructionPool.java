@@ -28,6 +28,7 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.slf4j.Logger;
@@ -154,10 +155,18 @@ public class BytecodeInstructionPool {
 			else
 				return 0;
 		case Opcodes.BIPUSH: // byte
-		case Opcodes.LDC:
 		case Opcodes.NEWARRAY:
 		case Opcodes.RET:
 			return 1;
+		case Opcodes.LDC:
+			LdcInsnNode ldcNode = (LdcInsnNode)instructionNode;
+			if(ldcNode.cst instanceof Double || ldcNode.cst instanceof Long)
+				return 2; // LDC2_W
+			else
+				return 1;
+		case 19: //LDC_W
+		case 20: //LDC2_W
+			return 2;		
 		case Opcodes.ANEWARRAY: // indexbyte1, indexbyte2
 		case Opcodes.CHECKCAST: // indexbyte1, indexbyte2
 		case Opcodes.GETFIELD:
@@ -238,7 +247,7 @@ public class BytecodeInstructionPool {
 		instructionMap.get(className).get(methodName).add(instruction);
 
 		if (instruction.isActualBranch())
-			BranchPool.registerAsBranch(instruction);
+			BranchPool.getInstance(classLoader).registerAsBranch(instruction);
 	}
 
 	// retrieve data from the pool

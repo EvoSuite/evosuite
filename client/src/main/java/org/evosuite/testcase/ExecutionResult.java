@@ -19,9 +19,11 @@
  */
 package org.evosuite.testcase;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -69,6 +71,10 @@ public class ExecutionResult implements Cloneable {
 	 * Keep track of whether any System property was written
 	 */
 	protected boolean wasAnyPropertyWritten;
+	
+	/** Object pool for regression testing **/
+	public List<Map<Integer,Map<String, Map<String, Object>>>> objectPool = new ArrayList<Map<Integer,Map<String, Map<String, Object>>>>();
+
 	
 	/**
 	 * @return the executedStatements
@@ -404,6 +410,7 @@ public class ExecutionResult implements Cloneable {
 		copy.trace = trace.lazyClone();
 		copy.explicitExceptions.putAll(explicitExceptions);
 		copy.executionTime = executionTime;
+		copy.objectPool.addAll(objectPool);
 		for (Class<?> clazz : traces.keySet()) {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}

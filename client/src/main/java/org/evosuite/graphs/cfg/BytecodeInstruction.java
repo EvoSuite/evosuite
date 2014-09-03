@@ -20,6 +20,7 @@ package org.evosuite.graphs.cfg;
 import java.io.Serializable;
 import java.util.Set;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
@@ -711,8 +712,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 */
 	public String explain() {
 		if (isBranch()) {
-			if (BranchPool.isKnownAsBranch(this)) {
-				Branch b = BranchPool.getBranchForInstruction(this);
+			if (BranchPool.getInstance(classLoader).isKnownAsBranch(this)) {
+				Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(this);
 				if (b == null)
 					throw new IllegalStateException(
 							"expect BranchPool to be able to return Branches for instructions fullfilling BranchPool.isKnownAsBranch()");
@@ -863,7 +864,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	public Branch toBranch() {
 
 		try {
-			return BranchPool.getBranchForInstruction(this);
+			return BranchPool.getInstance(classLoader).getBranchForInstruction(this);
 		} catch (Exception e) {
 			return null;
 		}

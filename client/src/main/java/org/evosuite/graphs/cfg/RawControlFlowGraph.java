@@ -127,7 +127,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
 		logger.debug("Adding edge to RawCFG of "+className+"."+methodName+": "+this.vertexCount());
 
-		if (BranchPool.isKnownAsBranch(src))
+		if (BranchPool.getInstance(classLoader).isKnownAsBranch(src))
 			if (src.isBranch())
 				return addBranchEdge(src, target, isExceptionEdge);
 			else if (src.isSwitch())
@@ -161,7 +161,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
 		LabelNode label = (LabelNode) target.getASMNode();
 
-		List<Branch> switchCaseBranches = BranchPool.getBranchForLabel(label);
+		List<Branch> switchCaseBranches = BranchPool.getInstance(classLoader).getBranchForLabel(label);
 
 		if (switchCaseBranches == null) {
 			logger.debug("not a switch case label: " + label.toString() + " "

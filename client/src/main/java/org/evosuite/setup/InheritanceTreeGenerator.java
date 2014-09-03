@@ -230,7 +230,7 @@ public class InheritanceTreeGenerator {
 
 	private static void analyzeClassName(InheritanceTree inheritanceTree, String className) {
 
-		InputStream stream = ResourceList.getClassAsStream(className);
+		InputStream stream = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className);
 		if(stream==null){
 			throw new IllegalArgumentException("Failed to locate/load class: "+className);
 		}

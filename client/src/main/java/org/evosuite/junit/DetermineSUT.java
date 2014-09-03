@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.ClassReader;
@@ -72,7 +73,7 @@ public class DetermineSUT {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		Set<String> targetClasses = ResourceList.getAllClasses(targetClassPath,false);
+		Set<String> targetClasses = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(targetClassPath,false);
 		Set<String> candidateClasses = new HashSet<String>();
 		boolean hasJUnit = false;
 		try {

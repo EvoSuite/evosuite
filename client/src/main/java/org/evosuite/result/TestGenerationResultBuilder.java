@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.coverage.branch.Branch;
@@ -70,7 +71,7 @@ public class TestGenerationResultBuilder {
 		testCases.clear();
 		contractViolations.clear();
 		uncoveredLines = LinePool.getAllLines();
-		for(Branch b : BranchPool.getAllBranches()) {
+		for(Branch b : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllBranches()) {
 			uncoveredBranches.add(new BranchInfo(b, true));
 			uncoveredBranches.add(new BranchInfo(b, false));
 		}
@@ -163,7 +164,7 @@ public class TestGenerationResultBuilder {
 		
 		Set<BranchInfo> branchCoverage = new LinkedHashSet<BranchInfo>();
 		for(int branchId : result.getTrace().getCoveredFalseBranches()) {
-			Branch branch = BranchPool.getBranch(branchId);
+			Branch branch = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(branchId);
 			if(branch == null) {
 				LoggingUtils.getEvoLogger().warn("Branch is null: "+branchId);
 				continue;
@@ -172,7 +173,7 @@ public class TestGenerationResultBuilder {
 			branchCoverage.add(info);
 		}
 		for(int branchId : result.getTrace().getCoveredTrueBranches()) {
-			Branch branch = BranchPool.getBranch(branchId);
+			Branch branch = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(branchId);
 			if(branch == null) {
 				LoggingUtils.getEvoLogger().warn("Branch is null: "+branchId);
 				continue;

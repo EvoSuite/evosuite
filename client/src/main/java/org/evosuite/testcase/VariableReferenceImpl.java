@@ -115,6 +115,11 @@ public class VariableReferenceImpl implements VariableReference {
 		}
 		return stPosition;
 	}
+	
+	@Override
+	public TestCase getTestCase() {
+		return testCase;
+	}
 
 	/**
 	 * {@inheritDoc}

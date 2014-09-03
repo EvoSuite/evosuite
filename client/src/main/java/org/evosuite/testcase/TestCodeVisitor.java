@@ -38,6 +38,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.ArrayEqualsAssertion;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.CompareAssertion;
@@ -285,7 +286,7 @@ public class TestCodeVisitor extends TestVisitor {
 			String fullName = Properties.CLASS_PREFIX +"."+name;
 			if(!fullName.equals(clazz.getCanonicalName())) {
 				try {
-					if(ResourceList.hasClass(fullName)) {
+					if(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).hasClass(fullName)) {
 						name = clazz.getCanonicalName();
 					}
 				} catch(IllegalArgumentException e) {

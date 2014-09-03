@@ -20,9 +20,15 @@
  */
 package org.evosuite.assertion;
 
+import java.util.Set;
+
+import org.evosuite.Properties;
+import org.evosuite.Properties.Strategy;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionObserver;
 import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
@@ -69,7 +75,15 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 *            a {@link org.evosuite.testcase.Scope} object.
 	 */
 	protected void visitDependencies(StatementInterface statement, Scope scope) {
-		for (VariableReference var : currentTest.getDependencies(statement.getReturnValue())) {
+		Set<VariableReference> dependencies = currentTest.getDependencies(statement.getReturnValue());
+		
+		if(Properties.isRegression()){
+			if (!hasCUT(statement, dependencies)){
+				return;
+			}
+		}
+		
+		for (VariableReference var : dependencies) {
 			if (!var.isVoid()) {
 				try {
 					visit(statement, scope, var);
@@ -79,6 +93,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 			}
 		}
 	}
+	
 
 	/**
 	 * <p>
@@ -91,6 +106,14 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 *            a {@link org.evosuite.testcase.Scope} object.
 	 */
 	protected void visitReturnValue(StatementInterface statement, Scope scope) {
+		
+		if(Properties.isRegression()){
+			Set<VariableReference> dependencies = currentTest.getDependencies(statement.getReturnValue());
+			if (!hasCUT(statement, dependencies)){
+				return;
+			}
+		}
+		
 		if (!statement.getReturnClass().equals(void.class)) {
 			try {
 				visit(statement, scope, statement.getReturnValue());
@@ -98,6 +121,36 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 				// ignore
 			}
 		}
+	}
+	
+	
+	/*
+	 * Whether or not the target has the class under test.
+	 * This is to avoid generating assertions for statements
+	 * that are not assignable from the CUT.
+	 */
+	private boolean hasCUT(StatementInterface statement, Set<VariableReference> dependencies){
+		boolean hasCUT = false;
+		if (statement instanceof MethodStatement) {
+			MethodStatement ms = (MethodStatement) statement;
+			if (Properties
+					.getTargetClassRegression(
+							ms.getMethod().getDeclaringClass().getClassLoader() == TestGenerationContext.getInstance()
+									.getClassLoaderForSUT()).isAssignableFrom(
+							ms.getMethod().getDeclaringClass()))
+				hasCUT = true;
+		}
+		for (VariableReference var : dependencies) {
+			if (Properties
+					.getTargetClassRegression(
+							var.getVariableClass().getClassLoader() == TestGenerationContext.getInstance()
+									.getClassLoaderForSUT()).isAssignableFrom(
+							var.getVariableClass())) {
+				hasCUT = true;
+				break;
+			}
+		}
+		return hasCUT;
 	}
 
 	/**
