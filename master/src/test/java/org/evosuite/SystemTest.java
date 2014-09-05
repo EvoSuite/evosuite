@@ -27,6 +27,7 @@ import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
@@ -94,6 +95,8 @@ public class SystemTest {
 		Randomness.setSeed(42);
 
 		currentProperties = (java.util.Properties) System.getProperties().clone();
+		
+		MockFramework.enable();
 	}
 
 	protected void checkUnstable() throws IllegalStateException{

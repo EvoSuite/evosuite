@@ -21,6 +21,7 @@
 package org.evosuite.runtime;
 
 
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,7 @@ public class Runtime {
 	 */
 	public void resetRuntime() {
 
+		MockFramework.enable();
 
 		if (RuntimeSettings.mockJVMNonDeterminism) {
 			Random.reset();

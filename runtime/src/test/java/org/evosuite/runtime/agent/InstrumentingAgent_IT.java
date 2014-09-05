@@ -1,17 +1,22 @@
 package org.evosuite.runtime.agent;
 
+import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Constructor;
 
 import org.junit.*;
 
+import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
+import org.evosuite.runtime.mock.MockFramework;
+import org.evosuite.runtime.mock.java.io.MockFile;
 
 import com.examples.with.different.packagename.agent.ConcreteTime;
 import com.examples.with.different.packagename.agent.AbstractTime;
 import com.examples.with.different.packagename.agent.ExtendingTimeC;
+import com.examples.with.different.packagename.agent.GetFile;
 import com.examples.with.different.packagename.agent.SecondAbstractTime;
 import com.examples.with.different.packagename.agent.SecondConcreteTime;
 import com.examples.with.different.packagename.agent.TimeA;
@@ -30,7 +35,8 @@ import com.examples.with.different.packagename.agent.TimeC;
 public class InstrumentingAgent_IT {
 
 	private final boolean replaceCalls = RuntimeSettings.mockJVMNonDeterminism;
-
+	private final boolean vfs = RuntimeSettings.useVFS;
+	
 	@BeforeClass
 	public static void initClass(){
 		InstrumentingAgent.initialize();
@@ -39,11 +45,14 @@ public class InstrumentingAgent_IT {
 	@Before
 	public void storeValues() {
 		RuntimeSettings.mockJVMNonDeterminism = true;
+		RuntimeSettings.useVFS = true;
+		Runtime.getInstance().resetRuntime();
 	}
 
 	@After
 	public void resetValues() {
 		RuntimeSettings.mockJVMNonDeterminism = replaceCalls;
+		RuntimeSettings.useVFS = vfs;
 	}
 
 
@@ -146,6 +155,11 @@ public class InstrumentingAgent_IT {
 		long expected = 42;
 		org.evosuite.runtime.System.setCurrentTimeMillis(expected);
 		try{
+			/*
+			 * Note: this does not work, but we found a work around
+			 * by forcing loading before JUnit test execution
+			 * with a customized Runner
+			 */
 			InstrumentingAgent.activate();
 			//com.examples.with.different.packagename.agent.AbstractTime time = new com.examples.with.different.packagename.agent.ConcreteTime();
 			//Assert.assertEquals(expected, time.getTime());
@@ -203,6 +217,43 @@ public class InstrumentingAgent_IT {
 		} finally{
 			InstrumentingAgent.deactivate();
 		}
+	}
+	
+	@Test
+	public void testMockFramework(){
+		Object obj = null;
+		try{
+			InstrumentingAgent.activate();
+			obj =  new GetFile();
+		} finally {
+			InstrumentingAgent.deactivate();
+		}
+		
+		GetFile gf = (GetFile) obj;
+		Assert.assertTrue(gf.get() instanceof MockFile);
+		
+		//now disable
+		MockFramework.disable();
+		//even if GetFile is instrumented, should not return a mock now
+		Assert.assertFalse(gf.get() instanceof MockFile);
+	}
+	
+	@Test
+	public void testMockFramework_noAgent(){
+		/*
+		 * OverrideMocks should default even if called
+		 * directly. 
+		 */
+		MockFramework.enable();
+		MockFile file = new MockFile("bar/foo");
+		File parent = file.getParentFile();
+		Assert.assertTrue(parent instanceof MockFile);
+		
+		//now, disable
+		MockFramework.disable();
+		parent = file.getParentFile();
+		//should rollback to original behavior
+		Assert.assertFalse(parent instanceof MockFile);
 	}
 }
 
