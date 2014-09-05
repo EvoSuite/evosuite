@@ -28,6 +28,7 @@ import org.evosuite.rmi.service.MasterNodeRemote;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.AgentLoader;
 import org.evosuite.runtime.agent.ToolsJarLocator;
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.utils.LoggingUtils;
@@ -60,7 +61,8 @@ public class ClientProcess {
 		Properties.getInstance();
 		setupRuntimeProperties();
 		Sandbox.setCheckForInitialization(Properties.SANDBOX);
-
+		MockFramework.enable();
+		
 		initializeToolJar();
 
 		MSecurityManager.setupMasterNodeRemoteHandling(MasterNodeRemote.class);

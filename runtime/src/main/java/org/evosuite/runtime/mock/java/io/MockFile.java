@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
@@ -105,6 +106,9 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public File getParentFile() {
+		if(!MockFramework.isEnabled()){
+			return super.getParentFile();
+		}
 		String p = this.getParent();
 		if (p == null) return null;
 		return new MockFile(p);
