@@ -11,13 +11,13 @@
 	<modules>
 		<module>SimpleModule</module>
 		<module>ModuleWithOneDependency</module>
-        <!-- TODO a module with runtime dependency -->
+		<!-- TODO a module with runtime dependency -->
 	</modules>
 
 
-    <properties>
-        <evosuiteVersion>0.1.0-SNAPSHOT</evosuiteVersion>  <!-- this needs to be overriden with -D -->
-    </properties>
+	<properties>
+		<evosuiteVersion>0.1.0-SNAPSHOT</evosuiteVersion>  <!-- this needs to be overriden with -D -->
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -30,57 +30,61 @@
 			<groupId>org.evosuite</groupId>
 			<artifactId>evosuite-runtime</artifactId>
 			<version>${evosuiteVersion}</version>
-			<!--  <scope>system</scope>
-            <systemPath>${basedir}/../../../../runtime/target/evosuite-runtime-${evosuiteVersion}.jar</systemPath>
-            -->
+			<!-- <scope>system</scope> <systemPath>${basedir}/../../../../runtime/target/evosuite-runtime-${evosuiteVersion}.jar</systemPath> -->
 		</dependency>
 	</dependencies>
 
-    <!--
-        this does not work, as we would need a full formatted repository.
-        Maybe we could use some special plugin to test this plugin:
-
-        http://maven.apache.org/plugin-testing/
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>localPackaged</id>
-            <url>file://${basedir}/../../target/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-    -->
+	<!-- this does not work, as we would need a full formatted repository. Maybe 
+		we could use some special plugin to test this plugin: http://maven.apache.org/plugin-testing/ 
+		<pluginRepositories> <pluginRepository> <id>localPackaged</id> <url>file://${basedir}/../../target/</url> 
+		<releases> <enabled>true</enabled> </releases> <snapshots> <enabled>true</enabled> 
+		</snapshots> </pluginRepository> </pluginRepositories> -->
 
 
 	<build>
 
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <id>add-test-source</id>
-                        <phase>generate-test-sources</phase>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>.continuous_evosuite/evosuite-tests</source>
-                                <source>foo</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<id>add-test-source</id>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>.continuous_evosuite/evosuite-tests</source>
+								<source>foo</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.17</version>
+				<configuration>
+					<properties>
+						<property>
+							<name>listener</name>
+							<value>org.evosuite.runtime.InitializingListener</value>
+						</property>
+					</properties>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.evosuite.plugins</groupId>
+				<artifactId>evosuite-maven-plugin</artifactId>
+			</plugin>
+
+		</plugins>
 
 
 		<pluginManagement>
@@ -89,8 +93,14 @@
 					<groupId>org.evosuite.plugins</groupId>
 					<artifactId>evosuite-maven-plugin</artifactId>
 					<version>${evosuiteVersion}</version>
+					<executions>
+						<execution>
+							<goals> <goal>prepare</goal></goals>
+							<phase>process-test-classes</phase>
+						</execution>
+					</executions>
 				</plugin>
-            </plugins>
+			</plugins>
 		</pluginManagement>
 
 	</build>
