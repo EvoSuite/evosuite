@@ -108,7 +108,7 @@ store all the best tests generated so far.
 
 
 5) "prepare" -> need to run the EvoSuite tests mixed with existing ones, eg "mvn evosuite:prepare test". 
-Best to just configure the surefire plugin to always run it, as previously explained.  
+Best to just configure the evosuite plugin to always run it, as previously explained.  
 
 ------------------
 
