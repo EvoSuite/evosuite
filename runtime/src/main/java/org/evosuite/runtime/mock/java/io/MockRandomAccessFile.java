@@ -2,12 +2,14 @@ package org.evosuite.runtime.mock.java.io;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.runtime.LeakingResource;
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
@@ -36,14 +38,25 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 
 	public MockRandomAccessFile(String name, String mode)
 			throws FileNotFoundException{
-		this(name != null ? new File(name) : null, mode);
+		this(name != null ? 
+				(!MockFramework.isEnabled() ? 
+						 new File(name) :
+							 new MockFile(name)): 
+				null, mode);
 	}
 
 
 	public MockRandomAccessFile(File file, String mode) throws FileNotFoundException {
 		
-		super(VirtualFileSystem.getInstance().getRealTmpFile(),"rw"); //just to make the compiler happy
+		super((!MockFramework.isEnabled() ?
+				file :
+				VirtualFileSystem.getInstance().getRealTmpFile()),mode); //just to make the compiler happy
 
+		if(!MockFramework.isEnabled()){
+			path = null;
+			return;
+		}
+		
 		VirtualFileSystem.getInstance().addLeakingResource(this);
 		
 		String name = (file != null ? file.getPath() : null);
@@ -92,6 +105,10 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 	
 	@Override
 	public int read() throws IOException{
+		if(!MockFramework.isEnabled()){
+			return super.read();
+		}
+
 		if(closed){
 			throw new IOException();
 		}
@@ -99,11 +116,16 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 		//no need to check canRead, as should be always true
 		assert canRead;
 		
-		return MockNative.read(path, position); 
+		return NativeMockedIO.read(path, position); 
 	}
 
 	@Override
 	public void write(int b) throws IOException{
+		if(!MockFramework.isEnabled()){
+			super.write(b);
+			return;
+		}
+
 		writeBytes(new byte[]{(byte)b},0,1);
 	}
 
@@ -113,16 +135,25 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 			throw new IOException();
 		}
 
-		MockNative.writeBytes(path, position, b, off, len);
+		NativeMockedIO.writeBytes(path, position, b, off, len);
 	}
 	
 	@Override
 	public long getFilePointer() throws IOException{
+		if(!MockFramework.isEnabled()){
+			return super.getFilePointer();
+		}
+
 		return position.get();
 	}
 
 	@Override
 	public void seek(long pos) throws IOException{
+		if(!MockFramework.isEnabled()){
+			super.seek(pos);
+			return;
+		}
+
 		if(pos < 0){
 			throw new IOException("Negative position: "+pos);
 		}
@@ -134,20 +165,28 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 
 	@Override
 	public long length() throws IOException{
+		if(!MockFramework.isEnabled()){
+			return super.length();
+		}
+
 		if(closed){
 			throw new IOException();
 		}
-		return MockNative.size(path);
+		return NativeMockedIO.size(path);
 	}
 
 	@Override
 	public void setLength(long newLength) throws IOException{
-		
+		if(!MockFramework.isEnabled()){
+			super.setLength(newLength);
+			return;
+		}
+
 		if(closed || !canWrite){
 			throw new IOException();
 		}
 		
-		MockNative.setLength(path, position, newLength);	
+		NativeMockedIO.setLength(path, position, newLength);	
 	}
 
 	
@@ -172,32 +211,58 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 	
 	@Override
 	public int read(byte b[], int off, int len) throws IOException {
+		if(!MockFramework.isEnabled()){
+			return super.read(b, off, len);
+		}
+
 		return readBytes(b, off, len); 
 	}
 
 	@Override
 	public int read(byte b[]) throws IOException {
+		if(!MockFramework.isEnabled()){
+			return super.read(b);
+		}
+
 		return readBytes(b, 0, b.length); 
 	}
 
 	@Override
 	public int skipBytes(int n) throws IOException {
+		if(!MockFramework.isEnabled()){
+			return super.skipBytes(n);
+		}
+
 		return super.skipBytes(n);
 	}
 
 	@Override
 	public void write(byte b[]) throws IOException {
+		if(!MockFramework.isEnabled()){
+			super.write(b);
+			return;
+		}
+
 		writeBytes(b, 0, b.length);
 	}
 
 	@Override
 	public void write(byte b[], int off, int len) throws IOException {
+		if(!MockFramework.isEnabled()){
+			super.write(b, off, len);
+			return ;
+		}
+
 		writeBytes(b, off, len);
 	}
 
 	@Override
 	public void close() throws IOException {
-		
+		if(!MockFramework.isEnabled()){
+			super.close();
+			return;
+		}
+
 		synchronized (closeLock) {
 		
 			super.close();

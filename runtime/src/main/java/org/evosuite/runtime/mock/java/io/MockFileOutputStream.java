@@ -107,7 +107,7 @@ public class MockFileOutputStream extends FileOutputStream implements LeakingRes
 
 		throwExceptionIfClosed();
 
-		MockNative.writeBytes(path, position, b, off, len);
+		NativeMockedIO.writeBytes(path, position, b, off, len);
 	}
 
 	@Override
