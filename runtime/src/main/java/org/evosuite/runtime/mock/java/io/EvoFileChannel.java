@@ -25,8 +25,9 @@ import org.evosuite.runtime.vfs.VirtualFileSystem;
  * @author arcuri
  *
  */
-public class EvoFileChannel extends FileChannel{
-
+public class EvoFileChannel extends FileChannel{  //FIXME mock FileChannel
+	
+	
 	/**
 	 * The read/write position in the channel
 	 */
