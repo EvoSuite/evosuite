@@ -61,7 +61,7 @@ public class MockFileInputStream extends FileInputStream implements LeakingResou
 			throw new NullPointerException();
 		}
 
-		VFile vf = MockNative.getFileForReading(path);
+		VFile vf = NativeMockedIO.getFileForReading(path);
 		if(vf==null){
 			throw new FileNotFoundException();
 		}
@@ -87,7 +87,7 @@ public class MockFileInputStream extends FileInputStream implements LeakingResou
 		
 		throwExceptionIfClosed();
 
-		return MockNative.read(path, position); 
+		return NativeMockedIO.read(path, position); 
 	}
 
 	private  int readBytes(byte b[], int off, int len) throws IOException{
@@ -142,7 +142,7 @@ public class MockFileInputStream extends FileInputStream implements LeakingResou
 		
 		throwExceptionIfClosed();
 
-		VFile vf = MockNative.getFileForReading(path);
+		VFile vf = NativeMockedIO.getFileForReading(path);
 		if(vf==null){
 			throw new IOException();
 		}
