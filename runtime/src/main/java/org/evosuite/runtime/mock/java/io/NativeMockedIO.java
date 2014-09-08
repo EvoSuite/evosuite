@@ -17,7 +17,7 @@ import org.evosuite.runtime.vfs.VirtualFileSystem;
  * @author arcuri
  *
  */
-public class MockNative {
+public class NativeMockedIO {
 
 	
 	public static VFile getFileForReading(String path){
@@ -29,7 +29,7 @@ public class MockNative {
 	}
 	
 	public static int read(String path, AtomicInteger position) throws IOException{
-		VFile vf = MockNative.getFileForReading(path);
+		VFile vf = NativeMockedIO.getFileForReading(path);
 		if(vf==null){
 			throw new IOException();
 		}
@@ -54,7 +54,7 @@ public class MockNative {
 	public static void writeBytes(String path, AtomicInteger position, byte b[], int off, int len)
 			throws IOException{
 		
-		VFile vf = MockNative.getFileForWriting(path);
+		VFile vf = NativeMockedIO.getFileForWriting(path);
 		if(vf==null){
 			throw new IOException();
 		}
@@ -70,7 +70,7 @@ public class MockNative {
 
 	
 	public static int size(String path) throws IOException{
-		VFile vf = MockNative.getFileForReading(path);
+		VFile vf = NativeMockedIO.getFileForReading(path);
 		if(vf==null){
 			throw new IOException();
 		}
@@ -89,7 +89,7 @@ public class MockNative {
 			throw new IOException("Virtual file system does not handle files larger than  "+Integer.MAX_VALUE+" bytes");
 		}
 		
-		VFile vf = MockNative.getFileForWriting(path);
+		VFile vf = NativeMockedIO.getFileForWriting(path);
 		if(vf==null){
 			throw new IOException();
 		}
