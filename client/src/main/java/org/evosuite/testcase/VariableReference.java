@@ -153,6 +153,13 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * @return a boolean.
 	 */
 	public boolean isArray();
+	
+	/**
+	 * Return true if this is an index into an array variable
+	 * 
+	 * @return a boolean
+	 */
+	public boolean isArrayIndex();
 
 	/**
 	 * Return true if variable is a string
