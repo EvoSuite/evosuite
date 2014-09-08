@@ -16,6 +16,10 @@ For example:
 			<groupId>org.evosuite.plugins</groupId>
 			<artifactId>evosuite-maven-plugin</artifactId>
 			<version>${evosuiteVersion}</version>
+			<executions><execution>
+				<goals> <goal> prepare </goal> </goals>
+				<phase> process-test-classes </phase>
+			</execution></executions>
 		</plugin>
     </plugins>
 </pluginManagement>
@@ -39,7 +43,27 @@ dependency in the pom.xml:
 </dependency> 
 
 
-The "evosuite" plugin provides the following targets:
+You also need to configure the surefire plugin to run an initializing listener for the EvoSuite tests.
+This is required for when EvoSuite tests are mixed with manually written existing tests.
+
+	<plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-surefire-plugin</artifactId>
+		<version>2.17</version>
+		<configuration>
+			<properties>
+				<property>
+					<name>listener</name>
+					<value>org.evosuite.runtime.InitializingListener</value>
+				</property>
+			</properties>
+		</configuration>
+	</plugin>
+
+
+-----------------------------------------------------------
+
+The "evosuite" plugin provides the following goals:
 
 1) "generate" ->  this is used to generate test cases with EvoSuite. Tests will be generated for
 all classes in all submodules. This target as the following parameters:
@@ -81,6 +105,10 @@ build path. You can add custom source folders with "build-helper-maven-plugin" p
 
 4) "clean" -> delete _all_ data in the ".continuous_evosuite" folder, which is used to
 store all the best tests generated so far.
+
+
+5) "prepare" -> need to run the EvoSuite tests mixed with existing ones, eg "mvn evosuite:prepare test". 
+Best to just configure the evosuite plugin to always run it, as previously explained.  
 
 ------------------
 

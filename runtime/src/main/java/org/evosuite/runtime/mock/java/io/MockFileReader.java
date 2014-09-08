@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 
@@ -28,11 +29,20 @@ public class MockFileReader extends FileReader  implements OverrideMock{
 	 */
 	
     public MockFileReader(String fileName) throws FileNotFoundException {
-    		this(fileName != null ? new MockFile(fileName) : null);
+    		this(fileName != null ? 
+    				(!MockFramework.isEnabled() ? new File(fileName) : new MockFile(fileName) ): 
+    				null
+    			);
     }
 
     public MockFileReader(File file) throws FileNotFoundException {
-		super(VirtualFileSystem.getInstance().getRealTmpFile()); // just to make compiler happy
+		super(!MockFramework.isEnabled() ?
+				file : 
+				VirtualFileSystem.getInstance().getRealTmpFile()); // just to make compiler happy
+		
+		if(!MockFramework.isEnabled()){
+			return;
+		}
 		
 		MockFileInputStream mock = new MockFileInputStream(file);
 		
@@ -55,22 +65,37 @@ public class MockFileReader extends FileReader  implements OverrideMock{
 
     @Override
     public int read() throws IOException {
-        return stream.read();
+		if(!MockFramework.isEnabled()){
+			return super.read();
+		}
+		
+    		return stream.read();
     }
 
     @Override
     public int read(char cbuf[], int offset, int length) throws IOException {
+		if(!MockFramework.isEnabled()){
+			return super.read(cbuf, offset, length);
+		}
         return stream.read(cbuf, offset, length);
     }
 
     @Override
     public boolean ready() throws IOException {
-        return stream.ready();
+		if(!MockFramework.isEnabled()){
+			return super.ready();
+		}
+		return stream.ready();
     }
 
     @Override
     public void close() throws IOException {
-        stream.close();
+		if(!MockFramework.isEnabled()){
+			super.close();
+			return;
+		}
+    
+		stream.close();
     }
         
 }

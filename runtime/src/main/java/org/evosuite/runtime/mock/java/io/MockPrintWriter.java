@@ -3,6 +3,7 @@ package org.evosuite.runtime.mock.java.io;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -12,6 +13,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 
 public class MockPrintWriter extends PrintWriter  implements OverrideMock{
@@ -41,25 +43,41 @@ public class MockPrintWriter extends PrintWriter  implements OverrideMock{
 	}
 
 	public MockPrintWriter(String fileName) throws FileNotFoundException {
-		this(new BufferedWriter(new OutputStreamWriter(new MockFileOutputStream(fileName))),
+		this(new BufferedWriter(new OutputStreamWriter(
+				(!MockFramework.isEnabled() ? 
+						new FileOutputStream(fileName) :
+							new MockFileOutputStream(fileName))
+				)),
 				false);
 	}
 
 	/* Private constructor */
 	private MockPrintWriter(Charset charset, File file)
 			throws FileNotFoundException {
-		this(new BufferedWriter(new OutputStreamWriter(new MockFileOutputStream(file), charset)),
-				false);
+		this(new BufferedWriter(new OutputStreamWriter(
+				(!MockFramework.isEnabled() ? 
+						new FileOutputStream(file) :
+							new MockFileOutputStream(file))
+							, charset)),
+							false);
 	}
 
 	public MockPrintWriter(String fileName, String csn)
 			throws FileNotFoundException, UnsupportedEncodingException{
-		this(toCharset(csn), new MockFile(fileName));
+		this(toCharset(csn), 
+				(!MockFramework.isEnabled() ? 
+						new File(fileName) :
+							new MockFile(fileName))
+				);
 	}
 
 
 	public MockPrintWriter(File file) throws FileNotFoundException {
-		this(new BufferedWriter(new OutputStreamWriter(new MockFileOutputStream(file))),
+		this(new BufferedWriter(new OutputStreamWriter(
+				(!MockFramework.isEnabled() ? 
+						new FileOutputStream(file) :
+							new MockFileOutputStream(file))
+				)),
 				false);
 	}
 
@@ -76,7 +94,7 @@ public class MockPrintWriter extends PrintWriter  implements OverrideMock{
 		// Objects.requireNonNull(csn, "charsetName");
 		if(csn == null)
 			throw new NullPointerException("charsetName");
-		
+
 		try {
 			return Charset.forName(csn);
 		} catch (IllegalCharsetNameException unused) {

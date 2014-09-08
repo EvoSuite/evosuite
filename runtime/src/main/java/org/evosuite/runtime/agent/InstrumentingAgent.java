@@ -2,6 +2,7 @@ package org.evosuite.runtime.agent;
 
 import java.lang.instrument.Instrumentation;
 
+import org.evosuite.runtime.mock.MockFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +77,7 @@ public class  InstrumentingAgent {
 	 * Force the dynamic loading of the agent
 	 */
 	public static void initialize() {
+		MockFramework.disable(); //need an explicit "activate" call
 		AgentLoader.loadAgent();
 	}
 
@@ -95,6 +97,7 @@ public class  InstrumentingAgent {
 	 */
 	public static void activate(){
 		checkTransformerState();
+		MockFramework.enable();
 		transformer.activate();
 	}
 	
@@ -103,6 +106,7 @@ public class  InstrumentingAgent {
 	 */
 	public static void deactivate(){
 		checkTransformerState();
+		MockFramework.disable();
 		transformer.deacitvate();
 	}
 	

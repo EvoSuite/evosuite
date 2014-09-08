@@ -1,115 +1,22 @@
 package org.evosuite.runtime.mock.java.net;
 
-import java.io.IOException;
-import java.io.InvalidObjectException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectStreamException;
-import java.io.ObjectStreamField;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-//import java.net.InetSocketAddress.InetSocketAddressHolder;
 
-/*
- * This is not needed till we mock InetAddress
+import org.evosuite.runtime.mock.OverrideMock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * 
  */
-@Deprecated
-public class MockInetSocketAddress extends InetSocketAddress{
+public class MockInetSocketAddress extends InetSocketAddress implements OverrideMock{
 
-	/*
-	// Private implementation class pointed to by all public methods.
-	private static class InetSocketAddressHolder {
-		// The hostname of the Socket Address
-		private String hostname;
-		// The IP address of the Socket Address
-		private InetAddress addr;
-		// The port number of the Socket Address
-		private int port;
-
-		private InetSocketAddressHolder(String hostname, InetAddress addr, int port) {
-			this.hostname = hostname;
-			this.addr = addr;
-			this.port = port;
-		}
-
-		private int getPort() {
-			return port;
-		}
-
-		private InetAddress getAddress() {
-			return addr;
-		}
-
-		private String getHostName() {
-			if (hostname != null)
-				return hostname;
-			if (addr != null)
-				return addr.getHostName();
-			return null;
-		}
-
-		private String getHostString() {
-			if (hostname != null)
-				return hostname;
-			if (addr != null) {
-				if (addr.holder().getHostName() != null)
-					return addr.holder().getHostName();
-				else
-					return addr.getHostAddress();
-			}
-			return null;
-		}
-
-		private boolean isUnresolved() {
-			return addr == null;
-		}
-
-		@Override
-		public String toString() {
-			if (isUnresolved()) {
-				return hostname + ":" + port;
-			} else {
-				return addr.toString() + ":" + port;
-			}
-		}
-
-		@Override
-		public final boolean equals(Object obj) {
-			if (obj == null || !(obj instanceof InetSocketAddressHolder))
-				return false;
-			InetSocketAddressHolder that = (InetSocketAddressHolder)obj;
-			boolean sameIP;
-			if (addr != null)
-				sameIP = addr.equals(that.addr);
-			else if (hostname != null)
-				sameIP = (that.addr == null) &&
-				hostname.equalsIgnoreCase(that.hostname);
-			else
-				sameIP = (that.addr == null) && (that.hostname == null);
-			return sameIP && (port == that.port);
-		}
-
-		@Override
-		public final int hashCode() {
-			if (addr != null)
-				return addr.hashCode() + port;
-			if (hostname != null)
-				return hostname.toLowerCase().hashCode() + port;
-			return port;
-		}
-	}
-	
-	private final transient InetSocketAddressHolder holder;
-	*/
+	private static final Logger logger = LoggerFactory.getLogger(MockInetSocketAddress.class);
 
 	private static final long serialVersionUID = 5076001401234631237L;
 
-	private static int checkPort(int port) {
-		if (port < 0 || port > 0xFFFF)
-			throw new IllegalArgumentException("port out of range:" + port);
-		return port;
-	}
 
 	private static String checkHost(String hostname) {
 		if (hostname == null)
@@ -119,23 +26,34 @@ public class MockInetSocketAddress extends InetSocketAddress{
 
 
 	public MockInetSocketAddress(int port) {
-		this((InetAddress)null, port); //FIXME
-		//this(InetAddress.anyLocalAddress(), port);
+		this(MockInetAddress.anyLocalAddress(), port);
 	}
 
 	public MockInetSocketAddress(InetAddress addr, int port) {
-		super(addr == null ? (InetAddress)null : addr,port); //FIXME InetAddress.anyLocalAddress()
-		/*
-		holder = new InetSocketAddressHolder(
-				null,
-				addr == null ? InetAddress.anyLocalAddress() : addr,
-						checkPort(port));
-		*/				
+		super(addr == null ? MockInetAddress.anyLocalAddress() : addr, port); //FIXME InetAddress.anyLocalAddress()
 	}
 
+	private static InetAddress getResolvedAddressed(String hostname){
+		checkHost(hostname);
+		try {
+			return InetAddress.getByName(hostname);
+		} catch(UnknownHostException e) {
+			logger.warn("EvoSuite limitation: unsupported case of hostname resolution for "+hostname);
+			return null;
+		}
+	}
+	
 	public MockInetSocketAddress(String hostname, int port) {
-		this((InetAddress)null, port); //FIXME most likely ll need reflection to set host
+		this(getResolvedAddressed(hostname), port); 
 		/*
+		 * TODO we are not mocking this constructor properly.
+		 * We should use reflection to modify the state of 
+		 * parent's holder variable.
+		 * But it would be bit complicated, and not so important,
+		 * as case we do not handle should be anyway rare, ie
+		 * fail to resolve hostname (see DNS)
+		 * 
+		 * 
 		checkHost(hostname);
 		InetAddress addr = null;
 		String host = null;
@@ -163,7 +81,6 @@ public class MockInetSocketAddress extends InetSocketAddress{
 		//return new MockInetSocketAddress(checkPort(port), checkHost(host));
 	}
 
-	
 	
 	/*  
 	 * Those are all final
