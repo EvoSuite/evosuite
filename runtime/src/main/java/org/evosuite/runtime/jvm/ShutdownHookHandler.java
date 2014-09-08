@@ -165,7 +165,7 @@ public class ShutdownHookHandler {
 		 * note: they are not executed in parallel due to simplify testing/debugging
 		 * of the generated test cases
 		 * 
-		 * if they throw an exception, or if they hand, that will be handled by the
+		 * if they throw an exception, or if they hang, that will be handled by the
 		 * generated tests
 		 */
 		

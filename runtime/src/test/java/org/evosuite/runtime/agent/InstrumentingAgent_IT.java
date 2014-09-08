@@ -19,6 +19,7 @@ import com.examples.with.different.packagename.agent.ExtendingTimeC;
 import com.examples.with.different.packagename.agent.GetFile;
 import com.examples.with.different.packagename.agent.SecondAbstractTime;
 import com.examples.with.different.packagename.agent.SecondConcreteTime;
+import com.examples.with.different.packagename.agent.SumRuntime;
 import com.examples.with.different.packagename.agent.TimeA;
 import com.examples.with.different.packagename.agent.TimeB;
 import com.examples.with.different.packagename.agent.TimeC;
@@ -220,7 +221,7 @@ public class InstrumentingAgent_IT {
 	}
 	
 	@Test
-	public void testMockFramework(){
+	public void testMockFramework_OverrideMock(){
 		Object obj = null;
 		try{
 			InstrumentingAgent.activate();
@@ -236,6 +237,25 @@ public class InstrumentingAgent_IT {
 		MockFramework.disable();
 		//even if GetFile is instrumented, should not return a mock now
 		Assert.assertFalse(gf.get() instanceof MockFile);
+	}
+	
+	@Test
+	public void testMockFramework_StaticReplacementMock(){
+		
+		try{
+			InstrumentingAgent.activate();
+			new SumRuntime();
+		} finally {
+			InstrumentingAgent.deactivate();
+		}
+		
+		Assert.assertEquals(1101, SumRuntime.getSum());
+		
+		//now disable
+		MockFramework.disable();
+		//even if SumRuntime is instrumented, should not return a mock sum now.
+		// note: it should be _extremely_ unlikely that original code returns such value by chance
+		Assert.assertFalse(SumRuntime.getSum() == 1101);
 	}
 	
 	@Test
