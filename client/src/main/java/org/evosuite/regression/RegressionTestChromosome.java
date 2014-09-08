@@ -152,9 +152,9 @@ public class RegressionTestChromosome extends ExecutableChromosome {
 		if (theTest.isChanged()) {
 			theSameTestForTheOtherClassLoader = (TestChromosome) theTest.clone();
 			((DefaultTestCase) theSameTestForTheOtherClassLoader.getTestCase()).changeClassLoader(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
-			ClassLoader a = theTest.getClass().getClassLoader();
-			ClassLoader b = theSameTestForTheOtherClassLoader.getClass().getClassLoader();
-			logger.warn("a {} b {} cl {} rcl {}",a,b,TestGenerationContext.getInstance().getClassLoaderForSUT(),TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
+		//	ClassLoader a = theTest.getClass().getClassLoader();
+		//	ClassLoader b = theSameTestForTheOtherClassLoader.getClass().getClassLoader();
+		//logger.warn("a {} b {} cl {} rcl {}",a,b,TestGenerationContext.getInstance().getClassLoaderForSUT(),TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
 		}
 	}
 

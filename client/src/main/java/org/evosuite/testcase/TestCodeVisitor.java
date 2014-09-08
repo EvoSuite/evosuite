@@ -749,6 +749,8 @@ public class TestCodeVisitor extends TestVisitor {
 		} else {
 			throw new RuntimeException("Unknown assertion type: " + assertion);
 		}
+        if (assertion.hasComment())
+            testCode += assertion.getComment();
 	}
 
 	private void addAssertions(StatementInterface statement) {

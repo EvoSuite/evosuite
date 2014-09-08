@@ -68,7 +68,7 @@ public class RelativeTestLengthBloatControl implements BloatControlFunction, Sea
 	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm<?> algorithm) {
-	//	current_max = ((ExecutableChromosome) algorithm.getBestIndividual()).size();
+		current_max = ((ExecutableChromosome) algorithm.getBestIndividual()).size();
 		best_fitness = algorithm.getBestIndividual().getFitness();
 	}
 
