@@ -104,7 +104,7 @@ public class ResourceList {
 	/**
 	 * Current cache. Do not access directly, but rather use getCache(), as it can be null
 	 */
-	private Cache cache;
+	private Cache cache = null;
 	
 	
 	/*
@@ -123,8 +123,8 @@ public class ResourceList {
 		if (!instanceMap.containsKey(classLoader)) {
 			instanceMap.put(classLoader, new ResourceList(classLoader));
 		}
-		logger.warn("My Classloader: {}. O {}, R {}", classLoader, TestGenerationContext.getInstance().getClassLoaderForSUT(), 
-				TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
+		//logger.warn("My Classloader: {}. O {}, R {}", classLoader, TestGenerationContext.getInstance().getClassLoaderForSUT(), 
+		//		TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
 		return instanceMap.get(classLoader);
 	}
 
@@ -159,20 +159,26 @@ public class ResourceList {
 		String windowsPath = name.replace(".", "\\") + ".class";
 
 		//first try with system classloader
-		logger.warn("My Classloader: {}. O {}, R {}", classLoader, TestGenerationContext.getInstance().getClassLoaderForSUT(), 
-				TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
-		InputStream is = ClassLoader.getSystemResourceAsStream(path);
-		if(is!=null){
-			return is;
+		InputStream is = null;
+		if(Properties.isRegression()){
+			//is = this.classLoader.getResourceAsStream(path);
 		}
-		if (File.separatorChar != '/') {			
-			is = ClassLoader.getSystemResourceAsStream(windowsPath);
+		else{
+			is = ClassLoader.getSystemResourceAsStream(path);
 			if(is!=null){
 				return is;
 			}
+			if (File.separatorChar != '/') {			
+				is = ClassLoader.getSystemResourceAsStream(windowsPath);
+				if(is!=null){
+					return is;
+				}
+			}
 		}
+		
 
 		String cpEntry = getCache().mapClassToCP.get(name);
+		logger.warn("Now reading: " + cpEntry);
 		if(cpEntry==null){
 			if(!getCache().missingClasses.contains(name)){
 				getCache().missingClasses.add(name);
@@ -427,8 +433,8 @@ public class ResourceList {
 		cache = new Cache();
 
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-		logger.warn("My Classloader: {}. O {}, R {}", classLoader, TestGenerationContext.getInstance().getClassLoaderForSUT(), 
-				TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
+		//logger.warn("My Classloader: {}. O {}, R {}", classLoader, TestGenerationContext.getInstance().getClassLoaderForSUT(), 
+		//		TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
 		// If running in regression mode and current ClassLoader is the regression ClassLoader
 		if(Properties.isRegression() && 
 				classLoader==TestGenerationContext.getInstance().getRegressionClassLoaderForSUT())

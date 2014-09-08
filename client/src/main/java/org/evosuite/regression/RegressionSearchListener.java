@@ -319,7 +319,7 @@ public class RegressionSearchListener implements SearchListener {
 		
 		if (numAssertions > 0) {
 			logger.warn("num assertions bigger than 0");
-			//RegressionTestSuiteChromosome clone = new RegressionTestSuiteChromosome();
+			RegressionTestSuiteChromosome clone = new RegressionTestSuiteChromosome();
 
 			List<TestCase> testCases = new ArrayList<TestCase>();
 			
@@ -350,21 +350,21 @@ public class RegressionSearchListener implements SearchListener {
 				logger.warn("... handleTestsThatAreUnstable()");
 				if(testCases.size()>0){
 					logger.warn("more test cases than 0");
-					//clone = new RegressionTestSuiteChromosome();
+					clone = new RegressionTestSuiteChromosome();
 					
-					/*for(TestCase t: testCases){
+					for(TestCase t: testCases){
 						logger.warn("adding cloned test ...");
 						RegressionTestChromosome rtc = new RegressionTestChromosome();
 						TestChromosome tc = new TestChromosome();
 						tc.setTestCase(t);
 						rtc.setTest(tc);
 						clone.addTest(rtc);
-					}*/
+					}
 					//test.set
 					//clone.addTest(testCases);
 					 logger.warn("getting new num assertions ...");
 					numAssertions = RegressionSearchListener.getNumAssertions(
-							individual, false ,true);
+							clone, false ,false);
 					logger.warn("Keeping {} assertions.", numAssertions);
 
 				} else {

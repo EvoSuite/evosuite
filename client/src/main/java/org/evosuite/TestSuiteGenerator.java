@@ -914,7 +914,7 @@ public class TestSuiteGenerator {
 		TestSuiteChromosome bestSuites = new TestSuiteChromosome();
 		RegressionTestSuiteChromosome best = null;
 		if (!(Properties.STOP_ZERO && goals.isEmpty())) {
-			logger.warn("performing search ... ############################################################");
+			//logger.warn("performing search ... ############################################################");
 			// Perform search
 			LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed() );
 			LoggingUtils.getEvoLogger().info("* Starting evolution");
@@ -924,7 +924,6 @@ public class TestSuiteGenerator {
 			best = (RegressionTestSuiteChromosome) ga
 					.getBestIndividual();
 			//List<TestSuiteChromosome> tmpTestSuiteList = new ArrayList<TestSuiteChromosome>();
-			TestSuiteChromosome tmpTestSuite = new TestSuiteChromosome();
 			for(TestCase t:best.getTests())
 				bestSuites.addTest(t);
 			//bestSuites = (List<TestSuiteChromosome>) ga.getBestIndividuals();
@@ -1011,7 +1010,7 @@ public class TestSuiteGenerator {
 
 		ga.printBudget();
 		
-System.exit(0);
+//System.exit(0);
 
 		return bestSuites;
 	}
@@ -2076,7 +2075,11 @@ System.exit(0);
 		// ga.setBloatControl(bloat_control);
 
 		if (Properties.CHECK_BEST_LENGTH) {
-			if (Properties.STRATEGY == Strategy.EVOSUITE) {
+			if (Properties.STRATEGY == Strategy.EVOSUITE ) {
+				RelativeSuiteLengthBloatControl bloat_control = new org.evosuite.testsuite.RelativeSuiteLengthBloatControl();
+				ga.addBloatControl(bloat_control);
+				ga.addListener(bloat_control);
+			} else if (Properties.STRATEGY == Strategy.REGRESSION ){
 				RelativeSuiteLengthBloatControl bloat_control = new org.evosuite.testsuite.RelativeSuiteLengthBloatControl();
 				ga.addBloatControl(bloat_control);
 				ga.addListener(bloat_control);
