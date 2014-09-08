@@ -25,8 +25,9 @@ import org.evosuite.runtime.vfs.VirtualFileSystem;
  * @author arcuri
  *
  */
-public class EvoFileChannel extends FileChannel{
-
+public class EvoFileChannel extends FileChannel{  //FIXME mock FileChannel
+	
+	
 	/**
 	 * The read/write position in the channel
 	 */
@@ -116,7 +117,7 @@ public class EvoFileChannel extends FileChannel{
 				ByteBuffer dst = dsts[j];
 				int r = dst.remaining();
 				for(int i=0; i<r; i++){
-					int b = MockNative.read(path, posToUpdate);
+					int b = NativeMockedIO.read(path, posToUpdate);
 					if(b < 0){ //end of stream
 						return -1;
 					}
@@ -191,7 +192,7 @@ public class EvoFileChannel extends FileChannel{
 				for(int i=0; i<r; i++){
 					byte b = src.get();
 					buffer[0] = b;
-					MockNative.writeBytes(path, posToUpdate, buffer, 0, 1);
+					NativeMockedIO.writeBytes(path, posToUpdate, buffer, 0, 1);
 					counter++;
 
 					if(closed){
@@ -223,7 +224,7 @@ public class EvoFileChannel extends FileChannel{
 
 		long currentSize = size();
 		if(size < currentSize){
-			MockNative.setLength(path, position, size);	
+			NativeMockedIO.setLength(path, position, size);	
 		}
 
 		return this;
@@ -258,7 +259,7 @@ public class EvoFileChannel extends FileChannel{
 	@Override
 	public long size() throws IOException {
 		throwExceptionIfClosed();		
-		return MockNative.size(path);
+		return NativeMockedIO.size(path);
 	}
 
 

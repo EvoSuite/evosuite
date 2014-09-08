@@ -13,6 +13,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.runtime.ClassStateSupport;
 import org.evosuite.runtime.GuiSupport;
+import org.evosuite.runtime.InitializingListener;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
@@ -176,9 +177,10 @@ public class Scaffolding {
 
 		generateSetSystemProperties(bd, results);
 
+		generateInitializeClasses(name, bd);
+
 		if (Properties.RESET_STATIC_FIELDS) {
-			generateInitializeClasses(name, bd);
-			generateResetClasses(bd);
+			generateResetClasses(name, bd);
 		}
 
 		return bd.toString();
@@ -201,7 +203,7 @@ public class Scaffolding {
 		bd.append("\n");
 	}
 
-	private void generateResetClasses(StringBuilder bd) {
+	private void generateResetClasses(String testClassName, StringBuilder bd) {
 		List<String> classesToReset = ResetManager.getInstance().getClassResetOrder();
 
 		bd.append("\n");
@@ -209,6 +211,11 @@ public class Scaffolding {
 		bd.append("private static void resetClasses() {\n");
 
 		if(classesToReset.size()!=0){			
+			
+			bd.append(BLOCK_SPACE);
+			bd.append(ClassResetter.class.getName()+".getInstance().setClassLoader(");
+			bd.append(testClassName+ ".class.getClassLoader()); \n\n");
+			
 			bd.append(BLOCK_SPACE);
 			bd.append(ClassStateSupport.class.getName()+".resetClasses(");
 						
@@ -231,23 +238,19 @@ public class Scaffolding {
 
 	private void generateInitializeClasses(String testClassName, StringBuilder bd) {
 		
-		List<String> classesToBeReset = ResetManager.getInstance().getClassResetOrder(); 
-
+		List<String> allInstrumentedClasses = TestGenerationContext.getInstance().getClassLoaderForSUT().getViewOfInstrumentedClasses();
+		
 		bd.append("\n");
 		bd.append(METHOD_SPACE);
-		bd.append("private static void initializeClasses() {\n");
-
-		bd.append(BLOCK_SPACE);
-		bd.append(ClassResetter.class.getName()+".getInstance().setClassLoader(");
-		bd.append(testClassName+ ".class.getClassLoader()); \n\n");
-		
-		if(classesToBeReset.size()!=0){			
+		bd.append("private static void "+InitializingListener.INITIALIZE_CLASSES_METHOD+"() {\n");
+			
+		if(allInstrumentedClasses.size()!=0){			
 			bd.append(BLOCK_SPACE);
 			bd.append(ClassStateSupport.class.getName()+".initializeClasses(");
 			bd.append(testClassName+ ".class.getClassLoader() ");
 
-			for (int i = 0; i < classesToBeReset.size(); i++) {
-				String className = classesToBeReset.get(i);
+			for (int i = 0; i < allInstrumentedClasses.size(); i++) {
+				String className = allInstrumentedClasses.get(i);
 				if (! BytecodeInstrumentation.checkIfCanInstrument(className)) {
 					continue;
 				}			

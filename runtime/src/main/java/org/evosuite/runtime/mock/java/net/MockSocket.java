@@ -272,9 +272,7 @@ public class MockSocket extends Socket{
 		if (addr == null) {
 			return;
 		}
-		/*
-		 * TODO: this likely will need to be changed once we mock  InetAddress
-		 */
+
 		if (!(addr instanceof Inet4Address || addr instanceof Inet6Address)) {
 			throw new IllegalArgumentException(op + ": invalid address type");
 		}
