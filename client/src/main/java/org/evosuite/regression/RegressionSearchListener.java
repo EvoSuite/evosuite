@@ -12,6 +12,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
+import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
@@ -480,8 +481,12 @@ public class RegressionSearchListener implements SearchListener {
 		totalCount += regressionTest.getTheTest().getTestCase()
 				.getAssertions().size();
 		
-		if(totalCount>0)
-			logger.warn(regressionTest.getTheTest().getTestCase().toCode());
+		if(totalCount>0){
+			List<Assertion> asss = regressionTest.getTheTest().getTestCase()
+			.getAssertions();
+			for(Assertion ass:asss)
+				logger.warn("+++++ Assertion code: " + ass.getCode());
+		}
 
 		currentTestSuite.add(regressionTest.getTheTest().getTestCase()
 				.clone());
