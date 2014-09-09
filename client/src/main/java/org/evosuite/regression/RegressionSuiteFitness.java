@@ -502,10 +502,10 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 		suite.objDistance = objectDfitness;
 
-		logger.warn("OBJ distance: " + distance + " - fitness:" + fitness
+		/*logger.warn("OBJ distance: " + distance + " - fitness:" + fitness
 				+ " - branchDistance:" + totalBranchDistanceFitness
 				+ " - coverage:" + coverage + " - ex: " + numExceptions
-				+ " - tex: " + totalExceptions);
+				+ " - tex: " + totalExceptions);*/
 		individual
 				.setCoverage((bcFitness.totalCovered + bcFitnessRegression.totalCovered) / 2.0);
 		updateIndividual(this, individual, fitness);
