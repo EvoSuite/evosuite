@@ -349,11 +349,11 @@ public class RegressionSearchListener implements SearchListener {
 				JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
 				logger.warn("... handleTestsThatAreUnstable()");
 				if(testCases.size()>0){
-					logger.warn("more test cases than 0");
+					logger.warn("{} tests remaining now!", testCases.size());
 					clone = new RegressionTestSuiteChromosome();
 					
 					for(TestCase t: testCases){
-						logger.warn("adding cloned test ...");
+					//	logger.warn("adding cloned test ...");
 						RegressionTestChromosome rtc = new RegressionTestChromosome();
 						TestChromosome tc = new TestChromosome();
 						tc.setTestCase(t);
@@ -480,7 +480,8 @@ public class RegressionSearchListener implements SearchListener {
 		totalCount += regressionTest.getTheTest().getTestCase()
 				.getAssertions().size();
 		
-
+		if(totalCount>0)
+			logger.warn(regressionTest.getTheTest().getTestCase().toCode());
 
 		currentTestSuite.add(regressionTest.getTheTest().getTestCase()
 				.clone());
