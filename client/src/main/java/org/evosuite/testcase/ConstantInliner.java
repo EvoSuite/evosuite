@@ -157,7 +157,16 @@ public class ConstantInliner extends ExecutionObserver {
 						logger.info("Cannot escape invalid string: "+object);
 					}
 					// logger.info("Statement after inlining: " + statement.getCode());
-
+				} else if(var.isArrayIndex()) {
+					// If this is an array index and there is an object outside the array
+					// then replace the array index with that object
+					for(VariableReference otherVar : scope.getElements(var.getType())) {
+						Object otherObject = scope.getObject(otherVar);
+						if(otherObject == object && !otherVar.isArrayIndex()) {
+							statement.replace(var, otherVar);
+							break;
+						}
+					}
 				} else {
 					// TODO: Ignoring exceptions during getObject, but keeping the assertion for now
 					try {
