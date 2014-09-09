@@ -24,6 +24,7 @@ public class ArrayEqualsAssertion extends Assertion {
 		EqualsAssertion s = new EqualsAssertion();
 		s.source = source.copy(newTestCase, offset);
 		s.value = value;
+		s.comment = comment;
 		return s;
 	}
 
