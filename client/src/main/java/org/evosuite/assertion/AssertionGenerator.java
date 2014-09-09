@@ -80,7 +80,7 @@ public abstract class AssertionGenerator {
 		TestCaseExecutor.getInstance().addObserver(fieldObserver);
 		TestCaseExecutor.getInstance().addObserver(nullObserver);
 		TestCaseExecutor.getInstance().addObserver(sameObserver);
-		TestCaseExecutor.getInstance().addObserver(arrayObserver);
+		//TestCaseExecutor.getInstance().addObserver(arrayObserver);
 	}
 
 	/**
@@ -124,7 +124,7 @@ public abstract class AssertionGenerator {
 			result.setTrace(fieldObserver.getTrace(), PrimitiveFieldTraceEntry.class);
 			result.setTrace(nullObserver.getTrace(), NullTraceEntry.class);
 			result.setTrace(sameObserver.getTrace(), SameTraceEntry.class);
-			result.setTrace(arrayObserver.getTrace(), ArrayTraceEntry.class);
+			//result.setTrace(arrayObserver.getTrace(), ArrayTraceEntry.class);
 		} catch (Exception e) {
 			throw new Error(e);
 		}
