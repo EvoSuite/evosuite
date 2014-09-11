@@ -49,7 +49,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 	BranchCoverageSuiteFitness bcFitness;
 	BranchCoverageSuiteFitness bcFitnessRegression;
 
-	private int numExceptions;
+	private int numDifferentExceptions;
 	private long diffTime;
 
 	private int totalExceptions;
@@ -278,7 +278,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		 * branchDistanceMap.put(5, 1000.0);
 		 */
 		// branchDistanceMap.put(6, 1000.0);
-		numExceptions = 0;
+		numDifferentExceptions = 0;
 		totalExceptions = 0;
 		diffTime = 0;
 
@@ -315,7 +315,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 			totalExceptions += numExceptionOrig + numExceptionReg;
 
-			numExceptions += exDiff;
+			numDifferentExceptions += exDiff;
 
 			startTime = System.nanoTime();
 
@@ -442,7 +442,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 		}
 
-		double exceptionDistance = (1.0 / (1.0 + numExceptions));
+		double exceptionDistance = (1.0 / (1.0 + numDifferentExceptions));
 		// * (max_branch_fitness_valueO + max_branch_fitness_valueR);
 
 		fitness += exceptionDistance;
@@ -471,7 +471,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		String covered_new = String.format("%.2f",
 				bcFitnessRegression.totalCovered * 100);
 
-		suite.diffExceptions = numExceptions;
+		suite.diffExceptions = numDifferentExceptions;
 		
 		if(RegressionSearchListener.killTheSearch){
 			//updateIndividual(individual, 0);
@@ -495,8 +495,8 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		
 		suite.fitnessData = fitness + "," + testSuiteChromosome.size()
 				+ "," + testSuiteChromosome.totalLengthOfTestCases() + ","
-				+ branchDfitness + "," + objectDfitness + "," + coverage + ","
-				+ numExceptions + "," + totalExceptions + "," + covered_old
+				+ branchDfitness + "," + objectDfitness + "," + coverage
+				+ ",numDifferentExceptions," + totalExceptions + "," + covered_old
 				+ "," + covered_new + ","
 				+ MaxStatementsStoppingCondition.getNumExecutedStatements();
 

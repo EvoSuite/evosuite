@@ -175,6 +175,7 @@ import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceController;
+import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -450,6 +451,24 @@ public class TestSuiteGenerator {
 
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
 			suite.writeTestSuite(name + suffix, testDir);
+			
+			if (!RegressionSearchListener.statsID.equals("")) {
+				File evosuiterTestDir = new File("evosuiter-stats");
+
+				if (!evosuiterTestDir.exists() || !evosuiterTestDir.isDirectory()) {
+					evosuiterTestDir.mkdirs();
+				}
+
+				String regressionTestName = RegressionSearchListener.statsID + "Test";
+				
+				LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
+				// TODO: Unfortunate Hack to avoid makeDirectory() making nested dirs from the classpath.
+				String tmpClass = Properties.CLASS_PREFIX;
+				Properties.CLASS_PREFIX = "";
+				suite.writeTestSuite(regressionTestName, evosuiterTestDir.getName());
+				Properties.CLASS_PREFIX = tmpClass;
+			}
+			
 		}
 		return TestGenerationResultBuilder.buildSuccessResult();
 	}
