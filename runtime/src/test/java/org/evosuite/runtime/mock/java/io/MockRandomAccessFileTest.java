@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.evosuite.runtime.mock.java.io.MockRandomAccessFile;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
@@ -16,6 +17,7 @@ public class MockRandomAccessFileTest {
 	@Test
 	public void testNoWritePermission(){
 		
+		MockFramework.enable();
 		VirtualFileSystem.getInstance().resetSingleton();
 		VirtualFileSystem.getInstance().init();
 		
