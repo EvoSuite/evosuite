@@ -156,6 +156,11 @@ public class InputVariable implements VariableReference {
 	public boolean isArray() {
 		return type.isArray();
 	}
+	
+	@Override
+	public boolean isArrayIndex() {
+		return false;
+	}
 
 	/**
 	 * {@inheritDoc}

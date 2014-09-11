@@ -162,8 +162,7 @@ public class Scaffolding {
 		 * not much of the point to try to optimize it 
 		 */
 
-		//TODO put it back once its side-effects on Sandbox are fixed
-		//generateTimeoutRule(bd);
+		generateTimeoutRule(bd);
 
 		generateFields(bd, wasSecurityException, results);
 
@@ -368,6 +367,12 @@ public class Scaffolding {
 			bd.append(ShutdownHookHandler.class.getName()+".getInstance().initHandler(); \n");
 		}
 		
+		if (wasSecurityException) {
+			bd.append(BLOCK_SPACE);
+			bd.append(Sandbox.class.getName()+".goingToExecuteSUTCode(); \n");
+		}
+
+		//FIXME those should be handled in the mocked classes,eg mock for java.lang.System
 		if (Properties.RESET_STANDARD_STREAMS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("systemErr = java.lang.System.err;");
@@ -403,11 +408,6 @@ public class Scaffolding {
 			bd.append(org.evosuite.runtime.GuiSupport.class.getName()+".setHeadless(); \n");
 		}
 
-
-		if (wasSecurityException) {
-			bd.append(BLOCK_SPACE);
-			bd.append(Sandbox.class.getName()+".goingToExecuteSUTCode(); \n");
-		}
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 				|| Properties.RESET_STATIC_FIELDS) {

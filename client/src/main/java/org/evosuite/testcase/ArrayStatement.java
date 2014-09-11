@@ -433,4 +433,8 @@ public class ArrayStatement extends AbstractStatement {
 		// assert lengths.length == 1;
 		return lengths[0];
 	}
+	
+	public ArrayReference getArrayReference() {
+		return (ArrayReference) getReturnValue();
+	}
 }
