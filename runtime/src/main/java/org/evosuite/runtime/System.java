@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public class System {
 
 	private static final Logger logger = LoggerFactory.getLogger(System.class);
-	
+
 	private static boolean wasTimeAccessed = false;
 
 	/**
@@ -206,7 +206,7 @@ public class System {
 		return currentTime; //++;
 	}
 
-	private static Map<Integer, Integer> hashKeys = new HashMap<Integer, Integer>();
+	private static final Map<Integer, Integer> hashKeys = new HashMap<Integer, Integer>();
 
 	public static void registerObjectForIdentityHashCode(Object o) {
 		identityHashCode(o);
@@ -216,11 +216,13 @@ public class System {
 		if(o == null)
 			return 0;
 
-		Integer realId = java.lang.System.identityHashCode(o);
-		if(!hashKeys.containsKey(realId))
-			hashKeys.put(realId, hashKeys.size() + 1);
+		synchronized (hashKeys) {
+			Integer realId = java.lang.System.identityHashCode(o);
+			if(!hashKeys.containsKey(realId))
+				hashKeys.put(realId, hashKeys.size() + 1);
 
-		return hashKeys.get(realId);
+			return hashKeys.get(realId);
+		}
 	}
 
 	/**
