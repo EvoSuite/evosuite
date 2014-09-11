@@ -464,13 +464,14 @@ public class RegressionSearchListener implements SearchListener {
 				if (exDiff == 0) {
 					for (Entry<Integer, Throwable> origException : originalExceptionMapping
 							.entrySet()) {
-						if (!regressionExceptionMapping
-								.containsKey(origException.getKey())
-								|| !regressionExceptionMapping
+						if ((!
+								regressionExceptionMapping
+								.containsKey(origException.getKey()))
+								|| (!regressionExceptionMapping
 										.get(origException.getKey())
 										.getMessage()
 										.equals(origException.getValue()
-												.getMessage()))
+												.getMessage())))
 							exDiff++;
 					}
 					for (Entry<Integer, Throwable> regException : regressionExceptionMapping
