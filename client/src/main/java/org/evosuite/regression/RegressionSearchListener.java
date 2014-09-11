@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
@@ -122,7 +124,8 @@ public class RegressionSearchListener implements SearchListener {
 		 ind.objDistance =((RegressionTestSuiteChromosome)individual).objDistance;
 		 ind.diffExceptions = ((RegressionTestSuiteChromosome)individual).diffExceptions;
 		}
-		
+		// hack for getting the correct number of different exceptions
+		ind.fitnessData = ind.fitnessData.replace("numDifferentExceptions", "" + exceptionDiff);
 		
 		try {
 			int curAssertions = getNumAssertions(ind);
@@ -262,6 +265,9 @@ public class RegressionSearchListener implements SearchListener {
 		 ind.diffExceptions = ((RegressionTestSuiteChromosome)individual).diffExceptions;
 		// assert false;
 		}
+		// hack for getting the correct number of different exceptions
+		ind.fitnessData = ind.fitnessData.replace("numDifferentExceptions", "" + exceptionDiff);
+		
 		int totalCount = 0;
 		if (iteration > 0) {
 			totalCount = getNumAssertions(ind);
@@ -365,7 +371,7 @@ public class RegressionSearchListener implements SearchListener {
 					//clone.addTest(testCases);
 					 logger.warn("getting new num assertions ...");
 					numAssertions = RegressionSearchListener.getNumAssertions(
-							clone, false ,false);
+							clone, false );
 					logger.warn("Keeping {} assertions.", numAssertions);
 
 				} else {
@@ -393,6 +399,7 @@ public class RegressionSearchListener implements SearchListener {
 		int oldTimeout = Properties.TIMEOUT;
 		Properties.TIMEOUT *= 20;
 		int totalCount = 0;
+		exceptionDiff = 0;
 
 		boolean timedOut = false;
 
@@ -447,10 +454,65 @@ public class RegressionSearchListener implements SearchListener {
 			 execEndTime = System.currentTimeMillis();
 			 /*if((execEndTime-execStartTime)>1500)
 					assert false;*/
-			
-			 exceptionDiff += Math
-						.abs((double) (result1.getNumberOfThrownExceptions() - result2.getNumberOfThrownExceptions()));
-			 totalCount += exceptionDiff;
+			 
+			 Map<Integer, Throwable> originalExceptionMapping = result1.getCopyOfExceptionMapping();
+			 Map<Integer, Throwable> regressionExceptionMapping = result2.getCopyOfExceptionMapping();
+
+			 double exDiff = Math
+						.abs((double) (originalExceptionMapping.size() - regressionExceptionMapping.size()));
+
+
+			 
+			 
+			 if(exDiff==0){
+				 for(Entry<Integer, Throwable> origException: originalExceptionMapping.entrySet()){
+					 if(!regressionExceptionMapping.containsKey(origException.getKey()) || !regressionExceptionMapping.get(origException.getKey()).getMessage().equals(origException.getValue().getMessage()))
+						 exDiff++;
+				 }	
+				 for(Entry<Integer, Throwable> regException: regressionExceptionMapping.entrySet()){
+					 if(!originalExceptionMapping.containsKey(regException.getKey()) )
+						 exDiff++;
+				 }	
+			 }
+			 
+			 if(exDiff>0){
+				 logger.warn("Had {} different exceptions! ({})" , exDiff, totalCount);
+				 logger.warn("mapping1: {} | mapping 2: {}",result1.getCopyOfExceptionMapping(),result2.getCopyOfExceptionMapping());
+			 }
+			 
+			 totalCount += exDiff;
+			 exceptionDiff += exDiff;
+			 
+
+			 for(Entry<Integer, Throwable> origException: originalExceptionMapping.entrySet()){
+				 if(!regressionExceptionMapping.containsKey(origException.getKey())){
+					 logger.warn("Test with exception \"{}\" was: \n{}\n---------\nException:\n{}", origException.getValue().getMessage(), regressionTest.getTheTest().getTestCase(),origException.getValue().toString());
+					 if(!regressionTest.getTheTest().getTestCase().getStatement(origException.getKey()).getComment().contains("modified version")){
+						 regressionTest.getTheTest().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    " + origException.getValue().getMessage() + "\n");
+						 regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    " + origException.getValue().getMessage() + "\n");
+					 }
+				 } else {
+					 if(!origException.getValue().getMessage().equals(regressionExceptionMapping.get(origException.getKey()).getMessage())){
+						 if(!regressionTest.getTheTest().getTestCase().getStatement(origException.getKey()).getComment().contains("EXCEPTION DIFF:"))
+							 regressionTest.getTheTest().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION DIFF:\nDifferent Exceptions were thrown:\nOriginal Version:\n    " + origException.getValue().getMessage() + "\nModified Version:\n    " + regressionExceptionMapping.get(origException.getKey()).getMessage() + "\n");
+					 }
+					 // If both show the same error, pop the error from the regression exception, to get to a diff.
+					 regressionExceptionMapping.remove(origException.getKey());
+				 }
+			 }
+			 for(Entry<Integer, Throwable> regException: regressionExceptionMapping.entrySet()){
+				 if(!regressionTest.getTheTest().getTestCase().getStatement(regException.getKey()).getComment().contains("original version")){
+					 logger.warn("Regression Test with exception \"{}\" was: \n{}\n---------\nException:\n{}", regException.getValue().getMessage(), regressionTest.getTheTest().getTestCase(),regException.getValue().toString());
+					 regressionTest.getTheTest().getTestCase().getStatement(regException.getKey()).addComment("EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    " + regException.getValue().getMessage()+ "\n\n");
+					 regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(regException.getKey()).addComment("EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    " + regException.getValue().getMessage()+ "\n\n");
+				 }
+			 }
+			 
+			 /*for(Entry<Integer, Throwable> x:result1.getCopyOfExceptionMapping().entrySet())
+				 regressionTest.getTheTest().getTestCase().getStatement(x.getKey()).addComment("// WOOOO: " + x.getValue().getMessage());
+			 
+			 for(Entry<Integer, Throwable> x:result2.getCopyOfExceptionMapping().entrySet())
+				 regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(x.getKey()).addComment("// WAAAAAA: " + x.getValue().getMessage());*/
 		/*	logger.warn("Execution for assertions took {} ms",
 			 execEndTime-execStartTime );
 			logger.warn("exec1: {}, exec2: {}",
@@ -463,8 +525,8 @@ public class RegressionSearchListener implements SearchListener {
 				timedOut = true;
 				//assert false;
 			} else {
-				if(result1.hasTestException() || result2.hasTestException() || result1.hasUndeclaredException() || result2.hasUndeclaredException())
-					logger.warn("================================== HAD EXCEPTION ==================================");
+				//if(result1.hasTestException() || result2.hasTestException() || result1.hasUndeclaredException() || result2.hasUndeclaredException())
+				//	logger.warn("================================== HAD EXCEPTION ==================================");
 
 				for (Class<?> observerClass : RegressionAssertionGenerator.observerClasses) {
 					if (result1.getTrace(observerClass) != null) {
@@ -478,14 +540,20 @@ public class RegressionSearchListener implements SearchListener {
 			}
 
 		}
-		totalCount += regressionTest.getTheTest().getTestCase()
+		int assertionCount = regressionTest.getTheTest().getTestCase()
 				.getAssertions().size();
+		totalCount += assertionCount;
 		
-		if(totalCount>0){
-			List<Assertion> asss = regressionTest.getTheTest().getTestCase()
+		if(assertionCount>0){
+			List<Assertion> asses = regressionTest.getTheTest().getTestCase()
 			.getAssertions();
-			for(Assertion ass:asss)
+			for(Assertion ass:asses)
 				logger.warn("+++++ Assertion code: " + ass.getCode());
+			
+			if(asses.size()==0)
+				logger.warn("=========> NO ASSERTIONS!!!");
+			else
+				logger.warn("Assertions ^^^^^^^^^");
 		}
 
 		currentTestSuite.add(regressionTest.getTheTest().getTestCase()
