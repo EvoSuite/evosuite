@@ -457,43 +457,41 @@ public class RegressionSearchListener implements SearchListener {
 			 
 			 Map<Integer, Throwable> originalExceptionMapping = result1.getCopyOfExceptionMapping();
 			 Map<Integer, Throwable> regressionExceptionMapping = result2.getCopyOfExceptionMapping();
+			if (regressionExceptionMapping != null) {
+				double exDiff = Math.abs((double) (originalExceptionMapping
+						.size() - regressionExceptionMapping.size()));
 
-			 double exDiff = Math
-						.abs((double) (originalExceptionMapping.size() - regressionExceptionMapping.size()));
+				if (exDiff == 0) {
+					for (Entry<Integer, Throwable> origException : originalExceptionMapping
+							.entrySet()) {
+						if (!regressionExceptionMapping
+								.containsKey(origException.getKey())
+								|| !regressionExceptionMapping
+										.get(origException.getKey())
+										.getMessage()
+										.equals(origException.getValue()
+												.getMessage()))
+							exDiff++;
+					}
+					for (Entry<Integer, Throwable> regException : regressionExceptionMapping
+							.entrySet()) {
+						if (!originalExceptionMapping.containsKey(regException
+								.getKey()))
+							exDiff++;
+					}
+				}
 
+				if (exDiff > 0) {
+					logger.warn("Had {} different exceptions! ({})", exDiff,
+							totalCount);
+					logger.warn("mapping1: {} | mapping 2: {}",
+							result1.getCopyOfExceptionMapping(),
+							result2.getCopyOfExceptionMapping());
+				}
 
-			 
-			 
-			 if(exDiff==0){
-				 for(Entry<Integer, Throwable> origException: originalExceptionMapping.entrySet()){
-					 if(!regressionExceptionMapping
-							 .containsKey(
-									 origException
-									 .getKey()) 
-							 || !regressionExceptionMapping
-							 .get(
-									 origException.getKey())
-									 .getMessage()
-									 .equals(
-											 origException
-											 .getValue()
-											 .getMessage()))
-						 exDiff++;
-				 }	
-				 for(Entry<Integer, Throwable> regException: regressionExceptionMapping.entrySet()){
-					 if(!originalExceptionMapping.containsKey(regException.getKey()) )
-						 exDiff++;
-				 }	
-			 }
-			 
-			 if(exDiff>0){
-				 logger.warn("Had {} different exceptions! ({})" , exDiff, totalCount);
-				 logger.warn("mapping1: {} | mapping 2: {}",result1.getCopyOfExceptionMapping(),result2.getCopyOfExceptionMapping());
-			 }
-			 
-			 totalCount += exDiff;
-			 exceptionDiff += exDiff;
-			 
+				totalCount += exDiff;
+				exceptionDiff += exDiff;
+			}
 
 			 for(Entry<Integer, Throwable> origException: originalExceptionMapping.entrySet()){
 				 if(!regressionExceptionMapping.containsKey(origException.getKey())){
