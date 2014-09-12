@@ -315,6 +315,9 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 */
 	public static Set<String> getMethods(ClassLoader classLoader, String className) {
 		Set<String> targetMethods = new HashSet<String>();
+		if(!methods.containsKey(classLoader))
+			return targetMethods;
+		
 		for (String currentClass : methods.get(classLoader).keySet()) {
 			if (currentClass.equals(className)
 			        || currentClass.startsWith(className + "$"))
@@ -335,6 +338,9 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 */
 	public static Set<String> getMethods(ClassLoader classLoader) {
 		Set<String> targetMethods = new HashSet<String>();
+		if(!methods.containsKey(classLoader))
+			return targetMethods;
+		
 		for (String currentClass : methods.get(classLoader).keySet()) {
 			targetMethods.addAll(methods.get(classLoader).get(currentClass));
 		}
@@ -356,6 +362,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 */
 	public static Set<String> getMethodsPrefix(ClassLoader classLoader, String className) {
 		Set<String> matchingMethods = new HashSet<String>();
+		if(!methods.containsKey(classLoader))
+			return matchingMethods;
 
 		for (String name : methods.get(classLoader).keySet()) {
 			if (name.startsWith(className)) {
@@ -379,6 +387,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 */
 	public static int getNumMethodsPrefix(ClassLoader classLoader, String className) {
 		int num = 0;
+		if(!methods.containsKey(classLoader))
+			return num;
 
 		for (String name : methods.get(classLoader).keySet()) {
 			if (name.startsWith(className)) {
@@ -400,7 +410,9 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 */
 	public static int getNumMethods(ClassLoader classLoader) {
 		int num = 0;
-
+		if(!methods.containsKey(classLoader))
+			return num;
+		
 		for (String name : methods.get(classLoader).keySet()) {
 			num += methods.get(classLoader).get(name).size();
 		}
@@ -422,6 +434,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 */
 	public static int getNumMethodsMemberClasses(ClassLoader classLoader, String className) {
 		int num = 0;
+		if(!methods.containsKey(classLoader))
+			return num;
 
 		for (String name : methods.get(classLoader).keySet()) {
 			if (name.equals(className) || name.startsWith(className + "$")) {
