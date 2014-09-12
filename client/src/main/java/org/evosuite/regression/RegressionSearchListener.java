@@ -455,99 +455,7 @@ public class RegressionSearchListener implements SearchListener {
 			 /*if((execEndTime-execStartTime)>1500)
 					assert false;*/
 			 
-			Map<Integer, Throwable> originalExceptionMapping = result1
-					.getCopyOfExceptionMapping();
-			Map<Integer, Throwable> regressionExceptionMapping = result2
-					.getCopyOfExceptionMapping();
-
-			double exDiff = Math
-					.abs((double) (originalExceptionMapping.size() - regressionExceptionMapping
-							.size()));
-
-			if (exDiff == 0) {
-				for (Entry<Integer, Throwable> origException : originalExceptionMapping
-						.entrySet()) {
-					boolean skip = false;
-
-					if (origException.getValue() == null
-							|| origException.getValue().getMessage() == null) {
-						originalExceptionMapping.remove(origException.getKey());
-						skip = true;
-					}
-					if (regressionExceptionMapping.containsKey(origException
-							.getKey())
-							&& (regressionExceptionMapping.get(origException
-									.getKey()) == null || regressionExceptionMapping
-									.get(origException.getKey()).getMessage() == null)) {
-						regressionExceptionMapping.remove(origException
-								.getKey());
-						skip = true;
-					}
-					if (skip)
-						continue;
-					if (!regressionExceptionMapping.containsKey(origException
-							.getKey())
-							|| (!regressionExceptionMapping
-									.get(origException.getKey())
-									.getMessage()
-									.equals(origException.getValue()
-											.getMessage()))) {
-						exDiff++;
-					}
-				}
-				for (Entry<Integer, Throwable> regException : regressionExceptionMapping
-						.entrySet()) {
-					if (!originalExceptionMapping.containsKey(regException
-							.getKey()))
-						exDiff++;
-				}
-			}
-
-			if (exDiff > 0) {
-				logger.warn("Had {} different exceptions! ({})", exDiff,
-						totalCount);
-				logger.warn("mapping1: {} | mapping 2: {}",
-						result1.getCopyOfExceptionMapping(),
-						result2.getCopyOfExceptionMapping());
-			}
-
-			totalCount += exDiff;
-			exceptionDiff += exDiff;
-
-			for(Entry<Integer, Throwable> origException: originalExceptionMapping.entrySet()){
-				 if(!regressionExceptionMapping.containsKey(origException.getKey())){
-					 logger.warn("Test with exception \"{}\" was: \n{}\n---------\nException:\n{}", origException.getValue().getMessage(), regressionTest.getTheTest().getTestCase(),origException.getValue().toString());
-					 if(!regressionTest.getTheTest().getTestCase().getStatement(origException.getKey()).getComment().contains("modified version")){
-						 regressionTest.getTheTest().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    " + origException.getValue().getMessage() + "\n");
-						 regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    " + origException.getValue().getMessage() + "\n");
-					 }
-				 } else {
-					 if(!origException.getValue().getMessage().equals(regressionExceptionMapping.get(origException.getKey()).getMessage())){
-						 if(!regressionTest.getTheTest().getTestCase().getStatement(origException.getKey()).getComment().contains("EXCEPTION DIFF:"))
-							 regressionTest.getTheTest().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION DIFF:\nDifferent Exceptions were thrown:\nOriginal Version:\n    " + origException.getValue().getMessage() + "\nModified Version:\n    " + regressionExceptionMapping.get(origException.getKey()).getMessage() + "\n");
-					 }
-					 // If both show the same error, pop the error from the regression exception, to get to a diff.
-					 regressionExceptionMapping.remove(origException.getKey());
-				 }
-			 }
-			 for(Entry<Integer, Throwable> regException: regressionExceptionMapping.entrySet()){
-				 if(!regressionTest.getTheTest().getTestCase().getStatement(regException.getKey()).getComment().contains("original version")){
-					 logger.warn("Regression Test with exception \"{}\" was: \n{}\n---------\nException:\n{}", regException.getValue().getMessage(), regressionTest.getTheTest().getTestCase(),regException.getValue().toString());
-					 regressionTest.getTheTest().getTestCase().getStatement(regException.getKey()).addComment("EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    " + regException.getValue().getMessage()+ "\n\n");
-					 regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(regException.getKey()).addComment("EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    " + regException.getValue().getMessage()+ "\n\n");
-				 }
-			 }
-			 
-			 /*for(Entry<Integer, Throwable> x:result1.getCopyOfExceptionMapping().entrySet())
-				 regressionTest.getTheTest().getTestCase().getStatement(x.getKey()).addComment("// WOOOO: " + x.getValue().getMessage());
-			 
-			 for(Entry<Integer, Throwable> x:result2.getCopyOfExceptionMapping().entrySet())
-				 regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(x.getKey()).addComment("// WAAAAAA: " + x.getValue().getMessage());*/
-		/*	logger.warn("Execution for assertions took {} ms",
-			 execEndTime-execStartTime );
-			logger.warn("exec1: {}, exec2: {}",
-					result1.getExecutionTime() / 1000.0,
-					result2.getExecutionTime() / 1000.0);*/
+			
 			if (result1.test == null || result2.test == null
 					|| result1.hasTimeout() || result2.hasTimeout()) {
 
@@ -555,6 +463,92 @@ public class RegressionSearchListener implements SearchListener {
 				timedOut = true;
 				//assert false;
 			} else {
+				
+				
+				Map<Integer, Throwable> originalExceptionMapping = result1
+						.getCopyOfExceptionMapping();
+				Map<Integer, Throwable> regressionExceptionMapping = result2
+						.getCopyOfExceptionMapping();
+
+				double exDiff = Math
+						.abs((double) (originalExceptionMapping.size() - regressionExceptionMapping
+								.size()));
+
+				if (exDiff == 0) {
+					for (Entry<Integer, Throwable> origException : originalExceptionMapping
+							.entrySet()) {
+						boolean skip = false;
+
+						if (origException.getValue() == null
+								|| origException.getValue().getMessage() == null) {
+							originalExceptionMapping.remove(origException.getKey());
+							skip = true;
+						}
+						if (regressionExceptionMapping.containsKey(origException
+								.getKey())
+								&& (regressionExceptionMapping.get(origException
+										.getKey()) == null || regressionExceptionMapping
+										.get(origException.getKey()).getMessage() == null)) {
+							regressionExceptionMapping.remove(origException
+									.getKey());
+							skip = true;
+						}
+						if (skip)
+							continue;
+						if (!regressionExceptionMapping.containsKey(origException
+								.getKey())
+								|| (!regressionExceptionMapping
+										.get(origException.getKey())
+										.getMessage()
+										.equals(origException.getValue()
+												.getMessage()))) {
+							exDiff++;
+						}
+					}
+					for (Entry<Integer, Throwable> regException : regressionExceptionMapping
+							.entrySet()) {
+						if (!originalExceptionMapping.containsKey(regException
+								.getKey()))
+							exDiff++;
+					}
+				}
+
+				if (exDiff > 0) {
+					logger.warn("Had {} different exceptions! ({})", exDiff,
+							totalCount);
+					logger.warn("mapping1: {} | mapping 2: {}",
+							result1.getCopyOfExceptionMapping(),
+							result2.getCopyOfExceptionMapping());
+				}
+
+				totalCount += exDiff;
+				exceptionDiff += exDiff;
+
+				for(Entry<Integer, Throwable> origException: originalExceptionMapping.entrySet()){
+					 if(!regressionExceptionMapping.containsKey(origException.getKey())){
+						 logger.warn("Test with exception \"{}\" was: \n{}\n---------\nException:\n{}", origException.getValue().getMessage(), regressionTest.getTheTest().getTestCase(),origException.getValue().toString());
+						 if(regressionTest.getTheTest().getTestCase().hasStatement(origException.getKey()) && !regressionTest.getTheTest().getTestCase().getStatement(origException.getKey()).getComment().contains("modified version")){
+							 regressionTest.getTheTest().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    " + origException.getValue().getMessage() + "\n");
+							 //regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    " + origException.getValue().getMessage() + "\n");
+						 }
+					 } else {
+						 if(!origException.getValue().getMessage().equals(regressionExceptionMapping.get(origException.getKey()).getMessage())){
+							 if(regressionTest.getTheTest().getTestCase().hasStatement(origException.getKey()) && !regressionTest.getTheTest().getTestCase().getStatement(origException.getKey()).getComment().contains("EXCEPTION DIFF:"))
+								 regressionTest.getTheTest().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION DIFF:\nDifferent Exceptions were thrown:\nOriginal Version:\n    " + origException.getValue().getMessage() + "\nModified Version:\n    " + regressionExceptionMapping.get(origException.getKey()).getMessage() + "\n");
+						 }
+						 // If both show the same error, pop the error from the regression exception, to get to a diff.
+						 regressionExceptionMapping.remove(origException.getKey());
+					 }
+				 }
+				 for(Entry<Integer, Throwable> regException: regressionExceptionMapping.entrySet()){
+					 if(regressionTest.getTheTest().getTestCase().hasStatement(regException.getKey()) && !regressionTest.getTheTest().getTestCase().getStatement(regException.getKey()).getComment().contains("original version")){
+						 logger.warn("Regression Test with exception \"{}\" was: \n{}\n---------\nException:\n{}", regException.getValue().getMessage(), regressionTest.getTheTest().getTestCase(),regException.getValue().toString());
+						 regressionTest.getTheTest().getTestCase().getStatement(regException.getKey()).addComment("EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    " + regException.getValue().getMessage()+ "\n\n");
+						 regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(regException.getKey()).addComment("EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    " + regException.getValue().getMessage()+ "\n\n");
+					 }
+				 }
+				
+				
 				//if(result1.hasTestException() || result2.hasTestException() || result1.hasUndeclaredException() || result2.hasUndeclaredException())
 				//	logger.warn("================================== HAD EXCEPTION ==================================");
 
