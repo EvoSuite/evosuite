@@ -102,6 +102,9 @@ build path. You can add custom source folders with "build-helper-maven-plugin" p
     </executions>
 </plugin>
 
+(Need to check difference with "<build><testSourceDirectory>", which is recognized by
+IntelliJ, whereas "build-helper-maven-plugin" is not)
+
 
 4) "clean" -> delete _all_ data in the ".continuous_evosuite" folder, which is used to
 store all the best tests generated so far.
