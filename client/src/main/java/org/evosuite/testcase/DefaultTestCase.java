@@ -685,6 +685,15 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public StatementInterface getStatement(int position) {
 		return statements.get(position);
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#hasStatement(int)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public boolean hasStatement(int position) {
+		return (statements.size() >= position || position < 0);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#hasAssertions()
