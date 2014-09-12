@@ -3,7 +3,9 @@ package org.evosuite.junit.writer;
 import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,8 +22,11 @@ import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.reset.ClassResetter;
 import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.runtime.thread.KillSwitchHandler;
+import org.evosuite.runtime.thread.ThreadStopper;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.TestCaseExecutor;
 
 /**
  * Class used to generate all the scaffolding code that ends up in methods like @After/@Before
@@ -36,7 +41,8 @@ public class Scaffolding {
 
 	private static final String DEFAULT_PROPERTIES = "defaultProperties";
 
-
+	private static final String THREAD_STOPPER = "threadStopper";
+	
 	/**
 	 * Return full JUnit code for scaffolding file for the give test 
 	 * 
@@ -289,17 +295,25 @@ public class Scaffolding {
 
 	private void generateAfter(StringBuilder bd, boolean wasSecurityException) {
 
+		/*
+		 * Likely always at least ThreadStopper
+		 * 
 		if (!Properties.RESET_STANDARD_STREAMS && !wasSecurityException
 				&& !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS
 				&& !Properties.RESET_STATIC_FIELDS) {
 			return;
 		}
+		*/
 
 		bd.append(METHOD_SPACE);
 		bd.append("@After \n");
 		bd.append(METHOD_SPACE);
 		bd.append("public void doneWithTestCase(){ \n");
 
+		bd.append(BLOCK_SPACE);
+		bd.append(THREAD_STOPPER+".killAndJoinClientThreads();\n");
+		
+		
 		if(Properties.REPLACE_CALLS){
 			bd.append(BLOCK_SPACE);
 			bd.append(ShutdownHookHandler.class.getName()+".getInstance().safeExecuteAddedHooks(); \n");
@@ -349,18 +363,27 @@ public class Scaffolding {
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException,
 			List<ExecutionResult> results) {
 
+		/*
+		 * Most likely, should always have at least ThreadStopper
+		 * 
 		if (!Properties.RESET_STANDARD_STREAMS && !TestSuiteWriterUtils.shouldResetProperties(results)
 				&& !wasSecurityException && !Properties.REPLACE_CALLS
 				&& !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS
 				&& !SystemInUtil.getInstance().hasBeenUsed()) {
 			return;
 		}
-
+		 */
+		
 		bd.append(METHOD_SPACE);
 		bd.append("@Before \n");
 		bd.append(METHOD_SPACE);
 		bd.append("public void initTestCase(){ \n");
 
+		
+		bd.append(BLOCK_SPACE);
+		bd.append(THREAD_STOPPER+".storeCurrentThreads();\n");
+		bd.append(BLOCK_SPACE);
+		bd.append(THREAD_STOPPER+".startRecordingTime();\n");
 		
 		if(Properties.REPLACE_CALLS){
 			bd.append(BLOCK_SPACE);
@@ -628,5 +651,19 @@ public class Scaffolding {
 
 			bd.append("\n");
 		}
+		
+		bd.append(METHOD_SPACE);
+		bd.append("private "+ThreadStopper.class.getName() + " "+THREAD_STOPPER + " = ");
+		bd.append(" new "+ThreadStopper.class.getName() +" (");
+		bd.append(""+KillSwitchHandler.class.getName()+".getInstance(), ");
+		bd.append(""+Properties.TIMEOUT+"");
+		Set<String> threadsToIgnore = new LinkedHashSet<>();
+		// this shouldn't appear among the threads in the generated tests
+		//threadsToIgnore.add(TestCaseExecutor.TEST_EXECUTION_THREAD); 
+		threadsToIgnore.addAll(Arrays.asList(Properties.IGNORE_THREADS));
+		for(String s : threadsToIgnore){
+			bd.append(", "+s);
+		}		
+		bd.append(");\n");
 	}
 }
