@@ -107,6 +107,8 @@ public class RuntimeInstrumentation {
             cv = new MethodCallReplacementClassAdapter(cv, className, !retransformingMode);
         }
 
+        cv = new KillSwitchClassAdapter(cv);
+        
         //Note: handling of System.in does not require bytecode instrumentation
 
         ClassNode cn = new AnnotatedClassNode();
