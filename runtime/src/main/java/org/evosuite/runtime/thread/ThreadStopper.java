@@ -7,6 +7,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.mock.java.util.MockTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +112,10 @@ public class ThreadStopper {
 			        "The current threads are not set. You need to call storeCurrentThreads() first");
 		}
 
+		if(RuntimeSettings.mockJVMNonDeterminism){
+			MockTimer.stopAllTimers();
+		}
+		
 		// Using enumerate here because getAllStackTraces may call hashCode of the SUT,
 		// if the SUT is a subclass of Thread
 		Thread[] threadArray = new Thread[Thread.activeCount() + 2];
