@@ -3,6 +3,7 @@ package org.evosuite.runtime.agent;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.thread.KillSwitchHandler;
+import org.evosuite.runtime.thread.ThreadStopper;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -10,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.agent.InfiniteLoop;
+import com.examples.with.different.packagename.agent.TimerClass;
 
 public class InstrumentingAgent_threadIT {
 
@@ -64,5 +66,55 @@ public class InstrumentingAgent_threadIT {
 		t.join(500);
 		//should be dead now 
 		Assert.assertFalse(t.isAlive());
+	}
+	
+	@Test
+	public void testTimer() throws InterruptedException{
+		
+		ThreadStopper stopper = new ThreadStopper(KillSwitchHandler.getInstance(), 1000);
+		stopper.storeCurrentThreads();
+		stopper.startRecordingTime();
+
+		Object obj = null;
+		
+		try{
+			InstrumentingAgent.activate();
+			obj = new TimerClass();
+		} finally {
+			InstrumentingAgent.deactivate();
+		}
+		
+		Thread.sleep(100); // just to be sure the thread has been started
+		
+		Assert.assertTrue(isThreadRunning(TimerClass.NAME));
+		
+		//this would disable the handling of MockTimer
+		RuntimeSettings.mockJVMNonDeterminism = false;		
+		//this should not be enough
+		stopper.killAndJoinClientThreads();
+		Assert.assertTrue(isThreadRunning(TimerClass.NAME));
+		
+		//now, be sure MockTimer is used
+		RuntimeSettings.mockJVMNonDeterminism = true;
+		stopper.storeCurrentThreads();
+		stopper.startRecordingTime();
+		stopper.killAndJoinClientThreads();
+		Assert.assertFalse(isThreadRunning(TimerClass.NAME));
+	}
+	
+	private boolean isThreadRunning(String name){
+		Thread thread = null;
+		for(Thread t : Thread.getAllStackTraces().keySet()){
+			if(t.getName().equals(name)){
+				thread = t;
+				break;
+			}
+		}
+		
+		if(thread == null){
+			return false;
+		} else {
+			return thread.isAlive();
+		}
 	}
 }
