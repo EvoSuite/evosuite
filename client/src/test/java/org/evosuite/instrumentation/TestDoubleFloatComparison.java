@@ -19,7 +19,18 @@ public class TestDoubleFloatComparison {
 		assertTrue(z > x);
 		assertTrue(z > y);
 	}
-	
+
+	@Test
+	public void testDoubleComparison2() {
+		assertEquals(Double.compare(1000.0, 1.0) > 0, BooleanHelper.doubleSub(1000.0, 1.0) > 0);
+		assertEquals(Double.compare(1000.0, 1.0) < 0, BooleanHelper.doubleSub(1000.0, 1.0) < 0);
+		assertEquals(Double.compare(1000.0, 1.0) == 0, BooleanHelper.doubleSub(1000.0, 1.0) == 0);
+		
+		assertEquals(Double.compare(1.0, 1000.0) > 0, BooleanHelper.doubleSub(1.0, 1000.0) > 0);
+		assertEquals(Double.compare(1.0, 1000.0) < 0, BooleanHelper.doubleSub(1.0, 1000.0) < 0);
+		assertEquals(Double.compare(1.0, 1000.0) == 0, BooleanHelper.doubleSub(1.0, 1000.0) == 0);
+	}
+
 	@Test
 	public void testDoubleNegativeComparison() {
 		int x = BooleanHelper.doubleSub(0.0, 0.0);
