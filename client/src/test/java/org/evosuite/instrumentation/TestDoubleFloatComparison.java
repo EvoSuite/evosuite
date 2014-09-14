@@ -19,7 +19,18 @@ public class TestDoubleFloatComparison {
 		assertTrue(z > x);
 		assertTrue(z > y);
 	}
-	
+
+	@Test
+	public void testDoubleComparison2() {
+		assertEquals(Double.compare(1000.0, 1.0) > 0, BooleanHelper.doubleSub(1000.0, 1.0) > 0);
+		assertEquals(Double.compare(1000.0, 1.0) < 0, BooleanHelper.doubleSub(1000.0, 1.0) < 0);
+		assertEquals(Double.compare(1000.0, 1.0) == 0, BooleanHelper.doubleSub(1000.0, 1.0) == 0);
+		
+		assertEquals(Double.compare(1.0, 1000.0) > 0, BooleanHelper.doubleSub(1.0, 1000.0) > 0);
+		assertEquals(Double.compare(1.0, 1000.0) < 0, BooleanHelper.doubleSub(1.0, 1000.0) < 0);
+		assertEquals(Double.compare(1.0, 1000.0) == 0, BooleanHelper.doubleSub(1.0, 1000.0) == 0);
+	}
+
 	@Test
 	public void testDoubleNegativeComparison() {
 		int x = BooleanHelper.doubleSub(0.0, 0.0);
@@ -123,6 +134,35 @@ public class TestDoubleFloatComparison {
 		assertTrue(BooleanHelper.doubleSub(Double.NaN, 0.0) != 0);
 		assertTrue(BooleanHelper.doubleSub(0.0, Double.NaN) != 0);
 	}
+	
+	@Test
+	public void testDoubleNaN2() {
+		double p = Double.NaN;
+		assertEquals(Double.compare(p, Double.NaN) > 0, BooleanHelper.doubleSub(p, Double.NaN) > 0);
+		assertEquals(Double.compare(p, Double.NaN) == 0, BooleanHelper.doubleSub(p, Double.NaN) == 0);
+		assertEquals(Double.compare(p, Double.NaN) < 0, BooleanHelper.doubleSub(p, Double.NaN) < 0);
+		assertEquals(Double.compare(p, 0.0) < 0, BooleanHelper.doubleSub(p, 0.0) < 0);
+		assertEquals(Double.compare(p, 0.0) == 0, BooleanHelper.doubleSub(p, 0.0) == 0);
+		assertEquals(Double.compare(p, 0.0) > 0, BooleanHelper.doubleSub(p, 0.0) > 0);
+		assertEquals(Double.compare(p, 1.0) > 0 , BooleanHelper.doubleSub(p, 1.0) > 0);
+		assertEquals(Double.compare(p, 1.0) == 0 , BooleanHelper.doubleSub(p, 1.0) == 0);
+		assertEquals(Double.compare(p, 1.0) < 0 , BooleanHelper.doubleSub(p, 1.0) < 0);
+	}
+
+	@Test
+	public void testFloatNaN2() {
+		float p = Float.NaN;
+		assertEquals(Float.compare(p, Float.NaN) > 0, BooleanHelper.floatSub(p, Float.NaN) > 0);
+		assertEquals(Float.compare(p, Float.NaN) == 0, BooleanHelper.floatSub(p, Float.NaN) == 0);
+		assertEquals(Float.compare(p, Float.NaN) < 0, BooleanHelper.floatSub(p, Float.NaN) < 0);
+		assertEquals(Float.compare(p, 0.0f) < 0, BooleanHelper.floatSub(p, 0.0f) < 0);
+		assertEquals(Float.compare(p, 0.0f) == 0, BooleanHelper.floatSub(p, 0.0f) == 0);
+		assertEquals(Float.compare(p, 0.0f) > 0, BooleanHelper.floatSub(p, 0.0f) > 0);
+		assertEquals(Float.compare(p, 1.0f) > 0 , BooleanHelper.floatSub(p, 1.0f) > 0);
+		assertEquals(Float.compare(p, 1.0f) == 0 , BooleanHelper.floatSub(p, 1.0f) == 0);
+		assertEquals(Float.compare(p, 1.0f) < 0 , BooleanHelper.floatSub(p, 1.0f) < 0);
+	}
+
 	
 	@Test
 	public void testInfinityAndFloat() {
