@@ -20,9 +20,11 @@ package org.evosuite.testcase;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -32,6 +34,8 @@ import org.evosuite.Properties;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.System.SystemExitException;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
+import org.evosuite.runtime.thread.KillSwitch;
+import org.evosuite.runtime.thread.ThreadStopper;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,14 +65,12 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 * Map a thrown exception ('value') with the the position ('key') in the
 	 * test sequence in which it was thrown from.
 	 */
-	protected Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
+	protected Map<Integer, Throwable> exceptionsThrown = new HashMap<>();
 
 	protected Set<ExecutionObserver> observers;
 
-	protected transient long startTime;
-
-	protected transient Set<Thread> currentRunningThreads;
-
+	protected final ThreadStopper threadStopper;
+	
 	/**
 	 * <p>
 	 * Constructor for TestRunnable.
@@ -86,6 +88,18 @@ public class TestRunnable implements InterfaceTestRunnable {
 		this.scope = scope;
 		this.observers = observers;
 		runFinished = false;
+		
+		KillSwitch killSwitch = new KillSwitch() {			
+			@Override
+			public void setKillSwitch(boolean kill) {
+				ExecutionTracer.setKillSwitch(kill);
+			}
+		};
+		Set<String> threadsToIgnore = new LinkedHashSet<>();
+		threadsToIgnore.add(TestCaseExecutor.TEST_EXECUTION_THREAD);
+		threadsToIgnore.addAll(Arrays.asList(Properties.IGNORE_THREADS));
+		
+		threadStopper = new ThreadStopper(killSwitch, threadsToIgnore, Properties.TIMEOUT);
 	}
 
 	/**
@@ -101,18 +115,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 * </p>
 	 */
 	public void storeCurrentThreads() {
-		if (currentRunningThreads == null) {
-			currentRunningThreads = Collections.newSetFromMap(new IdentityHashMap<Thread, Boolean>());
-		} else {
-			currentRunningThreads.clear();
-		}
-
-		Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
-		for (Thread t : threadMap.keySet()) {
-			if (t.isAlive()) {
-				currentRunningThreads.add(t);
-			}
-		}
+		threadStopper.storeCurrentThreads();
 	}
 
 	/**
@@ -121,124 +124,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 * and so make the test case executions always last TIMEOUT ms.
 	 */
 	public void killAndJoinClientThreads() throws IllegalStateException {
-
-		if (currentRunningThreads == null) {
-			throw new IllegalStateException(
-			        "The current threads are not set. You need to call storeCurrentThreads() first");
-		}
-
-		// Using enumerate here because getAllStackTraces may call hashCode of the SUT,
-		// if the SUT is a subclass of Thread
-		Thread[] threadArray = new Thread[Thread.activeCount() + 2];
-		Thread.enumerate(threadArray);
-
-		/*
-		 * First we set the kill switch in the instrumented bytecode, this
-		 * to prevent issues with code that do not handle interrupt 
-		 */
-		ExecutionTracer.setKillSwitch(true);
-
-		/*
-		 * try to interrupt the SUT threads
-		 */
-		checkThreads:
-		for (Thread t : threadArray) {
-			// May happen...
-			if(t == null)
-				continue;
-			
-			/*
-			 * the TestCaseExecutor threads are executing the SUT, so they are not privileged.
-			 * But we don't want to stop/join them, as they just execute Runnable objects, and
-			 * stay in a pool in an execution service.  
-			 */
-			if (t.getName().startsWith(TestCaseExecutor.TEST_EXECUTION_THREAD)) {
-				continue;
-			}
-			
-
-			if (t.isAlive() && !currentRunningThreads.contains(t)) {
-				/*
-				 * We may want to ignore some threads such as GUI event handlers 
-				 */
-				for(String name : Properties.IGNORE_THREADS) {
-					if(t.getName().startsWith(name)) {
-						continue checkThreads;
-					}
-				}
-				t.interrupt();
-			}
-		}
-
-		/*
-		 * now, join up to a total of TIMEOUT ms. 
-		 * 
-		 */
-		checkThreads:
-		for (Thread t : threadArray) {
-			// May happen...
-			if(t == null)
-				continue;
-
-			if (t.getName().startsWith(TestCaseExecutor.TEST_EXECUTION_THREAD)) {
-				continue;
-			}
-
-			if (t.isAlive() && !currentRunningThreads.contains(t)) {
-				for(String name : Properties.IGNORE_THREADS) {
-					if(t.getName().startsWith(name)) {
-						continue checkThreads;
-					}
-				}
-
-				logger.info("Found new thread");
-				try {
-					/*
-					 * In total the test case should not run for more than Properties.TIMEOUT ms
-					 */
-					long delta = System.currentTimeMillis() - startTime;
-					long waitingTime = Properties.TIMEOUT - delta;
-					if (waitingTime > 0) {
-						t.join(waitingTime);
-					}
-				} catch (InterruptedException e) {
-					// What can we do?
-					break;
-				}
-				if (t.isAlive()) {
-					logger.info("Thread is still alive: " + t.getName());
-				}
-			}
-		}
-
-		/*
-		 * we need it, otherwise issue during search in which accessing enum in SUT would call toString,
-		 * and so throw a TimeoutExceeded exception 
-		 */
-		ExecutionTracer.setKillSwitch(false);
-
-		/*
-		 * important. this is used to later check if current threads are set
-		 */
-		currentRunningThreads = null;
-	}
-
-	/**
-	 * Going to join SUT threads if active threads are more than numThreads. In
-	 * other words, we are trying to join till all SUT threads are done within
-	 * the defined time threshold
-	 * 
-	 * @param numThreads
-	 */
-	@Deprecated
-	private void checkClientThreads(int numThreads) {
-		if (Thread.activeCount() > numThreads) {
-			try {
-				killAndJoinClientThreads();
-			} catch (Throwable t) {
-				logger.debug("Error while tyring to join thread: {}", t);
-			}
-		}
+		threadStopper.killAndJoinClientThreads();
 	}
 
 	/**
@@ -296,7 +182,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 			LoggingUtils.muteCurrentOutAndErrStream();
 		}
 
-		startTime = System.currentTimeMillis();
+		threadStopper.startRecordingTime();
 
 		/*
 		 *  need AtomicInteger as we want to get latest updated value even if exception is thrown in the 'try' block.
@@ -359,7 +245,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		}
 
 		result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
-		result.setExecutionTime(System.currentTimeMillis() - startTime);
+		result.setExecutionTime(System.currentTimeMillis() - threadStopper.getStartTime());
 		result.setExecutedStatements(num.get());
 		result.setThrownExceptions(exceptionsThrown);
 		result.setReadProperties(org.evosuite.runtime.System.getAllPropertiesReadSoFar());
