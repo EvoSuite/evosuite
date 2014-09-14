@@ -338,8 +338,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		}
 
-		if (totalGoals > 0)
+		if (totalGoals > 0){
 			suite.setCoverage((double) coverage / (double) totalGoals);
+			totalCovered = (double) coverage / (double) totalGoals;
+		}
 
 		suite.setNumOfCoveredGoals(coverage);
 
