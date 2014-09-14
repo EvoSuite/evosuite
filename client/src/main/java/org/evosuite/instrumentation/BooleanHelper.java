@@ -284,7 +284,7 @@ public class BooleanHelper {
 		} else {
 			double diff = d1 - d2;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0 + Math.abs(diff));
-			if(Double.isNaN(d1) || Double.isNaN(d2)) {
+			if(Double.isNaN(d1) || Double.isNaN(d2) || Double.isInfinite(d1)  || Double.isInfinite(d2)) {
 				return Double.compare(d1, d2);
 			}
 			//			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
@@ -316,7 +316,7 @@ public class BooleanHelper {
 		} else {
 			double diff = f1 - f2;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
-			if(Float.isNaN(f1) || Float.isNaN(f2)) {
+			if(Float.isNaN(f1) || Float.isNaN(f2) || Float.isInfinite(f1) || Float.isInfinite(f2)) {
 				return Float.compare(f1, f2);
 			}
 			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
