@@ -237,6 +237,9 @@ public class Scaffolding {
 
 	private void generateInitializeClasses(String testClassName, StringBuilder bd) {
 		
+		if(Properties.NO_RUNTIME_DEPENDENCY)
+			return;
+		
 		List<String> allInstrumentedClasses = TestGenerationContext.getInstance().getClassLoaderForSUT().getViewOfInstrumentedClasses();
 		
 		bd.append("\n");

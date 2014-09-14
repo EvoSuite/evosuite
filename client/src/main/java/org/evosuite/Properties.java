@@ -671,6 +671,9 @@ public class Properties {
 	@Parameter(key = "test_scaffolding", group = "Output", description = "Generate all the scaffolding needed to run EvoSuite JUnit tests in a separate file")
 	public static boolean TEST_SCAFFOLDING = true;  
 
+	@Parameter(key = "no_runtime_dependency", group = "Output", description = "Avoid runtime dependencies in JUnit test")
+	public static boolean NO_RUNTIME_DEPENDENCY = false;  
+
 	/** Constant <code>PRINT_TO_SYSTEM=false</code> */
 	@Parameter(key = "print_to_system", group = "Output", description = "Allow test output on console")
 	public static boolean PRINT_TO_SYSTEM = false;
