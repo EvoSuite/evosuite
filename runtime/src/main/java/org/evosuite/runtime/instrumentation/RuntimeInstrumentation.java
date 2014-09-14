@@ -73,7 +73,7 @@ public class RuntimeInstrumentation {
                 "org.apache.commons.discovery.resource.classes.DiscoverClasses",
                 "org.apache.commons.logging.Log",// Leads to ExceptionInInitializerException when re-instrumenting classes that use a logger
                 "org.jcp.xml.dsig.internal.dom.", //Security exception in ExecutionTracer?
-                "com_cenqua_clover", //this is for Clover code coverage instrumentation
+                "com_cenqua_clover", "com.cenqua", //these are for Clover code coverage instrumentation
                 "javafx." // JavaFX crashes when instrumented
         };
     }
