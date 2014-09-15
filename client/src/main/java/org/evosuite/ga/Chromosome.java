@@ -21,15 +21,17 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.utils.PublicCloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Abstract base class of chromosomes
  * 
- * @author Gordon Fraser
+ * @author Gordon Fraser, Jose Miguel Rojas
  */
 public abstract class Chromosome implements Comparable<Chromosome>, Serializable,
         PublicCloneable<Chromosome> {
@@ -77,7 +79,14 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return a double.
 	 */
 	public double getFitness() {
-	    return fitnesses.isEmpty() ? 0.0 : fitnesses.get( fitnesses.keySet().iterator().next() );
+		assert Properties.ALGORITHM != Properties.Algorithm.NSGAII;
+		if (! Properties.COMPOSITIONAL_FITNESS)
+			assert (fitnesses.size() <= 1); //TODO: Check with minimisation on
+		double sumFitnesses = 0.0;
+		for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+			sumFitnesses += fitnesses.get( fitnessFunction );
+		}
+		return sumFitnesses;
 	}
 
 	public double getFitness(FitnessFunction<?> ff) {
