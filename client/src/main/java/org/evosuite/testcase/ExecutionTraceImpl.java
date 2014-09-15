@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -510,8 +511,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		//		logger.trace(duCounter+": set active definition for var "+def.getDUVariableName()+" on object "+objectID+" to Def "+defID);
 		duCounter++;
 	}
+	
+	public final int MAX_STACK_SIZE = 1000;
 
-	private int methodCallBoundry = 0;
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -527,8 +529,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 				coveredMethods.put(id, coveredMethods.get(id) + 1);
 			}
 		}
-		if (traceCalls && methodCallBoundry<1000) {
-			methodCallBoundry++;
+		if (traceCalls) {
+			if(stack.size() > MAX_STACK_SIZE)
+				throw new TestCaseExecutor.TimeoutExceeded();
 			int callingObjectID = registerObject(caller);
 			methodId++;
 			MethodCall call = new MethodCall(className, methodName, methodId,
