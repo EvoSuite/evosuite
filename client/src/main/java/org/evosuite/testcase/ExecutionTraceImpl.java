@@ -512,7 +512,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		duCounter++;
 	}
 	
-	public final int MAX_STACK_SIZE = 1000;
+	public final int MAX_METHOD_CALL_ENTERED = 1000;
+	
+	private int methodEnteredCount = 0;
 
 	/**
 	 * {@inheritDoc}
@@ -530,7 +532,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			}
 		}
 		if (traceCalls) {
-			if(stack.size() > MAX_STACK_SIZE)
+			methodEnteredCount++;
+			if(methodEnteredCount > MAX_METHOD_CALL_ENTERED)
 				throw new TestCaseExecutor.TimeoutExceeded();
 			int callingObjectID = registerObject(caller);
 			methodId++;
