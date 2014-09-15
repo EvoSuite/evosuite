@@ -147,6 +147,12 @@ public class TestDoubleFloatComparison {
 		assertEquals(Double.compare(p, 1.0) > 0 , BooleanHelper.doubleSub(p, 1.0) > 0);
 		assertEquals(Double.compare(p, 1.0) == 0 , BooleanHelper.doubleSub(p, 1.0) == 0);
 		assertEquals(Double.compare(p, 1.0) < 0 , BooleanHelper.doubleSub(p, 1.0) < 0);
+		assertEquals(Double.compare(0.0, p) < 0, BooleanHelper.doubleSub(0.0, p) < 0);
+		assertEquals(Double.compare(0.0, p) == 0, BooleanHelper.doubleSub(0.0, p) == 0);
+		assertEquals(Double.compare(0.0, p) > 0, BooleanHelper.doubleSub(0.0, p) > 0);
+		assertEquals(Double.compare(1.0, p) > 0 , BooleanHelper.doubleSub(1.0, p) > 0);
+		assertEquals(Double.compare(1.0, p) == 0 , BooleanHelper.doubleSub(1.0, p) == 0);
+		assertEquals(Double.compare(1.0, p) < 0 , BooleanHelper.doubleSub(1.0, p) < 0);
 	}
 
 	@Test
