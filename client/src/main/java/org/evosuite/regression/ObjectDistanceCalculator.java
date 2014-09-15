@@ -45,7 +45,7 @@ public class ObjectDistanceCalculator {
 	private static final double R = 10;
 	private static final double V = 10;
 	private static final double C = 10;
-	private static final int MAX_RECURSION = 2;
+	private static final int MAX_RECURSION = 4;
 	
 	public static int different_variables = 0;
 
