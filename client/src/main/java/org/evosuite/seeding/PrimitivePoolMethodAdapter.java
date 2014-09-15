@@ -109,4 +109,61 @@ public class PrimitivePoolMethodAdapter extends MethodVisitor {
 		}
 		super.visitLdcInsn(cst);
 	}
+	
+	@Override
+	public void visitInsn(int opcode) {
+		Object constant = null;
+		switch(opcode) {
+		case Opcodes.ICONST_0:
+			constant = 0;
+			break;
+		case Opcodes.ICONST_1:
+			constant = 1;
+			break;
+		case Opcodes.ICONST_2:
+			constant = 2;
+			break;
+		case Opcodes.ICONST_3:
+			constant = 3;
+			break;
+		case Opcodes.ICONST_4:
+			constant = 4;
+			break;
+		case Opcodes.ICONST_5:
+			constant = 5;
+			break;
+		case Opcodes.ICONST_M1:
+			constant = -1;
+			break;
+		case Opcodes.LCONST_0:
+			constant = 0L;
+			break;
+		case Opcodes.LCONST_1:
+			constant = 1L;
+			break;
+		case Opcodes.DCONST_0:
+			constant = 0.0;
+			break;
+		case Opcodes.DCONST_1:
+			constant = 1.0;
+			break;
+		case Opcodes.FCONST_0:
+			constant = 0f;
+			break;
+		case Opcodes.FCONST_1:
+			constant = 1f;
+			break;
+		case Opcodes.FCONST_2:
+			constant = 2f;
+			break;
+		}
+		if(constant != null) {
+			if (DependencyAnalysis.isTargetClassName(className)) {
+				poolManager.addSUTConstant(constant);
+			} else {
+				poolManager.addNonSUTConstant(constant);
+			}
+		}
+		super.visitInsn(opcode);
+	}
 }
