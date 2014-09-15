@@ -511,6 +511,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		duCounter++;
 	}
 
+	private int methodCallBoundry = 0;
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -526,7 +527,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 				coveredMethods.put(id, coveredMethods.get(id) + 1);
 			}
 		}
-		if (traceCalls) {
+		if (traceCalls && methodCallBoundry<1000) {
+			methodCallBoundry++;
 			int callingObjectID = registerObject(caller);
 			methodId++;
 			MethodCall call = new MethodCall(className, methodName, methodId,
