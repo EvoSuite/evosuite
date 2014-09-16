@@ -59,7 +59,7 @@ public class ClassResetter {
 
         try {
             Class<?> clazz = loader.loadClass(classNameWithDots);
-            if(clazz.isInterface())
+            if(clazz.isInterface() || clazz.isAnonymousClass())
             	return;
             
             Method m = clazz.getMethod(STATIC_RESET, (Class<?>[]) null);
