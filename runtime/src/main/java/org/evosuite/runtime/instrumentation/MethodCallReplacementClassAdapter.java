@@ -22,6 +22,7 @@ package org.evosuite.runtime.instrumentation;
 
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.MockList;
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -129,7 +130,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 				Method hashCodeMethod = Method.getMethod("int hashCode()");
 				GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, hashCodeMethod, null, null, this);
 				mg.loadThis();
-				mg.visitAnnotation("Lorg/evosuite/annotation/EvoSuiteExclude;", true);
+				mg.visitAnnotation(Type.getDescriptor(org.evosuite.annotation.EvoSuiteExclude.class), true);
 				mg.invokeStatic(Type.getType(org.evosuite.runtime.System.class), Method.getMethod("int identityHashCode(Object)"));
 				mg.returnValue();
 				mg.endMethod();
