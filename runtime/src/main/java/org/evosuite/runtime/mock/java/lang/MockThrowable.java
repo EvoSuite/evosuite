@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import javax.naming.InitialContext;
 
 import org.evosuite.runtime.Thread;
+import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 
@@ -44,16 +45,54 @@ public class MockThrowable extends Throwable  implements OverrideMock {
 		init();
 	}
 
-	// ----- just for mock --------
+	// ----- private just for mock --------
 
 	private void init(){
-		stackTraceElements = new StackTraceElement[3];
-		stackTraceElements[0] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
-		stackTraceElements[1] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
-		stackTraceElements[2] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
+		stackTraceElements = getDefaultStackTrace();
 	}
 
+	private static StackTraceElement[] getDefaultStackTrace(){
+		StackTraceElement[] v =  new StackTraceElement[3];
+		v[0] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
+		v[1] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
+		v[2] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
+		return v;
+	}
 
+	/*
+	 *  ------ special replacements static methods ------------
+	 *  
+	 *  WARN: don't modify the name of these methods, as they are used by reflection in instrumentator
+	 */
+	
+	public static StackTraceElement[] replacement_getStackTrace(Throwable source){
+		if(!MockFramework.isEnabled() || source instanceof EvoSuiteMock){
+			return source.getStackTrace();
+		}
+		
+		return getDefaultStackTrace();
+	}
+	
+	public static void replacement_printStackTrace(Throwable source, PrintWriter p) {
+		if(!MockFramework.isEnabled() || source instanceof EvoSuiteMock){
+			source.printStackTrace(p);
+		}		
+		for(StackTraceElement elem : getDefaultStackTrace()) {
+			p.append(elem.toString());
+			p.append("\n");
+		}
+	}
+	
+	public static void replacement_printStackTrace(Throwable source, PrintStream p) {
+		if(!MockFramework.isEnabled() || source instanceof EvoSuiteMock){
+			source.printStackTrace(p);
+		}
+		for(StackTraceElement elem : getDefaultStackTrace()) {
+			p.append(elem.toString());
+			p.append("\n");
+		}
+	}
+	
 	// ----- unmodified public methods ----------
 
 	@Override
