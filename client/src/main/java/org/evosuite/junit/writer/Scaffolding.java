@@ -26,7 +26,6 @@ import org.evosuite.runtime.thread.KillSwitchHandler;
 import org.evosuite.runtime.thread.ThreadStopper;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.TestCaseExecutor;
 
 /**
  * Class used to generate all the scaffolding code that ends up in methods like @After/@Before
@@ -113,7 +112,7 @@ public class Scaffolding {
 
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 				|| Properties.RESET_STATIC_FIELDS || wasSecurityException
-				|| SystemInUtil.getInstance().hasBeenUsed()) {
+				|| SystemInUtil.getInstance().hasBeenUsed() || !Properties.NO_RUNTIME_DEPENDENCY) {
 			list.add(org.junit.BeforeClass.class.getCanonicalName());
 			list.add(org.junit.Before.class.getCanonicalName());
 			list.add(org.junit.After.class.getCanonicalName());
@@ -298,6 +297,9 @@ public class Scaffolding {
 
 	private void generateAfter(StringBuilder bd, boolean wasSecurityException) {
 
+		if(Properties.NO_RUNTIME_DEPENDENCY)
+			return;
+
 		/*
 		 * Likely always at least ThreadStopper
 		 * 
@@ -365,6 +367,9 @@ public class Scaffolding {
 
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException,
 			List<ExecutionResult> results) {
+
+		if(Properties.NO_RUNTIME_DEPENDENCY)
+			return;
 
 		/*
 		 * Most likely, should always have at least ThreadStopper
