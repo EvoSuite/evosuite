@@ -20,6 +20,7 @@
  */
 package org.evosuite.runtime.instrumentation;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -41,6 +42,8 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.tools.javac.resources.javac;
 
 import java.util.List;
 
@@ -233,13 +236,15 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	 * <p>
 	 * Note: why not just using static replacement instead of OverrideMock? Because static replacement
 	 * will not work if an exception instance is used in a non-instrumented class, whereas OverrideMock would.
-	 * Still, it could be tedious to prepare OverrideMock for every single type of excpetion, so the static
+	 * Still, it could be tedious to prepare OverrideMock for every single type of exception, so the static
 	 * replacement here could be a temporary workaround
 	 * 
 	 */
 	private void addExtraceExceptionReplacements(){
 
 		List<Class<? extends Throwable>> classes = Arrays.asList(
+				IOException.class,
+				//following java.lang
 				Throwable.class,
 				ArithmeticException.class,
 				ArrayIndexOutOfBoundsException.class,
@@ -351,18 +356,6 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 	private void addJavaLangCalls() {
 
-		/*
-		//java/lang/Runtime  
-		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "freeMemory",
-		        "()J", "org/evosuite/runtime/System", "freeMemory", "()J", true, false));
-		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "maxMemory",
-		        "()J", "org/evosuite/runtime/System", "maxMemory", "()J", true, false));
-		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "totalMemory",
-		        "()J", "org/evosuite/runtime/System", "totalMemory", "()J", true, false));
-		replacementCalls.add(new MethodCallReplacement("java/lang/Runtime", "availableProcessors",
-		        "()I", "org/evosuite/runtime/System", "availableProcessors", "()I", true, false));		
-		 */
-
 		//java/lang/System
 		replacementCalls.add(new MethodCallReplacement("java/lang/System", "exit",
 				"(I)V", "org/evosuite/runtime/System", "exit", "(I)V", false, false));
@@ -388,32 +381,6 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 		//java/lang/Thread
 		replacementCalls.add(new MethodCallReplacement("java/lang/Thread",
-				"getStackTrace", "()[Ljava/lang/StackTraceElement;",
-				"org/evosuite/runtime/Thread", "getStackTrace",
-				"()[Ljava/lang/StackTraceElement;", true, false));
-
-		//java/lang/Throwable
-		replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
-				"toString", "()Ljava/lang/String;", "org/evosuite/runtime/Throwable",
-				"toString", "(Ljava/lang/Throwable;)Ljava/lang/String;", false, false));
-		replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
-				"getStackTrace", "()[Ljava/lang/StackTraceElement;",
-				"org/evosuite/runtime/Thread", "getStackTrace",
-				"()[Ljava/lang/StackTraceElement;", true, false));
-		replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
-				"printStackTrace", "(Ljava/io/PrintStream;)V",
-				"org/evosuite/runtime/Throwable", "printStackTrace",
-				"(Ljava/io/PrintStream;)V", true, false));
-		replacementCalls.add(new MethodCallReplacement("java/lang/Throwable",
-				"printStackTrace", "(Ljava/io/PrintWriter;)V",
-				"org/evosuite/runtime/Throwable", "printStackTrace",
-				"(Ljava/io/PrintWriter;)V", true, false));
-
-		//java/lang/Exception
-		replacementCalls.add(new MethodCallReplacement("java/lang/Exception",
-				"toString", "()Ljava/lang/String;", "org/evosuite/runtime/Throwable",
-				"toString", "(Ljava/lang/Exception;)Ljava/lang/String;", false, false));
-		replacementCalls.add(new MethodCallReplacement("java/lang/Exception",
 				"getStackTrace", "()[Ljava/lang/StackTraceElement;",
 				"org/evosuite/runtime/Thread", "getStackTrace",
 				"()[Ljava/lang/StackTraceElement;", true, false));
