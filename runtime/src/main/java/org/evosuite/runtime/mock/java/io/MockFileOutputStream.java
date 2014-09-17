@@ -195,7 +195,7 @@ public class MockFileOutputStream extends FileOutputStream implements LeakingRes
 
 	private void throwExceptionIfClosed() throws IOException{
 		if(closed){
-			throw new IOException();
+			throw new MockIOException();
 		}
 	}
 

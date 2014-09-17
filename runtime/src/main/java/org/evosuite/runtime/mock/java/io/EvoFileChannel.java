@@ -14,6 +14,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.evosuite.runtime.mock.java.lang.MockIllegalArgumentException;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 
 
@@ -88,7 +89,7 @@ public class EvoFileChannel extends FileChannel{  //FIXME mock FileChannel
 	public int read(ByteBuffer dst, long pos) throws IOException {
 
 		if(pos < 0){
-			throw new IllegalArgumentException("Negative position: "+pos);
+			throw new MockIllegalArgumentException("Negative position: "+pos);
 		}
 
 		AtomicInteger tmp = new AtomicInteger((int)pos);
@@ -153,7 +154,7 @@ public class EvoFileChannel extends FileChannel{  //FIXME mock FileChannel
 	public int write(ByteBuffer src, long pos) throws IOException {
 
 		if(pos < 0){
-			throw new IllegalArgumentException("Negative position: "+pos);
+			throw new MockIllegalArgumentException("Negative position: "+pos);
 		}
 
 		AtomicInteger tmp = new AtomicInteger((int)pos);
@@ -215,7 +216,7 @@ public class EvoFileChannel extends FileChannel{  //FIXME mock FileChannel
 		throwExceptionIfClosed();
 
 		if(size < 0){
-			throw new IllegalArgumentException();
+			throw new MockIllegalArgumentException();
 		}
 
 		if(!isOpenForWrite){
@@ -245,7 +246,7 @@ public class EvoFileChannel extends FileChannel{  //FIXME mock FileChannel
 	public FileChannel position(long newPosition) throws IOException {
 
 		if(newPosition < 0){
-			throw new IllegalArgumentException();
+			throw new MockIllegalArgumentException();
 		}
 
 		throwExceptionIfClosed();
@@ -275,14 +276,14 @@ public class EvoFileChannel extends FileChannel{  //FIXME mock FileChannel
 	public long transferTo(long position, long count, WritableByteChannel target)
 			throws IOException {
 		// TODO 		
-		throw new IOException("transferTo is not supported yet");
+		throw new MockIOException("transferTo is not supported yet");
 	}
 
 	@Override
 	public long transferFrom(ReadableByteChannel src, long position, long count)
 			throws IOException {
 		// TODO 
-		throw new IOException("transferFrom is not supported yet");
+		throw new MockIOException("transferFrom is not supported yet");
 	}
 
 
@@ -290,21 +291,21 @@ public class EvoFileChannel extends FileChannel{  //FIXME mock FileChannel
 	public MappedByteBuffer map(MapMode mode, long position, long size)
 			throws IOException {
 		// TODO 
-		throw new IOException("MappedByteBuffer mocks are not supported yet");
+		throw new MockIOException("MappedByteBuffer mocks are not supported yet");
 	}
 
 	@Override
 	public FileLock lock(long position, long size, boolean shared)
 			throws IOException {
 		// TODO 
-		throw new IOException("FileLock mocks are not supported yet");
+		throw new MockIOException("FileLock mocks are not supported yet");
 	}
 
 	@Override
 	public FileLock tryLock(long position, long size, boolean shared)
 			throws IOException {
 		// TODO 
-		throw new IOException("FileLock mocks are not supported yet");
+		throw new MockIOException("FileLock mocks are not supported yet");
 	}
 
 	@Override
