@@ -37,6 +37,7 @@ import org.evosuite.testcase.DoublePrimitiveStatement;
 import org.evosuite.testcase.EnumPrimitiveStatement;
 import org.evosuite.testcase.EvosuiteError;
 import org.evosuite.testcase.ExecutionObserver;
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.FieldStatement;
 import org.evosuite.testcase.FloatPrimitiveStatement;
@@ -1702,4 +1703,8 @@ public class SymbolicObserver extends ExecutionObserver {
 		return stringVariable;
 	}
 
+	@Override
+	public void testExecutionFinished(ExecutionResult r) {
+		// do nothing
+	}
 }

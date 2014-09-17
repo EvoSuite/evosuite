@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import org.evosuite.testcase.CodeUnderTestException;
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
@@ -73,4 +74,8 @@ public class PrimitiveFieldTraceObserver extends
 		}
 	}
 
+	@Override
+	public void testExecutionFinished(ExecutionResult r) {
+		// do nothing
+	}
 }

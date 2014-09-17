@@ -21,6 +21,7 @@
 package org.evosuite.contracts;
 
 import org.evosuite.testcase.ExecutionObserver;
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.slf4j.Logger;
@@ -110,4 +111,8 @@ public class SingleContractChecker extends ExecutionObserver {
 
 	}
 
+	@Override
+	public void testExecutionFinished(ExecutionResult r) {
+		// do nothing
+	}
 }
