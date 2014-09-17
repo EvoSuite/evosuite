@@ -206,6 +206,10 @@ public class ConstantInliner extends ExecutionObserver {
 	@Override
 	public void clear() {
 		// TODO Auto-generated method stub
+	}
 
+	@Override
+	public void testExecutionFinished(ExecutionResult r) {
+		// do nothing
 	}
 }

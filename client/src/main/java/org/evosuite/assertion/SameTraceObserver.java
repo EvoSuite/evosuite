@@ -5,6 +5,7 @@ package org.evosuite.assertion;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.CodeUnderTestException;
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
@@ -69,5 +70,10 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 		} catch (CodeUnderTestException e) {
 			logger.debug("", e);
 		}
+	}
+
+	@Override
+	public void testExecutionFinished(ExecutionResult r) {
+		// do nothing
 	}
 }

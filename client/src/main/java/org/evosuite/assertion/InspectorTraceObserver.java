@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
@@ -98,5 +99,10 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 
 		trace.addEntry(statement.getPosition(), var, entry);
 
+	}
+
+	@Override
+	public void testExecutionFinished(ExecutionResult r) {
+		// do nothing
 	}
 }
