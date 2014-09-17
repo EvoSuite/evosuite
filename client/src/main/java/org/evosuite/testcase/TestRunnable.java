@@ -164,6 +164,17 @@ public class TestRunnable implements InterfaceTestRunnable {
 		}
 	}
 
+	protected void informObservers_finished(ExecutionResult result) {
+		ExecutionTracer.disable();
+		try {
+			for (ExecutionObserver observer : observers) {
+				observer.testExecutionFinished(result);
+			}
+		} finally {
+			ExecutionTracer.enable();
+		}
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult call() {
@@ -348,7 +359,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 			num.incrementAndGet();
 		} // end of loop
-		
+		informObservers_finished(result);
 		//TODO
 	}
 
