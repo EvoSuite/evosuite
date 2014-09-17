@@ -31,7 +31,7 @@ public class NativeMockedIO {
 	public static int read(String path, AtomicInteger position) throws IOException{
 		VFile vf = NativeMockedIO.getFileForReading(path);
 		if(vf==null){
-			throw new IOException();
+			throw new MockIOException();
 		}
 		
 		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
@@ -56,14 +56,14 @@ public class NativeMockedIO {
 		
 		VFile vf = NativeMockedIO.getFileForWriting(path);
 		if(vf==null){
-			throw new IOException();
+			throw new MockIOException();
 		}
 				
 		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
 				
 		int written = vf.writeBytes(position.get(),b, off, len);
 		if(written==0){
-			throw new IOException("Error in writing to file");
+			throw new MockIOException("Error in writing to file");
 		}
 		position.addAndGet(written);
 	}
@@ -72,7 +72,7 @@ public class NativeMockedIO {
 	public static int size(String path) throws IOException{
 		VFile vf = NativeMockedIO.getFileForReading(path);
 		if(vf==null){
-			throw new IOException();
+			throw new MockIOException();
 		}
 		
 		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
@@ -83,15 +83,15 @@ public class NativeMockedIO {
 	
 	public static void setLength(String path, AtomicInteger position, long newLength) throws IOException{
 		if(newLength < 0){
-			throw new IOException("Negative position: "+newLength);
+			throw new MockIOException("Negative position: "+newLength);
 		}
 		if(newLength > Integer.MAX_VALUE){
-			throw new IOException("Virtual file system does not handle files larger than  "+Integer.MAX_VALUE+" bytes");
+			throw new MockIOException("Virtual file system does not handle files larger than  "+Integer.MAX_VALUE+" bytes");
 		}
 		
 		VFile vf = NativeMockedIO.getFileForWriting(path);
 		if(vf==null){
-			throw new IOException();
+			throw new MockIOException();
 		}
 		
 		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
