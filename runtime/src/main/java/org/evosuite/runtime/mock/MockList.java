@@ -10,11 +10,20 @@ import org.evosuite.runtime.mock.java.io.MockFileInputStream;
 import org.evosuite.runtime.mock.java.io.MockFileOutputStream;
 import org.evosuite.runtime.mock.java.io.MockFileReader;
 import org.evosuite.runtime.mock.java.io.MockFileWriter;
+import org.evosuite.runtime.mock.java.io.MockIOException;
 import org.evosuite.runtime.mock.java.io.MockPrintStream;
 import org.evosuite.runtime.mock.java.io.MockPrintWriter;
 import org.evosuite.runtime.mock.java.io.MockRandomAccessFile;
+import org.evosuite.runtime.mock.java.lang.MockArithmeticException;
+import org.evosuite.runtime.mock.java.lang.MockArrayIndexOutOfBoundsException;
+import org.evosuite.runtime.mock.java.lang.MockError;
 import org.evosuite.runtime.mock.java.lang.MockException;
+import org.evosuite.runtime.mock.java.lang.MockIllegalAccessException;
+import org.evosuite.runtime.mock.java.lang.MockIllegalArgumentException;
+import org.evosuite.runtime.mock.java.lang.MockIllegalStateException;
+import org.evosuite.runtime.mock.java.lang.MockNullPointerException;
 import org.evosuite.runtime.mock.java.lang.MockRuntime;
+import org.evosuite.runtime.mock.java.lang.MockRuntimeException;
 import org.evosuite.runtime.mock.java.lang.MockThrowable;
 import org.evosuite.runtime.mock.java.util.MockDate;
 import org.evosuite.runtime.mock.java.util.MockGregorianCalendar;
@@ -74,11 +83,22 @@ public class MockList {
 			list.add(MockDate.class);
 			list.add(MockRandom.class);
 			list.add(MockGregorianCalendar.class);
-			list.add(MockLogRecord.class);
-			list.add(MockThrowable.class);
-			list.add(MockException.class);
 			list.add(MockRuntime.class);
 			list.add(MockTimer.class);
+			list.add(MockLogRecord.class);
+			
+			//exceptions
+			list.add(MockIOException.class);
+			list.add(MockArithmeticException.class);
+			list.add(MockArrayIndexOutOfBoundsException.class);
+			list.add(MockError.class);
+			list.add(MockException.class);
+			list.add(MockIllegalAccessException.class);
+			list.add(MockIllegalArgumentException.class);
+			list.add(MockIllegalStateException.class);
+			list.add(MockNullPointerException.class);
+			list.add(MockRuntimeException.class);
+			list.add(MockThrowable.class);
 		}
 
 		return list;
