@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.evosuite.runtime.reset.ClassResetter;
 import org.objectweb.asm.ClassVisitor;
@@ -55,6 +56,8 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 			.getLogger(CreateClassResetClassAdapter.class);
 
 	private boolean isInterface = false;
+	
+	private boolean isAnonymous = false;
 
 	private boolean clinitFound = false;
 
@@ -63,6 +66,8 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	private long serialUID = -1L;
 
 	private final List<String> finalFields = new ArrayList<String>();
+
+	private static final Pattern ANONYMOUS_MATCHER1 = Pattern.compile(".*\\$\\d+.*$");
 
 	/**
 	 * <p>
@@ -85,6 +90,9 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 			String superName, String[] interfaces) {
 		super.visit(version, access, name, signature, superName, interfaces);
 		isInterface = ((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE);
+		if (ANONYMOUS_MATCHER1.matcher(name).matches()) {
+			isAnonymous = true;
+		}
 	}
 
 	static class StaticField {
@@ -149,7 +157,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		MethodVisitor mv = super.visitMethod(methodAccess, methodName,
 				descriptor, signature, exceptions);
 
-		if (methodName.equals("<clinit>") && !isInterface) {
+		if (methodName.equals("<clinit>") && !isInterface && !isAnonymous) {
 			clinitFound = true;
 			logger.info("Found static initializer in class " + className);
 			//determineSerialisableUID();
@@ -177,7 +185,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 
 	@Override
 	public void visitEnd() {
-		if (!clinitFound && !isInterface) {
+		if (!clinitFound && !isInterface && !isAnonymous) {
 			// create brand new __STATIC_RESET
 			if (!definesUid) {
 				//determineSerialisableUID();

@@ -1,26 +1,9 @@
-/**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
- * contributors
- * 
- * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
 package org.evosuite.instrumentation;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,21 +11,15 @@ import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
+import org.evosuite.runtime.util.ComputeClassWriter;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * <em>Note:</em> Do not inadvertently use multiple instances of this class in
- * the application! This may lead to hard to detect and debug errors. Yet this
- * class cannot be an singleton as it might be necessary to do so...
- * 
- * @author roessler
- * @author Gordon Fraser
- */
-public class InstrumentingClassLoader extends ClassLoader {
-	private final static Logger logger = LoggerFactory.getLogger(InstrumentingClassLoader.class);
-	private final BytecodeInstrumentation instrumentation;
+public class NonInstrumentingClassLoader extends ClassLoader {
+	private final static Logger logger = LoggerFactory.getLogger(NonInstrumentingClassLoader.class);
 	private final ClassLoader classLoader;
 	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 
@@ -51,24 +28,11 @@ public class InstrumentingClassLoader extends ClassLoader {
 	 * Constructor for InstrumentingClassLoader.
 	 * </p>
 	 */
-	public InstrumentingClassLoader() {
-		this(new BytecodeInstrumentation());
+	public NonInstrumentingClassLoader(ClassLoader parent) {
+		super(parent);
 		setClassAssertionStatus(Properties.TARGET_CLASS, true);
-	}
+		classLoader = parent; //NonInstrumentingClassLoader.class.getClassLoader();
 
-	/**
-	 * <p>
-	 * Constructor for InstrumentingClassLoader.
-	 * </p>
-	 * 
-	 * @param instrumentation
-	 *            a {@link org.evosuite.instrumentation.BytecodeInstrumentation}
-	 *            object.
-	 */
-	public InstrumentingClassLoader(BytecodeInstrumentation instrumentation) {
-		super(InstrumentingClassLoader.class.getClassLoader());
-		classLoader = InstrumentingClassLoader.class.getClassLoader();
-		this.instrumentation = instrumentation;
 	}
 
 	public List<String> getViewOfInstrumentedClasses(){
@@ -81,13 +45,23 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public Class<?> loadClassFromFile(String fullyQualifiedTargetClass, String fileName) throws ClassNotFoundException {
 
 		String className = fullyQualifiedTargetClass.replace('.', '/');
+		Class<?> result = findLoadedClass(fullyQualifiedTargetClass);
+		if (result != null) {
+			return result;
+		} else {
+
+			result = classes.get(fullyQualifiedTargetClass);
+			if (result != null) {
+				return result;
+			}
+		}
 		InputStream is = null;
 		try {
 			is = new FileInputStream(new File(fileName));
-			byte[] byteBuffer = instrumentation.transformBytes(this, className,
+			byte[] byteBuffer = readBytes(this, className,
 			                                                   new ClassReader(is));
 			createPackageDefinition(fullyQualifiedTargetClass);
-			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
+			result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
 			                              byteBuffer.length);
 			classes.put(fullyQualifiedTargetClass, result);
 			logger.info("Keeping class: " + fullyQualifiedTargetClass);
@@ -135,6 +109,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 					//LoggingUtils.muteCurrentOutAndErrStream();
 					try {
 						instrumentedClass = instrumentClass(name);
+						classes.put(name, instrumentedClass);
 					} finally {
 						//LoggingUtils.restorePreviousOutAndErrStream();
 					}
@@ -143,17 +118,6 @@ public class InstrumentingClassLoader extends ClassLoader {
 			}
 
 		}
-		//} else {
-		//	logger.trace("Not instrumenting: " + name);
-		//}
-		/*
-		Class<?> result = findLoadedClass(name);
-		if (result != null) {
-		return result;
-		}
-		result = classLoader.loadClass(name);
-		return result;
-		*/
 	}
 
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
@@ -171,7 +135,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 						+ "' should be in target project, but could not be found!");
 			}
 			
-			byte[] byteBuffer = instrumentation.transformBytes(this, className,
+			byte[] byteBuffer = readBytes(this, className,
 			                                                   new ClassReader(is));
 			createPackageDefinition(fullyQualifiedTargetClass);
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
@@ -213,10 +177,22 @@ public class InstrumentingClassLoader extends ClassLoader {
 		    }
 	    }
 	}
-	
-	public BytecodeInstrumentation getInstrumentation() {
-		return instrumentation;
-	}
 
-	
+	public byte[] readBytes(ClassLoader classLoader, String className,
+	        ClassReader reader) {
+		int readFlags = ClassReader.SKIP_FRAMES;
+
+		/*
+		 *  To use COMPUTE_FRAMES we need to remove JSR commands.
+		 *  Therefore, we have a JSRInlinerAdapter in NonTargetClassAdapter
+		 *  as well as CFGAdapter.
+		 */
+		int asmFlags = ClassWriter.COMPUTE_FRAMES;
+		ClassWriter writer = new ComputeClassWriter(asmFlags);
+
+		ClassVisitor cv = writer;
+		cv = new NonTargetClassAdapter(cv, className);
+		reader.accept(cv, readFlags);
+		return writer.toByteArray();
+	}
 }

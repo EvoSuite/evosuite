@@ -273,6 +273,8 @@ public class InheritanceTreeGenerator {
 
 		} catch (IOException e) {
 			logger.error("", e);
+		} catch(java.lang.ArrayIndexOutOfBoundsException e) {
+			logger.error("ASM Error while reading class ("+e.getMessage()+")");
 		}
 	}
 
