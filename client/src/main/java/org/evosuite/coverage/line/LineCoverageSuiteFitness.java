@@ -127,7 +127,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			}
 
 			for (Integer line : result.getTrace().getCoveredLines()) {
-				if (! linesCoverageMap.containsKey(line)) {
+				if (linesCoverageMap.containsKey(line)) {
 					result.test.addCoveredGoal(linesCoverageMap.get(line));
 				}
 

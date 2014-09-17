@@ -29,6 +29,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.ExecutionObserver;
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
@@ -241,4 +242,8 @@ public class ContractChecker extends ExecutionObserver {
 		// ContractChecker.valid = true;
 	}
 
+	@Override
+	public void testExecutionFinished(ExecutionResult r) {
+		// do nothing
+	}
 }

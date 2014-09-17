@@ -3,6 +3,7 @@ package org.evosuite.testcarver.testcase;
 import org.evosuite.testcarver.capture.FieldRegistry;
 import org.evosuite.testcase.AssignmentStatement;
 import org.evosuite.testcase.ExecutionObserver;
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
@@ -66,6 +67,11 @@ public final class TestCarvingExecutionObserver extends ExecutionObserver {
 	 */
 	@Override
 	public void clear() {
+		// do nothing
+	}
+
+	@Override
+	public void testExecutionFinished(ExecutionResult r) {
 		// do nothing
 	}
 

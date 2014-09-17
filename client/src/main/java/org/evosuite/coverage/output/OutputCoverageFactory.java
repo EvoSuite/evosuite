@@ -17,7 +17,6 @@
  */
 package org.evosuite.coverage.output;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +25,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.testsuite.AbstractFitnessFactory;
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +37,17 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
 
 	private static final Logger logger = LoggerFactory.getLogger(OutputCoverageFactory.class);
 	
+	public static final String CHAR_ALPHA_SUFFIX = "alpha";
+	public static final String CHAR_DIGIT_SUFFIX = "digit";
+	public static final String CHAR_OTHER_SUFFIX = "other";
+	public static final String BOOL_TRUE_SUFFIX = "true";
+	public static final String BOOL_FALSE_SUFFIX = "false";
+	public static final String NUM_POSITIVE_SUFFIX = "positive";
+	public static final String NUM_ZERO_SUFFIX = "zero";
+	public static final String NUM_NEGATIVE_SUFFIX = "negative";
+	public static final String DEFAULT_SUFFIX = "default";
+	public static final String REF_NULL_SUFFIX = "null";
+	public static final String REF_NONNULL_SUFFIX = "nonnull";
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -55,26 +66,48 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
 		for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
 			if (!(targetClass.equals("") || className.endsWith(targetClass)))
 				continue ;
-			for (Method method : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClass().getMethods()) {
-				if (!matcher.methodMatches(method.getName()))
+			for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
+				if (!matcher.methodMatches(methodName))
 					continue ;
-				logger.info("Adding goal for method " + className + "." + method.getName());
-				
-				Class<?> type = method.getReturnType();
-				if (type.isPrimitive()) {
-					if (type.equals(java.lang.Boolean.TYPE)) {
-						// Create two goals True and False
-						//goals.add(new OutputCoverageTestFitness(className,method.getName()));
-					} else if  (type.equals(Number.class)) {
-						// Create three goals negative, zero, positive
-					}
-				} else {
-					// Create two goals: null and non-null
+				logger.info("Adding goals for method " + className + "." + methodName);
+				Type returnType = Type.getReturnType(methodName);
+				switch (returnType.getSort()) {
+				case Type.BOOLEAN:
+					goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), BOOL_TRUE_SUFFIX)));
+					goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), BOOL_FALSE_SUFFIX)));
+					break;
+				case Type.CHAR:
+					goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), OutputCoverageFactory.CHAR_ALPHA_SUFFIX)));
+					goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), OutputCoverageFactory.CHAR_DIGIT_SUFFIX)));
+					goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), OutputCoverageFactory.CHAR_OTHER_SUFFIX)));
+					break;
+				case Type.BYTE:
+				case Type.SHORT:
+				case Type.INT:
+				case Type.FLOAT:
+				case Type.LONG:
+				case Type.DOUBLE:
+					goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), NUM_NEGATIVE_SUFFIX)));
+					goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), NUM_ZERO_SUFFIX)));
+					goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), NUM_POSITIVE_SUFFIX)));		
+					break;
+				case Type.ARRAY:
+				case Type.OBJECT:
+					goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NULL_SUFFIX)));
+					goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL_SUFFIX)));
+					break;
+				default:
+					// Ignore
+					// TODO: what to do with the sort for METHOD?
+					break;
 				}
 			}
 		}		
 		goalComputationTime = System.currentTimeMillis() - start;
 		return goals;
 	}
-
+	
+	public static String goalString(String className, String methodName, String suffix) {
+		return new String(className + "." + methodName + ":" + suffix);
+	}
 }

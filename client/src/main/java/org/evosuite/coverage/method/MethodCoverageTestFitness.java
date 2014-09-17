@@ -34,6 +34,7 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
 	/** Target method */
 	private final String className;
 	private final String methodName;
+
 	/**
 	 * Constructor - fitness is specific to a method
 	 * @param className the class name
