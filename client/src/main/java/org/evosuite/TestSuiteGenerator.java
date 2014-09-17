@@ -1023,6 +1023,7 @@ public class TestSuiteGenerator {
 			return new AllDefsCoverageFactory();
 		case EXCEPTION:
 			return new BranchCoverageFactory();
+			// return new ExceptionCoverageFactory();
 		case ONLYBRANCH:
 			return new OnlyBranchCoverageFactory();
 		case METHOD:
@@ -1031,7 +1032,6 @@ public class TestSuiteGenerator {
 			return new LineCoverageFactory();
 		case OUTPUT:
 			return new OutputCoverageFactory();
-			// return new ExceptionCoverageFactory();
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");
