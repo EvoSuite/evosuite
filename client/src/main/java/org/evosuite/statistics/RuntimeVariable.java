@@ -87,6 +87,14 @@ public enum RuntimeVariable {
 	AmbiguityCoverage,
 	/** Not only the covered branches ratio, but also including the branchless methods. FIXME: this will need to be changed */
 	BranchCoverage,
+	/** Only the covered branches ratio. */
+	OnlyBranchCoverage,
+	/** The obtained method coverage */
+	MethodCoverage,
+	/** The obtained line coverage */
+	LineCoverage,
+	/** The obtained output value coverage */
+	OutputCoverage,
 	/** A bit string (0/1) representing whether branches (in order) are covered */
 	CoveredBranchesBitString,
 	/** The obtained score for weak mutation testing */

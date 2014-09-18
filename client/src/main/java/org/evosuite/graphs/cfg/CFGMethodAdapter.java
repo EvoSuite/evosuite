@@ -43,6 +43,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.slf4j.Logger;
@@ -147,7 +148,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-		if("Lorg/evosuite/annotation/EvoSuiteExclude;".equals(desc)) {
+		if(Type.getDescriptor(org.evosuite.annotation.EvoSuiteExclude.class).equals(desc)) {
 			logger.info("Method has EvoSuite annotation: "+desc);
 			excludeMethod = true;
 		}
@@ -263,6 +264,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 		} else {
 			logger.debug("NOT Creating CFG of "+className+"."+methodName+": "+checkForMain+", "+((!isExcludedMethod || executeOnExcluded)) +", "+((access & Opcodes.ACC_ABSTRACT) == 0)+", "+((access & Opcodes.ACC_NATIVE) == 0));
+			super.visitEnd();
 		}
 		mn.accept(next);
 	}

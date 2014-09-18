@@ -23,6 +23,7 @@ import java.lang.reflect.Modifier;
 import java.util.regex.Pattern;
 
 import org.evosuite.testcase.CodeUnderTestException;
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
@@ -94,5 +95,10 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 		} catch (CodeUnderTestException e) {
 			logger.debug("", e);			
 		}
+	}
+
+	@Override
+	public void testExecutionFinished(ExecutionResult r) {
+		// do nothing
 	}
 }

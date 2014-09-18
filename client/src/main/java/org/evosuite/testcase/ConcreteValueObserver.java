@@ -66,4 +66,8 @@ public class ConcreteValueObserver extends ExecutionObserver {
 
 	}
 
+	@Override
+	public void testExecutionFinished(ExecutionResult r) {
+		// do nothing
+	}
 }

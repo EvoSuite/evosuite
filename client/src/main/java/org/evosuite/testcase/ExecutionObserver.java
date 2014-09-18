@@ -101,6 +101,11 @@ public abstract class ExecutionObserver {
 	        Throwable exception);
 
 	/**
+	 * Allow observers to update the execution result at the end the execution of a test.
+	 */
+	public abstract void testExecutionFinished(ExecutionResult r);
+	
+	/**
 	 * Need a way to clear previously produced results
 	 */
 	public abstract void clear();
