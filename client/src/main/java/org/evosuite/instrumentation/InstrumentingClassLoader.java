@@ -108,6 +108,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 	/** {@inheritDoc} */
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
+		if("<evosuite>".equals(name))
+			throw new ClassNotFoundException();
 		//if (instrumentation.isTargetProject(name)) {
 		// if (TestCluster.isTargetClassName(name)) {
 		if (!BytecodeInstrumentation.checkIfCanInstrument(name)
