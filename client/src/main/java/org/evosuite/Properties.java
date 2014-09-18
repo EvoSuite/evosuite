@@ -715,7 +715,7 @@ public class Properties {
 	public static String TOOLS_JAR_LOCATION = null;
 
 	@Parameter(key = "pure_inspectors", group = "Output", description = "Selects only an underapproximation of all inspectors that are also pure (no side-effects)")
-	public static boolean PURE_INSPECTORS = false;
+	public static boolean PURE_INSPECTORS = true;
 
 	@Parameter(key = "pure_equals", group = "Output", description = "Selects only an underapproximation of equals(Object) that are also known to be pure (no side-effects)")
 	public static boolean PURE_EQUALS = false;
