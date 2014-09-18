@@ -69,6 +69,8 @@ import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodCoverageFactory;
 import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
+import org.evosuite.coverage.method.MethodNoExceptionCoverageFactory;
+import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.mutation.MutationFactory;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
@@ -885,11 +887,16 @@ public class TestSuiteGenerator {
 			break;
 		case ONLYBRANCH:
 			LoggingUtils.getEvoLogger().info("  - Only-Branch coverage");
+            break;
 		case METHOD:
 			LoggingUtils.getEvoLogger().info("  - Method coverage");
+            break;
+		case METHODNOEXCEPTION:
+			LoggingUtils.getEvoLogger().info("  - Method (No Exception) coverage");
 			break;
 		case LINE:
 			LoggingUtils.getEvoLogger().info("  - Line coverage");
+            break;
 		case OUTPUT:
 			LoggingUtils.getEvoLogger().info("  - Method-Output coverage");
 			break;
@@ -959,6 +966,8 @@ public class TestSuiteGenerator {
 		    return new OnlyBranchCoverageSuiteFitness();
 		case METHOD:
 		    return new MethodCoverageSuiteFitness();
+		case METHODNOEXCEPTION:
+		    return new MethodNoExceptionCoverageSuiteFitness();
 		case LINE:
 		    return new LineCoverageSuiteFitness();
 		case OUTPUT:
@@ -1028,6 +1037,8 @@ public class TestSuiteGenerator {
 			return new OnlyBranchCoverageFactory();
 		case METHOD:
 			return new MethodCoverageFactory();
+		case METHODNOEXCEPTION:
+			return new MethodNoExceptionCoverageFactory();
 		case LINE:
 			return new LineCoverageFactory();
 		case OUTPUT:

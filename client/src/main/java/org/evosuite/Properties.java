@@ -1158,6 +1158,7 @@ public class Properties {
 		READABILITY,
 		ONLYBRANCH,
 		METHOD,
+		METHODNOEXCEPTION,
 		LINE,
 		OUTPUT
 	}
