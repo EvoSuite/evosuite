@@ -181,6 +181,8 @@ public class CoverageAnalysis {
 			return RuntimeVariable.OnlyBranchCoverage;
 		case METHOD:
 			return RuntimeVariable.MethodCoverage;
+		case METHODNOEXCEPTION:
+			return RuntimeVariable.MethodNoExceptionCoverage;
 		case LINE:
 			return RuntimeVariable.LineCoverage;
 		case OUTPUT:
