@@ -45,14 +45,15 @@ public class ChromosomeTest extends SystemTest {
 		c.getFitness();
 	}
 
-	@Test(expected=AssertionError.class)
 	public void testGetFitnessForOneFunctionNoCompositional() {
 		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
 		Properties.COMPOSITIONAL_FITNESS = false;
         TestSuiteChromosome c = new TestSuiteChromosome();
-        c.addFitness(new StatementCoverageSuiteFitness());
-		c.addFitness(new BranchCoverageSuiteFitness());
-		c.getFitness();
+        double ANY_DOUBLE = 2.0;
+        double ANY_DOUBLE2 = 5.0;
+        c.addFitness(new StatementCoverageSuiteFitness(), ANY_DOUBLE);
+		c.addFitness(new BranchCoverageSuiteFitness(), ANY_DOUBLE2);
+		assertEquals(ANY_DOUBLE, c.getFitness(), 0.001);
 	}
 	
 	@Test

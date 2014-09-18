@@ -32,8 +32,8 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
 	private static final long serialVersionUID = 3624503060256855484L;
 
 	/** Target method */
-	private final String className;
-	private final String methodName;
+	protected final String className;
+	protected final String methodName;
 
 	/**
 	 * Constructor - fitness is specific to a method
