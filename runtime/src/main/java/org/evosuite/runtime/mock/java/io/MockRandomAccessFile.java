@@ -11,6 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.evosuite.runtime.LeakingResource;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
+import org.evosuite.runtime.mock.java.lang.MockIllegalArgumentException;
+import org.evosuite.runtime.mock.java.lang.MockNullPointerException;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 
@@ -62,7 +64,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 		String name = (file != null ? file.getPath() : null);
 		
 		if (mode==null || (!mode.equals("r") && !mode.equals("rw") && !mode.equals("rws") && !mode.equals("rwd")) ){
-			throw new IllegalArgumentException("Illegal mode \"" + mode
+			throw new MockIllegalArgumentException("Illegal mode \"" + mode
 					+ "\" must be one of "
 					+ "\"r\", \"rw\", \"rws\","
 					+ " or \"rwd\"");
@@ -73,7 +75,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 		canWrite = mode.contains("w");
 		
 		if (name == null) {
-			throw new NullPointerException();
+			throw new MockNullPointerException();
 		}
 				
 		path = (file != null ? file.getAbsolutePath() : null);
@@ -110,7 +112,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 		}
 
 		if(closed){
-			throw new IOException();
+			throw new MockIOException();
 		}
 		
 		//no need to check canRead, as should be always true
@@ -155,10 +157,10 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 		}
 
 		if(pos < 0){
-			throw new IOException("Negative position: "+pos);
+			throw new MockIOException("Negative position: "+pos);
 		}
 		if(pos > Integer.MAX_VALUE){
-			throw new IOException("Virtual file system does not handle files larger than  "+Integer.MAX_VALUE+" bytes");
+			throw new MockIOException("Virtual file system does not handle files larger than  "+Integer.MAX_VALUE+" bytes");
 		}
 		position.set((int)pos);
 	}
@@ -170,7 +172,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 		}
 
 		if(closed){
-			throw new IOException();
+			throw new MockIOException();
 		}
 		return NativeMockedIO.size(path);
 	}

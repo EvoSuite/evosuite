@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.evosuite.runtime.LeakingResource;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
+import org.evosuite.runtime.mock.java.lang.MockNullPointerException;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 
@@ -58,7 +59,7 @@ public class MockFileInputStream extends FileInputStream implements LeakingResou
 
 		path = (file != null ? file.getAbsolutePath() : null);
 		if (path == null) {
-			throw new NullPointerException();
+			throw new MockNullPointerException();
 		}
 
 		VFile vf = NativeMockedIO.getFileForReading(path);
@@ -123,7 +124,7 @@ public class MockFileInputStream extends FileInputStream implements LeakingResou
 		}
 		
 		if(n<0){
-			throw new IOException();
+			throw new MockIOException();
 		}
 
 		throwExceptionIfClosed();
@@ -144,7 +145,7 @@ public class MockFileInputStream extends FileInputStream implements LeakingResou
 
 		VFile vf = NativeMockedIO.getFileForReading(path);
 		if(vf==null){
-			throw new IOException();
+			throw new MockIOException();
 		}
 
 		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(path);
@@ -210,7 +211,7 @@ public class MockFileInputStream extends FileInputStream implements LeakingResou
 
 	private void throwExceptionIfClosed() throws IOException{
 		if(closed){
-			throw new IOException();
+			throw new MockIOException();
 		}
 	}
 

@@ -15,6 +15,7 @@ import java.nio.charset.UnsupportedCharsetException;
 
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
+import org.evosuite.runtime.mock.java.lang.MockNullPointerException;
 
 public class MockPrintWriter extends PrintWriter  implements OverrideMock{
 
@@ -93,7 +94,7 @@ public class MockPrintWriter extends PrintWriter  implements OverrideMock{
 			throws UnsupportedEncodingException {
 		// Objects.requireNonNull(csn, "charsetName");
 		if(csn == null)
-			throw new NullPointerException("charsetName");
+			throw new MockNullPointerException("charsetName");
 
 		try {
 			return Charset.forName(csn);
