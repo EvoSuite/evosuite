@@ -156,7 +156,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				continue;
 
 			Integer exceptionPosition = result.getFirstPositionOfThrownException();
-			StatementInterface statement = result.test.getStatement(exceptionPosition);
+			
+			StatementInterface statement = null;
+			if(result.test.hasStatement(exceptionPosition))
+				statement = result.test.getStatement(exceptionPosition);
 			if (statement instanceof ConstructorStatement) {
 				ConstructorStatement c = (ConstructorStatement) statement;
 				String className = c.getConstructor().getName();
