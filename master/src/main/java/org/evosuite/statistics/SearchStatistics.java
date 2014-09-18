@@ -164,7 +164,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		String[] essentials = new String[] {  //TODO maybe add some more
 				"TARGET_CLASS" , "criterion", 
 				RuntimeVariable.Coverage.toString(),
-				RuntimeVariable.BranchCoverage.toString(),
+				//TODO: why is this fixed?
+				//RuntimeVariable.BranchCoverage.toString(),
 				RuntimeVariable.Total_Goals.toString(),
 				RuntimeVariable.Covered_Goals.toString()
 				};

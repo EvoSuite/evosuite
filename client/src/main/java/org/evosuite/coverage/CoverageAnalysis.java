@@ -177,6 +177,14 @@ public class CoverageAnalysis {
 			return RuntimeVariable.MutationScore;
 		case WEAKMUTATION:
 			return RuntimeVariable.WeakMutationScore;
+		case ONLYBRANCH:
+			return RuntimeVariable.OnlyBranchCoverage;
+		case METHOD:
+			return RuntimeVariable.MethodCoverage;
+		case LINE:
+			return RuntimeVariable.LineCoverage;
+		case OUTPUT:
+			return RuntimeVariable.OutputCoverage;
 		case IBRANCH:
 		case LCSAJ:
 		case PATH:

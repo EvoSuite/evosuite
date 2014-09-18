@@ -52,6 +52,8 @@ import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
+import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.AllDefsCoverageFactory;
 import org.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
@@ -65,11 +67,17 @@ import org.evosuite.coverage.lcsaj.LCSAJ;
 import org.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import org.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
 import org.evosuite.coverage.lcsaj.LCSAJCoverageTestFitness;
+import org.evosuite.coverage.line.LineCoverageFactory;
+import org.evosuite.coverage.line.LineCoverageSuiteFitness;
+import org.evosuite.coverage.method.MethodCoverageFactory;
+import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
 import org.evosuite.coverage.mutation.MutationFactory;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
 import org.evosuite.coverage.mutation.WeakMutationSuiteFitness;
+import org.evosuite.coverage.output.OutputCoverageFactory;
+import org.evosuite.coverage.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.path.PrimePathCoverageFactory;
 import org.evosuite.coverage.path.PrimePathSuiteFitness;
 import org.evosuite.coverage.readability.ReadabilitySuiteFitness;
@@ -146,7 +154,6 @@ import org.evosuite.testcarver.testcase.TestCarvingExecutionObserver;
 import org.evosuite.testcase.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ConstantInliner;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.JUnitTestCarvedChromosomeFactory;
@@ -681,7 +688,7 @@ public class TestSuiteGenerator {
 		}
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
 		                                                                 goals.size());
-
+		LoggingUtils.getEvoLogger().info("* Goals: {}", goals.toString() );
 		List<TestSuiteChromosome> bestSuites = new ArrayList<TestSuiteChromosome>();
 		if (!(Properties.STOP_ZERO && goals.isEmpty())) {
 			// Perform search
@@ -1301,6 +1308,16 @@ public class TestSuiteGenerator {
 		case EXCEPTION:
 			LoggingUtils.getEvoLogger().info("  - Exception");
 			break;
+		case ONLYBRANCH:
+			LoggingUtils.getEvoLogger().info("  - Only-Branch coverage");
+		case METHOD:
+			LoggingUtils.getEvoLogger().info("  - Method coverage");
+			break;
+		case LINE:
+			LoggingUtils.getEvoLogger().info("  - Line coverage");
+		case OUTPUT:
+			LoggingUtils.getEvoLogger().info("  - Method-Output coverage");
+			break;
 		default:
 			LoggingUtils.getEvoLogger().info("  - Branch coverage");
 		}
@@ -1363,6 +1380,14 @@ public class TestSuiteGenerator {
 			return new RegressionSuiteFitness();
 		case READABILITY:
 		    return new ReadabilitySuiteFitness();
+		case ONLYBRANCH:
+		    return new OnlyBranchCoverageSuiteFitness();
+		case METHOD:
+		    return new MethodCoverageSuiteFitness();
+		case LINE:
+		    return new LineCoverageSuiteFitness();
+		case OUTPUT:
+		    return new OutputCoverageSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");
@@ -1424,6 +1449,14 @@ public class TestSuiteGenerator {
 		case EXCEPTION:
 			return new BranchCoverageFactory();
 			// return new ExceptionCoverageFactory();
+		case ONLYBRANCH:
+			return new OnlyBranchCoverageFactory();
+		case METHOD:
+			return new MethodCoverageFactory();
+		case LINE:
+			return new LineCoverageFactory();
+		case OUTPUT:
+			return new OutputCoverageFactory();
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");

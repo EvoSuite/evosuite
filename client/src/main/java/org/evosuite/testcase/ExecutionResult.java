@@ -94,6 +94,9 @@ public class ExecutionResult implements Cloneable {
 	/** Output traces produced by observers */
 	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
 
+	/** Mapping of method statements to actual return values */
+	private Map<MethodStatement, Object> returnValues;
+
 	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
 	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
 
@@ -447,4 +450,15 @@ public class ExecutionResult implements Cloneable {
 	public void setWasAnyPropertyWritten(boolean wasAnyPropertyWritten) {
 		this.wasAnyPropertyWritten = wasAnyPropertyWritten;
 	}
+
+	public Map<MethodStatement, Object> getReturnValues() {
+		if (this.returnValues == null)
+			this.returnValues = new HashMap<MethodStatement, Object>(); 
+		return this.returnValues;
+	}
+
+	public void setReturnValues(Map<MethodStatement, Object> returnValues) {
+		this.returnValues = returnValues;		
+	}
+	
 }

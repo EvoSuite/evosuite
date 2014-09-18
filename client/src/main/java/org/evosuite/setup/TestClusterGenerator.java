@@ -20,6 +20,7 @@
  */
 package org.evosuite.setup;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -53,6 +54,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.annotation.EvoSuiteExclude;
 import org.evosuite.classpath.ResourceList;
+import org.evosuite.graphs.GraphPool;
 import org.evosuite.instrumentation.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.mock.MockList;
@@ -987,6 +989,14 @@ public class TestClusterGenerator {
 		if (m.isAnnotationPresent(EvoSuiteExclude.class)) {
 			logger.debug("Excluding method with exclusion annotation " + m.getName());
 			return false;
+		} else {
+			logger.debug("Method has no exclusion annotation " + m.getName());
+			for(Annotation a : m.getDeclaredAnnotations()) {
+				logger.debug("1 Has annotation: "+a);
+			}
+			for(Annotation a : m.getAnnotations()) {
+				logger.debug("2 Has annotation: "+a);
+			}
 		}
 
 		if (m.getDeclaringClass().equals(java.lang.Object.class)) {
@@ -1016,9 +1026,17 @@ public class TestClusterGenerator {
 			return false;
 
 		// Hashcode only if we need to cover it
-		if (m.getName().equals("hashCode")
-		        && !m.getDeclaringClass().equals(Properties.getTargetClass()))
-			return false;
+		if (m.getName().equals("hashCode")) {
+		        if(!m.getDeclaringClass().equals(Properties.getTargetClass()))
+		        	return false;
+		        else {
+		        	if(GraphPool.getInstance(ownerClass.getClassLoader()).getActualCFG(Properties.TARGET_CLASS, m.getName() + Type.getMethodDescriptor(m)) == null) {
+		        		// Don't cover generated hashCode
+		        		// TODO: This should work via annotations
+		        		return false;
+		        	}
+		        }
+		}
 
 		// Randoop special case: just clumps together a bunch of hashCodes, so skip it
 		if (m.getName().equals("deepHashCode")
@@ -1484,7 +1502,7 @@ public class TestClusterGenerator {
 					logger.debug("Adding method " + clazz.getClassName() + "."
 					        + method.getName()
 					        + org.objectweb.asm.Type.getMethodDescriptor(method));
-
+					logger.debug("HashCode: "+(method.getName().equals("hashCode"))+", "+method.getName());
 					if (method.getTypeParameters().length > 0) {
 						logger.info("Type parameters in methods are not handled yet, skipping "
 						        + method);

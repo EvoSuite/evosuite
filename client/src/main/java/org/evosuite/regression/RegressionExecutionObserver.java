@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.evosuite.testcase.ExecutionObserver;
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
@@ -140,6 +141,13 @@ public class RegressionExecutionObserver extends ExecutionObserver {
 		
 		objectMapPool = new ArrayList<List<Map<Integer,Map<String, Map<String, Object>>>>>();
 		regressionObjectMapPool = new ArrayList<List<Map<Integer,Map<String, Map<String, Object>>>>>();
+		
+	}
+
+
+	@Override
+	public void testExecutionFinished(ExecutionResult r) {
+		// TODO Auto-generated method stub
 		
 	}
 

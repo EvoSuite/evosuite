@@ -74,7 +74,8 @@ public class RuntimeInstrumentation {
                 "org.apache.commons.logging.Log",// Leads to ExceptionInInitializerException when re-instrumenting classes that use a logger
                 "org.jcp.xml.dsig.internal.dom.", //Security exception in ExecutionTracer?
                 "com_cenqua_clover", "com.cenqua", //these are for Clover code coverage instrumentation
-                "javafx." // JavaFX crashes when instrumented
+                "javafx.", // JavaFX crashes when instrumented
+                "ch.qos.logback" // Instrumentation makes logger events sent to the master un-serialisable
         };
     }
 

@@ -279,7 +279,11 @@ public class Properties {
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.STEADYSTATEGA;
 
-	/** Constant <code>ALGORITHM</code> */
+	/** Constant <code>COMPOSITIONAL_FITNESS=false</code> */
+	@Parameter(key = "compositional_fitness", group = "Search Algorithm", description = "Compositional fitness function")
+	public static boolean COMPOSITIONAL_FITNESS = false;
+	
+	/** Constant <code>RANDOM_SEED</code> */
 	@Parameter(key = "random_seed", group = "Search Algorithm", description = "Seed used for random generator. If left empty, use current time")
 	public static Long RANDOM_SEED = null;
 
@@ -1152,7 +1156,11 @@ public class Properties {
 		IBRANCH,
 		REGRESSION,
 		REGRESSIONTESTS,
-		READABILITY
+		READABILITY,
+		ONLYBRANCH,
+		METHOD,
+		LINE,
+		OUTPUT
 	}
 
 	/** Cache target class */
