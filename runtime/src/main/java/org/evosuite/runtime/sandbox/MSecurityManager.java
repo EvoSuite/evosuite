@@ -18,8 +18,11 @@
 package org.evosuite.runtime.sandbox;
 
 import java.awt.AWTPermission;
+import java.awt.print.Printable;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilePermission;
+import java.io.PrintStream;
 import java.io.SerializablePermission;
 import java.lang.management.ManagementPermission;
 import java.lang.reflect.Method;
@@ -331,17 +334,17 @@ public class MSecurityManager extends SecurityManager {
 
 	public void goingToExecuteTestCase() throws IllegalStateException {
 		if (executingTestCase) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("Trying to set up the sandbox while executing a test case");
 		}
 		
-		executingTestCase = true;		
+		executingTestCase = true;
 	}
 
 	public void goingToEndTestCase() throws IllegalStateException {
 		if (!executingTestCase) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("Trying to disable sandbox when not test case was run");
 		}
-
+		
 		/*
 		 * it is important to call this method here as soon as the test case
 		 * has finished executing, because properties could be used by 
