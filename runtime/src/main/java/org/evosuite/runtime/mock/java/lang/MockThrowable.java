@@ -133,9 +133,9 @@ public class MockThrowable extends Throwable  implements OverrideMock {
 		try{
 			return super.initCause(cause);
 		} catch(IllegalStateException e){
-			throw new IllegalStateException(e.getMessage()); //FIXME
+			throw new MockIllegalStateException(e.getMessage());
 		} catch(IllegalArgumentException e){
-			throw new IllegalArgumentException(e.getMessage()); //FIXME
+			throw new MockIllegalArgumentException(e.getMessage()); //FIXME
 		}
 	}
 
@@ -200,7 +200,7 @@ public class MockThrowable extends Throwable  implements OverrideMock {
 		StackTraceElement[] defensiveCopy = stackTrace.clone();
 		for (int i = 0; i < defensiveCopy.length; i++) {
 			if (defensiveCopy[i] == null)
-				throw new NullPointerException("stackTrace[" + i + "]");  //FIXME
+				throw new MockNullPointerException("stackTrace[" + i + "]");  //FIXME
 		}
 
 		synchronized (this) {            

@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 
-public class MockException extends Exception  implements OverrideMock{
+public class MockNullPointerException extends NullPointerException  implements OverrideMock{
 
 	/*
 	 * "Exception" class only defines constructors, like all (?) its subclasses.
@@ -39,32 +39,16 @@ public class MockException extends Exception  implements OverrideMock{
 	
 	// ----- constructor --------
 	
-	public MockException() {
+	public MockNullPointerException() {
 		super();
 		delegate = new MockThrowable();
 	}
 	
-	public MockException(String message) {
+	public MockNullPointerException(String message) {
 		super(message);
 		delegate = new MockThrowable(message);
 	}
 
-	public MockException(Throwable cause) {
-		super(cause);
-		delegate = new MockThrowable(cause);
-	}
-
-	public MockException(String message, Throwable cause) {
-		super(message, cause);
-		delegate = new MockThrowable(message, cause);
-	}
-	
-	protected MockException(String message, Throwable cause,
-			boolean enableSuppression,
-			boolean writableStackTrace) {
-		super(message,cause,enableSuppression,writableStackTrace);
-		delegate = new MockThrowable(message, cause, enableSuppression, writableStackTrace);
-	}
 	
 	
 	// ----- delegation methods -------

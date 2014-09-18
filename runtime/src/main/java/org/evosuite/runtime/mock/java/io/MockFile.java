@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
+import org.evosuite.runtime.mock.java.lang.MockIllegalArgumentException;
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VFolder;
@@ -93,7 +94,7 @@ public class MockFile extends File implements OverrideMock {
 		
 		String path = VirtualFileSystem.getInstance().createTempFile(prefix, suffix, directory);
 		if(path==null){
-			throw new IOException();
+			throw new MockIOException();
 		}
 		return new MockFile(path); 
 	}
@@ -305,7 +306,7 @@ public class MockFile extends File implements OverrideMock {
 		}
 		
 		if (time < 0){
-        		throw new IllegalArgumentException("Negative time");
+        		throw new MockIllegalArgumentException("Negative time");
         }
         
 		FSObject target = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());

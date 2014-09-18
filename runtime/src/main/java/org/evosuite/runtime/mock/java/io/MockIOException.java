@@ -1,12 +1,14 @@
-package org.evosuite.runtime.mock.java.lang;
+package org.evosuite.runtime.mock.java.io;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
+import org.evosuite.runtime.mock.java.lang.MockThrowable;
 
-public class MockException extends Exception  implements OverrideMock{
+public class MockIOException extends IOException  implements OverrideMock{
 
 	/*
 	 * "Exception" class only defines constructors, like all (?) its subclasses.
@@ -18,14 +20,14 @@ public class MockException extends Exception  implements OverrideMock{
 	 *  
 	 *  WARN: any change would likely end up in having to redo the copy&paste :(  
 	 */
-	
+
 	private static final long serialVersionUID = 8001149552489118355L;
 
 	/**
 	 * Instead of copy&paste functionalities from MockThrowable, use a delegate
 	 */
 	private volatile MockThrowable delegate;
-	
+
 	/*
 	 * This is needed for when super constructors call overridden methods,
 	 * and proper delegate method (right inputs) is not instantiated yet  
@@ -36,39 +38,32 @@ public class MockException extends Exception  implements OverrideMock{
 		}
 		return delegate;
 	}
-	
+
 	// ----- constructor --------
-	
-	public MockException() {
+
+	public MockIOException() {
 		super();
 		delegate = new MockThrowable();
 	}
-	
-	public MockException(String message) {
+
+	public MockIOException(String message) {
 		super(message);
 		delegate = new MockThrowable(message);
 	}
 
-	public MockException(Throwable cause) {
+	public MockIOException(Throwable cause) {
 		super(cause);
 		delegate = new MockThrowable(cause);
 	}
 
-	public MockException(String message, Throwable cause) {
+	public MockIOException(String message, Throwable cause) {
 		super(message, cause);
 		delegate = new MockThrowable(message, cause);
 	}
-	
-	protected MockException(String message, Throwable cause,
-			boolean enableSuppression,
-			boolean writableStackTrace) {
-		super(message,cause,enableSuppression,writableStackTrace);
-		delegate = new MockThrowable(message, cause, enableSuppression, writableStackTrace);
-	}
-	
-	
+
+
 	// ----- delegation methods -------
-	
+
 	@Override
 	public String getMessage() {		
 		if(!MockFramework.isEnabled()){
