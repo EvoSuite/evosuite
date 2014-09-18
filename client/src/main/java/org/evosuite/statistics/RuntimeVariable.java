@@ -91,6 +91,8 @@ public enum RuntimeVariable {
 	OnlyBranchCoverage,
 	/** The obtained method coverage */
 	MethodCoverage,
+	/** The obtained method coverage (only normal behaviour) */
+	MethodNoExceptionCoverage,
 	/** The obtained line coverage */
 	LineCoverage,
 	/** The obtained output value coverage */

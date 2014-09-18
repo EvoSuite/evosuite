@@ -80,13 +80,14 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 */
 	public double getFitness() {
 		assert Properties.ALGORITHM != Properties.Algorithm.NSGAII;
-		if (! Properties.COMPOSITIONAL_FITNESS)
-			assert (fitnesses.size() <= 1); //TODO: Check with minimisation on
-		double sumFitnesses = 0.0;
-		for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
-			sumFitnesses += fitnesses.get( fitnessFunction );
-		}
-		return sumFitnesses;
+		if (Properties.COMPOSITIONAL_FITNESS) {
+            double sumFitnesses = 0.0;
+            for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+                sumFitnesses += fitnesses.get(fitnessFunction);
+            }
+            return sumFitnesses;
+        } else
+            return fitnesses.isEmpty() ? 0.0 : fitnesses.get( fitnesses.keySet().iterator().next() );
 	}
 
 	public double getFitness(FitnessFunction<?> ff) {

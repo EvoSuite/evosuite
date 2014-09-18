@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * Used to wrap exceptions thrown in code under test. This is needed as VariableReference.getObjects/.setObject
  * and AbstractStatement.execute() do not operate on the same layer.
  *
- * With the introduction of FieldReferences VariableReferences can throw arbitrary (of cource wrapped) exceptions,
+ * With the introduction of FieldReferences VariableReferences can throw arbitrary (of course wrapped) exceptions,
  * as a Field.get() can trigger static{} blocks
  *
  * @author Sebastian Steenbuck
@@ -73,8 +73,8 @@ public class CodeUnderTestException extends Exception{
 		}else if(e instanceof ExceptionInInitializerError){
 			throw (ExceptionInInitializerError)e;
 		}else{
-			logger.error("We expected the exception to be one of the listed but it was", e);
-			throw new AssertionError("We expected the exception to be one of the listed but it was" + e.getClass());
+			logger.error("We expected the exception to be one of the listed but it was ", e);
+			throw new AssertionError("We expected the exception to be one of the listed but it was " + e.getClass());
 		}
 	}
 }
