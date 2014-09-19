@@ -17,7 +17,6 @@
  */
 package org.evosuite.coverage.method;
 
-import com.sun.deploy.util.OrderedHashSet;
 import org.evosuite.Properties;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.testcase.*;

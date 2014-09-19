@@ -170,7 +170,7 @@ public class JUnitAnalyzer {
 				
 				if(testName == null){
 					/*
-					 * this can happen if there is a failure in the scaffolding (eg @After/@Before).
+					 * this can happen if there is a failure in the scaffolding (eg @AfterClass/@BeforeClass).
 					 * in such case, everything need to be deleted
 					 */
 					logger.error("Issue in scaffolding of the test suite. Stack trace:");
@@ -310,8 +310,10 @@ public class JUnitAnalyzer {
 		TestSuiteWriter suite = new TestSuiteWriter();
 		suite.insertTests(tests);
 
-		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-		name += (NUM++) + "_Test" ; //postfix
+        //to get name, remove all package before last '.'
+        int beginIndex = Properties.TARGET_CLASS.lastIndexOf(".") + 1;
+		String name = Properties.TARGET_CLASS.substring(beginIndex);
+		name += "_" +(NUM++) + "_tmp_" + Properties.JUNIT_SUFFIX ; //postfix
 
 		try {
 			//now generate the JUnit test case
