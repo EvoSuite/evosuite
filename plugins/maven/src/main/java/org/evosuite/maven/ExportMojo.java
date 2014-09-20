@@ -48,7 +48,7 @@ public class ExportMojo extends AbstractMojo{
 		getLog().info("Exporting tests");
 
 		File basedir = project.getBasedir();
-				
+
 		String evoFolderName = Properties.CTG_FOLDER+File.separator+ StorageManager.TEST_FOLDER_NAME;
 		File evoFolder = new File(basedir.getAbsolutePath()+File.separator+evoFolderName);
 		
