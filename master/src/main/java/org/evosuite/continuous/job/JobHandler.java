@@ -256,7 +256,7 @@ public class JobHandler extends Thread {
 
 		commands.addAll(getOutputVariables());
 
-		commands.add("-Djunit_suffix=" + StorageManager.junitSuffix);
+		commands.add("-Djunit_suffix=" + Properties.JUNIT_SUFFIX);
 
 		commands.add("-Denable_asserts_for_evosuite=" + Properties.ENABLE_ASSERTS_FOR_EVOSUITE);
 		String confId = Properties.CONFIGURATION_ID;

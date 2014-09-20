@@ -66,7 +66,8 @@ This is required for when EvoSuite tests are mixed with manually written existin
 The "evosuite" plugin provides the following goals:
 
 1) "generate" ->  this is used to generate test cases with EvoSuite. Tests will be generated for
-all classes in all submodules. This target as the following parameters:
+all classes in all submodules. You need to be sure the code is compiled, eg "mvn compile evosuite:generate".
+This target as the following parameters:
 - "memoryInMB": total amount of megabytes EvoSuite is allowed to allocate (default 800)
 - "cores": total number of CPU cores EvoSuite can use (default 1)
 - "timeInMinutesPerClass": how many minutes EvoSuite can spend generating tests for each class (default 2)
@@ -75,7 +76,7 @@ all classes in all submodules. This target as the following parameters:
 2) "info" -> provide info on all the generated tests so far 
 
 
-3) "export" -> by default, EvoSuite creates the tests in the ".continuous_evosuite/evosuite-tests" folder.
+3) "export" -> by default, EvoSuite creates the tests in the ".evosuite/evosuite-tests" folder.
 By using "export", the generated tests will be copied over to another folder, which can
 be set with the "targetFolder" option (default value is "src/test/java").
 Note: if you do not export the tests into "src/test/java" with "mvn evosuite:export", then
@@ -95,18 +96,22 @@ build path. You can add custom source folders with "build-helper-maven-plugin" p
             </goals>
             <configuration>
             	<sources>
-                    <source>.continuous_evosuite/evosuite-tests</source>
+                    <source>${customFolder}</source>
             	</sources>
             </configuration>
         </execution>
     </executions>
 </plugin>
 
-(Need to check difference with "<build><testSourceDirectory>", which is recognized by
-IntelliJ, whereas "build-helper-maven-plugin" is not)
+If ${customFolder} is equal to ".evosuite/evosuite-tests", then you do not need to use "evosuite:export".
+(If you do, then you will get compilation errors, as each test will appear twice on the classpath).
+
+Note: another approach is to override "<build><testSourceDirectory>" to point to ${customFolder}.
+This can be useful if one wants to run "mvn test" only on the EvoSuite generated ones (eg, if having 2 different
+configurations/profiles on Jenkins, one running only the existing manual tests, and the other only the EvoSuite ones).
 
 
-4) "clean" -> delete _all_ data in the ".continuous_evosuite" folder, which is used to
+4) "clean" -> delete _all_ data in the ".evosuite" folder, which is used to
 store all the best tests generated so far.
 
 
