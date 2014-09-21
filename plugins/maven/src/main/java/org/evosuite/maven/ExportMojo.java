@@ -15,6 +15,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.eclipse.aether.RepositorySystemSession;
+import org.evosuite.Properties;
+import org.evosuite.continuous.persistency.StorageManager;
 
 /**
  * When run, EvoSuite generate tests in a specific folder.
@@ -46,11 +48,8 @@ public class ExportMojo extends AbstractMojo{
 		getLog().info("Exporting tests");
 
 		File basedir = project.getBasedir();
-		
-		/*
-		 * TODO: Refactor to use property, both in "CtgMojo" and "StorageManager" in CTG
-		 */
-		String evoFolderName = ".continuous_evosuite"+File.separator+"evosuite-tests";
+
+		String evoFolderName = Properties.CTG_FOLDER+File.separator+ StorageManager.TEST_FOLDER_NAME;
 		File evoFolder = new File(basedir.getAbsolutePath()+File.separator+evoFolderName);
 		
 		File[] children = evoFolder.listFiles();
@@ -66,7 +65,7 @@ public class ExportMojo extends AbstractMojo{
 		try {
 			FileUtils.copyDirectory(evoFolder, target);
 		} catch (IOException e) {
-			String msg = "Error while exportin tests: "+e.getMessage();
+			String msg = "Error while exporting tests: "+e.getMessage();
 			getLog().error(msg);
 			throw new MojoFailureException(msg); 
 		}

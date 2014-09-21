@@ -386,7 +386,8 @@ public class TestSuiteGenerator {
     				//second passage on reverse order, this is to spot dependencies among tests
     				if (testCases.size() > 1) {
     					Collections.reverse(testCases);
-    					numUnstable += JUnitAnalyzer.handleTestsThatAreUnstable(testCases); 
+                        // note: it is a sum, because all unstable tests found in previous check have been removed from "testCases"
+    					numUnstable += JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
     					unstable = (numUnstable > 0) || unstable;
     				}
 

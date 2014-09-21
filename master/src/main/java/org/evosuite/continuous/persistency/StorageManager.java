@@ -46,8 +46,8 @@ public class StorageManager {
 
 	private static Logger logger = LoggerFactory.getLogger(StorageManager.class);
 
-	public static final String junitSuffix = "ES_Test"; 
-	
+    public static final String TEST_FOLDER_NAME = "evosuite-tests";
+
 	private final String rootFolderName;
 
 	private final String projectFileName = "project_info.xml";
@@ -116,7 +116,7 @@ public class StorageManager {
 			}
 		}
 		
-		testsFolder = new File(root.getAbsolutePath()+File.separator+"evosuite-tests");
+		testsFolder = new File(root.getAbsolutePath()+File.separator+TEST_FOLDER_NAME);
 		if(!testsFolder.exists()){
 			created = testsFolder.mkdirs();
 			if(!created){
@@ -566,7 +566,7 @@ public class StorageManager {
 	 * Some classes could had been removed/renamed.
 	 * So just delete all info regarding them
 	 * 
-	 * @param data
+	 * @param
 	 */
 	private String removeNoMoreExistentData(ProjectInfo db,
 			ProjectStaticData current) {
@@ -590,7 +590,7 @@ public class StorageManager {
 	/**
 	 * Remove the given test suite
 	 * 
-	 * @param cut
+	 * @param
 	 */
 	private void removeTestSuite(String testName) {
 		
