@@ -1,0 +1,20 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<!--
+    <f:entry title="${%Create Evosuite Stats}" field ="createStats">
+      <f:checkbox name="EvosuiteRecorder.create" value="${instance.createStats}" checked="${instance.createStats}" />
+    </f:entry>
+--> 
+    <f:entry title="${%Add default project graphs}" field="defaultproject">
+      <f:checkbox name="EvosuiteRecorder.defaultProjectInfo" value="${instance.displayDefaultProjectInfo}" checked="${instance.displayDefaultProjectInfo}" />
+    </f:entry>
+    <f:entry title="${%Add dedicated project info}" field="dedicatedproject">
+      <f:checkbox name="EvosuiteRecorder.projectInfo" value="${instance.displayProjectInfo}" checked="${instance.displayProjectInfo}" />
+    </f:entry>
+    <f:entry title="${%Add Build Summary}" field="buildsummary">
+      <f:checkbox name="EvosuiteRecorder.buildSummary" value="${instance.displayBuildSummary}" checked="${instance.displayBuildSummary}" />
+    </f:entry>
+    <f:entry title="${%Add Build Info}" field="buildinfo">
+      <f:checkbox name="EvosuiteRecorder.buildInfo" value="${instance.displayBuildInfo}" checked="${instance.displayBuildInfo}" />
+    </f:entry>
+</j:jelly>
