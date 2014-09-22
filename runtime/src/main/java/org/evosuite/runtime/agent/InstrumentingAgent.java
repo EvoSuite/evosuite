@@ -107,7 +107,7 @@ public class  InstrumentingAgent {
 	public static void deactivate(){
 		checkTransformerState();
 		MockFramework.disable();
-		transformer.deacitvate();
+		transformer.deactivate();
 	}
 	
 	/**
