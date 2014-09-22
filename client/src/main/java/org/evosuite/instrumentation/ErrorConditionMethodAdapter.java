@@ -124,14 +124,14 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	}
 
 	public void tagBranch() {
-		Label dummyTag = new AnnotatedLabel();
-		dummyTag.info = Boolean.TRUE;
+		Label dummyTag = new AnnotatedLabel(false, true);
+		// dummyTag.info = Boolean.TRUE;
 		super.visitLabel(dummyTag);
 	}
 
 	public void tagBranchExit() {
-		Label dummyTag = new AnnotatedLabel();
-		dummyTag.info = Boolean.FALSE;
+		Label dummyTag = new AnnotatedLabel(false, false);
+		// dummyTag.info = Boolean.FALSE;
 		super.visitLabel(dummyTag);
 	}
 

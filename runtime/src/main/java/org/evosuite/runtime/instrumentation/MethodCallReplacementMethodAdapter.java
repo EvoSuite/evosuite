@@ -111,7 +111,15 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, MockFramework.class.getCanonicalName().replace('.', '/'), "isEnabled", "()Z");
 			Label origCallLabel = new Label();
 			Label afterOrigCallLabel = new Label();
+
+			Label annotationStartTag = new AnnotatedLabel(true, true);
+			annotationStartTag.info = Boolean.TRUE;			
+			mv.visitLabel(annotationStartTag);
 			mv.visitJumpInsn(Opcodes.IFEQ, origCallLabel);
+			Label annotationEndTag = new AnnotatedLabel(true, false);
+			annotationEndTag.info = Boolean.FALSE;			
+			mv.visitLabel(annotationEndTag);
+
 			if (popCallee) {
 				Type[] args = Type.getArgumentTypes(desc);
 				Map<Integer, Integer> to = new HashMap<Integer, Integer>();
@@ -142,7 +150,14 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, MockFramework.class.getCanonicalName().replace('.', '/'), "isEnabled", "()Z");
 			Label origCallLabel = new Label();
 			Label afterOrigCallLabel = new Label();
+			
+			Label annotationStartTag = new AnnotatedLabel(true, true);
+			annotationStartTag.info = Boolean.TRUE;			
+			mv.visitLabel(annotationStartTag);
 			mv.visitJumpInsn(Opcodes.IFEQ, origCallLabel);
+			Label annotationEndTag = new AnnotatedLabel(true, false);
+			annotationEndTag.info = Boolean.FALSE;			
+			mv.visitLabel(annotationEndTag);
 
 			if (!isSelf) {
 				Type[] args = Type.getArgumentTypes(desc);

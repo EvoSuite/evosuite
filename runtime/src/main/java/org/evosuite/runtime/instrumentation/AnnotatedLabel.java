@@ -24,28 +24,43 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.LabelNode;
 
 /**
- * <p>AnnotatedLabel class.</p>
+ * Annotated labels are used to identify instrumented code
+ * such that EvoSuite knows how to deal with  
  *
  * @author fraser
  */
 public class AnnotatedLabel extends Label {
 
-	protected LabelNode parent;
-
-	/**
-	 * <p>Constructor for AnnotatedLabel.</p>
-	 */
-	public AnnotatedLabel() {
-		this.parent = null;
+	private boolean isStart = false;
+	
+	private boolean ignore = false;
+	
+	private LabelNode parent = null;
+	
+	public AnnotatedLabel(boolean ignore, boolean start) {
+		this.ignore = ignore;
+		this.isStart = start;
 	}
-
-	/**
-	 * <p>Constructor for AnnotatedLabel.</p>
-	 *
-	 * @param parent a {@link org.objectweb.asm.tree.LabelNode} object.
-	 */
-	public AnnotatedLabel(LabelNode parent) {
+	
+	public AnnotatedLabel(boolean ignore, boolean start, LabelNode parent) {
+		this.ignore = ignore;
+		this.isStart = start;
 		this.parent = parent;
 	}
 
+	public boolean isStartTag() {
+		return isStart;
+	}
+	
+	public boolean shouldIgnore() {
+		return ignore;
+	}
+
+	public LabelNode getParent() {
+		return parent;
+	}
+	
+	public void setParent(LabelNode parent) {
+		this.parent = parent;
+	}
 }
