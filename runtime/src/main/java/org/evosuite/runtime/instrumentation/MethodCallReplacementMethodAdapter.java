@@ -147,19 +147,19 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 		public void insertConstructorCall(MethodCallReplacementMethodAdapter mv,
 				MethodCallReplacement replacement, boolean isSelf) {
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, MockFramework.class.getCanonicalName().replace('.', '/'), "isEnabled", "()Z", false);
 			Label origCallLabel = new Label();
 			Label afterOrigCallLabel = new Label();
 			
-			Label annotationStartTag = new AnnotatedLabel(true, true);
-			annotationStartTag.info = Boolean.TRUE;			
-			mv.visitLabel(annotationStartTag);
-			mv.visitJumpInsn(Opcodes.IFEQ, origCallLabel);
-			Label annotationEndTag = new AnnotatedLabel(true, false);
-			annotationEndTag.info = Boolean.FALSE;			
-			mv.visitLabel(annotationEndTag);
-
 			if (!isSelf) {
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, MockFramework.class.getCanonicalName().replace('.', '/'), "isEnabled", "()Z", false);
+				Label annotationStartTag = new AnnotatedLabel(true, true);
+				annotationStartTag.info = Boolean.TRUE;			
+				mv.visitLabel(annotationStartTag);
+				mv.visitJumpInsn(Opcodes.IFEQ, origCallLabel);
+				Label annotationEndTag = new AnnotatedLabel(true, false);
+				annotationEndTag.info = Boolean.FALSE;			
+				mv.visitLabel(annotationEndTag);
+
 				Type[] args = Type.getArgumentTypes(desc);
 				Map<Integer, Integer> to = new HashMap<Integer, Integer>();
 				for (int i = args.length - 1; i >= 0; i--) {
@@ -178,10 +178,12 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			}
 			mv.visitMethodInsn(Opcodes.INVOKESPECIAL, replacementClassName,
 					replacementMethodName, replacementDesc, false);
-			mv.visitJumpInsn(Opcodes.GOTO, afterOrigCallLabel);
-			mv.visitLabel(origCallLabel);
-			mv.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, className, methodName, desc, false);
-			mv.visitLabel(afterOrigCallLabel);
+			if (!isSelf) {
+				mv.visitJumpInsn(Opcodes.GOTO, afterOrigCallLabel);
+				mv.visitLabel(origCallLabel);
+				mv.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, className, methodName, desc, false);
+				mv.visitLabel(afterOrigCallLabel);
+			}
 		}
 	}
 
