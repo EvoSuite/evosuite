@@ -106,7 +106,7 @@ public class ContainerTransformation {
 						        Type.getInternalName(BooleanHelper.class),
 						        "collectionIsEmpty",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] { Type.getType(Collection.class) }));
+						                                 new Type[] { Type.getType(Collection.class) }), false);
 						
 						InsnList il = createNewIfThenElse(n);
 						mn.instructions.insertBefore(node, il);
@@ -126,7 +126,7 @@ public class ContainerTransformation {
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
 						                                         Type.getType(Collection.class),
-						                                         Type.getType(Object.class) }));
+						                                         Type.getType(Object.class) }), false);
 						InsnList il = createNewIfThenElse(n);
 						mn.instructions.insertBefore(node, il);
 						mn.instructions.remove(node);
@@ -145,7 +145,7 @@ public class ContainerTransformation {
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
 						                                         Type.getType(Collection.class),
-						                                         Type.getType(Collection.class) }));
+						                                         Type.getType(Collection.class) }), false);
 						InsnList il = createNewIfThenElse(n);
 						mn.instructions.insertBefore(node, il);
 						mn.instructions.remove(node);
@@ -163,7 +163,7 @@ public class ContainerTransformation {
 						        Type.getInternalName(BooleanHelper.class),
 						        "mapIsEmpty",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] { Type.getType(Map.class) }));
+						                                 new Type[] { Type.getType(Map.class) }), false);
 						InsnList il = createNewIfThenElse(n);
 						mn.instructions.insertBefore(node, il);
 						mn.instructions.remove(node);
@@ -181,7 +181,7 @@ public class ContainerTransformation {
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
 						                                         Type.getType(Map.class),
-						                                         Type.getType(Object.class) }));
+						                                         Type.getType(Object.class) }), false);
 						InsnList il = createNewIfThenElse(n);
 						mn.instructions.insertBefore(node, il);
 						mn.instructions.remove(node);
@@ -199,7 +199,7 @@ public class ContainerTransformation {
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
 						                                         Type.getType(Map.class),
-						                                         Type.getType(Object.class) }));
+						                                         Type.getType(Object.class) }), false);
 						InsnList il = createNewIfThenElse(n);
 						mn.instructions.insertBefore(node, il);
 						mn.instructions.remove(node);

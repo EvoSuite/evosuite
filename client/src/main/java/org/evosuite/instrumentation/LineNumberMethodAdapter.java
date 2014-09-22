@@ -80,7 +80,7 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 		this.visitLdcInsn(line);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 		                   "org/evosuite/testcase/ExecutionTracer",
-		                   "passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V");
+		                   "passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V", false);
 	}
 
 	/* (non-Javadoc)
@@ -88,12 +88,12 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
 		if (opcode == Opcodes.INVOKESPECIAL) {
 			if (methodName.equals("<init>"))
 				hadInvokeSpecial = true;
 		}
-		super.visitMethodInsn(opcode, owner, name, desc);
+		super.visitMethodInsn(opcode, owner, name, desc, itf);
 	}
 
 	/* (non-Javadoc)

@@ -93,7 +93,7 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 			                   "org/evosuite/testcase/ExecutionTracer",
 			                   "exceptionThrown",
-			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V");
+			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
 		}
 		super.visitInsn(opcode);
 	}

@@ -96,13 +96,13 @@ public class ReturnValueAdapter extends MethodVisitor {
 			this.visitInsn(Opcodes.DUP);
 			if (type == PDType.FLOAT) {
 				this.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float",
-				                     "floatToRawIntBits", "(F)I");
+				                     "floatToRawIntBits", "(F)I", false);
 			}
 		} else {
 			this.visitInsn(Opcodes.DUP2);
 			if (type == PDType.DOUBLE) {
 				this.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double",
-				                     "doubleToRawLongBits", "(D)J");
+				                     "doubleToRawLongBits", "(D)J", false);
 			}
 			this.visitInsn(Opcodes.DUP2);
 			this.visitIntInsn(Opcodes.BIPUSH, 32);
@@ -115,7 +115,7 @@ public class ReturnValueAdapter extends MethodVisitor {
 		this.visitLdcInsn(fullMethodName);
 		this.visitMethodInsn(Opcodes.INVOKESTATIC,
 		                     "org/evosuite/testcase/ExecutionTracer",
-		                     "returnValue", "(ILjava/lang/String;Ljava/lang/String;)V");
+		                     "returnValue", "(ILjava/lang/String;Ljava/lang/String;)V", false);
 	}
 
 	private void callLogIReturn() {
@@ -129,7 +129,7 @@ public class ReturnValueAdapter extends MethodVisitor {
 		this.visitMethodInsn(Opcodes.INVOKESTATIC,
 		                     "org/evosuite/testcase/ExecutionTracer",
 		                     "returnValue",
-		                     "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V");
+		                     "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
 	}
 
 	private void callLogLReturn() {

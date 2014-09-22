@@ -73,7 +73,7 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 		                   "org/evosuite/testcase/ExecutionTracer",
-		                   "checkTimeout", "()V");
+		                   "checkTimeout", "()V", false);
 	}
 
 	/* (non-Javadoc)
@@ -81,12 +81,12 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
 		if (opcode == Opcodes.INVOKESPECIAL) {
 			if (methodName.equals("<init>"))
 				hadInvokeSpecial = true;
 		}
-		super.visitMethodInsn(opcode, owner, name, desc);
+		super.visitMethodInsn(opcode, owner, name, desc, itf);
 	}
 
 	/* (non-Javadoc)
@@ -102,7 +102,7 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 			                   "org/evosuite/testcase/ExecutionTracer",
 			                   "exceptionThrown",
-			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V");
+			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
 		}
 		super.visitInsn(opcode);
 	}

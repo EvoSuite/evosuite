@@ -69,7 +69,7 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
 			                      "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded",
-			                      "<init>", "()V");
+			                      "<init>", "()V", false);
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
 
@@ -95,7 +95,7 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
 			                      "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded",
-			                      "<init>", "()V");
+			                      "<init>", "()V", false);
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
 
@@ -141,7 +141,7 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		super.visitInsn(Opcodes.DUP);
 		super.visitMethodInsn(Opcodes.INVOKESPECIAL,
 		                      "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded",
-		                      "<init>", "()V");
+		                      "<init>", "()V", false);
 		super.visitInsn(Opcodes.ATHROW);
 		super.visitLabel(origTarget);
 

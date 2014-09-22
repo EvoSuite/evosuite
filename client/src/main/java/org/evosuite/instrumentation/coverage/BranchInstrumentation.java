@@ -151,7 +151,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIII)V"));
+			        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIII)V", false));
 			logger.debug("Adding passedBranch val=?, opcode=" + opcode + ", branch="
 			        + branchId + ", bytecode_id=" + instructionId);
 
@@ -168,7 +168,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIIII)V"));
+			        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIIII)V", false));
 			break;
 		case Opcodes.IF_ACMPEQ:
 		case Opcodes.IF_ACMPNE:
@@ -179,7 +179,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
-			        "(Ljava/lang/Object;Ljava/lang/Object;III)V"));
+			        "(Ljava/lang/Object;Ljava/lang/Object;III)V", false));
 			break;
 		case Opcodes.IFNULL:
 		case Opcodes.IFNONNULL:
@@ -190,7 +190,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
-			        "(Ljava/lang/Object;III)V"));
+			        "(Ljava/lang/Object;III)V", false));
 			break;
 		}
 		return instrumentation;
@@ -275,7 +275,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(targetCaseBranchId));
 			instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIIII)V"));
+			        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIIII)V", false));
 		}
 	}
 
@@ -441,7 +441,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		instrumentation.add(new LdcInsnNode(defaultCaseBranchId));
 		instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIII)V"));
+		        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIII)V", false));
 
 	}
 
@@ -465,7 +465,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		instrumentation.add(new LdcInsnNode(defaultCaseBranchId));
 		instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIII)V"));
+		        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIII)V", false));
 	}
 
 	/*
