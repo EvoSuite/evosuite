@@ -58,8 +58,8 @@ public class AnnotatedMethodNode extends MethodNode {
 	protected LabelNode getLabelNode(final Label l) {
 		if (l instanceof AnnotatedLabel) {
 			AnnotatedLabel al = (AnnotatedLabel) l;
-			al.parent = new LabelNode(al);
-			return al.parent;
+			al.setParent(new LabelNode(al));
+			return al.getParent();
 		} else {
 			if (!(l.info instanceof LabelNode)) {
 				l.info = new LabelNode(l);

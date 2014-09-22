@@ -25,9 +25,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.runtime.instrumentation.AnnotatedLabel;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.slf4j.Logger;
@@ -235,10 +237,29 @@ public class BytecodeInstructionPool {
 		if (!instructionMap.get(className).containsKey(methodName))
 			instructionMap.get(className).put(methodName,
 			                                  new ArrayList<BytecodeInstruction>());
-		instructionMap.get(className).get(methodName).add(instruction);
 
-		if (instruction.isActualBranch())
+		instructionMap.get(className).get(methodName).add(instruction);
+		logger.debug("Registering instruction "+instruction);
+		List<BytecodeInstruction> instructions = instructionMap.get(className).get(methodName);
+		if(instructions.size() > 1) {
+			BytecodeInstruction previous = instructions.get(instructions.size() - 2);
+			if(previous.isLabel()) {
+				LabelNode ln = (LabelNode)previous.asmNode;
+				if (ln.getLabel() instanceof AnnotatedLabel) {
+					AnnotatedLabel aLabel = (AnnotatedLabel) ln.getLabel();
+					if(aLabel.isStartTag()) {
+						if(aLabel.shouldIgnore()) {
+							logger.debug("Ignoring artificial branch: "+instruction);
+							return;
+						}
+					}
+				}
+			}
+		}
+		
+		if (instruction.isActualBranch()) {
 			BranchPool.registerAsBranch(instruction);
+		}
 	}
 
 	// retrieve data from the pool

@@ -82,17 +82,16 @@ public class BranchInstrumentation implements MethodInstrumentation {
 							LabelNode label = (LabelNode) in.getPrevious();
 							if (label.getLabel() instanceof AnnotatedLabel) {
 								AnnotatedLabel aLabel = (AnnotatedLabel) label.getLabel();
-								if (aLabel.info == Boolean.TRUE) {
-									logger.info("Found artificial branch!");
-									Branch b = BranchPool.getBranchForInstruction(v);
-									b.setInstrumented(true);
-								} else {
-									logger.info("Found AnnotatedNode ... confused!");
-
+								if(aLabel.isStartTag()) {
+									if(!aLabel.shouldIgnore()) {
+										logger.debug("Found artificial branch: "+v);
+										Branch b = BranchPool.getBranchForInstruction(v);
+										b.setInstrumented(true);
+									} else {
+										continue; 
+									}
 								}
 							}
-						} else {
-							logger.info("Found regular branch");
 						}
 						mn.instructions.insertBefore(v.getASMNode(),
 						                             getInstrumentation(v));
