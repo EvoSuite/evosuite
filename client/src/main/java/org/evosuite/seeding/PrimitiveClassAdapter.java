@@ -55,7 +55,7 @@ public class PrimitiveClassAdapter extends ClassVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public PrimitiveClassAdapter(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM4, visitor);
+		super(Opcodes.ASM5, visitor);
 		this.className = className.replaceAll("/", ".");
 	}
 

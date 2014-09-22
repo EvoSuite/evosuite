@@ -59,7 +59,7 @@ public class ObjectSignatureAdapter extends ClassVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public ObjectSignatureAdapter(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM4, visitor);
+		super(Opcodes.ASM5, visitor);
 
 		this.className = ResourceList.getClassNameFromResourcePath(className);
 
