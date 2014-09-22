@@ -231,6 +231,7 @@ public class InstrumentingAgent_IT {
 		}
 		
 		GetFile gf = (GetFile) obj;
+		MockFramework.enable();
 		Assert.assertTrue(gf.get() instanceof MockFile);
 		
 		//now disable
@@ -248,7 +249,7 @@ public class InstrumentingAgent_IT {
 		} finally {
 			InstrumentingAgent.deactivate();
 		}
-		
+		MockFramework.enable();
 		Assert.assertEquals(1101, SumRuntime.getSum());
 		
 		//now disable
