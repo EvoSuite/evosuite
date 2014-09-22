@@ -17,8 +17,12 @@
 		<module>client</module>
 		<module>runtime</module>
 		<module>plugins</module>
-        <module>dsc</module>
+		<module>dsc</module>
 	</modules>
+
+	<prerequisites>
+	  <maven>3.1</maven>
+	</prerequisites>
 
 	<developers>
 		<developer>
