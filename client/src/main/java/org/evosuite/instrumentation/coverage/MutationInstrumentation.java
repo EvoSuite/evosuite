@@ -267,7 +267,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			MethodInsnNode touched = new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        Type.getInternalName(ExecutionTracer.class), "passedMutation",
 			        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] {
-			                Type.DOUBLE_TYPE, Type.INT_TYPE }));
+			                Type.DOUBLE_TYPE, Type.INT_TYPE }), false);
 			instructions.add(touched);
 		}
 

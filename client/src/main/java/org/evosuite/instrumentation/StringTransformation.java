@@ -106,7 +106,7 @@ public class StringTransformation {
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
 						                                         Type.getType(String.class),
-						                                         Type.getType(Object.class) }));
+						                                         Type.getType(Object.class) }), false);
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
 						/*
@@ -134,7 +134,7 @@ public class StringTransformation {
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
 						                                         Type.getType(String.class),
-						                                         Type.getType(String.class) }));
+						                                         Type.getType(String.class) }), false);
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
 						TransformationStatistics.transformedStringComparison();
@@ -153,7 +153,7 @@ public class StringTransformation {
 						                                 new Type[] {
 						                                         Type.getType(String.class),
 						                                         Type.getType(String.class),
-						                                         Type.INT_TYPE }));
+						                                         Type.INT_TYPE }), false);
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
 						TransformationStatistics.transformedStringComparison();
@@ -167,7 +167,7 @@ public class StringTransformation {
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
 						                                         Type.getType(String.class),
-						                                         Type.getType(String.class) }));
+						                                         Type.getType(String.class) }), false);
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
 						TransformationStatistics.transformedStringComparison();
@@ -179,7 +179,7 @@ public class StringTransformation {
 						        Type.getInternalName(BooleanHelper.class),
 						        "StringIsEmpty",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] { Type.getType(String.class) }));
+						                                 new Type[] { Type.getType(String.class) }), false);
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
 						TransformationStatistics.transformedStringComparison();
@@ -192,7 +192,7 @@ public class StringTransformation {
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
 						                                         Type.getType(String.class),
-						                                         Type.getType(String.class) }));
+						                                         Type.getType(String.class) }), false);
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
 						TransformationStatistics.transformedStringComparison();
@@ -207,7 +207,7 @@ public class StringTransformation {
 							        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] {
 							                Type.getType(String.class), Type.INT_TYPE,
 							                Type.getType(String.class), Type.INT_TYPE,
-							                Type.INT_TYPE }));
+							                Type.INT_TYPE }), false);
 							mn.instructions.insertBefore(node, equalCheck);
 							mn.instructions.remove(node);
 							TransformationStatistics.transformedStringComparison();
@@ -225,7 +225,7 @@ public class StringTransformation {
 							                                         Type.INT_TYPE,
 							                                         Type.getType(String.class),
 							                                         Type.INT_TYPE,
-							                                         Type.INT_TYPE }));
+							                                         Type.INT_TYPE }), false);
 							mn.instructions.insertBefore(node, equalCheck);
 							mn.instructions.remove(node);
 							TransformationStatistics.transformedStringComparison();
@@ -242,7 +242,7 @@ public class StringTransformation {
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
 						                                         Type.getType(String.class),
-						                                         Type.getType(CharSequence.class) }));
+						                                         Type.getType(CharSequence.class) }), false);
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
 					}
@@ -254,7 +254,7 @@ public class StringTransformation {
 						        Type.getInternalName(BooleanHelper.class),
 						        "StringMatchRegex",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
-						                                 new Type[] { Type.getType(Matcher.class) }));
+						                                 new Type[] { Type.getType(Matcher.class) }), false);
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
 					}
@@ -352,7 +352,7 @@ public class StringTransformation {
 							        Type.getInternalName(BooleanHelper.class),
 							        "intToBoolean",
 							        Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
-							                                 new Type[] { Type.INT_TYPE }));
+							                                 new Type[] { Type.INT_TYPE }), false);
 
 							mn.instructions.insertBefore(node, n);
 						}

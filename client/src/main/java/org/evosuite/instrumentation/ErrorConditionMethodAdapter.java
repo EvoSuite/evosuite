@@ -148,7 +148,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
 		if(!inInstrumentation) {
 			inInstrumentation = true;
 			for(ErrorBranchInstrumenter instrumenter : instrumentation) {
@@ -156,9 +156,9 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			}
 			inInstrumentation = false;
 		}
-		super.visitMethodInsn(opcode, owner, name, desc);
+		super.visitMethodInsn(opcode, owner, name, desc, itf);
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitFieldInsn(int, java.lang.String, java.lang.String, java.lang.String)
 	 */

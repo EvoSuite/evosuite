@@ -100,7 +100,7 @@ public class ComparisonTransformation {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "longSub",
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.LONG_TYPE,
-		                Type.LONG_TYPE }));
+		                Type.LONG_TYPE }), false);
 		list.insert(position, get);
 		list.remove(position);
 	}
@@ -109,7 +109,7 @@ public class ComparisonTransformation {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "floatSub",
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.FLOAT_TYPE,
-		                Type.FLOAT_TYPE }));
+		                Type.FLOAT_TYPE }), false);
 		list.insert(position, get);
 		list.remove(position);
 	}
@@ -118,7 +118,7 @@ public class ComparisonTransformation {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "doubleSub",
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.DOUBLE_TYPE,
-		                Type.DOUBLE_TYPE }));
+		                Type.DOUBLE_TYPE }), false);
 		list.insert(position, get);
 		list.remove(position);
 	}
