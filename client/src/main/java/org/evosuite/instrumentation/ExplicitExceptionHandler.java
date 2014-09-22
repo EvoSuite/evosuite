@@ -58,7 +58,7 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 	 */
 	public ExplicitExceptionHandler(MethodVisitor mv, String className,
 	        String methodName, String desc) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		fullMethodName = methodName + desc;
 		this.className = className;
 	}

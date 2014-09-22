@@ -23,7 +23,8 @@ private static final String LISTNAME = LinkedList.class.getCanonicalName().repla
 
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc) {
+			String desc, boolean itf) {
+		
 		if(owner.equals(LISTNAME)) {
 			if(indexListMethods.contains(name)) {
 				Type[] args = Type.getArgumentTypes(desc);
@@ -35,7 +36,7 @@ private static final String LISTNAME = LinkedList.class.getCanonicalName().repla
 				Map<Integer, Integer> tempVariables = getMethodCallee(desc);
 				tagBranchStart();
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
-	                      "size", "()I");
+	                      "size", "()I", false);
 				
 				// index >= size
 				mv.loadLocal(tempVariables.get(0));

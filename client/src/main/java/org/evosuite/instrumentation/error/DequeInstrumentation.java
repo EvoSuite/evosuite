@@ -23,7 +23,7 @@ public class DequeInstrumentation extends ErrorBranchInstrumenter {
 
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc) {
+			String desc, boolean itf) {
 		if(listNames.contains(owner)) {
 			if(emptyListMethods.contains(name)) {
 				// empty
@@ -31,7 +31,7 @@ public class DequeInstrumentation extends ErrorBranchInstrumenter {
 
 				tagBranchStart();
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, owner,
-	                      "isEmpty", "()Z");
+	                      "isEmpty", "()Z", false);
 				insertBranchWithoutTag(Opcodes.IFLE, "java/util/NoSuchElementException");
 				tagBranchEnd();
 				restoreMethodParameters(tempVariables, desc);

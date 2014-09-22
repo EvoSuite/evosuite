@@ -108,7 +108,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		}
 
 		public void insertMethodCall(MethodCallReplacementMethodAdapter mv, int opcode) {
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, MockFramework.class.getCanonicalName().replace('.', '/'), "isEnabled", "()Z");
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, MockFramework.class.getCanonicalName().replace('.', '/'), "isEnabled", "()Z", false);
 			Label origCallLabel = new Label();
 			Label afterOrigCallLabel = new Label();
 
@@ -138,16 +138,16 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 				}
 			}
 			mv.visitMethodInsn(opcode, replacementClassName, replacementMethodName,
-					replacementDesc);
+					replacementDesc, false);
 			mv.visitJumpInsn(Opcodes.GOTO, afterOrigCallLabel);
 			mv.visitLabel(origCallLabel);
-			mv.mv.visitMethodInsn(origOpcode, className, methodName, desc);
+			mv.mv.visitMethodInsn(origOpcode, className, methodName, desc, false); // TODO: What is itf here?
 			mv.visitLabel(afterOrigCallLabel);
 		}
 
 		public void insertConstructorCall(MethodCallReplacementMethodAdapter mv,
 				MethodCallReplacement replacement, boolean isSelf) {
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, MockFramework.class.getCanonicalName().replace('.', '/'), "isEnabled", "()Z");
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, MockFramework.class.getCanonicalName().replace('.', '/'), "isEnabled", "()Z", false);
 			Label origCallLabel = new Label();
 			Label afterOrigCallLabel = new Label();
 			
@@ -177,10 +177,10 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 				}
 			}
 			mv.visitMethodInsn(Opcodes.INVOKESPECIAL, replacementClassName,
-					replacementMethodName, replacementDesc);
+					replacementMethodName, replacementDesc, false);
 			mv.visitJumpInsn(Opcodes.GOTO, afterOrigCallLabel);
 			mv.visitLabel(origCallLabel);
-			mv.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, className, methodName, desc);
+			mv.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, className, methodName, desc, false);
 			mv.visitLabel(afterOrigCallLabel);
 		}
 	}
@@ -655,7 +655,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
 
 		boolean isReplaced = false;
 		// static replacement methods
@@ -701,7 +701,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		}
 
 		if (!isReplaced) {
-			super.visitMethodInsn(opcode, owner, name, desc);
+			super.visitMethodInsn(opcode, owner, name, desc, itf);
 		}
 		if (needToWaitForSuperConstructor) {
 			if (opcode == Opcodes.INVOKESPECIAL) {
