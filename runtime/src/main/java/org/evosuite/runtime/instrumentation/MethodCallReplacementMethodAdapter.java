@@ -32,18 +32,18 @@ import java.util.Set;
 
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.EvoSuiteMock;
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.mock.StaticReplacementMock;
 import org.evosuite.runtime.mock.java.lang.MockThrowable;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.tools.javac.resources.javac;
 
 import java.util.List;
 
@@ -62,6 +62,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		private final String className;
 		private final String methodName;
 		private final String desc;
+		private final int origOpcode;
 
 		private final String replacementClassName;
 		private final String replacementMethodName;
@@ -87,7 +88,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		 * @param pop2
 		 *            is needed if you replace the super-constructor call
 		 */
-		public MethodCallReplacement(String className, String methodName, String desc,
+		public MethodCallReplacement(String className, String methodName, String desc, int opcode,
 				String replacementClassName, String replacementMethodName,
 				String replacementDesc, boolean pop, boolean pop2) {
 			this.className = className;
@@ -98,6 +99,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			this.replacementDesc = replacementDesc;
 			this.popCallee = pop;
 			this.popUninitialisedReference = pop2;
+			this.origOpcode = opcode;
 		}
 
 		public boolean isTarget(String owner, String name, String desc) {
@@ -106,6 +108,10 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		}
 
 		public void insertMethodCall(MethodCallReplacementMethodAdapter mv, int opcode) {
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, MockFramework.class.getCanonicalName().replace('.', '/'), "isEnabled", "()Z");
+			Label origCallLabel = new Label();
+			Label afterOrigCallLabel = new Label();
+			mv.visitJumpInsn(Opcodes.IFEQ, origCallLabel);
 			if (popCallee) {
 				Type[] args = Type.getArgumentTypes(desc);
 				Map<Integer, Integer> to = new HashMap<Integer, Integer>();
@@ -125,11 +131,19 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			}
 			mv.visitMethodInsn(opcode, replacementClassName, replacementMethodName,
 					replacementDesc);
+			mv.visitJumpInsn(Opcodes.GOTO, afterOrigCallLabel);
+			mv.visitLabel(origCallLabel);
+			mv.mv.visitMethodInsn(origOpcode, className, methodName, desc);
+			mv.visitLabel(afterOrigCallLabel);
 		}
 
 		public void insertConstructorCall(MethodCallReplacementMethodAdapter mv,
 				MethodCallReplacement replacement, boolean isSelf) {
-			// if(!mv.needToWaitForSuperConstructor) {
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, MockFramework.class.getCanonicalName().replace('.', '/'), "isEnabled", "()Z");
+			Label origCallLabel = new Label();
+			Label afterOrigCallLabel = new Label();
+			mv.visitJumpInsn(Opcodes.IFEQ, origCallLabel);
+
 			if (!isSelf) {
 				Type[] args = Type.getArgumentTypes(desc);
 				Map<Integer, Integer> to = new HashMap<Integer, Integer>();
@@ -149,6 +163,10 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			}
 			mv.visitMethodInsn(Opcodes.INVOKESPECIAL, replacementClassName,
 					replacementMethodName, replacementDesc);
+			mv.visitJumpInsn(Opcodes.GOTO, afterOrigCallLabel);
+			mv.visitLabel(origCallLabel);
+			mv.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, className, methodName, desc);
+			mv.visitLabel(afterOrigCallLabel);
 		}
 	}
 
@@ -215,7 +233,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			
 			//java.util.UUID.randomUUID()
 			replacementCalls.add(new MethodCallReplacement("java/util/UUID", "randomUUID",
-					"()Ljava/util/UUID;", "org/evosuite/runtime/Random", "randomUUID", "()Ljava/util/UUID;", false, false));
+					"()Ljava/util/UUID;", Opcodes.INVOKESTATIC, "org/evosuite/runtime/Random", "randomUUID", "()Ljava/util/UUID;", false, false));
 
 
 		}
@@ -304,17 +322,17 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			String jvmMock = MockThrowable.class.getName().replace('.', '/'); 
 			
 			replacementCalls.add(new MethodCallReplacement(
-					jvmOriginal,	 "getStackTrace", "()[Ljava/lang/StackTraceElement;",
+					jvmOriginal,	 "getStackTrace", "()[Ljava/lang/StackTraceElement;", Opcodes.INVOKEVIRTUAL,
 					jvmMock, "replacement_getStackTrace","(Ljava/lang/Throwable;)[Ljava/lang/StackTraceElement;",
 					false, false));
 			
 			replacementCalls.add(new MethodCallReplacement(
-					jvmOriginal,"printStackTrace", "(Ljava/io/PrintStream;)V",
+					jvmOriginal,"printStackTrace", "(Ljava/io/PrintStream;)V", Opcodes.INVOKEVIRTUAL,
 					jvmMock, "printStackTrace", "(Ljava/lang/Throwable;Ljava/io/PrintStream;)V", 
 					false, false));
 			
 			replacementCalls.add(new MethodCallReplacement(
-					jvmOriginal,"printStackTrace", "(Ljava/io/PrintWriter;)V",
+					jvmOriginal,"printStackTrace", "(Ljava/io/PrintWriter;)V", Opcodes.INVOKEVIRTUAL,
 					jvmMock, "replacement_printStackTrace","(Ljava/lang/Throwable;Ljava/io/PrintWriter;)V",
 					false, false));
 		}
@@ -358,116 +376,116 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 		//java/lang/System
 		replacementCalls.add(new MethodCallReplacement("java/lang/System", "exit",
-				"(I)V", "org/evosuite/runtime/System", "exit", "(I)V", false, false));
+				"(I)V",  Opcodes.INVOKESTATIC, "org/evosuite/runtime/System", "exit", "(I)V", false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/System",
-				"currentTimeMillis", "()J", "org/evosuite/runtime/System",
+				"currentTimeMillis", "()J",  Opcodes.INVOKESTATIC, "org/evosuite/runtime/System",
 				"currentTimeMillis", "()J", false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/System",
-				"nanoTime", "()J", "org/evosuite/runtime/System", "nanoTime", "()J",
+				"nanoTime", "()J",  Opcodes.INVOKESTATIC, "org/evosuite/runtime/System", "nanoTime", "()J",
 				false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/System",
-				"identityHashCode", "(Ljava/lang/Object;)I",
+				"identityHashCode", "(Ljava/lang/Object;)I",  Opcodes.INVOKESTATIC,
 				"org/evosuite/runtime/System", "identityHashCode",
 				"(Ljava/lang/Object;)I", false, false));
 
 		//java/lang/Object
 		replacementCalls.add(new MethodCallReplacement("java/lang/Object",
-				"hashCode", "()I", "org/evosuite/runtime/System", "identityHashCode",
+				"hashCode", "()I", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/System", "identityHashCode",
 				"(Ljava/lang/Object;)I", false, false));
 
 		replacementCalls.add(new MethodCallReplacement("java/lang/Math", "random",
-				"()D", "org/evosuite/runtime/Random", "nextDouble", "()D", false,
+				"()D", Opcodes.INVOKESTATIC, "org/evosuite/runtime/Random", "nextDouble", "()D", false,
 				false));
 
 		//java/lang/Thread
 		replacementCalls.add(new MethodCallReplacement("java/lang/Thread",
-				"getStackTrace", "()[Ljava/lang/StackTraceElement;",
+				"getStackTrace", "()[Ljava/lang/StackTraceElement;", Opcodes.INVOKEVIRTUAL,
 				"org/evosuite/runtime/Thread", "getStackTrace",
 				"()[Ljava/lang/StackTraceElement;", true, false));
 
 		//java/lang/Thread
 		replacementCalls.add(new MethodCallReplacement("java/lang/Thread", "getName",
-				"()Ljava/lang/String;", "org/evosuite/runtime/Thread", "getName",
+				"()Ljava/lang/String;", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Thread", "getName",
 				"(Ljava/lang/Thread;)Ljava/lang/String;", false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Thread", "getId",
-				"()J", "org/evosuite/runtime/Thread", "getId",
+				"()J", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Thread", "getId",
 				"(Ljava/lang/Thread;)J", false, false));
 
 		//java/lang/Class
 		replacementCalls.add(new MethodCallReplacement("java/lang/Class",
-				"getClasses", "()[Ljava/lang/Class;",
+				"getClasses", "()[Ljava/lang/Class;", Opcodes.INVOKEVIRTUAL,
 				"org/evosuite/runtime/Reflection", "getClasses",
 				"(Ljava/lang/Class;)[Ljava/lang/Class;", false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Class",
-				"getAnnotations", "()[Ljava/lang/annotation/Annotation;",
+				"getAnnotations", "()[Ljava/lang/annotation/Annotation;", Opcodes.INVOKEVIRTUAL,
 				"org/evosuite/runtime/Reflection", "getAnnotations",
 				"(Ljava/lang/Class;)[Ljava/lang/annotation/Annotation;", false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Class",
-				"getFields", "()[Ljava/lang/reflect/Field;",
+				"getFields", "()[Ljava/lang/reflect/Field;", Opcodes.INVOKEVIRTUAL,
 				"org/evosuite/runtime/Reflection", "getFields",
 				"(Ljava/lang/Class;)[Ljava/lang/reflect/Field;", false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Class",
-				"getConstructors", "()[Ljava/lang/reflect/Constructor;",
+				"getConstructors", "()[Ljava/lang/reflect/Constructor;", Opcodes.INVOKEVIRTUAL,
 				"org/evosuite/runtime/Reflection", "getConstructors",
 				"(Ljava/lang/Class;)[Ljava/lang/reflect/Constructor;", false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Class",
-				"getMethods", "()[Ljava/lang/reflect/Method;",
+				"getMethods", "()[Ljava/lang/reflect/Method;", Opcodes.INVOKEVIRTUAL,
 				"org/evosuite/runtime/Reflection", "getMethods",
 				"(Ljava/lang/Class;)[Ljava/lang/reflect/Method;", false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Class",
-				"getDeclaredClasses", "()[Ljava/lang/Class;",
+				"getDeclaredClasses", "()[Ljava/lang/Class;", Opcodes.INVOKEVIRTUAL,
 				"org/evosuite/runtime/Reflection", "getDeclaredClasses",
 				"(Ljava/lang/Class;)[Ljava/lang/Class;", false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Class",
-				"getDeclaredAnnotations", "()[Ljava/lang/annotation/Annotation;",
+				"getDeclaredAnnotations", "()[Ljava/lang/annotation/Annotation;", Opcodes.INVOKEVIRTUAL,
 				"org/evosuite/runtime/Reflection", "getDeclaredAnnotations",
 				"(Ljava/lang/Class;)[Ljava/lang/annotation/Annotation;", false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Class",
-				"getDeclaredFields", "()[Ljava/lang/reflect/Field;",
+				"getDeclaredFields", "()[Ljava/lang/reflect/Field;", Opcodes.INVOKEVIRTUAL,
 				"org/evosuite/runtime/Reflection", "getDeclaredFields",
 				"(Ljava/lang/Class;)[Ljava/lang/reflect/Field;", false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Class",
-				"getDeclaredConstructors", "()[Ljava/lang/reflect/Constructor;",
+				"getDeclaredConstructors", "()[Ljava/lang/reflect/Constructor;", Opcodes.INVOKEVIRTUAL,
 				"org/evosuite/runtime/Reflection", "getDeclaredConstructors",
 				"(Ljava/lang/Class;)[Ljava/lang/reflect/Constructor;", false, false));
 		replacementCalls.add(new MethodCallReplacement("java/lang/Class",
-				"getDeclaredMethods", "()[Ljava/lang/reflect/Method;",
+				"getDeclaredMethods", "()[Ljava/lang/reflect/Method;", Opcodes.INVOKEVIRTUAL,
 				"org/evosuite/runtime/Reflection", "getDeclaredMethods",
 				"(Ljava/lang/Class;)[Ljava/lang/reflect/Method;", false, false));
 
 		//java/lang/ClassLoader
 		replacementCalls.add(new MethodCallReplacement("java/lang/ClassLoader",
-				"getResource", "(Ljava/lang/String;)Ljava/net/URL;", "org/evosuite/runtime/ResourceLoader",
+				"getResource", "(Ljava/lang/String;)Ljava/net/URL;",  Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/ResourceLoader",
 				"getResource", "(Ljava/lang/String;)Ljava/net/URL;", true, false));
 
 	}
 
 	private void addGUICalls() {
 		replacementCalls.add(new MethodCallReplacement("javax/swing/JComponent",
-				"getPreferredSize", "()Ljava/awt/Dimension;",
+				"getPreferredSize", "()Ljava/awt/Dimension;", Opcodes.INVOKEVIRTUAL,
 				"org/evosuite/runtime/gui/JComponent", "getPreferredSize",
 				"()Ljava/awt/Dimension;", true, false));		
 	}
 
 	private void addCalendarCalls() {
 		replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
-				"getInstance", "()Ljava/util/Calendar;",
+				"getInstance", "()Ljava/util/Calendar;", Opcodes.INVOKESTATIC,
 				"org/evosuite/runtime/Calendar", "getCalendar",
 				"()Ljava/util/Calendar;", false, false));
 
 		replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
-				"getInstance", "(Ljava/util/Locale;)Ljava/util/Calendar;",
+				"getInstance", "(Ljava/util/Locale;)Ljava/util/Calendar;", Opcodes.INVOKESTATIC,
 				"org/evosuite/runtime/Calendar", "getCalendar",
 				"(Ljava/util/Locale;)Ljava/util/Calendar;", false, false));
 
 		replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
-				"getInstance", "(Ljava/util/TimeZone;)Ljava/util/Calendar;",
+				"getInstance", "(Ljava/util/TimeZone;)Ljava/util/Calendar;", Opcodes.INVOKESTATIC,
 				"org/evosuite/runtime/Calendar", "getCalendar",
 				"(Ljava/util/TimeZone;)Ljava/util/Calendar;", false, false));
 
 		replacementCalls.add(new MethodCallReplacement("java/util/Calendar",
 				"getInstance",
-				"(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;",
+				"(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;", Opcodes.INVOKESTATIC,
 				"org/evosuite/runtime/Calendar", "getCalendar",
 				"(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;",
 				false, false));
@@ -475,52 +493,52 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 	private void addRandomCalls() {
 		replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
-				"()I", "org/evosuite/runtime/Random", "nextInt", "()I", true, false));
+				"()I", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextInt", "()I", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
-				"(I)I", "org/evosuite/runtime/Random", "nextInt", "(I)I", true, false));
+				"(I)I", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextInt", "(I)I", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/util/Random",
-				"nextDouble", "()D", "org/evosuite/runtime/Random", "nextDouble",
+				"nextDouble", "()D", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextDouble",
 				"()D", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/util/Random",
-				"nextFloat", "()F", "org/evosuite/runtime/Random", "nextFloat",
+				"nextFloat", "()F", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextFloat",
 				"()F", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/util/Random",
-				"nextLong", "()J", "org/evosuite/runtime/Random", "nextLong", "()J",
+				"nextLong", "()J", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextLong", "()J",
 				true, false));
 		replacementCalls.add(new MethodCallReplacement("java/util/Random",
-				"nextGaussian", "()D", "org/evosuite/runtime/Random", "nextGaussian",
+				"nextGaussian", "()D", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextGaussian",
 				"()D", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/util/Random",
-				"nextBoolean", "()Z", "org/evosuite/runtime/Random", "nextBoolean",
+				"nextBoolean", "()Z", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextBoolean",
 				"()Z", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextBytes",
-				"([B)V", "org/evosuite/runtime/Random", "nextBytes", "([B)V", true, false));
+				"([B)V", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextBytes", "([B)V", true, false));
 	}
 
 	private void addSecureRandomCalls() {
 		replacementCalls.add(new MethodCallReplacement("java/security/SecureRandom",
-				"nextInt", "()I", "org/evosuite/runtime/Random", "nextInt", "()I",
+				"nextInt", "()I", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextInt", "()I",
 				true, false));
 
 		replacementCalls.add(new MethodCallReplacement("java/security/SecureRandom", "nextInt",
-				"(I)I", "org/evosuite/runtime/Random", "nextInt", "(I)I", true, false));
+				"(I)I", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextInt", "(I)I", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/security/SecureRandom",
-				"nextDouble", "()D", "org/evosuite/runtime/Random", "nextDouble",
+				"nextDouble", "()D", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextDouble",
 				"()D", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/security/SecureRandom",
-				"nextFloat", "()F", "org/evosuite/runtime/Random", "nextFloat",
+				"nextFloat", "()F", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextFloat",
 				"()F", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/security/SecureRandom",
-				"nextLong", "()J", "org/evosuite/runtime/Random", "nextLong", "()J",
+				"nextLong", "()J", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextLong", "()J",
 				true, false));
 		replacementCalls.add(new MethodCallReplacement("java/security/SecureRandom",
-				"nextGaussian", "()D", "org/evosuite/runtime/Random", "nextGaussian",
+				"nextGaussian", "()D", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextGaussian",
 				"()D", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/security/SecureRandom",
-				"nextBoolean", "()Z", "org/evosuite/runtime/Random", "nextBoolean",
+				"nextBoolean", "()Z", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextBoolean",
 				"()Z", true, false));
 		replacementCalls.add(new MethodCallReplacement("java/security/SecureRandom", "nextBytes",
-				"([B)V", "org/evosuite/runtime/Random", "nextBytes", "([B)V", true, false));
+				"([B)V", Opcodes.INVOKEVIRTUAL,  "org/evosuite/runtime/Random", "nextBytes", "([B)V", true, false));
 	}
 
 
@@ -543,7 +561,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 				mockedArgumentTypes[i+1] = argumentTypes[i];
 			String mockedDesc = Type.getMethodDescriptor(Type.getReturnType(m), mockedArgumentTypes);
 			replacementCalls.add(new MethodCallReplacement(
-					target.getCanonicalName().replace('.', '/'), m.getName(), desc,
+					target.getCanonicalName().replace('.', '/'), m.getName(), desc, Opcodes.INVOKEVIRTUAL, 
 					mockClass.getCanonicalName().replace('.', '/'), m.getName(), mockedDesc,
 					false, false));
 		}
@@ -559,7 +577,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 			String desc = Type.getMethodDescriptor(m);
 			replacementCalls.add(new MethodCallReplacement(
-					target.getCanonicalName().replace('.', '/'), m.getName(), desc,
+					target.getCanonicalName().replace('.', '/'), m.getName(), desc, Opcodes.INVOKESTATIC, 
 					mockClass.getCanonicalName().replace('.', '/'), m.getName(), desc,
 					false, false));
 		}
@@ -585,7 +603,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		for (Constructor<?> constructor : mockClass.getConstructors()) {
 			String desc = Type.getConstructorDescriptor(constructor);
 			specialReplacementCalls.add(new MethodCallReplacement(
-					target.getCanonicalName().replace('.', '/'), "<init>", desc,
+					target.getCanonicalName().replace('.', '/'), "<init>", desc, Opcodes.INVOKESPECIAL, 
 					mockClass.getCanonicalName().replace('.', '/'), "<init>", desc,
 					false, false));
 		}
@@ -611,7 +629,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		for (Method method : mockClass.getMethods()) {
 			String desc = Type.getMethodDescriptor(method);
 			specialReplacementCalls.add(new MethodCallReplacement(
-					target.getCanonicalName().replace('.', '/'), method.getName(), desc,
+					target.getCanonicalName().replace('.', '/'), method.getName(), desc, Opcodes.INVOKESPECIAL, 
 					mockClass.getCanonicalName().replace('.', '/'), method.getName(),
 					desc, false, false));
 		}
