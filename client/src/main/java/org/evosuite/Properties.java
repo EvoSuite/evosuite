@@ -612,7 +612,7 @@ public class Properties {
 	public static int CTG_MIN_TIME_PER_JOB = 1;
 
 	@Parameter(key = "ctg_folder", group = "Continuous Test Generation", description = "Where generated files will be stored")
-	public static String CTG_FOLDER = ".evosuite";
+	public static String CTG_FOLDER = ".continuous_evosuite";
 
 	@Parameter(key = "ctg_tmp_folder", group = "Continuous Test Generation", description = "Temporary directory")
     public static String CTG_TMP_FOLDER = "tmp";
@@ -706,7 +706,7 @@ public class Properties {
 	public static boolean JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 
 	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
-	public static String JUNIT_SUFFIX = "_ESTest";
+	public static String JUNIT_SUFFIX = "EvoSuiteTest";
 
 	@Parameter(key = "scaffolding_suffix", group = "Output", description = "Suffix used to specify scaffolding files")
 	public static String SCAFFOLDING_SUFFIX = "scaffolding";
@@ -744,31 +744,30 @@ public class Properties {
 	@Parameter(key = "minimize", group = "Output", description = "Minimize test suite after generation")
 	public static boolean MINIMIZE = true;
 
-	/** Constant <code>MINIMIZE=true</code> */
+	/** Constant <code>MINIMIZE_SECOND_PASS=true</code> */
 	@Parameter(key = "minimize_second_pass", group = "Output", description = "Minimize test suite after generation")
 	public static boolean MINIMIZE_SECOND_PASS = true;
 
-	/** Constant <code>MINIMIZE=true</code> */
+	/** Constant <code>MINIMIZE_SKIP_COINCIDENTAL=true</code> */
 	@Parameter(key = "minimize_skip_coincidental", group = "Output", description = "Minimize test suite after generation")
 	public static boolean MINIMIZE_SKIP_COINCIDENTAL = true;
-
-	
-	/** Constant <code>COVERAGE=true</code> */
-	@Parameter(key = "coverage", group = "Output", description = "Minimize test suite after generation")
-	public static boolean COVERAGE = true;
 
 	/** Constant <code>MINIMIZE_OLD=false</code> */
 	@Parameter(key = "minimize_old", group = "Output", description = "Minimize test suite using old algorithm")
 	@Deprecated
 	public static boolean MINIMIZE_OLD = false;
 
-	/** Constant <code>INLINE=false</code> */
-	@Parameter(key = "inline", group = "Output", description = "Inline all constants")
-	public static boolean INLINE = false;
-
 	/** Constant <code>MINIMIZE_VALUES=false</code> */
 	@Parameter(key = "minimize_values", group = "Output", description = "Minimize constants and method calls")
 	public static boolean MINIMIZE_VALUES = false;
+
+	/** Constant <code>COVERAGE=true</code> */
+	@Parameter(key = "coverage", group = "Output", description = "Minimize test suite after generation")
+	public static boolean COVERAGE = true;
+
+	/** Constant <code>INLINE=false</code> */
+	@Parameter(key = "inline", group = "Output", description = "Inline all constants")
+	public static boolean INLINE = false;
 
 	/** Constant <code>WRITE_POOL=false</code> */
 	@Parameter(key = "write_pool", group = "Output", description = "Keep sequences for object pool")
@@ -1157,6 +1156,7 @@ public class Properties {
 		REGRESSION,
 		READABILITY,
 		ONLYBRANCH,
+		METHODTRACE,
 		METHOD,
 		METHODNOEXCEPTION,
 		LINE,
