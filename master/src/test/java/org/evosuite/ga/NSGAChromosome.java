@@ -78,8 +78,8 @@ public class NSGAChromosome extends Chromosome
 		}
 		c.setSolution(this.isSolution());
 		c.setChanged(this.isChanged());
-		c.setCoverage(this.getCoverage());
-		c.setNumOfCoveredGoals(this.getNumOfCoveredGoals());
+		c.setCoverages(this.getCoverages());
+		c.setNumsOfCoveredGoals(this.getNumsOfCoveredGoals());
 		c.updateAge(this.getAge());
 		c.setRank(this.getRank());
 		c.setDistance(this.getDistance());
