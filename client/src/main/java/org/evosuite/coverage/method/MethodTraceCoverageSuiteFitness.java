@@ -37,11 +37,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Fitness function for a whole test suite for all methods
+ * Fitness function for a whole test suite for all methods.
+ * Methods must be invoked directly from a test case and
+ * their execution can end normally or with an exception.
  * 
  * @author Gordon Fraser, Jose Miguel Rojas
  */
-public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
+public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 4958063899628649732L;
 
@@ -53,10 +55,10 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	/**
 	 * <p>
-	 * Constructor for MethodCoverageSuiteFitness.
+	 * Constructor for MethodTraceCoverageSuiteFitness.
 	 * </p>
 	 */
-	public MethodCoverageSuiteFitness() {
+	public MethodTraceCoverageSuiteFitness() {
 
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
@@ -86,8 +88,8 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * Initialize the set of known coverage goals
 	 */
 	private void determineCoverageGoals() {
-		List<MethodCoverageTestFitness> goals = new MethodCoverageFactory().getCoverageGoals();
-		for (MethodCoverageTestFitness goal : goals) {
+		List<MethodTraceCoverageTestFitness> goals = new MethodTraceCoverageFactory().getCoverageGoals();
+		for (MethodTraceCoverageTestFitness goal : goals) {
 			methodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), goal);
 		}
 	}
@@ -190,9 +192,9 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		int coverage = callCount.keySet().size();
 		
 		if (totalMethods > 0)
-			suite.setCoverage((double) coverage / (double) totalMethods);
+			suite.setCoverage(this, (double) coverage / (double) totalMethods);
 
-		suite.setNumOfCoveredGoals(coverage);
+		suite.setNumOfCoveredGoals(this, coverage);
 
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value " + totalMethods);

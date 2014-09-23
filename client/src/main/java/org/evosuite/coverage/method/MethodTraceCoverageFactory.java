@@ -31,15 +31,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * MethodCoverageFactory class.
+ * MethodTraceCoverageFactory class.
  * </p>
- * 
+ *
+ * Measures coverage of methods by analysing execution traces,
+ * that is, the method can be covered by indirect calls, not
+ * necessarily be an statement in a test case.
+ *
  * @author Gordon Fraser, Andre Mis, Jose Miguel Rojas
  */
-public class MethodCoverageFactory extends
-		AbstractFitnessFactory<MethodCoverageTestFitness> {
+public class MethodTraceCoverageFactory extends
+		AbstractFitnessFactory<MethodTraceCoverageTestFitness> {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodCoverageFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(MethodTraceCoverageFactory.class);
 
 	/*
 	 * (non-Javadoc)
@@ -49,8 +53,8 @@ public class MethodCoverageFactory extends
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public List<MethodCoverageTestFitness> getCoverageGoals() {
-		List<MethodCoverageTestFitness> goals = new ArrayList<MethodCoverageTestFitness>();
+	public List<MethodTraceCoverageTestFitness> getCoverageGoals() {
+		List<MethodTraceCoverageTestFitness> goals = new ArrayList<MethodTraceCoverageTestFitness>();
 
 		long start = System.currentTimeMillis();
 		String targetClass = Properties.TARGET_CLASS;
@@ -63,14 +67,12 @@ public class MethodCoverageFactory extends
 				if (!matcher.methodMatches(methodName))
 					continue ;
 				logger.info("Adding goal for method " + className + "." + methodName);
-				goals.add(new MethodCoverageTestFitness(className,methodName));
+				goals.add(new MethodTraceCoverageTestFitness(className,methodName));
 			}
 		}		
 		goalComputationTime = System.currentTimeMillis() - start;
 		return goals;
 	}
-
-
 
 	/**
 	 * Create a fitness function for branch coverage aimed at covering the root
@@ -84,10 +86,10 @@ public class MethodCoverageFactory extends
 	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
 	 *         object.
 	 */
-	public static MethodCoverageTestFitness createMethodTestFitness(
+	public static MethodTraceCoverageTestFitness createMethodTestFitness(
 			String className, String method) {
 
-		return new MethodCoverageTestFitness(className,
+		return new MethodTraceCoverageTestFitness(className,
 				method.substring(method.lastIndexOf(".") + 1));
 	}
 
@@ -100,7 +102,7 @@ public class MethodCoverageFactory extends
 	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
 	 *         object.
 	 */
-	public static MethodCoverageTestFitness createMethodTestFitness(
+	public static MethodTraceCoverageTestFitness createMethodTestFitness(
 			BytecodeInstruction instruction) {
 		if (instruction == null)
 			throw new IllegalArgumentException("null given");
