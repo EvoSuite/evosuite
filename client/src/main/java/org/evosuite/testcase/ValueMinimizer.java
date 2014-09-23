@@ -115,7 +115,7 @@ public class ValueMinimizer extends TestVisitor {
 			} else {
 				individual.setLastExecutionResult(lastResult);
 				suite.setFitness(fitness, lastFitness);
-				suite.setCoverage(lastCoverage);
+				suite.setCoverage(fitness, lastCoverage);
 				return false;
 			}
 		}
