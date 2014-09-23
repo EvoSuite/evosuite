@@ -326,7 +326,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
-				<version>1.8</version>
+				<version>1.8.1</version>
 				<configuration>
 					<!-- Set the target configuration directory to be used in the bin scripts -->
 					<configurationDirectory>conf</configurationDirectory>
@@ -359,7 +359,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.9</version>
+				<version>1.9.1</version>
 			</plugin>
 
 			<!-- <plugin> -->
@@ -394,7 +394,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
+				<version>2.10</version>
 				<configuration>
 					<source>1.7</source>
 				</configuration>
@@ -403,7 +403,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5</version>
+				<version>2.5.1</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -434,7 +434,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
+				<version>2.3</version>
 				<configuration>
 					<includePom>true</includePom>
 					<excludes>
@@ -478,7 +478,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.3</version>
+					<version>3.4</version>
 				</plugin>
 				<!-- Removed Eclipse m2e lifecycle mapping plugin. For a better solution 
 					see: http://stackoverflow.com/questions/7409823/m2e-lifecycle-mapping-not-found -->
@@ -492,7 +492,7 @@
 	    <plugin>
 	      <groupId>org.codehaus.mojo</groupId>
 	      <artifactId>findbugs-maven-plugin</artifactId>
-	      <version>2.5.3</version>
+	      <version>3.0.0</version>
 	      <configuration>
 		<xmlOutput>true</xmlOutput>
 		<excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
@@ -503,6 +503,7 @@
 	    <plugin>
 	      <groupId>org.apache.maven.plugins</groupId>
 	      <artifactId>maven-pmd-plugin</artifactId>
+	      <version>3.2</version>
 	      <configuration>
 		<targetJdk>1.7</targetJdk>
 	      </configuration>
@@ -510,15 +511,17 @@
 	    <plugin>
 	      <groupId>org.apache.maven.plugins</groupId>
 	      <artifactId>maven-project-info-reports-plugin</artifactId>
-	      <version>2.1.1</version>
+	      <version>2.7</version>
 	    </plugin>
 	    <plugin>
 	      <groupId>org.apache.maven.plugins</groupId>
 	      <artifactId>maven-surefire-report-plugin</artifactId>
+	      <version>2.17</version>
 	    </plugin>
 	    <plugin>
 	      <groupId>org.apache.maven.plugins</groupId>
 	      <artifactId>maven-jxr-plugin</artifactId>
+	      <version>3.2</version>
 	    </plugin>
 	    <plugin>
               <groupId>org.codehaus.mojo</groupId>
