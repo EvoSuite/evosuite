@@ -129,7 +129,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				logger.debug("Skipping test with timeout");
 				double fitness = goals.size() * 100;
 				updateIndividual(this, individual, fitness);
-				suite.setCoverage(0.0);
+				suite.setCoverage(this, 0.0);
 				logger.debug("Test case has timed out, setting fitness to max value "
 				        + fitness);
 				return fitness;
@@ -425,9 +425,9 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private void setSuiteCoverage(TestSuiteChromosome suite) {
 
 		if (goals.size() > 0)
-			suite.setCoverage(countCoveredGoals() / (double) goals.size());
+			suite.setCoverage(this, countCoveredGoals() / (double) goals.size());
 		else
-			suite.setCoverage(1.0);
+			suite.setCoverage(this, 1.0);
 	}
 
 	private void setMostCovered() {

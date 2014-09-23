@@ -175,7 +175,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				coverage += 1;
 		}
 
-		suite.setCoverage(coverage / LCSAJFitnesses.size());
+		suite.setCoverage(this, coverage / LCSAJFitnesses.size());
 
 		return fitness;
 	}

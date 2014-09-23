@@ -135,7 +135,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 				double fitness = branchFitness.totalBranches * 2
 				        + branchFitness.totalMethods + 3 * mutationGoals.size();
 				updateIndividual(this, individual, fitness);
-				suite.setCoverage(0.0);
+				suite.setCoverage(this, 0.0);
 				logger.info("Test case has timed out, setting fitness to max value "
 				        + fitness);
 				return fitness;
@@ -282,8 +282,8 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 		*/
 		updateIndividual(this, individual, fitness);
 		updateGoals();
-		suite.setCoverage(1.0 * numKilled / mutationGoals.size());
-		suite.setNumOfCoveredGoals(numKilled);
+		suite.setCoverage(this, 1.0 * numKilled / mutationGoals.size());
+		suite.setNumOfCoveredGoals(this, numKilled);
 		
 		return fitness;
 	}

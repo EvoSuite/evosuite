@@ -220,9 +220,9 @@ public class MethodNoExceptionCoverageSuiteFitness extends TestSuiteFitnessFunct
 
 
 		if (totalMethods > 0)
-			suite.setCoverage((double) coveredMethodsNoExc / (double) totalMethods);
+			suite.setCoverage(this, (double) coveredMethodsNoExc / (double) totalMethods);
 
-		suite.setNumOfCoveredGoals(coveredMethodsNoExc);
+		suite.setNumOfCoveredGoals(this, coveredMethodsNoExc);
 
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value " + totalMethods);

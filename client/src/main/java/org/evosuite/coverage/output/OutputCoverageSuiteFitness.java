@@ -105,9 +105,9 @@ public class OutputCoverageSuiteFitness  extends TestSuiteFitnessFunction {
 		printStatusMessages(suite, coveredGoals, fitness);
 
 		if (totalGoals > 0)
-			suite.setCoverage((double) coveredGoals / (double) totalGoals);
+			suite.setCoverage(this, (double) coveredGoals / (double) totalGoals);
 
-		suite.setNumOfCoveredGoals(coveredGoals);
+		suite.setNumOfCoveredGoals(this, coveredGoals);
 
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value " + totalGoals);
