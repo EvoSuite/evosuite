@@ -162,16 +162,17 @@ public class CoverageAnalysis {
 		case ALLDEFS:
 			return RuntimeVariable.AllDefCoverage;
 		case BRANCH:
-		case EXCEPTION:
 			return RuntimeVariable.BranchCoverage;
+		case EXCEPTION:
+			return RuntimeVariable.ExceptionCoverage;
 		case DEFUSE:
 			return RuntimeVariable.DefUseCoverage;
 		case STATEMENT:
 			return RuntimeVariable.StatementCoverage;
 		case RHO:
-            return RuntimeVariable.RhoCoverage;
+			return RuntimeVariable.RhoCoverage;
 		case AMBIGUITY:
-            return RuntimeVariable.AmbiguityCoverage;
+			return RuntimeVariable.AmbiguityCoverage;
 		case STRONGMUTATION:
 		case MUTATION:
 			return RuntimeVariable.MutationScore;
@@ -179,6 +180,8 @@ public class CoverageAnalysis {
 			return RuntimeVariable.WeakMutationScore;
 		case ONLYBRANCH:
 			return RuntimeVariable.OnlyBranchCoverage;
+		case METHODTRACE:
+			return RuntimeVariable.MethodTraceCoverage;
 		case METHOD:
 			return RuntimeVariable.MethodCoverage;
 		case METHODNOEXCEPTION:
