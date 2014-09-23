@@ -43,6 +43,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.tree.MethodNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -53,6 +55,8 @@ import org.objectweb.asm.tree.MethodNode;
  */
 public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 
+	protected final static Logger logger = LoggerFactory.getLogger(ErrorConditionMethodAdapter.class);
+	
 	private final String className;
 
 	private final String methodName;
@@ -81,8 +85,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	 */
 	public ErrorConditionMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
-		//super(Opcodes.ASM4, mv, access, methodName, desc);
-		super(Opcodes.ASM4,
+		//super(Opcodes.ASM5, mv, access, methodName, desc);
+		super(Opcodes.ASM5,
 		        new AnnotatedMethodNode(access, methodName, desc, null, null), access,
 		        methodName, desc);
 		this.className = className;
@@ -99,6 +103,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		instrumentation.add(new DequeInstrumentation(this));
 		instrumentation.add(new DivisionByZeroInstrumentation(this));
 		instrumentation.add(new LinkedHashSetInstrumentation(this));
+		// instrumentation.add(new ListInstrumentation(this));
 		instrumentation.add(new LinkedListInstrumentation(this));
 		instrumentation.add(new NullPointerExceptionInstrumentation(this));
 		instrumentation.add(new OverflowInstrumentation(this));
@@ -114,7 +119,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	public void visitLabel(Label label) {
 		if (label instanceof AnnotatedLabel) {
 			AnnotatedLabel aLabel = (AnnotatedLabel) label;
-			if (aLabel.info == Boolean.TRUE) {
+			if (aLabel.isStartTag()) {
 				inInstrumentation = true;
 			} else {
 				inInstrumentation = false;
@@ -152,7 +157,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		if(!inInstrumentation) {
 			inInstrumentation = true;
 			for(ErrorBranchInstrumenter instrumenter : instrumentation) {
-				instrumenter.visitMethodInsn(opcode, owner, name, desc);
+				instrumenter.visitMethodInsn(opcode, owner, name, desc, itf);
 			}
 			inInstrumentation = false;
 		}

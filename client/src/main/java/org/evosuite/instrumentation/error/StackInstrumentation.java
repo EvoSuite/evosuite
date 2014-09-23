@@ -20,7 +20,7 @@ private static final String LISTNAME = Stack.class.getCanonicalName().replace('.
 
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc) {
+			String desc, boolean itf) {
 		if(owner.equals(LISTNAME)) {
 			if(emptyStackMethods.contains(name)) {
 				// empty
@@ -28,7 +28,7 @@ private static final String LISTNAME = Stack.class.getCanonicalName().replace('.
 
 				tagBranchStart();
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
-	                      "empty", "()Z");
+	                      "empty", "()Z", false);
 				insertBranchWithoutTag(Opcodes.IFLE, "java/util/EmptyStackException");
 				tagBranchEnd();
 				restoreMethodParameters(tempVariables, desc);

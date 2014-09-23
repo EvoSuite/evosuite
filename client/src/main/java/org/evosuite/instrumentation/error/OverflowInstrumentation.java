@@ -21,7 +21,7 @@ public class OverflowInstrumentation extends ErrorBranchInstrumenter {
 			mv.visitLdcInsn(opcode);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 					"org/evosuite/instrumentation/ErrorConditionChecker",
-					"underflowDistance", "(III)I");
+					"underflowDistance", "(III)I", false);
 
 			insertBranch(Opcodes.IFGT, "java/lang/ArithmeticException");
 
@@ -30,7 +30,7 @@ public class OverflowInstrumentation extends ErrorBranchInstrumenter {
 			mv.visitLdcInsn(opcode);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 					"org/evosuite/instrumentation/ErrorConditionChecker",
-					"overflowDistance", "(III)I");
+					"overflowDistance", "(III)I", false);
 			insertBranch(Opcodes.IFGT, "java/lang/ArithmeticException");
 
 			break;
@@ -43,7 +43,7 @@ public class OverflowInstrumentation extends ErrorBranchInstrumenter {
 			mv.visitLdcInsn(opcode);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 					"org/evosuite/instrumentation/ErrorConditionChecker",
-					"underflowDistance", "(FFI)I");
+					"underflowDistance", "(FFI)I", false);
 			insertBranch(Opcodes.IFGE, "java/lang/ArithmeticException");
 
 		case Opcodes.FDIV:
@@ -51,7 +51,7 @@ public class OverflowInstrumentation extends ErrorBranchInstrumenter {
 			mv.visitLdcInsn(opcode);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 					"org/evosuite/instrumentation/ErrorConditionChecker",
-					"overflowDistance", "(FFI)I");
+					"overflowDistance", "(FFI)I", false);
 			insertBranch(Opcodes.IFGE, "java/lang/ArithmeticException");
 			break;
 			
@@ -67,7 +67,7 @@ public class OverflowInstrumentation extends ErrorBranchInstrumenter {
 			mv.visitLdcInsn(opcode);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 					"org/evosuite/instrumentation/ErrorConditionChecker",
-					"underflowDistance", "(DDI)I");
+					"underflowDistance", "(DDI)I", false);
 
 			insertBranch(Opcodes.IFGE, "java/lang/ArithmeticException");
 
@@ -81,7 +81,7 @@ public class OverflowInstrumentation extends ErrorBranchInstrumenter {
 			mv.visitLdcInsn(opcode);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 					"org/evosuite/instrumentation/ErrorConditionChecker",
-					"overflowDistance", "(DDI)I");
+					"overflowDistance", "(DDI)I", false);
 
 			insertBranch(Opcodes.IFGE, "java/lang/ArithmeticException");
 			break;
@@ -97,7 +97,7 @@ public class OverflowInstrumentation extends ErrorBranchInstrumenter {
 			mv.visitLdcInsn(opcode);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 					"org/evosuite/instrumentation/ErrorConditionChecker",
-					"underflowDistance", "(JJI)I");
+					"underflowDistance", "(JJI)I", false);
 
 			insertBranch(Opcodes.IFGE, "java/lang/ArithmeticException");
 
@@ -111,7 +111,7 @@ public class OverflowInstrumentation extends ErrorBranchInstrumenter {
 			mv.visitLdcInsn(opcode);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
 					"org/evosuite/instrumentation/ErrorConditionChecker",
-					"overflowDistance", "(JJI)I");
+					"overflowDistance", "(JJI)I", false);
 
 			insertBranch(Opcodes.IFGE, "java/lang/ArithmeticException");
 			break;

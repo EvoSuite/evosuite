@@ -83,7 +83,7 @@ public class PurityAnalysisClassVisitor extends ClassVisitor {
 	 */
 	public PurityAnalysisClassVisitor(ClassVisitor visitor, String className,
 			CheapPurityAnalyzer purityAnalyzer) {
-		super(Opcodes.ASM4, visitor);
+		super(Opcodes.ASM5, visitor);
 		this.className = className;
 		this.purityAnalyzer = purityAnalyzer;
 	}

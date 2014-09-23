@@ -282,7 +282,7 @@ public class BooleanTestabilityTransformation {
 		        Type.getInternalName(BooleanHelper.class), "isNull",
 		        Type.getMethodDescriptor(Type.INT_TYPE,
 		                                 new Type[] { Type.getType(Object.class),
-		                                         Type.INT_TYPE }));
+		                                         Type.INT_TYPE }), false);
 		list.insertBefore(position, new InsnNode(Opcodes.DUP));
 		list.insertBefore(position, new LdcInsnNode(opcode));
 		list.insertBefore(position, nullCheck);
@@ -292,7 +292,7 @@ public class BooleanTestabilityTransformation {
 		MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "pushPredicate",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.INT_TYPE,
-		                Type.INT_TYPE }));
+		                Type.INT_TYPE }), false);
 		list.insertBefore(position, push);
 
 	}
@@ -310,7 +310,7 @@ public class BooleanTestabilityTransformation {
 		        Type.getMethodDescriptor(Type.INT_TYPE,
 		                                 new Type[] { Type.getType(Object.class),
 		                                         Type.getType(Object.class),
-		                                         Type.INT_TYPE }));
+		                                         Type.INT_TYPE }), false);
 		list.insertBefore(position, new InsnNode(Opcodes.DUP2));
 		list.insertBefore(position, new LdcInsnNode(opcode));
 		list.insertBefore(position, equalCheck);
@@ -320,7 +320,7 @@ public class BooleanTestabilityTransformation {
 		MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "pushPredicate",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.INT_TYPE,
-		                Type.INT_TYPE }));
+		                Type.INT_TYPE }), false);
 		list.insertBefore(position, push);
 
 	}
@@ -408,7 +408,7 @@ public class BooleanTestabilityTransformation {
 		MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "pushPredicate",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.INT_TYPE,
-		                Type.INT_TYPE }));
+		                Type.INT_TYPE }), false);
 		list.insertBefore(position, push);
 
 	}
@@ -426,7 +426,7 @@ public class BooleanTestabilityTransformation {
 		MethodInsnNode sub = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "intSub",
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.INT_TYPE,
-		                Type.INT_TYPE }));
+		                Type.INT_TYPE }), false);
 		list.insertBefore(position, sub);
 		insertBranchIdPlaceholder(currentMethodNode, position);
 
@@ -435,7 +435,7 @@ public class BooleanTestabilityTransformation {
 		MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "pushPredicate",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.INT_TYPE,
-		                Type.INT_TYPE }));
+		                Type.INT_TYPE }), false);
 		list.insertBefore(position, push);
 
 	}
@@ -458,7 +458,7 @@ public class BooleanTestabilityTransformation {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "getDistance",
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.INT_TYPE,
-		                Type.INT_TYPE, Type.INT_TYPE }));
+		                Type.INT_TYPE, Type.INT_TYPE }), false);
 		list.insert(position, get);
 	}
 
@@ -498,7 +498,7 @@ public class BooleanTestabilityTransformation {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "getDistance",
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.INT_TYPE,
-		                Type.INT_TYPE, Type.INT_TYPE }));
+		                Type.INT_TYPE, Type.INT_TYPE }), false);
 		list.insertBefore(position, get);
 	}
 

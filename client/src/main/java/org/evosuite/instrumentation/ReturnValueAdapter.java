@@ -48,7 +48,7 @@ public class ReturnValueAdapter extends MethodVisitor {
 	 */
 	public ReturnValueAdapter(MethodVisitor mv, String className, String methodName,
 	        String desc) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		fullMethodName = methodName + desc;
 		this.methodName = methodName;
 		this.className = className;
