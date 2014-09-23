@@ -203,9 +203,9 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		}
 		*/
 		if (!branchGoals.isEmpty())
-			suite.setCoverage((double) numCoveredGoals / (double) branchGoals.size());
+			suite.setCoverage(this, (double) numCoveredGoals / (double) branchGoals.size());
 
-		suite.setNumOfCoveredGoals(numCoveredGoals);
+		suite.setNumOfCoveredGoals(this, numCoveredGoals);
 		updateIndividual(this, suite, fitness);
 
 		return fitness;

@@ -60,9 +60,13 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/** Has this chromosome changed since its fitness was last evaluated? */
 	private boolean changed = true;
 
-	protected double coverage = 0.0;
+    private LinkedHashMap<FitnessFunction<?>, Double> coverages = new LinkedHashMap<FitnessFunction<?>, Double>();
 
-	protected int numOfCoveredGoals = 0;
+    private LinkedHashMap<FitnessFunction<?>, Integer> numsCoveredGoals = new LinkedHashMap<FitnessFunction<?>, Integer>();
+
+	//protected double coverage = 0.0;
+
+	//protected int numOfCoveredGoals = 0;
 	
 	/** Generation in which this chromosome was created */
 	protected int age = 0;
@@ -79,7 +83,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return a double.
 	 */
 	public double getFitness() {
-		assert Properties.ALGORITHM != Properties.Algorithm.NSGAII;
+		//assert Properties.ALGORITHM != Properties.Algorithm.NSGAII;
 		if (Properties.COMPOSITIONAL_FITNESS) {
             double sumFitnesses = 0.0;
             for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
@@ -91,6 +95,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	}
 
 	public double getFitness(FitnessFunction<?> ff) {
+        assert(fitnesses.containsKey(ff));
         return fitnesses.get(ff);
     }
 
@@ -112,17 +117,56 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
         this.lastFitnesses.putAll(lastFits);
     }
 
+    /**
+     * Adds a fitness function
+     *
+     * @param ff a fitness function
+     */
     public void addFitness(FitnessFunction<?> ff) {
-        this.fitnesses.put(ff, 0.0);
-        this.lastFitnesses.put(ff, 0.0);
+        this.addFitness(ff, 0.0, 0.0, 0);
     }
 
-    public void addFitness(FitnessFunction<?> ff, double value) {
-        this.fitnesses.put(ff, value);
-        this.lastFitnesses.put(ff, value);
+    /**
+     * Adds a fitness function with an associated fitness value
+     *
+     * @param ff a fitness function
+     * @param fitnessValue the fitness value for {@code ff}
+     */
+    public void addFitness(FitnessFunction<?> ff, double fitnessValue) {
+        this.addFitness(ff, fitnessValue, 0.0, 0);
     }
 
-	/**
+    /**
+     * Adds a fitness function with an associated fitness value and coverage value
+     *
+     * @param ff a fitness function
+     * @param fitnessValue the fitness value for {@code ff}
+     * @param coverage  the coverage value for {@code ff}
+     */
+    public void addFitness(FitnessFunction<?> ff, double fitnessValue, double coverage) {
+        this.fitnesses.put(ff, fitnessValue);
+        this.lastFitnesses.put(ff, fitnessValue);
+        this.coverages.put(ff, coverage);
+        this.numsCoveredGoals.put(ff, 0);
+    }
+
+    /**
+     * Adds a fitness function with an associated fitness value,
+     * coverage value, and number of covered goals.
+     *
+     * @param ff a fitness function
+     * @param fitnessValue the fitness value for {@code ff}
+     * @param coverage  the coverage value for {@code ff}
+     * @param numCoveredGoals the number of covered goals for {@code ff}
+     */
+    public void addFitness(FitnessFunction<?> ff, double fitnessValue, double coverage, int numCoveredGoals) {
+        this.fitnesses.put(ff, fitnessValue);
+        this.lastFitnesses.put(ff, fitnessValue);
+        this.coverages.put(ff, coverage);
+        this.numsCoveredGoals.put(ff, numCoveredGoals);
+    }
+
+    /**
 	 * Set new fitness value
 	 * 
 	 * @param value
@@ -311,26 +355,95 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return a double.
 	 */
 	public double getCoverage() {
-		return coverage;
+        if (Properties.COMPOSITIONAL_FITNESS) {
+            double sum = 0;
+            for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+                sum += coverages.get(fitnessFunction);
+            }
+            return sum;
+        } else
+            return coverages.isEmpty() ? 0.0 : coverages.get( fitnesses.keySet().iterator().next() );
 	}
 
-	/**
-	 * <p>Setter for the field <code>coverage</code>.</p>
-	 *
-	 * @param coverage a double.
-	 */
-	public void setCoverage(double coverage) {
-		this.coverage = coverage;
-	}
+	//public void setCoverage(double coverage) {
+    //	this.coverage = coverage;
+    //}
 
 	public int getNumOfCoveredGoals() {
-		return numOfCoveredGoals;
+        if (Properties.COMPOSITIONAL_FITNESS) {
+            int sum = 0;
+            for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+                sum += numsCoveredGoals.get(fitnessFunction);
+            }
+            return sum;
+        } else
+			return numsCoveredGoals.isEmpty() ? 0 : numsCoveredGoals.get( fitnesses.keySet().iterator().next() );
 	}
 
-	public void setNumOfCoveredGoals(int numOfCoveredGoals) {
-		this.numOfCoveredGoals = numOfCoveredGoals;
-	}
-	
+    public void setNumsOfCoveredGoals(Map<FitnessFunction<?>, Integer> fits) {
+        this.numsCoveredGoals.clear();
+        this.numsCoveredGoals.putAll(fits);
+    }
+
+    public Map<FitnessFunction<?>, Integer> getNumsOfCoveredGoals() {
+        return this.numsCoveredGoals;
+    }
+
+    public Map<FitnessFunction<?>, Double> getCoverages() {
+        return this.coverages;
+    }
+
+    public void setCoverages(Map<FitnessFunction<?>, Double> coverages) {
+        this.coverages.clear();
+        this.coverages.putAll(coverages);
+    }
+
+    //public void setNumOfCoveredGoals(int numOfCoveredGoals) {
+	//	this.numOfCoveredGoals = numOfCoveredGoals;
+	//}
+
+    /**
+     * Gets the coverage value for a given fitness function
+     *
+     * @param ff a fitness function
+     * @return the number of covered goals for {@code ff}
+     */
+    public double getCoverage(FitnessFunction<?> ff) {
+        assert(coverages.containsKey(ff));
+        return coverages.get(ff);
+    }
+
+    /**
+     * Sets the coverage value for a given fitness function
+     *
+     * @param ff a fitness function
+     * @param coverage the coverage value
+     */
+    public void setCoverage(FitnessFunction<?> ff, double coverage) {
+        this.coverages.put(ff, coverage);
+    }
+
+    /**
+     * Gets the number of covered goals for a given fitness function
+     *
+     * @param ff a fitness function
+     * @return the number of covered goals for {@code ff}
+     */
+    public double getNumOfCoveredGoals(FitnessFunction<?> ff) {
+        assert(numsCoveredGoals.containsKey(ff));
+        return numsCoveredGoals.get(ff);
+    }
+
+    /**
+     * Sets the number of covered goals for a given fitness function
+     *
+     * @param ff a fitness function
+     * @param numCoveredGoals the number of covered goals
+     */
+    public void setNumOfCoveredGoals(FitnessFunction<?> ff, int numCoveredGoals) {
+        this.numsCoveredGoals.put(ff, numCoveredGoals);
+    }
+
 	public void updateAge(int generation) {
 		this.age = generation;
 	}

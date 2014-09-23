@@ -141,7 +141,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 			logger.info("Local search worsened fitness from " + lastFitness + " to "
 			        + newFitness);
 			suite.setFitness(fitness, lastFitness);
-			suite.setCoverage(lastCoverage);
+			suite.setCoverage(fitness, lastCoverage);
 			return 1;
 		} else {
 			logger.info("Local search did not change fitness of " + lastFitness);
