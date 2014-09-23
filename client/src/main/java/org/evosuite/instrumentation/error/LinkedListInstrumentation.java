@@ -23,7 +23,8 @@ public class LinkedListInstrumentation extends ErrorBranchInstrumenter {
 
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc) {
+			String desc, boolean itf) {
+		
 		if(owner.equals(LISTNAME)) {
 			if(emptyListMethods.contains(name)) {
 				// empty
@@ -31,7 +32,7 @@ public class LinkedListInstrumentation extends ErrorBranchInstrumenter {
 
 				tagBranchStart();
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
-	                      "isEmpty", "()Z");
+	                      "isEmpty", "()Z", false);
 				insertBranchWithoutTag(Opcodes.IFLE, "java/util/NoSuchElementException");
 				tagBranchEnd();
 				restoreMethodParameters(tempVariables, desc);
@@ -46,7 +47,7 @@ public class LinkedListInstrumentation extends ErrorBranchInstrumenter {
 				Map<Integer, Integer> tempVariables = getMethodCallee(desc);
 				tagBranchStart();
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
-	                      "size", "()I");
+	                      "size", "()I", false);
 				
 				// index >= size
 				mv.loadLocal(tempVariables.get(0));

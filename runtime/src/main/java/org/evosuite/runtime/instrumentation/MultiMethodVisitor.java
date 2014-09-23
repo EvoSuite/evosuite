@@ -242,6 +242,12 @@ public class MultiMethodVisitor extends MethodVisitor {
 	 */
 	/** {@inheritDoc} */
 	@Override
+	public void visitMethodInsn(int arg0, String arg1, String arg2, String arg3, boolean itf) {
+		mv1.visitMethodInsn(arg0, arg1, arg2, arg3, itf);
+		mv2.visitMethodInsn(arg0, arg1, arg2, arg3, itf);
+	}
+	
+	@Override
 	public void visitMethodInsn(int arg0, String arg1, String arg2, String arg3) {
 		mv1.visitMethodInsn(arg0, arg1, arg2, arg3);
 		mv2.visitMethodInsn(arg0, arg1, arg2, arg3);

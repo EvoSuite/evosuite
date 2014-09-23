@@ -27,7 +27,7 @@ public class ExitClassInitAdapter extends ClassVisitor {
 	private final String className;
 
 	public ExitClassInitAdapter(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM4, visitor);
+		super(Opcodes.ASM5, visitor);
 		this.className = className;
 	}
 

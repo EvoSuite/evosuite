@@ -123,7 +123,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 		// className,
 		// name.replace('/', '.'), null, desc);
 
-		super(Opcodes.ASM4, new AnnotatedMethodNode(access, name, desc, signature,
+		super(Opcodes.ASM5, new AnnotatedMethodNode(access, name, desc, signature,
 		        exceptions));
 
 		this.next = mv;

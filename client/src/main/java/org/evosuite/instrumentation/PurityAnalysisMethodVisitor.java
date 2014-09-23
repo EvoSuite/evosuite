@@ -58,7 +58,7 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 	public PurityAnalysisMethodVisitor(String className, String methodName,
 			String descriptor, MethodVisitor mv,
 			CheapPurityAnalyzer purityAnalyzer) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		this.updatesField = false;
 		this.purityAnalyzer = purityAnalyzer;
 		this.classNameWithDots = className.replace("/", ".");
@@ -85,7 +85,7 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc) {
+			String desc, boolean itf) {
 
 		String targetClassName = owner.replace("/", ".");
 		if (targetClassName.equals(org.evosuite.runtime.Random.class.getCanonicalName()) || !BytecodeInstrumentation.checkIfEvoSuitePackage(targetClassName)) {
@@ -106,6 +106,6 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 						methodName, descriptor, targetClassName, name, desc);
 			}
 		}
-		super.visitMethodInsn(opcode, owner, name, desc);
+		super.visitMethodInsn(opcode, owner, name, desc, itf);
 	}
 }
