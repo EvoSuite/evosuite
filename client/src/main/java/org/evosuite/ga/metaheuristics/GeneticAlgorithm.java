@@ -579,15 +579,12 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
             return bestIndividuals;
         }
 
-        // single fitness function
-        if (this.fitnessFunctions.size() == 1) {
-            // Assume population is sorted
-            bestIndividuals.add(population.get(0));
-            return bestIndividuals;
-        }
+        if (Properties.ALGORITHM == Properties.ALGORITHM.NSGAII)
+        	return population;
 
-        // multi fitness functions
-        return population;
+        // Assume population is sorted
+        bestIndividuals.add(population.get(0));
+        return bestIndividuals;
     }
 
 	/**
