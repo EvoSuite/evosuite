@@ -89,6 +89,8 @@ public enum RuntimeVariable {
 	BranchCoverage,
 	/** Only the covered branches ratio. */
 	OnlyBranchCoverage,
+	/** The obtained method coverage (method calls anywhere in trace) */
+	MethodTraceCoverage,
 	/** The obtained method coverage */
 	MethodCoverage,
 	/** The obtained method coverage (only normal behaviour) */
@@ -97,6 +99,8 @@ public enum RuntimeVariable {
 	LineCoverage,
 	/** The obtained output value coverage */
 	OutputCoverage,
+	/** The obtained exception coverage */
+	ExceptionCoverage,
 	/** A bit string (0/1) representing whether branches (in order) are covered */
 	CoveredBranchesBitString,
 	/** The obtained score for weak mutation testing */
