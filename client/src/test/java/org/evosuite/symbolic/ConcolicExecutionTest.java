@@ -2187,11 +2187,14 @@ public class ConcolicExecutionTest {
 			NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
 
-		Method method = TestCase100.class.getMethod("test", String.class);
+		Method method = TestCase100.class.getMethod("test", String.class,
+				int.class);
 
-		VariableReference string0 = tc.appendStringPrimitive("10");
+		VariableReference string0 = tc.appendStringPrimitive("roberto");
 
-		tc.appendMethod(null, method, string0);
+		VariableReference int0 = tc.appendIntPrimitive(-1);
+
+		tc.appendMethod(null, method, string0, int0);
 
 		return tc.getDefaultTestCase();
 	}
@@ -2247,12 +2250,12 @@ public class ConcolicExecutionTest {
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
 	}
-	
+
 	@Test
 	public void testCase100() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase100();
 
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(0, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
 }

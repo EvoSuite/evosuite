@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.vm;
 
 import org.objectweb.asm.Type;
-
+import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
 
@@ -461,9 +461,11 @@ public abstract class SymbolicFunction {
 	 * 
 	 * This is the very last chance of saving concrete values before the
 	 * execution of the concrete method.
+	 * 
+	 * This could return an IntegerConstraint (such as String.isInteger)
 	 */
-	public void beforeExecuteFunction() {
-		/* STUB */
+	public IntegerConstraint beforeExecuteFunction() {
+		return null;
 	}
 
 }

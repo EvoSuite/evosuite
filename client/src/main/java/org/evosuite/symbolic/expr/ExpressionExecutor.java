@@ -330,6 +330,15 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 		case LENGTH:
 			return (long) exOn.length();
 
+		case IS_INTEGER: {
+			try {
+				Integer.parseInt(exOn);
+				return 1;
+			} catch (NumberFormatException ex) {
+				return 0;
+			}
+		}
+
 		default:
 			log.warn("StringUnaryExpression: unimplemented operator!");
 			return null;
@@ -630,7 +639,8 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 
 	@Override
 	public Object visit(StringNextTokenExpr n, Void arg) {
-		StringTokenizer tokenizer = (StringTokenizer) n.getTokenizerExpr().accept(this,null);
+		StringTokenizer tokenizer = (StringTokenizer) n.getTokenizerExpr()
+				.accept(this, null);
 		return tokenizer.nextToken();
 	}
 
