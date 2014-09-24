@@ -55,8 +55,6 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 * 
 	 * @param percent
 	 *            a int.
-	 * @param coverage
-	 *            a int.
 	 */
 	public void updateStatus(int percent) {
 		ClientState state = ClientState.SEARCH;

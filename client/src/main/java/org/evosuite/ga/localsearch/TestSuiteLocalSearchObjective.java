@@ -71,7 +71,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		this.suite = suite;
 		this.testIndex = index;
 		this.lastFitness = fitness.getFitness(suite);
-		this.lastCoverage = suite.getCoverage();
+		this.lastCoverage = suite.getCoverage(fitness);
 	}
 
 	public void verifyFitnessValue() {
@@ -134,7 +134,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 			logger.info("Local search improved fitness from " + lastFitness + " to "
 			        + newFitness);
 			lastFitness = newFitness;
-			lastCoverage = suite.getCoverage();
+			lastCoverage = suite.getCoverage(fitness);
 			suite.setFitness(fitness, lastFitness);
 			return -1;
 		} else if (isFitnessWorse(newFitness, lastFitness)) {
@@ -146,7 +146,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		} else {
 			logger.info("Local search did not change fitness of " + lastFitness);
 
-			lastCoverage = suite.getCoverage();
+			lastCoverage = suite.getCoverage(fitness);
 			return 0;
 		}
 	}
