@@ -29,7 +29,7 @@ public class TestSerialization {
 		testChromosome.setTestCase(test);
 		testChromosome.setFitness(null, 3.14d);		
 		chromosome.setFitness(null, fitness);
-		chromosome.setCoverage(0.5);
+		chromosome.setCoverage(null, 0.5);
 		chromosome.updateAge(24);
 		chromosome.setChanged(true);
 		chromosome.setSolution(true);

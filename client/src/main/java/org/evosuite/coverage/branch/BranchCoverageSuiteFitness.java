@@ -324,9 +324,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		if (totalGoals > 0)
-			suite.setCoverage((double) coverage / (double) totalGoals);
+			suite.setCoverage(this, (double) coverage / (double) totalGoals);
 
-		suite.setNumOfCoveredGoals(coverage);
+		suite.setNumOfCoveredGoals(this, coverage);
 
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value "

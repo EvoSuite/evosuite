@@ -171,9 +171,9 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		printStatusMessages(suite, coveredLines, fitness);
 
 		if (totalLines > 0)
-			suite.setCoverage((double) coveredLines / (double) totalLines);
+			suite.setCoverage(this, (double) coveredLines / (double) totalLines);
 
-		suite.setNumOfCoveredGoals(coveredLines);
+		suite.setNumOfCoveredGoals(this, coveredLines);
 		
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value " + totalLines);

@@ -41,7 +41,7 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 	@Before
 	public void beforeTest() {
         Properties.CRITERION[0] = Criterion.LINE;
-		Properties.MINIMIZE = false;
+		//Properties.MINIMIZE = false;
 	}
 
 	@Test

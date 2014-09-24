@@ -95,10 +95,10 @@ public class AllDefsCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	        Set<TestFitnessFunction> coveredGoals) {
 
 		if (goals.size() > 0)
-			suite.setCoverage(coveredGoals.size() / (double) goals.size());
+			suite.setCoverage(this, coveredGoals.size() / (double) goals.size());
 		else
-			suite.setCoverage(1.0);
+			suite.setCoverage(this, 1.0);
 		
-		suite.setNumOfCoveredGoals(coveredGoals.size());
+		suite.setNumOfCoveredGoals(this, coveredGoals.size());
 	}
 }
