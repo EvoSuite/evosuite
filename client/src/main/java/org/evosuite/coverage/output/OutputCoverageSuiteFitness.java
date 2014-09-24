@@ -120,8 +120,8 @@ public class OutputCoverageSuiteFitness  extends TestSuiteFitnessFunction {
 		assert (fitness >= 0.0);
 		assert (fitness != 0.0 || coveredGoals == totalGoals) : "Fitness: " + fitness + ", "
 		        + "coverage: " + coveredGoals + "/" + totalGoals;
-		assert (suite.getCoverage() <= 1.0) && (suite.getCoverage() >= 0.0) : "Wrong coverage value "
-		        + suite.getCoverage();
+		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
+		        + suite.getCoverage(this);
 
 		return fitness;
 	}
@@ -139,8 +139,7 @@ public class OutputCoverageSuiteFitness  extends TestSuiteFitnessFunction {
 	/**
 	 * Some useful debug information
 	 * 
-	 * @param coveredBranches
-	 * @param coveredMethods
+	 * @param coveredGoals
 	 * @param fitness
 	 */
 	private void printStatusMessages(

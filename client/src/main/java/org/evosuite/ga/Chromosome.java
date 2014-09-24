@@ -354,7 +354,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *
 	 * @return a double.
 	 */
-	public double getCoverage() {
+	public double getCoverage_() {
         if (Properties.COMPOSITIONAL_FITNESS) {
             double sum = 0;
             for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
