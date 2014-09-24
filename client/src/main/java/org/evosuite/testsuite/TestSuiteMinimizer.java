@@ -287,16 +287,17 @@ public class TestSuiteMinimizer {
 //		else
 //			suite.setCoverage((double) numCovered / (double) numGoals);
 
-        logger.info("Setting coverage to: " + suite.getCoverage());
-
         if (Properties.MINIMIZE_SECOND_PASS) {
             removeRedundantTestCases(suite);
         }
 
+        double suiteCoverage = suite.getCoverage();
+        logger.info("Setting coverage to: " + suiteCoverage);
+
         ClientState state = ClientState.MINIMIZATION;
         ClientStateInformation information = new ClientStateInformation(state);
         information.setProgress(100);
-        information.setCoverage((int) (Math.round(suite.getCoverage() * 100)));
+        information.setCoverage((int) (Math.round(suiteCoverage * 100)));
         ClientServices.getInstance().getClientNode().changeState(state, information);
 
         for (TestFitnessFunction goal : goals) {
