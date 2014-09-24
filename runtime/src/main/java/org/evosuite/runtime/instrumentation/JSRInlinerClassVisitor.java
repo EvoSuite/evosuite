@@ -8,7 +8,7 @@ import org.objectweb.asm.commons.JSRInlinerAdapter;
 public class JSRInlinerClassVisitor extends ClassVisitor {
 
 	public JSRInlinerClassVisitor(ClassVisitor parent) {
-		super(Opcodes.ASM4, parent);
+		super(Opcodes.ASM5, parent);
 	}
 	
 	/** {@inheritDoc} */
