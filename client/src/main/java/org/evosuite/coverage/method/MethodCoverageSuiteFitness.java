@@ -227,8 +227,8 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		assert (fitness >= 0.0);
 		assert (fitness != 0.0 || coveredMethodsNoExc == totalMethods) : "Fitness: " + fitness + ", "
 		        + "coverage: " + coveredMethodsNoExc + "/" + totalMethods;
-		assert (suite.getCoverage() <= 1.0) && (suite.getCoverage() >= 0.0) : "Wrong coverage value "
-		        + suite.getCoverage();
+		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
+		        + suite.getCoverage(this);
 
 		return fitness;
 	}
