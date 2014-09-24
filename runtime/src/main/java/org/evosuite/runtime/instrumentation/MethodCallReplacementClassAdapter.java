@@ -62,7 +62,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	}
 
 	public MethodCallReplacementClassAdapter(ClassVisitor cv, String className, boolean canAddMethods) {
-		super(Opcodes.ASM4, cv);
+		super(Opcodes.ASM5, cv);
 		this.className = className;
 		this.superClassName = null;
 		this.canChangeSignature = canAddMethods;

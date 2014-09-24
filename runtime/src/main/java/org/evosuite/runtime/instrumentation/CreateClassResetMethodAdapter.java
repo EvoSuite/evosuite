@@ -17,7 +17,7 @@ public class CreateClassResetMethodAdapter extends MethodVisitor {
 
 	public CreateClassResetMethodAdapter(MethodVisitor mv, String className,
 			List<StaticField> staticFields, List<String> finalFields) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		this.className = className;
 		this.staticFields = staticFields;
 		this.finalFields = finalFields;
