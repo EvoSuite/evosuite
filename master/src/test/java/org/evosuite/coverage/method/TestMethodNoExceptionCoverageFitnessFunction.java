@@ -39,7 +39,7 @@ public class TestMethodNoExceptionCoverageFitnessFunction extends SystemTest {
 	@Before
 	public void beforeTest() {
         Properties.CRITERION[0] = Criterion.METHODNOEXCEPTION;
-		Properties.MINIMIZE = false;
+		//Properties.MINIMIZE = false;
 	}
 
 	@Ignore
@@ -95,5 +95,23 @@ public class TestMethodNoExceptionCoverageFitnessFunction extends SystemTest {
         int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
         Assert.assertEquals(6, goals );
         Assert.assertEquals("Not expected coverage: ", 0.83d, best.getCoverage(), 0.1);
+    }
+
+    @Test
+    public void testMethodFitnessCompositionalExample() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = Compositional.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+
+        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+        System.out.println("EvolvedTestSuite:\n" + best);
+        int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals(4, goals );
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
 }

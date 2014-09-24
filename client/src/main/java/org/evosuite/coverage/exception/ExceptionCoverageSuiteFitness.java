@@ -21,11 +21,7 @@ package org.evosuite.coverage.exception;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
@@ -70,7 +66,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		 * but because "coverage" is only used for stats, no need to update it here, as
 		 * anyway it d be bit difficult to define
 		 */
-		double coverageFitness = baseFF.getFitness(suite);
+		//double coverageFitness = baseFF.getFitness(suite);
 
 		/*
 		 * for each method in the SUT, we keep track of which kind of exceptions were thrown.
@@ -80,21 +76,24 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
 
 		List<ExecutionResult> results = runTestSuite(suite);
-		
+
 		calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions);
 
 		int nExc = getNumExceptions(implicitTypesOfExceptions) + getNumExceptions(explicitTypesOfExceptions);
 
 		double exceptionFitness = 1d / (1d + nExc);
 
-		suite.setFitness(this, coverageFitness + exceptionFitness);
-		return coverageFitness + exceptionFitness;
+		//suite.setFitness(this, coverageFitness + exceptionFitness);
+		//return coverageFitness + exceptionFitness;
+        suite.setFitness(this, exceptionFitness);
+        return exceptionFitness;
 	}
 
 	
 	
 	/**
-	 * given the list of results, fill the 2 given (empty) maps with exception information
+	 * Given the list of results, fill the 2 given (empty) maps with exception information.
+	 * Also, add exception coverage goals to mapping in {@link ExceptionCoverageFactory}
 	 * 
 	 * @param results
 	 * @param implicitTypesOfExceptions
@@ -183,7 +182,6 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 							explicitTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
 						}
 						explicitTypesOfExceptions.get(methodName).add(t.getClass());
-						
 					} else {
 						
 						if (!implicitTypesOfExceptions.containsKey(methodName)){
@@ -192,6 +190,10 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 						implicitTypesOfExceptions.get(methodName).add(t.getClass());
 						
 					}
+                    /*
+                     * Add goal to ExceptionCoverageFactory
+                     */
+                    ExceptionCoverageFactory.getGoals().put(methodName + t.getClass().getName(), new ExceptionCoverageTestFitness(methodName, t.getClass()));
 				}
 
 			}

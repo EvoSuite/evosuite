@@ -18,6 +18,8 @@
 package org.evosuite.coverage.method;
 
 import com.examples.with.different.packagename.Compositional;
+import com.examples.with.different.packagename.FlagExample3;
+import com.examples.with.different.packagename.SingleMethod;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -29,18 +31,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.FlagExample3;
-import com.examples.with.different.packagename.SingleMethod;
-
 /**
  * @author Jose Miguel Rojas
  *
  */
-public class TestMethodCoverageFitnessFunction extends SystemTest {
+public class TestMethodTraceCoverageFitnessFunction extends SystemTest {
 
 	@Before
 	public void beforeTest() {
-        Properties.CRITERION[0] = Criterion.METHOD;
+        Properties.CRITERION[0] = Criterion.METHODTRACE;
 		//Properties.MINIMIZE = false;
 	}
 
