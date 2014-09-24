@@ -53,7 +53,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	/**
 	 * <p>
-	 * Constructor for BranchCoverageSuiteFitness.
+	 * Constructor for LineCoverageSuiteFitness.
 	 * </p>
 	 */
 	public LineCoverageSuiteFitness() {

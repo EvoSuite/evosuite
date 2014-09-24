@@ -17,9 +17,6 @@
  */
 package org.evosuite.coverage.method;
 
-import com.examples.with.different.packagename.Compositional;
-import com.examples.with.different.packagename.FlagExample3;
-import com.examples.with.different.packagename.SingleMethod;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -30,6 +27,10 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.examples.with.different.packagename.Compositional;
+import com.examples.with.different.packagename.FlagExample3;
+import com.examples.with.different.packagename.SingleMethod;
 
 /**
  * @author Jose Miguel Rojas
