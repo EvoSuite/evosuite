@@ -734,9 +734,12 @@ public class TestSuiteGenerator {
 		    //SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), coverage);
 		    CoverageAnalysis.analyzeCriteria(bestSuites.get(0), Properties.ANALYSIS_CRITERIA); // FIXME: can we send all bestSuites?
 		}
-
-		LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "
-		                                         + NumberFormat.getPercentInstance().format(coverage));
+        if (Properties.COMPOSITIONAL_FITNESS)
+            LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "
+                    + NumberFormat.getPercentInstance().format(coverage) + " (average coverage for all fitness functions)");
+        else
+            LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "
+                    + NumberFormat.getPercentInstance().format(coverage));
 
 		ga.printBudget();
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
