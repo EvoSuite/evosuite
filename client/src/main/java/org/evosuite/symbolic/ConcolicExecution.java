@@ -101,7 +101,7 @@ public abstract class ConcolicExecution {
 		listeners.add(new LocalsVM(env));
 		listeners.add(new ArithmeticVM(env, pc));
 		listeners.add(new OtherVM(env));
-		listeners.add(new SymbolicFunctionVM(env));
+		listeners.add(new SymbolicFunctionVM(env, pc));
 		VM.vm.setListeners(listeners);
 		VM.vm.startupConcolicExecution();
 

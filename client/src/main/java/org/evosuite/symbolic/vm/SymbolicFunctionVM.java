@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.vm.apache.regex.Perl5Matcher_Matches;
@@ -103,6 +104,7 @@ import org.evosuite.symbolic.vm.wrappers.F_Init;
 import org.evosuite.symbolic.vm.wrappers.F_ValueOf;
 import org.evosuite.symbolic.vm.wrappers.I_Init;
 import org.evosuite.symbolic.vm.wrappers.I_IntValue;
+import org.evosuite.symbolic.vm.wrappers.I_ParseInt;
 import org.evosuite.symbolic.vm.wrappers.I_ValueOf;
 import org.evosuite.symbolic.vm.wrappers.J_Init;
 import org.evosuite.symbolic.vm.wrappers.J_LongValue;
@@ -155,9 +157,11 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	}
 
 	private final SymbolicEnvironment env;
+	private final PathConstraint pc;
 
-	public SymbolicFunctionVM(SymbolicEnvironment env) {
+	public SymbolicFunctionVM(SymbolicEnvironment env, PathConstraint pc) {
 		this.env = env;
+		this.pc = pc;
 		fillFunctionsTable();
 	}
 
@@ -179,7 +183,8 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new I_Init(env));
 		addFunctionToTable(new I_ValueOf(env));
 		addFunctionToTable(new I_IntValue(env));
-		//
+		addFunctionToTable(new I_ParseInt(env));
+
 		// java.lang.Long
 		addFunctionToTable(new J_Init(env));
 		addFunctionToTable(new J_ValueOf(env));
@@ -329,7 +334,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 
 		// java.io.Reader
 		addFunctionToTable(new Reader_Read(env));
-		
+
 		// java.util.regex.Pattern
 		addFunctionToTable(new Pattern_Matches(env));
 		addFunctionToTable(new Pattern_Matcher(env));
@@ -357,7 +362,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		functionUnderExecution = getFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
 			if (Type.getArgumentTypes(desc).length == 0) {
-				functionUnderExecution.beforeExecuteFunction();
+				callBeforeExecution(functionUnderExecution);
 			}
 		}
 	}
@@ -370,7 +375,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 			Reference symb_receiver = getReceiverFromStack();
 			functionUnderExecution.setReceiver(conc_receiver, symb_receiver);
 			if (Type.getArgumentTypes(desc).length == 0) {
-				functionUnderExecution.beforeExecuteFunction();
+				callBeforeExecution(functionUnderExecution);
 			}
 		}
 	}
@@ -425,6 +430,16 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	@Override
 	public void CALL_RESULT(int conc_ret_val, String owner, String name,
 			String desc) {
+
+		if (functionUnderExecution != null) {
+			if (!functionUnderExecution.getOwner().equals(owner)
+					|| !functionUnderExecution.getName().equals(name)
+					|| !functionUnderExecution.getDesc().equals(desc)) {
+
+				functionUnderExecution = null;
+			}
+		}
+
 		if (functionUnderExecution != null) {
 			IntegerValue symb_ret_val = this.env.topFrame().operandStack
 					.peekBv32();
@@ -439,6 +454,16 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	@Override
 	public void CALL_RESULT(Object conc_ret_val, String owner, String name,
 			String desc) {
+
+		if (functionUnderExecution != null) {
+			if (!functionUnderExecution.getOwner().equals(owner)
+					|| !functionUnderExecution.getName().equals(name)
+					|| !functionUnderExecution.getDesc().equals(desc)) {
+
+				functionUnderExecution = null;
+			}
+		}
+
 		if (functionUnderExecution != null) {
 			Reference symb_ret_val = this.env.topFrame().operandStack.peekRef();
 			functionUnderExecution.setReturnValue(conc_ret_val, symb_ret_val);
@@ -456,6 +481,15 @@ public final class SymbolicFunctionVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(String owner, String name, String desc) {
+
+		if (functionUnderExecution != null) {
+			if (!functionUnderExecution.getOwner().equals(owner)
+					|| !functionUnderExecution.getName().equals(name)
+					|| !functionUnderExecution.getDesc().equals(desc)) {
+				functionUnderExecution = null;
+			}
+		}
+
 		if (functionUnderExecution != null) {
 			functionUnderExecution.executeFunction();
 		}
@@ -466,6 +500,16 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	public void CALL_RESULT(boolean conc_ret_val, String owner, String name,
 			String desc) {
 		if (functionUnderExecution != null) {
+			if (!functionUnderExecution.getOwner().equals(owner)
+					|| !functionUnderExecution.getName().equals(name)
+					|| !functionUnderExecution.getDesc().equals(desc)) {
+
+				functionUnderExecution = null;
+			}
+		}
+
+		if (functionUnderExecution != null) {
+
 			IntegerValue symb_ret_val = this.env.topFrame().operandStack
 					.peekBv32();
 			functionUnderExecution.setReturnValue(conc_ret_val, symb_ret_val);
@@ -479,6 +523,16 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	@Override
 	public void CALL_RESULT(long conc_ret_val, String owner, String name,
 			String desc) {
+
+		if (functionUnderExecution != null) {
+			if (!functionUnderExecution.getOwner().equals(owner)
+					|| !functionUnderExecution.getName().equals(name)
+					|| !functionUnderExecution.getDesc().equals(desc)) {
+
+				functionUnderExecution = null;
+			}
+		}
+
 		if (functionUnderExecution != null) {
 			IntegerValue symb_ret_val = this.env.topFrame().operandStack
 					.peekBv64();
@@ -493,6 +547,16 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	@Override
 	public void CALL_RESULT(double conc_ret_val, String owner, String name,
 			String desc) {
+
+		if (functionUnderExecution != null) {
+			if (!functionUnderExecution.getOwner().equals(owner)
+					|| !functionUnderExecution.getName().equals(name)
+					|| !functionUnderExecution.getDesc().equals(desc)) {
+
+				functionUnderExecution = null;
+			}
+		}
+
 		if (functionUnderExecution != null) {
 			RealValue symb_ret_val = this.env.topFrame().operandStack
 					.peekFp64();
@@ -507,6 +571,16 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	@Override
 	public void CALL_RESULT(float conc_ret_val, String owner, String name,
 			String desc) {
+
+		if (functionUnderExecution != null) {
+			if (!functionUnderExecution.getOwner().equals(owner)
+					|| !functionUnderExecution.getName().equals(name)
+					|| !functionUnderExecution.getDesc().equals(desc)) {
+
+				functionUnderExecution = null;
+			}
+		}
+
 		if (functionUnderExecution != null) {
 			RealValue symb_ret_val = this.env.topFrame().operandStack
 					.peekFp32();
@@ -526,8 +600,16 @@ public final class SymbolicFunctionVM extends AbstractVM {
 			functionUnderExecution.setReceiver(
 					null /* receiver not yet ready */, symb_receiver);
 			if (Type.getArgumentTypes(desc).length == 0) {
-				functionUnderExecution.beforeExecuteFunction();
+				callBeforeExecution(functionUnderExecution);
 			}
+		}
+	}
+
+	private void callBeforeExecution(SymbolicFunction myFunctionUnderExecution) {
+		IntegerConstraint constraint = myFunctionUnderExecution
+				.beforeExecuteFunction();
+		if (constraint != null) {
+			pc.pushSupportingConstraint(constraint);
 		}
 	}
 
@@ -539,7 +621,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 			Reference symb_receiver = getReceiverFromStack();
 			functionUnderExecution.setReceiver(conc_receiver, symb_receiver);
 			if (Type.getArgumentTypes(desc).length == 0) {
-				functionUnderExecution.beforeExecuteFunction();
+				callBeforeExecution(functionUnderExecution);
 			}
 		}
 
@@ -555,7 +637,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 			Reference symb_receiver = getReceiverFromStack();
 			functionUnderExecution.setReceiver(conc_receiver, symb_receiver);
 			if (Type.getArgumentTypes(functionUnderExecution.getDesc()).length == 0) {
-				functionUnderExecution.beforeExecuteFunction();
+				callBeforeExecution(functionUnderExecution);
 			}
 		}
 
@@ -584,7 +666,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	private void beforeExecuteFunction(int nr) {
 		String desc = functionUnderExecution.getDesc();
 		if (Type.getArgumentTypes(desc).length - 1 == nr) {
-			functionUnderExecution.beforeExecuteFunction();
+			callBeforeExecution(functionUnderExecution);
 		}
 	}
 
