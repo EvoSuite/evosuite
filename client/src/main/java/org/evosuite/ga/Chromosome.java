@@ -352,15 +352,19 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/**
 	 * <p>Getter for the field <code>coverage</code>.</p>
 	 *
+	 * Returns a single coverage value if {@code Properties.COMPOSITIONAL_FITNESS}
+	 * is {@code false}. Otherwise ({@code Properties.COMPOSITIONAL_FITNESS==true}),
+	 * returns the average of coverage values for all fitness functions.
+	 *
 	 * @return a double.
 	 */
-	public double getCoverage_() {
+	public double getCoverage() {
         if (Properties.COMPOSITIONAL_FITNESS) {
             double sum = 0;
             for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
                 sum += coverages.get(fitnessFunction);
             }
-            return sum;
+            return sum / coverages.size();
         } else
             return coverages.isEmpty() ? 0.0 : coverages.get( fitnesses.keySet().iterator().next() );
 	}
