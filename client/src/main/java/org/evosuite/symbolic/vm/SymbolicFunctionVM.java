@@ -103,6 +103,7 @@ import org.evosuite.symbolic.vm.wrappers.F_Init;
 import org.evosuite.symbolic.vm.wrappers.F_ValueOf;
 import org.evosuite.symbolic.vm.wrappers.I_Init;
 import org.evosuite.symbolic.vm.wrappers.I_IntValue;
+import org.evosuite.symbolic.vm.wrappers.I_ParseInt;
 import org.evosuite.symbolic.vm.wrappers.I_ValueOf;
 import org.evosuite.symbolic.vm.wrappers.J_Init;
 import org.evosuite.symbolic.vm.wrappers.J_LongValue;
@@ -179,7 +180,8 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new I_Init(env));
 		addFunctionToTable(new I_ValueOf(env));
 		addFunctionToTable(new I_IntValue(env));
-		//
+		addFunctionToTable(new I_ParseInt(env));
+
 		// java.lang.Long
 		addFunctionToTable(new J_Init(env));
 		addFunctionToTable(new J_ValueOf(env));
