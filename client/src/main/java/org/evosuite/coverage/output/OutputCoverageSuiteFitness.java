@@ -111,7 +111,7 @@ public class OutputCoverageSuiteFitness  extends TestSuiteFitnessFunction {
 
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value " + totalGoals);
-			fitness = normalize(totalGoals);
+			fitness = totalGoals;
 		}
 
 		updateIndividual(this, suite, fitness);
