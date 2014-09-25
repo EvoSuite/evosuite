@@ -1127,7 +1127,7 @@ public class TestSuiteGenerator {
 
 		stopping_condition = getStoppingCondition();
 		for (FitnessFunction<?> fitness_function : fitness_functions)
-		    ((TestSuiteFitnessFunction)fitness_functions).getFitness(suite);
+		    ((TestSuiteFitnessFunction)fitness_function).getFitness(suite);
 
 		while (!isFinished(suite)) {
 			TestChromosome test = factory.getChromosome();
