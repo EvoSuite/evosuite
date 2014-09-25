@@ -467,4 +467,20 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
     public void setDistance(double d) {
         this.distance = d;
     }
+
+    public double getFitnessInstanceOf(Class<?> clazz) {
+        for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+            if (clazz.isInstance(fitnessFunction))
+                return fitnesses.get(fitnessFunction);
+        }
+        return 0.0;
+    }
+
+    public double getCoverageInstanceOf(Class<?> clazz) {
+        for (FitnessFunction<?> fitnessFunction : coverages.keySet()) {
+            if (clazz.isInstance(fitnessFunction))
+                return coverages.get(fitnessFunction);
+        }
+        return 0.0;
+    }
 }
