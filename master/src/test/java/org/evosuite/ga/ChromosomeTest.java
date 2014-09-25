@@ -1,20 +1,34 @@
 /**
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * 
+ * You should have received a copy of the GNU Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.ga;
-
-import static org.junit.Assert.assertEquals;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
-import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
+import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
 import org.evosuite.coverage.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Jose Miguel Rojas
@@ -27,13 +41,7 @@ public class ChromosomeTest {
 	private final double ANY_DOUBLE_3 = 6.0;
 	private final double ANY_DOUBLE_4 = 3.0;
 
-	@Test(expected=AssertionError.class)
-	public void testGetFitnessShouldNotWorkForNSGAII() {
-		Properties.ALGORITHM = Algorithm.NSGAII;
-		TestSuiteChromosome c = new TestSuiteChromosome();
-		c.getFitness();
-	}
-
+	@Test
 	public void testGetFitnessForOneFunctionNoCompositional() {
 		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
 		Properties.COMPOSITIONAL_FITNESS = false;

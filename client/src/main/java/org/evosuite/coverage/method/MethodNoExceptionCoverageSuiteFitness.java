@@ -82,7 +82,7 @@ public class MethodNoExceptionCoverageSuiteFitness extends TestSuiteFitnessFunct
         try {
             clazz = Class.forName(className);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        	logger.warn("Class could not be loaded: " + className);
         }
         if (clazz != null) {
             Constructor[] allConstructors = clazz.getDeclaredConstructors();
