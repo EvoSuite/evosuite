@@ -76,12 +76,19 @@ public class ChromosomeTest {
 		Properties.COMPOSITIONAL_FITNESS = true;
         TestSuiteChromosome c = new TestSuiteChromosome();
         StatementCoverageSuiteFitness f1 = new StatementCoverageSuiteFitness();
+        BranchCoverageSuiteFitness f2 = new BranchCoverageSuiteFitness();
         c.addFitness(f1);
+        c.addFitness(f2);
         c.setFitness(f1, ANY_DOUBLE_1);
-		BranchCoverageSuiteFitness f2 = new BranchCoverageSuiteFitness(); 
-		c.addFitness(f2);
-		c.setFitness(f2, ANY_DOUBLE_2);
+        c.setFitness(f2, ANY_DOUBLE_2);
+        c.setCoverage(f1, ANY_DOUBLE_3);
+        c.setCoverage(f2, ANY_DOUBLE_4);
+        assertEquals(ANY_DOUBLE_1, c.getFitnessInstanceOf(StatementCoverageSuiteFitness.class), 0.001);
+        assertEquals(ANY_DOUBLE_2, c.getFitnessInstanceOf(BranchCoverageSuiteFitness.class), 0.001);
+        assertEquals(ANY_DOUBLE_3, c.getCoverageInstanceOf(StatementCoverageSuiteFitness.class), 0.001);
+        assertEquals(ANY_DOUBLE_4, c.getCoverageInstanceOf(BranchCoverageSuiteFitness.class), 0.001);
 		assertEquals(ANY_DOUBLE_1 + ANY_DOUBLE_2, c.getFitness(), 0.001);
+        assertEquals((ANY_DOUBLE_3 + ANY_DOUBLE_4) / 2, c.getCoverage(), 0.001);
 	}
 	
 	@Test
