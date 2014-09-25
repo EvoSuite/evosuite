@@ -17,15 +17,15 @@
  */
 package org.evosuite.ga;
 
-import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.utils.PublicCloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 /**
@@ -83,7 +83,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return a double.
 	 */
 	public double getFitness() {
-		//assert Properties.ALGORITHM != Properties.Algorithm.NSGAII;
 		if (Properties.COMPOSITIONAL_FITNESS) {
             double sumFitnesses = 0.0;
             for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
@@ -95,8 +94,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	}
 
 	public double getFitness(FitnessFunction<?> ff) {
-        assert(fitnesses.containsKey(ff));
-        return fitnesses.get(ff);
+        return fitnesses.containsKey(ff) ? fitnesses.get(ff) : 0.0;
     }
 
     public Map<FitnessFunction<?>, Double> getFitnesses() {
@@ -183,11 +181,11 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
         if (!fitnesses.containsKey(ff)) {
             lastFitnesses.put(ff, value);
             fitnesses.put(ff, value);
-        }
-        else {
+        } else {
             lastFitnesses.put(ff, fitnesses.get(ff));
             fitnesses.put(ff, value);
         }
+
 	}
 	
 	public boolean hasFitnessChanged() {
@@ -413,8 +411,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
      * @return the number of covered goals for {@code ff}
      */
     public double getCoverage(FitnessFunction<?> ff) {
-        assert(coverages.containsKey(ff));
-        return coverages.get(ff);
+        return coverages.containsKey(ff) ? coverages.get(ff) : 0.0;
     }
 
     /**
@@ -434,8 +431,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
      * @return the number of covered goals for {@code ff}
      */
     public double getNumOfCoveredGoals(FitnessFunction<?> ff) {
-        assert(numsCoveredGoals.containsKey(ff));
-        return numsCoveredGoals.get(ff);
+        return numsCoveredGoals.containsKey(ff) ? numsCoveredGoals.get(ff) : 0;
     }
 
     /**
