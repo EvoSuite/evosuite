@@ -89,23 +89,39 @@ public enum RuntimeVariable {
 	BranchCoverage,
 	/** Only the covered branches ratio. */
 	OnlyBranchCoverage,
+    OnlyBranchFitnessTimeline,
+    OnlyBranchCoverageTimeline,
 	/** The obtained method coverage (method calls anywhere in trace) */
 	MethodTraceCoverage,
+    MethodTraceFitnessTimeline,
+    MethodTraceCoverageTimeline,
 	/** The obtained method coverage */
 	MethodCoverage,
+    MethodFitnessTimeline,
+    MethodCoverageTimeline,
 	/** The obtained method coverage (only normal behaviour) */
 	MethodNoExceptionCoverage,
+    MethodNoExceptionFitnessTimeline,
+    MethodNoExceptionCoverageTimeline,
 	/** The obtained line coverage */
 	LineCoverage,
+    LineFitnessTimeline,
+    LineCoverageTimeline,
 	/** The obtained output value coverage */
 	OutputCoverage,
+    OutputFitnessTimeline,
+    OutputCoverageTimeline,
 	/** The obtained exception coverage */
 	ExceptionCoverage,
+    ExceptionFitnessTimeline,
+    ExceptionCoverageTimeline,
 	/** A bit string (0/1) representing whether branches (in order) are covered */
 	CoveredBranchesBitString,
 	/** The obtained score for weak mutation testing */
 	WeakMutationScore,
-	/** The obtained score for (strong) mutation testing*/
+    WeakMutationFitnessTimeline,
+    WeakMutationCoverageTimeline,
+    /** The obtained score for (strong) mutation testing*/
 	MutationScore,
 	/** The total time EvoSuite spent generating the test cases */
 	Total_Time,
