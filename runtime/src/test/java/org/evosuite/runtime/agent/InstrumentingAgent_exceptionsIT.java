@@ -75,8 +75,8 @@ public class InstrumentingAgent_exceptionsIT {
 		Object obj = null;
 
 		try{
-			InstrumentingAgent.activate();
-			obj = new ExceptionHolder();
+			InstrumentingAgent.activate();			
+			obj = new ExceptionHolder.StaticPublicException();
 		} finally {
 			InstrumentingAgent.deactivate();
 		}
@@ -84,7 +84,7 @@ public class InstrumentingAgent_exceptionsIT {
 		try{
 			MockFramework.enable();
 
-			Exception foo = new ExceptionHolder.StaticPublicException();
+			Exception foo = (ExceptionHolder.StaticPublicException) obj;
 			Assert.assertTrue(foo instanceof EvoSuiteMock);		
 		} finally{
 			MockFramework.disable();
