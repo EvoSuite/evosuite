@@ -82,11 +82,15 @@ public class TestCompositionalFitness extends SystemTest {
 
         Map<FitnessFunction<?>, Double> fitnesses = best.getFitnesses();
         double sum = 0.0;
+        double cov = 0.0;
         for (FitnessFunction<?> fitness : fitnesses.keySet()) {
             sum += fitnesses.get(fitness);
+            cov += best.getCoverage(fitness);
             assert (fitnesses.get(fitness) == best.getFitness(fitness));
         }
+        cov = cov / best.getCoverages().size();
 		Assert.assertEquals("Inconsistent fitness: ", sum, best.getFitness(), 0.001);
+        Assert.assertEquals("Inconsistent coverage: ", cov, best.getCoverage(), 0.001);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 
 	}
