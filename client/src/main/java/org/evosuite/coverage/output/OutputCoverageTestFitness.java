@@ -40,8 +40,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
 	
 	/**
 	 * Constructor - fitness is specific to a method
-	 * @param className the class name
-	 * @param methodName the method name
+	 * @param goal the coverage goal
 	 * @throws IllegalArgumentException
 	 */
 	public OutputCoverageTestFitness(OutputCoverageGoal goal) throws IllegalArgumentException{

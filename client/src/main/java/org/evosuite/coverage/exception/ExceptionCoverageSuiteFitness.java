@@ -81,6 +81,9 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		int nExc = getNumExceptions(implicitTypesOfExceptions) + getNumExceptions(explicitTypesOfExceptions);
 
+        // I set it here, but in the end it will be recomputed according to the total number of Exceptions
+        suite.setCoverage(this, nExc / (nExc + 1.0));
+
 		double exceptionFitness = 1d / (1d + nExc);
 
 		//suite.setFitness(this, coverageFitness + exceptionFitness);
@@ -159,8 +162,15 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 						sutException = true;
 					}
 				}
-
-				boolean notDeclared = !result.test.getStatement(i).getDeclaredExceptions().contains(t.getClass());
+				
+				boolean notDeclared = true;
+				// Check if thrown exception is declared, or subclass of a declared exception 
+				for(Class<?> declaredExceptionClass : result.test.getStatement(i).getDeclaredExceptions()) {
+					if(declaredExceptionClass.isAssignableFrom(t.getClass())) {
+						notDeclared = false;
+						break;
+					}
+				}
 
 				/*
 				 * We only consider exceptions that were thrown directly in the SUT (not called libraries)

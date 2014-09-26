@@ -19,6 +19,7 @@ public class Compositional {
     }
 
     public void baz(int x) {
-
+        if (x > 0 && x < 100)
+            throw new IllegalArgumentException();
     }
 }
