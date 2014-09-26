@@ -67,7 +67,6 @@ public class Runtime {
 		if (RuntimeSettings.mockJVMNonDeterminism) {
 			Random.reset();
 			System.resetRuntime();
-			Thread.reset(); //TODO remove
             MockThread.reset();
             ThreadCounter.getInstance().resetSingleton();
         }

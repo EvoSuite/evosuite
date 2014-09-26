@@ -237,7 +237,6 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			//java.lang.*
 			addJavaLangCalls();
 
-
 			//java.util.Calendar
 			addCalendarCalls();
 
@@ -414,19 +413,6 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 				"()D", Opcodes.INVOKESTATIC, "org/evosuite/runtime/Random", "nextDouble", "()D", false,
 				false));
 
-		//java/lang/Thread
-		replacementCalls.add(new MethodCallReplacement("java/lang/Thread",
-				"getStackTrace", "()[Ljava/lang/StackTraceElement;", Opcodes.INVOKEVIRTUAL,
-				"org/evosuite/runtime/Thread", "getStackTrace",
-				"()[Ljava/lang/StackTraceElement;", true, false));
-
-		//java/lang/Thread
-		replacementCalls.add(new MethodCallReplacement("java/lang/Thread", "getName",
-				"()Ljava/lang/String;", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Thread", "getName",
-				"(Ljava/lang/Thread;)Ljava/lang/String;", false, false));
-		replacementCalls.add(new MethodCallReplacement("java/lang/Thread", "getId",
-				"()J", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Thread", "getId",
-				"(Ljava/lang/Thread;)J", false, false));
 
 		//java/lang/Class
 		replacementCalls.add(new MethodCallReplacement("java/lang/Class",
