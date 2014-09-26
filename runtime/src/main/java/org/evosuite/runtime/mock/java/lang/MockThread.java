@@ -1,49 +1,106 @@
 package org.evosuite.runtime.mock.java.lang;
 
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
-import sun.nio.ch.Interruptible;
-import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
-import sun.security.util.SecurityConstants;
+import org.evosuite.runtime.mock.StaticReplacementMethod;
+import org.evosuite.runtime.thread.ThreadCounter;
 
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-import java.security.AccessControlContext;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
+ * Threads are very complex to handle.
+ * For the moment, we mock only certain aspects
+ *
  * Created by arcuri on 9/23/14.
  */
-public class MockThread extends Thread implements OverrideMock{
+public class MockThread extends Thread implements OverrideMock {
+
+    // ----- mock internals -------
+
+    private static final Map<Integer, Long> threadMap = new ConcurrentHashMap<>();
+
+    public static void reset() {
+        threadMap.clear();
+    }
+
+
+    // ------ public static fields --------
 
     public final static int MIN_PRIORITY = 1;
     public final static int NORM_PRIORITY = 5;
     public final static int MAX_PRIORITY = 10;
 
-    public static Thread currentThread(){
-        return null; //TODO
+
+
+    // ------ static unchanged methods  --------
+
+    public static Thread currentThread() {
+        return Thread.currentThread();
     }
 
-    public static  void yield(){
-        //TODO
+    public static void yield() {
+        Thread.yield();
     }
 
-
-    public static void sleep(long millis) throws InterruptedException{
-        //TODO
+    public static void sleep(long millis) throws InterruptedException {
+        Thread.sleep(millis);
     }
 
     public static void sleep(long millis, int nanos)
             throws InterruptedException {
-        //TODO
+        Thread.sleep(millis, nanos);
     }
 
+    public static boolean interrupted() {
+        return Thread.interrupted();
+    }
+
+    public static int activeCount() {
+        return Thread.activeCount();
+    }
+
+    public static int enumerate(Thread tarray[]) {
+        return Thread.enumerate(tarray);
+    }
+
+    public static void dumpStack() {
+        if(!MockFramework.isEnabled()){
+            Thread.dumpStack();
+        } else {
+            new MockException("Stack trace").printStackTrace();
+        }
+    }
+
+    public static Map<Thread, StackTraceElement[]> getAllStackTraces() {
+        if(! MockFramework.isEnabled()){
+            return Thread.getAllStackTraces();
+        }
+        //get actual running threads, and then replace stack traces
+
+        //this will ask for permissions, but we grant it anyway
+        Set<Thread> threads =  Thread.getAllStackTraces().keySet();
+        Map<Thread, StackTraceElement[]> m = new HashMap<>(threads.size());
+        for(Thread t : threads){
+            m.put(t,MockThrowable.getDefaultStackTrace());
+        }
+
+        return m;
+    }
+
+    public static boolean holdsLock(Object obj){
+        return Thread.holdsLock(obj);
+    }
+
+    public static void setDefaultUncaughtExceptionHandler(UncaughtExceptionHandler eh) {
+        Thread.setDefaultUncaughtExceptionHandler(eh);
+    }
+
+    public static UncaughtExceptionHandler getDefaultUncaughtExceptionHandler() {
+        return Thread.getDefaultUncaughtExceptionHandler();
+    }
 
     @Override
     protected Object clone() throws CloneNotSupportedException {
@@ -53,43 +110,69 @@ public class MockThread extends Thread implements OverrideMock{
     // -------- constructors ---------
 
     public MockThread() {
-          super();
+        super();
+        mockSetup(null);
     }
 
     public MockThread(Runnable target) {
         super(target);
+        mockSetup(null);
     }
 
     public MockThread(ThreadGroup group, Runnable target) {
-        super(group,target);
+        super(group, target);
+        mockSetup(null);
     }
 
     public MockThread(String name) {
         super(name);
+        mockSetup(name);
     }
 
     public MockThread(ThreadGroup group, String name) {
-        super(group,name);
+        super(group, name);
+        mockSetup(name);
     }
 
     public MockThread(Runnable target, String name) {
-        super(target,name);
+        super(target, name);
+        mockSetup(name);
     }
 
     public MockThread(ThreadGroup group, Runnable target, String name) {
-        super(group,target,name);
+        super(group, target, name);
+        mockSetup(name);
     }
 
     public MockThread(ThreadGroup group, Runnable target, String name,
-                  long stackSize) {
-        super(group,target,name,stackSize);
+                      long stackSize) {
+        super(group, target, name, stackSize);
+        mockSetup(name);
+    }
+
+    private void mockSetup(String name){
+        if(!MockFramework.isEnabled()){
+            return;
+        }
+
+        if(name == null){
+            /*
+                If SUT did not specify any name, we need
+                to change the one automatically given by the JVM,
+                as it could be non-deterministic
+             */
+            setName("Thread-"+getId());
+        }
     }
 
     // ---------------
 
     @Override
     public synchronized void start() {
-        //TODO
+        if(MockFramework.isEnabled()) {
+            ThreadCounter.getInstance().checkIfCanStartNewThread();
+        }
+        super.start();
     }
 
     @Override
@@ -97,25 +180,11 @@ public class MockThread extends Thread implements OverrideMock{
         super.run();
     }
 
-    // they are final
-    /*public final void stop() {
-        stop(new ThreadDeath());
-    }
-    public final synchronized void stop(Throwable obj) {
-    ...
-    }
-    */
-
     @Override
     public void interrupt() {
         super.interrupt();
     }
 
-    //TODO
-    public static boolean interrupted() {
-        return false;
-        //return currentThread().isInterrupted(true);
-    }
 
     @Override
     public boolean isInterrupted() {
@@ -127,10 +196,82 @@ public class MockThread extends Thread implements OverrideMock{
         super.destroy();
     }
 
+
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
+    @Override
+    public ClassLoader getContextClassLoader() {
+        return super.getContextClassLoader();
+    }
+
+    @Override
+    public void setContextClassLoader(ClassLoader cl) {
+        super.setContextClassLoader(cl);
+    }
+
+    @Override
+    public StackTraceElement[] getStackTrace() {
+        if(!MockFramework.isEnabled()){
+            return super.getStackTrace();
+        }
+        return MockThrowable.getDefaultStackTrace();
+    }
+
+
+    @Override
+    public long getId() {
+        if(!MockFramework.isEnabled()){
+            return super.getId();
+        }
+
+        synchronized (threadMap) {
+            int identity = java.lang.System.identityHashCode(this);
+            if (!threadMap.containsKey(identity)) {
+                threadMap.put(identity, Long.valueOf(threadMap.size()));
+            }
+            return threadMap.get(identity);
+        }
+    }
+
+    @Override
+    public State getState() {
+        return super.getState();
+    }
+
+
+    @Override
+    public UncaughtExceptionHandler getUncaughtExceptionHandler() {
+        return super.getUncaughtExceptionHandler();
+    }
+
+    @Override
+    public void setUncaughtExceptionHandler(UncaughtExceptionHandler eh) {
+        super.setUncaughtExceptionHandler(eh);
+    }
+
+    // ----- StaticReplacementMethods  ---------
+
+
+    // Handled in the constructors
+    // public final void setName(String name) {   }
+    // public final String getName() {}
+
+
     //TODO
+    // they are final
+    /*public final void stop() {
+        stop(new ThreadDeath());
+    }
+    public final synchronized void stop(Throwable obj) {
+    ...
+    }
+
     //public final native boolean isAlive();
 
-    /*
     @Deprecated
     public final void suspend() {
         checkAccess();
@@ -151,11 +292,7 @@ public class MockThread extends Thread implements OverrideMock{
         return priority;
     }
 
-    public final void setName(String name) {   }
 
-    public final String getName() {
-        return String.valueOf(name);
-    }
 
     public final ThreadGroup getThreadGroup() {
         return group;
@@ -188,108 +325,6 @@ public class MockThread extends Thread implements OverrideMock{
     public final void checkAccess() {
     }
 */
-
-
-    public static int activeCount() {
-        return currentThread().getThreadGroup().activeCount();
-    }
-
-    public static int enumerate(Thread tarray[]) {
-        return currentThread().getThreadGroup().enumerate(tarray);
-    }
-
-    public static void dumpStack() {
-        new Exception("Stack trace").printStackTrace();
-    }
-
-
-    @Override
-    public String toString() {
-        //TODO
-        ThreadGroup group = getThreadGroup();
-        if (group != null) {
-            return "Thread[" + getName() + "," + getPriority() + "," +
-                    group.getName() + "]";
-        } else {
-            return "Thread[" + getName() + "," + getPriority() + "," +
-                    "" + "]";
-        }
-    }
-
-    @Override
-    public ClassLoader getContextClassLoader() {
-        return super.getContextClassLoader();
-    }
-
-    @Override
-    public void setContextClassLoader(ClassLoader cl) {
-        super.setContextClassLoader(cl);
-    }
-
-
-    public static native boolean holdsLock(Object obj);
-
-    public StackTraceElement[] getStackTrace() {
-        return null; //TODO
-    }
-
-    public static Map<Thread, StackTraceElement[]> getAllStackTraces() {
-        // check for getStackTrace permission
-        /*
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(
-                    SecurityConstants.GET_STACK_TRACE_PERMISSION);
-            security.checkPermission(
-                    SecurityConstants.MODIFY_THREADGROUP_PERMISSION);
-        }
-
-        // Get a snapshot of the list of all threads
-        Thread[] threads = getThreads();
-        StackTraceElement[][] traces = dumpThreads(threads);
-        Map<Thread, StackTraceElement[]> m = new HashMap<>(threads.length);
-        for (int i = 0; i < threads.length; i++) {
-            StackTraceElement[] stackTrace = traces[i];
-            if (stackTrace != null) {
-                m.put(threads[i], stackTrace);
-            }
-            // else terminated so we don't put it in the map
-        }
-        return m;
-        */
-        return null; //TODO
-    }
-
-
-    @Override
-    public long getId() {
-        return 0; //TODO
-        //return tid;
-    }
-
-    @Override
-    public State getState() {
-        return super.getState();
-    }
-
-
-    public static void setDefaultUncaughtExceptionHandler(UncaughtExceptionHandler eh) {
-        Thread.setDefaultUncaughtExceptionHandler(eh);
-    }
-
-    public static UncaughtExceptionHandler getDefaultUncaughtExceptionHandler(){
-        return Thread.getDefaultUncaughtExceptionHandler();
-    }
-
-    @Override
-    public UncaughtExceptionHandler getUncaughtExceptionHandler() {
-        return super.getUncaughtExceptionHandler();
-    }
-
-    @Override
-    public void setUncaughtExceptionHandler(UncaughtExceptionHandler eh) {
-        super.setUncaughtExceptionHandler(eh);
-    }
 
 
 }

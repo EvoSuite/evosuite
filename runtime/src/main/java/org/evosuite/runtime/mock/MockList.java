@@ -14,17 +14,7 @@ import org.evosuite.runtime.mock.java.io.MockIOException;
 import org.evosuite.runtime.mock.java.io.MockPrintStream;
 import org.evosuite.runtime.mock.java.io.MockPrintWriter;
 import org.evosuite.runtime.mock.java.io.MockRandomAccessFile;
-import org.evosuite.runtime.mock.java.lang.MockArithmeticException;
-import org.evosuite.runtime.mock.java.lang.MockArrayIndexOutOfBoundsException;
-import org.evosuite.runtime.mock.java.lang.MockError;
-import org.evosuite.runtime.mock.java.lang.MockException;
-import org.evosuite.runtime.mock.java.lang.MockIllegalAccessException;
-import org.evosuite.runtime.mock.java.lang.MockIllegalArgumentException;
-import org.evosuite.runtime.mock.java.lang.MockIllegalStateException;
-import org.evosuite.runtime.mock.java.lang.MockNullPointerException;
-import org.evosuite.runtime.mock.java.lang.MockRuntime;
-import org.evosuite.runtime.mock.java.lang.MockRuntimeException;
-import org.evosuite.runtime.mock.java.lang.MockThrowable;
+import org.evosuite.runtime.mock.java.lang.*;
 import org.evosuite.runtime.mock.java.util.MockDate;
 import org.evosuite.runtime.mock.java.util.MockGregorianCalendar;
 import org.evosuite.runtime.mock.java.util.MockRandom;
@@ -80,13 +70,19 @@ public class MockList {
 		}
 
 		if(RuntimeSettings.mockJVMNonDeterminism) {
+
+            list.add(MockRuntime.class);
+            list.add(MockLogRecord.class);
+
+            //CPU time related
 			list.add(MockDate.class);
 			list.add(MockRandom.class);
 			list.add(MockGregorianCalendar.class);
-			list.add(MockRuntime.class);
-			list.add(MockTimer.class);
-			list.add(MockLogRecord.class);
-			
+
+            //thread related
+            list.add(MockTimer.class);
+            list.add(MockThread.class);
+
 			//exceptions
 			list.add(MockIOException.class);
 			list.add(MockArithmeticException.class);

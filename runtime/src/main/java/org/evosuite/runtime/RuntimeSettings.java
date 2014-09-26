@@ -39,4 +39,10 @@ public class RuntimeSettings {
      * How is the sandbox configured?
      */
     public static Sandbox.SandboxMode sandboxMode = Sandbox.SandboxMode.RECOMMENDED;
+
+    /**
+     * How many threads is each test allowed to start?
+     * Note: such checks depend on RuntimeSettings#mockJVMNonDeterminism
+     */
+    public static int maxNumberOfThreads = 100;
 }

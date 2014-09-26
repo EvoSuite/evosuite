@@ -22,6 +22,9 @@ package org.evosuite.runtime;
 
 
 import org.evosuite.runtime.mock.MockFramework;
+import org.evosuite.runtime.mock.java.lang.MockThread;
+import org.evosuite.runtime.mock.java.util.MockTimer;
+import org.evosuite.runtime.thread.ThreadCounter;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,8 +67,10 @@ public class Runtime {
 		if (RuntimeSettings.mockJVMNonDeterminism) {
 			Random.reset();
 			System.resetRuntime();
-			Thread.reset();
-		}
+			Thread.reset(); //TODO remove
+            MockThread.reset();
+            ThreadCounter.getInstance().resetSingleton();
+        }
 
 		if (RuntimeSettings.useVFS) {
 			logger.debug("Resetting the VFS...");
