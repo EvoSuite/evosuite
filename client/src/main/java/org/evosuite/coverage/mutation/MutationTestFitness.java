@@ -20,6 +20,9 @@
  */
 package org.evosuite.coverage.mutation;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -46,7 +49,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = 596930765039928708L;
 
-	protected final Mutation mutation;
+	protected transient Mutation mutation;
 
 	protected final Set<BranchCoverageGoal> controlDependencies = new HashSet<BranchCoverageGoal>();
 
@@ -217,4 +220,16 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 		return mutation.getMethodName();
 	}
 
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		oos.writeInt(mutation.getId());
+	}
+
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		int mutationId = ois.readInt();
+		this.mutation = MutationPool.getMutant(mutationId);
+	}
 }
