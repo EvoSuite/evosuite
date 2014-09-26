@@ -126,6 +126,7 @@ public class ClientProcess {
 		RuntimeSettings.mockJVMNonDeterminism = Properties.REPLACE_CALLS;
 		RuntimeSettings.mockSystemIn = Properties.REPLACE_SYSTEM_IN;
 		RuntimeSettings.sandboxMode = Properties.SANDBOX_MODE;
+        RuntimeSettings.maxNumberOfThreads = Properties.MAX_STARTED_THREADS;
 	}
 
 	/**

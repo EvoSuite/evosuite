@@ -1,7 +1,9 @@
 package org.evosuite.runtime.agent;
 
+import com.examples.with.different.packagename.agent.StartThreads;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.thread.KillSwitchHandler;
 import org.evosuite.runtime.thread.ThreadStopper;
 import org.junit.After;
@@ -34,6 +36,42 @@ public class InstrumentingAgent_threadIT {
 		RuntimeSettings.mockJVMNonDeterminism = replaceCalls;
 		KillSwitchHandler.getInstance().setKillSwitch(false);
 	}
+	
+	
+	@Test
+    public void testTooManyThreads(){
+
+        RuntimeSettings.maxNumberOfThreads = 100;
+        Object obj = null;
+
+        try{
+            InstrumentingAgent.activate();
+
+            StartThreads st = new StartThreads();
+            st.exe(50);
+            st.exe(49);
+            obj = st;
+
+        } finally {
+            InstrumentingAgent.deactivate();
+        }
+
+        StartThreads st = (StartThreads) obj;
+        st.exe(2); //this should throw exception, but we are out of instrumentation
+
+        try{
+            MockFramework.enable();
+
+            st.exe(2); // now exception
+            Assert.fail();
+
+        } catch(RuntimeException e){
+          //expected
+        } finally {
+            MockFramework.disable();
+        }
+
+    }
 	
 	@Test
 	public void testKillSwitch() throws InterruptedException{

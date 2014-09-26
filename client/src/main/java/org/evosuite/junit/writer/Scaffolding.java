@@ -583,6 +583,11 @@ public class Scaffolding {
         bd.append(BLOCK_SPACE);
         bd.append("" + GuiSupport.class.getName() + ".initialize(); \n");
 
+        if(Properties.REPLACE_CALLS) {
+            bd.append(BLOCK_SPACE);
+            bd.append("" + RuntimeSettings.class.getName() + ".maxNumberOfThreads = "+ Properties.MAX_STARTED_THREADS+"; \n");
+        }
+
         if (Properties.REPLACE_SYSTEM_IN) {
             bd.append(BLOCK_SPACE);
             bd.append(RuntimeSettings.class.getName() + ".mockSystemIn = true; \n");
