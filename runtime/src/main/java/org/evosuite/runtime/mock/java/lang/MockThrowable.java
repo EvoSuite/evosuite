@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 
 import javax.naming.InitialContext;
 
-import org.evosuite.runtime.Thread;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
