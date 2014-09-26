@@ -29,7 +29,7 @@ public class MockTimer extends Timer implements OverrideMock{
         if(MockFramework.isEnabled()) {
             try{
                 ThreadCounter.getInstance().checkIfCanStartNewThread();
-            } finally {
+            } catch(RuntimeException e) {
                 timer.cancel();
             }
         }

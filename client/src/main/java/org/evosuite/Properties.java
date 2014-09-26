@@ -1085,6 +1085,10 @@ public class Properties {
 	@Parameter(key = "replace_system_in", group = "Test Execution", description = "Replace System.in with a smart stub/mock")
 	public static boolean REPLACE_SYSTEM_IN = true;
 
+    @Parameter(key = "mux_started_threads", group = "Test Execution", description = "Max number of threads allowed to be started in each test")
+    public static int MAX_STARTED_THREADS = 100;
+
+
 	// ---------------------------------------------------------------
 	// Debugging
 
