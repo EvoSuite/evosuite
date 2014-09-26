@@ -119,7 +119,7 @@ public class TestPool extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertTrue("Non-optimal coverage: ", best.getCoverage() < 1.0);
+		Assert.assertTrue("Expected non-optimal coverage: ", best.getCoverage() < 1.0);
 
 	}
 	

@@ -2,8 +2,12 @@ package com.examples.with.different.packagename.pool;
 
 public class DependencyClass {
 
-	protected int x = 0;
+	private int x = 0;
 
+	protected int getX() {
+		return x;
+	}
+	
 	public void foo(int y) {
 		if (y == 42)
 			x++;
