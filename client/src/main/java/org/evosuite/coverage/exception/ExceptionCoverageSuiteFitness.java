@@ -159,8 +159,15 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 						sutException = true;
 					}
 				}
-
-				boolean notDeclared = !result.test.getStatement(i).getDeclaredExceptions().contains(t.getClass());
+				
+				boolean notDeclared = true;
+				// Check if thrown exception is declared, or subclass of a declared exception 
+				for(Class<?> declaredExceptionClass : result.test.getStatement(i).getDeclaredExceptions()) {
+					if(declaredExceptionClass.isAssignableFrom(t.getClass())) {
+						notDeclared = false;
+						break;
+					}
+				}
 
 				/*
 				 * We only consider exceptions that were thrown directly in the SUT (not called libraries)
