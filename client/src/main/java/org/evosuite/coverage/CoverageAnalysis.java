@@ -4,6 +4,7 @@
 package org.evosuite.coverage;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -120,7 +121,7 @@ public class CoverageAnalysis {
 
 	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
 	    Criterion[] oldCriterion = Properties.CRITERION;
-		List<String> criteriaList = Arrays.asList(criteria.split(","));
+        List<String> criteriaList = new ArrayList<String>(Arrays.asList(criteria.split(",")));
 		for (Criterion c : oldCriterion) {
 		    criteriaList.remove(c.name());
 		}
