@@ -81,6 +81,9 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		int nExc = getNumExceptions(implicitTypesOfExceptions) + getNumExceptions(explicitTypesOfExceptions);
 
+        // I set it here, but in the end it will be recomputed according to the total number of Exceptions
+        suite.setCoverage(this, nExc / (nExc + 1.0));
+
 		double exceptionFitness = 1d / (1d + nExc);
 
 		//suite.setFitness(this, coverageFitness + exceptionFitness);

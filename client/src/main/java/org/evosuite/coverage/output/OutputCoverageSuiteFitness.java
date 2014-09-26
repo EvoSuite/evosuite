@@ -106,6 +106,8 @@ public class OutputCoverageSuiteFitness  extends TestSuiteFitnessFunction {
 
 		if (totalGoals > 0)
 			suite.setCoverage(this, (double) coveredGoals / (double) totalGoals);
+        else
+            suite.setCoverage(this, 1.0);
 
 		suite.setNumOfCoveredGoals(this, coveredGoals);
 

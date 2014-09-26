@@ -52,7 +52,7 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	/**
 	 * <p>
-	 * Constructor for BranchCoverageSuiteFitness.
+	 * Constructor for OnlyBranchCoverageSuiteFitness.
 	 * </p>
 	 */
 	public OnlyBranchCoverageSuiteFitness() {
@@ -86,8 +86,8 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * Initialize the set of known coverage goals
 	 */
 	private void determineCoverageGoals() {
-		List<BranchCoverageTestFitness> goals = new BranchCoverageFactory().getCoverageGoals();
-		for (BranchCoverageTestFitness goal : goals) {
+		List<OnlyBranchCoverageTestFitness> goals = new OnlyBranchCoverageFactory().getCoverageGoals();
+		for (OnlyBranchCoverageTestFitness goal : goals) {
 			if (goal.getBranchExpressionValue())
 				branchCoverageTrueMap.put(goal.getBranch().getActualBranchId(), goal);
 			else
@@ -256,6 +256,8 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		if (totalGoals > 0)
 			suite.setCoverage(this, (double) coverage / (double) totalGoals);
+        else
+            suite.setCoverage(this, 1.0);
 
 		suite.setNumOfCoveredGoals(this, coverage);
 

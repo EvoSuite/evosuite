@@ -64,7 +64,6 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
         methods = new HashSet<String>();
         determineMethods();
 		totalMethods = methods.size();
-        System.out.println("Total methods: " + totalMethods + ": " + methods);
 		logger.info("Total methods: " + totalMethods + ": " + methods);
 		determineCoverageGoals();
 	}
@@ -232,6 +231,8 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		if (totalMethods > 0)
 			suite.setCoverage(this, (double) coveredMethods / (double) totalMethods);
+        else
+            suite.setCoverage(this, 1.0);
 
 		suite.setNumOfCoveredGoals(this, coveredMethods);
 
