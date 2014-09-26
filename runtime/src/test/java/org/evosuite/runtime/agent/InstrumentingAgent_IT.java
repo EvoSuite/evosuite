@@ -122,14 +122,16 @@ public class InstrumentingAgent_IT {
 			InstrumentingAgent.activate();
 			InstrumentingAgent.setRetransformingMode(true);
 			InstrumentingAgent.getInstumentation().retransformClasses(SecondAbstractTime.class,SecondConcreteTime.class);
+
+			//finally it should work
+			SecondAbstractTime time = new SecondConcreteTime();
+			Assert.assertEquals(expected, time.getTime());
+
 		} finally {
 			InstrumentingAgent.setRetransformingMode(false);
 			InstrumentingAgent.deactivate();
 		} 
 		
-		//finally it should work
-		SecondAbstractTime time = new SecondConcreteTime();
-		Assert.assertEquals(expected, time.getTime());
 	}
 
 

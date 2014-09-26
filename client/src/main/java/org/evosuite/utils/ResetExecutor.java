@@ -63,7 +63,7 @@ public class ResetExecutor {
 		} catch (NoSuchMethodException e) {
 			//this can happen if class was not instrumented with a static reset
 			logger.debug("__STATIC_RESET() method does not exists in class " + className);
-		} catch (Exception e) {
+		} catch (Exception | Error e) {
 			logWarn(className,e.getClass()+" thrown while loading method  __STATIC_RESET() for class " + className);
 		} 
 		return null;
