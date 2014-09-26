@@ -193,6 +193,8 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		if (totalMethods > 0)
 			suite.setCoverage(this, (double) coverage / (double) totalMethods);
+        else
+            suite.setCoverage(this, 1.0);
 
 		suite.setNumOfCoveredGoals(this, coverage);
 

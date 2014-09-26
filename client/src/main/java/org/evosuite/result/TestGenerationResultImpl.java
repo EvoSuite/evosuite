@@ -5,6 +5,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestCase;
 
@@ -50,8 +52,8 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	
 	//private String targetCriterion = "";
 	private String[] targetCriterion;
-	
-	private double targetCoverage = 0.0;
+
+    private LinkedHashMap<FitnessFunction<?>, Double> targetCoverages = new LinkedHashMap<FitnessFunction<?>, Double>();
 	
 	private GeneticAlgorithm<?> ga = null;
 	
@@ -101,13 +103,12 @@ class TestGenerationResultImpl implements TestGenerationResult {
 		return targetClass;
 	}
 	
-	public void setTargetCoverage(double coverage) {
-		this.targetCoverage = coverage;
+	public void setTargetCoverage(FitnessFunction<?> function, double coverage) {
+        this.targetCoverages.put(function, coverage);
 	}
 	
-	@Override
-	public double getTargetCoverage() {
-		return targetCoverage;
+	public double getTargetCoverage(FitnessFunction<?> function) {
+		return this.targetCoverages.containsKey(function) ? this.targetCoverages.get(function) : 0.0;
 	}
 	
 	@Override
