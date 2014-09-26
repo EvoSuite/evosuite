@@ -172,6 +172,8 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		if (totalLines > 0)
 			suite.setCoverage(this, (double) coveredLines / (double) totalLines);
+        else
+            suite.setCoverage(this, 1.0);
 
 		suite.setNumOfCoveredGoals(this, coveredLines);
 		
