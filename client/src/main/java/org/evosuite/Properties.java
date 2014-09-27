@@ -612,7 +612,7 @@ public class Properties {
 	public static int CTG_MIN_TIME_PER_JOB = 1;
 
 	@Parameter(key = "ctg_folder", group = "Continuous Test Generation", description = "Where generated files will be stored")
-	public static String CTG_FOLDER = ".continuous_evosuite";
+	public static String CTG_FOLDER = ".evosuite";
 
 	@Parameter(key = "ctg_tmp_folder", group = "Continuous Test Generation", description = "Temporary directory")
     public static String CTG_TMP_FOLDER = "tmp";
@@ -706,7 +706,7 @@ public class Properties {
 	public static boolean JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 
 	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
-	public static String JUNIT_SUFFIX = "EvoSuiteTest";
+	public static String JUNIT_SUFFIX = "_ESTest";
 
 	@Parameter(key = "scaffolding_suffix", group = "Output", description = "Suffix used to specify scaffolding files")
 	public static String SCAFFOLDING_SUFFIX = "scaffolding";
