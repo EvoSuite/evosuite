@@ -963,6 +963,7 @@ public class MSecurityManager extends SecurityManager {
 				|| name.startsWith("accessClassInPackage")
 				|| name.startsWith("defineClassInPackage")
 				|| name.equals("setContextClassLoader")
+                || name.equals("enableContextClassLoaderOverride")
 				|| name.equals("accessDeclaredMembers")) {
 			return true;
 		}
