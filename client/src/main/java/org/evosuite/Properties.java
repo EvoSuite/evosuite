@@ -1145,10 +1145,8 @@ public class Properties {
 
 	public enum Criterion {
 		EXCEPTION,
-		LCSAJ,
 		DEFUSE,
 		ALLDEFS,
-		PATH,
 		BRANCH,
 		STRONGMUTATION,
 		WEAKMUTATION,

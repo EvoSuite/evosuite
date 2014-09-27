@@ -192,8 +192,6 @@ public class CoverageAnalysis {
 		case OUTPUT:
 			return RuntimeVariable.OutputCoverage;
 		case IBRANCH:
-		case LCSAJ:
-		case PATH:
 		case REGRESSION:
 		default:
 			throw new RuntimeException("Criterion not supported: " + criterion);
