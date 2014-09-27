@@ -32,7 +32,6 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
-import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
@@ -264,10 +263,6 @@ public class DependencyAnalysis {
         		case ALLDEFS:
         			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Definitions, DefUsePool.getDefCounter());
         			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Uses, DefUsePool.getUseCounter());
-        			break;
-
-        		case LCSAJ:
-        			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.LCSAJs, LCSAJPool.getLCSAJsPerClass(Properties.TARGET_CLASS));
         			break;
 
         		case WEAKMUTATION:

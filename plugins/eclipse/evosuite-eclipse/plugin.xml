@@ -16,7 +16,6 @@
                   name="group1">
             </separator>
          </menu>
-         <!--
          <action
                label="Extend JUnit Test Suite"
                class="org.evosuite.eclipse.popup.actions.ExtendSuiteAction"
@@ -39,7 +38,6 @@
                </with>
             </visibility>
          </action>  
-         -->
          <action
                label="Generate JUnit Test Suite"
                class="org.evosuite.eclipse.popup.actions.GenerateTestsAction"
@@ -64,7 +62,6 @@
                     name="group">
                 </separator>
             </menu>
-            <!--
             <action
                 label="Extend JUnit Test Suite"
                 class="org.evosuite.eclipse.popup.actions.ExtendSuiteEditorAction"
@@ -72,7 +69,6 @@
                 enablesFor="1"
                 id="org.evosuite.EvoSuiteExtendAction2">
             </action>
-            -->
             <action
                 label="Generate JUnit Test Suite"
                 class="org.evosuite.eclipse.popup.actions.GenerateTestsEditorAction"

@@ -25,7 +25,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.testcase.ConstructorStatement;
@@ -189,39 +188,33 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 			}
 			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
-				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
-					if (!predicateCount.containsKey(entry.getKey()))
-						predicateCount.put(entry.getKey(), entry.getValue());
-					else {
-						predicateCount.put(entry.getKey(),
-						                   predicateCount.get(entry.getKey())
-						                           + entry.getValue());
-					}
+				if (!predicateCount.containsKey(entry.getKey()))
+					predicateCount.put(entry.getKey(), entry.getValue());
+				else {
+					predicateCount.put(entry.getKey(),
+							predicateCount.get(entry.getKey())
+							+ entry.getValue());
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().getTrueDistances().entrySet()) {
-				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
-					if (!trueDistance.containsKey(entry.getKey()))
-						trueDistance.put(entry.getKey(), entry.getValue());
-					else {
-						trueDistance.put(entry.getKey(),
-						                 Math.min(trueDistance.get(entry.getKey()),
-						                          entry.getValue()));
-					}
-					if (entry.getValue() == 0.0) {
-						result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
-					}
+				if (!trueDistance.containsKey(entry.getKey()))
+					trueDistance.put(entry.getKey(), entry.getValue());
+				else {
+					trueDistance.put(entry.getKey(),
+							Math.min(trueDistance.get(entry.getKey()),
+									entry.getValue()));
+				}
+				if (entry.getValue() == 0.0) {
+					result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
-				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
-					if (!falseDistance.containsKey(entry.getKey()))
-						falseDistance.put(entry.getKey(), entry.getValue());
-					else {
-						falseDistance.put(entry.getKey(),
-						                  Math.min(falseDistance.get(entry.getKey()),
-						                           entry.getValue()));
-					}
+				if (!falseDistance.containsKey(entry.getKey()))
+					falseDistance.put(entry.getKey(), entry.getValue());
+				else {
+					falseDistance.put(entry.getKey(),
+							Math.min(falseDistance.get(entry.getKey()),
+									entry.getValue()));
 				}
 				if (entry.getValue() == 0.0) {
 					result.test.addCoveredGoal(branchCoverageFalseMap.get(entry.getKey()));
