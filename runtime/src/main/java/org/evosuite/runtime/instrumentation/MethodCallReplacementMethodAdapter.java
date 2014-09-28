@@ -83,21 +83,16 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 		boolean isReplaced = false;
 		// static replacement methods
-		Iterator<MethodCallReplacement> iterator = MethodCallReplacementCache.getInstance().getReplacementCalls();
-		while(iterator.hasNext()) {
-			MethodCallReplacement replacement = iterator.next();
-			if (replacement.isTarget(owner, name, desc)) {
-				isReplaced = true;
-				replacement.insertMethodCall(this, Opcodes.INVOKESTATIC);
-				break;
-			}
+		if(MethodCallReplacementCache.getInstance().hasReplacementCall(owner, name+desc)) {
+			MethodCallReplacement replacement = MethodCallReplacementCache.getInstance().getReplacementCall(owner, name+desc);
+			isReplaced = true;
+			replacement.insertMethodCall(this, Opcodes.INVOKESTATIC);
 		}
 
 		// for constructors
 		if (!isReplaced) {
-			iterator = MethodCallReplacementCache.getInstance().getSpecialReplacementCalls();
-			while(iterator.hasNext()) {
-				MethodCallReplacement replacement = iterator.next();
+			if(MethodCallReplacementCache.getInstance().hasSpecialReplacementCall(owner, name+desc)) {
+				MethodCallReplacement replacement = MethodCallReplacementCache.getInstance().getSpecialReplacementCall(owner, name+desc);
 				if (replacement.isTarget(owner, name, desc)
 						&& opcode == Opcodes.INVOKESPECIAL) {
 					isReplaced = true;
@@ -112,23 +107,22 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 						replacement.insertConstructorCall(this, replacement, isSelf);
 					else
 						replacement.insertMethodCall(this, Opcodes.INVOKESPECIAL);
-					break;
 				}
 			}
 		}
 
 		// non-static replacement methods
-		if (!isReplaced) {
-			iterator = MethodCallReplacementCache.getInstance().getVirtualReplacementCalls();
-			while(iterator.hasNext()) {
-				MethodCallReplacement replacement = iterator.next();
-				if (replacement.isTarget(owner, name, desc)) {
-					isReplaced = true;
-					replacement.insertMethodCall(this, Opcodes.INVOKEVIRTUAL);
-					break;
-				}
-			}
-		}
+//		if (!isReplaced) {
+//			iterator = MethodCallReplacementCache.getInstance().getVirtualReplacementCalls();
+//			while(iterator.hasNext()) {
+//				MethodCallReplacement replacement = iterator.next();
+//				if (replacement.isTarget(owner, name, desc)) {
+//					isReplaced = true;
+//					replacement.insertMethodCall(this, Opcodes.INVOKEVIRTUAL);
+//					break;
+//				}
+//			}
+//		}
 
 		if (!isReplaced) {
 			super.visitMethodInsn(opcode, owner, name, desc, itf);

@@ -48,6 +48,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
@@ -111,12 +112,14 @@ public class TestClusterGenerator {
 
 	private final Set<GenericAccessibleObject<?>> dependencyCache = new LinkedHashSet<GenericAccessibleObject<?>>();
 
+	private final static Map<Class<?>, Set<Method>> methodCache = new HashMap<Class<?>, Set<Method>>();
+
 	private final Set<GenericClass> genericCastClasses = new LinkedHashSet<GenericClass>();
 
 	private final Set<Class<?>> concreteCastClasses = new LinkedHashSet<Class<?>>();
 
 	private final Set<Class<?>> containerClasses = new LinkedHashSet<Class<?>>();
-
+	
 	public void generateCluster(String targetClass, InheritanceTree inheritanceTree,
 	        CallTree callTree) throws RuntimeException, ClassNotFoundException {
 
@@ -700,7 +703,13 @@ public class TestClusterGenerator {
 	 * @return
 	 */
 	public static Set<Method> getMethods(Class<?> clazz) {
-
+		
+		// As this is expensive, doing some caching here
+		// Note that with the change of a class loader the cached values could
+		// be thrown away
+		if(methodCache.containsKey(clazz)) {
+			return methodCache.get(clazz);
+		}
 		Map<String, Method> helper = new TreeMap<String, Method>();
 
 		if (clazz.getSuperclass() != null) {
@@ -726,6 +735,7 @@ public class TestClusterGenerator {
 
 		Set<Method> methods = new LinkedHashSet<Method>();
 		methods.addAll(helper.values());
+		methodCache.put(clazz, methods);
 		return methods;
 	}
 
@@ -850,13 +860,16 @@ public class TestClusterGenerator {
 			return false;
 		}
 
+		// TODO: This should be unnecessary if Java reflection works...
+		// This is inefficient 
 		if (ANONYMOUS_MATCHER1.matcher(c.getName()).matches()) {
-			logger.debug(c + " looks like an anonymous class, ignoring it");
+			logger.debug(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+")");
 			return false;
 		}
 
+		// TODO: This should be unnecessary if Java reflection works...
 		if (ANONYMOUS_MATCHER2.matcher(c.getName()).matches()) {
-			logger.debug(c + " looks like an anonymous class, ignoring it");
+			logger.debug(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+")");
 			return false;
 		}
 
@@ -1752,8 +1765,9 @@ public class TestClusterGenerator {
 	 * @return
 	 */
 	private static int getPackageDistance(String className1, String className2) {
-		String[] package1 = className1.split("\\.|\\$");
-		String[] package2 = className2.split("\\.|\\$");
+		
+		String[] package1 = StringUtils.split(className1, '.');
+		String[] package2 = StringUtils.split(className2, '.');
 
 		int distance = 0;
 		int same = 1;

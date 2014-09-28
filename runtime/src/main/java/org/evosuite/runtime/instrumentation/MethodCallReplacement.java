@@ -150,5 +150,8 @@ public class MethodCallReplacement {
 		return methodName;
 	}
 
+	public String getMethodNameWithDesc() {
+		return methodName+desc;
+	}
 
 }
