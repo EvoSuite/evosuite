@@ -23,7 +23,6 @@ package org.evosuite.runtime;
 
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.lang.MockThread;
-import org.evosuite.runtime.mock.java.util.MockTimer;
 import org.evosuite.runtime.thread.ThreadCounter;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.slf4j.Logger;
@@ -64,7 +63,12 @@ public class Runtime {
 
 		MockFramework.enable();
 
-		if (RuntimeSettings.mockJVMNonDeterminism) {
+		/*
+		 * TODO: If the setting of mockJVMNonDeterminism changes
+		 *       at runtime, then the MethodCallReplacementCache
+		 *       would need to be reset.
+		 */
+		if (RuntimeSettings.mockJVMNonDeterminism) {			
 			Random.reset();
 			System.resetRuntime();
             MockThread.reset();
