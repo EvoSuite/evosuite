@@ -15,7 +15,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.evosuite.Properties;
 
 public class EvosuitePropertyPage extends PropertyPage {
 
@@ -33,6 +35,8 @@ public class EvosuitePropertyPage extends PropertyPage {
 
 	private Button sandboxButton;
 
+	private Button scaffoldingButton;
+
 	private Button deterministicButton;
 
 	private Button errorButton;
@@ -41,6 +45,8 @@ public class EvosuitePropertyPage extends PropertyPage {
 
 	private Button dseButton;
 
+	private Text testSuffix;
+	
 	// private Button evosuiteRunnerButton;
 
 	private Spinner time;
@@ -75,6 +81,9 @@ public class EvosuitePropertyPage extends PropertyPage {
 	public static QualifiedName SANDBOX_PROP_KEY = new QualifiedName("EvoSuite",
 	        "Sandbox");
 
+	public static QualifiedName SCAFFOLDING_PROP_KEY = new QualifiedName("EvoSuite",
+	        "Use scaffolding to hide runtime instrumentation");
+
 	public static QualifiedName DETERMINISTIC_PROP_KEY = new QualifiedName("EvoSuite",
 	        "Transform nondeterministic calls");
 
@@ -89,6 +98,9 @@ public class EvosuitePropertyPage extends PropertyPage {
 	
 	public static QualifiedName SEED_PROP_KEY = new QualifiedName("EvoSuite",
 	        "Use user-provided seed");	
+
+	public static QualifiedName TEST_SUFFIX_PROP_KEY = new QualifiedName("EvoSuite",
+	        "Suffix to use for generated tests");	
 
 	// public static QualifiedName RUNNER_PROP_KEY = new QualifiedName("EvoSuite",
 	//        "Use EvoSuite JUnit runner in generated test suites");
@@ -213,6 +225,14 @@ public class EvosuitePropertyPage extends PropertyPage {
 		sandboxButton.setSelection(getSandboxEnabled());
 		sandboxButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
+		Label mylabel3a = new Label(myComposite, SWT.NONE);
+		mylabel3a.setLayoutData(new GridData());
+		mylabel3a.setText("Use scaffolding");
+		scaffoldingButton = new Button(myComposite, SWT.CHECK);
+		scaffoldingButton.setSelection(getScaffoldingEnabled());
+		scaffoldingButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		
 		//		Label mylabel7 = new Label(myComposite, SWT.NONE);
 		//		mylabel7.setLayoutData(new GridData());
 		//		mylabel7.setText("Use EvoSuite JUnit runner in generated test suites");
@@ -262,6 +282,15 @@ public class EvosuitePropertyPage extends PropertyPage {
 		dseButton = new Button(myComposite, SWT.CHECK);
 		dseButton.setSelection(getDSEEnabled());
 		dseButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label mylabel8 = new Label(myComposite, SWT.NONE);
+		mylabel8.setLayoutData(new GridData());
+		mylabel8.setText("Suffix of EvoSuite generated tests");
+		testSuffix = new Text(myComposite, SWT.NONE);
+		testSuffix.setText(getTestSuffix());
+		testSuffix.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		// dseButton.setSelection(getDSEEnabled());
+		// dseButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		return myComposite;
 
@@ -441,6 +470,30 @@ public class EvosuitePropertyPage extends PropertyPage {
 			value = "true";
 		try {
 			resource.setPersistentProperty(SANDBOX_PROP_KEY, value);
+		} catch (CoreException e) {
+		}
+	}
+
+	protected boolean getScaffoldingEnabled() {
+		IResource resource = ((IJavaProject) getElement()).getResource();
+		try {
+			String value = resource.getPersistentProperty(SCAFFOLDING_PROP_KEY);
+			if (value == null)
+				return true;
+			return Boolean.parseBoolean(value);
+		} catch (CoreException e) {
+			return false;
+		}
+	}
+
+	protected void setScaffoldingEnabled(boolean enabled) {
+
+		IResource resource = ((IJavaProject) getElement()).getResource();
+		String value = Boolean.toString(enabled);
+		if (value.equals(""))
+			value = "true";
+		try {
+			resource.setPersistentProperty(SCAFFOLDING_PROP_KEY, value);
 		} catch (CoreException e) {
 		}
 	}
@@ -731,6 +784,29 @@ public class EvosuitePropertyPage extends PropertyPage {
 		} catch (CoreException e) {
 		}
 	}
+	
+	protected String getTestSuffix() {
+		IResource resource = ((IJavaProject) getElement()).getResource();
+		try {
+			String value = resource.getPersistentProperty(TEST_SUFFIX_PROP_KEY);
+			if (value == null)
+				return "EvoSuiteTest";
+			return value;
+		} catch (CoreException e) {
+			return "EvoSuiteTest";
+		}
+	}
+
+	protected void setTestSuffix(String suffix) {
+		IResource resource = ((IJavaProject) getElement()).getResource();
+		String value = suffix;
+		if (value.equals(""))
+			value = "EvoSuiteTest";
+		try {
+			resource.setPersistentProperty(TEST_SUFFIX_PROP_KEY, value);
+		} catch (CoreException e) {
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.preference.PreferencePage#performOk()
@@ -743,12 +819,14 @@ public class EvosuitePropertyPage extends PropertyPage {
 		setMinimizeTestsEnabled(minimizeTestsButton.getSelection());
 		setMinimizeValuesEnabled(minimizeValuesButton.getSelection());
 		setSandboxEnabled(sandboxButton.getSelection());
+		setScaffoldingEnabled(scaffoldingButton.getSelection());
 		setDeterministicEnabled(deterministicButton.getSelection());
 		setTime(time.getSelection());
 		setCriterion(criterionCombo.getText());
 		setContractsEnabled(contractsButton.getSelection());
 		setErrorBranchesEnabled(errorButton.getSelection());
 		setDSEEnabled(dseButton.getSelection());
+		setTestSuffix(testSuffix.getText());
 		// setEvoSuiteRunnerEnabled(evosuiteRunnerButton.getSelection());
 		//setReplacementTime(time2.getSelection());
 		return super.performOk();
@@ -765,11 +843,13 @@ public class EvosuitePropertyPage extends PropertyPage {
 		setReportEnabled(false);
 		setPlotEnabled(false);
 		setSandboxEnabled(true);
+		setScaffoldingEnabled(true);
 		setDeterministicEnabled(false);
 		setContractsEnabled(false);
 		setErrorBranchesEnabled(false);
 		setDSEEnabled(false);
 		// setEvoSuiteRunnerEnabled(false);
 		setCriterion("branch");
+		setTestSuffix(Properties.JUNIT_SUFFIX);
 	}
 }
