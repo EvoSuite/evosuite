@@ -223,14 +223,21 @@ public class TestGenerationJob extends Job {
 			if ("false".equals(target.getProject().getPersistentProperty(
 					EvosuitePropertyPage.ASSERTION_PROP_KEY))) {
 				commands.add("-Dassertions=false");
+			} else {
+				commands.add("-Dassertions=true");				
 			}
+			
 			if ("false".equals(target.getProject().getPersistentProperty(
 					EvosuitePropertyPage.MINIMIZE_TESTS_PROP_KEY))) {
 				commands.add("-Dminimize=false");
+			} else {
+				commands.add("-Dminimize=true");
 			}
 			if (!"false".equals(target.getProject().getPersistentProperty(
 					EvosuitePropertyPage.MINIMIZE_VALUES_PROP_KEY))) {
 				commands.add("-Dminimize_values=true");
+			} else {
+				commands.add("-Dminimize_values=false");
 			}
 			// if (!"true".equals(target.getProject().getPersistentProperty(EvosuitePropertyPage.RUNNER_PROP_KEY))) {
 			//			//	commands.add("-Djunit_runner=false");
@@ -240,8 +247,14 @@ public class TestGenerationJob extends Job {
 			if ("true".equals(target.getProject().getPersistentProperty(
 					EvosuitePropertyPage.DETERMINISTIC_PROP_KEY))) {
 				commands.add("-Dreplace_calls=true");
+				commands.add("-Dreplace_system_in=true");
 				commands.add("-Dreset_static_fields=true");
 				commands.add("-Dvirtual_fs=true");
+			} else {
+				commands.add("-Dreplace_calls=false");
+				commands.add("-Dreplace_system_in=false");
+				commands.add("-Dreset_static_fields=false");
+				commands.add("-Dvirtual_fs=false");
 			}
 			//	}
 
@@ -259,6 +272,11 @@ public class TestGenerationJob extends Job {
 					EvosuitePropertyPage.SANDBOX_PROP_KEY))) {
 				commands.add("-Dsandbox=false");
 			}
+			if ("false".equals(target.getProject().getPersistentProperty(
+					EvosuitePropertyPage.SCAFFOLDING_PROP_KEY))) {
+				commands.add("-Dscaffolding=false");
+				commands.add("-Dno_runtime_dependency=true");
+			}
 			if ("true".equals(target.getProject().getPersistentProperty(
 					EvosuitePropertyPage.CONTRACTS_PROP_KEY))) {
 				commands.add("-Dcheck_contracts=true");
@@ -268,22 +286,54 @@ public class TestGenerationJob extends Job {
 				commands.add("-Derror_branches=true");
 			}
 			if ("true".equals(target.getProject().getPersistentProperty(
-					EvosuitePropertyPage.DSE_PROP_KEY))) {
-				commands.add("-Dlocal_search_rate=1");
+					EvosuitePropertyPage.DSE_PROP_KEY)) || 
+				"true".equals(target.getProject().getPersistentProperty(
+					EvosuitePropertyPage.LS_PROP_KEY))) {
+				commands.add("-Dlocal_search_rate=10");
 				commands.add("-Dlocal_search_probability=1.0");
 				commands.add("-Dlocal_search_adaptation_rate=1.0");
-				commands.add("-Dlocal_search_selective=false");
-				commands.add("-Dlocal_search_selective_primitives=false");
-				commands.add("-Dlocal_search_dse=suite");
+				commands.add("-Dlocal_search_selective=true");
+				// commands.add("-Dlocal_search_selective_primitives=false");
+				//commands.add("-Dlocal_search_dse=suite");
 				commands.add("-Dlocal_search_budget_type=time");
 				commands.add("-Dlocal_search_budget=15");
+
 			}
+			if ("true".equals(target.getProject().getPersistentProperty(
+					EvosuitePropertyPage.DSE_PROP_KEY))) {
+//				commands.add("-Dlocal_search_rate=1");
+//				commands.add("-Dlocal_search_probability=1.0");
+//				commands.add("-Dlocal_search_adaptation_rate=1.0");
+//				commands.add("-Dlocal_search_selective=false");
+//				commands.add("-Dlocal_search_selective_primitives=false");
+				commands.add("-Dlocal_search_dse=suite");
+				// commands.add("-Dlocal_search_budget_type=time");
+				// commands.add("-Dlocal_search_budget=15");
+			}
+//			if ("true".equals(target.getProject().getPersistentProperty(
+//					EvosuitePropertyPage.LS_PROP_KEY))) {
+//				commands.add("-Dlocal_search_rate=1");
+//				commands.add("-Dlocal_search_probability=1.0");
+//				commands.add("-Dlocal_search_adaptation_rate=1.0");
+//				commands.add("-Dlocal_search_selective=false");
+//				commands.add("-Dlocal_search_selective_primitives=false");
+//				commands.add("-Dlocal_search_dse=suite");
+//				commands.add("-Dlocal_search_budget_type=time");
+//				commands.add("-Dlocal_search_budget=15");
+//			}
+			String suffix = target.getProject().getPersistentProperty(
+					EvosuitePropertyPage.TEST_SUFFIX_PROP_KEY);
+			if(suffix != null) {
+				commands.add("-Djunit_suffix="+suffix);
+			}
+			/*
 			String seed = target.getProject().getPersistentProperty(
 					EvosuitePropertyPage.SEED_PROP_KEY);
 			if (seed != null) {
 				commands.add("-seed");
 				commands.add(seed);
 			}
+			*/
 			String criterion = target.getProject().getPersistentProperty(
 					EvosuitePropertyPage.CRITERION_PROP_KEY);
 			if (criterion != null) {
