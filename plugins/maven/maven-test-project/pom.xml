@@ -57,7 +57,7 @@
 						</goals>
 						<configuration>
 							<sources>
-								<source>.continuous_evosuite/evosuite-tests</source>
+								<source>src/evo</source>
 								<source>foo</source>
 							</sources>
 						</configuration>
