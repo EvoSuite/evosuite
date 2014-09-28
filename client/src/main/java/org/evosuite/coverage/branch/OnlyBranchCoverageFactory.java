@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.coverage.MethodNameMatcher;
-import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.slf4j.Logger;
@@ -66,8 +65,7 @@ public class OnlyBranchCoverageFactory extends
 
 				for (Branch b : BranchPool.retrieveBranchesInMethod(className,
 						methodName)) {
-					if (!(b.getInstruction().isForcedBranch() || LCSAJPool
-							.isLCSAJBranch(b))) {
+					if (!(b.getInstruction().isForcedBranch())) {
 						goals.add(createOnlyBranchCoverageTestFitness(b, true));
 						//if (!b.isSwitchCaseBranch())
 						goals.add(createOnlyBranchCoverageTestFitness(b, false));

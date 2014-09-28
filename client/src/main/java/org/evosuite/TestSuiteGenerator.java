@@ -34,18 +34,12 @@ import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
 import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
-import org.evosuite.coverage.lcsaj.LCSAJ;
-import org.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
-import org.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
-import org.evosuite.coverage.lcsaj.LCSAJCoverageTestFitness;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.method.*;
 import org.evosuite.coverage.mutation.*;
 import org.evosuite.coverage.output.OutputCoverageFactory;
 import org.evosuite.coverage.output.OutputCoverageSuiteFitness;
-import org.evosuite.coverage.path.PrimePathCoverageFactory;
-import org.evosuite.coverage.path.PrimePathSuiteFitness;
 import org.evosuite.coverage.readability.ReadabilitySuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageFactory;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
@@ -62,7 +56,6 @@ import org.evosuite.ga.populationlimit.PopulationLimit;
 import org.evosuite.ga.populationlimit.SizePopulationLimit;
 import org.evosuite.ga.stoppingconditions.*;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
-import org.evosuite.graphs.LCSAJGraph;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.regression.RegressionSuiteFitness;
@@ -791,14 +784,8 @@ public class TestSuiteGenerator {
 		case MUTATION:
 			LoggingUtils.getEvoLogger().info("  - Mutation testing (strong)");
 			break;
-		case LCSAJ:
-			LoggingUtils.getEvoLogger().info("  - LCSAJ");
-			break;
 		case DEFUSE:
 			LoggingUtils.getEvoLogger().info("  - All DU Pairs");
-			break;
-		case PATH:
-			LoggingUtils.getEvoLogger().info("  - Prime Path");
 			break;
 		case STATEMENT:
 			LoggingUtils.getEvoLogger().info("  - Statement Coverage");
@@ -871,12 +858,8 @@ public class TestSuiteGenerator {
 			return new WeakMutationSuiteFitness();
 		case MUTATION:
 			return new StrongMutationSuiteFitness();
-		case LCSAJ:
-			return new LCSAJCoverageSuiteFitness();
 		case DEFUSE:
 			return new DefUseCoverageSuiteFitness();
-		case PATH:
-			return new PrimePathSuiteFitness();
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
 		case IBRANCH:
@@ -947,12 +930,8 @@ public class TestSuiteGenerator {
 			return new MutationFactory();
 		case WEAKMUTATION:
 			return new MutationFactory(false);
-		case LCSAJ:
-			return new LCSAJCoverageFactory();
 		case DEFUSE:
 			return new DefUseCoverageFactory();
-		case PATH:
-			return new PrimePathCoverageFactory();
 		case BRANCH:
 			return new BranchCoverageFactory();
 		case IBRANCH:
@@ -1383,21 +1362,6 @@ public class TestSuiteGenerator {
 		else
 			LoggingUtils.getEvoLogger().info("! #Goals that were not covered: "
 			                                         + uncovered_goals);
-
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.LCSAJ) && Properties.WRITE_CFG) {
-			int d = 0;
-			for (TestFitnessFunction goal : goals) {
-				if (!covered.contains(d)) {
-					LCSAJCoverageTestFitness lcsajGoal = (LCSAJCoverageTestFitness) goal;
-					LCSAJ l = lcsajGoal.getLcsaj();
-					LCSAJGraph uncoveredGraph = new LCSAJGraph(l, true);
-					uncoveredGraph.generate(new File("evosuite-graphs/LCSAJGraphs/"
-					        + l.getClassName() + "/" + l.getMethodName()
-					        + "/Uncovered LCSAJ No: " + l.getID()));
-				}
-				d++;
-			}
-		}
 
 		//statistics.searchFinished(suiteGA);
 		long end_time = System.currentTimeMillis() / 1000;
