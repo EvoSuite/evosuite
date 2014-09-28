@@ -366,7 +366,7 @@ public class Properties {
 	public static DSEType LOCAL_SEARCH_DSE = DSEType.OFF;
 
 	@Parameter(key = "local_search_adaptation_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
-	public static double LOCAL_SEARCH_ADAPTATION_RATE = 1.0;
+	public static double LOCAL_SEARCH_ADAPTATION_RATE = 0.33;
 
 	@Parameter(key = "dse_keep_all_tests", group = "Search Algorithm", description = "Keep tests even if they do not increase fitness")
 	public static boolean DSE_KEEP_ALL_TESTS = false;
