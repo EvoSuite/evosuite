@@ -24,7 +24,7 @@ public class DeleteFileThread {
 					try {
 						sleep(500);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
+                        Thread.currentThread().interrupt();
 						e.printStackTrace();
 					}
 				}
