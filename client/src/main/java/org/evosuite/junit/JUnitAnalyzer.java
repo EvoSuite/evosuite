@@ -26,6 +26,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.NonInstrumentingClassLoader;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.junit.xml.JUnitProcessLauncher;
@@ -53,6 +54,8 @@ public class JUnitAnalyzer {
 	private static final String JAVA = ".java";
 	private static final String CLASS = ".class";
 
+	
+	private static NonInstrumentingClassLoader loader = new NonInstrumentingClassLoader(ClassLoader.getSystemClassLoader());
 	
 	/**
 	 * Try to compile each test separately, and remove the ones that cannot be
@@ -682,7 +685,8 @@ public class JUnitAnalyzer {
 		Class<?> testClass = null;
 		try {
 			logger.info("Loading class " + className);
-			testClass = ((InstrumentingClassLoader) TestGenerationContext.getInstance().getClassLoaderForSUT()).loadClassFromFile(className,
+			//testClass = ((InstrumentingClassLoader) TestGenerationContext.getInstance().getClassLoaderForSUT()).loadClassFromFile(className,
+			testClass = loader.loadClassFromFile(className,
 			                                                                                                                      fileName);
 		} catch (ClassNotFoundException e) {
 			logger.error("Failed to load test case " + className + " from file "
