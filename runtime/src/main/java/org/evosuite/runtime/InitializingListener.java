@@ -56,9 +56,19 @@ public class InitializingListener extends RunListener{
 			java.lang.System.out.println("WARN: Maven bug has now been fixed. Update EvoSuite");
 			return;
 		}
-		
+
+        /*
+            TODO: this is not 100% correct, but anyway this is done only when running tests with "mvn test"
+            by the final users, not really in the experiments.
+            So, activating everything should be fine
+         */
+        RuntimeSettings.useVFS = true;
+        RuntimeSettings.mockJVMNonDeterminism = true;
+        RuntimeSettings.mockSystemIn = true;
+        RuntimeSettings.resetStaticState = true;
+
 		List<String> list = classesToInit();
-		
+
 		InstrumentingAgent.initialize();
 		
 		for(String name : list){
