@@ -1800,7 +1800,7 @@ public class Properties {
 
 			    int pos = 0;
 			    for(String stringValue : values) {
-			        criteria[pos++] = Enum.valueOf(Criterion.class, stringValue);
+			        criteria[pos++] = Enum.valueOf(Criterion.class, stringValue.toUpperCase());
 			    }
 
 			    f.set(this, criteria);
