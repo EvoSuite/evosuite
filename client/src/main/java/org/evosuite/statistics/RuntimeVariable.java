@@ -121,6 +121,10 @@ public enum RuntimeVariable {
 	WeakMutationScore,
     WeakMutationFitnessTimeline,
     WeakMutationCoverageTimeline,
+    /** Only mutation = only infection distance */
+	OnlyMutationScore,
+	OnlyMutationFitnessTimeline,
+	OnlyMutationCoverageTimeline,
     /** The obtained score for (strong) mutation testing*/
 	MutationScore,
 	/** The total time EvoSuite spent generating the test cases */

@@ -46,6 +46,7 @@ public class CoverageAnalysis {
 		case MUTATION:
 		case WEAKMUTATION:
 		case STRONGMUTATION:
+		case ONLYMUTATION:
 			return true;
 		default:
 			return false;
@@ -177,6 +178,8 @@ public class CoverageAnalysis {
 		case STRONGMUTATION:
 		case MUTATION:
 			return RuntimeVariable.MutationScore;
+		case ONLYMUTATION:
+			return RuntimeVariable.OnlyMutationScore;
 		case WEAKMUTATION:
 			return RuntimeVariable.WeakMutationScore;
 		case ONLYBRANCH:
