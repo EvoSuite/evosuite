@@ -166,9 +166,8 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         ExceptionCoverageTestFitness other = (ExceptionCoverageTestFitness) obj;
         if (! methodName.equals(other.methodName)) {
             return false;
-        } else if (! clazz.getName().equals(other.clazz.getName()))
-            return false;
-        return true;
+        } else
+            return clazz.equals(other.getClazz());
     }
 
     /* (non-Javadoc)
@@ -178,12 +177,15 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
     public int compareTo(TestFitnessFunction other) {
         if (other instanceof ExceptionCoverageTestFitness) {
             ExceptionCoverageTestFitness otherMethodFitness = (ExceptionCoverageTestFitness) other;
-            if (methodName.equals(otherMethodFitness.getMethod()))
-                return clazz.getName().compareTo(otherMethodFitness.getClazz().getName());
-            else
+            if (methodName.equals(otherMethodFitness.getMethod())) {
+                if (clazz.equals(((ExceptionCoverageTestFitness) other).getClazz()))
+                    return 0;
+                else
+                    return clazz.getName().compareTo(otherMethodFitness.getClazz().getName());
+            } else
                 return methodName.compareTo(otherMethodFitness.getMethod());
-        } else
-            return -1;
+        }
+        return 0;
     }
 
 
