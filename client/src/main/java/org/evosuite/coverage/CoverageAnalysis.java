@@ -126,7 +126,7 @@ public class CoverageAnalysis {
 		for (Criterion c : oldCriterion) {
 		    criteriaList.remove(c.name());
 		}
-	    for (String criterion : criteria.split(","))
+	    for (String criterion : criteriaList)
 	    {
 			/*
 			if (SearchStatistics.getInstance().hasCoverage(criterion)) {
