@@ -106,9 +106,10 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
-		int max = Math.min(Properties.MAX_INT, 32767);
-		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
-			value = (short) (Randomness.nextInt(2 * max) - max);
+		short max = (short) Math.min(Properties.MAX_INT, 32767);
+		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
+			value = (short) ((Randomness.nextGaussian() * max) * (Randomness.nextBoolean()?-1:1));
+		}
 		else {
 			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
 			value = (short) constantPool.getRandomInt();
