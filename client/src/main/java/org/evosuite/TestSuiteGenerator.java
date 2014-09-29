@@ -676,7 +676,7 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
-			if (Properties.CRITERION.length == 1) {
+			if (Properties.CRITERION.length == 1 || Properties.COMPOSITIONAL_FITNESS) {
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 			    minimizer.minimize(bestSuites.get(0), true);
 			}

@@ -67,6 +67,9 @@ public class CoverageAnalysis {
 			}
 		}
 
+		if(Properties.COMPOSITIONAL_FITNESS)
+			return;
+		
 		if (ArrayUtil.contains(oldCriterion, criterion))
 			return;
 
@@ -203,8 +206,7 @@ public class CoverageAnalysis {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void analyzeCoverage(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
-        if (! Properties.COMPOSITIONAL_FITNESS)
-		    reinstrument(testSuite, criterion);
+		reinstrument(testSuite, criterion);
 		TestFitnessFactory factory = TestSuiteGenerator.getFitnessFactory(criterion);
 
 		for(TestChromosome test : testSuite.getTestChromosomes()) {

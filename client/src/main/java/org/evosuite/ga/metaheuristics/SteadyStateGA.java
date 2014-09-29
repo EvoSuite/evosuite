@@ -24,6 +24,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.ReplacementFunction;
 import org.evosuite.utils.Randomness;
@@ -123,16 +124,12 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 			// The two offspring replace the parents if and only if one of
 			// the offspring is not worse than the best parent.
-
-			getFitnessFunction().getFitness(offspring1);
-			notifyEvaluation(offspring1);
-
-			getFitnessFunction().getFitness(offspring2);
-			notifyEvaluation(offspring2);
-
-			// local search
-
-			// DSE
+		    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+		        fitnessFunction.getFitness(offspring1);
+		        notifyEvaluation(offspring1);
+		        fitnessFunction.getFitness(offspring2);
+		        notifyEvaluation(offspring2);
+		    }
 
 			if (keepOffspring(parent1, parent2, offspring1, offspring2)) {
 				logger.debug("Keeping offspring");
