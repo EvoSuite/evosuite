@@ -121,12 +121,8 @@ public class CoverageAnalysis {
 	}
 
 	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
-	    Criterion[] oldCriterion = Properties.CRITERION;
-        List<String> criteriaList = new ArrayList<String>(Arrays.asList(criteria.split(",")));
-		for (Criterion c : oldCriterion) {
-		    criteriaList.remove(c.name());
-		}
-	    for (String criterion : criteria.split(","))
+        String enabledCriteria = Arrays.toString(Properties.CRITERION);
+	    for (String extraCriterion : Arrays.asList(criteria.toUpperCase().split(",")))
 	    {
 			/*
 			if (SearchStatistics.getInstance().hasCoverage(criterion)) {
@@ -135,13 +131,15 @@ public class CoverageAnalysis {
 				continue;
 			}
 			*/
-			analyzeCoverage(testSuite, criterion);
+            if (! enabledCriteria.contains(extraCriterion)) {
+                analyzeCoverage(testSuite, extraCriterion);
+            }
 		}
 
-		LoggingUtils.getEvoLogger().info("Reinstrumenting for original criterion ");
+		//LoggingUtils.getEvoLogger().info("Reinstrumenting for original criterion ");
 		//reinstrument(testSuite, oldCriterion);
-		Properties.CRITERION = oldCriterion;
-		for (Criterion c : oldCriterion) {
+
+		for (Criterion c : Properties.CRITERION) {
 		    LoggingUtils.getEvoLogger().info("  - " + c.name());
 		    analyzeCoverage(testSuite, c.name());
 		}
@@ -205,8 +203,8 @@ public class CoverageAnalysis {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void analyzeCoverage(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
-
-		reinstrument(testSuite, criterion);
+        if (! Properties.COMPOSITIONAL_FITNESS)
+		    reinstrument(testSuite, criterion);
 		TestFitnessFactory factory = TestSuiteGenerator.getFitnessFactory(criterion);
 
 		for(TestChromosome test : testSuite.getTestChromosomes()) {

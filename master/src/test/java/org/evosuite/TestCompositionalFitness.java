@@ -5,10 +5,10 @@ package org.evosuite;
 
 import static org.junit.Assert.assertEquals;
 
+import com.examples.with.different.packagename.Compositional;
 import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
@@ -45,11 +45,11 @@ public class TestCompositionalFitness extends SystemTest {
 	public void beforeTest() {
 		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
         Properties.COMPOSITIONAL_FITNESS = true;
-        Properties.CRITERION[0] = Criterion.METHOD;
         //Properties.MINIMIZE = true;
         Properties.LOG_LEVEL = "debug";
         Properties.PRINT_TO_SYSTEM = true;
         Properties.CLIENT_ON_THREAD = true;
+        Properties.ASSERTIONS = false;
 	}
 
     @After
@@ -67,10 +67,6 @@ public class TestCompositionalFitness extends SystemTest {
 		Properties.CRITERION = new Properties.Criterion[2];
         Properties.CRITERION[0] = Criterion.DEFUSE;
         Properties.CRITERION[1] = Criterion.METHODNOEXCEPTION;
-
-
-
-		Properties.ASSERTIONS = false;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -92,19 +88,19 @@ public class TestCompositionalFitness extends SystemTest {
 		Assert.assertEquals("Inconsistent fitness: ", sum, best.getFitness(), 0.001);
         Assert.assertEquals("Inconsistent coverage: ", cov, best.getCoverage(), 0.001);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-
 	}
-    
-	@Ignore
+
+	@Test
 	public void testGCDExample() {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = GCD.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-        Properties.CRITERION[0] = Criterion.DEFUSE;
-		Properties.ASSERTIONS = false;
-		Properties.ANALYSIS_CRITERIA = "Branch,DefUse";
+        Properties.CRITERION = new Properties.Criterion[2];
+        Properties.CRITERION[0] = Criterion.ONLYBRANCH;
+        Properties.CRITERION[1] = Criterion.ONLYMUTATION;
+		Properties.ANALYSIS_CRITERIA = "OnlyBranch,ONLYMUTATION,METHOD,exception";
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -114,32 +110,24 @@ public class TestCompositionalFitness extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertEquals(0, DefUseCoverageFactory.getInterMethodGoalsCount());
-		Assert.assertEquals(0, DefUseCoverageFactory.getIntraClassGoalsCount());
-		Assert.assertEquals(4, DefUseCoverageFactory.getParamGoalsCount());
-		Assert.assertEquals(6, DefUseCoverageFactory.getIntraMethodGoalsCount());
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}	
-	@Ignore
+
+	@Test
 	public void testGetFitnessForNoFunctionNoCompositional() {
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
 		Properties.COMPOSITIONAL_FITNESS = false;
         TestSuiteChromosome c = new TestSuiteChromosome();
 		assertEquals(0.0, c.getFitness(), 0.001);
 	}
 	
-	@Ignore
+	@Test
 	public void testCompositionalGetFitnessForNoFunction() {
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
-		Properties.COMPOSITIONAL_FITNESS = true;
         TestSuiteChromosome c = new TestSuiteChromosome();
 		assertEquals(0.0, c.getFitness(), 0.001);
 	}
 	
-	@Ignore
+	@Test
 	public void testCompositionalGetFitnessForOneFunction() {
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
-		Properties.COMPOSITIONAL_FITNESS = true;
         TestSuiteChromosome c = new TestSuiteChromosome();
         StatementCoverageSuiteFitness f1 = new StatementCoverageSuiteFitness();
         c.addFitness(f1);
@@ -147,10 +135,8 @@ public class TestCompositionalFitness extends SystemTest {
 		assertEquals(ANY_DOUBLE_1, c.getFitness(), 0.001);
 	}
 	
-	@Ignore
+	@Test
 	public void testCompositionalGetFitnessForTwoFunctions() {
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
-		Properties.COMPOSITIONAL_FITNESS = true;
         TestSuiteChromosome c = new TestSuiteChromosome();
         StatementCoverageSuiteFitness f1 = new StatementCoverageSuiteFitness();
         c.addFitness(f1);
@@ -161,10 +147,10 @@ public class TestCompositionalFitness extends SystemTest {
 		assertEquals(ANY_DOUBLE_1 + ANY_DOUBLE_2, c.getFitness(), 0.001);
 	}
 	
-	@Ignore
+	@Test
 	public void testCompositionalGetFitnessForSeveralFunctions() {
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
-		Properties.COMPOSITIONAL_FITNESS = true;
+        Properties.TARGET_CLASS = Compositional.class.getCanonicalName();
+
         TestSuiteChromosome c = new TestSuiteChromosome();
         MethodTraceCoverageSuiteFitness f1 = new MethodTraceCoverageSuiteFitness();
         c.addFitness(f1);
