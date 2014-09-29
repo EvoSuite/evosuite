@@ -16,7 +16,7 @@ import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
-import org.evosuite.coverage.mutation.WeakMutationSuiteFitness;
+import org.evosuite.coverage.mutation.OnlyMutationSuiteFitness;
 import org.evosuite.coverage.output.OutputCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.result.TestGenerationResult;
@@ -117,8 +117,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         sequenceOutputVariableFactories.put(RuntimeVariable.OutputCoverageTimeline.name(), new OutputCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.ExceptionFitnessTimeline.name(), new ExceptionFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.ExceptionCoverageTimeline.name(), new ExceptionCoverageSequenceOutputVariableFactory());
-        sequenceOutputVariableFactories.put(RuntimeVariable.WeakMutationFitnessTimeline.name(), new WeakMutationFitnessSequenceOutputVariableFactory());
-        sequenceOutputVariableFactories.put(RuntimeVariable.WeakMutationCoverageTimeline.name(), new WeakMutationCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationFitnessTimeline.name(), new OnlyMutationFitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationCoverageTimeline.name(), new OnlyMutationCoverageSequenceOutputVariableFactory());
 
         // sequenceOutputVariableFactories.put("Generation_History", new GenerationSequenceOutputVariableFactory());
 		if(MasterServices.getInstance().getMasterNode() != null)
@@ -639,27 +639,27 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         }
     }
 
-    private static class WeakMutationFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+    private static class OnlyMutationFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
-        public WeakMutationFitnessSequenceOutputVariableFactory() {
-            super(RuntimeVariable.WeakMutationFitnessTimeline);
+        public OnlyMutationFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.OnlyMutationFitnessTimeline);
         }
 
         @Override
         public Double getValue(TestSuiteChromosome individual) {
-            return individual.getFitnessInstanceOf(WeakMutationSuiteFitness.class);
+            return individual.getFitnessInstanceOf(OnlyMutationSuiteFitness.class);
         }
     }
 
-    private static class WeakMutationCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+    private static class OnlyMutationCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
-        public WeakMutationCoverageSequenceOutputVariableFactory() {
-            super(RuntimeVariable.WeakMutationCoverageTimeline);
+        public OnlyMutationCoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.OnlyMutationCoverageTimeline);
         }
 
         @Override
         public Double getValue(TestSuiteChromosome individual) {
-            return individual.getCoverageInstanceOf(WeakMutationSuiteFitness.class);
+            return individual.getCoverageInstanceOf(OnlyMutationSuiteFitness.class);
         }
     }
 }
