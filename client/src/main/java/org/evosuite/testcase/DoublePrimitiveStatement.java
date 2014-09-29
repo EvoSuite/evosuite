@@ -134,7 +134,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	@Override
 	public void randomize() {
 		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
-			value = Randomness.nextGaussian() * Properties.MAX_INT;
+			value = Randomness.nextGaussian() * Properties.MAX_INT * (Randomness.nextBoolean()?-1.0:1.0);
 			int precision = Randomness.nextInt(15);
 			chopPrecision(precision);
 		}
