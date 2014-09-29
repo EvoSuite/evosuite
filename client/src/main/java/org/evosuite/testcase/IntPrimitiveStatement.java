@@ -107,7 +107,7 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	@Override
 	public void randomize() {
 		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
-			value = (int)Randomness.nextGaussian() * Properties.MAX_INT * (Randomness.nextBoolean()?-1:1) ;
+			value = (int)(Randomness.nextGaussian() * Properties.MAX_INT * (Randomness.nextBoolean()?-1:1)) ;
 		}
 		else {
 			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
