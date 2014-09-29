@@ -120,6 +120,6 @@ public class TestTestSuiteMinimizer extends SystemTest
         Assert.assertEquals(c.getNumOfCoveredGoals(onlybranch), 6.0, 0.0);
         Assert.assertEquals(c.getNumOfCoveredGoals(line), 9.0, 0.0);
 
-        Assert.assertEquals(c.size(), 2);
+        Assert.assertEquals(c.size(), 8);
 	}
 }
