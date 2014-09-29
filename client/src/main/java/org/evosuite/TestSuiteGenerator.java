@@ -858,6 +858,8 @@ public class TestSuiteGenerator {
 			return new WeakMutationSuiteFitness();
 		case MUTATION:
 			return new StrongMutationSuiteFitness();
+		case ONLYMUTATION:
+			return new OnlyMutationSuiteFitness();
 		case DEFUSE:
 			return new DefUseCoverageSuiteFitness();
 		case BRANCH:
@@ -930,6 +932,8 @@ public class TestSuiteGenerator {
 			return new MutationFactory();
 		case WEAKMUTATION:
 			return new MutationFactory(false);
+		case ONLYMUTATION:
+			return new OnlyMutationFactory();
 		case DEFUSE:
 			return new DefUseCoverageFactory();
 		case BRANCH:

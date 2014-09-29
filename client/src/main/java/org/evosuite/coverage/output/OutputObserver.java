@@ -20,14 +20,11 @@ package org.evosuite.coverage.output;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.ExecutionObserver;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +37,7 @@ public class OutputObserver extends ExecutionObserver {
 	
 	private Map<MethodStatement, Object> returnValues = new HashMap<MethodStatement, Object>();
 	
-	private static final Logger logger = LoggerFactory.getLogger(ConstantInliner.class);
+	private static final Logger logger = LoggerFactory.getLogger(OutputObserver.class);
 	
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#output(int, java.lang.String)
