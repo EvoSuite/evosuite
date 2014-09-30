@@ -41,8 +41,8 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.search.ConstraintSolver;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
 import org.junit.Test;
 
 /**
