@@ -25,7 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
- * Fitness function for a single test on a single method (no exception)
+ * Fitness function for a single test on a single exception
  *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
@@ -36,6 +36,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
 
     protected final String methodName;
     protected final Class<?> clazz;
+
     /**
      * Constructor - fitness is specific to a method
      * @param methodName the method name
