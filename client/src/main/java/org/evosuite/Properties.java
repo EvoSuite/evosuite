@@ -372,10 +372,10 @@ public class Properties {
 	public static boolean DSE_KEEP_ALL_TESTS = false;
 
 	public enum SolverType {
-		SEARCH_BASED;
+		SEARCH_BASED_SOLVER, Z3_SOLVER;
 	}
 
-	public static SolverType DSE_SOLVER = SolverType.SEARCH_BASED;
+	public static SolverType DSE_SOLVER = SolverType.SEARCH_BASED_SOLVER;
 
 	
 	/** Constant <code>LOCAL_SEARCH_BUDGET=100</code> */
