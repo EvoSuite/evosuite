@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
 
 /**
  * Interface for SMT solvers

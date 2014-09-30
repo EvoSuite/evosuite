@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.Solver;
 
 public final class CachedConstraintSolver implements Solver {

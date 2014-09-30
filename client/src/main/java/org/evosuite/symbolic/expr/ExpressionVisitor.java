@@ -34,65 +34,65 @@ import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
 
 public interface ExpressionVisitor<K, V> {
 
-	public K visit(IntegerBinaryExpression n, V arg);
+	public K visit(IntegerBinaryExpression n, V arg) ;
 
-	public K visit(IntegerComparison n, V arg);
+	public K visit(IntegerComparison n, V arg) ;
 
-	public K visit(IntegerConstant n, V arg);
+	public K visit(IntegerConstant n, V arg) ;
 
-	public K visit(IntegerUnaryExpression n, V arg);
+	public K visit(IntegerUnaryExpression n, V arg) ;
 
-	public K visit(IntegerVariable n, V arg);
+	public K visit(IntegerVariable n, V arg) ;
 
-	public K visit(RealComparison n, V arg);
+	public K visit(RealComparison n, V arg) ;
 
-	public K visit(RealToIntegerCast n, V arg);
+	public K visit(RealToIntegerCast n, V arg) ;
 
-	public K visit(RealUnaryToIntegerExpression n, V arg);
+	public K visit(RealUnaryToIntegerExpression n, V arg) ;
 
-	public K visit(StringBinaryComparison n, V arg);
+	public K visit(StringBinaryComparison n, V arg) ;
 
-	public K visit(StringBinaryToIntegerExpression n, V arg);
+	public K visit(StringBinaryToIntegerExpression n, V arg) ;
 
-	public K visit(StringMultipleComparison n, V arg);
+	public K visit(StringMultipleComparison n, V arg) ;
 
-	public K visit(StringMultipleToIntegerExpression n, V arg);
+	public K visit(StringMultipleToIntegerExpression n, V arg) ;
 
-	public K visit(StringToIntegerCast n, V arg);
+	public K visit(StringToIntegerCast n, V arg) ;
 
-	public K visit(StringUnaryToIntegerExpression n, V arg);
+	public K visit(StringUnaryToIntegerExpression n, V arg) ;
 
-	public K visit(IntegerToRealCast n, V arg);
+	public K visit(IntegerToRealCast n, V arg) ;
 
-	public K visit(RealBinaryExpression n, V arg);
+	public K visit(RealBinaryExpression n, V arg) ;
 
-	public K visit(RealConstant n, V arg);
+	public K visit(RealConstant n, V arg) ;
 
-	public K visit(RealUnaryExpression n, V arg);
+	public K visit(RealUnaryExpression n, V arg) ;
 
-	public K visit(RealVariable n, V arg);
+	public K visit(RealVariable n, V arg) ;
 
-	public K visit(StringReaderExpr n, V arg);
+	public K visit(StringReaderExpr n, V arg) ;
 
-	public K visit(IntegerToStringCast n, V arg);
+	public K visit(IntegerToStringCast n, V arg) ;
 
-	public K visit(RealToStringCast n, V arg);
+	public K visit(RealToStringCast n, V arg) ;
 
-	public K visit(StringBinaryExpression n, V arg);
+	public K visit(StringBinaryExpression n, V arg) ;
 
-	public K visit(StringConstant n, V arg);
+	public K visit(StringConstant n, V arg) ;
 
-	public K visit(StringMultipleExpression n, V arg);
+	public K visit(StringMultipleExpression n, V arg) ;
 
-	public K visit(StringUnaryExpression n, V arg);
+	public K visit(StringUnaryExpression n, V arg) ;
 
-	public K visit(StringVariable n, V arg);
+	public K visit(StringVariable n, V arg) ;
 
-	public K visit(HasMoreTokensExpr n, V arg);
+	public K visit(HasMoreTokensExpr n, V arg) ;
 
-	public K visit(NewTokenizerExpr n, V arg);
+	public K visit(NewTokenizerExpr n, V arg) ;
 
-	public K visit(NextTokenizerExpr n, V arg);
+	public K visit(NextTokenizerExpr n, V arg) ;
 
 	public K visit(StringNextTokenExpr n, V arg);
 
