@@ -150,8 +150,8 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
                 return methodName.compareTo(otherMethodFitness.getMethod());
             else
                 return className.compareTo(otherMethodFitness.getClassName());
-        } else
-            return -1;
+        }
+        return 0;
     }
 
     /* (non-Javadoc)
