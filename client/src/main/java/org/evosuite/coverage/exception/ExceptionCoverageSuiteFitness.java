@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -43,15 +42,12 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static Logger logger = LoggerFactory.getLogger(ExceptionCoverageSuiteFitness.class);
 
-	protected TestSuiteFitnessFunction baseFF;
-
 	/**
 	 * <p>
 	 * Constructor for ExceptionCoverageSuiteFitness.
 	 * </p>
 	 */
 	public ExceptionCoverageSuiteFitness() {
-		baseFF = new BranchCoverageSuiteFitness();
 	}
 
 	/** {@inheritDoc} */
@@ -143,13 +139,13 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				
 				String methodName = "";
 				boolean sutException = false;
-				
+
 				if (result.test.getStatement(i) instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement) result.test.getStatement(i);
 					Method method = ms.getMethod().getMethod();
 					methodName = method.getName() + Type.getMethodDescriptor(method);
-					
-					if (method.getDeclaringClass().equals(Properties.getTargetClass())){
+
+                    if (method.getDeclaringClass().equals(Properties.getTargetClass())){
 						sutException = true;
 					}
 					
