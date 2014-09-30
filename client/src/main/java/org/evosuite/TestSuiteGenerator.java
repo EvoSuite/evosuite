@@ -803,25 +803,25 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().info("  - Exception");
 			break;
 		case ONLYBRANCH:
-			LoggingUtils.getEvoLogger().info("  - Only-Branch coverage");
+			LoggingUtils.getEvoLogger().info("  - Only-Branch Coverage");
 			break;
 		case METHODTRACE:
-			LoggingUtils.getEvoLogger().info("  - Method coverage (anywhere in trace)");
+			LoggingUtils.getEvoLogger().info("  - Method Coverage");
 			break;
 		case METHOD:
-			LoggingUtils.getEvoLogger().info("  - Method coverage (only direct calls from test)");
+			LoggingUtils.getEvoLogger().info("  - Top-Level Method Coverage");
 			break;
 		case METHODNOEXCEPTION:
-			LoggingUtils.getEvoLogger().info("  - Method (No Exception) coverage");
+			LoggingUtils.getEvoLogger().info("  - No-Exception Top-Level Method Coverage");
 			break;
 		case LINE:
-			LoggingUtils.getEvoLogger().info("  - Line coverage");
+			LoggingUtils.getEvoLogger().info("  - Line Coverage");
 			break;
 		case OUTPUT:
-			LoggingUtils.getEvoLogger().info("  - Method-Output coverage");
+			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");
 			break;
 		default:
-			LoggingUtils.getEvoLogger().info("  - Branch coverage");
+			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
 		}
 	}
 
