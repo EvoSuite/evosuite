@@ -12,8 +12,8 @@ import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.search.ConstraintSolver;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.search.TestInput1;
 import org.evosuite.symbolic.solver.search.TestInput2;
 import org.evosuite.testcase.DefaultTestCase;

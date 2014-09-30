@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.solver.search;
+package org.evosuite.symbolic.solver;
 
 public final class ConstraintSolverTimeoutException extends Exception {
 
