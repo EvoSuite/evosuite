@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.examples.with.different.packagename.Calculator;
 import com.examples.with.different.packagename.Compositional;
-import com.examples.with.different.packagename.statistics.NoBranchlessMethod;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
