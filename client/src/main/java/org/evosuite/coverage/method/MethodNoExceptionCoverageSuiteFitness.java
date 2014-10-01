@@ -135,7 +135,7 @@ public class MethodNoExceptionCoverageSuiteFitness extends TestSuiteFitnessFunct
 				String methodName = "<init>"
 				        + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
 				String name = className + "." + methodName;
-				if (!calledMethods.contains(name)) {
+				if (methodNoExceptionCoverageMap.containsKey(name) && !calledMethods.contains(name)) {
                     calledMethods.add(name);
 				}
 			}
