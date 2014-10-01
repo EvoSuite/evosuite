@@ -288,7 +288,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		updateTopStackMethodCall(branch, bytecode_id, true_distance, false_distance);
 		
 		if(Properties.TRACK_BOOLEAN_BRANCHES){
-			if(true_distance!=0 && true_distance!=1)
+			if((true_distance!=0 && true_distance!=1) || (false_distance!=0 && false_distance!=1))
 				gradientBranches.add(branch);
 		}
 
