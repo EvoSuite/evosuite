@@ -110,6 +110,7 @@ public class StatisticsSender {
 		Set<String> coveredMethods = new HashSet<String>();
 		Set<Integer> coveredTrueBranches = new HashSet<Integer>();
 		Set<Integer> coveredFalseBranches = new HashSet<Integer>();
+		Set<String> coveredBranchlessMethods = new HashSet<String>();
 		Set<Integer> coveredLines = new HashSet<Integer>();
 
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
@@ -117,6 +118,7 @@ public class StatisticsSender {
 			coveredMethods.addAll(trace.getCoveredMethods());
 			coveredTrueBranches.addAll(trace.getCoveredTrueBranches());
 			coveredFalseBranches.addAll(trace.getCoveredFalseBranches());
+			coveredBranchlessMethods.addAll(trace.getCoveredBranchlessMethods());
 			coveredLines.addAll(trace.getCoveredLines());
 		}
 
@@ -126,6 +128,8 @@ public class StatisticsSender {
 				RuntimeVariable.Covered_Methods, coveredMethods.size());	
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
 				RuntimeVariable.Covered_Branches, coveredTrueBranches.size() + coveredFalseBranches.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(
+				RuntimeVariable.Covered_Branchless_Methods, coveredBranchlessMethods.size());
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
 				RuntimeVariable.Covered_Lines, coveredLines);
 	}
