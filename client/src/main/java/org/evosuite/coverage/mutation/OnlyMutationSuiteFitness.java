@@ -61,9 +61,12 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 				covered++;
 		}
 		
+		if (mutationGoals.size() == 0)
+			assert(covered == 0);
+
 		updateIndividual(this, individual, fitness);
-		((TestSuiteChromosome) individual).setCoverage(this, 1.0 * covered
-		        / mutationGoals.size());
+		((TestSuiteChromosome) individual).setCoverage(this, mutationGoals.size() == 0.0 ? 0.0 :
+			1.0 * covered / mutationGoals.size());
 		((TestSuiteChromosome) individual).setNumOfCoveredGoals(this, covered);
 		
 		return fitness;
