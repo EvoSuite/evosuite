@@ -624,8 +624,6 @@ public class BranchPool {
 	 * Returns a set with all unique methodNames of methods without Branches.
 	 * 
 	 * @return A set with all unique methodNames of methods without Branches.
-	 * @param exceptionClassName
-	 *            a {@link java.lang.String} object.
 	 */
 	public static Set<String> getBranchlessMethods() {
 		Set<String> methods = new HashSet<String>();
