@@ -158,6 +158,11 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 		return trace.getCoveredMethods();
 	}
 
+    @Override
+    public Set<String> getCoveredBranchlessMethods() {
+        return trace.getCoveredBranchlessMethods();
+    }
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionTrace#getCoveredPredicates()
 	 */
