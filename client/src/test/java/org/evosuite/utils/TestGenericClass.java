@@ -663,7 +663,6 @@ public class TestGenericClass {
 				return null;
 			}
 
-			@Override
 			public AnnotatedType[] getAnnotatedBounds() {
 				// TODO Auto-generated method stub
 				return null;
