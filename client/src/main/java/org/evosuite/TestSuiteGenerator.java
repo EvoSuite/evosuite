@@ -95,6 +95,7 @@ import sun.misc.Signal;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.Map.Entry;
 
 //import org.evosuite.testsuite.SearchStatistics;
 
@@ -241,6 +242,17 @@ public class TestSuiteGenerator {
 		    tests.add(generateIndividualTests());
 		if (Properties.CHECK_CONTRACTS) {
 			TestCaseExecutor.getInstance().removeObserver(checker);
+		}
+		if(Properties.TRACK_BOOLEAN_BRANCHES){
+			int boolean_branches = 0, gradient_branches=0;
+			for(Entry<Integer, Character> b:ExecutionTraceImpl.branchStatus.entrySet()){
+				if(b.getValue()=='b')
+					boolean_branches++;
+				else if(b.getValue()=='g')
+					gradient_branches++;
+			}
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Boolean_Branches, boolean_branches);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches, gradient_branches);
 		}
 		StatisticsSender.executedAndThenSendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?
 		

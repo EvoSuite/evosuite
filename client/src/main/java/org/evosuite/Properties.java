@@ -583,6 +583,9 @@ public class Properties {
 	@Parameter(key = "initialization_timeout", group = "Search Algorithm", description = "Seconds allowed for initializing the search")
 	@IntValue(min = 0)
 	public static int INITIALIZATION_TIMEOUT = 600;
+	
+	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
+	public static boolean TRACK_BOOLEAN_BRANCHES = false;
 
 
 	/** Constant <code>EXTRA_TIMEOUT=120</code> */
