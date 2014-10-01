@@ -242,8 +242,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	private final Map<Integer, Double> trueDistancesSum = Collections.synchronizedMap(new HashMap<Integer, Double>());
 	
-	// 'b'=booolean, 'u'=uncovered, 'g'=gradient
-	public static Map<Integer, Character> branchStatus = Collections.synchronizedMap(new HashMap<Integer, Character>());
+	public static Set<Integer> gradientBranches = Collections.synchronizedSet(new HashSet<Integer>());
 
 	/**
 	 * <p>
@@ -287,10 +286,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		
 		if(Properties.TRACK_BOOLEAN_BRANCHES){
 			if(true_distance!=0 && true_distance!=1)
-				branchStatus.put(branch, 'g');
-			else
-				if(!branchStatus.containsKey(branch))
-					branchStatus.put(branch,'b');
+				gradientBranches.add(branch);
 		}
 
 		if (traceCoverage) {
