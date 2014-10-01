@@ -133,8 +133,8 @@ public class CoverageAnalysis {
         for (String extraCriterion : Arrays.asList(criteria.toUpperCase().split(",")))
         {
             // Analyse coverage for extra criteria
-            LoggingUtils.getEvoLogger().info("Analyse extra criteria: " + extraCriterion);
-            if (! ArrayUtil.contains(Properties.CRITERION,extraCriterion)) {
+            if (! ArrayUtil.contains(Properties.CRITERION, extraCriterion)) {
+                LoggingUtils.getEvoLogger().info("Analyse extra criteria: " + extraCriterion);
                 analyzeCoverage(testSuite, extraCriterion);
             }
         }
