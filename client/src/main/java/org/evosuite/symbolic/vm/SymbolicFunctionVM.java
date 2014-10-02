@@ -303,7 +303,8 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new Replace.Replace_CS(env));
 		addFunctionToTable(new ReplaceAll(env));
 		addFunctionToTable(new ReplaceFirst(env));
-		addFunctionToTable(new StartsWith(env));
+		addFunctionToTable(new StartsWith.StartsWith_S(env));
+		addFunctionToTable(new StartsWith.StartsWith_SI(env));
 		addFunctionToTable(new Substring(env));
 		addFunctionToTable(new ToLowerCase(env));
 		addFunctionToTable(new ToString(env));
