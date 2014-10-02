@@ -87,6 +87,7 @@ import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceController;
+import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,6 +96,7 @@ import sun.misc.Signal;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.Map.Entry;
 
 //import org.evosuite.testsuite.SearchStatistics;
 
@@ -241,6 +243,51 @@ public class TestSuiteGenerator {
 		    tests.add(generateIndividualTests());
 		if (Properties.CHECK_CONTRACTS) {
 			TestCaseExecutor.getInstance().removeObserver(checker);
+		}
+		if(Properties.TRACK_BOOLEAN_BRANCHES){
+			int gradient_branches = ExecutionTraceImpl.gradientBranches.size();
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches, gradient_branches);
+		}
+		if(Properties.BRANCH_COMPARISON_TYPES){
+			int cmp_intzero=0, cmp_intint=0, cmp_refref=0, cmp_refnull=0;
+			for(Branch b:BranchPool.getAllBranches()){
+				int branchOpCode = b.getInstruction().getASMNode().getOpcode();
+				switch(branchOpCode){
+					// copmpare int with zero
+					case Opcodes.IFEQ:
+					case Opcodes.IFNE:
+					case Opcodes.IFLT:
+					case Opcodes.IFGE:
+					case Opcodes.IFGT:
+					case Opcodes.IFLE:
+						cmp_intzero++;
+					break;
+					// copmpare int with int
+					case Opcodes.IF_ICMPEQ:
+					case Opcodes.IF_ICMPNE:
+					case Opcodes.IF_ICMPLT:
+					case Opcodes.IF_ICMPGE:
+					case Opcodes.IF_ICMPGT:
+					case Opcodes.IF_ICMPLE:
+						cmp_intint++;
+					break;
+					// copmpare reference with reference
+					case Opcodes.IF_ACMPEQ:
+					case Opcodes.IF_ACMPNE:
+						cmp_refref++;
+					break;
+					// compare reference with null
+					case Opcodes.IFNULL:
+					case Opcodes.IFNONNULL:
+						cmp_refnull++;
+					break;
+					
+				}
+			}
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_IntZero, cmp_intzero);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_IntInt, cmp_intint);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefRef, cmp_refref);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefNull, cmp_refnull);
 		}
 		StatisticsSender.executedAndThenSendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?
 		
@@ -676,7 +723,7 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
-			if (Properties.CRITERION.length == 1) {
+			if (Properties.CRITERION.length == 1 || Properties.COMPOSITIONAL_FITNESS) {
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 			    minimizer.minimize(bestSuites.get(0), true);
 			}
@@ -803,25 +850,25 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().info("  - Exception");
 			break;
 		case ONLYBRANCH:
-			LoggingUtils.getEvoLogger().info("  - Only-Branch coverage");
+			LoggingUtils.getEvoLogger().info("  - Only-Branch Coverage");
 			break;
 		case METHODTRACE:
-			LoggingUtils.getEvoLogger().info("  - Method coverage (anywhere in trace)");
+			LoggingUtils.getEvoLogger().info("  - Method Coverage");
 			break;
 		case METHOD:
-			LoggingUtils.getEvoLogger().info("  - Method coverage (only direct calls from test)");
+			LoggingUtils.getEvoLogger().info("  - Top-Level Method Coverage");
 			break;
 		case METHODNOEXCEPTION:
-			LoggingUtils.getEvoLogger().info("  - Method (No Exception) coverage");
+			LoggingUtils.getEvoLogger().info("  - No-Exception Top-Level Method Coverage");
 			break;
 		case LINE:
-			LoggingUtils.getEvoLogger().info("  - Line coverage");
+			LoggingUtils.getEvoLogger().info("  - Line Coverage");
 			break;
 		case OUTPUT:
-			LoggingUtils.getEvoLogger().info("  - Method-Output coverage");
+			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");
 			break;
 		default:
-			LoggingUtils.getEvoLogger().info("  - Branch coverage");
+			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
 		}
 	}
 
@@ -1136,6 +1183,12 @@ public class TestSuiteGenerator {
 			minimizer.minimize((TestSuiteChromosome) suiteGA.getBestIndividual(), true);
 		}
 		//statistics.minimized(suiteGA.getBestIndividual()); // FIXME: only best individual or ALL best individuals?
+
+		// In the GA, these statistics are sent via the SearchListener when notified about the GA completing
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Statements_Executed, MaxStatementsStoppingCondition.getNumExecutedStatements());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, MaxTestsStoppingCondition.getNumExecutedTests());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Fitness_Evaluations, MaxTestsStoppingCondition.getNumExecutedTests());
+
 
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {

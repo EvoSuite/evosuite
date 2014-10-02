@@ -295,14 +295,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			T individual = chromosomeFactory.getChromosome();
 			for (FitnessFunction<?> fitnessFunction : this.fitnessFunctions) {
 			    individual.addFitness(fitnessFunction);
-    			if (!fitnessFunction.isMaximizationFunction()) {
-    				//individual.setFitness(Double.MAX_VALUE);
-    			    individual.setFitness(fitnessFunction, Double.MAX_VALUE);
-    			}
-    			else {
-    				//individual.setFitness(0.0);
-    			    individual.setFitness(fitnessFunction, 0.0);
-    			}
 			}
 
 			population.add(individual);

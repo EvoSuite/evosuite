@@ -2,7 +2,9 @@ package org.evosuite.statistics;
 
 import java.util.Map;
 
+import com.examples.with.different.packagename.Calculator;
 import com.examples.with.different.packagename.Compositional;
+import com.examples.with.different.packagename.ExampleGradientBranches;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
@@ -147,6 +149,55 @@ public class SearchStatisticsSystemTest extends SystemTest{
         OutputVariable output = getLastTimelineVariable(map, RuntimeVariable.OutputCoverageTimeline.toString());
         Assert.assertNotNull(output);
         Assert.assertEquals(1.0, output.getValue());
+    }
+
+    @Test
+    public void testBranchlessMethodsOutputVariables(){
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = Calculator.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.DYNAMIC_SEEDING = true;
+        Properties.SEARCH_BUDGET = 30;
+        Properties.OUTPUT_VARIABLES = ""+RuntimeVariable.Branchless_Methods + "," + RuntimeVariable.Covered_Branchless_Methods;
+
+        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        evosuite.parseCommandLine(command);
+
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable branchlessMethods = map.get(RuntimeVariable.Branchless_Methods.toString());
+        OutputVariable coveredBranchlessMethods = map.get(RuntimeVariable.Covered_Branchless_Methods.toString());
+        Assert.assertNotNull(branchlessMethods);
+        Assert.assertNotNull(coveredBranchlessMethods);
+        Assert.assertEquals(5, branchlessMethods.getValue());
+        Assert.assertEquals(5, coveredBranchlessMethods.getValue());
+    }
+
+    @Test
+    public void testGradientBranchesOutputVariable(){
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = ExampleGradientBranches.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.DYNAMIC_SEEDING = true;
+        Properties.SEARCH_BUDGET = 30;
+        Properties.TRACK_BOOLEAN_BRANCHES = true;
+        Properties.OUTPUT_VARIABLES = ""+RuntimeVariable.Coverage+","+RuntimeVariable.Gradient_Branches;
+
+        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        evosuite.parseCommandLine(command);
+
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable coverage = map.get(RuntimeVariable.Coverage.toString());
+        Assert.assertNotNull(coverage);
+        Assert.assertEquals(1.0, coverage.getValue());
+        OutputVariable gradientBranches = map.get(RuntimeVariable.Gradient_Branches.toString());
+        Assert.assertNotNull(gradientBranches);
+        Assert.assertEquals(2, gradientBranches.getValue());
     }
 
     private OutputVariable getLastTimelineVariable(Map<String, OutputVariable<?>> map, String name) {

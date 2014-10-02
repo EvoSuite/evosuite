@@ -44,8 +44,8 @@ import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.search.ConstraintSolver;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
 import org.junit.Test;
 
 public class TestStringSearch {

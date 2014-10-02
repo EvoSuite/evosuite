@@ -128,7 +128,8 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				String methodName = "<init>"
 				        + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
 				String name = className + "." + methodName;
-				if (!calledMethods.contains(name)) {
+				if (methodCoverageMap.containsKey(name) && !calledMethods.contains(name)) {
+                    // only include methods being called
                     calledMethods.add(name);
 				}
 			}

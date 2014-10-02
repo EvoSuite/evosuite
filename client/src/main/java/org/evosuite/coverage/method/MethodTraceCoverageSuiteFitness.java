@@ -47,7 +47,7 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 4958063899628649732L;
 
-	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
+	private final static Logger logger = LoggerFactory.getLogger(MethodTraceCoverageSuiteFitness.class);
 
 	// Coverage targets
 	public final int totalMethods;
@@ -117,7 +117,8 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				String methodName = "<init>"
 				        + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
 				String name = className + "." + methodName;
-				if (!callCount.containsKey(name)) {
+				if (methodCoverageMap.containsKey(name) && !callCount.containsKey(name)) {
+                    // only consider goal methods
 					callCount.put(name, 1);
 				}
 			}
@@ -177,25 +178,31 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		// In case there were exceptions in a constructor
 		handleConstructorExceptions(results, callCount);
 
+        logger.info("CallCount: " + callCount.keySet().toString() + " (length=" + callCount.keySet().size() + ")");
+
 		// Ensure all methods are called
 		int missingMethods = 0;
 		for (String e : methods) {
 			if (!callCount.containsKey(e)) {
+                logger.info("Method not covered in trace: " + e);
 				fitness += 1.0;
 				missingMethods += 1;
 			}
 		}
-
+        logger.debug("Fitness: " + fitness);
+        logger.debug("Number of missing methods: " + missingMethods);
 		printStatusMessages(suite, totalMethods - missingMethods, fitness);
 
 		// Calculate coverage
 		int coverage = callCount.keySet().size();
-		
-		if (totalMethods > 0)
-			suite.setCoverage(this, (double) coverage / (double) totalMethods);
-        else
-            suite.setCoverage(this, 1.0);
 
+		if (totalMethods > 0) {
+            logger.debug("Coverage: " + (double) coverage / (double) totalMethods);
+            suite.setCoverage(this, (double) coverage / (double) totalMethods);
+        } else {
+            logger.debug("Coverage (0 methods): " + 1.0);
+            suite.setCoverage(this, 1.0);
+        }
 		suite.setNumOfCoveredGoals(this, coverage);
 
 		if (hasTimeoutOrTestException) {

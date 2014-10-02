@@ -41,6 +41,8 @@ public enum RuntimeVariable {
 	Total_Branches,     
 	/** Number of covered branches in CUT */
 	Covered_Branches,
+	/** Total number of boolean branches */
+	Gradient_Branches,  
 	/** The number of lines in the CUT */
 	Lines,
 	/** The actual covered line numbers */
@@ -137,10 +139,10 @@ public enum RuntimeVariable {
 	Result_Size,
 	/** Total number of statements in final test suite before minimization */
 	Result_Length,
-	/** Either use {@link RuntimeVariable.Size} */
+	/** Either use {@link RuntimeVariable#Size} */
 	@Deprecated
 	Minimized_Size,
-	/** Either use  {@link RuntimeVariable.Length} */
+	/** Either use  {@link RuntimeVariable#Length} */
 	@Deprecated
 	Minimized_Length,
 	/** The random seed used during the search. A random one was used if none was specified at the beginning */
@@ -182,8 +184,12 @@ public enum RuntimeVariable {
 	AudioPermission,
 	OtherPermission,
 	/* -------------------------------------------------------------------- */
-
-
+	/** Types of comparisons in branches according to the Bytecode */
+	Cmp_IntZero,
+	Cmp_IntInt,
+	Cmp_RefNull,
+	Cmp_RefRef,
+	/* -------------------------------------------------------------------- */
 	/* TODO following needs to be implemented/updated. Currently they are not (necessarily) supported */
 	/** (FIXME: need to be implemented) The number of serialized objects that EvoSuite is going to use for seeding strategies */
 	NumberOfInputPoolObjects,

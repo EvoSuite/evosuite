@@ -32,6 +32,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.Branch;
+import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
@@ -192,6 +193,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	public Map<String, Integer> coveredMethods = Collections.synchronizedMap(new HashMap<String, Integer>());
 
+    public Map<String, Integer> coveredBranchlessMethods = Collections.synchronizedMap(new HashMap<String, Integer>());
+
 	public Map<Integer, Integer> coveredPredicates = Collections.synchronizedMap(new HashMap<Integer, Integer>());
 
 	public Map<Integer, Integer> coveredTrue = Collections.synchronizedMap(new HashMap<Integer, Integer>());
@@ -241,6 +244,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Map<Integer, Double> trueDistances = Collections.synchronizedMap(new HashMap<Integer, Double>());
 
 	private final Map<Integer, Double> trueDistancesSum = Collections.synchronizedMap(new HashMap<Integer, Double>());
+	
+	public static Set<Integer> gradientBranches = Collections.synchronizedSet(new HashSet<Integer>());
 
 	/**
 	 * <p>
@@ -281,6 +286,11 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		assert (true_distance >= 0.0);
 		assert (false_distance >= 0.0);
 		updateTopStackMethodCall(branch, bytecode_id, true_distance, false_distance);
+		
+		if(Properties.TRACK_BOOLEAN_BRANCHES){
+			if((true_distance!=0 && true_distance!=1) || (false_distance!=0 && false_distance!=1))
+				gradientBranches.add(branch);
+		}
 
 		if (traceCoverage) {
 			if (!coveredPredicates.containsKey(branch))
@@ -389,6 +399,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		mutantDistances = new HashMap<Integer, Double>();
 		touchedMutants = new HashSet<Integer>();
 		coveredMethods = new HashMap<String, Integer>();
+        coveredBranchlessMethods = new HashMap<String, Integer>();
 		coveredPredicates = new HashMap<Integer, Integer>();
 		coveredTrue = new HashMap<Integer, Integer>();
 		coveredFalse = new HashMap<Integer, Integer>();
@@ -431,6 +442,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		copy.trueDistances.putAll(trueDistances);
 		copy.falseDistances.putAll(falseDistances);
 		copy.coveredMethods.putAll(coveredMethods);
+        copy.coveredBranchlessMethods.putAll(coveredBranchlessMethods);
 		copy.coveredPredicates.putAll(coveredPredicates);
 		copy.coveredTrue.putAll(coveredTrue);
 		copy.coveredFalse.putAll(coveredFalse);
@@ -525,6 +537,14 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			} else {
 				coveredMethods.put(id, coveredMethods.get(id) + 1);
 			}
+            Set<String> bms = BranchPool.getBranchlessMethods();
+            if (bms.contains(id)) {
+                if (!coveredBranchlessMethods.containsKey(id)) {
+                    coveredBranchlessMethods.put(id, 1);
+                } else {
+                    coveredBranchlessMethods.put(id, coveredBranchlessMethods.get(id) + 1);
+                }
+            }
 		}
 		if (traceCalls) {
 			int callingObjectID = registerObject(caller);
@@ -549,9 +569,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	}
 
 	/**
-	 * @param branch
-	 * @param true_distance
-	 * @param false_distance
+	 * @param className
+	 * @param methodName
+	 * @param caller
 	 */
 	private void updateMethodContextMaps(String className, String methodName,
 	        Object caller) {
@@ -716,6 +736,11 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Set<String> getCoveredMethods() {
 		return coveredMethods.keySet();
 	}
+
+    @Override
+    public Set<String> getCoveredBranchlessMethods() {
+        return coveredBranchlessMethods.keySet();
+    }
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionTrace#getCoveredPredicates()
