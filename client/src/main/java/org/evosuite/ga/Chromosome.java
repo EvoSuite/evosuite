@@ -116,12 +116,16 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
     }
 
     /**
-     * Adds a fitness function
+     * Adds a fitness function and sets fitness, coverage,
+     * and numCoveredGoal default.
      *
      * @param ff a fitness function
      */
     public void addFitness(FitnessFunction<?> ff) {
-        this.addFitness(ff, 0.0, 0.0, 0);
+        if (ff.isMaximizationFunction())
+            this.addFitness(ff, 0.0, 0.0, 0);
+        else
+            this.addFitness(ff, Double.MAX_VALUE, 0.0, 0);
     }
 
     /**
@@ -185,7 +189,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
             lastFitnesses.put(ff, fitnesses.get(ff));
             fitnesses.put(ff, value);
         }
-
 	}
 	
 	public boolean hasFitnessChanged() {
