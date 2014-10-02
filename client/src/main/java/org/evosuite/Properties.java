@@ -591,7 +591,9 @@ public class Properties {
 	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
 	public static boolean TRACK_BOOLEAN_BRANCHES = false;
 
-
+	@Parameter(key = "branch_comparison_types", group = "Search Algorithm", description = "Track branch comparison types based on the bytecode")
+	public static boolean BRANCH_COMPARISON_TYPES = false;
+	
 	/** Constant <code>EXTRA_TIMEOUT=120</code> */
 	@Parameter(key = "extra_timeout", group = "Search Algorithm", description = "Extra seconds allowed for the search")
 	@IntValue(min = 0)
