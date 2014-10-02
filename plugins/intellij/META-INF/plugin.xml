@@ -1,17 +1,15 @@
 <idea-plugin version="2">
-  <id>com.yourcompany.unique.plugin.id</id>
-  <name>Plugin display name here</name>
-  <version>1.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+  <id>org.evosuite.intellij</id>
+  <name>EvoSuite Plugin</name>
+  <version>0.1.0</version>
+  <vendor email="arcuri82@gmail.com" url="http://www.evosuite.org">EvoSuite</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      IntelliJ plugin for the EvoSuite tool, which is used to
+       automatically generate high coverage JUnit tests.
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
     ]]>
   </change-notes>
 
@@ -30,6 +28,9 @@
 
   <application-components>
     <!-- Add your application components here -->
+      <component>
+          <implementation-class>org.evosuite.intellij.PluginRegistration</implementation-class>
+      </component>
   </application-components>
 
   <project-components>
