@@ -184,8 +184,12 @@ public enum RuntimeVariable {
 	AudioPermission,
 	OtherPermission,
 	/* -------------------------------------------------------------------- */
-
-
+	/** Types of comparisons in branches according to the Bytecode */
+	Cmp_IntZero,
+	Cmp_IntInt,
+	Cmp_RefNull,
+	Cmp_RefRef,
+	/* -------------------------------------------------------------------- */
 	/* TODO following needs to be implemented/updated. Currently they are not (necessarily) supported */
 	/** (FIXME: need to be implemented) The number of serialized objects that EvoSuite is going to use for seeding strategies */
 	NumberOfInputPoolObjects,
