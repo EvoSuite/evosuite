@@ -67,6 +67,9 @@ public class CoverageAnalysis {
 			}
 		}
 
+		if(Properties.COMPOSITIONAL_FITNESS)
+			return;
+		
 		if (ArrayUtil.contains(oldCriterion, criterion))
 			return;
 
@@ -121,28 +124,20 @@ public class CoverageAnalysis {
 	}
 
 	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
-        String enabledCriteria = Arrays.toString(Properties.CRITERION);
-	    for (String extraCriterion : Arrays.asList(criteria.toUpperCase().split(",")))
-	    {
-			/*
-			if (SearchStatistics.getInstance().hasCoverage(criterion)) {
-				LoggingUtils.getEvoLogger().info("Skipping measuring coverage of criterion: "
-				                                         + criterion);
-				continue;
-			}
-			*/
-            if (! enabledCriteria.contains(extraCriterion)) {
-                analyzeCoverage(testSuite, extraCriterion);
-            }
-		}
-
-		//LoggingUtils.getEvoLogger().info("Reinstrumenting for original criterion ");
-		//reinstrument(testSuite, oldCriterion);
-
 		for (Criterion c : Properties.CRITERION) {
+            // Analyse coverage for enabled criteria
 		    LoggingUtils.getEvoLogger().info("  - " + c.name());
 		    analyzeCoverage(testSuite, c.name());
 		}
+
+        for (String extraCriterion : Arrays.asList(criteria.toUpperCase().split(",")))
+        {
+            // Analyse coverage for extra criteria
+            if (! ArrayUtil.contains(Properties.CRITERION, extraCriterion)) {
+                LoggingUtils.getEvoLogger().info("Analyse extra criteria: " + extraCriterion);
+                analyzeCoverage(testSuite, extraCriterion);
+            }
+        }
 	}
 
 	public static void analyzeCoverage(TestSuiteChromosome testSuite, String criterion) {
@@ -203,8 +198,7 @@ public class CoverageAnalysis {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void analyzeCoverage(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
-        if (! Properties.COMPOSITIONAL_FITNESS)
-		    reinstrument(testSuite, criterion);
+		reinstrument(testSuite, criterion);
 		TestFitnessFactory factory = TestSuiteGenerator.getFitnessFactory(criterion);
 
 		for(TestChromosome test : testSuite.getTestChromosomes()) {

@@ -15,8 +15,8 @@ import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
 import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.search.ConstraintSolver;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
 import org.junit.Test;
 
 public class TestConstraintSolver3 {

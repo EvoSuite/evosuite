@@ -24,6 +24,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.ReplacementFunction;
 import org.evosuite.utils.Randomness;
@@ -92,7 +93,12 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			logger.debug("Generating offspring");
 
 			T parent1 = selectionFunction.select(population);
-			T parent2 = selectionFunction.select(population);
+            T parent2;
+            if (Properties.HEADLESS_CHICKEN_TEST)
+                parent2 = newRandomIndividual(); // crossover with new random individual
+            else
+                parent2 = selectionFunction.select(population); // crossover with existing individual
+
 
 			T offspring1 = (T)parent1.clone();
 			T offspring2 = (T)parent2.clone();
@@ -123,16 +129,12 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 			// The two offspring replace the parents if and only if one of
 			// the offspring is not worse than the best parent.
-
-			getFitnessFunction().getFitness(offspring1);
-			notifyEvaluation(offspring1);
-
-			getFitnessFunction().getFitness(offspring2);
-			notifyEvaluation(offspring2);
-
-			// local search
-
-			// DSE
+		    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+		        fitnessFunction.getFitness(offspring1);
+		        notifyEvaluation(offspring1);
+		        fitnessFunction.getFitness(offspring2);
+		        notifyEvaluation(offspring2);
+		    }
 
 			if (keepOffspring(parent1, parent2, offspring1, offspring2)) {
 				logger.debug("Keeping offspring");
@@ -173,7 +175,15 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		currentIteration++;
 	}
 
-	/** {@inheritDoc} */
+    private T newRandomIndividual() {
+        T randomChromosome = chromosomeFactory.getChromosome();
+        for (FitnessFunction<?> fitnessFunction : this.fitnessFunctions) {
+            randomChromosome.addFitness(fitnessFunction);
+        }
+        return randomChromosome;
+    }
+
+    /** {@inheritDoc} */
 	@Override
 	public void initializePopulation() {
 		notifySearchStarted();

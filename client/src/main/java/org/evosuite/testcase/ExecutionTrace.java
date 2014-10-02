@@ -3,10 +3,7 @@
  */
 package org.evosuite.testcase;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.setup.CallContext;
@@ -258,6 +255,13 @@ public interface ExecutionTrace {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<String> getCoveredMethods();
+
+    /**
+     * Retrieve the names of all covered branchless methods
+     *
+     * @return a {@link java.util.Set} object.
+     */
+    public Set<String> getCoveredBranchlessMethods();
 
 	/**
 	 * Retrieve the minimum infection distance for a mutant
@@ -560,8 +564,7 @@ public interface ExecutionTrace {
 
 	/**
 	 * Retrieve if a given class's static fields were referred using PUTSTATIC.
-	 * 
-	 * @param classNameWithDots
+	 *
 	 * @return
 	 */
 

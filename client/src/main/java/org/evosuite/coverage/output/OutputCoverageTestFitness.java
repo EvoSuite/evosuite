@@ -224,8 +224,8 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
 		if (other instanceof OutputCoverageTestFitness) {
 			OutputCoverageTestFitness otherOutputFitness = (OutputCoverageTestFitness) other;
 			return goal.compareTo(otherOutputFitness.goal);
-		} else
-			return -1;
+		}
+		return 0;
 	}
 
 	/* (non-Javadoc)
