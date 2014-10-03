@@ -52,13 +52,14 @@ public class LineCoverageFactory extends
 		List<LineCoverageTestFitness> goals = new ArrayList<LineCoverageTestFitness>();
 
 		long start = System.currentTimeMillis();
-		String targetClass = Properties.TARGET_CLASS;
 
-		Set<Integer> lines = LinePool.getLines(targetClass);
-		for (Integer line : lines) {
-			logger.info("Adding goal for method " + targetClass + ". Line " + line + ".");
-			goals.add(new LineCoverageTestFitness(targetClass,Properties.TARGET_METHOD, line));
-		}		
+		for(String className : LinePool.getKnownClasses()) {
+			Set<Integer> lines = LinePool.getLines(className);
+			for (Integer line : lines) {
+				logger.info("Adding goal for method " + className + ". Line " + line + ".");
+				goals.add(new LineCoverageTestFitness(className, Properties.TARGET_METHOD, line));
+			}
+		}
 		goalComputationTime = System.currentTimeMillis() - start;
 		return goals;
 	}
