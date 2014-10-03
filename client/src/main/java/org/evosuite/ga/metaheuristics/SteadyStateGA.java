@@ -93,7 +93,12 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			logger.debug("Generating offspring");
 
 			T parent1 = selectionFunction.select(population);
-			T parent2 = selectionFunction.select(population);
+            T parent2;
+            if (Properties.HEADLESS_CHICKEN_TEST)
+                parent2 = newRandomIndividual(); // crossover with new random individual
+            else
+                parent2 = selectionFunction.select(population); // crossover with existing individual
+
 
 			T offspring1 = (T)parent1.clone();
 			T offspring2 = (T)parent2.clone();
@@ -170,7 +175,15 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		currentIteration++;
 	}
 
-	/** {@inheritDoc} */
+    private T newRandomIndividual() {
+        T randomChromosome = chromosomeFactory.getChromosome();
+        for (FitnessFunction<?> fitnessFunction : this.fitnessFunctions) {
+            randomChromosome.addFitness(fitnessFunction);
+        }
+        return randomChromosome;
+    }
+
+    /** {@inheritDoc} */
 	@Override
 	public void initializePopulation() {
 		notifySearchStarted();

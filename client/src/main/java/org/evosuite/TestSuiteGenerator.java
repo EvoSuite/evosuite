@@ -87,6 +87,7 @@ import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceController;
+import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -246,6 +247,47 @@ public class TestSuiteGenerator {
 		if(Properties.TRACK_BOOLEAN_BRANCHES){
 			int gradient_branches = ExecutionTraceImpl.gradientBranches.size();
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches, gradient_branches);
+		}
+		if(Properties.BRANCH_COMPARISON_TYPES){
+			int cmp_intzero=0, cmp_intint=0, cmp_refref=0, cmp_refnull=0;
+			for(Branch b:BranchPool.getAllBranches()){
+				int branchOpCode = b.getInstruction().getASMNode().getOpcode();
+				switch(branchOpCode){
+					// copmpare int with zero
+					case Opcodes.IFEQ:
+					case Opcodes.IFNE:
+					case Opcodes.IFLT:
+					case Opcodes.IFGE:
+					case Opcodes.IFGT:
+					case Opcodes.IFLE:
+						cmp_intzero++;
+					break;
+					// copmpare int with int
+					case Opcodes.IF_ICMPEQ:
+					case Opcodes.IF_ICMPNE:
+					case Opcodes.IF_ICMPLT:
+					case Opcodes.IF_ICMPGE:
+					case Opcodes.IF_ICMPGT:
+					case Opcodes.IF_ICMPLE:
+						cmp_intint++;
+					break;
+					// copmpare reference with reference
+					case Opcodes.IF_ACMPEQ:
+					case Opcodes.IF_ACMPNE:
+						cmp_refref++;
+					break;
+					// compare reference with null
+					case Opcodes.IFNULL:
+					case Opcodes.IFNONNULL:
+						cmp_refnull++;
+					break;
+					
+				}
+			}
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_IntZero, cmp_intzero);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_IntInt, cmp_intint);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefRef, cmp_refref);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefNull, cmp_refnull);
 		}
 		StatisticsSender.executedAndThenSendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?
 		
