@@ -49,7 +49,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	// Coverage targets
-	public final Set<Integer> lines;
+	public final Set<Integer> lines = new HashSet<Integer>();
 
 	/**
 	 * <p>
@@ -62,8 +62,9 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
 		/* TODO: Would be nice to use a prefix here */
-		lines = LinePool.getLines(Properties.TARGET_CLASS);
-		
+		for(String className : LinePool.getKnownClasses()) {		
+			lines.addAll(LinePool.getLines(className));
+		}
 		logger.info("Total line coverage goals: " + lines);
 		
 		new MethodCoverageFactory().getCoverageGoals();
