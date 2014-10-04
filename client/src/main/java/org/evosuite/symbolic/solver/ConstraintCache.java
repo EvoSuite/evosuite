@@ -10,8 +10,7 @@ import org.evosuite.symbolic.expr.Constraint;
 public final class ConstraintCache {
 
 	public Map<String, Object> solve(Solver solver,
-			Collection<Constraint<?>> constraints)
-			throws ConstraintSolverTimeoutException {
+			Collection<Constraint<?>> constraints) {
 		if (hasCachedResult(constraints)) {
 			Map<String, Object> cached_solution = getCachedResult();
 			if (cached_solution != null) {
@@ -21,7 +20,12 @@ public final class ConstraintCache {
 			}
 		}
 
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution;
+		try {
+			solution = solver.solve(constraints);
+		} catch (ConstraintSolverTimeoutException e) {
+			solution = null;
+		}
 
 		if (solution == null) {
 			addUNSAT(constraints);
