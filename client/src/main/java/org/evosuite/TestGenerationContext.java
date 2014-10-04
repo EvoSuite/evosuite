@@ -14,6 +14,7 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.LinePool;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.seeding.CastClassManager;
@@ -110,6 +111,7 @@ public class TestGenerationContext {
 
 		// TODO: BranchPool should not be static
 		BranchPool.reset();
+		LinePool.reset();
 		MutationPool.clear();
 
 		// TODO: Clear only pool of current classloader?
