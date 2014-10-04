@@ -24,12 +24,10 @@ import org.evosuite.symbolic.expr.Constraint;
 
 /**
  * Interface for SMT solvers
- * 
+ 
  * @author Gordon Fraser
  */
-public interface Solver {
-	// Set<SymbolicParameter> solveConjunction(ConjunctiveCombination
-	// conjunction);
+public abstract class Solver {
 
 	/**
 	 * Get concrete values for the parameters used in the path conditions.
@@ -39,6 +37,7 @@ public interface Solver {
 	 * @param constraints
 	 *            a {@link java.util.Collection} object.
 	 */
-	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
+	public abstract Map<String, Object> solve(
+			Collection<Constraint<?>> constraints)
 			throws ConstraintSolverTimeoutException;
 }

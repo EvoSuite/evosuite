@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.solver.search.ConstraintCache;
+import org.evosuite.symbolic.solver.ConstraintCache;
 import org.evosuite.utils.LoggingUtils;
 
 /**

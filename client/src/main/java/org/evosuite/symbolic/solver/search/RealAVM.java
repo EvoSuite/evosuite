@@ -9,7 +9,7 @@ import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class RealAVM {
+final class RealAVM {
 
 	public RealAVM(RealVariable realVar, Collection<Constraint<?>> cnstr) {
 		super();

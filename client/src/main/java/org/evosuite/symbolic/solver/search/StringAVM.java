@@ -14,7 +14,7 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class StringAVM {
+final class StringAVM {
 
 	public StringAVM(StringVariable strVar, Collection<Constraint<?>> cnstr) {
 		super();

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public abstract class DistanceEstimator {
+abstract class DistanceEstimator {
 
 	static Logger log = LoggerFactory.getLogger(DistanceEstimator.class);
 
