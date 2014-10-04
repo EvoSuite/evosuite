@@ -41,7 +41,7 @@ public class JobExecutorTest {
 		Assert.assertTrue(storageOK);
 		storageOK = storage.createNewTmpFolders();
 		Assert.assertTrue(storageOK);
-
+		
 		List<TestsOnDisk> data = storage.gatherGeneratedTestsOnDisk();
 		Assert.assertEquals(0, data.size());
 
@@ -70,7 +70,7 @@ public class JobExecutorTest {
 		exe.waitForJobs();
 
 		data = storage.gatherGeneratedTestsOnDisk();
-		Assert.assertEquals(4, data.size());	 // this depends on Properties.TEST_SCAFFOLDING	
+		Assert.assertEquals("Tmp folder: "+storage.getTmpFolder(), 4, data.size());	 // this depends on Properties.TEST_SCAFFOLDING	
 
 		storage.clean();
 	}

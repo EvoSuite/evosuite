@@ -72,7 +72,7 @@ public class TestRegression extends SystemTest {
 
 	@Test
 	public void testArray() {
-		testCovered(ArrayTest.class.getCanonicalName(), 11);
+		testCovered(ArrayTest.class.getCanonicalName(), 9);
 	}
 
 	@Test

@@ -38,7 +38,6 @@ public class PluginRegistration implements ApplicationComponent {
         if(MavenExecutor.getInstance().isAlreadyRunning()){
             //TODO disable evo
         }
-
     }
 
     // Disposes system resources.

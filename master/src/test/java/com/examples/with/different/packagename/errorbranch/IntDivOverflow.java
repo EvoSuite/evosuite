@@ -6,7 +6,7 @@ public class IntDivOverflow {
 	protected final int MINUS_ONE = -1;
 			
 	public boolean testMe(int x, int y) {
-		int z = x + y;
+		int z = x / y;
 		if(z > 0)
 			return true;
 		else

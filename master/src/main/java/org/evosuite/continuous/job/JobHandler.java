@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.utils.LoggingUtils;
@@ -247,9 +248,13 @@ public class JobHandler extends Thread {
 		commands.add("-Dreport_dir=" + reports.getAbsolutePath() + "/" + job.cut);
 		commands.add("-Dtest_dir=" + tests.getAbsolutePath());
 
-		//cmd += " -Derror_branches=true"; 
-		commands.add("-criterion");
-		commands.add("exception");
+
+		//commands.add("-criterion");
+		//commands.add("exception");
+		//TODO: this will need to be finalized after the composition of fitness experiments.
+		// maybe here will just need to have an "assert" that default config has at least Branch and Exception
+		commands.add("-Dcriterion="+Criterion.LINE+":"+Criterion.BRANCH+":"+Criterion.EXCEPTION);
+		
 		commands.add("-Dtest_factory=" + Properties.TEST_FACTORY);
 		commands.add("-Dseed_clone=" + Properties.SEED_CLONE);
 		commands.add("-Dseed_dir=" + storage.getTmpSeeds().getAbsolutePath());
