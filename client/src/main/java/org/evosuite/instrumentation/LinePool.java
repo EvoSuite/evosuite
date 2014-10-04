@@ -117,4 +117,8 @@ public class LinePool {
 	public static Set<String> getKnownClasses() {
 		return new HashSet<String>(lineMap.keySet());
 	}
+	
+	public static void reset() {
+		lineMap.clear();
+	}
 }
