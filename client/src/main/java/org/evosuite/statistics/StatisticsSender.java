@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.rmi.ClientServices;
@@ -39,6 +40,9 @@ public class StatisticsSender {
 		if(individual == null){
 			throw new IllegalArgumentException("No defined individual to send");
 		}
+		if(!Properties.NEW_STATISTICS)
+			return;
+
 		ClientServices.getInstance().getClientNode().updateStatistics(individual);
 
 	}
@@ -52,6 +56,8 @@ public class StatisticsSender {
 		if(testSuite == null){
 			throw new IllegalArgumentException("No defined test suite to send");
 		}
+		if(!Properties.NEW_STATISTICS)
+			return;
 
 		/*
 		 * TODO: shouldn't a test that was never executed always be executed before sending?
