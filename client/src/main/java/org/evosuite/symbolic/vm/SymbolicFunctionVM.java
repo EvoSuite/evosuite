@@ -74,6 +74,7 @@ import org.evosuite.symbolic.vm.string.ToString;
 import org.evosuite.symbolic.vm.string.ToUpperCase;
 import org.evosuite.symbolic.vm.string.Trim;
 import org.evosuite.symbolic.vm.string.ValueOf;
+import org.evosuite.symbolic.vm.string.StartsWith.StartsWith_SI;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Init.StringBufferInit_S;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_SetLength;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_ToString;
@@ -305,7 +306,8 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new ReplaceFirst(env));
 		addFunctionToTable(new StartsWith.StartsWith_S(env));
 		addFunctionToTable(new StartsWith.StartsWith_SI(env));
-		addFunctionToTable(new Substring(env));
+		addFunctionToTable(new Substring.Substring_I(env));
+		addFunctionToTable(new Substring.Substring_II(env));
 		addFunctionToTable(new ToLowerCase(env));
 		addFunctionToTable(new ToString(env));
 		addFunctionToTable(new ToUpperCase(env));
