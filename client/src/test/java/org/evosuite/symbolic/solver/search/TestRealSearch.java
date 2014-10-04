@@ -34,8 +34,8 @@ import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.DistanceEstimator;
 import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
-import org.evosuite.symbolic.solver.search.DistanceEstimator;
 import org.junit.Test;
 
 public class TestRealSearch {
