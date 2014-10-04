@@ -65,6 +65,7 @@ public class TestLocalSearch extends SystemTest {
 		String targetClass = IntegerLocalSearchExample.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
+		Properties.SEARCH_BUDGET = 20000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -90,6 +91,7 @@ public class TestLocalSearch extends SystemTest {
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = false;
+		Properties.SEARCH_BUDGET = 20000;
 		
 		// Make sure that local search will have effect
 		Properties.CHROMOSOME_LENGTH = 5;
@@ -105,6 +107,47 @@ public class TestLocalSearch extends SystemTest {
 		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+	
+	@Test
+	public void testIntLocalSearchOnTest() throws ClassNotFoundException, ConstructionFailedException, NoSuchMethodException, SecurityException {
+		Properties.TARGET_CLASS = IntegerLocalSearchExample.class.getCanonicalName();
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
+		GenericClass clazz = new GenericClass(sut);
+		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
+		Properties.LOCAL_SEARCH_REFERENCES = false;
+		Properties.LOCAL_SEARCH_ARRAYS = false;
+		Properties.PRINT_TO_SYSTEM = true;
+
+		DefaultTestCase test = new DefaultTestCase();
+		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
+
+		TestFactory testFactory = TestFactory.getInstance();
+		VariableReference callee = testFactory.addConstructor(test, gc, 0, 0);
+		VariableReference intVar1 = test.addStatement(new IntPrimitiveStatement(test, 1));
+		VariableReference intVar0 = test.addStatement(new IntPrimitiveStatement(test, 1));
+
+		Method m = clazz.getRawClass().getMethod("testMe", new Class<?>[] { int.class, int.class });
+		GenericMethod method = new GenericMethod(m, sut);
+		MethodStatement ms = new MethodStatement(test, method, callee, Arrays.asList(new VariableReference[] {intVar0, intVar1}));
+		test.addStatement(ms);
+		System.out.println(test);
+		
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		BranchCoverageSuiteFitness fitness = new BranchCoverageSuiteFitness();
+
+		BranchCoverageMap.getInstance().searchStarted(null);
+		assertEquals(4.0, fitness.getFitness(suite), 0.1F);
+		suite.addTest(test);
+		assertEquals(1.0, fitness.getFitness(suite), 0.1F);
+		
+		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
+		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>(fitness);
+		localSearch.doSearch(suite, localObjective);
+		System.out.println("Fitness: "+fitness.getFitness(suite));
+		System.out.println("Test suite: "+suite);
+		assertEquals(0.0, fitness.getFitness(suite), 0.1F);
+		BranchCoverageMap.getInstance().searchFinished(null);
 	}
 	
 	@Test

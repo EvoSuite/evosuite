@@ -37,6 +37,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.eclipse.properties.EvosuitePropertyPage;
@@ -191,7 +192,7 @@ public class TestGenerationJob extends Job {
 					TestGenerationAction.getEvoSuiteJar(), "-projectCP",
 					classPath, "-base_dir", baseDir, "-Dshow_progress=false",
 					"-Dstopping_condition=MaxTime", "-Dtest_comments=false",
-					"-Dpure_inspectors=true" })); //  "-Dsandbox_mode=IO", -Djava.rmi.server.codebase=file:///Users/gordon/Documents/Workspace/evosuite-eclipse/lib/evosuite-0.1-SNAPSHOT-jar-minimal.jar
+					"-Dpure_inspectors=true", "-Dnew_statistics=false" })); //  "-Dsandbox_mode=IO", -Djava.rmi.server.codebase=file:///Users/gordon/Documents/Workspace/evosuite-eclipse/lib/evosuite-0.1-SNAPSHOT-jar-minimal.jar
 			commands.addAll(getAdditionalParameters());
 			String cp = "";
 			first = true;
@@ -449,25 +450,26 @@ public class TestGenerationJob extends Job {
 	}
 
 	private void launchProcess(String baseDir, String[] evoSuiteOptions) throws IOException {
-		//		EvoSuite evosuite = new EvoSuite();
+		EvoSuite evosuite = new EvoSuite();
 		//		evosuite.parseCommandLine(command);
 
 		Vector<String> javaCmd = new Vector<String>();
-		javaCmd.add("java");
-		javaCmd.add("-jar");
-		javaCmd.add(TestGenerationAction.getEvoSuiteJar());
+		// javaCmd.add("java");
+		// javaCmd.add("-jar");
+		// javaCmd.add(TestGenerationAction.getEvoSuiteJar());
 		Collections.addAll(javaCmd, evoSuiteOptions);
 
 		String[] command = javaCmd.toArray(new String[] {});
-		ProcessBuilder builder = new ProcessBuilder(command);
-		builder.directory(new File(baseDir));
-		builder.redirectErrorStream(true);
-
-		Process process = builder.start();
-		InputStream stdout = process.getInputStream();
-		do {
-			readInputStream("EvoSuite process output - ", stdout);
-		} while (!isFinished(process));
+		evosuite.parseCommandLine(command);
+//		ProcessBuilder builder = new ProcessBuilder(command);
+//		builder.directory(new File(baseDir));
+//		builder.redirectErrorStream(true);
+//
+//		Process process = builder.start();
+//		InputStream stdout = process.getInputStream();
+//		do {
+//			readInputStream("EvoSuite process output - ", stdout);
+//		} while (!isFinished(process));
 
 	}
 
