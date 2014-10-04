@@ -426,6 +426,31 @@ public class BytecodeInstructionPool {
 
 		return r;
 	}
+	
+	public List<BytecodeInstruction> getInstructionsIn(String className) {
+		if (instructionMap.get(className) == null)
+			return null;
+
+		List<BytecodeInstruction> r = new ArrayList<BytecodeInstruction>();
+		Map<String, List<BytecodeInstruction>> methodMap = instructionMap.get(className);
+		for(List<BytecodeInstruction> methodInstructions : methodMap.values()) {
+			r.addAll(methodInstructions);
+		}
+		
+		return r;
+	}
+	
+	public List<BytecodeInstruction> getAllInstructions() {
+		List<BytecodeInstruction> r = new ArrayList<BytecodeInstruction>();
+		for(String className : instructionMap.keySet()) {
+			Map<String, List<BytecodeInstruction>> methodMap = instructionMap.get(className);
+			for(List<BytecodeInstruction> methodInstructions : methodMap.values()) {
+				r.addAll(methodInstructions);
+			}
+		}
+		
+		return r;
+	}
 
 	/**
 	 * <p>
