@@ -22,9 +22,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.method.MethodCoverageFactory;
+import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.graphs.cfg.BytecodeInstructionPool;
+import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -72,6 +77,40 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (LineCoverageTestFitness goal : goals) {
 			linesCoverageMap.put(goal.getLine(), goal);
 		}
+		
+		initializeControlDependencies();
+	}
+	
+	private Set<Integer> branchesToCoverTrue  = new HashSet<Integer>();
+	private Set<Integer> branchesToCoverFalse = new HashSet<Integer>();
+	private Set<Integer> branchesToCoverBoth  = new HashSet<Integer>();
+	
+	/**
+	 * Add guidance to the fitness function by including branch distances on
+	 * all control dependencies
+	 */
+	private void initializeControlDependencies() {
+		for(BytecodeInstruction bi : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllInstructions()) {
+			if(bi.getBasicBlock() == null) {
+				// Labels get no basic block. TODO - why?
+				continue;
+			}
+			for(ControlDependency cd : bi.getControlDependencies()) {
+				if(cd.getBranchExpressionValue()) {
+					branchesToCoverTrue.add(cd.getBranch().getActualBranchId());
+				} else {
+					branchesToCoverFalse.add(cd.getBranch().getActualBranchId());
+				}
+			}
+		}
+		branchesToCoverBoth.addAll(branchesToCoverTrue);
+		branchesToCoverBoth.retainAll(branchesToCoverFalse);
+		branchesToCoverTrue.removeAll(branchesToCoverBoth);
+		branchesToCoverFalse.removeAll(branchesToCoverBoth);
+		
+		logger.info("Covering branches true: "+branchesToCoverTrue);
+		logger.info("Covering branches false: "+branchesToCoverFalse);
+		logger.info("Covering branches both: "+branchesToCoverBoth);
 	}
 
 	// Some stuff for debug output
@@ -131,13 +170,82 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				if (linesCoverageMap.containsKey(line)) {
 					result.test.addCoveredGoal(linesCoverageMap.get(line));
 				}
-
 			}
 		}
 
 		return hasTimeoutOrTestException;
 	}
 
+	private double getControlDependencyGuidance(List<ExecutionResult> results) {
+		Map<Integer, Integer> predicateCount = new HashMap<Integer, Integer>();
+		Map<Integer, Double> trueDistance = new HashMap<Integer, Double>();
+		Map<Integer, Double> falseDistance = new HashMap<Integer, Double>();
+
+		for (ExecutionResult result : results) {
+			if (result.hasTimeout() || result.hasTestException()) {
+				continue;
+			}
+			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
+				if (!predicateCount.containsKey(entry.getKey()))
+					predicateCount.put(entry.getKey(), entry.getValue());
+				else {
+					predicateCount.put(entry.getKey(),
+							predicateCount.get(entry.getKey())
+							+ entry.getValue());
+				}
+			}
+			for (Entry<Integer, Double> entry : result.getTrace().getTrueDistances().entrySet()) {
+				if (!trueDistance.containsKey(entry.getKey()))
+					trueDistance.put(entry.getKey(), entry.getValue());
+				else {
+					trueDistance.put(entry.getKey(),
+							Math.min(trueDistance.get(entry.getKey()),
+									entry.getValue()));
+				}
+			}
+			for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
+				if (!falseDistance.containsKey(entry.getKey()))
+					falseDistance.put(entry.getKey(), entry.getValue());
+				else {
+					falseDistance.put(entry.getKey(),
+							Math.min(falseDistance.get(entry.getKey()),
+									entry.getValue()));
+				}
+			}
+		}
+		
+		double distance = 0.0;
+
+		for(Integer branchId : branchesToCoverBoth) {
+			if(!predicateCount.containsKey(branchId)) {
+				distance += 2.0;
+			} else if(predicateCount.get(branchId) == 1) {
+				distance += 1.0;
+			} else {
+				distance += normalize(trueDistance.get(branchId));
+				distance += normalize(falseDistance.get(branchId));
+			}
+		}
+		
+		for(Integer branchId : branchesToCoverTrue) {
+			if(!trueDistance.containsKey(branchId)) {
+				distance += 1;
+			} else {
+				distance += normalize(trueDistance.get(branchId));
+			}
+		}
+
+		for(Integer branchId : branchesToCoverFalse) {
+			if(!falseDistance.containsKey(branchId)) {
+				distance += 1;
+			} else {
+				distance += normalize(falseDistance.get(branchId));
+			}
+		}
+		
+		return distance;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -150,6 +258,9 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		double fitness = 0.0;
 
 		List<ExecutionResult> results = runTestSuite(suite);
+		fitness += getControlDependencyGuidance(results);
+		logger.info("Branch distances: "+fitness);
+		
 		Map<String, Integer> callCount = new HashMap<String, Integer>();
 		Set<Integer> covered_lines = new HashSet<Integer>();
 
