@@ -10,6 +10,7 @@ import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
+import org.evosuite.symbolic.solver.DistanceEstimator;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

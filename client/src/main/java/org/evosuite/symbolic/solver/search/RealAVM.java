@@ -6,6 +6,7 @@ import java.util.Collection;
 
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.fp.RealVariable;
+import org.evosuite.symbolic.solver.DistanceEstimator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
+import org.evosuite.symbolic.solver.DistanceEstimator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

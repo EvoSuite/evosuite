@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver.search;
+package org.evosuite.symbolic.solver;
 
 import java.util.Collection;
 
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-abstract class DistanceEstimator {
+public abstract class DistanceEstimator {
 
 	static Logger log = LoggerFactory.getLogger(DistanceEstimator.class);
 
