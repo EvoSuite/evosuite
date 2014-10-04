@@ -38,10 +38,10 @@ import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
+import org.evosuite.symbolic.solver.ConstraintCache;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverFactory;
-import org.evosuite.symbolic.solver.search.CachedConstraintSolver;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
@@ -331,7 +331,8 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 		long startSolvingTime = System.currentTimeMillis();
 		Map<String, Object> values;
 		try {
-			values = solver.solve(constraints);
+			values = ConstraintCache.getInstance().solve(solver,
+					constraints);
 		} catch (ConstraintSolverTimeoutException e) {
 			values = null;
 		}

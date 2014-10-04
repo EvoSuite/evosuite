@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.solver.search;
+package org.evosuite.symbolic.solver;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,6 +8,30 @@ import java.util.Map;
 import org.evosuite.symbolic.expr.Constraint;
 
 public final class ConstraintCache {
+
+	public Map<String, Object> solve(Solver solver,
+			Collection<Constraint<?>> constraints)
+			throws ConstraintSolverTimeoutException {
+		if (hasCachedResult(constraints)) {
+			Map<String, Object> cached_solution = getCachedResult();
+			if (cached_solution != null) {
+				return cached_solution;
+			} else {
+				return null;
+			}
+		}
+
+		Map<String, Object> solution = solver.solve(constraints);
+
+		if (solution == null) {
+			addUNSAT(constraints);
+		} else {
+			addSAT(constraints, solution);
+		}
+
+		return solution;
+
+	}
 
 	private static final ConstraintCache instance = new ConstraintCache();
 
@@ -36,12 +60,12 @@ public final class ConstraintCache {
 		return instance;
 	}
 
-	public void addUNSAT(Collection<Constraint<?>> unsat_constraints) {
+	private void addUNSAT(Collection<Constraint<?>> unsat_constraints) {
 		cached_unsat_constraints.add(unsat_constraints);
 		cached_unsat_constraints_count++;
 	}
 
-	public void addSAT(Collection<Constraint<?>> sat_constraints,
+	private void addSAT(Collection<Constraint<?>> sat_constraints,
 			Map<String, Object> solution) {
 		cached_sat_constraints.put(sat_constraints, solution);
 		cached_sat_constraints_count++;
@@ -50,7 +74,7 @@ public final class ConstraintCache {
 	private boolean valid_cached_solution = false;
 	private Map<String, Object> cached_solution = null;
 
-	public boolean hasCachedResult(Collection<Constraint<?>> constraints) {
+	private boolean hasCachedResult(Collection<Constraint<?>> constraints) {
 		number_of_accesses++;
 
 		if (this.cached_sat_constraints.containsKey(constraints)) {

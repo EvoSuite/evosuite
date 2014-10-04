@@ -7,7 +7,7 @@ import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class IntegerAVM {
+final class IntegerAVM {
 
 	public IntegerAVM(IntegerVariable intVar, Collection<Constraint<?>> cnstr) {
 		super();

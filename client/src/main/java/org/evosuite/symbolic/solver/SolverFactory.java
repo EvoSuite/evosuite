@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.solver;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.search.CachedConstraintSolver;
+import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 
 public class SolverFactory {
 
@@ -16,16 +16,15 @@ public class SolverFactory {
 		switch (Properties.DSE_SOLVER) {
 		case Z3_SOLVER:
 			return createZ3Solver();
-		case SEARCH_BASED_SOLVER:
+		case EVOSUITE_SOLVER:
 		default:
-			return new CachedConstraintSolver();
+			return new EvoSuiteSolver();
 		}
 	}
 
 	private static Solver createZ3Solver() {
 		try {
-			Class<?> clazz = Class
-					.forName(Z3_SOLVER_CLASS_NAME);
+			Class<?> clazz = Class.forName(Z3_SOLVER_CLASS_NAME);
 			Solver z3Solver = (Solver) clazz.newInstance();
 			return z3Solver;
 		} catch (ClassNotFoundException e) {

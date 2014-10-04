@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
  * @author galeotti
  * 
  */
-public final class ConstraintSolver implements Solver {
+public final class EvoSuiteSolver extends Solver {
 
-	static Logger log = LoggerFactory.getLogger(ConstraintSolver.class);
+	static Logger log = LoggerFactory.getLogger(EvoSuiteSolver.class);
 
 	/**
 	 * This method searches for a new model satisfying all constraints. If UNSAT
