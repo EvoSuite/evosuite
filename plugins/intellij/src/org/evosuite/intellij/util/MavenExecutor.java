@@ -129,6 +129,7 @@ public class MavenExecutor {
 
         String[] command = list.toArray(new String[list.size()]);
 
+
         try {
             ProcessBuilder builder = new ProcessBuilder();
             builder.directory(dir);

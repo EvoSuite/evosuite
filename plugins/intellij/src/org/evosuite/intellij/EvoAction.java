@@ -21,7 +21,8 @@ import java.util.*;
  */
 public class EvoAction extends AnAction {
 
-    //TODO should save previously used configurations
+    //com.intellij.ide.util.PropertiesComponent
+    //TODO should save used configurations from previous IntelliJ runs
     private static final EvoParameters params = new EvoParameters();
 
     public EvoAction() {
@@ -34,7 +35,7 @@ public class EvoAction extends AnAction {
         Project project = event.getData(PlatformDataKeys.PROJECT);
 
         Map<String,List<String>> map = getCUTsToTest(event);
-        if(map.isEmpty()){
+        if(map==null || map.isEmpty()){
             Messages.showMessageDialog(project, "No '.java' file or non-empty source folder was selected in a valid Maven module",
                     title, Messages.getErrorIcon());
             return;
@@ -98,7 +99,7 @@ public class EvoAction extends AnAction {
             if(root == null){
                 /*
                     the chosen file is not in a source folder.
-                    Need to check if it parent of any of them
+                    Need to check if its parent of any of them
                  */
                 if(isParentOfSourceRoot(path,roots)){
                     /*
@@ -134,11 +135,25 @@ public class EvoAction extends AnAction {
                 String name = getCUTName(path, root);
                 classes.add(name);
             } else {
-                //TODO scan folder
+                scanFolder(virtualFile,classes,root);
             }
         }
 
         return map;
+    }
+
+    private void scanFolder(VirtualFile virtualFile, List<String> classes, String root) {
+        for(VirtualFile child : virtualFile.getChildren()){
+            if(child.isDirectory()){
+                scanFolder(child,classes,root);
+            } else {
+                String path = child.getCanonicalPath();
+                if(path.endsWith(".java")){
+                    String name = getCUTName(path,root);
+                    classes.add(name);
+                }
+            }
+        }
     }
 
     private String getCUTName(String path, String root) {
