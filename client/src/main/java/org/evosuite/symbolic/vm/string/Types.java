@@ -48,6 +48,9 @@ public interface Types {
 	public static final String INT_INT_TO_STR_DESCRIPTOR = getMethodDescriptor(
 			STRING_TYPE, INT_TYPE, INT_TYPE);
 
+	public static final String INT_TO_STR_DESCRIPTOR = getMethodDescriptor(
+			STRING_TYPE, INT_TYPE);
+
 	public static final String INT_INT_TO_INT_DESCRIPTOR = getMethodDescriptor(
 			INT_TYPE, INT_TYPE, INT_TYPE);
 
