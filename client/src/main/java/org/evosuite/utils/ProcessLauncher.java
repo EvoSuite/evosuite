@@ -54,7 +54,7 @@ public class ProcessLauncher {
 		do {
 			readInputStream(stdout, sinkStdOut);
 			readInputStream(stderr, sinkStdErr);
-		} while (!ProcessLauncher.isFinished(process));
+		} while (!isFinished(process));
 
 		int exitValue = process.exitValue();
 		return exitValue;
@@ -77,7 +77,7 @@ public class ProcessLauncher {
 		while (read != null) {
 			logger.debug(read);
 			if (out != null) {
-				byte[] bytes = (read + "\n").getBytes(Charset.defaultCharset());
+				byte[] bytes = (read + "\n").getBytes();
 				out.write(bytes);
 			}
 			read = br.readLine();
