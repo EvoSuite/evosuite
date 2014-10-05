@@ -21,8 +21,7 @@ public class JUnitProcessLauncher {
 
 	public static final String JUNIT_ANALYZER_XML_FILENAME = "junitanalyzer.xml";
 
-	static Logger logger = LoggerFactory
-			.getLogger(JUnitProcessLauncher.class);
+	static Logger logger = LoggerFactory.getLogger(JUnitProcessLauncher.class);
 
 	private static int dirCounter = 0;
 
@@ -95,8 +94,7 @@ public class JUnitProcessLauncher {
 
 		command.add(xmlFileName);
 
-		String[] parsedCommand = command.toArray(new String[]{});
-
+		String[] parsedCommand = command.toArray(new String[] {});
 
 		LoggingUtils.getEvoLogger().info(
 				"Going to start process for running JUnit for test classes : "
@@ -107,8 +105,9 @@ public class JUnitProcessLauncher {
 		try {
 			int timeout = Properties.TIMEOUT * testClasses.length;
 			List<String> bufferStdOut = new LinkedList<String>();
-			int exitValue = ProcessLauncher.launchNewProcess(baseDir, parsedCommand,
-					bufferStdOut, timeout);
+			ProcessLauncher launcher = new ProcessLauncher();
+			int exitValue = launcher.launchNewProcess(baseDir, parsedCommand,
+					timeout);
 			LoggingUtils.getEvoLogger().info("JUnit process finished");
 			logger.debug("JUnit process exit code was " + exitValue);
 			if (exitValue != 0) {
