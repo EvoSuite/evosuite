@@ -17,7 +17,7 @@ import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
-import org.evosuite.symbolic.solver.search.ConstraintSolver;
+import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.VariableReference;
 import org.junit.Test;
@@ -140,7 +140,7 @@ public class TestStringSearch2 {
 		constraints.addAll(last_branch.getReachingConstraints());
 		constraints.add(last_branch.getLocalConstraint().negate());
 
-		ConstraintSolver solver = new ConstraintSolver();
+		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
 			solution = solver.solve(constraints);
@@ -165,7 +165,7 @@ public class TestStringSearch2 {
 		constraints.addAll(last_branch.getReachingConstraints());
 		constraints.add(last_branch.getLocalConstraint().negate());
 
-		ConstraintSolver solver = new ConstraintSolver();
+		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
 			solution = solver.solve(constraints);

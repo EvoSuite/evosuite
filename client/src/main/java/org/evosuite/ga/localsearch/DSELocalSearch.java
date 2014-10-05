@@ -13,10 +13,9 @@ import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.ConstraintCache;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverFactory;
-import org.evosuite.symbolic.solver.search.CachedConstraintSolver;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
@@ -95,12 +94,8 @@ public class DSELocalSearch extends StatementLocalSearch {
 			Solver solver = SolverFactory.getInstance().buildNewSolver();
 
 			long startSolvingTime = System.currentTimeMillis();
-			Map<String, Object> values;
-			try {
-				values = solver.solve(constraints);
-			} catch (ConstraintSolverTimeoutException e) {
-				values = null;
-			}
+			Map<String, Object> values = ConstraintCache.getInstance().solve(
+					solver, constraints);
 			long estimatedSolvingTime = System.currentTimeMillis()
 					- startSolvingTime;
 			DSEStats.reportNewSolvingTime(estimatedSolvingTime);

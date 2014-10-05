@@ -38,10 +38,9 @@ import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.ConstraintCache;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverFactory;
-import org.evosuite.symbolic.solver.search.CachedConstraintSolver;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
@@ -329,12 +328,8 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 		DSEStats.reportNewConstraints(constraints);
 
 		long startSolvingTime = System.currentTimeMillis();
-		Map<String, Object> values;
-		try {
-			values = solver.solve(constraints);
-		} catch (ConstraintSolverTimeoutException e) {
-			values = null;
-		}
+		Map<String, Object> values = ConstraintCache.getInstance().solve(
+				solver, constraints);
 		long estimatedSolvingTime = System.currentTimeMillis()
 				- startSolvingTime;
 		DSEStats.reportNewSolvingTime(estimatedSolvingTime);
@@ -494,21 +489,21 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 		variables.addAll(expr.getVariables());
 	}
 
-
-
 	@Override
 	public boolean doSearch(TestSuiteChromosome individual,
 			LocalSearchObjective<TestSuiteChromosome> objective) {
-		return applyDSE(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
+		return applyDSE(individual,
+				(TestSuiteFitnessFunction) objective.getFitnessFunction());
 	}
-	
+
 	/**
 	 * Attempt to negate individual branches until budget is used up, or there
 	 * are no further branches to negate
 	 * 
 	 * @param individual
 	 */
-	public boolean applyDSE(TestSuiteChromosome individual, TestSuiteFitnessFunction fitness) {
+	public boolean applyDSE(TestSuiteChromosome individual,
+			TestSuiteFitnessFunction fitness) {
 		logger.info("[DSE] Current test suite: " + individual.toString());
 
 		boolean wasSuccess = false;
@@ -518,7 +513,8 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 
 		double originalFitness = individual.getFitness(fitness);
 
-		while (hasNextBranchCondition() && !LocalSearchBudget.getInstance().isFinished()) {
+		while (hasNextBranchCondition()
+				&& !LocalSearchBudget.getInstance().isFinished()) {
 			logger.info("Branches remaining: "
 					+ unsolvedBranchConditions.size());
 
@@ -570,7 +566,7 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 		logger.info("Finished DSE");
 		fitness.getFitness(individual);
 		LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
-		
+
 		return wasSuccess;
 	}
 
