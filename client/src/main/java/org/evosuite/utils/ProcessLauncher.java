@@ -5,27 +5,41 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.List;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class ProcessLauncher {
+public class ProcessLauncher {
+
+	private OutputStream sinkStdOut = null;
+
+	private OutputStream sinkStdErr = null;
+
+	public void setSinkStdOut(OutputStream sinkStdOut) {
+		this.sinkStdOut = sinkStdOut;
+	}
+
+	public void setSinkStdErr(OutputStream sinkStdErr) {
+		this.sinkStdErr = sinkStdErr;
+	}
 
 	private static Logger logger = LoggerFactory
 			.getLogger(ProcessLauncher.class);
 
-	public static int launchNewProcess(File baseDir, String[] parsedCommand,
-			List<String> bufferStdOut, int timeout) throws IOException {
+	public int launchNewProcess(File baseDir, String[] parsedCommand,
+			int timeout) throws IOException {
 
 		ProcessBuilder builder = new ProcessBuilder(parsedCommand);
 		builder.directory(baseDir);
-		builder.redirectErrorStream(true);
+		builder.redirectErrorStream(false);
 		final Process process = builder.start();
 
 		InputStream stdout = process.getInputStream();
+		InputStream stderr = process.getErrorStream();
 		logger.debug("Process output:");
 
 		Timer t = new Timer();
@@ -38,8 +52,8 @@ public abstract class ProcessLauncher {
 		}, timeout);
 
 		do {
-			ProcessLauncher.readInputStream("Finished process output - ",
-					stdout, bufferStdOut);
+			readInputStream(stdout, sinkStdOut);
+			readInputStream(stderr, sinkStdErr);
 		} while (!ProcessLauncher.isFinished(process));
 
 		int exitValue = process.exitValue();
@@ -55,14 +69,17 @@ public abstract class ProcessLauncher {
 		}
 	}
 
-	private static void readInputStream(String prefix, InputStream in,
-			List<String> buffer) throws IOException {
+	private static void readInputStream(InputStream in, OutputStream out)
+			throws IOException {
 		InputStreamReader is = new InputStreamReader(in);
 		BufferedReader br = new BufferedReader(is);
 		String read = br.readLine();
 		while (read != null) {
-			logger.debug(prefix + read);
-			buffer.add(prefix + read);
+			logger.debug(read);
+			if (out != null) {
+				byte[] bytes = (read + "\n").getBytes(Charset.defaultCharset());
+				out.write(bytes);
+			}
 			read = br.readLine();
 		}
 	}
