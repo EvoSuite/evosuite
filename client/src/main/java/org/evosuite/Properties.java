@@ -371,7 +371,7 @@ public class Properties {
 	public static boolean DSE_KEEP_ALL_TESTS = false;
 
 	public enum SolverType {
-		EVOSUITE_SOLVER, Z3_SOLVER;
+		EVOSUITE_SOLVER, Z3_SOLVER, Z3STR_SOLVER;
 	}
 
 	public static SolverType DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
