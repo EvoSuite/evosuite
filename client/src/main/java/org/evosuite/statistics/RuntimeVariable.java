@@ -41,8 +41,10 @@ public enum RuntimeVariable {
 	Total_Branches,     
 	/** Number of covered branches in CUT */
 	Covered_Branches,
-	/** Total number of boolean branches */
-	Gradient_Branches,  
+	/** Total number of gradient branches */
+	Gradient_Branches,
+	/** Total number of covered gradient branches */
+	Gradient_Branches_Covered,  
 	/** The number of lines in the CUT */
 	Lines,
 	/** The actual covered line numbers */
