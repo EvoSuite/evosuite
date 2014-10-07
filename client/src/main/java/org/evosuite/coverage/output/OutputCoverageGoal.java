@@ -158,11 +158,11 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
         if (diff == 0) {
             int diff2 = methodName.compareTo(o.methodName);
             if (diff2 == 0) {
-                if (type == null || o.type == null)
-                    return 0;
-
-                // If on the same line, order by appearance in bytecode
-                return this.valueDescriptor.equals(o.valueDescriptor) ? 0 : 1;
+                int diff3 = type.compareTo(o.type);
+                if (diff3 == 0)
+                    return this.valueDescriptor.compareTo(o.valueDescriptor);
+                else
+                    return diff3;
             } else
                 return diff2;
         } else
