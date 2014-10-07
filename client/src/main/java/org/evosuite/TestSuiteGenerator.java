@@ -294,6 +294,8 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefRef, cmp_refref);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefNull, cmp_refnull);
 		}
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Statements_Executed, MaxStatementsStoppingCondition.getNumExecutedStatements());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, MaxTestsStoppingCondition.getNumExecutedTests());
 		StatisticsSender.executedAndThenSendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?
 		
         ClientServices.getInstance().getClientNode().publishPermissionStatistics();
