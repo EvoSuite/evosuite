@@ -245,8 +245,13 @@ public class TestSuiteGenerator {
 			TestCaseExecutor.getInstance().removeObserver(checker);
 		}
 		if(Properties.TRACK_BOOLEAN_BRANCHES){
-			int gradient_branches = ExecutionTraceImpl.gradientBranches.size();
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches, gradient_branches);
+			int gradientBranchCount = ExecutionTraceImpl.gradientBranches.size() * 2;
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches, gradientBranchCount);
+		}
+		if (Properties.TRACK_COVERED_GRADIENT_BRANCHES) {
+			int coveredGradientBranchCount = ExecutionTraceImpl.gradientBranchesCoveredTrue.size()
+					+ ExecutionTraceImpl.gradientBranchesCoveredFalse.size();
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches_Covered, coveredGradientBranchCount);
 		}
 		if(Properties.BRANCH_COMPARISON_TYPES){
 			int cmp_intzero=0, cmp_intint=0, cmp_refref=0, cmp_refnull=0;

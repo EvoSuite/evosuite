@@ -588,6 +588,9 @@ public class Properties {
 
 	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
 	public static boolean TRACK_BOOLEAN_BRANCHES = false;
+	
+	@Parameter(key = "track_covered_gradient_branches", group = "Search Algorithm", description = "Track gradient branches that were covered")
+	public static boolean TRACK_COVERED_GRADIENT_BRANCHES = false;
 
 	@Parameter(key = "branch_comparison_types", group = "Search Algorithm", description = "Track branch comparison types based on the bytecode")
 	public static boolean BRANCH_COMPARISON_TYPES = false;

@@ -246,6 +246,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	private final Map<Integer, Double> trueDistancesSum = Collections.synchronizedMap(new HashMap<Integer, Double>());
 	
 	public static Set<Integer> gradientBranches = Collections.synchronizedSet(new HashSet<Integer>());
+	
+	public static Set<Integer> gradientBranchesCoveredTrue = Collections.synchronizedSet(new HashSet<Integer>());
+
+	public static Set<Integer> gradientBranchesCoveredFalse = Collections.synchronizedSet(new HashSet<Integer>());
 
 	/**
 	 * <p>
@@ -311,6 +315,15 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 					coveredFalse.put(branch, 1);
 				else
 					coveredFalse.put(branch, coveredFalse.get(branch) + 1);
+			}
+		}
+		
+		if(Properties.TRACK_COVERED_GRADIENT_BRANCHES){
+			if(gradientBranches.contains(branch)){
+				if((coveredTrue.containsKey(branch)))
+					gradientBranchesCoveredTrue.add(branch);
+				if((coveredFalse.containsKey(branch)))
+					gradientBranchesCoveredFalse.add(branch);
 			}
 		}
 
