@@ -125,7 +125,7 @@ public abstract class TestSolverFloats {
 			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
 		VariableReference double0 = tc
-				.appendDoublePrimitive(Math.atan(Math.PI));
+				.appendDoublePrimitive(Math.atan2(Math.PI,Math.PI));
 		VariableReference double1 = tc.appendDoublePrimitive(Math.PI);
 		VariableReference double2 = tc.appendDoublePrimitive(Math.PI);
 

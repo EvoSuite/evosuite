@@ -9,7 +9,7 @@ import java.util.Map;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverFloats;
-import org.evosuite.symbolic.z3.Z3Solver;
+import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -162,7 +162,7 @@ public class TestZ3Floats {
 
 		if (Properties.Z3_PATH != null) {
 			assertNotNull(solution);
-			Integer var0 = (Integer) solution.get("var0");
+			Long var0 = (Long) solution.get("var0");
 			Double var1 = (Double) solution.get("var1");
 
 			assertEquals(var0.intValue(), Math.round(var1.doubleValue()));

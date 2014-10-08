@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.z3str;
+package org.evosuite.symbolic.solver.z3str;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -25,7 +25,7 @@ import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.Solver;
-import org.evosuite.symbolic.z3.Z3Solver;
+import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

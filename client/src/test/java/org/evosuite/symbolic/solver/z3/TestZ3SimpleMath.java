@@ -9,7 +9,7 @@ import java.util.Map;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverSimpleMath;
-import org.evosuite.symbolic.z3.Z3Solver;
+import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -217,10 +217,9 @@ public class TestZ3SimpleMath {
 
 		if (Properties.Z3_PATH != null) {
 			assertNotNull(solution);
-			Double var0 = (Double) solution.get("var0");
+			Long var0 = (Long) solution.get("var0");
 
 			assertTrue(var0.doubleValue() != 0);
-			assertTrue(var0.intValue() == 0);
 		}
 	}
 }

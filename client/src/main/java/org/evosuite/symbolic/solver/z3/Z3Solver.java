@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.z3;
+package org.evosuite.symbolic.solver.z3;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
