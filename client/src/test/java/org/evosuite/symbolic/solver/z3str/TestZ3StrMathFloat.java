@@ -2,7 +2,7 @@ package org.evosuite.symbolic.solver.z3str;
 
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverMathFloat;
-import org.evosuite.symbolic.z3str.Z3StrSolver;
+import org.evosuite.symbolic.solver.z3str.Z3StrSolver;
 import org.junit.Test;
 
 public class TestZ3StrMathFloat {

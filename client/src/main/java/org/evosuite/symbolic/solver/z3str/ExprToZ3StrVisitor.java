@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.z3str;
+package org.evosuite.symbolic.solver.z3str;
 
 import java.util.ArrayList;
 import java.util.HashSet;
