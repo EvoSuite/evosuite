@@ -1,5 +1,12 @@
 package org.evosuite.symbolic.solver.z3;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Map;
+
 import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverStringFunctions;
@@ -13,7 +20,15 @@ public class TestZ3StringFunctions {
 	public void testStringLength() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringLength(solver);
+		Map<String, Object> solution = TestSolverStringFunctions
+				.testStringLength(solver);
+		if (Properties.Z3_PATH != null) {
+			assertNotNull(solution);
+			String var0 = (String) solution.get("var0");
+
+			assertNotNull(var0);
+			assertEquals(5, var0.length());
+		}
 	}
 
 	@Test
@@ -27,7 +42,16 @@ public class TestZ3StringFunctions {
 	public void testStringEquals() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringEquals(solver);
+		Map<String, Object> solution = TestSolverStringFunctions
+				.testStringEquals(solver);
+		if (Properties.Z3_PATH != null) {
+			assertNotNull(solution);
+			String var0 = (String) solution.get("var0");
+
+			assertNotNull(var0);
+			assertEquals("Hello World", var0);
+
+		}
 	}
 
 	@Test
@@ -48,21 +72,47 @@ public class TestZ3StringFunctions {
 	public void testStringNotEquals() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringNotEquals(solver);
+		Map<String, Object> solution = TestSolverStringFunctions
+				.testStringNotEquals(solver);
+		if (Properties.Z3_PATH != null) {
+			assertNotNull(solution);
+			String var0 = (String) solution.get("var0");
+
+			assertNotNull(var0);
+			assertNotEquals("Hello World", var0);
+		}
 	}
 
 	@Test
 	public void testStringStartsWith() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringStartsWith(solver);
+		Map<String, Object> solution = TestSolverStringFunctions
+				.testStringStartsWith(solver);
+		if (Properties.Z3_PATH != null) {
+			assertNotNull(solution);
+			String var0 = (String) solution.get("var0");
+
+			assertNotNull(var0);
+			assertTrue(var0.startsWith("Hello"));
+			assertNotEquals("Hello", var0);
+			assertNotEquals("Hello".length(), var0.length());
+		}
 	}
 
 	@Test
 	public void testStringStartsWithIndex() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringStartsWithIndex(solver);
+		Map<String, Object> solution = TestSolverStringFunctions
+				.testStringStartsWithIndex(solver);
+		if (Properties.Z3_PATH != null) {
+			assertNotNull(solution);
+			String var0 = (String) solution.get("var0");
+
+			assertNotNull(var0);
+			assertTrue(var0.startsWith("Hello", 5));
+		}
 	}
 
 	@Test
@@ -76,14 +126,32 @@ public class TestZ3StringFunctions {
 	public void testStringCharAt() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringCharAt(solver);
+		Map<String, Object> solution = TestSolverStringFunctions
+				.testStringCharAt(solver);
+		if (Properties.Z3_PATH != null) {
+			assertNotNull(solution);
+			String var0 = (String) solution.get("var0");
+
+			assertNotNull(var0);
+			assertTrue(var0.length() > 0);
+			assertEquals('X', var0.charAt(0));
+		}
 	}
 
 	@Test
 	public void testStringContains() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringContains(solver);
+		Map<String, Object> solution = TestSolverStringFunctions
+				.testStringContains(solver);
+		if (Properties.Z3_PATH != null) {
+			assertNotNull(solution);
+			String var0 = (String) solution.get("var0");
+
+			assertNotNull(var0);
+			assertTrue(!var0.equals("Hello"));
+			assertTrue(var0.contains("Hello"));
+		}
 	}
 
 	@Test
@@ -198,7 +266,7 @@ public class TestZ3StringFunctions {
 		TestSolverStringFunctions.testStringCompareTo(solver);
 	}
 
-	@BeforeClass 
+	@BeforeClass
 	public static void setUpZ3Path() {
 		Properties.Z3_PATH = System.getenv("Z3_PATH");
 	}

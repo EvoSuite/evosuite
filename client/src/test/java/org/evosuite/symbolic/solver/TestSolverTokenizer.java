@@ -11,7 +11,7 @@ import org.evosuite.testcase.VariableReference;
 
 import com.examples.with.different.packagename.solver.TestCaseTokenizer;
 
-public class TestSolverTokenizer {
+public abstract class TestSolverTokenizer {
 
 	private static DefaultTestCase buildTestTokenizer()
 			throws SecurityException, NoSuchMethodException {

@@ -18,7 +18,14 @@ public class TestZ3Bitwise {
 	public void testBitAnd() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverBitwise.testBitAnd(solver);
+		Map<String, Object> solution = TestSolverBitwise.testBitAnd(solver);
+		if (Properties.Z3_PATH != null) {
+			assertNotNull(solution);
+			Long var0 = (Long) solution.get("var0");
+			Long var1 = (Long) solution.get("var1");
+
+			assertEquals(var0.intValue(), (var1.intValue() & 1));
+		}
 	}
 
 	@Test
@@ -39,7 +46,14 @@ public class TestZ3Bitwise {
 	public void testBitXor() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverBitwise.testBitXor(solver);
+		Map<String, Object> solution = TestSolverBitwise.testBitXor(solver);
+		if (Properties.Z3_PATH != null) {
+			assertNotNull(solution);
+			Long var0 = (Long) solution.get("var0");
+			Long var1 = (Long) solution.get("var1");
+
+			assertEquals(var0.intValue(), (var1.intValue() ^ 1));
+		}
 	}
 
 	@Test
@@ -53,14 +67,29 @@ public class TestZ3Bitwise {
 	public void testShiftRight() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverBitwise.testShiftRight(solver);
+		Map<String, Object> solution = TestSolverBitwise.testShiftRight(solver);
+		if (Properties.Z3_PATH != null) {
+			assertNotNull(solution);
+			Long var0 = (Long) solution.get("var0");
+			Long var1 = (Long) solution.get("var1");
+
+			assertEquals(var0.intValue(), var1.intValue() >> 1);
+		}
 	}
 
 	@Test
 	public void testShiftRightUnsigned() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverBitwise.testShiftRightUnsigned(solver);
+		Map<String, Object> solution = TestSolverBitwise
+				.testShiftRightUnsigned(solver);
+		if (Properties.Z3_PATH != null) {
+			assertNotNull(solution);
+			Long var0 = (Long) solution.get("var0");
+			Long var1 = (Long) solution.get("var1");
+
+			assertEquals(var0.intValue(), var1.intValue() >>> 1);
+		}
 	}
 
 	@BeforeClass

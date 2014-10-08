@@ -1,10 +1,6 @@
 package org.evosuite.symbolic.solver;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -49,7 +45,7 @@ import com.examples.with.different.packagename.solver.TestCaseStringSubstringFro
 import com.examples.with.different.packagename.solver.TestCaseStringTrim;
 import com.examples.with.different.packagename.solver.TestCaseStringUpperCase;
 
-public class TestSolverStringFunctions {
+public abstract class TestSolverStringFunctions {
 
 	private static DefaultTestCase buildTestLength() throws SecurityException,
 			NoSuchMethodException {
@@ -62,7 +58,7 @@ public class TestSolverStringFunctions {
 		return tc.getDefaultTestCase();
 	}
 
-	public static void testStringLength(Solver solver)
+	public static Map<String, Object> testStringLength(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
@@ -70,11 +66,8 @@ public class TestSolverStringFunctions {
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
-		String var0 = (String) solution.get("var0");
 
-		assertNotNull(var0);
-		assertEquals(5, var0.length());
+		return solution;
 	}
 
 	public static void testNegativeLength(Solver solver)
@@ -215,7 +208,7 @@ public class TestSolverStringFunctions {
 		return tc.getDefaultTestCase();
 	}
 
-	public static void testStringEquals(Solver solver)
+	public static Map<String, Object> testStringEquals(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
@@ -223,14 +216,11 @@ public class TestSolverStringFunctions {
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
-		String var0 = (String) solution.get("var0");
 
-		assertNotNull(var0);
-		assertEquals("Hello World", var0);
+		return solution;
 	}
 
-	public static void testStringNotEquals(Solver solver)
+	public static Map<String, Object> testStringNotEquals(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
@@ -238,14 +228,11 @@ public class TestSolverStringFunctions {
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
-		String var0 = (String) solution.get("var0");
 
-		assertNotNull(var0);
-		assertNotEquals("Hello World", var0);
+		return solution;
 	}
 
-	public static void testStringStartsWith(Solver solver)
+	public static Map<String, Object> testStringStartsWith(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
@@ -253,16 +240,11 @@ public class TestSolverStringFunctions {
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
-		String var0 = (String) solution.get("var0");
 
-		assertNotNull(var0);
-		assertTrue(var0.startsWith("Hello"));
-		assertNotEquals("Hello", var0);
-		assertNotEquals("Hello".length(), var0.length());
+		return solution;
 	}
 
-	public static void testStringStartsWithIndex(Solver solver)
+	public static Map<String, Object> testStringStartsWithIndex(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
@@ -270,11 +252,8 @@ public class TestSolverStringFunctions {
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
-		String var0 = (String) solution.get("var0");
 
-		assertNotNull(var0);
-		assertTrue(var0.startsWith("Hello", 5));
+		return solution;
 	}
 
 	public static Map<String, Object> testStringEndsWith(Solver solver)
@@ -299,19 +278,15 @@ public class TestSolverStringFunctions {
 		return tc.getDefaultTestCase();
 	}
 
-	public static void testStringCharAt(Solver solver)
+	public static Map<String, Object> testStringCharAt(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 		DefaultTestCase tc = buildTestCharAt();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
-		String var0 = (String) solution.get("var0");
 
-		assertNotNull(var0);
-		assertTrue(var0.length() > 0);
-		assertEquals('X', var0.charAt(0));
+		return solution;
 	}
 
 	private static DefaultTestCase buildTestContains()
@@ -325,7 +300,7 @@ public class TestSolverStringFunctions {
 		return tc.getDefaultTestCase();
 	}
 
-	public static void testStringContains(Solver solver)
+	public static Map<String, Object> testStringContains(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
@@ -334,12 +309,8 @@ public class TestSolverStringFunctions {
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
-		String var0 = (String) solution.get("var0");
 
-		assertNotNull(var0);
-		assertTrue(!var0.equals("Hello"));
-		assertTrue(var0.contains("Hello"));
+		return solution;
 	}
 
 	public static Map<String, Object> testStringIndexOfChar(Solver solver)
