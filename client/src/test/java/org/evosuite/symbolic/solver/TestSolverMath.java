@@ -1,8 +1,5 @@
 package org.evosuite.symbolic.solver;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
@@ -16,9 +13,7 @@ import com.examples.with.different.packagename.solver.TestCaseAbs;
 import com.examples.with.different.packagename.solver.TestCaseMax;
 import com.examples.with.different.packagename.solver.TestCaseMin;
 
-import static org.junit.Assert.assertTrue;
-
-public class TestSolverMath {
+public abstract class TestSolverMath {
 
 	private static DefaultTestCase buildTestCaseAbs() throws SecurityException,
 			NoSuchMethodException {
@@ -30,17 +25,15 @@ public class TestSolverMath {
 		return tc.getDefaultTestCase();
 	}
 
-	public static void testAbs(Solver solver) throws SecurityException,
+	public static Map<String, Object> testAbs(Solver solver) throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseAbs();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
-		Long var0 = (Long) solution.get("var0");
 
-		assertTrue(Math.abs(var0.intValue()) > 0);
+		return solution;
 	}
 
 	private static DefaultTestCase buildTestCaseMax() throws SecurityException,
@@ -67,31 +60,26 @@ public class TestSolverMath {
 		return tc.getDefaultTestCase();
 	}
 
-	public static void testMax(Solver solver) throws SecurityException,
+	public static Map<String, Object> testMax(Solver solver) throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMax();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
-		Long var0 = (Long) solution.get("var0");
-		Long var1 = (Long) solution.get("var1");
 
-		assertEquals(10, Math.max(var0.intValue(), var1.intValue()));
+		return solution;
+		
 	}
 
-	public static void testMin(Solver solver) throws SecurityException,
+	public static Map<String, Object> testMin(Solver solver) throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMin();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
-		Long var0 = (Long) solution.get("var0");
-		Long var1 = (Long) solution.get("var1");
 
-		assertEquals(10, Math.min(var0.intValue(), var1.intValue()));
+		return solution;
 	}
 }
