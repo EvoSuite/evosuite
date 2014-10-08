@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.z3;
+package org.evosuite.symbolic.solver.z3;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -8,6 +8,7 @@ import java.util.Map;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverSimpleMath;
+import org.evosuite.symbolic.z3.Z3Solver;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

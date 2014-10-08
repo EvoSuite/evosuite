@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.z3str;
+package org.evosuite.symbolic.solver.z3str;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -9,6 +9,7 @@ import java.util.Map;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverStringFunctions;
+import org.evosuite.symbolic.z3str.Z3StrSolver;
 import org.junit.Test;
 
 public class TestZ3StrStringFunctions {

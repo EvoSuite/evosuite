@@ -1,8 +1,9 @@
-package org.evosuite.symbolic.z3;
+package org.evosuite.symbolic.solver.z3;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverStringFunctions;
+import org.evosuite.symbolic.z3.Z3Solver;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
