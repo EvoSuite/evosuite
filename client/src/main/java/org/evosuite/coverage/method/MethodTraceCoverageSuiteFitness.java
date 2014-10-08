@@ -143,13 +143,13 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			}
 
 			for (Entry<String, Integer> entry : result.getTrace().getMethodExecutionCount().entrySet()) {
-				if (!callCount.containsKey(entry.getKey()))
-					callCount.put(entry.getKey(), entry.getValue());
-				else {
-					callCount.put(entry.getKey(),
-					              callCount.get(entry.getKey()) + entry.getValue());
-				}
 				if (methodCoverageMap.containsKey(entry.getKey())) {
+					if (!callCount.containsKey(entry.getKey()))
+						callCount.put(entry.getKey(), entry.getValue());
+					else {
+						callCount.put(entry.getKey(),
+					              callCount.get(entry.getKey()) + entry.getValue());
+					}
 					result.test.addCoveredGoal(methodCoverageMap.get(entry.getKey()));
 				}
 
