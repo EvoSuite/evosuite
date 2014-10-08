@@ -17,14 +17,12 @@
  */
 package org.evosuite.coverage.method;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
@@ -35,6 +33,8 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.evosuite.setup.TestClusterGenerator.canUse;
 
 /**
  * Fitness function for a whole test suite for all methods.
@@ -59,22 +59,11 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * </p>
 	 */
 	public MethodTraceCoverageSuiteFitness() {
-
-		String prefix = Properties.TARGET_CLASS_PREFIX;
-
-		if (prefix.isEmpty()) {
-			prefix = Properties.TARGET_CLASS;
-			totalMethods = CFGMethodAdapter.getNumMethods();
-			methods = CFGMethodAdapter.getMethods();
-
-		} else {
-			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
-			methods = CFGMethodAdapter.getMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
-		}
-
-		logger.info("Total methods: " + totalMethods + ": " + methods);
-
-		determineCoverageGoals();
+        methods = new HashSet<String>();
+        determineMethods();
+        totalMethods = methods.size();
+        logger.info("Total methods: " + totalMethods + ": " + methods);
+        determineCoverageGoals();
 	}
 
 	// Some stuff for debug output
@@ -83,6 +72,34 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	// Each test gets a set of distinct covered goals, these are mapped by branch id
 	private final Map<String, TestFitnessFunction> methodCoverageMap = new HashMap<String, TestFitnessFunction>();
+
+    private void determineMethods() {
+        String className = Properties.TARGET_CLASS;
+        Class<?> clazz = null;
+        try {
+            clazz = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (clazz != null) {
+            Constructor[] allConstructors = clazz.getDeclaredConstructors();
+            for (Constructor c : allConstructors) {
+                if (canUse(c)) {
+                    String descriptor = Type.getConstructorDescriptor(c);
+                    logger.info("Adding goal for constructor " + className + ".<init>" + descriptor);
+                    methods.add(c.getDeclaringClass().getName() + ".<init>" + descriptor);
+                }
+            }
+            Method[] allMethods = clazz.getDeclaredMethods();
+            for (Method m : allMethods) {
+                if (canUse(m)) {
+                    String descriptor = Type.getMethodDescriptor(m);
+                    logger.info("Adding goal for method " + className + "." + m.getName() + descriptor);
+                    methods.add(m.getDeclaringClass().getName() + "." + m.getName() + descriptor);
+                }
+            }
+        }
+    }
 
 	/**
 	 * Initialize the set of known coverage goals
@@ -204,7 +221,6 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
             suite.setCoverage(this, 1.0);
         }
 		suite.setNumOfCoveredGoals(this, coverage);
-
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value " + totalMethods);
 			fitness = totalMethods;
