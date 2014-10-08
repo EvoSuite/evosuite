@@ -1,18 +1,19 @@
-package org.evosuite.symbolic.z3;
+package org.evosuite.symbolic.solver.z3;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
-import org.evosuite.symbolic.solver.TestSolverReader;
+import org.evosuite.symbolic.solver.TestSolverTokenizer;
+import org.evosuite.symbolic.z3.Z3Solver;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestZ3StringReader {
+public class TestZ3StringTokenizer {
 
 	@Test
-	public void testStringReader() throws SecurityException,
+	public void testStringTokenizer() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverReader.testStringReader(solver);
+		TestSolverTokenizer.testStringTokenizer(solver);
 	}
 
 	@BeforeClass 
