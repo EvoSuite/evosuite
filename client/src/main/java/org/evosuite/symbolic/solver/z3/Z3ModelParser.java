@@ -19,6 +19,8 @@ class Z3ModelParser {
 	public Map<String, Object> parse(String z3ResultStr) {
 		Map<String, Object> solution = new HashMap<String, Object>();
 
+		Map<String, String> arraysToFuncMap = new HashMap<String,String>();
+
 		StringTokenizer tokenizer = new StringTokenizer(z3ResultStr, "() \n\t");
 		tokenizer.nextToken(); // sat
 		tokenizer.nextToken(); // model
@@ -85,8 +87,23 @@ class Z3ModelParser {
 							}
 						}
 						solution.put(funcName, value);
+					} else if (typeName.equals("Array")) {
+						tokenizer.nextToken(); //Int
+						tokenizer.nextToken(); //Int
+						tokenizer.nextToken(); //_
+						tokenizer.nextToken(); //as_array
+						String arrayFuncName = tokenizer.nextToken();
+						arraysToFuncMap .put(arrayFuncName, funcName);
+					} else if (typeName.equals("x!1")) {
+						
+					} else {
+//						throw new IllegalArgumentException(
+//								"Must implement this production");
 					}
 				}
+			} else {
+//				throw new IllegalArgumentException(
+//						"Must implement this production");
 			}
 		}
 
