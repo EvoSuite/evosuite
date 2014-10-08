@@ -834,6 +834,9 @@ public class TestSuiteGenerator {
 		case WEAKMUTATION:
 			LoggingUtils.getEvoLogger().info("  - Mutation testing (weak)");
 			break;
+        case ONLYMUTATION:
+            LoggingUtils.getEvoLogger().info("  - Only Mutation testing (weak)");
+            break;
 		case STRONGMUTATION:
 		case MUTATION:
 			LoggingUtils.getEvoLogger().info("  - Mutation testing (strong)");
