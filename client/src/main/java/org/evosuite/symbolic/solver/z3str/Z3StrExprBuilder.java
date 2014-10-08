@@ -117,14 +117,15 @@ abstract class Z3StrExprBuilder {
 		return "(declare-const " + varName + " Int)";
 	}
 
+	private static DecimalFormat DECIMAL_FORMAT = new DecimalFormat(
+			"################.################");
+
 	public static String mkRealConstant(double doubleVal) {
-		DecimalFormat df = new DecimalFormat(
-				"################.################");
 		if (doubleVal < 0) {
-			String magnitudeStr = df.format(Math.abs(doubleVal));
+			String magnitudeStr = DECIMAL_FORMAT.format(Math.abs(doubleVal));
 			return "(- " + magnitudeStr + ")";
 		} else {
-			String doubleStr = df.format(doubleVal);
+			String doubleStr = DECIMAL_FORMAT.format(doubleVal);
 			return doubleStr;
 		}
 	}
