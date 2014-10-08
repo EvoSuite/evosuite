@@ -22,7 +22,6 @@ import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import org.evosuite.testsuite.SearchStatistics;
 
 /**
  * @author Gordon Fraser
@@ -69,19 +68,6 @@ public class CoverageAnalysis {
 		if (ArrayUtil.contains(oldCriterion, criterion))
 			return;
 
-		if (isMutationCriterion(criterion) && isMutationCriterion(oldCriterion)) {
-		    if (ArrayUtil.contains(oldCriterion, Properties.Criterion.WEAKMUTATION)) {
-				testSuite.setChanged(true);
-				for (TestChromosome test : testSuite.getTestChromosomes()) {
-					test.setChanged(true);
-					test.clearCachedResults();
-					test.clearCachedMutationResults();
-				}
-			}
-			return;
-		}
-
-
 		testSuite.setChanged(true);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			test.setChanged(true);
@@ -89,14 +75,8 @@ public class CoverageAnalysis {
 			test.clearCachedMutationResults();
 		}
 
-		/*
-		List<Properties.Criterion> mutationCriteria = Arrays.asList(new Properties.Criterion[] {
-		        Properties.Criterion.WEAKMUTATION, Properties.Criterion.STRONGMUTATION,
-		        Properties.Criterion.MUTATION });
-		if (mutationCriteria.contains(criterion)
-		        && mutationCriteria.contains(oldCriterion))
-			return;
-			*/
+        if (isMutationCriterion(criterion) && isMutationCriterion(oldCriterion))
+            return;
 
 		Properties.CRITERION = new Properties.Criterion[1];
 		Properties.CRITERION[0] = criterion;
