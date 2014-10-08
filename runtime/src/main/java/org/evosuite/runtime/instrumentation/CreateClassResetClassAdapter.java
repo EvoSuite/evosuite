@@ -58,7 +58,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	private boolean isInterface = false;
 	
 	private boolean isAnonymous = false;
-
+	
 	private boolean clinitFound = false;
 
 	private boolean definesUid = false;
@@ -163,8 +163,11 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 			//determineSerialisableUID();
 
 			// duplicates existing <clinit>
-			MethodVisitor visitMethod = super.visitMethod(methodAccess
-					| Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
+			// TODO: Removed | Opcodes.ACC_PUBLIC
+			//       Does __STATIC_RESET need to be public?
+			//       <clinit> apparently can be private, resulting
+			//       in illegal modifiers
+			MethodVisitor visitMethod = super.visitMethod(methodAccess | Opcodes.ACC_STATIC,
 					ClassResetter.STATIC_RESET, descriptor, signature,
 					exceptions);
 
