@@ -55,7 +55,7 @@ public class CoverageAnalysis {
 
 	private static void reinstrument(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
-	    Properties.Criterion oldCriterion[] = Properties.CRITERION;
+	    Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 
 		if (!ExecutionTracer.isTraceCallsEnabled()) {
 			ExecutionTracer.enableTraceCalls();
@@ -67,9 +67,6 @@ public class CoverageAnalysis {
 			}
 		}
 
-		if(Properties.COMPOSITIONAL_FITNESS)
-			return;
-		
 		if (ArrayUtil.contains(oldCriterion, criterion))
 			return;
 
@@ -105,7 +102,7 @@ public class CoverageAnalysis {
 		Properties.CRITERION = new Properties.Criterion[1];
 		Properties.CRITERION[0] = criterion;
 		
-		LoggingUtils.getEvoLogger().info("Re-instrumenting for criterion: "
+		logger.info("Re-instrumenting for criterion: "
 		                                         + criterion);
 		TestGenerationContext.getInstance().resetContext();
 		
@@ -114,27 +111,32 @@ public class CoverageAnalysis {
 		Properties.getTargetClass();
 
 		// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
-		LoggingUtils.getEvoLogger().info("Changing classloader of test suite for criterion: "
+		logger.info("Changing classloader of test suite for criterion: "
 		                                         + criterion);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
 			dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
 		}
-
+		Properties.CRITERION = oldCriterion;
 	}
 
 	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
-		for (Criterion c : Properties.CRITERION) {
-            // Analyse coverage for enabled criteria
-		    LoggingUtils.getEvoLogger().info("  - " + c.name());
-		    analyzeCoverage(testSuite, c.name());
+		
+		// If coverage of target criteria is not already measured
+		if(!Properties.COVERAGE) {
+			for (Criterion c : Properties.CRITERION) {
+				// Analyse coverage for enabled criteria
+				// LoggingUtils.getEvoLogger().info("  - " + c.name());
+				logger.debug("Measuring coverage of target criterion "+c);
+				analyzeCoverage(testSuite, c.name());
+			}
 		}
 
         for (String extraCriterion : Arrays.asList(criteria.toUpperCase().split(",")))
         {
             // Analyse coverage for extra criteria
             if (! ArrayUtil.contains(Properties.CRITERION, extraCriterion)) {
-                LoggingUtils.getEvoLogger().info("Analyse extra criteria: " + extraCriterion);
+    		    logger.debug("Measuring additional coverage of target criterion "+extraCriterion);
                 analyzeCoverage(testSuite, extraCriterion);
             }
         }
@@ -142,7 +144,7 @@ public class CoverageAnalysis {
 
 	public static void analyzeCoverage(TestSuiteChromosome testSuite, String criterion) {
 		try {
-			LoggingUtils.getEvoLogger().info("Measuring coverage of criterion: "
+			logger.info("Measuring coverage of criterion: "
 			                                         + criterion);
 
 			Properties.Criterion crit = Properties.Criterion.valueOf(criterion.toUpperCase());
