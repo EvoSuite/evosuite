@@ -165,7 +165,7 @@ public class Z3Solver extends Solver {
 				logger.debug("Z3 outcome was UNSAT");
 				return null;
 			} else {
-				logger.warn("Unknown Z3 outcome");
+				logger.error("Z3 output is unknown. We are unable to parse it to a proper solution!");
 				return null;
 			}
 
