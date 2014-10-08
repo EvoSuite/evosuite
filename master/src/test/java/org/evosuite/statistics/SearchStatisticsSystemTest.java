@@ -109,10 +109,11 @@ public class SearchStatisticsSystemTest extends SystemTest{
         Properties.TARGET_CLASS = targetClass;
         Properties.COMPOSITIONAL_FITNESS = true;
         Properties.MINIMIZE = true;
-        Properties.CRITERION = new Properties.Criterion[3];
+        Properties.CRITERION = new Properties.Criterion[4];
         Properties.CRITERION[0] = Properties.Criterion.ONLYBRANCH;
         Properties.CRITERION[1] = Properties.Criterion.METHODNOEXCEPTION;
         Properties.CRITERION[2] = Properties.Criterion.OUTPUT;
+        Properties.CRITERION[3] = Properties.Criterion.ONLYMUTATION;
 
         StringBuilder analysisCriteria = new StringBuilder();
         analysisCriteria.append(Properties.Criterion.LINE); analysisCriteria.append(",");
@@ -121,7 +122,7 @@ public class SearchStatisticsSystemTest extends SystemTest{
         analysisCriteria.append(Properties.Criterion.METHOD); analysisCriteria.append(",");
         analysisCriteria.append(Properties.Criterion.METHODNOEXCEPTION); analysisCriteria.append(",");
         analysisCriteria.append(Properties.Criterion.OUTPUT); analysisCriteria.append(",");
-        analysisCriteria.append(Properties.Criterion.WEAKMUTATION); analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.ONLYMUTATION); analysisCriteria.append(",");
         analysisCriteria.append(Properties.Criterion.EXCEPTION);
         Properties.ANALYSIS_CRITERIA = analysisCriteria.toString();
         
@@ -197,7 +198,7 @@ public class SearchStatisticsSystemTest extends SystemTest{
         Assert.assertEquals(1.0, coverage.getValue());
         OutputVariable gradientBranches = map.get(RuntimeVariable.Gradient_Branches.toString());
         Assert.assertNotNull(gradientBranches);
-        Assert.assertEquals(2, gradientBranches.getValue());
+        Assert.assertEquals(4, gradientBranches.getValue());
     }
 
     private OutputVariable getLastTimelineVariable(Map<String, OutputVariable<?>> map, String name) {
