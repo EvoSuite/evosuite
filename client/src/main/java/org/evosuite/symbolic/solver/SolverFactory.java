@@ -19,7 +19,7 @@ public class SolverFactory {
 		switch (Properties.DSE_SOLVER) {
 		case Z3_SOLVER:
 			return createZ3Solver();
-		case Z3STR_SOLVER:
+		case Z3_STR_SOLVER:
 			return createZ3StrSolver();
 		case EVOSUITE_SOLVER:
 		default:
