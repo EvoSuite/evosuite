@@ -371,8 +371,14 @@ public class Properties {
 	public static boolean DSE_KEEP_ALL_TESTS = false;
 
 	public enum SolverType {
-		EVOSUITE_SOLVER, Z3_SOLVER, Z3STR_SOLVER;
+		EVOSUITE_SOLVER, Z3_SOLVER, Z3_STR_SOLVER;
 	}
+
+	@Parameter(key = "z3_path", group = "Solver", description = "Indicates the path to the Z3 solver")
+	public static String Z3_PATH = null;
+
+	@Parameter(key = "z3_str_path", group = "Solver", description = "Indicates the path to the Z3-Str solver")
+	public static String Z3_STR_PATH = null;
 
 	public static SolverType DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
 
