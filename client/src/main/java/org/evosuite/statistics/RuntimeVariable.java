@@ -123,8 +123,6 @@ public enum RuntimeVariable {
 	CoveredBranchesBitString,
 	/** The obtained score for weak mutation testing */
 	WeakMutationScore,
-    WeakMutationFitnessTimeline,
-    WeakMutationCoverageTimeline,
     /** Only mutation = only infection distance */
 	OnlyMutationScore,
 	OnlyMutationFitnessTimeline,
