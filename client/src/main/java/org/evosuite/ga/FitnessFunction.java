@@ -69,6 +69,9 @@ public abstract class FitnessFunction<T extends Chromosome> implements Serializa
 		if (value < 0d) {
 			throw new IllegalArgumentException("Values to normalize cannot be negative");
 		}
+		if (Double.isInfinite(value)) {
+			return 1.0;
+		}
 		return value / (1.0 + value);
 	}
 
