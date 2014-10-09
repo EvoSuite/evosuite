@@ -56,7 +56,7 @@ public class ResetExecutor {
 		try {
 			ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
 			Class<?> clazz = Class.forName(className, true, classLoader);
-			Method m = clazz.getMethod(ClassResetter.STATIC_RESET, (Class<?>[]) null);
+			Method m = clazz.getDeclaredMethod(ClassResetter.STATIC_RESET, (Class<?>[]) null);
 			m.setAccessible(true);
 			return m;
 		
