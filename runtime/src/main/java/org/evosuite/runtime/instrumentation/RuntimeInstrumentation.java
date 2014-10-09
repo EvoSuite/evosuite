@@ -75,7 +75,9 @@ public class RuntimeInstrumentation {
                 "org.jcp.xml.dsig.internal.dom.", //Security exception in ExecutionTracer?
                 "com_cenqua_clover", "com.cenqua", //these are for Clover code coverage instrumentation
                 "javafx.", // JavaFX crashes when instrumented
-                "ch.qos.logback" // Instrumentation makes logger events sent to the master un-serialisable
+                "ch.qos.logback", // Instrumentation makes logger events sent to the master un-serialisable
+                "org.apache.lucene.util.SPIClassIterator", "org.apache.lucene.analysis.util.AnalysisSPILoader", "org.apache.lucene.analysis.util.CharFilterFactory",
+                "org.apache.struts.util.MessageResources", "org.dom4j.DefaultDocumentFactory" // These classes all cause problems with re-instrumentation
         };
     }
 
