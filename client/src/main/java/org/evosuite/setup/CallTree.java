@@ -20,10 +20,12 @@
  */
 package org.evosuite.setup;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,7 +45,10 @@ public class CallTree implements Iterable<CallTreeEntry> {
 	private final String className;
 
 	private final Set<CallTreeEntry> calls = new LinkedHashSet<CallTreeEntry>();
-
+	
+//	private final Map<String, Set<CallTreeEntry>> incomingCallsMap = new LinkedHashMap<String, Set<CallTreeEntry>>();
+//	private final Map<String, Set<CallTreeEntry>> outgoingCallsMap = new LinkedHashMap<String, Set<CallTreeEntry>>();
+	
 	private final Set<CallTreeEntry> rootCalls = new LinkedHashSet<CallTreeEntry>();
 
 	private final Map<CallTreeEntry, Set<CallTreeEntry>> callMap = new LinkedHashMap<CallTreeEntry, Set<CallTreeEntry>>();
@@ -70,6 +75,23 @@ public class CallTree implements Iterable<CallTreeEntry> {
 			rootCalls.add(call);
 		if (!callMap.containsKey(call))
 			callMap.put(call, new LinkedHashSet<CallTreeEntry>());
+		
+//		/// test
+//		Set<CallTreeEntry> inc = incomingCallsMap.get(owner+"."+methodName);
+//		if(inc==null){
+//			inc = new HashSet<>();
+//			incomingCallsMap.put(owner+"."+methodName,inc);
+//		}
+//		inc.add(call);
+//		
+//		Set<CallTreeEntry> out = outgoingCallsMap.get(targetClass+"."+targetMethod);
+//		if(out==null){
+//			inc = new HashSet<>();
+//			outgoingCallsMap.put(targetClass+"."+targetMethod, out);
+//		}
+//		out.add(call);
+		/// test
+		
 		// callMap.get(call).add(call);
 		callTreeClasses.add(targetClass.replaceAll("/", "."));
 	}
@@ -134,26 +156,84 @@ public class CallTree implements Iterable<CallTreeEntry> {
 		// Check if the method can also be called indirectly
 		for (CallTreeEntry entry : calls) {
 			if (entry.getTargetClass().equals(className)
-			        && entry.getTargetMethod().equals(methodName)) {
-				CallContext targetContext = new CallContext(className, methodName);
-				contexts.addAll(getDirectCallingContext(targetContext));
+			        && entry.getTargetMethod().equals(methodName)) { 
+				contexts.addAll(getDirectCallingContext(className, methodName));
 			}
 		}
+		logger.error("EEEE "+ calls);
 		return contexts;
 	}
 
-	private Set<CallContext> getDirectCallingContext(CallContext context) {
+	private Set<CallContext> getDirectCallingContext(String className, String methodName) {
+		CallContext context = new CallContext(className, methodName);
 		Set<CallContext> contexts = new LinkedHashSet<CallContext>();
 
 		// Check if the method can also be called indirectly
 		for (CallTreeEntry entry : calls) {
-			if (entry.getTargetClass().equals(context.getRootClassName())
-			        && entry.getTargetMethod().equals(context.getRootMethodName())) {
+			if (entry.getTargetClass().equals(className)
+					&& entry.getTargetMethod().equals(
+							methodName)) {
 				CallContext superContext = context.getSuperContext(entry.getSourceClass(),
 				                                                   entry.getSourceMethod());
 				contexts.add(superContext);
 			}
 		}
+		return contexts;
+	}
+	
+	private Set<CallContext> getInDirectCallingContext(String className,
+			String methodName) {
+		CallContext context = new CallContext(className, methodName);
+		Set<CallContext> contexts = new LinkedHashSet<CallContext>();
+
+		// Check if the method can also be called indirectly
+		for (CallTreeEntry entry : calls) {
+			if (entry.getTargetClass().equals(className)
+					&& entry.getTargetMethod().equals(methodName)) {
+				
+				
+				
+				CallContext superContext = context.getSuperContext(
+						entry.getSourceClass(), entry.getSourceMethod());
+				contexts.add(superContext);
+			}
+		}
+		return contexts;
+	}
+	
+	private Set<CallTreeEntry> navigateThree(String className, String methodName) {
+
+		Set<CallTreeEntry> visited = new HashSet<>();
+		// Check if the method can also be called indirectly
+		List<CallTreeEntry> context = new ArrayList<>();
+		
+		CallTreeEntry current = null;
+		
+		String currentClassName=className;
+		String currentMethodName=methodName;
+		while(true){
+			for (CallTreeEntry entry : calls) {
+				if (entry.getTargetClass().equals(className)
+						&& entry.getTargetMethod().equals(methodName)) {
+						
+				}
+			}
+			break;
+		}
+		return null;
+	}
+	
+	public Set<CallContext> getGeneralisedAllContexts(String className, String methodName) {
+		Set<CallContext> contexts = getPublicContext(className, methodName);
+
+		//get direct calls to the method under inspections
+		contexts.addAll(getDirectCallingContext(className, methodName));
+
+		//get indirect calls to the method under inspections
+		contexts.addAll(getInDirectCallingContext(className, methodName));
+
+		
+		logger.error("AAAAAA "+contexts.toString());
 		return contexts;
 	}
 

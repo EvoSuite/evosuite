@@ -120,8 +120,7 @@ public class TestClusterGenerator {
 
 	private final Set<Class<?>> containerClasses = new LinkedHashSet<Class<?>>();
 	
-	public void generateCluster(String targetClass, InheritanceTree inheritanceTree,
-	        CallTree callTree) throws RuntimeException, ClassNotFoundException {
+	public void generateCluster(String targetClass, InheritanceTree inheritanceTree) throws RuntimeException, ClassNotFoundException {
 
 		this.inheritanceTree = inheritanceTree;
 		TestCluster.setInheritanceTree(inheritanceTree);
