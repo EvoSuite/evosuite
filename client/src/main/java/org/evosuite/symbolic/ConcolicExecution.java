@@ -26,6 +26,7 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.ExpressionExecutor;
 import org.evosuite.symbolic.vm.ArithmeticVM;
 import org.evosuite.symbolic.vm.CallVM;
+import org.evosuite.symbolic.vm.HasSymbolicVariableVM;
 import org.evosuite.symbolic.vm.HeapVM;
 import org.evosuite.symbolic.vm.JumpVM;
 import org.evosuite.symbolic.vm.LocalsVM;
@@ -95,6 +96,7 @@ public abstract class ConcolicExecution {
 		 * VM listeners
 		 */
 		List<IVM> listeners = new ArrayList<IVM>();
+		listeners.add(new HasSymbolicVariableVM(env));
 		listeners.add(new CallVM(env, classLoader));
 		listeners.add(new JumpVM(env, pc));
 		listeners.add(new HeapVM(env, pc, classLoader));
