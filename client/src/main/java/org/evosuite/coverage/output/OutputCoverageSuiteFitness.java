@@ -17,15 +17,19 @@
  */
 package org.evosuite.coverage.output;
 
-import org.evosuite.testcase.*;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.objectweb.asm.Type;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.MethodStatement;
+import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.objectweb.asm.Type;
 
 /**
  * @author Jose Miguel Rojas
@@ -170,9 +174,13 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     case Type.FLOAT:
                     case Type.LONG:
                     case Type.DOUBLE:
+                        assert (returnValue != null);
                         assert (returnValue instanceof Number);
+                        // TODO: ideally we should be able to tell between Number as an object, and primitive numeric types
                         double value = ((Number) returnValue).doubleValue();
-                        assert (! Double.isNaN(value));
+                        if (Double.isNaN(value)) // EvoSuite generates Double.NaN
+                            continue ;
+
                         if (value < 0) {
                             goalSuffix = OutputCoverageFactory.NUM_NEGATIVE;
                         } else if (value == 0) {
