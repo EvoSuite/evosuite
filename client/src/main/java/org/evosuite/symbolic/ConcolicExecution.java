@@ -96,7 +96,6 @@ public abstract class ConcolicExecution {
 		 * VM listeners
 		 */
 		List<IVM> listeners = new ArrayList<IVM>();
-		listeners.add(new HasSymbolicVariableVM(env));
 		listeners.add(new CallVM(env, classLoader));
 		listeners.add(new JumpVM(env, pc));
 		listeners.add(new HeapVM(env, pc, classLoader));
