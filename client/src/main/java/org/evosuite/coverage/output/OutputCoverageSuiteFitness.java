@@ -137,8 +137,10 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
     public double computeDistance(List<ExecutionResult> results, HashSet<String> setOfCoveredGoals) {
         Map<String, Double> mapDistances = new HashMap<String, Double>();
         for (ExecutionResult result : results) {
-            Map<MethodStatement, Object> returnValues = result.getReturnValues();
+            if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions())
+                continue;
 
+            Map<MethodStatement, Object> returnValues = result.getReturnValues();
 
             for (Map.Entry<MethodStatement, Object> entry : returnValues.entrySet()) {
                 String className = entry.getKey().getMethod().getMethod().getDeclaringClass().getName();
@@ -170,6 +172,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     case Type.DOUBLE:
                         assert (returnValue instanceof Number);
                         double value = ((Number) returnValue).doubleValue();
+                        assert (! Double.isNaN(value));
                         if (value < 0) {
                             goalSuffix = OutputCoverageFactory.NUM_NEGATIVE;
                         } else if (value == 0) {

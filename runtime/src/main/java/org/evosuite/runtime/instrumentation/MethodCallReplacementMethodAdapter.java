@@ -41,6 +41,8 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	private final String superClassName;
 
 	private boolean needToWaitForSuperConstructor = false;
+	
+	private boolean hasBeenInstrumented = false;
 
 	/**
 	 * <p>
@@ -96,6 +98,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 				if (replacement.isTarget(owner, name, desc)
 						&& opcode == Opcodes.INVOKESPECIAL) {
 					isReplaced = true;
+					hasBeenInstrumented = true;
 					boolean isSelf = false;
 					if (needToWaitForSuperConstructor) {
 						String originalClassNameWithDots = owner.replace('/', '.');
@@ -135,6 +138,17 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 				}
 			}
 		}
-
+	}
+	
+	@Override
+	public void visitMaxs(int maxStack, int maxLocals) {
+		// The instrumentation adds a boolean to the stack at one point
+		// which _may_ increase the max stack size. A ASM
+		// doesn't manage to calculate the maximum stack size
+		// correctly we just add one here
+		if(hasBeenInstrumented)
+			super.visitMaxs(maxStack + 1, maxLocals);
+		else
+			super.visitMaxs(maxStack, maxLocals);
 	}
 }
