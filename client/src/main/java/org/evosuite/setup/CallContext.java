@@ -20,6 +20,7 @@
  */
 package org.evosuite.setup;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +31,22 @@ import java.util.List;
  * 
  * @author Gordon Fraser
  */
-public class CallContext {
+public class CallContext implements Serializable {
 
-	private static class Call {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8650619230188403356L;
 
+	private final List<Call> context = new ArrayList<Call>();
+
+	
+	private static class Call implements Serializable {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -8148115191773499144L;
 		private final String className;
 		private final String methodName;
 
@@ -112,8 +125,6 @@ public class CallContext {
 
 	}
 
-	private final List<Call> context = new ArrayList<Call>();
-
 	/**
 	 * <p>
 	 * Constructor for CallContext.
@@ -171,6 +182,9 @@ public class CallContext {
 		context.add(new Call(className, methodName));
 	}
 
+	/**
+	 * attach the className-methodname pair passed as parameter before the current context.
+	 * **/
 	public CallContext getSuperContext(String className, String methodName) {
 		CallContext copy = new CallContext();
 		copy.context.add(new Call(className, methodName));
