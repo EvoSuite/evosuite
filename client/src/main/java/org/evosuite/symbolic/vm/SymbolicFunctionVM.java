@@ -667,8 +667,8 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	}
 
 	private void beforeExecuteFunction(int nr) {
-		String desc = functionUnderExecution.getDesc();
-		if (Type.getArgumentTypes(desc).length - 1 == nr) {
+//		String desc = functionUnderExecution.getDesc();
+		if (nr ==0) {
 			callBeforeExecution(functionUnderExecution);
 		}
 	}
