@@ -159,8 +159,10 @@ public class SymbolicObserver extends ExecutionObserver {
 
 			} else if (s instanceof StringPrimitiveStatement) {
 				before((StringPrimitiveStatement) s, scope);
+				
 			} else if (s instanceof ClassPrimitiveStatement) {
 				before((ClassPrimitiveStatement) s, scope);
+
 			} else {
 				throw new UnsupportedOperationException();
 			}
@@ -1205,6 +1207,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 			} else if (s instanceof StringPrimitiveStatement) {
 				after((StringPrimitiveStatement) s, scope);
+				
 			} else if (s instanceof ClassPrimitiveStatement) {
 				after((ClassPrimitiveStatement) s, scope);
 			
