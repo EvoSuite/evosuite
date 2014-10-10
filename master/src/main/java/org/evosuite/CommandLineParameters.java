@@ -108,6 +108,8 @@ public class CommandLineParameters {
 		Option seed = new Option("seed", true, "seed for random number generator");
 		Option mem = new Option("mem", true,
 				"heap size for client process (in megabytes)");
+		Option libraryPath = new Option("libraryPath", true,
+				"java library path to native libraries of the project under test");
 		
 		Option startedByCtg = new Option("startedByCtg",false, "Determine if current process was started by a CTG process");
 
@@ -145,6 +147,7 @@ public class CommandLineParameters {
 		options.addOption(criterion);
 		options.addOption(seed);
 		options.addOption(mem);
+		options.addOption(libraryPath);
 		options.addOption(evosuiteCP);
 		options.addOption(inheritance);
 		options.addOption(base_dir);
@@ -243,6 +246,9 @@ public class CommandLineParameters {
 		 */
 		if (line.hasOption("mem")) {
 			javaOpts.add("-Xmx" + line.getOptionValue("mem") + "M");
+		}
+		if (line.hasOption("libraryPath")) {
+			javaOpts.add("-Djava.library.path=" + line.getOptionValue("libraryPath"));
 		}
 
 		if (line.hasOption("heapdump")) {
