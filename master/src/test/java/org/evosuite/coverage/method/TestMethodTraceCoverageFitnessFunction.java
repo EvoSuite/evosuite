@@ -76,7 +76,7 @@ public class TestMethodTraceCoverageFitnessFunction extends SystemTest {
 		
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(3, goals );
+		Assert.assertEquals(2, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
