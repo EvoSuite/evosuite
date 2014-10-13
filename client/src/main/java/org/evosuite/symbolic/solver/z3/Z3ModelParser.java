@@ -4,17 +4,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 class Z3ModelParser {
 
 	private final Map<String, Object> initialValues;
+	static Logger logger = LoggerFactory.getLogger(Z3ModelParser.class);
 
 	public Z3ModelParser(Map<String, Object> initialValues) {
 		this.initialValues = initialValues;
 	}
 
 	public Map<String, Object> parse(String z3ResultStr) {
-
 		Map<String, Object> solution = new HashMap<String, Object>();
+
+		Map<String, String> arraysToFuncMap = new HashMap<String,String>();
 
 		StringTokenizer tokenizer = new StringTokenizer(z3ResultStr, "() \n\t");
 		tokenizer.nextToken(); // sat
@@ -82,10 +87,37 @@ class Z3ModelParser {
 							}
 						}
 						solution.put(funcName, value);
+					} else if (typeName.equals("Array")) {
+						tokenizer.nextToken(); //Int
+						tokenizer.nextToken(); //Int
+						tokenizer.nextToken(); //_
+						tokenizer.nextToken(); //as_array
+						String arrayFuncName = tokenizer.nextToken();
+						arraysToFuncMap .put(arrayFuncName, funcName);
+					} else if (typeName.equals("x!1")) {
+						
+					} else {
+//						throw new IllegalArgumentException(
+//								"Must implement this production");
 					}
 				}
+			} else {
+//				throw new IllegalArgumentException(
+//						"Must implement this production");
 			}
 		}
+
+		if (solution.isEmpty()) {
+			logger.warn("The Z3 model has no variables");
+		} else {
+			logger.debug("Parsed values from Z3 output");
+			for (String varName : solution.keySet()) {
+				String valueOf = String.valueOf(solution.get(varName));
+				logger.debug(varName + ":" + valueOf);
+			}
+		}
+
+		logger.debug("Adding missing values to Solver solution");
 		addMissingValues(initialValues, solution);
 
 		return solution;
