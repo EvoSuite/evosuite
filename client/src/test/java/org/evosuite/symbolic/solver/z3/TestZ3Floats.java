@@ -147,7 +147,7 @@ public class TestZ3Floats {
 			Double var0 = (Double) solution.get("var0");
 			Double var1 = (Double) solution.get("var1");
 
-			assertEquals(var0.doubleValue(), Math.tan(var1.doubleValue()),
+			assertEquals(var0.doubleValue(), Math.log(var1.doubleValue()),
 					DELTA);
 
 		}

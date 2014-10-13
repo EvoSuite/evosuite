@@ -17,12 +17,17 @@
  */
 package org.evosuite.coverage.output;
 
-import org.evosuite.testcase.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.evosuite.testcase.ExecutionObserver;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.MethodStatement;
+import org.evosuite.testcase.Scope;
+import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.VariableReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Jose Miguel Rojas
@@ -59,8 +64,9 @@ public class OutputObserver extends ExecutionObserver {
             MethodStatement methodStmt = (MethodStatement) statement;
             VariableReference varRef = methodStmt.getReturnValue();
             Object returnObject = scope.getObject(varRef);
-            if (exception == null) {
+            if (exception == null && !methodStmt.getReturnType().equals(Void.TYPE)) {
                 // we don't save anything if there was an exception
+                // we are only interested in methods whose return type != void
                 returnValues.put(methodStmt, returnObject);
             }
         }

@@ -1,130 +1,136 @@
 package org.evosuite.symbolic.solver.z3;
 
+import java.text.DecimalFormat;
 
 abstract class Z3ExprBuilder {
 
-	static String mkNot(String formula) {
+	public static String mkNot(String formula) {
 		return "(not " + formula + ")";
 	}
 
-	static String mkEq(String left, String right) {
+	public static String mkEq(String left, String right) {
 		return "(= " + left + " " + right + ")";
 	}
 
-	static String mkGe(String left, String right) {
+	public static String mkGe(String left, String right) {
 		return "(>= " + left + " " + right + ")";
 	}
 
-	static String mkGt(String left, String right) {
+	public static String mkGt(String left, String right) {
 		return "(> " + left + " " + right + ")";
 	}
 
-	static String mkLe(String left, String right) {
+	public static String mkLe(String left, String right) {
 		return "(<= " + left + " " + right + ")";
 	}
 
-	static String mkLt(String left, String right) {
+	public static String mkLt(String left, String right) {
 		return "(< " + left + " " + right + ")";
 	}
 
-	static String mkBVASHR(String bv_left, String bv_right) {
+	public static String mkBVASHR(String bv_left, String bv_right) {
 		return "(bvashr " + bv_left + " " + bv_right + ")";
 	}
 
-	static String mkBVLSHR(String bv_left, String bv_right) {
+	public static String mkBVLSHR(String bv_left, String bv_right) {
 		return "(bvlshr " + bv_left + " " + bv_right + ")";
 	}
 
-	static String mkBVSHL(String bv_left, String bv_right) {
+	public static String mkBVSHL(String bv_left, String bv_right) {
 		return "(bvshl " + bv_left + " " + bv_right + ")";
 	}
 
-	static String mkBVXOR(String bv_left, String bv_right) {
+	public static String mkBVXOR(String bv_left, String bv_right) {
 		return "(bvxor " + bv_left + " " + bv_right + ")";
 	}
 
-	static String mkBVAND(String bv_left, String bv_right) {
+	public static String mkBVAND(String bv_left, String bv_right) {
 		return "(bvand " + bv_left + " " + bv_right + ")";
 	}
 
-	static String mkBV2Int(String bv_expr, boolean b) {
+	public static String mkBV2Int(String bv_expr, boolean b) {
 		return "(bv2int " + bv_expr + ")";
 	}
 
-	static String mkBVOR(String bv_left, String bv_right) {
+	public static String mkBVOR(String bv_left, String bv_right) {
 		return "(bvor " + bv_left + " " + bv_right + ")";
 	}
 
-	static String mkInt2BV(int bitwidth, String intExpr) {
+	public static String mkInt2BV(int bitwidth, String intExpr) {
 		return "((_ int2bv " + bitwidth + ")" + intExpr + ")";
 	}
 
-	static String mkRealDiv(String left, String right) {
+	public static String mkRealDiv(String left, String right) {
 		return "(/ " + left + " " + right + ")";
 	}
 
-	static String mkDiv(String left, String right) {
+	public static String mkDiv(String left, String right) {
 		return "(div " + left + " " + right + ")";
 	}
 
-	static String mkRem(String left, String right) {
+	public static String mkRem(String left, String right) {
 		return "(rem " + left + " " + right + ")";
 	}
 
-	static String mkAdd(String left, String right) {
+	public static String mkAdd(String left, String right) {
 		return "(+ " + left + " " + right + ")";
 	}
 
-	static String mkSub(String left, String right) {
+	public static String mkSub(String left, String right) {
 		return "(- " + left + " " + right + ")";
 	}
 
-	static String mkMul(String left, String right) {
+	public static String mkMul(String left, String right) {
 		return "(* " + left + " " + right + ")";
 	}
 
-	static String mkITE(String condition, String thenExpr, String elseExpr) {
+	public static String mkITE(String condition, String thenExpr,
+			String elseExpr) {
 		return "(ite " + condition + " " + thenExpr + " " + elseExpr + ")";
 	}
 
-	static String mkToReal(String operand) {
+	public static String mkToReal(String operand) {
 		return "(to_real " + operand + ")";
 	}
 
-	static String mkStringLiteral(String str) {
+	public static String mkStringLiteral(String str) {
 		return "\"" + str + "\"";
 	}
 
-	static String mkNeg(String intExpr) {
+	public static String mkNeg(String intExpr) {
 		return "(- " + intExpr + ")";
 	}
 
-	static String mkAssert(String constraintStr) {
+	public static String mkAssert(String constraintStr) {
 		return "(assert " + constraintStr + ")";
 	}
 
-	static String mkStringVariable(String varName) {
+	public static String mkStringVariable(String varName) {
 		return "(declare-const " + varName + " (Array (Int) (Int)))";
 	}
 
-	static String mkRealVariable(String varName) {
+	public static String mkRealVariable(String varName) {
 		return "(declare-const " + varName + " Real)";
 	}
 
-	static String mkIntVariable(String varName) {
+	public static String mkIntVariable(String varName) {
 		return "(declare-const " + varName + " Int)";
 	}
 
-	static String mkRealConstant(double doubleVal) {
+	private static DecimalFormat DECIMAL_FORMAT = new DecimalFormat(
+			"################.################");
+
+	public static String mkRealConstant(double doubleVal) {
 		if (doubleVal < 0) {
-			return "(- " + Double.toString(Math.abs(doubleVal)) + ")";
+			String magnitudeStr = DECIMAL_FORMAT.format(Math.abs(doubleVal));
+			return "(- " + magnitudeStr + ")";
 		} else {
-			String doubleStr = Double.toString(doubleVal);
+			String doubleStr = DECIMAL_FORMAT.format(doubleVal);
 			return doubleStr;
 		}
 	}
 
-	static String mkIntegerConstant(long longVal) {
+	public static String mkIntegerConstant(long longVal) {
 		if (longVal < 0) {
 			return "(- " + Long.toString(Math.abs(longVal)) + ")";
 		} else {
@@ -133,7 +139,7 @@ abstract class Z3ExprBuilder {
 		}
 	}
 
-	static String mkReal2Int(String operandStr) {
+	public static String mkReal2Int(String operandStr) {
 		return "(to_int " + operandStr + ")";
 	}
 
@@ -174,7 +180,7 @@ abstract class Z3ExprBuilder {
 		return "(Concat " + left + " " + right + ")";
 	}
 
-	static String encodeString(String str) {
+	public static String encodeString(String str) {
 		char[] charArray = str.toCharArray();
 		String ret_val = "__cOnStStR_";
 		for (int i = 0; i < charArray.length; i++) {

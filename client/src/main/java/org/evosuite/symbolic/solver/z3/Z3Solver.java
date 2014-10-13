@@ -36,102 +36,18 @@ public class Z3Solver extends Solver {
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
 			throws ConstraintSolverTimeoutException {
 
+		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
+
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		for (Constraint<?> c : constraints) {
 			Set<Variable<?>> c_variables = c.getVariables();
 			variables.addAll(c_variables);
 		}
 
-		Map<String, String> stringConstants = new HashMap<String, String>();
-
-		List<String> assertions = new LinkedList<String>();
-		for (Constraint<?> c : constraints) {
-			ConstraintToZ3Visitor v = new ConstraintToZ3Visitor(stringConstants);
-			String bool_expr = c.accept(v, null);
-			if (bool_expr != null) {
-				assertions.add(bool_expr);
-			}
-		}
-
-		// add string axioms
-		for (String string_constant : stringConstants.keySet()) {
-			String arrayExpr = stringConstants.get(string_constant);
-
-			String strLen = Z3ExprBuilder.mkApp(STR_LENGTH, arrayExpr);
-			String str_len_axiom = Z3ExprBuilder.mkEq(strLen,
-					Z3ExprBuilder.mkIntegerConstant(string_constant.length()));
-
-			assertions.add(str_len_axiom);
-
-			for (int i = 0; i < string_constant.length(); i++) {
-				int charV = (int) string_constant.charAt(i);
-				String string_i = Z3ExprBuilder.mkEq(
-						Z3ExprBuilder.mkSelect(arrayExpr,
-								Z3ExprBuilder.mkIntegerConstant(i)),
-						Z3ExprBuilder.mkIntegerConstant(charV));
-				assertions.add(string_i);
-			}
-		}
-
-		logger.debug("Creating new Z3 Solver");
-		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
-		logger.debug("Setting Z3 soft_timeout to " + timeout + " ms");
-
-		StringBuffer smtQuery = new StringBuffer();
-		smtQuery.append("(set-option :timeout " + timeout + ")");
-		smtQuery.append("\n");
-
-		for (Variable<?> v : variables) {
-			String varName = v.getName();
-			if (v instanceof IntegerVariable) {
-				String intVar = Z3ExprBuilder.mkIntVariable(varName);
-				smtQuery.append(intVar);
-				smtQuery.append("\n");
-			} else if (v instanceof RealVariable) {
-				String realVar = Z3ExprBuilder.mkRealVariable(varName);
-				smtQuery.append(realVar);
-				smtQuery.append("\n");
-			} else if (v instanceof StringVariable) {
-				String stringVar = Z3ExprBuilder.mkStringVariable(varName);
-				smtQuery.append(stringVar);
-				smtQuery.append("\n");
-			} else {
-				throw new RuntimeException("Unknown variable type "
-						+ v.getClass().getCanonicalName());
-			}
-		}
-
-		for (String string_constant : stringConstants.keySet()) {
-			String arrayExpr = stringConstants.get(string_constant);
-			smtQuery.append("(declare-const " + arrayExpr + " (Array (Int Int) Int))");
-			smtQuery.append("\n");
-		}		
-		
-		Z3Function strLength = createStringLength();
-		smtQuery.append(strLength.getFunctionDeclaration());
-		smtQuery.append("\n");
-
-		for (String axiom : strLength.getAxioms()) {
-			smtQuery.append("(assert " + axiom + ")");
-			smtQuery.append("\n");
-		}
-
-		for (String formula : assertions) {
-			smtQuery.append("(assert " + formula + ")");
-			smtQuery.append("\n");
-		}
-
-		smtQuery.append("(check-sat)");
-		smtQuery.append("\n");
-
-		smtQuery.append("(get-model)");
-		smtQuery.append("\n");
-
-		smtQuery.append("(exit)");
-		smtQuery.append("\n");
+		String smtQuery = buildSmtQuery(constraints, variables, timeout);
 
 		logger.debug("Z3 Query:");
-		logger.debug(smtQuery.toString());
+		logger.debug(smtQuery);
 
 		if (Properties.Z3_PATH == null) {
 			logger.error("Property Z3_PATH should be setted in order to use the Z3 Solver!");
@@ -165,7 +81,7 @@ public class Z3Solver extends Solver {
 				logger.debug("Z3 outcome was UNSAT");
 				return null;
 			} else {
-				logger.warn("Unknown Z3 outcome");
+				logger.error("Z3 output is unknown. We are unable to parse it to a proper solution!");
 				return null;
 			}
 
@@ -176,7 +92,99 @@ public class Z3Solver extends Solver {
 		}
 	}
 
-	private Z3Function createStringLength() {
+	private static String buildSmtQuery(Collection<Constraint<?>> constraints,
+			Set<Variable<?>> variables, long timeout) {
+		Map<String, String> stringConstants = new HashMap<String, String>();
+
+		List<String> assertions = new LinkedList<String>();
+		for (Constraint<?> c : constraints) {
+			ConstraintToZ3Visitor v = new ConstraintToZ3Visitor(stringConstants);
+			String bool_expr = c.accept(v, null);
+			if (bool_expr != null) {
+				assertions.add(bool_expr);
+			}
+		}
+
+		// add string axioms
+		for (String string_constant : stringConstants.keySet()) {
+			String arrayExpr = stringConstants.get(string_constant);
+
+			String strLen = Z3ExprBuilder.mkApp(STR_LENGTH, arrayExpr);
+			String str_len_axiom = Z3ExprBuilder.mkEq(strLen,
+					Z3ExprBuilder.mkIntegerConstant(string_constant.length()));
+
+			assertions.add(str_len_axiom);
+
+			for (int i = 0; i < string_constant.length(); i++) {
+				int charV = (int) string_constant.charAt(i);
+				String string_i = Z3ExprBuilder.mkEq(
+						Z3ExprBuilder.mkSelect(arrayExpr,
+								Z3ExprBuilder.mkIntegerConstant(i)),
+						Z3ExprBuilder.mkIntegerConstant(charV));
+				assertions.add(string_i);
+			}
+		}
+
+		logger.debug("Creating new Z3 Solver");
+		logger.debug("Setting Z3 soft_timeout to " + timeout + " ms");
+
+		StringBuffer smtQuery = new StringBuffer();
+		smtQuery.append("(set-option :timeout " + timeout + ")");
+		smtQuery.append("\n");
+
+		for (Variable<?> v : variables) {
+			String varName = v.getName();
+			if (v instanceof IntegerVariable) {
+				String intVar = Z3ExprBuilder.mkIntVariable(varName);
+				smtQuery.append(intVar);
+				smtQuery.append("\n");
+			} else if (v instanceof RealVariable) {
+				String realVar = Z3ExprBuilder.mkRealVariable(varName);
+				smtQuery.append(realVar);
+				smtQuery.append("\n");
+			} else if (v instanceof StringVariable) {
+				String stringVar = Z3ExprBuilder.mkStringVariable(varName);
+				smtQuery.append(stringVar);
+				smtQuery.append("\n");
+			} else {
+				throw new RuntimeException("Unknown variable type "
+						+ v.getClass().getCanonicalName());
+			}
+		}
+
+		for (String string_constant : stringConstants.keySet()) {
+			String arrayExpr = stringConstants.get(string_constant);
+			smtQuery.append("(declare-const " + arrayExpr
+					+ " (Array (Int Int) Int))");
+			smtQuery.append("\n");
+		}
+
+		Z3Function strLength = createStringLength();
+		smtQuery.append(strLength.getFunctionDeclaration());
+		smtQuery.append("\n");
+
+		for (String axiom : strLength.getAxioms()) {
+			smtQuery.append("(assert " + axiom + ")");
+			smtQuery.append("\n");
+		}
+
+		for (String formula : assertions) {
+			smtQuery.append("(assert " + formula + ")");
+			smtQuery.append("\n");
+		}
+
+		smtQuery.append("(check-sat)");
+		smtQuery.append("\n");
+
+		smtQuery.append("(get-model)");
+		smtQuery.append("\n");
+
+		smtQuery.append("(exit)");
+		smtQuery.append("\n");
+		return smtQuery.toString();
+	}
+
+	private static Z3Function createStringLength() {
 		//function declaration
 		String arraySort = "(Array (Int) (Int))";
 		String arrayLengthSort = "Int";
