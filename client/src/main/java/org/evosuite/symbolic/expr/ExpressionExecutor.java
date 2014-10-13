@@ -333,9 +333,9 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 		case IS_INTEGER: {
 			try {
 				Integer.parseInt(exOn);
-				return 1;
+				return 1L;
 			} catch (NumberFormatException ex) {
-				return 0;
+				return 0L;
 			}
 		}
 
