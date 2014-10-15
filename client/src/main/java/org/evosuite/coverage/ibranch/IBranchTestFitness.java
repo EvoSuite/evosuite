@@ -126,7 +126,7 @@ public class IBranchTestFitness extends TestFitnessFunction {
 
 	@Override
 	public String toString() {
-		return "Branch " + branchGoal + " in context: " + context.toString();
+		return "\n Branch " + branchGoal + " in context: " + context.toString();
 	}
 
 	/* (non-Javadoc)
