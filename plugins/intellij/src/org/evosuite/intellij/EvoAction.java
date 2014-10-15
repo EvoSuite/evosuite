@@ -30,10 +30,6 @@ import java.util.*;
  */
 public class EvoAction extends AnAction {
 
-    //com.intellij.ide.util.PropertiesComponent
-    //TODO should save used configurations from previous IntelliJ runs
-    private static final EvoParameters params = new EvoParameters();
-
     private final ToolWindow toolWindow;
     private final ConsoleViewImpl console;
 
@@ -63,7 +59,7 @@ public class EvoAction extends AnAction {
         }
 
         EvoStartDialog dialog = new EvoStartDialog();
-        dialog.initFields(params);
+        dialog.initFields(project, EvoParameters.getInstance());
         dialog.setModal(true);
         dialog.setLocationRelativeTo(null);
         //dialog.setLocationByPlatform(true);
@@ -78,7 +74,7 @@ public class EvoAction extends AnAction {
             });
 
             IntelliJNotifier notifier = new IntelliJNotifier(project, title, console);
-            MavenExecutor.getInstance().run(params,map,notifier);
+            MavenExecutor.getInstance().run(EvoParameters.getInstance(),map,notifier);
         }
     }
 

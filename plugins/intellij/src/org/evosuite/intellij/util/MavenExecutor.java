@@ -34,6 +34,8 @@ public class MavenExecutor {
         return false;
     }
 
+    //TODO should refactor 'final EvoParameters params' to be independent from IntelliJ
+
 
     /**
      * @param params
@@ -114,9 +116,9 @@ public class MavenExecutor {
         list.add("mvn");
         list.add("compile");
         list.add("evosuite:generate");
-        list.add("-Dcores=" + params.cores);
-        list.add("-DmemoryInMB=" + params.memory);
-        list.add("-DtimeInMinutesPerClass=" + params.time);
+        list.add("-Dcores=" + params.getCores());
+        list.add("-DmemoryInMB=" + params.getMemory());
+        list.add("-DtimeInMinutesPerClass=" + params.getTime());
 
         if (classes != null && !classes.isEmpty()) {
             String s = classes.get(0).trim();
@@ -127,7 +129,7 @@ public class MavenExecutor {
         }
 
         list.add("evosuite:export");
-        list.add("-DtargetFolder=" + params.folder);
+        list.add("-DtargetFolder=" + params.getFolder());
 
         String[] command = list.toArray(new String[list.size()]);
 
