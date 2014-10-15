@@ -164,7 +164,9 @@ public enum RuntimeVariable {
 	/** Number of top-level methods throwing an undeclared exception implicitly (ie, no 'new throw') */
 	Implicit_MethodExceptions, 
 	/** Number of undeclared exception types that were implicitly thrown (ie, no 'new throw') at least once */
-	Implicit_TypeExceptions, 
+	Implicit_TypeExceptions,
+    /** Total number of exceptions covered */
+    TotalExceptionsTimeline,
 	/* ----- number of unique permissions that were denied for each kind --- */
 	AllPermission,
 	SecurityPermission,
