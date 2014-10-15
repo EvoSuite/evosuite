@@ -3,11 +3,13 @@
  */
 package org.evosuite.coverage.ibranch;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -24,17 +26,25 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = -4745892521350308986L;
 
 	private final List<IBranchTestFitness> branchGoals;
-
+	private final List<IBranchTestFitness> sutBranchGoals;
 	private static double bestFitness = Double.MAX_VALUE;
 
 	private final BranchCoverageSuiteFitness branchFitness = new BranchCoverageSuiteFitness();
 
+	//XXX TODO remove prints System.out
 	public IBranchSuiteFitness() {
+		sutBranchGoals= new ArrayList<>();
+		String toprint = ""; //remove
 		IBranchFitnessFactory factory = new IBranchFitnessFactory();
 		branchGoals = factory.getCoverageGoals();
 		for (IBranchTestFitness goal : branchGoals) {
 			logger.info("Context goal: " + goal.toString());
+			toprint = toprint + "/n" + goal.toString();
+			if(goal.getTargetClass().equals(Properties.TARGET_CLASS)){
+				sutBranchGoals.add(goal);
+			}
 		}
+		logger.error(toprint);
 	}
 
 	private Map<IBranchTestFitness, Double> getDefaultDistanceMap() {
@@ -85,9 +95,9 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 				//logger.info("No match");
 			}
 		}
-
-		throw new RuntimeException("Could not find goal for " + branchId + ", context "
-		        + context);
+		return null;
+//		throw new RuntimeException("Could not find goal for " + branchId + ", context "
+//		        + context);
 	}
 
 	/* (non-Javadoc)
@@ -111,6 +121,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					//        + entry.getKey() + " in context " + value.getKey());
 					IBranchTestFitness goal = getContextGoal(entry.getKey(),
 					                                         value.getKey(), true);
+					if(goal==null) continue;
 					double distance = normalize(value.getValue());
 					//logger.info("True distance for goal " + goal + ": "
 					//        + value.getValue());
@@ -125,6 +136,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					//        + entry.getKey() + " in context " + value.getKey());
 					IBranchTestFitness goal = getContextGoal(entry.getKey(),
 					                                         value.getKey(), false);
+					if(goal==null) continue;
 					double distance = normalize(value.getValue());
 					//logger.info("False distance for goal " + goal + ": "
 					//        + value.getValue());
@@ -139,6 +151,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 				for (Entry<CallContext, Integer> value : entry.getValue().entrySet()) {
 					IBranchTestFitness goal = getContextGoal(entry.getKey(),
 					                                         value.getKey(), true);
+					if(goal==null) continue;
 					int count = value.getValue();
 					if (callCount.get(goal) < count) {
 						callCount.put(goal, count);
@@ -166,19 +179,25 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		int numCoveredGoals = 0;
+		int numSUTCoveredBanches = 0;
 		for (IBranchTestFitness goal : branchGoals) {
 			double distance = distanceMap.get(goal);
 			int count = callCount.get(goal);
 
 			if (goal.getBranch() == null) {
-				if (count == 0)
+				if (count == 0) {
 					fitness += 1;
-				else
+				} else {
 					numCoveredGoals++;
+					if(sutBranchGoals.contains(goal))
+						numSUTCoveredBanches++;
+				}
 			} else {
-				if (count > 0 && distance == 0.0)
+				if (count > 0 && distance == 0.0) {
 					numCoveredGoals++;
-
+					if (sutBranchGoals.contains(goal))
+						numSUTCoveredBanches++;
+				}
 				// If branch is called exactly once in that context, 
 				// then the sum of false and true distance must be 1
 				if (count == 1)
@@ -202,10 +221,17 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 			}
 		}
 		*/
+		
 		if (!branchGoals.isEmpty())
-			suite.setCoverage(this, (double) numCoveredGoals / (double) branchGoals.size());
+			suite.setCoverage(this, (double) numSUTCoveredBanches / (double) sutBranchGoals.size());
+//			suite.setCoverage(this, (double) numCoveredGoals / (double) branchGoals.size());
 
 		suite.setNumOfCoveredGoals(this, numCoveredGoals);
+
+		if(numSUTCoveredBanches== sutBranchGoals.size()){
+			numCoveredGoals = this.branchGoals.size();
+			fitness = 0.0;
+		}
 		updateIndividual(this, suite, fitness);
 
 		return fitness;
