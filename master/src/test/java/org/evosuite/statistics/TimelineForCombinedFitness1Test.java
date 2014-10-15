@@ -1,18 +1,12 @@
 package org.evosuite.statistics;
 
-import com.examples.with.different.packagename.Calculator;
 import com.examples.with.different.packagename.Compositional;
-import com.examples.with.different.packagename.ExampleGradientBranches;
-import com.examples.with.different.packagename.statistics.MultiThreads;
-import com.examples.with.different.packagename.statistics.NoThreads;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Map;
 
