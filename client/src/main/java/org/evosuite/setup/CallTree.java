@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author Gordon Fraser
  * 
  */
+@Deprecated
 public class CallTree implements Iterable<CallTreeEntry> {
 
 	private static final Logger logger = LoggerFactory.getLogger(CallTree.class);
@@ -160,7 +161,6 @@ public class CallTree implements Iterable<CallTreeEntry> {
 				contexts.addAll(getDirectCallingContext(className, methodName));
 			}
 		}
-		logger.error("EEEE "+ calls);
 		return contexts;
 	}
 

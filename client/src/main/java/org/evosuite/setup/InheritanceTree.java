@@ -20,6 +20,9 @@
  */
 package org.evosuite.setup;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -31,6 +34,8 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.graph.EdgeReversedGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
@@ -40,12 +45,49 @@ public class InheritanceTree {
 
 	private final Map<String, Set<String>> subclassCache = new LinkedHashMap<String, Set<String>>();
 
+	private static Logger logger = LoggerFactory
+			.getLogger(InheritanceTree.class);
+
+	private Map<String, Set<String>> analyzedMethods;
+		
 	private DirectedMultigraph<String, DefaultEdge> inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(
 	        DefaultEdge.class);
 
-	public boolean isMethodDefined(String className, String methodName) {
-		return false;
+	private void initialiseMap(){
+		if (analyzedMethods == null)
+			analyzedMethods = new HashMap<>();
 	}
+	
+	public boolean isClassDefined(String className){
+		initialiseMap();
+		return analyzedMethods.containsKey(className);
+	}
+	
+	public boolean isMethodDefined(String className, String methodNameWdescriptor) {
+		initialiseMap();
+		
+		if(analyzedMethods.get(className)==null) return false;
+		return analyzedMethods.get(className).contains(methodNameWdescriptor);
+	}
+	
+	public boolean isMethodDefined(String className, String methodName, String descriptor) {
+		initialiseMap();
+		
+		if(analyzedMethods.get(className)==null) return false;
+		return analyzedMethods.get(className).contains(methodName+descriptor);
+	}
+	
+	//TODO the initialization in the clinit dosen't work, no idea why - mattia
+	public void addAnalyzedMethod(String classname, String methodname, String descriptor) {
+		initialiseMap();
+		classname = classname.replace(File.separator, ".");
+		Set<String> tmp = analyzedMethods.get(classname);
+		if(tmp==null)
+			analyzedMethods.put(classname, tmp = new HashSet<String>());
+		tmp.add(methodname+descriptor);
+	}
+	
+	
 
 	public void addSuperclass(String className, String superName, int access) {
 		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);

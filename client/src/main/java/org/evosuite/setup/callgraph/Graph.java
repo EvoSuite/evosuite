@@ -15,15 +15,15 @@ import java.util.Set;
 public abstract class Graph<E> {
 
 	private final Map<E, Set<E>> edges = new HashMap<E, Set<E>>();
-	private final Set<E> edgesSet = new HashSet<E>();
+	private final Set<E> vertexSet = new HashSet<E>();
 	
 	public Map<E, Set<E>> getEdges() {
 		return edges;
 	}
 	
 	public void addEdge(E src, E dest) {
-		edgesSet.add(src);
-		edgesSet.add(dest);
+		vertexSet.add(src);
+		vertexSet.add(dest);
 		Set<E> srcNeighbors = this.edges.get(src);
 		if (srcNeighbors == null) {
 			this.edges.put(src, srcNeighbors = new LinkedHashSet<E>());
@@ -31,8 +31,12 @@ public abstract class Graph<E> {
 		srcNeighbors.add(dest);
 	}
 	
+	public Set<E> getVertexSet() {
+		return vertexSet;
+	}
+	
 	public boolean containsVertex(E e){
-		return edgesSet.contains(e);
+		return vertexSet.contains(e);
 	}
 
 	public Iterable<E> getNeighbors(E vertex) {

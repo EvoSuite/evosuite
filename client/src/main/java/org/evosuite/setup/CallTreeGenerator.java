@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * @author Gordon Fraser
  * 
  */
+@Deprecated
 public class CallTreeGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(CallTreeGenerator.class);
