@@ -49,6 +49,8 @@ public class PluginRegistration implements ProjectComponent { //implements Appli
     @Override
     public void projectOpened() {
 
+        EvoParameters.getInstance().load(project);
+
         ActionManager am = ActionManager.getInstance();
 
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
@@ -57,9 +59,11 @@ public class PluginRegistration implements ProjectComponent { //implements Appli
         toolWindow.setType(ToolWindowType.DOCKED, null);
 
         ConsoleViewImpl console = (ConsoleViewImpl) TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
-
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(console.getComponent(), "", false);
+
+
+        //TODO we also need a STOP button, eg on left-side pane
 
         toolWindow.getContentManager().addContent(content);
 
@@ -78,7 +82,7 @@ public class PluginRegistration implements ProjectComponent { //implements Appli
 
     @Override
     public void projectClosed() {
-
+        EvoParameters.getInstance().save(project);
     }
 
 }
