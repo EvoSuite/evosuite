@@ -21,6 +21,9 @@
 package org.evosuite.setup.callgraph;
 
 /**
+ * class name - method name pair
+ * adapted from CallTreeEntry
+ * 
  * @author mattia
  * 
  */

@@ -49,6 +49,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -251,6 +252,13 @@ public class InheritanceTreeGenerator {
 			        | ClassReader.SKIP_CODE);
 			logger.debug("Analyzing class " + cn.name);
 
+			if ((Opcodes.ACC_INTERFACE & cn.access) != Opcodes.ACC_INTERFACE) {
+				for (Object m : cn.methods) {
+					MethodNode mn = (MethodNode) m;
+					inheritanceTree
+							.addAnalyzedMethod(cn.name, mn.name, mn.desc);
+				}
+			}
 			if (onlyPublic) {
 				if ((cn.access & Opcodes.ACC_PUBLIC) == 0) {
 					return;

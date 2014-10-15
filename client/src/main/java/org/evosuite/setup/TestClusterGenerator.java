@@ -126,7 +126,7 @@ public class TestClusterGenerator {
 		TestCluster.setInheritanceTree(inheritanceTree);
 
 		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
-			for (String callTreeClass : DependencyAnalysis.getCallTree().getClasses()) {
+			for (String callTreeClass : DependencyAnalysis.getCallGraph().getClasses()) {
 				try {
 					TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(callTreeClass);
 				} catch (ClassNotFoundException e) {

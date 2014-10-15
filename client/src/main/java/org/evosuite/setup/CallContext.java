@@ -40,6 +40,9 @@ public class CallContext implements Serializable {
 
 	private final List<Call> context = new ArrayList<Call>();
 
+	public boolean isEmpty(){
+		return context.isEmpty();
+	}
 	
 	private static class Call implements Serializable {
 
@@ -184,7 +187,7 @@ public class CallContext implements Serializable {
 
 	/**
 	 * attach the className-methodname pair passed as parameter before the current context.
-	 * **/
+	 **/
 	public CallContext getSuperContext(String className, String methodName) {
 		CallContext copy = new CallContext();
 		copy.context.add(new Call(className, methodName));
@@ -237,9 +240,10 @@ public class CallContext implements Serializable {
 		StringBuilder builder = new StringBuilder();
 		for (Call call : context) {
 			builder.append(call.toString());
-			builder.append("\n");
+			builder.append(" ");
 		}
-		return builder.toString();
+		String tmp = builder.toString();
+		return tmp.trim();
 	}
 
 	@Override

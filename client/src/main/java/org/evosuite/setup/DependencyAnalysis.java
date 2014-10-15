@@ -36,6 +36,8 @@ import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.setup.callgraph.CallGraphGenerator;
+import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
 import org.junit.Test;
@@ -53,11 +55,12 @@ import org.slf4j.LoggerFactory;
  */
 public class DependencyAnalysis {
 
-	private static Logger logger = LoggerFactory.getLogger(DependencyAnalysis.class);
-	
+	private static Logger logger = LoggerFactory
+			.getLogger(DependencyAnalysis.class);
+
 	private static Map<String, ClassNode> classCache = new LinkedHashMap<String, ClassNode>();
 
-	private static CallTree callTree = null;
+	private static CallGraph callGraph = null;
 
 	private static InheritanceTree inheritanceTree = null;
 
@@ -74,45 +77,59 @@ public class DependencyAnalysis {
 	 * @param className
 	 */
 	public static void analyze(String className, List<String> classPath)
-	        throws RuntimeException, ClassNotFoundException {
-		
-		logger.debug("Calculate inheritance hierarchy");		
-		inheritanceTree = InheritanceTreeGenerator.createFromClassPath(classPath);
+			throws RuntimeException, ClassNotFoundException { 
+		logger.debug("Calculate inheritance hierarchy");
+		inheritanceTree = InheritanceTreeGenerator
+				.createFromClassPath(classPath);
 		InheritanceTreeGenerator.gatherStatistics(inheritanceTree);
-		if(!inheritanceTree.hasClass(Properties.TARGET_CLASS)) {
-			throw new ClassNotFoundException("Target class not found in inheritance tree");
+
+		if (!inheritanceTree.hasClass(Properties.TARGET_CLASS)) {
+			throw new ClassNotFoundException(
+					"Target class not found in inheritance tree");
 		}
 
 		logger.debug("Calculate call tree");
-		callTree = CallTreeGenerator.analyze(className);
+		callGraph = CallGraphGenerator.analyze(className);
 		loadCallTreeClasses();
 		
-		// TODO: Need to make sure that all classes in calltree are instrumented
+		//include all the project classes in the inheritance tree and in the callgraph.
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
+				|| Properties.INSTRUMENT_CONTEXT) {
+			for (String classn : inheritanceTree.getAllClasses()) {
+				if (isTargetProject(classn)) {
+					CallGraphGenerator.analyzeOtherClasses(callGraph, classn);
+				}
+			}
+		}
 
+		// TODO: Need to make sure that all classes in calltree are instrumented
+		
+		
 		logger.debug("Update call tree with calls to overridden methods");
-		CallTreeGenerator.update(callTree, inheritanceTree);
+		CallGraphGenerator.update(callGraph, inheritanceTree);
 
 		logger.debug("Create test cluster");
 		TestClusterGenerator clusterGenerator = new TestClusterGenerator();
 		clusterGenerator.generateCluster(className, inheritanceTree);
-		
+
 		gatherStatistics();
 	}
 
 	private static void loadCallTreeClasses() {
-		for(String className : callTree.getClasses()) {
-			if(className.startsWith(Properties.TARGET_CLASS+"$")) {
+		for (String className : callGraph.getClasses()) {
+			if (className.startsWith(Properties.TARGET_CLASS + "$")) {
 				try {
-					Class.forName(className, true, TestGenerationContext.getInstance().getClassLoaderForSUT());
-				} catch(ClassNotFoundException e) {
-					logger.debug("Error loading "+className+ ": "+e);
+					Class.forName(className, true, TestGenerationContext
+							.getInstance().getClassLoaderForSUT());
+				} catch (ClassNotFoundException e) {
+					logger.debug("Error loading " + className + ": " + e);
 				}
 			}
 		}
 	}
-	
-	public static CallTree getCallTree() {
-		return callTree;
+
+	public static CallGraph getCallGraph() {
+		return callGraph;
 	}
 
 	/**
@@ -156,18 +173,40 @@ public class DependencyAnalysis {
 	 */
 	public static boolean isTargetClassName(String className) {
 		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
-		        && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
+				&& className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
 			// exclude existing tests from the target project
 			return !isTest(className);
 		}
 		if (className.equals(Properties.TARGET_CLASS)
-		        || className.startsWith(Properties.TARGET_CLASS + "$")) {
+				|| className.startsWith(Properties.TARGET_CLASS + "$")) {
 			return true;
 		}
-
 		return false;
 
 	}
+
+	//TODO implement something that takes parameters using properties - generalize this method. 
+	public static boolean isTargetProject(String className) {
+		return (className.startsWith(Properties.PROJECT_PREFIX) || (!Properties.TARGET_CLASS_PREFIX
+				.isEmpty() && className
+				.startsWith(Properties.TARGET_CLASS_PREFIX)))
+				&& !className.startsWith("java.")
+				&& !className.startsWith("sun.")
+				&& !className.startsWith("org.evosuite")
+				&& !className.startsWith("org.exsyst")
+				&& !className.startsWith("de.unisb.cs.st.evosuite")
+				&& !className.startsWith("de.unisb.cs.st.specmate")
+				&& !className.startsWith("javax.")
+				&& !className.startsWith("org.xml")
+				&& !className.startsWith("org.w3c")
+				&& !className.startsWith("apple.")
+				&& !className.startsWith("com.apple.")
+				&& !className.startsWith("org.omg.")
+				&& !className.startsWith("sunw.")
+				&& !className.startsWith("org.jcp.")
+				&& !className.startsWith("org.ietf.")
+				&& !className.startsWith("daikon.");
+		}
 
 	/**
 	 * Determine if the given class should be analyzed or instrumented
@@ -182,13 +221,16 @@ public class DependencyAnalysis {
 
 		// Also analyze if it is a superclass and instrument_parent = true
 		if (Properties.INSTRUMENT_PARENT) {
-			if (inheritanceTree.getSuperclasses(Properties.TARGET_CLASS).contains(className))
+			if (inheritanceTree.getSuperclasses(Properties.TARGET_CLASS)
+					.contains(className))
 				return true;
 		}
 
-		// Also analyze if it is in the calltree and we are considering the context
-		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
-			if (callTree.isCalledClass(className)) {
+		// Also analyze if it is in the calltree and we are considering the
+		// context
+		if (Properties.INSTRUMENT_CONTEXT
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
+			if (callGraph.isCalledClass(className)) {
 				return true;
 			}
 		}
@@ -210,13 +252,15 @@ public class DependencyAnalysis {
 
 		// Also analyze if it is a superclass and instrument_parent = true
 		if (Properties.INSTRUMENT_PARENT) {
-			if (inheritanceTree.getSuperclasses(Properties.TARGET_CLASS).contains(className))
+			if (inheritanceTree.getSuperclasses(Properties.TARGET_CLASS)
+					.contains(className))
 				return true;
 		}
 
-		// Also analyze if it is in the calltree and we are considering the context
+		// Also analyze if it is in the calltree and we are considering the
+		// context
 		if (Properties.INSTRUMENT_CONTEXT) {
-			if (callTree.isCalledMethod(className, methodName))
+			if (callGraph.isCalledMethod(className, methodName))
 				return true;
 		}
 
@@ -244,36 +288,73 @@ public class DependencyAnalysis {
 		ClassReader reader = new ClassReader(className);
 
 		ClassNode cn = new ClassNode();
-		reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG);	
+		reader.accept(cn, ClassReader.SKIP_FRAMES); // |
+													// ClassReader.SKIP_DEBUG);
 		return cn;
 	}
-	
-	private static void gatherStatistics() {
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Predicates, BranchPool.getBranchCounter());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.CoveredBranchesBitString, (BranchPool.getBranchCounter()) * 2);
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Branches, (BranchPool.getBranchCounter()) * 2);
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Branchless_Methods, BranchPool.getBranchlessMethods().size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Methods, CFGMethodAdapter.getNumMethods());
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Lines, LinePool.getNumLines());
+	private static void gatherStatistics() {
+		ClientServices
+				.getInstance()
+				.getClientNode()
+				.trackOutputVariable(RuntimeVariable.Predicates,
+						BranchPool.getBranchCounter());
+		ClientServices
+				.getInstance()
+				.getClientNode()
+				.trackOutputVariable(RuntimeVariable.CoveredBranchesBitString,
+						(BranchPool.getBranchCounter()) * 2);
+		ClientServices
+				.getInstance()
+				.getClientNode()
+				.trackOutputVariable(RuntimeVariable.Total_Branches,
+						(BranchPool.getBranchCounter()) * 2);
+		ClientServices
+				.getInstance()
+				.getClientNode()
+				.trackOutputVariable(RuntimeVariable.Branchless_Methods,
+						BranchPool.getBranchlessMethods().size());
+		ClientServices
+				.getInstance()
+				.getClientNode()
+				.trackOutputVariable(RuntimeVariable.Total_Methods,
+						CFGMethodAdapter.getNumMethods());
+
+		ClientServices
+				.getInstance()
+				.getClientNode()
+				.trackOutputVariable(RuntimeVariable.Lines,
+						LinePool.getNumLines());
 
 		for (Properties.Criterion pc : Properties.CRITERION) {
-		    switch(pc) {
-        		case DEFUSE:
-        		case ALLDEFS:
-        			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Definitions, DefUsePool.getDefCounter());
-        			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Uses, DefUsePool.getUseCounter());
-        			break;
+			switch (pc) {
+			case DEFUSE:
+			case ALLDEFS:
+				ClientServices
+						.getInstance()
+						.getClientNode()
+						.trackOutputVariable(RuntimeVariable.Definitions,
+								DefUsePool.getDefCounter());
+				ClientServices
+						.getInstance()
+						.getClientNode()
+						.trackOutputVariable(RuntimeVariable.Uses,
+								DefUsePool.getUseCounter());
+				break;
 
-        		case WEAKMUTATION:
-        		case STRONGMUTATION:
-        		case MUTATION:
-        			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
-        			break;
+			case WEAKMUTATION:
+			case STRONGMUTATION:
+			case MUTATION:
+				ClientServices
+						.getInstance()
+						.getClientNode()
+						.trackOutputVariable(RuntimeVariable.Mutants,
+								MutationPool.getMutantCounter());
+				break;
 
-        		default:
-        			break;
-    		}
+			default:
+				break;
+			}
 		}
 	}
 }

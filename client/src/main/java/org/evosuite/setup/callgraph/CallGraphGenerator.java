@@ -40,7 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Gordon Fraser
+ * Generate the call graph, the class is a modification of the CallTreeGenerator class.
+ * @author mattia, Gordon Fraser
  * 
  */
 public class CallGraphGenerator {
@@ -48,16 +49,23 @@ public class CallGraphGenerator {
 	private static Logger logger = LoggerFactory
 			.getLogger(CallGraphGenerator.class);
 
-	public static CallGraphImpl analyze(String className) {
-
+	public static CallGraph analyze(String className) {
 		ClassNode targetClass = DependencyAnalysis.getClassNode(className);
-
-		CallGraphImpl callgraph = new CallGraphImpl(className);
+		CallGraph callgraph = new CallGraph(className);
 		if (targetClass != null)
 			handle(callgraph, targetClass, 0);
 		if (Properties.INSTRUMENT_PARENT) {
 			handleSuperClasses(callgraph, targetClass);
 		}
+		return callgraph;
+	}
+
+	public static CallGraph analyzeOtherClasses(CallGraph callgraph,
+			String className) {
+		ClassNode targetClass = DependencyAnalysis.getClassNode(className);
+
+		if (targetClass != null)
+			handle(callgraph, targetClass, 0);
 		return callgraph;
 	}
 
@@ -73,7 +81,7 @@ public class CallGraphGenerator {
 	 * @param targetClass
 	 */
 	@SuppressWarnings("unchecked")
-	private static void handleSuperClasses(CallGraphImpl callGraph,
+	private static void handleSuperClasses(CallGraph callGraph,
 			ClassNode targetClass) {
 		String superClassName = targetClass.superName;
 		if (superClassName == null || superClassName.isEmpty())
@@ -110,7 +118,7 @@ public class CallGraphGenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void handle(CallGraphImpl callGraph, ClassNode targetClass,
+	private static void handle(CallGraph callGraph, ClassNode targetClass,
 			int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
@@ -120,7 +128,7 @@ public class CallGraphGenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void handle(CallGraphImpl callGraph, ClassNode targetClass,
+	private static void handle(CallGraph callGraph, ClassNode targetClass,
 			String methodName, int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
@@ -129,7 +137,7 @@ public class CallGraphGenerator {
 		}
 	}
 
-	private static void handle(CallGraphImpl callGraph, String className,
+	private static void handle(CallGraph callGraph, String className,
 			String methodName, int depth) {
 		ClassNode cn = DependencyAnalysis.getClassNode(className);
 		if (cn == null)
@@ -145,7 +153,7 @@ public class CallGraphGenerator {
 	 * @param mn
 	 */
 	@SuppressWarnings("unchecked")
-	private static void handleMethodNode(CallGraphImpl callGraph, ClassNode cn,
+	private static void handleMethodNode(CallGraph callGraph, ClassNode cn,
 			MethodNode mn, int depth) {
 		handlePublicMethodNode(callGraph, cn, mn);
 
@@ -162,7 +170,7 @@ public class CallGraphGenerator {
 		}
 	}
 
-	private static void handlePublicMethodNode(CallGraphImpl callGraph,
+	private static void handlePublicMethodNode(CallGraph callGraph,
 			ClassNode cn, MethodNode mn) {
 		if ((mn.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
 			callGraph.addPublicMethod(cn.name, mn.name + mn.desc);
@@ -176,7 +184,7 @@ public class CallGraphGenerator {
 	 * @param mn
 	 * @param methodCall
 	 */
-	private static void handleMethodInsnNode(CallGraphImpl callGraph,
+	private static void handleMethodInsnNode(CallGraph callGraph,
 			ClassNode cn, MethodNode mn, MethodInsnNode methodCall, int depth) {
 
 		// Only build calltree for instrumentable classes
@@ -204,43 +212,44 @@ public class CallGraphGenerator {
 	 * @param callTree
 	 * @param inheritanceTree
 	 */
-	static void update(CallGraphImpl callGraph, InheritanceTree inheritanceTree) {
+
+	// it is necessary to analyze all classes before invoking this method, i.e.
+	// the subclass that will be connected has to be present in both the
+	// callGraph and InheritanceThree. To do that it is necessary to force the
+	// analysis of all the classes of the project, and not only the one reachable,
+	// according to the DependencyAnalysis class, from the class under test.
+	public static void update(CallGraph callGraph,
+			InheritanceTree inheritanceTree) {
 		logger.info("Updating call tree ");
 
 		Set<CallGraphEntry> subclassCalls = new LinkedHashSet<CallGraphEntry>();
-		for (CallGraphEntry call : callGraph.getViewOfCurrentCalls()) {
+		for (CallGraphEntry call : callGraph.getViewOfCurrentMethods()) {
 
-			// target class, ma tanto è tutto al contrario
 			String targetClass = call.getClassName();
 			String targetMethod = call.getMethodName();
 
 			// Ignore constructors
 			if (targetMethod.startsWith("<init>"))
 				continue;
-
 			// Ignore calls to Array (e.g. clone())
 			if (targetClass.startsWith("["))
 				continue;
-
 			if (!inheritanceTree.hasClass(targetClass)) {
 				// Private classes are not in the inheritance tree
 				// LoggingUtils.getEvoLogger().warn("Inheritance tree does not contain {}, please check classpath",
 				// targetClass);
 				continue;
 			}
-
-			// tutte le chiamate dalle altre classi a questo metodo
-			for (CallGraphEntry c : callGraph.getCallsFrom(call)) {
+			// update graph
+			for (CallGraphEntry c : callGraph.getCallsFromMethod(call)) {
 				for (String subclass : inheritanceTree
 						.getSubclasses(targetClass)) {
 					if (inheritanceTree.isMethodDefined(subclass, targetMethod)) {
-						callGraph.addCall(subclass, targetMethod,
-								c.getClassName(), c.getMethodName());
+						callGraph.addCall(c.getClassName(), c.getMethodName(),
+								subclass, targetMethod);
 					}
 				}
-
 			}
 		}
 	}
-
 }

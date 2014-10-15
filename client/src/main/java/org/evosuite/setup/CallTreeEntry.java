@@ -24,6 +24,7 @@ package org.evosuite.setup;
  * @author gordon
  * 
  */
+@Deprecated
 public class CallTreeEntry {
 
 	private String sourceClass;
