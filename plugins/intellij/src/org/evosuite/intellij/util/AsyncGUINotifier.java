@@ -11,4 +11,6 @@ public interface AsyncGUINotifier {
     public void success(String message);
 
     public void failed(String message);
+
+    public void attachProcess(Process process);
 }
