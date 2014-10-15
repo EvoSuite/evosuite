@@ -4,10 +4,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 /**
- * Failing test that runs TimelineForCombinedFitness1Test followed by
+ * Test that runs TimelineForCombinedFitness1Test followed by
  * TimelineForCombinedFitness2Test.
  *
- * It fails
  */
 @RunWith(Suite.class)
 

@@ -365,8 +365,10 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
             for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
                 sum += coverages.get(fitnessFunction);
             }
-            sum = coverages.isEmpty() ? 0.0 : sum / coverages.size();
-            return sum;
+            double cov = coverages.isEmpty() ? 0.0 : sum / coverages.size();
+            if (! (cov >= 0.0 && cov <= 1.0))
+                assert(cov >= 0.0 && cov <= 1.0) : "Incorrect coverage value " + cov;
+            return cov;
         } else
             return coverages.isEmpty() ? 0.0 : coverages.get( fitnesses.keySet().iterator().next() );
 	}
