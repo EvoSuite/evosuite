@@ -1,5 +1,6 @@
 package org.evosuite.intellij;
 
+import com.intellij.execution.filters.HyperlinkInfo;
 import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.openapi.project.Project;
@@ -46,5 +47,15 @@ public class IntelliJNotifier implements AsyncGUINotifier {
         OSProcessHandler handler = new OSProcessHandler(process, null);
         console.attachToProcess(handler);
         handler.startNotify();
+    }
+
+    @Override
+    public void printOnConsole(String message) {
+        console.printHyperlink(message, null); //TODO check
+    }
+
+    @Override
+    public void clearConsole() {
+        console.clear();
     }
 }

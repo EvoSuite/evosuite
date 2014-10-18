@@ -2,7 +2,9 @@ package org.evosuite.intellij;
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.impl.ConsoleViewImpl;
+import com.intellij.ide.actions.AboutAction;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
@@ -15,6 +17,9 @@ import com.intellij.ui.content.ContentFactory;
 import org.evosuite.intellij.util.MavenExecutor;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
+import java.awt.*;
+
 /**
  * Entry point for the IntelliJ plugin
  * <p/>
@@ -22,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class PluginRegistration implements ProjectComponent { //implements ApplicationComponent {
 
-    final Project project;
+    private final Project project;
 
     public PluginRegistration(Project project){
         this.project = project;
@@ -43,7 +48,7 @@ public class PluginRegistration implements ProjectComponent { //implements Appli
 
     @Override
     public void disposeComponent() {
-
+        EvoParameters.getInstance().save(project);
     }
 
     @Override
@@ -53,22 +58,41 @@ public class PluginRegistration implements ProjectComponent { //implements Appli
 
         ActionManager am = ActionManager.getInstance();
 
+        //create the tool window, which will appear in the bottom when an EvoSuite run is started
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         ToolWindow toolWindow = toolWindowManager.registerToolWindow("EvoSuite", false, ToolWindowAnchor.BOTTOM);
         toolWindow.setTitle("EvoSuite Console Output");
         toolWindow.setType(ToolWindowType.DOCKED, null);
 
+
+        //create a console panel
         ConsoleViewImpl console = (ConsoleViewImpl) TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(console.getComponent(), "", false);
+        JComponent consolePanel = console.getComponent();
 
 
-        //TODO we also need a STOP button, eg on left-side pane
+        IntelliJNotifier notifier = new IntelliJNotifier(project,"EvoSuite Plugin", console);
 
+        //create left-toolbar with stop button
+        DefaultActionGroup buttonGroup = new DefaultActionGroup();
+        buttonGroup.add(new StopEvoAction(notifier));
+        ActionToolbar viewToolbar = am.createActionToolbar("EvoSuite.ConsoleToolbar", buttonGroup, false);
+        JComponent toolBarPanel = viewToolbar.getComponent();
+
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(toolBarPanel, BorderLayout.WEST);
+        panel.add(consolePanel,BorderLayout.CENTER);
+
+
+        //Content content = contentFactory.createContent(consolePanel, "", false);
+        Content content = contentFactory.createContent(panel, "", false);
         toolWindow.getContentManager().addContent(content);
 
 
-        EvoAction evo = new EvoAction(toolWindow, console);
+
+        EvoAction evo = new EvoAction(toolWindow, notifier);
 
         // Gets an instance of the WindowMenu action group.
         //DefaultActionGroup windowM = (DefaultActionGroup) am.getAction("WindowMenu");
