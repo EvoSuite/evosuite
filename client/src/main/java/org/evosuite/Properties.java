@@ -811,6 +811,10 @@ public class Properties {
 	@Parameter(key = "save_all_data", group = "Output", description = "Generate and store all data reports")
 	public static boolean SAVE_ALL_DATA = true;
 
+	/** Constant <code>PRINT_GOALS=false</code> */
+	@Parameter(key = "print_goals", group = "Output", description = "Print out goals of class under test")
+	public static boolean PRINT_GOALS = false;
+
 	/** Constant <code>PRINT_CURRENT_GOALS=false</code> */
 	@Parameter(key = "print_current_goals", group = "Output", description = "Print out current goal during test generation")
 	public static boolean PRINT_CURRENT_GOALS = false;
