@@ -1168,6 +1168,7 @@ public class TestSuiteGenerator {
 		stopping_condition = getStoppingCondition();
 		for (FitnessFunction<?> fitness_function : fitness_functions)
 		    ((TestSuiteFitnessFunction)fitness_function).getFitness(suite);
+		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 		while (!isFinished(suite)) {
 			TestChromosome test = factory.getChromosome();
@@ -1180,6 +1181,7 @@ public class TestSuiteGenerator {
             }
 			if (clone.compareTo(suite) < 0) {
 				suite = clone;
+				StatisticsSender.executedAndThenSendIndividualToMaster(clone);				
 			}
 		}
 		suiteGA.getPopulation().add(suite);
