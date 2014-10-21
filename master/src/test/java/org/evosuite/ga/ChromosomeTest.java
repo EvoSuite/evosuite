@@ -20,6 +20,7 @@ package org.evosuite.ga;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
@@ -40,6 +41,9 @@ public class ChromosomeTest {
 	private final double ANY_DOUBLE_2 = 5.0;
 	private final double ANY_DOUBLE_3 = 6.0;
 	private final double ANY_DOUBLE_4 = 3.0;
+
+	private final double ANY_DOUBLE_BETWEEN_0_AND_1_1 = 0.2;
+	private final double ANY_DOUBLE_BETWEEN_0_AND_1_2 = 0.6;
 
 	@Test
 	public void testGetFitnessForOneFunctionNoCompositional() {
@@ -84,19 +88,19 @@ public class ChromosomeTest {
 		Properties.COMPOSITIONAL_FITNESS = true;
         TestSuiteChromosome c = new TestSuiteChromosome();
         StatementCoverageSuiteFitness f1 = new StatementCoverageSuiteFitness();
-        BranchCoverageSuiteFitness f2 = new BranchCoverageSuiteFitness();
+        OnlyBranchCoverageSuiteFitness f2 = new OnlyBranchCoverageSuiteFitness();
         c.addFitness(f1);
         c.addFitness(f2);
         c.setFitness(f1, ANY_DOUBLE_1);
         c.setFitness(f2, ANY_DOUBLE_2);
-        c.setCoverage(f1, ANY_DOUBLE_3);
-        c.setCoverage(f2, ANY_DOUBLE_4);
+        c.setCoverage(f1, ANY_DOUBLE_BETWEEN_0_AND_1_1);
+        c.setCoverage(f2, ANY_DOUBLE_BETWEEN_0_AND_1_2);
         assertEquals(ANY_DOUBLE_1, c.getFitnessInstanceOf(StatementCoverageSuiteFitness.class), 0.001);
-        assertEquals(ANY_DOUBLE_2, c.getFitnessInstanceOf(BranchCoverageSuiteFitness.class), 0.001);
-        assertEquals(ANY_DOUBLE_3, c.getCoverageInstanceOf(StatementCoverageSuiteFitness.class), 0.001);
-        assertEquals(ANY_DOUBLE_4, c.getCoverageInstanceOf(BranchCoverageSuiteFitness.class), 0.001);
+        assertEquals(ANY_DOUBLE_2, c.getFitnessInstanceOf(OnlyBranchCoverageSuiteFitness.class), 0.001);
+        assertEquals(ANY_DOUBLE_BETWEEN_0_AND_1_1, c.getCoverageInstanceOf(StatementCoverageSuiteFitness.class), 0.001);
+        assertEquals(ANY_DOUBLE_BETWEEN_0_AND_1_2, c.getCoverageInstanceOf(OnlyBranchCoverageSuiteFitness.class), 0.001);
 		assertEquals(ANY_DOUBLE_1 + ANY_DOUBLE_2, c.getFitness(), 0.001);
-        assertEquals((ANY_DOUBLE_3 + ANY_DOUBLE_4) / 2, c.getCoverage(), 0.001);
+        assertEquals((ANY_DOUBLE_BETWEEN_0_AND_1_1 + ANY_DOUBLE_BETWEEN_0_AND_1_2) / 2, c.getCoverage(), 0.001);
 	}
 	
 	@Test
