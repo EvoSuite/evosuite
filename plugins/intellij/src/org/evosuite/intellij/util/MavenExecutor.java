@@ -34,9 +34,18 @@ public class MavenExecutor {
         return false;
     }
 
+    public synchronized void stopRun(){
+        if(isAlreadyRunning()){
+            thread.interrupt();
+            try {
+                thread.join(2000);
+            } catch (InterruptedException e) {
+            }
+        }
+    }
+
+
     //TODO should refactor 'final EvoParameters params' to be independent from IntelliJ
-
-
     /**
      * @param params
      * @param suts   map from Maven module folder to list of classes to tests.
@@ -79,6 +88,11 @@ public class MavenExecutor {
             public void run() {
 
                 for (String modulePath : suts.keySet()) {
+
+                    if(isInterrupted()){
+                        return;
+                    }
+
                     File dir = new File(modulePath);
                     //should be on background process
                     Process p = execute(notifier, params, dir, suts.get(modulePath));
@@ -96,7 +110,7 @@ public class MavenExecutor {
                         res = p.waitFor();
                     } catch (InterruptedException e) {
                         p.destroy();
-                        break;
+                        return;
                     }
                     if (res != 0) {
                         notifier.failed("EvoSuite ended abruptly");

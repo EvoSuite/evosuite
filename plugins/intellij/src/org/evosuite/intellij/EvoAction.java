@@ -19,6 +19,7 @@ import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import org.evosuite.intellij.util.AsyncGUINotifier;
 import org.evosuite.intellij.util.MavenExecutor;
 
 import javax.swing.*;
@@ -31,12 +32,12 @@ import java.util.*;
 public class EvoAction extends AnAction {
 
     private final ToolWindow toolWindow;
-    private final ConsoleViewImpl console;
+    private final AsyncGUINotifier notifier;
 
-    public EvoAction(ToolWindow toolWindow, ConsoleViewImpl console) {
+    public EvoAction(ToolWindow toolWindow, AsyncGUINotifier notifier) {
         super("Run EvoSuite");
         this.toolWindow = toolWindow;
-        this.console = console;
+        this.notifier = notifier;
     }
 
 
@@ -67,13 +68,11 @@ public class EvoAction extends AnAction {
         dialog.setVisible(true);
 
         if (dialog.isWasOK()) {
-
             toolWindow.show(new Runnable(){@Override public void run(){
-                console.clear();
+                notifier.clearConsole();
             }
             });
-
-            IntelliJNotifier notifier = new IntelliJNotifier(project, title, console);
+            EvoParameters.getInstance().save(project);
             MavenExecutor.getInstance().run(EvoParameters.getInstance(),map,notifier);
         }
     }
