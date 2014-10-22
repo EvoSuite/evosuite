@@ -339,7 +339,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		        + "coverage: " + coverage + "/" + totalGoals;
 		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
 		        + suite.getCoverage(this);
-
+		
 		return fitness;
 	}
 

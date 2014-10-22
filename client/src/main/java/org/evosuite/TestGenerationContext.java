@@ -144,12 +144,11 @@ public class TestGenerationContext {
 		ObjectPoolManager.getInstance().reset();
 		CarvingManager.getInstance().clear();
 
-		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)) {
+		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)||ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
 			try {
 				TestClusterGenerator clusterGenerator = new TestClusterGenerator();
 				clusterGenerator.generateCluster(Properties.TARGET_CLASS,
-				                                 DependencyAnalysis.getInheritanceTree(),
-				                                 DependencyAnalysis.getCallTree());
+				                                 DependencyAnalysis.getInheritanceTree(),  DependencyAnalysis.getCallGraph());
 			} catch (RuntimeException e) {
 				logger.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {

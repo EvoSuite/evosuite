@@ -43,6 +43,10 @@ public class IBranchTestFitness extends TestFitnessFunction {
 		return context;
 	}
 
+	public BranchCoverageGoal getBranchGoal() {
+		return branchGoal;
+	}
+	
 	private double getMethodCallDistance(ExecutionResult result) {
 		String key = branchGoal.getClassName() + "." + branchGoal.getMethodName();
 		if (!result.getTrace().getMethodContextCount().containsKey(key)) {
@@ -93,6 +97,8 @@ public class IBranchTestFitness extends TestFitnessFunction {
 		return fitness;
 	}
 
+	
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestFitnessFunction#compareTo(org.evosuite.testcase.TestFitnessFunction)
 	 */
@@ -101,11 +107,13 @@ public class IBranchTestFitness extends TestFitnessFunction {
 		if (other instanceof IBranchTestFitness) {
 			IBranchTestFitness otherBranchFitness = (IBranchTestFitness) other;
 			return branchGoal.compareTo(otherBranchFitness.branchGoal);
-		} else if (other instanceof BranchCoverageTestFitness) {
+		} 
+		else if (other instanceof BranchCoverageTestFitness) {
 			BranchCoverageTestFitness otherBranchFitness = (BranchCoverageTestFitness) other;
 			return branchGoal.compareTo(otherBranchFitness.getBranchGoal());
 		}
 		return 0;
+//		return -1;
 	}
 
 	/* (non-Javadoc)
@@ -126,7 +134,7 @@ public class IBranchTestFitness extends TestFitnessFunction {
 
 	@Override
 	public String toString() {
-		return "\n Branch " + branchGoal + " in context: " + context.toString();
+		return "Branch " + branchGoal + " in context: " + context.toString();
 	}
 
 	/* (non-Javadoc)

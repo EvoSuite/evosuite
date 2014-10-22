@@ -258,6 +258,11 @@ public class InheritanceTreeGenerator {
 					inheritanceTree
 							.addAnalyzedMethod(cn.name, mn.name, mn.desc);
 				}
+				if ((Opcodes.ACC_ABSTRACT & cn.access) == Opcodes.ACC_ABSTRACT) {
+					inheritanceTree.registerAbstractClass(cn.name);
+				}
+			}else{
+				inheritanceTree.registerInterface(cn.name);
 			}
 			if (onlyPublic) {
 				if ((cn.access & Opcodes.ACC_PUBLIC) == 0) {
@@ -276,8 +281,6 @@ public class InheritanceTreeGenerator {
 			for (String interfaceName : interfaces) {
 				inheritanceTree.addInterface(cn.name, interfaceName);
 			}
-
-			// TODO: Should we store the ClassNode?
 
 		} catch (IOException e) {
 			logger.error("", e);

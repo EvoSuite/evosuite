@@ -177,7 +177,6 @@ public class TestSuiteMinimizer {
 
 
         int numGoals = goals.size() - branchGoals.size();
-
         Collections.sort(goals);
         Set<TestFitnessFunction> covered = new LinkedHashSet<TestFitnessFunction>();
         List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();

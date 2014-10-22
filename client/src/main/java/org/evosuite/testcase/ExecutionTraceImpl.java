@@ -184,8 +184,6 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	private List<BranchEval> branchesTrace = new ArrayList<BranchEval>();
 
-	public Map<Integer, CallContext> callStacks = Collections.synchronizedMap(new HashMap<Integer, CallContext>());
-
 	// Coverage information
 	public Map<String, Map<String, Map<Integer, Integer>>> coverage = Collections.synchronizedMap(new HashMap<String, Map<String, Map<Integer, Integer>>>());
 
@@ -546,26 +544,26 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
                 }
             }
 		}
+		if (!className.equals("") && !methodName.equals("")) {
 		if (traceCalls) {
-			int callingObjectID = registerObject(caller);
-			methodId++;
-			MethodCall call = new MethodCall(className, methodName, methodId,
-			        callingObjectID, stack.size());
-			if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
-			        || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)) {
-				call.branchTrace.add(-1);
-				call.trueDistanceTrace.add(1.0);
-				call.falseDistanceTrace.add(0.0);
-				call.defuseCounterTrace.add(duCounter);
-				// TODO line_trace ?
+				int callingObjectID = registerObject(caller);
+				methodId++;
+				MethodCall call = new MethodCall(className, methodName, methodId, callingObjectID,
+						stack.size());
+				if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+						|| ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)) {
+					call.branchTrace.add(-1);
+					call.trueDistanceTrace.add(1.0);
+					call.falseDistanceTrace.add(0.0);
+					call.defuseCounterTrace.add(duCounter);
+					// TODO line_trace ?
+				}
+				stack.push(call);
 			}
-			stack.push(call);
+			if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)) {
+				updateMethodContextMaps(className, methodName, caller);
+ 			}
 		}
-
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)) {
-			updateMethodContextMaps(className, methodName, caller);
-		}
-
 	}
 
 	/**
@@ -639,24 +637,23 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 */
 	@Override
 	public void exitMethod(String classname, String methodname) {
-		if (traceCalls) {
-			if (!stack.isEmpty() && !(stack.peek().methodName.equals(methodname))) {
-				logger.debug("Expecting " + stack.peek().methodName + ", got "
-				        + methodname);
+		if (!classname.equals("") && !methodname.equals("")) {
+			if (traceCalls) {
+				if (!stack.isEmpty() && !(stack.peek().methodName.equals(methodname))) {
+					logger.debug("Expecting " + stack.peek().methodName + ", got " + methodname);
 
-				if (stack.peek().methodName.equals("")
-				        && !stack.peek().branchTrace.isEmpty()) {
-					logger.debug("Found main method");
-					finishedCalls.add(stack.pop());
+					if (stack.peek().methodName.equals("") && !stack.peek().branchTrace.isEmpty()) {
+						logger.debug("Found main method");
+						finishedCalls.add(stack.pop());
+					} else {
+						logger.debug("Bugger!");
+						// Usually, this happens if we use mutation testing and
+						// the mutation causes an unexpected exception or timeout
+						stack.pop();
+					}
 				} else {
-					logger.debug("Bugger!");
-					// Usually, this happens if we use mutation testing and the
-					// mutation
-					// causes an unexpected exception or timeout
-					stack.pop();
+					finishedCalls.add(stack.pop());
 				}
-			} else {
-				finishedCalls.add(stack.pop());
 			}
 		}
 	}
@@ -1181,8 +1178,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			if (!coverage.get(className).get(methodName).containsKey(line)) {
 				coverage.get(className).get(methodName).put(line, 1);
 			} else {
-				coverage.get(className).get(methodName).put(line,
-				                                            coverage.get(className).get(methodName).get(line) + 1);
+				coverage.get(className).get(methodName)
+						.put(line, coverage.get(className).get(methodName).get(line) + 1);
 			}
 		}
 	}

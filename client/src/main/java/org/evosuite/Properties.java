@@ -197,7 +197,7 @@ public class Properties {
 
 	/** Constant <code>MAX_INT=2048</code> */
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")
-	public static int MAX_INT = 2048;
+	public static int MAX_INT = 100000;
 
 	/** Constant <code>RESTRICT_POOL=false</code> */
 	@Parameter(key = "restrict_pool", group = "Test Creation", description = "Prohibit integers in the pool greater than max_int")
@@ -707,7 +707,7 @@ public class Properties {
 	public static boolean JUNIT_TESTS = true;
 
 	@Parameter(key = "junit_check", group = "Output", description = "Compile and run resulting JUnit test suite")
-	public static boolean JUNIT_CHECK = true;
+	public static boolean JUNIT_CHECK = false;
 
 	@Parameter(key = "junit_check_on_separate_process", group = "Output", description = "Compile and run resulting JUnit test suite on a separate process")
 	@Deprecated
@@ -722,6 +722,7 @@ public class Properties {
 
 	@Parameter(key = "tools_jar_location", group = "Output", description = "Location of where to locate tools.jar")
 	public static String TOOLS_JAR_LOCATION = null;
+//	public static String TOOLS_JAR_LOCATION = "/Library/Java/JavaVirtualMachines/jdk1.7.0_51.jdk/Contents/Home/lib";
 
 	@Parameter(key = "pure_inspectors", group = "Output", description = "Selects only an underapproximation of all inspectors that are also pure (no side-effects)")
 	public static boolean PURE_INSPECTORS = true;

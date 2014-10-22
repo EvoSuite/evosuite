@@ -296,15 +296,17 @@ public class BranchCoverageGoal implements Serializable, Comparable<BranchCovera
 
 	@Override
 	public int compareTo(BranchCoverageGoal o) {
-		
 		int diff = lineNumber - o.lineNumber;
 		if(diff == 0) {
-			// Branch can only be null if this is a branchless method
-			if(branch == null || o.getBranch() == null)
-				return 0;
-			
-			// If on the same line, order by appearance in bytecode
-			return branch.getActualBranchId() - o.getBranch().getActualBranchId();
+			return 0;
+			// TODO: this code in some cases leads to the violation of the compare
+			// contract. I still have to figure out why - mattia
+//			// Branch can only be null if this is a branchless method
+//			if(branch == null || o.getBranch() == null)
+//				return 0;
+//			
+//			// If on the same line, order by appearance in bytecode
+//			return branch.getActualBranchId() - o.getBranch().getActualBranchId();
 		} else {
 			return diff;
 		}

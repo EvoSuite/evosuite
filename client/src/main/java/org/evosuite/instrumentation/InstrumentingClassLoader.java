@@ -158,14 +158,13 @@ public class InstrumentingClassLoader extends ClassLoader {
 		*/
 	}
 
-	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
-	        throws ClassNotFoundException {
-		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
-		
+	private Class<?> instrumentClass(String fullyQualifiedTargetClass)throws ClassNotFoundException  {
 		InputStream is = null;
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
-
+//			if (classes.containsKey(fullyQualifiedTargetClass)) {
+//				return classes.get(fullyQualifiedTargetClass);
+//			}
 			is = ResourceList.getClassAsStream(fullyQualifiedTargetClass);
 			
 			if (is == null) {
@@ -182,7 +181,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 			logger.info("Keeping class: " + fullyQualifiedTargetClass);
 			return result;
 		} catch (Throwable t) {
-			logger.info("Error while loading class: "+t);
+			logger.error("Error while loading class: "+t);
 			throw new ClassNotFoundException(t.getMessage(), t);
 		} finally {
 			if(is != null)
