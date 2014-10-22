@@ -1,5 +1,7 @@
 package org.evosuite.setup.callgraph;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -7,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.classpath.ResourceList;
+import org.evosuite.setup.Call;
 import org.evosuite.setup.CallContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,15 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		this.className = className;
 	}
 
+	public void removeClasses(Collection<CallGraphEntry> vertexes){
+		for (CallGraphEntry vertex : vertexes) {
+			graph.removeVertex(vertex);
+		}
+	}
+	
+	public void removeClass(CallGraphEntry vertex){
+		graph.removeVertex(vertex);
+	}
 	/**
 	 * add public methods
 	 * @param className
@@ -65,7 +77,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @param targetClass
 	 * @param targetMethod
 	 */
-	public void addCall(String sourceClass, String sourceMethod,
+	public boolean addCall(String sourceClass, String sourceMethod,
 			String targetClass, String targetMethod) {
 
 		CallGraphEntry from = new CallGraphEntry(targetClass, targetMethod);
@@ -76,9 +88,12 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		if (sourceClass.equals(className))
 			cutNodes.add(to);
 
-		graph.addEdge(from, to);
-
-		callGraphClasses.add(targetClass.replaceAll("/", "."));
+		if (!graph.containsEdge(from, to)) {
+			graph.addEdge(from, to);
+			callGraphClasses.add(targetClass.replaceAll("/", "."));
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -142,16 +157,17 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		// return only context that starts from the class under test
 		for (List<CallGraphEntry> list : paths) {
 			boolean insert = false;
-			CallContext c = new CallContext();
+			List<Call> cont = new ArrayList<>();
+			
 			for (int i = list.size() - 1; i >= 0; i--) {
 				if (!insert && list.get(i).getClassName().equals(className)) {
 					insert = true;
 				}
 				if (insert)
-					c.addCalledMethod(list.get(i).getClassName(), list.get(i)
-							.getMethodName());
+					cont.add(new Call(list.get(i).getClassName(), list.get(i)
+							.getMethodName()));
 			}
-			contexts.add(c);
+			contexts.add(new CallContext(cont));
 		}
 		return contexts;
 	}
@@ -164,10 +180,10 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	}
 
 	/**
-	 * Determine if className can be called through the target class
+	 * Determine if className can be reached from the class under test
 	 * 
-	 * TODO optimize it with a dedicated DFS that stop the search as soon as it
-	 * find the node
+	 * TODO to be optimized with a dedicated DFS that stops the search as soon as it
+	 * finds the node
 	 * 
 	 * @param className
 	 * @return

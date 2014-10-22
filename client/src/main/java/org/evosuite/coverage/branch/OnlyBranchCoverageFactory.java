@@ -20,6 +20,7 @@ package org.evosuite.coverage.branch;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testsuite.AbstractFitnessFactory;
@@ -52,7 +53,7 @@ public class OnlyBranchCoverageFactory extends
 
 		// logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {
-
+			if(!Properties.TARGET_CLASS.equals("")&&!className.equals(Properties.TARGET_CLASS)) continue;
 			final MethodNameMatcher matcher = new MethodNameMatcher();
 
 			// Branches

@@ -40,14 +40,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Generate the call graph, the class is a modification of the CallTreeGenerator class.
+ * Generate the call graph, the class is a modification of the CallTreeGenerator
+ * class.
+ * 
  * @author mattia, Gordon Fraser
  * 
  */
 public class CallGraphGenerator {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(CallGraphGenerator.class);
+	private static Logger logger = LoggerFactory.getLogger(CallGraphGenerator.class);
 
 	public static CallGraph analyze(String className) {
 		ClassNode targetClass = DependencyAnalysis.getClassNode(className);
@@ -60,8 +61,7 @@ public class CallGraphGenerator {
 		return callgraph;
 	}
 
-	public static CallGraph analyzeOtherClasses(CallGraph callgraph,
-			String className) {
+	public static CallGraph analyzeOtherClasses(CallGraph callgraph, String className) {
 		ClassNode targetClass = DependencyAnalysis.getClassNode(className);
 
 		if (targetClass != null)
@@ -81,8 +81,7 @@ public class CallGraphGenerator {
 	 * @param targetClass
 	 */
 	@SuppressWarnings("unchecked")
-	private static void handleSuperClasses(CallGraph callGraph,
-			ClassNode targetClass) {
+	private static void handleSuperClasses(CallGraph callGraph, ClassNode targetClass) {
 		String superClassName = targetClass.superName;
 		if (superClassName == null || superClassName.isEmpty())
 			return;
@@ -118,8 +117,7 @@ public class CallGraphGenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void handle(CallGraph callGraph, ClassNode targetClass,
-			int depth) {
+	private static void handle(CallGraph callGraph, ClassNode targetClass, int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			logger.debug("Method: " + mn.name);
@@ -128,8 +126,8 @@ public class CallGraphGenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void handle(CallGraph callGraph, ClassNode targetClass,
-			String methodName, int depth) {
+	private static void handle(CallGraph callGraph, ClassNode targetClass, String methodName,
+			int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			if (methodName.equals(mn.name + mn.desc))
@@ -137,8 +135,7 @@ public class CallGraphGenerator {
 		}
 	}
 
-	private static void handle(CallGraph callGraph, String className,
-			String methodName, int depth) {
+	private static void handle(CallGraph callGraph, String className, String methodName, int depth) {
 		ClassNode cn = DependencyAnalysis.getClassNode(className);
 		if (cn == null)
 			return;
@@ -153,8 +150,7 @@ public class CallGraphGenerator {
 	 * @param mn
 	 */
 	@SuppressWarnings("unchecked")
-	private static void handleMethodNode(CallGraph callGraph, ClassNode cn,
-			MethodNode mn, int depth) {
+	private static void handleMethodNode(CallGraph callGraph, ClassNode cn, MethodNode mn, int depth) {
 		handlePublicMethodNode(callGraph, cn, mn);
 
 		InsnList instructions = mn.instructions;
@@ -164,14 +160,12 @@ public class CallGraphGenerator {
 		while (iterator.hasNext()) {
 			AbstractInsnNode insn = iterator.next();
 			if (insn instanceof MethodInsnNode) {
-				handleMethodInsnNode(callGraph, cn, mn, (MethodInsnNode) insn,
-						depth + 1);
+				handleMethodInsnNode(callGraph, cn, mn, (MethodInsnNode) insn, depth + 1);
 			}
 		}
 	}
 
-	private static void handlePublicMethodNode(CallGraph callGraph,
-			ClassNode cn, MethodNode mn) {
+	private static void handlePublicMethodNode(CallGraph callGraph, ClassNode cn, MethodNode mn) {
 		if ((mn.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
 			callGraph.addPublicMethod(cn.name, mn.name + mn.desc);
 		}
@@ -184,22 +178,21 @@ public class CallGraphGenerator {
 	 * @param mn
 	 * @param methodCall
 	 */
-	private static void handleMethodInsnNode(CallGraph callGraph,
-			ClassNode cn, MethodNode mn, MethodInsnNode methodCall, int depth) {
+	private static void handleMethodInsnNode(CallGraph callGraph, ClassNode cn, MethodNode mn,
+			MethodInsnNode methodCall, int depth) {
 
 		// Only build calltree for instrumentable classes
-		if (BytecodeInstrumentation.checkIfCanInstrument(methodCall.owner
-				.replaceAll("/", "."))) {
+		if (BytecodeInstrumentation.checkIfCanInstrument(methodCall.owner.replaceAll("/", "."))) {
 			logger.debug("Handling method: " + methodCall.name);
-			if (!callGraph.hasCall(cn.name, mn.name + mn.desc,
-					methodCall.owner, methodCall.name + methodCall.desc)) {
+			if (!callGraph.hasCall(cn.name, mn.name + mn.desc, methodCall.owner, methodCall.name
+					+ methodCall.desc)) {
 
 				// Add call from mn to methodCall to callgraph
-				callGraph.addCall(cn.name, mn.name + mn.desc, methodCall.owner,
-						methodCall.name + methodCall.desc);
+				if (callGraph.addCall(cn.name, mn.name + mn.desc, methodCall.owner, methodCall.name
+						+ methodCall.desc)) {
 
-				handle(callGraph, methodCall.owner, methodCall.name
-						+ methodCall.desc, depth);
+					handle(callGraph, methodCall.owner, methodCall.name + methodCall.desc, depth);
+				}
 			}
 		}
 	}
@@ -212,17 +205,19 @@ public class CallGraphGenerator {
 	 * @param callTree
 	 * @param inheritanceTree
 	 */
-
+	// TODO re-implement using a lazy strategy
 	// it is necessary to analyze all classes before invoking this method, i.e.
 	// the subclass that will be connected has to be present in both the
 	// callGraph and InheritanceThree. To do that it is necessary to force the
-	// analysis of all the classes of the project, and not only the one reachable,
-	// according to the DependencyAnalysis class, from the class under test.
-	public static void update(CallGraph callGraph,
-			InheritanceTree inheritanceTree) {
+	// analysis of all the classes of the project, and not only the reachable
+	// ones
+	// according to the DependencyAnalysis class. This all part could/should be
+	// optimized implementing a lazy construction of the two graphs
+	public static void update(CallGraph callGraph, InheritanceTree inheritanceTree) {
 		logger.info("Updating call tree ");
 
-		Set<CallGraphEntry> subclassCalls = new LinkedHashSet<CallGraphEntry>();
+//		Set<CallGraphEntry> toRemove = new LinkedHashSet<CallGraphEntry>();
+
 		for (CallGraphEntry call : callGraph.getViewOfCurrentMethods()) {
 
 			String targetClass = call.getClassName();
@@ -240,16 +235,20 @@ public class CallGraphGenerator {
 				// targetClass);
 				continue;
 			}
+
 			// update graph
 			for (CallGraphEntry c : callGraph.getCallsFromMethod(call)) {
-				for (String subclass : inheritanceTree
-						.getSubclasses(targetClass)) {
+				for (String subclass : inheritanceTree.getSubclasses(targetClass)) {
 					if (inheritanceTree.isMethodDefined(subclass, targetMethod)) {
-						callGraph.addCall(c.getClassName(), c.getMethodName(),
-								subclass, targetMethod);
+						callGraph.addCall(c.getClassName(), c.getMethodName(), subclass,
+								targetMethod);
 					}
+//					if (inheritanceTree.isAbstractClass(call.getClassName())) {
+//						toRemove.add(call);
+//					}
 				}
 			}
 		}
+		// callGraph.removeClasses(toRemove);
 	}
 }

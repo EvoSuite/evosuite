@@ -35,7 +35,7 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 
 		// retrieve set of branches
 		BranchCoverageFactory branchFactory = new BranchCoverageFactory();
-		List<BranchCoverageTestFitness> branchGoals = branchFactory.getCoverageGoals();
+		List<BranchCoverageTestFitness> branchGoals = branchFactory.getCoverageGoalsForAllKnownClasses();
 
 		CallGraph callGraph = DependencyAnalysis.getCallGraph();
 
@@ -45,8 +45,7 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 			for (CallContext context : callGraph.getAllContexts(branchGoal.getClassName(),
 			                                                   branchGoal.getMethod())) {
 				if(context.isEmpty()) continue;
-				goals.add(new IBranchTestFitness(branchGoal.getBranchGoal(), context));
-				logger.info("\n"+branchGoal.getBranchGoal() + " " + context);
+				goals.add(new IBranchTestFitness(branchGoal.getBranchGoal(), context));				
 			}
 		}
 

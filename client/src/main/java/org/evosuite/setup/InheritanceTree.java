@@ -45,6 +45,10 @@ public class InheritanceTree {
 
 	private final Map<String, Set<String>> subclassCache = new LinkedHashMap<String, Set<String>>();
 
+	private  Set<String> interfacesSet = new HashSet<>();
+	private  Set<String> abstractClassesSet = new HashSet<>();
+	
+	
 	private static Logger logger = LoggerFactory
 			.getLogger(InheritanceTree.class);
 
@@ -56,11 +60,33 @@ public class InheritanceTree {
 	private void initialiseMap(){
 		if (analyzedMethods == null)
 			analyzedMethods = new HashMap<>();
+		if(interfacesSet==null)
+			interfacesSet = new HashSet<>();
+		if(abstractClassesSet ==null)
+			abstractClassesSet = new HashSet<>();
 	}
 	
 	public boolean isClassDefined(String className){
 		initialiseMap();
 		return analyzedMethods.containsKey(className);
+	}
+	
+	public boolean isInterface(String classname) {
+		return interfacesSet.contains(classname);
+	}
+	
+	public boolean isAbstractClass(String classname) {
+		return abstractClassesSet.contains(classname);
+	}
+	
+	public void registerAbstractClass(String abstractClassName) {
+		initialiseMap();
+		abstractClassesSet.add(ResourceList.getClassNameFromResourcePath(abstractClassName));
+	}
+	
+	public void registerInterface(String interfaceName) {
+		initialiseMap();
+		interfacesSet.add(ResourceList.getClassNameFromResourcePath(interfaceName));
 	}
 	
 	public boolean isMethodDefined(String className, String methodNameWdescriptor) {
@@ -110,6 +136,7 @@ public class InheritanceTree {
 		inheritanceGraph.addVertex(classNameWithDots);
 		inheritanceGraph.addVertex(interfaceNameWithDots);
 		inheritanceGraph.addEdge(interfaceNameWithDots, classNameWithDots);
+		interfacesSet.add(interfaceNameWithDots);
 	}
 
 	public Set<String> getSubclasses(String className) {

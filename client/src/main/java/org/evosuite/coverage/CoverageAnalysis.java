@@ -188,6 +188,7 @@ public class CoverageAnalysis {
 		case OUTPUT:
 			return RuntimeVariable.OutputCoverage;
 		case IBRANCH:
+			return RuntimeVariable.IBranchCoverage;
 		case REGRESSION:
 		default:
 			throw new RuntimeException("Criterion not supported: " + criterion);
@@ -211,6 +212,8 @@ public class CoverageAnalysis {
 		for (TestFitnessFunction goal : goals) {
 			if (goal.isCoveredBy(testSuite)) {
 				logger.debug("Goal {} is covered", goal);
+//				logger.error("COVERED Goal "+ goal.toString());
+
 				covered++;
 				/*
 				if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)) {
@@ -227,6 +230,7 @@ public class CoverageAnalysis {
 				}
 				*/
 			} else {
+//				logger.error("NOT COVERED Goal "+ goal.toString());
 				logger.debug("Goal {} is not covered", goal);
 			}
 		}
@@ -261,10 +265,13 @@ public class CoverageAnalysis {
 			}
 
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion "
-			                                         + criterion
-			                                         + ": "
-			                                         + NumberFormat.getPercentInstance().format((double) covered
-			                                                                                            / (double) goals.size()));
+                    + criterion
+                    + ": "
+                    + NumberFormat.getPercentInstance().format((double) covered
+                                                                       / (double) goals.size()));
+
+			LoggingUtils.getEvoLogger().info("* Number of covered goals: "
+			                                       + covered);
 
 		}
 	}

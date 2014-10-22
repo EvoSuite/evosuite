@@ -130,11 +130,15 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			// The two offspring replace the parents if and only if one of
 			// the offspring is not worse than the best parent.
 		    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-		        fitnessFunction.getFitness(offspring1);
-		        notifyEvaluation(offspring1);
-		        fitnessFunction.getFitness(offspring2);
-		        notifyEvaluation(offspring2);
-		    }
+//		    	logger.error("aaa "+fitnessFunction.getFitness(offspring1));
+//		        notifyEvaluation(offspring1);
+//		        logger.error("aaa "+fitnessFunction.getFitness(offspring2));
+//		        notifyEvaluation(offspring2);
+				fitnessFunction.getFitness(offspring1);
+				notifyEvaluation(offspring1);
+				fitnessFunction.getFitness(offspring2);
+				notifyEvaluation(offspring2);
+			}
 
 			if (keepOffspring(parent1, parent2, offspring1, offspring2)) {
 				logger.debug("Keeping offspring");

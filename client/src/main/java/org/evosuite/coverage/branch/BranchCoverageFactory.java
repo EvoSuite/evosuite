@@ -20,10 +20,13 @@ package org.evosuite.coverage.branch;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testsuite.AbstractFitnessFactory;
+import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +56,7 @@ public class BranchCoverageFactory extends
 
 		// logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {
-
+			if(!Properties.TARGET_CLASS.equals("")&&!className.equals(Properties.TARGET_CLASS)) continue;
 			final MethodNameMatcher matcher = new MethodNameMatcher();
 			// Branchless methods
 			for (String method : BranchPool.getBranchlessMethods(className)) {
@@ -85,6 +88,42 @@ public class BranchCoverageFactory extends
 		return goals;
 	}
 
+	public List<BranchCoverageTestFitness> getCoverageGoalsForAllKnownClasses() {
+		long start = System.currentTimeMillis();
+		List<BranchCoverageTestFitness> goals = new ArrayList<BranchCoverageTestFitness>();
+
+		// logger.info("Getting branches");
+		for (String className : BranchPool.knownClasses()) {
+			final MethodNameMatcher matcher = new MethodNameMatcher();
+			// Branchless methods
+			for (String method : BranchPool.getBranchlessMethods(className)) {
+				if (matcher.fullyQualifiedMethodMatches(method)) {
+					goals.add(createRootBranchTestFitness(className, method));
+				}
+			}
+
+			// Branches
+			for (String methodName : BranchPool.knownMethods(className)) {
+				if (!matcher.methodMatches(methodName)) {
+					logger.info("Method " + methodName
+							+ " does not match criteria. ");
+					continue;
+				}
+
+				for (Branch b : BranchPool.retrieveBranchesInMethod(className,
+						methodName)) {
+					if (!(b.getInstruction().isForcedBranch())) {
+						goals.add(createBranchCoverageTestFitness(b, true));
+						//if (!b.isSwitchCaseBranch())
+						goals.add(createBranchCoverageTestFitness(b, false));
+					}
+				}
+			}
+		}
+		goalComputationTime = System.currentTimeMillis() - start;
+		
+		return goals;
+	}
 
 
 	/**

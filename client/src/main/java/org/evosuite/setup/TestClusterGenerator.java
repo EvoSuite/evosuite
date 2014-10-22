@@ -64,6 +64,7 @@ import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.setup.PutStaticMethodCollector.MethodIdentifier;
+import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.GenericAccessibleObject;
@@ -120,15 +121,18 @@ public class TestClusterGenerator {
 
 	private final Set<Class<?>> containerClasses = new LinkedHashSet<Class<?>>();
 	
-	public void generateCluster(String targetClass, InheritanceTree inheritanceTree) throws RuntimeException, ClassNotFoundException {
+	public void generateCluster(String targetClass, InheritanceTree inheritanceTree, CallGraph callGraph) throws RuntimeException, ClassNotFoundException {
 
 		this.inheritanceTree = inheritanceTree;
 		TestCluster.setInheritanceTree(inheritanceTree);
 
 		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
-			for (String callTreeClass : DependencyAnalysis.getCallGraph().getClasses()) {
+			for (String callTreeClass : callGraph.getClasses()) {
 				try {
+					//TODO verify the correctness - mattia
+					if(callGraph.isCalledClass(callTreeClass)){
 					TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(callTreeClass);
+					}
 				} catch (ClassNotFoundException e) {
 					logger.info("Class not found: " + callTreeClass + ": " + e);
 				}

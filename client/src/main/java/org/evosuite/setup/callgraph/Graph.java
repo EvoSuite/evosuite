@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 /**
  * 
+ * simple implementation of a graph where edges are not classes.
  * @author mattia
  *
  * @param <E>
@@ -19,6 +20,18 @@ public abstract class Graph<E> {
 	
 	public Map<E, Set<E>> getEdges() {
 		return edges;
+	}
+	
+	public void removeVertex(E vertex) {
+		edges.remove(vertex);
+		vertexSet.remove(vertex);
+	}
+
+	public boolean containsEdge(E src, E dest){
+		Set<E> tempSet = edges.get(src);
+		if(tempSet==null)
+			return false;
+		else return tempSet.contains(dest);
 	}
 	
 	public void addEdge(E src, E dest) {
