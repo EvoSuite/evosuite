@@ -1465,6 +1465,11 @@ public class TestSuiteGenerator {
 			inliner.inline(suite);
 		}
 
+		if (Properties.COVERAGE) {
+			for (Properties.Criterion pc : Properties.CRITERION)
+				CoverageAnalysis.analyzeCoverage(suite, pc);
+		}
+
 		/*
 		 * if(Properties.MINIMIZE) {
 		 * LoggingUtils.getEvoLogger().info("* Minimizing result");
