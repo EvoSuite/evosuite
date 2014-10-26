@@ -84,13 +84,13 @@ public class EvoAction extends AnAction {
      */
     private Map<String, List<String>> getCUTsToTest(AnActionEvent event){
 
-        Map<String,List<String>> map = new LinkedHashMap<>();
+        Map<String,List<String>> map = new LinkedHashMap<String, List<String>>();
 
         /*
             full paths of all source root folders.
             this is needed to calculate the Java class names from the .java file paths
          */
-        Set<String> roots = new LinkedHashSet<>();
+        Set<String> roots = new LinkedHashSet<String>();
 
         Project project = event.getData(PlatformDataKeys.PROJECT);
         String projectDir = project.getBaseDir().getCanonicalPath();
@@ -144,7 +144,7 @@ public class EvoAction extends AnAction {
 
             List<String> classes = map.get(maven);
             if(classes == null){
-                classes = new ArrayList<>();
+                classes = new ArrayList<String>();
                 map.put(maven, classes);
             }
 
