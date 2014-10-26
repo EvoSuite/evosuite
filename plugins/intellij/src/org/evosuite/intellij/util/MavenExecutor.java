@@ -125,8 +125,7 @@ public class MavenExecutor {
 
     private Process execute(AsyncGUINotifier notifier, EvoParameters params, File dir, List<String> classes) {
 
-        System.out.println("Going to execute command:");
-        List<String> list = new ArrayList<>();
+        List<String> list = new ArrayList<String>();
         list.add("mvn");
         list.add("compile");
         list.add("evosuite:generate");
@@ -147,13 +146,14 @@ public class MavenExecutor {
 
         String[] command = list.toArray(new String[list.size()]);
 
-        String concat = "";
+        String concat = "Going to execute command:\n";
         for(String c : command){
             concat += c + "  ";
         }
-        System.out.println(concat);
-        System.out.println("in folder: "+dir.getAbsolutePath());
+        concat+="\nin folder: "+dir.getAbsolutePath();
 
+        System.out.println(concat);
+        notifier.printOnConsole(concat);
 
         try {
             ProcessBuilder builder = new ProcessBuilder();

@@ -17,3 +17,8 @@ An IDE plugin should use what configured in the pom.xml (assuming the SUT is bui
 other configuration files used to build and run the tests of the SUT (eg ANT).
 Reading and parsing those configuration files (eg pom.xml) would be far too complicated, so it is much easier
 to just let the build process to generate the test cases (eg with the Maven plugin for EvoSuite).
+
+
+NOTE: plugin _HAVE TO_ be compiled with Java 6. Reason is that Java GUI does not work properly in Mac,
+and IntelliJ on Mac by default use Java 6. As the plugin is loaded by IntelliJ, if its jar is compiled
+with 7/8, then it will crash in IntelliJ on a Mac.
