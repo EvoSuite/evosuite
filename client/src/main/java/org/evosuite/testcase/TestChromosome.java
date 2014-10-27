@@ -106,7 +106,6 @@ public class TestChromosome extends ExecutableChromosome {
 	public Chromosome clone() {
 		TestChromosome c = new TestChromosome();
 		c.test = test.clone();
-		//c.setFitness(getFitness());
 		c.setFitnesses(getFitnesses());
 		c.setLastFitnesses(getLastFitnesses());
 		c.solution = solution;

@@ -144,7 +144,7 @@ public class TestGenerationContext {
 		ObjectPoolManager.getInstance().reset();
 		CarvingManager.getInstance().clear();
 
-		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)||ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
+		if (Properties.INSTRUMENT_CONTEXT||ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)||ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
 			try {
 				TestClusterGenerator clusterGenerator = new TestClusterGenerator();
 				clusterGenerator.generateCluster(Properties.TARGET_CLASS,

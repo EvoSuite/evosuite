@@ -500,6 +500,35 @@ public class BranchPool {
 		}
 		return num;
 	}
+	
+	/**
+	 * Returns the number of known Branches for a given class
+	 * 
+	 * @return The number of currently known Branches inside the given class
+	 * @param prefix
+	 *            a {@link java.lang.String} object.
+	 */
+	public static Set<Integer> getBranchIdsForPrefix(String prefix) {
+		Set<Integer> ids = new HashSet<>();
+		Set<Branch> sutBranches = new HashSet<>();
+		for (String className : branchMap.keySet()) {
+			if (className.startsWith(prefix)) {
+				logger.info("Found matching class for branch ids: " + className + "/"
+				        + prefix);
+				for (String method : branchMap.get(className).keySet()) {
+					sutBranches.addAll(branchMap.get(className).get(method));
+				}
+			}
+		}
+		
+		for (Integer id : branchIdMap.keySet()) {
+			if(sutBranches.contains(branchIdMap.get(id))){
+				ids.add(id);
+			}
+		}
+		
+		return ids;
+	}
 
 	/**
 	 * Returns the number of known Branches for a given class
