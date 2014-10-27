@@ -3,7 +3,6 @@
  */
 package org.evosuite.coverage.ibranch;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,9 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.evosuite.Properties;
-import org.evosuite.coverage.branch.BranchCoverageGoal;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
@@ -21,7 +17,9 @@ import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
- * @author Gordon Fraser
+ * We don't remember what the I of IBranch stands for. Anyway, this fitness function targets all
+ * the branches (of all classes) that is possible to reach from the class under test.
+ * @author Gordon Fraser, mattia
  * 
  */
 public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
@@ -35,14 +33,10 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 	private final Map<String, Map<CallContext, Set<IBranchTestFitness>>> methodsMap;
 
 	
-	private final List<IBranchTestFitness> sutBranchGoals;
-	private static double bestFitness = Double.MAX_VALUE;
-
+//	private final List<IBranchTestFitness> sutBranchGoals;
  
 	public IBranchSuiteFitness() {
-//		String toprint = ""; //remove
-
-		sutBranchGoals= new ArrayList<>(); 
+//		sutBranchGoals= new ArrayList<>(); 
 		goalsMap = new HashMap<>();
 		methodsMap = new HashMap<>();
 		IBranchFitnessFactory factory = new IBranchFitnessFactory();
@@ -74,9 +68,9 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 				
 			}
 			logger.info("Context goal: " + goal.toString());
-			if(goal.getTargetClass().equals(Properties.TARGET_CLASS)){
-				sutBranchGoals.add(goal);
-			}
+//			if(goal.getTargetClass().equals(Properties.TARGET_CLASS)){
+//				sutBranchGoals.add(goal);
+//			}
 //			toprint = toprint + "/n" + goal.toString();
 		}
 //		logger.error(toprint);		
@@ -98,22 +92,6 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 	private IBranchTestFitness getContextGoal(String classAndMethodName,
 	        CallContext context) {
-		for (IBranchTestFitness goal : branchGoals) {
-			if (goal.getBranch() != null)
-				continue;
-
-			String key = goal.getTargetClass() + "." + goal.getTargetMethod();
-			if (key.equals(classAndMethodName)) {
-				if (goal.getContext().matches(context)) {
-					return goal;
-				}
-			}
-		} 
-			return null;
-	}
-	
-	private IBranchTestFitness getSmartContextGoal(String classAndMethodName,
-	        CallContext context) {
 //		return getContextGoal(classAndMethodName, context);
 		if(methodsMap.get(classAndMethodName)==null) return null;
 		if(methodsMap.get(classAndMethodName).get(context)==null)return null;
@@ -123,30 +101,8 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		}
 		return null;
 	}
-
-	private IBranchTestFitness getContextGoal(Integer branchId, CallContext context,
-	        boolean value) {
-		for (IBranchTestFitness goal : branchGoals) {
-			if (goal.getBranch() == null)
-				continue; // TODO
-
-			if (goal.getBranch().getActualBranchId() == branchId) {
-				//logger.info("Found matching branch id, checking context");
-				//logger.info(goal.getContext().toString());
-				//logger.info(context.toString());
-				if (goal.getContext().matches(context)) {
-					if (goal.getValue() == value)
-						return goal;
-				}
-				//logger.info("No match");
-			}
-		}
-		return null;
-//		throw new RuntimeException("Could not find goal for " + branchId + ", context "
-//		        + context);
-	}
 	
-	private IBranchTestFitness getSmartContextGoal(Integer branchId, CallContext context,
+	private IBranchTestFitness getContextGoal(Integer branchId, CallContext context,
 	        boolean value) {
 //		return getContextGoal(branchId, context, value);
 		if(goalsMap.get(branchId)==null) return null;
@@ -178,7 +134,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 				for (Entry<CallContext, Double> value : entry.getValue().entrySet()) {
 					//logger.info("Got true distance of " + value.getValue() + " for "
 					//        + entry.getKey() + " in context " + value.getKey());
-					IBranchTestFitness goal = getSmartContextGoal(entry.getKey(),
+					IBranchTestFitness goal = getContextGoal(entry.getKey(),
 					                                         value.getKey(), true);
 					if(goal==null) continue;
 					double distance = normalize(value.getValue());
@@ -193,7 +149,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 				for (Entry<CallContext, Double> value : entry.getValue().entrySet()) {
 					//logger.info("Got false distance of " + value.getValue() + " for "
 					//        + entry.getKey() + " in context " + value.getKey());
-					IBranchTestFitness goal = getSmartContextGoal(entry.getKey(),
+					IBranchTestFitness goal = getContextGoal(entry.getKey(),
 					                                         value.getKey(), false);
 					if(goal==null) continue;
 					double distance = normalize(value.getValue());
@@ -208,14 +164,14 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 			// Determine maximum execution count for each branch in each context
 			for (Entry<Integer, Map<CallContext, Integer>> entry : result.getTrace().getPredicateContextExecutionCount().entrySet()) {
 				for (Entry<CallContext, Integer> value : entry.getValue().entrySet()) {
-					IBranchTestFitness goal = getSmartContextGoal(entry.getKey(),
+					IBranchTestFitness goal = getContextGoal(entry.getKey(),
 					                                         value.getKey(), true);
 					if(goal==null) continue;
 					int count = value.getValue();
 					if (callCount.get(goal) < count) {
 						callCount.put(goal, count);
 					}
-					goal = getSmartContextGoal(entry.getKey(), value.getKey(), false);
+					goal = getContextGoal(entry.getKey(), value.getKey(), false);
 					count = value.getValue();
 					if (callCount.get(goal) < count) {
 						callCount.put(goal, count);
@@ -224,7 +180,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 			}
 			for (Entry<String, Map<CallContext, Integer>> entry : result.getTrace().getMethodContextCount().entrySet()) {
 				for (Entry<CallContext, Integer> value : entry.getValue().entrySet()) {
-					IBranchTestFitness goal = getSmartContextGoal(entry.getKey(),
+					IBranchTestFitness goal = getContextGoal(entry.getKey(),
 					                                         value.getKey());
 					if (goal == null)
 						continue;
@@ -238,7 +194,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		int numCoveredGoals = 0;
-		int numSUTCoveredBanches = 0;
+//		int numSUTCoveredBanches = 0;
 		for (IBranchTestFitness goal : branchGoals) {
 			double distance = distanceMap.get(goal);
 			int count = callCount.get(goal);
@@ -248,14 +204,14 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					fitness += 1;
 				} else {
 					numCoveredGoals++;
-					if(sutBranchGoals.contains(goal))
-						numSUTCoveredBanches++;
+//					if(sutBranchGoals.contains(goal))
+//						numSUTCoveredBanches++;
 				}
 			} else {
 				if (count > 0 && distance == 0.0) {
 					numCoveredGoals++;
-					if (sutBranchGoals.contains(goal))
-						numSUTCoveredBanches++;
+//					if (sutBranchGoals.contains(goal))
+//						numSUTCoveredBanches++;
 				}
 				// If branch is called exactly once in that context, 
 				// then the sum of false and true distance must be 1
@@ -267,19 +223,6 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					fitness += 1;
 			}
 		}
-
-		/*
-		if (fitness < bestFitness) {
-			bestFitness = fitness;
-			logger.info("Best fitness: " + fitness);
-			//logger.info(suite.toString());
-			for (IBranchTestFitness goal : branchGoals) {
-				double distance = distanceMap.get(goal);
-				int count = callCount.get(goal);
-				logger.info(count + ": " + distance);
-			}
-		}
-		*/
 		
 		if (!branchGoals.isEmpty()){
 //			suite.setCoverage(this, (double) numSUTCoveredBanches / (double) sutBranchGoals.size());

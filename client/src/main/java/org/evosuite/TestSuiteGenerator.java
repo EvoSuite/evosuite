@@ -1705,10 +1705,24 @@ public class TestSuiteGenerator {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static SecondaryObjective getSecondaryTestObjective(String name) {
+	public static SecondaryObjective getSecondaryTestObjective(String name, GeneticAlgorithm ga) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
-		else if (name.equalsIgnoreCase("exceptions"))
+		else if (name.equalsIgnoreCase("ibranch")){
+			List<FitnessFunction<?>> ffs = ga.getSecondaryFitnessFunctions();
+			FitnessFunction<?> ff = null;
+			for (FitnessFunction<?> f : ffs) {
+				if (f instanceof IBranchSuiteFitness) {
+					ff = f;
+				}
+			}
+			if (ff == null) {
+				ff = getFitnessFunction(Criterion.IBRANCH);
+				ga.addSecondaryFitnessFunction(ff);
+			}
+			IBranchSecondaryObjective ib = new IBranchSecondaryObjective(ff);
+			return ib; 
+		}else if (name.equalsIgnoreCase("exceptions"))
 			return new org.evosuite.testcase.MinimizeExceptionsSecondaryObjective();
 		else
 			throw new RuntimeException("ERROR: asked for unknown secondary objective \""
@@ -1724,10 +1738,24 @@ public class TestSuiteGenerator {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static SecondaryObjective getSecondarySuiteObjective(String name) {
+	public static SecondaryObjective getSecondarySuiteObjective(String name, GeneticAlgorithm ga) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
-		else if (name.equalsIgnoreCase("maxlength"))
+		else if (name.equalsIgnoreCase("ibranch")){
+			List<FitnessFunction<?>> ffs = ga.getSecondaryFitnessFunctions();
+			FitnessFunction<?> ff = null;
+			for (FitnessFunction<?> f : ffs) {
+				if (f instanceof IBranchSuiteFitness) {
+					ff = f;
+				}
+			}
+			if (ff == null) {
+				ff = getFitnessFunction(Criterion.IBRANCH);
+				ga.addSecondaryFitnessFunction(ff);
+			}
+			IBranchSecondaryObjective ib = new IBranchSecondaryObjective(ff);
+			return ib; 
+		}else if (name.equalsIgnoreCase("maxlength"))
 			return new MinimizeMaxLengthSecondaryObjective();
 		else if (name.equalsIgnoreCase("averagelength"))
 			return new MinimizeAverageLengthSecondaryObjective();
@@ -1758,10 +1786,10 @@ public class TestSuiteGenerator {
 
 		for (String name : objectives.split(":")) {
 			try {
-				TestChromosome.addSecondaryObjective(getSecondaryTestObjective(name.trim()));
+				TestChromosome.addSecondaryObjective(getSecondaryTestObjective(name.trim(), algorithm));
 			} catch (Throwable t) {
 			} // Not all objectives make sense for tests
-			TestSuiteChromosome.addSecondaryObjective(getSecondarySuiteObjective(name.trim()));
+			TestSuiteChromosome.addSecondaryObjective(getSecondarySuiteObjective(name.trim(), algorithm));
 		}
 	}
 

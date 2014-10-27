@@ -62,6 +62,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	/** Fitness function to rank individuals */
 	protected List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
 
+	/** Fitness function to rank individuals */
+	protected List<FitnessFunction<T>> secondaryFitnessFunctions = new ArrayList<FitnessFunction<T>>();
+
 	/** Selection function to select parents */
 	protected SelectionFunction<T> selectionFunction = new RankSelection<T>();
 
@@ -312,6 +315,10 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		population.clear();
 	}
 
+	public void addSecondaryFitnessFunction(FitnessFunction<T> function){
+		secondaryFitnessFunctions.add(function);
+	}
+	
 	/**
      * Add new fitness function (i.e., for new mutation)
      * 
@@ -345,6 +352,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
     public List<FitnessFunction<T>> getFitnessFunctions() {
         return fitnessFunctions;
     }
+    public List<FitnessFunction<T>> getSecondaryFitnessFunctions() {
+		return secondaryFitnessFunctions;
+	}
 
     public int getNumberOfFitnessFunctions() {
         return fitnessFunctions.size();
@@ -453,6 +463,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
 			        fitnessFunction.getFitness(c);
 			        notifyEvaluation(c);
+			    }
+			    for (FitnessFunction<T> fitnessFunction : secondaryFitnessFunctions) {
+			        fitnessFunction.getFitness(c);
 			    }
 			}
 		}

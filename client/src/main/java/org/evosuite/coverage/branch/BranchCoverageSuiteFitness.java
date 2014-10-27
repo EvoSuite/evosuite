@@ -57,7 +57,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public final Set<Integer> lines;
 	private final Set<String> branchlessMethods;
 	private final Set<String> methods;
-
+	private final Set<Integer> branchesId;
+	
+	
+	
 	/**
 	 * <p>
 	 * Constructor for BranchCoverageSuiteFitness.
@@ -69,18 +72,20 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		if (prefix.isEmpty()) {
 			prefix = Properties.TARGET_CLASS;
-			totalMethods = CFGMethodAdapter.getNumMethods();
-			totalBranches = BranchPool.getBranchCounter();
-			numBranchlessMethods = BranchPool.getNumBranchlessMethods();
-			branchlessMethods = BranchPool.getBranchlessMethods();
-			methods = CFGMethodAdapter.getMethods();
+			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
+			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
+			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
+			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
+			branchesId = BranchPool.getBranchIdsForPrefix(prefix);
+			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
 
 		} else {
 			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
 			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
 			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
 			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
-			methods = CFGMethodAdapter.getMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
+			branchesId = BranchPool.getBranchIdsForPrefix(prefix);
+			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
 		}
 
 		/* TODO: Would be nice to use a prefix here */
@@ -169,13 +174,13 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	        Map<Integer, Integer> predicateCount, Map<String, Integer> callCount,
 	        Map<Integer, Double> trueDistance, Map<Integer, Double> falseDistance) {
 		boolean hasTimeoutOrTestException = false;
-
 		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException()) {
 				hasTimeoutOrTestException = true;
 			}
 
 			for (Entry<String, Integer> entry : result.getTrace().getMethodExecutionCount().entrySet()) {
+				if(!methods.contains(entry.getKey())) continue;
 				if (!callCount.containsKey(entry.getKey()))
 					callCount.put(entry.getKey(), entry.getValue());
 				else {
@@ -188,6 +193,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 			}
 			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
+				if(!branchesId.contains(entry.getKey())) continue;
 				if (!predicateCount.containsKey(entry.getKey()))
 					predicateCount.put(entry.getKey(), entry.getValue());
 				else {
@@ -197,6 +203,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().getTrueDistances().entrySet()) {
+				if(!branchesId.contains(entry.getKey())) continue;
 				if (!trueDistance.containsKey(entry.getKey()))
 					trueDistance.put(entry.getKey(), entry.getValue());
 				else {
@@ -209,6 +216,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
+				if(!branchesId.contains(entry.getKey())) continue;
 				if (!falseDistance.containsKey(entry.getKey()))
 					falseDistance.put(entry.getKey(), entry.getValue());
 				else {
@@ -247,7 +255,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		boolean hasTimeoutOrTestException = analyzeTraces(results, predicateCount,
 		                                                  callCount, trueDistance,
 		                                                  falseDistance);
-
 		// In case there were exceptions in a constructor
 		handleConstructorExceptions(results, callCount);
 
