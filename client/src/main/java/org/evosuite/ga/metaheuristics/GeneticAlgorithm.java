@@ -62,7 +62,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	/** Fitness function to rank individuals */
 	protected List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
 
-	/** Fitness function to rank individuals */
+	/** Fitness function to use as secondary criteria */
 	protected List<FitnessFunction<T>> secondaryFitnessFunctions = new ArrayList<FitnessFunction<T>>();
 
 	/** Selection function to select parents */
