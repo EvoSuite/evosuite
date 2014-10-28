@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.coverage.branch.keeptest.BranchCoverageSuiteFitnessWHystory;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
@@ -174,13 +175,23 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 				newGeneration.add(parent1);
 				newGeneration.add(parent2);
 			}
+			
 		}
 
 		population = newGeneration;
+//		updateFitnessFuntions();
 
 		currentIteration++;
 	}
 
+//	//TODO: TO CHANGE/REFACTOR: THIS IS WORK IN PROGRESS
+//	private void updateFitnessFuntions() {
+//		for (FitnessFunction<T> f : fitnessFunctions) {
+//			if (f instanceof BranchCoverageSuiteFitnessWHystory)
+//				((BranchCoverageSuiteFitnessWHystory) f).updateCoveredGoals();
+//		}
+//	}
+	
     private T newRandomIndividual() {
         T randomChromosome = chromosomeFactory.getChromosome();
         for (FitnessFunction<?> fitnessFunction : this.fitnessFunctions) {
