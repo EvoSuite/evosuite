@@ -1,5 +1,5 @@
 <idea-plugin version="2">
-  <id>org.evosuite.intellij</id>
+  <id>org.evosuite.plugin.intellij</id>
   <name>EvoSuite Plugin</name>
   <version>0.1.0</version>
   <vendor email="arcuri82@gmail.com" url="http://www.evosuite.org">EvoSuite</vendor>
@@ -28,13 +28,13 @@
 
   <application-components>
     <!-- Add your application components here -->
-      <component>
-          <implementation-class>org.evosuite.intellij.PluginRegistration</implementation-class>
-      </component>
   </application-components>
 
   <project-components>
     <!-- Add your project components here -->
+      <component>
+          <implementation-class>org.evosuite.intellij.PluginRegistration</implementation-class>
+      </component>
   </project-components>
 
   <actions>

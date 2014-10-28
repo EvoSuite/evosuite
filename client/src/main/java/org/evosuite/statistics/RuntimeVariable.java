@@ -41,8 +41,10 @@ public enum RuntimeVariable {
 	Total_Branches,     
 	/** Number of covered branches in CUT */
 	Covered_Branches,
-	/** Total number of boolean branches */
-	Gradient_Branches,  
+	/** Total number of gradient branches */
+	Gradient_Branches,
+	/** Total number of covered gradient branches */
+	Gradient_Branches_Covered,  
 	/** The number of lines in the CUT */
 	Lines,
 	/** The actual covered line numbers */
@@ -124,8 +126,6 @@ public enum RuntimeVariable {
 	CoveredBranchesBitString,
 	/** The obtained score for weak mutation testing */
 	WeakMutationScore,
-    WeakMutationFitnessTimeline,
-    WeakMutationCoverageTimeline,
     /** Only mutation = only infection distance */
 	OnlyMutationScore,
 	OnlyMutationFitnessTimeline,
@@ -167,7 +167,9 @@ public enum RuntimeVariable {
 	/** Number of top-level methods throwing an undeclared exception implicitly (ie, no 'new throw') */
 	Implicit_MethodExceptions, 
 	/** Number of undeclared exception types that were implicitly thrown (ie, no 'new throw') at least once */
-	Implicit_TypeExceptions, 
+	Implicit_TypeExceptions,
+    /** Total number of exceptions covered */
+    TotalExceptionsTimeline,
 	/* ----- number of unique permissions that were denied for each kind --- */
 	AllPermission,
 	SecurityPermission,

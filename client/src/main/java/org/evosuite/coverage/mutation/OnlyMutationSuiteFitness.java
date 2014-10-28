@@ -1,21 +1,49 @@
+/**
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ *
+ * You should have received a copy of the GNU Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.coverage.mutation;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
+/**
+ * <p>
+ * OnlyMutationSuiteFitness class.
+ * </p>
+ *
+ * @author fraser
+ */
 public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 
 	private static final long serialVersionUID = 7645950782176885889L;
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
+	 */
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
@@ -31,8 +59,6 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 
 		List<ExecutionResult> results = runTestSuite(individual);
 
-		// First objective: achieve branch coverage
-		logger.debug("Calculating branch fitness: ");
 		/*
 		 * Note: results are cached, so the test suite is not executed again when we
 		 * calculated the branch fitness

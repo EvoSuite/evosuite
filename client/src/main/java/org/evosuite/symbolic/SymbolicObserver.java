@@ -31,6 +31,7 @@ import org.evosuite.testcase.AssignmentStatement;
 import org.evosuite.testcase.BooleanPrimitiveStatement;
 import org.evosuite.testcase.BytePrimitiveStatement;
 import org.evosuite.testcase.CharPrimitiveStatement;
+import org.evosuite.testcase.ClassPrimitiveStatement;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DoublePrimitiveStatement;
@@ -158,6 +159,10 @@ public class SymbolicObserver extends ExecutionObserver {
 
 			} else if (s instanceof StringPrimitiveStatement) {
 				before((StringPrimitiveStatement) s, scope);
+				
+			} else if (s instanceof ClassPrimitiveStatement) {
+				before((ClassPrimitiveStatement) s, scope);
+
 			} else {
 				throw new UnsupportedOperationException();
 			}
@@ -165,6 +170,10 @@ public class SymbolicObserver extends ExecutionObserver {
 			throw new EvosuiteError(t);
 		}
 
+	}
+
+	private void before(ClassPrimitiveStatement s, Scope scope) {
+		/*do nothing*/
 	}
 
 	private static final int COMPONENT_TYPE_BOOLEAN = 4;
@@ -1198,12 +1207,24 @@ public class SymbolicObserver extends ExecutionObserver {
 
 			} else if (s instanceof StringPrimitiveStatement) {
 				after((StringPrimitiveStatement) s, scope);
+				
+			} else if (s instanceof ClassPrimitiveStatement) {
+				after((ClassPrimitiveStatement) s, scope);
+			
 			} else {
 				throw new UnsupportedOperationException();
 			}
 		} catch (Throwable t) {
 			throw new EvosuiteError(t);
 		}
+	}
+
+	private void after(ClassPrimitiveStatement s, Scope scope) {
+		VariableReference varRef = s.getReturnValue();
+		Class<?> concrete_reference = s.getValue();
+		String varName = varRef.getName();
+		Reference symb_ref = env.heap.getReference(concrete_reference);
+		symb_references.put(varName, symb_ref);
 	}
 
 	private void before(ArrayStatement s, Scope scope) {

@@ -74,11 +74,16 @@ import org.evosuite.symbolic.vm.string.ToString;
 import org.evosuite.symbolic.vm.string.ToUpperCase;
 import org.evosuite.symbolic.vm.string.Trim;
 import org.evosuite.symbolic.vm.string.ValueOf;
-import org.evosuite.symbolic.vm.string.StartsWith.StartsWith_SI;
+import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.StringBufferAppend_B;
+import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.StringBufferAppend_C;
+import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.StringBufferAppend_D;
+import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.StringBufferAppend_F;
+import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.StringBufferAppend_I;
+import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.StringBufferAppend_L;
+import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.StringBufferAppend_STR;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Init.StringBufferInit_S;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_SetLength;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_ToString;
-import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.*;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_Append;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_Init;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_ToString;
@@ -667,8 +672,8 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	}
 
 	private void beforeExecuteFunction(int nr) {
-		String desc = functionUnderExecution.getDesc();
-		if (Type.getArgumentTypes(desc).length - 1 == nr) {
+//		String desc = functionUnderExecution.getDesc();
+		if (nr ==0) {
 			callBeforeExecution(functionUnderExecution);
 		}
 	}

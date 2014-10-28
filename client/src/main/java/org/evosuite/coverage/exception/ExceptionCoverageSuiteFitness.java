@@ -42,6 +42,8 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static Logger logger = LoggerFactory.getLogger(ExceptionCoverageSuiteFitness.class);
 
+    private static int maxExceptionsCovered = 0;
+
 	/**
 	 * <p>
 	 * Constructor for ExceptionCoverageSuiteFitness.
@@ -49,6 +51,10 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	public ExceptionCoverageSuiteFitness() {
 	}
+
+    public static int getMaxExceptionsCovered() {
+        return maxExceptionsCovered;
+    }
 
 	/** {@inheritDoc} */
 	@Override
@@ -77,15 +83,18 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		int nExc = getNumExceptions(implicitTypesOfExceptions) + getNumExceptions(explicitTypesOfExceptions);
 
+        if (nExc > maxExceptionsCovered) {
+            logger.info("(Exceptions) Best individual covers " + nExc + " exceptions");
+            maxExceptionsCovered = nExc;
+        }
+
         // I set it here, but in the end it will be recomputed according to the total number of Exceptions
         suite.setCoverage(this, nExc / (nExc + 1.0));
 
 		double exceptionFitness = 1d / (1d + nExc);
 
-		//suite.setFitness(this, coverageFitness + exceptionFitness);
-		//return coverageFitness + exceptionFitness;
         suite.setFitness(this, exceptionFitness);
-        suite.setCoverage(this, 1.0);
+
         return exceptionFitness;
 	}
 
@@ -195,7 +204,6 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 							implicitTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
 						}
 						implicitTypesOfExceptions.get(methodName).add(t.getClass());
-						
 					}
                     /*
                      * Add goal to ExceptionCoverageFactory
