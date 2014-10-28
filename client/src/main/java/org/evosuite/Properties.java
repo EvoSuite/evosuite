@@ -371,8 +371,14 @@ public class Properties {
 	public static boolean DSE_KEEP_ALL_TESTS = false;
 
 	public enum SolverType {
-		EVOSUITE_SOLVER, Z3_SOLVER, Z3STR_SOLVER;
+		EVOSUITE_SOLVER, Z3_SOLVER, Z3_STR_SOLVER;
 	}
+
+	@Parameter(key = "z3_path", group = "Solver", description = "Indicates the path to the Z3 solver")
+	public static String Z3_PATH = null;
+
+	@Parameter(key = "z3_str_path", group = "Solver", description = "Indicates the path to the Z3-Str solver")
+	public static String Z3_STR_PATH = null;
 
 	public static SolverType DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
 
@@ -588,6 +594,9 @@ public class Properties {
 
 	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
 	public static boolean TRACK_BOOLEAN_BRANCHES = false;
+	
+	@Parameter(key = "track_covered_gradient_branches", group = "Search Algorithm", description = "Track gradient branches that were covered")
+	public static boolean TRACK_COVERED_GRADIENT_BRANCHES = false;
 
 	@Parameter(key = "branch_comparison_types", group = "Search Algorithm", description = "Track branch comparison types based on the bytecode")
 	public static boolean BRANCH_COMPARISON_TYPES = false;
@@ -802,6 +811,10 @@ public class Properties {
 	/** Constant <code>SAVE_ALL_DATA=true</code> */
 	@Parameter(key = "save_all_data", group = "Output", description = "Generate and store all data reports")
 	public static boolean SAVE_ALL_DATA = true;
+
+	/** Constant <code>PRINT_GOALS=false</code> */
+	@Parameter(key = "print_goals", group = "Output", description = "Print out goals of class under test")
+	public static boolean PRINT_GOALS = false;
 
 	/** Constant <code>PRINT_CURRENT_GOALS=false</code> */
 	@Parameter(key = "print_current_goals", group = "Output", description = "Print out current goal during test generation")

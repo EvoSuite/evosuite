@@ -15,6 +15,7 @@ import org.evosuite.testcase.AssignmentStatement;
 import org.evosuite.testcase.BooleanPrimitiveStatement;
 import org.evosuite.testcase.BytePrimitiveStatement;
 import org.evosuite.testcase.CharPrimitiveStatement;
+import org.evosuite.testcase.ClassPrimitiveStatement;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.DoublePrimitiveStatement;
@@ -225,5 +226,11 @@ public class TestCaseBuilder {
 		CharPrimitiveStatement primitiveStmt = new CharPrimitiveStatement(tc, c);
 		tc.addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
+	}
+
+	public VariableReference appendClassPrimitive(Class<?> value) {
+		ClassPrimitiveStatement stmt = new ClassPrimitiveStatement(tc, value);
+		tc.addStatement(stmt);
+		return stmt.getReturnValue();
 	}
 }

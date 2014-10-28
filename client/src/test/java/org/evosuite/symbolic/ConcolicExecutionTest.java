@@ -2199,6 +2199,23 @@ public class ConcolicExecutionTest {
 		return tc.getDefaultTestCase();
 	}
 
+	private DefaultTestCase buildTestCase101() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		Method method = TestCase101.class.getMethod("test", Class.class,
+				String.class);
+
+		VariableReference clazzPrimitive0 = tc
+				.appendClassPrimitive(TestCase101.class);
+		VariableReference string0 = tc.appendStringPrimitive(TestCase101.class
+				.getName());
+
+		tc.appendMethod(null, method, clazzPrimitive0, string0);
+
+		return tc.getDefaultTestCase();
+	}
+
 	@Test
 	public void testCase94() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase94();
@@ -2254,6 +2271,14 @@ public class ConcolicExecutionTest {
 	@Test
 	public void testCase100() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase100();
+
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
+	}
+
+	@Test
+	public void testCase101() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase101();
 
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());

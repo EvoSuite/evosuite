@@ -102,6 +102,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		sequenceOutputVariableFactories.put(RuntimeVariable.FitnessTimeline.name(), new FitnessSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.SizeTimeline.name(), new SizeSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.LengthTimeline.name(), new LengthSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.TotalExceptionsTimeline.name(), new TotalExceptionsSequenceOutputVariableFactory());
 
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyBranchFitnessTimeline.name(), new OnlyBranchFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyBranchCoverageTimeline.name(), new OnlyBranchCoverageSequenceOutputVariableFactory());
@@ -149,11 +150,11 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
 		logger.debug("Received individual");
 		bestIndividual.put(rmiClientIdentifier, (TestSuiteChromosome) individual);
+        for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
+            setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
+        }
 		for(SequenceOutputVariableFactory<?> v : sequenceOutputVariableFactories.values()) {
 			v.update((TestSuiteChromosome) individual);
-		}
-		for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
-			setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
 		}
 	}
 
@@ -168,8 +169,17 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	}
 
 	public void setOutputVariable(OutputVariable<?> variable) {
-		outputVariables.put(variable.getName(), variable);
-	}
+        /**
+         * if the output variable is contained in sequenceOutputVariableFactories,
+         * then it must be a DirectSequenceOutputVariableFactory, hence we set its
+         * value so that it can be used to produce the next timeline variable.
+         */
+        if (sequenceOutputVariableFactories.containsKey(variable.getName())) {
+            DirectSequenceOutputVariableFactory<Integer> v = (DirectSequenceOutputVariableFactory<Integer>)sequenceOutputVariableFactories.get(variable.getName());
+            v.setValue((Integer)variable.getValue());
+        } else
+            outputVariables.put(variable.getName(), variable);
+    }
 
 	public void addTestGenerationResult(List<TestGenerationResult> result) {
 	    results.add(result);
@@ -470,6 +480,26 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			return individual.totalLengthOfTestCases();
 		}
 	}
+
+    /**
+     * Total number of exceptions
+     */
+    private static class TotalExceptionsSequenceOutputVariableFactory extends DirectSequenceOutputVariableFactory<Integer> {
+        public TotalExceptionsSequenceOutputVariableFactory() {
+            super(RuntimeVariable.TotalExceptionsTimeline);
+            this.value = 0;
+        }
+
+        @Override
+        public Integer getValue(TestSuiteChromosome individual) {
+            return (Integer) this.value;
+        }
+
+        @Override
+        public void setValue(Integer value) {
+            this.value = value;
+        }
+    }
 
     private static class OnlyBranchFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 

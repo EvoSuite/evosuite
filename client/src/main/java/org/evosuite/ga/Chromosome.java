@@ -375,15 +375,16 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return a double.
 	 */
 	public double getCoverage() {
-		if (Properties.COMPOSITIONAL_FITNESS) {
-			double sum = 0;
-			for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
-				sum += coverages.get(fitnessFunction);
-			}
-			sum = coverages.isEmpty() ? 0.0 : sum / coverages.size();
-			return sum;
-		} else
-			return coverages.isEmpty() ? 0.0 : coverages.get((fitnesses.keySet().iterator().next()));
+        if (Properties.COMPOSITIONAL_FITNESS) {
+            double sum = 0;
+            for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+                sum += coverages.get(fitnessFunction);
+            }
+            double cov = coverages.isEmpty() ? 0.0 : sum / coverages.size();
+            assert(cov >= 0.0 && cov <= 1.0) : "Incorrect coverage value " + cov + ". Expected value between 0 and 1";
+            return cov;
+        } else
+            return coverages.isEmpty() ? 0.0 : coverages.get( fitnesses.keySet().iterator().next() );
 	}
 
 	public int getNumOfCoveredGoals() {

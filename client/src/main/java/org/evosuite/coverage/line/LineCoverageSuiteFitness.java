@@ -71,8 +71,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			lines.addAll(LinePool.getLines(className));
 		}
 		logger.info("Total line coverage goals: " + lines);
-		
-		new MethodCoverageFactory().getCoverageGoals();
+
 		List<LineCoverageTestFitness> goals = new LineCoverageFactory().getCoverageGoals();
 		for (LineCoverageTestFitness goal : goals) {
 			linesCoverageMap.put(goal.getLine(), goal);

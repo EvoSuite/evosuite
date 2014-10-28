@@ -1,11 +1,10 @@
 package org.evosuite.intellij.util;
 
-import com.intellij.openapi.ui.Messages;
 import org.evosuite.intellij.EvoParameters;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,8 +16,6 @@ import java.util.Map;
 public class MavenExecutor {
 
     private static MavenExecutor singleton = new MavenExecutor();
-
-    private volatile Process process; //TODO implement graceful shutdown
 
     private volatile Thread thread;
 
@@ -37,7 +34,18 @@ public class MavenExecutor {
         return false;
     }
 
+    public synchronized void stopRun(){
+        if(isAlreadyRunning()){
+            thread.interrupt();
+            try {
+                thread.join(2000);
+            } catch (InterruptedException e) {
+            }
+        }
+    }
 
+
+    //TODO should refactor 'final EvoParameters params' to be independent from IntelliJ
     /**
      * @param params
      * @param suts   map from Maven module folder to list of classes to tests.
@@ -46,7 +54,7 @@ public class MavenExecutor {
      * @throws IllegalArgumentException
      */
     public synchronized void run(final EvoParameters params, final Map<String, List<String>> suts, final AsyncGUINotifier notifier)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, IllegalStateException {
 
         if (suts == null || suts.isEmpty()) {
             throw new IllegalArgumentException("No specified classes to test");
@@ -71,17 +79,28 @@ public class MavenExecutor {
             }
         }
 
-        if (!isAlreadyRunning()) {
-            return;
+        if (isAlreadyRunning()) {
+            throw new IllegalStateException("Maven already running");
         }
 
         thread = new Thread() {
             @Override
             public void run() {
-                for(String modulePath : suts.keySet()){
+
+                for (String modulePath : suts.keySet()) {
+
+                    if(isInterrupted()){
+                        return;
+                    }
+
                     File dir = new File(modulePath);
                     //should be on background process
-                    Process p = execute(params, dir, suts.get(modulePath));
+                    Process p = execute(notifier, params, dir, suts.get(modulePath));
+                    if(p == null){
+                        return;
+                    }
+                    notifier.attachProcess(p);
+
                     int res = 0;
                     try {
                         /*
@@ -91,11 +110,11 @@ public class MavenExecutor {
                         res = p.waitFor();
                     } catch (InterruptedException e) {
                         p.destroy();
-                        break;
+                        return;
                     }
-                    if(res != 0){
+                    if (res != 0) {
                         notifier.failed("EvoSuite ended abruptly");
-                        break;
+                        return;
                     }
                 }
                 notifier.success("EvoSuite run is completed");
@@ -104,43 +123,46 @@ public class MavenExecutor {
         thread.start();
     }
 
-    private Process execute(EvoParameters params, File dir, List<String> classes) {
+    private Process execute(AsyncGUINotifier notifier, EvoParameters params, File dir, List<String> classes) {
 
-        System.out.println("Going to execute command");
-        List<String> list = Arrays.asList(
-                "mvn",
-                "compile",
-                "evosuite:generate",
-                "-Dcores="+params.cores,
-                "-DmemoryInMB="+params.memory,
-                "-DtimeInMinutesPerClass="+params.time
-        );
+        System.out.println("Going to execute command:");
+        List<String> list = new ArrayList<>();
+        list.add("mvn");
+        list.add("compile");
+        list.add("evosuite:generate");
+        list.add("-Dcores=" + params.getCores());
+        list.add("-DmemoryInMB=" + params.getMemory());
+        list.add("-DtimeInMinutesPerClass=" + params.getTime());
 
-        if(classes != null && !classes.isEmpty()){
+        if (classes != null && !classes.isEmpty()) {
             String s = classes.get(0).trim();
-            for(int i=1; i<classes.size(); i++){
-                s += ","+classes.get(i).trim();
+            for (int i = 1; i < classes.size(); i++) {
+                s += "," + classes.get(i).trim();
             }
-            list.add("-Dcuts="+s);
+            list.add("-Dcuts=" + s);
         }
 
         list.add("evosuite:export");
-        list.add("-DtargetFolder="+params.folder);
+        list.add("-DtargetFolder=" + params.getFolder());
 
         String[] command = list.toArray(new String[list.size()]);
+
+        String concat = "";
+        for(String c : command){
+            concat += c + "  ";
+        }
+        System.out.println(concat);
+        System.out.println("in folder: "+dir.getAbsolutePath());
 
 
         try {
             ProcessBuilder builder = new ProcessBuilder();
             builder.directory(dir);
-            builder.inheritIO();
             builder.command(command);
-
-            //TODO should redirect to an IntelliJ panel
 
             return builder.start();
         } catch (IOException e) {
-            e.printStackTrace();
+            notifier.failed("Failed to execute EvoSuite: "+e.getMessage());
             return null;
         }
 

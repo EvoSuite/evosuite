@@ -1,5 +1,8 @@
 package org.evosuite.intellij;
 
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+
 import javax.swing.*;
 import java.awt.event.*;
 import java.text.NumberFormat;
@@ -15,17 +18,20 @@ public class EvoStartDialog extends JDialog {
 
     private volatile boolean wasOK = false;
     private volatile EvoParameters params;
+    private volatile Project project;
 
-    public void initFields(EvoParameters params){
+    public void initFields(Project project, EvoParameters params){
+        this.project = project;
         this.params = params;
-        coreField.setText(""+params.cores);
-        memoryField.setText(""+params.memory);
-        timeField.setText(""+params.time);
-        folderField.setText(params.folder);
+        coreField.setText(""+params.getCores());
+        memoryField.setText(""+params.getMemory());
+        timeField.setText(""+params.getTime());
+        folderField.setText(params.getFolder());
     }
 
 
     public EvoStartDialog() {
+
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -60,9 +66,26 @@ public class EvoStartDialog extends JDialog {
 
     private void onOK() {
 // add your code here
-        wasOK = true;
-        //TODO update params
+
         dispose();
+
+        int cores = Integer.parseInt(coreField.getText());
+        int memory = Integer.parseInt(memoryField.getText());
+        int time = Integer.parseInt(timeField.getText());
+        String dir = folderField.getText();
+
+        if (cores < 1 || memory < 1 || time < 1) {
+            Messages.showMessageDialog(project, "Parameters need positive values",
+                    "EvoSuite Plugin", Messages.getErrorIcon());
+            return;
+        }
+
+        params.setCores(cores);
+        params.setMemory(memory);
+        params.setTime(time);
+        params.setFolder(dir);
+
+        wasOK = true;
     }
 
     private void onCancel() {

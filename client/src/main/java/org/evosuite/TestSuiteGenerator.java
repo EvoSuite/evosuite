@@ -245,8 +245,13 @@ public class TestSuiteGenerator {
 			TestCaseExecutor.getInstance().removeObserver(checker);
 		}
 		if(Properties.TRACK_BOOLEAN_BRANCHES){
-			int gradient_branches = ExecutionTraceImpl.gradientBranches.size();
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches, gradient_branches);
+			int gradientBranchCount = ExecutionTraceImpl.gradientBranches.size() * 2;
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches, gradientBranchCount);
+		}
+		if (Properties.TRACK_COVERED_GRADIENT_BRANCHES) {
+			int coveredGradientBranchCount = ExecutionTraceImpl.gradientBranchesCoveredTrue.size()
+					+ ExecutionTraceImpl.gradientBranchesCoveredFalse.size();
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches_Covered, coveredGradientBranchCount);
 		}
 		if(Properties.BRANCH_COMPARISON_TYPES){
 			int cmp_intzero=0, cmp_intint=0, cmp_refref=0, cmp_refnull=0;
@@ -289,6 +294,8 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefRef, cmp_refref);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefNull, cmp_refnull);
 		}
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Statements_Executed, MaxStatementsStoppingCondition.getNumExecutedStatements());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, MaxTestsStoppingCondition.getNumExecutedTests());
 		StatisticsSender.executedAndThenSendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?
 		
         ClientServices.getInstance().getClientNode().publishPermissionStatistics();
@@ -827,6 +834,9 @@ public class TestSuiteGenerator {
 		case WEAKMUTATION:
 			LoggingUtils.getEvoLogger().info("  - Mutation testing (weak)");
 			break;
+        case ONLYMUTATION:
+            LoggingUtils.getEvoLogger().info("  - Only Mutation testing (weak)");
+            break;
 		case STRONGMUTATION:
 		case MUTATION:
 			LoggingUtils.getEvoLogger().info("  - Mutation testing (strong)");
@@ -1158,6 +1168,7 @@ public class TestSuiteGenerator {
 		stopping_condition = getStoppingCondition();
 		for (FitnessFunction<?> fitness_function : fitness_functions)
 		    ((TestSuiteFitnessFunction)fitness_function).getFitness(suite);
+		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 		while (!isFinished(suite)) {
 			TestChromosome test = factory.getChromosome();
@@ -1170,6 +1181,7 @@ public class TestSuiteGenerator {
             }
 			if (clone.compareTo(suite) < 0) {
 				suite = clone;
+				StatisticsSender.executedAndThenSendIndividualToMaster(clone);				
 			}
 		}
 		suiteGA.getPopulation().add(suite);
@@ -1451,6 +1463,11 @@ public class TestSuiteGenerator {
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
 			inliner.inline(suite);
+		}
+
+		if (Properties.COVERAGE) {
+			for (Properties.Criterion pc : Properties.CRITERION)
+				CoverageAnalysis.analyzeCoverage(suite, pc);
 		}
 
 		/*

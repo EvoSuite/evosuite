@@ -1,5 +1,8 @@
 package org.evosuite.intellij;
 
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.impl.ConsoleViewImpl;
+import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -9,7 +12,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowAnchor;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.psi.PsiFile;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentFactory;
+import org.evosuite.intellij.util.AsyncGUINotifier;
 import org.evosuite.intellij.util.MavenExecutor;
 
 import javax.swing.*;
@@ -21,18 +31,26 @@ import java.util.*;
  */
 public class EvoAction extends AnAction {
 
-    //com.intellij.ide.util.PropertiesComponent
-    //TODO should save used configurations from previous IntelliJ runs
-    private static final EvoParameters params = new EvoParameters();
+    private final ToolWindow toolWindow;
+    private final AsyncGUINotifier notifier;
 
-    public EvoAction() {
+    public EvoAction(ToolWindow toolWindow, AsyncGUINotifier notifier) {
         super("Run EvoSuite");
+        this.toolWindow = toolWindow;
+        this.notifier = notifier;
     }
+
 
     public void actionPerformed(AnActionEvent event) {
 
         String title = "EvoSuite Plugin";
         Project project = event.getData(PlatformDataKeys.PROJECT);
+
+        if (MavenExecutor.getInstance().isAlreadyRunning()) {
+            Messages.showMessageDialog(project, "An instance of EvoSuite is already running",
+                    title, Messages.getErrorIcon());
+            return;
+        }
 
         Map<String,List<String>> map = getCUTsToTest(event);
         if(map==null || map.isEmpty()){
@@ -42,7 +60,7 @@ public class EvoAction extends AnAction {
         }
 
         EvoStartDialog dialog = new EvoStartDialog();
-        dialog.initFields(params);
+        dialog.initFields(project, EvoParameters.getInstance());
         dialog.setModal(true);
         dialog.setLocationRelativeTo(null);
         //dialog.setLocationByPlatform(true);
@@ -50,8 +68,12 @@ public class EvoAction extends AnAction {
         dialog.setVisible(true);
 
         if (dialog.isWasOK()) {
-            IntelliJNotifier notifier = new IntelliJNotifier(project, title);
-            MavenExecutor.getInstance().run(params,map,notifier);
+            toolWindow.show(new Runnable(){@Override public void run(){
+                notifier.clearConsole();
+            }
+            });
+            EvoParameters.getInstance().save(project);
+            MavenExecutor.getInstance().run(EvoParameters.getInstance(),map,notifier);
         }
     }
 
@@ -158,8 +180,8 @@ public class EvoAction extends AnAction {
 
     private String getCUTName(String path, String root) {
         String name = path.substring(root.length()+1, path.length() - ".java".length());
-        name = name.replace('.','/'); //posix
-        name = name.replace(".", "\\");  // windows
+        name = name.replace('/','.'); //posix
+        name = name.replace("\\", ".");  // windows
         return name;
     }
 

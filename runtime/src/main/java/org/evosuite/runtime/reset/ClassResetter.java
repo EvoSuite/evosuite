@@ -62,7 +62,7 @@ public class ClassResetter {
             if(clazz.isInterface() || clazz.isAnonymousClass())
             	return;
             
-            Method m = clazz.getMethod(STATIC_RESET, (Class<?>[]) null);
+            Method m = clazz.getDeclaredMethod(STATIC_RESET, (Class<?>[]) null);
             m.setAccessible(true);
             methodMap.put(classNameWithDots, m);
         } catch (NoSuchMethodException | ClassNotFoundException | SecurityException | IllegalArgumentException e) {
