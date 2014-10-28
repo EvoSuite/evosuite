@@ -52,7 +52,7 @@ public class CallContext implements Serializable {
 	 */
 	private static final long serialVersionUID = 8650619230188403356L;
 
-	private final List<Call> context = new ArrayList<Call>();
+    private final List<Call> context = new ArrayList<Call>();
 
 	private final int hcode;
 
@@ -216,6 +216,10 @@ public class CallContext implements Serializable {
 		return false;
 	}
 
+
+    public List<Call> getContext() {
+        return context;
+    }
 	// ----------------
 	// CALL class
 

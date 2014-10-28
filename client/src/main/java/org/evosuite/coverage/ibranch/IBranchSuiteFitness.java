@@ -10,7 +10,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.evosuite.Properties;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.setup.Call;
 import org.evosuite.setup.CallContext;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -32,7 +36,6 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 	private final Map<String, Map<CallContext, Set<IBranchTestFitness>>> methodsMap;
 
-	
 //	private final List<IBranchTestFitness> sutBranchGoals;
  
 	public IBranchSuiteFitness() {
@@ -41,6 +44,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		methodsMap = new HashMap<>();
 		IBranchFitnessFactory factory = new IBranchFitnessFactory();
 		branchGoals = factory.getCoverageGoals();
+        countGoals(branchGoals);
 		for (IBranchTestFitness goal : branchGoals) {
 			if (goal.getBranchGoal() != null&&goal.getBranchGoal().getBranch()!=null) {
 				int branchId = goal.getBranchGoal().getBranch().getActualBranchId();
@@ -76,7 +80,26 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 //		logger.error(toprint);		
 	}
 
-	private Map<IBranchTestFitness, Double> getDefaultDistanceMap() {
+    private void countGoals(List<IBranchTestFitness> branchGoals) {
+        int totalGoals = branchGoals.size();
+        int goalsInTarget = 0;
+        for (IBranchTestFitness g : branchGoals) {
+            boolean flag = true;
+            for (Call call : g.getContext().getContext()) {
+                if (! call.getClassName().equals(Properties.TARGET_CLASS)) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag)
+                goalsInTarget++;
+        }
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.IBranchGoals, totalGoals);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.IBranchGoalsInTargetClass, goalsInTarget);
+
+    }
+
+    private Map<IBranchTestFitness, Double> getDefaultDistanceMap() {
 		Map<IBranchTestFitness, Double> distanceMap = new HashMap<IBranchTestFitness, Double>();
 		for (IBranchTestFitness goal : branchGoals)
 			distanceMap.put(goal, 1.0);
