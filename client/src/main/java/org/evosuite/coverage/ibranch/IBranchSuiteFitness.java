@@ -231,16 +231,14 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 //						numSUTCoveredBanches++;
 				}
 			} else {
-				if (count > 0 && distance == 0.0) {
+				if (count > 0 && Double.compare(distance, 0.0) ==0) {
 					numCoveredGoals++;
 //					if (sutBranchGoals.contains(goal))
 //						numSUTCoveredBanches++;
 				}
 				// If branch is called exactly once in that context, 
 				// then the sum of false and true distance must be 1
-				if (count == 1)
-					fitness += 0.5;
-				else if (count > 1)
+				 if (count > 0)
 					fitness += distance;
 				else
 					fitness += 1;
@@ -258,7 +256,6 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 //			fitness = 0.0;
 //		}
 		updateIndividual(this, suite, fitness);
-
 		return fitness;
 	}
 }
