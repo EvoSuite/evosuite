@@ -75,13 +75,13 @@ public class BranchCoverageSuiteFitnessWHystory extends TestSuiteFitnessFunction
 	private final Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new HashMap<String, TestFitnessFunction>();
 
 
-	Set<Integer> toRemoveBranchesT = new HashSet<>();
-	Set<Integer> toRemoveBranchesF = new HashSet<>();
-	Set<String> toRemoveRootBranches = new HashSet<>();	
+	private final Set<Integer> toRemoveBranchesT = new HashSet<>();
+	private final Set<Integer> toRemoveBranchesF = new HashSet<>();
+	private final Set<String> toRemoveRootBranches = new HashSet<>();	
 	
-	Set<Integer> removedBranchesT = new HashSet<>();
-	Set<Integer> removedBranchesF = new HashSet<>();
-	Set<String> removedRootBranches = new HashSet<>();	
+	private final Set<Integer> removedBranchesT = new HashSet<>();
+	private final Set<Integer> removedBranchesF = new HashSet<>();
+	private final Set<String> removedRootBranches = new HashSet<>();	
 	
 	/**
 	 * <p>
@@ -202,6 +202,7 @@ public class BranchCoverageSuiteFitnessWHystory extends TestSuiteFitnessFunction
 					callCount.put(entry.getKey(),
 					              callCount.get(entry.getKey()) + entry.getValue());
 				}
+				//TODO why? check this
 				if (branchlessMethodCoverageMap.containsKey(entry.getKey())) {
 					result.test.addCoveredGoal(branchlessMethodCoverageMap.get(entry.getKey()));
 					savedTests.putTest(branchCoverageTrueMap.get(entry.getKey()), result.test);
@@ -210,7 +211,10 @@ public class BranchCoverageSuiteFitnessWHystory extends TestSuiteFitnessFunction
 
 			}
 			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
-				if(!branchesId.contains(entry.getKey())) continue;
+				if (!branchesId.contains(entry.getKey())
+						|| (removedBranchesT.contains(entry.getKey())
+						&& removedBranchesF.contains(entry.getKey())))
+					continue;
 				if (!predicateCount.containsKey(entry.getKey()))
 					predicateCount.put(entry.getKey(), entry.getValue());
 				else {
@@ -228,7 +232,7 @@ public class BranchCoverageSuiteFitnessWHystory extends TestSuiteFitnessFunction
 							Math.min(trueDistance.get(entry.getKey()),
 									entry.getValue()));
 				}
-				if (entry.getValue() == 0.0) {
+				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
 					result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
 					savedTests.putTest(branchCoverageTrueMap.get(entry.getKey()), result.test);
 					toRemoveBranchesT.add(entry.getKey());
@@ -243,7 +247,7 @@ public class BranchCoverageSuiteFitnessWHystory extends TestSuiteFitnessFunction
 							Math.min(falseDistance.get(entry.getKey()),
 									entry.getValue()));
 				}
-				if (entry.getValue() == 0.0) {
+				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
 					result.test.addCoveredGoal(branchCoverageFalseMap.get(entry.getKey()));
 					savedTests.putTest(branchCoverageTrueMap.get(entry.getKey()), result.test);
 					toRemoveBranchesF.add(entry.getKey());
@@ -345,12 +349,12 @@ public class BranchCoverageSuiteFitnessWHystory extends TestSuiteFitnessFunction
 //			if (numExecuted == 1) {
 //				fitness += 1.0;
 //			} else {
-				fitness += normalize(df) + normalize(dt);
-//			}
-			if (df == 0.0)
+			fitness += normalize(df) + normalize(dt);
+			// }
+			if ((Double.compare(df, 0.0) == 0))
 				numCoveredBranches++;
 
-			if (dt == 0.0)
+			if ((Double.compare(dt, 0.0) == 0))
 				numCoveredBranches++;
 		}
 
@@ -365,15 +369,13 @@ public class BranchCoverageSuiteFitnessWHystory extends TestSuiteFitnessFunction
 				missingMethods += 1;
 			}
 		}
-
 		// Add statement information
 		if (Properties.BRANCH_STATEMENT) {
 			int totalLines = lines.size();
 			logger.info("Covered " + covered_lines.size() + " out of " + totalLines
 			        + " lines");
 			fitness += normalize(totalLines - covered_lines.size());
-		}
-
+		} 
 		printStatusMessages(suite, numCoveredBranches, totalMethods - missingMethods,
 		                    fitness);
 
@@ -386,21 +388,11 @@ public class BranchCoverageSuiteFitnessWHystory extends TestSuiteFitnessFunction
 
 		}
 
-		for (Integer integer : removedBranchesF) {
-			coverage++;
-		}
-		
-		for (Integer integer : removedBranchesT) {
-			coverage++;
-		}		
-		
-		for (String s : removedRootBranches) {
-			coverage++;
-		}
-		
-		if(coverage==5) 
-			System.out.println();
-		
+		coverage = +removedBranchesF.size();
+		coverage = +removedBranchesT.size();
+		coverage = +removedRootBranches.size();
+	
+ 		
 		if (totalGoals > 0)
 			suite.setCoverage(this, (double) coverage / (double) totalGoals);
         else
@@ -424,7 +416,7 @@ public class BranchCoverageSuiteFitnessWHystory extends TestSuiteFitnessFunction
 		        + "coverage: " + coverage + "/" + totalGoals;
 		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
 		        + suite.getCoverage(this);
-		
+
 		return fitness;
 	}
 

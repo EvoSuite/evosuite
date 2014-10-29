@@ -29,11 +29,13 @@ import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageFactory;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.*;
+import org.evosuite.coverage.branch.keeptest.BranchCoverageSuiteFitnessWHystory;
 import org.evosuite.coverage.dataflow.*;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
 import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
+import org.evosuite.coverage.ibranch.keeptest.IBranchSuiteFitnessWHistory;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.method.*;
@@ -921,8 +923,12 @@ public class TestSuiteGenerator {
 			return new DefUseCoverageSuiteFitness();
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
+		case CACHEBRANCH:
+			return new BranchCoverageSuiteFitnessWHystory();
 		case IBRANCH:
 			return new IBranchSuiteFitness();
+		case CACHEIBRANCH:
+			return new IBranchSuiteFitnessWHistory();
 		case STATEMENT:
 			return new StatementCoverageSuiteFitness();
 		case RHO:
@@ -995,7 +1001,11 @@ public class TestSuiteGenerator {
 			return new DefUseCoverageFactory();
 		case BRANCH:
 			return new BranchCoverageFactory();
+		case CACHEBRANCH:
+			return new BranchCoverageFactory();
 		case IBRANCH:
+			return new IBranchFitnessFactory();
+		case CACHEIBRANCH:
 			return new IBranchFitnessFactory();
 		case STATEMENT:
 			return new StatementCoverageFactory();

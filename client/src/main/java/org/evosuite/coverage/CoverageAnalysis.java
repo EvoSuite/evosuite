@@ -139,6 +139,8 @@ public class CoverageAnalysis {
 			return RuntimeVariable.AllDefCoverage;
 		case BRANCH:
 			return RuntimeVariable.BranchCoverage;
+		case CACHEBRANCH:
+			return RuntimeVariable.BranchCoverage;
 		case EXCEPTION:
 			return RuntimeVariable.ExceptionCoverage;
 		case DEFUSE:
@@ -169,6 +171,8 @@ public class CoverageAnalysis {
 		case OUTPUT:
 			return RuntimeVariable.OutputCoverage;
 		case IBRANCH:
+			return RuntimeVariable.IBranchCoverage;
+		case CACHEIBRANCH:
 			return RuntimeVariable.IBranchCoverage;
 		case REGRESSION:
 		default:

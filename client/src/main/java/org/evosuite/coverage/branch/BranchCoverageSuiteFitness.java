@@ -211,7 +211,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 							Math.min(trueDistance.get(entry.getKey()),
 									entry.getValue()));
 				}
-				if (entry.getValue() == 0.0) {
+				if (Double.compare(entry.getValue(), 0.0) ==0) {
 					result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
 				}
 			}
@@ -224,7 +224,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 							Math.min(falseDistance.get(entry.getKey()),
 									entry.getValue()));
 				}
-				if (entry.getValue() == 0.0) {
+				if (Double.compare(entry.getValue(), 0.0) ==0) {
 					result.test.addCoveredGoal(branchCoverageFalseMap.get(entry.getKey()));
 				}
 			}
@@ -284,10 +284,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			} else {
 				fitness += normalize(df) + normalize(dt);
 			}
-			if (df == 0.0)
+			if (Double.compare(df, 0.0) ==0)
 				numCoveredBranches++;
 
-			if (dt == 0.0)
+			if (Double.compare(dt, 0.0) ==0)
 				numCoveredBranches++;
 		}
 
