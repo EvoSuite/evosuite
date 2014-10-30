@@ -21,14 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.branch.keeptest.BranchCoverageSuiteFitnessWHystory;
-import org.evosuite.coverage.ibranch.keeptest.IBranchSuiteFitnessWHistory;
+import org.evosuite.Properties.Criterion;
+import org.evosuite.coverage.branch.archive.ArchiveBranchCoverageSuiteFitness;
+import org.evosuite.coverage.ibranch.archive.ArchiveIBranchSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.ReplacementFunction;
+import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,17 +182,21 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 		population = newGeneration;
 		updateFitnessFuntions();
+		for (T t : population) {
+			if(t.isToBeUpdated()){
+			    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+					fitnessFunction.getFitness(t);
+				}
+			    t.setToBeUpdated(false);
+			}
+		}
 
 		currentIteration++;
 	}
 
-	//TODO: TO CHANGE/REFACTOR: THIS IS WORK IN PROGRESS
 	private void updateFitnessFuntions() {
 		for (FitnessFunction<T> f : fitnessFunctions) {
-			if (f instanceof BranchCoverageSuiteFitnessWHystory)
-				((BranchCoverageSuiteFitnessWHystory) f).updateCoveredGoals();
-			if (f instanceof IBranchSuiteFitnessWHistory)
-				((IBranchSuiteFitnessWHistory) f).updateCoveredGoals();
+			f.updateCoveredGoals();
 		}
 	}
 	
@@ -251,6 +257,22 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			        + population.get(population.size() - 1).getFitness());
 		}
 
+		
+		// TODO: TO CHANGE/REFACTOR: THIS IS JUST UGLY AND TEMPORARY, HAS TO BE REFACTORED
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEIBRANCH)) {
+			for (FitnessFunction<T> f : fitnessFunctions) {
+				if (f instanceof ArchiveIBranchSuiteFitness) {
+					population.add(0, (T) ((ArchiveIBranchSuiteFitness) f).getBestChromosome());
+				}
+			}
+		}
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEBRANCH)) {
+			for (FitnessFunction<T> f : fitnessFunctions) {
+				if (f instanceof ArchiveBranchCoverageSuiteFitness)
+					population.add(0, (T) ((ArchiveBranchCoverageSuiteFitness) f).getBestChromosome()); 
+			}
+		}
+		// --------------------------
 		notifySearchFinished();
 	}
 

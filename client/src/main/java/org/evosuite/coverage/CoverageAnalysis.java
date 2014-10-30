@@ -139,7 +139,7 @@ public class CoverageAnalysis {
 			return RuntimeVariable.AllDefCoverage;
 		case BRANCH:
 			return RuntimeVariable.BranchCoverage;
-		case CACHEBRANCH:
+		case ARCHIVEBRANCH:
 			return RuntimeVariable.BranchCoverage;
 		case EXCEPTION:
 			return RuntimeVariable.ExceptionCoverage;
@@ -172,7 +172,7 @@ public class CoverageAnalysis {
 			return RuntimeVariable.OutputCoverage;
 		case IBRANCH:
 			return RuntimeVariable.IBranchCoverage;
-		case CACHEIBRANCH:
+		case ARCHIVEIBRANCH:
 			return RuntimeVariable.IBranchCoverage;
 		case REGRESSION:
 		default:

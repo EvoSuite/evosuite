@@ -46,7 +46,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	protected Chromosome() {
 		// empty
 	}
-
+	protected boolean toBeUpdated=false;
 	/** Last recorded fitness value */
 	private LinkedHashMap<FitnessFunction<?>, Double> fitnesses = new LinkedHashMap<FitnessFunction<?>, Double>();
 	
@@ -113,6 +113,14 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public void setLastFitnesses(Map<FitnessFunction<?>, Double> lastFits) {
 		this.lastFitnesses.clear();
 		this.lastFitnesses.putAll(lastFits);
+	}
+
+	public boolean isToBeUpdated() {
+		return toBeUpdated;
+	}
+
+	public void setToBeUpdated(boolean toBeUpdated) {
+		this.toBeUpdated = toBeUpdated;
 	}
 
 	/**

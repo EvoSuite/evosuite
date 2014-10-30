@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.evosuite.coverage.ibranch.keeptest;
+package org.evosuite.coverage.ibranch.archive;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.goalsoptimiser.StoredTestPool;
+import org.evosuite.coverage.goalsoptimiser.BestChromosomeBuilder;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
 import org.evosuite.coverage.ibranch.IBranchTestFitness;
 import org.evosuite.rmi.ClientServices;
@@ -21,6 +21,7 @@ import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
@@ -31,7 +32,7 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
  * @author Gordon Fraser, mattia
  * 
  */
-public class IBranchSuiteFitnessWHistory extends TestSuiteFitnessFunction {
+public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = -4745892521350308986L;
 
@@ -43,8 +44,9 @@ public class IBranchSuiteFitnessWHistory extends TestSuiteFitnessFunction {
 
 	private final Map<String, Map<CallContext, Set<IBranchTestFitness>>> methodsMap;
 
-	private final StoredTestPool savedTests;
-
+//	private final StoredTestPool savedTests;
+	private final BestChromosomeBuilder bestChromoBuilder;
+	
 	private final Set<IBranchTestFitness> toRemoveBranchesT = new HashSet<>();
 	private final Set<IBranchTestFitness> toRemoveBranchesF = new HashSet<>();
 	private final Set<IBranchTestFitness> toRemoveRootBranches = new HashSet<>();
@@ -53,10 +55,49 @@ public class IBranchSuiteFitnessWHistory extends TestSuiteFitnessFunction {
 	private final Set<IBranchTestFitness> removedBranchesF = new HashSet<>();
 	private final Set<IBranchTestFitness> removedRootBranches = new HashSet<>();
 
-	public IBranchSuiteFitnessWHistory() {
+	public ArchiveIBranchSuiteFitness() {
+		bestChromoBuilder = new BestChromosomeBuilder();
 		goalsMap = new HashMap<>();
 		methodsMap = new HashMap<>();
-		savedTests = new StoredTestPool();
+		IBranchFitnessFactory factory = new IBranchFitnessFactory();
+		branchGoals = factory.getCoverageGoals();
+		countGoals(branchGoals);
+	
+		for (IBranchTestFitness goal : branchGoals) {
+			if (goal.getBranchGoal() != null && goal.getBranchGoal().getBranch() != null) {
+				int branchId = goal.getBranchGoal().getBranch().getActualBranchId();
+
+				Map<CallContext, Set<IBranchTestFitness>> innermap = goalsMap.get(branchId);
+				if (innermap == null) {
+					goalsMap.put(branchId, innermap = new HashMap<>());
+				}
+				Set<IBranchTestFitness> tempInSet = innermap.get(goal.getContext());
+				if (tempInSet == null) {
+					innermap.put(goal.getContext(), tempInSet = new HashSet<>());
+				}
+				tempInSet.add(goal);
+			} else {
+				String methodName = goal.getTargetClass() + "." + goal.getTargetMethod();
+				Map<CallContext, Set<IBranchTestFitness>> innermap = methodsMap.get(methodName);
+				if (innermap == null) {
+					methodsMap.put(methodName, innermap = new HashMap<>());
+				}
+				Set<IBranchTestFitness> tempInSet = innermap.get(goal.getContext());
+				if (tempInSet == null) {
+					innermap.put(goal.getContext(), tempInSet = new HashSet<>());
+				}
+				tempInSet.add(goal);
+
+			}
+			logger.info("Context goal: " + goal.toString());
+		}
+		totGoals = branchGoals.size();
+	}
+	
+	public ArchiveIBranchSuiteFitness(BestChromosomeBuilder bestChromoBuilder) {
+		this.bestChromoBuilder = bestChromoBuilder;
+		goalsMap = new HashMap<>();
+		methodsMap = new HashMap<>();
 		IBranchFitnessFactory factory = new IBranchFitnessFactory();
 		branchGoals = factory.getCoverageGoals();
 		countGoals(branchGoals);
@@ -152,6 +193,10 @@ public class IBranchSuiteFitnessWHistory extends TestSuiteFitnessFunction {
 		}
 		return null;
 	}
+	
+	public TestSuiteChromosome getBestChromosome(){
+		return bestChromoBuilder.getBestChromosome();
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -162,7 +207,6 @@ public class IBranchSuiteFitnessWHistory extends TestSuiteFitnessFunction {
 	@Override
 	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		double fitness = 0.0; // branchFitness.getFitness(suite);
-
 		List<ExecutionResult> results = runTestSuite(suite);
 		Map<IBranchTestFitness, Double> distanceMap = getDefaultDistanceMap();
 
@@ -181,8 +225,9 @@ public class IBranchSuiteFitnessWHistory extends TestSuiteFitnessFunction {
 						distanceMap.put(goal, distance);
 					}
 					if (Double.compare(distance, 0.0) == 0) {
-						savedTests.putTest(goal, result.test);
+						bestChromoBuilder.putTest(goal, result.test);
 						toRemoveBranchesT.add(goal);
+						suite.setToBeUpdated(true);
 					}
 				}
 			}
@@ -197,8 +242,9 @@ public class IBranchSuiteFitnessWHistory extends TestSuiteFitnessFunction {
 						distanceMap.put(goal, distance);
 					}
 					if (Double.compare(distance, 0.0) == 0) {
-						savedTests.putTest(goal, result.test);
+						bestChromoBuilder.putTest(goal, result.test);
 						toRemoveBranchesF.add(goal);
+						suite.setToBeUpdated(true);
 					}
 				}
 			}
@@ -236,8 +282,9 @@ public class IBranchSuiteFitnessWHistory extends TestSuiteFitnessFunction {
 						callCount.put(goal, count);
 					}
 					if (count > 0) {
-						savedTests.putTest(goal, result.test);
+						bestChromoBuilder.putTest(goal, result.test);
 						toRemoveRootBranches.add(goal);
+						suite.setToBeUpdated(true);
 					}
 				}
 			}
@@ -295,8 +342,8 @@ public class IBranchSuiteFitnessWHistory extends TestSuiteFitnessFunction {
 	// methodsMap;
 	//
 	// private final StoredTestPool savedTests;
-
-	public void updateCoveredGoals() {
+	@Override
+	public boolean updateCoveredGoals() {
 
 		for (IBranchTestFitness method : toRemoveRootBranches) {
 			boolean removed = branchGoals.remove(method);
@@ -339,5 +386,7 @@ public class IBranchSuiteFitnessWHistory extends TestSuiteFitnessFunction {
 		toRemoveRootBranches.clear();
 		toRemoveBranchesF.clear();
 		toRemoveBranchesT.clear();
+		
+		return true;
 	}
 }

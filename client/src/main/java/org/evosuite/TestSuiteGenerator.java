@@ -29,13 +29,13 @@ import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageFactory;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.*;
-import org.evosuite.coverage.branch.keeptest.BranchCoverageSuiteFitnessWHystory;
+import org.evosuite.coverage.branch.archive.ArchiveBranchCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.*;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
 import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
-import org.evosuite.coverage.ibranch.keeptest.IBranchSuiteFitnessWHistory;
+import org.evosuite.coverage.ibranch.archive.ArchiveIBranchSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.method.*;
@@ -603,6 +603,8 @@ public class TestSuiteGenerator {
 		// executed with -prefix!
 
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+		        || ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
+		        || ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEIBRANCH)  
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.RHO)
@@ -923,12 +925,12 @@ public class TestSuiteGenerator {
 			return new DefUseCoverageSuiteFitness();
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
-		case CACHEBRANCH:
-			return new BranchCoverageSuiteFitnessWHystory();
+		case ARCHIVEBRANCH:
+			return new ArchiveBranchCoverageSuiteFitness();
 		case IBRANCH:
 			return new IBranchSuiteFitness();
-		case CACHEIBRANCH:
-			return new IBranchSuiteFitnessWHistory();
+		case ARCHIVEIBRANCH:
+			return new ArchiveIBranchSuiteFitness();
 		case STATEMENT:
 			return new StatementCoverageSuiteFitness();
 		case RHO:
@@ -1001,11 +1003,11 @@ public class TestSuiteGenerator {
 			return new DefUseCoverageFactory();
 		case BRANCH:
 			return new BranchCoverageFactory();
-		case CACHEBRANCH:
+		case ARCHIVEBRANCH:
 			return new BranchCoverageFactory();
 		case IBRANCH:
 			return new IBranchFitnessFactory();
-		case CACHEIBRANCH:
+		case ARCHIVEIBRANCH:
 			return new IBranchFitnessFactory();
 		case STATEMENT:
 			return new StatementCoverageFactory();
