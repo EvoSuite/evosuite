@@ -81,4 +81,8 @@ public abstract class FitnessFunction<T extends Chromosome> implements Serializa
 	 * @return a boolean.
 	 */
 	public abstract boolean isMaximizationFunction();
+	
+	public boolean updateCoveredGoals(){
+		return false;
+	}
 }
