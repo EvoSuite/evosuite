@@ -241,6 +241,7 @@ public class TestSuiteGenerator {
 		    tests.add(generateFixedRandomTests());
 		else
 		    tests.add(generateIndividualTests());
+
 		if (Properties.CHECK_CONTRACTS) {
 			TestCaseExecutor.getInstance().removeObserver(checker);
 		}
@@ -294,8 +295,7 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefRef, cmp_refref);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefNull, cmp_refnull);
 		}
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Statements_Executed, MaxStatementsStoppingCondition.getNumExecutedStatements());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, MaxTestsStoppingCondition.getNumExecutedTests());
+
 		StatisticsSender.executedAndThenSendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?
 		
         ClientServices.getInstance().getClientNode().publishPermissionStatistics();
@@ -673,6 +673,8 @@ public class TestSuiteGenerator {
 		                                         + MaxStatementsStoppingCondition.getNumExecutedStatements()
 		                                         + text
 		                                         + bestSuites.get(0).getFitness());
+        // Search is finished, send statistics
+        sendExecutionStatistics();
 
 		// TODO also consider time for test carving in end_time?
 		if (Properties.TEST_CARVING) {
@@ -819,6 +821,11 @@ public class TestSuiteGenerator {
 
 		return bestSuites;
 	}
+
+    private void sendExecutionStatistics() {
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Statements_Executed, MaxStatementsStoppingCondition.getNumExecutedStatements());
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, MaxTestsStoppingCondition.getNumExecutedTests());
+    }
 
 	private void printTestCriterion() {
 		if (Properties.CRITERION.length > 1)
@@ -1116,6 +1123,8 @@ public class TestSuiteGenerator {
 			}
 			suite.addTest(test);
 		}
+        // Search is finished, send statistics
+        sendExecutionStatistics();
 
 		suiteGA.getPopulation().add(suite);
 		//statistics.searchFinished(suiteGA);
@@ -1197,8 +1206,10 @@ public class TestSuiteGenerator {
 		//statistics.minimized(suiteGA.getBestIndividual()); // FIXME: only best individual or ALL best individuals?
 
 		// In the GA, these statistics are sent via the SearchListener when notified about the GA completing
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Statements_Executed, MaxStatementsStoppingCondition.getNumExecutedStatements());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, MaxTestsStoppingCondition.getNumExecutedTests());
+        // Search is finished, send statistics
+        sendExecutionStatistics();
+
+        // TODO: Check this: Fitness_Evaluations = getNumExecutedTests?
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Fitness_Evaluations, MaxTestsStoppingCondition.getNumExecutedTests());
 
 
@@ -1440,7 +1451,8 @@ public class TestSuiteGenerator {
 		                                         + current_budget
 		                                         + " statements, best individual has fitness "
 		                                         + suite.getFitness());
-
+        // Search is finished, send statistics
+        sendExecutionStatistics();
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
 			CoverageAnalysis.analyzeCriteria(suite, Properties.ANALYSIS_CRITERIA);
