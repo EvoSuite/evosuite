@@ -256,6 +256,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 //			fitness = 0.0;
 //		}
 		updateIndividual(this, suite, fitness);
+
 		return fitness;
 	}
 }

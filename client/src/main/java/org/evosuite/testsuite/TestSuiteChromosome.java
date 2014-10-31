@@ -154,9 +154,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			if (so == null)
 				break;
 			c = so.compareChromosomes(this, o);
-		}
-		//logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
-		//        + o.size() + " = " + c);
+		} 
 		return c;
 	}
 
