@@ -318,8 +318,6 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 				// fitness += 1;
 			}
 		}
-		if(removedBranchesF.size()>0)
-			System.out.println();
 		numCoveredGoals += removedBranchesF.size();
 		numCoveredGoals += removedBranchesT.size();
 		numCoveredGoals += removedRootBranches.size();

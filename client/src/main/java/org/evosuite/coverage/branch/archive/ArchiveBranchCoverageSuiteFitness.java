@@ -251,7 +251,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				//TODO why? check this
 				if (branchlessMethodCoverageMap.containsKey(entry.getKey())) {
 					result.test.addCoveredGoal(branchlessMethodCoverageMap.get(entry.getKey()));
-					bestChromoBuilder.putTest(branchCoverageTrueMap.get(entry.getKey()), result.test);
+					bestChromoBuilder.putTest(branchlessMethodCoverageMap.get(entry.getKey()), result.test);
 					toRemoveRootBranches.add(entry.getKey());
 					suite.setToBeUpdated(true);
 				}
@@ -297,7 +297,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				}
 				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
 					result.test.addCoveredGoal(branchCoverageFalseMap.get(entry.getKey()));
-					bestChromoBuilder.putTest(branchCoverageTrueMap.get(entry.getKey()), result.test);
+					bestChromoBuilder.putTest(branchCoverageFalseMap.get(entry.getKey()), result.test);
 					toRemoveBranchesF.add(entry.getKey());
 					suite.setToBeUpdated(true);
 				}
@@ -431,15 +431,15 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 
 		}
 
-		coverage = +removedBranchesF.size();
-		coverage = +removedBranchesT.size();
-		coverage = +removedRootBranches.size();
+		coverage +=removedBranchesF.size();
+		coverage +=removedBranchesT.size();
+		coverage +=removedRootBranches.size();
 	
  		
 		if (totalGoals > 0)
 			suite.setCoverage(this, (double) coverage / (double) totalGoals);
         else
-            suite.setCoverage(this, 1.0);
+            suite.setCoverage(this, 66666.0);
 
 		suite.setNumOfCoveredGoals(this, coverage);
 
@@ -458,8 +458,8 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		assert (fitness != 0.0 || coverage == totalGoals) : "Fitness: " + fitness + ", "
 		        + "coverage: " + coverage + "/" + totalGoals;
 		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
-		        + suite.getCoverage(this);
-
+		        + suite.getCoverage(this); 
+		
 		return fitness;
 	}
 

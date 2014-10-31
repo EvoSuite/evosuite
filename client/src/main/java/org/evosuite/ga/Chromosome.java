@@ -266,9 +266,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	@Override
 	public int compareTo(Chromosome c) {
 		int i = (int) Math.signum(this.getFitness() - c.getFitness());
-		if (i == 0)
+		if (i == 0){
 			return compareSecondaryObjective(c);
-		else
+		}else
 			return i;
 	}
 
