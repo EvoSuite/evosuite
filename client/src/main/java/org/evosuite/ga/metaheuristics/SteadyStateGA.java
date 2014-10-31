@@ -258,7 +258,7 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		}
 
 		
-		// TODO: TO CHANGE/REFACTOR: THIS IS JUST UGLY AND TEMPORARY, HAS TO BE REFACTORED
+		// TODO: TO CHANGE/REFACTOR: THIS IS JUST UGLY: HAS TO BE REFACTORED
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEIBRANCH)) {
 			for (FitnessFunction<T> f : fitnessFunctions) {
 				if (f instanceof ArchiveIBranchSuiteFitness) {
