@@ -250,6 +250,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 			suite.setCoverage(this, (double) numCoveredGoals / (double) branchGoals.size());
 		}
 		suite.setNumOfCoveredGoals(this, numCoveredGoals);
+		suite.setNumOfNotCoveredGoals(this, branchGoals.size()-numCoveredGoals);
 
 //		if(numSUTCoveredBanches== sutBranchGoals.size()){
 //			numCoveredGoals = this.branchGoals.size();
