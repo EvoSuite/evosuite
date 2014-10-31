@@ -61,8 +61,11 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	private LinkedHashMap<FitnessFunction<?>, Double> coverages = new LinkedHashMap<FitnessFunction<?>, Double>();
 
+	private LinkedHashMap<FitnessFunction<?>, Integer> numsNotCoveredGoals = new LinkedHashMap<FitnessFunction<?>, Integer>();
+
 	private LinkedHashMap<FitnessFunction<?>, Integer> numsCoveredGoals = new LinkedHashMap<FitnessFunction<?>, Integer>();
 
+	
 	// protected double coverage = 0.0;
 
 	// protected int numOfCoveredGoals = 0;
@@ -165,6 +168,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		this.lastFitnesses.put(ff, fitnessValue);
 		this.coverages.put(ff, coverage);
 		this.numsCoveredGoals.put(ff, 0);
+		this.numsNotCoveredGoals.put(ff, -1);
 	}
 
 	/**
@@ -186,6 +190,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		this.lastFitnesses.put(ff, fitnessValue);
 		this.coverages.put(ff, coverage);
 		this.numsCoveredGoals.put(ff, numCoveredGoals);
+		this.numsNotCoveredGoals.put(ff, -1);
 	}
 
 	/**
@@ -405,12 +410,30 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		} else
 			return numsCoveredGoals.isEmpty() ? 0 : numsCoveredGoals.get(fitnesses.keySet().iterator().next());
 	}
+	
+	public int getNumOfNotCoveredGoals() {
+		if (Properties.COMPOSITIONAL_FITNESS) {
+			int sum = 0;
+			for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+				sum += numsNotCoveredGoals.get(fitnessFunction);
+			}
+			return sum;
+		} else
+			return numsNotCoveredGoals.isEmpty() ? 0 : numsNotCoveredGoals.get(fitnesses.keySet().iterator().next());
+	}
 
 	public void setNumsOfCoveredGoals(Map<FitnessFunction<?>, Integer> fits) {
 		this.numsCoveredGoals.clear();
 		this.numsCoveredGoals.putAll(fits);
 	}
 
+	public void setNumsOfNotCoveredGoals(Map<FitnessFunction<?>, Integer> fits) {
+		this.numsNotCoveredGoals.clear();
+		this.numsNotCoveredGoals.putAll(fits);
+	}
+	public void setNumOfNotCoveredGoals(FitnessFunction<?> ff, int numCoveredGoals) {
+		this.numsNotCoveredGoals.put(ff, numCoveredGoals);
+	}
 	public Map<FitnessFunction<?>, Integer> getNumsOfCoveredGoals() {
 		return this.numsCoveredGoals;
 	}
@@ -460,6 +483,17 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 */
 	public double getNumOfCoveredGoals(FitnessFunction<?> ff) {
 		return numsCoveredGoals.containsKey(ff) ? numsCoveredGoals.get(ff) : 0;
+	}
+	
+	/**
+	 * Gets the number of not covered goals for a given fitness function
+	 *
+	 * @param ff
+	 *            a fitness function
+	 * @return the number of covered goals for {@code ff}
+	 */
+	public double getNumOfNotCoveredGoals(FitnessFunction<?> ff) {
+		return numsNotCoveredGoals.containsKey(ff) ? numsCoveredGoals.get(ff) : 0;
 	}
 
 	/**

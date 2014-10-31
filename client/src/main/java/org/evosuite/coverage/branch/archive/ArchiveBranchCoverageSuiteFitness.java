@@ -442,7 +442,8 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
             suite.setCoverage(this, 66666.0);
 
 		suite.setNumOfCoveredGoals(this, coverage);
-
+		suite.setNumOfNotCoveredGoals(this, totalGoals-coverage);
+		
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value "
 			        + (totalBranches * 2 + totalMethods));

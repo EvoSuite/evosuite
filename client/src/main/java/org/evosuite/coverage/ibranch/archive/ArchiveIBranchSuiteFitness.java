@@ -326,6 +326,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 			suite.setCoverage(this, (double) numCoveredGoals / (double) totGoals);
 		}
 		suite.setNumOfCoveredGoals(this, numCoveredGoals);
+		suite.setNumOfNotCoveredGoals(this, totGoals-numCoveredGoals);
 		updateIndividual(this, suite, fitness);
 
 		return fitness;

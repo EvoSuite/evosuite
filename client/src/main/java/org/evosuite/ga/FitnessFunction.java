@@ -45,6 +45,10 @@ public abstract class FitnessFunction<T extends Chromosome> implements Serializa
 	protected void updateIndividual(FitnessFunction<?> ff, T individual, double fitness) {
 		individual.setFitness(ff, fitness);
 	}
+	
+	protected void updateIndividual(FitnessFunction<?> ff, T individual, double fitness, int toCoverTargets) {
+		individual.setFitness(ff, fitness);
+	}
 
 	/**
 	 * Calculate and set fitness function #TODO the 'set fitness' part should be
