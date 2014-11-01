@@ -99,7 +99,7 @@ public class MavenExecutor {
                     if(p == null){
                         return;
                     }
-                    notifier.attachProcess(p);
+
 
                     int res = 0;
                     try {
@@ -126,7 +126,12 @@ public class MavenExecutor {
     private Process execute(AsyncGUINotifier notifier, EvoParameters params, File dir, List<String> classes) {
 
         List<String> list = new ArrayList<String>();
+        /*
+            TODO: should have an option to specify which maven installation
+            to use.
+         */
         list.add("mvn");
+
         list.add("compile");
         list.add("evosuite:generate");
         list.add("-Dcores=" + params.getCores());
@@ -153,14 +158,22 @@ public class MavenExecutor {
         concat+="\nin folder: "+dir.getAbsolutePath();
 
         System.out.println(concat);
-        notifier.printOnConsole(concat);
+        notifier.printOnConsole(concat);//FIXME: done here it gets cleared by IntelliJ... really fucking annoying
 
         try {
             ProcessBuilder builder = new ProcessBuilder();
             builder.directory(dir);
             builder.command(command);
 
-            return builder.start();
+            Map<String,String> map = builder.environment();
+            //map.put("JAVA_HOME", "TODO"); //TODO should have option to specify with Java version to use
+
+            Process p =  builder.start();
+            notifier.attachProcess(p);
+
+            notifier.printOnConsole(concat); //this doesn't work either...
+
+            return p;
         } catch (IOException e) {
             notifier.failed("Failed to execute EvoSuite: "+e.getMessage());
             return null;

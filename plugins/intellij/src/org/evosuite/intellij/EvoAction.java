@@ -31,13 +31,8 @@ import java.util.*;
  */
 public class EvoAction extends AnAction {
 
-    private final ToolWindow toolWindow;
-    private final AsyncGUINotifier notifier;
-
-    public EvoAction(ToolWindow toolWindow, AsyncGUINotifier notifier) {
+    public EvoAction() {
         super("Run EvoSuite");
-        this.toolWindow = toolWindow;
-        this.notifier = notifier;
     }
 
 
@@ -45,6 +40,11 @@ public class EvoAction extends AnAction {
 
         String title = "EvoSuite Plugin";
         Project project = event.getData(PlatformDataKeys.PROJECT);
+
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
+        ToolWindow toolWindow = toolWindowManager.getToolWindow("EvoSuite");
+
+        final AsyncGUINotifier notifier = IntelliJNotifier.getNotifier(project);
 
         if (MavenExecutor.getInstance().isAlreadyRunning()) {
             Messages.showMessageDialog(project, "An instance of EvoSuite is already running",
