@@ -14,11 +14,19 @@ release even when new EvoSuite releases are made.
 Motivation: the generated test cases should be part of the build, as they might be added to the SUT's
 repository and run on a remote continuous integration server.
 An IDE plugin should use what configured in the pom.xml (assuming the SUT is built in Maven), or
-other configuration files used to build and run the tests of the SUT (eg ANT).
+other configuration files used to build and run the tests of the SUT (eg ANT or Gradle).
 Reading and parsing those configuration files (eg pom.xml) would be far too complicated, so it is much easier
 to just let the build process to generate the test cases (eg with the Maven plugin for EvoSuite).
 
 
-NOTE: plugin _HAVE TO_ be compiled with Java 6. Reason is that Java GUI does not work properly in Mac,
-and IntelliJ on Mac by default use Java 6. As the plugin is loaded by IntelliJ, if its jar is compiled
-with 7/8, then it will crash in IntelliJ on a Mac.
+NOTE: plugin HAS TO be compiled with Java 6. Reason is that Java GUI does not work properly in Mac,
+and IntelliJ on Mac by default uses Java 6. As the plugin is loaded by IntelliJ, if its jar is compiled
+with 7/8, then it will crash in IntelliJ when run on a Mac.
+
+
+Mac issue: currently, we cannot specify the Java version to use when running EvoSuite.
+IntelliJ will pick the default one in the OS.
+This can be an issue on Mac, as shell environment properties are not picked up by GUI applications.
+For example, if you have a JAVA_HOME defined in "~/.profile", then it will be ignored by IntelliJ.
+As a temporary solution, you can use:
+"launchctl setenv JAVA_HOME $JAVA_HOME"
