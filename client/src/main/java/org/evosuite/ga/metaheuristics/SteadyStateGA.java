@@ -140,6 +140,7 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 				notifyEvaluation(offspring2);
 			}
 
+		    //FIXME move this?!
 		    for (FitnessFunction<T> fitnessFunction : secondaryFitnessFunctions) {
 				fitnessFunction.getFitness(offspring1);
 				fitnessFunction.getFitness(offspring2);
@@ -257,23 +258,17 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			        + population.get(population.size() - 1).getFitness());
 		}
 
-		
-		// TODO: TO CHANGE/REFACTOR: THIS IS JUST UGLY: HAS TO BE REFACTORED
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEIBRANCH)) {
-			for (FitnessFunction<T> f : fitnessFunctions) {
-				if (f instanceof ArchiveIBranchSuiteFitness) {
-					population.add(0, (T) ((ArchiveIBranchSuiteFitness) f).getBestChromosome());
-				}
-			}
-		}
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEBRANCH)) {
-			for (FitnessFunction<T> f : fitnessFunctions) {
-				if (f instanceof ArchiveBranchCoverageSuiteFitness)
-					population.add(0, (T) ((ArchiveBranchCoverageSuiteFitness) f).getBestChromosome()); 
-			}
-		}
-		// --------------------------
+		retrieveBestSuiteFromArchives();
 		notifySearchFinished();
+	}
+	
+	private void retrieveBestSuiteFromArchives() {
+		for (FitnessFunction<T> f : fitnessFunctions) {
+			if (f.getBestStoredIndividual() != null) {
+				population.add(0, f.getBestStoredIndividual());
+				break;
+			}
+		}
 	}
 
 	/**
