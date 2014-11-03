@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.goalsoptimiser.BestChromosomeBuilder;
+import org.evosuite.coverage.archive.BestChromosomeBuilder;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
 import org.evosuite.coverage.ibranch.IBranchTestFitness;
 import org.evosuite.rmi.ClientServices;
@@ -194,7 +194,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 		return null;
 	}
 	
-	public TestSuiteChromosome getBestChromosome(){
+	public TestSuiteChromosome getBestStoredIndividual(){
 		return bestChromoBuilder.getBestChromosome();
 	}
 
@@ -388,4 +388,5 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 		
 		return true;
 	}
+
 }

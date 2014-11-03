@@ -1,4 +1,4 @@
-package org.evosuite.coverage.goalsoptimiser;
+package org.evosuite.coverage.archive;
 
 import java.io.Serializable;
 import java.util.Collection;

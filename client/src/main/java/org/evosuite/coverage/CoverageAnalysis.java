@@ -185,7 +185,7 @@ public class CoverageAnalysis {
 	public static void analyzeCoverage(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
 		reinstrument(testSuite, criterion);
-		TestFitnessFactory factory = TestSuiteGenerator.getFitnessFactory(criterion);
+		TestFitnessFactory factory = FitnessFunctions.getFitnessFactory(criterion);
 
 		for(TestChromosome test : testSuite.getTestChromosomes()) {
 			test.getTestCase().clearCoveredGoals();

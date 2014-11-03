@@ -51,6 +51,15 @@ public abstract class FitnessFunction<T extends Chromosome> implements Serializa
 	}
 
 	/**
+	 * If the fitness function as an archive, returns the best individual in the archive.
+	 * returns null otherwise
+	 * @return
+	 */
+	public T getBestStoredIndividual(){
+		return null;
+	}
+	
+	/**
 	 * Calculate and set fitness function #TODO the 'set fitness' part should be
 	 * done by some abstract super class of all FitnessFunctions
 	 * 

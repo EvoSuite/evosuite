@@ -17,50 +17,85 @@
  */
 package org.evosuite;
 
-import org.evosuite.Properties.*;
+import java.io.File;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.evosuite.Properties.AssertionStrategy;
+import org.evosuite.Properties.Criterion;
+import org.evosuite.Properties.DSEType;
+import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TestFactory;
-import org.evosuite.assertion.*;
+import org.evosuite.Properties.TheReplacementFunction;
+import org.evosuite.assertion.AssertionGenerator;
+import org.evosuite.assertion.CompleteAssertionGenerator;
+import org.evosuite.assertion.SimpleMutationAssertionGenerator;
+import org.evosuite.assertion.StructuredAssertionGenerator;
+import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.CoverageAnalysis;
+import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.FitnessLogger;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.ambiguity.AmbiguityCoverageFactory;
-import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
-import org.evosuite.coverage.branch.*;
-import org.evosuite.coverage.branch.archive.ArchiveBranchCoverageSuiteFitness;
-import org.evosuite.coverage.dataflow.*;
-import org.evosuite.coverage.exception.ExceptionCoverageFactory;
-import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
-import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
+import org.evosuite.coverage.branch.Branch;
+import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.coverage.dataflow.DefUseFitnessCalculator;
 import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
-import org.evosuite.coverage.ibranch.archive.ArchiveIBranchSuiteFitness;
-import org.evosuite.coverage.line.LineCoverageFactory;
-import org.evosuite.coverage.line.LineCoverageSuiteFitness;
-import org.evosuite.coverage.method.*;
-import org.evosuite.coverage.mutation.*;
-import org.evosuite.coverage.output.OutputCoverageFactory;
-import org.evosuite.coverage.output.OutputCoverageSuiteFitness;
-import org.evosuite.coverage.readability.ReadabilitySuiteFitness;
-import org.evosuite.coverage.rho.RhoCoverageFactory;
-import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
-import org.evosuite.coverage.statement.StatementCoverageFactory;
-import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
-import org.evosuite.ga.*;
+import org.evosuite.coverage.mutation.MutationTestPool;
+import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
+import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.FitnessReplacementFunction;
+import org.evosuite.ga.IBranchSecondaryObjective;
+import org.evosuite.ga.MinimizeSizeSecondaryObjective;
+import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.ga.TournamentChromosomeFactory;
 import org.evosuite.ga.localsearch.BranchCoverageMap;
-import org.evosuite.ga.metaheuristics.*;
-import org.evosuite.ga.operators.crossover.*;
-import org.evosuite.ga.operators.selection.*;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.MuPlusLambdaGA;
+import org.evosuite.ga.metaheuristics.NSGAII;
+import org.evosuite.ga.metaheuristics.OnePlusOneEA;
+import org.evosuite.ga.metaheuristics.RandomSearch;
+import org.evosuite.ga.metaheuristics.StandardGA;
+import org.evosuite.ga.metaheuristics.SteadyStateGA;
+import org.evosuite.ga.operators.crossover.CoverageCrossOver;
+import org.evosuite.ga.operators.crossover.CrossOverFunction;
+import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
+import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
+import org.evosuite.ga.operators.crossover.SinglePointRelativeCrossOver;
+import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
+import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
+import org.evosuite.ga.operators.selection.RankSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
+import org.evosuite.ga.operators.selection.TournamentSelection;
 import org.evosuite.ga.populationlimit.IndividualPopulationLimit;
 import org.evosuite.ga.populationlimit.PopulationLimit;
 import org.evosuite.ga.populationlimit.SizePopulationLimit;
-import org.evosuite.ga.stoppingconditions.*;
+import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
+import org.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
+import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
+import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
+import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
+import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
+import org.evosuite.ga.stoppingconditions.SocketStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
-import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
 import org.evosuite.result.TestGenerationResult;
@@ -82,9 +117,36 @@ import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
 import org.evosuite.testcarver.testcase.EvoTestCaseCodeGenerator;
 import org.evosuite.testcarver.testcase.TestCarvingExecutionObserver;
-import org.evosuite.testcase.*;
-import org.evosuite.testsuite.*;
+import org.evosuite.testcase.AllMethodsTestChromosomeFactory;
+import org.evosuite.testcase.CodeUnderTestException;
+import org.evosuite.testcase.ConstantInliner;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.ExecutionTraceImpl;
+import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.JUnitTestCarvedChromosomeFactory;
+import org.evosuite.testcase.RandomLengthTestFactory;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.TestCaseMinimizer;
+import org.evosuite.testcase.TestCaseReplacementFunction;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.UncompilableCodeException;
+import org.evosuite.testcase.ValueMinimizer;
+import org.evosuite.testsuite.AbstractFitnessFactory;
+import org.evosuite.testsuite.FixedSizeTestSuiteChromosomeFactory;
+import org.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective;
 import org.evosuite.testsuite.MinimizeExceptionsSecondaryObjective;
+import org.evosuite.testsuite.MinimizeMaxLengthSecondaryObjective;
+import org.evosuite.testsuite.MinimizeTotalLengthSecondaryObjective;
+import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
+import org.evosuite.testsuite.SerializationSuiteChromosomeFactory;
+import org.evosuite.testsuite.StatementsPopulationLimit;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosomeFactory;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.testsuite.TestSuiteMinimizer;
+import org.evosuite.testsuite.TestSuiteReplacementFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -94,11 +156,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import sun.misc.Signal;
-
-import java.io.File;
-import java.text.NumberFormat;
-import java.util.*;
-import java.util.Map.Entry;
 
 //import org.evosuite.testsuite.SearchStatistics;
 
@@ -903,73 +960,13 @@ public class TestSuiteGenerator {
 	public static List<TestSuiteFitnessFunction> getFitnessFunction() {
 	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
 	    for (int i = 0; i < Properties.CRITERION.length; i++) {
-	        ffs.add(getFitnessFunction(Properties.CRITERION[i]));
+	        ffs.add(FitnessFunctions.getFitnessFunction(Properties.CRITERION[i]));
 	    }
 
 		return ffs;
 	}
 
-	/**
-	 * <p>
-	 * getFitnessFunction
-	 * </p>
-	 * 
-	 * @param criterion
-	 *            a {@link org.evosuite.Properties.Criterion} object.
-	 * @return a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
-	 */
-	public static TestSuiteFitnessFunction getFitnessFunction(Criterion criterion) {
-		switch (criterion) {
-		case STRONGMUTATION:
-			return new StrongMutationSuiteFitness();
-		case WEAKMUTATION:
-			return new WeakMutationSuiteFitness();
-		case MUTATION:
-			return new StrongMutationSuiteFitness();
-		case ONLYMUTATION:
-			return new OnlyMutationSuiteFitness();
-		case DEFUSE:
-			return new DefUseCoverageSuiteFitness();
-		case BRANCH:
-			return new BranchCoverageSuiteFitness();
-		case ARCHIVEBRANCH:
-			return new ArchiveBranchCoverageSuiteFitness();
-		case IBRANCH:
-			return new IBranchSuiteFitness();
-		case ARCHIVEIBRANCH:
-			return new ArchiveIBranchSuiteFitness();
-		case STATEMENT:
-			return new StatementCoverageSuiteFitness();
-		case RHO:
-			return new RhoCoverageSuiteFitness();
-		case AMBIGUITY:
-			return new AmbiguityCoverageSuiteFitness();
-		case ALLDEFS:
-			return new AllDefsCoverageSuiteFitness();
-		case EXCEPTION:
-			return new ExceptionCoverageSuiteFitness();
-		case REGRESSION:
-			return new RegressionSuiteFitness();
-		case READABILITY:
-			return new ReadabilitySuiteFitness();
-		case ONLYBRANCH:
-			return new OnlyBranchCoverageSuiteFitness();
-		case METHODTRACE:
-			return new MethodTraceCoverageSuiteFitness();
-		case METHOD:
-			return new MethodCoverageSuiteFitness();
-		case METHODNOEXCEPTION:
-			return new MethodNoExceptionCoverageSuiteFitness();
-		case LINE:
-			return new LineCoverageSuiteFitness();
-		case OUTPUT:
-			return new OutputCoverageSuiteFitness();
-		default:
-			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
-			        + " using default one (BranchCoverageSuiteFitness)");
-			return new BranchCoverageSuiteFitness();
-		}
-	}
+
 
 	/**
 	 * <p>
@@ -981,69 +978,13 @@ public class TestSuiteGenerator {
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactory() {
 	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
 	    for (int i = 0; i < Properties.CRITERION.length; i++) {
-	        goalsFactory.add(getFitnessFactory(Properties.CRITERION[i]));
+	        goalsFactory.add(FitnessFunctions.getFitnessFactory(Properties.CRITERION[i]));
 	    }
 
 		return goalsFactory;
 	}
 
-	/**
-	 * <p>
-	 * getFitnessFactory
-	 * </p>
-	 * 
-	 * @param crit
-	 *            a {@link org.evosuite.Properties.Criterion} object.
-	 * @return a {@link org.evosuite.coverage.TestFitnessFactory} object.
-	 */
-	public static TestFitnessFactory<? extends TestFitnessFunction> getFitnessFactory(
-	        Criterion crit) {
-		switch (crit) {
-		case STRONGMUTATION:
-		case MUTATION:
-			return new MutationFactory();
-		case WEAKMUTATION:
-			return new MutationFactory(false);
-		case ONLYMUTATION:
-			return new OnlyMutationFactory();
-		case DEFUSE:
-			return new DefUseCoverageFactory();
-		case BRANCH:
-			return new BranchCoverageFactory();
-		case ARCHIVEBRANCH:
-			return new BranchCoverageFactory();
-		case IBRANCH:
-			return new IBranchFitnessFactory();
-		case ARCHIVEIBRANCH:
-			return new IBranchFitnessFactory();
-		case STATEMENT:
-			return new StatementCoverageFactory();
-		case RHO:
-			return new RhoCoverageFactory();
-		case AMBIGUITY:
-			return new AmbiguityCoverageFactory();
-		case ALLDEFS:
-			return new AllDefsCoverageFactory();
-		case EXCEPTION:
-			return new ExceptionCoverageFactory();
-		case ONLYBRANCH:
-			return new OnlyBranchCoverageFactory();
-		case METHODTRACE:
-			return new MethodTraceCoverageFactory();
-		case METHOD:
-			return new MethodCoverageFactory();
-		case METHODNOEXCEPTION:
-			return new MethodNoExceptionCoverageFactory();
-		case LINE:
-			return new LineCoverageFactory();
-		case OUTPUT:
-			return new OutputCoverageFactory();
-		default:
-			logger.warn("No TestFitnessFactory defined for " + crit
-			        + " using default one (BranchCoverageFactory)");
-			return new BranchCoverageFactory();
-		}
-	}
+
 
 	/**
 	 * Cover the easy targets first with a set of random tests, so that the
@@ -1758,7 +1699,7 @@ public class TestSuiteGenerator {
 				}
 			}
 			if (ff == null) {
-				ff = getFitnessFunction(Criterion.IBRANCH);
+				ff = FitnessFunctions.getFitnessFunction(Criterion.IBRANCH);
 				ga.addSecondaryFitnessFunction(ff);
 			}
 			IBranchSecondaryObjective ib = new IBranchSecondaryObjective(ff);
@@ -1791,7 +1732,7 @@ public class TestSuiteGenerator {
 				}
 			}
 			if (ff == null) {
-				ff = getFitnessFunction(Criterion.IBRANCH);
+				ff = FitnessFunctions.getFitnessFunction(Criterion.IBRANCH);
 				ga.addSecondaryFitnessFunction(ff);
 			}
 			IBranchSecondaryObjective ib = new IBranchSecondaryObjective(ff);

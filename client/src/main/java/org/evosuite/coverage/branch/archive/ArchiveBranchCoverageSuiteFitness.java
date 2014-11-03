@@ -25,10 +25,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.archive.BestChromosomeBuilder;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.coverage.goalsoptimiser.BestChromosomeBuilder;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.testcase.ConstructorStatement;
@@ -105,7 +105,6 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
 			branchesId = BranchPool.getBranchIdsForPrefix(prefix);
 			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
-
 		} else {
 			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
 			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
@@ -501,7 +500,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	}
 
 
-	public TestSuiteChromosome getBestChromosome(){
+	public TestSuiteChromosome getBestStoredIndividual(){
 		return bestChromoBuilder.getBestChromosome();
 	}
 
