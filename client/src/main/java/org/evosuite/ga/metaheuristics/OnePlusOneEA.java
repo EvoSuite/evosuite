@@ -58,10 +58,7 @@ public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
 	        fitnessFunction.getFitness(offspring);
 	        notifyEvaluation(offspring);
-	    }
-	    for (FitnessFunction<T> fitnessFunction : secondaryFitnessFunctions) {
-			fitnessFunction.getFitness(offspring); 
-		}
+	    } 
 		notifyEvaluation(offspring);
 		//logger.info("New individual: " + offspring);
 

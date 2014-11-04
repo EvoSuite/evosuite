@@ -94,11 +94,7 @@ public class MuPlusLambdaGA<T extends Chromosome> extends SteadyStateGA<T> {
 	        notifyEvaluation(offspring1);
 	        fitnessFunction.getFitness(offspring2);
 	        notifyEvaluation(offspring2);
-	    }
-	    for (FitnessFunction<T> fitnessFunction : secondaryFitnessFunctions) {
-			fitnessFunction.getFitness(offspring1);
-	        fitnessFunction.getFitness(offspring2);
-		}
+	    } 
 		// if (replacement_function.keepOffspring(parent1, parent2, offspring1,
 		if (!Properties.PARENT_CHECK
 		        || keepOffspring(parent1, parent2, offspring1, offspring2)) {

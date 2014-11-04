@@ -62,9 +62,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	/** Fitness function to rank individuals */
 	protected List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
 
-	/** Fitness function to use as secondary criteria */
-	protected List<FitnessFunction<T>> secondaryFitnessFunctions = new ArrayList<FitnessFunction<T>>();
-
 	/** Selection function to select parents */
 	protected SelectionFunction<T> selectionFunction = new RankSelection<T>();
 
@@ -314,10 +311,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		logger.debug("Resetting population");
 		population.clear();
 	}
-
-	public void addSecondaryFitnessFunction(FitnessFunction<T> function){
-		secondaryFitnessFunctions.add(function);
-	}
 	
 	/**
      * Add new fitness function (i.e., for new mutation)
@@ -352,9 +345,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
     public List<FitnessFunction<T>> getFitnessFunctions() {
         return fitnessFunctions;
     }
-    public List<FitnessFunction<T>> getSecondaryFitnessFunctions() {
-		return secondaryFitnessFunctions;
-	}
 
     public int getNumberOfFitnessFunctions() {
         return fitnessFunctions.size();
@@ -464,9 +454,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			        fitnessFunction.getFitness(c);
 			        notifyEvaluation(c);
 			    }
-			    for (FitnessFunction<T> fitnessFunction : secondaryFitnessFunctions) {
-			        fitnessFunction.getFitness(c);
-			    }
 			}
 		}
 
@@ -521,6 +508,12 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		return randoms;
 	}
 
+	protected void updateFitnessFuntions() {
+		for (FitnessFunction<T> f : fitnessFunctions) {
+			f.updateCoveredGoals();
+		}
+	}
+	
 	/**
 	 * Penalty if individual is not unique
 	 * 

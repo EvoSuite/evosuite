@@ -284,7 +284,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a int.
 	 */
-	public abstract int compareSecondaryObjective(Chromosome o);
+	public abstract <T extends Chromosome> int compareSecondaryObjective(T o);
 
 	/**
 	 * Apply mutation

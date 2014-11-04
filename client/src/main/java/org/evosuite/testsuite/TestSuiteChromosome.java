@@ -43,7 +43,7 @@ import org.evosuite.testcase.TestFitnessFunction;
 public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromosome> {
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
+	private static final List<SecondaryObjective<TestSuiteChromosome>> secondaryObjectives = new ArrayList<SecondaryObjective<TestSuiteChromosome>>();
 
 	private static final long serialVersionUID = 88380759969800800L;
 
@@ -54,7 +54,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void addSecondaryObjective(SecondaryObjective objective) {
+	public static void addSecondaryObjective(SecondaryObjective<TestSuiteChromosome> objective) {
 		secondaryObjectives.add(objective);
 	}
 
@@ -64,7 +64,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void removeSecondaryObjective(SecondaryObjective objective) {
+	public static void removeSecondaryObjective(SecondaryObjective<TestSuiteChromosome> objective) {
 		secondaryObjectives.remove(objective);
 	}
 
@@ -145,15 +145,17 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int compareSecondaryObjective(Chromosome o) {
+	@SuppressWarnings("unchecked")
+	public  <T extends Chromosome> int compareSecondaryObjective(T o) {
 		int objective = 0;
 		int c = 0;
 
 		while (c == 0 && objective < secondaryObjectives.size()) {
-			SecondaryObjective so = secondaryObjectives.get(objective++);
+			
+			SecondaryObjective<T> so = (SecondaryObjective<T>) secondaryObjectives.get(objective++);
 			if (so == null)
 				break;
-			c = so.compareChromosomes(this, o);
+			c = so.compareChromosomes((T) this, o);
 		} 
 		return c;
 	}
@@ -174,7 +176,8 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			}
 		}
 	}
-
+	
+	
 	
 
 	/**
@@ -271,4 +274,5 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		}
 		return result;
 	}
+ 
 }

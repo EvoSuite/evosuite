@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.BestChromosomeBuilder;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
 import org.evosuite.coverage.ibranch.IBranchTestFitness;
 import org.evosuite.rmi.ClientServices;
@@ -27,7 +27,9 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 /**
  * We don't remember what the I of IBranch stands for. Anyway, this fitness
  * function targets all the branches (of all classes) that is possible to reach
- * from the class under test.
+ * from the class under test. During the evolution, this fitness updates the
+ * list of goals by removing the covered ones, storing at the same time the
+ * tests that covered them in an archive.
  * 
  * @author Gordon Fraser, mattia
  * 
@@ -45,7 +47,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 	private final Map<String, Map<CallContext, Set<IBranchTestFitness>>> methodsMap;
 
 //	private final StoredTestPool savedTests;
-	private final BestChromosomeBuilder bestChromoBuilder;
+	private final TestsArchive bestChromoBuilder;
 	
 	private final Set<IBranchTestFitness> toRemoveBranchesT = new HashSet<>();
 	private final Set<IBranchTestFitness> toRemoveBranchesF = new HashSet<>();
@@ -56,7 +58,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 	private final Set<IBranchTestFitness> removedRootBranches = new HashSet<>();
 
 	public ArchiveIBranchSuiteFitness() {
-		bestChromoBuilder = new BestChromosomeBuilder();
+		bestChromoBuilder = new TestsArchive();
 		goalsMap = new HashMap<>();
 		methodsMap = new HashMap<>();
 		IBranchFitnessFactory factory = new IBranchFitnessFactory();
@@ -94,7 +96,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 		totGoals = branchGoals.size();
 	}
 	
-	public ArchiveIBranchSuiteFitness(BestChromosomeBuilder bestChromoBuilder) {
+	public ArchiveIBranchSuiteFitness(TestsArchive bestChromoBuilder) {
 		this.bestChromoBuilder = bestChromoBuilder;
 		goalsMap = new HashMap<>();
 		methodsMap = new HashMap<>();

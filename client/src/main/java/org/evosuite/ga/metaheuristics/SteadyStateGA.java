@@ -21,16 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
-import org.evosuite.coverage.branch.archive.ArchiveBranchCoverageSuiteFitness;
-import org.evosuite.coverage.ibranch.archive.ArchiveIBranchSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.ReplacementFunction;
-import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,11 +136,6 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 				notifyEvaluation(offspring2);
 			}
 
-		    //FIXME move this?!
-		    for (FitnessFunction<T> fitnessFunction : secondaryFitnessFunctions) {
-				fitnessFunction.getFitness(offspring1);
-				fitnessFunction.getFitness(offspring2);
-			}
 		    
 			if (keepOffspring(parent1, parent2, offspring1, offspring2)) {
 				logger.debug("Keeping offspring");
@@ -193,12 +184,6 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		}
 
 		currentIteration++;
-	}
-
-	private void updateFitnessFuntions() {
-		for (FitnessFunction<T> f : fitnessFunctions) {
-			f.updateCoveredGoals();
-		}
 	}
 	
     private T newRandomIndividual() {

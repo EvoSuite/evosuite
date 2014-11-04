@@ -17,31 +17,35 @@
  */
 package org.evosuite.ga;
 
+import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
+import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 
 /**
- * <p>MinimizeSizeSecondaryObjective class.</p>
+ * <p>
+ * MinimizeSizeSecondaryObjective class.
+ * </p>
  *
  * @author Gordon Fraser
  */
-public class IBranchSecondaryObjective extends SecondaryObjective {
+public class IBranchSecondaryObjective extends
+		SecondaryObjective<AbstractTestSuiteChromosome<? extends ExecutableChromosome>> {
 
-	private FitnessFunction<?> ff;
+	private IBranchSuiteFitness ff;
 	private static final long serialVersionUID = 7211557650429998223L;
 
-	public IBranchSecondaryObjective(FitnessFunction<?> fitness) {
+	public IBranchSecondaryObjective(IBranchSuiteFitness fitness) {
 		ff = fitness;
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.ga.SecondaryObjective#compareChromosomes(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
+
 	@Override
-	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
+	public int compareChromosomes(
+			AbstractTestSuiteChromosome<? extends ExecutableChromosome> chromosome1,
+			AbstractTestSuiteChromosome<? extends ExecutableChromosome> chromosome2) {
+		
+		ff.getFitness(chromosome1);
+		ff.getFitness(chromosome2);
+
 		logger.debug("Comparing sizes: " + chromosome1.getFitness(ff) + " vs "
 				+ chromosome2.getFitness(ff));
 		if (chromosome1.getFitness(ff) < chromosome2.getFitness(ff)) {
@@ -53,31 +57,29 @@ public class IBranchSecondaryObjective extends SecondaryObjective {
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.ga.SecondaryObjective#compareGenerations(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
 	@Override
-	public int compareGenerations(Chromosome parent1, Chromosome parent2,
-	        Chromosome child1, Chromosome child2) {
-		logger.debug("Comparing sizes: " + parent1.size() + ", " + parent1.size()
-		        + " vs " + child1.size() + ", " + child2.size());
+	public int compareGenerations(
+			AbstractTestSuiteChromosome<? extends ExecutableChromosome> parent1,
+			AbstractTestSuiteChromosome<? extends ExecutableChromosome> parent2,
+			AbstractTestSuiteChromosome<? extends ExecutableChromosome> child1,
+			AbstractTestSuiteChromosome<? extends ExecutableChromosome> child2) {
+		logger.debug("Comparing sizes: " + parent1.size() + ", " + parent1.size() + " vs "
+				+ child1.size() + ", " + child2.size());
+
+		ff.getFitness(parent1);
+		ff.getFitness(parent2);
+		ff.getFitness(child1);
+		ff.getFitness(child2);
 		
 		double minParents = Math.min(parent1.getFitness(ff), parent2.getFitness(ff));
 		double minChildren = Math.min(child1.getFitness(ff), child2.getFitness(ff));
-		if (minParents<minChildren) {
+		if (minParents < minChildren) {
 			return -1;
 		}
-		if (minParents>minChildren) {
+		if (minParents > minChildren) {
 			return 1;
 		}
-		return 0;  
+		return 0;
 	}
 
 }

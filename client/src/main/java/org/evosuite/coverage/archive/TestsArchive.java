@@ -10,14 +10,19 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
-public class BestChromosomeBuilder implements Serializable {
+/**
+ * This class incrementally builds a TestSuiteChromosome with passed test cases.
+ * It means to be an archive of tests that covered goals during the evolution.
+ * @author mattia
+ */
+public class TestsArchive implements Serializable {
 	private static final long serialVersionUID = 6665770735812413289L;
 
 	private final TestSuiteChromosome bestChromo;
 	//necessary to avoid having a bilion of redundant test cases
 	private final Set<Integer> coveredGoals;
 	
-	public BestChromosomeBuilder() {
+	public TestsArchive() {
 		bestChromo = new TestSuiteChromosome();
 		coveredGoals = new HashSet<>();
 	}
@@ -33,6 +38,10 @@ public class BestChromosomeBuilder implements Serializable {
 		bestChromo.addTests(tests);
 	} 
 	
+	/**
+	 * return the chromosome with the tests of the archive
+	 * @return
+	 */
 	public  TestSuiteChromosome getBestChromosome() {
 		return bestChromo;
 	}
