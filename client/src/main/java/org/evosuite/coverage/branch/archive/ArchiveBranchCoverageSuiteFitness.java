@@ -313,6 +313,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 			TestFitnessFunction f = branchlessMethodCoverageMap.remove(method);
 			if (removed && f != null) {
 				totalMethods--;
+				methods.remove(method);
 				removedRootBranches.add(method);
 			} else {
 				throw new IllegalStateException("goal to remove not found");
@@ -387,20 +388,26 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		int numCoveredBranches = 0;
 
 		for (Integer key : predicateCount.keySet()) {
-			if (!trueDistance.containsKey(key) || !falseDistance.containsKey(key))
-				continue;
-			double df = trueDistance.get(key);
-			double dt = falseDistance.get(key);
-
-			fitness += normalize(df) + normalize(dt); 
 			
-			if ((Double.compare(df, 0.0) == 0))
+			double df = 0.0;
+			double dt = 0.0;
+			
+			if (trueDistance.containsKey(key)) {
+				dt =  trueDistance.get(key);
+			}
+			if(falseDistance.containsKey(key)){
+				df = falseDistance.get(key);
+			}
+			fitness += normalize(df) + normalize(dt); 
+
+
+			if (falseDistance.containsKey(key)&&(Double.compare(df, 0.0) == 0))
 				numCoveredBranches++;
 
-			if ((Double.compare(dt, 0.0) == 0))
+			if (trueDistance.containsKey(key)&&(Double.compare(dt, 0.0) == 0))
 				numCoveredBranches++;
 		}
-
+		
 		// +1 for every branch that was not executed
 		fitness += 2 * (totalBranches - predicateCount.size());
 
@@ -439,7 +446,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		if (totalGoals > 0)
 			suite.setCoverage(this, (double) coverage / (double) totalGoals);
         else
-            suite.setCoverage(this, 66666.0);
+            suite.setCoverage(this, 0);
 
 		suite.setNumOfCoveredGoals(this, coverage);
 		suite.setNumOfNotCoveredGoals(this, totalGoals-coverage);
@@ -460,7 +467,6 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		        + "coverage: " + coverage + "/" + totalGoals;
 		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
 		        + suite.getCoverage(this); 
-		
 		return fitness;
 	}
 
