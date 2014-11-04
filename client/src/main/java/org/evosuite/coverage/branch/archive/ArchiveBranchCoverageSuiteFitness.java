@@ -25,7 +25,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.BestChromosomeBuilder;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
@@ -44,9 +44,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Fitness function for a whole test suite for all branches
- * 
- * @author Gordon Fraser
+ * Fitness function for a whole test suite for all branches. During the
+ * evolution, this fitness updates the list of goals by removing the covered
+ * ones, storing at the same time the tests that covered them in an archive.
+ * @author Gordon Fraser, mattia
  */
 public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
@@ -74,7 +75,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	private final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new HashMap<Integer, TestFitnessFunction>();
 	private final Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new HashMap<String, TestFitnessFunction>();
 
-	private final BestChromosomeBuilder bestChromoBuilder;
+	private final TestsArchive bestChromoBuilder;
 
 	private final Set<Integer> toRemoveBranchesT = new HashSet<>();
 	private final Set<Integer> toRemoveBranchesF = new HashSet<>();
@@ -95,7 +96,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
-		bestChromoBuilder = new BestChromosomeBuilder();
+		bestChromoBuilder = new TestsArchive();
 		
 		if (prefix.isEmpty()) {
 			prefix = Properties.TARGET_CLASS;
@@ -133,7 +134,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	 * Constructor for BranchCoverageSuiteFitness.
 	 * </p>
 	 */
-	public ArchiveBranchCoverageSuiteFitness(BestChromosomeBuilder bestChromoBuilder) {
+	public ArchiveBranchCoverageSuiteFitness(TestsArchive bestChromoBuilder) {
 
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 

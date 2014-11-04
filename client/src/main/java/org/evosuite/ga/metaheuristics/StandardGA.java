@@ -24,6 +24,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.utils.Randomness;
 
 
@@ -99,7 +100,17 @@ public class StandardGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		}
 
 		population = newGeneration;
-
+        //archive
+        updateFitnessFuntions();
+		for (T t : population) {
+			if(t.isToBeUpdated()){
+			    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+					fitnessFunction.getFitness(t);
+				}
+			    t.setToBeUpdated(false);
+			}
+		}
+		//
 		currentIteration++;
 	}
 

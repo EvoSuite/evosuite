@@ -1,11 +1,10 @@
 package org.evosuite.coverage;
 
 import org.evosuite.Properties;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageFactory;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
-import org.evosuite.coverage.archive.BestChromosomeBuilder;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
@@ -46,16 +45,21 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * factory class for fitness functions
+ * @author mattia
+ *
+ */
 public class FitnessFunctions {
 	
 	private static Logger logger = LoggerFactory.getLogger(FitnessFunctions.class);
 
-	private static BestChromosomeBuilder archive;
+	private static TestsArchive archive;
 	
 	
 	private static void initialiseArchive() {
 		if (archive == null)
-			archive = new BestChromosomeBuilder();
+			archive = new TestsArchive();
 	}
 	/**
 	 * <p>

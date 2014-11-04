@@ -1690,21 +1690,23 @@ public class TestSuiteGenerator {
 	public static SecondaryObjective getSecondaryTestObjective(String name, GeneticAlgorithm ga) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
-		else if (name.equalsIgnoreCase("ibranch")){
-			List<FitnessFunction<?>> ffs = ga.getSecondaryFitnessFunctions();
-			FitnessFunction<?> ff = null;
-			for (FitnessFunction<?> f : ffs) {
-				if (f instanceof IBranchSuiteFitness) {
-					ff = f;
-				}
-			}
-			if (ff == null) {
-				ff = FitnessFunctions.getFitnessFunction(Criterion.IBRANCH);
-				ga.addSecondaryFitnessFunction(ff);
-			}
-			IBranchSecondaryObjective ib = new IBranchSecondaryObjective(ff);
-			return ib; 
-		}else if (name.equalsIgnoreCase("exceptions"))
+		//doesn't work with single test generation.
+//		else if (name.equalsIgnoreCase("ibranch")){
+//			List<FitnessFunction<?>> ffs = ga.getSecondaryFitnessFunctions();
+//			FitnessFunction<?> ff = null;
+//			for (FitnessFunction<?> f : ffs) {
+//				if (f instanceof IBranchSuiteFitness) {
+//					ff = f;
+//				}
+//			}
+//			if (ff == null) {
+//				ff = FitnessFunctions.getFitnessFunction(Criterion.IBRANCH);
+//				ga.addSecondaryFitnessFunction(ff);
+//			}
+//			IBranchSecondaryObjective ib = new IBranchSecondaryObjective((FitnessFunction<Chromosome>) ff);
+//			return ib; 
+//		}
+		else if (name.equalsIgnoreCase("exceptions"))
 			return new org.evosuite.testcase.MinimizeExceptionsSecondaryObjective();
 		else
 			throw new RuntimeException("ERROR: asked for unknown secondary objective \""
@@ -1724,19 +1726,7 @@ public class TestSuiteGenerator {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
 		else if (name.equalsIgnoreCase("ibranch")){
-			List<FitnessFunction<?>> ffs = ga.getSecondaryFitnessFunctions();
-			FitnessFunction<?> ff = null;
-			for (FitnessFunction<?> f : ffs) {
-				if (f instanceof IBranchSuiteFitness) {
-					ff = f;
-				}
-			}
-			if (ff == null) {
-				ff = FitnessFunctions.getFitnessFunction(Criterion.IBRANCH);
-				ga.addSecondaryFitnessFunction(ff);
-			}
-			IBranchSecondaryObjective ib = new IBranchSecondaryObjective(ff);
-			return ib; 
+			return new IBranchSecondaryObjective(new IBranchSuiteFitness());
 		}else if (name.equalsIgnoreCase("maxlength"))
 			return new MinimizeMaxLengthSecondaryObjective();
 		else if (name.equalsIgnoreCase("averagelength"))
