@@ -552,26 +552,21 @@ public class TestChromosome extends ExecutableChromosome {
 		return testSuiteFitnessFunction.runTest(this.test);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.Chromosome#compareSecondaryObjective(org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
 	@Override
-	public int compareSecondaryObjective(Chromosome o) {
+	@SuppressWarnings("unchecked")
+	public  <T extends Chromosome> int compareSecondaryObjective(T o) {
 		int objective = 0;
 		int c = 0;
 
 		while (c == 0 && objective < secondaryObjectives.size()) {
-			SecondaryObjective so = secondaryObjectives.get(objective++);
+			
+			SecondaryObjective<T> so = (SecondaryObjective<T>) secondaryObjectives.get(objective++);
 			if (so == null)
 				break;
-			c = so.compareChromosomes(this, o);
-		}
-		//logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
-		//        + o.size() + " = " + c);
+			c = so.compareChromosomes((T) this, o);
+		} 
 		return c;
 	}
-
 	/**
 	 * Add an additional secondary objective to the end of the list of
 	 * objectives

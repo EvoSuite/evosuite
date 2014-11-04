@@ -222,7 +222,12 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			evolve();
 
 			sortPopulation();
-
+			
+//			String s = "";
+//			for (Chromosome c : population) {
+//				s=s+","+c.hashCode();
+//			}
+//			logger.error("\n a "+ s);
 			applyLocalSearch();
 
 			double newFitness = getBestIndividual().getFitness();

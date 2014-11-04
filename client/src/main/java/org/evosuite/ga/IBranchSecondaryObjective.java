@@ -42,19 +42,16 @@ public class IBranchSecondaryObjective extends
 	public int compareChromosomes(
 			AbstractTestSuiteChromosome<? extends ExecutableChromosome> chromosome1,
 			AbstractTestSuiteChromosome<? extends ExecutableChromosome> chromosome2) {
-		
+
 		ff.getFitness(chromosome1);
 		ff.getFitness(chromosome2);
 
 		logger.debug("Comparing sizes: " + chromosome1.getFitness(ff) + " vs "
 				+ chromosome2.getFitness(ff));
-		if (chromosome1.getFitness(ff) < chromosome2.getFitness(ff)) {
-			return -1;
-		}
-		if (chromosome1.getFitness(ff) > chromosome2.getFitness(ff)) {
-			return 1;
-		}
-		return 0;
+		int i = (int) Math.signum(chromosome1.getFitness(ff) - chromosome2.getFitness(ff));
+		
+//		logger.error(i+ " " +chromosome1.getFitness(ff)+ " " + chromosome2.getFitness(ff));
+		return i; 
 	}
 
 	@Override
@@ -70,7 +67,7 @@ public class IBranchSecondaryObjective extends
 		ff.getFitness(parent2);
 		ff.getFitness(child1);
 		ff.getFitness(child2);
-		
+
 		double minParents = Math.min(parent1.getFitness(ff), parent2.getFitness(ff));
 		double minChildren = Math.min(child1.getFitness(ff), child2.getFitness(ff));
 		if (minParents < minChildren) {
