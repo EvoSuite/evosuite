@@ -96,8 +96,9 @@ public enum RuntimeVariable {
     OnlyBranchFitnessTimeline,
     OnlyBranchCoverageTimeline,
     IBranchCoverage,
-    IBranchGoals,
-    IBranchGoalsInTargetClass,
+    IBranchInitialGoals,
+    IBranchInitialGoalsInTargetClass,
+    IBranchGoalsTimeline,
 	/** The obtained method coverage (method calls anywhere in trace) */
 	MethodTraceCoverage,
     MethodTraceFitnessTimeline,

@@ -103,6 +103,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		sequenceOutputVariableFactories.put(RuntimeVariable.SizeTimeline.name(), new SizeSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.LengthTimeline.name(), new LengthSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.TotalExceptionsTimeline.name(), new TotalExceptionsSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.IBranchGoalsTimeline.name(), new IBranchGoalsSequenceOutputVariableFactory());
 
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyBranchFitnessTimeline.name(), new OnlyBranchFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyBranchCoverageTimeline.name(), new OnlyBranchCoverageSequenceOutputVariableFactory());
@@ -324,7 +325,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			return false;
 		} 			
 
-		boolean valid = RuntimeVariable.validateRuntimeVariables(map);
+		boolean valid = (! Properties.VALIDATE_RUNTIME_VARIABLES) || RuntimeVariable.validateRuntimeVariables(map);
 		if(!valid){
 			logger.error("Not going to write down statistics data, as some data is invalid");
 			return false;
@@ -498,6 +499,21 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         @Override
         public void setValue(Integer value) {
             this.value = value;
+        }
+    }
+
+    /**
+     * Sequence variable for coverage values
+     */
+    private static class IBranchGoalsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+
+        public IBranchGoalsSequenceOutputVariableFactory() {
+            super(RuntimeVariable.IBranchGoalsTimeline);
+        }
+
+        @Override
+        public Integer getValue(TestSuiteChromosome individual) {
+            return individual.getNumOfNotCoveredGoals();
         }
     }
 
