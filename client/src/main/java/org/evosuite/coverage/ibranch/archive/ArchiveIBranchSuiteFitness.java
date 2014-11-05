@@ -150,9 +150,9 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 				goalsInTarget++;
 		}
 		ClientServices.getInstance().getClientNode()
-				.trackOutputVariable(RuntimeVariable.IBranchGoals, totalGoals);
+				.trackOutputVariable(RuntimeVariable.IBranchInitialGoals, totalGoals);
 		ClientServices.getInstance().getClientNode()
-				.trackOutputVariable(RuntimeVariable.IBranchGoalsInTargetClass, goalsInTarget);
+				.trackOutputVariable(RuntimeVariable.IBranchInitialGoalsInTargetClass, goalsInTarget);
 
 	}
 

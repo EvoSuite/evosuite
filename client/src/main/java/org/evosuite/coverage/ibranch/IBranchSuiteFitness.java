@@ -94,8 +94,8 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
             if (flag)
                 goalsInTarget++;
         }
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.IBranchGoals, totalGoals);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.IBranchGoalsInTargetClass, goalsInTarget);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.IBranchInitialGoals, totalGoals);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.IBranchInitialGoalsInTargetClass, goalsInTarget);
 
     }
 
