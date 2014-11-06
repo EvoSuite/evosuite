@@ -23,10 +23,10 @@ import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 
 /**
  * <p>
- * MinimizeSizeSecondaryObjective class.
+ * IBranchSecondaryObjective class.
  * </p>
  *
- * @author Gordon Fraser
+ * @author mattia
  */
 public class IBranchSecondaryObjective extends
 		SecondaryObjective<AbstractTestSuiteChromosome<? extends ExecutableChromosome>> {
