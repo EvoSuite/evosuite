@@ -17,9 +17,9 @@
  */
 package org.evosuite.ga;
 
-import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
  * <p>
@@ -31,12 +31,14 @@ import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 public class IBranchSecondaryObjective extends
 		SecondaryObjective<AbstractTestSuiteChromosome<? extends ExecutableChromosome>> {
 
-	private IBranchSuiteFitness ff;
+	//Ibranch fitness
+	private TestSuiteFitnessFunction ff;
 	private static final long serialVersionUID = 7211557650429998223L;
 
-	public IBranchSecondaryObjective(IBranchSuiteFitness fitness) {
+	public IBranchSecondaryObjective(TestSuiteFitnessFunction fitness) {
 		ff = fitness;
 	}
+	
 
 	@Override
 	public int compareChromosomes(
@@ -50,7 +52,7 @@ public class IBranchSecondaryObjective extends
 				+ chromosome2.getFitness(ff));
 		int i = (int) Math.signum(chromosome1.getFitness(ff) - chromosome2.getFitness(ff));
 		
-//		logger.error(i+ " " +chromosome1.getFitness(ff)+ " " + chromosome2.getFitness(ff));
+		ff.updateCoveredGoals();
 		return i; 
 	}
 

@@ -1722,12 +1722,14 @@ public class TestSuiteGenerator {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static SecondaryObjective getSecondarySuiteObjective(String name, GeneticAlgorithm ga) {
+	public static SecondaryObjective<?> getSecondarySuiteObjective(String name, GeneticAlgorithm ga) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
-		else if (name.equalsIgnoreCase("ibranch")){
-			return new IBranchSecondaryObjective(new IBranchSuiteFitness());
-		}else if (name.equalsIgnoreCase("maxlength"))
+		else if (name.equalsIgnoreCase("ibranch"))
+			return new IBranchSecondaryObjective(FitnessFunctions.getFitnessFunction(Criterion.IBRANCH));
+		else if (name.equalsIgnoreCase("archiveibranch"))
+			return new IBranchSecondaryObjective(FitnessFunctions.getFitnessFunction(Criterion.ARCHIVEIBRANCH));
+		else if (name.equalsIgnoreCase("maxlength"))
 			return new MinimizeMaxLengthSecondaryObjective();
 		else if (name.equalsIgnoreCase("averagelength"))
 			return new MinimizeAverageLengthSecondaryObjective();
@@ -1748,7 +1750,7 @@ public class TestSuiteGenerator {
 	 * @param algorithm
 	 *            a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public static void getSecondaryObjectives(GeneticAlgorithm algorithm) {
+	public static void getSecondaryObjectives(GeneticAlgorithm<?> algorithm) {
 		String objectives = Properties.SECONDARY_OBJECTIVE;
 
 		// check if there are no secondary objectives to optimize
