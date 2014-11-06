@@ -240,7 +240,7 @@ public class RegexDistanceUtils {
 	 * Insertion/deletion cost 1, whereas replacement is in [0,1] depending
 	 * on the actual character values. </p>
 	 * 
-	 * <p> Note: the distance is tailored for the {@link StringAVM} algorithm,
+	 * <p> Note: the distance is tailored for the <b>StringAVM<b/> algorithm,
 	 * in which characters are only inserted/appended at the end.</p>
 	 * 
 	 * @param arg
@@ -643,7 +643,6 @@ public class RegexDistanceUtils {
 		 * First row is special, ie very different from the others
 		 * 
 		 * @param graph
-		 * @param STATES
 		 * @param matrix
 		 */
 		private void calculateInsertionCostOnFirstRow(RegexGraph graph, final double[][][] matrix) {
