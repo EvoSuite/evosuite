@@ -140,7 +140,7 @@ public class TestGeneration {
 			}
 		}
 		try {
-			if (Properties.INHERITANCE_FILE.isEmpty()) {
+			if (Properties.INSTRUMENT_CONTEXT||Properties.INHERITANCE_FILE.isEmpty()) {
 				String inheritanceFile = EvoSuite.generateInheritanceTree(cp);
 				args.add("-Dinheritance_file=" + inheritanceFile);
 			}
@@ -591,7 +591,7 @@ public class TestGeneration {
 			// Ignore?
 		}
 		try {
-			if (Properties.INHERITANCE_FILE.isEmpty()) {
+			if (Properties.INSTRUMENT_CONTEXT||Properties.INHERITANCE_FILE.isEmpty()) {
 				String inheritanceFile = EvoSuite.generateInheritanceTree(cp);
 				args.add("-Dinheritance_file=" + inheritanceFile);
 			}
