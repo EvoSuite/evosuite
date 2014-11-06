@@ -437,7 +437,11 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public Map<FitnessFunction<?>, Integer> getNumsOfCoveredGoals() {
 		return this.numsCoveredGoals;
 	}
-
+	
+	public LinkedHashMap<FitnessFunction<?>, Integer> getNumsNotCoveredGoals() {
+		return numsNotCoveredGoals;
+	}
+	
 	public Map<FitnessFunction<?>, Double> getCoverages() {
 		return this.coverages;
 	}
