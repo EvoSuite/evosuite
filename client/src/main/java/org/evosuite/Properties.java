@@ -874,6 +874,9 @@ public class Properties {
 	//@Parameter(key = "old_statistics", group = "Output", description = "Use the old statistics backend on the master")
 	//public static boolean OLD_STATISTICS = false;
 
+    @Parameter(key = "validate_runtime_variables", group = "Output", description = "Validate runtime values before writing statistics")
+    public static boolean VALIDATE_RUNTIME_VARIABLES = true;
+
 	@Parameter(key = "serialize_ga", group = "Output", description = "Include the GA instance in the test generation result")
 	public static boolean SERIALIZE_GA = false;
 
@@ -888,7 +891,11 @@ public class Properties {
 	@Parameter(key = "timeline_interval", group = "Output", description = "Time interval in milliseconds for timeline statistics")
 	public static long TIMELINE_INTERVAL = 60 * 1000;
 
-	public enum OutputGranularity {
+    /** Constant <code>TIMELINE_INTERPOLATION=true</code> */
+    @Parameter(key = "timeline_interpolation", group = "Output", description = "Interpolate timeline values")
+    public static boolean TIMELINE_INTERPOLATION = true;
+
+    public enum OutputGranularity {
 		MERGED, TESTCASE
 	}
 
@@ -931,6 +938,7 @@ public class Properties {
 	@Parameter(key = "cluster_recursion", description = "The maximum level of recursion when calculating the dependencies in the test cluster")
 	public static int CLUSTER_RECURSION = 10;
 
+	/** Constant <code>INHERITANCE_FILE=""</code> */
 	@Parameter(key = "inheritance_file", description = "Cached version of inheritance tree")
 	public static String INHERITANCE_FILE = "";
 
