@@ -70,7 +70,7 @@ public class InheritanceTreeGenerator {
 	 * @return
 	 */
 	public static InheritanceTree createFromClassPath(List<String> classPath) {
-		if (!Properties.INHERITANCE_FILE.isEmpty()) {
+		if (!Properties.INSTRUMENT_CONTEXT && !Properties.INHERITANCE_FILE.isEmpty()) {
 			try {
 				InheritanceTree tree = readInheritanceTree(Properties.INHERITANCE_FILE);
 				LoggingUtils.getEvoLogger().info("* Inheritance tree loaded from {}",
