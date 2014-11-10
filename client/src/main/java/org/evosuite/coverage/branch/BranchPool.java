@@ -528,7 +528,7 @@ public class BranchPool {
 		}
 		
 		return ids;
-	}
+	} 
 
 	/**
 	 * Returns the number of known Branches for a given class
