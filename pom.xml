@@ -268,13 +268,6 @@
 
 
 
-	<distributionManagement>
-		<repository>
-		<id>EvoSuite</id>
-		<name>EvoSuite Repository</name>
-		<url>www.evosuite.org/m2/</url>
-		</repository>
-	</distributionManagement>
 
 	<repositories>
 		<repository>
@@ -297,7 +290,27 @@
 			</repository> -->
 	</repositories>
 
-	<build>
+
+    <!-- Once we publish EvoSuite as open source, we should rather deploy to MavenCentral -->
+    <distributionManagement>
+        <repository>
+            <id>EvoSuite</id>
+            <name>EvoSuite Repository</name>
+            <url>scpexe://www.evosuite.org/m2/</url>
+        </repository>
+    </distributionManagement>
+
+
+    <build>
+        <!-- this is needed for "deploy" with SSH -->
+            <extensions>
+                <extension>
+                    <groupId>org.apache.maven.wagon</groupId>
+                    <artifactId>wagon-ssh-external</artifactId>
+                    <version>2.7</version>
+                </extension>
+            </extensions>
+
 		<plugins>
             <!-- we need at least Maven 3.1 due to special features in EvoSuite Maven Plugin -->
             <plugin>
