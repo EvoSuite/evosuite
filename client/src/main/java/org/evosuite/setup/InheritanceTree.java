@@ -148,6 +148,7 @@ public class InheritanceTree {
 		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
 			LoggingUtils.getEvoLogger().warn("Class not in inheritance graph: "
 			                                         + classNameWithDots);
+			return new HashSet<>();
 		}
 		Set<String> result = new LinkedHashSet<String>();
 		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
@@ -161,6 +162,11 @@ public class InheritanceTree {
 
 	public Set<String> getSuperclasses(String className) {
 		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
+		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
+			LoggingUtils.getEvoLogger().warn("Class not in inheritance graph: "
+			                                         + classNameWithDots);
+			return new HashSet<>();
+		}
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
 		        inheritanceGraph);
 		Set<String> result = new LinkedHashSet<String>();
