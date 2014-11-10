@@ -49,6 +49,10 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	public CallGraph(String className) {
 		this.className = className;
 	}
+	
+	public ReverseCallGraph getGraph() {
+		return graph;
+	}
 
 	public void removeClasses(Collection<CallGraphEntry> vertexes){
 		for (CallGraphEntry vertex : vertexes) {
@@ -77,13 +81,17 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @param targetClass
 	 * @param targetMethod
 	 */
+	
+	int counter =0;
 	public boolean addCall(String sourceClass, String sourceMethod,
 			String targetClass, String targetMethod) {
-
+		counter++;
+		if(counter%10000==0)
+			logger.error("A "+ counter);
 		CallGraphEntry from = new CallGraphEntry(targetClass, targetMethod);
 		CallGraphEntry to = new CallGraphEntry(sourceClass, sourceMethod);
 
-		logger.info("Adding new call from: " + to + " -> " + from);
+//		logger.info("Adding new call from: " + to + " -> " + from);
 
 		if (sourceClass.equals(className))
 			cutNodes.add(to);
@@ -178,25 +186,35 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	public String getClassName() {
 		return className;
 	}
+	
+	
+	public boolean checkClassInPaths(String targetClass, Graph<CallGraphEntry> g, CallGraphEntry startingVertex) {
+		if(!g.containsVertex(startingVertex)){
+			return false;
+		}
+		PathFinderDFSIterator<CallGraphEntry> dfs = new PathFinderDFSIterator<CallGraphEntry>(g, startingVertex);
+		while (dfs.hasNext()) {
+			CallGraphEntry e = dfs.next();
+			if(e.getClassName().equals(targetClass)){
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * Determine if className can be reached from the class under test
 	 * 
-	 * TODO to be optimized with a dedicated DFS that stops the search as soon as it
-	 * finds the node
 	 * 
 	 * @param className
 	 * @return
 	 */
+	//TODO CHECK THIS 22 VS 27
 	public boolean isCalledClass(String className) {
 		for (CallGraphEntry e : graph.getEdges().keySet()) {
 			if (e.getClassName().equals(className)) {
-				for (List<CallGraphEntry> c : PathFinder.getPahts(graph, e)) {
-					for (CallGraphEntry entry : c) {
-						if (entry.getClassName().equals(this.className))
-							return true;
-					}
-				}
+				if(checkClassInPaths(this.className, graph, e))
+					return true;
 			}
 		}
 		return false;
@@ -204,8 +222,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 	/**
 	 * Determine if methodName of className can be called through the target
-	 * class TODO optimize it with a dedicated DFS that stop the search as soon
-	 * as it find the node
+	 * class 
 	 * 
 	 * @param className
 	 * @param methodName

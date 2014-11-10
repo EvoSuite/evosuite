@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -65,6 +66,9 @@ import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.setup.PutStaticMethodCollector.MethodIdentifier;
 import org.evosuite.setup.callgraph.CallGraph;
+import org.evosuite.setup.callgraph.CallGraphEntry;
+import org.evosuite.setup.callgraph.Graph;
+import org.evosuite.setup.callgraph.PathFinderDFSIterator;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.GenericAccessibleObject;
@@ -121,6 +125,7 @@ public class TestClusterGenerator {
 
 	private final Set<Class<?>> containerClasses = new LinkedHashSet<Class<?>>();
 	
+		
 	public void generateCluster(String targetClass, InheritanceTree inheritanceTree, CallGraph callGraph) throws RuntimeException, ClassNotFoundException {
 
 		this.inheritanceTree = inheritanceTree;
@@ -131,7 +136,7 @@ public class TestClusterGenerator {
 				try {
 					//TODO verify the correctness - mattia
 					if(callGraph.isCalledClass(callTreeClass)){
-					TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(callTreeClass);
+						TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(callTreeClass);
 					}
 				} catch (ClassNotFoundException e) {
 					logger.info("Class not found: " + callTreeClass + ": " + e);
