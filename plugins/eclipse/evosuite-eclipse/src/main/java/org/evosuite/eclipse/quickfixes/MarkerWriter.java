@@ -90,10 +90,8 @@ public class MarkerWriter {
 				br.read(varcontent, 0, size);
 				parser.setSource(varcontent);
 			} catch (FileNotFoundException e2) {
-				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			final char[] content = varcontent;
@@ -129,7 +127,6 @@ public class MarkerWriter {
 							line++;
 						}
 
-						// TODO Auto-generated method stub
 						IPreferenceStore store = Activator.getDefault()
 								.getPreferenceStore();
 						if (store.getBoolean("removed")) {
@@ -161,7 +158,6 @@ public class MarkerWriter {
 									currentElement = icomp
 											.getElementAt(position + 1);
 								} catch (JavaModelException e1) {
-									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
 								if (isMethodDeclaration(i, currentElement,
@@ -179,7 +175,6 @@ public class MarkerWriter {
 											continue;
 										}
 									} catch (JavaModelException e) {
-										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
 								}
@@ -196,7 +191,6 @@ public class MarkerWriter {
 									currentElement = icomp
 											.getElementAt(position + 1);
 								} catch (JavaModelException e1) {
-									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
 								if (content[position] == '/'
@@ -230,7 +224,6 @@ public class MarkerWriter {
 												compClass.getPosition(i + 1, 0));
 
 									} catch (CoreException e) {
-										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
 								}
@@ -256,7 +249,6 @@ public class MarkerWriter {
 									currentElement = icomp
 											.getElementAt(position + 1);
 								} catch (JavaModelException e1) {
-									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
 								boolean marker = shouldWriteMarkers(currentElement);
@@ -277,7 +269,6 @@ public class MarkerWriter {
 												compClass.getPosition(i + 1, 0));
 
 									} catch (CoreException e) {
-										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
 								}
@@ -298,7 +289,6 @@ public class MarkerWriter {
 								currentElement = icomp
 										.getElementAt(position + 1);
 							} catch (JavaModelException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 							boolean marker = shouldWriteMarkers(currentElement);
@@ -335,7 +325,6 @@ public class MarkerWriter {
 											compClass.getPosition(j + 1, 0) - 1);
 
 								} catch (CoreException e) {
-									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
 							}
@@ -396,8 +385,6 @@ public class MarkerWriter {
 												currentElement = icomp
 														.getElementAt(position + 1);
 											} catch (JavaModelException e1) {
-												// TODO Auto-generated catch
-												// block
 												e1.printStackTrace();
 											}
 											boolean marker = shouldWriteMarkers(currentElement);
@@ -438,7 +425,6 @@ public class MarkerWriter {
 										}
 									}
 								} catch (CoreException e) {
-									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
 							}
@@ -487,7 +473,6 @@ public class MarkerWriter {
 							content, cu, icu);
 				}
 			} catch (JavaModelException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -507,7 +492,6 @@ public class MarkerWriter {
 						}
 					}
 				} catch (JavaModelException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -520,4 +504,5 @@ public class MarkerWriter {
 		MarkerWriter mr = new MarkerWriter(res, tgr);
 		mr.writeMarkers();
 	}
+
 }

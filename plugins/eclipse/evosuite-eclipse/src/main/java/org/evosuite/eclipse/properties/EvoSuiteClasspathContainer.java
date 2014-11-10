@@ -73,12 +73,9 @@ public class EvoSuiteClasspathContainer implements IClasspathContainer {
 	@Override
 	public IPath getPath() {		
 		Bundle bundle = Platform.getBundle(Activator.EVOSUITE_CORE_BUNDLE);
-		URL url =  bundle.getEntry(Activator.EVOSUITE_JAR);
-		System.out.println(url.toString());
-		
-			try {
+		URL url =  bundle.getEntry(Activator.EVOSUITE_JAR);		
+		try {
 			URL evosuiteLib = FileLocator.resolve(url);
-			
 			System.out.println("Evosuite jar is at " + evosuiteLib.getPath());
 			return new Path(evosuiteLib.getPath());
 		} catch (Exception e) {

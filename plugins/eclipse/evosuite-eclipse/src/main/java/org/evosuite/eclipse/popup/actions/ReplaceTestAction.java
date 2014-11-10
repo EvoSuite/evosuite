@@ -72,6 +72,7 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.RandomLengthTestFactory;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
 
 @SuppressWarnings("restriction")
 public class ReplaceTestAction implements IObjectActionDelegate {
@@ -95,18 +96,11 @@ public class ReplaceTestAction implements IObjectActionDelegate {
 
 	private static String SUT = "";
 
-	private String getPackageName(IJavaElement element) {
-		IJavaElement packageRoot = element.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-
-		return "";
-	}
-
 	/**
 	 * @see IActionDelegate#run(IAction)
 	 */
 	@Override
 	public void run(IAction action) {
-		String name = "";
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart activeEditor = page.getActiveEditor();
 
@@ -119,9 +113,7 @@ public class ReplaceTestAction implements IObjectActionDelegate {
 			try {
 				element = root.getElementAt(offset);
 				if (element.getElementType() == IJavaElement.METHOD) {
-					name = element.getElementName();
 					IMethod method = (IMethod) element;
-					name = method.getSource();
 					IJavaElement pDeclaration = element.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 					IPackageFragment pFragment = (IPackageFragment) pDeclaration;
 					System.out.println("Package: "
@@ -252,7 +244,6 @@ public class ReplaceTestAction implements IObjectActionDelegate {
 					Properties.getInstance();
 					Properties.resetTargetClass();
 					Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-					String time;
 					try {
 						Properties.SEARCH_BUDGET = Integer.parseInt(jProject.getProject().getPersistentProperty(EvoSuitePropertyPage.REPLACEMENT_TIME_PROP_KEY));
 					} catch (Throwable e) {
@@ -321,7 +312,7 @@ public class ReplaceTestAction implements IObjectActionDelegate {
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXGENERATIONS;
 		Properties.SEARCH_BUDGET = 100;
 
-		GeneticAlgorithm ga = TestSuiteGenerator.getGeneticAlgorithm(new RandomLengthTestFactory());
+		GeneticAlgorithm<TestChromosome> ga = TestSuiteGenerator.getGeneticAlgorithm(new RandomLengthTestFactory());
 
 		// Set up fitness function for the parsed test case
 		/*

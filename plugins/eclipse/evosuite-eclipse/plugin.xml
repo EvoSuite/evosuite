@@ -40,16 +40,6 @@
             </visibility>
          </action>
          <action
-               label="Generate JUnit Test Suite  (with markers)"
-               class="org.evosuite.eclipse.quickfixes.FileQueueAction"
-               menubarPath="org.evosuite.menu/group1"
-               state="true"
-               style="push"
-               tooltip="Make EvoSuite generate JUnit test classes"
-               enablesFor="1"
-               id="org.evosuite.EvoSuiteAction">
-         </action>  
-         <action
                label="Generate JUnit Test Suite"
                class="org.evosuite.eclipse.popup.actions.GenerateTestsAction"
                menubarPath="org.evosuite.menu/group1"
@@ -58,6 +48,16 @@
                tooltip="Make EvoSuite generate JUnit test classes"
                enablesFor="1"
                id="org.evosuite.EvoSuiteAction">
+         </action>
+         <action
+               label="Clear EvoSuite Markers"
+               class="org.evosuite.eclipse.popup.actions.ClearMarkersAction"
+               menubarPath="org.evosuite.menu/group1"
+               state="true"
+               style="push"
+               tooltip="Clear EvoSuite markers"
+               enablesFor="1"
+               id="org.evosuite.ClearEvoSuiteMarkers">
          </action>
       </objectContribution>
             <objectContribution

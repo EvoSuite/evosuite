@@ -81,8 +81,6 @@ public class EvoSuiteClasspathContainerPage extends org.eclipse.jface.wizard.Wiz
 	}
 
 	public IPath getPath() {
-		// TODO: revise from White's implementation
-		//URL url =  Platform.getBundle("org.evosuite.eclipse.core").getEntry(TestGenerationTrigger.EVOSUITE_JAR);
 		Bundle bundle = Platform.getBundle(Activator.EVOSUITE_CORE_BUNDLE);
 		URL url = bundle.getEntry(Activator.EVOSUITE_JAR);
 		try {

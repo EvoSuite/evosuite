@@ -37,8 +37,6 @@ public class TestExtensionJob extends TestGenerationJob {
 
 	private final String testClass;
 
-	private final String SOURCE_JAVA_VERSION = JavaCore.VERSION_1_6;
-
 	private final String ENCODING = "UTF-8";
 
 	private String classPath;
@@ -208,10 +206,8 @@ public class TestExtensionJob extends TestGenerationJob {
 					//}
 				}
 			} catch (JavaModelException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
