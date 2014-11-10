@@ -2,40 +2,36 @@ package org.evosuite.eclipse.popup.actions;
 
 import java.util.HashSet;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionDelegate;
+import org.eclipse.ui.IObjectActionDelegate;
+import org.eclipse.ui.IWorkbenchPart;
+import org.evosuite.eclipse.quickfixes.MarkerWriter;
 
-public class GenerateTestsAction extends TestGenerationAction {
+public class ClearMarkersAction implements IObjectActionDelegate {
 
 	HashSet<IResource> currentSelection = new HashSet<IResource>();
 
+	protected Shell shell;
+	
 	/**
 	 * @see IActionDelegate#run(IAction)
 	 */
 	@Override
 	public void run(IAction action) {
-
-		if (currentSelection.isEmpty()) {
-			MessageDialog.openError(shell, "EvoSuite",
-			                        "Unable to generate test cases for selection: Cannot find .java files.");
-		} else if (currentSelection.size() > 1) {
-			MessageDialog.openError(shell, "EvoSuite", "Please only select one class at a time.");
-		} else {
-
-			for (IResource res : currentSelection) {
-				IProject proj = res.getProject();
-				fixJUnitClassPath(JavaCore.create(proj));
-				generateTests(res);
+		for (IResource res : currentSelection) {
+			try {
+				MarkerWriter.clearMarkers(res);
+			} catch (CoreException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -74,5 +70,9 @@ public class GenerateTestsAction extends TestGenerationAction {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
 	}
 }

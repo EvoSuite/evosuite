@@ -26,8 +26,9 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.swt.widgets.Shell;
 import org.evosuite.eclipse.popup.actions.TestGenerationAction;
+import org.evosuite.eclipse.popup.actions.TestGenerationJob;
+
 
 /**
  * @author Thomas White, extended from Gordon Fraser's
@@ -35,9 +36,8 @@ import org.evosuite.eclipse.popup.actions.TestGenerationAction;
  * 
  */
 public class TestGenerationTrigger extends TestGenerationAction {
-	private Shell shell;
 	private IResource res;
-	private AutomatedTestGenerationJob job;
+	private TestGenerationJob job;
 	
 	public TestGenerationTrigger(IResource r) {
 		res = r;
@@ -57,6 +57,7 @@ public class TestGenerationTrigger extends TestGenerationAction {
 	 */
 	@Override
 	protected void addTestJob(final IResource target) {
+        //TODO: Must do a merging instead of over writing entire test suite
 		IJavaElement element = JavaCore.create(target);
 		if (element == null) {
 			return;
@@ -65,19 +66,15 @@ public class TestGenerationTrigger extends TestGenerationAction {
 
 		String packageName = packageElement.getElementName();
 
-		final String targetClass = (!packageName.isEmpty() ? packageName + "." : "")
-		        + target.getName().replace(".java", "").replace(File.separator, ".");
-		System.out.println("* Scheduling new automated job for " + targetClass);
-		job = new AutomatedTestGenerationJob(shell, target, targetClass);
+		final String targetClass = (!packageName.isEmpty() ? packageName + "."
+				: "")
+				+ target.getName().replace(".java", "")
+						.replace(File.separator, ".");
+		System.out.println("Building new job for " + targetClass);
+		job = new TestGenerationJob(shell, target, targetClass);
 		job.setPriority(Job.DECORATE);
 		job.schedule();
 	}
-
-	@Override
-	public void generateTests(IResource target) {
-		addTestJob(target);
-	}
-
 
 	public boolean isRunning() {
 		boolean running = job != null && job.isRunning();

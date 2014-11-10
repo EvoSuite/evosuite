@@ -9,7 +9,6 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.Annotation;
@@ -27,19 +26,14 @@ public class ResolutionMarkerEvoIgnoreForClass implements IMarkerResolution {
 
 	@Override
 	public String getLabel() {
-		// TODO Auto-generated method stub
 		return "Add @EvoIgnore annotation to class";
 	}
 
 	@Override
 	public void run(IMarker marker) {
-		// TODO Auto-generated method stub
 		IResource res = marker.getResource();
 
 		try {
-
-			ICompilationUnit icomp = CompilationUnitManager
-					.getICompilationUnit(res);
 
 			CompilationUnit compunit = CompilationUnitManager
 					.getCompilationUnit(res);

@@ -86,8 +86,14 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 	 * @param target
 	 */
 	public void generateTests(IResource target) {
+		String disabled = System.getProperty("disable.evosuite");
+		if ( disabled != null && disabled.equals("1")) {			
+			MessageDialog.openInformation(shell, "Sorry!", "The EvoSuite Plugin is disabled :(");
+			return;
+		}
+		System.out.println("EvoSuite Plugin is enabled");
+		System.out.println("[TestGenerationAction] Generating tests for " + target.toString());
 		IFolder folder = target.getProject().getFolder("evosuite-tests");
-
 		if (!folder.exists()) {
 			// Create evosuite-tests directory and add as source folder
 			try {
@@ -105,7 +111,6 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 				t.printStackTrace();
 			}
 		}
-
 		addTestJob(target);
 	}
 
@@ -205,23 +210,27 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 	 * @param targetPath
 	 */
 	public void renameTarget(final IResource target, String packageName, String targetPath) {
-		System.out.println("Renaming "+targetPath +" in package "+packageName);
+		System.out.println("Renaming " + targetPath + " in package " + packageName);
 		IPackageFragment[] packages;
 		try {
 			packages = JavaCore.create(target.getProject()).getPackageFragments();
 			System.out.println("Packages found: "+packages.length);
 			for (IPackageFragment f : packages) {
-				//System.out.println("Current package: "+f.getElementName());
 				if ((f.getKind() == IPackageFragmentRoot.K_SOURCE) 
 						&& (f.getElementName().equals(packageName))) {
+					
 					for (ICompilationUnit cu : f.getCompilationUnits()) {
-						if (cu.getElementName().equals(targetPath)) {
-							System.out.println(f.getElementName() + " = " + cu.getElementName());
+						
+						String cuName = cu.getElementName();
+						System.out.println("targetPath = " + targetPath);
+						System.out.println("cuName = " + cuName);
+						if (cuName.equals(targetPath)) {
 							RefactoringContribution contribution = RefactoringCore.getRefactoringContribution(IJavaRefactorings.RENAME_COMPILATION_UNIT);
 							RenameJavaElementDescriptor descriptor = (RenameJavaElementDescriptor) contribution.createDescriptor();
 							descriptor.setProject(cu.getResource().getProject().getName());
-							descriptor.setNewName(getNewName(cu.getElementName(),
-								                                 f.getCompilationUnits())); // new name for a Class
+							String newName = getNewName(cuName, f.getCompilationUnits());
+							System.out.println("New name for Test Suite: " + newName);
+							descriptor.setNewName(newName); // new name for a Class
 							descriptor.setJavaElement(cu);
 
 							RefactoringStatus status = new RefactoringStatus();

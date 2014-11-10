@@ -26,6 +26,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.evosuite.Properties;
@@ -45,6 +46,7 @@ public class Activator extends AbstractUIPlugin implements
 	public static final String EVOSUITE_CORE_BUNDLE = "org.evosuite.plugins.eclipse.core";
 	public static final String EVOSUITE_JAR = "evosuite.jar";
 	public static final String JUNIT_IDENTIFIER = Properties.JUNIT_SUFFIX + ".java";
+	public static final String SCAFFOLDING_IDENTIFIER = Properties.SCAFFOLDING_SUFFIX + ".java";
 	public static final String DATA_FOLDER = "evosuite-qfdata";
 	
 	public static IResource CURRENT_WRITING_FILE = null;
@@ -59,6 +61,7 @@ public class Activator extends AbstractUIPlugin implements
 
 	public static final FileQueue FILE_QUEUE = new FileQueue();
 
+	protected Shell shell;
 	// private IResourceChangeEvent event;
 
 	/**
@@ -133,32 +136,33 @@ public class Activator extends AbstractUIPlugin implements
 
 	@Override
 	public boolean visit(IResourceDelta delta) throws CoreException {
-		boolean isAutomatic = getPreferenceStore().getBoolean("automatic");
-		if (isAutomatic && isEnabled()) {
-			if (delta.getKind() == IResourceDelta.CHANGED
-					&& delta.getFlags() != IResourceDelta.MARKERS
-					&& delta.getResource() != null) {
-				final IResource res = delta.getResource();
-
-				if (res.getType() == IResource.FILE
-						&& res.getName().toLowerCase().endsWith("java")
-						&& !res.getName().endsWith(JUNIT_IDENTIFIER)) {
-					FILE_QUEUE.addFile(res);
-					FILE_QUEUE.update();
-					resetRoamingJob(res);
-				}
+		boolean isAutomatic = getPreferenceStore().getBoolean(EvoSuitePreferencePage.AUTOMATIC_TEST_ON_SAVE);
+		if (isAutomatic && markersEnabled() 
+				&& delta.getKind() == IResourceDelta.CHANGED 
+				&& delta.getFlags() != IResourceDelta.MARKERS 
+				&& delta.getResource() != null) {
+			final IResource res = delta.getResource();
+			
+			if (res.getType() == IResource.FILE
+					&& res.getName().toLowerCase().endsWith("java")
+					&& !res.getName().endsWith(JUNIT_IDENTIFIER)
+					&& !res.getName().endsWith(SCAFFOLDING_IDENTIFIER)) {
+				System.out.println("Resetting Roaming Job for " + res.getName());
+				FILE_QUEUE.addFile(res);
+				FILE_QUEUE.update();
+				resetRoamingJob(res);
 			}
 		}
 		return true;
 	}
 
-	public static boolean isEnabled(){
-		return Activator.getDefault().getPreferenceStore().getBoolean("enabled");
+	public static boolean markersEnabled(){
+		return Activator.getDefault().getPreferenceStore().getBoolean(EvoSuitePreferencePage.MARKERS_ENABLED);
 	}
 
 	public void resetRoamingJob(IResource res) {
 		roamingJob.cancel();
-		int time = getPreferenceStore().getInt("roamtime") * 1000;
+		int time = getPreferenceStore().getInt(EvoSuitePreferencePage.ROAMTIME) * 1000;
 		if (time > 0) {
 			roamingJob.schedule(time);
 			roamingJob.setProject(res.getProject());

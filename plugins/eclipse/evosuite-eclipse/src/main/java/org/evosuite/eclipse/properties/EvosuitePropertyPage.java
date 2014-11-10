@@ -220,7 +220,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 
 		Label timelabel = new Label(myComposite, SWT.NONE);
 		timelabel.setLayoutData(new GridData());
-		timelabel.setText("Test generation time (s)");
+		timelabel.setText("Test generation time");
 		time = new Spinner(myComposite, SWT.BORDER);
 		time.setMinimum(0);
 		time.setMaximum(600);
@@ -427,13 +427,10 @@ public class EvoSuitePropertyPage extends PropertyPage {
 						label.setText("Type not yet supported");
 					}
 				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -896,14 +893,14 @@ public class EvoSuitePropertyPage extends PropertyPage {
 	}
 
 	protected void setTestSuffix(String suffix) {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = suffix;
-		if (value.equals(""))
-			value = "EvoSuiteTest";
 		try {
-			Properties.JUNIT_SUFFIX = value;
-			resource.setPersistentProperty(TEST_SUFFIX_PROP_KEY, value);
+			IResource resource = ((IJavaProject) getElement()).getResource();
+			if (! suffix.equals("")) {
+				Properties.JUNIT_SUFFIX = suffix;
+				resource.setPersistentProperty(TEST_SUFFIX_PROP_KEY, suffix);
+			}
 		} catch (CoreException e) {
+			e.printStackTrace();
 		}
 	}
 

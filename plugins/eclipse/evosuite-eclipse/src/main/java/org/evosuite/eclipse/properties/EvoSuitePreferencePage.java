@@ -26,11 +26,18 @@ import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.evosuite.Properties;
 
 public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
 	public static final PreferenceStore PREFERENCE_STORE;
 	
+	public static final String MARKERS_ENABLED = "markersEnabled";
+	public static final String RUNTIME = "runtime";
+	public static final String ROAMTIME = "roamtime";
+	public static final String UNCOVERED_MARKER = "uncovered";
+	public static final String REMOVED_MARKER = "removed";
+	public static final String AUTOMATIC_TEST_ON_SAVE = "automatic";
 	static {
 		PREFERENCE_STORE = new PreferenceStore("evosuite-quickfixes-properties");	
 	}
@@ -42,29 +49,30 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 
 	@Override
 	public PreferenceStore getPreferenceStore() {
-		// TODO Auto-generated method stub
 		return PREFERENCE_STORE;
 	}
 
 	@Override
 	protected void createFieldEditors() {
 		
-		BooleanFieldEditor enabled = new BooleanFieldEditor("enabled", "Enable Markers and Quick-fixes", getFieldEditorParent());
-		addField(enabled);
+		BooleanFieldEditor markersEnabled = new BooleanFieldEditor(MARKERS_ENABLED, "Enable Markers and Quick-fixes", getFieldEditorParent());
+		addField(markersEnabled);
 		
-		IntegerFieldEditor runtime = new IntegerFieldEditor("runtime", "Time for EvoSuite to improve code coverage (s)", getFieldEditorParent());
+		IntegerFieldEditor runtime = new IntegerFieldEditor(RUNTIME, "Time for EvoSuite to improve code coverage (s)", getFieldEditorParent());
+		runtime.setEmptyStringAllowed(false);
+		runtime.setValidRange(0, Integer.MAX_VALUE);
 		addField(runtime);
 		
-		IntegerFieldEditor roamtime = new IntegerFieldEditor("roamtime", "Inactive time before other classes will be tested (s)", getFieldEditorParent());
+		IntegerFieldEditor roamtime = new IntegerFieldEditor(ROAMTIME, "Inactive time before other classes will be tested (s)", getFieldEditorParent());
 		addField(roamtime);
 		
-		BooleanFieldEditor uncoveredLines = new BooleanFieldEditor("uncovered", "Show lines EvoSuite couldn't cover", getFieldEditorParent());
+		BooleanFieldEditor uncoveredLines = new BooleanFieldEditor(UNCOVERED_MARKER, "Show lines EvoSuite couldn't cover", getFieldEditorParent());
 		addField(uncoveredLines);
 		
-		BooleanFieldEditor removedLines = new BooleanFieldEditor("removed", "Show lines the compiler may have removed", getFieldEditorParent());
+		BooleanFieldEditor removedLines = new BooleanFieldEditor(REMOVED_MARKER, "Show lines the compiler may have removed", getFieldEditorParent());
 		addField(removedLines);
 		
-		BooleanFieldEditor auto = new BooleanFieldEditor("automatic", "Automatic test on save", getFieldEditorParent());
+		BooleanFieldEditor auto = new BooleanFieldEditor(AUTOMATIC_TEST_ON_SAVE, "Automatic test on save", getFieldEditorParent());
 		addField(auto);
 	}
 	
@@ -72,11 +80,11 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 
 	@Override
 	protected void performDefaults() {
-		getPreferenceStore().setToDefault("enabled");
-		getPreferenceStore().setToDefault("runtime");
-		getPreferenceStore().setToDefault("roamtime");
-		getPreferenceStore().setToDefault("uncovered");
-		getPreferenceStore().setToDefault("removed");
+		getPreferenceStore().setToDefault(MARKERS_ENABLED);
+		getPreferenceStore().setToDefault(RUNTIME);
+		getPreferenceStore().setToDefault(ROAMTIME);
+		getPreferenceStore().setToDefault(UNCOVERED_MARKER);
+		getPreferenceStore().setToDefault(REMOVED_MARKER);
 		
 		super.performDefaults();
 	}
@@ -89,7 +97,7 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		getPreferenceStore().setDefault("enabled", true);
+		getPreferenceStore().setDefault(MARKERS_ENABLED, true);
 		getPreferenceStore().setDefault("runtime", 30);
 		getPreferenceStore().setDefault("roamtime", 240);
 		getPreferenceStore().setDefault("uncovered", false);
@@ -101,28 +109,28 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 	}
 	
 	public void storeDefaults(){
-		if (!getPreferenceStore().contains("enabled")){
-			getPreferenceStore().setValue("enabled", true);
+		if (!getPreferenceStore().contains(MARKERS_ENABLED)){
+			getPreferenceStore().setValue(MARKERS_ENABLED, true);
 		}
 		
-		if (!getPreferenceStore().contains("runtime")){
-			getPreferenceStore().setValue("runtime", 30);
+		if (!getPreferenceStore().contains(RUNTIME)){
+			getPreferenceStore().setValue(RUNTIME, 30);
 		}
 		
-		if (!getPreferenceStore().contains("roamtime")){
-			getPreferenceStore().setValue("roamtime", 240);
+		if (!getPreferenceStore().contains(ROAMTIME)){
+			getPreferenceStore().setValue(ROAMTIME, 240);
 		}
 		
-		if (!getPreferenceStore().contains("uncovered")){
-			getPreferenceStore().setValue("uncovered", false);
+		if (!getPreferenceStore().contains(UNCOVERED_MARKER)){
+			getPreferenceStore().setValue(UNCOVERED_MARKER, false);
 		}
 		
-		if (!getPreferenceStore().contains("removed")){
-			getPreferenceStore().setValue("removed", false);
+		if (!getPreferenceStore().contains(REMOVED_MARKER)){
+			getPreferenceStore().setValue(REMOVED_MARKER, false);
 		}
 		
-		if (!getPreferenceStore().contains("automatic")){
-			getPreferenceStore().setValue("automatic", true);
+		if (!getPreferenceStore().contains(AUTOMATIC_TEST_ON_SAVE)){
+			getPreferenceStore().setValue(AUTOMATIC_TEST_ON_SAVE, true);
 		}
 		try {
 			getPreferenceStore().save();
@@ -130,8 +138,6 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 			e.printStackTrace();
 		}
 	}
-
-
 
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
@@ -142,7 +148,4 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
 }

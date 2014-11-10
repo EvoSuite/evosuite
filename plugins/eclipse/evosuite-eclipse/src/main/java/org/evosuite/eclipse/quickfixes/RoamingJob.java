@@ -22,46 +22,42 @@ public class RoamingJob extends Job {
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
+		String disabled = System.getProperty("disable.evosuite");
+		if ( disabled != null && disabled.equals("1")) {
+			System.out.println("RoamingJob: disabled.evosuite = 1");
+			return Status.OK_STATUS;
+		}
 		int delay = Activator.getDefault().getPreferenceStore()
 				.getInt("roamtime") * 1000;
-		if (delay > 0) {
-			if (Activator.FILE_QUEUE.getSize() == 0 && project != null) {
-				try {
-					project.accept(new IResourceVisitor() {
+		if (delay > 0 && Activator.FILE_QUEUE.getSize() == 0 && project != null) {
+			try {
+				project.accept(new IResourceVisitor() {
 
-						@Override
-						public boolean visit(IResource resource)
-								throws CoreException {
-							// TODO Auto-generated method stub
-
-							if (Activator.FILE_QUEUE.getSize() == 0
-									&& resource.getType() == IResource.FILE
-									&& resource.getName().toLowerCase()
-											.endsWith("java")
-									&& !resource.getName().endsWith(
-											Activator.JUNIT_IDENTIFIER)) {
-								String filepath = resource
-										.getProjectRelativePath().toOSString();
-								IFile file = project.getFolder(
-										Activator.DATA_FOLDER).getFile(
-										filepath + ".gadata");
-								if (!file.exists()) {
-									Activator.FILE_QUEUE.addFile(resource);
-									Activator.FILE_QUEUE.update();
-								}
-
+					@Override
+					public boolean visit(IResource resource)
+							throws CoreException {
+						if (Activator.FILE_QUEUE.getSize() == 0
+								&& resource.getType() == IResource.FILE
+								&& resource.getName().toLowerCase().endsWith("java")
+								&& !resource.getName().endsWith(Activator.JUNIT_IDENTIFIER)
+								&& !resource.getName().endsWith(Activator.SCAFFOLDING_IDENTIFIER)) {
+							String filepath = resource.getProjectRelativePath().toOSString();
+							IFile file = project.getFolder(
+									Activator.DATA_FOLDER).getFile(filepath + ".gadata");
+							if (!file.exists()) {
+								Activator.FILE_QUEUE.addFile(resource);
+								Activator.FILE_QUEUE.update();
 							}
-							return true;
-						}
 
-					});
-				} catch (CoreException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				this.schedule(delay);
+						}
+						return true;
+					}
+
+				});
+			} catch (CoreException e) {
+				e.printStackTrace();
 			}
+			this.schedule(delay);
 		}
 		return Status.OK_STATUS;
 	}

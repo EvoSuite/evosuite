@@ -22,3 +22,10 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,./bin,
  evosuite-eclipse-core/evosuite.jar
+Export-Package: org.evosuite,
+ org.evosuite.eclipse,
+ org.evosuite.eclipse.markers,
+ org.evosuite.eclipse.popup.actions,
+ org.evosuite.eclipse.properties,
+ org.evosuite.eclipse.quickfixes,
+ org.evosuite.eclipse.replace
