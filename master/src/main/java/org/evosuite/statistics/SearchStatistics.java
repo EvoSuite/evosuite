@@ -325,7 +325,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			return false;
 		} 			
 
-		boolean valid = (! Properties.VALIDATE_RUNTIME_VARIABLES) || RuntimeVariable.validateRuntimeVariables(map);
+		boolean valid = RuntimeVariable.validateRuntimeVariables(map);
 		if(!valid){
 			logger.error("Not going to write down statistics data, as some data is invalid");
 			return false;
