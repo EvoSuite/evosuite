@@ -104,17 +104,17 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
 			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
 			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
-			branchesId = BranchPool.getBranchIdsForPrefix(prefix);
 			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
 		} else {
 			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
 			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
 			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
-			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
-			branchesId = BranchPool.getBranchIdsForPrefix(prefix);
+			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix); 
 			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
 		}
 
+		branchesId = new HashSet<>();
+		
 		/* TODO: Would be nice to use a prefix here */
 		lines = LinePool.getLines(Properties.TARGET_CLASS);
 
@@ -146,7 +146,6 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
 			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
 			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
-			branchesId = BranchPool.getBranchIdsForPrefix(prefix);
 			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
 
 		} else {
@@ -154,9 +153,9 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
 			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
 			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
-			branchesId = BranchPool.getBranchIdsForPrefix(prefix);
 			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
 		}
+		branchesId = new HashSet<>();
 
 		/* TODO: Would be nice to use a prefix here */
 		lines = LinePool.getLines(Properties.TARGET_CLASS);
@@ -182,6 +181,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				branchlessMethodCoverageMap.put(goal.getClassName() + "."
 				                                        + goal.getMethod(), goal);
 			} else {
+				branchesId.add(goal.getBranch().getActualBranchId());
 				if (goal.getBranchExpressionValue())
 					branchCoverageTrueMap.put(goal.getBranch().getActualBranchId(), goal);
 				else
@@ -241,7 +241,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 			}
 			
 			for (Entry<String, Integer> entry : result.getTrace().getMethodExecutionCount().entrySet()) {
-				if(!methods.contains(entry.getKey())||removedRootBranches.contains(entry.getKey())) continue;
+				if(entry.getKey()==null||!methods.contains(entry.getKey())||removedRootBranches.contains(entry.getKey())) continue;
 				if (!callCount.containsKey(entry.getKey()))
 					callCount.put(entry.getKey(), entry.getValue());
 				else {
