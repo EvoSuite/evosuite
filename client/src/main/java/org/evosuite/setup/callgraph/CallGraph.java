@@ -82,12 +82,8 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @param targetMethod
 	 */
 	
-	int counter =0;
 	public boolean addCall(String sourceClass, String sourceMethod,
 			String targetClass, String targetMethod) {
-		counter++;
-		if(counter%10000==0)
-			logger.error("A "+ counter);
 		CallGraphEntry from = new CallGraphEntry(targetClass, targetMethod);
 		CallGraphEntry to = new CallGraphEntry(sourceClass, sourceMethod);
 
