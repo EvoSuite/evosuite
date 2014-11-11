@@ -18,26 +18,26 @@
 /**
  * 
  */
-package org.evosuite.ga.seeding;
+package org.evosuite.seeding.factories;
 
+import java.util.List;
+
+import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.Randomness;
 
 /**
- * <p>
- * JUnitTestSuiteChromosomeFactory class.
- * </p>
- * 
- * @author fraser
+ * @author Thomas White
  */
-public class BestIndividualTestSuiteChromosomeFactory implements
+public class BIMethodSeedingTestSuiteChromosomeFactory implements
 		ChromosomeFactory<TestSuiteChromosome> {
 
 	private static final long serialVersionUID = 1L;
 
 	private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
 	private final TestSuiteChromosome bestIndividual;
-	private boolean seeded = false;
 
 	/**
 	 * <p>
@@ -47,7 +47,7 @@ public class BestIndividualTestSuiteChromosomeFactory implements
 	 * @param defaultFactory
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public BestIndividualTestSuiteChromosomeFactory(
+	public BIMethodSeedingTestSuiteChromosomeFactory(
 			ChromosomeFactory<TestSuiteChromosome> defaultFactory,
 			TestSuiteChromosome bestIndividual) {
 		this.defaultFactory = defaultFactory;
@@ -62,12 +62,34 @@ public class BestIndividualTestSuiteChromosomeFactory implements
 	/** {@inheritDoc} */
 	@Override
 	public TestSuiteChromosome getChromosome() {
-		if (!seeded){
-			seeded = true;
-			return bestIndividual;
+		/*
+		 * double P_delta = 0.1d; double P_clone = 0.1d; int MAX_CHANGES = 10;
+		 */
+
+		TestSuiteChromosome chromosome = defaultFactory.getChromosome();
+
+		int numTests = chromosome.getTests().size();
+
+		// reduce seed probablility by number of tests to be generated
+		final double SEED_CHANCE = Properties.SEED_PROBABILITY / numTests;
+		for (int i = 0; i < numTests; i++) {
+			if (Randomness.nextDouble() < SEED_CHANCE) {
+				int testSize = bestIndividual.getTests().size();
+				TestCase test = bestIndividual.getTests().get(Randomness.nextInt(testSize));
+				if (test != null) {
+					List<TestCase> tests = chromosome.getTests();
+					tests.remove(i);
+					tests.add(i, test);
+					chromosome.clearTests();
+					for (TestCase t : tests){
+						chromosome.addTest(t);
+					}
+				}
+			}
+			// chromosome.tests.add(test);
 		}
 
-		return defaultFactory.getChromosome();
+		return chromosome;
 	}
 
 }
