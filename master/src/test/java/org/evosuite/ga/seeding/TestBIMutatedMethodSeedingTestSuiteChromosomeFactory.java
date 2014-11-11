@@ -7,8 +7,10 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.seeding.factories.BIMutatedMethodSeedingTestSuiteChromosomeFactory;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,6 +21,8 @@ public class TestBIMutatedMethodSeedingTestSuiteChromosomeFactory extends System
 	ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
 	TestSuiteChromosome bestIndividual;
 	GeneticAlgorithm<TestSuiteChromosome> ga;
+	private final static double SEED_PROBABILITY = Properties.SEED_PROBABILITY;
+	private final static int SEED_MUTATIONS = Properties.SEED_MUTATIONS;
 
 	@Before
 	public void setup() {
@@ -33,6 +37,12 @@ public class TestBIMutatedMethodSeedingTestSuiteChromosomeFactory extends System
 
 		ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
 		bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
+	}
+	
+	@After
+	public void restore() {
+		Properties.SEED_PROBABILITY = SEED_PROBABILITY;
+		Properties.SEED_MUTATIONS = SEED_MUTATIONS;
 	}
 
 	@Test
@@ -55,6 +65,7 @@ public class TestBIMutatedMethodSeedingTestSuiteChromosomeFactory extends System
 	public void testBIMutatedMethod() {
 		//probability is SEED_PROBABILITY/test cases, so 10 guarentees a seed
 		Properties.SEED_PROBABILITY = 10;
+		Properties.SEED_MUTATIONS = 0; // Test requires configured test cluster otherwise
 		BIMutatedMethodSeedingTestSuiteChromosomeFactory factory = new BIMutatedMethodSeedingTestSuiteChromosomeFactory(
 				defaultFactory, bestIndividual);
 		TestSuiteChromosome chromosome = factory.getChromosome();

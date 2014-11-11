@@ -18,31 +18,24 @@
 /**
  * 
  */
-package org.evosuite.ga.seeding;
-
-import java.util.List;
+package org.evosuite.seeding.factories;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.runtime.Random;
-import org.evosuite.testcase.TestCase;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 
 /**
- * <p>
- * JUnitTestSuiteChromosomeFactory class.
- * </p>
- * 
- * @author fraser
+ * @author Thomas White
  */
-public class BIMutatedMethodSeedingTestSuiteChromosomeFactory implements
+public class RandomIndividualTestSuiteChromosomeFactory implements
 		ChromosomeFactory<TestSuiteChromosome> {
 
 	private static final long serialVersionUID = 1L;
 
 	private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
-	private final TestSuiteChromosome bestIndividual;
+	private final GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm;
 
 	/**
 	 * <p>
@@ -52,11 +45,11 @@ public class BIMutatedMethodSeedingTestSuiteChromosomeFactory implements
 	 * @param defaultFactory
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public BIMutatedMethodSeedingTestSuiteChromosomeFactory(
+	public RandomIndividualTestSuiteChromosomeFactory(
 			ChromosomeFactory<TestSuiteChromosome> defaultFactory,
-			TestSuiteChromosome bestIndividual) {
+			GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm) {
 		this.defaultFactory = defaultFactory;
-			this.bestIndividual = bestIndividual;
+		this.geneticAlgorithm = geneticAlgorithm;
 	}
 
 	/*
@@ -70,38 +63,15 @@ public class BIMutatedMethodSeedingTestSuiteChromosomeFactory implements
 		/*
 		 * double P_delta = 0.1d; double P_clone = 0.1d; int MAX_CHANGES = 10;
 		 */
-
-		TestSuiteChromosome chromosome = defaultFactory.getChromosome();
-
-		int numTests = chromosome.getTests().size();
-
-		//reduce seed probablility by number of tests to be generated
-		final double SEED_CHANCE = Properties.SEED_PROBABILITY / numTests;
-		
-		for (int i = 0; i < numTests; i++) {
-
-			if (bestIndividual != null
-					&& Randomness.nextDouble() < SEED_CHANCE) {
-				TestSuiteChromosome bi = bestIndividual.clone();
-				int mutations = Randomness.nextInt(5) + 1;
-				for (int j = 0; j < mutations; j++){
-					bi.mutate();
-				}
-				int testSize = bi.getTests().size();
-				TestCase test = bi.getTests().get(Random.nextInt(testSize));
-				if (test != null) {
-					List<TestCase> tests = chromosome.getTests();
-					tests.remove(i);
-					tests.add(i, test);
-					chromosome.clearTests();
-					for (TestCase t : tests){
-						chromosome.addTest(t);
-					}
-				}
+		if (geneticAlgorithm != null && Randomness.nextDouble() < Properties.SEED_PROBABILITY) {
+			int populationSize = geneticAlgorithm.getPopulation().size();
+			TestSuiteChromosome ri = geneticAlgorithm.getPopulation().get(Randomness.nextInt(populationSize));
+			if (ri != null){
+				return ri;
 			}
 		}
 
-		return chromosome;
+		return defaultFactory.getChromosome();
 	}
 
 }
