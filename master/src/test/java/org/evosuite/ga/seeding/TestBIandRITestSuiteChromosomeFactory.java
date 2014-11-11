@@ -27,6 +27,8 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.seeding.factories.BIAndRITestSuiteChromosomeFactory;
+import org.evosuite.seeding.factories.BestIndividualTestSuiteChromosomeFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
 import org.junit.Test;
