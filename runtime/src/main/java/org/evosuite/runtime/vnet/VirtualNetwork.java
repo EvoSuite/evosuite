@@ -78,7 +78,7 @@ public class VirtualNetwork {
 	private final AtomicInteger remotePortIndex;
 
 	/**
-	 * Define with interfaces are available:
+	 * Define what interfaces are available:
 	 * eg, a loopback one and a wifi
 	 */
 	private final List<NetworkInterfaceState> networkInterfaces;
