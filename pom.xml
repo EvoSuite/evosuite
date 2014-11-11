@@ -296,7 +296,7 @@
         <repository>
             <id>EvoSuite</id>
             <name>EvoSuite Repository</name>
-            <url>file://var/www/m2</url>
+            <url>file://var/www/m2/repository</url>
             <!-- <url>scpexe://www.evosuite.org/m2/</url> -->
         </repository>
     </distributionManagement>

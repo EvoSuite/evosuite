@@ -14,7 +14,7 @@ public class DNSTest {
 		String lbAddr = "127.0.0.1";
 		
 		String lb = dns.resolve(lbAddr);
-		String google = dns.resolve("ww.google.com");
+		String google = dns.resolve("www.google.com");
 		String evosuite = dns.resolve("www.evosuite.org");
 		
 		Assert.assertEquals(lbAddr,lb);
