@@ -268,7 +268,6 @@
 
 
 
-
 	<repositories>
 		<repository>
 			<releases>
@@ -296,8 +295,7 @@
         <repository>
             <id>EvoSuite</id>
             <name>EvoSuite Repository</name>
-            <url>file://var/www/m2/repository</url>
-            <!-- <url>scpexe://www.evosuite.org/m2/</url> -->
+            <url>${deployURL}</url>
         </repository>
     </distributionManagement>
 
@@ -548,6 +546,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<skipTests>true</skipTests>
+        <deployURL>Needs to be fixed in Jenkins</deployURL>
 	</properties>
 
 </project>
