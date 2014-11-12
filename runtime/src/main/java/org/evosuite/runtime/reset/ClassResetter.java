@@ -86,7 +86,7 @@ public class ClassResetter {
 		}
 		
 		if(loader == null){					
-			new IllegalStateException("No specified loader");
+			throw new IllegalStateException("No specified loader");
 		}
 		
 		Method m = getResetMethod(classNameWithDots);
