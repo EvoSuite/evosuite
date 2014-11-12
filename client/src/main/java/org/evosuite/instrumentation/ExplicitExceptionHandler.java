@@ -71,7 +71,7 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 	public void visitLabel(Label label) {
 		if (label instanceof AnnotatedLabel) {
 			AnnotatedLabel l = (AnnotatedLabel) label;
-			if (l.info == Boolean.TRUE) {
+			if (Boolean.TRUE.equals(l.info)) {
 				inErrorBranch = true;
 			} else {
 				inErrorBranch = false;
