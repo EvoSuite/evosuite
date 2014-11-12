@@ -41,7 +41,7 @@ public class TestBestIndividualTestSuiteChromosomeFactory extends SystemTest {
 		BestIndividualTestSuiteChromosomeFactory bicf = new BestIndividualTestSuiteChromosomeFactory(
 				defaultFactory, bestIndividual);
 		
-		assertEquals(bestIndividual, bicf.getChromosome());
+		assertEquals(bestIndividual.toString(), bicf.getChromosome().toString());
 	}
 	
 	@Test
