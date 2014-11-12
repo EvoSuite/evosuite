@@ -29,5 +29,16 @@ public class PathFinder {
 		}
 		return dfs.getPaths();
 	}
+	
+	public static <E> Set<List<E>> getReversePahts(Graph<E> g, E startingVertex) {
+		if(!g.containsVertex(startingVertex)){
+			return new HashSet<>();
+		}
+		PathFinderDFSIterator<E> dfs = new PathFinderDFSIterator<E>(g, startingVertex,true);
+		while (dfs.hasNext()) {
+			dfs.next();
+		}
+		return dfs.getPaths();
+	}
 
 }

@@ -127,7 +127,6 @@ public class TestClusterGenerator {
 	
 		
 	public void generateCluster(String targetClass, InheritanceTree inheritanceTree, CallGraph callGraph) throws RuntimeException, ClassNotFoundException {
-
 		this.inheritanceTree = inheritanceTree;
 		TestCluster.setInheritanceTree(inheritanceTree);
 

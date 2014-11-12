@@ -20,8 +20,16 @@
  */
 package org.evosuite.setup.callgraph;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import org.evosuite.Properties;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
@@ -194,6 +202,42 @@ public class CallGraphGenerator {
 		}
 	}
 
+	public static void update(CallGraph callGraph, InheritanceTree inheritanceTree) {
+
+		List<CallGraphEntry> entries = new ArrayList<>(callGraph.getViewOfCurrentMethods());
+
+		List<CallGraphUpdater> updaters = new ArrayList<>();
+
+		List<Future<Boolean>> futures = new ArrayList<>();
+
+		int counter = 0;
+		for (int i = 0; i < entries.size(); i++) {
+//TODO decide number of threads and size of elements
+			if (i % 4000 == 0 || i == entries.size() - 1) {
+				Set<CallGraphEntry> set = new HashSet<>();
+				set.addAll(entries.subList(counter, i));
+				updaters.add(new CallGraphUpdater(callGraph, set, inheritanceTree));
+				counter = i;
+			}
+
+		}
+
+		ExecutorService executor = Executors.newFixedThreadPool(8);
+
+		for (CallGraphUpdater callable : updaters) {
+			futures.add(executor.submit(callable));
+		}
+		for (Future<Boolean> future : futures) {
+			try {
+				future.get();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
+		} 
+	}
+	
 	/**
 	 * Update connections in the call tree according to the inheritance: For
 	 * each connection, if the method is overridden in a subclass add a
@@ -210,7 +254,7 @@ public class CallGraphGenerator {
 	// ones
 	// according to the DependencyAnalysis class. This all part could/should be
 	// optimized implementing a lazy construction of the two graphs
-	public static void update(CallGraph callGraph, InheritanceTree inheritanceTree) {
+	public static void update2(CallGraph callGraph, InheritanceTree inheritanceTree) {
 		logger.info("Updating call tree ");
 
 //		Set<CallGraphEntry> toRemove = new LinkedHashSet<CallGraphEntry>();

@@ -18,14 +18,24 @@ public class PathFinderDFSIterator<E> implements Iterator<E> {
 	private Deque<Iterator<E>> stack = new LinkedList<Iterator<E>>();
 	private Graph<E> graph;
 	private E next;
-	Set<List<E>> paths = new HashSet<>();
-	List<E> currentPath = new ArrayList<>();
+	private Set<List<E>> paths = new HashSet<>();
+	private List<E> currentPath = new ArrayList<>();
+	private boolean reversed=false;
 
 	public PathFinderDFSIterator(Graph<E> g, E startingVertex) {
-		this.stack.push(g.getNeighbors(startingVertex).iterator());
+		this(g, startingVertex, false);
+	}
+	
+	public PathFinderDFSIterator(Graph<E> g, E startingVertex, boolean reversed) {
+		if (!reversed) {
+			this.stack.push(g.getNeighbors(startingVertex).iterator());
+		} else {
+			this.stack.push(g.getReverseNeighbors(startingVertex).iterator());
+		}
 		this.graph = g;
 		this.next = startingVertex;
 		paths.add(currentPath);
+		this.reversed=reversed;
 	}
 
 	public Set<List<E>> getPaths() {
@@ -85,6 +95,10 @@ public class PathFinderDFSIterator<E> implements Iterator<E> {
 			
 
 		} while (this.visited.contains(this.next));
-		this.stack.push(this.graph.getNeighbors(this.next).iterator());
+		if (!reversed) {
+			this.stack.push(this.graph.getNeighbors(this.next).iterator());
+		} else {
+			this.stack.push(this.graph.getReverseNeighbors(this.next).iterator());
+		}
 	}
 }
