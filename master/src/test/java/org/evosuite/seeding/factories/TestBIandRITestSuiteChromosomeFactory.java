@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.ga.seeding;
+package org.evosuite.seeding.factories;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
