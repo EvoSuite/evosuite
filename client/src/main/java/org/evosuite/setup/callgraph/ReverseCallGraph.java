@@ -1,6 +1,5 @@
 package org.evosuite.setup.callgraph;
 
-import java.util.Set;
 
 /**
  * 

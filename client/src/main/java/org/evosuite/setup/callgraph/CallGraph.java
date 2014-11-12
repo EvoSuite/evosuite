@@ -2,6 +2,7 @@ package org.evosuite.setup.callgraph;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -40,11 +41,17 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 	private final String className;
 
-	private final Set<CallGraphEntry> cutNodes = new LinkedHashSet<CallGraphEntry>();
+	private final Set<CallGraphEntry> cutNodes = Collections.synchronizedSet(new LinkedHashSet<CallGraphEntry>());
 
-	private final Set<String> callGraphClasses = new LinkedHashSet<String>();
+	private final Set<String> callGraphClasses = Collections.synchronizedSet(new LinkedHashSet<String>());
 
-	private final Set<CallContext> publicMethods = new LinkedHashSet<CallContext>();
+	private final Set<String> toTestClasses = Collections.synchronizedSet(new LinkedHashSet<String>());
+	private final Set<String> toTestMethods = Collections.synchronizedSet(new LinkedHashSet<String>());
+
+	private final Set<String> notToTestClasses = Collections.synchronizedSet(new LinkedHashSet<String>());
+
+	
+	private final Set<CallContext> publicMethods = Collections.synchronizedSet(new LinkedHashSet<CallContext>());
 
 	public CallGraph(String className) {
 		this.className = className;
@@ -182,21 +189,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	public String getClassName() {
 		return className;
 	}
-	
-	
-	public boolean checkClassInPaths(String targetClass, Graph<CallGraphEntry> g, CallGraphEntry startingVertex) {
-		if(!g.containsVertex(startingVertex)){
-			return false;
-		}
-		PathFinderDFSIterator<CallGraphEntry> dfs = new PathFinderDFSIterator<CallGraphEntry>(g, startingVertex);
-		while (dfs.hasNext()) {
-			CallGraphEntry e = dfs.next();
-			if(e.getClassName().equals(targetClass)){
-				return true;
-			}
-		}
-		return false;
-	}
+
 
 	/**
 	 * Determine if className can be reached from the class under test
@@ -205,14 +198,65 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @param className
 	 * @return
 	 */
-	//TODO CHECK THIS 22 VS 27
-	public boolean isCalledClass(String className) {
+//	getReversePahts
+ 	public boolean isCalledClass(String className) {
+ 		if(toTestClasses.isEmpty())
+ 			computeInterestingClasses(graph);
+ 		if(toTestClasses.contains(className)) return true;
+ 		return false;
+ 		}
+ 	
+ 	public boolean isCalledClassOld(String className) {
+ 		if(toTestClasses.contains(className)) return true;
+ 		if(notToTestClasses.contains(className)) return false;
+ 		
 		for (CallGraphEntry e : graph.getEdges().keySet()) {
 			if (e.getClassName().equals(className)) {
 				if(checkClassInPaths(this.className, graph, e))
 					return true;
 			}
 		}
+		return false;
+	}
+ 	
+	private boolean computeInterestingClasses(Graph<CallGraphEntry> g) {
+		Set<CallGraphEntry> startingVertices = new HashSet<>();
+		for (CallGraphEntry e : graph.getEdges().keySet()) {
+			if (e.getClassName().equals(className)) {
+				startingVertices.add(e);
+			}
+		}
+		Set<String> classes = new HashSet<>();
+		Set<String> methodclasses = new HashSet<>();
+		for (CallGraphEntry startingVertex : startingVertices) {
+			PathFinderDFSIterator<CallGraphEntry> dfs = new PathFinderDFSIterator<CallGraphEntry>(
+					g, startingVertex, true);
+			while (dfs.hasNext()) {
+				CallGraphEntry e = dfs.next();
+				classes.add(e.getClassName());
+				methodclasses.add(e.getClassName()+e.getMethodName());
+			}
+		}
+		toTestMethods.addAll(methodclasses);
+		toTestClasses.addAll(classes);
+		return true;
+	}
+ 	
+	private boolean checkClassInPaths(String targetClass, Graph<CallGraphEntry> g, CallGraphEntry startingVertex) {
+		if(!g.containsVertex(startingVertex)){
+			return false;
+		}
+		Set<String> classes = new HashSet<>();
+		PathFinderDFSIterator<CallGraphEntry> dfs = new PathFinderDFSIterator<CallGraphEntry>(g, startingVertex);
+		while (dfs.hasNext()) {
+			CallGraphEntry e = dfs.next();
+			classes.add(e.getClassName());
+			if(e.getClassName().equals(targetClass)){
+				toTestClasses.addAll(classes);
+				return true;
+			}
+		}
+		notToTestClasses.addAll(classes);
 		return false;
 	}
 
@@ -225,6 +269,17 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @return
 	 */
 	public boolean isCalledMethod(String className, String methodName) {
+		if (toTestMethods.isEmpty())
+			computeInterestingClasses(graph);
+		if (toTestMethods.contains(className + methodName)) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isCalledMethodOld(String className, String methodName) {
+ 	
+ 		
 		CallGraphEntry tmp = new CallGraphEntry(className, methodName);
 		for (CallGraphEntry e : graph.getEdges().keySet()) {
 			if (e.equals(tmp)) {
