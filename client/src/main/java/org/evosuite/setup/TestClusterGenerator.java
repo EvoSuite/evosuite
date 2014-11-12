@@ -1443,7 +1443,7 @@ public class TestClusterGenerator {
 			}
 		}
 		
-		if(clazz.equals(String.class)) {
+		if(clazz.isString()) {
 			return false;
 		}
 
