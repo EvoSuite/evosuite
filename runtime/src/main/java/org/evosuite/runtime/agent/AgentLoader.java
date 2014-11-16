@@ -3,7 +3,6 @@ package org.evosuite.runtime.agent;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
@@ -16,8 +15,7 @@ import java.util.jar.Manifest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.tools.attach.VirtualMachine;
+ 
 
 /**
  * This class is responsible to load the jar with the agent
