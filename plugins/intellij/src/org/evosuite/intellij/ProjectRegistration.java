@@ -21,15 +21,17 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Entry point for the IntelliJ plugin
+ * Entry point for the IntelliJ plugin for when projects are opened/closed
+ *
  * <p/>
  * Created by arcuri on 9/9/14.
  */
-public class PluginRegistration implements ProjectComponent { //implements ApplicationComponent {
+public class ProjectRegistration implements ProjectComponent { //implements ApplicationComponent {
 
     private final Project project;
 
-    public PluginRegistration(Project project){
+
+    public ProjectRegistration(Project project){
         this.project = project;
     }
 
@@ -41,9 +43,10 @@ public class PluginRegistration implements ProjectComponent { //implements Appli
     }
 
 
-    // If you register the PluginRegistration class in the <application-components> section of
+    // If you register the ProjectRegistration class in the <application-components> section of
 // the plugin.xml file, this method is called on IDEA start-up.
     public void initComponent() {
+
     }
 
     @Override
@@ -71,7 +74,7 @@ public class PluginRegistration implements ProjectComponent { //implements Appli
         JComponent consolePanel = console.getComponent();
 
 
-        IntelliJNotifier notifier = new IntelliJNotifier(project,"EvoSuite Plugin", console);
+        IntelliJNotifier notifier = IntelliJNotifier.registerNotifier(project,"EvoSuite Plugin", console);
 
         //create left-toolbar with stop button
         DefaultActionGroup buttonGroup = new DefaultActionGroup();
@@ -90,18 +93,6 @@ public class PluginRegistration implements ProjectComponent { //implements Appli
         Content content = contentFactory.createContent(panel, "", false);
         toolWindow.getContentManager().addContent(content);
 
-
-
-        EvoAction evo = new EvoAction(toolWindow, notifier);
-
-        // Gets an instance of the WindowMenu action group.
-        //DefaultActionGroup windowM = (DefaultActionGroup) am.getAction("WindowMenu");
-        //this in the file editor, not the left-pane file selection
-        //DefaultActionGroup editorM = (DefaultActionGroup) am.getAction("EditorPopupMenu");
-
-        DefaultActionGroup pvM = (DefaultActionGroup) am.getAction("ProjectViewPopupMenu");
-        pvM.addSeparator();
-        pvM.add(evo);
     }
 
     @Override

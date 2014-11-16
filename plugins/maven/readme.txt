@@ -139,8 +139,39 @@ Either you need to be sure of having all needed libraries on the classpath, or j
 simply make a clean build (e.g., "mvn clean compile") before calling the EvoSuite plugin.
 
 
+------------------
+
+Requirements: the plugin needs Maven 3.1 or higher. If not, it will fail with difficult to
+understand error messages. To be sure to use the right version, use the following plugin:
+
+			<plugin>
+                <inherited>true</inherited>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.3.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven-3</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.1</version>
+                                </requireMavenVersion>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
 
+Known issue on Mac: if you install a new version of Maven, and add its path to the $PATH variable in a ~/.profile file,
+then the plugin will not work when called from IntelliJ, unless it is started from command line.
+The issue is that Mac comes with its own installation of Maven (in /usr/share/maven), which might be an older version than 3.1.  
+You need to change the /usr/share/maven symbolic link. 
 
 
  

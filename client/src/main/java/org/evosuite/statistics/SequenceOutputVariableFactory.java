@@ -93,10 +93,10 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 				return values.get(i);
 			}
 
+
             /*
              * If we do not want to interpolate, return last observed value
              */
-            //LoggingUtils.getEvoLogger().error(values.toString());
             if (! Properties.TIMELINE_INTERPOLATION) {
                 return values.get(i-1);
             }

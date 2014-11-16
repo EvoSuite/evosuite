@@ -59,9 +59,6 @@ public class Branch implements Serializable, Comparable<Branch> {
 	// means this branch is the default: case of that switch
 	private Integer targetCaseValue = null;
 
-	// FIXME: Is not serializable!
-	private LabelNode targetLabel = null;
-
 	private final BytecodeInstruction instruction;
 
 	/** Keep track of branches that were introduced as part of TT */
@@ -111,7 +108,7 @@ public class Branch implements Serializable, Comparable<Branch> {
 		this.instruction = switchInstruction;
 		this.actualBranchId = actualBranchId;
 
-		this.targetLabel = targetLabel;
+		// this.targetLabel = targetLabel;
 		this.targetCaseValue = targetCaseValue;
 		this.isSwitch = true;
 
@@ -167,20 +164,6 @@ public class Branch implements Serializable, Comparable<Branch> {
 			        "method only allowed to be called on non-switch-Branches");
 
 		return targetCaseValue; // null for default case
-	}
-
-	/**
-	 * <p>
-	 * Getter for the field <code>targetLabel</code>.
-	 * </p>
-	 * 
-	 * @return a {@link org.objectweb.asm.tree.LabelNode} object.
-	 */
-	public LabelNode getTargetLabel() {
-		if (!isSwitch)
-			throw new IllegalStateException("call only allowed on switch instructions");
-
-		return targetLabel;
 	}
 
 	/**

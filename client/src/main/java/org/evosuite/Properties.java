@@ -51,8 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Properties {
 
-	private final static Logger logger = LoggerFactory
-			.getLogger(Properties.class);
+	private final static Logger logger = LoggerFactory.getLogger(Properties.class);
 
 	/**
 	 * Parameters are fields of the Properties class, annotated with this
@@ -913,7 +912,7 @@ public class Properties {
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
 	public static boolean SANDBOX = true;
 
-	/** Constant <code>SANDBOX=false</code> */
+	/** Constant <code>SANDBOX_MODE=Sandbox.SandboxMode.RECOMMENDED</code> */
 	@Parameter(key = "sandbox_mode", group = "Sandbox", description = "Mode in which the sandbox is applied")
 	public static Sandbox.SandboxMode SANDBOX_MODE = Sandbox.SandboxMode.RECOMMENDED;
 
@@ -996,13 +995,22 @@ public class Properties {
 	public static boolean HANDLE_STATIC_FIELDS = true;
 
 	public enum TestFactory {
-		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT, SERIALIZATION
+		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT, SERIALIZATION, 
+		SEED_BEST_INDIVIDUAL, SEED_RANDOM_INDIVIDUAL,
+		SEED_BEST_AND_RANDOM_INDIVIDUAL, SEED_BEST_INDIVIDUAL_METHOD,
+		SEED_RANDOM_INDIVIDUAL_METHOD, SEED_MUTATED_BEST_INDIVIDUAL
 	}
 
 	/** Constant <code>TEST_FACTORY</code> */
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
 	public static TestFactory TEST_FACTORY = TestFactory.RANDOM;
 
+	@Parameter(key = "seed_file", description = "File storing TestGenerationResult or GeneticAlgorithm")
+	public static String SEED_FILE = "";
+	
+	@Parameter(key = "seed_probability", description = "Probability to seed on methods with randomness involved")
+	public static double SEED_PROBABILITY = 0.1;
+	
 	@Parameter(key = "selected_junit", description = "List of fully qualified class names (separated by ':') indicating which JUnit test suites the user has selected (e.g., for seeding)")
 	public static String SELECTED_JUNIT = null;
 

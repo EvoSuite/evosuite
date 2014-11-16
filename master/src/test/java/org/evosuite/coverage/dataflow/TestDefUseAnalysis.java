@@ -1,5 +1,7 @@
 package org.evosuite.coverage.dataflow;
 
+import java.util.Arrays;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -16,7 +18,7 @@ import com.examples.with.different.packagename.defuse.GCD;
 
 public class TestDefUseAnalysis extends SystemTest {
 
-    private final Criterion[] oldCriterion = Properties.CRITERION;
+    private final Criterion[] oldCriterion = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 	private final boolean oldAssertions = Properties.ASSERTIONS;
 	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 	private final String analysisCriteria = Properties.ANALYSIS_CRITERIA;
@@ -24,6 +26,9 @@ public class TestDefUseAnalysis extends SystemTest {
 	@Before
 	public void beforeTest() {
 		Properties.SANDBOX = true;
+		Properties.CRITERION = new Criterion[] { Criterion.DEFUSE };
+		//Properties.ANALYSIS_CRITERIA = "Branch,DefUse";
+		Properties.TARGET_CLASS = DefUseExample1.class.getCanonicalName();
 	}
 
 	@After
@@ -41,12 +46,11 @@ public class TestDefUseAnalysis extends SystemTest {
 		String targetClass = DefUseExample1.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION[0] = Criterion.DEFUSE;
 
 		// Need to deactivate assertions, otherwise classloader is chanaged 
 		// and DefUseCoverageFactory is reset
 		Properties.ASSERTIONS = false;
-		Properties.ANALYSIS_CRITERIA = "Branch,DefUse";
+		//Properties.ANALYSIS_CRITERIA = "Branch,DefUse";
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -69,22 +73,20 @@ public class TestDefUseAnalysis extends SystemTest {
 
 		String targetClass = GCD.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;
-        Properties.CRITERION[0] = Criterion.DEFUSE;
 		Properties.ASSERTIONS = false;
-		Properties.ANALYSIS_CRITERIA = "Branch,DefUse";
-
+		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-
+		
+		System.out.println("Def: "+DefUsePool.getDefCounter());
+		//DefUseCoverageFactory.computeGoals();
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
-
 		Assert.assertEquals(0, DefUseCoverageFactory.getInterMethodGoalsCount());
 		Assert.assertEquals(0, DefUseCoverageFactory.getIntraClassGoalsCount());
-		Assert.assertEquals(4, DefUseCoverageFactory.getParamGoalsCount());
+		Assert.assertEquals(4, DefUseCoverageFactory.getParamGoalsCount()); // 3 or 4?
 		Assert.assertEquals(6, DefUseCoverageFactory.getIntraMethodGoalsCount());
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}

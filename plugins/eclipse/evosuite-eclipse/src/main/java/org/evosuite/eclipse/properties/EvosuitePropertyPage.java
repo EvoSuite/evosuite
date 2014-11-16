@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * 
+ * You should have received a copy of the GNU Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.eclipse.properties;
 
 import java.util.Arrays;
@@ -17,15 +34,14 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.evosuite.Properties;
-import org.evosuite.utils.StringUtil;
 
-public class EvosuitePropertyPage extends PropertyPage {
+public class EvoSuitePropertyPage extends PropertyPage {
 
 	// private Combo criterionCombo;
 	
@@ -121,7 +137,7 @@ public class EvosuitePropertyPage extends PropertyPage {
 	/**
      * 
      */
-	public EvosuitePropertyPage() {
+	public EvoSuitePropertyPage() {
 		super();
 	}
 
@@ -153,7 +169,6 @@ public class EvosuitePropertyPage extends PropertyPage {
 //		criterionCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		criterionList = new Table(myComposite, SWT.MULTI | SWT.CHECK | SWT.FULL_SELECTION | SWT.HIDE_SELECTION | SWT.NO_SCROLL | SWT.BORDER);
 		List<String> criteriaSelected = Arrays.asList(getCriteria());
-		System.out.println(criteriaSelected.toString());
 		for(String criterion : new String[]{ "Methods", 
 											 "Methods invoked directly",
 											 "Methods without exception",
@@ -205,7 +220,7 @@ public class EvosuitePropertyPage extends PropertyPage {
 
 		Label timelabel = new Label(myComposite, SWT.NONE);
 		timelabel.setLayoutData(new GridData());
-		timelabel.setText("Test generation time (s)");
+		timelabel.setText("Test generation time");
 		time = new Spinner(myComposite, SWT.BORDER);
 		time.setMinimum(0);
 		time.setMaximum(600);
@@ -412,13 +427,10 @@ public class EvosuitePropertyPage extends PropertyPage {
 						label.setText("Type not yet supported");
 					}
 				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -867,6 +879,8 @@ public class EvosuitePropertyPage extends PropertyPage {
 	}
 	
 	protected String getTestSuffix() {
+		return Properties.JUNIT_SUFFIX;
+		/*
 		IResource resource = ((IJavaProject) getElement()).getResource();
 		try {
 			String value = resource.getPersistentProperty(TEST_SUFFIX_PROP_KEY);
@@ -875,17 +889,18 @@ public class EvosuitePropertyPage extends PropertyPage {
 			return value;
 		} catch (CoreException e) {
 			return "EvoSuiteTest";
-		}
+		}*/
 	}
 
 	protected void setTestSuffix(String suffix) {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = suffix;
-		if (value.equals(""))
-			value = "EvoSuiteTest";
 		try {
-			resource.setPersistentProperty(TEST_SUFFIX_PROP_KEY, value);
+			IResource resource = ((IJavaProject) getElement()).getResource();
+			if (! suffix.equals("")) {
+				Properties.JUNIT_SUFFIX = suffix;
+				resource.setPersistentProperty(TEST_SUFFIX_PROP_KEY, suffix);
+			}
 		} catch (CoreException e) {
+			e.printStackTrace();
 		}
 	}
 
