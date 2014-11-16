@@ -27,6 +27,7 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.evosuite.junit.DetermineSUT;
 import org.evosuite.junit.DetermineSUT.NoJUnitClassException;
 
+@SuppressWarnings("restriction")
 public class ExtendSuiteAction extends TestGenerationAction {
 
 	HashSet<IResource> currentSelection = new HashSet<IResource>();

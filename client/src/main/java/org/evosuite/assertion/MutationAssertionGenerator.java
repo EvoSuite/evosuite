@@ -18,6 +18,7 @@
 package org.evosuite.assertion;
 
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -168,9 +169,10 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 * @param suite
 	 */
 	protected void setupClassLoader(TestSuiteChromosome suite) {
-		oldCriterion = Properties.CRITERION;
+		oldCriterion = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 		if (!ArrayUtil.contains(oldCriterion, Criterion.MUTATION)
 		        && !ArrayUtil.contains(oldCriterion, Criterion.WEAKMUTATION)
+		        && !ArrayUtil.contains(oldCriterion, Criterion.ONLYMUTATION)
 		        && !ArrayUtil.contains(oldCriterion, Criterion.STRONGMUTATION)) {
 		    Properties.CRITERION = new Criterion[] { Criterion.MUTATION };
 			Sandbox.goingToExecuteSUTCode();

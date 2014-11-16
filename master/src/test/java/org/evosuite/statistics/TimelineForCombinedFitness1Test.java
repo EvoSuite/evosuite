@@ -1,21 +1,42 @@
 package org.evosuite.statistics;
 
 import com.examples.with.different.packagename.Compositional;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 
 
 public class TimelineForCombinedFitness1Test extends SystemTest {
 
+    private final Criterion[] oldCriterion = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
+
+    private final boolean COMPOSITIONAL_FITNESS = Properties.COMPOSITIONAL_FITNESS;
+    
+    private final String ANALYSIS_CRITERIA = Properties.ANALYSIS_CRITERIA;
+    
+    private final boolean ASSERTIONS = Properties.ASSERTIONS;
+    
+	@After
+	public void afterTest() {
+		Properties.CRITERION = oldCriterion;
+		Properties.COMPOSITIONAL_FITNESS = COMPOSITIONAL_FITNESS;
+		Properties.ANALYSIS_CRITERIA = ANALYSIS_CRITERIA;
+		Properties.ASSERTIONS = ASSERTIONS;
+	}
+	
     @Test
     public void testTimelineForCombinedFitness() {
         EvoSuite evosuite = new EvoSuite();
+        Properties.ASSERTIONS = false;
 
         String targetClass = Compositional.class.getCanonicalName();
 

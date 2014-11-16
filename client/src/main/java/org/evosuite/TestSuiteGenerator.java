@@ -17,7 +17,11 @@
  */
 package org.evosuite;
 
+ 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +55,6 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUseFitnessCalculator;
-import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
@@ -107,6 +110,12 @@ import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.seeding.TestCaseRecycler;
+import org.evosuite.seeding.factories.BIAndRITestSuiteChromosomeFactory;
+import org.evosuite.seeding.factories.BIMethodSeedingTestSuiteChromosomeFactory;
+import org.evosuite.seeding.factories.BIMutatedMethodSeedingTestSuiteChromosomeFactory;
+import org.evosuite.seeding.factories.BestIndividualTestSuiteChromosomeFactory;
+import org.evosuite.seeding.factories.RandomIndividualTestSuiteChromosomeFactory;
+import org.evosuite.seeding.factories.RandomMethodSeedingTestSuiteChromosomeFactory;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
@@ -223,6 +232,10 @@ public class TestSuiteGenerator {
             TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 		}
 		
+
+        /*
+         * Initialises the object pool with objects carved from SELECTED_JUNIT classes
+         */
 		// TODO: Do parts of this need to be wrapped into sandbox statements?
 		ObjectPoolManager.getInstance();
 
@@ -1590,6 +1603,39 @@ public class TestSuiteGenerator {
 			return new RankSelection();
 		}
 	}
+	
+	public static GeneticAlgorithm<TestSuiteChromosome> getLastGeneticAlgorithm(){
+		try {
+			FileInputStream fis = new FileInputStream(Properties.SEED_FILE);
+			ObjectInputStream oo = new ObjectInputStream(fis);
+			Object stored = oo.readObject();
+			
+			GeneticAlgorithm<?> lastGa = null;
+			
+			if (stored instanceof GeneticAlgorithm<?>){
+				
+				lastGa = (GeneticAlgorithm<?>) stored;
+				
+			} else if (stored instanceof TestGenerationResult){
+				lastGa = ((TestGenerationResult) stored).getGeneticAlgorithm();
+			}
+			
+			if (lastGa != null){
+				if (lastGa.getBestIndividual() instanceof TestSuiteChromosome){
+					return (GeneticAlgorithm<TestSuiteChromosome>) lastGa;
+				}
+			}
+			LoggingUtils.getEvoLogger().error("* Could not load Genetic Algorithm from file " + Properties.SEED_FILE);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
 
 	/**
 	 * <p>
@@ -1603,7 +1649,9 @@ public class TestSuiteGenerator {
 	@SuppressWarnings("unchecked")
 	protected static ChromosomeFactory<? extends Chromosome> getChromosomeFactory(
 	        FitnessFunction<? extends Chromosome> fitness) {
-
+		TestSuiteChromosomeFactory defaultSeedingFactory = new 
+				TestSuiteChromosomeFactory(
+						new RandomLengthTestFactory());
 		switch (Properties.STRATEGY) {
 		case EVOSUITE:
 			switch (Properties.TEST_FACTORY) {
@@ -1628,6 +1676,66 @@ public class TestSuiteGenerator {
                 logger.info("Using serialization seeding chromosome factory");
                 return new SerializationSuiteChromosomeFactory(
                         new RandomLengthTestFactory());
+            case SEED_BEST_INDIVIDUAL:{
+            	logger.info("Using Best Individual Seeding factory");
+            	GeneticAlgorithm<TestSuiteChromosome> lastGa = getLastGeneticAlgorithm();
+            	if (lastGa instanceof GeneticAlgorithm<?>){
+            		return new BestIndividualTestSuiteChromosomeFactory(
+            				defaultSeedingFactory, (TestSuiteChromosome) lastGa.getBestIndividual());
+            	} else {
+            		return defaultSeedingFactory;
+            	}
+            }
+            case SEED_RANDOM_INDIVIDUAL:{
+            	logger.info("Using Random Individual Seeding factory");
+            	GeneticAlgorithm<TestSuiteChromosome> lastGa = getLastGeneticAlgorithm();
+            	if (lastGa instanceof GeneticAlgorithm<?>){
+            		return new RandomIndividualTestSuiteChromosomeFactory(
+            				defaultSeedingFactory, lastGa);
+            	} else {
+            		return defaultSeedingFactory;
+            	}
+            }
+            case SEED_BEST_AND_RANDOM_INDIVIDUAL:{
+            	logger.info("Using Best and Random Individual Seeding factory");
+            	GeneticAlgorithm<TestSuiteChromosome> lastGa = getLastGeneticAlgorithm();
+            	if (lastGa instanceof GeneticAlgorithm<?>){
+            		return new BIAndRITestSuiteChromosomeFactory(
+            				defaultSeedingFactory, lastGa);
+            	} else {
+            		return defaultSeedingFactory;
+            	}
+            }
+            case SEED_BEST_INDIVIDUAL_METHOD:{
+            	logger.info("Using Best Individual (methods) Seeding factory");
+            	GeneticAlgorithm<TestSuiteChromosome> lastGa = getLastGeneticAlgorithm();
+            	if (lastGa instanceof GeneticAlgorithm<?>){
+            		return new BIMethodSeedingTestSuiteChromosomeFactory(
+            				defaultSeedingFactory, (TestSuiteChromosome) lastGa.getBestIndividual());
+            	} else {
+            		return defaultSeedingFactory;
+            	}
+            }
+            case SEED_RANDOM_INDIVIDUAL_METHOD:{
+            	logger.info("Using Random Individual (methods) Seeding factory");
+            	GeneticAlgorithm<TestSuiteChromosome> lastGa = getLastGeneticAlgorithm();
+            	if (lastGa instanceof GeneticAlgorithm<?>){
+            		return new RandomMethodSeedingTestSuiteChromosomeFactory(
+            				defaultSeedingFactory, lastGa);
+            	} else {
+            		return defaultSeedingFactory;
+            	}
+            }
+            case SEED_MUTATED_BEST_INDIVIDUAL:{
+            	logger.info("Using Mutated Best Individual (methods) Seeding factory");
+            	GeneticAlgorithm<TestSuiteChromosome> lastGa = getLastGeneticAlgorithm();
+            	if (lastGa instanceof GeneticAlgorithm<?>){
+            		return new BIMutatedMethodSeedingTestSuiteChromosomeFactory(
+            				defaultSeedingFactory, (TestSuiteChromosome) lastGa.getBestIndividual());
+            	} else {
+            		return defaultSeedingFactory;
+            	}
+            }
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);

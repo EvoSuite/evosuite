@@ -18,6 +18,7 @@ import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
 import org.evosuite.coverage.mutation.OnlyMutationSuiteFitness;
 import org.evosuite.coverage.output.OutputCoverageSuiteFitness;
+import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.rmi.MasterServices;
@@ -610,6 +611,18 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         @Override
         public Double getValue(TestSuiteChromosome individual) {
             return individual.getCoverageInstanceOf(MethodNoExceptionCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class RhoFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public RhoFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.RhoCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(RhoCoverageSuiteFitness.class);
         }
     }
 

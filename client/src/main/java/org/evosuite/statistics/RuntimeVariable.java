@@ -88,6 +88,7 @@ public enum RuntimeVariable {
 	StatementCoverage,
 	/** The obtained rho coverage */
 	RhoCoverage,
+    RhoCoverageTimeline,
 	/** The obtained ambiguity coverage */
 	AmbiguityCoverage,
 	/** Not only the covered branches ratio, but also including the branchless methods. FIXME: this will need to be changed */
