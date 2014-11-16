@@ -166,6 +166,10 @@ public class AgentLoader {
 			/*
 			 * this could happen in Eclipse or during test execution in Maven, and so search in compilation 'target' folder 
 			 */    			
+			/*
+			 * FIXME: what is this???????? Definitively the above comment
+			 * is just a copy&paste that makes no sense here... 
+			 */
 			jarFilePath = searchInFolder("lib");    			
 		}
 
