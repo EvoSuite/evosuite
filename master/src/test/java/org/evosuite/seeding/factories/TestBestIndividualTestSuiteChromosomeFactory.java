@@ -1,4 +1,4 @@
-package org.evosuite.ga.seeding;
+package org.evosuite.seeding.factories;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -41,7 +41,7 @@ public class TestBestIndividualTestSuiteChromosomeFactory extends SystemTest {
 		BestIndividualTestSuiteChromosomeFactory bicf = new BestIndividualTestSuiteChromosomeFactory(
 				defaultFactory, bestIndividual);
 		
-		assertEquals(bestIndividual, bicf.getChromosome());
+		assertEquals(bestIndividual.toString(), bicf.getChromosome().toString());
 	}
 	
 	@Test

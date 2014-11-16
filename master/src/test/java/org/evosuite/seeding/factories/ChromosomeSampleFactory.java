@@ -1,4 +1,4 @@
-package org.evosuite.ga.seeding;
+package org.evosuite.seeding.factories;
 
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;

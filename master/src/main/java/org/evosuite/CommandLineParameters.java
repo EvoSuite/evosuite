@@ -9,7 +9,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.evosuite.Properties.Parameter;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
@@ -54,7 +53,7 @@ public class CommandLineParameters {
 			}
 		}
 		
-		if(!line.hasOption(Continuous.NAME) & !line.hasOption("startedByCtg")){			
+		if(!line.hasOption(Continuous.NAME) && !line.hasOption("startedByCtg")){			
 			for(Object p : properties.keySet()){
 				if(p.toString().startsWith("ctg_")){
 					throw new IllegalArgumentException("Option "+p+" is only valid in '-"+Continuous.NAME+"' mode");

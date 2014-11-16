@@ -92,7 +92,14 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 				 */
 				return values.get(i);
 			}
-			
+
+            /*
+             * If we do not want to interpolate, return last observed value
+             */
+            if (! Properties.TIMELINE_INTERPOLATION) {
+                return values.get(i-1);
+            }
+
 			/*
 			 * Now we interpolate the coverage, as usually we don't have the value for exact time we want
 			 */
