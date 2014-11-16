@@ -886,7 +886,11 @@ public class Properties {
 	@Parameter(key = "timeline_interval", group = "Output", description = "Time interval in milliseconds for timeline statistics")
 	public static long TIMELINE_INTERVAL = 60 * 1000;
 
-	public enum OutputGranularity {
+    /** Constant <code>TIMELINE_INTERPOLATION=true</code> */
+    @Parameter(key = "timeline_interpolation", group = "Output", description = "Interpolate timeline values")
+    public static boolean TIMELINE_INTERPOLATION = true;
+
+    public enum OutputGranularity {
 		MERGED, TESTCASE
 	}
 

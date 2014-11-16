@@ -86,7 +86,7 @@ public class TestDefUseAnalysis extends SystemTest {
 		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertEquals(0, DefUseCoverageFactory.getInterMethodGoalsCount());
 		Assert.assertEquals(0, DefUseCoverageFactory.getIntraClassGoalsCount());
-		Assert.assertEquals(3, DefUseCoverageFactory.getParamGoalsCount()); // 3 or 4?
+		Assert.assertEquals(4, DefUseCoverageFactory.getParamGoalsCount()); // 3 or 4?
 		Assert.assertEquals(6, DefUseCoverageFactory.getIntraMethodGoalsCount());
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
