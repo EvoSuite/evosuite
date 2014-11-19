@@ -30,7 +30,13 @@ where ${evosuiteVersion} specify the version to use. For example, "0.1.0".
 Note: currently EvoSuite is not hosted yet on Maven Central. It is hosted at
 www.evosuite.org/m2. Such remote plugin repository needs to be added to the pom file, eg:
 
-TODO
+    <pluginRepositories>
+        <pluginRepository>
+            <id>EvoSuite</id>
+            <name>EvoSuite Repository</name>
+            <url>http://www.evosuite.org/m2</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 Beside configuring the plugin, there is also the need to add the EvoSuite runtime, which
 is used by the generated test cases. This can be done by adding the following Maven
@@ -47,7 +53,14 @@ dependency in the pom.xml:
 Still, dependencies and plugins are handled separately by Maven, even if on same repository.
 You will also need to add this dependency repository to the pom file:
 
-TODO
+    <repositories>
+        <repository>
+            <id>EvoSuite</id>
+            <name>EvoSuite Repository</name>
+            <url>http://www.evosuite.org/m2</url>
+        </repository>
+    </repositories>
+
 
 You also need to configure the surefire plugin to run an initializing listener for the EvoSuite tests.
 This is required for when EvoSuite tests are mixed with manually written existing tests.
