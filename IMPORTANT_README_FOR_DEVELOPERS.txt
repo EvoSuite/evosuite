@@ -114,4 +114,43 @@ FIELDS/CONSTRUCTORS/METHODS ORDER IN A CLASS
 
 when writing a new class (or re-factoring a current one), fields should come first, followed by class constructors and then the other methods.
 
-  
+
+
+---------------------------------------------
+HOW TO MAKE A RELEASE
+
+To use the Maven plugin, and to link the "runtime" jar (plus dependencies)
+to a project, EvoSuite needs to be released and deployed on an accessible
+repository. Currently, EvoSuite is hosted at:
+
+www.evosuite.org/m2
+
+Unfortunately, we cannot use the "release" plugin to make a release, as that
+server is not accessible through ssh from outside. The release steps
+need then to be made manually.
+Assume current EvoSuite version is x.y.z-SNAPSHOT. You need choose
+a new version number (x for major, y for minor, and z for patch).
+Once chosen a new version a.b.c (with *no* SNAPSHOT, and it is fine to
+have a.b.c == x.y.z), from command line execute:
+
+mvn versions:set -DnewVersion=a.b.c
+
+This command will go through all the pom files in the project, and replace
+the version numbers there with the new one.
+Commit and push the changed pom files.
+Then, login to the Jenkins server, and manually start the "Deploy" job.
+(Note, trying a "mvn deploy" from your local machine will likely fail
+unless you are on the same network of the Jenkins server).
+If the "Deploy" job ends correctly, then the new release has been deployed.
+Now, need to change back the version to a SNAPSHOT one:
+
+mvn versions:set -DnewVersion=a.b.(c+1)-SNAPSHOT
+
+(eg, here we just incremented the patch number by one).
+Commit and push the modified pom files.
+
+
+
+
+
+
