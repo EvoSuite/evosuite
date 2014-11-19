@@ -1178,6 +1178,10 @@ public class TestSuiteGenerator {
         // TODO: Check this: Fitness_Evaluations = getNumExecutedTests?
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Fitness_Evaluations, MaxTestsStoppingCondition.getNumExecutedTests());
 
+        if (Properties.COVERAGE) {
+            for (Properties.Criterion pc : Properties.CRITERION)
+                CoverageAnalysis.analyzeCoverage(suite, pc);
+        }
 
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
