@@ -36,6 +36,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 */
 	private ReverseCallGraph graph = new ReverseCallGraph();
 
+	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory
 			.getLogger(CallGraph.class);
 

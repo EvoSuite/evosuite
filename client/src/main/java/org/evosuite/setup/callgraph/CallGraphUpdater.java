@@ -55,19 +55,9 @@ public class CallGraphUpdater implements Callable<Boolean> {
 	 * 
 	 * @param callTree
 	 * @param inheritanceTree
-	 */
-	// TODO re-implement using a lazy strategy
-	// it is necessary to analyze all classes before invoking this method, i.e.
-	// the subclass that will be connected has to be present in both the
-	// callGraph and InheritanceThree. To do that it is necessary to force the
-	// analysis of all the classes of the project, and not only the reachable
-	// ones
-	// according to the DependencyAnalysis class. This all part could/should be
-	// optimized implementing a lazy construction of the two graphs
+	 */ 
 	public void update(CallGraph callGraph, Iterable<CallGraphEntry> s, InheritanceTree inheritanceTree) {
 		logger.info("Updating call tree ");
-
-//		Set<CallGraphEntry> toRemove = new LinkedHashSet<CallGraphEntry>();
 
 		for (CallGraphEntry call : s) {
 
@@ -82,8 +72,6 @@ public class CallGraphUpdater implements Callable<Boolean> {
 				continue;
 			if (!inheritanceTree.hasClass(targetClass)) {
 				// Private classes are not in the inheritance tree
-				// LoggingUtils.getEvoLogger().warn("Inheritance tree does not contain {}, please check classpath",
-				// targetClass);
 				continue;
 			}
 
@@ -94,13 +82,9 @@ public class CallGraphUpdater implements Callable<Boolean> {
 						callGraph.addCall(c.getClassName(), c.getMethodName(), subclass,
 								targetMethod);
 					}
-//					if (inheritanceTree.isAbstractClass(call.getClassName())) {
-//						toRemove.add(call);
-//					}
 				}
 			}
 		}
-		// callGraph.removeClasses(toRemove);
 	}
 
 
