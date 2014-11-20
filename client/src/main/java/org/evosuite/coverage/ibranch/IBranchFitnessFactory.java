@@ -39,17 +39,73 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 
 		CallGraph callGraph = DependencyAnalysis.getCallGraph();
 
+
 		// try to find all occurrences of this branch in the call tree
 		for (BranchCoverageTestFitness branchGoal : branchGoals) {
 			logger.info("Adding context branches for " + branchGoal.toString());
 			for (CallContext context : callGraph.getAllContexts(branchGoal.getClassName(),
-			                                                   branchGoal.getMethod())) {
-				if(context.isEmpty()) continue;
+				                          branchGoal.getMethod())) {
+				if(context.isEmpty()) continue; //||context.size()>4
+				
+
+				
 				goals.add(new IBranchTestFitness(branchGoal.getBranchGoal(), context));				
 			}
 		}
-
 		logger.info("Created " + goals.size() + " goals");
 		return new ArrayList<IBranchTestFitness>(goals);
 	}
 }
+
+
+
+//	private boolean isGradient(BranchCoverageTestFitness branchGoal){
+//		if (branchGoal.getBranchGoal().getBranch() == null)
+//			return false;
+//		int branchOpCode = branchGoal.getBranchGoal().getBranch().getInstruction().getASMNode()
+//				.getOpcode();
+//		switch (branchOpCode) {
+//		// copmpare int with zero
+//		case Opcodes.IFEQ:
+//		case Opcodes.IFNE:
+//		case Opcodes.IFLT:
+//		case Opcodes.IFGE:
+//		case Opcodes.IFGT:
+//		case Opcodes.IFLE:
+//			return false; 
+//			// copmpare int with int
+//		case Opcodes.IF_ICMPEQ:
+//		case Opcodes.IF_ICMPNE:
+//		case Opcodes.IF_ICMPLT:
+//		case Opcodes.IF_ICMPGE:
+//		case Opcodes.IF_ICMPGT:
+//		case Opcodes.IF_ICMPLE:
+//			return true; 
+//			// copmpare reference with reference
+//		case Opcodes.IF_ACMPEQ:
+//		case Opcodes.IF_ACMPNE:
+//			return false; 
+//			// compare reference with null
+//		case Opcodes.IFNULL:
+//		case Opcodes.IFNONNULL:
+//			return false;
+//		default:
+//			return false; 
+//		}
+//	}
+	
+	
+//	//---------- 
+//	List<String> l = new ArrayList<>();
+//	for (IBranchTestFitness callGraphEntry : goals) {
+//		l.add(callGraphEntry.toStringContext());
+//	}
+//	File f = new File("/Users/mattia/workspaces/evosuiteSheffield/evosuite/master/evosuite-report/ibranchgoals.txt");
+//	f.delete();
+//	try {
+//		Files.write(f.toPath(), l, Charset.defaultCharset(), StandardOpenOption.CREATE);
+//	} catch (IOException e) { 
+//		e.printStackTrace();
+//	}
+//	//---------- 
+

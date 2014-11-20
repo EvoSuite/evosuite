@@ -149,9 +149,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	public  <T extends Chromosome> int compareSecondaryObjective(T o) {
 		int objective = 0;
 		int c = 0;
-
 		while (c == 0 && objective < secondaryObjectives.size()) {
-			
 			SecondaryObjective<T> so = (SecondaryObjective<T>) secondaryObjectives.get(objective++);
 			if (so == null)
 				break;

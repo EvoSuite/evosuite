@@ -21,12 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +82,7 @@ public class BranchCoverageFactory extends
 			}
 		}
 		goalComputationTime = System.currentTimeMillis() - start;
-		
+	
 		return goals;
 	}
 
@@ -196,3 +194,17 @@ public class BranchCoverageFactory extends
 				instruction.getMethodName());
 	}
 }
+
+////----------
+//List<String> l = new ArrayList<>();
+//for (BranchCoverageTestFitness callGraphEntry : goals) {
+//	l.add(callGraphEntry.toString());
+//}
+//File f = new File("/Users/mattia/workspaces/evosuiteSheffield/evosuite/master/evosuite-report/branchgoals.txt");
+//f.delete();
+//try {
+//	Files.write(f.toPath(), l, Charset.defaultCharset(), StandardOpenOption.CREATE);
+//} catch (IOException e) { 
+//	e.printStackTrace();
+//}
+////---------- 

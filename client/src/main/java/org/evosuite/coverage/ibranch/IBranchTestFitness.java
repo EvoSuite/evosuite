@@ -137,6 +137,11 @@ public class IBranchTestFitness extends TestFitnessFunction {
 		return "Branch " + branchGoal + " in context: " + context.toString();
 	}
 
+	public String toStringContext() {
+		return context.toString() + ":" + branchGoal;
+	}
+
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */

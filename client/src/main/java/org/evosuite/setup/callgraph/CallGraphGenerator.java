@@ -29,7 +29,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 import org.evosuite.Properties;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
@@ -212,7 +211,7 @@ public class CallGraphGenerator {
 
 		int counter = 0;
 		for (int i = 0; i < entries.size(); i++) {
-//TODO decide number of threads and size of elements
+			//TODO number of threads and elements as property
 			if (i % 4000 == 0 || i == entries.size() - 1) {
 				Set<CallGraphEntry> set = new HashSet<>();
 				set.addAll(entries.subList(counter, i));
@@ -236,60 +235,5 @@ public class CallGraphGenerator {
 				e.printStackTrace();
 			}
 		} 
-	}
-	
-	/**
-	 * Update connections in the call tree according to the inheritance: For
-	 * each connection, if the method is overridden in a subclass add a
-	 * connection to the method in the subclass
-	 * 
-	 * @param callTree
-	 * @param inheritanceTree
-	 */
-	// TODO re-implement using a lazy strategy
-	// it is necessary to analyze all classes before invoking this method, i.e.
-	// the subclass that will be connected has to be present in both the
-	// callGraph and InheritanceThree. To do that it is necessary to force the
-	// analysis of all the classes of the project, and not only the reachable
-	// ones
-	// according to the DependencyAnalysis class. This all part could/should be
-	// optimized implementing a lazy construction of the two graphs
-	public static void update2(CallGraph callGraph, InheritanceTree inheritanceTree) {
-		logger.info("Updating call tree ");
-
-//		Set<CallGraphEntry> toRemove = new LinkedHashSet<CallGraphEntry>();
-
-		for (CallGraphEntry call : callGraph.getViewOfCurrentMethods()) {
-
-			String targetClass = call.getClassName();
-			String targetMethod = call.getMethodName();
-
-			// Ignore constructors
-			if (targetMethod.startsWith("<init>"))
-				continue;
-			// Ignore calls to Array (e.g. clone())
-			if (targetClass.startsWith("["))
-				continue;
-			if (!inheritanceTree.hasClass(targetClass)) {
-				// Private classes are not in the inheritance tree
-				// LoggingUtils.getEvoLogger().warn("Inheritance tree does not contain {}, please check classpath",
-				// targetClass);
-				continue;
-			}
-
-			// update graph
-			for (CallGraphEntry c : callGraph.getCallsFromMethod(call)) {
-				for (String subclass : inheritanceTree.getSubclasses(targetClass)) {
-					if (inheritanceTree.isMethodDefined(subclass, targetMethod)) {
-						callGraph.addCall(c.getClassName(), c.getMethodName(), subclass,
-								targetMethod);
-					}
-//					if (inheritanceTree.isAbstractClass(call.getClassName())) {
-//						toRemove.add(call);
-//					}
-				}
-			}
-		}
-		// callGraph.removeClasses(toRemove);
 	}
 }

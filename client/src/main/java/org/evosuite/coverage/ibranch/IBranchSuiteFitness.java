@@ -35,11 +35,8 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 	private final Map<Integer, Map<CallContext, Set<IBranchTestFitness>>> goalsMap;
 
 	private final Map<String, Map<CallContext, Set<IBranchTestFitness>>> methodsMap;
-
-//	private final List<IBranchTestFitness> sutBranchGoals;
  
 	public IBranchSuiteFitness() {
-//		sutBranchGoals= new ArrayList<>(); 
 		goalsMap = new HashMap<>();
 		methodsMap = new HashMap<>();
 		IBranchFitnessFactory factory = new IBranchFitnessFactory();
@@ -72,12 +69,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 				
 			}
 			logger.info("Context goal: " + goal.toString());
-//			if(goal.getTargetClass().equals(Properties.TARGET_CLASS)){
-//				sutBranchGoals.add(goal);
-//			}
-//			toprint = toprint + "/n" + goal.toString();
 		}
-//		logger.error(toprint);		
 	}
 
     private void countGoals(List<IBranchTestFitness> branchGoals) {
@@ -115,7 +107,6 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 	private IBranchTestFitness getContextGoal(String classAndMethodName,
 	        CallContext context) {
-//		return getContextGoal(classAndMethodName, context);
 		if(methodsMap.get(classAndMethodName)==null) return null;
 		if(methodsMap.get(classAndMethodName).get(context)==null)return null;
 		
@@ -127,7 +118,6 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 	
 	private IBranchTestFitness getContextGoal(Integer branchId, CallContext context,
 	        boolean value) {
-//		return getContextGoal(branchId, context, value);
 		if(goalsMap.get(branchId)==null) return null;
 		if(goalsMap.get(branchId).get(context)==null) return null;
 		for (IBranchTestFitness iBranchTestFitness : goalsMap.get(branchId).get(context)) {
@@ -155,14 +145,11 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 			// Determine minimum branch distance for each branch in each context
 			for (Entry<Integer, Map<CallContext, Double>> entry : result.getTrace().getTrueDistancesContext().entrySet()) {
 				for (Entry<CallContext, Double> value : entry.getValue().entrySet()) {
-					//logger.info("Got true distance of " + value.getValue() + " for "
-					//        + entry.getKey() + " in context " + value.getKey());
+					
 					IBranchTestFitness goal = getContextGoal(entry.getKey(),
 					                                         value.getKey(), true);
 					if(goal==null) continue;
 					double distance = normalize(value.getValue());
-					//logger.info("True distance for goal " + goal + ": "
-					//        + value.getValue());
 					if (distanceMap.get(goal) > distance) {
 						distanceMap.put(goal, distance);
 					}
@@ -170,20 +157,18 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 			}
 			for (Entry<Integer, Map<CallContext, Double>> entry : result.getTrace().getFalseDistancesContext().entrySet()) {
 				for (Entry<CallContext, Double> value : entry.getValue().entrySet()) {
-					//logger.info("Got false distance of " + value.getValue() + " for "
-					//        + entry.getKey() + " in context " + value.getKey());
+					
 					IBranchTestFitness goal = getContextGoal(entry.getKey(),
 					                                         value.getKey(), false);
 					if(goal==null) continue;
 					double distance = normalize(value.getValue());
-					//logger.info("False distance for goal " + goal + ": "
-					//        + value.getValue());
+					
 					if (distanceMap.get(goal) > distance) {
 						distanceMap.put(goal, distance);
 					}
 				}
 			}
-
+//
 			// Determine maximum execution count for each branch in each context
 			for (Entry<Integer, Map<CallContext, Integer>> entry : result.getTrace().getPredicateContextExecutionCount().entrySet()) {
 				for (Entry<CallContext, Integer> value : entry.getValue().entrySet()) {
@@ -217,7 +202,6 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		int numCoveredGoals = 0;
-//		int numSUTCoveredBanches = 0;
 		for (IBranchTestFitness goal : branchGoals) {
 			double distance = distanceMap.get(goal);
 			int count = callCount.get(goal);
@@ -227,14 +211,10 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					fitness += 1;
 				} else {
 					numCoveredGoals++;
-//					if(sutBranchGoals.contains(goal))
-//						numSUTCoveredBanches++;
 				}
 			} else {
 				if (count > 0 && Double.compare(distance, 0.0) ==0) {
 					numCoveredGoals++;
-//					if (sutBranchGoals.contains(goal))
-//						numSUTCoveredBanches++;
 				}
 				// If branch is called exactly once in that context, 
 				// then the sum of false and true distance must be 1
@@ -246,18 +226,11 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		}
 		
 		if (!branchGoals.isEmpty()){
-//			suite.setCoverage(this, (double) numSUTCoveredBanches / (double) sutBranchGoals.size());
 			suite.setCoverage(this, (double) numCoveredGoals / (double) branchGoals.size());
 		}
 		suite.setNumOfCoveredGoals(this, numCoveredGoals);
 		suite.setNumOfNotCoveredGoals(this, branchGoals.size()-numCoveredGoals);
-
-//		if(numSUTCoveredBanches== sutBranchGoals.size()){
-//			numCoveredGoals = this.branchGoals.size();
-//			fitness = 0.0;
-//		}
 		updateIndividual(this, suite, fitness);
-
 		return fitness;
 	}
 }

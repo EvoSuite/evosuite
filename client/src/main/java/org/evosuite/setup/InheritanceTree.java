@@ -49,6 +49,7 @@ public class InheritanceTree {
 	private  Set<String> abstractClassesSet = new HashSet<>();
 	
 	
+	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory
 			.getLogger(InheritanceTree.class);
 
