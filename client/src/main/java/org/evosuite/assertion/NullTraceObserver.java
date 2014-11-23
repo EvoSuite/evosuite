@@ -19,6 +19,7 @@
  */
 package org.evosuite.assertion;
 
+import org.evosuite.testcase.ArrayStatement;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.PrimitiveStatement;
@@ -52,6 +53,14 @@ public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
 			        || var.isWrapperType() // TODO: Wrapper types might make sense but there were failing assertions...
 			        || var.isEnum()
 			        || currentTest.getStatement(var.getStPosition()) instanceof PrimitiveStatement)
+				return;
+
+			// We don't need assertions on constant values
+			if (statement instanceof PrimitiveStatement<?>)
+				return;
+
+			// We don't need assertions on array values
+			if (statement instanceof ArrayStatement)
 				return;
 
 			Object object = var.getObject(scope);
