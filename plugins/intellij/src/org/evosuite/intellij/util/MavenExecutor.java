@@ -130,7 +130,13 @@ public class MavenExecutor {
             TODO: should have an option to specify which maven installation
             to use.
          */
-        list.add("mvn");
+        String OS = System.getProperty("os.name");
+        if(OS.toLowerCase().contains("windows")){
+            list.add("mvn.bat");
+        } else {
+            list.add("mvn");
+        }
+
 
         list.add("compile");
         list.add("evosuite:generate");
