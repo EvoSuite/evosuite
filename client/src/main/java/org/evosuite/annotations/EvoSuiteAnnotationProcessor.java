@@ -1,4 +1,4 @@
-package org.evosuite.quickfixes.annotations;
+package org.evosuite.annotations;
 
 
 import java.util.Set;

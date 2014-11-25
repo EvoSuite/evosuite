@@ -1,5 +1,4 @@
-package org.evosuite.quickfixes.annotations;
-
+package org.evosuite.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -11,5 +10,4 @@ import java.lang.annotation.Target;
 @Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD})
 @Retention(RetentionPolicy.SOURCE)
 public @interface EvoIgnore {
-	
 }
