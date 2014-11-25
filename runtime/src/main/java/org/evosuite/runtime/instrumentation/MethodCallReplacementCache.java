@@ -30,36 +30,44 @@ import org.slf4j.LoggerFactory;
  */
 public class MethodCallReplacementCache {
 
-	private static MethodCallReplacementCache instance = null;
-	
+    private static final Logger logger = LoggerFactory.getLogger(MethodCallReplacementCache.class);
+
+	private static final MethodCallReplacementCache instance = new MethodCallReplacementCache();
+
+
+    /**
+     * method replacements, which are called with Opcodes.INVOKESTATIC
+     */
+    private final Map<String, Map<String, MethodCallReplacement>> replacementCalls = new HashMap<String, Map<String, MethodCallReplacement>>();
+
+    /**
+     * method replacements, which are called with Opcodes.INVOKEVIRTUAL
+     */
+    //private final Set<MethodCallReplacement> virtualReplacementCalls = new HashSet<MethodCallReplacement>();
+
+    /**
+     * method replacements, which are called with Opcodes.INVOKESPECIAL
+     */
+    private final Map<String, Map<String, MethodCallReplacement>> specialReplacementCalls = new HashMap<String, Map<String, MethodCallReplacement>>();
+
+
 	private MethodCallReplacementCache() {
 		initReplacements();
 	}
 	
+
 	public static MethodCallReplacementCache getInstance() {
-		if(instance == null)
-			instance = new MethodCallReplacementCache();
-		
 		return instance;
 	}
-	
-	private static final Logger logger = LoggerFactory.getLogger(MethodCallReplacementCache.class);
 
-	/**
-	 * method replacements, which are called with Opcodes.INVOKESTATIC
-	 */
-	private final Map<String, Map<String, MethodCallReplacement>> replacementCalls = new HashMap<String, Map<String, MethodCallReplacement>>();
 
-	/**
-	 * method replacements, which are called with Opcodes.INVOKEVIRTUAL
-	 */
-	//private final Set<MethodCallReplacement> virtualReplacementCalls = new HashSet<MethodCallReplacement>();
+    public static void resetSingleton(){
+        getInstance().replacementCalls.clear();
+        getInstance().specialReplacementCalls.clear();
+        getInstance().initReplacements();
+    }
 
-	/**
-	 * method replacements, which are called with Opcodes.INVOKESPECIAL
-	 */
-	private final Map<String, Map<String, MethodCallReplacement>> specialReplacementCalls = new HashMap<String, Map<String, MethodCallReplacement>>();
-	
+
 	private void addReplacementCall(MethodCallReplacement replacement) {
 		if(!replacementCalls.containsKey(replacement.getClassName())) {
 			replacementCalls.put(replacement.getClassName(), new HashMap<String, MethodCallReplacement>());
