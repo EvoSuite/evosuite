@@ -50,6 +50,8 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	@Override
 	public String getImports() {
 		String imports = "import static org.junit.Assert.*;\n";
+		if (Properties.ECLIPSE_PLUGIN)
+			imports += "import org.evosuite.annotations.EvoSuiteTest;\n";
 		if(!Properties.TARGET_CLASS.equals("Test"))
 			imports += "import org.junit.Test;\n";
 		
@@ -71,7 +73,12 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public String getMethodDefinition(String testName) {
-		return "  @"+getJUnitTestShortName()+"\n  public void " + testName + "() ";
+		StringBuilder builder = new StringBuilder();
+		builder.append("  @" + getJUnitTestShortName() + "\n");
+		if (Properties.ECLIPSE_PLUGIN)
+			builder.append("  @EvoSuiteTest\n");
+		builder.append("  public void " + testName + "() ");
+		return builder.toString();
 	}
 
 	/* (non-Javadoc)

@@ -1275,6 +1275,13 @@ public class Properties {
 	@Parameter(key = "sourcepath", group = "Test Seeding", description = "The path to the test case source.")
 	public static String[] SOURCEPATH = new String[] { "" };
 
+	// ---------------------------------------------------------------
+	// Eclipse Plug-in flag
+
+	/** Constant <code>ECLIPSE_PLUGIN=false</code> */
+	@Parameter(key = "eclipse_plugin", group = "Plugin", description = "Running plugin")
+	public static boolean ECLIPSE_PLUGIN = false;
+
 	/**
 	 * Get all parameters that are available
 	 * 
