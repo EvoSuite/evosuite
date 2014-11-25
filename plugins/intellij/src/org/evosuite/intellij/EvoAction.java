@@ -93,11 +93,11 @@ public class EvoAction extends AnAction {
         Set<String> roots = new LinkedHashSet<String>();
 
         Project project = event.getData(PlatformDataKeys.PROJECT);
-        String projectDir = project.getBaseDir().getCanonicalPath();
+        String projectDir = new File(project.getBaseDir().getCanonicalPath()).getAbsolutePath(); //note: need "File" to avoid issues in Windows
 
         for (Module module : ModuleManager.getInstance(project).getModules()) {
             for(VirtualFile sourceRoot : ModuleRootManager.getInstance(module).getSourceRoots()){
-                String path = sourceRoot.getCanonicalPath();
+                String path = new File(sourceRoot.getCanonicalPath()).getAbsolutePath();
                 if(getMavenModuleFolder(projectDir, path) != null) {
                     roots.add(path);
                 }
@@ -109,7 +109,7 @@ public class EvoAction extends AnAction {
         }
 
         for(VirtualFile virtualFile : event.getData(PlatformDataKeys.VIRTUAL_FILE_ARRAY)){
-            String path = virtualFile.getCanonicalPath();
+            String path = new File(virtualFile.getCanonicalPath()).getAbsolutePath();
             String maven = getMavenModuleFolder(projectDir, path);
 
             if(maven==null){
