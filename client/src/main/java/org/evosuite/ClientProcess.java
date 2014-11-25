@@ -28,6 +28,7 @@ import org.evosuite.rmi.service.MasterNodeRemote;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.AgentLoader;
 import org.evosuite.runtime.agent.ToolsJarLocator;
+import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.evosuite.runtime.sandbox.Sandbox;
@@ -127,7 +128,8 @@ public class ClientProcess {
 		RuntimeSettings.mockSystemIn = Properties.REPLACE_SYSTEM_IN;
 		RuntimeSettings.sandboxMode = Properties.SANDBOX_MODE;
         RuntimeSettings.maxNumberOfThreads = Properties.MAX_STARTED_THREADS;
-	}
+        MethodCallReplacementCache.resetSingleton();
+    }
 
 	/**
 	 * <p>

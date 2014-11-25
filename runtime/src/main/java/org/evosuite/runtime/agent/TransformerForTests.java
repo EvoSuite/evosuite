@@ -53,6 +53,9 @@ public class TransformerForTests implements ClassFileTransformer {
 			synchronized(instrumentedClasses){
 				instrumentedClasses.add(classWithDots);
 			}
+
+            logger.debug("Going to instrument: "+classWithDots);
+
 			return instrumenter.transformBytes(loader, className, reader); 
 		}
 	}

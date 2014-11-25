@@ -16,6 +16,7 @@ import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -164,5 +165,6 @@ public class TestGenerationContext {
 
 		SystemInUtil.resetSingleton();
 		Runtime.resetSingleton();
+        MethodCallReplacementCache.resetSingleton();
 	}
 }

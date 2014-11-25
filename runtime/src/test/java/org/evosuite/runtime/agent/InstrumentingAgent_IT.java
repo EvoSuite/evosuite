@@ -5,6 +5,7 @@ import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Constructor;
 
+import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.junit.*;
 
 import org.evosuite.runtime.Runtime;
@@ -47,6 +48,7 @@ public class InstrumentingAgent_IT {
 	public void storeValues() {
 		RuntimeSettings.mockJVMNonDeterminism = true;
 		RuntimeSettings.useVFS = true;
+        MethodCallReplacementCache.resetSingleton();
 		Runtime.getInstance().resetRuntime();
 	}
 

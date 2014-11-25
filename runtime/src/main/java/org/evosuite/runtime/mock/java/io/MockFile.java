@@ -473,7 +473,16 @@ public class MockFile extends File implements OverrideMock {
 	}
 
 
-	// -------- unmodified methods --------------
+    @Override
+    public String getCanonicalPath() throws IOException {
+        if(! MockFramework.isEnabled()){
+            return super.getCanonicalPath();
+        }
+        VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(getAbsolutePath());
+        return super.getCanonicalPath();
+    }
+
+    // -------- unmodified methods --------------
 
 	@Override
 	public String getName(){
@@ -498,15 +507,6 @@ public class MockFile extends File implements OverrideMock {
 	@Override
 	public String getAbsolutePath() {
 		return super.getAbsolutePath();
-	}
-
-	@Override
-	public String getCanonicalPath() throws IOException {
-		if(! MockFramework.isEnabled()){
-			return super.getCanonicalPath();
-		}
-		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(getAbsolutePath()); 
-		return super.getCanonicalPath();
 	}
 
 	@Override
