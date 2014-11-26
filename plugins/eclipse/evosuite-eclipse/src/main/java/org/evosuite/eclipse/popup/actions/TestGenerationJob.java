@@ -44,7 +44,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -52,22 +51,14 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -141,9 +132,37 @@ public class TestGenerationJob extends Job {
 	protected IStatus run(final IProgressMonitor monitor) {
 		String disabled = System.getProperty("disable.evosuite");
 		if ( disabled != null && disabled.equals("1")) {
-			System.out.println("RoamingJob: disabled.evosuite = 1");
+			System.out.println("TestGenerationJob: disabled.evosuite = 1");
 			return Status.OK_STATUS;
 		}
+
+		// Check that all markers have been cleared 
+		try {
+			final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(testClass));
+			IMarker[] markers = file.findMarkers("EvoSuiteQuickFixes.notcoveredmarker", true, 2);
+			if ( file != null && file.exists() && markers.length > 0) {
+				System.out.println("Markers in TestSuite, can't generate tests");
+				Display.getDefault().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						MessageDialog dialog = new MessageDialog(
+						        shell,
+						        "JUnit test suite contains marked test cases",
+						        null, // image
+						        "The JUnit test suite \""
+						                + testClass
+						                + "\" contains marked test cases. Please review them and clear all markers before running EvoSuite again.",
+						        MessageDialog.OK, new String[] { "Ok" }, 0);
+						dialog.open();
+					}
+					
+				});
+				return Status.OK_STATUS;
+			}
+		} catch (CoreException e1) {
+			e1.printStackTrace();
+		}
+
 		
 		setThread(new Thread());
 		running = true;
@@ -358,7 +377,6 @@ public class TestGenerationJob extends Job {
 
 	private ArrayList<TestGenerationResult> launchProcess(String[] evoSuiteOptions) throws IOException {
 		EvoSuite evosuite = new EvoSuite();
-		//		evosuite.parseCommandLine(command);
 
 		Vector<String> javaCmd = new Vector<String>();
 		// javaCmd.add("java");
@@ -452,7 +470,8 @@ public class TestGenerationJob extends Job {
 				"-Dsearch_budget=" + time, 
 				"-Dassertion_timeout=" + time, 
 				"-Dpure_inspectors=true", 
-				"-Dnew_statistics=false" 
+				"-Dnew_statistics=false",
+				"-Declipse_plugin=true"
 				// "-Dsandbox_mode=IO",
 				// "-Djava.rmi.server.codebase=file:///Remote/evosuite-0.1-SNAPSHOT-jar-minimal.jar"
 				}));
