@@ -18,6 +18,7 @@
 package org.evosuite.testsuite;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,7 +45,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 	/** Secondary objectives used during ranking */
 	private static final List<SecondaryObjective<?>> secondaryObjectives = new ArrayList<SecondaryObjective<?>>();
-
+	private static int secondaryObjIndex = 0;
 	private static final long serialVersionUID = 88380759969800800L;
 
 	/**
@@ -58,6 +59,22 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		secondaryObjectives.add(objective);
 	}
 
+	public static void ShuffleSecondaryObjective() {
+		Collections.shuffle(secondaryObjectives);
+	}
+	
+	
+	public static void disableFirstSecondaryObjective() {
+		secondaryObjIndex=1;
+	}
+	
+	public static void enableFirstSecondaryObjective() {
+		secondaryObjIndex=0;
+	}
+
+	public static void reverseSecondaryObjective() {
+		Collections.reverse(secondaryObjectives);
+	}
 	/**
 	 * Remove secondary objective from list, if it is there
 	 * 
@@ -147,7 +164,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	@Override
 	@SuppressWarnings("unchecked")
 	public  <T extends Chromosome> int compareSecondaryObjective(T o) {
-		int objective = 0;
+		int objective = secondaryObjIndex;
 		int c = 0;
 		while (c == 0 && objective < secondaryObjectives.size()) {
 			SecondaryObjective<T> so = (SecondaryObjective<T>) secondaryObjectives.get(objective++);
