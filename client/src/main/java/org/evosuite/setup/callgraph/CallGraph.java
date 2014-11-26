@@ -242,7 +242,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
  	
 	private boolean computeInterestingClasses(Graph<CallGraphEntry> g) {
 		Set<CallGraphEntry> startingVertices = new HashSet<>();
-		for (CallGraphEntry e : graph.getEdges().keySet()) {
+		for (CallGraphEntry e : graph.getVertexSet()) {
 			if (e.getClassName().equals(className)) {
 				startingVertices.add(e);
 			}

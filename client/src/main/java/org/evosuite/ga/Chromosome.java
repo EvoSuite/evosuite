@@ -106,6 +106,10 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public Map<FitnessFunction<?>, Double> getLastFitnesses() {
 		return this.lastFitnesses;
 	}
+	
+	public boolean hasExecutedFitness(FitnessFunction<?> ff) {
+		return this.lastFitnesses.containsKey(ff);
+	}
 
 	public void setFitnesses(Map<FitnessFunction<?>, Double> fits) {
 		//TODO mainfitness?

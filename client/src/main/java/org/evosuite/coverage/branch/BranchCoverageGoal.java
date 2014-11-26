@@ -51,6 +51,11 @@ public class BranchCoverageGoal implements Serializable, Comparable<BranchCovera
 	 */
 	private final int lineNumber;
 
+	public int getId() {
+		return branch.getActualBranchId();
+
+	}
+	
 	/**
 	 * Can be used to create an arbitrary {@code BranchCoverageGoal} trying to cover the
 	 * given {@code Branch}

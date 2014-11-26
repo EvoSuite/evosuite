@@ -1799,25 +1799,9 @@ public class TestSuiteGenerator {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static SecondaryObjective getSecondaryTestObjective(String name, GeneticAlgorithm ga) {
+	public static SecondaryObjective<?> getSecondaryTestObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
-		//doesn't work with single test generation.
-//		else if (name.equalsIgnoreCase("ibranch")){
-//			List<FitnessFunction<?>> ffs = ga.getSecondaryFitnessFunctions();
-//			FitnessFunction<?> ff = null;
-//			for (FitnessFunction<?> f : ffs) {
-//				if (f instanceof IBranchSuiteFitness) {
-//					ff = f;
-//				}
-//			}
-//			if (ff == null) {
-//				ff = FitnessFunctions.getFitnessFunction(Criterion.IBRANCH);
-//				ga.addSecondaryFitnessFunction(ff);
-//			}
-//			IBranchSecondaryObjective ib = new IBranchSecondaryObjective((FitnessFunction<Chromosome>) ff);
-//			return ib; 
-//		}
 		else if (name.equalsIgnoreCase("exceptions"))
 			return new org.evosuite.testcase.MinimizeExceptionsSecondaryObjective();
 		else
@@ -1834,7 +1818,7 @@ public class TestSuiteGenerator {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static SecondaryObjective<?> getSecondarySuiteObjective(String name, GeneticAlgorithm ga) {
+	public static SecondaryObjective<?> getSecondarySuiteObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
 		else if (name.equalsIgnoreCase("ibranch"))
@@ -1872,10 +1856,10 @@ public class TestSuiteGenerator {
 
 		for (String name : objectives.split(":")) {
 			try {
-				TestChromosome.addSecondaryObjective(getSecondaryTestObjective(name.trim(), algorithm));
+				TestChromosome.addSecondaryObjective(getSecondaryTestObjective(name.trim()));
 			} catch (Throwable t) {
 			} // Not all objectives make sense for tests
-			TestSuiteChromosome.addSecondaryObjective(getSecondarySuiteObjective(name.trim(), algorithm));
+			TestSuiteChromosome.addSecondaryObjective(getSecondarySuiteObjective(name.trim()));
 		}
 	}
 
