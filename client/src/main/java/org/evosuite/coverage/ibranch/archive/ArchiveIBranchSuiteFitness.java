@@ -227,6 +227,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 						distanceMap.put(goal, distance);
 					}
 					if (Double.compare(distance, 0.0) == 0) {
+						result.test.addCoveredGoal(goal);
 						bestChromoBuilder.putTest(goal, result.test);
 						toRemoveBranchesT.add(goal);
 						suite.setToBeUpdated(true);
@@ -244,6 +245,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 						distanceMap.put(goal, distance);
 					}
 					if (Double.compare(distance, 0.0) == 0) {
+						result.test.addCoveredGoal(goal);
 						bestChromoBuilder.putTest(goal, result.test);
 						toRemoveBranchesF.add(goal);
 						suite.setToBeUpdated(true);
@@ -284,6 +286,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 						callCount.put(goal, count);
 					}
 					if (count > 0) {
+						result.test.addCoveredGoal(goal);
 						bestChromoBuilder.putTest(goal, result.test);
 						toRemoveRootBranches.add(goal);
 						suite.setToBeUpdated(true);
