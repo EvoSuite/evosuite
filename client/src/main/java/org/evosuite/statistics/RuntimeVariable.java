@@ -97,6 +97,7 @@ public enum RuntimeVariable {
 	OnlyBranchCoverage,
     OnlyBranchFitnessTimeline,
     OnlyBranchCoverageTimeline,
+	CBranchCoverage,
     IBranchCoverage,
     IBranchInitialGoals,
     IBranchInitialGoalsInTargetClass,

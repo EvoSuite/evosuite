@@ -71,8 +71,8 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
-	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2,
-	        Chromosome offspring1, Chromosome offspring2) {
+	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2, Chromosome offspring1,
+			Chromosome offspring2) {
 		return replacementFunction.keepOffspring(parent1, parent2, offspring1, offspring2);
 	}
 
@@ -93,15 +93,17 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			logger.debug("Generating offspring");
 
 			T parent1 = selectionFunction.select(population);
-            T parent2;
-            if (Properties.HEADLESS_CHICKEN_TEST)
-                parent2 = newRandomIndividual(); // crossover with new random individual
-            else
-                parent2 = selectionFunction.select(population); // crossover with existing individual
+			T parent2;
+			if (Properties.HEADLESS_CHICKEN_TEST)
+				parent2 = newRandomIndividual(); // crossover with new random
+													// individual
+			else
+				parent2 = selectionFunction.select(population); // crossover
+																// with existing
+																// individual
 
-
-			T offspring1 = (T)parent1.clone();
-			T offspring2 = (T)parent2.clone();
+			T offspring1 = (T) parent1.clone();
+			T offspring2 = (T) parent2.clone();
 
 			try {
 				// Crossover
@@ -129,14 +131,13 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 			// The two offspring replace the parents if and only if one of
 			// the offspring is not worse than the best parent.
-		    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+			for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
 				fitnessFunction.getFitness(offspring1);
 				notifyEvaluation(offspring1);
 				fitnessFunction.getFitness(offspring2);
 				notifyEvaluation(offspring2);
 			}
 
-		    
 			if (keepOffspring(parent1, parent2, offspring1, offspring2)) {
 				logger.debug("Keeping offspring");
 
@@ -145,17 +146,19 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 				if (isTooLong(offspring1) || offspring1.size() == 0) {
 					rejected++;
 				} else {
-				    // if(Properties.ADAPTIVE_LOCAL_SEARCH == AdaptiveLocalSearchTarget.ALL)
+					// if(Properties.ADAPTIVE_LOCAL_SEARCH ==
+					// AdaptiveLocalSearchTarget.ALL)
 					// applyAdaptiveLocalSearch(offspring1);
-				    newGeneration.add(offspring1);
+					newGeneration.add(offspring1);
 				}
 
 				if (isTooLong(offspring2) || offspring2.size() == 0) {
 					rejected++;
 				} else {
-				    // if(Properties.ADAPTIVE_LOCAL_SEARCH == AdaptiveLocalSearchTarget.ALL)
+					// if(Properties.ADAPTIVE_LOCAL_SEARCH ==
+					// AdaptiveLocalSearchTarget.ALL)
 					// applyAdaptiveLocalSearch(offspring2);
-				    newGeneration.add(offspring2);
+					newGeneration.add(offspring2);
 				}
 
 				if (rejected == 1)
@@ -169,32 +172,31 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 				newGeneration.add(parent1);
 				newGeneration.add(parent2);
 			}
-			
+
 		}
 
 		population = newGeneration;
 		updateFitnessFuntions();
 		for (T t : population) {
-			if(t.isToBeUpdated()){
-			    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+			if (t.isToBeUpdated()) {
+				for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
 					fitnessFunction.getFitness(t);
 				}
-			    t.setToBeUpdated(false);
+				t.setToBeUpdated(false);
 			}
 		}
-
 		currentIteration++;
 	}
-	
-    private T newRandomIndividual() {
-        T randomChromosome = chromosomeFactory.getChromosome();
-        for (FitnessFunction<?> fitnessFunction : this.fitnessFunctions) {
-            randomChromosome.addFitness(fitnessFunction);
-        }
-        return randomChromosome;
-    }
 
-    /** {@inheritDoc} */
+	private T newRandomIndividual() {
+		T randomChromosome = chromosomeFactory.getChromosome();
+		for (FitnessFunction<?> fitnessFunction : this.fitnessFunctions) {
+			randomChromosome.addFitness(fitnessFunction);
+		}
+		return randomChromosome;
+	}
+
+	/** {@inheritDoc} */
 	@Override
 	public void initializePopulation() {
 		notifySearchStarted();
@@ -222,22 +224,16 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			evolve();
 
 			sortPopulation();
-			
-//			String s = "";
-//			for (Chromosome c : population) {
-//				s=s+","+c.hashCode();
-//			}
-//			logger.error("\n a "+ s);
 			applyLocalSearch();
 
 			double newFitness = getBestIndividual().getFitness();
 
 			if (getFitnessFunction().isMaximizationFunction())
 				assert (newFitness >= bestFitness) : "Best fitness was: " + bestFitness
-				        + ", now best fitness is " + newFitness;
+						+ ", now best fitness is " + newFitness;
 			else
 				assert (newFitness <= bestFitness) : "Best fitness was: " + bestFitness
-				        + ", now best fitness is " + newFitness;
+						+ ", now best fitness is " + newFitness;
 			bestFitness = newFitness;
 			logger.info("Current iteration: " + currentIteration);
 			this.notifyIteration();
@@ -245,13 +241,12 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			logger.info("Population size: " + population.size());
 			logger.info("Best individual has fitness: " + population.get(0).getFitness());
 			logger.info("Worst individual has fitness: "
-			        + population.get(population.size() - 1).getFitness());
+					+ population.get(population.size() - 1).getFitness());
 		}
-
 		retrieveBestSuiteFromArchives();
 		notifySearchFinished();
 	}
-	
+
 	private void retrieveBestSuiteFromArchives() {
 		for (FitnessFunction<T> f : fitnessFunctions) {
 			if (f.getBestStoredIndividual() != null) {

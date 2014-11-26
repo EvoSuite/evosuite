@@ -48,7 +48,7 @@ public class CallContext implements Serializable {
 	 */
 	private static final long serialVersionUID = 8650619230188403356L;
 
-    private final List<Call> context = new ArrayList<Call>();
+    private final List<Call> context;
 
 	private final int hcode;
 
@@ -66,6 +66,7 @@ public class CallContext implements Serializable {
 	 */
 	public CallContext(StackTraceElement[] stackTrace) {
 		int startPos = stackTrace.length - 1;
+		List<Call> context = new ArrayList<Call>();
 		while (stackTrace[startPos].getClassName().startsWith("java")
 				|| stackTrace[startPos].getClassName().startsWith("sun")
 				|| stackTrace[startPos].getClassName().startsWith("org.evosuite")) {
@@ -83,7 +84,8 @@ public class CallContext implements Serializable {
 			
 			context.add(new Call(element.getClassName(), element.getMethodName()));
 		} 
-		hcode = context.hashCode();
+		this.context=context;
+		hcode = this.context.hashCode();
 	}
 
 	/**
@@ -93,12 +95,22 @@ public class CallContext implements Serializable {
 	 * @param methodName
 	 */
 	public CallContext(String className, String methodName) {
+		List<Call> context = new ArrayList<Call>();
 		context.add(new Call(className, methodName));
-		hcode = context.hashCode();
+		this.context=context;
+		hcode = this.context.hashCode();
+	}
+	
+	public CallContext() {
+		List<Call> context = new ArrayList<Call>();
+		this.context=context;
+		hcode = this.context.hashCode();
 	}
 
-	public CallContext(Collection<Call> context) {
-		this.context.addAll(context);
+	public CallContext(Collection<Call> contextt) {
+		List<Call> context = new ArrayList<Call>();
+		context.addAll(contextt);
+		this.context=context;
 		hcode = this.context.hashCode();
 	}
 
@@ -189,9 +201,9 @@ public class CallContext implements Serializable {
 
 		return false;
 	}
-
+	//A empty context matches with everything.
 	public boolean matches(CallContext other) {
-		if (other.hcode == hcode)
+		if (context.isEmpty()||other.context.isEmpty()|| other.hcode == hcode)
 			return true;
 		return false;
 	}

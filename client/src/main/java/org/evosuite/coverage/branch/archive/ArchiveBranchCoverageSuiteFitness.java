@@ -506,14 +506,8 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		}
 	}
 
-
 	public TestSuiteChromosome getBestStoredIndividual(){
 		return bestChromoBuilder.getBestChromosome();
 	}
-
-	
-//	public List<T> getBestSavedSuite() {
-//		savedTests.getTestSuite();
-//	}
 
 }

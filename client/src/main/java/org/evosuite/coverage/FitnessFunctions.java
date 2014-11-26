@@ -10,6 +10,8 @@ import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.archive.ArchiveBranchCoverageSuiteFitness;
+import org.evosuite.coverage.cbranch.CBranchFitnessFactory;
+import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.dataflow.AllDefsCoverageFactory;
 import org.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
@@ -87,7 +89,10 @@ public class FitnessFunctions {
 		case ARCHIVEBRANCH:{
 			initialiseArchive();
 			return new ArchiveBranchCoverageSuiteFitness(archive);
-		}case IBRANCH:
+		}
+		case CBRANCH:
+			return new CBranchSuiteFitness();
+		case IBRANCH:
 			return new IBranchSuiteFitness();
 		case ARCHIVEIBRANCH:{
 			initialiseArchive();
@@ -150,6 +155,8 @@ public class FitnessFunctions {
 			return new BranchCoverageFactory();
 		case ARCHIVEBRANCH:
 			return new BranchCoverageFactory();
+		case CBRANCH:
+			return new CBranchFitnessFactory();
 		case IBRANCH:
 			return new IBranchFitnessFactory();
 		case ARCHIVEIBRANCH:

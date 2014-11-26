@@ -10,7 +10,6 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
@@ -141,6 +140,8 @@ public class CoverageAnalysis {
 			return RuntimeVariable.BranchCoverage;
 		case ARCHIVEBRANCH:
 			return RuntimeVariable.BranchCoverage;
+		case CBRANCH:
+			return RuntimeVariable.CBranchCoverage;
 		case EXCEPTION:
 			return RuntimeVariable.ExceptionCoverage;
 		case DEFUSE:

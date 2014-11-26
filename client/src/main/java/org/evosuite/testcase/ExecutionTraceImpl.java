@@ -346,7 +346,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		else
 			falseDistancesSum.put(branch, falseDistancesSum.get(branch) + false_distance);
 
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)|| Properties.INSTRUMENT_CONTEXT) {
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
+				|| Properties.INSTRUMENT_CONTEXT
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH)) {
 			updateBranchContextMaps(branch, true_distance, false_distance);
 		}
 
@@ -573,9 +575,11 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 				}
 				stack.push(call);
 			}
-			if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)|| Properties.INSTRUMENT_CONTEXT) {
+			if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
+					|| Properties.INSTRUMENT_CONTEXT
+					|| ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH)) {
 				updateMethodContextMaps(className, methodName, caller);
- 			}
+			}
 		}
 	}
 
