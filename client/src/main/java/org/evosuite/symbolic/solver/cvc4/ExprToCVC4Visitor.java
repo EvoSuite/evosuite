@@ -3,7 +3,6 @@ package org.evosuite.symbolic.solver.cvc4;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
@@ -482,7 +481,9 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 		switch (op) {
 		case EQUALS: {
 			String equalsFormula = SmtLibExprBuilder.mkEq(left, right);
-			return equalsFormula;
+			String ifThenElseFormula = SmtLibExprBuilder.mkITE(equalsFormula,
+					oneConstant, zeroConstant);
+			return ifThenElseFormula;
 		}
 		case EQUALSIGNORECASE: {
 			throw new UnsupportedOperationException(
