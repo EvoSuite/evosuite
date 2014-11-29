@@ -1,11 +1,18 @@
 package org.evosuite.symbolic.solver.cvc4;
 
+import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverMath;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestCVC4Math {
 
+	@BeforeClass 
+	public static void setUpCVC4Path() {
+		Properties.CVC4_PATH = System.getenv("CVC4_PATH");
+	}
+	
 	@Test
 	public void testAbs() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
