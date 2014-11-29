@@ -10,11 +10,11 @@ import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.solver.SmtLibExprBuilder;
 
-class ConstraintToZ3StrVisitor implements ConstraintVisitor<String, Void> {
+class ConstraintToCVC4Visitor implements ConstraintVisitor<String, Void> {
 
 	private final Set<String> stringConstants =new HashSet<String>();
 	
-	public ConstraintToZ3StrVisitor() {
+	public ConstraintToCVC4Visitor() {
 	}
 
 	@Override

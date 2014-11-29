@@ -2,7 +2,6 @@ package org.evosuite.symbolic.solver.cvc4;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,7 +15,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
@@ -26,12 +24,23 @@ import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.SmtLibExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
-import org.evosuite.symbolic.solver.z3.Z3ExprBuilder;
-import org.evosuite.symbolic.solver.z3str.Z3StrExprBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CVC4Solver extends Solver {
+
+	private static final class TimeoutTask extends TimerTask {
+		private final Process process;
+
+		private TimeoutTask(Process process) {
+			this.process = process;
+		}
+
+		@Override
+		public void run() {
+			process.destroy();
+		}
+	}
 
 	static Logger logger = LoggerFactory.getLogger(CVC4Solver.class);
 	public static final String STR_LENGTH = "str.len";
@@ -42,7 +51,7 @@ public class CVC4Solver extends Solver {
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
 			throws ConstraintSolverTimeoutException {
 
-		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
+		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS * 10;
 
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		for (Constraint<?> c : constraints) {
@@ -64,8 +73,7 @@ public class CVC4Solver extends Solver {
 		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 
 		try {
-			launchNewProcess(cvc4Cmd, smtQuery.toString(), (int) timeout,
-					stdout);
+			launchNewProcess(cvc4Cmd, smtQuery, (int) timeout, stdout);
 
 			String cvc4ResultStr = stdout.toString("UTF-8");
 			if (cvc4ResultStr.startsWith("sat")) {
@@ -73,7 +81,7 @@ public class CVC4Solver extends Solver {
 
 				// parse solution
 				Map<String, Object> initialValues = getConcreteValues(variables);
-				CVCModelParser modelParser = new CVCModelParser(initialValues);
+				CVC4ModelParser modelParser = new CVC4ModelParser(initialValues);
 				Map<String, Object> solution = modelParser.parse(cvc4ResultStr);
 
 				// check solution is correct
@@ -106,6 +114,7 @@ public class CVC4Solver extends Solver {
 		StringBuffer smtQuery = new StringBuffer();
 		smtQuery.append("(set-logic QF_S)");
 		smtQuery.append("\n");
+		smtQuery.append("(set-option :produce-models true)");
 
 		for (Variable<?> v : variables) {
 			String varName = v.getName();
@@ -127,14 +136,19 @@ public class CVC4Solver extends Solver {
 			}
 		}
 
-		ConstraintToZ3StrVisitor v = new ConstraintToZ3StrVisitor();
-		List<String> z3StrAssertions = new LinkedList<String>();
+		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor();
+		List<String> cvc4StrAssertions = new LinkedList<String>();
 		for (Constraint<?> c : constraints) {
 			String constraintStr = c.accept(v, null);
 			if (constraintStr != null) {
-				String z3Assert = Z3StrExprBuilder.mkAssert(constraintStr);
-				z3StrAssertions.add(z3Assert);
+				String cvc4Assert = SmtLibExprBuilder.mkAssert(constraintStr);
+				cvc4StrAssertions.add(cvc4Assert);
 			}
+		}
+
+		for (String cvc4assert : cvc4StrAssertions) {
+			smtQuery.append(cvc4assert);
+			smtQuery.append("\n");
 		}
 
 		smtQuery.append("(check-sat)");
@@ -149,24 +163,23 @@ public class CVC4Solver extends Solver {
 
 	}
 
-	private static int launchNewProcess(String z3StrCmd, String smtQuery,
+	private static int launchNewProcess(String cvc4Cmd, String smtQuery,
 			int timeout, OutputStream outputStream) throws IOException {
 
-		final Process process = Runtime.getRuntime().exec(z3StrCmd);
+		final Process process = Runtime.getRuntime().exec(cvc4Cmd);
 
 		InputStream stdout = process.getInputStream();
 		InputStream stderr = process.getErrorStream();
+		OutputStream stdin = process.getOutputStream();
+
+		stdin.write(smtQuery.getBytes());
+		stdin.flush();
+		stdin.close();
 
 		logger.debug("Process output:");
 
 		Timer t = new Timer();
-		t.schedule(new TimerTask() {
-
-			@Override
-			public void run() {
-				process.destroy();
-			}
-		}, timeout);
+		t.schedule(new TimeoutTask(process), timeout);
 
 		do {
 			readInputStream(stdout, outputStream);
