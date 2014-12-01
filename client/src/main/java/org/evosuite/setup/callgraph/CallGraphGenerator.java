@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class CallGraphGenerator {
-
+	
 	private static Logger logger = LoggerFactory.getLogger(CallGraphGenerator.class);
 
 	public static CallGraph analyze(String className) {
@@ -71,7 +71,7 @@ public class CallGraphGenerator {
 		if (targetClass != null)
 			handle(callgraph, targetClass, 0);
 		return callgraph;
-	}
+	} 
 
 	private static boolean isOverridden(String methodName) {
 		return true;
@@ -117,7 +117,6 @@ public class CallGraphGenerator {
 			}
 		}
 		handleSuperClasses(callGraph, superClass);
-
 	}
 
 	@SuppressWarnings("unchecked")
@@ -211,8 +210,7 @@ public class CallGraphGenerator {
 
 		int counter = 0;
 		for (int i = 0; i < entries.size(); i++) {
-			//TODO number of threads and elements as property
-			if (i % 4000 == 0 || i == entries.size() - 1) {
+			if (i % Properties.METHODS_PER_THREAD == 0 || i == entries.size() - 1) {
 				Set<CallGraphEntry> set = new HashSet<>();
 				set.addAll(entries.subList(counter, i));
 				updaters.add(new CallGraphUpdater(callGraph, set, inheritanceTree));
@@ -221,7 +219,7 @@ public class CallGraphGenerator {
 
 		}
 
-		ExecutorService executor = Executors.newFixedThreadPool(8);
+		ExecutorService executor = Executors.newFixedThreadPool(Properties.CALLGRAPH_THREADS);
 
 		for (CallGraphUpdater callable : updaters) {
 			futures.add(executor.submit(callable));

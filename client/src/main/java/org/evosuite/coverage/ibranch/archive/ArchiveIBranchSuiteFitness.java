@@ -253,27 +253,27 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 				}
 			}
 
-			// Determine maximum execution count for each branch in each context
-			for (Entry<Integer, Map<CallContext, Integer>> entry : result.getTrace()
-					.getPredicateContextExecutionCount().entrySet()) {
-				for (Entry<CallContext, Integer> value : entry.getValue().entrySet()) {
-					IBranchTestFitness goalT = getContextGoal(entry.getKey(), value.getKey(), true);
-					IBranchTestFitness goalF = getContextGoal(entry.getKey(), value.getKey(), false);
-
-					if (goalT != null || removedBranchesT.contains(goalT)) {
-						int countT = value.getValue();
-						if (callCount.get(goalT) < countT) {
-							callCount.put(goalT, countT);
-						}
-					}
-					if (goalF != null || removedBranchesT.contains(goalF)) {
-						int countF = value.getValue();
-						if (callCount.get(goalF) < countF) {
-							callCount.put(goalF, countF);
-						}
-					}
-				}
-			}
+//			// Determine maximum execution count for each branch in each context
+//			for (Entry<Integer, Map<CallContext, Integer>> entry : result.getTrace()
+//					.getPredicateContextExecutionCount().entrySet()) {
+//				for (Entry<CallContext, Integer> value : entry.getValue().entrySet()) {
+//					IBranchTestFitness goalT = getContextGoal(entry.getKey(), value.getKey(), true);
+//					IBranchTestFitness goalF = getContextGoal(entry.getKey(), value.getKey(), false);
+//
+//					if (goalT != null || removedBranchesT.contains(goalT)) {
+//						int countT = value.getValue();
+//						if (callCount.get(goalT) < countT) {
+//							callCount.put(goalT, countT);
+//						}
+//					}
+//					if (goalF != null || removedBranchesT.contains(goalF)) {
+//						int countF = value.getValue();
+//						if (callCount.get(goalF) < countF) {
+//							callCount.put(goalF, countF);
+//						}
+//					}
+//				}
+//			}
 			for (Entry<String, Map<CallContext, Integer>> entry : result.getTrace()
 					.getMethodContextCount().entrySet()) {
 				for (Entry<CallContext, Integer> value : entry.getValue().entrySet()) {
@@ -307,13 +307,17 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 					numCoveredGoals++;
 				}
 			} else {
-				if (count > 0 && distance == 0.0) {
+				if (distance == 0.0) {
 					numCoveredGoals++;
 				}
-				if (count == 0)
-					fitness += 1;
-				else
-					fitness += distance;
+				fitness += distance;
+//				if (count > 0 && distance == 0.0) {
+//					numCoveredGoals++;
+//				}
+//				if (count == 0)
+//					fitness += 1;
+//				else
+//					fitness += distance;
 
 				// if (count == 1)
 				// fitness += 0.5;

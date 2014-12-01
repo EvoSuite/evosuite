@@ -140,12 +140,16 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 		for (ExecutionResult result : results) {
 			// Determine minimum branch distance for each branch in each context
+			assert(result.getTrace().getTrueDistancesContext().keySet().size()!=
+					result.getTrace().getFalseDistancesContext().keySet().size());
+			
 			for (Integer branchId : result.getTrace().getTrueDistancesContext().keySet()) {
 				Map<CallContext, Double> trueMap = result.getTrace().getTrueDistancesContext()
 						.get(branchId);
 				Map<CallContext, Double> falseMap = result.getTrace().getFalseDistancesContext()
 						.get(branchId);
 
+				
 				for (CallContext context : trueMap.keySet()) {
 					IBranchTestFitness goalT = getContextGoal(branchId, context, true);
 					if (goalT == null)

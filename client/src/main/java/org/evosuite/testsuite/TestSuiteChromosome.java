@@ -63,13 +63,18 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		Collections.shuffle(secondaryObjectives);
 	}
 	
+	public static int getSecondaryObjectivesSize(){
+		return secondaryObjectives.size();
+	}
 	
 	public static void disableFirstSecondaryObjective() {
-		secondaryObjIndex=1;
+		if (secondaryObjIndex != 1)
+			secondaryObjIndex = 1;
 	}
 	
 	public static void enableFirstSecondaryObjective() {
-		secondaryObjIndex=0;
+		if (secondaryObjIndex != 0)
+			secondaryObjIndex = 0;
 	}
 
 	public static void reverseSecondaryObjective() {

@@ -129,8 +129,8 @@ public class TestClusterGenerator {
 		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
 			for (String callTreeClass : callGraph.getClasses()) {
 				try {
-					//TODO verify the correctness - mattia
 					if(callGraph.isCalledClass(callTreeClass)){
+						if(!Properties.INSTRUMENT_LIBRARIES && !DependencyAnalysis.isTargetProject(callTreeClass)) continue;
 						TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(callTreeClass);
 					}
 				} catch (ClassNotFoundException e) {
