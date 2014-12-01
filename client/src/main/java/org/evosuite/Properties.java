@@ -557,6 +557,9 @@ public class Properties {
 	// @SetValue(values = { "maxlength", "maxsize", "avglength", "none" })
 	public static String SECONDARY_OBJECTIVE = "totallength";
 
+	@Parameter(key = "enable_secondary_objectives_after", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
+	public static int ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;
+
 	/** Constant <code>BLOAT_FACTOR=2</code> */
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
 	public static int BLOAT_FACTOR = 2;
@@ -986,6 +989,15 @@ public class Properties {
 	@Parameter(key = "instrument_context", description = "Also instrument methods called from the SUT")
 	public static boolean INSTRUMENT_CONTEXT = false;
 
+	@Parameter(key = "callgraph_threads", description = "Number of threads used during the update of the callgraph")
+	public static int CALLGRAPH_THREADS = 8;
+	
+	@Parameter(key = "methods_per_thread", description = "Number of methods per threads used during the update of the callgraph")
+	public static int METHODS_PER_THREAD = 4000;
+	
+	@Parameter(key = "instrument_libraries", description = "Instrument the libraries used by the project under test")
+	public static boolean INSTRUMENT_LIBRARIES = false;
+	
 	/** Constant <code>BREAK_ON_EXCEPTION=true</code> */
 	@Parameter(key = "break_on_exception", description = "Stop test execution if exception occurrs")
 	public static boolean BREAK_ON_EXCEPTION = true;

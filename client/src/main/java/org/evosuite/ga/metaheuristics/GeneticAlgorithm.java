@@ -43,6 +43,7 @@ import org.evosuite.ga.populationlimit.PopulationLimit;
 import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.symbolic.DSEStats;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -130,7 +131,34 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		}
 		return false;		
 	}
+	
+	protected void disableSecondaryCriteria() {
+		if (TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
+				TestSuiteChromosome.disableFirstSecondaryObjective();
+			}
+	}
+	
+	protected void updateSecondaryCriteria() {
 
+		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
+				&& TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
+
+			long totalbudget = 0;
+			long currentbudget = 0;
+
+			for (StoppingCondition sc : stoppingConditions) {
+				if (sc.getLimit() != 0) {
+					totalbudget += sc.getLimit();
+					currentbudget += sc.getCurrentValue();
+				}
+			}
+			double progress = currentbudget * 100.0 / totalbudget;
+
+			if (progress > Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER) {
+				TestSuiteChromosome.enableFirstSecondaryObjective();
+			}
+		}
+	}
 	/**
 	 * Apply local search, starting from the best individual 
 	 * and continue applying it to all individuals until the
@@ -732,6 +760,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 */
 	public boolean isFinished() {
 		for (StoppingCondition c : stoppingConditions) {
+//			logger.error(c + " "+ c.getCurrentValue());
 			if (c.isFinished())
 				return true;
 		}

@@ -23,6 +23,9 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
  * @author Gordon Fraser, mattia
  * 
  */
+
+//TODO fix count goal, when a suite executes a branch only one time we should return 0.5 and not the distance. 
+
 public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = -4745892521350308986L;

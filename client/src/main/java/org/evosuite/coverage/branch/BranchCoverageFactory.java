@@ -24,6 +24,7 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlDependency;
+import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +93,7 @@ public class BranchCoverageFactory extends
 
 		// logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {
+				if(!Properties.INSTRUMENT_LIBRARIES && !DependencyAnalysis.isTargetProject(className)) continue;
 			final MethodNameMatcher matcher = new MethodNameMatcher();
 			// Branchless methods
 			for (String method : BranchPool.getBranchlessMethods(className)) {

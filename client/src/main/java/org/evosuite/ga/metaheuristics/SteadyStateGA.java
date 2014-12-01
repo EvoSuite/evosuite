@@ -21,18 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
-import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
-import org.evosuite.ga.IBranchSecondaryObjective;
 import org.evosuite.ga.ReplacementFunction;
-import org.evosuite.runtime.Random;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -212,12 +206,14 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		generateInitialPopulation(Properties.POPULATION);
 		logger.debug("Calculating fitness of initial population");
 		calculateFitnessAndSortPopulation();
+		
 		this.notifyIteration();
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
+		
 		if (population.isEmpty())
 			initializePopulation();
 
@@ -225,11 +221,13 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		double bestFitness = Double.MAX_VALUE;
 		if (getFitnessFunction().isMaximizationFunction())
 			bestFitness = 0.0;
-		int generations = 0;
+		if(Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER>0){
+			disableSecondaryCriteria();
+		}
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
-			updateSecondaryCriteria(generations);
-			generations++;
+			
+			updateSecondaryCriteria();
 
 			evolve();
 
@@ -257,17 +255,7 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		notifySearchFinished();
 	}
 
-	private void updateSecondaryCriteria(int generations){
-		//TODO work in progress
-//		if(generations==0){
-//			logger.error("disabled");
-//			TestSuiteChromosome.disableFirstSecondaryObjective();
-//		}
-//		if (generations==8000){
-//			logger.error("enabled");
-//			TestSuiteChromosome.enableFirstSecondaryObjective();
-//			}
-	}
+	
 	
 	private void retrieveBestSuiteFromArchives() {
 		for (FitnessFunction<T> f : fitnessFunctions) {
