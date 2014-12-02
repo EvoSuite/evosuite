@@ -253,7 +253,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 					result.test.addCoveredGoal(branchlessMethodCoverageMap.get(entry.getKey()));
 					bestChromoBuilder.putTest(branchlessMethodCoverageMap.get(entry.getKey()), result.test);
 					toRemoveRootBranches.add(entry.getKey());
-					suite.setToBeUpdated(true);
+					suite.isToBeUpdated(true);
 				}
 
 			}
@@ -283,7 +283,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 					result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
 					bestChromoBuilder.putTest(branchCoverageTrueMap.get(entry.getKey()), result.test);
 					toRemoveBranchesT.add(entry.getKey());
-					suite.setToBeUpdated(true);
+					suite.isToBeUpdated(true);
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
@@ -299,7 +299,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 					result.test.addCoveredGoal(branchCoverageFalseMap.get(entry.getKey()));
 					bestChromoBuilder.putTest(branchCoverageFalseMap.get(entry.getKey()), result.test);
 					toRemoveBranchesF.add(entry.getKey());
-					suite.setToBeUpdated(true);
+					suite.isToBeUpdated(true);
 				}
 			}
 		}
