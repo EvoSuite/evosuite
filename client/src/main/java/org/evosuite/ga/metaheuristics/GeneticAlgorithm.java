@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.Algorithm;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
@@ -607,7 +608,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
             return bestIndividuals;
         }
 
-        if (Properties.ALGORITHM == Properties.ALGORITHM.NSGAII)
+        if (Properties.ALGORITHM == Algorithm.NSGAII)
         	return population;
 
         // Assume population is sorted

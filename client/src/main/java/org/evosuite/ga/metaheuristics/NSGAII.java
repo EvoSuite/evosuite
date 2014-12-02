@@ -155,7 +155,7 @@ public class NSGAII<T extends Chromosome>
 			    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
 					fitnessFunction.getFitness(t);
 				}
-			    t.setToBeUpdated(false);
+			    t.isToBeUpdated(false);
 			}
 		}
 		//

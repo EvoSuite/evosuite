@@ -126,7 +126,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		return toBeUpdated;
 	}
 
-	public void setToBeUpdated(boolean toBeUpdated) {
+	public void isToBeUpdated(boolean toBeUpdated) {
 		this.toBeUpdated = toBeUpdated;
 	}
 

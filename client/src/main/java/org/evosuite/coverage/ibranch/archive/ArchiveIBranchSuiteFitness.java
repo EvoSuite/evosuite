@@ -41,14 +41,14 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 	private final List<IBranchTestFitness> branchGoals;
 
 	private int totGoals;
-	
+
 	private final Map<Integer, Map<CallContext, Set<IBranchTestFitness>>> goalsMap;
 
 	private final Map<String, Map<CallContext, Set<IBranchTestFitness>>> methodsMap;
 
-//	private final StoredTestPool savedTests;
+	// private final StoredTestPool savedTests;
 	private final TestsArchive bestChromoBuilder;
-	
+
 	private final Set<IBranchTestFitness> toRemoveBranchesT = new HashSet<>();
 	private final Set<IBranchTestFitness> toRemoveBranchesF = new HashSet<>();
 	private final Set<IBranchTestFitness> toRemoveRootBranches = new HashSet<>();
@@ -64,7 +64,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 		IBranchFitnessFactory factory = new IBranchFitnessFactory();
 		branchGoals = factory.getCoverageGoals();
 		countGoals(branchGoals);
-	
+
 		for (IBranchTestFitness goal : branchGoals) {
 			if (goal.getBranchGoal() != null && goal.getBranchGoal().getBranch() != null) {
 				int branchId = goal.getBranchGoal().getBranch().getActualBranchId();
@@ -95,7 +95,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 		}
 		totGoals = branchGoals.size();
 	}
-	
+
 	public ArchiveIBranchSuiteFitness(TestsArchive bestChromoBuilder) {
 		this.bestChromoBuilder = bestChromoBuilder;
 		goalsMap = new HashMap<>();
@@ -103,7 +103,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 		IBranchFitnessFactory factory = new IBranchFitnessFactory();
 		branchGoals = factory.getCoverageGoals();
 		countGoals(branchGoals);
-	
+
 		for (IBranchTestFitness goal : branchGoals) {
 			if (goal.getBranchGoal() != null && goal.getBranchGoal().getBranch() != null) {
 				int branchId = goal.getBranchGoal().getBranch().getActualBranchId();
@@ -151,24 +151,29 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 		}
 		ClientServices.getInstance().getClientNode()
 				.trackOutputVariable(RuntimeVariable.IBranchInitialGoals, totalGoals);
-		ClientServices.getInstance().getClientNode()
-				.trackOutputVariable(RuntimeVariable.IBranchInitialGoalsInTargetClass, goalsInTarget);
+		ClientServices
+				.getInstance()
+				.getClientNode()
+				.trackOutputVariable(RuntimeVariable.IBranchInitialGoalsInTargetClass,
+						goalsInTarget);
 
 	}
 
-	private Map<IBranchTestFitness, Double> getDefaultDistanceMap() {
-		Map<IBranchTestFitness, Double> distanceMap = new HashMap<IBranchTestFitness, Double>();
-		for (IBranchTestFitness goal : branchGoals)
-			distanceMap.put(goal, 1.0);
-		return distanceMap;
-	}
-
-	private Map<IBranchTestFitness, Integer> getDefaultCallCountMap() {
-		Map<IBranchTestFitness, Integer> distanceMap = new HashMap<IBranchTestFitness, Integer>();
-		for (IBranchTestFitness goal : branchGoals)
-			distanceMap.put(goal, 0);
-		return distanceMap;
-	}
+	// private Map<IBranchTestFitness, Double> getDefaultDistanceMap() {
+	// Map<IBranchTestFitness, Double> distanceMap = new
+	// HashMap<IBranchTestFitness, Double>();
+	// for (IBranchTestFitness goal : branchGoals)
+	// distanceMap.put(goal, 1.0);
+	// return distanceMap;
+	// }
+	//
+	// private Map<IBranchTestFitness, Integer> getDefaultCallCountMap() {
+	// Map<IBranchTestFitness, Integer> distanceMap = new
+	// HashMap<IBranchTestFitness, Integer>();
+	// for (IBranchTestFitness goal : branchGoals)
+	// distanceMap.put(goal, 0);
+	// return distanceMap;
+	// }
 
 	private IBranchTestFitness getContextGoal(String classAndMethodName, CallContext context) {
 		if (methodsMap.get(classAndMethodName) == null)
@@ -195,8 +200,8 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 		}
 		return null;
 	}
-	
-	public TestSuiteChromosome getBestStoredIndividual(){
+
+	public TestSuiteChromosome getBestStoredIndividual() {
 		return bestChromoBuilder.getBestChromosome();
 	}
 
@@ -210,86 +215,70 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		double fitness = 0.0; // branchFitness.getFitness(suite);
 		List<ExecutionResult> results = runTestSuite(suite);
-		Map<IBranchTestFitness, Double> distanceMap = getDefaultDistanceMap();
 
-		Map<IBranchTestFitness, Integer> callCount = getDefaultCallCountMap();
+		Map<IBranchTestFitness, Double> distanceMap = new HashMap<>();
+		Map<IBranchTestFitness, Integer> callCount = new HashMap<>();
 
 		for (ExecutionResult result : results) {
-			for (Entry<Integer, Map<CallContext, Double>> entry : result.getTrace()
-					.getTrueDistancesContext().entrySet()) {
-				for (Entry<CallContext, Double> value : entry.getValue().entrySet()) {
 
-					IBranchTestFitness goal = getContextGoal(entry.getKey(), value.getKey(), true);
-					if (goal == null || removedBranchesT.contains(goal))
+			for (Integer branchId : result.getTrace().getTrueDistancesContext().keySet()) {
+				Map<CallContext, Double> trueMap = result.getTrace().getTrueDistancesContext()
+						.get(branchId);
+
+				for (CallContext context : trueMap.keySet()) {
+					IBranchTestFitness goalT = getContextGoal(branchId, context, true);
+					if (goalT == null || removedBranchesT.contains(goalT))
 						continue;
-					double distance = normalize(value.getValue());
-					if (distanceMap.get(goal) > distance) {
-						distanceMap.put(goal, distance);
+					double distanceT = normalize(trueMap.get(context));
+					if (distanceMap.get(goalT) == null || distanceMap.get(goalT) > distanceT) {
+						distanceMap.put(goalT, distanceT);
 					}
-					if (Double.compare(distance, 0.0) == 0) {
-						result.test.addCoveredGoal(goal);
-						bestChromoBuilder.putTest(goal, result.test);
-						toRemoveBranchesT.add(goal);
-						suite.setToBeUpdated(true);
-					}
-				}
-			}
-			for (Entry<Integer, Map<CallContext, Double>> entry : result.getTrace()
-					.getFalseDistancesContext().entrySet()) {
-				for (Entry<CallContext, Double> value : entry.getValue().entrySet()) {
-					IBranchTestFitness goal = getContextGoal(entry.getKey(), value.getKey(), false);
-					if (goal == null || removedBranchesF.contains(goal))
-						continue;
-					double distance = normalize(value.getValue());
-					if (distanceMap.get(goal) > distance) {
-						distanceMap.put(goal, distance);
-					}
-					if (Double.compare(distance, 0.0) == 0) {
-						result.test.addCoveredGoal(goal);
-						bestChromoBuilder.putTest(goal, result.test);
-						toRemoveBranchesF.add(goal);
-						suite.setToBeUpdated(true);
+					if (Double.compare(distanceT, 0.0) == 0) {
+						result.test.addCoveredGoal(goalT);
+						bestChromoBuilder.putTest(goalT, result.test);
+						toRemoveBranchesT.add(goalT);
+						suite.isToBeUpdated(true);
 					}
 				}
 			}
 
-//			// Determine maximum execution count for each branch in each context
-//			for (Entry<Integer, Map<CallContext, Integer>> entry : result.getTrace()
-//					.getPredicateContextExecutionCount().entrySet()) {
-//				for (Entry<CallContext, Integer> value : entry.getValue().entrySet()) {
-//					IBranchTestFitness goalT = getContextGoal(entry.getKey(), value.getKey(), true);
-//					IBranchTestFitness goalF = getContextGoal(entry.getKey(), value.getKey(), false);
-//
-//					if (goalT != null || removedBranchesT.contains(goalT)) {
-//						int countT = value.getValue();
-//						if (callCount.get(goalT) < countT) {
-//							callCount.put(goalT, countT);
-//						}
-//					}
-//					if (goalF != null || removedBranchesT.contains(goalF)) {
-//						int countF = value.getValue();
-//						if (callCount.get(goalF) < countF) {
-//							callCount.put(goalF, countF);
-//						}
-//					}
-//				}
-//			}
+			for (Integer branchId : result.getTrace().getFalseDistancesContext().keySet()) {
+
+				Map<CallContext, Double> falseMap = result.getTrace().getFalseDistancesContext()
+						.get(branchId);
+
+				for (CallContext context : falseMap.keySet()) {
+					IBranchTestFitness goalF = getContextGoal(branchId, context, false);
+					if (goalF == null || removedBranchesF.contains(goalF))
+						continue;
+					double distanceF = normalize(falseMap.get(context));
+					if (distanceMap.get(goalF) == null || distanceMap.get(goalF) > distanceF) {
+						distanceMap.put(goalF, distanceF);
+					}
+					if (Double.compare(distanceF, 0.0) == 0) {
+						result.test.addCoveredGoal(goalF);
+						bestChromoBuilder.putTest(goalF, result.test);
+						toRemoveBranchesF.add(goalF);
+						suite.isToBeUpdated(true);
+					}
+				}
+			}
+
 			for (Entry<String, Map<CallContext, Integer>> entry : result.getTrace()
 					.getMethodContextCount().entrySet()) {
 				for (Entry<CallContext, Integer> value : entry.getValue().entrySet()) {
 					IBranchTestFitness goal = getContextGoal(entry.getKey(), value.getKey());
 					if (goal == null || removedRootBranches.contains(goal))
 						continue;
-
 					int count = value.getValue();
-					if (callCount.get(goal) < count) {
+					if (callCount.get(goal) == null || callCount.get(goal) < count) {
 						callCount.put(goal, count);
 					}
 					if (count > 0) {
 						result.test.addCoveredGoal(goal);
 						bestChromoBuilder.putTest(goal, result.test);
 						toRemoveRootBranches.add(goal);
-						suite.setToBeUpdated(true);
+						suite.isToBeUpdated(true);
 					}
 				}
 			}
@@ -297,11 +286,13 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 		int numCoveredGoals = 0;
 		for (IBranchTestFitness goal : branchGoals) {
-			double distance = distanceMap.get(goal);
-			int count = callCount.get(goal);
+			Double distance = distanceMap.get(goal);
+			if (distance == null)
+				distance = 1.0;
 
 			if (goal.getBranch() == null) {
-				if (count == 0) {
+				Integer count = callCount.get(goal);
+				if (count == null || count == 0) {
 					fitness += 1;
 				} else {
 					numCoveredGoals++;
@@ -311,33 +302,18 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 					numCoveredGoals++;
 				}
 				fitness += distance;
-//				if (count > 0 && distance == 0.0) {
-//					numCoveredGoals++;
-//				}
-//				if (count == 0)
-//					fitness += 1;
-//				else
-//					fitness += distance;
-
-				// if (count == 1)
-				// fitness += 0.5;
-				// else if (count > 1)
-				// fitness += distance;
-				// else
-				// fitness += 1;
 			}
 		}
 		numCoveredGoals += removedBranchesF.size();
 		numCoveredGoals += removedBranchesT.size();
 		numCoveredGoals += removedRootBranches.size();
 
-		if (totGoals>0) {
+		if (totGoals > 0) {
 			suite.setCoverage(this, (double) numCoveredGoals / (double) totGoals);
 		}
 		suite.setNumOfCoveredGoals(this, numCoveredGoals);
-		suite.setNumOfNotCoveredGoals(this, totGoals-numCoveredGoals);
+		suite.setNumOfNotCoveredGoals(this, totGoals - numCoveredGoals);
 		updateIndividual(this, suite, fitness);
-
 		return fitness;
 	}
 
@@ -355,11 +331,12 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 		for (IBranchTestFitness method : toRemoveRootBranches) {
 			boolean removed = branchGoals.remove(method);
-			Map<CallContext, Set<IBranchTestFitness>> map = methodsMap.get(method.getTargetClass()+"."+method.getTargetMethod());
+			Map<CallContext, Set<IBranchTestFitness>> map = methodsMap.get(method.getTargetClass()
+					+ "." + method.getTargetMethod());
 			Set<IBranchTestFitness> set = map.get(method.getContext());
 			boolean f = set.remove(method);
-			
-			if (removed && f) { 
+
+			if (removed && f) {
 				removedRootBranches.add(method);
 			} else {
 				throw new IllegalStateException("goal to remove not found");
@@ -368,24 +345,26 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 		for (IBranchTestFitness branch : toRemoveBranchesT) {
 			boolean removed = branchGoals.remove(branch);
-			Map<CallContext, Set<IBranchTestFitness>> map = goalsMap.get(branch.getBranch().getActualBranchId());
+			Map<CallContext, Set<IBranchTestFitness>> map = goalsMap.get(branch.getBranch()
+					.getActualBranchId());
 			Set<IBranchTestFitness> set = map.get(branch.getContext());
 			boolean f = set.remove(branch);
-			
-			if (removed && f) {  
-				removedBranchesT.add(branch); 
+
+			if (removed && f) {
+				removedBranchesT.add(branch);
 			} else {
 				throw new IllegalStateException("goal to remove not found");
 			}
 		}
 		for (IBranchTestFitness branch : toRemoveBranchesF) {
 			boolean removed = branchGoals.remove(branch);
-			Map<CallContext, Set<IBranchTestFitness>> map = goalsMap.get(branch.getBranch().getActualBranchId());
+			Map<CallContext, Set<IBranchTestFitness>> map = goalsMap.get(branch.getBranch()
+					.getActualBranchId());
 			Set<IBranchTestFitness> set = map.get(branch.getContext());
 			boolean f = set.remove(branch);
-			
-			if (removed && f) {  
-				removedBranchesF.add(branch); 
+
+			if (removed && f) {
+				removedBranchesF.add(branch);
 			} else {
 				throw new IllegalStateException("goal to remove not found");
 			}
@@ -394,7 +373,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 		toRemoveRootBranches.clear();
 		toRemoveBranchesF.clear();
 		toRemoveBranchesT.clear();
-		
+
 		return true;
 	}
 

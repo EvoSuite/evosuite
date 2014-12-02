@@ -182,7 +182,7 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 				for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
 					fitnessFunction.getFitness(t);
 				}
-				t.setToBeUpdated(false);
+				t.isToBeUpdated(false);
 			}
 		}
 		currentIteration++;

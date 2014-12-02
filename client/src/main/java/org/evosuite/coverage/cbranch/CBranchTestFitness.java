@@ -47,6 +47,14 @@ public class CBranchTestFitness extends TestFitnessFunction {
 		return branchGoal;
 	}
 	
+	public int getGenericContextBranchIdentifier(){
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (branchGoal == null ? 0 : branchGoal.hashCodeWithoutValue());
+		result = prime * result + (context == null ? 0 : context.hashCode());
+		return result;
+	}
+	
 	private double getMethodCallDistance(ExecutionResult result) {
 		String key = branchGoal.getClassName() + "." + branchGoal.getMethodName();
 		if (!result.getTrace().getMethodContextCount().containsKey(key)) {

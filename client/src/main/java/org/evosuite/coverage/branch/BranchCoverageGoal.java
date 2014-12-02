@@ -212,14 +212,26 @@ public class BranchCoverageGoal implements Serializable, Comparable<BranchCovera
 	 */
 	public ControlFlowDistance getDistance(ExecutionResult result) {
 
-		ControlFlowDistance r = ControlFlowDistanceCalculator.getDistance(result, branch,
-		                                                                  value,
-		                                                                  className,
-		                                                                  methodName);
-
+		ControlFlowDistance r = ControlFlowDistanceCalculator.getDistance(result, branch, value,
+				className, methodName);
 		return r;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public int hashCodeWithoutValue() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (branch == null ? 0 : branch.getActualBranchId());
+		result = prime * result
+		        + (branch == null ? 0 : branch.getInstruction().getInstructionId());
+		result = prime * result + className.hashCode();
+		result = prime * result + methodName.hashCode();
+		return result;
+	}
+	
 	// inherited from Object
 
 	/**
