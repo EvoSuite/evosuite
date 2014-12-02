@@ -3,6 +3,7 @@ package org.evosuite.runtime.agent;
 import com.examples.with.different.packagename.agent.StartThreads;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.thread.KillSwitchHandler;
 import org.evosuite.runtime.thread.ThreadStopper;
@@ -28,6 +29,7 @@ public class InstrumentingAgent_threadIT {
 	public void storeValues() {
 		KillSwitchHandler.getInstance().setKillSwitch(false);
 		RuntimeSettings.mockJVMNonDeterminism = true;
+        MethodCallReplacementCache.resetSingleton();
 		Runtime.getInstance().resetRuntime();
 	}
 

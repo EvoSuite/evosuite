@@ -20,15 +20,18 @@ package org.evosuite.eclipse.popup.actions;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -36,6 +39,7 @@ import java.util.Vector;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -43,12 +47,18 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -77,6 +87,7 @@ import org.evosuite.rmi.service.MasterNodeLocal;
 public class TestGenerationJob extends Job {
 
 	protected final String targetClass;
+	protected final String testClass;
 
 	protected final IResource target;
 
@@ -89,35 +100,82 @@ public class TestGenerationJob extends Job {
 
 	protected String lastTest = "";
 	protected static final double SEED_CHANCE = 0.2;
-	
+	protected final String ENCODING = "UTF-8";
+	protected String classPath;	
 	protected final Map<String, Double> coverage = null;
 
 	public TestGenerationJob(Shell shell, final IResource target, String targetClass) {
+		this(shell, target, targetClass, null);
+	}
+	
+	public TestGenerationJob(Shell shell, final IResource target, String targetClass, String testClass) {
 		super("EvoSuite Test Generation: " + targetClass);
 		this.targetClass = targetClass;
+		if (testClass == null || testClass.isEmpty()) {
+			String tmp = targetClass.replace('.', File.separatorChar);
+			testClass = new String(target.getProject().getLocation() + "/evosuite-tests/" + tmp +
+					Properties.JUNIT_SUFFIX + ".java");
+		}
+		this.testClass = testClass;
 		this.target = target;
 		this.shell = shell;
+		IJavaProject jProject = JavaCore.create(target.getProject());
+		try {
+			classPath = target.getWorkspace().getRoot().findMember(jProject.getOutputLocation()).getLocation().toOSString();
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+			classPath = "";
+		}
 	}
 
 	@Override
 	protected IStatus run(final IProgressMonitor monitor) {
 		String disabled = System.getProperty("disable.evosuite");
 		if ( disabled != null && disabled.equals("1")) {
-			System.out.println("RoamingJob: disabled.evosuite = 1");
+			System.out.println("TestGenerationJob: disabled.evosuite = 1");
 			return Status.OK_STATUS;
 		}
+
+		// Check that all markers have been cleared 
+		try {
+			final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(testClass));
+			IMarker[] markers = file.findMarkers("EvoSuiteQuickFixes.notcoveredmarker", true, 2);
+			if ( file != null && file.exists() && markers.length > 0) {
+				System.out.println("Markers in TestSuite, can't generate tests");
+				Display.getDefault().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						MessageDialog dialog = new MessageDialog(
+						        shell,
+						        "JUnit test suite contains marked test cases",
+						        null, // image
+						        "The JUnit test suite \""
+						                + testClass
+						                + "\" contains marked test cases. Please review them and clear all markers before running EvoSuite again.",
+						        MessageDialog.OK, new String[] { "Ok" }, 0);
+						dialog.open();
+					}
+					
+				});
+				return Status.OK_STATUS;
+			}
+		} catch (CoreException e1) {
+			e1.printStackTrace();
+		}
+
 		
 		setThread(new Thread());
 		running = true;
 		
 		clearMarkersTarget();
-		
+
 		String oldTgr = getOldTestGenerationResult();
 		lastTest = oldTgr;
 		
 		ArrayList<TestGenerationResult> results = runEvoSuite(monitor);
 
 		writeMarkersTarget(results);
+		writeMarkersTestSuite();
 		try {
 			target.getProject().refreshLocal(IProject.DEPTH_INFINITE, null);
 			if ("true".equals(target.getProject().getPersistentProperty(
@@ -319,7 +377,6 @@ public class TestGenerationJob extends Job {
 
 	private ArrayList<TestGenerationResult> launchProcess(String[] evoSuiteOptions) throws IOException {
 		EvoSuite evosuite = new EvoSuite();
-		//		evosuite.parseCommandLine(command);
 
 		Vector<String> javaCmd = new Vector<String>();
 		// javaCmd.add("java");
@@ -413,7 +470,8 @@ public class TestGenerationJob extends Job {
 				"-Dsearch_budget=" + time, 
 				"-Dassertion_timeout=" + time, 
 				"-Dpure_inspectors=true", 
-				"-Dnew_statistics=false" 
+				"-Dnew_statistics=false",
+				"-Declipse_plugin=true"
 				// "-Dsandbox_mode=IO",
 				// "-Djava.rmi.server.codebase=file:///Remote/evosuite-0.1-SNAPSHOT-jar-minimal.jar"
 				}));
@@ -677,7 +735,7 @@ public class TestGenerationJob extends Job {
 	protected void writeMarkersTarget(ArrayList<TestGenerationResult> results) {
 		clearMarkersTarget();
 		if (Activator.markersEnabled()) {
-			System.out.println("**********  Writing markers");
+			System.out.println("**********  Writing markers in target class " + targetClass);
 			for (TestGenerationResult result : results) {
 				// any lines covered?
 				if (result.getCoveredLines().size() > 0) {
@@ -689,6 +747,87 @@ public class TestGenerationJob extends Job {
 			}
 		} else
 			System.out.println("**********  Markers are disabled");
+	}
+
+	protected void writeMarkersTestSuite() {
+		System.out.println("**********  Writing markers in test suite" + testClass);
+		String fileContents = readFileToString(testClass);
+		
+		
+		ASTParser parser = ASTParser.newParser(AST.JLS4);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setStatementsRecovery(true);
+		
+		Map<String, String> COMPILER_OPTIONS = new HashMap<String, String>(JavaCore.getOptions());
+		 COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+		    COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+		    COMPILER_OPTIONS.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
+		
+		parser.setUnitName(testClass);
+		String[] encodings = { ENCODING };
+		String[] classpaths = { classPath };
+		String[] sources = { new File(testClass).getParent() };
+		parser.setEnvironment(classpaths, sources, encodings, true);
+		parser.setSource(fileContents.toCharArray());
+		
+		CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+		MethodExtractingVisitor visitor = new MethodExtractingVisitor();
+		compilationUnit.accept(visitor);
+		List<MethodDeclaration> methods = visitor.getMethods();
+
+		final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(testClass));
+		
+		Display.getDefault().syncExec(new Runnable() {
+		    @Override
+		    public void run() {
+		        IWorkbenchWindow iw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		        IWorkbenchPage page = iw.getActivePage();
+		        try {
+					IDE.openEditor(page, file, true);
+				} catch (PartInitException e1) {
+					System.out.println("Could not open test suite");
+					e1.printStackTrace();
+				}
+		    }
+		});
+		
+		
+		
+		for (MethodDeclaration m : methods) {
+			int lineNumber = compilationUnit.getLineNumber(m.getStartPosition());
+			try {
+				IMarker mark = file.createMarker("EvoSuiteQuickFixes.notcoveredmarker");
+				mark.setAttribute(IMarker.MESSAGE, "This test case needs to be observed.");
+				mark.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+				mark.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+				mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+				mark.setAttribute(IMarker.LOCATION, file.getName());
+				mark.setAttribute(IMarker.CHAR_START, m.getStartPosition());
+				mark.setAttribute(IMarker.CHAR_END, compilationUnit.getPosition(lineNumber + 1, 0));
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	public static String readFileToString(String fileName) {
+		StringBuilder content = new StringBuilder();
+		try {
+			Reader reader = new InputStreamReader(
+					new FileInputStream(fileName), "utf-8");
+			BufferedReader in = new BufferedReader(reader);
+			try {
+				String str;
+				while ((str = in.readLine()) != null) {
+					content.append(str); content.append("\n");
+				}
+			} finally {
+				in.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return content.toString();
 	}
 
 	public boolean isRunning() {

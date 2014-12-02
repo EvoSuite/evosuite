@@ -17,7 +17,10 @@
  */
 package org.evosuite.coverage.line;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
+import java.util.List;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -36,6 +39,7 @@ import com.examples.with.different.packagename.FlagExample3;
 import com.examples.with.different.packagename.IntExample;
 import com.examples.with.different.packagename.SingleMethod;
 import com.examples.with.different.packagename.coverage.IntExampleWithNoElse;
+import com.examples.with.different.packagename.staticfield.StaticFoo;
 
 /**
  * @author Jose Miguel Rojas
@@ -148,5 +152,57 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(5, goals );
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void testListOfGoalsWith_RESET_STATIC_FIELDS_enable()
+	{
+		String targetClass = StaticFoo.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		Properties.RESET_STATIC_FIELDS = true;
+
+		EvoSuite evosuite = new EvoSuite();
+
+		String[] command = new String[] {
+				"-printStats",
+				"-class", targetClass
+		};
+
+		evosuite.parseCommandLine(command);
+
+		LineCoverageFactory rc = new LineCoverageFactory();
+
+		List<LineCoverageTestFitness> goals = rc.getCoverageGoals();
+		for (LineCoverageTestFitness goal : goals)
+			System.out.println(goal);
+
+		assertEquals(goals.size(), 8);
+	}
+
+	@Test
+	public void testListOfGoalsWith_RESET_STATIC_FIELDS_disable()
+	{
+		String targetClass = StaticFoo.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		Properties.RESET_STATIC_FIELDS = false;
+
+		EvoSuite evosuite = new EvoSuite();
+
+		String[] command = new String[] {
+				"-printStats",
+				"-class", targetClass
+		};
+
+		evosuite.parseCommandLine(command);
+
+		LineCoverageFactory rc = new LineCoverageFactory();
+
+		List<LineCoverageTestFitness> goals = rc.getCoverageGoals();
+		for (LineCoverageTestFitness goal : goals)
+			System.out.println(goal);
+
+		assertEquals(goals.size(), 8);
 	}
 }
