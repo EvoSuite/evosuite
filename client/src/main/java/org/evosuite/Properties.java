@@ -370,7 +370,7 @@ public class Properties {
 	public static boolean DSE_KEEP_ALL_TESTS = false;
 
 	public enum SolverType {
-		EVOSUITE_SOLVER, Z3_SOLVER, Z3_STR_SOLVER;
+		EVOSUITE_SOLVER, Z3_SOLVER, Z3_STR_SOLVER, CVC4_SOLVER;
 	}
 
 	@Parameter(key = "z3_path", group = "Solver", description = "Indicates the path to the Z3 solver")
@@ -378,6 +378,9 @@ public class Properties {
 
 	@Parameter(key = "z3_str_path", group = "Solver", description = "Indicates the path to the Z3-Str solver")
 	public static String Z3_STR_PATH = null;
+
+	@Parameter(key = "cvc4_path", group = "Solver", description = "Indicates the path to the CVC4 solver")
+	public static String CVC4_PATH = null;
 
 	public static SolverType DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
 
@@ -1291,6 +1294,13 @@ public class Properties {
 	/** Constant <code>SOURCEPATH="new String[] {  }"</code> */
 	@Parameter(key = "sourcepath", group = "Test Seeding", description = "The path to the test case source.")
 	public static String[] SOURCEPATH = new String[] { "" };
+
+	// ---------------------------------------------------------------
+	// Eclipse Plug-in flag
+
+	/** Constant <code>ECLIPSE_PLUGIN=false</code> */
+	@Parameter(key = "eclipse_plugin", group = "Plugin", description = "Running plugin")
+	public static boolean ECLIPSE_PLUGIN = false;
 
 	/**
 	 * Get all parameters that are available

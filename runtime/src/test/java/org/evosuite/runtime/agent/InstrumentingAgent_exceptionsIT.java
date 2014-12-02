@@ -2,6 +2,7 @@ package org.evosuite.runtime.agent;
 
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.lang.MockThrowable;
@@ -30,6 +31,7 @@ public class InstrumentingAgent_exceptionsIT {
 	@Before
 	public void storeValues() {
 		RuntimeSettings.mockJVMNonDeterminism = true;
+        MethodCallReplacementCache.resetSingleton();
 		Runtime.getInstance().resetRuntime();
 	}
 

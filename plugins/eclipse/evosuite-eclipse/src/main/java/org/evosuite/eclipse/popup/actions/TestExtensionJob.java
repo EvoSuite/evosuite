@@ -35,29 +35,14 @@ import org.evosuite.utils.Utils;
 
 public class TestExtensionJob extends TestGenerationJob {
 
-	private final String testClass;
-
-	private final String ENCODING = "UTF-8";
-
-	private String classPath;
-
 	private File tempDir;
 
 	public TestExtensionJob(Shell shell, final IResource target, String targetClass,
 	        String testClass) {
-		super(shell, target, targetClass);
-		this.testClass = testClass;
-		IJavaProject jProject = JavaCore.create(target.getProject());
+		super(shell, target, targetClass, testClass);
 		try {
-			classPath = target.getWorkspace().getRoot().findMember(jProject.getOutputLocation()).getLocation().toOSString();
 			tempDir = setupTempDir();
-		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			classPath = "";
-			tempDir = new File("/tmp");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			tempDir = new File("/tmp");
 		}
@@ -79,19 +64,11 @@ public class TestExtensionJob extends TestGenerationJob {
 		//parser.setResolveBindings(true);
 		//parser.setBindingsRecovery(true);
 		parser.setUnitName(unitName);
-		//@SuppressWarnings("unchecked")
-		//Hashtable<String, String> options = JavaCore.getDefaultOptions();
-		//options.put(JavaCore.COMPILER_SOURCE, SOURCE_JAVA_VERSION);
-		//parser.setCompilerOptions(options);
-		String[] encodings = new String[1];
-		encodings[0] = ENCODING;
-		String[] classpath = new String[1];
-		classpath[0] = classPath;
-		String[] sources = new String[1];
-		File sourceFile = new File(fileName);
-		sources[0] = sourceFile.getParent();
-		//parser.setEnvironment(classpath, sources, encodings, true);
-		parser.setSource(fileContents.toCharArray());
+		String[] encodings = { ENCODING };
+		String[] classpaths = { classPath };
+		String[] sources = { new File(testClass).getParent() };
+		parser.setEnvironment(classpaths, sources, encodings, true);
+		parser.setSource(fileContents.toCharArray());		
 		CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
 		Set<String> problems = new HashSet<String>();
 		for (IProblem problem : compilationUnit.getProblems()) {
@@ -129,10 +106,7 @@ public class TestExtensionJob extends TestGenerationJob {
 	}
 
 	protected File setupTempDir() throws IOException {
-		File temp;
-
-		temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
-
+		File temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
 		if (!(temp.delete())) {
 			throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
 		}

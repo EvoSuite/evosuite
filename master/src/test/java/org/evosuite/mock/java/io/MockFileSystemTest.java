@@ -85,7 +85,7 @@ public class MockFileSystemTest extends SystemTest {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.SEARCH_BUDGET = 20000;
 		Properties.VIRTUAL_FS = true;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
