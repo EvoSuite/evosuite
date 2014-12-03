@@ -204,6 +204,19 @@ public class Z3Solver extends Solver {
 		return z3Function;
 	}
 
+	private static final class TimeoutTask extends TimerTask {
+		private final Process process;
+
+		private TimeoutTask(Process process) {
+			this.process = process;
+		}
+
+		@Override
+		public void run() {
+			process.destroy();
+		}
+	}
+
 	private static class Z3Function {
 		public Z3Function(String fd) {
 			this.functionDeclaration = fd;
@@ -241,13 +254,7 @@ public class Z3Solver extends Solver {
 		logger.debug("Process output:");
 
 		Timer t = new Timer();
-		t.schedule(new TimerTask() {
-
-			@Override
-			public void run() {
-				process.destroy();
-			}
-		}, timeout);
+		t.schedule(new TimeoutTask(process), timeout);
 
 		do {
 			readInputStream(stdout, outputStream);

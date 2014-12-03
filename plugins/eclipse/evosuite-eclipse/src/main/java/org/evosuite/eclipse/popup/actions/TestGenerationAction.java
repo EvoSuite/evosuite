@@ -135,13 +135,13 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 
 		String tmp = targetClass.replace('.', File.separatorChar);
 
-		String targetPath = target.getProject().getLocation() + "/evosuite-tests/" + tmp +
+		String testSuiteFileName = target.getProject().getLocation() + "/evosuite-tests/" + tmp +
 		        //+ tmp.substring(0, tmp.lastIndexOf(File.separator) + 1) 
 		        //+ tmp.substring(tmp.lastIndexOf(File.separator) + 1) + 
 				Properties.JUNIT_SUFFIX + ".java";
-		System.out.println("Checking for " + targetPath);
-		File testSuite = new File(targetPath);
-		if (testSuite.exists()) {
+		System.out.println("Checking for " + testSuiteFileName);
+		File testSuiteFile = new File(testSuiteFileName);
+		if (testSuiteFile.exists()) {
 
 			MessageDialog dialog = new MessageDialog(
 			        shell,
@@ -163,7 +163,7 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 			}
 		}
 
-		Job job = new TestGenerationJob(shell, target, targetClass);
+		Job job = new TestGenerationJob(shell, target, targetClass, testSuiteFileName);
 		job.setPriority(Job.SHORT);
 		IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
 		ISchedulingRule rule = ruleFactory.createRule(target.getProject());
