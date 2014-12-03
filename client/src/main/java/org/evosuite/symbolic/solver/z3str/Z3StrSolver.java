@@ -32,6 +32,19 @@ import org.slf4j.LoggerFactory;
 
 public class Z3StrSolver extends Solver {
 
+	private static final class TimeoutTask extends TimerTask {
+		private final Process process;
+
+		private TimeoutTask(Process process) {
+			this.process = process;
+		}
+
+		@Override
+		public void run() {
+			process.destroy();
+		}
+	}
+
 	private static final String EVOSUITE_Z3_STR_FILENAME = "evosuite.z3";
 
 	static Logger logger = LoggerFactory.getLogger(Z3Solver.class);
@@ -64,59 +77,11 @@ public class Z3StrSolver extends Solver {
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
 			throws ConstraintSolverTimeoutException {
 
-		StringBuffer buff = new StringBuffer();
-
 		Set<Variable<?>> variables = getVariables(constraints);
 
-		for (Variable<?> v : variables) {
-			String varName = v.getName();
-			if (v instanceof IntegerVariable) {
-				String intVar = Z3StrExprBuilder.mkIntVariable(varName);
-				buff.append(intVar);
-				buff.append("\n");
-			} else if (v instanceof RealVariable) {
-				String realVar = Z3StrExprBuilder.mkRealVariable(varName);
-				buff.append(realVar);
-				buff.append("\n");
-			} else if (v instanceof StringVariable) {
-				String stringVar = Z3StrExprBuilder.mkStringVariable(varName);
-				buff.append(stringVar);
-				buff.append("\n");
-			} else {
-				throw new RuntimeException("Unknown variable type "
-						+ v.getClass().getCanonicalName());
-			}
-		}
-
-		ConstraintToZ3StrVisitor v = new ConstraintToZ3StrVisitor();
-		List<String> z3StrAssertions = new LinkedList<String>();
-		for (Constraint<?> c : constraints) {
-			String constraintStr = c.accept(v, null);
-			if (constraintStr != null) {
-				String z3Assert = Z3StrExprBuilder.mkAssert(constraintStr);
-				z3StrAssertions.add(z3Assert);
-			}
-		}
-
-		Set<String> stringConstants = v.getStringConstants();
-		for (String string : stringConstants) {
-			String encodedStringConstant = Z3StrExprBuilder.encodeString(string);
-			String constDecl = Z3StrExprBuilder
-					.mkStringVariable(encodedStringConstant);
-			buff.append(constDecl);
-			buff.append("\n");
-		}
-
-		for (String z3StrAssertion : z3StrAssertions) {
-			buff.append(z3StrAssertion);
-			buff.append("\n");
-		}
-
-		buff.append("(check-sat)");
-		buff.append("\n");
+		String smtQuery = buildSmtQuery(constraints, variables);
 
 		System.out.println("Z3 input:");
-		String smtQuery = buff.toString();
 		System.out.println(smtQuery);
 
 		int timeout = (int) Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
@@ -169,6 +134,60 @@ public class Z3StrSolver extends Solver {
 		}
 	}
 
+	private String buildSmtQuery(Collection<Constraint<?>> constraints,
+			Set<Variable<?>> variables) {
+		StringBuffer buff = new StringBuffer();
+		for (Variable<?> v : variables) {
+			String varName = v.getName();
+			if (v instanceof IntegerVariable) {
+				String intVar = Z3StrExprBuilder.mkIntVariable(varName);
+				buff.append(intVar);
+				buff.append("\n");
+			} else if (v instanceof RealVariable) {
+				String realVar = Z3StrExprBuilder.mkRealVariable(varName);
+				buff.append(realVar);
+				buff.append("\n");
+			} else if (v instanceof StringVariable) {
+				String stringVar = Z3StrExprBuilder.mkStringVariable(varName);
+				buff.append(stringVar);
+				buff.append("\n");
+			} else {
+				throw new RuntimeException("Unknown variable type "
+						+ v.getClass().getCanonicalName());
+			}
+		}
+
+		ConstraintToZ3StrVisitor v = new ConstraintToZ3StrVisitor();
+		List<String> z3StrAssertions = new LinkedList<String>();
+		for (Constraint<?> c : constraints) {
+			String constraintStr = c.accept(v, null);
+			if (constraintStr != null) {
+				String z3Assert = Z3StrExprBuilder.mkAssert(constraintStr);
+				z3StrAssertions.add(z3Assert);
+			}
+		}
+
+		Set<String> stringConstants = v.getStringConstants();
+		for (String string : stringConstants) {
+			String encodedStringConstant = Z3StrExprBuilder
+					.encodeString(string);
+			String constDecl = Z3StrExprBuilder
+					.mkStringVariable(encodedStringConstant);
+			buff.append(constDecl);
+			buff.append("\n");
+		}
+
+		for (String z3StrAssertion : z3StrAssertions) {
+			buff.append(z3StrAssertion);
+			buff.append("\n");
+		}
+
+		buff.append("(check-sat)");
+		buff.append("\n");
+
+		return buff.toString();
+	}
+
 	private static int launchNewProcess(String z3StrCmd, String smtQuery,
 			int timeout, OutputStream outputStream) throws IOException {
 
@@ -180,13 +199,7 @@ public class Z3StrSolver extends Solver {
 		logger.debug("Process output:");
 
 		Timer t = new Timer();
-		t.schedule(new TimerTask() {
-
-			@Override
-			public void run() {
-				process.destroy();
-			}
-		}, timeout);
+		t.schedule(new TimeoutTask(process), timeout);
 
 		do {
 			readInputStream(stdout, outputStream);
