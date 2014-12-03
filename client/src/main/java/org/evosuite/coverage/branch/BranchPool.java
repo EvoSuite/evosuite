@@ -118,10 +118,8 @@ public class BranchPool {
 		if (!DependencyAnalysis.shouldInstrument(instruction.getClassName(),
 		                                         instruction.getMethodName())) {
 			return;
-		}
-		// throw new
-		// IllegalArgumentException("branches can only be added to the pool once");
-
+		} 
+		
 		registerInstruction(instruction);
 
 	}

@@ -247,21 +247,6 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					fitness += distance;
 				}
 			}
-			
-//			
-//			if (goal.getBranch() == null) {
-//				Integer count = callCounter.get(goal.hashCode());
-//				if (count==null || count == 0) {
-//					fitness += 1;
-//				} else {
-//					numCoveredGoals++;
-//				}
-//			} else {
-//				if (Double.compare(distance, 0.0) == 0) {
-//					numCoveredGoals++;
-//				}
-//				fitness += distance;
-//			}
 		}
 
 		if (!branchGoals.isEmpty()) {

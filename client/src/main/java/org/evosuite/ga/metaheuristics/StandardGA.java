@@ -57,7 +57,7 @@ public class StandardGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 		// Elitism
 		newGeneration.addAll(elitism());
-
+		
 		// new_generation.size() < population_size
 		while (!isNextPopulationFull(newGeneration)) {
 
@@ -132,11 +132,13 @@ public class StandardGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	public void generateSolution() {
 		if (population.isEmpty())
 			initializePopulation();
-
+		if(Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER>0){
+			disableSecondaryCriteria();
+		}
 		while (!isFinished()) {
 			logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
-
+			updateSecondaryCriteria();
 			evolve();
 			// Determine fitness
 			calculateFitnessAndSortPopulation();
@@ -145,7 +147,8 @@ public class StandardGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 			this.notifyIteration();
 		}
-
+		
+		retrieveBestSuiteFromArchives();
 		notifySearchFinished();
 	}
 
