@@ -44,6 +44,7 @@ import org.evosuite.ga.populationlimit.PopulationLimit;
 import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.symbolic.DSEStats;
+import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -135,12 +136,16 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	
 	protected void disableSecondaryCriteria() {
 		if (TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
-				TestSuiteChromosome.disableFirstSecondaryObjective();
+			TestSuiteChromosome.disableFirstSecondaryObjective();
+			if (Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("ibranch")
+					|| Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("archiveibranch")) {
+				ExecutionTracer.disableContext();
 			}
+		}
 	}
 	
 	protected void updateSecondaryCriteria() {
-
+		
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
 				&& TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
 
@@ -157,6 +162,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 			if (progress > Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER) {
 				TestSuiteChromosome.enableFirstSecondaryObjective();
+				if (Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("ibranch")
+						|| Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("archiveibranch")) {
+					ExecutionTracer.enableContext(); 
+				}
+				Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;
 			}
 		}
 	}
@@ -537,6 +547,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		return randoms;
 	}
 
+	/**
+	 * update archive fitness functions
+	 */
 	protected void updateFitnessFuntions() {
 		for (FitnessFunction<T> f : fitnessFunctions) {
 			f.updateCoveredGoals();
@@ -851,6 +864,15 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		}
 	}
 
+	protected void retrieveBestSuiteFromArchives() {
+		for (FitnessFunction<T> f : fitnessFunctions) {
+			if (f.getBestStoredIndividual() != null) {
+				population.add(0, f.getBestStoredIndividual());
+				break;
+			}
+		}
+	}
+	
 	/**
 	 * <p>
 	 * isBetterOrEqual

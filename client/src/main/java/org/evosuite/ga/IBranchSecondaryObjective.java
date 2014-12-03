@@ -43,10 +43,10 @@ public class IBranchSecondaryObjective extends
 	public int compareChromosomes(
 			AbstractTestSuiteChromosome<? extends ExecutableChromosome> chromosome1,
 			AbstractTestSuiteChromosome<? extends ExecutableChromosome> chromosome2) {
-		
+				
 		if (!chromosome1.hasExecutedFitness(ff) || chromosome1.isChanged())
 			ff.getFitness(chromosome1);
-		if (!chromosome1.hasExecutedFitness(ff) || chromosome2.isChanged())
+		if (!chromosome2.hasExecutedFitness(ff) || chromosome2.isChanged())
 			ff.getFitness(chromosome2);
 
 		logger.debug("Comparing sizes: " + chromosome1.getFitness(ff) + " vs "

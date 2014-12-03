@@ -98,6 +98,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	/** Constant <code>traceCalls=false</code> */
 	public static boolean traceCalls = false;
 
+	public static boolean disableContext = false;
+	
 	/** Constant <code>traceCoverage=true</code> */
 	public static boolean traceCoverage = true;
 
@@ -109,6 +111,16 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			                + call.explain());
 		}
 
+	}
+	
+	public static void enableContext() {
+		enableTraceCalls();
+		disableContext = false;
+	}
+	
+	public static void disableContext() {
+		disableTraceCalls();
+		disableContext = true;
 	}
 
 	/**
@@ -346,9 +358,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		else
 			falseDistancesSum.put(branch, falseDistancesSum.get(branch) + false_distance);
 
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
-				|| Properties.INSTRUMENT_CONTEXT
-				|| ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH)) {
+		if (!disableContext&&(Properties.INSTRUMENT_CONTEXT
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH))) {
 			updateBranchContextMaps(branch, true_distance, false_distance);
 		}
 
@@ -575,9 +587,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 				}
 				stack.push(call);
 			}
-			if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
-					|| Properties.INSTRUMENT_CONTEXT
-					|| ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH)) {
+		if (!disableContext&&(Properties.INSTRUMENT_CONTEXT
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH))) {
 				updateMethodContextMaps(className, methodName, caller);
 			}
 		}

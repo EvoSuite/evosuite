@@ -27,6 +27,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.ReplacementFunction;
+import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,6 +177,7 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		}
 
 		population = newGeneration;
+		//archive
 		updateFitnessFuntions();
 		for (T t : population) {
 			if (t.isToBeUpdated()) {
@@ -214,6 +216,10 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	@Override
 	public void generateSolution() {
 		
+		if(Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER>0){
+			disableSecondaryCriteria();
+		}
+		
 		if (population.isEmpty())
 			initializePopulation();
 
@@ -221,9 +227,7 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		double bestFitness = Double.MAX_VALUE;
 		if (getFitnessFunction().isMaximizationFunction())
 			bestFitness = 0.0;
-		if(Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER>0){
-			disableSecondaryCriteria();
-		}
+
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
 			
@@ -257,14 +261,7 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 	
 	
-	private void retrieveBestSuiteFromArchives() {
-		for (FitnessFunction<T> f : fitnessFunctions) {
-			if (f.getBestStoredIndividual() != null) {
-				population.add(0, f.getBestStoredIndividual());
-				break;
-			}
-		}
-	}
+
 
 	/**
 	 * <p>

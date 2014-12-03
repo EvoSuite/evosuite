@@ -134,6 +134,24 @@ public class ExecutionTracer {
 
 	/**
 	 * <p>
+	 * enable context instrumentation
+	 * </p>
+	 */
+	public static void enableContext(){
+		ExecutionTraceImpl.enableContext();
+	}
+	
+	/**
+	 * <p>
+	 * disable context instrumentation
+	 * </p>
+	 */
+	public static void disableContext(){
+		ExecutionTraceImpl.disableContext();
+	}
+	
+	/**
+	 * <p>
 	 * disableTraceCalls
 	 * </p>
 	 */
