@@ -46,7 +46,6 @@ public class FileNamePrimitiveStatement extends PrimitiveStatement<EvoSuiteFile>
 	 */
 	public FileNamePrimitiveStatement(TestCase tc, EvoSuiteFile value) {
 		super(tc, EvoSuiteFile.class, value);
-		logger.info("Selecting filename: " + value);
 	}
 
 	/* (non-Javadoc)
@@ -89,7 +88,7 @@ public class FileNamePrimitiveStatement extends PrimitiveStatement<EvoSuiteFile>
 		} else {
 			setValue(null); // FIXME find out why this case can actually happen! (I don't think we want this?)
 		}
-		logger.info("Randomized filename: " + value);
+		logger.debug("Randomized filename: " + value);
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
