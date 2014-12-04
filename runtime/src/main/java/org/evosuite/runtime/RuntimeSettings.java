@@ -45,4 +45,10 @@ public class RuntimeSettings {
      * Note: such checks depend on RuntimeSettings#mockJVMNonDeterminism
      */
     public static int maxNumberOfThreads = 100;
+    
+    /**
+     * Should tests be executed in a separate instrumenting class loader
+     * or with the standard classloader and instrumentation via an agent?
+     */
+    public static boolean useSeparateClassLoader = false;
 }
