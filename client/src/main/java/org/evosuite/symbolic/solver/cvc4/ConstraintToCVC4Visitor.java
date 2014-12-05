@@ -12,8 +12,8 @@ import org.evosuite.symbolic.solver.SmtLibExprBuilder;
 
 class ConstraintToCVC4Visitor implements ConstraintVisitor<String, Void> {
 
-	private final Set<String> stringConstants =new HashSet<String>();
-	
+	private final Set<String> stringConstants = new HashSet<String>();
+
 	public ConstraintToCVC4Visitor() {
 	}
 
@@ -64,8 +64,7 @@ class ConstraintToCVC4Visitor implements ConstraintVisitor<String, Void> {
 		return mkComparison(left, cmp, right);
 	}
 
-	private String mkComparison(String left, Comparator cmp,
-			String right) {
+	private String mkComparison(String left, Comparator cmp, String right) {
 		switch (cmp) {
 		case LT: {
 			String lt = SmtLibExprBuilder.mkLt(left, right);
