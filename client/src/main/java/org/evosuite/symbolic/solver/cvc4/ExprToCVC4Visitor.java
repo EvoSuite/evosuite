@@ -75,8 +75,8 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 			return z3_add;
 		}
 		case REM: {
-			String z3_mod = SmtLibExprBuilder.mkMod(left, right);
-			return z3_mod;
+			String mod = SmtLibExprBuilder.mkMod(left, right);
+			return mod;
 		}
 		case IOR: {
 			String bv_left = SmtLibExprBuilder.mkInt2BV(32, left);
