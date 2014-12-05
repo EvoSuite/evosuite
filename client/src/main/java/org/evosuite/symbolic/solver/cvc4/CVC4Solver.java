@@ -51,6 +51,10 @@ public class CVC4Solver extends Solver {
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
 			throws ConstraintSolverTimeoutException {
 
+		if (hasNonLinearConstraints(constraints)) {
+			return null;
+		}
+
 		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS * 10;
 
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
@@ -59,14 +63,16 @@ public class CVC4Solver extends Solver {
 			variables.addAll(c_variables);
 		}
 
-		String smtQuery = buildSmtQuery(constraints, variables, timeout);
+		String smtQuery = buildSmtQuery(cvc4SolverLogic, constraints,
+				variables, timeout);
 
 		logger.debug("CVC4 Query:");
 		logger.debug(smtQuery);
 
 		if (Properties.CVC4_PATH == null) {
-			logger.error("Property CVC4_PATH should be setted in order to use the CVC4 Solver!");
-			return null;
+			String errMsg = "Property CVC4_PATH should be setted in order to use the CVC4 Solver!";
+			logger.error(errMsg);
+			throw new IllegalStateException(errMsg);
 		}
 		String cvc4Cmd = Properties.CVC4_PATH + "  --lang smt --strings-exp ";
 
@@ -108,11 +114,44 @@ public class CVC4Solver extends Solver {
 
 	}
 
-	private String buildSmtQuery(Collection<Constraint<?>> constraints,
-			Set<Variable<?>> variables, long timeout) {
+	private static boolean hasNonLinearConstraints(
+			Collection<Constraint<?>> constraints) {
+		NonLinearConstraintVisitor v = new NonLinearConstraintVisitor();
+		for (Constraint<?> constraint : constraints) {
+			Boolean ret_val = constraint.accept(v, null);
+			if (ret_val) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private enum CVC4Logic {
+		QF_S, QF_SLIRA
+	};
+
+	private CVC4Logic cvc4SolverLogic = CVC4Logic.QF_SLIRA;
+
+	private static String toString(CVC4Logic logic) {
+		switch (logic) {
+		case QF_S:
+			return "QF_S";
+		case QF_SLIRA:
+			return "QF_SLIRA";
+		default:
+			throw new IllegalArgumentException("Unknown CVC4 Logic!" + logic);
+		}
+	}
+
+	private static String buildSmtQuery(CVC4Logic cvc4SolverLogic,
+			Collection<Constraint<?>> constraints, Set<Variable<?>> variables,
+			long timeout) {
 
 		StringBuffer smtQuery = new StringBuffer();
-		smtQuery.append("(set-logic QF_S)");
+		//		smtQuery.append("(set-logic QF_S)");
+		//		smtQuery.append("\n");
+		smtQuery.append("(set-logic " + toString(cvc4SolverLogic) + ")");
+
 		smtQuery.append("\n");
 		smtQuery.append("(set-option :produce-models true)");
 
