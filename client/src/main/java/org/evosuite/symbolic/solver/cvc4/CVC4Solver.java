@@ -49,6 +49,8 @@ public class CVC4Solver extends Solver {
 	public static final String STR_PREFIXOF = "str.prefixof";
 	public static final String STR_SUFFIXOF = "str.suffixof";
 	public static final String STR_REPLACE = "str.replace";
+	public static final String STR_INDEXOF = "str.indexof";
+	public static final String STR_CONTAINS = "str.contains";
 
 	@Override
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
