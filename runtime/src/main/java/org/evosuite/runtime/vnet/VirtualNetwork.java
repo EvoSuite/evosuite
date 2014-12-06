@@ -1,7 +1,8 @@
 package org.evosuite.runtime.vnet;
 
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -83,6 +84,31 @@ public class VirtualNetwork {
 	 */
 	private final List<NetworkInterfaceState> networkInterfaces;
 
+
+    /**
+     * Key -> resolved URL (ie based on DNS) of the remote file
+     * Value -> the remote file we ll allow the tests to read from
+     *
+     * <p>
+     *    This data structure represents remote files that are on a different host, and that could be accessed
+     * for example by http/s using an URL object.
+     *
+     * <p>
+     * For simplicity, we focus on text files (eg webpages), as those are the most common example.
+     *
+     * <p>
+     * Note: ideally we should have a full mock of remote servers. For example, accessing a http URL
+     * should be equivalent to open a TCP socket and send a GET command manually. However, as we
+     * do unit testing, this level of realism seems unnecessary (and anyway far too complicated to
+     * implement at the moment).
+     */
+    private final Map<String , RemoteFile> remoteFiles;
+
+    /**
+     * Keep track of what remote URL the SUT tried to access/read from
+     */
+    private final Set<String> remoteAccessedFiles;
+
 	private DNS dns;
 
 	/**
@@ -96,6 +122,9 @@ public class VirtualNetwork {
 		remoteContactedPorts = new CopyOnWriteArraySet<>();
 		remoteCurrentServers = new ConcurrentHashMap<>();
 		networkInterfaces = new CopyOnWriteArrayList<>();
+        remoteFiles = new ConcurrentHashMap<>();
+        remoteAccessedFiles = new CopyOnWriteArraySet<>();
+
 		dns = new DNS();
 	}
 
@@ -114,10 +143,12 @@ public class VirtualNetwork {
 		remotePortIndex.set(START_OF_REMOTE_EPHEMERAL_PORTS);
 		remoteCurrentServers.clear();
 		networkInterfaces.clear();
+        remoteFiles.clear();
 
 		//TODO most likely it ll need different handling, as needed after the search
 		openedTcpConnections.clear();
 		remoteContactedPorts.clear();
+        remoteAccessedFiles.clear();
 	}
 
 	public void init(){
@@ -126,6 +157,53 @@ public class VirtualNetwork {
 		initNetworkInterfaces();
 		MockURL.initStaticState();
 	}
+
+    /**
+     * Create a new remote file that can be accessed by the given URL
+     * @param url
+     * @param content
+     * @return {@code false} if URL is malformed, if the protocol is not a remote one (eg "file"), or
+     * if the file was already created
+     */
+    public boolean addRemoteTextFile(String url, String content){
+
+        URL mockURL;
+        try {
+            /*
+                be sure to use the mocked URL, in case we have DNS resolution
+             */
+            mockURL = MockURL.URL(url);
+        } catch (MalformedURLException e) {
+            return  false;
+        }
+        if(mockURL.getProtocol().toLowerCase().equals("file")){
+            return false; // those are handled in VFS
+        }
+
+        String key = url.toString();
+        if(remoteFiles.containsKey(key)){
+            return false;
+        }
+
+        RemoteFile rf = new RemoteFile(key,content);
+        remoteFiles.put(key,rf);
+
+        return true;
+    }
+
+    /**
+     * If it is present on the VNET, return a remote file handler to read such file pointed by the URL.
+     *
+     * @param url
+     * @return {@code null} if there is no such file
+     */
+    public RemoteFile getFile(URL url){
+        String s = url.toString();
+        if(!remoteAccessedFiles.contains(s)){
+            remoteAccessedFiles.add(s);
+        }
+        return remoteFiles.get(s);
+    }
 
 	/**
 	 * Create new port to open on remote host
@@ -236,6 +314,10 @@ public class VirtualNetwork {
 
 		return true;
 	}
+
+    public Set<String> getViewOfRemoteAccessedFiles(){
+        return Collections.unmodifiableSet(remoteAccessedFiles);
+    }
 
 	public Set<NativeTcp> getViewOfOpenedTcpConnections(){
 		return  Collections.unmodifiableSet(openedTcpConnections);
