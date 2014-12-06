@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,6 +52,9 @@ public class CVC4Solver extends Solver {
 	public static final String STR_REPLACE = "str.replace";
 	public static final String STR_INDEXOF = "str.indexof";
 	public static final String STR_CONTAINS = "str.contains";
+	public static final String STR_CONCAT = "str.++";
+	public static final String INT_2_STR = "int.to.str";
+	public static final String STR_2_INT = "str.to.int";
 
 	@Override
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
@@ -155,10 +159,13 @@ public class CVC4Solver extends Solver {
 		StringBuffer smtQuery = new StringBuffer();
 		//		smtQuery.append("(set-logic QF_S)");
 		//		smtQuery.append("\n");
+
+		smtQuery.append("\n");
 		smtQuery.append("(set-logic " + toString(cvc4SolverLogic) + ")");
 
 		smtQuery.append("\n");
 		smtQuery.append("(set-option :produce-models true)");
+		smtQuery.append("\n");
 
 		for (Variable<?> v : variables) {
 			String varName = v.getName();
