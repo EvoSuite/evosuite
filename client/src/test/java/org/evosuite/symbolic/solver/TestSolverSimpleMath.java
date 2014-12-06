@@ -142,8 +142,9 @@ public abstract class TestSolverSimpleMath {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testAdd(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testAdd(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseAdd();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
@@ -152,8 +153,9 @@ public abstract class TestSolverSimpleMath {
 		return solution;
 	}
 
-	public static Map<String, Object> testSub(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testSub(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseSub();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
@@ -163,8 +165,9 @@ public abstract class TestSolverSimpleMath {
 		return solution;
 	}
 
-	public static Map<String, Object> testMod(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testMod(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMod();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
@@ -174,8 +177,21 @@ public abstract class TestSolverSimpleMath {
 		return solution;
 	}
 
-	public static Map<String, Object> testDiv(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testMod2(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+
+		DefaultTestCase tc = buildTestCaseMod2();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+
+		return solution;
+	}
+
+	public static Map<String, Object> testDiv(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseDiv();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
@@ -185,8 +201,9 @@ public abstract class TestSolverSimpleMath {
 		return solution;
 	}
 
-	public static Map<String, Object> testMul(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testMul(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMul();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
@@ -196,8 +213,9 @@ public abstract class TestSolverSimpleMath {
 		return solution;
 	}
 
-	public static Map<String, Object> testMul2(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testMul2(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMul2();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
@@ -232,8 +250,21 @@ public abstract class TestSolverSimpleMath {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testEq(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	private static DefaultTestCase buildTestCaseMod2()
+			throws SecurityException, NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(0);
+		VariableReference int1 = tc.appendIntPrimitive(6);
+
+		Method method = TestCaseBinaryOp.class.getMethod("testMod2", int.class,
+				int.class);
+		tc.appendMethod(null, method, int0, int1);
+		return tc.getDefaultTestCase();
+	}
+
+	public static Map<String, Object> testEq(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseEq();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
@@ -244,8 +275,9 @@ public abstract class TestSolverSimpleMath {
 		return solution;
 	}
 
-	public static Map<String, Object> testNeq(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testNeq(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseNeq();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
@@ -255,8 +287,9 @@ public abstract class TestSolverSimpleMath {
 		return solution;
 	}
 
-	public static Map<String, Object> testLt(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testLt(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseLt();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
@@ -266,8 +299,9 @@ public abstract class TestSolverSimpleMath {
 		return solution;
 	}
 
-	public static Map<String, Object> testLte(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testLte(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseLte();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
@@ -277,8 +311,9 @@ public abstract class TestSolverSimpleMath {
 		return solution;
 	}
 
-	public static Map<String, Object> testGt(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testGt(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseGt();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
@@ -288,14 +323,15 @@ public abstract class TestSolverSimpleMath {
 		return solution;
 	}
 
-	public static Map<String, Object> testGte(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testGte(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseGte();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		
+
 		return solution;
 	}
 

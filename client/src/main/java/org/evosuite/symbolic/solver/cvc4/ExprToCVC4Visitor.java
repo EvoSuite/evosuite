@@ -58,83 +58,81 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 		switch (e.getOperator()) {
 
 		case DIV: {
-			String z3_div = SmtLibExprBuilder.mkDiv(left, right);
+			String z3_div = CVC4ExprBuilder.mkDiv(left, right);
 			return z3_div;
 		}
 		case MUL: {
-			String z3_mul = SmtLibExprBuilder.mkMul(left, right);
+			String z3_mul = CVC4ExprBuilder.mkMul(left, right);
 			return z3_mul;
 
 		}
 		case MINUS: {
-			String z3_sub = SmtLibExprBuilder.mkSub(left, right);
+			String z3_sub = CVC4ExprBuilder.mkSub(left, right);
 			return z3_sub;
 		}
 		case PLUS: {
-			String z3_add = SmtLibExprBuilder.mkAdd(left, right);
+			String z3_add = CVC4ExprBuilder.mkAdd(left, right);
 			return z3_add;
 		}
 		case REM: {
-			String mod = SmtLibExprBuilder.mkMod(left, right);
+			String mod = CVC4ExprBuilder.mkMod(left, right);
 			return mod;
 		}
 		case IOR: {
-			String bv_left = SmtLibExprBuilder.mkInt2BV(32, left);
-			String bv_right = SmtLibExprBuilder.mkInt2BV(32, right);
-			String bvor = SmtLibExprBuilder.mkBVOR(bv_left, bv_right);
-			String ret_val = SmtLibExprBuilder.mkBV2Int(bvor, true);
+			String bv_left = CVC4ExprBuilder.mkInt2BV(32, left);
+			String bv_right = CVC4ExprBuilder.mkInt2BV(32, right);
+			String bvor = CVC4ExprBuilder.mkBVOR(bv_left, bv_right);
+			String ret_val = CVC4ExprBuilder.mkBV2Nat(bvor);
 			return ret_val;
 		}
 		case IAND: {
-			String bv_left = SmtLibExprBuilder.mkInt2BV(32, left);
-			String bv_right = SmtLibExprBuilder.mkInt2BV(32, right);
-			String bv_and = SmtLibExprBuilder.mkBVAND(bv_left, bv_right);
-			String ret_val = SmtLibExprBuilder.mkBV2Int(bv_and, true);
+			String bv_left = CVC4ExprBuilder.mkInt2BV(32, left);
+			String bv_right = CVC4ExprBuilder.mkInt2BV(32, right);
+			String bv_and = CVC4ExprBuilder.mkBVAND(bv_left, bv_right);
+			String ret_val = CVC4ExprBuilder.mkBV2Nat(bv_and);
 			return ret_val;
 		}
 		case IXOR: {
-			String bv_left = SmtLibExprBuilder.mkInt2BV(32, left);
-			String bv_right = SmtLibExprBuilder.mkInt2BV(32, right);
-			String bv_xor = SmtLibExprBuilder.mkBVXOR(bv_left, bv_right);
-			String ret_val = SmtLibExprBuilder.mkBV2Int(bv_xor, true);
+			String bv_left = CVC4ExprBuilder.mkInt2BV(32, left);
+			String bv_right = CVC4ExprBuilder.mkInt2BV(32, right);
+			String bv_xor = CVC4ExprBuilder.mkBVXOR(bv_left, bv_right);
+			String ret_val = CVC4ExprBuilder.mkBV2Int(bv_xor);
 			return ret_val;
 		}
 
 		case SHL: {
-			String bv_left = SmtLibExprBuilder.mkInt2BV(32, left);
-			String bv_right = SmtLibExprBuilder.mkInt2BV(32, right);
-			String bv_shl = SmtLibExprBuilder.mkBVSHL(bv_left, bv_right);
-			String ret_val = SmtLibExprBuilder.mkBV2Int(bv_shl, true);
+			String bv_left = CVC4ExprBuilder.mkInt2BV(32, left);
+			String bv_right = CVC4ExprBuilder.mkInt2BV(32, right);
+			String bv_shl = CVC4ExprBuilder.mkBVSHL(bv_left, bv_right);
+			String ret_val = CVC4ExprBuilder.mkBV2Nat(bv_shl);
 			return ret_val;
 		}
 
 		case SHR: {
-			String bv_left = SmtLibExprBuilder.mkInt2BV(32, left);
-			String bv_right = SmtLibExprBuilder.mkInt2BV(32, right);
-			String bv_shr = SmtLibExprBuilder.mkBVASHR(bv_left, bv_right);
-			String ret_val = SmtLibExprBuilder.mkBV2Int(bv_shr, true);
+			String bv_left = CVC4ExprBuilder.mkInt2BV(32, left);
+			String bv_right = CVC4ExprBuilder.mkInt2BV(32, right);
+			String bv_shr = CVC4ExprBuilder.mkBVASHR(bv_left, bv_right);
+			String ret_val = CVC4ExprBuilder.mkBV2Nat(bv_shr);
 			return ret_val;
 		}
 		case USHR: {
-			String bv_left = SmtLibExprBuilder.mkInt2BV(32, left);
-			String bv_right = SmtLibExprBuilder.mkInt2BV(32, right);
-			String bv_shr = SmtLibExprBuilder.mkBVLSHR(bv_left, bv_right);
-			String ret_val = SmtLibExprBuilder.mkBV2Int(bv_shr, true);
+			String bv_left = CVC4ExprBuilder.mkInt2BV(32, left);
+			String bv_right = CVC4ExprBuilder.mkInt2BV(32, right);
+			String bv_shr = CVC4ExprBuilder.mkBVLSHR(bv_left, bv_right);
+			String ret_val = CVC4ExprBuilder.mkBV2Nat(bv_shr);
 			return ret_val;
 		}
 
 		case MAX: {
-			String left_gt_right = SmtLibExprBuilder.mkGt(left, right);
-			String ite_expr = SmtLibExprBuilder.mkITE(left_gt_right, left,
-					right);
+			String left_gt_right = CVC4ExprBuilder.mkGt(left, right);
+			String ite_expr = CVC4ExprBuilder.mkITE(left_gt_right, left, right);
 			return ite_expr;
 
 		}
 
 		case MIN: {
-			String left_gt_right = SmtLibExprBuilder.mkLt(left, right);
-			String ite_expr = SmtLibExprBuilder.mkITE(left_gt_right, left,
-					right);
+			String left_gt_right = CVC4ExprBuilder.mkLt(left, right);
+			String ite_expr = CVC4ExprBuilder.mkITE(left_gt_right, left, right);
 			return ite_expr;
 
 		}
@@ -158,10 +156,10 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 		if (longObject.longValue() >= Integer.MIN_VALUE
 				&& longObject.longValue() <= Integer.MAX_VALUE) {
 			int intValue = longObject.intValue();
-			int_num = SmtLibExprBuilder.mkIntegerConstant(intValue);
+			int_num = CVC4ExprBuilder.mkIntegerConstant(intValue);
 		} else {
 			long longValue = longObject.longValue();
-			int_num = SmtLibExprBuilder.mkIntegerConstant(longValue);
+			int_num = CVC4ExprBuilder.mkIntegerConstant(longValue);
 		}
 		return int_num;
 	}
@@ -176,11 +174,11 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 
 		switch (e.getOperator()) {
 		case ABS:
-			String zero = SmtLibExprBuilder.mkIntegerConstant(0);
-			String gte_than_zero = SmtLibExprBuilder.mkGe(intExpr, zero);
-			String minus_expr = SmtLibExprBuilder.mkNeg(intExpr);
+			String zero = CVC4ExprBuilder.mkIntegerConstant(0);
+			String gte_than_zero = CVC4ExprBuilder.mkGe(intExpr, zero);
+			String minus_expr = CVC4ExprBuilder.mkNeg(intExpr);
 
-			String ite_expr = SmtLibExprBuilder.mkITE(gte_than_zero, intExpr,
+			String ite_expr = CVC4ExprBuilder.mkITE(gte_than_zero, intExpr,
 					minus_expr);
 			return ite_expr;
 		default:
@@ -194,7 +192,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 		if (realExpr == null) {
 			return null;
 		}
-		String intExpr = SmtLibExprBuilder.mkReal2Int(realExpr);
+		String intExpr = CVC4ExprBuilder.mkReal2Int(realExpr);
 		return intExpr;
 	}
 
@@ -223,7 +221,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 		if (integerExpr == null) {
 			return null;
 		}
-		String realExpr = SmtLibExprBuilder.mkToReal(integerExpr);
+		String realExpr = CVC4ExprBuilder.mkToReal(integerExpr);
 		return realExpr;
 
 	}
@@ -240,34 +238,32 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 		switch (e.getOperator()) {
 
 		case DIV: {
-			String z3_div = SmtLibExprBuilder.mkDiv(left, right);
+			String z3_div = CVC4ExprBuilder.mkDiv(left, right);
 			return z3_div;
 		}
 		case MUL: {
-			String z3_mul = SmtLibExprBuilder.mkMul(left, right);
+			String z3_mul = CVC4ExprBuilder.mkMul(left, right);
 			return z3_mul;
 
 		}
 		case MINUS: {
-			String z3_sub = SmtLibExprBuilder.mkSub(left, right);
+			String z3_sub = CVC4ExprBuilder.mkSub(left, right);
 			return z3_sub;
 		}
 		case PLUS: {
-			String z3_add = SmtLibExprBuilder.mkAdd(left, right);
+			String z3_add = CVC4ExprBuilder.mkAdd(left, right);
 			return z3_add;
 		}
 		case MAX: {
-			String left_gt_right = SmtLibExprBuilder.mkGt(left, right);
-			String ite_expr = SmtLibExprBuilder.mkITE(left_gt_right, left,
-					right);
+			String left_gt_right = CVC4ExprBuilder.mkGt(left, right);
+			String ite_expr = CVC4ExprBuilder.mkITE(left_gt_right, left, right);
 			return ite_expr;
 
 		}
 
 		case MIN: {
-			String left_gt_right = SmtLibExprBuilder.mkLt(left, right);
-			String ite_expr = SmtLibExprBuilder.mkITE(left_gt_right, left,
-					right);
+			String left_gt_right = CVC4ExprBuilder.mkLt(left, right);
+			String ite_expr = CVC4ExprBuilder.mkITE(left_gt_right, left, right);
 			return ite_expr;
 		}
 		case ATAN2:
@@ -279,8 +275,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 		case IEEEREMAINDER:
 		case REM: {
 			double concreteValue = e.getConcreteValue();
-			String realConstant = SmtLibExprBuilder
-					.mkRealConstant(concreteValue);
+			String realConstant = CVC4ExprBuilder.mkRealConstant(concreteValue);
 			return realConstant;
 		}
 
@@ -295,7 +290,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 	@Override
 	public String visit(RealConstant e, Void v) {
 		double doubleVal = e.getConcreteValue();
-		String realExpr = SmtLibExprBuilder.mkRealConstant(doubleVal);
+		String realExpr = CVC4ExprBuilder.mkRealConstant(doubleVal);
 		return realExpr;
 	}
 
@@ -309,12 +304,11 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 
 		switch (e.getOperator()) {
 		case ABS: {
-			String zero_rational = SmtLibExprBuilder.mkRealConstant(0);
-			String gte_than_zero = SmtLibExprBuilder.mkGe(intExpr,
-					zero_rational);
-			String minus_expr = SmtLibExprBuilder.mkNeg(intExpr);
+			String zero_rational = CVC4ExprBuilder.mkRealConstant(0);
+			String gte_than_zero = CVC4ExprBuilder.mkGe(intExpr, zero_rational);
+			String minus_expr = CVC4ExprBuilder.mkNeg(intExpr);
 
-			String ite_expr = SmtLibExprBuilder.mkITE(gte_than_zero, intExpr,
+			String ite_expr = CVC4ExprBuilder.mkITE(gte_than_zero, intExpr,
 					minus_expr);
 			return ite_expr;
 		}
@@ -351,7 +345,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 			if (doubleVal.isNaN() || doubleVal.isInfinite()) {
 				return null;
 			} else {
-				concreteRatNum = SmtLibExprBuilder.mkRealConstant(doubleVal);
+				concreteRatNum = CVC4ExprBuilder.mkRealConstant(doubleVal);
 			}
 			return concreteRatNum;
 		}
@@ -378,31 +372,52 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 
 	@Override
 	public String visit(StringMultipleExpression e, Void v) {
+
+		Expression<String> leftOperand = e.getLeftOperand();
+		Expression<?> rightOperand = e.getRightOperand();
+		ArrayList<Expression<?>> othersOperands = e.getOther();
+
+		String left = leftOperand.accept(this, null);
+		String right = rightOperand.accept(this, null);
+
+		if (othersOperands.size() != 1) {
+			throw new IllegalStateException("Substring should be ternary!");
+		}
+
+		Expression<?> otherOperand = othersOperands.get(0);
+		String other = otherOperand.accept(this, null);
+
+		if (left == null || right == null || other == null) {
+			return null;
+		}
+
 		Operator op = e.getOperator();
 		switch (op) {
 		case SUBSTRING: {
-			Expression<String> leftOperand = e.getLeftOperand();
-			Expression<?> rightOperand = e.getRightOperand();
-			ArrayList<Expression<?>> othersOperands = e.getOther();
-
-			String left = leftOperand.accept(this, null);
-			String right = rightOperand.accept(this, null);
-
-			if (othersOperands.size() != 1) {
-				throw new IllegalStateException("Substring should be ternary!");
-			}
-
-			Expression<?> otherOperand = othersOperands.get(0);
-			String other = otherOperand.accept(this, null);
-
-			if (left == null || right == null || other == null) {
-				return null;
-			}
-
-			SmtLibExprBuilder.mkApp(CVC4Solver.STR_SUBSTR, left, right, other);
-
+			String startIndex = right;
+			String endIndex = other;
+			String offset = CVC4ExprBuilder.mkSub(endIndex, startIndex);
+			String substring = CVC4ExprBuilder.mkApp(CVC4Solver.STR_SUBSTR,
+					left, startIndex, offset);
+			return substring;
 		}
-		case REPLACEC:
+		case REPLACEC: {
+			Long concreteTarget = (Long) rightOperand.getConcreteValue();
+			Long concreteReplacement = (Long) otherOperand.getConcreteValue();
+
+			String targetString = String.valueOf((char) concreteTarget
+					.intValue());
+			String replacementString = String
+					.valueOf((char) concreteReplacement.intValue());
+
+			String target = CVC4ExprBuilder.mkStringConstant(targetString);
+			String replacement = CVC4ExprBuilder
+					.mkStringConstant(replacementString);
+
+			String replace = CVC4ExprBuilder.mkApp(CVC4Solver.STR_REPLACE,
+					left, target, replacement);
+			return replace;
+		}
 		case REPLACECS:
 		case REPLACEALL:
 		case REPLACEFIRST: {
@@ -480,8 +495,8 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 		String zeroConstant = createIntegerConstant(0);
 		switch (op) {
 		case EQUALS: {
-			String equalsFormula = SmtLibExprBuilder.mkEq(left, right);
-			String ifThenElseFormula = SmtLibExprBuilder.mkITE(equalsFormula,
+			String equalsFormula = CVC4ExprBuilder.mkEq(left, right);
+			String ifThenElseFormula = CVC4ExprBuilder.mkITE(equalsFormula,
 					oneConstant, zeroConstant);
 			return ifThenElseFormula;
 		}
@@ -490,14 +505,15 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 					"Must implement equalsIgnoreCase()!");
 		}
 		case ENDSWITH: {
-			String equalsFormula = buildEndsWithFormula(left, right);
-			String ifThenElseFormula = SmtLibExprBuilder.mkITE(equalsFormula,
+			String endsWithExpr = SmtLibExprBuilder.mkApp(
+					CVC4Solver.STR_SUFFIXOF, right, left);
+			String ifThenElseFormula = CVC4ExprBuilder.mkITE(endsWithExpr,
 					oneConstant, zeroConstant);
 			return ifThenElseFormula;
 		}
 		case CONTAINS: {
 			String equalsFormula = buildContainsFormula(left, right);
-			String ifThenElseFormula = SmtLibExprBuilder.mkITE(equalsFormula,
+			String ifThenElseFormula = CVC4ExprBuilder.mkITE(equalsFormula,
 					oneConstant, zeroConstant);
 			return ifThenElseFormula;
 		}
@@ -543,8 +559,8 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 
 		switch (op) {
 		case CHARAT: {
-			String charAtExpr = SmtLibExprBuilder.mkApp(CVC4Solver.STR_AT,
-					left, right);
+			String charAtExpr = CVC4ExprBuilder.mkApp(CVC4Solver.STR_AT, left,
+					right);
 			return charAtExpr;
 		}
 		case INDEXOFC:
@@ -591,15 +607,22 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 
 		switch (op) {
 		case STARTSWITH: {
-			String indexExpr = others.get(0);
-			String oneExpr = createIntegerConstant(1);
-			String zeroExpr = createIntegerConstant(0);
 
-			String startsWithFormula = buildStartsWithFormula(left, right,
-					indexExpr);
-			String ifThenElseFormula = SmtLibExprBuilder.mkITE(
-					startsWithFormula, oneExpr, zeroExpr);
-			return ifThenElseFormula;
+			String indexExpr = others.get(0);
+			if (indexExpr.equals("0")) {
+				String oneExpr = createIntegerConstant(1);
+				String zeroExpr = createIntegerConstant(0);
+				String startsWithFormula = SmtLibExprBuilder.mkApp(
+						CVC4Solver.STR_PREFIXOF, right, left);
+				String ifThenElseFormula = CVC4ExprBuilder.mkITE(
+						startsWithFormula, oneExpr, zeroExpr);
+				return ifThenElseFormula;
+
+			} else {
+				Long longValue = e.getConcreteValue();
+				String intConst = createIntegerConstant(longValue);
+				return intConst;
+			}
 		}
 		case EQUALS:
 		case EQUALSIGNORECASE:
@@ -619,12 +642,6 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 			throw new UnsupportedOperationException("Not implemented yet! "
 					+ op);
 		}
-	}
-
-	private String buildStartsWithFormula(String left, String right,
-			String indexExpr) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -658,7 +675,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 		Operator op = e.getOperator();
 		switch (op) {
 		case LENGTH: {
-			String app = SmtLibExprBuilder.mkApp(CVC4Solver.STR_LENGTH,
+			String app = CVC4ExprBuilder.mkApp(CVC4Solver.STR_LENGTH,
 					innerString);
 			return app;
 		}

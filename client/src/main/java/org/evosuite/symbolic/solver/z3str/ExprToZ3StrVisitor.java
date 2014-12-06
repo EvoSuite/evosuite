@@ -75,21 +75,21 @@ class ExprToZ3StrVisitor implements ExpressionVisitor<String, Void> {
 			String bv_left = Z3StrExprBuilder.mkInt2BV(32, left);
 			String bv_right = Z3StrExprBuilder.mkInt2BV(32, right);
 			String bvor = Z3StrExprBuilder.mkBVOR(bv_left, bv_right);
-			String ret_val = Z3StrExprBuilder.mkBV2Int(bvor, true);
+			String ret_val = Z3StrExprBuilder.mkBV2Int(bvor);
 			return ret_val;
 		}
 		case IAND: {
 			String bv_left = Z3StrExprBuilder.mkInt2BV(32, left);
 			String bv_right = Z3StrExprBuilder.mkInt2BV(32, right);
 			String bvand = Z3StrExprBuilder.mkBVAND(bv_left, bv_right);
-			String ret_val = Z3StrExprBuilder.mkBV2Int(bvand, true);
+			String ret_val = Z3StrExprBuilder.mkBV2Int(bvand);
 			return ret_val;
 		}
 		case IXOR: {
 			String bv_left = Z3StrExprBuilder.mkInt2BV(32, left);
 			String bv_right = Z3StrExprBuilder.mkInt2BV(32, right);
 			String bvxor = Z3StrExprBuilder.mkBVXOR(bv_left, bv_right);
-			String ret_val = Z3StrExprBuilder.mkBV2Int(bvxor, true);
+			String ret_val = Z3StrExprBuilder.mkBV2Int(bvxor);
 			return ret_val;
 		}
 
@@ -97,21 +97,21 @@ class ExprToZ3StrVisitor implements ExpressionVisitor<String, Void> {
 			String bv_left = Z3StrExprBuilder.mkInt2BV(32, left);
 			String bv_right = Z3StrExprBuilder.mkInt2BV(32, right);
 			String bvshl = Z3StrExprBuilder.mkBVSHL(bv_left, bv_right);
-			String ret_val = Z3StrExprBuilder.mkBV2Int(bvshl, true);
+			String ret_val = Z3StrExprBuilder.mkBV2Int(bvshl);
 			return ret_val;
 		}
 		case USHR: {
 			String bv_left = Z3StrExprBuilder.mkInt2BV(32, left);
 			String bv_right = Z3StrExprBuilder.mkInt2BV(32, right);
 			String bvlshr = Z3StrExprBuilder.mkBVLSHR(bv_left, bv_right);
-			String ret_val = Z3StrExprBuilder.mkBV2Int(bvlshr, true);
+			String ret_val = Z3StrExprBuilder.mkBV2Int(bvlshr);
 			return ret_val;
 		}
 		case SHR: {
 			String bv_left = Z3StrExprBuilder.mkInt2BV(32, left);
 			String bv_right = Z3StrExprBuilder.mkInt2BV(32, right);
 			String bvashr = Z3StrExprBuilder.mkBVASHR(bv_left, bv_right);
-			String ret_val = Z3StrExprBuilder.mkBV2Int(bvashr, true);
+			String ret_val = Z3StrExprBuilder.mkBV2Int(bvashr);
 			return ret_val;
 		}
 		case MAX: {
