@@ -70,7 +70,7 @@ public abstract class TestSolverStringFunctions {
 		return solution;
 	}
 
-	public static void testNegativeLength(Solver solver)
+	public static Map<String, Object> testNegativeLength(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
@@ -83,7 +83,7 @@ public abstract class TestSolverStringFunctions {
 				.<Constraint<?>> singleton(newIntegerConstraint);
 
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNull(solution);
+		return solution;
 	}
 
 	private static DefaultTestCase buildTestEquals() throws SecurityException,

@@ -19,9 +19,8 @@ class CVC4ModelParser {
 	public Map<String, Object> parse(String cvc4ResultStr) {
 		Map<String, Object> solution = new HashMap<String, Object>();
 
-		Map<String, String> arraysToFuncMap = new HashMap<String,String>();
-
-		StringTokenizer tokenizer = new StringTokenizer(cvc4ResultStr, "() \n\t");
+		StringTokenizer tokenizer = new StringTokenizer(cvc4ResultStr,
+				"() \n\t");
 		tokenizer.nextToken(); // sat
 		tokenizer.nextToken(); // model
 
@@ -87,30 +86,29 @@ class CVC4ModelParser {
 							}
 						}
 						solution.put(funcName, value);
-					} else if (typeName.equals("Array")) {
-						tokenizer.nextToken(); //Int
-						tokenizer.nextToken(); //Int
-						tokenizer.nextToken(); //_
-						tokenizer.nextToken(); //as_array
-						String arrayFuncName = tokenizer.nextToken();
-						arraysToFuncMap .put(arrayFuncName, funcName);
+					} else if (typeName.equals("String")) {
+						String stringValue = tokenizer.nextToken();
+						String stringNoQuotes = stringValue.substring(1,
+								stringValue.length() - 1);
+						solution.put(funcName, stringNoQuotes);
 					} else if (typeName.equals("x!1")) {
-						
+
 					} else {
-//						throw new IllegalArgumentException(
-//								"Must implement this production");
+						//						throw new IllegalArgumentException(
+						//								"Must implement this production");
 					}
 				}
 			} else {
-//				throw new IllegalArgumentException(
-//						"Must implement this production");
+				//				throw new IllegalArgumentException(
+				//						"Must implement this production");
 			}
 		}
 
 		if (solution.isEmpty()) {
-			logger.warn("The Z3 model has no variables");
+			logger.warn("The CVC4 model has no variables");
+			return null;
 		} else {
-			logger.debug("Parsed values from Z3 output");
+			logger.debug("Parsed values from CVC4 output");
 			for (String varName : solution.keySet()) {
 				String valueOf = String.valueOf(solution.get(varName));
 				logger.debug(varName + ":" + valueOf);

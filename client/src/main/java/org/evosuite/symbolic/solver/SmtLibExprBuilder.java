@@ -78,8 +78,16 @@ public abstract class SmtLibExprBuilder {
 		return "(bvand " + bv_left + " " + bv_right + ")";
 	}
 
-	public static String mkBV2Int(String bv_expr, boolean b) {
+	public static String mkBV2Int(String bv_expr) {
 		return "(bv2int " + bv_expr + ")";
+	}
+	
+	public static String mkBVNeg(String bv_expr) {
+		return "(bvneg " + bv_expr + ")";
+	}
+	
+	public static String mkBV2Nat(String bv_expr) {
+		return "(bv2nat " + bv_expr + ")";
 	}
 
 	public static String mkBVOR(String bv_left, String bv_right) {
