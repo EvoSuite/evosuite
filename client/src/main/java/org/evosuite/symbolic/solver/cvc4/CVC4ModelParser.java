@@ -33,10 +33,10 @@ class CVC4ModelParser {
 			if (token.equals(")")) {
 				break;
 			}
-			token = tokenizer.nextToken();
+			token = tokenizer.nextToken(); // define-fun ?
 			if (token.equals("define-fun")) {
 				token = tokenizer.nextToken(); // 
-				String funcName = tokenizer.nextToken();
+				String fun_name = tokenizer.nextToken();
 				token = tokenizer.nextToken(); // 
 				token = tokenizer.nextToken(); // (
 				token = tokenizer.nextToken(); // )
@@ -44,49 +44,89 @@ class CVC4ModelParser {
 
 				String typeName = tokenizer.nextToken();
 				if (typeName.equals("Int")) {
-					String integerValueStr = tokenizer.nextToken();
+					token = tokenizer.nextToken(); // " "
+					token = tokenizer.nextToken(); // 
+					boolean neg = false;
+					String integerValueStr;
+					if (token.equals("(")) {
+						neg = true;
+						token = tokenizer.nextToken(); // -
+						token = tokenizer.nextToken(); // " "
+						integerValueStr = tokenizer.nextToken();
+					} else {
+						integerValueStr = token;
+					}
 					Long value;
-					if (integerValueStr.equals("-")) {
-						String absoluteIntegerValue = tokenizer.nextToken();
+					if (neg) {
+						String absoluteIntegerValue = integerValueStr;
 						value = Long.parseLong("-" + absoluteIntegerValue);
 					} else {
 						value = Long.parseLong(integerValueStr);
 					}
-					solution.put(funcName, value);
+					solution.put(fun_name, value);
+					if (neg) {
+						token = tokenizer.nextToken(); // )
+					}
+					token = tokenizer.nextToken(); // )
+					token = tokenizer.nextToken(); // \n
+
 				} else if (typeName.equals("Real")) {
-					String realValueStr = tokenizer.nextToken();
+					token = tokenizer.nextToken(); // " "
+					token = tokenizer.nextToken();
 					Double value;
-					if (realValueStr.equals("-")) {
-						String absoluteValueStr = tokenizer.nextToken();
-						if (absoluteValueStr.equals("/")) {
-							String numeratorStr = tokenizer.nextToken();
-							String denominatorStr = tokenizer.nextToken();
-
-							double numerator = Double.parseDouble(numeratorStr);
-							double denominator = Double
-									.parseDouble(denominatorStr);
-
-							value = -(numerator / denominator);
-						} else {
-							value = Double.parseDouble("-" + absoluteValueStr);
-						}
+					if (!token.equals("(")) {
+						value = Double.parseDouble(token);
 					} else {
+						token = tokenizer.nextToken();
+						if (token.equals("-")) {
+							token = tokenizer.nextToken(); // " "
+							token = tokenizer.nextToken(); //?
+							if (token.equals("(")) {
+								token = tokenizer.nextToken(); // "/"
+								token = tokenizer.nextToken(); // " "
+								String numeratorStr = tokenizer.nextToken();
+								token = tokenizer.nextToken(); // " "
+								String denominatorStr = tokenizer.nextToken();
 
-						if (realValueStr.equals("/")) {
-							String numeratorStr = tokenizer.nextToken();
-							String denominatorStr = tokenizer.nextToken();
+								double numerator = Double
+										.parseDouble(numeratorStr);
+								double denominator = Double
+										.parseDouble(denominatorStr);
 
-							double numerator = Double.parseDouble(numeratorStr);
-							double denominator = Double
-									.parseDouble(denominatorStr);
-
-							value = (numerator / denominator);
+								value = -(numerator / denominator);
+								token = tokenizer.nextToken(); // ")"
+								token = tokenizer.nextToken(); // ")"
+							} else {
+								String absoluteValueStr = token;
+								value = Double.parseDouble("-"
+										+ absoluteValueStr);
+								token = tokenizer.nextToken(); // )
+							}
 						} else {
 
-							value = Double.parseDouble(realValueStr);
+							if (token.equals("/")) {
+								token = tokenizer.nextToken(); // " "
+								String numeratorStr = tokenizer.nextToken();
+								token = tokenizer.nextToken(); // " "
+								String denominatorStr = tokenizer.nextToken();
+
+								double numerator = Double
+										.parseDouble(numeratorStr);
+								double denominator = Double
+										.parseDouble(denominatorStr);
+
+								value = (numerator / denominator);
+								token = tokenizer.nextToken(); // )
+							} else {
+
+								value = Double.parseDouble(token);
+							}
 						}
 					}
-					solution.put(funcName, value);
+					solution.put(fun_name, value);
+					token = tokenizer.nextToken(); // )
+					token = tokenizer.nextToken(); // \n
+
 				} else if (typeName.equals("String")) {
 					token = tokenizer.nextToken();
 					StringBuffer value = new StringBuffer();
@@ -100,7 +140,7 @@ class CVC4ModelParser {
 					String stringWithQuotes = value.toString();
 					String stringWithoutQuotes = stringWithQuotes.substring(1,
 							stringWithQuotes.length() - 1);
-					solution.put(funcName, stringWithoutQuotes);
+					solution.put(fun_name, stringWithoutQuotes);
 					token = tokenizer.nextToken(); // )
 					token = tokenizer.nextToken(); // \n
 				} else {
@@ -121,8 +161,10 @@ class CVC4ModelParser {
 			}
 		}
 
-		logger.debug("Adding missing values to Solver solution");
-		addMissingValues(initialValues, solution);
+		if (!solution.keySet().equals(initialValues.keySet())) {
+			logger.debug("Adding missing values to Solver solution");
+			addMissingValues(initialValues, solution);
+		}
 
 		return solution;
 	}

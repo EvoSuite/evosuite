@@ -467,14 +467,40 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 
 	@Override
 	public String visit(StringBinaryExpression e, Void v) {
+		String left = e.getLeftOperand().accept(this, null);
+		String right = e.getRightOperand().accept(this, null);
+
+		if (left == null || right == null) {
+			return null;
+		}
+
 		Operator op = e.getOperator();
+
 		switch (op) {
+		case CONCAT: {
+			String concatExpr = SmtLibExprBuilder.mkApp(CVC4Solver.STR_CONCAT,
+					left, right);
+
+			return concatExpr;
+		}
+		case APPEND_STRING: {
+			String concatExpr = SmtLibExprBuilder.mkApp(CVC4Solver.STR_CONCAT,
+					left, right);
+
+			return concatExpr;
+
+		}
+		case APPEND_INTEGER: {
+			String rigthStr = SmtLibExprBuilder.mkApp(CVC4Solver.INT_2_STR,
+					right);
+			String concatExpr = SmtLibExprBuilder.mkApp(CVC4Solver.STR_CONCAT,
+					left, rigthStr);
+
+			return concatExpr;
+		}
 		case APPEND_BOOLEAN:
 		case APPEND_CHAR:
-		case APPEND_INTEGER:
-		case APPEND_REAL:
-		case APPEND_STRING:
-		case CONCAT: {
+		case APPEND_REAL: {
 			String concreteValue = e.getConcreteValue();
 			String strConstant = createStringConstant(concreteValue);
 			return strConstant;
@@ -520,7 +546,8 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 			return ifThenElseFormula;
 		}
 		case CONTAINS: {
-			String equalsFormula = CVC4ExprBuilder.mkApp(CVC4Solver.STR_CONTAINS, left,right);
+			String equalsFormula = CVC4ExprBuilder.mkApp(
+					CVC4Solver.STR_CONTAINS, left, right);
 			String ifThenElseFormula = CVC4ExprBuilder.mkITE(equalsFormula,
 					oneConstant, zeroConstant);
 			return ifThenElseFormula;
@@ -540,11 +567,6 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 			throw new UnsupportedOperationException("Not implemented yet! "
 					+ op);
 		}
-	}
-
-	private String buildContainsFormula(String left, String right) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -569,8 +591,8 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 		}
 		case INDEXOFS: {
 			String zeroIndex = CVC4ExprBuilder.mkIntegerConstant(0);
-			String indexOf = CVC4ExprBuilder.mkApp(CVC4Solver.STR_INDEXOF, left, right,
-					zeroIndex);
+			String indexOf = CVC4ExprBuilder.mkApp(CVC4Solver.STR_INDEXOF,
+					left, right, zeroIndex);
 			return indexOf;
 		}
 		case INDEXOFC:
@@ -666,7 +688,18 @@ class ExprToCVC4Visitor implements ExpressionVisitor<String, Void> {
 			return indexOf;
 
 		}
-		case INDEXOFCI:
+		case INDEXOFCI: {
+			String right = e.getRightOperand().accept(this, null);
+
+			String int2Str = SmtLibExprBuilder.mkApp(CVC4Solver.INT_2_STR,
+					right);
+			String left = e.getLeftOperand().accept(this, null);
+			String other = e.getOther().get(0).accept(this, null);
+			String indexOf = CVC4ExprBuilder.mkApp(CVC4Solver.STR_INDEXOF,
+					left, int2Str, other);
+
+			return indexOf;
+		}
 		case LASTINDEXOFCI:
 		case LASTINDEXOFSI: {
 			Long concreteValue = e.getConcreteValue();
