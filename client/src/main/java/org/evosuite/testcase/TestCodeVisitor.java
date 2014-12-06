@@ -51,6 +51,7 @@ import org.evosuite.assertion.SameAssertion;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.EvoSuiteFile;
+import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
@@ -1143,10 +1144,7 @@ public class TestCodeVisitor extends TestVisitor {
 	public String generateCatchBlock(AbstractStatement statement, Throwable exception) {
 		String result = "";
 
-		// we can only catch a public class
-		Class<?> ex = exception.getClass();
-		while (!Modifier.isPublic(ex.getModifiers()))
-			ex = ex.getSuperclass();
+		Class<?> ex = getExceptionClassToUse(exception);
 
 		// preparing the catch block
 		result += " catch(" + getClassName(ex) + " e) {\n";
@@ -1168,6 +1166,18 @@ public class TestCodeVisitor extends TestVisitor {
 		result += "}\n";// closing the catch block
 		return result;
 	}
+
+    private Class<?> getExceptionClassToUse(Throwable exception){
+        /*
+            we can only catch a public class.
+            for "readability" of tests, it shouldn't be a mock one either
+          */
+        Class<?> ex = exception.getClass();
+        while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex)) {
+            ex = ex.getSuperclass();
+        }
+        return ex;
+    }
 
 	private String getSimpleTypeName(Type type) {
 		String typeName = getTypeName(type);
@@ -1264,12 +1274,12 @@ public class TestCodeVisitor extends TestVisitor {
 	 * implementation but may be used in future extensions.
 	 **/
 	public String generateFailAssertion(AbstractStatement statement, Throwable exception) {
-		Class<?> ex = exception.getClass();
+        Class<?> ex = getExceptionClassToUse(exception);
+
 		// boolean isExpected = getDeclaredExceptions().contains(ex);
-		while (!Modifier.isPublic(ex.getModifiers()))
-			ex = ex.getSuperclass();
-		// if (isExpected)      
-		String stmt =  " fail(\"Expecting exception: " + getClassName(ex) + "\");\n";
+		// if (isExpected)
+
+        String stmt =  " fail(\"Expecting exception: " + getClassName(ex) + "\");\n";
 		
 		if(isTestUnstable()){
 			/*
