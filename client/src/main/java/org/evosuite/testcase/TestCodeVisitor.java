@@ -465,8 +465,15 @@ public class TestCodeVisitor extends TestVisitor {
 			        + getVariableName(source) + ");";
 			// Make sure the enum is imported in the JUnit test
 			getClassName(value.getClass());
-
-		} else if (source.isWrapperType()) {
+		} else if(source.getVariableClass().equals(boolean.class) || source.getVariableClass().equals(Boolean.class)){
+            Boolean flag = (Boolean) value;
+            if(flag){
+                stmt += "assertTrue(";
+            } else {
+                stmt += "assertFalse(";
+            }
+            stmt += "" + getVariableName(source) + ");";
+        } else if (source.isWrapperType()) {
 			if (source.getVariableClass().equals(Float.class)) {
 				stmt += "assertEquals(" + NumberFormatter.getNumberString(value)
 				        + ", (float)" + getVariableName(source) + ", 0.01F);";
@@ -559,7 +566,15 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (value.getClass().equals(String.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + "." + field.getName() + ");";
-		} else if (value.getClass().isEnum()) {
+		} else if(value.getClass().equals(Boolean.class)){
+            Boolean flag = (Boolean) value;
+            if(flag){
+                testCode += "assertTrue(";
+            } else {
+                testCode += "assertFalse(";
+            }
+            testCode += "" + getVariableName(source) + "." + field.getName() + ");";
+        }else if (value.getClass().isEnum()) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + "." + field.getName() + ");";
 			// Make sure the enum is imported in the JUnit test
