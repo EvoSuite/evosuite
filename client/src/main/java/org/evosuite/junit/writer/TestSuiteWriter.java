@@ -473,6 +473,10 @@ public class TestSuiteWriter implements Opcodes {
 			list.add("useVFS = true");
 		}
 
+        if(Properties.VIRTUAL_NET){
+            list.add("useVNET = true");
+        }
+
 		if (Properties.RESET_STATIC_FIELDS) {
 			list.add("resetStaticState = true");
 		}

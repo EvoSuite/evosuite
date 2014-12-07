@@ -1,5 +1,6 @@
 package org.evosuite.runtime.mock.java.net;
 
+import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.mock.java.io.MockIOException;
 import org.evosuite.runtime.mock.java.lang.MockError;
 import org.evosuite.runtime.mock.java.lang.MockIllegalArgumentException;
@@ -11,9 +12,11 @@ import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 
 /**
+ * TODO need to implement rollback
+ *
  * Created by arcuri on 12/7/14.
  */
-public class MockDatagramSocket extends DatagramSocket {
+public class MockDatagramSocket extends DatagramSocket implements OverrideMock{
 
     private static final int ST_NOT_CONNECTED = 0;
     private static final int ST_CONNECTED = 1;

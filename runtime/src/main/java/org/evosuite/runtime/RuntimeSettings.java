@@ -31,6 +31,11 @@ public class RuntimeSettings {
     public static boolean useVFS = false;
 
     /**
+     * Shall the test cases use a virtual network?
+     */
+    public static boolean useVNET = false;
+
+    /**
      * Should the static state be reset after each test execution?
      */
     public static boolean resetStaticState = false;

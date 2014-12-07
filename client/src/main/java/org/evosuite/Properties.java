@@ -919,18 +919,15 @@ public class Properties {
 	public static boolean FILTER_SANDBOX_TESTS = false;
 
 	/** Constant <code>VIRTUAL_FS=false</code> */
-	@Parameter(key = "virtual_fs", group = "Sandbox", description = "Usa a virtual file system for all File I/O operations")
-	public static boolean VIRTUAL_FS = true;
+    @Parameter(key = "virtual_fs", group = "Sandbox", description = "Usa a virtual file system for all File I/O operations")
+    public static boolean VIRTUAL_FS = true;
 
-	/** Constant <code>READ_ONLY_FROM_SANDBOX_FOLDER = false;</code> */
-	//@Parameter(key = "restricted_read", group = "Sandbox", description = "Determines if the VFS shall only be allowed to read files from the sandbox read folder")
-	//public static boolean READ_ONLY_FROM_SANDBOX_FOLDER = false;
 
-	/** Constant <code>SANDBOX_FOLDER="evosuite-sandbox"</code> */
-	//@Parameter(key = "sandbox_folder", group = "Sandbox", description = "Folder used for IO, when mocks are enabled")
-	//public static String SANDBOX_FOLDER = "evosuite-sandbox";
+    @Parameter(key = "virtual_net", group = "Sandbox", description = "Usa a virtual network for all TCP/UDP communications")
+    public static boolean VIRTUAL_NET = false;  //TODO put true once finalized
 
-	// ---------------------------------------------------------------
+
+    // ---------------------------------------------------------------
 	// Experimental
 
 	@Parameter(key = "cluster_recursion", description = "The maximum level of recursion when calculating the dependencies in the test cluster")
