@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.ConstraintVisitor;
+import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.StringConstraint;
@@ -14,57 +15,45 @@ class ConstraintToCVC4Visitor implements ConstraintVisitor<String, Void> {
 
 	private final Set<String> stringConstants = new HashSet<String>();
 
-	public ConstraintToCVC4Visitor() {
-	}
+	private final ExprToCVC4Visitor exprVisitor = new ExprToCVC4Visitor();
 
 	@Override
 	public String visit(IntegerConstraint c, Void arg) {
-		ExprToCVC4Visitor v = new ExprToCVC4Visitor();
+		Expression<?> leftOperand = c.getLeftOperand();
+		Expression<?> rightOperand = c.getRightOperand();
+		Comparator cmp = c.getComparator();
+		return visit(leftOperand, cmp, rightOperand);
+	}
 
-		String left = c.getLeftOperand().accept(v, null);
-		String right = c.getRightOperand().accept(v, null);
+	private String visit(Expression<?> leftOperand, Comparator cmp,
+			Expression<?> rightOperand) {
+		String left = leftOperand.accept(exprVisitor, null);
+		String right = rightOperand.accept(exprVisitor, null);
 
 		if (left == null || right == null) {
 			return null;
 		}
-
-		Comparator cmp = c.getComparator();
 
 		return mkComparison(left, cmp, right);
 	}
 
 	@Override
 	public String visit(RealConstraint c, Void arg) {
-		ExprToCVC4Visitor v = new ExprToCVC4Visitor();
-
-		String left = c.getLeftOperand().accept(v, null);
-		String right = c.getRightOperand().accept(v, null);
-
-		if (left == null || right == null) {
-			return null;
-		}
-
+		Expression<?> leftOperand = c.getLeftOperand();
+		Expression<?> rightOperand = c.getRightOperand();
 		Comparator cmp = c.getComparator();
-
-		return mkComparison(left, cmp, right);
+		return visit(leftOperand, cmp, rightOperand);
 	}
 
 	@Override
 	public String visit(StringConstraint c, Void arg) {
-		ExprToCVC4Visitor v = new ExprToCVC4Visitor();
-
-		String left = c.getLeftOperand().accept(v, null);
-		String right = c.getRightOperand().accept(v, null);
-
-		if (left == null || right == null) {
-			return null;
-		}
-
+		Expression<?> leftOperand = c.getLeftOperand();
+		Expression<?> rightOperand = c.getRightOperand();
 		Comparator cmp = c.getComparator();
-		return mkComparison(left, cmp, right);
+		return visit(leftOperand, cmp, rightOperand);
 	}
 
-	private String mkComparison(String left, Comparator cmp, String right) {
+	private static String mkComparison(String left, Comparator cmp, String right) {
 		switch (cmp) {
 		case LT: {
 			String lt = SmtLibExprBuilder.mkLt(left, right);

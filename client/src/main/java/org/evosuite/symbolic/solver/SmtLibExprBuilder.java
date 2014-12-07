@@ -197,4 +197,7 @@ public abstract class SmtLibExprBuilder {
 		return "(declare-fun " + varName + " () String)";
 	}
 
+	public static String mkIntToStringFunction(String varName) {
+		return "(declare-fun " + varName + " (Int) String)";
+	}
 }
