@@ -18,6 +18,8 @@ public @interface EvoRunnerParameters {
 
     boolean useVFS() default false;
 
+    boolean useVNET() default false;
+
     boolean resetStaticState() default false;
     
     boolean separateClassLoader() default false;
