@@ -9,26 +9,26 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.StringConstraint;
-import org.evosuite.symbolic.solver.SmtLibExprBuilder;
+import org.evosuite.symbolic.solver.smt.SmtExpr;
 
-class ConstraintToCVC4Visitor implements ConstraintVisitor<String, Void> {
+class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> {
 
 	private final Set<String> stringConstants = new HashSet<String>();
 
 	private final ExprToCVC4Visitor exprVisitor = new ExprToCVC4Visitor();
 
 	@Override
-	public String visit(IntegerConstraint c, Void arg) {
+	public SmtExpr visit(IntegerConstraint c, Void arg) {
 		Expression<?> leftOperand = c.getLeftOperand();
 		Expression<?> rightOperand = c.getRightOperand();
 		Comparator cmp = c.getComparator();
 		return visit(leftOperand, cmp, rightOperand);
 	}
 
-	private String visit(Expression<?> leftOperand, Comparator cmp,
+	private SmtExpr visit(Expression<?> leftOperand, Comparator cmp,
 			Expression<?> rightOperand) {
-		String left = leftOperand.accept(exprVisitor, null);
-		String right = rightOperand.accept(exprVisitor, null);
+		SmtExpr left = leftOperand.accept(exprVisitor, null);
+		SmtExpr right = rightOperand.accept(exprVisitor, null);
 
 		if (left == null || right == null) {
 			return null;
@@ -38,7 +38,7 @@ class ConstraintToCVC4Visitor implements ConstraintVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(RealConstraint c, Void arg) {
+	public SmtExpr visit(RealConstraint c, Void arg) {
 		Expression<?> leftOperand = c.getLeftOperand();
 		Expression<?> rightOperand = c.getRightOperand();
 		Comparator cmp = c.getComparator();
@@ -46,38 +46,39 @@ class ConstraintToCVC4Visitor implements ConstraintVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(StringConstraint c, Void arg) {
+	public SmtExpr visit(StringConstraint c, Void arg) {
 		Expression<?> leftOperand = c.getLeftOperand();
 		Expression<?> rightOperand = c.getRightOperand();
 		Comparator cmp = c.getComparator();
 		return visit(leftOperand, cmp, rightOperand);
 	}
 
-	private static String mkComparison(String left, Comparator cmp, String right) {
+	private static SmtExpr mkComparison(SmtExpr left, Comparator cmp,
+			SmtExpr right) {
 		switch (cmp) {
 		case LT: {
-			String lt = SmtLibExprBuilder.mkLt(left, right);
+			SmtExpr lt = CVC4ExprBuilder.mkLt(left, right);
 			return lt;
 		}
 		case LE: {
-			String le = SmtLibExprBuilder.mkLe(left, right);
+			SmtExpr le = CVC4ExprBuilder.mkLe(left, right);
 			return le;
 		}
 		case GT: {
-			String gt = SmtLibExprBuilder.mkGt(left, right);
+			SmtExpr gt = CVC4ExprBuilder.mkGt(left, right);
 			return gt;
 		}
 		case GE: {
-			String ge = SmtLibExprBuilder.mkGe(left, right);
+			SmtExpr ge = CVC4ExprBuilder.mkGe(left, right);
 			return ge;
 		}
 		case EQ: {
-			String ge = SmtLibExprBuilder.mkEq(left, right);
+			SmtExpr ge = CVC4ExprBuilder.mkEq(left, right);
 			return ge;
 		}
 		case NE: {
-			String ge = SmtLibExprBuilder.mkEq(left, right);
-			String ne = SmtLibExprBuilder.mkNot(ge);
+			SmtExpr ge = CVC4ExprBuilder.mkEq(left, right);
+			SmtExpr ne = CVC4ExprBuilder.mkNot(ge);
 			return ne;
 		}
 		default: {

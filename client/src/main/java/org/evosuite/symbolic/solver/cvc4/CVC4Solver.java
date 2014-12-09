@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,12 +18,19 @@ import java.util.TimerTask;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.expr.bv.IntegerVariable;
-import org.evosuite.symbolic.expr.fp.RealVariable;
-import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.SmtLibExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.smt.SmtExpr;
+import org.evosuite.symbolic.solver.smt.SmtExprPrinter;
+import org.evosuite.symbolic.solver.smt.SmtFunCollector;
+import org.evosuite.symbolic.solver.smt.SmtIntVariable;
+import org.evosuite.symbolic.solver.smt.SmtOperation;
+import org.evosuite.symbolic.solver.smt.SmtRealVariable;
+import org.evosuite.symbolic.solver.smt.SmtStringVariable;
+import org.evosuite.symbolic.solver.smt.SmtVarCollector;
+import org.evosuite.symbolic.solver.smt.SmtVariable;
+import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,18 +49,9 @@ public class CVC4Solver extends Solver {
 		}
 	}
 
+	private static final String CVC4_LOGIC = "QF_SLIRA";
+
 	static Logger logger = LoggerFactory.getLogger(CVC4Solver.class);
-	public static final String STR_LENGTH = "str.len";
-	public static final String STR_AT = "str.at";
-	public static final String STR_SUBSTR = "str.substr";
-	public static final String STR_PREFIXOF = "str.prefixof";
-	public static final String STR_SUFFIXOF = "str.suffixof";
-	public static final String STR_REPLACE = "str.replace";
-	public static final String STR_INDEXOF = "str.indexof";
-	public static final String STR_CONTAINS = "str.contains";
-	public static final String STR_CONCAT = "str.++";
-	public static final String INT_2_STR = "int.to.str";
-	public static final String STR_2_INT = "str.to.int";
 
 	@Override
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
@@ -72,8 +69,12 @@ public class CVC4Solver extends Solver {
 			variables.addAll(c_variables);
 		}
 
-		String smtQuery = buildSmtQuery(cvc4SolverLogic, constraints,
-				variables, timeout);
+		String smtQuery = buildSmtQuery(constraints);
+
+		if (smtQuery == null) {
+			logger.warn("No variables found during constraint solving. Returning NULL as solution");
+			return null;
+		}
 
 		logger.debug("CVC4 Query:");
 		logger.debug(smtQuery);
@@ -86,11 +87,19 @@ public class CVC4Solver extends Solver {
 		String cvc4Cmd = Properties.CVC4_PATH + "  --lang smt --strings-exp ";
 
 		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+		ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
 		try {
-			launchNewProcess(cvc4Cmd, smtQuery, (int) timeout, stdout);
+			launchNewProcess(cvc4Cmd, smtQuery, (int) timeout, stdout, stderr);
 
 			String cvc4ResultStr = stdout.toString("UTF-8");
+			String errorStr = stderr.toString("UTF-8");
+
+			if (errorStr.contains("error")) {
+				logger.error("An error occurred while executing CVC4!");
+				return null;
+			}
+
 			if (cvc4ResultStr.startsWith("sat")) {
 				logger.debug("CVC4 outcome was SAT");
 
@@ -109,6 +118,9 @@ public class CVC4Solver extends Solver {
 				return solution;
 			} else if (cvc4ResultStr.startsWith("unsat")) {
 				logger.debug("CVC4 outcome was UNSAT");
+				return null;
+			} else if (cvc4ResultStr.startsWith("(error")) {
+				logger.error("An error (probably parsing error) occurred while executing CVC4");
 				return null;
 			} else {
 				logger.error("CVC4 output is unknown. We are unable to parse it to a proper solution!");
@@ -135,65 +147,90 @@ public class CVC4Solver extends Solver {
 		return false;
 	}
 
-	private enum CVC4Logic {
-		QF_S, QF_SLIRA
-	};
+	private static String buildSmtQuery(Collection<Constraint<?>> constraints) {
 
-	private CVC4Logic cvc4SolverLogic = CVC4Logic.QF_SLIRA;
-
-	private static String toString(CVC4Logic logic) {
-		switch (logic) {
-		case QF_S:
-			return "QF_S";
-		case QF_SLIRA:
-			return "QF_SLIRA";
-		default:
-			throw new IllegalArgumentException("Unknown CVC4 Logic!" + logic);
+		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor();
+		List<SmtExpr> smtExpressions = new LinkedList<SmtExpr>();
+		for (Constraint<?> c : constraints) {
+			SmtExpr smtExpr = c.accept(v, null);
+			if (smtExpr != null) {
+				smtExpressions.add(smtExpr);
+			}
 		}
+
+		SmtExprPrinter printer = new SmtExprPrinter();
+		List<String> cvc4StrAssertions = new LinkedList<String>();
+		for (SmtExpr smtExpr : smtExpressions) {
+			String smtExprStr = smtExpr.accept(printer, null);
+			String assertionStr = SmtLibExprBuilder.mkAssert(smtExprStr);
+			cvc4StrAssertions.add(assertionStr);
+		}
+
+		SmtVarCollector varCollector = new SmtVarCollector();
+		for (SmtExpr smtExpr : smtExpressions) {
+			smtExpr.accept(varCollector, null);
+		}
+		Set<SmtVariable> variables = varCollector.getVariableNames();
+
+		if (variables.isEmpty()) {
+			return null; // no variables, constraint system is trivial
+		}
+
+		SmtFunCollector funCollector = new SmtFunCollector();
+		for (SmtExpr smtExpr : smtExpressions) {
+			smtExpr.accept(funCollector, null);
+		}
+
+		boolean addCharToInt = funCollector.getOperators().contains(
+				Operator.CHAR_TO_INT);
+		boolean addIntToChar = funCollector.getOperators().contains(
+				Operator.INT_TO_CHAR);
+
+		return createSmtString(cvc4StrAssertions, variables, addCharToInt,
+				addIntToChar);
+
 	}
 
-	private static String buildSmtQuery(CVC4Logic cvc4SolverLogic,
-			Collection<Constraint<?>> constraints, Set<Variable<?>> variables,
-			long timeout) {
-
+	private static String createSmtString(List<String> cvc4StrAssertions,
+			Set<SmtVariable> variables, boolean addCharToInt,
+			boolean addIntToChar) {
 		StringBuffer smtQuery = new StringBuffer();
-		//		smtQuery.append("(set-logic QF_S)");
-		//		smtQuery.append("\n");
-
 		smtQuery.append("\n");
-		smtQuery.append("(set-logic " + toString(cvc4SolverLogic) + ")");
-
+		smtQuery.append("(set-logic " + CVC4_LOGIC + ")");
 		smtQuery.append("\n");
 		smtQuery.append("(set-option :produce-models true)");
 		smtQuery.append("\n");
 
-		for (Variable<?> v : variables) {
-			String varName = v.getName();
-			if (v instanceof IntegerVariable) {
+		if (addCharToInt) {
+			String charToIntFunction = buildCharToIntFunction();
+			smtQuery.append(charToIntFunction);
+			smtQuery.append("\n");
+		}
+
+		if (addIntToChar) {
+			String intToCharFunction = buildIntToCharFunction();
+			smtQuery.append(intToCharFunction);
+			smtQuery.append("\n");
+		}
+		for (SmtVariable var : variables) {
+			String varName = var.getName();
+			if (var instanceof SmtIntVariable) {
 				String intVar = SmtLibExprBuilder.mkIntFunction(varName);
 				smtQuery.append(intVar);
 				smtQuery.append("\n");
-			} else if (v instanceof RealVariable) {
+
+			} else if (var instanceof SmtRealVariable) {
 				String realVar = SmtLibExprBuilder.mkRealFunction(varName);
 				smtQuery.append(realVar);
 				smtQuery.append("\n");
-			} else if (v instanceof StringVariable) {
+
+			} else if (var instanceof SmtStringVariable) {
 				String stringVar = SmtLibExprBuilder.mkStringFunction(varName);
 				smtQuery.append(stringVar);
 				smtQuery.append("\n");
 			} else {
 				throw new RuntimeException("Unknown variable type "
-						+ v.getClass().getCanonicalName());
-			}
-		}
-
-		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor();
-		List<String> cvc4StrAssertions = new LinkedList<String>();
-		for (Constraint<?> c : constraints) {
-			String constraintStr = c.accept(v, null);
-			if (constraintStr != null) {
-				String cvc4Assert = SmtLibExprBuilder.mkAssert(constraintStr);
-				cvc4StrAssertions.add(cvc4Assert);
+						+ var.getClass().getCanonicalName());
 			}
 		}
 
@@ -211,11 +248,11 @@ public class CVC4Solver extends Solver {
 		smtQuery.append("(exit)");
 		smtQuery.append("\n");
 		return smtQuery.toString();
-
 	}
 
 	private static int launchNewProcess(String cvc4Cmd, String smtQuery,
-			int timeout, OutputStream outputStream) throws IOException {
+			int timeout, OutputStream outputStream, OutputStream errorStream)
+			throws IOException {
 
 		final Process process = Runtime.getRuntime().exec(cvc4Cmd);
 
@@ -234,7 +271,7 @@ public class CVC4Solver extends Solver {
 
 		do {
 			readInputStream(stdout, outputStream);
-			readInputStream(stderr, null);
+			readInputStream(stderr, errorStream);
 		} while (!isFinished(process));
 
 		int exitValue = process.exitValue();
@@ -254,6 +291,69 @@ public class CVC4Solver extends Solver {
 			}
 			read = br.readLine();
 		}
+	}
+
+	//	private final static int ASCII_TABLE_LENGTH = 256;
+	private final static int ASCII_TABLE_LENGTH = 256;
+
+	private static String buildIntToCharFunction() {
+		StringBuffer buff = new StringBuffer();
+		buff.append("(define-fun " + SmtOperation.Operator.INT_TO_CHAR
+				+ "((!x Int)) String");
+		buff.append("\n");
+		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
+			String hexStr;
+			if (i < 16) {
+				hexStr = "0" + Integer.toHexString(i);
+			} else {
+				hexStr = Integer.toHexString(i);
+			}
+			String escapedHexStr = "\\x" + hexStr;
+			if (i < ASCII_TABLE_LENGTH - 1) {
+				String iteStr = String.format("(ite (= !x %s) \"%s\"", i,
+						escapedHexStr);
+				buff.append(iteStr);
+				buff.append("\n");
+			} else {
+				buff.append(String.format("\"%s\"", escapedHexStr));
+			}
+		}
+		for (int i = 0; i < ASCII_TABLE_LENGTH - 1; i++) {
+			buff.append(")");
+		}
+		buff.append(")");
+		buff.append("\n");
+		return buff.toString();
+	}
+
+	private static String buildCharToIntFunction() {
+		StringBuffer buff = new StringBuffer();
+		buff.append("(define-fun " + SmtOperation.Operator.CHAR_TO_INT
+				+ "((!x String)) Int");
+		buff.append("\n");
+		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
+			String hexStr;
+			if (i < 16) {
+				hexStr = "0" + Integer.toHexString(i);
+			} else {
+				hexStr = Integer.toHexString(i);
+			}
+			String escapedHexStr = "\\x" + hexStr;
+			if (i < ASCII_TABLE_LENGTH - 1) {
+				String iteStr = String.format("(ite (= !x \"%s\") %s",
+						escapedHexStr, i);
+				buff.append(iteStr);
+				buff.append("\n");
+			} else {
+				buff.append(i);
+			}
+		}
+		for (int i = 0; i < ASCII_TABLE_LENGTH - 1; i++) {
+			buff.append(")");
+		}
+		buff.append(")");
+		buff.append("\n");
+		return buff.toString();
 	}
 
 	private static boolean isFinished(Process process) {
