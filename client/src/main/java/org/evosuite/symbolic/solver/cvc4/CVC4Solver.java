@@ -23,12 +23,14 @@ import org.evosuite.symbolic.solver.SmtLibExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 import org.evosuite.symbolic.solver.smt.SmtExprPrinter;
+import org.evosuite.symbolic.solver.smt.SmtFunCollector;
 import org.evosuite.symbolic.solver.smt.SmtIntVariable;
 import org.evosuite.symbolic.solver.smt.SmtOperation;
 import org.evosuite.symbolic.solver.smt.SmtRealVariable;
 import org.evosuite.symbolic.solver.smt.SmtStringVariable;
 import org.evosuite.symbolic.solver.smt.SmtVarCollector;
 import org.evosuite.symbolic.solver.smt.SmtVariable;
+import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,19 +170,30 @@ public class CVC4Solver extends Solver {
 		for (SmtExpr smtExpr : smtExpressions) {
 			smtExpr.accept(varCollector, null);
 		}
-
 		Set<SmtVariable> variables = varCollector.getVariableNames();
 
 		if (variables.isEmpty()) {
 			return null; // no variables, constraint system is trivial
 		}
 
-		return createSmtString(cvc4StrAssertions, variables);
+		SmtFunCollector funCollector = new SmtFunCollector();
+		for (SmtExpr smtExpr : smtExpressions) {
+			smtExpr.accept(funCollector, null);
+		}
+
+		boolean addCharToInt = funCollector.getOperators().contains(
+				Operator.CHAR_TO_INT);
+		boolean addIntToChar = funCollector.getOperators().contains(
+				Operator.INT_TO_CHAR);
+
+		return createSmtString(cvc4StrAssertions, variables, addCharToInt,
+				addIntToChar);
 
 	}
 
 	private static String createSmtString(List<String> cvc4StrAssertions,
-			Set<SmtVariable> variables) {
+			Set<SmtVariable> variables, boolean addCharToInt,
+			boolean addIntToChar) {
 		StringBuffer smtQuery = new StringBuffer();
 		smtQuery.append("\n");
 		smtQuery.append("(set-logic " + CVC4_LOGIC + ")");
@@ -188,14 +201,17 @@ public class CVC4Solver extends Solver {
 		smtQuery.append("(set-option :produce-models true)");
 		smtQuery.append("\n");
 
-		String charToIntFunction = buildCharToIntFunction();
-		smtQuery.append(charToIntFunction);
-		smtQuery.append("\n");
+		if (addCharToInt) {
+			String charToIntFunction = buildCharToIntFunction();
+			smtQuery.append(charToIntFunction);
+			smtQuery.append("\n");
+		}
 
-		String intToCharFunction = buildIntToCharFunction();
-		smtQuery.append(intToCharFunction);
-		smtQuery.append("\n");
-
+		if (addIntToChar) {
+			String intToCharFunction = buildIntToCharFunction();
+			smtQuery.append(intToCharFunction);
+			smtQuery.append("\n");
+		}
 		for (SmtVariable var : variables) {
 			String varName = var.getName();
 			if (var instanceof SmtIntVariable) {
