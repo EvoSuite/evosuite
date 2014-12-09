@@ -1,14 +1,11 @@
 package org.evosuite.runtime.vnet;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,7 +25,11 @@ import org.evosuite.runtime.mock.java.net.MockURL;
  */
 public class VirtualNetwork {
 
+    /**
+     * Specify a network protocol
+     */
 	public enum ConnectionType {UDP,TCP};
+
 
 	/**
 	 * Singleton instance
@@ -55,6 +56,13 @@ public class VirtualNetwork {
 	 */
 	private final Set<EndPointInfo> remoteContactedPorts;
 
+    /**
+     * key -> address of a remote server
+     * <p>
+     * value -> a queue of instances of remote servers for the given address.
+     * Note: we need a queue as a server listening on a port could handle several
+     * connections (eg with thread-pool), and each one needs its own object instance.
+     */
 	private final Map<EndPointInfo, Queue<RemoteTcpServer>> remoteCurrentServers;
 
 	/**
@@ -77,6 +85,22 @@ public class VirtualNetwork {
 	 * Current remote port number that can be opened
 	 */
 	private final AtomicInteger remotePortIndex;
+
+    /**
+     *  Keeping track of all sent UDP messages is likely not a viable option.
+     *  So, for each remote host, we can keep track of how many UDP were sent to it.
+     *  This can be used to create concise assertions.
+     *  Note: for unit testing purposes, it does not really matter if the remote host is listening,
+     *  as UDP is stateless.
+     */
+    private final Map<EndPointInfo , AtomicInteger>  sentUdpPackets;
+
+    /**
+     * key -> local address/port for SUT
+     * <p>
+     * value -> queue of incoming UDP packets
+     */
+    private final Map<EndPointInfo , Queue<DatagramPacket>> udpPacketsToSUT;
 
 	/**
 	 * Define what interfaces are available:
@@ -124,6 +148,8 @@ public class VirtualNetwork {
 		networkInterfaces = new CopyOnWriteArrayList<>();
         remoteFiles = new ConcurrentHashMap<>();
         remoteAccessedFiles = new CopyOnWriteArraySet<>();
+        sentUdpPackets = new ConcurrentHashMap<>();
+        udpPacketsToSUT = new ConcurrentHashMap<>();
 
 		dns = new DNS();
 	}
@@ -144,6 +170,8 @@ public class VirtualNetwork {
 		remoteCurrentServers.clear();
 		networkInterfaces.clear();
         remoteFiles.clear();
+        sentUdpPackets.clear();
+        udpPacketsToSUT.clear();
 
 		//TODO most likely it ll need different handling, as needed after the search
 		openedTcpConnections.clear();
@@ -189,6 +217,58 @@ public class VirtualNetwork {
         remoteFiles.put(key,rf);
 
         return true;
+    }
+
+    /**
+     * Represent the fact that a UDP was sent to a remote host
+     *
+     * @param packet
+     */
+    public void sentPacketBySUT(DatagramPacket packet){
+        InetAddress addr = packet.getAddress();
+        int port = packet.getPort();
+        EndPointInfo info = new EndPointInfo(addr.getHostAddress(),port,ConnectionType.UDP);
+
+        remoteContactedPorts.add(info);
+        synchronized(sentUdpPackets){
+            AtomicInteger counter = sentUdpPackets.get(info);
+            if(counter == null){
+                counter = new AtomicInteger(0);
+                sentUdpPackets.put(info,counter);
+            }
+            counter.incrementAndGet();
+        }
+    }
+
+    /**
+     *
+     * @param sutAddress
+     * @param sutPort
+     * @return {@code null} if there is no buffered incoming packet for the given SUT address
+     */
+    public DatagramPacket pullUdpPacket(String sutAddress, int sutPort){
+        EndPointInfo sut = new EndPointInfo(sutAddress,sutPort,ConnectionType.UDP);
+        Queue<DatagramPacket> queue = udpPacketsToSUT.get(sut);
+        if(queue == null || queue.isEmpty()){
+            return null;
+        }
+
+        DatagramPacket p = queue.poll();
+        return p;
+    }
+
+    public void sendPacketToSUT(byte[] data, InetAddress remoteAddress, int remotePort,  String sutAddress, int sutPort){
+        DatagramPacket packet = new DatagramPacket(data.clone(),data.length,remoteAddress, remotePort);
+        EndPointInfo sut = new EndPointInfo(sutAddress,sutPort,ConnectionType.UDP);
+
+        synchronized(udpPacketsToSUT){
+            Queue<DatagramPacket> queue = udpPacketsToSUT.get(sut);
+            if(queue == null){
+                queue = new ConcurrentLinkedQueue<>();
+                udpPacketsToSUT.put(sut,queue);
+            }
+            queue.add(packet);
+        }
     }
 
     /**
@@ -298,22 +378,39 @@ public class VirtualNetwork {
 	 * @param addr
 	 * @return {@code false} if it was not possible to open the listening port
 	 */
-	public synchronized boolean  openTcpServer(String addr, int port){
-		EndPointInfo info = new EndPointInfo(addr,port,ConnectionType.TCP);
+    public synchronized boolean  openTcpServer(String addr, int port){
+        return openServer(addr,port,ConnectionType.TCP);
+    }
 
-		if(localListeningPorts.contains(info)){
-			//there is already an existing opened port
-			return false;
-		}
+    /**
+     *
+     * @param addr
+     * @return {@code false} if it was not possible to open the listening port
+     */
+    public synchronized boolean  openUdpServer(String addr, int port){
+        return openServer(addr,port,ConnectionType.UDP);
+    }
 
-		if(! isValidLocalServer(info)){
-			return false;
-		}
 
-		localListeningPorts.add(info);
+    private boolean openServer(String addr, int port, ConnectionType type){
+        EndPointInfo info = new EndPointInfo(addr,port,type);
 
-		return true;
-	}
+        if(localListeningPorts.contains(info)){
+            /*
+                there is already an existing opened port.
+                Note: it is possible to have a UDP and TCP on same port
+             */
+            return false;
+        }
+
+        if(! isValidLocalServer(info)){
+            return false;
+        }
+
+        localListeningPorts.add(info);
+
+        return true;
+    }
 
     public Set<String> getViewOfRemoteAccessedFiles(){
         return Collections.unmodifiableSet(remoteAccessedFiles);
@@ -322,6 +419,15 @@ public class VirtualNetwork {
 	public Set<NativeTcp> getViewOfOpenedTcpConnections(){
 		return  Collections.unmodifiableSet(openedTcpConnections);
 	}
+
+    public Map<EndPointInfo, Integer> getCopyOfSentUDP(){
+        //as AtomicInteger is modifiable, we cannot return a view. we need a copy
+        Map<EndPointInfo, Integer> map = new LinkedHashMap<>();
+        for(EndPointInfo info : sentUdpPackets.keySet()){
+            map.put(info,sentUdpPackets.get(info).get());
+        }
+        return map;
+    }
 
 	/**
 	 *  Register a remote server that can reply to SUT's connection requests
@@ -338,13 +444,25 @@ public class VirtualNetwork {
 	}
 
 
-
+    /**
+     * Create a mocked TCP connection from the SUT to a remote host
+     *
+     * @param localOrigin
+     * @param remoteTarget
+     * @return
+     * @throws IllegalArgumentException
+     * @throws IOException
+     */
 	public synchronized NativeTcp connectToRemoteAddress(EndPointInfo localOrigin, EndPointInfo remoteTarget)
 			throws IllegalArgumentException, IOException{
 
 		if(localOrigin==null || remoteTarget==null){
 			throw new IllegalArgumentException("Null input");
 		}
+
+        if(!localOrigin.getType().equals(ConnectionType.TCP) || !remoteTarget.getType().equals(ConnectionType.TCP)){
+            throw new IllegalArgumentException("Non-TCP connections");
+        }
 
 		if(!isValidLocalServer(localOrigin)){
 			throw new IllegalArgumentException("Invalid local address: "+localOrigin);
