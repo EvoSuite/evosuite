@@ -13,10 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.runtime.RuntimeSettings;
-import org.evosuite.runtime.mock.EvoSuiteMock;
-import org.evosuite.runtime.mock.MockList;
-import org.evosuite.runtime.mock.OverrideMock;
-import org.evosuite.runtime.mock.StaticReplacementMock;
+import org.evosuite.runtime.mock.*;
 import org.evosuite.runtime.mock.java.lang.MockThrowable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -246,7 +243,7 @@ public class MethodCallReplacementCache {
 				replaceAllConstructors(mock, mock.getSuperclass());
 				replaceAllStaticMethods(mock, mock.getSuperclass());
 				replaceAllInvokeSpecial(mock, mock.getSuperclass());
-
+                handleStaticReplacementMethods(mock);
 			} else if(StaticReplacementMock.class.isAssignableFrom(mock)){
 
 				String mockedName;
@@ -267,9 +264,50 @@ public class MethodCallReplacementCache {
 
 				replaceAllStaticMethods(mock, mocked);
 				replaceAllInstanceMethodsWithStatic(mock,mocked);
-			}
+			} else {
+                handleStaticReplacementMethods(mock);
+            }
 		}
 	}
+
+    private void handleStaticReplacementMethods(Class<? extends EvoSuiteMock> mockClass){
+
+        for (Method m : mockClass.getMethods()) {
+
+            StaticReplacementMethod srm = m.getAnnotation(StaticReplacementMethod.class);
+            if(srm == null){
+                continue;
+            }
+
+            if (!Modifier.isStatic(m.getModifiers())) {
+                throw new RuntimeException("EvoSuite Bug: improper annotations in class "+mockClass.getName());
+            }
+
+            String target;
+            if(OverrideMock.class.isAssignableFrom(mockClass)){
+                target = mockClass.getSuperclass().getCanonicalName();
+            } else {
+                target = srm.mockedClassName();
+                if(target == null){
+                    throw new RuntimeException("EvoSuite Bug: missing mockedClassName in annotations in class "+mockClass.getName());
+                }
+            }
+
+            if(srm.staticMock()) {
+                String desc = Type.getMethodDescriptor(m);
+                addReplacementCall(new MethodCallReplacement(
+                        target.replace('.', '/'), m.getName(), desc, Opcodes.INVOKESTATIC,
+                        mockClass.getCanonicalName().replace('.', '/'), m.getName(),
+                        desc, false, false));
+            } else {
+                String desc = Type.getMethodDescriptor(m);
+                addSpecialReplacementCall(new MethodCallReplacement(
+                        target.replace('.', '/'), m.getName(), desc, Opcodes.INVOKESPECIAL,
+                        mockClass.getCanonicalName().replace('.', '/'), m.getName(),
+                        desc, false, false));
+            }
+        }
+    }
 
 	private void addJavaLangCalls() {
 
