@@ -1,6 +1,7 @@
 package org.evosuite.runtime.mock.java.net;
 
 import org.evosuite.runtime.mock.StaticReplacementMock;
+import org.evosuite.runtime.mock.java.lang.MockIllegalArgumentException;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -23,7 +24,7 @@ public class MockURI implements StaticReplacementMock {
      */
     public static URL toURL(URI uri) throws MalformedURLException {
         if (!uri.isAbsolute())
-            throw new IllegalArgumentException("URI is not absolute");
+            throw new MockIllegalArgumentException("URI is not absolute");
         return MockURL.URL(uri.toString());
     }
 
