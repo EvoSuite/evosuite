@@ -102,7 +102,7 @@ public class MockList {
 
         if(RuntimeSettings.useVNET){
 
-            //TODO double check that all OvverideMocks implement rollback
+            //TODO double check that all OverrideMocks implement rollback
 
             list.add(MockDatagramSocket.class);
             list.add(MockInetAddress.class);
@@ -113,7 +113,7 @@ public class MockList {
             list.add(MockSocketImpl.class);
             list.add(MockURL.class);
             list.add(MockURLStreamHandler.class);
-            //list.add(MockURI.class); //TODO
+            list.add(MockURI.class);
             //list.add(MockServerSocketChannel.class); //TODO
             //list.add(MockSocketChannel.class); //TODO
         }

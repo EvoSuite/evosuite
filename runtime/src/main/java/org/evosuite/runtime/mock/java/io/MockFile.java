@@ -9,9 +9,11 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.mock.java.lang.MockIllegalArgumentException;
+import org.evosuite.runtime.mock.java.net.MockURL;
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VFolder;
@@ -482,6 +484,16 @@ public class MockFile extends File implements OverrideMock {
         return super.getCanonicalPath();
     }
 
+    @Override
+    public URL toURL() throws MalformedURLException {
+        if(! MockFramework.isEnabled() || !RuntimeSettings.useVNET){
+            return super.toURL();
+        }
+        URL url = super.toURL();
+        return MockURL.URL(url.toString());
+    }
+
+
     // -------- unmodified methods --------------
 
 	@Override
@@ -509,14 +521,10 @@ public class MockFile extends File implements OverrideMock {
 		return super.getAbsolutePath();
 	}
 
-	@Override
-	public URL toURL() throws MalformedURLException {
-		return super.toURL(); //TODO use VNET
-	}
 
 	@Override
 	public URI toURI() {
-		return super.toURI(); //TODO use VNET
+		return super.toURI(); //no need of VNET here
 	}
 
 	@Override

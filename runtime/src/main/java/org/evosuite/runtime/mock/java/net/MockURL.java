@@ -235,7 +235,6 @@ public class MockURL implements StaticReplacementMock{
 
 
 	public static URI toURI(URL url) throws URISyntaxException {
-		//TODO need to mock URI, eg it uses URL in toURL()
 		return new URI (url.toString());
 	}
 
