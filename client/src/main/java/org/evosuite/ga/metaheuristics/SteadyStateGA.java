@@ -27,7 +27,6 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.ReplacementFunction;
-import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,22 +215,30 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	@Override
 	public void generateSolution() {
 		
-		if(Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER>0){
-			disableSecondaryCriteria();
+		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
+				|| Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
+			disableFirstSecondaryCriterion();
 		}
 		
 		if (population.isEmpty())
 			initializePopulation();
 
 		logger.debug("Starting evolution");
+		int starvationCounter = 0;
 		double bestFitness = Double.MAX_VALUE;
-		if (getFitnessFunction().isMaximizationFunction())
+		double lastBestFitness = Double.MAX_VALUE;
+		if (getFitnessFunction().isMaximizationFunction()){
 			bestFitness = 0.0;
+			lastBestFitness = 0.0;
+		} 
 
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
 			
-			updateSecondaryCriteria();
+			// related to Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER;
+			// check the budget progress and activate a secondary criterion
+			// according to the property value. 
+			
 
 			evolve();
 
@@ -247,6 +254,19 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 				assert (newFitness <= bestFitness) : "Best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
 			bestFitness = newFitness;
+			
+			if (Double.compare(bestFitness, lastBestFitness) == 0) {
+				starvationCounter++;
+			} else {
+				logger.info("reset starvationCounter after " + starvationCounter + " iterations");
+				starvationCounter = 0;
+				lastBestFitness = bestFitness;
+				
+			}
+			
+			updateSecondaryCriterion(starvationCounter);
+			
+			
 			logger.info("Current iteration: " + currentIteration);
 			this.notifyIteration();
 
@@ -254,8 +274,12 @@ public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			logger.info("Best individual has fitness: " + population.get(0).getFitness());
 			logger.info("Worst individual has fitness: "
 					+ population.get(population.size() - 1).getFitness());
+			
+			
 		}
+		//archive
 		retrieveBestSuiteFromArchives();
+		
 		notifySearchFinished();
 	}
 

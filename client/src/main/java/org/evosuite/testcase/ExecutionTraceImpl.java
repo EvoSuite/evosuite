@@ -129,7 +129,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * </p>
 	 */
 	public static void disableTraceCalls() {
-		traceCalls = false;
+		traceCalls = false; 
 	}
 
 	/**

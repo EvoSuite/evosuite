@@ -29,14 +29,13 @@ public class DependencyAnalysisTest {
 		} catch (ClassNotFoundException | RuntimeException e) {
 			Assert.fail();
 		}
-	
 	}
 
 	@Test
 	public void test1levelContext() {
 		String context1 = DependencyAnalysis
 				.getCallGraph()
-				.getAllContexts(
+				.getAllContextsFromTargetClass(
 						"com.examples.with.different.packagename.context.SubClass",
 						"checkFiftneen(I)Z").toString();
 		assertEquals(
@@ -51,7 +50,7 @@ public class DependencyAnalysisTest {
 	public void test2levelContext() {
 		String context2 = DependencyAnalysis
 				.getCallGraph()
-				.getAllContexts(
+				.getAllContextsFromTargetClass(
 						"com.examples.with.different.packagename.context.SubClass",
 						"bla(I)Z").toString();
 		System.out.println(DependencyAnalysis
@@ -68,7 +67,7 @@ public class DependencyAnalysisTest {
 	public void test3levelContext() {
 		String context2 = DependencyAnalysis
 				.getCallGraph()
-				.getAllContexts(
+				.getAllContextsFromTargetClass(
 						"com.examples.with.different.packagename.context.SubSubClass",
 						"innermethod(I)Z").toString();
 		System.out.println(DependencyAnalysis

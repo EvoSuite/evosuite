@@ -15,7 +15,9 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 
 /**
- * @author Gordon Fraser
+ * 
+ * IBranch test fitness function.
+ * @author mattia, Gordon Fraser
  * 
  */
 public class IBranchTestFitness extends TestFitnessFunction {

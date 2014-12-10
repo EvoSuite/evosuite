@@ -130,21 +130,53 @@ public class StandardGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	/** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
+		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
+				|| Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
+			disableFirstSecondaryCriterion();
+		}
 		if (population.isEmpty())
 			initializePopulation();
-		if(Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER>0){
-			disableSecondaryCriteria();
-		}
+
+		logger.debug("Starting evolution");
+		int starvationCounter = 0;
+		double bestFitness = Double.MAX_VALUE;
+		double lastBestFitness = Double.MAX_VALUE;
+		if (getFitnessFunction().isMaximizationFunction()){
+			bestFitness = 0.0;
+			lastBestFitness = 0.0;
+		} 
+		
 		while (!isFinished()) {
 			logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
-			updateSecondaryCriteria();
+			
 			evolve();
 			// Determine fitness
 			calculateFitnessAndSortPopulation();
 
 			applyLocalSearch();
 
+			double newFitness = getBestIndividual().getFitness();
+
+			if (getFitnessFunction().isMaximizationFunction())
+				assert (newFitness >= bestFitness) : "Best fitness was: " + bestFitness
+						+ ", now best fitness is " + newFitness;
+			else
+				assert (newFitness <= bestFitness) : "Best fitness was: " + bestFitness
+						+ ", now best fitness is " + newFitness;
+			bestFitness = newFitness;
+			
+			if (Double.compare(bestFitness, lastBestFitness) == 0) {
+				starvationCounter++;
+			} else {
+				logger.info("reset starvationCounter after " + starvationCounter + " iterations");
+				starvationCounter = 0;
+				lastBestFitness = bestFitness;
+				
+			}
+			
+			updateSecondaryCriterion(starvationCounter);
+			
 			this.notifyIteration();
 		}
 		

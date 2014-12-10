@@ -56,7 +56,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAlgorithm, Serializable {
+public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAlgorithm,
+		Serializable {
 
 	private static final long serialVersionUID = 5155609385855093435L;
 
@@ -94,7 +95,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 	/** Age of the population */
 	protected int currentIteration = 0;
-	
+
 	protected double localSearchProbability = Properties.LOCAL_SEARCH_PROBABILITY;
 
 	/**
@@ -106,7 +107,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	public GeneticAlgorithm(ChromosomeFactory<T> factory) {
 		chromosomeFactory = factory;
 		addStoppingCondition(new MaxGenerationStoppingCondition());
-		if(Properties.LOCAL_SEARCH_RATE > 0)
+		if (Properties.LOCAL_SEARCH_RATE > 0)
 			addListener(LocalSearchBudget.getInstance());
 		// addBloatControl(new MaxSizeBloatControl());
 	}
@@ -126,26 +127,44 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		if (Properties.LOCAL_SEARCH_RATE <= 0)
 			return false;
 
-		if(getAge() % Properties.LOCAL_SEARCH_RATE == 0) {
-			if(Randomness.nextDouble() <= localSearchProbability) {
+		if (getAge() % Properties.LOCAL_SEARCH_RATE == 0) {
+			if (Randomness.nextDouble() <= localSearchProbability) {
 				return true;
 			}
 		}
-		return false;		
+		return false;
 	}
-	
-	protected void disableSecondaryCriteria() {
+
+	protected void disableFirstSecondaryCriterion() {
 		if (TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
 			TestSuiteChromosome.disableFirstSecondaryObjective();
 			if (Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("ibranch")
 					|| Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("archiveibranch")) {
 				ExecutionTracer.disableContext();
 			}
+			logger.info("second secondary criterion enabled");
 		}
 	}
-	
-	protected void updateSecondaryCriteria() {
-		
+
+	protected void enableFirstSecondaryCriterion() {
+		if (TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
+			TestSuiteChromosome.enableFirstSecondaryObjective();
+			if (Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("ibranch")
+					|| Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("archiveibranch")) {
+				ExecutionTracer.enableContext();
+			}
+			logger.info("first secondary criterion enabled");
+		}
+	}
+
+	/**
+	 * enable and disable secondary criteria according to the strategy defined
+	 * in the Properties file.
+	 * 
+	 * @param starvationCounter
+	 */
+	protected void updateSecondaryCriterion(int starvationCounter) {
+
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
 				&& TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
 
@@ -161,29 +180,44 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			double progress = currentbudget * 100.0 / totalbudget;
 
 			if (progress > Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER) {
-				TestSuiteChromosome.enableFirstSecondaryObjective();
-				if (Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("ibranch")
-						|| Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("archiveibranch")) {
-					ExecutionTracer.enableContext(); 
+				if (Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
+					updateSecondaryObjectiveStarvation(starvationCounter);
+				} else {
+					enableFirstSecondaryCriterion();
+					Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;
 				}
-				Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;
+			}
+		} else if (Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION
+				&& Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER == 0
+				&& TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
+			updateSecondaryObjectiveStarvation(starvationCounter);
+		}
+	}
+
+	private void updateSecondaryObjectiveStarvation(int starvationCounter) {
+		if (starvationCounter > Properties.STARVATION_AFTER_GENERATION && !TestSuiteChromosome.isFirstSecondaryObjectiveEnabled()) {
+			enableFirstSecondaryCriterion();
+		} else {
+			if (starvationCounter == 0 && TestSuiteChromosome.isFirstSecondaryObjectiveEnabled()
+					&& TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
+				disableFirstSecondaryCriterion();
 			}
 		}
 	}
+
 	/**
-	 * Apply local search, starting from the best individual 
-	 * and continue applying it to all individuals until the
-	 * local search budget is used up
+	 * Apply local search, starting from the best individual and continue
+	 * applying it to all individuals until the local search budget is used up
 	 */
 	protected void applyLocalSearch() {
-		if(!shouldApplyLocalSearch())
+		if (!shouldApplyLocalSearch())
 			return;
-		
+
 		logger.debug("Applying local search");
 		LocalSearchBudget.getInstance().localSearchStarted();
 
 		boolean improvement = false;
-		
+
 		for (Chromosome individual : population) {
 			if (isFinished())
 				break;
@@ -193,61 +227,59 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 				break;
 			}
 
-			if(individual.localSearch(localObjective))
+			if (individual.localSearch(localObjective))
 				improvement = true;
 		}
-		
+
 		if (improvement) {
 			DSEStats.reportNewIncrease();
-			localSearchProbability = Math.pow(1.0 + ((1.0 - localSearchProbability)/localSearchProbability) * Math.exp(- Properties.LOCAL_SEARCH_ADAPTATION_RATE), -1.0);
-			// localSearchProbability *= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
+			localSearchProbability = Math.pow(
+					1.0 + ((1.0 - localSearchProbability) / localSearchProbability)
+							* Math.exp(-Properties.LOCAL_SEARCH_ADAPTATION_RATE), -1.0);
+			// localSearchProbability *=
+			// Properties.LOCAL_SEARCH_ADAPTATION_RATE;
 			// localSearchProbability = Math.min(localSearchProbability, 1.0);
-			logger.debug("Increasing probability of applying LS to "+localSearchProbability);
+			logger.debug("Increasing probability of applying LS to " + localSearchProbability);
 		} else {
 			DSEStats.reportNewDecrease();
-			localSearchProbability = Math.pow(1.0 + ((1.0 - localSearchProbability)/localSearchProbability) * Math.exp(Properties.LOCAL_SEARCH_ADAPTATION_RATE), -1.0);
-			// localSearchProbability /= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
-			// localSearchProbability = Math.max(localSearchProbability, Double.MIN_VALUE);
-			logger.debug("Decreasing probability of applying LS to "+localSearchProbability);
+			localSearchProbability = Math.pow(
+					1.0 + ((1.0 - localSearchProbability) / localSearchProbability)
+							* Math.exp(Properties.LOCAL_SEARCH_ADAPTATION_RATE), -1.0);
+			// localSearchProbability /=
+			// Properties.LOCAL_SEARCH_ADAPTATION_RATE;
+			// localSearchProbability = Math.max(localSearchProbability,
+			// Double.MIN_VALUE);
+			logger.debug("Decreasing probability of applying LS to " + localSearchProbability);
 		}
 	}
-	
-	
+
 	/**
 	 * Apply dynamic symbolic execution
 	 */
 	/*
-	@Deprecated
-	protected void applyDSE() {
-		logger.info("Applying DSE at generation " + currentIteration);
-		DSEBudget.DSEStarted();
-		
-		boolean success = false;
-		
-		for (Chromosome individual : population) {
-			if (isFinished())
-				break;
-
-			if (DSEBudget.isFinished())
-				break;
-
-			boolean result = individual.applyDSE(this);
-			if(result)
-				success = true;
-		}
-		
-		if(Properties.DSE_ADAPTIVE_PROBABILITY > 0.0) {
-			if(success) {
-				Properties.DSE_ADAPTIVE_PROBABILITY *= Properties.DSE_ADAPTIVE_RATE;
-				Properties.DSE_ADAPTIVE_PROBABILITY = Math.min(Properties.DSE_ADAPTIVE_PROBABILITY, 1.0);
-			} else {
-				Properties.DSE_ADAPTIVE_PROBABILITY /= Properties.DSE_ADAPTIVE_RATE;
-				Properties.DSE_ADAPTIVE_PROBABILITY = Math.max(Properties.DSE_ADAPTIVE_PROBABILITY, Double.MIN_VALUE);
-			}
-			logger.info("Updating DSE probability to "+Properties.DSE_ADAPTIVE_PROBABILITY);
-		}
-	}
-*/
+	 * @Deprecated protected void applyDSE() {
+	 * logger.info("Applying DSE at generation " + currentIteration);
+	 * DSEBudget.DSEStarted();
+	 * 
+	 * boolean success = false;
+	 * 
+	 * for (Chromosome individual : population) { if (isFinished()) break;
+	 * 
+	 * if (DSEBudget.isFinished()) break;
+	 * 
+	 * boolean result = individual.applyDSE(this); if(result) success = true; }
+	 * 
+	 * if(Properties.DSE_ADAPTIVE_PROBABILITY > 0.0) { if(success) {
+	 * Properties.DSE_ADAPTIVE_PROBABILITY *= Properties.DSE_ADAPTIVE_RATE;
+	 * Properties.DSE_ADAPTIVE_PROBABILITY =
+	 * Math.min(Properties.DSE_ADAPTIVE_PROBABILITY, 1.0); } else {
+	 * Properties.DSE_ADAPTIVE_PROBABILITY /= Properties.DSE_ADAPTIVE_RATE;
+	 * Properties.DSE_ADAPTIVE_PROBABILITY =
+	 * Math.max(Properties.DSE_ADAPTIVE_PROBABILITY, Double.MIN_VALUE); }
+	 * logger.
+	 * info("Updating DSE probability to "+Properties.DSE_ADAPTIVE_PROBABILITY);
+	 * } }
+	 */
 	/**
 	 * Set up initial population
 	 */
@@ -275,7 +307,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected void generateInitialPopulation(int population_size) {
 		generateRandomPopulation(population_size - population.size());
 	}
-
 
 	/**
 	 * This method can be used to kick out chromosomes when the population is
@@ -333,7 +364,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		for (int i = 0; i < population_size; i++) {
 			T individual = chromosomeFactory.getChromosome();
 			for (FitnessFunction<?> fitnessFunction : this.fitnessFunctions) {
-			    individual.addFitness(fitnessFunction);
+				individual.addFitness(fitnessFunction);
 			}
 
 			population.add(individual);
@@ -350,23 +381,35 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		logger.debug("Resetting population");
 		population.clear();
 	}
-	
-	/**
-     * Add new fitness function (i.e., for new mutation)
-     * 
-     * @param function
-     *            a {@link org.evosuite.ga.FitnessFunction} object.
-     */
-    public void addFitnessFunction(FitnessFunction<T> function) {
-        fitnessFunctions.add(function);
-        if (localObjective == null)
-            localObjective = new DefaultLocalSearchObjective<T>(function); // FIXME: there is a localObjective for each FitnessFunction or just a global localObjective? 
-    }
 
-    public void addFitnessFunctions(List<FitnessFunction<T>> functions) {
-        for (FitnessFunction<T> function : functions)
-            this.addFitnessFunction(function);
-    }
+	/**
+	 * Add new fitness function (i.e., for new mutation)
+	 * 
+	 * @param function
+	 *            a {@link org.evosuite.ga.FitnessFunction} object.
+	 */
+	public void addFitnessFunction(FitnessFunction<T> function) {
+		fitnessFunctions.add(function);
+		if (localObjective == null)
+			localObjective = new DefaultLocalSearchObjective<T>(function); // FIXME:
+																			// there
+																			// is
+																			// a
+																			// localObjective
+																			// for
+																			// each
+																			// FitnessFunction
+																			// or
+																			// just
+																			// a
+																			// global
+																			// localObjective?
+	}
+
+	public void addFitnessFunctions(List<FitnessFunction<T>> functions) {
+		for (FitnessFunction<T> function : functions)
+			this.addFitnessFunction(function);
+	}
 
 	/**
 	 * Get currently used fitness function
@@ -374,49 +417,53 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
 	public FitnessFunction<T> getFitnessFunction() {
-	    return fitnessFunctions.get(0);
+		return fitnessFunctions.get(0);
 	}
-    /**
-     * Get all used fitness function
-     * 
-     * @return a {@link org.evosuite.ga.FitnessFunction} object.
-     */
-    public List<FitnessFunction<T>> getFitnessFunctions() {
-        return fitnessFunctions;
-    }
 
-    public int getNumberOfFitnessFunctions() {
-        return fitnessFunctions.size();
-    }
+	/**
+	 * Get all used fitness function
+	 * 
+	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
+	 */
+	public List<FitnessFunction<T>> getFitnessFunctions() {
+		return fitnessFunctions;
+	}
 
-    /**
-     * 
-     * @return
-     */
-    @Override
-    public String toString() {
-        StringBuilder str = new StringBuilder();
+	public int getNumberOfFitnessFunctions() {
+		return fitnessFunctions.size();
+	}
 
-        int i = 0;
-        for (Chromosome c : population) {
-            str.append("\n  - test " + i);
+	/**
+	 * 
+	 * @return
+	 */
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
 
-            for (FitnessFunction<T> ff : this.fitnessFunctions) {
-                DecimalFormat df = new DecimalFormat("#.#####");
-                str.append(", " + ff.getClass().getSimpleName().replace("CoverageSuiteFitness", "") + " " + df.format(c.getFitness(ff)));
-            }
+		int i = 0;
+		for (Chromosome c : population) {
+			str.append("\n  - test " + i);
 
-            i++;
-        }
+			for (FitnessFunction<T> ff : this.fitnessFunctions) {
+				DecimalFormat df = new DecimalFormat("#.#####");
+				str.append(", " + ff.getClass().getSimpleName().replace("CoverageSuiteFitness", "")
+						+ " " + df.format(c.getFitness(ff)));
+			}
 
-        return str.toString();
-    }
+			i++;
+		}
+
+		return str.toString();
+	}
 
 	/**
 	 * Set new fitness function (i.e., for new mutation)
 	 * 
 	 * @param function
-	 *            a {@link org.evosuite.ga.operators.selection.SelectionFunction} object.
+	 *            a
+	 *            {@link org.evosuite.ga.operators.selection.SelectionFunction}
+	 *            object.
 	 */
 	public void setSelectionFunction(SelectionFunction<T> function) {
 		selectionFunction = function;
@@ -425,7 +472,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	/**
 	 * Get currently used fitness function
 	 * 
-	 * @return a {@link org.evosuite.ga.operators.selection.SelectionFunction} object.
+	 * @return a {@link org.evosuite.ga.operators.selection.SelectionFunction}
+	 *         object.
 	 */
 	public SelectionFunction<T> getSelectionFunction() {
 		return selectionFunction;
@@ -435,7 +483,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * Set new bloat control function
 	 * 
 	 * @param bloat_control
-	 *            a {@link org.evosuite.ga.bloatcontrol.BloatControlFunction} object.
+	 *            a {@link org.evosuite.ga.bloatcontrol.BloatControlFunction}
+	 *            object.
 	 */
 	public void setBloatControl(BloatControlFunction bloat_control) {
 		this.bloatControl.clear();
@@ -446,7 +495,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * Set new bloat control function
 	 * 
 	 * @param bloat_control
-	 *            a {@link org.evosuite.ga.bloatcontrol.BloatControlFunction} object.
+	 *            a {@link org.evosuite.ga.bloatcontrol.BloatControlFunction}
+	 *            object.
 	 */
 	public void addBloatControl(BloatControlFunction bloat_control) {
 		this.bloatControl.add(bloat_control);
@@ -489,10 +539,10 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 				if (c.isChanged())
 					iterator.remove();
 			} else {
-			    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-			        fitnessFunction.getFitness(c);
-			        notifyEvaluation(c);
-			    }
+				for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+					fitnessFunction.getFitness(c);
+					notifyEvaluation(c);
+				}
 			}
 		}
 
@@ -524,8 +574,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 		for (int i = 0; i < Properties.ELITE; i++) {
 			logger.trace("Copying individual " + i + " with fitness "
-			        + population.get(i).getFitness());
-			elite.add((T)population.get(i).clone());
+					+ population.get(i).getFitness());
+			elite.add((T) population.get(i).clone());
 		}
 		logger.trace("Done.");
 		return elite;
@@ -555,7 +605,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			f.updateCoveredGoals();
 		}
 	}
-	
+
 	/**
 	 * Penalty if individual is not unique
 	 * 
@@ -564,33 +614,25 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * @param generation
 	 *            a {@link java.util.List} object.
 	 */
-	/*protected void kinCompensation(Chromosome individual, List<Chromosome> generation) {
-
-		if (Properties.KINCOMPENSATION >= 1.0)
-			return;
-
-		boolean unique = true;
-
-		for (Chromosome other : generation) {
-			if (other == individual)
-				continue;
-
-			if (other.equals(individual)) {
-				unique = false;
-				break;
-			}
-		}
-
-		if (!unique) {
-			logger.debug("Applying kin compensation");
-			if (fitnessFunction.isMaximizationFunction())
-				individual.setFitness(individual.getFitness()
-				        * Properties.KINCOMPENSATION);
-			else
-				individual.setFitness(individual.getFitness()
-				        * (2.0 - Properties.KINCOMPENSATION));
-		}
-	}*/
+	/*
+	 * protected void kinCompensation(Chromosome individual, List<Chromosome>
+	 * generation) {
+	 * 
+	 * if (Properties.KINCOMPENSATION >= 1.0) return;
+	 * 
+	 * boolean unique = true;
+	 * 
+	 * for (Chromosome other : generation) { if (other == individual) continue;
+	 * 
+	 * if (other.equals(individual)) { unique = false; break; } }
+	 * 
+	 * if (!unique) { logger.debug("Applying kin compensation"); if
+	 * (fitnessFunction.isMaximizationFunction())
+	 * individual.setFitness(individual.getFitness()
+	 * Properties.KINCOMPENSATION); else
+	 * individual.setFitness(individual.getFitness() (2.0 -
+	 * Properties.KINCOMPENSATION)); } }
+	 */
 
 	/**
 	 * Return the individual with the highest fitChromosomeess
@@ -608,26 +650,26 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	/**
-     * Return the individual(s) with the highest fitChromosomeess
-     * 
-     * @return a list of {@link org.evosuite.ga.Chromosome} object(s).
-     */
-    public List<T> getBestIndividuals() {
+	 * Return the individual(s) with the highest fitChromosomeess
+	 * 
+	 * @return a list of {@link org.evosuite.ga.Chromosome} object(s).
+	 */
+	public List<T> getBestIndividuals() {
 
-        List<T> bestIndividuals = new ArrayList<T>();
+		List<T> bestIndividuals = new ArrayList<T>();
 
-        if (this.population.isEmpty()) {
-            bestIndividuals.add(this.chromosomeFactory.getChromosome());
-            return bestIndividuals;
-        }
+		if (this.population.isEmpty()) {
+			bestIndividuals.add(this.chromosomeFactory.getChromosome());
+			return bestIndividuals;
+		}
 
-        if (Properties.ALGORITHM == Algorithm.NSGAII)
-        	return population;
+		if (Properties.ALGORITHM == Algorithm.NSGAII)
+			return population;
 
-        // Assume population is sorted
-        bestIndividuals.add(population.get(0));
-        return bestIndividuals;
-    }
+		// Assume population is sorted
+		bestIndividuals.add(population.get(0));
+		return bestIndividuals;
+	}
 
 	/**
 	 * Set a new factory method
@@ -643,7 +685,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * Set a new xover function
 	 * 
 	 * @param crossover
-	 *            a {@link org.evosuite.ga.operators.crossover.CrossOverFunction} object.
+	 *            a
+	 *            {@link org.evosuite.ga.operators.crossover.CrossOverFunction}
+	 *            object.
 	 */
 	public void setCrossOverFunction(CrossOverFunction crossover) {
 		this.crossoverFunction = crossover;
@@ -653,7 +697,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * Add a new search listener
 	 * 
 	 * @param listener
-	 *            a {@link org.evosuite.ga.metaheuristics.SearchListener} object.
+	 *            a {@link org.evosuite.ga.metaheuristics.SearchListener}
+	 *            object.
 	 */
 	public void addListener(SearchListener listener) {
 		listeners.add(listener);
@@ -663,7 +708,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * Remove a search listener
 	 * 
 	 * @param listener
-	 *            a {@link org.evosuite.ga.metaheuristics.SearchListener} object.
+	 *            a {@link org.evosuite.ga.metaheuristics.SearchListener}
+	 *            object.
 	 */
 	public void removeListener(SearchListener listener) {
 		listeners.remove(listener);
@@ -761,7 +807,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * Set a new population limit function
 	 * 
 	 * @param limit
-	 *            a {@link org.evosuite.ga.populationlimit.PopulationLimit} object.
+	 *            a {@link org.evosuite.ga.populationlimit.PopulationLimit}
+	 *            object.
 	 */
 	public void setPopulationLimit(PopulationLimit limit) {
 		this.populationLimit = limit;
@@ -774,7 +821,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 */
 	public boolean isFinished() {
 		for (StoppingCondition c : stoppingConditions) {
-//			logger.error(c + " "+ c.getCurrentValue());
+			// logger.error(c + " "+ c.getCurrentValue());
 			if (c.isFinished())
 				return true;
 		}
@@ -872,7 +919,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			}
 		}
 	}
-	
+
 	/**
 	 * <p>
 	 * isBetterOrEqual
@@ -885,21 +932,20 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * @return a boolean.
 	 */
 	protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {
-		//if (fitnessFunction.isMaximizationFunction()) {
-	    if (getFitnessFunction().isMaximizationFunction()) {
+		// if (fitnessFunction.isMaximizationFunction()) {
+		if (getFitnessFunction().isMaximizationFunction()) {
 			return chromosome1.compareTo(chromosome2) >= 0;
 		} else {
 			return chromosome1.compareTo(chromosome2) <= 0;
 		}
 	}
-	
-	/*protected boolean isBetter(Chromosome chromosome1, Chromosome chromosome2) {
-		if (fitnessFunction.isMaximizationFunction()) {
-			return chromosome1.compareTo(chromosome2) > 0;
-		} else {
-			return chromosome1.compareTo(chromosome2) < 0;
-		}
-	}*/
+
+	/*
+	 * protected boolean isBetter(Chromosome chromosome1, Chromosome
+	 * chromosome2) { if (fitnessFunction.isMaximizationFunction()) { return
+	 * chromosome1.compareTo(chromosome2) > 0; } else { return
+	 * chromosome1.compareTo(chromosome2) < 0; } }
+	 */
 
 	/**
 	 * <p>
@@ -912,12 +958,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a {@link org.evosuite.ga.Chromosome} object.
 	 */
-	/*protected Chromosome getBest(Chromosome chromosome1, Chromosome chromosome2) {
-		if (isBetterOrEqual(chromosome1, chromosome2))
-			return chromosome1;
-		else
-			return chromosome2;
-	}*/
+	/*
+	 * protected Chromosome getBest(Chromosome chromosome1, Chromosome
+	 * chromosome2) { if (isBetterOrEqual(chromosome1, chromosome2)) return
+	 * chromosome1; else return chromosome2; }
+	 */
 
 	/**
 	 * Prints out all information regarding this GAs stopping conditions
@@ -945,30 +990,22 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		return r;
 	}
 
-	/*private void writeObject(ObjectOutputStream oos) throws IOException {
-		if (listeners.contains(SearchStatistics.getInstance())) {
-			removeListener(SearchStatistics.getInstance());
-			oos.defaultWriteObject();
-			oos.writeObject(Boolean.TRUE);
-			// Write/save additional fields
-			oos.writeObject(SearchStatistics.getInstance());
-		} else {
-			oos.defaultWriteObject();
-			oos.writeObject(Boolean.FALSE);
-		}
-	}
-
-	// assumes "static java.util.Date aDate;" declared
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
-	        IOException {
-		ois.defaultReadObject();
-		listeners = new HashSet<SearchListener>();
-		stoppingConditions = new HashSet<StoppingCondition>();
-
-		boolean addStatistics = (Boolean) ois.readObject();
-		if (addStatistics) {
-			SearchStatistics.setInstance((SearchStatistics) ois.readObject());
-			addListener(SearchStatistics.getInstance());
-		}
-	}*/
+	/*
+	 * private void writeObject(ObjectOutputStream oos) throws IOException { if
+	 * (listeners.contains(SearchStatistics.getInstance())) {
+	 * removeListener(SearchStatistics.getInstance()); oos.defaultWriteObject();
+	 * oos.writeObject(Boolean.TRUE); // Write/save additional fields
+	 * oos.writeObject(SearchStatistics.getInstance()); } else {
+	 * oos.defaultWriteObject(); oos.writeObject(Boolean.FALSE); } }
+	 * 
+	 * // assumes "static java.util.Date aDate;" declared private void
+	 * readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	 * IOException { ois.defaultReadObject(); listeners = new
+	 * HashSet<SearchListener>(); stoppingConditions = new
+	 * HashSet<StoppingCondition>();
+	 * 
+	 * boolean addStatistics = (Boolean) ois.readObject(); if (addStatistics) {
+	 * SearchStatistics.setInstance((SearchStatistics) ois.readObject());
+	 * addListener(SearchStatistics.getInstance()); } }
+	 */
 }

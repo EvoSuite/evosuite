@@ -201,7 +201,7 @@ public class CallGraphGenerator {
 	}
 
 	public static void update(CallGraph callGraph, InheritanceTree inheritanceTree) {
-
+		logger.info("update callgraph");
 		List<CallGraphEntry> entries = new ArrayList<>(callGraph.getViewOfCurrentMethods());
 
 		List<CallGraphUpdater> updaters = new ArrayList<>();
@@ -233,5 +233,7 @@ public class CallGraphGenerator {
 				e.printStackTrace();
 			}
 		} 
+		logger.info("callgraph updated");
+
 	}
 }
