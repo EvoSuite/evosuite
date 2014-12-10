@@ -106,7 +106,7 @@ public class RuntimeInstrumentation {
             cv = resetClassAdapter;
         }
 
-        if(RuntimeSettings.mockJVMNonDeterminism || RuntimeSettings.useVFS) {
+        if(RuntimeSettings.mockJVMNonDeterminism || RuntimeSettings.useVFS || RuntimeSettings.useVNET) {
             cv = new MethodCallReplacementClassAdapter(cv, className, !retransformingMode);
         }
 
