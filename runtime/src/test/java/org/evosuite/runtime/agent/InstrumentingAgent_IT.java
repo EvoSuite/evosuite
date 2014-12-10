@@ -286,7 +286,7 @@ public class InstrumentingAgent_IT {
     }
 
     @Test
-    public void testMockFramework_StaticReplacementMethod() throws Exception{
+    public void testMockFramework_StaticReplacementMock_2() throws Exception{
         try{
             InstrumentingAgent.activate();
             new GetURL();
