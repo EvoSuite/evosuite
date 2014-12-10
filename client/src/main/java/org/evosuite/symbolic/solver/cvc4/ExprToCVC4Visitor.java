@@ -184,16 +184,18 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return minus_expr;
 		}
 		case GETNUMERICVALUE: {
-
+			// TODO
 		}
 		case ISDIGIT: {
-
+			// TODO
 		}
 		case ISLETTER: {
-
+			// TODO
 		}
 		default:
-			throw new UnsupportedOperationException("Not implemented yet!");
+			throw new IllegalArgumentException("The operator "
+					+ e.getOperator()
+					+ " is not a valid for integer unary expressions");
 		}
 	}
 
@@ -483,9 +485,9 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 		case REPLACEALL:
 		case REPLACEFIRST: {
-			String concreteValue = e.getConcreteValue();
+			String stringValue = e.getConcreteValue();
 			SmtExpr strConstant = CVC4ExprBuilder
-					.mkStringConstant(concreteValue);
+					.mkStringConstant(stringValue);
 			return strConstant;
 		}
 		default:
@@ -495,6 +497,14 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 	}
 
+	/**
+	 * Returns true if any of the arguments is null 
+	 * 
+	 * @param left
+	 * @param right
+	 * @param others
+	 * @return
+	 */
 	private static boolean isNull(SmtExpr left, SmtExpr right,
 			List<SmtExpr> others) {
 		if (left == null || right == null) {
@@ -515,16 +525,16 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return null;
 		}
 		if (!operand.isSymbolic()) {
-			String concreteValue = e.getConcreteValue();
-			return CVC4ExprBuilder.mkStringConstant(concreteValue);
+			String stringValue = e.getConcreteValue();
+			return CVC4ExprBuilder.mkStringConstant(stringValue);
 		}
 		Operator op = e.getOperator();
 		switch (op) {
 		case TRIM:
 		case TOLOWERCASE:
 		case TOUPPERCASE: {
-			String concreteValue = e.getConcreteValue();
-			return CVC4ExprBuilder.mkStringConstant(concreteValue);
+			String stringValue = e.getConcreteValue();
+			return CVC4ExprBuilder.mkStringConstant(stringValue);
 		}
 		default:
 			throw new IllegalArgumentException("The operation " + op
@@ -825,6 +835,14 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 	}
 
+	/**
+	 * Returns true if any of the arguments is symbolic
+	 * 
+	 * @param left
+	 * @param right
+	 * @param others
+	 * @return
+	 */
 	private static boolean isSymbolic(SmtExpr left, SmtExpr right,
 			List<SmtExpr> others) {
 		if (left.isSymbolic() || right.isSymbolic()) {
@@ -905,8 +923,8 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 	@Override
 	public SmtExpr visit(RealToStringCast e, Void v) {
-		String concreteValue = e.getConcreteValue();
-		return CVC4ExprBuilder.mkStringConstant(concreteValue);
+		String stringValue = e.getConcreteValue();
+		return CVC4ExprBuilder.mkStringConstant(stringValue);
 	}
 
 	@Override
