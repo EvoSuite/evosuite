@@ -286,6 +286,28 @@ public class InstrumentingAgent_IT {
     }
 
     @Test
+    public void testMockFramework_StaticReplacementMethod() throws Exception{
+        try{
+            InstrumentingAgent.activate();
+            new GetURL();
+        } finally {
+            InstrumentingAgent.deactivate();
+        }
+        //first disable
+        MockFramework.disable();
+        String url = "http://www.evosuite.org";
+        URL res = GetURL.getFromUri(url);
+        URLStreamHandler handler = URLUtil.getHandler(res);
+        Assert.assertFalse(handler instanceof EvoURLStreamHandler);
+
+        //now enable
+        MockFramework.enable();
+        res = GetURL.getFromUri(url);
+        handler = URLUtil.getHandler(res);
+        Assert.assertTrue(handler instanceof EvoURLStreamHandler);
+    }
+
+    @Test
     public void testAddingInstrumentedClassInterface(){
         Object obj = null;
         try{
