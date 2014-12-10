@@ -204,4 +204,8 @@ public abstract class CVC4ExprBuilder {
 		return new SmtOperation(SmtOperation.Operator.NOT, arg);
 	}
 
+	public static SmtExpr mkStrToInt(SmtExpr arg) {
+		return new SmtOperation(SmtOperation.Operator.STR_TO_INT, arg);
+	}
+
 }

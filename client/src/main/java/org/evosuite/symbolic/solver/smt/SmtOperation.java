@@ -39,7 +39,8 @@ public final class SmtOperation extends SmtExpr {
 		INT_TO_CHAR("int_to_char"), //
 		STR_LEN("str.len"), //
 		LE("<="), //
-		NOT("not");
+		NOT("not"), //
+		STR_TO_INT("str.to.int");
 
 		private final String rep;
 
@@ -110,13 +111,13 @@ public final class SmtOperation extends SmtExpr {
 	}
 
 	@Override
-	public boolean hasSymbolicValue() {
+	public boolean isSymbolic() {
 		return hasSymbolicValues;
 	}
 
 	private static boolean hasSymbolicValue(SmtExpr[] arguments) {
 		for (SmtExpr smtExpr : arguments) {
-			if (smtExpr.hasSymbolicValue()) {
+			if (smtExpr.isSymbolic()) {
 				return true;
 			}
 		}
