@@ -36,4 +36,10 @@ public abstract class SmtVariable extends SmtExpr {
 			return false;
 		return true;
 	}
+	
+	@Override
+	public final boolean hasSymbolicValue() {
+		return true;
+	}
+
 }
