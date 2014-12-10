@@ -170,13 +170,14 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	}
 
 	/**
-	 * computes and returns the call contexts of the specific method
+	 * computes and returns the call contexts that starts from the target class
+	 * and end in the specific method
 	 * 
 	 * @param className
 	 * @param methodName
 	 * @return
 	 */
-	public Set<CallContext> getAllContexts(String className, String methodName) {
+	public Set<CallContext> getAllContextsFromTargetClass(String className, String methodName) {
 		CallGraphEntry root = new CallGraphEntry(className, methodName);
 		Set<List<CallGraphEntry>> paths = PathFinder.getPahts(graph, root);
 		return convertIntoCallContext(paths);

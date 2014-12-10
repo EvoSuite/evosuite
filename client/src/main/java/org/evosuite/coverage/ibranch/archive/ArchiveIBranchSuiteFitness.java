@@ -25,13 +25,12 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
- * We don't remember what the I of IBranch stands for. Anyway, this fitness
- * function targets all the branches (of all classes) that is possible to reach
- * from the class under test. During the evolution, this fitness updates the
- * list of goals by removing the covered ones, storing at the same time the
- * tests that covered them in an archive.
+ * This fitness function targets all the branches (of all classes) that is
+ * possible to reach from the class under test. During the evolution, this
+ * fitness updates the list of goals by removing the covered ones, storing at
+ * the same time the tests that covered them in an archive.
  * 
- * @author Gordon Fraser, mattia
+ * @author mattia, Gordon Fraser
  * 
  */
 public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
@@ -44,10 +43,10 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 	private final Map<Integer, Map<CallContext, Set<IBranchTestFitness>>> goalsMap;
 
-	private final Map<String, Map<CallContext, Set<IBranchTestFitness>>> methodsMap;
+	/** Branchless methods map. */
+	private final Map<String, Map<CallContext, IBranchTestFitness>> methodsMap;
 
-	// private final StoredTestPool savedTests;
-	private final TestsArchive bestChromoBuilder;
+ 	private final TestsArchive bestChromoBuilder;
 
 	private final Set<IBranchTestFitness> toRemoveBranchesT = new HashSet<>();
 	private final Set<IBranchTestFitness> toRemoveBranchesF = new HashSet<>();
@@ -58,42 +57,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 	private final Set<IBranchTestFitness> removedRootBranches = new HashSet<>();
 
 	public ArchiveIBranchSuiteFitness() {
-		bestChromoBuilder = new TestsArchive();
-		goalsMap = new HashMap<>();
-		methodsMap = new HashMap<>();
-		IBranchFitnessFactory factory = new IBranchFitnessFactory();
-		branchGoals = factory.getCoverageGoals();
-		countGoals(branchGoals);
-
-		for (IBranchTestFitness goal : branchGoals) {
-			if (goal.getBranchGoal() != null && goal.getBranchGoal().getBranch() != null) {
-				int branchId = goal.getBranchGoal().getBranch().getActualBranchId();
-
-				Map<CallContext, Set<IBranchTestFitness>> innermap = goalsMap.get(branchId);
-				if (innermap == null) {
-					goalsMap.put(branchId, innermap = new HashMap<>());
-				}
-				Set<IBranchTestFitness> tempInSet = innermap.get(goal.getContext());
-				if (tempInSet == null) {
-					innermap.put(goal.getContext(), tempInSet = new HashSet<>());
-				}
-				tempInSet.add(goal);
-			} else {
-				String methodName = goal.getTargetClass() + "." + goal.getTargetMethod();
-				Map<CallContext, Set<IBranchTestFitness>> innermap = methodsMap.get(methodName);
-				if (innermap == null) {
-					methodsMap.put(methodName, innermap = new HashMap<>());
-				}
-				Set<IBranchTestFitness> tempInSet = innermap.get(goal.getContext());
-				if (tempInSet == null) {
-					innermap.put(goal.getContext(), tempInSet = new HashSet<>());
-				}
-				tempInSet.add(goal);
-
-			}
-			logger.info("Context goal: " + goal.toString());
-		}
-		totGoals = branchGoals.size();
+		this(new TestsArchive());
 	}
 
 	public ArchiveIBranchSuiteFitness(TestsArchive bestChromoBuilder) {
@@ -119,16 +83,11 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 				tempInSet.add(goal);
 			} else {
 				String methodName = goal.getTargetClass() + "." + goal.getTargetMethod();
-				Map<CallContext, Set<IBranchTestFitness>> innermap = methodsMap.get(methodName);
+				Map<CallContext, IBranchTestFitness> innermap = methodsMap.get(methodName);
 				if (innermap == null) {
 					methodsMap.put(methodName, innermap = new HashMap<>());
 				}
-				Set<IBranchTestFitness> tempInSet = innermap.get(goal.getContext());
-				if (tempInSet == null) {
-					innermap.put(goal.getContext(), tempInSet = new HashSet<>());
-				}
-				tempInSet.add(goal);
-
+				innermap.put(goal.getContext(), goal);
 			}
 			logger.info("Context goal: " + goal.toString());
 		}
@@ -158,34 +117,12 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 						goalsInTarget);
 
 	}
-
-	// private Map<IBranchTestFitness, Double> getDefaultDistanceMap() {
-	// Map<IBranchTestFitness, Double> distanceMap = new
-	// HashMap<IBranchTestFitness, Double>();
-	// for (IBranchTestFitness goal : branchGoals)
-	// distanceMap.put(goal, 1.0);
-	// return distanceMap;
-	// }
-	//
-	// private Map<IBranchTestFitness, Integer> getDefaultCallCountMap() {
-	// Map<IBranchTestFitness, Integer> distanceMap = new
-	// HashMap<IBranchTestFitness, Integer>();
-	// for (IBranchTestFitness goal : branchGoals)
-	// distanceMap.put(goal, 0);
-	// return distanceMap;
-	// }
-
+ 
 	private IBranchTestFitness getContextGoal(String classAndMethodName, CallContext context) {
-		if (methodsMap.get(classAndMethodName) == null)
+		if (methodsMap.get(classAndMethodName) == null
+				|| methodsMap.get(classAndMethodName).get(context) == null)
 			return null;
-		if (methodsMap.get(classAndMethodName).get(context) == null)
-			return null;
-
-		for (IBranchTestFitness iBranchTestFitness : methodsMap.get(classAndMethodName)
-				.get(context)) {
-			return iBranchTestFitness;
-		}
-		return null;
+		return methodsMap.get(classAndMethodName).get(context);
 	}
 
 	private IBranchTestFitness getContextGoal(Integer branchId, CallContext context, boolean value) {
@@ -318,26 +255,19 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 		return fitness;
 	}
 
-	// private final List<IBranchTestFitness> branchGoals;
-	//
-	// private final Map<Integer, Map<CallContext, Set<IBranchTestFitness>>>
-	// goalsMap;
-	//
-	// private final Map<String, Map<CallContext, Set<IBranchTestFitness>>>
-	// methodsMap;
-	//
-	// private final StoredTestPool savedTests;
+	
 	@Override
 	public boolean updateCoveredGoals() {
 
 		for (IBranchTestFitness method : toRemoveRootBranches) {
 			boolean removed = branchGoals.remove(method);
-			Map<CallContext, Set<IBranchTestFitness>> map = methodsMap.get(method.getTargetClass()
+			
+			Map<CallContext, IBranchTestFitness> map = methodsMap.get(method.getTargetClass()
 					+ "." + method.getTargetMethod());
-			Set<IBranchTestFitness> set = map.get(method.getContext());
-			boolean f = set.remove(method);
 
-			if (removed && f) {
+			IBranchTestFitness f = map.remove(method.getContext());
+
+			if (removed && f!=null) {
 				removedRootBranches.add(method);
 			} else {
 				throw new IllegalStateException("goal to remove not found");

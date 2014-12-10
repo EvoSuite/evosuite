@@ -562,7 +562,13 @@ public class Properties {
 
 	@Parameter(key = "enable_secondary_objectives_after", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
 	public static int ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;
+	
+	@Parameter(key = "enable_secondary_starvation", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
+	public static boolean ENABLE_SECONDARY_OBJECTIVE_STARVATION = false;
 
+	@Parameter(key = "starvation_after_generation", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
+	public static int STARVATION_AFTER_GENERATION = 500;
+	
 	/** Constant <code>BLOAT_FACTOR=2</code> */
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
 	public static int BLOAT_FACTOR = 2;

@@ -18,7 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Gordon Fraser
+ * 
+ * Create the IBranchTestFitness goals for the class under test.
+ * @author mattia, Gordon Fraser
  * 
  */
 public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFitness> {
@@ -30,7 +32,7 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 	 */
 	@Override
 	public List<IBranchTestFitness> getCoverageGoals() {
-		//TODO this creates duplicate goals. Momentary fixed using a Set, but it should be optimised
+		//TODO this creates duplicate goals. Momentary fixed using a Set.
 		Set<IBranchTestFitness> goals = new HashSet<IBranchTestFitness>();
 
 		// retrieve set of branches
@@ -43,10 +45,10 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 		// try to find all occurrences of this branch in the call tree
 		for (BranchCoverageTestFitness branchGoal : branchGoals) {
 			logger.info("Adding context branches for " + branchGoal.toString());
-			for (CallContext context : callGraph.getAllContexts(branchGoal.getClassName(),
+			for (CallContext context : callGraph.getAllContextsFromTargetClass(branchGoal.getClassName(),
 				                          branchGoal.getMethod())) {
-				if(context.isEmpty()) continue; //||context.size()>4
-								
+				//if is not possible to reach this branch from the target class, continue.
+				if(context.isEmpty()) continue; 				
 				goals.add(new IBranchTestFitness(branchGoal.getBranchGoal(), context));				
 			}
 		}

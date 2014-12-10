@@ -67,6 +67,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		return secondaryObjectives.size();
 	}
 	
+	public static boolean isFirstSecondaryObjectiveEnabled(){
+		return secondaryObjIndex == 0;
+	}
+	
 	public static void disableFirstSecondaryObjective() {
 		if (secondaryObjIndex != 1)
 			secondaryObjIndex = 1;
