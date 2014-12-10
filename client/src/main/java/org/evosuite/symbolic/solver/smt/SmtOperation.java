@@ -56,6 +56,8 @@ public final class SmtOperation extends SmtExpr {
 	private final Operator operator;
 	private final SmtExpr[] arguments;
 
+	private final boolean hasSymbolicValues;
+
 	/**
 	 * Unary operation
 	 * 
@@ -65,6 +67,7 @@ public final class SmtOperation extends SmtExpr {
 	public SmtOperation(Operator op, SmtExpr... arg) {
 		this.operator = op;
 		this.arguments = arg;
+		this.hasSymbolicValues = hasSymbolicValue(arg);
 	}
 
 	@Override
@@ -105,4 +108,19 @@ public final class SmtOperation extends SmtExpr {
 			return false;
 		return true;
 	}
+
+	@Override
+	public boolean hasSymbolicValue() {
+		return hasSymbolicValues;
+	}
+
+	private static boolean hasSymbolicValue(SmtExpr[] arguments) {
+		for (SmtExpr smtExpr : arguments) {
+			if (smtExpr.hasSymbolicValue()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
