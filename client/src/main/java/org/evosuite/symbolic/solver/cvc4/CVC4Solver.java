@@ -200,6 +200,8 @@ public class CVC4Solver extends Solver {
 		smtQuery.append("\n");
 		smtQuery.append("(set-option :produce-models true)");
 		smtQuery.append("\n");
+		smtQuery.append("(set-option :strings-exp true)");
+		smtQuery.append("\n");
 
 		if (addCharToInt) {
 			String charToIntFunction = buildCharToIntFunction();

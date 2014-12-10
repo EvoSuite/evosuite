@@ -43,6 +43,7 @@ import org.evosuite.symbolic.solver.smt.SmtIntConstant;
 import org.evosuite.symbolic.solver.smt.SmtIntVariable;
 import org.evosuite.symbolic.solver.smt.SmtRealConstant;
 import org.evosuite.symbolic.solver.smt.SmtRealVariable;
+import org.evosuite.symbolic.solver.smt.SmtStringConstant;
 
 class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
@@ -53,6 +54,11 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 		if (left == null || right == null) {
 			return null;
+		}
+
+		if (!left.hasSymbolicValue() && !right.hasSymbolicValue()) {
+			long longValue = e.getConcreteValue();
+			return CVC4ExprBuilder.mkIntConstant(longValue);
 		}
 
 		switch (e.getOperator()) {
@@ -138,7 +144,6 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return ite_expr;
 
 		}
-
 		default: {
 			throw new UnsupportedOperationException("Not implemented yet! "
 					+ e.getOperator());
@@ -161,12 +166,16 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return null;
 		}
 
+		if (!intExpr.hasSymbolicValue()) {
+			long longValue = e.getConcreteValue();
+			return CVC4ExprBuilder.mkIntConstant(longValue);
+		}
+
 		switch (e.getOperator()) {
 		case ABS:
 			SmtIntConstant zero = CVC4ExprBuilder.ZERO_INT;
 			SmtExpr gte_than_zero = CVC4ExprBuilder.mkGe(intExpr, zero);
 			SmtExpr minus_expr = CVC4ExprBuilder.mkNeg(intExpr);
-
 			SmtExpr ite_expr = CVC4ExprBuilder.mkITE(gte_than_zero, intExpr,
 					minus_expr);
 			return ite_expr;
@@ -181,6 +190,11 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		if (realExpr == null) {
 			return null;
 		}
+		if (!realExpr.hasSymbolicValue()) {
+			long longValue = e.getConcreteValue();
+			return CVC4ExprBuilder.mkIntConstant(longValue);
+		}
+
 		SmtExpr intExpr = CVC4ExprBuilder.mkReal2Int(realExpr);
 		return intExpr;
 	}
@@ -190,6 +204,10 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		SmtExpr realExpr = e.getOperand().accept(this, null);
 		if (realExpr == null) {
 			return null;
+		}
+		if (!realExpr.hasSymbolicValue()) {
+			long longValue = e.getConcreteValue();
+			return CVC4ExprBuilder.mkIntConstant(longValue);
 		}
 
 		switch (e.getOperator()) {
@@ -213,9 +231,13 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		if (integerExpr == null) {
 			return null;
 		}
+		if (!integerExpr.hasSymbolicValue()) {
+			double doubleValue = e.getConcreteValue();
+			return CVC4ExprBuilder.mkRealConstant(doubleValue);
+		}
+
 		SmtExpr realExpr = CVC4ExprBuilder.mkInt2Real(integerExpr);
 		return realExpr;
-
 	}
 
 	@Override
@@ -227,24 +249,28 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return null;
 		}
 
+		if (!left.hasSymbolicValue() && !right.hasSymbolicValue()) {
+			double doubleValue = e.getConcreteValue();
+			return CVC4ExprBuilder.mkRealConstant(doubleValue);
+		}
+
 		switch (e.getOperator()) {
 
 		case DIV: {
-			SmtExpr z3_div = CVC4ExprBuilder.mkDiv(left, right);
-			return z3_div;
+			SmtExpr expr = CVC4ExprBuilder.mkDiv(left, right);
+			return expr;
 		}
 		case MUL: {
-			SmtExpr z3_mul = CVC4ExprBuilder.mkMul(left, right);
-			return z3_mul;
-
+			SmtExpr expr = CVC4ExprBuilder.mkMul(left, right);
+			return expr;
 		}
 		case MINUS: {
-			SmtExpr z3_sub = CVC4ExprBuilder.mkSub(left, right);
-			return z3_sub;
+			SmtExpr expr = CVC4ExprBuilder.mkSub(left, right);
+			return expr;
 		}
 		case PLUS: {
-			SmtExpr z3_add = CVC4ExprBuilder.mkAdd(left, right);
-			return z3_add;
+			SmtExpr expr = CVC4ExprBuilder.mkAdd(left, right);
+			return expr;
 		}
 		case MAX: {
 			SmtExpr left_gt_right = CVC4ExprBuilder.mkGt(left, right);
@@ -253,7 +279,6 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return ite_expr;
 
 		}
-
 		case MIN: {
 			SmtExpr left_gt_right = CVC4ExprBuilder.mkLt(left, right);
 			SmtExpr ite_expr = CVC4ExprBuilder
@@ -324,13 +349,11 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		case EXP:
 		case EXPM1:
 		case FLOOR:
-		case GETEXPONENT:
 		case LOG:
 		case LOG10:
 		case LOG1P:
 		case NEXTUP:
 		case RINT:
-		case ROUND:
 		case SIGNUM:
 		case SQRT:
 		case TODEGREES:
@@ -345,6 +368,12 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			}
 			return concreteRatNum;
 		}
+		case GETEXPONENT:
+		case ROUND: {
+			throw new IllegalArgumentException("The Operation "
+					+ e.getOperator() + " does not return a real expression!");
+		}
+
 		default:
 			throw new UnsupportedOperationException("Not implemented yet!");
 		}
@@ -492,8 +521,22 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 			return concatExpr;
 		}
-		case APPEND_BOOLEAN:
-		case APPEND_CHAR:
+		case APPEND_BOOLEAN: {
+			SmtIntConstant zero = CVC4ExprBuilder.ZERO_INT;
+			SmtExpr eqZero = CVC4ExprBuilder.mkEq(right, zero);
+			SmtStringConstant falseConstantExpr = CVC4ExprBuilder
+					.mkStringConstant(String.valueOf(Boolean.FALSE));
+			SmtStringConstant trueConstantExpr = CVC4ExprBuilder
+					.mkStringConstant(String.valueOf(Boolean.TRUE));
+			SmtExpr ite = CVC4ExprBuilder.mkITE(eqZero, falseConstantExpr,
+					trueConstantExpr);
+			SmtExpr concatExpr = CVC4ExprBuilder.mkStrConcat(left, ite);
+			return concatExpr;
+
+		}
+		case APPEND_CHAR: {
+
+		}
 		case APPEND_REAL: {
 			String concreteValue = e.getConcreteValue();
 			SmtExpr strConstant = CVC4ExprBuilder
