@@ -26,6 +26,7 @@ import org.evosuite.runtime.mock.java.lang.MockThread;
 import org.evosuite.runtime.mock.java.util.MockTimeZone;
 import org.evosuite.runtime.thread.ThreadCounter;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
+import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +83,10 @@ public class Runtime {
 			VirtualFileSystem.getInstance().resetSingleton();
 			VirtualFileSystem.getInstance().init();
 		}
+
+        if(RuntimeSettings.useVNET){
+            VirtualNetwork.getInstance().reset();
+        }
 	}
 
 }
