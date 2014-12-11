@@ -58,8 +58,8 @@ public abstract class TestSolverBitwise {
 	private static DefaultTestCase buildTestCaseBitNot()
 			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference int0 = tc.appendIntPrimitive(~10);
-		VariableReference int1 = tc.appendIntPrimitive(10);
+		VariableReference int0 = tc.appendIntPrimitive(~0);
+		VariableReference int1 = tc.appendIntPrimitive(0);
 
 		Method method = TestCaseBitNot.class.getMethod("test", int.class,
 				int.class);

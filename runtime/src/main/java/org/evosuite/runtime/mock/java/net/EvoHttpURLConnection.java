@@ -1,5 +1,10 @@
 package org.evosuite.runtime.mock.java.net;
 
+import org.evosuite.runtime.mock.java.io.MockIOException;
+import org.evosuite.runtime.vnet.DNS;
+import org.evosuite.runtime.vnet.RemoteFile;
+import org.evosuite.runtime.vnet.VirtualNetwork;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,9 +25,12 @@ import java.util.Map;
  */
 public class EvoHttpURLConnection extends HttpURLConnection {
 
+    private InputStream stream;
+
     protected EvoHttpURLConnection(URL u) {
         super(u);
     }
+
 
     //-------  abstract methods ----------
 
@@ -38,15 +46,42 @@ public class EvoHttpURLConnection extends HttpURLConnection {
 
     @Override
     public void connect() throws IOException {
-        //TODO
+
+        if(super.connected){
+            return;
+        }
+
+        String resolved = VirtualNetwork.getInstance().dnsResolve(url.getHost());
+        if(resolved == null){
+            //TODO should rather mock java.net.UnknownHostException
+            throw new MockIOException(url.getHost());
+        }
+
+        /*
+            ideally there are a lot of different types of status that we could mock.
+            but in the end, they are not so much used in the SF110
+         */
+
+        super.connected = true;
+
+        RemoteFile rf = VirtualNetwork.getInstance().getFile(url);
+        if(rf == null){
+            super.responseCode = HTTP_NOT_FOUND;
+            super.responseMessage = "Not Found";
+        } else {
+            super.responseCode = HTTP_OK;
+            super.responseMessage = "OK";
+            stream = rf.getInputStream();
+        }
     }
 
-
-    // ---------------  TODO
 
     public InputStream getInputStream() throws IOException {
-        throw new UnknownServiceException("protocol doesn't support input");
+        connect();
+        return stream;
     }
+
+    // ---------------  TODO
 
     public OutputStream getOutputStream() throws IOException {
         throw new UnknownServiceException("protocol doesn't support output");

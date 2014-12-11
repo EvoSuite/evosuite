@@ -473,6 +473,10 @@ public class TestSuiteWriter implements Opcodes {
 			list.add("useVFS = true");
 		}
 
+        if(Properties.VIRTUAL_NET){
+            list.add("useVNET = true");
+        }
+
 		if (Properties.RESET_STATIC_FIELDS) {
 			list.add("resetStaticState = true");
 		}
@@ -549,7 +553,7 @@ public class TestSuiteWriter implements Opcodes {
 		 * Regardless of whether they are declared or not, an exception that propagates to the JUnit framework will
 		 * result in a failure for the test case. However, there might be some checked exceptions, and for those 
 		 * we need to declare them in the signature with "throws". So, the easiest (but still correct) option
-		 * is to just declare once to throw any genetic Exception, and be done with it once and for all
+		 * is to just declare once to throw any generic Exception, and be done with it once and for all
 		 */
 		builder.append(" throws Throwable ");
 		builder.append(" {\n");

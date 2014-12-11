@@ -1,5 +1,7 @@
 package org.evosuite.runtime.mock.java.net;
 
+import org.evosuite.runtime.mock.OverrideMock;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,7 +24,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 
-public class MockSocket extends Socket{
+public class MockSocket extends Socket implements OverrideMock {
 	
 	private Object closeLock = new Object();
 

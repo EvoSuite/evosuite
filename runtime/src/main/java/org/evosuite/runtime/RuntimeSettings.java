@@ -31,6 +31,11 @@ public class RuntimeSettings {
     public static boolean useVFS = false;
 
     /**
+     * Shall the test cases use a virtual network?
+     */
+    public static boolean useVNET = false;
+
+    /**
      * Should the static state be reset after each test execution?
      */
     public static boolean resetStaticState = false;
@@ -45,4 +50,10 @@ public class RuntimeSettings {
      * Note: such checks depend on RuntimeSettings#mockJVMNonDeterminism
      */
     public static int maxNumberOfThreads = 100;
+    
+    /**
+     * Should tests be executed in a separate instrumenting class loader
+     * or with the standard classloader and instrumentation via an agent?
+     */
+    public static boolean useSeparateClassLoader = false;
 }

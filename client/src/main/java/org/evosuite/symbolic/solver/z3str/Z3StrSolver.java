@@ -91,8 +91,9 @@ public class Z3StrSolver extends Solver {
 				+ EVOSUITE_Z3_STR_FILENAME;
 
 		if (Properties.Z3_STR_PATH == null) {
-			logger.error("Property Z3_STR_PATH should be setted in order to use the Z3StrSolver!");
-			return null;
+			String errMsg = "Property Z3_STR_PATH should be setted in order to use the Z3StrSolver!";
+			logger.error(errMsg);
+			throw new IllegalStateException(errMsg);
 		}
 
 		try {
