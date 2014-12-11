@@ -21,14 +21,18 @@ public class TestSameAssertion extends SystemTest {
 
 	private Properties.AssertionStrategy strategy = null;
 	
+	private double nullProbability = Properties.NULL_PROBABILITY;
+	
 	@Before
 	public void storeAssertionStrategy() {
 		strategy = Properties.ASSERTION_STRATEGY;
+		nullProbability = Properties.NULL_PROBABILITY;
 	}
 	
 	@After
 	public void restoreAssertionStrategy() {
 		Properties.ASSERTION_STRATEGY = strategy;
+		Properties.NULL_PROBABILITY = nullProbability;
 	}
 	
 	/*
@@ -131,6 +135,10 @@ public class TestSameAssertion extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
+		// If we allow null in this test, then there is a way
+		// to cover the branch without assertions but with
+		// exception
+		Properties.NULL_PROBABILITY = 0.0;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

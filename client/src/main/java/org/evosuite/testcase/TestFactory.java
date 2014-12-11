@@ -1468,16 +1468,21 @@ public class TestFactory {
 		// Select a random variable
 		VariableReference var = selectVariableForCall(test, position);
 
+		boolean success = false;
+		
 		// Add call for this variable at random position
 		if (var != null) {
 			logger.debug("Inserting call at position " + position + ", chosen var: "
 			        + var.getName() + ", distance: " + var.getDistance() + ", class: "
 			        + var.getClassName());
-			return insertRandomCallOnObjectAt(test, var, position);
-		} else {
+			success = insertRandomCallOnObjectAt(test, var, position);
+		} 
+		
+		if(!success) {
 			logger.debug("Adding new call on UUT because var was null");
-			return insertRandomCall(test, position);
+			success = insertRandomCall(test, position);
 		}
+		return success;
 	}
 
 	public boolean insertRandomCallOnObjectAt(TestCase test, VariableReference var,
