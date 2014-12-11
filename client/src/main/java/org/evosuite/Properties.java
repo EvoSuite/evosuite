@@ -560,7 +560,7 @@ public class Properties {
 	// @SetValue(values = { "maxlength", "maxsize", "avglength", "none" })
 	public static String SECONDARY_OBJECTIVE = "totallength";
 
-	@Parameter(key = "enable_secondary_objectives_after", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
+	@Parameter(key = "enable_secondary_objective_after", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
 	public static int ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;
 	
 	@Parameter(key = "enable_secondary_starvation", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
