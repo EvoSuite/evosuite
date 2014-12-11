@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.runtime;
+package org.evosuite.runtime.testdata;
 
 import java.io.File;
 import java.io.Serializable;

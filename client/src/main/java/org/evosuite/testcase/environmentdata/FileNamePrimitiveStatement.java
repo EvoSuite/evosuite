@@ -18,14 +18,18 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.environmentdata;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.evosuite.runtime.EvoSuiteFile;
+import org.evosuite.runtime.testdata.EvoSuiteFile;
+import org.evosuite.testcase.PrimitiveStatement;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.StringUtil;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 
@@ -34,7 +38,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  *
  * @author fraser
  */
-public class FileNamePrimitiveStatement extends PrimitiveStatement<EvoSuiteFile> {
+public class FileNamePrimitiveStatement extends EnvironmentDataStatement<EvoSuiteFile> {
 
 	private static final long serialVersionUID = 4402006999670328128L;
 
@@ -42,11 +46,30 @@ public class FileNamePrimitiveStatement extends PrimitiveStatement<EvoSuiteFile>
 	 * <p>Constructor for FileNamePrimitiveStatement.</p>
 	 *
 	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param value a {@link org.evosuite.runtime.EvoSuiteFile} object.
+	 * @param value a {@link org.evosuite.runtime.testdata.EvoSuiteFile} object.
 	 */
 	public FileNamePrimitiveStatement(TestCase tc, EvoSuiteFile value) {
 		super(tc, EvoSuiteFile.class, value);
 	}
+
+    @Override
+    public String getTestCode(String varName){
+        String testCode = "";
+        VariableReference retval = getReturnValue();
+        Object value = getValue();
+
+        if (value != null) {
+            String escapedPath = StringUtil.getEscapedString(((EvoSuiteFile) value).getPath());
+            testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
+                    + varName + " = new "
+                    + ((Class<?>) retval.getType()).getSimpleName() + "(\""
+                    + escapedPath + "\");\n";
+        } else {
+            testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
+                    + varName + " = null;\n";
+        }
+        return testCode;
+    }
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()

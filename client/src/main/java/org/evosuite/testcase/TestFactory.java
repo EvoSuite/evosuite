@@ -17,11 +17,11 @@ import java.util.Set;
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.testcase.environmentdata.EnvironmentStatements;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
@@ -550,7 +550,7 @@ public class TestFactory {
 				        "Cannot generate unaccessible enum " + clazz);
 			return createPrimitive(test, clazz, position, recursionDepth);
 		} else if (clazz.isPrimitive() || clazz.isClass()
-		        || clazz.getRawClass().equals(EvoSuiteFile.class)) {
+		        || EnvironmentStatements.isEnvironmentData( clazz.getRawClass())) {
 			return createPrimitive(test, clazz, position, recursionDepth);
 		} else if (clazz.isString()) {
 			if (allowNull && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
@@ -1000,11 +1000,13 @@ public class TestFactory {
 					clazz = clazz.getGenericInstantiation();
 				parameterType = clazz.getType();
 			}
+
 			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isWrapperType() || clazz.isObject() || 
-					clazz.isClass() || clazz.getRawClass().equals(EvoSuiteFile.class) || 
+					clazz.isClass() || EnvironmentStatements.isEnvironmentData(clazz.getRawClass()) ||
 					clazz.isString() || clazz.isArray() || TestCluster.getInstance().hasGenerator(parameterType)) {
 				logger.debug(" Generating new object of type " + parameterType);
-				VariableReference reference = attemptGeneration(test, parameterType,
+
+                VariableReference reference = attemptGeneration(test, parameterType,
 				                                                position, recursionDepth,
 				                                                allowNull);
 				return reference;
