@@ -164,7 +164,6 @@ public class VirtualNetwork {
 	public void reset(){		
 		dns = new DNS();
 
-		localListeningPorts.clear();
 		incomingConnections.clear();
 		remotePortIndex.set(START_OF_REMOTE_EPHEMERAL_PORTS);
 		remoteCurrentServers.clear();
@@ -174,6 +173,7 @@ public class VirtualNetwork {
         udpPacketsToSUT.clear();
 
 		//TODO most likely it ll need different handling, as needed after the search
+        localListeningPorts.clear();
 		openedTcpConnections.clear();
 		remoteContactedPorts.clear();
         remoteAccessedFiles.clear();
