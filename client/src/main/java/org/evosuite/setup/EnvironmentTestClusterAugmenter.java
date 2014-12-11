@@ -17,7 +17,7 @@ import java.util.ArrayList;
 /**
  *
  * This class is responsible to augment {@link org.evosuite.setup.TestCluster}
- * with seaarch operators based on the environment the SUT interacts with
+ * with search operators based on the environment the SUT interacts with
  *
  * Created by arcuri on 6/10/14.
  */
@@ -29,6 +29,7 @@ public class EnvironmentTestClusterAugmenter {
     private volatile boolean hasAddedSystem;
     private volatile boolean hasAddedFiles;
     private volatile boolean hasAddedSystemIn;
+    private volatile boolean hasAddedNetwork;
 
     private final TestCluster cluster;
 
@@ -63,7 +64,9 @@ public class EnvironmentTestClusterAugmenter {
             handleSystemIn();
         }
 
-
+        if(Properties.VIRTUAL_NET){
+            handleNetwork(test);
+        }
     }
 
     /**
@@ -85,6 +88,10 @@ public class EnvironmentTestClusterAugmenter {
         }
     }
 
+
+    private void handleNetwork(TestCase test){
+        //TODO
+    }
 
     private void handleVirtualFS(TestCase test) {
         test.setAccessedFiles(new ArrayList<String>(VirtualFileSystem.getInstance().getAccessedFiles()));
