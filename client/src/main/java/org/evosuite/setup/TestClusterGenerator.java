@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -122,9 +123,17 @@ public class TestClusterGenerator {
 
 	private final Set<Class<?>> containerClasses = new LinkedHashSet<Class<?>>();
 	
-		
+
+	private final Set<Pair> dependencies = new LinkedHashSet<Pair>();
+
+	//XXX refactor and move these as paramethers in all methods. 
+	private InheritanceTree inheritanceTree;
+	private CallGraph callGraph;
+	
+	
 	public void generateCluster(String targetClass, InheritanceTree inheritanceTree, CallGraph callGraph) throws RuntimeException, ClassNotFoundException {
 		this.inheritanceTree = inheritanceTree;
+		this.callGraph = callGraph;
 		TestCluster.setInheritanceTree(inheritanceTree);
 
 		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
@@ -406,6 +415,10 @@ public class TestClusterGenerator {
 			Set<Class<?>> subclasses = getConcreteClasses(targetClass, inheritanceTree);
 			logger.info("Found " + subclasses.size() + " concrete subclasses");
 			targetClasses.addAll(subclasses);
+		}
+		
+		if(Properties.INSTRUMENT_CONTEXT){
+			//TODO
 		}
 
 		// To make sure we also have anonymous inner classes double check inner classes using ASM
@@ -1300,10 +1313,6 @@ public class TestClusterGenerator {
 
 	};
 
-	private final Set<Pair> dependencies = new LinkedHashSet<Pair>();
-
-	private InheritanceTree inheritanceTree = null;
-
 	private void addDependencies(GenericConstructor constructor, int recursionLevel) {
 		if (recursionLevel > Properties.CLUSTER_RECURSION) {
 			logger.debug("Maximum recursion level reached, not adding dependencies of {}",
@@ -1604,7 +1613,50 @@ public class TestClusterGenerator {
 		}
 		return true;
 	}
+	
+	public static Set<Class<?>> loadClasses(Collection<String> classNames){
+		Set<Class<?>> loadedClasses = new HashSet<>();
+		for (String subClass : classNames) {
+				try {
+					Class<?> subClazz = Class.forName(subClass,
+					                                  false,
+					                                  TestGenerationContext.getInstance().getClassLoaderForSUT());
+					if (!canUse(subClazz))
+						continue;
+					if (subClazz.isInterface())
+						continue;
+					if (Modifier.isAbstract(subClazz.getModifiers())) {
+						if(!hasStaticGenerator(subClazz))
+							continue;
+					}
+					Class<?> mock = MockList.getMockClass(subClazz.getCanonicalName());
+					if (mock != null) {
+						/*
+						 * If we are mocking this class, then such class should not be used
+						 * in the generated JUnit test cases, but rather its mock.
+						 */
+//						logger.debug("Adding mock " + mock + " instead of "
+//						        + clazz);
+						subClazz = mock;
+					} else {
 
+						if (!checkIfCanUse(subClazz.getCanonicalName())) {
+							continue;
+						}
+					}
+
+					loadedClasses.add(subClazz);
+
+				} catch (ClassNotFoundException e) {
+					logger.error("Problem for " + Properties.TARGET_CLASS
+					        + ". Class not found: " + subClass, e);
+					logger.error("Removing class from inheritance tree");
+				}
+			}
+		return loadedClasses;
+	}
+
+	
 	public static Set<Class<?>> getConcreteClasses(Class<?> clazz,
 	        InheritanceTree inheritanceTree) {
 

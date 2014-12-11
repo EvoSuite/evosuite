@@ -220,13 +220,25 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @param className
 	 * @return
 	 */
-//	getReversePahts
+ 	public Set<String>  getClassesUnderTest(String className) {
+ 		if(toTestClasses.isEmpty())
+ 			computeInterestingClasses(graph);
+ 		return toTestClasses;
+ 	}
+
+	/**
+	 * Determine if className can be reached from the class under test
+	 * 
+	 * 
+	 * @param className
+	 * @return
+	 */
  	public boolean isCalledClass(String className) {
  		if(toTestClasses.isEmpty())
  			computeInterestingClasses(graph);
  		if(toTestClasses.contains(className)) return true;
  		return false;
- 		}
+ 	}
  	
  	public boolean isCalledClassOld(String className) {
  		if(toTestClasses.contains(className)) return true;
