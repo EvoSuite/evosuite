@@ -4,8 +4,6 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import org.evosuite.runtime.sandbox.Sandbox;
-
 /**
  * Annotation needed to pass parameters to EvoRunner
  * 
@@ -20,6 +18,10 @@ public @interface EvoRunnerParameters {
 
     boolean useVFS() default false;
 
+    boolean useVNET() default false;
+
     boolean resetStaticState() default false;
+    
+    boolean separateClassLoader() default false;
    
 }

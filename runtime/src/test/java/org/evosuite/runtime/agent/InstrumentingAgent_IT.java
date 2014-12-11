@@ -4,8 +4,15 @@ import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Constructor;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLStreamHandler;
 
+import com.examples.with.different.packagename.agent.*;
+import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
+import org.evosuite.runtime.mock.java.net.EvoURLStreamHandler;
+import org.evosuite.runtime.mock.java.net.URLUtil;
 import org.junit.*;
 
 import org.evosuite.runtime.Runtime;
@@ -13,17 +20,6 @@ import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.io.MockFile;
-
-import com.examples.with.different.packagename.agent.ConcreteTime;
-import com.examples.with.different.packagename.agent.AbstractTime;
-import com.examples.with.different.packagename.agent.ExtendingTimeC;
-import com.examples.with.different.packagename.agent.GetFile;
-import com.examples.with.different.packagename.agent.SecondAbstractTime;
-import com.examples.with.different.packagename.agent.SecondConcreteTime;
-import com.examples.with.different.packagename.agent.SumRuntime;
-import com.examples.with.different.packagename.agent.TimeA;
-import com.examples.with.different.packagename.agent.TimeB;
-import com.examples.with.different.packagename.agent.TimeC;
 
 /**
  * Note: this needs be run as an integration test (IT), as it requires
@@ -38,6 +34,7 @@ public class InstrumentingAgent_IT {
 
 	private final boolean replaceCalls = RuntimeSettings.mockJVMNonDeterminism;
 	private final boolean vfs = RuntimeSettings.useVFS;
+    private final boolean vnet = RuntimeSettings.useVNET;
 	
 	@BeforeClass
 	public static void initClass(){
@@ -48,6 +45,7 @@ public class InstrumentingAgent_IT {
 	public void storeValues() {
 		RuntimeSettings.mockJVMNonDeterminism = true;
 		RuntimeSettings.useVFS = true;
+        RuntimeSettings.useVNET = true;
         MethodCallReplacementCache.resetSingleton();
 		Runtime.getInstance().resetRuntime();
 	}
@@ -56,6 +54,7 @@ public class InstrumentingAgent_IT {
 	public void resetValues() {
 		RuntimeSettings.mockJVMNonDeterminism = replaceCalls;
 		RuntimeSettings.useVFS = vfs;
+        RuntimeSettings.useVNET = vnet;
 	}
 
 
@@ -262,6 +261,64 @@ public class InstrumentingAgent_IT {
 		// note: it should be _extremely_ unlikely that original code returns such value by chance
 		Assert.assertFalse(SumRuntime.getSum() == 1101);
 	}
+
+    @Test
+    public void testMockFramework_StaticReplacementMock_ofConstructors() throws MalformedURLException {
+
+        try{
+            InstrumentingAgent.activate();
+            new GetURL();
+        } finally {
+            InstrumentingAgent.deactivate();
+        }
+        //first disable
+        MockFramework.disable();
+        String url = "http://www.evosuite.org";
+        URL res = GetURL.get(url);
+        URLStreamHandler handler = URLUtil.getHandler(res);
+        Assert.assertFalse(handler instanceof EvoURLStreamHandler);
+
+        //now enable
+        MockFramework.enable();
+        res = GetURL.get(url);
+        handler = URLUtil.getHandler(res);
+        Assert.assertTrue(handler instanceof EvoURLStreamHandler);
+    }
+
+    @Test
+    public void testMockFramework_StaticReplacementMock_2() throws Exception{
+        try{
+            InstrumentingAgent.activate();
+            new GetURL();
+        } finally {
+            InstrumentingAgent.deactivate();
+        }
+        //first disable
+        MockFramework.disable();
+        String url = "http://www.evosuite.org";
+        URL res = GetURL.getFromUri(url);
+        URLStreamHandler handler = URLUtil.getHandler(res);
+        Assert.assertFalse(handler instanceof EvoURLStreamHandler);
+
+        //now enable
+        MockFramework.enable();
+        res = GetURL.getFromUri(url);
+        handler = URLUtil.getHandler(res);
+        Assert.assertTrue(handler instanceof EvoURLStreamHandler);
+    }
+
+    @Test
+    public void testAddingInstrumentedClassInterface(){
+        Object obj = null;
+        try{
+            InstrumentingAgent.activate();
+            obj = new GetURL();
+        } finally {
+            InstrumentingAgent.deactivate();
+        }
+
+        Assert.assertTrue(obj instanceof InstrumentedClass);
+    }
 	
 	@Test
 	public void testMockFramework_noAgent(){

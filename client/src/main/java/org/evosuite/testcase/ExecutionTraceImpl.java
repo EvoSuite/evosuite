@@ -38,7 +38,9 @@ import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
 import org.evosuite.setup.CallContext;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
+import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -260,6 +262,12 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public static Set<Integer> gradientBranchesCoveredTrue = Collections.synchronizedSet(new HashSet<Integer>());
 
 	public static Set<Integer> gradientBranchesCoveredFalse = Collections.synchronizedSet(new HashSet<Integer>());
+	
+	public static Map<RuntimeVariable,Set<Integer>> bytecodeInstructionReached = Collections.synchronizedMap(new HashMap<RuntimeVariable,Set<Integer>>());
+	
+	public static Map<RuntimeVariable,Set<Integer>> bytecodeInstructionCoveredTrue = Collections.synchronizedMap(new HashMap<RuntimeVariable,Set<Integer>>());
+	
+	public static Map<RuntimeVariable,Set<Integer>> bytecodeInstructionCoveredFalse = Collections.synchronizedMap(new HashMap<RuntimeVariable,Set<Integer>>());
 
 	/**
 	 * <p>
@@ -301,6 +309,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		assert (false_distance >= 0.0);
 		updateTopStackMethodCall(branch, bytecode_id, true_distance, false_distance);
 		
+		//TODO: property should really be called TRACK_GRADIENT_BRANCHES!
 		if(Properties.TRACK_BOOLEAN_BRANCHES){
 			if((true_distance!=0 && true_distance!=1) || (false_distance!=0 && false_distance!=1))
 				gradientBranches.add(branch);
@@ -336,6 +345,99 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 					gradientBranchesCoveredFalse.add(branch);
 			}
 		}
+		
+		if(Properties.BRANCH_COMPARISON_TYPES){
+			int opcode = BranchPool.getBranch(branch).getInstruction().getASMNode().getOpcode();
+			int previousOpcode = -2;
+			if(BranchPool.getBranch(branch).getInstruction().getASMNode().getPrevious()!=null)
+				previousOpcode = BranchPool.getBranch(branch).getInstruction().getASMNode().getPrevious().getOpcode();
+			boolean cTrue = coveredTrue.containsKey(branch);
+			boolean cFalse = coveredFalse.containsKey(branch);
+			switch (previousOpcode) {
+				case Opcodes.LCMP:
+					trackBranchOpcode(bytecodeInstructionReached, RuntimeVariable.Reached_lcmp, branch);
+					if(cTrue)
+						trackBranchOpcode(bytecodeInstructionCoveredTrue, RuntimeVariable.Covered_lcmp, branch);
+					if(cFalse)
+						trackBranchOpcode(bytecodeInstructionCoveredFalse, RuntimeVariable.Covered_lcmp, branch);
+					break;
+				case Opcodes.FCMPL:
+					trackBranchOpcode(bytecodeInstructionReached, RuntimeVariable.Reached_fcmpl, branch);
+					if(cTrue)
+						trackBranchOpcode(bytecodeInstructionCoveredTrue, RuntimeVariable.Covered_fcmpl, branch);
+					if(cFalse)
+						trackBranchOpcode(bytecodeInstructionCoveredFalse, RuntimeVariable.Covered_fcmpl, branch);
+					break;
+				case Opcodes.FCMPG:
+					trackBranchOpcode(bytecodeInstructionReached, RuntimeVariable.Reached_fcmpg, branch);
+					if(cTrue)
+						trackBranchOpcode(bytecodeInstructionCoveredTrue, RuntimeVariable.Covered_fcmpg, branch);
+					if(cFalse)
+						trackBranchOpcode(bytecodeInstructionCoveredFalse, RuntimeVariable.Covered_fcmpg, branch);
+					break;
+				case Opcodes.DCMPL:
+					trackBranchOpcode(bytecodeInstructionReached, RuntimeVariable.Reached_dcmpl, branch);
+					if(cTrue)
+						trackBranchOpcode(bytecodeInstructionCoveredTrue, RuntimeVariable.Covered_dcmpl, branch);
+					if(cFalse)
+						trackBranchOpcode(bytecodeInstructionCoveredFalse, RuntimeVariable.Covered_dcmpl, branch);
+					break;
+				case Opcodes.DCMPG:
+					trackBranchOpcode(bytecodeInstructionReached, RuntimeVariable.Reached_dcmpg, branch);
+					if(cTrue)
+						trackBranchOpcode(bytecodeInstructionCoveredTrue, RuntimeVariable.Covered_dcmpg, branch);
+					if(cFalse)
+						trackBranchOpcode(bytecodeInstructionCoveredFalse, RuntimeVariable.Covered_dcmpg, branch);
+					break;
+			}
+			switch(opcode){
+				// copmpare int with zero
+				case Opcodes.IFEQ:
+				case Opcodes.IFNE:
+				case Opcodes.IFLT:
+				case Opcodes.IFGE:
+				case Opcodes.IFGT:
+				case Opcodes.IFLE:
+					trackBranchOpcode(bytecodeInstructionReached, RuntimeVariable.Reached_IntZero, branch);
+					if(cTrue)
+						trackBranchOpcode(bytecodeInstructionCoveredTrue, RuntimeVariable.Covered_IntZero, branch);
+					if(cFalse)
+						trackBranchOpcode(bytecodeInstructionCoveredFalse, RuntimeVariable.Covered_IntZero, branch);
+				break;
+				// copmpare int with int
+				case Opcodes.IF_ICMPEQ:
+				case Opcodes.IF_ICMPNE:
+				case Opcodes.IF_ICMPLT:
+				case Opcodes.IF_ICMPGE:
+				case Opcodes.IF_ICMPGT:
+				case Opcodes.IF_ICMPLE:
+					trackBranchOpcode(bytecodeInstructionReached, RuntimeVariable.Reached_IntInt, branch);
+					if(cTrue)
+						trackBranchOpcode(bytecodeInstructionCoveredTrue, RuntimeVariable.Covered_IntInt, branch);
+					if(cFalse)
+						trackBranchOpcode(bytecodeInstructionCoveredFalse, RuntimeVariable.Covered_IntInt, branch);
+				break;
+				// copmpare reference with reference
+				case Opcodes.IF_ACMPEQ:
+				case Opcodes.IF_ACMPNE:
+					trackBranchOpcode(bytecodeInstructionReached, RuntimeVariable.Reached_RefRef, branch);
+					if(cTrue)
+						trackBranchOpcode(bytecodeInstructionCoveredTrue, RuntimeVariable.Covered_RefRef, branch);
+					if(cFalse)
+						trackBranchOpcode(bytecodeInstructionCoveredFalse, RuntimeVariable.Covered_RefRef, branch);
+				break;
+				// compare reference with null
+				case Opcodes.IFNULL:
+				case Opcodes.IFNONNULL:
+					trackBranchOpcode(bytecodeInstructionReached, RuntimeVariable.Reached_RefNull, branch);
+					if(cTrue)
+						trackBranchOpcode(bytecodeInstructionCoveredTrue, RuntimeVariable.Covered_RefNull, branch);
+					if(cFalse)
+						trackBranchOpcode(bytecodeInstructionCoveredFalse, RuntimeVariable.Covered_RefNull, branch);
+				break;
+				
+			}
+		}
 
 		if (!trueDistances.containsKey(branch))
 			trueDistances.put(branch, true_distance);
@@ -368,6 +470,21 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		if (Properties.BRANCH_EVAL) {
 			branchesTrace.add(new BranchEval(branch, true_distance, false_distance));
 		}
+	}
+	
+	/** 
+	 * Track reach/coverage of branch based on it's underlying opcode during execution
+	 * 
+	 * @param the relevant map for the variable type (one of the three static maps)
+	 * @param The branch type (based on opcode)
+	 * @param id of the tracked branch
+	 */
+	private void trackBranchOpcode(Map<RuntimeVariable,Set<Integer>> trackedMap, RuntimeVariable v, int branch_id){
+		if(!trackedMap.containsKey(v))
+			trackedMap.put(v, new HashSet<Integer>());
+		Set<Integer> branchSet = trackedMap.get(v);
+		branchSet.add(branch_id);
+		trackedMap.put(v, branchSet);
 	}
 
 	/**

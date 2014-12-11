@@ -142,6 +142,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.UncompilableCodeException;
 import org.evosuite.testcase.ValueMinimizer;
+import org.evosuite.testcase.VariableReference;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.testsuite.FixedSizeTestSuiteChromosomeFactory;
 import org.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective;
@@ -287,6 +288,11 @@ public class TestSuiteGenerator {
 	public GeneticAlgorithm getEmployedGeneticAlgorithm() {
 		return ga;
 	}
+	
+	private int getBytecodeCount(RuntimeVariable v, Map<RuntimeVariable,Set<Integer>> m){
+		Set<Integer> branchSet = m.get(v);
+		return (branchSet==null) ? 0 : branchSet.size();
+	}
 
 	private List<TestSuiteChromosome> generateTests() {
 	    List<TestSuiteChromosome> tests = new ArrayList<TestSuiteChromosome>();
@@ -328,8 +334,29 @@ public class TestSuiteGenerator {
 		}
 		if(Properties.BRANCH_COMPARISON_TYPES){
 			int cmp_intzero=0, cmp_intint=0, cmp_refref=0, cmp_refnull=0;
+			int bc_lcmp=0, bc_fcmpl=0, bc_fcmpg=0, bc_dcmpl=0, bc_dcmpg=0;
 			for(Branch b:BranchPool.getAllBranches()){
 				int branchOpCode = b.getInstruction().getASMNode().getOpcode();
+				int previousOpcode = -2;
+				if(b.getInstruction().getASMNode().getPrevious() != null)
+					previousOpcode = b.getInstruction().getASMNode().getPrevious().getOpcode();
+				switch(previousOpcode){
+					case Opcodes.LCMP:
+						bc_lcmp++;
+						break;
+					case Opcodes.FCMPL:
+						bc_fcmpl++;
+						break;
+					case Opcodes.FCMPG:
+						bc_fcmpg++;
+						break;
+					case Opcodes.DCMPL:
+						bc_dcmpl++;
+						break;
+					case Opcodes.DCMPG:
+						bc_dcmpg++;
+						break;
+				}
 				switch(branchOpCode){
 					// copmpare int with zero
 					case Opcodes.IFEQ:
@@ -366,6 +393,51 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_IntInt, cmp_intint);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefRef, cmp_refref);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefNull, cmp_refnull);
+
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_lcmp, bc_lcmp);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_fcmpl, bc_fcmpl);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_fcmpg, bc_fcmpg);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_dcmpl, bc_dcmpl);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_dcmpg, bc_dcmpg);
+			
+			
+			
+			RuntimeVariable[] bytecodeVarsCovered = new RuntimeVariable[] {
+					RuntimeVariable.Covered_lcmp, 
+					RuntimeVariable.Covered_fcmpl, 
+					RuntimeVariable.Covered_fcmpg,
+					RuntimeVariable.Covered_dcmpl,
+					RuntimeVariable.Covered_dcmpg,
+					RuntimeVariable.Covered_IntInt,
+					RuntimeVariable.Covered_IntInt,
+					RuntimeVariable.Covered_IntZero,
+					RuntimeVariable.Covered_RefRef,
+					RuntimeVariable.Covered_RefNull };
+			
+			for(RuntimeVariable bcvar:bytecodeVarsCovered){
+				ClientServices.getInstance().getClientNode().trackOutputVariable(bcvar, 
+						getBytecodeCount(bcvar, ExecutionTraceImpl.bytecodeInstructionCoveredFalse) 
+						+ getBytecodeCount(bcvar, ExecutionTraceImpl.bytecodeInstructionCoveredTrue)
+						);
+			}
+
+			RuntimeVariable[] bytecodeVarsReached = new RuntimeVariable[] {
+					RuntimeVariable.Reached_lcmp, 
+					RuntimeVariable.Reached_fcmpl, 
+					RuntimeVariable.Reached_fcmpg,
+					RuntimeVariable.Reached_dcmpl,
+					RuntimeVariable.Reached_dcmpg,
+					RuntimeVariable.Reached_IntInt,
+					RuntimeVariable.Reached_IntInt,
+					RuntimeVariable.Reached_IntZero,
+					RuntimeVariable.Reached_RefRef,
+					RuntimeVariable.Reached_RefNull };
+			
+			for(RuntimeVariable bcvar:bytecodeVarsReached){
+				ClientServices.getInstance().getClientNode().trackOutputVariable(bcvar, 
+						getBytecodeCount(bcvar, ExecutionTraceImpl.bytecodeInstructionReached) * 2);
+			}
+			
 		}
 
 		StatisticsSender.executedAndThenSendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?

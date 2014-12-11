@@ -128,6 +128,7 @@ public class ClientProcess {
 		RuntimeSettings.mockSystemIn = Properties.REPLACE_SYSTEM_IN;
 		RuntimeSettings.sandboxMode = Properties.SANDBOX_MODE;
         RuntimeSettings.maxNumberOfThreads = Properties.MAX_STARTED_THREADS;
+        RuntimeSettings.useVNET = Properties.VIRTUAL_NET;
         MethodCallReplacementCache.resetSingleton();
     }
 

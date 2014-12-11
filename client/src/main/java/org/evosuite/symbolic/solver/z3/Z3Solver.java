@@ -50,8 +50,9 @@ public class Z3Solver extends Solver {
 		logger.debug(smtQuery);
 
 		if (Properties.Z3_PATH == null) {
-			logger.error("Property Z3_PATH should be setted in order to use the Z3 Solver!");
-			return null;
+			String errMsg = "Property Z3_PATH should be setted in order to use the Z3 Solver!";
+			logger.error(errMsg);
+			throw new IllegalStateException(errMsg);
 		}
 		String z3Cmd = Properties.Z3_PATH + " -smt2 -in";
 

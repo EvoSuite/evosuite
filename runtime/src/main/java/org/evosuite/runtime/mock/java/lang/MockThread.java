@@ -2,7 +2,6 @@ package org.evosuite.runtime.mock.java.lang;
 
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
-import org.evosuite.runtime.mock.StaticReplacementMethod;
 import org.evosuite.runtime.thread.ThreadCounter;
 
 import java.util.HashMap;

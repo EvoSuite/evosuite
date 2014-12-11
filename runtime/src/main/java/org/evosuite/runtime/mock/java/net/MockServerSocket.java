@@ -1,5 +1,7 @@
 package org.evosuite.runtime.mock.java.net;
 
+import org.evosuite.runtime.mock.OverrideMock;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -14,7 +16,7 @@ import java.nio.channels.ServerSocketChannel;
 /**
  * Created by arcuri on 6/29/14.
  */
-public class MockServerSocket extends ServerSocket{
+public class MockServerSocket extends ServerSocket implements OverrideMock {
 
 	private boolean created = false;
 	private boolean bound = false;

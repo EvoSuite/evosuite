@@ -18,6 +18,7 @@ import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.VariableReference;
 
+import com.examples.with.different.packagename.solver.TestCaseStringAppendInteger;
 import com.examples.with.different.packagename.solver.TestCaseStringAppendString;
 import com.examples.with.different.packagename.solver.TestCaseStringCharAt;
 import com.examples.with.different.packagename.solver.TestCaseStringCompareTo;
@@ -70,7 +71,7 @@ public abstract class TestSolverStringFunctions {
 		return solution;
 	}
 
-	public static void testNegativeLength(Solver solver)
+	public static Map<String, Object> testNegativeLength(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
@@ -83,7 +84,7 @@ public abstract class TestSolverStringFunctions {
 				.<Constraint<?>> singleton(newIntegerConstraint);
 
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNull(solution);
+		return solution;
 	}
 
 	private static DefaultTestCase buildTestEquals() throws SecurityException,
@@ -148,6 +149,17 @@ public abstract class TestSolverStringFunctions {
 		VariableReference string0 = tc.appendStringPrimitive("ha");
 
 		Method method = TestCaseStringAppendString.class.getMethod("test",
+				String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
+	private static DefaultTestCase buildTestAppendInteger()
+			throws SecurityException, NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc.appendStringPrimitive("ha");
+
+		Method method = TestCaseStringAppendInteger.class.getMethod("test",
 				String.class);
 		tc.appendMethod(null, method, string0);
 		return tc.getDefaultTestCase();
@@ -267,6 +279,29 @@ public abstract class TestSolverStringFunctions {
 		return solution;
 	}
 
+	private static DefaultTestCase buildTestCharAt2() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc.appendStringPrimitive("AHello");
+		VariableReference int0 = tc.appendIntPrimitive(65);
+
+		Method method = TestCaseStringCharAt.class.getMethod("test",
+				String.class, int.class);
+		tc.appendMethod(null, method, string0, int0);
+		return tc.getDefaultTestCase();
+	}
+
+	private static DefaultTestCase buildTestCharAt3() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc.appendStringPrimitive("5Hello");
+
+		Method method = TestCaseStringCharAt.class.getMethod("test3",
+				String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
 	private static DefaultTestCase buildTestCharAt() throws SecurityException,
 			NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
@@ -278,10 +313,32 @@ public abstract class TestSolverStringFunctions {
 		return tc.getDefaultTestCase();
 	}
 
+	public static Map<String, Object> testStringCharAt3(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+		DefaultTestCase tc = buildTestCharAt3();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+
+		return solution;
+	}
+
 	public static Map<String, Object> testStringCharAt(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 		DefaultTestCase tc = buildTestCharAt();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+
+		return solution;
+	}
+
+	public static Map<String, Object> testStringCharAt2(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+		DefaultTestCase tc = buildTestCharAt2();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
@@ -407,6 +464,17 @@ public abstract class TestSolverStringFunctions {
 			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestAppendString();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+		return solution;
+	}
+
+	public static Map<String, Object> testStringAppendInteger(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+
+		DefaultTestCase tc = buildTestAppendInteger();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);

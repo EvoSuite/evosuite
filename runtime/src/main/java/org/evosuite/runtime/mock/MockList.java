@@ -15,6 +15,9 @@ import org.evosuite.runtime.mock.java.io.MockPrintStream;
 import org.evosuite.runtime.mock.java.io.MockPrintWriter;
 import org.evosuite.runtime.mock.java.io.MockRandomAccessFile;
 import org.evosuite.runtime.mock.java.lang.*;
+import org.evosuite.runtime.mock.java.net.*;
+import org.evosuite.runtime.mock.java.nio.channels.MockServerSocketChannel;
+import org.evosuite.runtime.mock.java.nio.channels.MockSocketChannel;
 import org.evosuite.runtime.mock.java.util.MockDate;
 import org.evosuite.runtime.mock.java.util.MockGregorianCalendar;
 import org.evosuite.runtime.mock.java.util.MockRandom;
@@ -96,6 +99,24 @@ public class MockList {
 			list.add(MockRuntimeException.class);
 			list.add(MockThrowable.class);
 		}
+
+        if(RuntimeSettings.useVNET){
+
+            //TODO double check that all OverrideMocks implement rollback
+
+            list.add(MockDatagramSocket.class);
+            list.add(MockInetAddress.class);
+            list.add(MockInetSocketAddress.class);
+            list.add(MockNetworkInterface.class);
+            list.add(MockServerSocket.class);
+            list.add(MockSocket.class);
+            list.add(MockSocketImpl.class);
+            list.add(MockURL.class);
+            list.add(MockURLStreamHandler.class);
+            list.add(MockURI.class);
+            //list.add(MockServerSocketChannel.class); //TODO
+            //list.add(MockSocketChannel.class); //TODO
+        }
 
 		return list;
 	}
