@@ -1,5 +1,6 @@
-package org.evosuite.runtime;
+package org.evosuite.runtime.testdata;
 
+import org.evosuite.runtime.testdata.EvoSuiteFile;
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VirtualFileSystem;

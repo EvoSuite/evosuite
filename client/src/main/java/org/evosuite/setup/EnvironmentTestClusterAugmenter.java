@@ -3,6 +3,7 @@ package org.evosuite.setup;
 import org.evosuite.Properties;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.System;
+import org.evosuite.runtime.testdata.FileSystemHandling;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.evosuite.testcase.TestCase;

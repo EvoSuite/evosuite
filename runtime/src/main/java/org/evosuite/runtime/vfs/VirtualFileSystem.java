@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.evosuite.runtime.EvoSuiteFile;
+import org.evosuite.runtime.testdata.EvoSuiteFile;
 import org.evosuite.runtime.LeakingResource;
 import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.slf4j.Logger;

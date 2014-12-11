@@ -50,13 +50,9 @@ import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.assertion.SameAssertion;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.parameterize.InputVariable;
-import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.runtime.mock.EvoSuiteMock;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericField;
-import org.evosuite.utils.GenericMethod;
-import org.evosuite.utils.NumberFormatter;
+import org.evosuite.testcase.environmentdata.EnvironmentDataStatement;
+import org.evosuite.utils.*;
 
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
@@ -820,20 +816,7 @@ public class TestCodeVisitor extends TestVisitor {
 
 	}
 
-	private String getEscapedString(String original) {
-		char[] charArray = StringEscapeUtils.escapeJava((String) original).toCharArray();
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < charArray.length; ++i) {
-			char a = charArray[i];
-			if (a > 255) {
-				sb.append("\\u");
-				sb.append(Integer.toHexString(a));
-			} else {
-				sb.append(a);
-			}
-		}
-		return sb.toString();
-	}
+
 	
 	/*
 	 * (non-Javadoc)
@@ -852,25 +835,15 @@ public class TestCodeVisitor extends TestVisitor {
 				        + getVariableName(retval) + " = null;\n";
 
 			} else {
-				String escapedString = getEscapedString((String)value);
+				String escapedString = StringUtil.getEscapedString((String) value);
 				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 						+ getVariableName(retval) + " = \"" + escapedString + "\";\n";
 			}
 			// testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 			// + getVariableName(retval) + " = \""
 			// + StringEscapeUtils.escapeJava((String) value) + "\";\n";
-		} else if (statement instanceof FileNamePrimitiveStatement) {
-			// changed by Daniel
-			if (value != null) {
-				String escapedPath = getEscapedString(((EvoSuiteFile) value).getPath());
-				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-				        + getVariableName(retval) + " = new "
-				        + ((Class<?>) retval.getType()).getSimpleName() + "(\""
-				        + escapedPath + "\");\n";
-			} else {
-				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-				        + getVariableName(retval) + " = null;\n";
-			}
+		} else if (statement instanceof EnvironmentDataStatement) {
+			testCode += ((EnvironmentDataStatement) statement).getTestCode(getVariableName(retval));
 		} else if (statement instanceof ClassPrimitiveStatement) {
 			StringBuilder builder = new StringBuilder();
 			String className = getClassName(retval);
