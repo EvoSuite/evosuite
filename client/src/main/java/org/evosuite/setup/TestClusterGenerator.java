@@ -527,15 +527,15 @@ public class TestClusterGenerator {
 
 				if (canUse(field, clazz)) {
 					GenericField genericField = new GenericField(field, clazz);
-					GenericClass genericClass = new GenericClass(field.getGenericType());
+
 					addDependencies(genericField, 1);
-					cluster.addGenerator(genericClass, //.getWithWildcardTypes(),
+					cluster.addGenerator(new GenericClass(field.getGenericType()), //.getWithWildcardTypes(),
 					                     genericField);
 					logger.debug("Adding field " + field);
 					if (!Modifier.isFinal(field.getModifiers())) {
 						logger.debug("Is not final");
 						cluster.addTestCall(new GenericField(field, clazz));
-						cluster.addModifier(genericClass,
+						cluster.addModifier(new GenericClass(clazz),
 			                    genericField);
 					} else {
 						logger.debug("Is final");
