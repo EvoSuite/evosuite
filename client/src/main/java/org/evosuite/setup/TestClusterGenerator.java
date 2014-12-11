@@ -54,6 +54,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.annotation.EvoSuiteExclude;
+import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.instrumentation.BooleanTestabilityTransformation;
@@ -500,8 +501,14 @@ public class TestClusterGenerator {
 
 					GenericMethod genericMethod = new GenericMethod(method, clazz);
 					cluster.addTestCall(genericMethod);
-					cluster.addModifier(new GenericClass(clazz), //.getWithWildcardTypes(),
-					                    genericMethod);
+					// TODO: We could restrict this to pure methods here
+					//       but for SUT classes without impure methods
+					//       this can affect the chances of covering the targets
+					//       so for now we keep all pure methods.
+					//       In the long run, covered methods maybe should be
+					//       removed?
+					cluster.addModifier(new GenericClass(clazz),
+							genericMethod);
 					addDependencies(genericMethod, 1);
 					GenericClass retClass = new GenericClass(method.getReturnType());
 
@@ -519,6 +526,7 @@ public class TestClusterGenerator {
 
 				if (canUse(field, clazz)) {
 					GenericField genericField = new GenericField(field, clazz);
+
 					addDependencies(genericField, 1);
 					cluster.addGenerator(new GenericClass(field.getGenericType()), //.getWithWildcardTypes(),
 					                     genericField);
@@ -526,6 +534,8 @@ public class TestClusterGenerator {
 					if (!Modifier.isFinal(field.getModifiers())) {
 						logger.debug("Is not final");
 						cluster.addTestCall(new GenericField(field, clazz));
+						cluster.addModifier(new GenericClass(clazz),
+			                    genericField);
 					} else {
 						logger.debug("Is final");
 						if (Modifier.isStatic(field.getModifiers())
@@ -1524,10 +1534,16 @@ public class TestClusterGenerator {
 					GenericMethod genericMethod = new GenericMethod(method, clazz);
 					try {
 						addDependencies(genericMethod, recursionLevel + 1);
-						cluster.addModifier(clazz, //.getWithWildcardTypes(), 
-								genericMethod);
-						//					GenericClass retClass = new GenericClass(
-						//					        genericMethod.getReturnType(), method.getReturnType());
+						if(!Properties.PURE_INSPECTORS) {
+							cluster.addModifier(new GenericClass(clazz),
+									genericMethod);
+						} else {
+							if(!CheapPurityAnalyzer.getInstance().isPure(method)) {
+								cluster.addModifier(new GenericClass(clazz),
+										genericMethod);							
+							}
+						}
+
 						GenericClass retClass = new GenericClass(method.getReturnType());
 
 						if (!retClass.isPrimitive() && !retClass.isVoid()
