@@ -1,7 +1,9 @@
-package org.evosuite.runtime.vnet;
+package org.evosuite.runtime.testdata;
 
 
 import org.evosuite.runtime.mock.java.net.MockInetAddress;
+import org.evosuite.runtime.vnet.NativeTcp;
+import org.evosuite.runtime.vnet.VirtualNetwork;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -107,4 +109,18 @@ public class NetworkHandling {
 	public static boolean sendMessageOnTcp(EvoSuiteAddress sutServer, String message){
 		return sendDataOnTcp(sutServer,message.getBytes());
 	}
+
+
+    /**
+     *  Create a text file on mocked remote host that can be accessed with the given URL
+     * @param url
+     * @param text
+     * @return
+     */
+    public static boolean createRemoteTextFile(EvoSuiteURL url, String text){
+        if(url == null){
+            return false;
+        }
+        return VirtualNetwork.getInstance().addRemoteTextFile(url.getUrl(),text);
+    }
 }
