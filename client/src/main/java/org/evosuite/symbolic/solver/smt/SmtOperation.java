@@ -42,7 +42,11 @@ public final class SmtOperation extends SmtExpr {
 		NOT("not"), //
 		STR_TO_INT("str.to.int"), //
 		ABS("abs"), //
-		BVADD("bvadd");
+		BVADD("bvadd"), //
+		REG_EXP_CONCAT("re.++"), //
+		STR_TO_REG_EXP("str.to.re"), //
+		REG_EXP_KLEENE_STAR("re.*"), //
+		STR_IN_REG_EXP("str.in.re");
 
 		private final String rep;
 
