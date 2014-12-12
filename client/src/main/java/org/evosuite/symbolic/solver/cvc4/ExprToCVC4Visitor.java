@@ -198,14 +198,11 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr minus_expr = CVC4ExprBuilder.mkNeg(operand);
 			return minus_expr;
 		}
-		case GETNUMERICVALUE: {
-			// TODO
-		}
-		case ISDIGIT: {
-			// TODO
-		}
+		case GETNUMERICVALUE:
+		case ISDIGIT:
 		case ISLETTER: {
-			// TODO
+			long longValue = e.getConcreteValue();
+			return CVC4ExprBuilder.mkIntConstant(longValue);
 		}
 		default:
 			throw new IllegalArgumentException("The operator "
@@ -942,6 +939,19 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 	}
 
 	@Override
+	public SmtExpr visit(NewTokenizerExpr e, Void v) {
+		throw new IllegalStateException(
+				"NewTokenizerExpr should not be visited");
+
+	}
+
+	@Override
+	public SmtExpr visit(NextTokenizerExpr e, Void v) {
+		throw new IllegalStateException(
+				"NextTokenizerExpr should not be visited");
+	}
+	
+	@Override
 	public SmtExpr visit(StringNextTokenExpr e, Void v) {
 		String stringValue = e.getConcreteValue();
 		return CVC4ExprBuilder.mkStringConstant(stringValue);
@@ -961,19 +971,6 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		return intConst;
 	}
 
-	@Override
-	public SmtExpr visit(NewTokenizerExpr e, Void v) {
-		// TODO
-		throw new IllegalStateException(
-				"NewTokenizerExpr is not implemented yet");
 
-	}
-
-	@Override
-	public SmtExpr visit(NextTokenizerExpr e, Void v) {
-		// TODO
-		throw new IllegalStateException(
-				"NextTokenizerExpr is not implemented yet");
-	}
 
 }
