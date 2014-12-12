@@ -1,4 +1,4 @@
-package org.evosuite.runtime.vnet;
+package org.evosuite.runtime.testdata;
 
 import java.io.Serializable;
 
@@ -23,7 +23,7 @@ public class EvoSuiteAddress implements Serializable {
 		 * but as those values are not really part of the search, it should be fine
 		 */
 		if(host==null){
-			throw new IllegalArgumentException("Host shoul not be null");
+			throw new IllegalArgumentException("Host should not be null");
 		}
 		if(port < 0){
 			throw new IllegalArgumentException("Port cannot be negative");
