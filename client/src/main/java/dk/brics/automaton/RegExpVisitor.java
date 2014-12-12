@@ -5,7 +5,7 @@ public abstract class RegExpVisitor<K> {
 	public final K visitRegExp(RegExp e) {
 		switch (e.kind) {
 		case REGEXP_ANYCHAR: {
-			return visitAnyChar(e);
+			return visitAnyChar();
 		}
 		case REGEXP_ANYSTRING: {
 			return visitAnyString(e);
@@ -35,22 +35,22 @@ public abstract class RegExpVisitor<K> {
 			return visitInterval(e);
 		}
 		case REGEXP_OPTIONAL: {
-			return visitOptional(e);
+			return visitOptional(e.exp1);
 		}
 		case REGEXP_REPEAT: {
 			return visitRepeat(e.exp1);
 		}
 		case REGEXP_REPEAT_MIN: {
-			return visitRepeatMin(e);
+			return visitRepeatMin(e.exp1,e.min);
 		}
 		case REGEXP_REPEAT_MINMAX: {
-			return visitRepeatMinMax(e);
+			return visitRepeatMinMax(e.exp1,e.min,e.max);
 		}
 		case REGEXP_STRING: {
-			return visitString(e);
+			return visitString(e.s);
 		}
 		case REGEXP_UNION: {
-			return visitUnion(e);
+			return visitUnion(e.exp1, e.exp2);
 		}
 		default:
 			throw new IllegalArgumentException(
@@ -58,13 +58,13 @@ public abstract class RegExpVisitor<K> {
 		}
 	}
 
-	public abstract K visitUnion(RegExp e);
+	public abstract K visitUnion(RegExp e, RegExp exp2);
 
-	public abstract K visitString(RegExp e);
+	public abstract K visitString(String s);
 
-	public abstract K visitRepeatMinMax(RegExp e);
+	public abstract K visitRepeatMinMax(RegExp e, int min, int max);
 
-	public abstract K visitRepeatMin(RegExp e);
+	public abstract K visitRepeatMin(RegExp e, int min);
 
 	public abstract K visitRepeat(RegExp e);
 
@@ -88,6 +88,6 @@ public abstract class RegExpVisitor<K> {
 
 	public abstract K visitAnyString(RegExp e);
 
-	public abstract K visitAnyChar(RegExp e);
+	public abstract K visitAnyChar();
 
 }
