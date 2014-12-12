@@ -87,21 +87,21 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr bv_left = CVC4ExprBuilder.mkInt2BV(32, left);
 			SmtExpr bv_right = CVC4ExprBuilder.mkInt2BV(32, right);
 			SmtExpr bvor = CVC4ExprBuilder.mkBVOR(bv_left, bv_right);
-			SmtExpr ret_val = CVC4ExprBuilder.mkBV2Nat(bvor);
+			SmtExpr ret_val = mkBV2Int(bvor);
 			return ret_val;
 		}
 		case IAND: {
 			SmtExpr bv_left = CVC4ExprBuilder.mkInt2BV(32, left);
 			SmtExpr bv_right = CVC4ExprBuilder.mkInt2BV(32, right);
 			SmtExpr bv_and = CVC4ExprBuilder.mkBVAND(bv_left, bv_right);
-			SmtExpr ret_val = CVC4ExprBuilder.mkBV2Nat(bv_and);
+			SmtExpr ret_val = mkBV2Int(bv_and);
 			return ret_val;
 		}
 		case IXOR: {
 			SmtExpr bv_left = CVC4ExprBuilder.mkInt2BV(32, left);
 			SmtExpr bv_right = CVC4ExprBuilder.mkInt2BV(32, right);
 			SmtExpr bv_xor = CVC4ExprBuilder.mkBVXOR(bv_left, bv_right);
-			SmtExpr ret_val = CVC4ExprBuilder.mkBV2Int(bv_xor);
+			SmtExpr ret_val = mkBV2Int(bv_xor);
 			return ret_val;
 		}
 
@@ -109,7 +109,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr bv_left = CVC4ExprBuilder.mkInt2BV(32, left);
 			SmtExpr bv_right = CVC4ExprBuilder.mkInt2BV(32, right);
 			SmtExpr bv_shl = CVC4ExprBuilder.mkBVSHL(bv_left, bv_right);
-			SmtExpr ret_val = CVC4ExprBuilder.mkBV2Nat(bv_shl);
+			SmtExpr ret_val = mkBV2Int(bv_shl);
 			return ret_val;
 		}
 
@@ -117,14 +117,14 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr bv_left = CVC4ExprBuilder.mkInt2BV(32, left);
 			SmtExpr bv_right = CVC4ExprBuilder.mkInt2BV(32, right);
 			SmtExpr bv_shr = CVC4ExprBuilder.mkBVASHR(bv_left, bv_right);
-			SmtExpr ret_val = CVC4ExprBuilder.mkBV2Nat(bv_shr);
+			SmtExpr ret_val = mkBV2Int(bv_shr);
 			return ret_val;
 		}
 		case USHR: {
 			SmtExpr bv_left = CVC4ExprBuilder.mkInt2BV(32, left);
 			SmtExpr bv_right = CVC4ExprBuilder.mkInt2BV(32, right);
 			SmtExpr bv_shr = CVC4ExprBuilder.mkBVLSHR(bv_left, bv_right);
-			SmtExpr ret_val = CVC4ExprBuilder.mkBV2Nat(bv_shr);
+			SmtExpr ret_val = mkBV2Int(bv_shr);
 			return ret_val;
 		}
 
@@ -150,6 +150,25 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 	}
 
+	private static SmtExpr mkBV2Int(SmtExpr bv) {
+		SmtExpr bv2nat = CVC4ExprBuilder.mkBV2Nat(bv);
+		SmtIntConstant maxIntValue = CVC4ExprBuilder
+				.mkIntConstant(Integer.MAX_VALUE);
+		SmtExpr condExpr = CVC4ExprBuilder.mkLe(bv2nat, maxIntValue);
+		SmtExpr bvMinusOne = CVC4ExprBuilder.mkInt2BV(32,
+				CVC4ExprBuilder.mkIntConstant(-1));
+		SmtExpr xor = CVC4ExprBuilder.mkBVXOR(bv, bvMinusOne);
+		SmtExpr bvOne = CVC4ExprBuilder.mkInt2BV(32, CVC4ExprBuilder.ONE_INT);
+		SmtExpr bvAdd = CVC4ExprBuilder.mkBVADD(xor, bvOne);
+		SmtExpr bv2natAdd = CVC4ExprBuilder.mkBV2Nat(bvAdd);
+
+		SmtExpr thenExpr = bv2nat;
+		SmtExpr elseExpr = CVC4ExprBuilder.mkNeg(bv2natAdd);
+
+		SmtExpr ite = CVC4ExprBuilder.mkITE(condExpr, thenExpr, elseExpr);
+		return ite;
+	}
+
 	@Override
 	public SmtExpr visit(IntegerConstant e, Void v) {
 		long longValue = e.getConcreteValue();
@@ -172,12 +191,8 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 		switch (e.getOperator()) {
 		case ABS: {
-			SmtIntConstant zero = CVC4ExprBuilder.ZERO_INT;
-			SmtExpr gte_than_zero = CVC4ExprBuilder.mkGe(operand, zero);
-			SmtExpr minus_expr = CVC4ExprBuilder.mkNeg(operand);
-			SmtExpr ite_expr = CVC4ExprBuilder.mkITE(gte_than_zero, operand,
-					minus_expr);
-			return ite_expr;
+			SmtExpr abs_expr = CVC4ExprBuilder.mkAbs(operand);
+			return abs_expr;
 		}
 		case NEG: {
 			SmtExpr minus_expr = CVC4ExprBuilder.mkNeg(operand);
@@ -486,8 +501,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		case REPLACEALL:
 		case REPLACEFIRST: {
 			String stringValue = e.getConcreteValue();
-			SmtExpr strConstant = CVC4ExprBuilder
-					.mkStringConstant(stringValue);
+			SmtExpr strConstant = CVC4ExprBuilder.mkStringConstant(stringValue);
 			return strConstant;
 		}
 		default:

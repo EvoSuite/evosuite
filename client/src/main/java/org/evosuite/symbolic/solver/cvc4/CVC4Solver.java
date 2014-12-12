@@ -84,7 +84,7 @@ public class CVC4Solver extends Solver {
 			logger.error(errMsg);
 			throw new IllegalStateException(errMsg);
 		}
-		String cvc4Cmd = Properties.CVC4_PATH + "  --lang smt --strings-exp ";
+		String cvc4Cmd = Properties.CVC4_PATH + "  --lang smt  ";
 
 		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 		ByteArrayOutputStream stderr = new ByteArrayOutputStream();
