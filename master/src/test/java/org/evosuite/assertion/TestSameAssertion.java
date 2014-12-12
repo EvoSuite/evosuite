@@ -106,6 +106,10 @@ public class TestSameAssertion extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
+		// If we allow null in this test, then there is a way
+		// to cover the branch without assertions but with
+		// exception
+		Properties.NULL_PROBABILITY = 0.0;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
