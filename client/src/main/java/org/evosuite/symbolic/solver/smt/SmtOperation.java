@@ -40,7 +40,9 @@ public final class SmtOperation extends SmtExpr {
 		STR_LEN("str.len"), //
 		LE("<="), //
 		NOT("not"), //
-		STR_TO_INT("str.to.int");
+		STR_TO_INT("str.to.int"), //
+		ABS("abs"), //
+		BVADD("bvadd");
 
 		private final String rep;
 
