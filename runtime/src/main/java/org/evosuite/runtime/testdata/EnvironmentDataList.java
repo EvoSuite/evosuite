@@ -3,9 +3,7 @@ package org.evosuite.runtime.testdata;
 import org.evosuite.runtime.RuntimeSettings;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * When using a mocked environment, new methods will be added to the test cluster to
@@ -26,6 +24,7 @@ public class EnvironmentDataList {
 
         if(RuntimeSettings.useVNET){
             classes.add(EvoSuiteAddress.class);
+            classes.add(EvoSuiteURL.class);
         }
 
         return classes;
