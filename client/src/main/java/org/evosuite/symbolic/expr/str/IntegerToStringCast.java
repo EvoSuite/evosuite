@@ -55,7 +55,7 @@ public final class IntegerToStringCast extends AbstractExpression<String> implem
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return expr.toString();
+		return "((String)" + expr + ")";
 	}
 
 	/** {@inheritDoc} */
