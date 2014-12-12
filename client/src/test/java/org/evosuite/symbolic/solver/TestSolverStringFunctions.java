@@ -23,6 +23,8 @@ import com.examples.with.different.packagename.solver.TestCaseStringAppendString
 import com.examples.with.different.packagename.solver.TestCaseStringCharAt;
 import com.examples.with.different.packagename.solver.TestCaseStringCompareTo;
 import com.examples.with.different.packagename.solver.TestCaseStringConcat;
+import com.examples.with.different.packagename.solver.TestCaseStringConcatBoolean;
+import com.examples.with.different.packagename.solver.TestCaseStringConcatChar;
 import com.examples.with.different.packagename.solver.TestCaseStringContains;
 import com.examples.with.different.packagename.solver.TestCaseStringEndsWith;
 import com.examples.with.different.packagename.solver.TestCaseStringEquals;
@@ -143,6 +145,28 @@ public abstract class TestSolverStringFunctions {
 		return tc.getDefaultTestCase();
 	}
 
+	private static DefaultTestCase buildTestConcatChar()
+			throws SecurityException, NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference char0 = tc.appendCharPrimitive('X');
+
+		Method method = TestCaseStringConcatChar.class.getMethod("test",
+				char.class);
+		tc.appendMethod(null, method, char0);
+		return tc.getDefaultTestCase();
+	}
+
+	private static DefaultTestCase buildTestConcatBoolean()
+			throws SecurityException, NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference boolean0 = tc.appendBooleanPrimitive(true);
+
+		Method method = TestCaseStringConcatBoolean.class.getMethod("test",
+				boolean.class);
+		tc.appendMethod(null, method, boolean0);
+		return tc.getDefaultTestCase();
+	}
+	
 	private static DefaultTestCase buildTestAppendString()
 			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
@@ -642,6 +666,28 @@ public abstract class TestSolverStringFunctions {
 			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestConcat();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+		return solution;
+	}
+
+	public static Map<String, Object> testStringConcatChar(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+
+		DefaultTestCase tc = buildTestConcatChar();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+		return solution;
+	}
+	
+	public static Map<String, Object> testStringConcatBoolean(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+
+		DefaultTestCase tc = buildTestConcatBoolean();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
