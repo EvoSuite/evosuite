@@ -38,13 +38,17 @@ public class CVC4Solver extends Solver {
 
 	private static final class TimeoutTask extends TimerTask {
 		private final Process process;
+		private final long timeout;
 
-		private TimeoutTask(Process process) {
+		private TimeoutTask(Process process, long timeout) {
 			this.process = process;
+			this.timeout = timeout;
 		}
 
 		@Override
 		public void run() {
+			logger.debug("CVC4 timeout was reached after " + timeout
+					+ " milliseconds ");
 			process.destroy();
 		}
 	}
@@ -61,7 +65,9 @@ public class CVC4Solver extends Solver {
 			return null;
 		}
 
-		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS * 10;
+		long cvcTimeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS * 10;
+
+		long processTimeout = cvcTimeout * 2;
 
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		for (Constraint<?> c : constraints) {
@@ -84,13 +90,15 @@ public class CVC4Solver extends Solver {
 			logger.error(errMsg);
 			throw new IllegalStateException(errMsg);
 		}
-		String cvc4Cmd = Properties.CVC4_PATH + "  --lang smt  ";
+		String cvc4Cmd = Properties.CVC4_PATH + "  --lang smt " + " --tlimit="
+				+ cvcTimeout;
 
 		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 		ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
 		try {
-			launchNewProcess(cvc4Cmd, smtQuery, (int) timeout, stdout, stderr);
+			launchNewProcess(cvc4Cmd, smtQuery, (int) processTimeout, stdout,
+					stderr);
 
 			String cvc4ResultStr = stdout.toString("UTF-8");
 			String errorStr = stderr.toString("UTF-8");
@@ -118,6 +126,9 @@ public class CVC4Solver extends Solver {
 				return solution;
 			} else if (cvc4ResultStr.startsWith("unsat")) {
 				logger.debug("CVC4 outcome was UNSAT");
+				return null;
+			} else if (cvc4ResultStr.startsWith("unknown")) {
+				logger.debug("CVC4 outcome was UNKNOWN (probably due to timeout)");
 				return null;
 			} else if (cvc4ResultStr.startsWith("(error")) {
 				logger.error("An error (probably parsing error) occurred while executing CVC4");
@@ -269,7 +280,7 @@ public class CVC4Solver extends Solver {
 		logger.debug("Process output:");
 
 		Timer t = new Timer();
-		t.schedule(new TimeoutTask(process), timeout);
+		t.schedule(new TimeoutTask(process, timeout), timeout);
 
 		do {
 			readInputStream(stdout, outputStream);

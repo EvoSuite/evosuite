@@ -318,6 +318,10 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new ToUpperCase(env));
 		addFunctionToTable(new Trim(env));
 		addFunctionToTable(new ValueOf.ValueOf_O(env));
+		addFunctionToTable(new ValueOf.ValueOf_I(env));
+		addFunctionToTable(new ValueOf.ValueOf_J(env));
+		addFunctionToTable(new ValueOf.ValueOf_C(env));
+		addFunctionToTable(new ValueOf.ValueOf_B(env));
 
 		// java.lang.StringBuilder
 		addFunctionToTable(new StringBuilder_Init(env));
