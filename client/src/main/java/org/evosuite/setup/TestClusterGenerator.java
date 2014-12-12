@@ -416,10 +416,26 @@ public class TestClusterGenerator {
 			logger.info("Found " + subclasses.size() + " concrete subclasses");
 			targetClasses.addAll(subclasses);
 		}
-		
-		if(Properties.INSTRUMENT_CONTEXT){
-			//TODO
-		}
+
+// load all the interesting classes from the callgraph, 
+// need more testing, seems to slow down the search
+//		if(Properties.INSTRUMENT_CONTEXT){
+//			Set<String> toLoad;
+//			if(Properties.INSTRUMENT_LIBRARIES){
+//				toLoad = callGraph.getClassesUnderTest();
+//			}else{
+//				toLoad = new HashSet<>();
+//				for (String className : callGraph.getClassesUnderTest()) {
+//					if (!Properties.INSTRUMENT_LIBRARIES
+//							&& !DependencyAnalysis.isTargetProject(className))
+//						continue;
+//					toLoad.add(className);
+//				}
+//				
+//			}
+//			targetClasses.addAll(loadClasses(toLoad));
+//
+//		}
 
 		// To make sure we also have anonymous inner classes double check inner classes using ASM
 		ClassNode targetClassNode = DependencyAnalysis.getClassNode(Properties.TARGET_CLASS);

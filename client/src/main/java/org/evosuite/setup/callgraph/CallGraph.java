@@ -214,13 +214,10 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 
 	/**
-	 * Determine if className can be reached from the class under test
 	 * 
-	 * 
-	 * @param className
-	 * @return
+	 * @return classes reachable from the class under test
 	 */
- 	public Set<String>  getClassesUnderTest(String className) {
+ 	public Set<String>  getClassesUnderTest() {
  		if(toTestClasses.isEmpty())
  			computeInterestingClasses(graph);
  		return toTestClasses;
