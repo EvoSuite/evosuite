@@ -1,5 +1,6 @@
 package org.evosuite.testcase.environmentdata;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -8,9 +9,11 @@ import java.util.*;
  *
  * Created by arcuri on 12/12/14.
  */
-public class AccessedEnvironment {
+public class AccessedEnvironment implements Serializable {
 
-    private final Set<String> accessedFiles;
+	private static final long serialVersionUID = 2653568611955383431L;
+
+	private final Set<String> accessedFiles;
 
     public AccessedEnvironment(){
         accessedFiles = new LinkedHashSet<>();
