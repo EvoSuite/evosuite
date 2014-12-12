@@ -71,4 +71,25 @@ public class TestCaseRegex {
 		}
 		return false;
 	}
+	
+	public static boolean testIntersection(String str) {
+		if (str != null && str.matches("[a-z&&[def]]")) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean testChoice(String str) {
+		if (str != null && str.matches("[abc]")) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean testRange(String str) {
+		if (str != null && str.matches("[0-9]")) {
+			return true;
+		}
+		return false;
+	}
 }

@@ -113,9 +113,17 @@ public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 	}
 
 	@Override
-	public SmtExpr visitCharRange(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
+	public SmtExpr visitCharRange(char from, char to) {
+		String fromStr = String.valueOf(from);
+		SmtStringConstant fromConstant = CVC4ExprBuilder
+				.mkStringConstant(fromStr);
+
+		String toStr = String.valueOf(to);
+		SmtStringConstant toConstant = CVC4ExprBuilder.mkStringConstant(toStr);
+
+		SmtExpr rangeExpr = CVC4ExprBuilder.mkRegExpRange(fromConstant,
+				toConstant);
+		return rangeExpr;
 	}
 
 	@Override

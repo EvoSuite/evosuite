@@ -17,7 +17,7 @@ public abstract class RegExpVisitor<K> {
 			return visitChar(e.c);
 		}
 		case REGEXP_CHAR_RANGE: {
-			return visitCharRange(e);
+			return visitCharRange(e.from, e.to);
 		}
 		case REGEXP_COMPLEMENT: {
 			return visitComplement(e);
@@ -80,7 +80,7 @@ public abstract class RegExpVisitor<K> {
 
 	public abstract K visitComplement(RegExp e);
 
-	public abstract K visitCharRange(RegExp e);
+	public abstract K visitCharRange(char from, char to);
 
 	public abstract K visitChar(char c);
 

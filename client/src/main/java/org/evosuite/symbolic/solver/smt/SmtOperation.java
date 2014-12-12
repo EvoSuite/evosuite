@@ -51,7 +51,8 @@ public final class SmtOperation extends SmtExpr {
 		REG_EXP_OPTIONAL("re.opt"), //
 		REG_EXP_ALL_CHAR("re.allchar"), //
 		REG_EXP_KLEENE_CROSS("re.+"), //
-		REG_EXP_LOOP("re.loop");
+		REG_EXP_LOOP("re.loop"), //
+		REG_EXP_RANGE("re.range");
 
 		private final String rep;
 

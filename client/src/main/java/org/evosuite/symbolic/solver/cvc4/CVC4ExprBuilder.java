@@ -266,4 +266,9 @@ public abstract class CVC4ExprBuilder {
 
 	}
 
+	public static SmtExpr mkRegExpRange(SmtExpr fromExpr, SmtExpr toExpr) {
+		return new SmtOperation(SmtOperation.Operator.REG_EXP_RANGE, fromExpr,
+				toExpr);
+	}
+
 }

@@ -225,4 +225,67 @@ public abstract class TestSolverRegex {
 		tc.appendMethod(null, method, string0);
 		return tc.getDefaultTestCase();
 	}
+
+	public static Map<String, Object> testIntersection(CVC4Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+		DefaultTestCase tc = buildIntersection();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+		return solution;
+	}
+
+	private static DefaultTestCase buildIntersection()
+			throws SecurityException, NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc.appendStringPrimitive("d");
+
+		Method method = TestCaseRegex.class.getMethod("testIntersection",
+				String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
+	public static Map<String, Object> testChoice(CVC4Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+		DefaultTestCase tc = buildChoice();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+		return solution;
+	}
+
+	private static DefaultTestCase buildChoice() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc.appendStringPrimitive("b");
+
+		Method method = TestCaseRegex.class.getMethod("testChoice",
+				String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+	
+	public static Map<String, Object> testRange(CVC4Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+		DefaultTestCase tc = buildRange();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+		return solution;
+	}
+
+	private static DefaultTestCase buildRange() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc.appendStringPrimitive("5");
+
+		Method method = TestCaseRegex.class.getMethod("testRange",
+				String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
 }
