@@ -208,4 +208,12 @@ public abstract class CVC4ExprBuilder {
 		return new SmtOperation(SmtOperation.Operator.STR_TO_INT, arg);
 	}
 
+	public static SmtExpr mkAbs(SmtExpr arg) {
+		return new SmtOperation(SmtOperation.Operator.ABS, arg);
+	}
+
+	public static SmtExpr mkBVADD(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.BVADD, left, right);
+	}
+
 }
