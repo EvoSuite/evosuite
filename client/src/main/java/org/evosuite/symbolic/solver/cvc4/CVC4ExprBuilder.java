@@ -216,4 +216,21 @@ public abstract class CVC4ExprBuilder {
 		return new SmtOperation(SmtOperation.Operator.BVADD, left, right);
 	}
 
+	public static SmtExpr mkRegExpConcat(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.REG_EXP_CONCAT, left, right);
+
+	}
+
+	public static SmtExpr mkStrToRegExp(SmtStringConstant strConstant) {
+		return new SmtOperation(SmtOperation.Operator.STR_TO_REG_EXP, strConstant);
+	}
+
+	public static SmtExpr mkReKleeneStar(SmtExpr expr) {
+		return new SmtOperation(SmtOperation.Operator.REG_EXP_KLEENE_STAR, expr);
+	}
+
+	public static SmtExpr mkStrInRegExp(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.STR_IN_REG_EXP, left,right);
+	}
+
 }
