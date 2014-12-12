@@ -217,12 +217,14 @@ public abstract class CVC4ExprBuilder {
 	}
 
 	public static SmtExpr mkRegExpConcat(SmtExpr left, SmtExpr right) {
-		return new SmtOperation(SmtOperation.Operator.REG_EXP_CONCAT, left, right);
+		return new SmtOperation(SmtOperation.Operator.REG_EXP_CONCAT, left,
+				right);
 
 	}
 
 	public static SmtExpr mkStrToRegExp(SmtStringConstant strConstant) {
-		return new SmtOperation(SmtOperation.Operator.STR_TO_REG_EXP, strConstant);
+		return new SmtOperation(SmtOperation.Operator.STR_TO_REG_EXP,
+				strConstant);
 	}
 
 	public static SmtExpr mkReKleeneStar(SmtExpr expr) {
@@ -230,7 +232,38 @@ public abstract class CVC4ExprBuilder {
 	}
 
 	public static SmtExpr mkStrInRegExp(SmtExpr left, SmtExpr right) {
-		return new SmtOperation(SmtOperation.Operator.STR_IN_REG_EXP, left,right);
+		return new SmtOperation(SmtOperation.Operator.STR_IN_REG_EXP, left,
+				right);
+	}
+
+	public static SmtExpr mkRegExpUnion(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.REG_EXP_UNION, left,
+				right);
+	}
+
+	public static SmtExpr mkRegExpOptional(SmtExpr e) {
+		return new SmtOperation(SmtOperation.Operator.REG_EXP_OPTIONAL, e);
+	}
+
+	public static SmtExpr mkRegExpAllChar() {
+		return new SmtOperation(SmtOperation.Operator.REG_EXP_ALL_CHAR);
+	}
+
+	public static SmtExpr mkRegExpKleeCross(SmtExpr regExpr) {
+		return new SmtOperation(SmtOperation.Operator.REG_EXP_KLEENE_CROSS,
+				regExpr);
+	}
+
+	public static SmtExpr mkLoop(SmtExpr regExpr, SmtIntConstant minExpr) {
+		return new SmtOperation(SmtOperation.Operator.REG_EXP_LOOP, regExpr,
+				minExpr);
+	}
+
+	public static SmtExpr mkLoop(SmtExpr regExpr, SmtIntConstant minExpr,
+			SmtIntConstant maxExpr) {
+		return new SmtOperation(SmtOperation.Operator.REG_EXP_LOOP, regExpr,
+				minExpr, maxExpr);
+
 	}
 
 }
