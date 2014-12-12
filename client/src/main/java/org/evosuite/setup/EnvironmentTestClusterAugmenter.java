@@ -53,6 +53,9 @@ public class EnvironmentTestClusterAugmenter {
      * @see org.evosuite.runtime.System
      */
     public void handleRuntimeAccesses(TestCase test) {
+
+        test.getAccessedEnvironment().clear();
+
         if (Properties.REPLACE_CALLS) {
             handleReplaceCalls();
         }
@@ -95,7 +98,7 @@ public class EnvironmentTestClusterAugmenter {
     }
 
     private void handleVirtualFS(TestCase test) {
-        test.setAccessedFiles(new ArrayList<String>(VirtualFileSystem.getInstance().getAccessedFiles()));
+        test.getAccessedEnvironment().addLocalFiles(VirtualFileSystem.getInstance().getAccessedFiles());
 
         if (!hasAddedFiles && VirtualFileSystem.getInstance().getAccessedFiles().size() > 0) {
             logger.info("Adding EvoSuiteFile calls to cluster");

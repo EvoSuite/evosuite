@@ -105,7 +105,7 @@ public class FileNamePrimitiveStatement extends EnvironmentDataStatement<EvoSuit
 	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
-		String path = Randomness.choice(tc.getAccessedFiles());
+		String path = Randomness.choice(tc.getAccessedEnvironment().getViewOfAccessedFiles());
 		if (path != null) {
 			setValue(new EvoSuiteFile(path));
 		} else {

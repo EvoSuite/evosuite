@@ -28,6 +28,7 @@ import java.util.Set;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.testcase.environmentdata.AccessedEnvironment;
 import org.evosuite.utils.Listenable;
 
 
@@ -127,11 +128,11 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	public Set<Class<?>> getAccessedClasses();
 
 	/**
-	 * Retrieve a list of filenames accessed during the last execution
+	 * Retrieve an object containing information about what environment components this test interacted with
 	 *
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<String> getAccessedFiles();
+	public AccessedEnvironment getAccessedEnvironment();
 
 	/**
 	 * Get all assertions that exist for this test case
@@ -425,12 +426,6 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 */
 	public void replace(VariableReference var1, VariableReference var2);
 
-	/**
-	 * Keep track of accessed files
-	 *
-	 * @param files a {@link java.util.List} object.
-	 */
-	public void setAccessedFiles(List<String> files);
 
 	/**
 	 * Set new statement at position

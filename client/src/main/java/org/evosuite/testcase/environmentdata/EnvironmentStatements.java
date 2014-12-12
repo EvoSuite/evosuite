@@ -28,7 +28,7 @@ public class EnvironmentStatements {
         }
 
         if(clazz.equals(EvoSuiteFile.class)){
-            return new FileNamePrimitiveStatement(tc, new EvoSuiteFile(Randomness.choice(tc.getAccessedFiles())));
+            return new FileNamePrimitiveStatement(tc, new EvoSuiteFile(Randomness.choice(tc.getAccessedEnvironment().getViewOfAccessedFiles())));
         }
 
         throw new RuntimeException("EvoSuite bug: unhandled class "+clazz.getName());

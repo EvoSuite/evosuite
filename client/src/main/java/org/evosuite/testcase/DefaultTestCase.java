@@ -35,6 +35,7 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.testcase.environmentdata.AccessedEnvironment;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.ListenableList;
@@ -56,7 +57,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
 
-	private List<String> accessedFiles = new ArrayList<String>();
+	private final AccessedEnvironment accessedEnvironment = new AccessedEnvironment();
 
 	/** The statements */
 	protected final ListenableList<StatementInterface> statements;
@@ -278,7 +279,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			copy.setAssertions(s.copyAssertions(t, 0));
 		}
 		t.coveredGoals.addAll(coveredGoals);
-		t.accessedFiles.addAll(accessedFiles);
+		t.accessedEnvironment.copyFrom(accessedEnvironment);
 		t.isFailing = isFailing;
 		//t.exception_statement = exception_statement;
 		//t.exceptionThrown = exceptionThrown;
@@ -358,14 +359,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 		return accessed_classes;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getAccessedFiles()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public List<String> getAccessedFiles() {
-		return accessedFiles;
-	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#getAssertions()
@@ -402,7 +395,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 		return exceptions;
 	}
 
-	/* (non-Javadoc)
+    @Override
+    public AccessedEnvironment getAccessedEnvironment() {
+        return accessedEnvironment;
+    }
+
+    /* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#getDependencies(org.evosuite.testcase.VariableReference)
 	 */
 	/** {@inheritDoc} */
@@ -887,14 +885,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#setAccessedFiles(java.util.List)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void setAccessedFiles(List<String> files) {
-		accessedFiles = files;
-	}
+
 
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
