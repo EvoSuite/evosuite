@@ -24,6 +24,10 @@ public class EnvironmentDataList {
             classes.add(EvoSuiteFile.class);
         }
 
+        if(RuntimeSettings.useVNET){
+            classes.add(EvoSuiteAddress.class);
+        }
+
         return classes;
     }
 

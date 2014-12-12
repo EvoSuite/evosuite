@@ -1,4 +1,4 @@
-package org.evosuite.mock.javax.swing;
+package org.evosuite.runtime.mock.javax.swing;
 
 import java.io.File;
 

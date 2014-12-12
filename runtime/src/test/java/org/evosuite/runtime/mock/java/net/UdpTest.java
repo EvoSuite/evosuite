@@ -1,15 +1,14 @@
 package org.evosuite.runtime.mock.java.net;
 
 import org.evosuite.runtime.vnet.EndPointInfo;
-import org.evosuite.runtime.vnet.EvoSuiteAddress;
-import org.evosuite.runtime.vnet.NetworkHandling;
+import org.evosuite.runtime.testdata.EvoSuiteAddress;
+import org.evosuite.runtime.testdata.NetworkHandling;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Map;
 
 /**
