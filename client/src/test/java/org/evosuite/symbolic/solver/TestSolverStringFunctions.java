@@ -18,6 +18,8 @@ import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.VariableReference;
 
+import com.examples.with.different.packagename.solver.TestCaseCastIntToString;
+import com.examples.with.different.packagename.solver.TestCaseCastStringToInt;
 import com.examples.with.different.packagename.solver.TestCaseStringAppendInteger;
 import com.examples.with.different.packagename.solver.TestCaseStringAppendString;
 import com.examples.with.different.packagename.solver.TestCaseStringCharAt;
@@ -166,7 +168,7 @@ public abstract class TestSolverStringFunctions {
 		tc.appendMethod(null, method, boolean0);
 		return tc.getDefaultTestCase();
 	}
-	
+
 	private static DefaultTestCase buildTestAppendString()
 			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
@@ -483,6 +485,61 @@ public abstract class TestSolverStringFunctions {
 		return solution;
 	}
 
+	public static Map<String, Object> testCastStringToInt(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+
+		DefaultTestCase tc = buildTestCastStringToInt();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+		return solution;
+	}
+
+	public static Map<String, Object> testCastIntToString(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+
+		DefaultTestCase tc = buildTestCastIntToString();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+		return solution;
+	}
+	
+	public static Map<String, Object> testCastLongToString(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+
+		DefaultTestCase tc = buildTestCastLongToString();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+		return solution;
+	}
+
+	public static Map<String, Object> testCastCharToString(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+
+		DefaultTestCase tc = buildTestCastCharToString();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+		return solution;
+	}
+
+	public static Map<String, Object> testCastBooleanToString(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
+
+		DefaultTestCase tc = buildTestCastBooleanToString();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solver.solve(constraints);
+		return solution;
+	}
+
 	public static Map<String, Object> testStringAppendString(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
@@ -639,6 +696,63 @@ public abstract class TestSolverStringFunctions {
 		return tc.getDefaultTestCase();
 	}
 
+	private static DefaultTestCase buildTestCastStringToInt()
+			throws SecurityException, NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc.appendStringPrimitive("12345");
+
+		Method method = TestCaseCastStringToInt.class.getMethod("test",
+				String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
+	private static DefaultTestCase buildTestCastIntToString()
+			throws SecurityException, NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(0);
+
+		Method method = TestCaseCastIntToString.class.getMethod("test",
+				int.class);
+		tc.appendMethod(null, method, int0);
+		return tc.getDefaultTestCase();
+	}
+	
+	private static DefaultTestCase buildTestCastLongToString()
+			throws SecurityException, NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference long0 = tc.appendLongPrimitive(0);
+
+		Method method = TestCaseCastIntToString.class.getMethod("test",
+				long.class);
+		tc.appendMethod(null, method, long0);
+		return tc.getDefaultTestCase();
+	}
+
+	private static DefaultTestCase buildTestCastCharToString()
+			throws SecurityException, NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference char0 = tc.appendCharPrimitive('0');
+
+		Method method = TestCaseCastIntToString.class.getMethod("test",
+				char.class);
+		tc.appendMethod(null, method, char0);
+		return tc.getDefaultTestCase();
+	}
+
+	private static DefaultTestCase buildTestCastBooleanToString()
+			throws SecurityException, NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference boolean0 = tc.appendBooleanPrimitive(false);
+
+		Method method = TestCaseCastIntToString.class.getMethod("test",
+				boolean.class);
+		tc.appendMethod(null, method, boolean0);
+		return tc.getDefaultTestCase();
+	}
+
+	
+	
 	private static DefaultTestCase buildTestSubstringFromTo()
 			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
@@ -682,7 +796,7 @@ public abstract class TestSolverStringFunctions {
 		Map<String, Object> solution = solver.solve(constraints);
 		return solution;
 	}
-	
+
 	public static Map<String, Object> testStringConcatBoolean(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
