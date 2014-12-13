@@ -239,7 +239,7 @@ public abstract class TestSolverRegex {
 	private static DefaultTestCase buildIntersection()
 			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("d");
+		VariableReference string0 = tc.appendStringPrimitive("4");
 
 		Method method = TestCaseRegex.class.getMethod("testIntersection",
 				String.class);
@@ -281,7 +281,7 @@ public abstract class TestSolverRegex {
 	private static DefaultTestCase buildRange() throws SecurityException,
 			NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive("5");
+		VariableReference string0 = tc.appendStringPrimitive("a");
 
 		Method method = TestCaseRegex.class.getMethod("testRange",
 				String.class);
