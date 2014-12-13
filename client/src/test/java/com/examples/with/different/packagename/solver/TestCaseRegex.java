@@ -73,7 +73,7 @@ public class TestCaseRegex {
 	}
 	
 	public static boolean testIntersection(String str) {
-		if (str != null && str.matches("[a-z&&[def]]")) {
+		if (str != null && str.matches("[0-9&&[345]]")) {
 			return true;
 		}
 		return false;
@@ -87,7 +87,7 @@ public class TestCaseRegex {
 	}
 	
 	public static boolean testRange(String str) {
-		if (str != null && str.matches("[0-9]")) {
+		if (str != null && str.matches("[a-z]")) {
 			return true;
 		}
 		return false;
