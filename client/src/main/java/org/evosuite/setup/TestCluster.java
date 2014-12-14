@@ -335,6 +335,9 @@ public class TestCluster {
 					}
 				} else {
 					logger.debug("4. generator " + generatorClazz + " CANNOT be instantiated to " + clazz);
+					for(GenericClass boundClass : generatorClazz.getGenericBounds()) {
+						CastClassManager.getInstance().addCastClass(boundClass, 0);
+					}
 				}
 			}
 			logger.debug("Found generators for " + clazz + ": " + targetGenerators.size());
