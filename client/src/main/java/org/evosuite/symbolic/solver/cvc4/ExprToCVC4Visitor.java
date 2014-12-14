@@ -44,6 +44,9 @@ import org.evosuite.symbolic.solver.smt.SmtIntVariable;
 import org.evosuite.symbolic.solver.smt.SmtRealConstant;
 import org.evosuite.symbolic.solver.smt.SmtRealVariable;
 import org.evosuite.symbolic.solver.smt.SmtStringConstant;
+import org.evosuite.utils.RegexDistanceUtils;
+
+import dk.brics.automaton.RegExp;
 
 class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
@@ -668,8 +671,26 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			throw new IllegalArgumentException(
 					"Illegal StringBinaryComparison operator " + op);
 		}
+		case PATTERNMATCHES: {
+			String regex = e.getLeftOperand().getConcreteValue();
+			String expandedRegex = RegexDistanceUtils.expandRegex(regex);
+			RegExp regexp = new RegExp(expandedRegex, RegExp.NONE);
+			RegExpToCVC4Visitor visitor = new RegExpToCVC4Visitor();
+			SmtExpr regExpSmtExpr = visitor.visitRegExp(regexp);
+
+			if (regExpSmtExpr == null) {
+				long longValue = e.getConcreteValue();
+				SmtExpr intConst = CVC4ExprBuilder.mkIntConstant(longValue);
+				return intConst;
+			} else {
+				SmtExpr strInRegExp = CVC4ExprBuilder.mkStrInRegExp(right,
+						regExpSmtExpr);
+				SmtExpr iteExpr = CVC4ExprBuilder.mkITE(strInRegExp,
+						CVC4ExprBuilder.ONE_INT, CVC4ExprBuilder.ZERO_INT);
+				return iteExpr;
+			}
+		}
 		case REGIONMATCHES:
-		case PATTERNMATCHES:
 		case APACHE_ORO_PATTERN_MATCHES: {
 			long longValue = e.getConcreteValue();
 			SmtExpr intConst = CVC4ExprBuilder.mkIntConstant(longValue);
@@ -950,7 +971,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		throw new IllegalStateException(
 				"NextTokenizerExpr should not be visited");
 	}
-	
+
 	@Override
 	public SmtExpr visit(StringNextTokenExpr e, Void v) {
 		String stringValue = e.getConcreteValue();
@@ -970,7 +991,5 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		SmtExpr intConst = CVC4ExprBuilder.mkIntConstant(longValue);
 		return intConst;
 	}
-
-
 
 }

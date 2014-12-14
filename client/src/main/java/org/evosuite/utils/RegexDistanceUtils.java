@@ -94,7 +94,7 @@ public class RegexDistanceUtils {
 	 * @param regex
 	 * @return
 	 */
-	protected static String expandRegex(String regex) {
+	public static String expandRegex(String regex) {
 		// .	Any character (may or may not match line terminators)
 		// \d	A digit: [0-9]
 		String newRegex = regex.replaceAll("\\\\d", "[0-9]");
