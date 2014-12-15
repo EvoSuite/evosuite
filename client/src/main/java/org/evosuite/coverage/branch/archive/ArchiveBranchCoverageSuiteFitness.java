@@ -93,39 +93,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	 * </p>
 	 */
 	public ArchiveBranchCoverageSuiteFitness() {
-
-		String prefix = Properties.TARGET_CLASS_PREFIX;
-
-		bestChromoBuilder = new TestsArchive();
-		
-		if (prefix.isEmpty()) {
-			prefix = Properties.TARGET_CLASS;
-			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
-			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
-			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
-			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
-			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
-		} else {
-			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
-			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
-			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
-			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix); 
-			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
-		}
-
-		branchesId = new HashSet<>();
-		
-		/* TODO: Would be nice to use a prefix here */
-		lines = LinePool.getLines(Properties.TARGET_CLASS);
-
-		totalGoals = 2 * totalBranches + numBranchlessMethods;
-
-		logger.info("Total branch coverage goals: " + totalGoals);
-		logger.info("Total branches: " + totalBranches);
-		logger.info("Total branchless methods: " + numBranchlessMethods);
-		logger.info("Total methods: " + totalMethods + ": " + methods);
-
-		determineCoverageGoals();
+		this(TestsArchive.instance);
 	}
 	
 	
