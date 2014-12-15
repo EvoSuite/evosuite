@@ -674,7 +674,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		case PATTERNMATCHES: {
 			String regex = e.getLeftOperand().getConcreteValue();
 			String expandedRegex = RegexDistanceUtils.expandRegex(regex);
-			RegExp regexp = new RegExp(expandedRegex, RegExp.NONE);
+			RegExp regexp = new RegExp(expandedRegex, RegExp.INTERSECTION);
 			RegExpToCVC4Visitor visitor = new RegExpToCVC4Visitor();
 			SmtExpr regExpSmtExpr = visitor.visitRegExp(regexp);
 
