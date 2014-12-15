@@ -745,9 +745,9 @@ public class TestSuiteGenerator {
 		// executed with -prefix!
 
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
-		        || ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
-		        || ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEIBRANCH)  
-		        || ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH) 
+//		        || ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
+//		        || ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEIBRANCH)  
+//		        || ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH) 
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.RHO)
