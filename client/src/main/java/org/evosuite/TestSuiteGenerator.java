@@ -50,6 +50,7 @@ import org.evosuite.coverage.CoverageAnalysis;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.FitnessLogger;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
@@ -1739,6 +1740,9 @@ public class TestSuiteGenerator {
 			case RANDOM:
 				logger.info("Using random chromosome factory");
 				return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
+			case ARCHIVE:
+				logger.info("Using archive chromosome factory");
+				return new TestSuiteChromosomeFactory(new ArchiveTestChromosomeFactory());
 			case TOURNAMENT:
 				logger.info("Using tournament chromosome factory");
 				return new TournamentChromosomeFactory<TestSuiteChromosome>(
