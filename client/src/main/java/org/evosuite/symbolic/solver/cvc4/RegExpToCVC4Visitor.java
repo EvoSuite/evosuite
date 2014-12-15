@@ -78,24 +78,6 @@ public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 	}
 
 	@Override
-	public SmtExpr visitInterval(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public SmtExpr visitIntersection(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public SmtExpr visitEmpty(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public SmtExpr visitConcatenation(RegExp left, RegExp right) {
 		SmtExpr leftExpr = this.visitRegExp(left);
 		SmtExpr rightExpr = this.visitRegExp(right);
@@ -104,12 +86,6 @@ public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 		}
 		SmtExpr concat = CVC4ExprBuilder.mkRegExpConcat(leftExpr, rightExpr);
 		return concat;
-	}
-
-	@Override
-	public SmtExpr visitComplement(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -135,20 +111,44 @@ public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 	}
 
 	@Override
-	public SmtExpr visitAutomaton(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public SmtExpr visitAnyString(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public SmtExpr visitAnyChar() {
 		return CVC4ExprBuilder.mkRegExpAllChar();
+	}
+
+	@Override
+	public SmtExpr visitInterval(int min, int max) {
+		throw new IllegalStateException(
+				"Optional dk.brics productions are not supported. Check syntax_flags of RegExp(String,String)");
+	}
+
+	@Override
+	public SmtExpr visitIntersection(RegExp left, RegExp right) {
+		throw new IllegalStateException(
+				"Optional dk.brics productions are not supported. Check syntax_flags of RegExp(String,String)");
+	}
+
+	@Override
+	public SmtExpr visitAutomaton(RegExp e) {
+		throw new IllegalStateException(
+				"Optional dk.brics productions are not supported. Check syntax_flags of RegExp(String,String)");
+	}
+
+	@Override
+	public SmtExpr visitComplement(RegExp e) {
+		throw new IllegalStateException(
+				"Optional dk.brics productions are not supported. Check syntax_flags of RegExp(String,String)");
+	}
+
+	@Override
+	public SmtExpr visitEmpty() {
+		throw new IllegalStateException(
+				"Optional dk.brics productions are not supported. Check syntax_flags of RegExp(String,String)");
+	}
+
+	@Override
+	public SmtExpr visitAnyString() {
+		throw new IllegalStateException(
+				"Optional dk.brics productions are not supported. Check syntax_flags of RegExp(String,String)");
 	}
 
 }

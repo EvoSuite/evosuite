@@ -8,7 +8,7 @@ public abstract class RegExpVisitor<K> {
 			return visitAnyChar();
 		}
 		case REGEXP_ANYSTRING: {
-			return visitAnyString(e);
+			return visitAnyString();
 		}
 		case REGEXP_AUTOMATON: {
 			return visitAutomaton(e);
@@ -20,19 +20,19 @@ public abstract class RegExpVisitor<K> {
 			return visitCharRange(e.from, e.to);
 		}
 		case REGEXP_COMPLEMENT: {
-			return visitComplement(e);
+			return visitComplement(e.exp1);
 		}
 		case REGEXP_CONCATENATION: {
 			return visitConcatenation(e.exp1,e.exp2);
 		}
 		case REGEXP_EMPTY: {
-			return visitEmpty(e);
+			return visitEmpty();
 		}
 		case REGEXP_INTERSECTION: {
-			return visitIntersection(e);
+			return visitIntersection(e.exp1, e.exp2);
 		}
 		case REGEXP_INTERVAL: {
-			return visitInterval(e);
+			return visitInterval(e.min, e.max);
 		}
 		case REGEXP_OPTIONAL: {
 			return visitOptional(e.exp1);
@@ -70,11 +70,11 @@ public abstract class RegExpVisitor<K> {
 
 	public abstract K visitOptional(RegExp e);
 
-	public abstract K visitInterval(RegExp e);
+	public abstract K visitInterval(int min, int max);
 
-	public abstract K visitIntersection(RegExp e);
+	public abstract K visitIntersection(RegExp left, RegExp right);
 
-	public abstract K visitEmpty(RegExp e);
+	public abstract K visitEmpty();
 
 	public abstract K visitConcatenation(RegExp left, RegExp right);
 
@@ -86,7 +86,7 @@ public abstract class RegExpVisitor<K> {
 
 	public abstract K visitAutomaton(RegExp e);
 
-	public abstract K visitAnyString(RegExp e);
+	public abstract K visitAnyString();
 
 	public abstract K visitAnyChar();
 

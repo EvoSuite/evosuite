@@ -64,14 +64,17 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 		}
 
 		StringBuffer result = new StringBuffer();
-		result.append("(");
+		if (!retValues.isEmpty()) {
+			result.append("(");
+		}
 		result.append(n.getOperator().toString());
 		for (String retValue : retValues) {
 			result.append(" ");
 			result.append(retValue);
 		}
-		result.append(")");
-
+		if (!retValues.isEmpty()) {
+			result.append(")");
+		}
 		return result.toString();
 	}
 
