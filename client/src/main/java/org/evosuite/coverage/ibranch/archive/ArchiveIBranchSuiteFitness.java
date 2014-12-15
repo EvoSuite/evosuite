@@ -57,7 +57,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 	private final Set<IBranchTestFitness> removedRootBranches = new HashSet<>();
 
 	public ArchiveIBranchSuiteFitness() {
-		this(new TestsArchive());
+		this(TestsArchive.instance);
 	}
 
 	public ArchiveIBranchSuiteFitness(TestsArchive bestChromoBuilder) {

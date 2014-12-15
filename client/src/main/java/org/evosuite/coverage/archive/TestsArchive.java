@@ -17,7 +17,10 @@ import org.slf4j.LoggerFactory;
  * It means to be an archive of tests that covered goals during the evolution.
  * @author mattia
  */
-public class TestsArchive implements Serializable {
+public enum TestsArchive implements Serializable {
+
+	instance;
+	
 	private static final long serialVersionUID = 6665770735812413289L;
 
 	private static final Logger logger = LoggerFactory.getLogger(TestsArchive.class);
@@ -26,7 +29,7 @@ public class TestsArchive implements Serializable {
 	//necessary to avoid having a billion of redundant test cases
 	private final Set<Integer> coveredGoals;
 	
-	public TestsArchive() {
+	private TestsArchive() {
 		bestChromo = new TestSuiteChromosome();
 		coveredGoals = new HashSet<>();
 	}

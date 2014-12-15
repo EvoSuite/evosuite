@@ -56,13 +56,6 @@ public class FitnessFunctions {
 	
 	private static Logger logger = LoggerFactory.getLogger(FitnessFunctions.class);
 
-	private static TestsArchive archive;
-	
-	
-	private static void initialiseArchive() {
-		if (archive == null)
-			archive = new TestsArchive();
-	}
 	/**
 	 * <p>
 	 * getFitnessFunction
@@ -86,18 +79,15 @@ public class FitnessFunctions {
 			return new DefUseCoverageSuiteFitness();
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
-		case ARCHIVEBRANCH:{
-			initialiseArchive();
-			return new ArchiveBranchCoverageSuiteFitness(archive);
-		}
+		case ARCHIVEBRANCH:
+			return new ArchiveBranchCoverageSuiteFitness();
 		case CBRANCH:
 			return new CBranchSuiteFitness();
 		case IBRANCH:
 			return new IBranchSuiteFitness();
-		case ARCHIVEIBRANCH:{
-			initialiseArchive();
-			return new ArchiveIBranchSuiteFitness(archive);
-		}case STATEMENT:
+		case ARCHIVEIBRANCH:
+			return new ArchiveIBranchSuiteFitness();
+		case STATEMENT:
 			return new StatementCoverageSuiteFitness();
 		case RHO:
 			return new RhoCoverageSuiteFitness();
