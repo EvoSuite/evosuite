@@ -25,7 +25,7 @@ public enum TestsArchive implements Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestsArchive.class);
 	
-	private final TestSuiteChromosome bestChromo;
+	private TestSuiteChromosome bestChromo;
 	//necessary to avoid having a billion of redundant test cases
 	private final Set<Integer> coveredGoals;
 	
@@ -57,6 +57,11 @@ public enum TestsArchive implements Serializable {
 	@Override
 	public String toString() {		
 		return "Goals covered: "+coveredGoals.size()+", tests: "+bestChromo.size();
+	}
+	
+	public void reset() {
+		bestChromo = new TestSuiteChromosome();
+		coveredGoals.clear();
 	}
 
 }

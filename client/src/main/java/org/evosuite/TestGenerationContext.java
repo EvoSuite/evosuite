@@ -5,6 +5,7 @@ package org.evosuite;
 
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -140,6 +141,8 @@ public class TestGenerationContext {
 
 		TestCaseExecutor.initExecutor();
 
+		TestsArchive.instance.reset();
+		
 		// Constant pool
 		ConstantPoolManager.getInstance().reset();
 		ObjectPoolManager.getInstance().reset();
