@@ -54,6 +54,10 @@ public enum TestsArchive implements Serializable {
 		return bestChromo;
 	}
 	
+	public int getNumberOfTestsInArchive() {
+		return bestChromo.size();
+	}
+	
 	@Override
 	public String toString() {		
 		return "Goals covered: "+coveredGoals.size()+", tests: "+bestChromo.size();
