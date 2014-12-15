@@ -345,6 +345,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		toRemoveRootBranches.clear();
 		toRemoveBranchesF.clear();
 		toRemoveBranchesT.clear();
+		logger.info("Current state of archive: "+bestChromoBuilder.toString());
 		
 		return true;
 	}
