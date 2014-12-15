@@ -116,7 +116,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	}
 	
 	public static void enableContext() {
-		enableTraceCalls();
+//		enableTraceCalls();
 		disableContext = false;
 	}
 	

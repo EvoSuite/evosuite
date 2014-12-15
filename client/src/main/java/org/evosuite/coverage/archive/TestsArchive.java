@@ -19,7 +19,7 @@ public class TestsArchive implements Serializable {
 	private static final long serialVersionUID = 6665770735812413289L;
 
 	private final TestSuiteChromosome bestChromo;
-	//necessary to avoid having a bilion of redundant test cases
+	//necessary to avoid having a billion of redundant test cases
 	private final Set<Integer> coveredGoals;
 	
 	public TestsArchive() {
