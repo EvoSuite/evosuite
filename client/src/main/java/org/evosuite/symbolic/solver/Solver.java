@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class Solver {
 
-	static Logger log = LoggerFactory.getLogger(Solver.class);
+	static Logger logger = LoggerFactory.getLogger(Solver.class);
 
 	/**
 	 * Get concrete values for the parameters used in the path conditions.
@@ -114,7 +114,7 @@ public abstract class Solver {
 				Double concreteReal = (Double) concreteValue;
 				ir.setConcreteValue(concreteReal);
 			} else {
-				log.warn("unknow variable type " + v.getClass().getName());
+				logger.warn("unknow variable type " + v.getClass().getName());
 			}
 		}
 	}

@@ -18,7 +18,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 	}
 
 	private static DecimalFormat DECIMAL_FORMAT = new DecimalFormat(
-			"################.################");
+			"################0.0################");
 
 	@Override
 	public String visit(SmtRealConstant n, Void arg) {

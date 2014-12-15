@@ -19,7 +19,7 @@ import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
-import org.evosuite.symbolic.solver.SmtLibExprBuilder;
+import org.evosuite.symbolic.solver.SmtStringExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 import org.evosuite.symbolic.solver.smt.SmtExprPrinter;
@@ -28,7 +28,7 @@ import org.evosuite.symbolic.solver.smt.SmtIntVariable;
 import org.evosuite.symbolic.solver.smt.SmtOperation;
 import org.evosuite.symbolic.solver.smt.SmtRealVariable;
 import org.evosuite.symbolic.solver.smt.SmtStringVariable;
-import org.evosuite.symbolic.solver.smt.SmtVarCollector;
+import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.evosuite.symbolic.solver.smt.SmtVariable;
 import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
 import org.slf4j.Logger;
@@ -173,15 +173,15 @@ public class CVC4Solver extends Solver {
 		List<String> cvc4StrAssertions = new LinkedList<String>();
 		for (SmtExpr smtExpr : smtExpressions) {
 			String smtExprStr = smtExpr.accept(printer, null);
-			String assertionStr = SmtLibExprBuilder.mkAssert(smtExprStr);
+			String assertionStr = SmtStringExprBuilder.mkAssert(smtExprStr);
 			cvc4StrAssertions.add(assertionStr);
 		}
 
-		SmtVarCollector varCollector = new SmtVarCollector();
+		SmtVariableCollector varCollector = new SmtVariableCollector();
 		for (SmtExpr smtExpr : smtExpressions) {
 			smtExpr.accept(varCollector, null);
 		}
-		Set<SmtVariable> variables = varCollector.getVariableNames();
+		Set<SmtVariable> variables = varCollector.getSmtVariables();
 
 		if (variables.isEmpty()) {
 			return null; // no variables, constraint system is trivial
@@ -228,17 +228,17 @@ public class CVC4Solver extends Solver {
 		for (SmtVariable var : variables) {
 			String varName = var.getName();
 			if (var instanceof SmtIntVariable) {
-				String intVar = SmtLibExprBuilder.mkIntFunction(varName);
+				String intVar = SmtStringExprBuilder.mkIntFunction(varName);
 				smtQuery.append(intVar);
 				smtQuery.append("\n");
 
 			} else if (var instanceof SmtRealVariable) {
-				String realVar = SmtLibExprBuilder.mkRealFunction(varName);
+				String realVar = SmtStringExprBuilder.mkRealFunction(varName);
 				smtQuery.append(realVar);
 				smtQuery.append("\n");
 
 			} else if (var instanceof SmtStringVariable) {
-				String stringVar = SmtLibExprBuilder.mkStringFunction(varName);
+				String stringVar = SmtStringExprBuilder.mkStringFunction(varName);
 				smtQuery.append(stringVar);
 				smtQuery.append("\n");
 			} else {

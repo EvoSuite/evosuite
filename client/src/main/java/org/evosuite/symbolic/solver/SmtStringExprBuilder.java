@@ -2,7 +2,9 @@ package org.evosuite.symbolic.solver;
 
 import java.text.DecimalFormat;
 
-public abstract class SmtLibExprBuilder {
+import org.evosuite.symbolic.solver.smt.SmtExpr;
+
+public abstract class SmtStringExprBuilder {
 
 	public static String mkAnd(String left, String right) {
 		return "(and " + left + " " + right + ")";
@@ -94,8 +96,8 @@ public abstract class SmtLibExprBuilder {
 		return "(bvor " + bv_left + " " + bv_right + ")";
 	}
 
-	public static String mkInt2BV(int bitwidth, String intExpr) {
-		return "((_ int2bv " + bitwidth + ")" + intExpr + ")";
+	public static String mkInt2BV(int bitwidth, String left) {
+		return "((_ int2bv " + bitwidth + ")" + left + ")";
 	}
 
 	public static String mkRealDiv(String left, String right) {

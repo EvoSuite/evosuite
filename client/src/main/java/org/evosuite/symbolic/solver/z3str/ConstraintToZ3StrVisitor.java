@@ -8,40 +8,20 @@ import org.evosuite.symbolic.expr.ConstraintVisitor;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.StringConstraint;
+import org.evosuite.symbolic.solver.SmtExprBuilder;
+import org.evosuite.symbolic.solver.smt.SmtExpr;
 
-class ConstraintToZ3StrVisitor implements ConstraintVisitor<String, Void> {
+class ConstraintToZ3StrVisitor implements ConstraintVisitor<SmtExpr, Void> {
 
-	private final Set<String> stringConstants =new HashSet<String>();
-	
 	public ConstraintToZ3StrVisitor() {
 	}
 
 	@Override
-	public String visit(IntegerConstraint c, Void arg) {
+	public SmtExpr visit(IntegerConstraint c, Void arg) {
 		ExprToZ3StrVisitor v = new ExprToZ3StrVisitor();
 
-		String left = c.getLeftOperand().accept(v, null);
-		String right = c.getRightOperand().accept(v, null);
-
-		stringConstants.addAll(v.getStringConstants());
-		
-		if (left == null || right == null) {
-			return null;
-		}
-
-		Comparator cmp = c.getComparator();
-
-		return mkComparison(left, cmp, right);
-	}
-
-	@Override
-	public String visit(RealConstraint c, Void arg) {
-		ExprToZ3StrVisitor v = new ExprToZ3StrVisitor();
-
-		String left = c.getLeftOperand().accept(v, null);
-		String right = c.getRightOperand().accept(v, null);
-
-		stringConstants.addAll(v.getStringConstants());
+		SmtExpr left = c.getLeftOperand().accept(v, null);
+		SmtExpr right = c.getRightOperand().accept(v, null);
 
 		if (left == null || right == null) {
 			return null;
@@ -53,13 +33,27 @@ class ConstraintToZ3StrVisitor implements ConstraintVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(StringConstraint c, Void arg) {
+	public SmtExpr visit(RealConstraint c, Void arg) {
 		ExprToZ3StrVisitor v = new ExprToZ3StrVisitor();
 
-		String left = c.getLeftOperand().accept(v, null);
-		String right = c.getRightOperand().accept(v, null);
+		SmtExpr left = c.getLeftOperand().accept(v, null);
+		SmtExpr right = c.getRightOperand().accept(v, null);
 
-		stringConstants.addAll(v.getStringConstants());
+		if (left == null || right == null) {
+			return null;
+		}
+
+		Comparator cmp = c.getComparator();
+
+		return mkComparison(left, cmp, right);
+	}
+
+	@Override
+	public SmtExpr visit(StringConstraint c, Void arg) {
+		ExprToZ3StrVisitor v = new ExprToZ3StrVisitor();
+
+		SmtExpr left = c.getLeftOperand().accept(v, null);
+		SmtExpr right = c.getRightOperand().accept(v, null);
 
 		if (left == null || right == null) {
 			return null;
@@ -69,32 +63,32 @@ class ConstraintToZ3StrVisitor implements ConstraintVisitor<String, Void> {
 		return mkComparison(left, cmp, right);
 	}
 
-	private String mkComparison(String left, Comparator cmp,
-			String right) {
+	private static SmtExpr mkComparison(SmtExpr left, Comparator cmp,
+			SmtExpr right) {
 		switch (cmp) {
 		case LT: {
-			String lt = Z3StrExprBuilder.mkLt(left, right);
+			SmtExpr lt = SmtExprBuilder.mkLt(left, right);
 			return lt;
 		}
 		case LE: {
-			String le = Z3StrExprBuilder.mkLe(left, right);
+			SmtExpr le = SmtExprBuilder.mkLe(left, right);
 			return le;
 		}
 		case GT: {
-			String gt = Z3StrExprBuilder.mkGt(left, right);
+			SmtExpr gt = SmtExprBuilder.mkGt(left, right);
 			return gt;
 		}
 		case GE: {
-			String ge = Z3StrExprBuilder.mkGe(left, right);
+			SmtExpr ge = SmtExprBuilder.mkGe(left, right);
 			return ge;
 		}
 		case EQ: {
-			String ge = Z3StrExprBuilder.mkEq(left, right);
+			SmtExpr ge = SmtExprBuilder.mkEq(left, right);
 			return ge;
 		}
 		case NE: {
-			String ge = Z3StrExprBuilder.mkEq(left, right);
-			String ne = Z3StrExprBuilder.mkNot(ge);
+			SmtExpr ge = SmtExprBuilder.mkEq(left, right);
+			SmtExpr ne = SmtExprBuilder.mkNot(ge);
 			return ne;
 		}
 		default: {
@@ -102,9 +96,5 @@ class ConstraintToZ3StrVisitor implements ConstraintVisitor<String, Void> {
 					+ cmp.toString());
 		}
 		}
-	}
-
-	public Set<String> getStringConstants() {
-		return stringConstants;
 	}
 }
