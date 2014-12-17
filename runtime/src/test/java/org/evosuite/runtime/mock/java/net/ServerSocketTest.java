@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 import org.evosuite.runtime.testdata.EvoSuiteAddress;
+import org.evosuite.runtime.testdata.EvoSuiteLocalAddress;
 import org.evosuite.runtime.vnet.NativeTcp;
 import org.evosuite.runtime.testdata.NetworkHandling;
 import org.evosuite.runtime.vnet.VirtualNetwork;
@@ -111,7 +112,7 @@ public class ServerSocketTest {
 		
 		//send a message on tcp connection, although SUT is not listening yet
 		String msg = "Hello World! Sent from mocked TCP connection";
-		EvoSuiteAddress addr = new EvoSuiteAddress(localAddress,localPort);
+        EvoSuiteLocalAddress addr = new EvoSuiteLocalAddress(localAddress,localPort);
 		NetworkHandling.sendMessageOnTcp(addr, msg);
 		
 		//open listening port, and read message

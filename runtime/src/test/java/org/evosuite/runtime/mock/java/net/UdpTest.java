@@ -1,5 +1,6 @@
 package org.evosuite.runtime.mock.java.net;
 
+import org.evosuite.runtime.testdata.EvoSuiteLocalAddress;
 import org.evosuite.runtime.vnet.EndPointInfo;
 import org.evosuite.runtime.testdata.EvoSuiteAddress;
 import org.evosuite.runtime.testdata.NetworkHandling;
@@ -23,7 +24,7 @@ public class UdpTest {
         MockDatagramSocket socket = new MockDatagramSocket(port, InetAddress.getByName(host));
 
         byte[] data = new byte[]{42};
-        NetworkHandling.sendUdpPacket(new EvoSuiteAddress(host,port),data);
+        NetworkHandling.sendUdpPacket(new EvoSuiteLocalAddress(host,port),data);
 
         DatagramPacket p = new DatagramPacket(new byte[1],1);
         socket.receive(p);
