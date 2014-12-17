@@ -5,7 +5,9 @@ package org.evosuite.coverage;
 
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -30,7 +32,7 @@ public class CoverageAnalysis {
 
 	private static final Logger logger = LoggerFactory.getLogger(CoverageAnalysis.class);
 
-	private static boolean isMutationCriterion(Properties.Criterion[] criteria) {
+	private static boolean isMutationCriterion(Set<Criterion> criteria) {
 	    for (Properties.Criterion pc : criteria) {
 	        if (isMutationCriterion(pc))
 	            return true;
@@ -52,8 +54,22 @@ public class CoverageAnalysis {
 
 	private static void reinstrument(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
-	    Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
+		Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 
+		//XXX this is horrible, need refactoring
+		Set<Criterion> oldCriteria = new HashSet<>();
+		for (Criterion c : Properties.CRITERION) {
+			oldCriteria.add(c);
+			if (c.equals(Criterion.ARCHIVEBRANCH))
+				oldCriteria.add(Criterion.BRANCH);
+			if (c.equals(Criterion.ARCHIVEIBRANCH))
+				oldCriteria.add(Criterion.IBRANCH);
+		}
+		if (Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("ibranch")
+				|| Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("archiveibranch")) {
+			oldCriteria.add(Properties.Criterion.IBRANCH);
+		}
+	    	    
 		if (!ExecutionTracer.isTraceCallsEnabled()) {
 			ExecutionTracer.enableTraceCalls();
 			testSuite.setChanged(true);
@@ -63,9 +79,9 @@ public class CoverageAnalysis {
 				test.clearCachedMutationResults();
 			}
 		}
-
-		if (ArrayUtil.contains(oldCriterion, criterion))
-			return;
+		
+		if (oldCriteria.contains(criterion))
+			return; 
 
 		testSuite.setChanged(true);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
@@ -74,7 +90,7 @@ public class CoverageAnalysis {
 			test.clearCachedMutationResults();
 		}
 
-        if (isMutationCriterion(criterion) && isMutationCriterion(oldCriterion))
+        if (isMutationCriterion(criterion) && isMutationCriterion(oldCriteria))
             return;
 
 		Properties.CRITERION = new Properties.Criterion[1];
