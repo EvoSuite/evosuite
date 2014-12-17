@@ -3,11 +3,6 @@
  */
 package org.evosuite.coverage.ibranch;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -58,17 +53,7 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 			}
 		}
 		logger.info("Created " + goals.size() + " goals");
-		List<String> l = new ArrayList<>();
-		for (IBranchTestFitness callGraphEntry : goals) {
-			l.add(callGraphEntry.toStringContext());
-		}
-		File f = new File("/Users/mattia/workspaces/evosuiteSheffield/evosuite/master/evosuite-report/ibranchgoals.txt");
-		f.delete();
-		try {
-			Files.write(f.toPath(), l, Charset.defaultCharset(), StandardOpenOption.CREATE);
-		} catch (IOException e) { 
-			e.printStackTrace();
-		}
+		
 		return new ArrayList<IBranchTestFitness>(goals);
 	}
 }
