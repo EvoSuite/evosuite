@@ -40,8 +40,6 @@ public class RemoteTcpServer {
 		connection = new NativeTcp(null, address);	
 		in = new SocketIn(connection, false);
 		out = new SocketOut(connection, false);
-		
-		VirtualNetwork.getInstance().addRemoteTcpServer(this);
 	}
 
 	public EndPointInfo getAddress() {

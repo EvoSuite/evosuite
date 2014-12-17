@@ -3,9 +3,14 @@ package org.evosuite.setup;
 import org.evosuite.Properties;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.System;
+import org.evosuite.runtime.testdata.EvoSuiteAddress;
+import org.evosuite.runtime.testdata.EvoSuiteURL;
 import org.evosuite.runtime.testdata.FileSystemHandling;
+import org.evosuite.runtime.testdata.NetworkHandling;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
+import org.evosuite.runtime.vnet.EndPointInfo;
+import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericMethod;
@@ -30,7 +35,11 @@ public class EnvironmentTestClusterAugmenter {
     private volatile boolean hasAddedSystem;
     private volatile boolean hasAddedFiles;
     private volatile boolean hasAddedSystemIn;
-    private volatile boolean hasAddedNetwork;
+
+    private volatile boolean hasAddedRemoteURLs;
+    private volatile boolean hasAddedUdpSupport;
+    private volatile boolean hasAddedTcpListeningSupport;
+    private volatile boolean hasAddedTcpRemoteSupport;
 
     private final TestCluster cluster;
 
@@ -54,6 +63,7 @@ public class EnvironmentTestClusterAugmenter {
      */
     public void handleRuntimeAccesses(TestCase test) {
 
+        //important, as test might have been changed since last update (eg mutation)
         test.getAccessedEnvironment().clear();
 
         if (Properties.REPLACE_CALLS) {
@@ -70,6 +80,92 @@ public class EnvironmentTestClusterAugmenter {
 
         if(Properties.VIRTUAL_NET){
             handleNetwork(test);
+        }
+    }
+
+    private void handleNetwork(TestCase test){
+        /*
+            there are several things that are mocked in the network.
+            based on what the SUT used, we might only need a subset of
+            methods used to manipulate the mocked network
+         */
+
+        // TODO might need more stuff once we handle assertion generation
+
+        test.getAccessedEnvironment().addLocalListeningPorts(VirtualNetwork.getInstance().getViewOfLocalListeningPorts());
+        test.getAccessedEnvironment().addRemoteURLs(VirtualNetwork.getInstance().getViewOfRemoteAccessedFiles());
+        test.getAccessedEnvironment().addRemoteContactedPorts(VirtualNetwork.getInstance().getViewOfRemoteContactedPorts());
+
+        if(!hasAddedRemoteURLs && test.getAccessedEnvironment().getViewOfRemoteURLs().size() > 0){
+            hasAddedRemoteURLs = true;
+            try {
+                TestCluster.getInstance().addTestCall(new GenericMethod(
+                        NetworkHandling.class.getMethod("createRemoteTextFile", new Class<?>[]{EvoSuiteURL.class,String.class}),
+                        new GenericClass(NetworkHandling.class)
+                ));
+            } catch (Exception e){
+                logger.error("Error while handling hasAddedRemoteURLs: "+e.getMessage(),e);
+            }
+        }
+
+        boolean openedTCP = false;
+        boolean openedUDP = false;
+
+        for(EndPointInfo info : test.getAccessedEnvironment().getViewOfLocalListeningPorts()){
+            if(info.getType().equals(VirtualNetwork.ConnectionType.TCP)){
+                openedTCP = true;
+            } else if(info.getType().equals(VirtualNetwork.ConnectionType.UDP)){
+                openedUDP = true;
+            }
+            if(openedTCP && openedUDP){
+                break;
+            }
+        }
+
+        if(!hasAddedUdpSupport && openedUDP){
+            hasAddedUdpSupport = true;
+            try {
+                TestCluster.getInstance().addTestCall(new GenericMethod(
+                        NetworkHandling.class.getMethod("sendUdpPacket", new Class<?>[]{EvoSuiteAddress.class, EvoSuiteAddress.class, byte[].class}),
+                        new GenericClass(NetworkHandling.class)
+                ));
+                TestCluster.getInstance().addTestCall(new GenericMethod(
+                        NetworkHandling.class.getMethod("sendUdpPacket", new Class<?>[]{EvoSuiteAddress.class, byte[].class}),
+                        new GenericClass(NetworkHandling.class)
+                ));
+            } catch (Exception e){
+                logger.error("Error while handling hasAddedUdpSupport: "+e.getMessage(),e);
+            }
+        }
+
+        if(!hasAddedTcpListeningSupport && openedTCP){
+            hasAddedTcpListeningSupport = true;
+
+            try {
+                TestCluster.getInstance().addTestCall(new GenericMethod(
+                        NetworkHandling.class.getMethod("sendDataOnTcp", new Class<?>[]{EvoSuiteAddress.class, byte[].class}),
+                        new GenericClass(NetworkHandling.class)
+                ));
+                TestCluster.getInstance().addTestCall(new GenericMethod(
+                        NetworkHandling.class.getMethod("sendDataOnTcp", new Class<?>[]{EvoSuiteAddress.class, String.class}),
+                        new GenericClass(NetworkHandling.class)
+                ));
+            } catch (Exception e){
+                logger.error("Error while handling hasAddedTcpListeningSupport: "+e.getMessage(),e);
+            }
+        }
+
+        if(!hasAddedTcpRemoteSupport && test.getAccessedEnvironment().getViewOfRemoteContactedPorts().size() > 0){
+            hasAddedTcpRemoteSupport = true;
+
+            try {
+                TestCluster.getInstance().addTestCall(new GenericMethod(
+                        NetworkHandling.class.getMethod("openRemoteTcpServer", new Class<?>[]{EvoSuiteAddress.class}),
+                        new GenericClass(NetworkHandling.class)
+                ));
+            } catch (Exception e){
+                logger.error("Error while handling hasAddedTcpRemoteSupport: "+e.getMessage(),e);
+            }
         }
     }
 
@@ -93,9 +189,7 @@ public class EnvironmentTestClusterAugmenter {
     }
 
 
-    private void handleNetwork(TestCase test){
-        //TODO
-    }
+
 
     private void handleVirtualFS(TestCase test) {
         test.getAccessedEnvironment().addLocalFiles(VirtualFileSystem.getInstance().getAccessedFiles());

@@ -1,5 +1,7 @@
 package org.evosuite.testcase.environmentdata;
 
+import org.evosuite.runtime.vnet.EndPointInfo;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -13,26 +15,81 @@ public class AccessedEnvironment implements Serializable {
 
 	private static final long serialVersionUID = 2653568611955383431L;
 
-	private final Set<String> accessedFiles;
+    /**
+     * Paths of accessed local files
+     */
+	private final Set<String> localFiles;
+
+
+    /**
+     * URL of remote resources
+     */
+    private final Set<String> remoteURLs;
+
+    /**
+     *  TCP/UDP sockets opened by the SUT
+     */
+    private final Set<EndPointInfo> localListeningPorts;
+
+
+    /**
+     * Remote addr/ports the SUT has contacted (ie initialized communication)
+     * via TCP/UDP
+     */
+    private final Set<EndPointInfo> remoteContactedPorts;
+
 
     public AccessedEnvironment(){
-        accessedFiles = new LinkedHashSet<>();
+        localFiles = new LinkedHashSet<>();
+        remoteURLs = new LinkedHashSet<>();
+        localListeningPorts = new LinkedHashSet<>();
+        remoteContactedPorts = new LinkedHashSet<>();
     }
 
     public void copyFrom(AccessedEnvironment other){
         clear();
-        this.accessedFiles.addAll(other.accessedFiles);
+        this.localFiles.addAll(other.localFiles);
+        this.remoteURLs.addAll(other.remoteURLs);
+        this.localListeningPorts.addAll(other.localListeningPorts);
+        this.remoteContactedPorts.addAll(other.remoteContactedPorts);
     }
 
     public void clear(){
-        accessedFiles.clear();
+        localFiles.clear();
+        remoteURLs.clear();
+        localListeningPorts.clear();
+        remoteContactedPorts.clear();
+    }
+
+    public void addRemoteContactedPorts(Collection<EndPointInfo> ports){
+        remoteContactedPorts.addAll(ports);
+    }
+
+    public Set<EndPointInfo> getViewOfRemoteContactedPorts(){
+        return Collections.unmodifiableSet(remoteContactedPorts);
+    }
+
+    public void addLocalListeningPorts(Collection<EndPointInfo> ports){
+        localListeningPorts.addAll(ports);
+    }
+
+    public Set<EndPointInfo> getViewOfLocalListeningPorts(){
+        return Collections.unmodifiableSet(localListeningPorts);
     }
 
     public void addLocalFiles(Collection<String> files){
-        accessedFiles.addAll(files);
+        localFiles.addAll(files);
     }
 
     public Set<String> getViewOfAccessedFiles(){
-        return Collections.unmodifiableSet(accessedFiles);
+        return Collections.unmodifiableSet(localFiles);
+    }
+
+    public void addRemoteURLs(Collection<String> urls){
+        remoteURLs.addAll(urls);
+    }
+
+    public Set<String> getViewOfRemoteURLs(){
+        return Collections.unmodifiableSet(remoteURLs);
     }
 }

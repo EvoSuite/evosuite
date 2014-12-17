@@ -2,7 +2,9 @@ package org.evosuite.runtime.testdata;
 
 
 import org.evosuite.runtime.mock.java.net.MockInetAddress;
+import org.evosuite.runtime.vnet.EndPointInfo;
 import org.evosuite.runtime.vnet.NativeTcp;
+import org.evosuite.runtime.vnet.RemoteTcpServer;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 
 import java.net.InetAddress;
@@ -17,12 +19,34 @@ import java.net.UnknownHostException;
  */
 public class NetworkHandling {
 
+    /*
+        WARN: the methods in this class are accessed by reflection in EnvironmentTestClusterAugmenter.
+        Do not change signatures unless you update that class as well.
+     */
+
 	/**
 	 * Unless otherwise specified, we simulate incoming connections all
 	 * from same remote host
 	 */
-	private static final String DEFAULT_REMOTE_ADDRESS = "127.0.0.42"; 
-			
+	private static final String DEFAULT_REMOTE_ADDRESS = "127.0.0.42";
+
+
+    /**
+     * Create a one-time listener on remote address/port
+     * @param remoteServer
+     * @return
+     */
+    public static boolean openRemoteTcpServer(EvoSuiteRemoteAddress remoteServer){
+        if(remoteServer==null){
+            return false;
+        }
+
+        RemoteTcpServer server = new RemoteTcpServer(new EndPointInfo(remoteServer.getHost(),remoteServer.getPort(), VirtualNetwork.ConnectionType.TCP));
+        VirtualNetwork.getInstance().addRemoteTcpServer(server);
+
+        return true;
+    }
+
 	/**
 	 * Open new connection toward {@code sutServer} and buffer the content of {@code data}
 	 * to be later sent once {@code sutServer} is opened
@@ -31,7 +55,7 @@ public class NetworkHandling {
 	 * @param data  if {@code null}, just simulate opening of connection
 	 * @return {@code false} if {@code sutServer} is {@code null}
 	 */
-	public static boolean sendDataOnTcp(EvoSuiteAddress sutServer, byte[] data){
+	public static boolean sendDataOnTcp(EvoSuiteLocalAddress sutServer, byte[] data){
 		if(sutServer==null){
 			return false;
 		}
@@ -57,13 +81,24 @@ public class NetworkHandling {
 	}
 
     /**
+     * Convert {@code message} to a byte array and send it with
+     * {@link NetworkHandling#sendDataOnTcp}
+     * @param sutServer
+     * @param message
+     * @return
+     */
+    public static boolean sendMessageOnTcp(EvoSuiteLocalAddress sutServer, String message){
+        return sendDataOnTcp(sutServer,message.getBytes());
+    }
+
+    /**
      * Send UDP to SUT from an ephemeral port on a default remote host
      * @param sutAddress
      * @param data
      * @return
      */
-    public static boolean sendUdpPacket(EvoSuiteAddress sutAddress, byte[] data){
-        return sendUdpPacket(sutAddress, new EvoSuiteAddress(DEFAULT_REMOTE_ADDRESS, VirtualNetwork.getInstance().getNewRemoteEphemeralPort()),data);
+    public static boolean sendUdpPacket(EvoSuiteLocalAddress sutAddress, byte[] data){
+        return sendUdpPacket(sutAddress, new EvoSuiteRemoteAddress(DEFAULT_REMOTE_ADDRESS, VirtualNetwork.getInstance().getNewRemoteEphemeralPort()),data);
     }
 
     /**
@@ -74,7 +109,7 @@ public class NetworkHandling {
      * @param data
      * @return
      */
-    public static boolean sendUdpPacket(EvoSuiteAddress sutAddress, EvoSuiteAddress remoteAddress, byte[] data){
+    public static boolean sendUdpPacket(EvoSuiteLocalAddress sutAddress, EvoSuiteRemoteAddress remoteAddress, byte[] data){
         if(sutAddress == null){
             return false;
         }
@@ -99,16 +134,7 @@ public class NetworkHandling {
         return true;
     }
 
-	/**
-	 * Convert {@code message} to a byte array and send it with
-	 * {@link NetworkHandling#sendDataOnTcp}
-	 * @param sutServer
-	 * @param message
-	 * @return
-	 */
-	public static boolean sendMessageOnTcp(EvoSuiteAddress sutServer, String message){
-		return sendDataOnTcp(sutServer,message.getBytes());
-	}
+
 
 
     /**

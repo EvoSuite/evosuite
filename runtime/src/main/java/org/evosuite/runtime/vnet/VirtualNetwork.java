@@ -160,8 +160,15 @@ public class VirtualNetwork {
 
 	//------------------------------------------
 
-	
-	public void reset(){		
+
+    public void init(){
+        reset(); //just to be sure
+
+        initNetworkInterfaces();
+        MockURL.initStaticState();
+    }
+
+	public void reset(){
 		dns = new DNS();
 
 		incomingConnections.clear();
@@ -169,22 +176,51 @@ public class VirtualNetwork {
 		remoteCurrentServers.clear();
 		networkInterfaces.clear();
         remoteFiles.clear();
-        sentUdpPackets.clear();
         udpPacketsToSUT.clear();
-
-		//TODO most likely it ll need different handling, as needed after the search
+        sentUdpPackets.clear();
         localListeningPorts.clear();
 		openedTcpConnections.clear();
 		remoteContactedPorts.clear();
         remoteAccessedFiles.clear();
 	}
 
-	public void init(){
-		reset(); //just to be sure
+    // -------  observers ----------------------
 
-		initNetworkInterfaces();
-		MockURL.initStaticState();
-	}
+    public Set<String> getViewOfRemoteAccessedFiles(){
+        return Collections.unmodifiableSet(remoteAccessedFiles);
+    }
+
+    public Set<NativeTcp> getViewOfOpenedTcpConnections(){
+        return  Collections.unmodifiableSet(openedTcpConnections);
+    }
+
+    public Set<EndPointInfo> getViewOfLocalListeningPorts(){
+        return Collections.unmodifiableSet(localListeningPorts);
+    }
+
+    public Set<EndPointInfo> getViewOfRemoteContactedPorts() {return Collections.unmodifiableSet(remoteContactedPorts);}
+
+    public Map<EndPointInfo, Integer> getCopyOfSentUDP(){
+        //as AtomicInteger is modifiable, we cannot return a view. we need a copy
+        Map<EndPointInfo, Integer> map = new LinkedHashMap<>();
+        for(EndPointInfo info : sentUdpPackets.keySet()){
+            map.put(info,sentUdpPackets.get(info).get());
+        }
+        return map;
+    }
+
+    /**
+     * Get a copy of all available interfaces
+     * @return
+     */
+    public List<NetworkInterfaceState> getAllNetworkInterfaceStates(){
+        return new ArrayList<>(networkInterfaces);
+    }
+
+
+
+    //------------------------------------------
+
 
     /**
      * Create a new remote file that can be accessed by the given URL
@@ -309,14 +345,6 @@ public class VirtualNetwork {
 	}
 
 	/**
-	 * Get a copy of all available interfaces
-	 * @return
-	 */
-	public List<NetworkInterfaceState> getAllNetworkInterfaceStates(){
-		return new ArrayList<NetworkInterfaceState>(networkInterfaces); 
-	}
-
-	/**
 	 * Use mocked DNS to resolve host
 	 * @param host
 	 * @return 
@@ -412,22 +440,7 @@ public class VirtualNetwork {
         return true;
     }
 
-    public Set<String> getViewOfRemoteAccessedFiles(){
-        return Collections.unmodifiableSet(remoteAccessedFiles);
-    }
 
-	public Set<NativeTcp> getViewOfOpenedTcpConnections(){
-		return  Collections.unmodifiableSet(openedTcpConnections);
-	}
-
-    public Map<EndPointInfo, Integer> getCopyOfSentUDP(){
-        //as AtomicInteger is modifiable, we cannot return a view. we need a copy
-        Map<EndPointInfo, Integer> map = new LinkedHashMap<>();
-        for(EndPointInfo info : sentUdpPackets.keySet()){
-            map.put(info,sentUdpPackets.get(info).get());
-        }
-        return map;
-    }
 
 	/**
 	 *  Register a remote server that can reply to SUT's connection requests

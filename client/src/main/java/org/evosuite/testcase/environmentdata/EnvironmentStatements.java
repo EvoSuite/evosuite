@@ -1,7 +1,6 @@
 package org.evosuite.testcase.environmentdata;
 
-import org.evosuite.runtime.testdata.EnvironmentDataList;
-import org.evosuite.runtime.testdata.EvoSuiteFile;
+import org.evosuite.runtime.testdata.*;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.Randomness;
@@ -29,6 +28,12 @@ public class EnvironmentStatements {
 
         if(clazz.equals(EvoSuiteFile.class)){
             return new FileNamePrimitiveStatement(tc, new EvoSuiteFile(Randomness.choice(tc.getAccessedEnvironment().getViewOfAccessedFiles())));
+        } else if(clazz.equals(EvoSuiteLocalAddress.class)){
+            return new LocalAddressPrimitiveStatement(tc);
+        } else if(clazz.equals(EvoSuiteRemoteAddress.class)){
+            return new RemoteAddressPrimitiveStatement(tc);
+        } else if(clazz.equals(EvoSuiteURL.class)){
+            return new UrlPrimitiveStatement(tc);
         }
 
         throw new RuntimeException("EvoSuite bug: unhandled class "+clazz.getName());
