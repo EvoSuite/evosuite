@@ -199,7 +199,7 @@
 				<!-- Apache 2 -->
 				<groupId>com.googlecode.gentyref</groupId>
 				<artifactId>gentyref</artifactId>
-				<version>1.1.0</version>
+				<version>1.2.0</version>
 			</dependency>
 			<dependency> 
 				<!-- LGPL -->
@@ -235,7 +235,7 @@
 				<!-- Apache 2 -->
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
-				<version>3.1</version>
+				<version>3.3.2</version>
 				<!-- Version 3.2.1 leads to a NPE in org.jcvi.jillion.fasta.qual.QualityFastaRecordWriterBuilder 
 					in 92_jcvi-javacommon -->
 			</dependency>

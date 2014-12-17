@@ -2,9 +2,9 @@ package org.evosuite.symbolic.solver.z3;
 
 import java.text.DecimalFormat;
 
-import org.evosuite.symbolic.solver.SmtLibExprBuilder;
+import org.evosuite.symbolic.solver.SmtStringExprBuilder;
 
-public abstract class Z3ExprBuilder extends SmtLibExprBuilder {
+public abstract class Z3ExprBuilder extends SmtStringExprBuilder {
 
 	public static String mkStringVariable(String varName) {
 		return "(declare-const " + varName + " (Array (Int) (Int)))";

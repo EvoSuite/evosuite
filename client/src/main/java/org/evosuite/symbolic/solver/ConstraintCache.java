@@ -5,7 +5,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.evosuite.symbolic.ConstraintTypeCounter;
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.RealConstraint;
+import org.evosuite.symbolic.expr.StringConstraint;
 
 public final class ConstraintCache {
 
@@ -19,6 +23,7 @@ public final class ConstraintCache {
 				return null;
 			}
 		}
+
 
 		Map<String, Object> solution;
 		try {
@@ -36,6 +41,7 @@ public final class ConstraintCache {
 		return solution;
 
 	}
+
 
 	private static final ConstraintCache instance = new ConstraintCache();
 
