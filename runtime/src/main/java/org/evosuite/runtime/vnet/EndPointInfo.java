@@ -2,10 +2,12 @@ package org.evosuite.runtime.vnet;
 
 import org.evosuite.runtime.vnet.VirtualNetwork.ConnectionType;
 
+import java.io.Serializable;
+
 /**
  * Immutable class used to store connection info 
  */
-public class EndPointInfo {
+public class EndPointInfo  implements Serializable {
 	
 	private final String host;
 	private final int port;

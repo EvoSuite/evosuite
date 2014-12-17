@@ -23,7 +23,8 @@ public class EnvironmentDataList {
         }
 
         if(RuntimeSettings.useVNET){
-            classes.add(EvoSuiteAddress.class);
+            classes.add(EvoSuiteLocalAddress.class);
+            classes.add(EvoSuiteRemoteAddress.class);
             classes.add(EvoSuiteURL.class);
         }
 

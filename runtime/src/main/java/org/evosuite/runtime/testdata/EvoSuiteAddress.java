@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author arcuri
  *
  */
-public class EvoSuiteAddress implements Serializable {
+public abstract class EvoSuiteAddress implements Serializable {
 
 	private static final long serialVersionUID = 1734299467948600797L;
 

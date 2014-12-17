@@ -58,7 +58,8 @@ public class SocketTest {
 		MockSocket s = new MockSocket();
 		
 		RemoteTcpServer server = new RemoteTcpServer(new EndPointInfo(saddr.getAddress().getHostAddress(), saddr.getPort(), ConnectionType.TCP));
-		String msgFromServer = "server";
+        VirtualNetwork.getInstance().addRemoteTcpServer(server);
+        String msgFromServer = "server";
 		server.sendMessage(msgFromServer);
 		
 		s.connect(saddr);

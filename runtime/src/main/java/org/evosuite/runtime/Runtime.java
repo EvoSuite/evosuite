@@ -79,13 +79,13 @@ public class Runtime {
         }
 
 		if (RuntimeSettings.useVFS) {
-			logger.debug("Resetting the VFS...");
 			VirtualFileSystem.getInstance().resetSingleton();
 			VirtualFileSystem.getInstance().init();
 		}
 
         if(RuntimeSettings.useVNET){
             VirtualNetwork.getInstance().reset();
+            VirtualNetwork.getInstance().init();
         }
 	}
 
