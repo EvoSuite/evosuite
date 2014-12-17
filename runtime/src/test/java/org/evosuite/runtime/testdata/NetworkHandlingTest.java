@@ -35,7 +35,7 @@ public class NetworkHandlingTest {
     @Test(timeout = 500)
     public void testOpenedRemoteTCP() throws Exception{
 
-        EvoSuiteAddress addr = new EvoSuiteAddress("127.42.42.42",42);
+        EvoSuiteLocalAddress addr = new EvoSuiteLocalAddress("127.42.42.42",42);
         NetworkHandling.sendDataOnTcp(addr,null);
 
         MockServerSocket sut = new MockServerSocket(addr.getPort(), 1,
@@ -47,8 +47,8 @@ public class NetworkHandlingTest {
     @Test (timeout = 500)
     public void testSendUdp() throws  Exception{
 
-        EvoSuiteAddress sut = new EvoSuiteAddress("127.42.42.42",42);
-        EvoSuiteAddress remote = new EvoSuiteAddress("127.62.62.62",62);
+        EvoSuiteLocalAddress sut = new EvoSuiteLocalAddress("127.42.42.42",42);
+        EvoSuiteRemoteAddress remote = new EvoSuiteRemoteAddress("127.62.62.62",62);
 
         String msg = "foo";
         byte[] data = msg.getBytes();
