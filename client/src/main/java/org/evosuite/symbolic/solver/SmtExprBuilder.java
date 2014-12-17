@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.solver.cvc4;
+package org.evosuite.symbolic.solver;
 
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 import org.evosuite.symbolic.solver.smt.SmtIntConstant;
@@ -9,7 +9,7 @@ import org.evosuite.symbolic.solver.smt.SmtRealVariable;
 import org.evosuite.symbolic.solver.smt.SmtStringConstant;
 import org.evosuite.symbolic.solver.smt.SmtStringVariable;
 
-public abstract class CVC4ExprBuilder {
+public abstract class SmtExprBuilder {
 
 	public static final SmtIntConstant ZERO_INT = mkIntConstant(0);
 	public static final SmtRealConstant ZERO_REAL = mkRealConstant(0);
@@ -269,6 +269,49 @@ public abstract class CVC4ExprBuilder {
 	public static SmtExpr mkRegExpRange(SmtExpr fromExpr, SmtExpr toExpr) {
 		return new SmtOperation(SmtOperation.Operator.REG_EXP_RANGE, fromExpr,
 				toExpr);
+	}
+
+	public static SmtExpr mkRem(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.REM, left, right);
+	}
+
+	public static SmtExpr mkConcat(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.CONCAT, left, right);
+	}
+
+	public static SmtExpr mkReplace(SmtExpr strExpr, SmtExpr targetExpr,
+			SmtExpr replacementExpr) {
+		return new SmtOperation(SmtOperation.Operator.REPLACE, strExpr,
+				targetExpr, replacementExpr);
+	}
+
+	public static SmtExpr mkSubstring(SmtExpr string, SmtExpr fromExpr,
+			SmtExpr toExpr) {
+		return new SmtOperation(SmtOperation.Operator.SUBSTRING, string,
+				fromExpr, toExpr);
+	}
+
+	public static SmtExpr mkEndsWith(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.ENDSWITH, left, right);
+
+	}
+
+	public static SmtExpr mkContains(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.CONTAINS, left, right);
+
+	}
+
+	public static SmtExpr mkStartsWith(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.STARTSWITH, left, right);
+	}
+
+	public static SmtExpr mkIndexOf(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.INDEXOF, left, right);
+	}
+
+	public static SmtExpr mkLength(SmtExpr stringExpr) {
+		return new SmtOperation(SmtOperation.Operator.LENGTH, stringExpr);
+
 	}
 
 }

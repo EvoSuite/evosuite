@@ -9,6 +9,7 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.StringConstraint;
+import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 
 class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> {
@@ -57,28 +58,28 @@ class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> {
 			SmtExpr right) {
 		switch (cmp) {
 		case LT: {
-			SmtExpr lt = CVC4ExprBuilder.mkLt(left, right);
+			SmtExpr lt = SmtExprBuilder.mkLt(left, right);
 			return lt;
 		}
 		case LE: {
-			SmtExpr le = CVC4ExprBuilder.mkLe(left, right);
+			SmtExpr le = SmtExprBuilder.mkLe(left, right);
 			return le;
 		}
 		case GT: {
-			SmtExpr gt = CVC4ExprBuilder.mkGt(left, right);
+			SmtExpr gt = SmtExprBuilder.mkGt(left, right);
 			return gt;
 		}
 		case GE: {
-			SmtExpr ge = CVC4ExprBuilder.mkGe(left, right);
+			SmtExpr ge = SmtExprBuilder.mkGe(left, right);
 			return ge;
 		}
 		case EQ: {
-			SmtExpr ge = CVC4ExprBuilder.mkEq(left, right);
+			SmtExpr ge = SmtExprBuilder.mkEq(left, right);
 			return ge;
 		}
 		case NE: {
-			SmtExpr ge = CVC4ExprBuilder.mkEq(left, right);
-			SmtExpr ne = CVC4ExprBuilder.mkNot(ge);
+			SmtExpr ge = SmtExprBuilder.mkEq(left, right);
+			SmtExpr ne = SmtExprBuilder.mkNot(ge);
 			return ne;
 		}
 		default: {

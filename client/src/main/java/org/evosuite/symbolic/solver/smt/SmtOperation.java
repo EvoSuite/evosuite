@@ -52,7 +52,16 @@ public final class SmtOperation extends SmtExpr {
 		REG_EXP_ALL_CHAR("re.allchar"), //
 		REG_EXP_KLEENE_CROSS("re.+"), //
 		REG_EXP_LOOP("re.loop"), //
-		REG_EXP_RANGE("re.range");
+		REG_EXP_RANGE("re.range"), //
+		REM("rem"), //
+		CONCAT("Concat"), //
+		REPLACE("Replace"), //
+		SUBSTRING("Substring"), //
+		ENDSWITH("EndsWith"), //
+		CONTAINS("Contains"), //
+		STARTSWITH("StartsWiths"), //
+		INDEXOF("Indexof"), //
+		LENGTH("Length");
 
 		private final String rep;
 

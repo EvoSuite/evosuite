@@ -1,5 +1,6 @@
 package org.evosuite.symbolic.solver.cvc4;
 
+import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 import org.evosuite.symbolic.solver.smt.SmtIntConstant;
 import org.evosuite.symbolic.solver.smt.SmtStringConstant;
@@ -16,14 +17,14 @@ public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 		if (leftExpr == null || rightExpr == null) {
 			return null;
 		}
-		SmtExpr unionExpr = CVC4ExprBuilder.mkRegExpUnion(leftExpr, rightExpr);
+		SmtExpr unionExpr = SmtExprBuilder.mkRegExpUnion(leftExpr, rightExpr);
 		return unionExpr;
 	}
 
 	@Override
 	public SmtExpr visitString(String s) {
-		SmtStringConstant strConstant = CVC4ExprBuilder.mkStringConstant(s);
-		SmtExpr strToRegExpr = CVC4ExprBuilder.mkStrToRegExp(strConstant);
+		SmtStringConstant strConstant = SmtExprBuilder.mkStringConstant(s);
+		SmtExpr strToRegExpr = SmtExprBuilder.mkStrToRegExp(strConstant);
 		return strToRegExpr;
 	}
 
@@ -33,9 +34,9 @@ public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 		if (regExpr == null) {
 			return null;
 		}
-		SmtIntConstant minExpr = CVC4ExprBuilder.mkIntConstant(min);
-		SmtIntConstant maxExpr = CVC4ExprBuilder.mkIntConstant(max);
-		SmtExpr loopExpr = CVC4ExprBuilder.mkLoop(regExpr, minExpr, maxExpr);
+		SmtIntConstant minExpr = SmtExprBuilder.mkIntConstant(min);
+		SmtIntConstant maxExpr = SmtExprBuilder.mkIntConstant(max);
+		SmtExpr loopExpr = SmtExprBuilder.mkLoop(regExpr, minExpr, maxExpr);
 		return loopExpr;
 
 	}
@@ -47,12 +48,12 @@ public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 			return null;
 		}
 		if (min == 1) {
-			SmtExpr kleeneCrossExpr = CVC4ExprBuilder
+			SmtExpr kleeneCrossExpr = SmtExprBuilder
 					.mkRegExpKleeCross(regExpr);
 			return kleeneCrossExpr;
 		} else {
-			SmtIntConstant minExpr = CVC4ExprBuilder.mkIntConstant(min);
-			SmtExpr loopExpr = CVC4ExprBuilder.mkLoop(regExpr, minExpr);
+			SmtIntConstant minExpr = SmtExprBuilder.mkIntConstant(min);
+			SmtExpr loopExpr = SmtExprBuilder.mkLoop(regExpr, minExpr);
 			return loopExpr;
 		}
 	}
@@ -63,7 +64,7 @@ public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 		if (expr == null) {
 			return null;
 		}
-		SmtExpr repeatExpr = CVC4ExprBuilder.mkReKleeneStar(expr);
+		SmtExpr repeatExpr = SmtExprBuilder.mkReKleeneStar(expr);
 		return repeatExpr;
 	}
 
@@ -73,26 +74,8 @@ public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 		if (expr == null) {
 			return null;
 		}
-		SmtExpr optExpr = CVC4ExprBuilder.mkRegExpOptional(expr);
+		SmtExpr optExpr = SmtExprBuilder.mkRegExpOptional(expr);
 		return optExpr;
-	}
-
-	@Override
-	public SmtExpr visitInterval(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public SmtExpr visitIntersection(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public SmtExpr visitEmpty(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -102,26 +85,20 @@ public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 		if (leftExpr == null || rightExpr == null) {
 			return null;
 		}
-		SmtExpr concat = CVC4ExprBuilder.mkRegExpConcat(leftExpr, rightExpr);
+		SmtExpr concat = SmtExprBuilder.mkRegExpConcat(leftExpr, rightExpr);
 		return concat;
-	}
-
-	@Override
-	public SmtExpr visitComplement(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
 	public SmtExpr visitCharRange(char from, char to) {
 		String fromStr = String.valueOf(from);
-		SmtStringConstant fromConstant = CVC4ExprBuilder
+		SmtStringConstant fromConstant = SmtExprBuilder
 				.mkStringConstant(fromStr);
 
 		String toStr = String.valueOf(to);
-		SmtStringConstant toConstant = CVC4ExprBuilder.mkStringConstant(toStr);
+		SmtStringConstant toConstant = SmtExprBuilder.mkStringConstant(toStr);
 
-		SmtExpr rangeExpr = CVC4ExprBuilder.mkRegExpRange(fromConstant,
+		SmtExpr rangeExpr = SmtExprBuilder.mkRegExpRange(fromConstant,
 				toConstant);
 		return rangeExpr;
 	}
@@ -129,26 +106,50 @@ public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 	@Override
 	public SmtExpr visitChar(char c) {
 		String str = String.valueOf(c);
-		SmtStringConstant strConstant = CVC4ExprBuilder.mkStringConstant(str);
-		SmtExpr expr = CVC4ExprBuilder.mkStrToRegExp(strConstant);
+		SmtStringConstant strConstant = SmtExprBuilder.mkStringConstant(str);
+		SmtExpr expr = SmtExprBuilder.mkStrToRegExp(strConstant);
 		return expr;
 	}
 
 	@Override
-	public SmtExpr visitAutomaton(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public SmtExpr visitAnyString(RegExp e) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public SmtExpr visitAnyChar() {
-		return CVC4ExprBuilder.mkRegExpAllChar();
+		return SmtExprBuilder.mkRegExpAllChar();
+	}
+
+	@Override
+	public SmtExpr visitInterval(int min, int max) {
+		throw new IllegalStateException(
+				"Optional dk.brics productions are not supported. Check syntax_flags of RegExp(String,String)");
+	}
+
+	@Override
+	public SmtExpr visitIntersection(RegExp left, RegExp right) {
+		throw new IllegalStateException(
+				"Optional dk.brics productions are not supported. Check syntax_flags of RegExp(String,String)");
+	}
+
+	@Override
+	public SmtExpr visitAutomaton(RegExp e) {
+		throw new IllegalStateException(
+				"Optional dk.brics productions are not supported. Check syntax_flags of RegExp(String,String)");
+	}
+
+	@Override
+	public SmtExpr visitComplement(RegExp e) {
+		throw new IllegalStateException(
+				"Optional dk.brics productions are not supported. Check syntax_flags of RegExp(String,String)");
+	}
+
+	@Override
+	public SmtExpr visitEmpty() {
+		throw new IllegalStateException(
+				"Optional dk.brics productions are not supported. Check syntax_flags of RegExp(String,String)");
+	}
+
+	@Override
+	public SmtExpr visitAnyString() {
+		throw new IllegalStateException(
+				"Optional dk.brics productions are not supported. Check syntax_flags of RegExp(String,String)");
 	}
 
 }

@@ -2,9 +2,9 @@ package org.evosuite.symbolic.solver.z3str;
 
 import java.text.DecimalFormat;
 
-import org.evosuite.symbolic.solver.SmtLibExprBuilder;
+import org.evosuite.symbolic.solver.SmtStringExprBuilder;
 
-public abstract class Z3StrExprBuilder extends SmtLibExprBuilder {
+public abstract class Z3StrExprBuilder extends SmtStringExprBuilder {
 
 	public static String mkStringLiteral(String str) {
 		return "\"" + str + "\"";
@@ -61,7 +61,7 @@ public abstract class Z3StrExprBuilder extends SmtLibExprBuilder {
 
 	public static String mkStringReplace(String str, String oldValue,
 			String newValue) {
-		return "(Substring " + str + " " + oldValue + " " + newValue + ")";
+		return "(Replace " + str + " " + oldValue + " " + newValue + ")";
 	}
 
 	public static String mkStringLength(String str) {

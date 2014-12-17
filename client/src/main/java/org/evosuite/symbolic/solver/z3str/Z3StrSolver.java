@@ -22,9 +22,20 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
+import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.smt.SmtConstant;
+import org.evosuite.symbolic.solver.smt.SmtConstantCollector;
+import org.evosuite.symbolic.solver.smt.SmtExpr;
+import org.evosuite.symbolic.solver.smt.SmtExprPrinter;
+import org.evosuite.symbolic.solver.smt.SmtIntVariable;
+import org.evosuite.symbolic.solver.smt.SmtRealVariable;
+import org.evosuite.symbolic.solver.smt.SmtStringConstant;
+import org.evosuite.symbolic.solver.smt.SmtStringVariable;
+import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
+import org.evosuite.symbolic.solver.smt.SmtVariable;
 import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
@@ -79,7 +90,12 @@ public class Z3StrSolver extends Solver {
 
 		Set<Variable<?>> variables = getVariables(constraints);
 
-		String smtQuery = buildSmtQuery(constraints, variables);
+		String smtQuery = buildSmtQuery(constraints);
+
+		if (smtQuery == null) {
+			logger.warn("No variables found during constraint solving. Returning NULL as solution");
+			return null;
+		}
 
 		System.out.println("Z3 input:");
 		System.out.println(smtQuery);
@@ -135,51 +151,104 @@ public class Z3StrSolver extends Solver {
 		}
 	}
 
-	private String buildSmtQuery(Collection<Constraint<?>> constraints,
-			Set<Variable<?>> variables) {
+	private static String encodeString(String str) {
+		char[] charArray = str.toCharArray();
+		String ret_val = "__cOnStStR_";
+		for (int i = 0; i < charArray.length; i++) {
+			char c = charArray[i];
+			if (c >= 0 && c <= 255) {
+				ret_val += "_x" + Integer.toHexString(c);
+			}
+		}
+		return ret_val;
+	}
+
+	private static String mkAssert(String constraintStr) {
+		return "(assert " + constraintStr + ")";
+	}
+
+	private static String declareStringConst(String varName) {
+		return "(declare-const " + varName + " String)";
+	}
+
+	private static String declareRealConst(String varName) {
+		return "(declare-const " + varName + " Real)";
+	}
+
+	private static String declareIntConst(String varName) {
+		return "(declare-const " + varName + " Int)";
+	}
+
+	private static String buildSmtQuery(Collection<Constraint<?>> constraints) {
+
+		ConstraintToZ3StrVisitor v = new ConstraintToZ3StrVisitor();
+		List<SmtExpr> assertions = new LinkedList<SmtExpr>();
+		for (Constraint<?> c : constraints) {
+			SmtExpr smtExpr = c.accept(v, null);
+			if (smtExpr != null) {
+				assertions.add(smtExpr);
+			}
+		}
+
+		SmtVariableCollector varCollector = new SmtVariableCollector();
+		for (SmtExpr smtExpr : assertions) {
+			smtExpr.accept(varCollector, null);
+		}
+		Set<SmtVariable> smtVariables = varCollector.getSmtVariables();
+
+		if (smtVariables.isEmpty()) {
+			return null; // no variables, constraint system is trivial
+		}
+
+		SmtConstantCollector constantCollector = new SmtConstantCollector();
+		for (SmtExpr smtExpr : assertions) {
+			smtExpr.accept(varCollector, null);
+		}
+		Set<SmtConstant> smtConstants = constantCollector.getSmtConstants();
+
+		return createSmtQuery(smtVariables, smtConstants, assertions);
+	}
+
+	private static String createSmtQuery(Set<SmtVariable> smtVariables,
+			Set<SmtConstant> smtConstants, List<SmtExpr> smtAssertions) {
 		StringBuffer buff = new StringBuffer();
-		for (Variable<?> v : variables) {
-			String varName = v.getName();
-			if (v instanceof IntegerVariable) {
-				String intVar = Z3StrExprBuilder.mkIntVariable(varName);
-				buff.append(intVar);
+		for (SmtVariable v1 : smtVariables) {
+			String varName = v1.getName();
+			if (v1 instanceof SmtIntVariable) {
+				String intConst = declareIntConst(varName);
+				buff.append(intConst);
 				buff.append("\n");
-			} else if (v instanceof RealVariable) {
-				String realVar = Z3StrExprBuilder.mkRealVariable(varName);
-				buff.append(realVar);
+			} else if (v1 instanceof SmtRealVariable) {
+				String realConst = declareRealConst(varName);
+				buff.append(realConst);
 				buff.append("\n");
-			} else if (v instanceof StringVariable) {
-				String stringVar = Z3StrExprBuilder.mkStringVariable(varName);
-				buff.append(stringVar);
+			} else if (v1 instanceof SmtStringVariable) {
+				String stringConst = declareStringConst(varName);
+				buff.append(stringConst);
 				buff.append("\n");
 			} else {
 				throw new RuntimeException("Unknown variable type "
-						+ v.getClass().getCanonicalName());
+						+ v1.getClass().getCanonicalName());
 			}
 		}
 
-		ConstraintToZ3StrVisitor v = new ConstraintToZ3StrVisitor();
-		List<String> z3StrAssertions = new LinkedList<String>();
-		for (Constraint<?> c : constraints) {
-			String constraintStr = c.accept(v, null);
-			if (constraintStr != null) {
-				String z3Assert = Z3StrExprBuilder.mkAssert(constraintStr);
-				z3StrAssertions.add(z3Assert);
+		for (SmtConstant smtConstant : smtConstants) {
+			if (smtConstant instanceof SmtStringConstant) {
+				SmtStringConstant smtStringConstant = (SmtStringConstant) smtConstant;
+				String stringValue = smtStringConstant.getConstantValue();
+
+				String encodedStringConstant = encodeString(stringValue);
+				String constDecl = declareStringConst(encodedStringConstant);
+				buff.append(constDecl);
+				buff.append("\n");
 			}
 		}
 
-		Set<String> stringConstants = v.getStringConstants();
-		for (String string : stringConstants) {
-			String encodedStringConstant = Z3StrExprBuilder
-					.encodeString(string);
-			String constDecl = Z3StrExprBuilder
-					.mkStringVariable(encodedStringConstant);
-			buff.append(constDecl);
-			buff.append("\n");
-		}
-
-		for (String z3StrAssertion : z3StrAssertions) {
-			buff.append(z3StrAssertion);
+		SmtExprPrinter printer = new SmtExprPrinter();
+		for (SmtExpr smtExpr : smtAssertions) {
+			String smtExprString = smtExpr.accept(printer, null);
+			String assertion = mkAssert(smtExprString);
+			buff.append(assertion);
 			buff.append("\n");
 		}
 
