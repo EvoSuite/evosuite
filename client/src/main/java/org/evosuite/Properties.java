@@ -995,12 +995,6 @@ public class Properties {
 	@Parameter(key = "instrument_context", description = "Also instrument methods called from the SUT")
 	public static boolean INSTRUMENT_CONTEXT = false;
 
-	@Parameter(key = "callgraph_threads", description = "Number of threads used during the update of the callgraph")
-	public static int CALLGRAPH_THREADS = 8;
-	
-	@Parameter(key = "methods_per_thread", description = "Number of methods per threads used during the update of the callgraph")
-	public static int METHODS_PER_THREAD = 4000;
-	
 	@Parameter(key = "instrument_libraries", description = "Instrument the libraries used by the project under test")
 	public static boolean INSTRUMENT_LIBRARIES = false;
 	

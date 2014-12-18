@@ -201,39 +201,33 @@ public class CallGraphGenerator {
 	}
 
 	public static void update(CallGraph callGraph, InheritanceTree inheritanceTree) {
-		logger.info("update callgraph");
-		List<CallGraphEntry> entries = new ArrayList<>(callGraph.getViewOfCurrentMethods());
+		logger.info("Updating call tree ");
 
-		List<CallGraphUpdater> updaters = new ArrayList<>();
+		for (CallGraphEntry call : callGraph.getViewOfCurrentMethods()) {
 
-		List<Future<Boolean>> futures = new ArrayList<>();
+			String targetClass = call.getClassName();
+			String targetMethod = call.getMethodName();
 
-		int counter = 0;
-		for (int i = 0; i < entries.size(); i++) {
-			if (i % Properties.METHODS_PER_THREAD == 0 || i == entries.size() - 1) {
-				Set<CallGraphEntry> set = new HashSet<>();
-				set.addAll(entries.subList(counter, i));
-				updaters.add(new CallGraphUpdater(callGraph, set, inheritanceTree));
-				counter = i;
+			// Ignore constructors
+			if (targetMethod.startsWith("<init>"))
+				continue;
+			// Ignore calls to Array (e.g. clone())
+			if (targetClass.startsWith("["))
+				continue;
+			if (!inheritanceTree.hasClass(targetClass)) {
+				// Private classes are not in the inheritance tree
+				continue;
 			}
 
-		}
-
-		ExecutorService executor = Executors.newFixedThreadPool(Properties.CALLGRAPH_THREADS);
-
-		for (CallGraphUpdater callable : updaters) {
-			futures.add(executor.submit(callable));
-		}
-		for (Future<Boolean> future : futures) {
-			try {
-				future.get();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				e.printStackTrace();
+			// update graph
+			for (CallGraphEntry c : callGraph.getCallsFromMethod(call)) {
+				for (String subclass : inheritanceTree.getSubclasses(targetClass)) {
+					if (inheritanceTree.isMethodDefined(subclass, targetMethod)) {
+						callGraph.addCall(c.getClassName(), c.getMethodName(), subclass,
+								targetMethod);
+					}
+				}
 			}
-		} 
-		logger.info("callgraph updated");
-
+		}
 	}
 }
