@@ -39,7 +39,7 @@ public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<Ev
             testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
                     + varName + " = new "
                     + ((Class<?>) retval.getType()).getSimpleName() + "(\""
-                    + escapedAddress +", "+port + "\");\n";
+                    + escapedAddress +"\", "+port + ");\n";
         } else {
             testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
                     + varName + " = null;\n";
@@ -88,6 +88,9 @@ public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<Ev
             ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
             String host = constantPool.getRandomString();
             int port = constantPool.getRandomInt();
+            if(port<0){
+                port = 0;
+            }
             addr = new EvoSuiteRemoteAddress(host,port);
         }
 

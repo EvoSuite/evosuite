@@ -38,7 +38,7 @@ public class LocalAddressPrimitiveStatement extends EnvironmentDataStatement<Evo
             testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
                     + varName + " = new "
                     + ((Class<?>) retval.getType()).getSimpleName() + "(\""
-                    + escapedAddress +", "+port + "\");\n";
+                    + escapedAddress +"\", "+port + ");\n";
         } else {
             testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
                     + varName + " = null;\n";
