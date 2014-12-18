@@ -3,10 +3,7 @@ package org.evosuite.setup;
 import org.evosuite.Properties;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.System;
-import org.evosuite.runtime.testdata.EvoSuiteAddress;
-import org.evosuite.runtime.testdata.EvoSuiteURL;
-import org.evosuite.runtime.testdata.FileSystemHandling;
-import org.evosuite.runtime.testdata.NetworkHandling;
+import org.evosuite.runtime.testdata.*;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.evosuite.runtime.vnet.EndPointInfo;
@@ -126,11 +123,11 @@ public class EnvironmentTestClusterAugmenter {
             hasAddedUdpSupport = true;
             try {
                 TestCluster.getInstance().addTestCall(new GenericMethod(
-                        NetworkHandling.class.getMethod("sendUdpPacket", new Class<?>[]{EvoSuiteAddress.class, EvoSuiteAddress.class, byte[].class}),
+                        NetworkHandling.class.getMethod("sendUdpPacket", new Class<?>[]{EvoSuiteLocalAddress.class, EvoSuiteRemoteAddress.class, byte[].class}),
                         new GenericClass(NetworkHandling.class)
                 ));
                 TestCluster.getInstance().addTestCall(new GenericMethod(
-                        NetworkHandling.class.getMethod("sendUdpPacket", new Class<?>[]{EvoSuiteAddress.class, byte[].class}),
+                        NetworkHandling.class.getMethod("sendUdpPacket", new Class<?>[]{EvoSuiteLocalAddress.class, byte[].class}),
                         new GenericClass(NetworkHandling.class)
                 ));
             } catch (Exception e){
@@ -143,11 +140,11 @@ public class EnvironmentTestClusterAugmenter {
 
             try {
                 TestCluster.getInstance().addTestCall(new GenericMethod(
-                        NetworkHandling.class.getMethod("sendDataOnTcp", new Class<?>[]{EvoSuiteAddress.class, byte[].class}),
+                        NetworkHandling.class.getMethod("sendDataOnTcp", new Class<?>[]{EvoSuiteLocalAddress.class, byte[].class}),
                         new GenericClass(NetworkHandling.class)
                 ));
                 TestCluster.getInstance().addTestCall(new GenericMethod(
-                        NetworkHandling.class.getMethod("sendDataOnTcp", new Class<?>[]{EvoSuiteAddress.class, String.class}),
+                        NetworkHandling.class.getMethod("sendDataOnTcp", new Class<?>[]{EvoSuiteLocalAddress.class, String.class}),
                         new GenericClass(NetworkHandling.class)
                 ));
             } catch (Exception e){
@@ -160,7 +157,7 @@ public class EnvironmentTestClusterAugmenter {
 
             try {
                 TestCluster.getInstance().addTestCall(new GenericMethod(
-                        NetworkHandling.class.getMethod("openRemoteTcpServer", new Class<?>[]{EvoSuiteAddress.class}),
+                        NetworkHandling.class.getMethod("openRemoteTcpServer", new Class<?>[]{EvoSuiteRemoteAddress.class}),
                         new GenericClass(NetworkHandling.class)
                 ));
             } catch (Exception e){
