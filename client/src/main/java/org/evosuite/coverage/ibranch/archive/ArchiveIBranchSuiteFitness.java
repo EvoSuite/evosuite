@@ -46,7 +46,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 	/** Branchless methods map. */
 	private final Map<String, Map<CallContext, IBranchTestFitness>> methodsMap;
 
- 	private final TestsArchive bestChromoBuilder;
+	private final TestsArchive bestChromoBuilder;
 
 	private final Set<IBranchTestFitness> toRemoveBranchesT = new HashSet<>();
 	private final Set<IBranchTestFitness> toRemoveBranchesF = new HashSet<>();
@@ -117,7 +117,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 						goalsInTarget);
 
 	}
- 
+
 	private IBranchTestFitness getContextGoal(String classAndMethodName, CallContext context) {
 		if (methodsMap.get(classAndMethodName) == null
 				|| methodsMap.get(classAndMethodName).get(context) == null)
@@ -255,19 +255,18 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 		return fitness;
 	}
 
-	
 	@Override
 	public boolean updateCoveredGoals() {
 
 		for (IBranchTestFitness method : toRemoveRootBranches) {
 			boolean removed = branchGoals.remove(method);
-			
-			Map<CallContext, IBranchTestFitness> map = methodsMap.get(method.getTargetClass()
-					+ "." + method.getTargetMethod());
+
+			Map<CallContext, IBranchTestFitness> map = methodsMap.get(method.getTargetClass() + "."
+					+ method.getTargetMethod());
 
 			IBranchTestFitness f = map.remove(method.getContext());
 
-			if (removed && f!=null) {
+			if (removed && f != null) {
 				removedRootBranches.add(method);
 			} else {
 				throw new IllegalStateException("goal to remove not found");

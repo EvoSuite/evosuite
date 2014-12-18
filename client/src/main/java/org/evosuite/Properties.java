@@ -1246,6 +1246,12 @@ public class Properties {
 	@Parameter(key = "connection_data", group = "Runtime", description = "File in which connection data is stored")
 	public static String CONNECTION_DATA = "connection.xml";
 
+	/** Constant <code>CONNECTION_DATA="connection.xml"</code> */
+	@Parameter(key = "exclude_ibranches_cut", group = "Runtime", description = "Exclude ibranches in the cut, to speed up ibranch as secondary criterion")
+	public static boolean EXCLUDE_IBRANCHES_CUT = false;
+
+	
+	
 	/** Constant <code>CRITERION</code> */
 	@Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion")
 	public static Criterion[] CRITERION = new Criterion[] { Criterion.BRANCH };
