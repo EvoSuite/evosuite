@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.setup.Call;
 import org.evosuite.setup.CallContext;
@@ -180,7 +181,19 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	public Set<CallContext> getAllContextsFromTargetClass(String className, String methodName) {
 		CallGraphEntry root = new CallGraphEntry(className, methodName);
 		Set<List<CallGraphEntry>> paths = PathFinder.getPahts(graph, root);
-		return convertIntoCallContext(paths);
+		Set<CallContext> contexts = convertIntoCallContext(paths);
+		if(!Properties.EXCLUDE_IBRANCHES_CUT)
+			addPublicClassMethod(className, methodName, contexts);
+		return contexts;
+	}
+	
+	private void addPublicClassMethod(String className, String methodName, Set<CallContext> contexts){
+		List<Call> calls = new ArrayList<>();
+		Call call = new Call(className, methodName);
+		calls.add(call);
+		CallContext context = new CallContext(calls);
+		if(publicMethods.contains(context)&&className.equals(this.className))
+			contexts.add(context);	
 	}
 
 	private Set<CallContext> convertIntoCallContext(
