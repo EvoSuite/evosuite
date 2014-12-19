@@ -144,7 +144,7 @@ public class EnvironmentTestClusterAugmenter {
                         new GenericClass(NetworkHandling.class)
                 ));
                 TestCluster.getInstance().addTestCall(new GenericMethod(
-                        NetworkHandling.class.getMethod("sendDataOnTcp", new Class<?>[]{EvoSuiteLocalAddress.class, String.class}),
+                        NetworkHandling.class.getMethod("sendMessageOnTcp", new Class<?>[]{EvoSuiteLocalAddress.class, String.class}),
                         new GenericClass(NetworkHandling.class)
                 ));
             } catch (Exception e){
