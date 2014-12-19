@@ -52,6 +52,7 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 				goals.add(new IBranchTestFitness(branchGoal.getBranchGoal(), context));				
 			}
 		}
+		assert(goals.size()>=branchFactory.getCoverageGoals().size());
 		logger.info("Created " + goals.size() + " goals");
 		
 		return new ArrayList<IBranchTestFitness>(goals);

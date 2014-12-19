@@ -147,7 +147,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 		for (ExecutionResult result : results) {
 			// Determine minimum branch distance for each branch in each context
-			assert (result.getTrace().getTrueDistancesContext().keySet().size() != result
+			assert (result.getTrace().getTrueDistancesContext().keySet().size() == result
 					.getTrace().getFalseDistancesContext().keySet().size());
 
 			for (Integer branchId : result.getTrace().getTrueDistancesContext().keySet()) {
