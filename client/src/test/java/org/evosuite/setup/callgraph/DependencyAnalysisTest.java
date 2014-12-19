@@ -16,7 +16,7 @@ public class DependencyAnalysisTest {
 
 	@BeforeClass
 	public static void initialize() {
-		Properties.TARGET_CLASS = "com.examples.with.different.packagename.context.EntryPointsClass";
+		Properties.TARGET_CLASS = "com.examples.with.different.packagename.context.complex.EntryPointsClass";
 		Properties.CRITERION = new Criterion[1];
 		Properties.CRITERION[0]=Criterion.IBRANCH;
 		List<String> classpath = new ArrayList<>();
@@ -24,7 +24,7 @@ public class DependencyAnalysisTest {
 		try {
 			DependencyAnalysis
 					.analyze(
-							"com.examples.with.different.packagename.context.EntryPointsClass",
+							"com.examples.with.different.packagename.context.complex.EntryPointsClass",
 							classpath);
 		} catch (ClassNotFoundException | RuntimeException e) {
 			Assert.fail();
@@ -36,11 +36,12 @@ public class DependencyAnalysisTest {
 		String context1 = DependencyAnalysis
 				.getCallGraph()
 				.getAllContextsFromTargetClass(
-						"com.examples.with.different.packagename.context.SubClass",
+						"com.examples.with.different.packagename.context.complex.SubClass",
 						"checkFiftneen(I)Z").toString();
+
 		assertEquals(
 				context1,
-				"[com.examples.with.different.packagename.context.EntryPointsClass:dosmt(I)V com.examples.with.different.packagename.context.SubClass:checkFiftneen(I)Z]");
+				"[com.examples.with.different.packagename.context.complex.EntryPointsClass:dosmt(ILjava/lang/String;D)V com.examples.with.different.packagename.context.complex.SubClass:checkFiftneen(I)Z]");
 	}
 	
 	/**
@@ -51,13 +52,12 @@ public class DependencyAnalysisTest {
 		String context2 = DependencyAnalysis
 				.getCallGraph()
 				.getAllContextsFromTargetClass(
-						"com.examples.with.different.packagename.context.SubClass",
-						"bla(I)Z").toString();
-		System.out.println(DependencyAnalysis
-				.getCallGraph().getViewOfCurrentMethods());
+						"com.examples.with.different.packagename.context.complex.SubClass",
+						"bla(I)Z").toString(); 
+
 		assertEquals(
 				context2,
-				"[com.examples.with.different.packagename.context.EntryPointsClass:dosmt(I)V com.examples.with.different.packagename.context.SubClass:checkFiftneen(I)Z com.examples.with.different.packagename.context.SubClass:bla(I)Z]");
+				"[com.examples.with.different.packagename.context.complex.EntryPointsClass:dosmt(ILjava/lang/String;D)V com.examples.with.different.packagename.context.complex.SubClass:checkFiftneen(I)Z com.examples.with.different.packagename.context.complex.SubClass:bla(I)Z]");
 	}
 
 	/**
@@ -68,13 +68,23 @@ public class DependencyAnalysisTest {
 		String context2 = DependencyAnalysis
 				.getCallGraph()
 				.getAllContextsFromTargetClass(
-						"com.examples.with.different.packagename.context.SubSubClass",
-						"innermethod(I)Z").toString();
-		System.out.println(DependencyAnalysis
-				.getCallGraph().getViewOfCurrentMethods());
+						"com.examples.with.different.packagename.context.complex.SubSubClass",
+						"innermethod(I)Z").toString(); 
 		assertEquals(
 				context2,
-				"[com.examples.with.different.packagename.context.EntryPointsClass:dosmt(I)V com.examples.with.different.packagename.context.SubClass:checkFiftneen(I)Z com.examples.with.different.packagename.context.SubClass:bla(I)Z com.examples.with.different.packagename.context.SubSubClass:innermethod(I)Z]");
+				"[com.examples.with.different.packagename.context.complex.EntryPointsClass:dosmt(ILjava/lang/String;D)V com.examples.with.different.packagename.context.complex.SubClass:checkFiftneen(I)Z com.examples.with.different.packagename.context.complex.SubClass:bla(I)Z com.examples.with.different.packagename.context.complex.SubSubClass:innermethod(I)Z]");
+	}
+	
+	@Test
+	public void testContextInParamethers() {
+		String context2 = DependencyAnalysis
+				.getCallGraph()
+				.getAllContextsFromTargetClass(
+						"com.examples.with.different.packagename.context.complex.ParameterObject",
+						"isEnabled()Z").toString();
+		assertEquals(
+				context2,
+				"[com.examples.with.different.packagename.context.complex.EntryPointsClass:doObj(Lcom/examples/with/different/packagename/context/complex/AParameterObject;)V com.examples.with.different.packagename.context.complex.ParameterObject:isEnabled()Z]");
 	}
 	
 	//
