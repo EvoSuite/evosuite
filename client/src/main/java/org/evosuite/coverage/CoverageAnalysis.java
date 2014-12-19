@@ -68,6 +68,7 @@ public class CoverageAnalysis {
 		if (Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("ibranch")
 				|| Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("archiveibranch")) {
 			oldCriteria.add(Properties.Criterion.IBRANCH);
+			ExecutionTracer.enableContext();
 		}
 	    	    
 		if (!ExecutionTracer.isTraceCallsEnabled()) {
