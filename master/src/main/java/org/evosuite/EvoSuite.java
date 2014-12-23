@@ -163,6 +163,22 @@ public class EvoSuite {
                 }
             }
 
+            if (!line.hasOption("regressionSuite")) {
+                if (line.hasOption("criterion")) {
+                    //TODO should check if already defined
+                    javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
+
+                    //FIXME should really better handle the validation of javaOpts in the master, not client
+                    try {
+                        Properties.getInstance().setValue("criterion", line.getOptionValue("criterion"));
+                    } catch (Exception e) {
+                        throw new Error("Invalid value for criterion: "+e.getMessage());
+                    }
+                }
+            } else {
+                javaOpts.add("-Dcriterion=regression");
+            }
+
 			/*
 			 * FIXME: every time in the Master we set a parameter with -D,
 			 * we should check if it actually exists (ie detect typos)
@@ -176,13 +192,6 @@ public class EvoSuite {
 
             CommandLineParameters.handleJVMOptions(javaOpts, line);
 
-            if (!line.hasOption("regressionSuite")) {
-                if (line.hasOption("criterion")) {
-                    javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
-                }
-            } else {
-                javaOpts.add("-Dcriterion=regression");
-            }
 
             if (line.hasOption("base_dir")) {
                 base_dir_path = line.getOptionValue("base_dir");

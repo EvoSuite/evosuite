@@ -305,15 +305,15 @@ public enum RuntimeVariable {
 				valid = false;
 			}
 			
-			String criterion = null;
+			String[] criteria = null;
 			if(map.containsKey("criterion")){
-				criterion = map.get("criterion").toString();
+				criteria = map.get("criterion").toString().split(":");
 			}
 			
 			Double coverage = getDoubleValue(map,Coverage);
 			Double branchCoverage = getDoubleValue(map,BranchCoverage);
 			
-			if(criterion!=null && criterion.equalsIgnoreCase(Criterion.BRANCH.toString()) 
+			if(criteria!=null && criteria.length==1 && criteria[0].equalsIgnoreCase(Criterion.BRANCH.toString())
 					&& coverage!=null && branchCoverage!=null){
 				
 				double diff = Math.abs(coverage - branchCoverage);

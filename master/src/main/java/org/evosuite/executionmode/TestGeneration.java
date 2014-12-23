@@ -321,8 +321,8 @@ public class TestGeneration {
 		String definedEAforClient = null;
 		String definedEAforSUT = null;
 
-		final String DISABLE_ASSERTIONS_EVO = "-da:org...";
-		final String ENABLE_ASSERTIONS_EVO = "-ea:org...";
+		final String DISABLE_ASSERTIONS_EVO = "-da:org.evosuite...";
+		final String ENABLE_ASSERTIONS_EVO = "-ea:org.evosuite...";
 		final String DISABLE_ASSERTIONS_SUT = "-da:" + Properties.PROJECT_PREFIX + "...";
 		final String ENABLE_ASSERTIONS_SUT = "-ea:" + Properties.PROJECT_PREFIX + "...";
 
