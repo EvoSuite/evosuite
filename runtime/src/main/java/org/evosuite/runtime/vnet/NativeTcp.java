@@ -76,7 +76,9 @@ public class NativeTcp {
 	/**
 	 *  Read one byte from stream
 	 *  
-	 *   @return a value between 0 and 255 representing a byte, or -1 if stream is empty
+	 *   @return a value between 0 and 255 representing a byte, or -1 if stream is empty.
+     *   Note: in Java bytes are signed in -128,127, whereas here we need to return a unsigned
+     *   int representation
 	 */
 	public synchronized int readInSUTfromRemote(){
 		if(localBuffer.isEmpty()){
@@ -86,7 +88,7 @@ public class NativeTcp {
 			return -1;  
 		}
 		
-		return localBuffer.poll();
+		return localBuffer.poll() & 0xFF;
 	}
 	
 	/**
@@ -108,7 +110,7 @@ public class NativeTcp {
 		if(remoteBuffer.isEmpty()){
 			return -1;
 		}
-		return remoteBuffer.poll();
+		return remoteBuffer.poll() & 0xFF;
 	}
 
 	/**

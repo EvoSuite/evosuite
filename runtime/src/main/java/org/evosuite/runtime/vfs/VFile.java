@@ -53,6 +53,11 @@ public class VFile extends FSObject{
 		}
 	}
 
+    /**
+     * @return a converted unsigned int [0,255] representation of the [-128,127] byte at {@code position}.
+     * A -1 value represents the end of the file (ie position higher than size)
+     *
+     */
 	public synchronized int read(int position) throws IllegalArgumentException{
 		if(position<0){
 			throw new IllegalArgumentException("Position in the file cannot be negative");
@@ -62,7 +67,7 @@ public class VFile extends FSObject{
 			return -1; //this represent the end of the stream
 		}
 
-		return data.get(position);
+		return data.get(position) & 0xFF;
 	}
 
 	public synchronized int writeBytes(byte b[], int off, int len){

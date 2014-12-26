@@ -47,7 +47,9 @@ public class EvoRunner extends BlockJUnit4ClassRunner {
 		RuntimeSettings.resetStaticState = ep.resetStaticState();
 		RuntimeSettings.mockJVMNonDeterminism = ep.mockJVMNonDeterminism();
 		RuntimeSettings.useVFS = ep.useVFS();
-		RuntimeSettings.useSeparateClassLoader = ep.separateClassLoader();
+		RuntimeSettings.useVNET = ep.useVNET();
+        RuntimeSettings.useSeparateClassLoader = ep.separateClassLoader();
+
 
 		if(RuntimeSettings.useSeparateClassLoader) {
 			return getFromEvoSuiteClassloader(klass);
