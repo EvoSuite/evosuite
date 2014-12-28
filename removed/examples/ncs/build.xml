@@ -17,7 +17,7 @@
     EvoSuite. If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<project name="java-util" default="compile" basedir=".">
+<project name="java-util" default="compile" basedir="">
 
 <!-- ========== Properties ================================================ -->
 

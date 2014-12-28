@@ -203,7 +203,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	protected void accept(SocketImpl s) throws IOException {
 
 		if(! (s instanceof EvoSuiteSocket)){
-			throw new IOException("Can only hanlded mocked sockets");
+			throw new IOException("Can only handle mocked sockets");
 		}
 
 		EvoSuiteSocket mock = (EvoSuiteSocket) s;
