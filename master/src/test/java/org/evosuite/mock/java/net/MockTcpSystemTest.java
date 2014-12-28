@@ -1,17 +1,22 @@
 package org.evosuite.mock.java.net;
 
 import com.examples.with.different.packagename.mock.java.net.ReceiveTcp;
+import com.examples.with.different.packagename.mock.java.net.ReceiveTcp_noBranch;
 import com.examples.with.different.packagename.mock.java.net.ReceiveUdp;
 import com.examples.with.different.packagename.mock.java.net.SendTcp;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.TestSuiteGenerator;
+import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.List;
 
 /**
  * Created by arcuri on 12/19/14.
@@ -19,11 +24,51 @@ import org.junit.Test;
 public class MockTcpSystemTest extends SystemTest{
 
     private static final boolean VNET = Properties.VIRTUAL_NET;
+    private final boolean COMPOSITIONAL_FITNESS = Properties.COMPOSITIONAL_FITNESS;
 
     @After
     public void restoreProperties(){
         Properties.VIRTUAL_NET = VNET;
+        Properties.COMPOSITIONAL_FITNESS = COMPOSITIONAL_FITNESS;
     }
+
+
+    @Test
+    public void testReceiveTcp_noBranch(){
+        EvoSuite evosuite = new EvoSuite();
+
+        /*
+            as there is no branch, covering both boolean outputs with online line coverage
+            would not be possible. and so output coverage would be a necessity
+         */
+        String targetClass = ReceiveTcp_noBranch.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEARCH_BUDGET = 20000;
+        Properties.VIRTUAL_NET = true;
+
+        Properties.CRITERION = new Properties.Criterion[]{
+                Properties.Criterion.LINE,
+                Properties.Criterion.OUTPUT
+        };
+        Properties.COMPOSITIONAL_FITNESS = true;
+
+
+        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+        Object result = evosuite.parseCommandLine(command);
+        Assert.assertTrue(result != null);
+
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        List<TestFitnessFactory<? extends TestFitnessFunction>> list= TestSuiteGenerator.getFitnessFactory();
+
+        Assert.assertEquals(2 , list.size());
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
+
 
     @Test
     public void testReceiveTcp(){
