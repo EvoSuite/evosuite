@@ -81,15 +81,15 @@ public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<Ev
                 this is needed to handle the cases when the SUT get
                 an incoming message, and then check its remote address.
 
-                TODO: here we could validate if host/port valeus are
+                TODO: here we could validate if host/port values are
                 indeed valid. However, as this is kind of special case,
                 and likely not so common, it doesn't have high priority.
              */
             ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
             String host = constantPool.getRandomString();
             int port = constantPool.getRandomInt();
-            if(port<0){
-                port = 0;
+            if(port<=0){
+                port = 12345; //just a valid port number
             }
             addr = new EvoSuiteRemoteAddress(host,port);
         }

@@ -330,6 +330,15 @@ public class VirtualNetwork {
 		return remotePortIndex.getAndIncrement();
 	}
 
+    /**
+     * Create new port on local host
+     *
+     * @return a integer representing a port number on local host
+     */
+    public int getNewLocalEphemeralPort(){
+        return remotePortIndex.getAndIncrement(); //Note: could use a new variable, but doesn't really matter
+    }
+
 	/**
 	 * 
 	 * @param name
@@ -388,7 +397,8 @@ public class VirtualNetwork {
 	 * @return  {@code null} if the test case has not set up it an incoming TCP connection
 	 */
 	public synchronized NativeTcp pullTcpConnection(String localAddress, int localPort){
-		EndPointInfo local = new EndPointInfo(localAddress,localPort,ConnectionType.TCP);
+
+        EndPointInfo local = new EndPointInfo(localAddress,localPort,ConnectionType.TCP);
 		Queue<NativeTcp> queue = incomingConnections.get(local);
 		if(queue == null || queue.isEmpty()){
 			return null;
@@ -509,7 +519,7 @@ public class VirtualNetwork {
 
 			NetworkInterfaceState wifi = new NetworkInterfaceState(
 					"Evo_en0", 5, new byte[]{0, 42, 0, 42, 0, 42}, 
-					1500, false, MockInetAddress.getByName("142.42.42.42"));
+					1500, false, MockInetAddress.getByName("192.168.1.42"));
 			networkInterfaces.add(wifi);
 		} catch(Exception e){
 			//this should never happen

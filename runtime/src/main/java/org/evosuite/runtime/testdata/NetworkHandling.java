@@ -28,7 +28,7 @@ public class NetworkHandling {
 	 * Unless otherwise specified, we simulate incoming connections all
 	 * from same remote host
 	 */
-	private static final String DEFAULT_REMOTE_ADDRESS = "127.0.0.42";
+	private static final String DEFAULT_REMOTE_ADDRESS = "192.168.0.99";
 
 
     /**

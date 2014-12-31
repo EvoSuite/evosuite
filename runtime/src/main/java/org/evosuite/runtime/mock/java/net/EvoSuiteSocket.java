@@ -34,10 +34,18 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 	private NativeTcp openedConnection;
 
-	private boolean isClosed;
+	private volatile boolean isClosed;
+
+    private volatile boolean isBound;
 
 	/**
-	 *  whether this Socket is a stream (TCP) socket or not (UDP)
+	 *  whether this Socket is a stream (TCP) socket or not (UDP).
+     *
+     *  Note: this is is actually deprecated:
+     *  "Socket(InetAddress host, int port, boolean stream)
+     *    Deprecated.
+     *    Use DatagramSocket instead for UDP transport.
+     *  "
 	 */
 	protected boolean stream;
 
@@ -46,6 +54,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 		options = new ConcurrentHashMap<>();
 		initOptions();
 		isClosed = false;
+        isBound = false;
 	}
 
 	public EvoSuiteSocket(Proxy proxy){
@@ -98,14 +107,17 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	@Override
 	protected synchronized void create(boolean stream) throws IOException {
 		this.stream = stream;
-		if (!stream) {
+
+        if (!stream) {
 				socketCreate(false);
 		} else {
 			socketCreate(true);
 		}
-		if (socket != null)
+
+        if (socket != null)
 			socket.setCreated();
-		if (serverSocket != null)
+
+        if (serverSocket != null)
 			serverSocket.setCreated();
 
 	}
@@ -117,55 +129,38 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	@Override
 	protected void connect(String host, int port) throws UnknownHostException, IOException {
 		//from AbstractPlainSocketImpl
-		boolean connected = false;
-		try {
-			InetAddress address = InetAddress.getByName(host);
-			this.port = port;
-			this.address = address;
-
-			connectToAddress(address, port, getTimeout()); 
-			connected = true;
-		} finally {
-			if (!connected) {
-				try {
-					close();
-				} catch (IOException ioe) {
-					/* Do nothing. If connect threw an exception then
-                       it will be passed up the call stack */
-				}
-			}
-		}
-
+        connect(new MockInetSocketAddress(MockInetAddress.getByName(host),port), getTimeout());
 	}
 
 	@Override
 	protected void connect(InetAddress address, int port) throws IOException {
 		//from AbstractPlainSocketImpl
-		this.port = port;
-		this.address = address;
-
-		try {
-			connectToAddress(address, port, getTimeout()); 
-			return;
-		} catch (IOException e) {
-			// everything failed
-			close();
-			throw e;
-		}
+		connect(new MockInetSocketAddress(address,port), getTimeout());
 	}
 
 	@Override
-	protected void connect(SocketAddress address, int timeout)
+	protected void connect(SocketAddress remoteAddress, int timeout)
 			throws IOException {
-		//from AbstractPlainSocketImpl, and TODO overridden in SocksSocketImpl
-		boolean connected = false;
-		try {
-			if (address == null || !(address instanceof InetSocketAddress))
+
+		//from AbstractPlainSocketImpl, and check overridden in SocksSocketImpl (this latter not considered here)
+
+        if(!isBound){
+            InetAddress localHost = MockInetAddress.anyLocalAddress(); //TODO check if it was already bound to a specific interface?
+            int localPort = VirtualNetwork.getInstance().getNewLocalEphemeralPort();
+            bind(localHost,localPort);
+        }
+
+        boolean connected = false;
+
+        try {
+			if (remoteAddress == null || !(remoteAddress instanceof InetSocketAddress))
 				throw new IllegalArgumentException("unsupported address type");
-			InetSocketAddress addr = (InetSocketAddress) address;
+
+            InetSocketAddress addr = (InetSocketAddress) remoteAddress;
 			if (addr.isUnresolved())
 				throw new UnknownHostException(addr.getHostName());
-			this.port = addr.getPort();
+
+            this.port = addr.getPort();
 			this.address = addr.getAddress();
 
 			connectToAddress(this.address, port, timeout);
@@ -184,19 +179,20 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	}
 
 	@Override
-	protected void bind(InetAddress host, int port) throws IOException {		
-		//TODO: need to check special cases like multicast and 0.0.0.0
+	protected void bind(InetAddress host, int port) throws IOException {
+		//TODO: need to check special cases like multicast
 		boolean opened = VirtualNetwork.getInstance().openTcpServer(host.getHostAddress(), port);
 		if(!opened){
-			throw new IOException("Failed to opened TCP port");
+			throw new IOException("Failed to open TCP port");
 		}
 		super.localport = port;
-		setOption(SocketOptions.SO_BINDADDR, host);		
+		setOption(SocketOptions.SO_BINDADDR, host);
+        isBound = true;
 	}
 
 	@Override
 	protected void listen(int backlog) throws IOException {
-		// TODO 		
+		// TODO
 	}
 
 	@Override
@@ -265,6 +261,11 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 	protected void connectToAddress(InetAddress address, int port, int timeout) throws IOException {
 		if (address.isAnyLocalAddress()) {
+            /*
+                this might be a bit confusing:
+                it means that, if ones starts an outgoing connection to 0.0.0.0, it will be
+                redirected to the IP of the local host
+             */
 			doConnect(InetAddress.getLocalHost(), port, timeout);
 		} else {
 			doConnect(address, port, timeout);
@@ -272,14 +273,14 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	}
 
 	protected synchronized void doConnect(InetAddress address, int port, int timeout) throws IOException {
-		EndPointInfo remoteTarget = new EndPointInfo(address.getHostAddress(), port, ConnectionType.TCP);
+
+        EndPointInfo remoteTarget = new EndPointInfo(address.getHostAddress(), port, ConnectionType.TCP);
 		
-		InetSocketAddress isa = new InetSocketAddress(0);// FIXME
-		EndPointInfo localOrigin = new EndPointInfo(isa.getAddress().getHostAddress(), isa.getPort(), ConnectionType.TCP);
+		InetAddress localHost = (InetAddress) getOption(SocketOptions.SO_BINDADDR);
+
+        EndPointInfo localOrigin = new EndPointInfo(localHost.getHostAddress(), localport, ConnectionType.TCP);
 		this.openedConnection = VirtualNetwork.getInstance().connectToRemoteAddress(localOrigin, remoteTarget);
 		
-		this.setOption(SocketOptions.SO_BINDADDR, isa.getAddress());
-		this.setLocalPort(isa.getPort());
 		this.setRemoteAddress(address);
 		this.setRemotePort(port);
 	}
