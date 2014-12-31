@@ -30,13 +30,13 @@ public class MockInetSocketAddress extends InetSocketAddress implements Override
 	}
 
 	public MockInetSocketAddress(InetAddress addr, int port) {
-		super(addr == null ? MockInetAddress.anyLocalAddress() : addr, port); //FIXME InetAddress.anyLocalAddress()
+		super(addr == null ? MockInetAddress.anyLocalAddress() : addr, port); //TODO need to handle port 0?
 	}
 
 	private static InetAddress getResolvedAddressed(String hostname){
 		checkHost(hostname);
 		try {
-			return InetAddress.getByName(hostname);
+			return MockInetAddress.getByName(hostname);
 		} catch(UnknownHostException e) {
 			logger.warn("EvoSuite limitation: unsupported case of hostname resolution for "+hostname);
 			return null;

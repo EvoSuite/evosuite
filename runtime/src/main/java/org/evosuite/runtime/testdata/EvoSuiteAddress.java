@@ -28,6 +28,9 @@ public abstract class EvoSuiteAddress implements Serializable {
 		if(port < 0){
 			throw new IllegalArgumentException("Port cannot be negative");
 		}
+        if(port == 0){
+            throw new IllegalArgumentException("Cannot specify an unbound port 0 in a test");
+        }
 		this.host = host;
 		this.port = port;
 	}

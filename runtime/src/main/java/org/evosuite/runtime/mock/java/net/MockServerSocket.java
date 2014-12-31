@@ -335,8 +335,7 @@ public class MockServerSocket extends ServerSocket implements OverrideMock {
 		
 		InetAddress in = impl.getInetAddress();
 
-		return "ServerSocket[addr=" + in +
-				",localport=" + impl.getLocalPort()  + "]";
+		return "ServerSocket[addr=" + in + ",localport=" + impl.getLocalPort()  + "]";
 	}
 
 
