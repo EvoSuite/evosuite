@@ -20,6 +20,8 @@
  */
 package org.evosuite.runtime.instrumentation;
 
+import java.util.Arrays;
+
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.MockList;
 import org.objectweb.asm.ClassVisitor;
@@ -103,6 +105,11 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 		superClassName = superNameWithDots;
 		if((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE)
 			isInterface = true;
+		else {
+			String[] mockedInterfaces = Arrays.copyOf(interfaces, interfaces.length + 1);
+			mockedInterfaces[interfaces.length] = InstrumentedClass.class.getCanonicalName().replace('.', '/');
+			interfaces = mockedInterfaces;
+		}
 		
 		if(MockList.shouldBeMocked(superNameWithDots)) {
 			
