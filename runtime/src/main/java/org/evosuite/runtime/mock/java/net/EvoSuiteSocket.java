@@ -146,8 +146,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
         if(!isBound){
             InetAddress localHost = MockInetAddress.anyLocalAddress(); //TODO check if it was already bound to a specific interface?
-            int localPort = VirtualNetwork.getInstance().getNewLocalEphemeralPort();
-            bind(localHost,localPort);
+            bind(localHost,0);
         }
 
         boolean connected = false;
@@ -180,6 +179,11 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 	@Override
 	protected void bind(InetAddress host, int port) throws IOException {
+
+        if(port == 0){
+            port = VirtualNetwork.getInstance().getNewLocalEphemeralPort();
+        }
+
 		//TODO: need to check special cases like multicast
 		boolean opened = VirtualNetwork.getInstance().openTcpServer(host.getHostAddress(), port);
 		if(!opened){

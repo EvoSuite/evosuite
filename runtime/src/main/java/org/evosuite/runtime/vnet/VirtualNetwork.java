@@ -416,7 +416,7 @@ public class VirtualNetwork {
 	 * @param addr
 	 * @return {@code false} if it was not possible to open the listening port
 	 */
-    public synchronized boolean  openTcpServer(String addr, int port){
+    public synchronized boolean  openTcpServer(String addr, int port) throws IllegalArgumentException{
         return openServer(addr,port,ConnectionType.TCP);
     }
 
@@ -425,12 +425,17 @@ public class VirtualNetwork {
      * @param addr
      * @return {@code false} if it was not possible to open the listening port
      */
-    public synchronized boolean  openUdpServer(String addr, int port){
+    public synchronized boolean  openUdpServer(String addr, int port) throws IllegalArgumentException{
         return openServer(addr,port,ConnectionType.UDP);
     }
 
 
-    private boolean openServer(String addr, int port, ConnectionType type){
+    private boolean openServer(String addr, int port, ConnectionType type) throws IllegalArgumentException{
+
+        if(port == 0){
+            throw new IllegalArgumentException("Cannot try to bind to wildcard port 0");
+        }
+
         EndPointInfo info = new EndPointInfo(addr,port,type);
 
         if(localListeningPorts.contains(info)){

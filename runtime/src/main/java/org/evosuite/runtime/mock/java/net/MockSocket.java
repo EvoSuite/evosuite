@@ -10,19 +10,13 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.SocketImpl;
 import java.net.SocketImplFactory;
 import java.net.SocketOptions;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
 
 public class MockSocket extends Socket implements OverrideMock {
 	
@@ -84,45 +78,45 @@ public class MockSocket extends Socket implements OverrideMock {
 
 
 	public MockSocket(String host, int port)throws UnknownHostException, IOException {
-		this(host != null ? new InetSocketAddress(host, port) :
-			new InetSocketAddress(InetAddress.getByName(null), port),
+		this(host != null ? new MockInetSocketAddress(host, port) :
+			new MockInetSocketAddress(MockInetAddress.getByName(null), port),
 			(SocketAddress) null, true);
 	}
 
 
 	public MockSocket(InetAddress address, int port) throws IOException {
-		this(address != null ? new InetSocketAddress(address, port) : null,
+		this(address != null ? new MockInetSocketAddress(address, port) : null,
 				(SocketAddress) null, true);
 	}
 
 
 	public MockSocket(String host, int port, InetAddress localAddr,
 			int localPort) throws IOException {
-		this(host != null ? new InetSocketAddress(host, port) :
-			new InetSocketAddress(InetAddress.getByName(null), port),
-			new InetSocketAddress(localAddr, localPort), true);
+		this(host != null ? new MockInetSocketAddress(host, port) :
+			new MockInetSocketAddress(InetAddress.getByName(null), port),
+			new MockInetSocketAddress(localAddr, localPort), true);
 	}
 
 
 	public MockSocket(InetAddress address, int port, InetAddress localAddr,
 			int localPort) throws IOException {
-		this(address != null ? new InetSocketAddress(address, port) : null,
-				new InetSocketAddress(localAddr, localPort), true);
+		this(address != null ? new MockInetSocketAddress(address, port) : null,
+				new MockInetSocketAddress(localAddr, localPort), true);
 	}
 
 
 
 	public MockSocket(String host, int port, boolean stream) throws IOException {
-		this(host != null ? new InetSocketAddress(host, port) :
-			new InetSocketAddress(InetAddress.getByName(null), port),
+		this(host != null ? new MockInetSocketAddress(host, port) :
+			new MockInetSocketAddress(InetAddress.getByName(null), port),
 			(SocketAddress) null, stream);
 	}
 
 
 
 	public MockSocket(InetAddress host, int port, boolean stream) throws IOException {
-		this(host != null ? new InetSocketAddress(host, port) : null,
-				new InetSocketAddress(0), stream);
+		this(host != null ? new MockInetSocketAddress(host, port) : null,
+				new MockInetSocketAddress(0), stream);
 	}
 
 	private MockSocket(SocketAddress address, SocketAddress localAddr,
@@ -252,7 +246,7 @@ public class MockSocket extends Socket implements OverrideMock {
 		if (epoint != null && epoint.isUnresolved())
 			throw new SocketException("Unresolved address");
 		if (epoint == null) {
-			epoint = new InetSocketAddress(0);
+			epoint = new MockInetSocketAddress(0);
 		}
 		InetAddress addr = epoint.getAddress();
 		int port = epoint.getPort();

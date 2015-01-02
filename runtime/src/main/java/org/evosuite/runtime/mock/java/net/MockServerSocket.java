@@ -134,7 +134,7 @@ public class MockServerSocket extends ServerSocket implements OverrideMock {
 		if (!oldImpl && isBound())
 			throw new SocketException("Already bound");
 		if (endpoint == null)
-			endpoint = new InetSocketAddress(0); //FIXME 
+			endpoint = new MockInetSocketAddress(0);
 		if (!(endpoint instanceof InetSocketAddress))
 			throw new IllegalArgumentException("Unsupported address type");
 		
