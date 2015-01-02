@@ -110,8 +110,7 @@ public class Scaffolding {
     public static List<String> getScaffoldingImports(boolean wasSecurityException, List<ExecutionResult> results) {
         List<String> list = new ArrayList<String>();
 
-        if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-                || Properties.RESET_STATIC_FIELDS || wasSecurityException
+        if (TestSuiteWriterUtils.needToUseAgent() || wasSecurityException
                 || SystemInUtil.getInstance().hasBeenUsed() || !Properties.NO_RUNTIME_DEPENDENCY) {
             list.add(org.junit.BeforeClass.class.getCanonicalName());
             list.add(org.junit.Before.class.getCanonicalName());
@@ -368,8 +367,7 @@ public class Scaffolding {
             bd.append(Sandbox.class.getName() + ".doneWithExecutingSUTCode(); \n");
         }
 
-        if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-                || Properties.RESET_STATIC_FIELDS) {
+        if (TestSuiteWriterUtils.needToUseAgent()) {
             bd.append(BLOCK_SPACE);
             bd.append(InstrumentingAgent.class.getName() + ".deactivate(); \n");
         }
@@ -462,8 +460,7 @@ public class Scaffolding {
         }
 
 
-        if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-                || Properties.RESET_STATIC_FIELDS) {
+        if (TestSuiteWriterUtils.needToUseAgent()) {
             bd.append(BLOCK_SPACE);
             bd.append(org.evosuite.runtime.Runtime.class.getName() + ".getInstance().resetRuntime(); \n");
             bd.append(BLOCK_SPACE);
@@ -566,8 +563,7 @@ public class Scaffolding {
 
     private void generateBeforeClass(StringBuilder bd, boolean wasSecurityException) {
 
-        if (!wasSecurityException && !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS
-                && !Properties.RESET_STATIC_FIELDS) {
+        if (!wasSecurityException && !TestSuiteWriterUtils.needToUseAgent()) {
             return;
         }
 
@@ -638,8 +634,7 @@ public class Scaffolding {
             bd.append("initializeClasses();" + "\n");
         }
 
-        if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-                || Properties.RESET_STATIC_FIELDS) {
+        if (TestSuiteWriterUtils.needToUseAgent()) {
             bd.append(BLOCK_SPACE);
             bd.append(org.evosuite.runtime.Runtime.class.getName() + ".getInstance().resetRuntime(); \n");
         }
