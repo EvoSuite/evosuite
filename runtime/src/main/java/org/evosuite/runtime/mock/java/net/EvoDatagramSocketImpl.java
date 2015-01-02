@@ -48,6 +48,11 @@ public class EvoDatagramSocketImpl extends DatagramSocketImpl{
 
     @Override
     public void bind(int lport, InetAddress laddr) throws SocketException {
+
+        if(lport == 0){
+            lport = VirtualNetwork.getInstance().getNewLocalEphemeralPort();
+        }
+
         localPort = lport;
         localHost = laddr.getHostAddress();
         VirtualNetwork.getInstance().openUdpServer(localHost,localPort);
