@@ -177,13 +177,18 @@ public class CheapPurityAnalyzer {
 		InheritanceTree inheritanceTree = DependencyAnalysis
 				.getInheritanceTree();
 
-		if (!inheritanceTree.hasClass(entry.className)) {
-			logger.warn(entry.className
+		String className = ""+entry.className;
+		while(className.contains("[L")) {
+			className = className.substring(2, className.length()-1);
+		}
+		
+		if (!inheritanceTree.hasClass(className)) {
+			logger.warn(className
 					+ " was not found in the inheritance tree. Using DEFAULT value for cheap-purity analysis");
 			return DEFAULT_PURITY_VALUE;
 		}
 
-		Set<String> subclasses = inheritanceTree.getSubclasses(entry.className);
+		Set<String> subclasses = inheritanceTree.getSubclasses(className);
 		for (String subclassName : subclasses) {
 			if (!entry.className.equals(subclassName)) {
 
