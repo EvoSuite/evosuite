@@ -26,6 +26,7 @@ import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
+import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.runtime.instrumentation.AnnotatedClassNode;
 import org.evosuite.runtime.instrumentation.CreateClassResetClassAdapter;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementClassAdapter;
@@ -304,7 +305,7 @@ public class BytecodeInstrumentation {
 
 		// Replace calls to System.exit, Random.*, and System.currentTimeMillis
 		// and/or replace calls to FileInputStream.available and FIS.skip
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS) {
+		if (TestSuiteWriterUtils.needToUseAgent()) {
 			cv = new MethodCallReplacementClassAdapter(cv, className);
 		}
 
