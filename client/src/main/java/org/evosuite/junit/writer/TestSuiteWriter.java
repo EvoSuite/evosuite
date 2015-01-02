@@ -325,15 +325,11 @@ public class TestSuiteWriter implements Opcodes {
         boolean wasSecurityException = TestSuiteWriterUtils.hasAnySecurityException(results);
 
         for (ExecutionResult result : results) {
+        	visitor.setExceptions(result.exposeExceptionMapping());
             result.test.accept(visitor);
-
-            // Also include thrown exceptions
-            for (Throwable t : result.getAllThrownExceptions()) {
-                visitor.getClassName(t.getClass());
-            }
-
             imports.addAll(visitor.getImports());
         }
+        visitor.clearExceptions();
 
         if (Properties.RESET_STANDARD_STREAMS) {
             imports.add(PrintStream.class);
@@ -392,6 +388,7 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(";\n");
         }
         builder.append("\n");
+
         return builder.toString();
     }
 
