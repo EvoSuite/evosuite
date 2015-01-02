@@ -721,7 +721,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 						+ getInstructionType();
 			}
 			return "UNKNOWN Branch I" + instructionId + " "
-					+ getInstructionType();
+					+ getInstructionType() +", jump to "+((JumpInsnNode)asmNode).label.getLabel();
 
 			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}
