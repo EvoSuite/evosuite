@@ -240,7 +240,7 @@ public class MethodCallReplacementCache {
                 handleStaticReplacementMethods(mock);
             } else if (StaticReplacementMock.class.isAssignableFrom(mock)) {
 
-                String mockedName;
+            	String mockedName;
                 try {
                     mockedName = ((StaticReplacementMock) mock.newInstance()).getMockedClassName();
                 } catch (InstantiationException | IllegalAccessException e1) {
@@ -258,6 +258,7 @@ public class MethodCallReplacementCache {
 
                 replaceAllStaticMethods(mock, mocked);
                 replaceAllInstanceMethodsWithStatic(mock, mocked);
+                replaceAllConstructorsWithStaticCalls(mock, mocked);
             }
         }
     }
@@ -520,6 +521,27 @@ public class MethodCallReplacementCache {
                     target.getCanonicalName().replace('.', '/'), "<init>", desc, Opcodes.INVOKESPECIAL,
                     mockClass.getCanonicalName().replace('.', '/'), "<init>", desc,
                     false, false));
+        }
+    }
+    
+    /**
+     * Replace all the constructors of {@code target} with a static call (with
+     * same input parameters) of static mock class {@code mockClass}.
+     *
+     * @param mockClass
+     * @param target
+     * @throws IllegalArgumentException
+     */
+    private void replaceAllConstructorsWithStaticCalls(Class<?> mockClass, Class<?> target)
+            throws IllegalArgumentException {
+
+        for (Constructor<?> constructor : target.getConstructors()) {
+            String desc = Type.getConstructorDescriptor(constructor);
+            String replacementDesc = desc.substring(0, desc.length() - 1) + Type.getDescriptor(target);
+            addReplacementCall(new MethodCallReplacement(
+                    target.getCanonicalName().replace('.', '/'), "<init>", desc, Opcodes.INVOKESPECIAL,
+                    mockClass.getCanonicalName().replace('.', '/'), target.getSimpleName(), replacementDesc,
+                    true, true));
         }
     }
 
