@@ -42,6 +42,7 @@ import org.evosuite.executionmode.MeasureCoverage;
 import org.evosuite.executionmode.PrintStats;
 import org.evosuite.executionmode.Setup;
 import org.evosuite.executionmode.TestGeneration;
+import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.runtime.agent.ToolsJarLocator;
 import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.evosuite.setup.InheritanceTree;
@@ -140,7 +141,7 @@ public class EvoSuite {
 
             setupProperties();
 
-            if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
+            if (TestSuiteWriterUtils.needToUseAgent()) {
 				/*
 				 * if we need to activate JavaAgent (eg to handle environment in generated tests), we need
 				 * to be sure we can use tools.jar
