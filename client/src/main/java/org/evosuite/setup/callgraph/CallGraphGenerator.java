@@ -18,16 +18,22 @@
 /**
  * 
  */
-package org.evosuite.setup;
+package org.evosuite.setup.callgraph;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.evosuite.Properties;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
-import org.evosuite.utils.LoggingUtils;
+import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.InheritanceTree;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -38,24 +44,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Gordon Fraser
+ * Generate the call graph, the class is a modification of the CallTreeGenerator
+ * class.
+ * 
+ * @author mattia, Gordon Fraser
  * 
  */
-public class CallTreeGenerator {
+public class CallGraphGenerator {
+	
+	private static Logger logger = LoggerFactory.getLogger(CallGraphGenerator.class);
 
-	private static Logger logger = LoggerFactory.getLogger(CallTreeGenerator.class);
+	public static CallGraph analyze(String className) {
+		ClassNode targetClass = DependencyAnalysis.getClassNode(className);
+		CallGraph callgraph = new CallGraph(className);
+		if (targetClass != null)
+			handle(callgraph, targetClass, 0);
+		if (Properties.INSTRUMENT_PARENT) {
+			handleSuperClasses(callgraph, targetClass);
+		}
+		return callgraph;
+	}
 
-	public static CallTree analyze(String className) {
+	public static CallGraph analyzeOtherClasses(CallGraph callgraph, String className) {
 		ClassNode targetClass = DependencyAnalysis.getClassNode(className);
 
-		CallTree callTree = new CallTree(className);
 		if (targetClass != null)
-			handle(callTree, targetClass, 0);
-		if (Properties.INSTRUMENT_PARENT) {
-			handleSuperClasses(callTree, targetClass);
-		}
-		return callTree;
-	}
+			handle(callgraph, targetClass, 0);
+		return callgraph;
+	} 
 
 	private static boolean isOverridden(String methodName) {
 		return true;
@@ -69,7 +85,7 @@ public class CallTreeGenerator {
 	 * @param targetClass
 	 */
 	@SuppressWarnings("unchecked")
-	private static void handleSuperClasses(CallTree callTree, ClassNode targetClass) {
+	private static void handleSuperClasses(CallGraph callGraph, ClassNode targetClass) {
 		String superClassName = targetClass.superName;
 		if (superClassName == null || superClassName.isEmpty())
 			return;
@@ -96,40 +112,38 @@ public class CallTreeGenerator {
 			// Do not handle classes if they are overridden by the subclass
 			if ((mn.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
 				if (!isOverridden(mn.name + mn.desc)) {
-					handleMethodNode(callTree, superClass, mn, 0);
+					handleMethodNode(callGraph, superClass, mn, 0);
 				}
 			}
 		}
-		handleSuperClasses(callTree, superClass);
-
+		handleSuperClasses(callGraph, superClass);
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private static void handle(CallTree callTree, ClassNode targetClass, int depth) {
+	private static void handle(CallGraph callGraph, ClassNode targetClass, int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			logger.debug("Method: " + mn.name);
-			handleMethodNode(callTree, targetClass, mn, depth);
+			handleMethodNode(callGraph, targetClass, mn, depth);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void handle(CallTree callTree, ClassNode targetClass,
-	        String methodName, int depth) {
+	private static void handle(CallGraph callGraph, ClassNode targetClass, String methodName,
+			int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			if (methodName.equals(mn.name + mn.desc))
-				handleMethodNode(callTree, targetClass, mn, depth);
+				handleMethodNode(callGraph, targetClass, mn, depth);
 		}
 	}
 
-	private static void handle(CallTree callTree, String className, String methodName,
-	        int depth) {
+	private static void handle(CallGraph callGraph, String className, String methodName, int depth) {
 		ClassNode cn = DependencyAnalysis.getClassNode(className);
 		if (cn == null)
 			return;
 
-		handle(callTree, cn, methodName, depth);
+		handle(callGraph, cn, methodName, depth);
 	}
 
 	/**
@@ -139,9 +153,8 @@ public class CallTreeGenerator {
 	 * @param mn
 	 */
 	@SuppressWarnings("unchecked")
-	private static void handleMethodNode(CallTree callTree, ClassNode cn, MethodNode mn,
-	        int depth) {
-		handlePublicMethodNode(callTree, cn, mn);
+	private static void handleMethodNode(CallGraph callGraph, ClassNode cn, MethodNode mn, int depth) {
+		handlePublicMethodNode(callGraph, cn, mn);
 
 		InsnList instructions = mn.instructions;
 		Iterator<AbstractInsnNode> iterator = instructions.iterator();
@@ -150,15 +163,14 @@ public class CallTreeGenerator {
 		while (iterator.hasNext()) {
 			AbstractInsnNode insn = iterator.next();
 			if (insn instanceof MethodInsnNode) {
-				handleMethodInsnNode(callTree, cn, mn, (MethodInsnNode) insn, depth + 1);
+				handleMethodInsnNode(callGraph, cn, mn, (MethodInsnNode) insn, depth + 1);
 			}
 		}
 	}
 
-	private static void handlePublicMethodNode(CallTree callTree, ClassNode cn,
-	        MethodNode mn) {
+	private static void handlePublicMethodNode(CallGraph callGraph, ClassNode cn, MethodNode mn) {
 		if ((mn.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
-			callTree.addPublicMethod(cn.name, mn.name + mn.desc);
+			callGraph.addPublicMethod(cn.name, mn.name + mn.desc);
 		}
 	}
 
@@ -169,65 +181,53 @@ public class CallTreeGenerator {
 	 * @param mn
 	 * @param methodCall
 	 */
-	private static void handleMethodInsnNode(CallTree callTree, ClassNode cn,
-	        MethodNode mn, MethodInsnNode methodCall, int depth) {
+	private static void handleMethodInsnNode(CallGraph callGraph, ClassNode cn, MethodNode mn,
+			MethodInsnNode methodCall, int depth) {
 
 		// Only build calltree for instrumentable classes
-		if (BytecodeInstrumentation.checkIfCanInstrument(methodCall.owner.replaceAll("/",
-		                                                                              "."))) {
+		if (BytecodeInstrumentation.checkIfCanInstrument(methodCall.owner.replaceAll("/", "."))) {
 			logger.debug("Handling method: " + methodCall.name);
-			if (!callTree.hasCall(cn.name, mn.name + mn.desc, methodCall.owner,
-			                      methodCall.name + methodCall.desc)) {
+			if (!callGraph.hasCall(cn.name, mn.name + mn.desc, methodCall.owner, methodCall.name
+					+ methodCall.desc)) {
 
 				// Add call from mn to methodCall to callgraph
-				callTree.addCall(cn.name, mn.name + mn.desc, methodCall.owner,
-				                 methodCall.name + methodCall.desc);
+				if (callGraph.addCall(cn.name, mn.name + mn.desc, methodCall.owner, methodCall.name
+						+ methodCall.desc)) {
 
-				handle(callTree, methodCall.owner, methodCall.name + methodCall.desc,
-				       depth);
+					handle(callGraph, methodCall.owner, methodCall.name + methodCall.desc, depth);
+				}
 			}
 		}
 	}
 
-	/**
-	 * Update connections in the call tree according to the inheritance: For
-	 * each connection, if the method is overridden in a subclass add a
-	 * connection to the method in the subclass
-	 * 
-	 * @param callTree
-	 * @param inheritanceTree
-	 */
-	static void update(CallTree callTree, InheritanceTree inheritanceTree) {
+	public static void update(CallGraph callGraph, InheritanceTree inheritanceTree) {
 		logger.info("Updating call tree ");
 
-		Set<CallTreeEntry> subclassCalls = new LinkedHashSet<CallTreeEntry>();
-		for (CallTreeEntry call : callTree) {
-			String targetClass = call.getTargetClass();
-			String targetMethod = call.getTargetMethod();
+		for (CallGraphEntry call : callGraph.getViewOfCurrentMethods()) {
+
+			String targetClass = call.getClassName();
+			String targetMethod = call.getMethodName();
 
 			// Ignore constructors
 			if (targetMethod.startsWith("<init>"))
 				continue;
-
 			// Ignore calls to Array (e.g. clone())
 			if (targetClass.startsWith("["))
 				continue;
-
 			if (!inheritanceTree.hasClass(targetClass)) {
 				// Private classes are not in the inheritance tree
-				//LoggingUtils.getEvoLogger().warn("Inheritance tree does not contain {}, please check classpath",
-				//                                 targetClass);
 				continue;
 			}
 
-			for (String subclass : inheritanceTree.getSubclasses(targetClass)) {
-				if (inheritanceTree.isMethodDefined(subclass, targetMethod)) {
-					subclassCalls.add(new CallTreeEntry(call.getSourceClass(),
-					        call.getSourceMethod(), subclass, targetMethod));
+			// update graph
+			for (CallGraphEntry c : callGraph.getCallsFromMethod(call)) {
+				for (String subclass : inheritanceTree.getSubclasses(targetClass)) {
+					if (inheritanceTree.isMethodDefined(subclass, targetMethod)) {
+						callGraph.addCall(c.getClassName(), c.getMethodName(), subclass,
+								targetMethod);
+					}
 				}
 			}
 		}
-		callTree.addCalls(subclassCalls);
 	}
-
 }

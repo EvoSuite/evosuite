@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class SecondaryObjective implements Serializable {
+public abstract class SecondaryObjective<T extends Chromosome> implements Serializable {
 
 	private static final long serialVersionUID = -4117187516650844086L;
 
@@ -46,7 +46,7 @@ public abstract class SecondaryObjective implements Serializable {
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a int.
 	 */
-	public abstract int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2);
+	public abstract int compareChromosomes(T chromosome1, T chromosome2);
 
 	/**
 	 * Compare two parents to decide whether the children can replace the
@@ -62,7 +62,7 @@ public abstract class SecondaryObjective implements Serializable {
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a int.
 	 */
-	public abstract int compareGenerations(Chromosome parent1, Chromosome parent2,
-	        Chromosome child1, Chromosome child2);
+	public abstract int compareGenerations(T parent1, T parent2,
+	        T child1, T child2);
 
 }

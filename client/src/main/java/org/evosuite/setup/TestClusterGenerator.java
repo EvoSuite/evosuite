@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -65,6 +66,7 @@ import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.setup.PutStaticMethodCollector.MethodIdentifier;
+import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.GenericAccessibleObject;
@@ -121,16 +123,26 @@ public class TestClusterGenerator {
 
 	private final Set<Class<?>> containerClasses = new LinkedHashSet<Class<?>>();
 	
-	public void generateCluster(String targetClass, InheritanceTree inheritanceTree,
-	        CallTree callTree) throws RuntimeException, ClassNotFoundException {
 
+	private final Set<Pair> dependencies = new LinkedHashSet<Pair>();
+
+	//XXX refactor and move these as paramethers in all methods. 
+	private InheritanceTree inheritanceTree;
+	private CallGraph callGraph;
+	
+	
+	public void generateCluster(String targetClass, InheritanceTree inheritanceTree, CallGraph callGraph) throws RuntimeException, ClassNotFoundException {
 		this.inheritanceTree = inheritanceTree;
+		this.callGraph = callGraph;
 		TestCluster.setInheritanceTree(inheritanceTree);
 
 		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
-			for (String callTreeClass : DependencyAnalysis.getCallTree().getClasses()) {
+			for (String callTreeClass : callGraph.getClasses()) {
 				try {
-					TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(callTreeClass);
+					if(callGraph.isCalledClass(callTreeClass)){
+						if(!Properties.INSTRUMENT_LIBRARIES && !DependencyAnalysis.isTargetProject(callTreeClass)) continue;
+						TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(callTreeClass);
+					}
 				} catch (ClassNotFoundException e) {
 					logger.info("Class not found: " + callTreeClass + ": " + e);
 				}
@@ -404,6 +416,26 @@ public class TestClusterGenerator {
 			logger.info("Found " + subclasses.size() + " concrete subclasses");
 			targetClasses.addAll(subclasses);
 		}
+
+// load all the interesting classes from the callgraph, 
+// need more testing, seems to slow down the search
+//		if(Properties.INSTRUMENT_CONTEXT){
+//			Set<String> toLoad;
+//			if(Properties.INSTRUMENT_LIBRARIES){
+//				toLoad = callGraph.getClassesUnderTest();
+//			}else{
+//				toLoad = new HashSet<>();
+//				for (String className : callGraph.getClassesUnderTest()) {
+//					if (!Properties.INSTRUMENT_LIBRARIES
+//							&& !DependencyAnalysis.isTargetProject(className))
+//						continue;
+//					toLoad.add(className);
+//				}
+//				
+//			}
+//			targetClasses.addAll(loadClasses(toLoad));
+//
+//		}
 
 		// To make sure we also have anonymous inner classes double check inner classes using ASM
 		ClassNode targetClassNode = DependencyAnalysis.getClassNode(Properties.TARGET_CLASS);
@@ -1296,10 +1328,6 @@ public class TestClusterGenerator {
 
 	};
 
-	private final Set<Pair> dependencies = new LinkedHashSet<Pair>();
-
-	private InheritanceTree inheritanceTree = null;
-
 	private void addDependencies(GenericConstructor constructor, int recursionLevel) {
 		if (recursionLevel > Properties.CLUSTER_RECURSION) {
 			logger.debug("Maximum recursion level reached, not adding dependencies of {}",
@@ -1600,7 +1628,50 @@ public class TestClusterGenerator {
 		}
 		return true;
 	}
+	
+	public static Set<Class<?>> loadClasses(Collection<String> classNames){
+		Set<Class<?>> loadedClasses = new HashSet<>();
+		for (String subClass : classNames) {
+				try {
+					Class<?> subClazz = Class.forName(subClass,
+					                                  false,
+					                                  TestGenerationContext.getInstance().getClassLoaderForSUT());
+					if (!canUse(subClazz))
+						continue;
+					if (subClazz.isInterface())
+						continue;
+					if (Modifier.isAbstract(subClazz.getModifiers())) {
+						if(!hasStaticGenerator(subClazz))
+							continue;
+					}
+					Class<?> mock = MockList.getMockClass(subClazz.getCanonicalName());
+					if (mock != null) {
+						/*
+						 * If we are mocking this class, then such class should not be used
+						 * in the generated JUnit test cases, but rather its mock.
+						 */
+//						logger.debug("Adding mock " + mock + " instead of "
+//						        + clazz);
+						subClazz = mock;
+					} else {
 
+						if (!checkIfCanUse(subClazz.getCanonicalName())) {
+							continue;
+						}
+					}
+
+					loadedClasses.add(subClazz);
+
+				} catch (ClassNotFoundException e) {
+					logger.error("Problem for " + Properties.TARGET_CLASS
+					        + ". Class not found: " + subClass, e);
+					logger.error("Removing class from inheritance tree");
+				}
+			}
+		return loadedClasses;
+	}
+
+	
 	public static Set<Class<?>> getConcreteClasses(Class<?> clazz,
 	        InheritanceTree inheritanceTree) {
 

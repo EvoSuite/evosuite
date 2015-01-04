@@ -17,12 +17,19 @@
  */
 package org.evosuite.coverage.branch;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlDependency;
+import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,21 +46,33 @@ public class BranchCoverageFactory extends
 
 	private static final Logger logger = LoggerFactory.getLogger(BranchCoverageFactory.class);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
+	
+	
+	private boolean isCUT(String className) {
+		if (!Properties.TARGET_CLASS.equals("")
+				&& !(className.equals(Properties.TARGET_CLASS) || className
+						.startsWith(Properties.TARGET_CLASS + "$"))) {
+			return false;
+		}
+		return true;
+	}
+	
+	
+	/**
+	 * return coverage goals of the target class or of all the contextual branches, depending on the limitToCUT paramether
+	 * @param limitToCUT
+	 * @return
 	 */
-	/** {@inheritDoc} */
-	@Override
-	public List<BranchCoverageTestFitness> getCoverageGoals() {
+	private List<BranchCoverageTestFitness> computeCoverageGoals(boolean limitToCUT){
 		long start = System.currentTimeMillis();
 		List<BranchCoverageTestFitness> goals = new ArrayList<BranchCoverageTestFitness>();
 
 		// logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {
-
+			//when limitToCUT== true, if not the class under test of a inner/anonymous class, continue
+			if(limitToCUT && !isCUT(className)) continue;
+			//when limitToCUT==false, consider all classes, but excludes libraries ones according the INSTRUMENT_LIBRARIES property
+			if(!limitToCUT && (!Properties.INSTRUMENT_LIBRARIES && !DependencyAnalysis.isTargetProject(className))) continue;
 			final MethodNameMatcher matcher = new MethodNameMatcher();
 			// Branchless methods
 			for (String method : BranchPool.getBranchlessMethods(className)) {
@@ -65,26 +84,38 @@ public class BranchCoverageFactory extends
 			// Branches
 			for (String methodName : BranchPool.knownMethods(className)) {
 				if (!matcher.methodMatches(methodName)) {
-					logger.info("Method " + methodName
-							+ " does not match criteria. ");
+					logger.info("Method " + methodName + " does not match criteria. ");
 					continue;
 				}
 
-				for (Branch b : BranchPool.retrieveBranchesInMethod(className,
-						methodName)) {
+				for (Branch b : BranchPool.retrieveBranchesInMethod(className, methodName)) {
 					if (!(b.getInstruction().isForcedBranch())) {
 						goals.add(createBranchCoverageTestFitness(b, true));
-						//if (!b.isSwitchCaseBranch())
+						// if (!b.isSwitchCaseBranch())
 						goals.add(createBranchCoverageTestFitness(b, false));
 					}
 				}
 			}
 		}
 		goalComputationTime = System.currentTimeMillis() - start;
-		
 		return goals;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public List<BranchCoverageTestFitness> getCoverageGoals() {
+		return computeCoverageGoals(true);
+	}
 
+	public List<BranchCoverageTestFitness> getCoverageGoalsForAllKnownClasses() {
+		return computeCoverageGoals(false); 
+	}
 
 
 	/**
@@ -157,3 +188,17 @@ public class BranchCoverageFactory extends
 				instruction.getMethodName());
 	}
 }
+
+////----------
+//List<String> l = new ArrayList<>();
+//for (BranchCoverageTestFitness callGraphEntry : goals) {
+//	l.add(callGraphEntry.toString());
+//}
+//File f = new File("/Users/mattia/workspaces/evosuiteSheffield/evosuite/master/evosuite-report/branchgoals.txt");
+//f.delete();
+//try {
+//	Files.write(f.toPath(), l, Charset.defaultCharset(), StandardOpenOption.CREATE);
+//} catch (IOException e) { 
+//	e.printStackTrace();
+//}
+////---------- 

@@ -168,7 +168,9 @@ public class TestSuiteMinimizer {
         int currentGoal = 0;
 
         if (!ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.BRANCH)
-                && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
+                && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.ARCHIVEBRANCH)
+                && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)
+                && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.ARCHIVEIBRANCH)) {
             BranchCoverageFactory branchFactory = new BranchCoverageFactory();
             branchGoals.addAll(branchFactory.getCoverageGoals());
             filterJUnitCoveredGoals(branchGoals);
@@ -177,7 +179,6 @@ public class TestSuiteMinimizer {
 
 
         int numGoals = goals.size() - branchGoals.size();
-
         Collections.sort(goals);
         Set<TestFitnessFunction> covered = new LinkedHashSet<TestFitnessFunction>();
         List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
