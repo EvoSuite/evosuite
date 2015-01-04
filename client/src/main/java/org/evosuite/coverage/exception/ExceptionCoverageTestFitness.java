@@ -122,16 +122,13 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
                 }
             }
 
-            boolean notDeclared = !result.test.getStatement(i).getDeclaredExceptions().contains(t.getClass());
-
 				/*
 				 * We only consider exceptions that were thrown directly in the SUT (not called libraries)
-				 * and that are not declared in the signature of the method.
 				 */
 
-            if (notDeclared && sutException) {
+            if (sutException) {
 					/*
-					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
+					 * FIXME: we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
 					 * input for pre-condition) or implicit ("likely" a real fault).
 					 */
 
