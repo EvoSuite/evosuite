@@ -158,14 +158,13 @@ public class InstrumentingClassLoader extends ClassLoader {
 		*/
 	}
 
-	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
-	        throws ClassNotFoundException {
-		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
-		
+	private Class<?> instrumentClass(String fullyQualifiedTargetClass)throws ClassNotFoundException  {
 		InputStream is = null;
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
-
+//			if (classes.containsKey(fullyQualifiedTargetClass)) {
+//				return classes.get(fullyQualifiedTargetClass);
+//			}
 			is = ResourceList.getClassAsStream(fullyQualifiedTargetClass);
 			
 			if (is == null) {

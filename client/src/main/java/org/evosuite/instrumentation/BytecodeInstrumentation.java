@@ -131,32 +131,7 @@ public class BytecodeInstrumentation {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * <p>
-	 * isTargetProject
-	 * </p>
-	 * 
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 * @return a boolean.
-	 */
-	public static boolean isTargetProject(String className) {
-		return (className.startsWith(Properties.PROJECT_PREFIX) || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && className.startsWith(Properties.TARGET_CLASS_PREFIX)))
-		        && !className.startsWith("java.")
-		        && !className.startsWith("sun.")
-		        && !className.startsWith("org.evosuite")
-		        && !className.startsWith("org.exsyst")
-		        && !className.startsWith("de.unisb.cs.st.evosuite")
-		        && !className.startsWith("de.unisb.cs.st.specmate")
-		        && !className.startsWith("javax.")
-		        && !className.startsWith("org.xml")
-		        && !className.startsWith("org.w3c")
-		        && !className.startsWith("apple.")
-		        && !className.startsWith("com.apple.")
-		        && !className.startsWith("daikon.");
-	}
+	} 
 
 	/**
 	 * <p>

@@ -80,7 +80,7 @@ public class EvoSuite {
     public static String base_dir_path = System.getProperty("user.dir");
 
     public static String generateInheritanceTree(String cp) throws IOException {
-        LoggingUtils.getEvoLogger().info("* Analyzing classpath");
+        LoggingUtils.getEvoLogger().info("* Analyzing classpath (generating inheritance tree)");
         List<String> cpList = Arrays.asList(cp.split(File.pathSeparator));
         // Clear current inheritance file to make sure a new one is generated
         Properties.INHERITANCE_FILE = "";

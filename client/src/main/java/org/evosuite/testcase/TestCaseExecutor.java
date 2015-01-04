@@ -509,6 +509,8 @@ public class TestCaseExecutor implements ThreadFactory {
 		for(StackTraceElement elem : currentThread.getStackTrace()) {
 			if(elem.getMethodName().equals("<clinit>"))
 				return true;
+			if(elem.getMethodName().equals("loadClass") && elem.getClassName().equals(org.evosuite.instrumentation.InstrumentingClassLoader.class.getCanonicalName()))
+				return true;
 		}
 		return false;
 	}

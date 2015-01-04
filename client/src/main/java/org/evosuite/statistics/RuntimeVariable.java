@@ -2,6 +2,7 @@ package org.evosuite.statistics;
 
 import java.util.Map;
 
+import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,6 +97,11 @@ public enum RuntimeVariable {
 	OnlyBranchCoverage,
     OnlyBranchFitnessTimeline,
     OnlyBranchCoverageTimeline,
+	CBranchCoverage,
+    IBranchCoverage,
+    IBranchInitialGoals,
+    IBranchInitialGoalsInTargetClass,
+    IBranchGoalsTimeline,
 	/** The obtained method coverage (method calls anywhere in trace) */
 	MethodTraceCoverage,
     MethodTraceFitnessTimeline,
@@ -277,8 +283,11 @@ public enum RuntimeVariable {
 	 * @return
 	 */
 	public static boolean validateRuntimeVariables(Map<String,OutputVariable<?>> map){
-
-		boolean valid = true;
+        if (! Properties.VALIDATE_RUNTIME_VARIABLES) {
+            logger.error("Not validating runtime variables");
+            return true;
+        }
+        boolean valid = true;
 
 		try{
 			Integer totalBranches = getIntegerValue(map,Total_Branches); 

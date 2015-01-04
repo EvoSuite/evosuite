@@ -49,6 +49,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +70,7 @@ public class InheritanceTreeGenerator {
 	 * @return
 	 */
 	public static InheritanceTree createFromClassPath(List<String> classPath) {
-		if (!Properties.INHERITANCE_FILE.isEmpty()) {
+		if (!Properties.INSTRUMENT_CONTEXT && !Properties.INHERITANCE_FILE.isEmpty()) {
 			try {
 				InheritanceTree tree = readInheritanceTree(Properties.INHERITANCE_FILE);
 				LoggingUtils.getEvoLogger().info("* Inheritance tree loaded from {}",
@@ -251,6 +252,18 @@ public class InheritanceTreeGenerator {
 			        | ClassReader.SKIP_CODE);
 			logger.debug("Analyzing class " + cn.name);
 
+			if ((Opcodes.ACC_INTERFACE & cn.access) != Opcodes.ACC_INTERFACE) {
+				for (Object m : cn.methods) {
+					MethodNode mn = (MethodNode) m;
+					inheritanceTree
+							.addAnalyzedMethod(cn.name, mn.name, mn.desc);
+				}
+				if ((Opcodes.ACC_ABSTRACT & cn.access) == Opcodes.ACC_ABSTRACT) {
+					inheritanceTree.registerAbstractClass(cn.name);
+				}
+			}else{
+				inheritanceTree.registerInterface(cn.name);
+			}
 			if (onlyPublic) {
 				if ((cn.access & Opcodes.ACC_PUBLIC) == 0) {
 					return;
@@ -268,8 +281,6 @@ public class InheritanceTreeGenerator {
 			for (String interfaceName : interfaces) {
 				inheritanceTree.addInterface(cn.name, interfaceName);
 			}
-
-			// TODO: Should we store the ClassNode?
 
 		} catch (IOException e) {
 			logger.error("", e);
