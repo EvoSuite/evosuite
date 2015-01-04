@@ -15,19 +15,24 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+package org.evosuite.coverage.exception;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.ImplicitExplicitException;
+
+import java.util.Map;
 
 
 public class TestImplicitExplicitExceptions  extends SystemTest {
@@ -53,13 +58,6 @@ public class TestImplicitExplicitExceptions  extends SystemTest {
 				RuntimeVariable.Implicit_MethodExceptions +"," +
 				RuntimeVariable.Implicit_TypeExceptions;
 		
-		/*
-		 * FIXME: once statistics fully refactored, should check we get data.
-		 * Furthermore, we should check if works with and without minimization.
-		 * Currently, minimization for exceptions is broken.
-		 */
-		//Properties.MINIMIZE = false;		
-		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
@@ -69,10 +67,17 @@ public class TestImplicitExplicitExceptions  extends SystemTest {
 
 		double fitness = best.getFitness();
 		/*
-		 * all targets should be covered. then there should be NullPointer that should be
-		 * handled both implicit and explicit, so fit = 1 / (1+2)
+		 * there are 2 undeclared exceptions (both implicit and explicit),
+		 * and 3 declared: so fit = 1 / (1+5)
 		 */
-		Assert.assertEquals("Wrong fitness: ", 1d / 3d, fitness, 0.001);
+		Assert.assertEquals("Wrong fitness: ", 1d / 6d, fitness, 0.001);
+
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        Assert.assertEquals(1 , map.get(RuntimeVariable.Explicit_MethodExceptions.toString()).getValue());
+        Assert.assertEquals(1 , map.get(RuntimeVariable.Explicit_TypeExceptions.toString()).getValue());
+        Assert.assertEquals(1 , map.get(RuntimeVariable.Implicit_MethodExceptions.toString()).getValue());
+        Assert.assertEquals(1 , map.get(RuntimeVariable.Implicit_TypeExceptions.toString()).getValue());
 	}
 
 }
