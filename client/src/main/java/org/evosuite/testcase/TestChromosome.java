@@ -18,6 +18,7 @@
 package org.evosuite.testcase;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -106,7 +107,6 @@ public class TestChromosome extends ExecutableChromosome {
 	public Chromosome clone() {
 		TestChromosome c = new TestChromosome();
 		c.test = test.clone();
-		//c.setFitness(getFitness());
 		c.setFitnesses(getFitnesses());
 		c.setLastFitnesses(getLastFitnesses());
 		c.solution = solution;
@@ -553,26 +553,21 @@ public class TestChromosome extends ExecutableChromosome {
 		return testSuiteFitnessFunction.runTest(this.test);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.Chromosome#compareSecondaryObjective(org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
 	@Override
-	public int compareSecondaryObjective(Chromosome o) {
+	@SuppressWarnings("unchecked")
+	public  <T extends Chromosome> int compareSecondaryObjective(T o) {
 		int objective = 0;
 		int c = 0;
 
 		while (c == 0 && objective < secondaryObjectives.size()) {
-			SecondaryObjective so = secondaryObjectives.get(objective++);
+			
+			SecondaryObjective<T> so = (SecondaryObjective<T>) secondaryObjectives.get(objective++);
 			if (so == null)
 				break;
-			c = so.compareChromosomes(this, o);
-		}
-		//logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
-		//        + o.size() + " = " + c);
+			c = so.compareChromosomes((T) this, o);
+		} 
 		return c;
 	}
-
 	/**
 	 * Add an additional secondary objective to the end of the list of
 	 * objectives
@@ -580,8 +575,16 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void addSecondaryObjective(SecondaryObjective objective) {
+	public static void addSecondaryObjective(SecondaryObjective<?> objective) {
 		secondaryObjectives.add(objective);
+	}
+	
+	public static void ShuffleSecondaryObjective() {
+		Collections.shuffle(secondaryObjectives);
+	}
+	
+	public static void reverseSecondaryObjective() {
+		Collections.reverse(secondaryObjectives);
 	}
 
 	/**

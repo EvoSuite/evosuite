@@ -196,7 +196,7 @@ public class Properties {
 
 	/** Constant <code>MAX_INT=2048</code> */
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")
-	public static int MAX_INT = 2048;
+	public static int MAX_INT = 100000;
 
 	/** Constant <code>RESTRICT_POOL=false</code> */
 	@Parameter(key = "restrict_pool", group = "Test Creation", description = "Prohibit integers in the pool greater than max_int")
@@ -560,6 +560,15 @@ public class Properties {
 	// @SetValue(values = { "maxlength", "maxsize", "avglength", "none" })
 	public static String SECONDARY_OBJECTIVE = "totallength";
 
+	@Parameter(key = "enable_secondary_objective_after", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
+	public static int ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;
+	
+	@Parameter(key = "enable_secondary_starvation", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
+	public static boolean ENABLE_SECONDARY_OBJECTIVE_STARVATION = false;
+
+	@Parameter(key = "starvation_after_generation", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
+	public static int STARVATION_AFTER_GENERATION = 500;
+	
 	/** Constant <code>BLOAT_FACTOR=2</code> */
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
 	public static int BLOAT_FACTOR = 2;
@@ -718,7 +727,7 @@ public class Properties {
 	public static boolean JUNIT_TESTS = true;
 
 	@Parameter(key = "junit_check", group = "Output", description = "Compile and run resulting JUnit test suite")
-	public static boolean JUNIT_CHECK = true;
+	public static boolean JUNIT_CHECK = false;
 
 	@Parameter(key = "junit_check_on_separate_process", group = "Output", description = "Compile and run resulting JUnit test suite on a separate process")
 	@Deprecated
@@ -733,6 +742,7 @@ public class Properties {
 
 	@Parameter(key = "tools_jar_location", group = "Output", description = "Location of where to locate tools.jar")
 	public static String TOOLS_JAR_LOCATION = null;
+//	public static String TOOLS_JAR_LOCATION = "/Library/Java/JavaVirtualMachines/jdk1.7.0_51.jdk/Contents/Home/lib";
 
 	@Parameter(key = "pure_inspectors", group = "Output", description = "Selects only an underapproximation of all inspectors that are also pure (no side-effects)")
 	public static boolean PURE_INSPECTORS = true;
@@ -875,6 +885,9 @@ public class Properties {
 	//@Parameter(key = "old_statistics", group = "Output", description = "Use the old statistics backend on the master")
 	//public static boolean OLD_STATISTICS = false;
 
+    @Parameter(key = "validate_runtime_variables", group = "Output", description = "Validate runtime values before writing statistics")
+    public static boolean VALIDATE_RUNTIME_VARIABLES = true;
+
 	@Parameter(key = "serialize_ga", group = "Output", description = "Include the GA instance in the test generation result")
 	public static boolean SERIALIZE_GA = false;
 
@@ -933,6 +946,7 @@ public class Properties {
 	@Parameter(key = "cluster_recursion", description = "The maximum level of recursion when calculating the dependencies in the test cluster")
 	public static int CLUSTER_RECURSION = 10;
 
+	/** Constant <code>INHERITANCE_FILE=""</code> */
 	@Parameter(key = "inheritance_file", description = "Cached version of inheritance tree")
 	public static String INHERITANCE_FILE = "";
 
@@ -981,6 +995,9 @@ public class Properties {
 	@Parameter(key = "instrument_context", description = "Also instrument methods called from the SUT")
 	public static boolean INSTRUMENT_CONTEXT = false;
 
+	@Parameter(key = "instrument_libraries", description = "Instrument the libraries used by the project under test")
+	public static boolean INSTRUMENT_LIBRARIES = false;
+	
 	/** Constant <code>BREAK_ON_EXCEPTION=true</code> */
 	@Parameter(key = "break_on_exception", description = "Stop test execution if exception occurrs")
 	public static boolean BREAK_ON_EXCEPTION = true;
@@ -990,7 +1007,7 @@ public class Properties {
 	public static boolean HANDLE_STATIC_FIELDS = true;
 
 	public enum TestFactory {
-		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT, SERIALIZATION, 
+		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT, ARCHIVE, SERIALIZATION, 
 		SEED_BEST_INDIVIDUAL, SEED_RANDOM_INDIVIDUAL,
 		SEED_BEST_AND_RANDOM_INDIVIDUAL, SEED_BEST_INDIVIDUAL_METHOD,
 		SEED_RANDOM_INDIVIDUAL_METHOD, SEED_MUTATED_BEST_INDIVIDUAL
@@ -1177,7 +1194,7 @@ public class Properties {
 	// Runtime parameters
 
 	public enum Criterion {
-		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, REGRESSION, READABILITY, ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, OUTPUT
+		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, ARCHIVEBRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, ARCHIVEIBRANCH, REGRESSION, READABILITY, ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, OUTPUT
 	}
 
 	/** Cache target class */
@@ -1229,6 +1246,12 @@ public class Properties {
 	@Parameter(key = "connection_data", group = "Runtime", description = "File in which connection data is stored")
 	public static String CONNECTION_DATA = "connection.xml";
 
+	/** Constant <code>CONNECTION_DATA="connection.xml"</code> */
+	@Parameter(key = "exclude_ibranches_cut", group = "Runtime", description = "Exclude ibranches in the cut, to speed up ibranch as secondary criterion")
+	public static boolean EXCLUDE_IBRANCHES_CUT = false;
+
+	
+	
 	/** Constant <code>CRITERION</code> */
 	@Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")
 	public static Criterion[] CRITERION = new Criterion[] { Criterion.BRANCH };

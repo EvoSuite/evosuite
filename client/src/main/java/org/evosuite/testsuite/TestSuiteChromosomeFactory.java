@@ -70,7 +70,7 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 	public TestSuiteChromosome getChromosome() {
 
 		TestSuiteChromosome chromosome = new TestSuiteChromosome(
-		        new RandomLengthTestFactory());
+				testChromosomeFactory);
 		chromosome.tests.clear();
 		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
 		tracker.modification(chromosome);

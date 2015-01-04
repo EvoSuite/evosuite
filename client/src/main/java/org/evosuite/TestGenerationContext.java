@@ -5,6 +5,7 @@ package org.evosuite;
 
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -140,17 +141,20 @@ public class TestGenerationContext {
 
 		TestCaseExecutor.initExecutor();
 
+		TestsArchive.instance.reset();
+		
 		// Constant pool
 		ConstantPoolManager.getInstance().reset();
 		ObjectPoolManager.getInstance().reset();
 		CarvingManager.getInstance().clear();
 
-		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)) {
+		if (Properties.INSTRUMENT_CONTEXT
+				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
+				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
 			try {
 				TestClusterGenerator clusterGenerator = new TestClusterGenerator();
 				clusterGenerator.generateCluster(Properties.TARGET_CLASS,
-				                                 DependencyAnalysis.getInheritanceTree(),
-				                                 DependencyAnalysis.getCallTree());
+				                                 DependencyAnalysis.getInheritanceTree(),  DependencyAnalysis.getCallGraph());
 			} catch (RuntimeException e) {
 				logger.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {

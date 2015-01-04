@@ -22,7 +22,7 @@ package org.evosuite.ga;
  *
  * @author Gordon Fraser
  */
-public class MinimizeSizeSecondaryObjective extends SecondaryObjective {
+public class MinimizeSizeSecondaryObjective extends SecondaryObjective<Chromosome> {
 
 	private static final long serialVersionUID = 7211557650429998223L;
 
