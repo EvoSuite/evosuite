@@ -117,7 +117,16 @@ public class InstrumentingAgent_IT {
 		} finally {
 			InstrumentingAgent.deactivate();
 		}
-		
+
+
+        /*
+            Note: following check does not apply any more, as we now are adding an interface to each
+            instrumented class, which makes retransformation not possible any more.
+            anyway, retransformation is kind of deprecated, as we do not really use it anymore (but
+            left code if in the future Java ll have better support)
+         */
+
+        /*
 		//to do re-instrumentation without adding new methods, we need to set it up with setRetransformingMode
 		try{
 			InstrumentingAgent.activate();
@@ -132,7 +141,7 @@ public class InstrumentingAgent_IT {
 			InstrumentingAgent.setRetransformingMode(false);
 			InstrumentingAgent.deactivate();
 		} 
-		
+		*/
 	}
 
 
