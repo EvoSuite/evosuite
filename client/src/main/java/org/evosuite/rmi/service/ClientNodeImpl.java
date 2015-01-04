@@ -399,7 +399,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 
 				try {
-					LoggingUtils.getEvoLogger().info("* Analyzing classpath");
+					LoggingUtils.getEvoLogger().info("* Analyzing classpath (dependency analysis)");
 					DependencyAnalysis.analyze(Properties.TARGET_CLASS,
 							Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
 					StringBuffer fileNames = new StringBuffer();

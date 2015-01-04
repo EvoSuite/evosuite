@@ -148,7 +148,17 @@ public class NSGAII<T extends Chromosome>
 
             remain = 0;
         }
-
+        //archive
+        updateFitnessFuntions();
+		for (T t : population) {
+			if(t.isToBeUpdated()){
+			    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+					fitnessFunction.getFitness(t);
+				}
+			    t.isToBeUpdated(false);
+			}
+		}
+		//
         currentIteration++;
     }
 

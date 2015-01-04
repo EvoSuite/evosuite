@@ -1,6 +1,5 @@
 package org.evosuite.utils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
@@ -84,7 +83,7 @@ public class ResetExecutor {
 	
 	private void resetClass(String className) {
 		//className.__STATIC_RESET() exists
-		logger.info("Resetting class "+className);
+		logger.debug("Resetting class "+className);
 		
 		int mutationActive = MutationObserver.activeMutation;
 		MutationObserver.deactivateMutation();

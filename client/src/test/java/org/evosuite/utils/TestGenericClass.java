@@ -660,6 +660,11 @@ public class TestGenericClass {
 				// TODO Auto-generated method stub
 				return null;
 			}
+			
+			public void getAnnotatedBounds() {
+				// TODO Auto-generated method stub
+
+			}
 
 		};
 
