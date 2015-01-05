@@ -18,6 +18,9 @@ import java.net.SocketOptions;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 
+/**
+ * TODO need to implement rollback
+ */
 public class MockSocket extends Socket implements OverrideMock {
 	
 	private Object closeLock = new Object();
