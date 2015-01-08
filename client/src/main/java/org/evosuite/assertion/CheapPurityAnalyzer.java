@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.evosuite.instrumentation.BytecodeInstrumentation;
+import org.evosuite.runtime.mock.MockList;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.utils.JdkPureMethodsList;
@@ -255,6 +256,10 @@ public class CheapPurityAnalyzer {
 	 */
 	public boolean isPure(java.lang.reflect.Method method) {
 		String className = method.getDeclaringClass().getCanonicalName();
+		if(MockList.isAMockClass(className)) {
+			className = method.getDeclaringClass().getSuperclass().getCanonicalName();
+		} 
+		
 		String methodName = method.getName();
 		String descriptor = Type.getMethodDescriptor(method);
 
