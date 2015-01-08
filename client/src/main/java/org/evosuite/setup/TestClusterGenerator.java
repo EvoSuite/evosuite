@@ -1702,7 +1702,10 @@ public class TestClusterGenerator {
 		Set<Class<?>> actualClasses = new LinkedHashSet<Class<?>>();
 		if (Modifier.isAbstract(clazz.getModifiers())
 		        || Modifier.isInterface(clazz.getModifiers()) || clazz.equals(Enum.class)) {
-			Set<String> subClasses = inheritanceTree.getSubclasses(clazz.getName());
+			String className = clazz.getCanonicalName();
+			if(MockList.isAMockClass(className))
+				className = clazz.getSuperclass().getCanonicalName();
+			Set<String> subClasses = inheritanceTree.getSubclasses(className);
 			logger.debug("Subclasses of " + clazz.getName() + ": " + subClasses);
 			Map<String, Integer> classDistance = new HashMap<String, Integer>();
 			int maxDistance = -1;
