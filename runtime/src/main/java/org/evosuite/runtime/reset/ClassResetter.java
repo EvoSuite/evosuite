@@ -90,12 +90,18 @@ public class ClassResetter {
 		}
 		
 		Method m = getResetMethod(classNameWithDots);
-		if(m == null)
-			return; // TODO: Error handling
+		if(m == null) {
+            return;
+        }
+
 		try {
 			m.invoke(null, (Object[]) null);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoClassDefFoundError e) {
+		} catch (IllegalAccessException | IllegalArgumentException e) {
             logger.error(""+e,e);
+        } catch (NoClassDefFoundError e){
+            logger.error(e.toString()); //no point in getting stack trace here, as it gives no info
+        } catch(InvocationTargetException e){
+            logger.error(e.toString() , e.getCause()); // we are only interested in the stack trace of the cause
         }
 	}
 
