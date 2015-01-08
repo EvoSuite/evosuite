@@ -32,8 +32,6 @@ public class MockURL implements StaticReplacementMock{
 		factory = null;
 		handlers.clear();
 	}
-	
-	//TODO handle mocking of constructors
 
 	// -----  constructors ------------
 

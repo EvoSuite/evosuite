@@ -5,6 +5,7 @@ import org.evosuite.runtime.vnet.DNS;
 import org.evosuite.runtime.vnet.RemoteFile;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -78,6 +79,12 @@ public class EvoHttpURLConnection extends HttpURLConnection {
 
     public InputStream getInputStream() throws IOException {
         connect();
+
+        if(stream == null){
+            //TODO should rather mock FileNotFoundException
+            throw new MockIOException(url.getHost());
+        }
+
         return stream;
     }
 

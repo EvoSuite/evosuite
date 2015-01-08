@@ -4,6 +4,8 @@ import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,6 +38,13 @@ public class HttpTest {
         evo.connect();
 
         Assert.assertEquals(HttpURLConnection.HTTP_NOT_FOUND, evo.getResponseCode());
+
+        try{
+            evo.getInputStream();
+            Assert.fail();
+        } catch(IOException e){
+            //expected
+        }
     }
 
     @Test
