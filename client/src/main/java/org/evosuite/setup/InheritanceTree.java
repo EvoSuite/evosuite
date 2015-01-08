@@ -43,15 +43,12 @@ import org.slf4j.LoggerFactory;
  */
 public class InheritanceTree {
 
+    private static Logger logger = LoggerFactory.getLogger(InheritanceTree.class);
+
 	private final Map<String, Set<String>> subclassCache = new LinkedHashMap<String, Set<String>>();
 
 	private  Set<String> interfacesSet = new HashSet<>();
 	private  Set<String> abstractClassesSet = new HashSet<>();
-	
-	
-	@SuppressWarnings("unused")
-	private static Logger logger = LoggerFactory
-			.getLogger(InheritanceTree.class);
 
 	private Map<String, Set<String>> analyzedMethods;
 		
@@ -110,7 +107,7 @@ public class InheritanceTree {
 		classname = classname.replace(File.separator, ".");
 		Set<String> tmp = analyzedMethods.get(classname);
 		if(tmp==null)
-			analyzedMethods.put(classname, tmp = new HashSet<String>());
+			analyzedMethods.put(classname, tmp = new HashSet<>());
 		tmp.add(methodname+descriptor);
 	}
 	
@@ -121,7 +118,7 @@ public class InheritanceTree {
 		String superNameWithDots = ResourceList.getClassNameFromResourcePath(superName);
 
 		if (inheritanceGraph == null) {
-			inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(
+			inheritanceGraph = new DirectedMultigraph<>(
 			        DefaultEdge.class);
 		}
 
@@ -147,8 +144,7 @@ public class InheritanceTree {
 			return subclassCache.get(classNameWithDots);
 
 		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
-			LoggingUtils.getEvoLogger().warn("Class not in inheritance graph: "
-			                                         + classNameWithDots);
+            logger.warn("Class not in inheritance graph: " + classNameWithDots);
 			return new HashSet<>();
 		}
 		Set<String> result = new LinkedHashSet<String>();
@@ -164,13 +160,12 @@ public class InheritanceTree {
 	public Set<String> getSuperclasses(String className) {
 		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
-			LoggingUtils.getEvoLogger().warn("Class not in inheritance graph: "
-			                                         + classNameWithDots);
+            logger.warn("Class not in inheritance graph: " + classNameWithDots);
 			return new HashSet<>();
 		}
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
 		        inheritanceGraph);
-		Set<String> result = new LinkedHashSet<String>();
+		Set<String> result = new LinkedHashSet<>();
 		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
 		        reverseGraph, classNameWithDots);
 		while (bfi.hasNext()) {

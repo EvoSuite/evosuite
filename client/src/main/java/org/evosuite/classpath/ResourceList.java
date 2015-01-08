@@ -193,7 +193,7 @@ public class ResourceList {
 
 
 	/**
-	 * Given the target classpath entry (eg folder or jar file), return all the classes (.class files)
+	 * Given the target classpath entry (eg folder or jar file), return the names (eg foo.Foo) of all the classes (.class files)
 	 * inside
 	 * 
 	 * @param classPathEntry
@@ -205,7 +205,7 @@ public class ResourceList {
 	}
 
 	/**
-	 * Given the target classpath entry (eg folder or jar file), return all the classes (.class files)
+	 * Given the target classpath entry (eg folder or jar file), return the names (eg foo.Foo) of all the classes (.class files)
 	 * inside
 	 * 
 	 * @param classPathEntry
