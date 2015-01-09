@@ -79,6 +79,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 		options.put(SocketOptions.SO_OOBINLINE, false);
 		options.put(SocketOptions.SO_REUSEADDR, false);
 		options.put(SocketOptions.TCP_NODELAY, false);
+        options.put(SocketOptions.IP_TOS, 0);
 	}
 
 	@Override
