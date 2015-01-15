@@ -218,7 +218,7 @@ public class MethodCallReplacementCache {
 
             addReplacementCall(new MethodCallReplacement(
                     jvmOriginal, "printStackTrace", "(Ljava/io/PrintStream;)V", Opcodes.INVOKEVIRTUAL,
-                    jvmMock, "printStackTrace", "(Ljava/lang/Throwable;Ljava/io/PrintStream;)V",
+                    jvmMock, "replacement_printStackTrace", "(Ljava/lang/Throwable;Ljava/io/PrintStream;)V",
                     false, false));
 
             addReplacementCall(new MethodCallReplacement(
