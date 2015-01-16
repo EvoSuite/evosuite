@@ -33,6 +33,18 @@ public class MockURL implements StaticReplacementMock{
 		handlers.clear();
 	}
 
+    /**
+     * Provide a valid URL example for the http protocol.
+     */
+    public static URL getHttpExample(){
+        try {
+            return URL("http://www.someFakeButWellFormedURL.org/fooExample");
+        } catch (MalformedURLException e) {
+            //should never happen
+            throw new RuntimeException(e);
+        }
+    }
+
 	// -----  constructors ------------
 
 	public static URL URL(String spec) throws MalformedURLException {
