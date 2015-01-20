@@ -726,8 +726,8 @@ public class Properties {
 	@Parameter(key = "junit_tests", group = "Output", description = "Create JUnit test suites")
 	public static boolean JUNIT_TESTS = true;
 
-	@Parameter(key = "junit_check", group = "Output", description = "Compile and run resulting JUnit test suite")
-	public static boolean JUNIT_CHECK = false;
+	@Parameter(key = "junit_check", group = "Output", description = "Compile and run resulting JUnit test suite (if any was created)")
+	public static boolean JUNIT_CHECK = true;
 
 	@Parameter(key = "junit_check_on_separate_process", group = "Output", description = "Compile and run resulting JUnit test suite on a separate process")
 	@Deprecated
