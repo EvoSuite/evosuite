@@ -56,4 +56,9 @@ public class RuntimeSettings {
      * or with the standard classloader and instrumentation via an agent?
      */
     public static boolean useSeparateClassLoader = false;
+
+
+    public static boolean isUsingAnyMocking(){
+        return mockJVMNonDeterminism || useVFS || useVNET;
+    }
 }
