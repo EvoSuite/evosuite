@@ -106,6 +106,10 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 		if((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE)
 			isInterface = true;
 		else {
+            /*
+                FIXME: this should be moved in its own adapter, because it is not executed if we do
+                only reset of static state and no mocking
+             */
 			String[] mockedInterfaces = Arrays.copyOf(interfaces, interfaces.length + 1);
 			mockedInterfaces[interfaces.length] = InstrumentedClass.class.getCanonicalName().replace('.', '/');
 			interfaces = mockedInterfaces;
