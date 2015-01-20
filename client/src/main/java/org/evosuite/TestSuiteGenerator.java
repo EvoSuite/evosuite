@@ -515,10 +515,6 @@ public class TestSuiteGenerator {
     		i++;
 		}
 
-		for (TestSuiteChromosome test : tests) {
-		    assert !Properties.JUNIT_TESTS || JUnitAnalyzer.verifyCompilationAndExecution(test.getTests()); // check still on original
-		}
-
 		writeObjectPool(tests);
 
 		/*

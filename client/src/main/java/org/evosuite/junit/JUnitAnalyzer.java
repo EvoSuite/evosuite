@@ -535,6 +535,7 @@ public class JUnitAnalyzer {
 	 * 
 	 * @param tests
 	 * @return
+     * @deprecated  not used anymore, as check are done in different methods now, and old "assert" was not really valid
 	 */
 	public static boolean verifyCompilationAndExecution(List<TestCase> tests) {
 
