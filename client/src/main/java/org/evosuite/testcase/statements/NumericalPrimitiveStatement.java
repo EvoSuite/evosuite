@@ -18,12 +18,14 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
+
+import org.evosuite.testcase.TestCase;
 
 /**
  * <p>Abstract NumericalPrimitiveStatement class.</p>

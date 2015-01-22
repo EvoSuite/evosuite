@@ -22,10 +22,10 @@ import java.util.Map;
 
 import org.evosuite.testcase.ExecutionObserver;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

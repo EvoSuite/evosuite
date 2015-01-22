@@ -36,6 +36,7 @@ import org.evosuite.runtime.System.SystemExitException;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.thread.KillSwitch;
 import org.evosuite.runtime.thread.ThreadStopper;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

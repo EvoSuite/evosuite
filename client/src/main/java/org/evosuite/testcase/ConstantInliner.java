@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

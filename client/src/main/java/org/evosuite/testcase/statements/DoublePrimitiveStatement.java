@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,6 +26,7 @@ import java.math.RoundingMode;
 import org.evosuite.Properties;
 import org.evosuite.seeding.ConstantPool;
 import org.evosuite.seeding.ConstantPoolManager;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 

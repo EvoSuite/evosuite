@@ -18,6 +18,9 @@
 package org.evosuite.coverage.method;
 
 import org.evosuite.testcase.*;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.objectweb.asm.Type;
 
 import java.util.Set;

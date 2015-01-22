@@ -5,9 +5,9 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.DSEType;
-import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestMutationHistoryEntry;
+import org.evosuite.testcase.statements.PrimitiveStatement;
 
 public class AdaptiveTestCaseLocalSearch extends TestCaseLocalSearch {
 

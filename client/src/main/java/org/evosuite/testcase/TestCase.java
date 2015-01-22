@@ -29,6 +29,7 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.environmentdata.AccessedEnvironment;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.Listenable;
 
 

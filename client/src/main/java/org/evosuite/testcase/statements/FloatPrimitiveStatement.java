@@ -18,49 +18,53 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.evosuite.Properties;
 import org.evosuite.seeding.ConstantPool;
 import org.evosuite.seeding.ConstantPoolManager;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * <p>
- * IntPrimitiveStatement class.
+ * FloatPrimitiveStatement class.
  * </p>
  * 
- * @author fraser
+ * @author Gordon Fraser
  */
-public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> {
+public class FloatPrimitiveStatement extends NumericalPrimitiveStatement<Float> {
 
-	private static final long serialVersionUID = -8616399657291345433L;
+	private static final long serialVersionUID = 708022695544843828L;
 
 	/**
 	 * <p>
-	 * Constructor for IntPrimitiveStatement.
+	 * Constructor for FloatPrimitiveStatement.
 	 * </p>
 	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param value
-	 *            a {@link java.lang.Integer} object.
+	 *            a {@link java.lang.Float} object.
 	 */
-	public IntPrimitiveStatement(TestCase tc, Integer value) {
-		super(tc, int.class, value);
+	public FloatPrimitiveStatement(TestCase tc, Float value) {
+		super(tc, float.class, value);
 	}
 
 	/**
 	 * <p>
-	 * Constructor for IntPrimitiveStatement.
+	 * Constructor for FloatPrimitiveStatement.
 	 * </p>
 	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public IntPrimitiveStatement(TestCase tc) {
-		super(tc, int.class, 0);
+	public FloatPrimitiveStatement(TestCase tc) {
+		super(tc, float.class, 0.0F);
 	}
 
 	/* (non-Javadoc)
@@ -69,7 +73,7 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	/** {@inheritDoc} */
 	@Override
 	public void zero() {
-		value = 0;
+		value = new Float(0.0);
 	}
 
 	/* (non-Javadoc)
@@ -77,8 +81,8 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	 */
 	/** {@inheritDoc} */
 	@Override
-	protected void pushBytecode(GeneratorAdapter mg) {
-		mg.push((value).intValue());
+	public void pushBytecode(GeneratorAdapter mg) {
+		mg.push((value).floatValue());
 	}
 
 	/* (non-Javadoc)
@@ -87,7 +91,31 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		int delta = (int)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
+		double P = Randomness.nextDouble();
+		if(P < 1d/3d) {
+			value += (float)Randomness.nextGaussian() * Properties.MAX_DELTA;
+		} else if(P < 2d/3d) {
+			value += (float)Randomness.nextGaussian();
+		} else {
+			int precision = Randomness.nextInt(7);
+			chopPrecision(precision);
+		}
+	}
+
+	private void chopPrecision(int precision) {
+		if(value.isNaN() || value.isInfinite())
+			return;
+
+		BigDecimal bd = new BigDecimal(value).setScale(precision, RoundingMode.HALF_EVEN);
+		this.value = bd.floatValue();
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public void increment(long delta) {
 		value = value + delta;
 	}
 
@@ -96,8 +124,8 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void increment(long delta) {
-		value = value + (int) delta;
+	public void increment(double delta) {
+		value = value + (float) delta;
 	}
 
 	/* (non-Javadoc)
@@ -107,11 +135,13 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	@Override
 	public void randomize() {
 		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
-			value = (int)(Randomness.nextGaussian() * Properties.MAX_INT) ;
+			value = (float)(Randomness.nextGaussian() * Properties.MAX_INT);
+			int precision = Randomness.nextInt(7);
+			chopPrecision(precision);
 		}
 		else {
 			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
-			value = constantPool.getRandomInt();
+			value = constantPool.getRandomFloat();
 		}
 	}
 
@@ -121,7 +151,7 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	/** {@inheritDoc} */
 	@Override
 	public void increment() {
-		increment(1);
+		increment(1.0F);
 	}
 
 	/* (non-Javadoc)
@@ -129,8 +159,8 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void setMid(Integer min, Integer max) {
-		value = (int) (min + ((max - min) / 2));
+	public void setMid(Float min, Float max) {
+		value = (float) (min + ((max - min) / 2));
 	}
 
 	/* (non-Javadoc)
@@ -148,18 +178,12 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	/** {@inheritDoc} */
 	@Override
 	public boolean isPositive() {
-		return value >= 0;
+		return value > 0;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void negate() {
 		value = -value;
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public Integer getValue() {
-		return value;
 	}
 }

@@ -52,6 +52,19 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.environmentdata.EnvironmentDataStatement;
+import org.evosuite.testcase.statements.AbstractStatement;
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.ClassPrimitiveStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.EnumPrimitiveStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.NullStatement;
+import org.evosuite.testcase.statements.PrimitiveExpression;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.StatementInterface;
+import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.utils.*;
 
 import com.googlecode.gentyref.CaptureType;
@@ -135,7 +148,7 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */
@@ -149,7 +162,7 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @return a {@link java.lang.Throwable} object.
 	 */
 	protected Throwable getException(StatementInterface statement) {
@@ -1042,7 +1055,7 @@ public class TestCodeVisitor extends TestVisitor {
 			result += "// Undeclared exception!\n";
 		}
 
-		boolean lastStatement = statement.getPosition() == statement.tc.size() - 1;
+		boolean lastStatement = statement.getPosition() == statement.getTestCase().size() - 1;
 		boolean unused = !Properties.ASSERTIONS ? exception != null : test != null
 		        && !test.hasReferences(retval);
 
@@ -1339,7 +1352,7 @@ public class TestCodeVisitor extends TestVisitor {
 	public void visitAssignmentStatement(AssignmentStatement statement) {
 		String cast = "";
 		VariableReference retval = statement.getReturnValue();
-		VariableReference parameter = statement.parameter;
+		VariableReference parameter = statement.getValue();
 
 		if (!retval.getVariableClass().equals(parameter.getVariableClass()))
 			cast = "(" + getClassName(retval) + ") ";

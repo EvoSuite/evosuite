@@ -5,10 +5,10 @@ import java.util.Arrays;
 
 import org.evosuite.Properties;
 import org.evosuite.contracts.ContractViolation;
-import org.evosuite.testcase.ConstructorStatement;
-import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 
 public class Failure implements Serializable {
 

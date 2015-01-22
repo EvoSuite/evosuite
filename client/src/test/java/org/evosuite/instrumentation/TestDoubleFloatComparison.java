@@ -3,8 +3,8 @@ package org.evosuite.instrumentation;
 import static org.junit.Assert.*;
 
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.DoublePrimitiveStatement;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.statements.DoublePrimitiveStatement;
 import org.junit.Test;
 
 public class TestDoubleFloatComparison {

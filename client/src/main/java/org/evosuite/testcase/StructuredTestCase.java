@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.testcase.statements.StatementInterface;
+
 public class StructuredTestCase extends DefaultTestCase {
 
 	private static final long serialVersionUID = -1896651382970358963L;

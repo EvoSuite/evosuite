@@ -18,18 +18,18 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
-import org.evosuite.testcase.ArrayStatement;
-import org.evosuite.testcase.AssignmentStatement;
-import org.evosuite.testcase.ConstructorStatement;
-import org.evosuite.testcase.FieldStatement;
-import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.NullStatement;
-import org.evosuite.testcase.PrimitiveExpression;
-import org.evosuite.testcase.PrimitiveStatement;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestVisitor;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.NullStatement;
+import org.evosuite.testcase.statements.PrimitiveExpression;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -6,6 +6,9 @@ package org.evosuite.testcase;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.StatementInterface;
+
 /**
  * @author Gordon Fraser
  * 

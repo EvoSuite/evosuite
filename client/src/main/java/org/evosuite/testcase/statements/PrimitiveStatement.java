@@ -15,10 +15,17 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
 
 import com.googlecode.gentyref.GenericTypeReflector;
+
 import org.evosuite.Properties;
+import org.evosuite.testcase.CodeUnderTestException;
+import org.evosuite.testcase.Scope;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.VariableReferenceImpl;
 import org.evosuite.testcase.environmentdata.EnvironmentStatements;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
@@ -111,7 +118,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      *
      * @param tc    a {@link org.evosuite.testcase.TestCase} object.
      * @param clazz a {@link java.lang.reflect.Type} object.
-     * @return a {@link org.evosuite.testcase.PrimitiveStatement} object.
+     * @return a {@link org.evosuite.testcase.statements.PrimitiveStatement} object.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static PrimitiveStatement<?> getPrimitiveStatement(TestCase tc,
@@ -202,7 +209,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      * @param tc       a {@link org.evosuite.testcase.TestCase} object.
      * @param type     a {@link java.lang.reflect.Type} object.
      * @param position a int.
-     * @return a {@link org.evosuite.testcase.PrimitiveStatement} object.
+     * @return a {@link org.evosuite.testcase.statements.PrimitiveStatement} object.
      */
     public static PrimitiveStatement<?> getRandomStatement(TestCase tc,
                                                            GenericClass clazz, int position) {

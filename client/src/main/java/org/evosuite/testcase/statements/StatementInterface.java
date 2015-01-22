@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +28,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
+import org.evosuite.testcase.Scope;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -70,7 +74,7 @@ public interface StatementInterface {
 	/**
 	 * Create deep copy of statement
 	 * 
-	 * @return a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @return a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 */
 	public StatementInterface clone();
 
@@ -81,7 +85,7 @@ public interface StatementInterface {
 	 * 
 	 * @param newTestCase
 	 *            the testcase in which this statement will be inserted
-	 * @return a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @return a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 */
 	public StatementInterface clone(TestCase newTestCase);
 
@@ -94,7 +98,7 @@ public interface StatementInterface {
 	 *            the testcase in which this statement will be inserted
 	 * @param offset
 	 *            a int.
-	 * @return a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @return a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 */
 	public StatementInterface copy(TestCase newTestCase, int offset);
 
@@ -382,7 +386,7 @@ public interface StatementInterface {
 	 * the same type.
 	 * 
 	 * @param s
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @return a boolean.
 	 */
 	public boolean same(StatementInterface s);

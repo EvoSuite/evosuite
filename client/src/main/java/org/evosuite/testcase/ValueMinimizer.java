@@ -20,6 +20,17 @@
  */
 package org.evosuite.testcase;
 
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.BooleanPrimitiveStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.NullStatement;
+import org.evosuite.testcase.statements.NumericalPrimitiveStatement;
+import org.evosuite.testcase.statements.PrimitiveExpression;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
@@ -161,7 +172,7 @@ public class ValueMinimizer extends TestVisitor {
 
 	@SuppressWarnings("unchecked")
 	private <T> void binarySearch(NumericalPrimitiveStatement<T> statement) {
-		PrimitiveStatement<T> zero = (PrimitiveStatement<T>) PrimitiveStatement.getPrimitiveStatement(statement.tc,
+		PrimitiveStatement<T> zero = (PrimitiveStatement<T>) PrimitiveStatement.getPrimitiveStatement(statement.getTestCase(),
 		                                                                                              statement.getReturnValue().getGenericClass());
 		T max = statement.getValue();
 		T min = zero.getValue();

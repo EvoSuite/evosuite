@@ -24,12 +24,12 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.TestCaseExecutor.TimeoutExceeded;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.GenericMethod;
 
 

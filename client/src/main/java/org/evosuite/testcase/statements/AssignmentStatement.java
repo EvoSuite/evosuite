@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -30,6 +30,16 @@ import java.util.Set;
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.testcase.ArrayIndex;
+import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.CodeUnderTestException;
+import org.evosuite.testcase.EvosuiteError;
+import org.evosuite.testcase.FieldReference;
+import org.evosuite.testcase.NullReference;
+import org.evosuite.testcase.Scope;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericField;

@@ -26,14 +26,14 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.ConstructorStatement;
-import org.evosuite.testcase.FieldStatement;
-import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,7 +113,7 @@ public abstract class Contract {
 	 * Check if this statement is related to the unit under test
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @return a boolean.
 	 */
 	protected boolean isTargetStatement(StatementInterface statement) {
@@ -159,7 +159,7 @@ public abstract class Contract {
 	 * Check the contract on the current statement in the current scope
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @param scope
 	 *            a {@link org.evosuite.testcase.Scope} object.
 	 * @param exception

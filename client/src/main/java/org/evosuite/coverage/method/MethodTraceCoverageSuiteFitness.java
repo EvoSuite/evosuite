@@ -23,11 +23,11 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;

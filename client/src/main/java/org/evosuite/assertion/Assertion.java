@@ -26,9 +26,9 @@ import java.util.Set;
 
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +100,7 @@ public abstract class Assertion implements Serializable {
 	 * Setter for statement to which assertion is added
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 */
 	public void setStatement(StatementInterface statement) {
 		this.statement = statement;
@@ -109,7 +109,7 @@ public abstract class Assertion implements Serializable {
 	/**
 	 * Getter for statement to which assertion is added
 	 * 
-	 * @return a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @return a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 */
 	public StatementInterface getStatement() {
 		return statement;

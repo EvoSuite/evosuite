@@ -1,4 +1,7 @@
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
+
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFactory;
 
 public class ImmutableStringPrimitiveStatement extends StringPrimitiveStatement {
 

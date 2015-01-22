@@ -24,10 +24,10 @@ import java.util.regex.Pattern;
 
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 
 public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTraceEntry> {
 

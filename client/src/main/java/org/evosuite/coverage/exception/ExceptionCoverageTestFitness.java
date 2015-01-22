@@ -19,6 +19,8 @@ package org.evosuite.coverage.exception;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.*;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Constructor;

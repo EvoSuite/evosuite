@@ -24,8 +24,8 @@ import java.util.Arrays;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.StringPrimitiveStatement;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

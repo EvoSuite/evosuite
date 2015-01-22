@@ -24,9 +24,9 @@ import java.util.Map;
 
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;

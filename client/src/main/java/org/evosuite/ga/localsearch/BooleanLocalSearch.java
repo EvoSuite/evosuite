@@ -21,8 +21,8 @@
 package org.evosuite.ga.localsearch;
 
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.PrimitiveStatement;
 
 /**
  * <p>

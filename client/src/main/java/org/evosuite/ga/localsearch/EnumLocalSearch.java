@@ -20,9 +20,9 @@
  */
 package org.evosuite.ga.localsearch;
 
-import org.evosuite.testcase.EnumPrimitiveStatement;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.EnumPrimitiveStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

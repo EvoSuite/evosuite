@@ -1,66 +1,59 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
 
 import org.evosuite.Properties;
-import org.evosuite.seeding.ConstantPool;
-import org.evosuite.seeding.ConstantPoolManager;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
+
 /**
- * <p>
- * LongPrimitiveStatement class.
- * </p>
- * 
+ * <p>CharPrimitiveStatement class.</p>
+ *
  * @author fraser
  */
-public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
+public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Character> {
 
-	private static final long serialVersionUID = 6902273233816031053L;
+	private static final long serialVersionUID = -1960567565801078784L;
 
 	/**
-	 * <p>
-	 * Constructor for LongPrimitiveStatement.
-	 * </p>
-	 * 
-	 * @param tc
-	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 * @param value
-	 *            a {@link java.lang.Long} object.
+	 * <p>Constructor for CharPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value a {@link java.lang.Character} object.
 	 */
-	public LongPrimitiveStatement(TestCase tc, Long value) {
-		super(tc, long.class, value);
+	public CharPrimitiveStatement(TestCase tc, Character value) {
+		super(tc, char.class, value);
+		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * <p>
-	 * Constructor for LongPrimitiveStatement.
-	 * </p>
-	 * 
-	 * @param tc
-	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * <p>Constructor for CharPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public LongPrimitiveStatement(TestCase tc) {
-		super(tc, long.class, (long) 0);
+	public CharPrimitiveStatement(TestCase tc) {
+		super(tc, char.class, (char) 0);
+		// TODO Auto-generated constructor stub
 	}
 
 	/* (non-Javadoc)
@@ -69,7 +62,7 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public void zero() {
-		value = new Long(0);
+		value = (char) 0;
 	}
 
 	/* (non-Javadoc)
@@ -78,7 +71,7 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public void pushBytecode(GeneratorAdapter mg) {
-		mg.push((value).longValue());
+		mg.push((value).charValue());
 	}
 
 	/* (non-Javadoc)
@@ -87,8 +80,8 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		long delta = (long)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
-		value = value + delta;
+		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
+		value = (char) (value.charValue() + delta);
 	}
 
 	/* (non-Javadoc)
@@ -97,7 +90,7 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public void increment(long delta) {
-		value = value + delta;
+		value = (char) (value + delta);
 	}
 
 	/* (non-Javadoc)
@@ -106,13 +99,7 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
-		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
-			value = (long)(Randomness.nextGaussian() * Properties.MAX_INT);
-		}
-		else {
-			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
-			value = constantPool.getRandomLong();
-		}
+		value = (char) (Randomness.nextChar());
 	}
 
 	/* (non-Javadoc)
@@ -121,7 +108,7 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public void increment() {
-		increment(1);
+		increment((char) 1);
 	}
 
 	/* (non-Javadoc)
@@ -129,8 +116,8 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void setMid(Long min, Long max) {
-		value = (long) (min + ((max - min) / 2));
+	public void setMid(Character min, Character max) {
+		value = (char) (min + ((max - min) / 2));
 	}
 
 	/* (non-Javadoc)
@@ -149,11 +136,5 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	@Override
 	public boolean isPositive() {
 		return value >= 0;
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public void negate() {
-		value = -value;
 	}
 }

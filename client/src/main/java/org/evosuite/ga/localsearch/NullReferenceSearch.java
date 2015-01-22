@@ -8,10 +8,10 @@ import java.util.Map;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.NullStatement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.statements.NullStatement;
 
 /**
  * Try to replace a null reference with a non-null reference
