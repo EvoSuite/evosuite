@@ -31,6 +31,7 @@ import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.junit.xml.JUnitProcessLauncher;
 import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.symbolic.vm.string.builder.StringBuilder_Append;
 import org.evosuite.testcase.TestCase;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -176,10 +177,13 @@ public class JUnitAnalyzer {
 					 * this can happen if there is a failure in the scaffolding (eg @AfterClass/@BeforeClass).
 					 * in such case, everything need to be deleted
 					 */
-					logger.error("Issue in scaffolding of the test suite. Stack trace:");
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Issue in scaffolding of the test suite: "+failure.getMessage()+"\n");
+                    sb.append("Stack trace:\n");
 					for (String elem : failure.getExceptionStackTrace()) {
-						logger.error(elem);
+                        sb.append(elem+"\n");
 					}
+                    logger.error(sb.toString());
 					numUnstable = tests.size();
 					tests.clear();
 					return numUnstable;
