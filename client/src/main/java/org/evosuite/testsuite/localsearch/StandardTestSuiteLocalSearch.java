@@ -1,9 +1,11 @@
-package org.evosuite.ga.localsearch;
+package org.evosuite.testsuite.localsearch;
 
 import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.DSEType;
+import org.evosuite.ga.localsearch.LocalSearchBudget;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;

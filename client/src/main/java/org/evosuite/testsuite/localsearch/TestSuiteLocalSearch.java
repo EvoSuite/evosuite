@@ -1,4 +1,4 @@
-package org.evosuite.ga.localsearch;
+package org.evosuite.testsuite.localsearch;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,10 +9,12 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.localsearch.LocalSearch;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.localsearch.BranchCoverageMap;
 import org.evosuite.testsuite.TestCaseExpander;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;

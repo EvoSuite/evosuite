@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.ga.localsearch;
+package org.evosuite.testsuite.localsearch;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +31,8 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.localsearch.LocalSearchBudget;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.DSEStats;

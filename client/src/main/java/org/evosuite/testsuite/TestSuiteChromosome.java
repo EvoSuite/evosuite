@@ -28,11 +28,11 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.ga.localsearch.TestSuiteLocalSearch;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 
 /**
  * <p>

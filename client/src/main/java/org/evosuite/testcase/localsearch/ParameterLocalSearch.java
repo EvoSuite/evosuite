@@ -18,10 +18,11 @@
 /**
  * 
  */
-package org.evosuite.ga.localsearch;
+package org.evosuite.testcase.localsearch;
 
 import java.util.List;
 
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.NullReference;
 import org.evosuite.testcase.TestChromosome;

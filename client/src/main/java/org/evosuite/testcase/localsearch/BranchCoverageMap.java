@@ -1,4 +1,4 @@
-package org.evosuite.ga.localsearch;
+package org.evosuite.testcase.localsearch;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

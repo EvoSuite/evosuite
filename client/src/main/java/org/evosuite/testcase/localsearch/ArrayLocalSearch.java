@@ -18,9 +18,10 @@
 /**
  * 
  */
-package org.evosuite.ga.localsearch;
+package org.evosuite.testcase.localsearch;
 
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
