@@ -1,10 +1,7 @@
 package org.evosuite.testcase.environmentdata;
 
-import org.evosuite.runtime.testdata.EvoSuiteFile;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.utils.GenericClass;
 
 import java.lang.reflect.Type;
 
@@ -13,7 +10,9 @@ import java.lang.reflect.Type;
  */
 public abstract class EnvironmentDataStatement<T> extends PrimitiveStatement<T> {
 
-    protected EnvironmentDataStatement(TestCase tc, Type clazz, T value) {
+	private static final long serialVersionUID = -348689954506405873L;
+
+	protected EnvironmentDataStatement(TestCase tc, Type clazz, T value) {
         super(tc,clazz,value);
     }
 
