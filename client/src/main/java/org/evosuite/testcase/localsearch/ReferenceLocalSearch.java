@@ -1,13 +1,15 @@
 /**
  * 
  */
-package org.evosuite.ga.localsearch;
+package org.evosuite.testcase.localsearch;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.localsearch.LocalSearchBudget;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;

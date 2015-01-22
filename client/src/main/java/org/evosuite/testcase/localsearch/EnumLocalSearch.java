@@ -18,47 +18,56 @@
 /**
  * 
  */
-package org.evosuite.ga.localsearch;
+package org.evosuite.testcase.localsearch;
 
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.EnumPrimitiveStatement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * <p>
- * BooleanLocalSearch class.
- * </p>
+ * Local search on enum values means we simply iterate over all possible values
+ * the enum can take
  * 
  * @author Gordon Fraser
  */
-public class BooleanLocalSearch extends StatementLocalSearch {
+public class EnumLocalSearch extends StatementLocalSearch {
 
-	private boolean oldValue;
+	private static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
+
+	private Object oldValue;
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
 	 */
 	/** {@inheritDoc} */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective<TestChromosome> objective) {
-
-		PrimitiveStatement<Boolean> p = (PrimitiveStatement<Boolean>) test.getTestCase().getStatement(statement);
+		EnumPrimitiveStatement p = (EnumPrimitiveStatement) test.getTestCase().getStatement(statement);
 		ExecutionResult oldResult = test.getLastExecutionResult();
 		oldValue = p.getValue();
 
-		p.setValue(!oldValue);
+		for (Object value : p.getEnumValues()) {
+			p.setValue(value);
 
-		if (!objective.hasImproved(test)) {
-			// Restore original
-			p.setValue(oldValue);
-			test.setLastExecutionResult(oldResult);
-			test.setChanged(false);
-			return false;
-		} else {
-			return true;
+			if (!objective.hasImproved(test)) {
+				// Restore original
+				p.setValue(oldValue);
+				test.setLastExecutionResult(oldResult);
+				test.setChanged(false);
+			} else {
+				logger.debug("Finished local search with result " + p.getCode());
+				return true;
+			}
+
 		}
+
+		return false;
+
 	}
 
 }

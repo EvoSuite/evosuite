@@ -18,8 +18,9 @@
 /**
  * 
  */
-package org.evosuite.ga.localsearch;
+package org.evosuite.testcase.localsearch;
 
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.NumericalPrimitiveStatement;

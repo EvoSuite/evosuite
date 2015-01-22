@@ -1,4 +1,4 @@
-package org.evosuite.ga.localsearch;
+package org.evosuite.testcase.localsearch;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.DSEStats;

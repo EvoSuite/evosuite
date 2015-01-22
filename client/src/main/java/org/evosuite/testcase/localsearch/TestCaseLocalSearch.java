@@ -18,9 +18,10 @@
 /**
  * 
  */
-package org.evosuite.ga.localsearch;
+package org.evosuite.testcase.localsearch;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.localsearch.LocalSearch;
 import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

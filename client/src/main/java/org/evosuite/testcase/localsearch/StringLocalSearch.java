@@ -1,11 +1,30 @@
 /**
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * 
+ * You should have received a copy of the GNU Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
+/**
  * 
  */
-package org.evosuite.ga.localsearch;
+package org.evosuite.testcase.localsearch;
 
 import java.util.Arrays;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.localsearch.LocalSearchBudget;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
@@ -14,10 +33,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Gordon Fraser
+ * <p>
+ * StringLocalSearch class.
+ * </p>
  * 
+ * @author fraser
  */
-public class StringAVMLocalSearch extends StatementLocalSearch {
+public class StringLocalSearch extends StatementLocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(StringLocalSearch.class);
 
@@ -123,6 +145,9 @@ public class StringAVMLocalSearch extends StatementLocalSearch {
 				logger.info("Has not improved");
 				restore(test, p);
 			}
+			if(LocalSearchBudget.getInstance().isFinished())
+				break;
+			
 		}
 
 		return improvement;
@@ -134,105 +159,40 @@ public class StringAVMLocalSearch extends StatementLocalSearch {
 		logger.info(" -> In replacement");
 		boolean improvement = false;
 		backup(test, p);
+
 		for (int i = 0; i < oldValue.length(); i++) {
+			char oldChar = oldValue.charAt(i);
+			logger.info(" -> Character " + i + ": " + oldChar);
+			char[] characters = oldValue.toCharArray();
+			for (char replacement = 9; replacement < 128; replacement++) {
+				if(LocalSearchBudget.getInstance().isFinished())
+					return improvement;
 
-			boolean done = false;
-			while (!done) {
-				done = true;
-				// Try +1
-				logger.debug("Trying increment of " + p.getCode());
-
-				char oldChar = oldValue.charAt(i);
-				logger.info(" -> Character " + i + ": " + oldChar);
-				char[] characters = oldValue.toCharArray();
-				char replacement = oldChar;
-
-				replacement += 1;
-				characters[i] = replacement;
-				String newString = new String(characters);
-				p.setValue(newString);
-				logger.info(" " + i + " " + oldValue + "/" + oldValue.length() + " -> "
-				        + newString + "/" + newString.length());
-
-				if (objective.hasImproved(test)) {
-					done = false;
-
-					iterate(2, objective, test, p, i, statement);
-					oldValue = p.getValue();
-					oldResult = test.getLastExecutionResult();
-
-				} else {
-					// Restore original, try -1
-					p.setValue(oldValue);
-					test.setLastExecutionResult(oldResult);
-					test.setChanged(false);
-
-					logger.debug("Trying decrement of " + p.getCode());
-					replacement -= 2;
+				if (replacement != oldChar) {
 					characters[i] = replacement;
-					newString = new String(characters);
+					String newString = new String(characters);
 					p.setValue(newString);
 					logger.info(" " + i + " " + oldValue + "/" + oldValue.length()
 					        + " -> " + newString + "/" + newString.length());
+					//logger.debug(" " + i + " " + oldValue + "/" + oldValue.length()
+					//        + " -> " + newString + "/" + newString.length());
 
 					if (objective.hasImproved(test)) {
-						done = false;
-						iterate(-2, objective, test, p, i, statement);
-						oldValue = p.getValue();
-						oldResult = test.getLastExecutionResult();
+						backup(test, p);
+						//oldChar = replacement;
+						improvement = true;
 
+						// If this change has improved fitness we can move on to the next character
+						break;
 					} else {
-						p.setValue(oldValue);
-						test.setLastExecutionResult(oldResult);
-						test.setChanged(false);
+						characters[i] = oldChar;
+						restore(test, p);
 					}
 				}
 			}
 		}
 
 		return improvement;
-	}
-
-	private boolean iterate(long delta, LocalSearchObjective<TestChromosome> objective,
-	        TestChromosome test, StringPrimitiveStatement p, int character,
-	        int statement) {
-
-		boolean improvement = false;
-		oldValue = p.getValue();
-		ExecutionResult oldResult = test.getLastExecutionResult();
-
-		logger.debug("Trying increment " + delta + " of " + p.getCode());
-		char oldChar = oldValue.charAt(character);
-		logger.info(" -> Character " + character + ": " + oldChar);
-		char[] characters = oldValue.toCharArray();
-		char replacement = oldChar;
-
-		replacement += delta;
-		characters[character] = replacement;
-		String newString = new String(characters);
-		p.setValue(newString);
-
-		while (objective.hasImproved(test)) {
-			oldValue = p.getValue();
-			oldResult = test.getLastExecutionResult();
-			improvement = true;
-			delta = 2 * delta;
-			logger.info(" " + character + " " + oldValue + "/" + oldValue.length()
-			        + " -> " + newString + "/" + newString.length());
-			replacement += delta;
-			characters[character] = replacement;
-			newString = new String(characters);
-			p.setValue(newString);
-		}
-		logger.debug("No improvement on " + p.getCode());
-
-		p.setValue(oldValue);
-		test.setLastExecutionResult(oldResult);
-		test.setChanged(false);
-		logger.debug("Final value of this iteration: " + p.getValue());
-
-		return improvement;
-
 	}
 
 	private boolean addCharacters(LocalSearchObjective<TestChromosome> objective,
@@ -248,6 +208,9 @@ public class StringAVMLocalSearch extends StatementLocalSearch {
 			int position = oldValue.length();
 			char[] characters = Arrays.copyOf(oldValue.toCharArray(), position + 1);
 			for (char replacement = 9; replacement < 128; replacement++) {
+				if(LocalSearchBudget.getInstance().isFinished())
+					return improvement;
+
 				characters[position] = replacement;
 				String newString = new String(characters);
 				p.setValue(newString);
@@ -271,6 +234,9 @@ public class StringAVMLocalSearch extends StatementLocalSearch {
 			int position = 0;
 			char[] characters = (" " + oldValue).toCharArray();
 			for (char replacement = 9; replacement < 128; replacement++) {
+				if(LocalSearchBudget.getInstance().isFinished())
+					return improvement;
+
 				characters[position] = replacement;
 				String newString = new String(characters);
 				p.setValue(newString);
