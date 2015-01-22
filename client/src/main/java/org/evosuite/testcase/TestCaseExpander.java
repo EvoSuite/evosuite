@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.evosuite.testsuite;
+package org.evosuite.testcase;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,11 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.testcase.ArrayIndex;
-import org.evosuite.testcase.ArrayReference;
-import org.evosuite.testcase.ConcreteValueObserver;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
