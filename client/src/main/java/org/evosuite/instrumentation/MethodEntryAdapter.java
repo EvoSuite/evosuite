@@ -71,7 +71,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 			mv.visitVarInsn(Opcodes.ALOAD, 0);
 		}
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-		                   "org/evosuite/testcase/ExecutionTracer",
+		                   "org/evosuite/testcase/execution/ExecutionTracer",
 		                   "enteredMethod",
 		                   "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V", false);
 
@@ -88,7 +88,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 			mv.visitLdcInsn(className);
 			mv.visitLdcInsn(fullMethodName);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			                   "org/evosuite/testcase/ExecutionTracer",
+			                   "org/evosuite/testcase/execution/ExecutionTracer",
 			                   "leftMethod", "(Ljava/lang/String;Ljava/lang/String;)V", false);
 		}
 		super.onMethodExit(opcode);

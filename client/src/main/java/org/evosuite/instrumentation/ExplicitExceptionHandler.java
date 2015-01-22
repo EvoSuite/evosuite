@@ -91,7 +91,7 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 			this.visitLdcInsn(className);
 			this.visitLdcInsn(fullMethodName);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			                   "org/evosuite/testcase/ExecutionTracer",
+			                   "org/evosuite/testcase/execution/ExecutionTracer",
 			                   "exceptionThrown",
 			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
 		}

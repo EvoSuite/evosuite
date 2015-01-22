@@ -114,7 +114,7 @@ public class ReturnValueAdapter extends MethodVisitor {
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
 		this.visitMethodInsn(Opcodes.INVOKESTATIC,
-		                     "org/evosuite/testcase/ExecutionTracer",
+		                     "org/evosuite/testcase/execution/ExecutionTracer",
 		                     "returnValue", "(ILjava/lang/String;Ljava/lang/String;)V", false);
 	}
 
@@ -127,7 +127,7 @@ public class ReturnValueAdapter extends MethodVisitor {
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
 		this.visitMethodInsn(Opcodes.INVOKESTATIC,
-		                     "org/evosuite/testcase/ExecutionTracer",
+		                     "org/evosuite/testcase/execution/ExecutionTracer",
 		                     "returnValue",
 		                     "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
 	}

@@ -72,7 +72,7 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 			return;
 
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-		                   "org/evosuite/testcase/ExecutionTracer",
+		                   "org/evosuite/testcase/execution/ExecutionTracer",
 		                   "checkTimeout", "()V", false);
 	}
 
@@ -100,7 +100,7 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 			this.visitLdcInsn(className);
 			this.visitLdcInsn(methodName);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			                   "org/evosuite/testcase/ExecutionTracer",
+			                   "org/evosuite/testcase/execution/ExecutionTracer",
 			                   "exceptionThrown",
 			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
 		}
