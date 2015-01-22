@@ -32,13 +32,14 @@ import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.testcase.ArrayIndex;
 import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
-import org.evosuite.testcase.UncompilableCodeException;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.Randomness;
@@ -314,7 +315,7 @@ public class MethodStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public StatementInterface copy(TestCase newTestCase, int offset) {
+	public Statement copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
 			new_params.add(r.copy(newTestCase, offset));
@@ -658,7 +659,7 @@ public class MethodStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public boolean same(StatementInterface s) {
+	public boolean same(Statement s) {
 		if (this == s)
 			return true;
 		if (s == null)
@@ -734,12 +735,12 @@ public class MethodStatement extends AbstractStatement {
 			objects.remove(parameter);
 			objects.remove(getReturnValue());
 			NullStatement nullStatement = new NullStatement(test, parameter.getType());
-			StatementInterface primitiveCopy = null;
+			Statement primitiveCopy = null;
 
 			if (!parameter.isPrimitive())
 				objects.add(nullStatement.getReturnValue());
 			else {
-				StatementInterface originalStatement = test.getStatement(parameter.getStPosition());
+				Statement originalStatement = test.getStatement(parameter.getStPosition());
 				if (originalStatement instanceof PrimitiveStatement<?>) {
 					PrimitiveStatement<?> copy = (PrimitiveStatement<?>) originalStatement.clone(test);
 					copy.delta();

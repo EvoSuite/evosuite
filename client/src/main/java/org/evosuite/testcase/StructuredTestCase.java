@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.testcase.statements.StatementInterface;
-
 public class StructuredTestCase extends DefaultTestCase {
 
 	private static final long serialVersionUID = -1896651382970358963L;
@@ -18,7 +16,7 @@ public class StructuredTestCase extends DefaultTestCase {
 	private final Set<Integer> targetStatements = new HashSet<Integer>();
 
 	public StructuredTestCase(TestCase test) {
-		for (StatementInterface statement : test) {
+		for (Statement statement : test) {
 			addStatement(statement.clone(this));
 		}
 	}

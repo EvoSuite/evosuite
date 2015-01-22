@@ -27,6 +27,7 @@ import org.evosuite.symbolic.vm.wrappers.Types;
 import org.evosuite.testcase.ArrayIndex;
 import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.FieldReference;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
@@ -49,7 +50,6 @@ import org.evosuite.testcase.statements.LongPrimitiveStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.ShortPrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.objectweb.asm.Type;
 
@@ -99,7 +99,7 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	@Override
-	public void beforeStatement(StatementInterface s, Scope scope) {
+	public void beforeStatement(Statement s, Scope scope) {
 		if (VM.vm.isStopped()) {
 			return;
 		}
@@ -1148,7 +1148,7 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	@Override
-	public void afterStatement(StatementInterface s, Scope scope, Throwable exception) {
+	public void afterStatement(Statement s, Scope scope, Throwable exception) {
 
 		if (exception != null) {
 			return;

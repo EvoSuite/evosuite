@@ -21,7 +21,6 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.objectweb.asm.Type;
 
 import java.util.Set;
@@ -91,7 +90,7 @@ public class MethodNoExceptionCoverageTestFitness extends TestFitnessFunction {
         double fitness = 1.0;
 
         Set<Integer> exceptionPositions = result.getPositionsWhereExceptionsWereThrown();
-        for (StatementInterface stmt : result.test) {
+        for (Statement stmt : result.test) {
             if ((stmt instanceof MethodStatement || stmt instanceof ConstructorStatement) && ! exceptionPositions.contains(stmt.getPosition())) {
                 String className;
                 String methodName;

@@ -18,11 +18,11 @@ import org.evosuite.symbolic.solver.ConstraintCache;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverFactory;
 import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -274,7 +274,7 @@ public class DSELocalSearch extends StatementLocalSearch {
 	 * @return
 	 */
 	private PrimitiveStatement<?> getStatement(TestCase test, String name) {
-		for (StatementInterface statement : test) {
+		for (Statement statement : test) {
 
 			if (statement instanceof PrimitiveStatement<?>) {
 				if (statement.getReturnValue().getName().equals(name))

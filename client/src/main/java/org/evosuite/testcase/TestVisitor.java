@@ -28,7 +28,6 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveExpression;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 
 
 /**
@@ -136,9 +135,9 @@ public abstract class TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.Statement} object.
 	 */
-	public void visitStatement(StatementInterface statement) {
+	public void visitStatement(Statement statement) {
 
 		if (statement instanceof PrimitiveStatement<?>)
 			visitPrimitiveStatement((PrimitiveStatement<?>) statement);

@@ -25,9 +25,9 @@ import java.util.List;
 
 import org.evosuite.assertion.EqualsAssertion;
 import org.evosuite.testcase.ConstantValue;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.testcase.statements.StatementInterface;
 
 
 /**
@@ -42,7 +42,7 @@ public class EqualsNullContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
+	public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
 		for(VariableReference var : getAllVariables(scope)) {
 			logger.debug("Current variable: "+var);
 			Object object = scope.getObject(var);
@@ -83,7 +83,7 @@ public class EqualsNullContract extends Contract {
 	}
 
 	@Override
-	public void addAssertionAndComments(StatementInterface statement,
+	public void addAssertionAndComments(Statement statement,
 			List<VariableReference> variables, Throwable exception) {
 		EqualsAssertion assertion = new EqualsAssertion();
 		assertion.setStatement(statement);

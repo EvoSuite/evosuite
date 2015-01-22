@@ -30,7 +30,6 @@ import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.environmentdata.AccessedEnvironment;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.Listenable;
 
 
@@ -41,7 +40,7 @@ import org.evosuite.utils.Listenable;
  * @author Gordon Fraser
  * @author Sebastian Steenbuck
  */
-public interface TestCase extends Iterable<StatementInterface>, Cloneable,
+public interface TestCase extends Iterable<Statement>, Cloneable,
         Listenable<Void> {
 
 	/**
@@ -80,7 +79,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 *            New statement
 	 * @return VariableReference of return value
 	 */
-	public VariableReference addStatement(StatementInterface statement);
+	public VariableReference addStatement(Statement statement);
 
 	/**
 	 * Add new statement at position and fix following variable references
@@ -93,14 +92,14 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 *         modify the statement you inserted. You should use the returned
 	 *         variable reference and not use references
 	 */
-	public VariableReference addStatement(StatementInterface statement, int position);
+	public VariableReference addStatement(Statement statement, int position);
 
 	/**
 	 * <p>addStatements</p>
 	 *
 	 * @param statements a {@link java.util.List} object.
 	 */
-	public void addStatements(List<? extends StatementInterface> statements);
+	public void addStatements(List<? extends Statement> statements);
 
 	/**
 	 * Remove all statements after a given position
@@ -318,7 +317,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 *            Index of statement
 	 * @return Statement at position
 	 */
-	public StatementInterface getStatement(int position);
+	public Statement getStatement(int position);
 
 	/**
 	 * Check if there are any assertions
@@ -440,7 +439,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 *         modify the statement you inserted. You should use the returned
 	 *         variable reference and not use references
 	 */
-	public VariableReference setStatement(StatementInterface statement, int position);
+	public VariableReference setStatement(Statement statement, int position);
 
 	/**
 	 * Define whether this test case is unstable or not

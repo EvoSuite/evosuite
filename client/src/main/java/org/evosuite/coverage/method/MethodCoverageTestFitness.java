@@ -21,7 +21,6 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.objectweb.asm.Type;
 
 import java.util.Set;
@@ -90,7 +89,7 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
     public double getFitness(TestChromosome individual, ExecutionResult result) {
         double fitness = 1.0;
 
-        for (StatementInterface stmt : result.test) {
+        for (Statement stmt : result.test) {
             if ((stmt instanceof MethodStatement || stmt instanceof ConstructorStatement)) {
                 String className;
                 String methodName;

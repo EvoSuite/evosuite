@@ -3,7 +3,6 @@ package org.evosuite.testcase;
 import java.io.Serializable;
 
 import org.evosuite.ga.operators.mutation.MutationHistoryEntry;
-import org.evosuite.testcase.statements.StatementInterface;
 
 public class TestMutationHistoryEntry implements MutationHistoryEntry, Serializable {
 
@@ -15,11 +14,11 @@ public class TestMutationHistoryEntry implements MutationHistoryEntry, Serializa
 
 	protected TestMutation mutationType;
 
-	protected StatementInterface statement;
+	protected Statement statement;
 
 	public String whatwasit;
 
-	public TestMutationHistoryEntry(TestMutation type, StatementInterface statement) {
+	public TestMutationHistoryEntry(TestMutation type, Statement statement) {
 		this.mutationType = type;
 		this.statement = statement;
 		this.whatwasit = statement.getCode() + " at position " + statement.getPosition();
@@ -31,7 +30,7 @@ public class TestMutationHistoryEntry implements MutationHistoryEntry, Serializa
 		this.whatwasit = "Deleted some statement";
 	}
 
-	public StatementInterface getStatement() {
+	public Statement getStatement() {
 		return statement;
 	}
 

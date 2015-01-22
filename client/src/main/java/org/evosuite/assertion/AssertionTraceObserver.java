@@ -20,12 +20,12 @@
  */
 package org.evosuite.assertion;
 
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,11 +64,11 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.Statement} object.
 	 * @param scope
 	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 */
-	protected void visitDependencies(StatementInterface statement, Scope scope) {
+	protected void visitDependencies(Statement statement, Scope scope) {
 		for (VariableReference var : currentTest.getDependencies(statement.getReturnValue())) {
 			if (!var.isVoid()) {
 				try {
@@ -86,11 +86,11 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.Statement} object.
 	 * @param scope
 	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 */
-	protected void visitReturnValue(StatementInterface statement, Scope scope) {
+	protected void visitReturnValue(Statement statement, Scope scope) {
 		if (!statement.getReturnClass().equals(void.class)) {
 			try {
 				visit(statement, scope, statement.getReturnValue());
@@ -106,13 +106,13 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.Statement} object.
 	 * @param scope
 	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @param var
 	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
-	protected abstract void visit(StatementInterface statement, Scope scope,
+	protected abstract void visit(Statement statement, Scope scope,
 	        VariableReference var) throws CodeUnderTestException;
 
 	/* (non-Javadoc)
@@ -120,7 +120,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public synchronized void afterStatement(StatementInterface statement, Scope scope,
+	public synchronized void afterStatement(Statement statement, Scope scope,
 	        Throwable exception) {
 		//if(checkThread())
 		//	return;
@@ -137,7 +137,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
 	 */
 	@Override
-	public synchronized void beforeStatement(StatementInterface statement, Scope scope) {
+	public synchronized void beforeStatement(Statement statement, Scope scope) {
 		// Do nothing
 	}
 

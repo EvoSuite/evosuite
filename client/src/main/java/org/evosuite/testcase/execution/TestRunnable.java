@@ -36,8 +36,8 @@ import org.evosuite.runtime.System.SystemExitException;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.thread.KillSwitch;
 import org.evosuite.runtime.thread.ThreadStopper;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +135,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 * @param s
 	 *            the statement to execute
 	 */
-	protected void informObservers_before(StatementInterface s) {
+	protected void informObservers_before(Statement s) {
 		ExecutionTracer.disable();
 		try {
 			for (ExecutionObserver observer : observers) {
@@ -155,7 +155,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 *            the exception thrown when executing the statement, if any (can
 	 *            be null)
 	 */
-	protected void informObservers_after(StatementInterface s, Throwable exceptionThrown) {
+	protected void informObservers_after(Statement s, Throwable exceptionThrown) {
 		ExecutionTracer.disable();
 		try {
 			for (ExecutionObserver observer : observers) {
@@ -285,7 +285,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 			InvocationTargetException, IllegalAccessException,
 			InstantiationException, VMError, EvosuiteError {
 		
-		for (StatementInterface s : test) {
+		for (Statement s : test) {
 
 			if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
 				logger.info("Thread interrupted at statement " + num + ": " + s.getCode());
@@ -365,7 +365,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		//TODO
 	}
 
-	private void printDebugInfo(StatementInterface s, Throwable exceptionThrown) {
+	private void printDebugInfo(Statement s, Throwable exceptionThrown) {
 		// some debugging info
 		// --------------------------------------------------------
 

@@ -22,12 +22,12 @@ package org.evosuite.assertion;
 import java.lang.reflect.Modifier;
 import java.util.regex.Pattern;
 
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 
 public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTraceEntry> {
 
@@ -35,7 +35,7 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 
 	/** {@inheritDoc} */
 	@Override
-	public synchronized void afterStatement(StatementInterface statement, Scope scope,
+	public synchronized void afterStatement(Statement statement, Scope scope,
 	        Throwable exception) {
 		// By default, no assertions are created for statements that threw exceptions
 		if(exception != null)
@@ -49,7 +49,7 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 	 */
 	/** {@inheritDoc} */
 	@Override
-	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+	protected void visit(Statement statement, Scope scope, VariableReference var) {
 		if(statement.isAssignmentStatement())
 			return;
 

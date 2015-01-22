@@ -32,7 +32,6 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +103,7 @@ public class ConstantInliner extends ExecutionObserver {
 		boolean has_deleted = false;
 
 		int num = 0;
-		for (StatementInterface s : t) {
+		for (Statement s : t) {
 			if (s instanceof PrimitiveStatement) {
 
 				VariableReference var = s.getReturnValue();
@@ -138,7 +137,7 @@ public class ConstantInliner extends ExecutionObserver {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void afterStatement(StatementInterface statement, Scope scope,
+	public void afterStatement(Statement statement, Scope scope,
 	        Throwable exception) {
 		try {
 			for (VariableReference var : statement.getVariableReferences()) {
@@ -202,7 +201,7 @@ public class ConstantInliner extends ExecutionObserver {
 	 * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
 	 */
 	@Override
-	public void beforeStatement(StatementInterface statement, Scope scope) {
+	public void beforeStatement(Statement statement, Scope scope) {
 		// Do nothing
 	}
 

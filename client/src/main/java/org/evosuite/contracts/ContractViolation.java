@@ -28,13 +28,13 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.FieldReference;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public class ContractViolation {
 
 	private TestCase test;
 
-	private StatementInterface statement;
+	private Statement statement;
 
 	/**
 	 * If the statement execution leads to a contract violation with an
@@ -79,11 +79,11 @@ public class ContractViolation {
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.Statement} object.
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */
-	public ContractViolation(Contract contract, StatementInterface statement,
+	public ContractViolation(Contract contract, Statement statement,
 	        Throwable exception, VariableReference... variables) {
 		this.contract = contract;
 		this.test = statement.getTestCase().clone();

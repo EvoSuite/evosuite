@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.testcase.NullReference;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.Scope;
@@ -69,7 +70,7 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public StatementInterface copy(TestCase newTestCase, int offset) {
+	public Statement copy(TestCase newTestCase, int offset) {
 		return new NullStatement(newTestCase, retval.getType());
 	}
 
@@ -128,7 +129,7 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean same(StatementInterface s) {
+	public boolean same(Statement s) {
 		if (this == s)
 			return true;
 		if (s == null)

@@ -19,19 +19,19 @@
  */
 package org.evosuite.assertion;
 
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 
 public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
 
 	/** {@inheritDoc} */
 	@Override
-	public synchronized void afterStatement(StatementInterface statement, Scope scope,
+	public synchronized void afterStatement(Statement statement, Scope scope,
 	        Throwable exception) {
 		// By default, no assertions are created for statements that threw exceptions
 		if(exception != null)
@@ -45,7 +45,7 @@ public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+	protected void visit(Statement statement, Scope scope, VariableReference var) {
 		logger.debug("Checking for null of " + var);
 		try {
 			if (var == null

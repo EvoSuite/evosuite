@@ -18,6 +18,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestVisitor;
 import org.evosuite.testcase.VariableReference;
@@ -29,7 +30,6 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveExpression;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public class GenericTypeInference extends TestVisitor {
 		logger.debug("Inferring generic types");
 		// calculateExactTypes();
 		for (int i = test.size() - 1; i >= 0; i--) {
-			StatementInterface statement = test.getStatement(i);
+			Statement statement = test.getStatement(i);
 			if (statement instanceof ConstructorStatement) {
 				determineExactType((ConstructorStatement) statement);
 			}
@@ -62,7 +62,7 @@ public class GenericTypeInference extends TestVisitor {
 		logger.debug("Resulting test: "+test.toCode());
 	}
 
-	private void addVariable(StatementInterface statement) {
+	private void addVariable(Statement statement) {
 		VariableReference retVal = statement.getReturnValue();
 		variableMap.put(retVal, new LinkedHashSet<Type>());
 	}
@@ -274,7 +274,7 @@ public class GenericTypeInference extends TestVisitor {
 
 	private void updateMethodCallsOfGenericOwner(VariableReference callee) {
 		for (int pos = callee.getStPosition() + 1; pos < test.size(); pos++) {
-			StatementInterface statement = test.getStatement(pos);
+			Statement statement = test.getStatement(pos);
 			if (!(statement instanceof MethodStatement))
 				continue;
 			MethodStatement ms = (MethodStatement) statement;

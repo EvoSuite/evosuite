@@ -20,6 +20,7 @@ package org.evosuite.testcase.statements;
 import com.googlecode.gentyref.GenericTypeReflector;
 
 import org.evosuite.Properties;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;
@@ -224,7 +225,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      * {@inheritDoc}
      */
     @Override
-    public StatementInterface copy(TestCase newTestCase, int offset) {
+    public Statement copy(TestCase newTestCase, int offset) {
         @SuppressWarnings("unchecked")
         PrimitiveStatement<T> clone = (PrimitiveStatement<T>) getPrimitiveStatement(newTestCase,
                 retval.getGenericClass());
@@ -363,7 +364,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      * {@inheritDoc}
      */
     @Override
-    public boolean same(StatementInterface s) {
+    public boolean same(Statement s) {
         if (this == s)
             return true;
         if (s == null)
@@ -397,7 +398,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
     private void mutateTransformedBoolean(TestCase test) {
         if (Randomness.nextDouble() > Properties.RANDOM_PERTURBATION) {
             boolean done = false;
-            for (StatementInterface s : test) {
+            for (Statement s : test) {
                 if (s instanceof MethodStatement) {
                     MethodStatement ms = (MethodStatement) s;
                     List<VariableReference> parameters = ms.getParameterReferences();

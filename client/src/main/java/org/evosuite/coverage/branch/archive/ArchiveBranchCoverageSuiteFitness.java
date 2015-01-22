@@ -32,10 +32,10 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -174,7 +174,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				continue;
 
 			Integer exceptionPosition = result.getFirstPositionOfThrownException();
-			StatementInterface statement = result.test.getStatement(exceptionPosition);
+			Statement statement = result.test.getStatement(exceptionPosition);
 			if (statement instanceof ConstructorStatement) {
 				ConstructorStatement c = (ConstructorStatement) statement;
 				String className = c.getConstructor().getName();

@@ -7,12 +7,12 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.DSEType;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCaseExpander;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestMutationHistoryEntry;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.localsearch.AdaptiveTestCaseLocalSearch;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -63,7 +63,7 @@ public class AdaptiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 					if(mutation.getMutationType() == TestMutationHistoryEntry.TestMutation.DELETION) {
 						clone.getMutationHistory().addMutationEntry(mutation.clone(clone.getTestCase()));
 					} else {
-						StatementInterface s1 = mutation.getStatement();
+						Statement s1 = mutation.getStatement();
 						if(expander.variableMapping.containsKey(s1.getPosition())) {
 							for(VariableReference var : expander.variableMapping.get(s1.getPosition())) {
 								clone.getMutationHistory().addMutationEntry(new TestMutationHistoryEntry(mutation.getMutationType(), clone.getTestCase().getStatement(var.getStPosition())));

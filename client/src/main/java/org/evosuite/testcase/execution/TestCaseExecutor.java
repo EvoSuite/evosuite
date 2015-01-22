@@ -38,8 +38,8 @@ import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.FieldReference;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.ResetExecutor;
 import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
@@ -282,7 +282,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionResult result) {
 		HashSet<String> moreClassesForStaticReset = new HashSet<String>();
 		for(int position = 0; position < result.getExecutedStatements(); position++) {
-			StatementInterface statement = tc.getStatement(position);				
+			Statement statement = tc.getStatement(position);				
 			if(statement.isAssignmentStatement()) {
 				if(statement.getReturnValue() instanceof FieldReference) {
 					FieldReference fieldReference = (FieldReference)statement.getReturnValue();

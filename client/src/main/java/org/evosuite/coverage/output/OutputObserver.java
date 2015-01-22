@@ -20,12 +20,12 @@ package org.evosuite.coverage.output;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public class OutputObserver extends ExecutionObserver {
      * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
      */
     @Override
-    public void beforeStatement(StatementInterface statement, Scope scope) {
+    public void beforeStatement(Statement statement, Scope scope) {
         // do nothing
     }
 
@@ -58,7 +58,7 @@ public class OutputObserver extends ExecutionObserver {
      * @see org.evosuite.testcase.ExecutionObserver#afterStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, java.lang.Throwable)
      */
     @Override
-    public void afterStatement(StatementInterface statement, Scope scope,
+    public void afterStatement(Statement statement, Scope scope,
                                Throwable exception) {
         if (statement instanceof MethodStatement) {
             MethodStatement methodStmt = (MethodStatement) statement;

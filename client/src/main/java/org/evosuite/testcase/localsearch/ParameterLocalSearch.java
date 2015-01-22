@@ -25,13 +25,13 @@ import java.util.List;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.NullReference;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,12 +50,12 @@ public class ParameterLocalSearch extends StatementLocalSearch {
 
 	private boolean oldChanged;
 
-	private void backup(ExecutableChromosome test, StatementInterface p) {
+	private void backup(ExecutableChromosome test, Statement p) {
 		oldResult = test.getLastExecutionResult();
 		oldChanged = test.isChanged();
 	}
 
-	private void restore(ExecutableChromosome test, StatementInterface p) {
+	private void restore(ExecutableChromosome test, Statement p) {
 		test.setLastExecutionResult(oldResult);
 		test.setChanged(oldChanged);
 	}
@@ -67,7 +67,7 @@ public class ParameterLocalSearch extends StatementLocalSearch {
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective<TestChromosome> objective) {
-		StatementInterface stmt = test.getTestCase().getStatement(statement);
+		Statement stmt = test.getTestCase().getStatement(statement);
 		backup(test, stmt);
 		if (stmt instanceof MethodStatement) {
 			return doSearch(test, (MethodStatement) stmt, objective);

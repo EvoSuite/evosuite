@@ -63,7 +63,6 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveExpression;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.utils.*;
 
@@ -148,11 +147,11 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.Statement} object.
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */
-	public void setException(StatementInterface statement, Throwable exception) {
+	public void setException(Statement statement, Throwable exception) {
 		exceptions.put(statement.getPosition(), exception);
 	}
 
@@ -162,10 +161,10 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.Statement} object.
 	 * @return a {@link java.lang.Throwable} object.
 	 */
-	protected Throwable getException(StatementInterface statement) {
+	protected Throwable getException(Statement statement) {
 		if (exceptions != null && exceptions.containsKey(statement.getPosition()))
 			return exceptions.get(statement.getPosition());
 
@@ -775,7 +774,7 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 	}
 
-	private void addAssertions(StatementInterface statement) {
+	private void addAssertions(Statement statement) {
 		boolean assertionAdded = false;
 		if (getException(statement) != null) {
 			// Assumption: The statement that throws an exception is the last statement of a test.
@@ -1376,7 +1375,7 @@ public class TestCodeVisitor extends TestVisitor {
 	}
 
 	@Override
-	public void visitStatement(StatementInterface statement) {
+	public void visitStatement(Statement statement) {
 		if (!statement.getComment().isEmpty()) {
 			String comment = statement.getComment();
 			for (String line : comment.split("\n")) {

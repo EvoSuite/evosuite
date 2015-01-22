@@ -38,6 +38,7 @@ import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.VariableReference;
@@ -46,7 +47,6 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 //import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ArrayUtil;
@@ -298,7 +298,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 * @param statement
 	 * @return
 	 */
-	protected boolean justNullAssertion(StatementInterface statement) {
+	protected boolean justNullAssertion(Statement statement) {
 		Set<Assertion> assertions = statement.getAssertions();
 		if (assertions.isEmpty())
 			return false;
@@ -324,7 +324,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		}
 	}
 	
-	protected boolean primitiveWithoutAssertion(StatementInterface statement) {
+	protected boolean primitiveWithoutAssertion(Statement statement) {
 		if(!statement.getReturnValue().isPrimitive())
 			return false;
 		
@@ -356,7 +356,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 */
 	protected boolean isUsedAsCallee(TestCase test, VariableReference var) {
 		for (int pos = var.getStPosition() + 1; pos < test.size(); pos++) {
-			StatementInterface statement = test.getStatement(pos);
+			Statement statement = test.getStatement(pos);
 			if (statement instanceof MethodStatement) {
 				if (((MethodStatement) statement).getCallee() == var)
 					return true;
@@ -378,7 +378,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 */
 	protected void filterRedundantNonnullAssertions(TestCase test) {
 		Set<Assertion> redundantAssertions = new HashSet<Assertion>();
-		for (StatementInterface statement : test) {
+		for (Statement statement : test) {
 			if (statement instanceof ConstructorStatement) {
 				ConstructorStatement cs = (ConstructorStatement) statement;
 				for (Assertion a : cs.getAssertions()) {
@@ -406,7 +406,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 * 
 	 * @param statement
 	 */
-	protected void filterInspectorPrimitiveDuplication(StatementInterface statement) {
+	protected void filterInspectorPrimitiveDuplication(Statement statement) {
 		Set<Assertion> assertions = new HashSet<Assertion>(statement.getAssertions());
 		if (assertions.size() < 2)
 			return;

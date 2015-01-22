@@ -36,7 +36,6 @@ import org.evosuite.symbolic.ConcolicMutation;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -302,7 +301,7 @@ public class TestChromosome extends ExecutableChromosome {
 		if (changed) {
 			setChanged(true);
 		}
-		for (StatementInterface s : test) {
+		for (Statement s : test) {
 			s.isValid();
 		}
 	}
@@ -383,7 +382,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 		if (!changed) {
 			for (int position = 0; position <= lastMutatableStatement; position++) {
-				StatementInterface statement = test.getStatement(position);
+				Statement statement = test.getStatement(position);
 				//for (StatementInterface statement : test) {
 				if (Randomness.nextDouble() <= pl) {
 					assert (test.isValid());

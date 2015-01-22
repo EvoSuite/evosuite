@@ -60,7 +60,7 @@ public class FailingTestSet {
 	 * @param contract
 	 *            a {@link org.evosuite.contracts.Contract} object.
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.Statement} object.
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */

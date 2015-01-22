@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
@@ -124,7 +125,7 @@ public class PrimitiveExpression extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public StatementInterface copy(TestCase newTestCase, int offset) {
+	public Statement copy(TestCase newTestCase, int offset) {
 		VariableReference newRetVal = new VariableReferenceImpl(newTestCase,
 		        retval.getType());
 		VariableReference newLeftOperand = newTestCase.getStatement(leftOperand.getStPosition()).getReturnValue();
@@ -249,7 +250,7 @@ public class PrimitiveExpression extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public boolean same(StatementInterface s) {
+	public boolean same(Statement s) {
 		if (this == s)
 			return true;
 		if (s == null)
