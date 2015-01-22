@@ -28,7 +28,7 @@ public class CreateClassResetMethodAdapter extends MethodVisitor {
 		super.visitCode();
 		for (StaticField staticField : staticFields) {
 
-			if (!finalFields.contains(staticField.name)) {
+			if (!finalFields.contains(staticField.name) && !staticField.name.startsWith("__cobertura")) {
 
 				if (staticField.value != null) {
 					mv.visitLdcInsn(staticField.value);
