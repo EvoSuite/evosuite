@@ -34,6 +34,7 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.ConcolicMutation;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;

@@ -4,7 +4,7 @@
  *
  * @author Gordon Fraser
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.execution;
 
 import java.util.ArrayList;
 import java.util.List;

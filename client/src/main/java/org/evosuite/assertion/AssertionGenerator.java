@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -109,7 +109,7 @@ public abstract class AssertionGenerator {
 	 * 
 	 * @param test
 	 *            The test case that should be executed
-	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	protected ExecutionResult runTest(TestCase test) {
 		ExecutionResult result = new ExecutionResult(test);

@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericClass;
 import org.objectweb.asm.commons.GeneratorAdapter;
 

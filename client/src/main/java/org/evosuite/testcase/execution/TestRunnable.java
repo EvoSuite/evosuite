@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.execution;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -36,6 +36,7 @@ import org.evosuite.runtime.System.SystemExitException;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.thread.KillSwitch;
 import org.evosuite.runtime.thread.ThreadStopper;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -80,7 +81,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @param observers
 	 *            a {@link java.util.Set} object.
 	 */

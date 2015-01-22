@@ -22,6 +22,7 @@ package org.evosuite.testcase;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.testcase.execution.ExecutionResult;
 
 /**
  * <p>MinimizeExceptionsSecondaryObjective class.</p>

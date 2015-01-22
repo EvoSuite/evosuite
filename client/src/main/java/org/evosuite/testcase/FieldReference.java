@@ -24,6 +24,9 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.EvosuiteError;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericField;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;

@@ -17,8 +17,8 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.result.TestGenerationResult.Status;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.utils.LoggingUtils;
 
 public class TestGenerationResultBuilder {

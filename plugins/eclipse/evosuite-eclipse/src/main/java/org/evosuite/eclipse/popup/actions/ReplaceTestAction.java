@@ -69,10 +69,10 @@ import org.evosuite.eclipse.properties.EvoSuitePropertyPage;
 import org.evosuite.eclipse.replace.TestCaseReplacer;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.setup.DependencyAnalysis;
-import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.RandomLengthTestFactory;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionTracer;
 
 @SuppressWarnings("restriction")
 public class ReplaceTestAction implements IObjectActionDelegate {

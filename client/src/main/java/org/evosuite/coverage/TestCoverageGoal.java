@@ -19,10 +19,10 @@ package org.evosuite.coverage;
 
 import java.util.List;
 
-import org.evosuite.testcase.EvosuiteError;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.EvosuiteError;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +69,7 @@ public abstract class TestCoverageGoal {
 	 * </p>
 	 * 
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a boolean.
 	 */
 	public static boolean hasTimeout(ExecutionResult result) {

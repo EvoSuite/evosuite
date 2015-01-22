@@ -31,9 +31,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.testcase.NullReference;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;

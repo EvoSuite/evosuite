@@ -21,11 +21,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.ExecutionTrace;
-import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.runner.JUnitCore;
 import org.slf4j.Logger;
@@ -125,7 +125,7 @@ public class JUnitTestSuite {
 	 * <p>runTest</p>
 	 *
 	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	public ExecutionResult runTest(TestCase test) {
 

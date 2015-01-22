@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.StatementInterface;

@@ -17,9 +17,9 @@
  */
 package org.evosuite.coverage.output;
 
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.objectweb.asm.Type;
 
@@ -160,7 +160,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
      * Calculate fitness
      *
      * @param individual a {@link org.evosuite.testcase.ExecutableChromosome} object.
-     * @param result     a {@link org.evosuite.testcase.ExecutionResult} object.
+     * @param result     a {@link org.evosuite.testcase.execution.ExecutionResult} object.
      * @return a double.
      */
     @Override

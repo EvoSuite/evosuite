@@ -28,6 +28,7 @@ import java.util.Map;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationExecutionResult;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 public abstract class ExecutableChromosome extends Chromosome {
 	private static final long serialVersionUID = 1L;
@@ -46,7 +47,7 @@ public abstract class ExecutableChromosome extends Chromosome {
 	/**
 	 * <p>Setter for the field <code>lastExecutionResult</code>.</p>
 	 *
-	 * @param lastExecutionResult a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @param lastExecutionResult a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	public void setLastExecutionResult(ExecutionResult lastExecutionResult) {
 		this.lastExecutionResult = lastExecutionResult;
@@ -55,7 +56,7 @@ public abstract class ExecutableChromosome extends Chromosome {
 	/**
 	 * <p>Getter for the field <code>lastExecutionResult</code>.</p>
 	 *
-	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	public ExecutionResult getLastExecutionResult() {
 		return lastExecutionResult;
@@ -109,7 +110,7 @@ public abstract class ExecutableChromosome extends Chromosome {
 	 * <p>executeForFitnessFunction</p>
 	 *
 	 * @param testSuiteFitnessFunction a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
-	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	abstract public ExecutionResult executeForFitnessFunction(
 	        TestSuiteFitnessFunction testSuiteFitnessFunction);

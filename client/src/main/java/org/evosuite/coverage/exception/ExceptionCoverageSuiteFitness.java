@@ -24,10 +24,10 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;

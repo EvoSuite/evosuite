@@ -20,10 +20,10 @@
  */
 package org.evosuite.assertion;
 
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.NumberFormatter;
 public class InspectorAssertion extends Assertion {

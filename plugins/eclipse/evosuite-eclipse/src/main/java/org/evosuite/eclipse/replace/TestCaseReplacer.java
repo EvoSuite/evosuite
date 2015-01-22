@@ -15,11 +15,11 @@ import org.evosuite.TestSuiteGenerator;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 // import org.evosuite.junit.JUnitTestReader;
-import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.RandomLengthTestFactory;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseMinimizer;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionTracer;
 
 /**
  * This class is the main entry point for test case replacement

@@ -15,12 +15,14 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.execution;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.statements.StatementInterface;
 
 /**
@@ -95,7 +97,7 @@ public abstract class ExecutionObserver {
 	 * @param statement
 	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */

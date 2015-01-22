@@ -6,10 +6,10 @@ package org.evosuite.assertion;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 
 /**
  * <p>SameAssertion class.</p>

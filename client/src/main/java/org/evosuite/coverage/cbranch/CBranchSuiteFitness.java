@@ -12,7 +12,7 @@ import java.util.Set;
 
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 

@@ -6,6 +6,9 @@ package org.evosuite.testcase;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.StatementInterface;
 

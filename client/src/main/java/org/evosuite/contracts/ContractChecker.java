@@ -28,10 +28,10 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.testcase.ExecutionObserver;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.GenericMethod;
 import org.junit.experimental.theories.Theory;

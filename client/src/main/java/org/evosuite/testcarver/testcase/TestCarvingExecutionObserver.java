@@ -1,11 +1,11 @@
 package org.evosuite.testcarver.testcase;
 
 import org.evosuite.testcarver.capture.FieldRegistry;
-import org.evosuite.testcase.ExecutionObserver;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.FieldReference;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.GenericField;

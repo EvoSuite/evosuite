@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.execution;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Set;
 
 import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.setup.CallContext;
-import org.evosuite.testcase.ExecutionTraceImpl.BranchEval;
+import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 
 /**
  * <p>
@@ -38,7 +38,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	 * </p>
 	 * 
 	 * @param trace
-	 *            a {@link org.evosuite.testcase.ExecutionTraceImpl} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTraceImpl} object.
 	 */
 	public ExecutionTraceProxy(ExecutionTraceImpl trace) {
 		this.trace = trace;

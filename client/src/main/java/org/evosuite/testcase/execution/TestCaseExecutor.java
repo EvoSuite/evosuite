@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.execution;
 
 import java.io.PrintStream;
 import java.util.Collections;
@@ -37,6 +37,8 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.testcase.FieldReference;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.ResetExecutor;
 import org.evosuite.runtime.reset.ResetManager;
@@ -111,7 +113,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * Getter for the field <code>instance</code>.
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.testcase.TestCaseExecutor} object.
+	 * @return a {@link org.evosuite.testcase.execution.TestCaseExecutor} object.
 	 */
 	public static synchronized TestCaseExecutor getInstance() {
 		if (instance == null)
@@ -200,7 +202,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * </p>
 	 * 
 	 * @param observer
-	 *            a {@link org.evosuite.testcase.ExecutionObserver} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionObserver} object.
 	 */
 	public void addObserver(ExecutionObserver observer) {
 		if (!observers.contains(observer)) {
@@ -220,7 +222,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * </p>
 	 * 
 	 * @param observer
-	 *            a {@link org.evosuite.testcase.ExecutionObserver} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionObserver} object.
 	 */
 	public void removeObserver(ExecutionObserver observer) {
 		if (observers.contains(observer)) {
@@ -249,7 +251,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	public ExecutionResult execute(TestCase tc) {
 		ExecutionResult result = execute(tc,  Properties.TIMEOUT);
@@ -299,7 +301,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	public ExecutionResult execute(TestCase tc, int timeout) {
 		Scope scope = new Scope();
@@ -316,8 +318,8 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
-	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	@SuppressWarnings("deprecation")
 	private ExecutionResult execute(TestCase tc, Scope scope, int timeout) {

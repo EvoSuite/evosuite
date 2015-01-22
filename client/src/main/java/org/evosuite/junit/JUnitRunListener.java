@@ -3,7 +3,7 @@
  */
 package org.evosuite.junit;
 
-import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;

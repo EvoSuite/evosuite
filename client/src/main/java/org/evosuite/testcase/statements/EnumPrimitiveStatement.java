@@ -26,8 +26,8 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;

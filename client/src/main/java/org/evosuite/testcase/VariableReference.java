@@ -21,6 +21,8 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericClass;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -252,7 +254,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * 
 	 * @param scope
 	 *            The scope of the test case execution
-	 * @throws org.evosuite.testcase.CodeUnderTestException
+	 * @throws org.evosuite.testcase.execution.CodeUnderTestException
 	 *             if code from the class under test throws an exception. (E.g.
 	 *             the static init of a field)
 	 * @return a {@link java.lang.Object} object.
@@ -276,7 +278,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 *            The scope of the test case execution
 	 * @param value
 	 *            The value to be assigned
-	 * @throws org.evosuite.testcase.CodeUnderTestException
+	 * @throws org.evosuite.testcase.execution.CodeUnderTestException
 	 *             if code from the class under test throws an exception. (E.g.
 	 *             the static init of a field)
 	 */

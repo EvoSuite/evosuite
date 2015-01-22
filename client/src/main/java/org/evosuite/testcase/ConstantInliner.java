@@ -26,6 +26,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testsuite.TestSuiteChromosome;

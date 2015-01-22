@@ -26,8 +26,8 @@ import org.evosuite.coverage.ControlFlowDistance;
 import org.evosuite.coverage.TestCoverageGoal;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlDependency;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.MethodCall;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.MethodCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +82,7 @@ public class ControlFlowDistanceCalculator {
 	 * For more information look at this class's class comment
 	 * 
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @param branch
 	 *            a {@link org.evosuite.coverage.branch.Branch} object.
 	 * @param value

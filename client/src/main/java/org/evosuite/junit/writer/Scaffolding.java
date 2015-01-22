@@ -25,7 +25,7 @@ import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.thread.KillSwitchHandler;
 import org.evosuite.runtime.thread.ThreadStopper;
 import org.evosuite.runtime.util.SystemInUtil;
-import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionResult;
 
 /**
  * Class used to generate all the scaffolding code that ends up in methods like @After/@Before

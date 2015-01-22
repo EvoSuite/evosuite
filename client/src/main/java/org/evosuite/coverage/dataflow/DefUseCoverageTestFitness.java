@@ -30,10 +30,10 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.utils.ArrayUtil;
 
 /*
@@ -293,7 +293,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * anyways.
 	 * 
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a double.
 	 */
 	public double getFitness(ExecutionResult result) {
@@ -402,7 +402,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * @param individual
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @param trace
-	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 * @param objectId
 	 *            a {@link java.lang.Integer} object.
 	 */
@@ -453,7 +453,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * Getter for the field <code>coveringTrace</code>.
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 */
 	public ExecutionTrace getCoveringTrace() {
 		return coveringTrace;

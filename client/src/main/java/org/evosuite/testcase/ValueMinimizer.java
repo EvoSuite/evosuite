@@ -20,6 +20,7 @@
  */
 package org.evosuite.testcase;
 
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.BooleanPrimitiveStatement;

@@ -27,13 +27,13 @@ import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
 import org.evosuite.testcase.ArrayReference;
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.EvosuiteError;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.utils.GenericClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
