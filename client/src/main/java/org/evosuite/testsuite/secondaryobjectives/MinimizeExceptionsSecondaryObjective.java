@@ -18,11 +18,11 @@
 /**
  * 
  */
-package org.evosuite.testsuite;
+package org.evosuite.testsuite.secondaryobjectives;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 
 /**
@@ -30,13 +30,13 @@ import org.evosuite.testcase.ExecutableChromosome;
  *
  * @author Gordon Fraser
  */
-public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective {
+public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
 
 	private static final long serialVersionUID = -4405276303273532040L;
 
-	private int getNumExceptions(Chromosome chromosome) {
+	private int getNumExceptions(TestSuiteChromosome chromosome) {
 		int sum = 0;
-		for (ExecutableChromosome test : ((TestSuiteChromosome) chromosome).tests) {
+		for (ExecutableChromosome test : chromosome.getTestChromosomes()) {
 			if (test.getLastExecutionResult() != null)
 				sum += test.getLastExecutionResult().getNumberOfThrownExceptions();
 		}
@@ -48,7 +48,7 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
+	public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
 		return getNumExceptions(chromosome1) - getNumExceptions(chromosome2);
 	}
 
@@ -57,8 +57,8 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int compareGenerations(Chromosome parent1, Chromosome parent2,
-	        Chromosome child1, Chromosome child2) {
+	public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+			TestSuiteChromosome child1, TestSuiteChromosome child2) {
 		return Math.min(getNumExceptions(parent1), getNumExceptions(parent2))
 		        - Math.min(getNumExceptions(child1), getNumExceptions(child2));
 	}

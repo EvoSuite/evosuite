@@ -15,23 +15,23 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testsuite;
+package org.evosuite.testsuite.secondaryobjectives;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
- * <p>MinimizeTotalLengthSecondaryObjective class.</p>
+ * <p>MinimizeAverageLengthSecondaryObjective class.</p>
  *
  * @author Gordon Fraser
  */
-public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective {
+public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = 1974099736891048617L;
+	private static final long serialVersionUID = -6272641645062817112L;
 
-	private int getLengthSum(TestSuiteChromosome chromosome1,
-	        TestSuiteChromosome chromosome2) {
-		return chromosome1.totalLengthOfTestCases() + chromosome2.totalLengthOfTestCases();
+	private double getAverageLength(TestSuiteChromosome chromosome) {
+		return (double) chromosome.totalLengthOfTestCases()
+		        / (double) chromosome.size();
 	}
 
 	/*
@@ -43,9 +43,9 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
-		return ((AbstractTestSuiteChromosome<?>) chromosome1).totalLengthOfTestCases()
-		        - ((AbstractTestSuiteChromosome<?>) chromosome2).totalLengthOfTestCases();
+	public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
+		return (int) Math.signum(getAverageLength(chromosome1)
+		        - getAverageLength(chromosome2));
 	}
 
 	/*
@@ -59,10 +59,11 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int compareGenerations(Chromosome parent1, Chromosome parent2,
-	        Chromosome child1, Chromosome child2) {
-		return getLengthSum((TestSuiteChromosome) parent1, (TestSuiteChromosome) parent2)
-		        - getLengthSum((TestSuiteChromosome) child1, (TestSuiteChromosome) child2);
+	public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+			TestSuiteChromosome child1, TestSuiteChromosome child2) {
+		return (int) Math.signum(Math.min(getAverageLength(parent1),
+		                                  getAverageLength(parent2))
+		        - Math.min(getAverageLength(child1), getAverageLength(child2)));
 	}
 
 }
