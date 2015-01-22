@@ -456,6 +456,10 @@ public class TestSuiteWriter implements Opcodes {
             list.add("resetStaticState = true");
         }
 
+        if (Properties.USE_SEPARATE_CLASSLOADER) {
+            list.add("separateClassLoader = true");
+        }
+
         if (!list.isEmpty()) {
             s += list.get(0);
 
