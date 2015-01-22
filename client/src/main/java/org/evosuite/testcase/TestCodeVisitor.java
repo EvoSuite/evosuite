@@ -855,7 +855,7 @@ public class TestCodeVisitor extends TestVisitor {
 			// + getVariableName(retval) + " = \""
 			// + StringEscapeUtils.escapeJava((String) value) + "\";\n";
 		} else if (statement instanceof EnvironmentDataStatement) {
-			testCode += ((EnvironmentDataStatement) statement).getTestCode(getVariableName(retval));
+			testCode += ((EnvironmentDataStatement<?>) statement).getTestCode(getVariableName(retval));
 		} else if (statement instanceof ClassPrimitiveStatement) {
 			StringBuilder builder = new StringBuilder();
 			String className = getClassName(retval);
