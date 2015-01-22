@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.factories;
 
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -29,6 +29,10 @@ import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericConstructor;
@@ -130,7 +134,7 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 	@Override
 	public TestChromosome getChromosome() {
 		TestChromosome c = new TestChromosome();
-		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
+		c.setTestCase(getRandomTestCase(Properties.CHROMOSOME_LENGTH));
 		return c;
 	}
 

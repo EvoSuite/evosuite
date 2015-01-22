@@ -4,7 +4,7 @@
 package org.evosuite.regression;
 
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.testcase.RandomLengthTestFactory;
+import org.evosuite.testcase.factories.RandomLengthTestFactory;
 
 /**
  * @author Gordon Fraser
