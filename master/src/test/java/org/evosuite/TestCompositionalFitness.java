@@ -43,7 +43,7 @@ public class TestCompositionalFitness extends SystemTest {
 
 	@Before
 	public void beforeTest() {
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
+		Properties.ALGORITHM = Algorithm.MONOTONICGA;
         Properties.COMPOSITIONAL_FITNESS = true;
         //Properties.MINIMIZE = true;
         Properties.LOG_LEVEL = "debug";

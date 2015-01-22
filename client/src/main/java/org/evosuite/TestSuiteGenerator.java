@@ -69,12 +69,12 @@ import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.TournamentChromosomeFactory;
 import org.evosuite.ga.localsearch.BranchCoverageMap;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.ga.metaheuristics.MuPlusLambdaGA;
+import org.evosuite.ga.metaheuristics.SteadyStateGA;
 import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.OnePlusOneEA;
 import org.evosuite.ga.metaheuristics.RandomSearch;
 import org.evosuite.ga.metaheuristics.StandardGA;
-import org.evosuite.ga.metaheuristics.SteadyStateGA;
+import org.evosuite.ga.metaheuristics.MonotonicGA;
 import org.evosuite.ga.operators.crossover.CoverageCrossOver;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
@@ -1971,10 +1971,10 @@ public class TestSuiteGenerator {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");
 			return new OnePlusOneEA<T>(factory);
-		case STEADYSTATEGA:
-			logger.info("Chosen search algorithm: SteadyStateGA");
+		case MONOTONICGA:
+			logger.info("Chosen search algorithm: MonotonicGA");
 			{
-				SteadyStateGA<T> ga = new SteadyStateGA<T>(factory);
+				MonotonicGA<T> ga = new MonotonicGA<T>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -1987,10 +1987,10 @@ public class TestSuiteGenerator {
 				}
 				return ga;
 			}
-		case MUPLUSLAMBDAGA:
-			logger.info("Chosen search algorithm: MuPlusLambdaGA");
+		case STEADYSTATEGA:
+			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
-				MuPlusLambdaGA<T> ga = new MuPlusLambdaGA<T>(factory);
+				SteadyStateGA<T> ga = new SteadyStateGA<T>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());

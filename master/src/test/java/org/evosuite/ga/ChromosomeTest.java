@@ -47,7 +47,7 @@ public class ChromosomeTest {
 
 	@Test
 	public void testGetFitnessForOneFunctionNoCompositional() {
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
+		Properties.ALGORITHM = Algorithm.MONOTONICGA;
 		Properties.COMPOSITIONAL_FITNESS = false;
         TestSuiteChromosome c = new TestSuiteChromosome();
         c.addFitness(new StatementCoverageSuiteFitness(), ANY_DOUBLE_1);
@@ -57,7 +57,7 @@ public class ChromosomeTest {
 	
 	@Test
 	public void testGetFitnessForNoFunctionNoCompositional() {
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
+		Properties.ALGORITHM = Algorithm.MONOTONICGA;
 		Properties.COMPOSITIONAL_FITNESS = false;
         TestSuiteChromosome c = new TestSuiteChromosome();
 		assertEquals(0.0, c.getFitness(), 0.001);
@@ -65,7 +65,7 @@ public class ChromosomeTest {
 	
 	@Test
 	public void testCompositionalGetFitnessForNoFunction() {
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
+		Properties.ALGORITHM = Algorithm.MONOTONICGA;
 		Properties.COMPOSITIONAL_FITNESS = true;
         TestSuiteChromosome c = new TestSuiteChromosome();
 		assertEquals(0.0, c.getFitness(), 0.001);
@@ -73,7 +73,7 @@ public class ChromosomeTest {
 	
 	@Test
 	public void testCompositionalGetFitnessForOneFunction() {
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
+		Properties.ALGORITHM = Algorithm.MONOTONICGA;
 		Properties.COMPOSITIONAL_FITNESS = true;
         TestSuiteChromosome c = new TestSuiteChromosome();
         StatementCoverageSuiteFitness f1 = new StatementCoverageSuiteFitness();
@@ -84,7 +84,7 @@ public class ChromosomeTest {
 	
 	@Test
 	public void testCompositionalGetFitnessForTwoFunctions() {
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
+		Properties.ALGORITHM = Algorithm.MONOTONICGA;
 		Properties.COMPOSITIONAL_FITNESS = true;
         TestSuiteChromosome c = new TestSuiteChromosome();
         StatementCoverageSuiteFitness f1 = new StatementCoverageSuiteFitness();
@@ -105,7 +105,7 @@ public class ChromosomeTest {
 	
 	@Test
 	public void testCompositionalGetFitnessForSeveralFunctions() {
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
+		Properties.ALGORITHM = Algorithm.MONOTONICGA;
 		Properties.COMPOSITIONAL_FITNESS = true;
         TestSuiteChromosome c = new TestSuiteChromosome();
         MethodTraceCoverageSuiteFitness f1 = new MethodTraceCoverageSuiteFitness();
