@@ -4,15 +4,15 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.DSEType;
-import org.evosuite.testcase.ArrayStatement;
-import org.evosuite.testcase.ConstructorStatement;
-import org.evosuite.testcase.EnumPrimitiveStatement;
-import org.evosuite.testcase.FieldStatement;
-import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.NullStatement;
-import org.evosuite.testcase.PrimitiveStatement;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.EnumPrimitiveStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.NullStatement;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 
 public abstract class StatementLocalSearch {
 

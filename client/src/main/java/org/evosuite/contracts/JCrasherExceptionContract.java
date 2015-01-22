@@ -24,11 +24,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.ConstructorStatement;
-import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 
 
 /**

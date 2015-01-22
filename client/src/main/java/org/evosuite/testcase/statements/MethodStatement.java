@@ -17,7 +17,7 @@
  * 
  * @author Gordon Fraser
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
@@ -30,6 +30,15 @@ import java.util.Set;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
+import org.evosuite.testcase.ArrayIndex;
+import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.CodeUnderTestException;
+import org.evosuite.testcase.EvosuiteError;
+import org.evosuite.testcase.Scope;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.UncompilableCodeException;
+import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.Randomness;

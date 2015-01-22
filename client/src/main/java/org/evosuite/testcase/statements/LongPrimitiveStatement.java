@@ -18,66 +18,51 @@
 /**
  * 
  */
-package org.evosuite.testcase;
-
-import java.lang.reflect.Type;
+package org.evosuite.testcase.statements;
 
 import org.evosuite.Properties;
 import org.evosuite.seeding.ConstantPool;
 import org.evosuite.seeding.ConstantPoolManager;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * <p>
- * BytePrimitiveStatement class.
+ * LongPrimitiveStatement class.
  * </p>
  * 
  * @author fraser
  */
-public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
+public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
+
+	private static final long serialVersionUID = 6902273233816031053L;
 
 	/**
 	 * <p>
-	 * Constructor for BytePrimitiveStatement.
+	 * Constructor for LongPrimitiveStatement.
 	 * </p>
 	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param value
-	 *            a {@link java.lang.Byte} object.
+	 *            a {@link java.lang.Long} object.
 	 */
-	public BytePrimitiveStatement(TestCase tc, Byte value) {
-		super(tc, byte.class, value);
+	public LongPrimitiveStatement(TestCase tc, Long value) {
+		super(tc, long.class, value);
 	}
 
 	/**
 	 * <p>
-	 * Constructor for BytePrimitiveStatement.
+	 * Constructor for LongPrimitiveStatement.
 	 * </p>
 	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public BytePrimitiveStatement(TestCase tc) {
-		super(tc, byte.class, (byte) 0);
+	public LongPrimitiveStatement(TestCase tc) {
+		super(tc, long.class, (long) 0);
 	}
-
-	/**
-	 * <p>
-	 * Constructor for BytePrimitiveStatement.
-	 * </p>
-	 * 
-	 * @param tc
-	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type
-	 *            a {@link java.lang.reflect.Type} object.
-	 */
-	public BytePrimitiveStatement(TestCase tc, Type type) {
-		super(tc, type, (byte) 0);
-	}
-
-	private static final long serialVersionUID = -8123457944460041347L;
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
@@ -85,7 +70,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/** {@inheritDoc} */
 	@Override
 	public void zero() {
-		value = (byte) 0;
+		value = new Long(0);
 	}
 
 	/* (non-Javadoc)
@@ -94,7 +79,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/** {@inheritDoc} */
 	@Override
 	public void pushBytecode(GeneratorAdapter mg) {
-		mg.push((value).shortValue());
+		mg.push((value).longValue());
 	}
 
 	/* (non-Javadoc)
@@ -103,8 +88,8 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		byte delta = (byte)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
-		value = (byte) (value.byteValue() + delta);
+		long delta = (long)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
+		value = value + delta;
 	}
 
 	/* (non-Javadoc)
@@ -113,7 +98,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/** {@inheritDoc} */
 	@Override
 	public void increment(long delta) {
-		value = (byte) (value + delta);
+		value = value + delta;
 	}
 
 	/* (non-Javadoc)
@@ -122,11 +107,12 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
-		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
-			value = (byte) (Randomness.nextInt(256) - 128);
+		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
+			value = (long)(Randomness.nextGaussian() * Properties.MAX_INT);
+		}
 		else {
 			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
-			value = (byte) constantPool.getRandomInt();
+			value = constantPool.getRandomLong();
 		}
 	}
 
@@ -136,16 +122,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/** {@inheritDoc} */
 	@Override
 	public void increment() {
-		increment((byte) 1);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void decrement() {
-		increment((byte) -1);
+		increment(1);
 	}
 
 	/* (non-Javadoc)
@@ -153,8 +130,17 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void setMid(Byte min, Byte max) {
-		value = (byte) (min + ((max - min) / 2));
+	public void setMid(Long min, Long max) {
+		value = (long) (min + ((max - min) / 2));
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#decrement()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public void decrement() {
+		increment(-1);
 	}
 
 	/* (non-Javadoc)
@@ -163,13 +149,12 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isPositive() {
-		// TODO Auto-generated method stub
-		return false;
+		return value >= 0;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void negate() {
-		value = (byte) -value;
+		value = -value;
 	}
 }

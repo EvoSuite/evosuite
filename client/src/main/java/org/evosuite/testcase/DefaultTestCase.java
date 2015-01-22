@@ -36,6 +36,11 @@ import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.environmentdata.AccessedEnvironment;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.ListenableList;
@@ -185,10 +190,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 						MethodStatement ms = (MethodStatement) s;
 						if (!ms.isStatic()) {
 							logger.info("Callee: ");
-							logger.info(ms.callee.toString());
+							logger.info(ms.getCallee().toString());
 						}
 						int num = 0;
-						for (VariableReference v : ms.parameters) {
+						for (VariableReference v : ms.getParameterReferences()) {
 							logger.info("Parameter " + num);
 							logger.info(v.getVariableClass().toString());
 							logger.info(v.getClass().toString());

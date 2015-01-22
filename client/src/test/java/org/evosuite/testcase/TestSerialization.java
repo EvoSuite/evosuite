@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.junit.Assert;
 import org.junit.Test;
 

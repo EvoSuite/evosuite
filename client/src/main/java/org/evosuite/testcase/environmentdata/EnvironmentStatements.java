@@ -1,8 +1,8 @@
 package org.evosuite.testcase.environmentdata;
 
 import org.evosuite.runtime.testdata.*;
-import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.utils.Randomness;
 
 /**

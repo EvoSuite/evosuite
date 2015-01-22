@@ -24,8 +24,8 @@ import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionObserver;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +64,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @param scope
 	 *            a {@link org.evosuite.testcase.Scope} object.
 	 */
@@ -86,7 +86,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @param scope
 	 *            a {@link org.evosuite.testcase.Scope} object.
 	 */
@@ -106,7 +106,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @param scope
 	 *            a {@link org.evosuite.testcase.Scope} object.
 	 * @param var

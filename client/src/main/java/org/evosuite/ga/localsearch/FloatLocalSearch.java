@@ -24,8 +24,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.NumericalPrimitiveStatement;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.NumericalPrimitiveStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

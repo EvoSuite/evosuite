@@ -22,15 +22,15 @@ package org.evosuite.ga.localsearch;
 
 import java.util.List;
 
-import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.FieldStatement;
-import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.NullReference;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -17,7 +17,7 @@
  * 
  * @author Gordon Fraser
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
@@ -26,6 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.testcase.Scope;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.VariableReferenceImpl;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -91,7 +95,7 @@ public class PrimitiveExpression extends AbstractStatement {
 	 * @param leftOperand
 	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 * @param operator
-	 *            a {@link org.evosuite.testcase.PrimitiveExpression.Operator}
+	 *            a {@link org.evosuite.testcase.statements.PrimitiveExpression.Operator}
 	 *            object.
 	 * @param rightOperand
 	 *            a {@link org.evosuite.testcase.VariableReference} object.
@@ -190,7 +194,7 @@ public class PrimitiveExpression extends AbstractStatement {
 	 * Getter for the field <code>operator</code>.
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.testcase.PrimitiveExpression.Operator}
+	 * @return a {@link org.evosuite.testcase.statements.PrimitiveExpression.Operator}
 	 *         object.
 	 */
 	public Operator getOperator() {

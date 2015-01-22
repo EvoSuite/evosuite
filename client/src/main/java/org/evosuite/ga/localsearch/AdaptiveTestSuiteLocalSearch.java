@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.DSEType;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestMutationHistoryEntry;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testsuite.TestCaseExpander;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;

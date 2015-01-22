@@ -7,9 +7,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -26,6 +26,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
+import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.CodeUnderTestException;
+import org.evosuite.testcase.EvosuiteError;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestCodeVisitor;
+import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.VariableReferenceImpl;
 import org.evosuite.utils.GenericClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,7 +151,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 * approach to exceptions.
 	 * 
 	 * @param code
-	 *            a {@link org.evosuite.testcase.AbstractStatement.Executer}
+	 *            a {@link org.evosuite.testcase.statements.AbstractStatement.Executer}
 	 *            object.
 	 * @throws java.lang.reflect.InvocationTargetException
 	 *             if any.

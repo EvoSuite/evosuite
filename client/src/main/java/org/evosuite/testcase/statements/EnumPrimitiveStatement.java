@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -26,6 +26,8 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.List;
 
+import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;

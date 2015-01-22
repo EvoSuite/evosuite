@@ -22,6 +22,14 @@ import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.environmentdata.EnvironmentStatements;
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.NullStatement;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
@@ -798,7 +806,7 @@ public class TestFactory {
 			VariableReference current = iterator.next();
 			if (current instanceof ArrayIndex) {
 				ArrayIndex index = (ArrayIndex) current;
-				if (index.getArray().equals(statement.retval))
+				if (index.getArray().equals(statement.getReturnValue()))
 					iterator.remove();
 				// Do not assign values of same type as array to elements
 				// This may e.g. happen if we have Object[], we could otherwise assign Object[] as values
@@ -807,7 +815,7 @@ public class TestFactory {
 
 			}
 		}
-		objects.remove(statement.retval);
+		objects.remove(statement.getReturnValue());
 		logger.debug("Found assignable objects: " + objects.size());
 		Set<GenericAccessibleObject<?>> currentArrayRecursion = new HashSet<GenericAccessibleObject<?>>(
 		        currentRecursion);
@@ -1181,14 +1189,14 @@ public class TestFactory {
 				if (s.references(var)) {
 					if (s.isAssignmentStatement()) {
 						AssignmentStatement assignment = (AssignmentStatement) s;
-						if (assignment.parameter == var) {
+						if (assignment.getValue() == var) {
 							VariableReference replacementVar = Randomness.choice(alternatives);
-							if (assignment.retval.isAssignableFrom(replacementVar)) {
+							if (assignment.getReturnValue().isAssignableFrom(replacementVar)) {
 								s.replace(var, replacementVar);
 							}
-						} else if (assignment.retval == var) {
+						} else if (assignment.getReturnValue() == var) {
 							VariableReference replacementVar = Randomness.choice(alternatives);
-							if (replacementVar.isAssignableFrom(assignment.parameter)) {
+							if (replacementVar.isAssignableFrom(assignment.getValue())) {
 								s.replace(var, replacementVar);
 							}
 						}

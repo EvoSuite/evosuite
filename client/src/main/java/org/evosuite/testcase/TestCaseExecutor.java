@@ -37,6 +37,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.ResetExecutor;
 import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.runtime.sandbox.PermissionStatistics;

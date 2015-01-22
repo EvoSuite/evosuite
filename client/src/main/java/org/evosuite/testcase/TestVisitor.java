@@ -20,6 +20,16 @@
  */
 package org.evosuite.testcase;
 
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.NullStatement;
+import org.evosuite.testcase.statements.PrimitiveExpression;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.StatementInterface;
+
 
 /**
  * <p>
@@ -46,7 +56,7 @@ public abstract class TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.PrimitiveStatement} object.
+	 *            a {@link org.evosuite.testcase.statements.PrimitiveStatement} object.
 	 */
 	public abstract void visitPrimitiveStatement(PrimitiveStatement<?> statement);
 
@@ -56,7 +66,7 @@ public abstract class TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.FieldStatement} object.
+	 *            a {@link org.evosuite.testcase.statements.FieldStatement} object.
 	 */
 	public abstract void visitFieldStatement(FieldStatement statement);
 
@@ -66,7 +76,7 @@ public abstract class TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.MethodStatement} object.
+	 *            a {@link org.evosuite.testcase.statements.MethodStatement} object.
 	 */
 	public abstract void visitMethodStatement(MethodStatement statement);
 
@@ -76,7 +86,7 @@ public abstract class TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.ConstructorStatement} object.
+	 *            a {@link org.evosuite.testcase.statements.ConstructorStatement} object.
 	 */
 	public abstract void visitConstructorStatement(ConstructorStatement statement);
 
@@ -86,7 +96,7 @@ public abstract class TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.ArrayStatement} object.
+	 *            a {@link org.evosuite.testcase.statements.ArrayStatement} object.
 	 */
 	public abstract void visitArrayStatement(ArrayStatement statement);
 
@@ -96,7 +106,7 @@ public abstract class TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.AssignmentStatement} object.
+	 *            a {@link org.evosuite.testcase.statements.AssignmentStatement} object.
 	 */
 	public abstract void visitAssignmentStatement(AssignmentStatement statement);
 
@@ -106,7 +116,7 @@ public abstract class TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.NullStatement} object.
+	 *            a {@link org.evosuite.testcase.statements.NullStatement} object.
 	 */
 	public abstract void visitNullStatement(NullStatement statement);
 
@@ -116,7 +126,7 @@ public abstract class TestVisitor {
 	 * </p>
 	 * 
 	 * @param primitiveExpression
-	 *            a {@link org.evosuite.testcase.PrimitiveExpression} object.
+	 *            a {@link org.evosuite.testcase.statements.PrimitiveExpression} object.
 	 */
 	public abstract void visitPrimitiveExpression(PrimitiveExpression primitiveExpression);
 
@@ -126,7 +136,7 @@ public abstract class TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 */
 	public void visitStatement(StatementInterface statement) {
 

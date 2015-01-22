@@ -18,9 +18,9 @@
 package org.evosuite.coverage.output;
 
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.objectweb.asm.Type;
 
 import java.util.HashSet;
