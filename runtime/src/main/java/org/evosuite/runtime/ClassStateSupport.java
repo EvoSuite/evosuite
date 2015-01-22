@@ -34,6 +34,15 @@ public class ClassStateSupport {
 		List<Class<?>> classes = loadClasses(classLoader, classNames);
         if(RuntimeSettings.isUsingAnyMocking()) {
             for (Class<?> clazz : classes) {
+
+                if(clazz.isInterface()){
+                    /*
+                        FIXME: once we ll start to support Java 8, in which interfaces can have code,
+                        we ll need to instrument them as wll
+                     */
+                    continue;
+                }
+
                 if (!InstrumentedClass.class.isAssignableFrom(clazz)) {
                     throw new IllegalStateException("Class " + clazz.getName() + " was not instrumented by EvoSuite. " +
                             "This could happen if you are running JUnit tests in a way that is not handled by EvoSuite, in " +
