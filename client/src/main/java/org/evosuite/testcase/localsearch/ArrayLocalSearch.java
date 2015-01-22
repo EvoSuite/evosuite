@@ -23,6 +23,7 @@ package org.evosuite.testcase.localsearch;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.TestCaseExpander;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -31,7 +32,6 @@ import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.StatementInterface;
-import org.evosuite.testsuite.TestCaseExpander;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
