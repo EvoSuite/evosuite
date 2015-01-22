@@ -129,6 +129,7 @@ public class ClientProcess {
 		RuntimeSettings.sandboxMode = Properties.SANDBOX_MODE;
         RuntimeSettings.maxNumberOfThreads = Properties.MAX_STARTED_THREADS;
         RuntimeSettings.useVNET = Properties.VIRTUAL_NET;
+        RuntimeSettings.useSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
         MethodCallReplacementCache.resetSingleton();
     }
 
