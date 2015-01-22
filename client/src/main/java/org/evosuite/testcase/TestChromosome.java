@@ -57,7 +57,7 @@ public class TestChromosome extends ExecutableChromosome {
 	protected MutationHistory<TestMutationHistoryEntry> mutationHistory = new MutationHistory<TestMutationHistoryEntry>();
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
+	private static final List<SecondaryObjective<?>> secondaryObjectives = new ArrayList<SecondaryObjective<?>>();
 
 	/**
 	 * <p>
@@ -596,7 +596,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void removeSecondaryObjective(SecondaryObjective objective) {
+	public static void removeSecondaryObjective(SecondaryObjective<?> objective) {
 		secondaryObjectives.remove(objective);
 	}
 
@@ -607,7 +607,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * 
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<SecondaryObjective> getSecondaryObjectives() {
+	public static List<SecondaryObjective<?>> getSecondaryObjectives() {
 		return secondaryObjectives;
 	}
 
