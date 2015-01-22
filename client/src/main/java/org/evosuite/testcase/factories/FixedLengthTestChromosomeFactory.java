@@ -14,29 +14,33 @@
  * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-package org.evosuite.testcase;
-
-import org.evosuite.Properties;
-import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.testcase.execution.ExecutionTracer;
-import org.evosuite.utils.Randomness;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-/**
- * <p>
- * RandomLengthTestFactory class.
- * </p>
  * 
  * @author Gordon Fraser
  */
-public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome> {
+package org.evosuite.testcase.factories;
 
-	private static final long serialVersionUID = -5202578461625984100L;
+import org.evosuite.Properties;
+import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class FixedLengthTestChromosomeFactory implements
+        ChromosomeFactory<TestChromosome> {
+
+	private static final long serialVersionUID = -3860201346772188495L;
 
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
+
+	/**
+	 * Constructor
+	 */
+	public FixedLengthTestChromosomeFactory() {
+	}
 
 	/**
 	 * Create a random individual
@@ -44,30 +48,16 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 	 * @param size
 	 */
 	private TestCase getRandomTestCase(int size) {
-		boolean tracerEnabled = ExecutionTracer.isEnabled();
-		if (tracerEnabled)
-			ExecutionTracer.disable();
-
-		TestCase test = getNewTestCase();
+		TestCase test = new DefaultTestCase();
 		int num = 0;
-
-		// Choose a random length in 0 - size
-		int length = Randomness.nextInt(size);
-		while (length == 0)
-			length = Randomness.nextInt(size);
-
 		TestFactory testFactory = TestFactory.getInstance();
 
 		// Then add random stuff
-		while (test.size() < length && num < Properties.MAX_ATTEMPTS) {
+		while (test.size() < size && num < Properties.MAX_ATTEMPTS) {
 			testFactory.insertRandomStatement(test, test.size());
 			num++;
 		}
-		if (logger.isDebugEnabled())
-			logger.debug("Randomized test case:" + test.toCode());
-
-		if (tracerEnabled)
-			ExecutionTracer.enable();
+		//logger.debug("Randomized test case:" + test.toCode());
 
 		return test;
 	}
@@ -80,18 +70,8 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 	@Override
 	public TestChromosome getChromosome() {
 		TestChromosome c = new TestChromosome();
-		c.test = getRandomTestCase(Properties.CHROMOSOME_LENGTH);
+		c.setTestCase(getRandomTestCase(Properties.CHROMOSOME_LENGTH));
 		return c;
-	}
-
-	/**
-	 * Provided so that subtypes of this factory type can modify the returned
-	 * TestCase
-	 * 
-	 * @return a {@link org.evosuite.testcase.TestCase} object.
-	 */
-	protected TestCase getNewTestCase() {
-		return new DefaultTestCase();
 	}
 
 }

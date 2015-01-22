@@ -19,8 +19,8 @@ package org.evosuite.testsuite;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.testcase.RandomLengthTestFactory;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.utils.Randomness;
 
 
