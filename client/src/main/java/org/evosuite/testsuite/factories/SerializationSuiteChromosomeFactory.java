@@ -1,4 +1,4 @@
-package org.evosuite.testsuite;
+package org.evosuite.testsuite.factories;
 
 import java.io.EOFException;
 import java.io.File;
@@ -12,6 +12,7 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.DebuggingObjectOutputStream;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class SerializationSuiteChromosomeFactory
         this.defaultFactory = defaultFactory;
 
         previousSuite = new TestSuiteChromosome(this.defaultFactory);
-        previousSuite.tests.clear();
+        previousSuite.clearTests();
 
         this.loadPreviousTests();
     }
@@ -147,7 +148,7 @@ public class SerializationSuiteChromosomeFactory
             return previousSuite.clone();
 
         TestSuiteChromosome tsc = new TestSuiteChromosome(this.defaultFactory);
-        tsc.tests.clear();
+        tsc.clearTests();
 
         int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,
                                           Properties.MAX_INITIAL_TESTS + 1);

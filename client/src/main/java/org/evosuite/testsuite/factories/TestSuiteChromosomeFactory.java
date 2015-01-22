@@ -15,12 +15,14 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testsuite;
+package org.evosuite.testsuite.factories;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
+import org.evosuite.testsuite.CurrentChromosomeTracker;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 
 
@@ -71,7 +73,7 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 
 		TestSuiteChromosome chromosome = new TestSuiteChromosome(
 				testChromosomeFactory);
-		chromosome.tests.clear();
+		chromosome.clearTests();
 		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
 		tracker.modification(chromosome);
 		// ((AllMethodsChromosomeFactory)test_factory).clear();

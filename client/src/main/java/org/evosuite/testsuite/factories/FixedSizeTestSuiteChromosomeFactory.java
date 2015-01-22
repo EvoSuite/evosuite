@@ -18,35 +18,38 @@
 /**
  * 
  */
-package org.evosuite.testsuite;
+package org.evosuite.testsuite.factories;
 
-import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
-import org.evosuite.utils.Randomness;
+import org.evosuite.testsuite.CurrentChromosomeTracker;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 
 /**
- * <p>JUnitTestSuiteChromosomeFactory class.</p>
+ * <p>FixedSizeTestSuiteChromosomeFactory class.</p>
  *
- * @author fraser
+ * @author Gordon Fraser
  */
-public class JUnitTestSuiteChromosomeFactory implements
+public class FixedSizeTestSuiteChromosomeFactory implements
         ChromosomeFactory<TestSuiteChromosome> {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 6269582177138945987L;
 
-	private final ChromosomeFactory<TestChromosome> defaultFactory;
+	/** Factory to manipulate and generate method sequences */
+	private final ChromosomeFactory<TestChromosome> testChromosomeFactory;
+
+	private final int size;
 
 	/**
-	 * <p>Constructor for JUnitTestSuiteChromosomeFactory.</p>
+	 * <p>Constructor for FixedSizeTestSuiteChromosomeFactory.</p>
 	 *
-	 * @param defaultFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 * @param size a int.
 	 */
-	public JUnitTestSuiteChromosomeFactory(
-	        ChromosomeFactory<TestChromosome> defaultFactory) {
-		this.defaultFactory = defaultFactory;
+	public FixedSizeTestSuiteChromosomeFactory(int size) {
+		testChromosomeFactory = new RandomLengthTestFactory();
+		this.size = size;
 	}
 
 	/* (non-Javadoc)
@@ -55,27 +58,16 @@ public class JUnitTestSuiteChromosomeFactory implements
 	/** {@inheritDoc} */
 	@Override
 	public TestSuiteChromosome getChromosome() {
-		/*
-		double P_delta = 0.1d;
-		double P_clone = 0.1d;
-		int MAX_CHANGES = 10;
-		*/
-
 		TestSuiteChromosome chromosome = new TestSuiteChromosome(
 		        new RandomLengthTestFactory());
-		chromosome.tests.clear();
+		chromosome.clearTests();;
 		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
 		tracker.modification(chromosome);
 
-		int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,
-		                                  Properties.MAX_INITIAL_TESTS + 1);
-
-		for (int i = 0; i < numTests; i++) {
-			TestChromosome test = defaultFactory.getChromosome();
+		for (int i = 0; i < size; i++) {
+			TestChromosome test = testChromosomeFactory.getChromosome();
 			chromosome.addTest(test);
-			//chromosome.tests.add(test);
 		}
-
 		return chromosome;
 	}
 
