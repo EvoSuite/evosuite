@@ -22,6 +22,7 @@ package org.evosuite.testcase;
 
 import java.lang.reflect.Type;
 
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.NumberFormatter;
 

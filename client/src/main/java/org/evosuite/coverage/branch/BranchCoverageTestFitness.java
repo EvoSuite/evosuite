@@ -19,10 +19,10 @@ package org.evosuite.coverage.branch;
 
 import org.evosuite.coverage.ControlFlowDistance;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.MethodCall;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.MethodCall;
 
 /**
  * Fitness function for a single test on a single branch
@@ -110,7 +110,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	 * @param individual
 	 *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a double.
 	 */
 	public double getUnfitness(ExecutableChromosome individual, ExecutionResult result) {

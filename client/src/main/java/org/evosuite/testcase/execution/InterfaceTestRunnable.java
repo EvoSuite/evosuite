@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.execution;
 
 import java.util.Map;
 import java.util.concurrent.Callable;

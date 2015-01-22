@@ -12,8 +12,8 @@ import org.evosuite.Properties.OutputFormat;
 import org.evosuite.junit.JUnit3TestAdapter;
 import org.evosuite.junit.JUnit4TestAdapter;
 import org.evosuite.junit.UnitTestAdapter;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

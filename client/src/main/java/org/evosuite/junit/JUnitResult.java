@@ -3,7 +3,7 @@ package org.evosuite.junit;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.testcase.ExecutionTrace;
+import org.evosuite.testcase.execution.ExecutionTrace;
 
 /**
  * The information from executing a JUnit test case

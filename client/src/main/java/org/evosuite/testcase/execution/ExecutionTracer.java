@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.execution;
 
 import java.util.Map;
 
@@ -179,7 +179,7 @@ public class ExecutionTracer {
 	 * getExecutionTracer
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.testcase.ExecutionTracer} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionTracer} object.
 	 */
 	public static ExecutionTracer getExecutionTracer() {
 		if (instance == null) {
@@ -226,7 +226,7 @@ public class ExecutionTracer {
 	/**
 	 * Return trace of current execution
 	 * 
-	 * @return a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 */
 	public ExecutionTrace getTrace() {
 		trace.finishCalls();

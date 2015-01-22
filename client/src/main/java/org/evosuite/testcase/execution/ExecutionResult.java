@@ -17,7 +17,7 @@
  * 
  * @author Gordon Fraser
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.execution;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.evosuite.assertion.OutputTrace;
 import org.evosuite.coverage.mutation.Mutation;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -262,7 +263,7 @@ public class ExecutionResult implements Cloneable {
 	/**
 	 * Accessor to the execution trace
 	 * 
-	 * @return a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 */
 	public ExecutionTrace getTrace() {
 		return trace;
@@ -272,7 +273,7 @@ public class ExecutionResult implements Cloneable {
 	 * Set execution trace to different value
 	 * 
 	 * @param trace
-	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 */
 	public void setTrace(ExecutionTrace trace) throws IllegalArgumentException{
 		if(trace==null){

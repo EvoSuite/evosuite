@@ -20,11 +20,11 @@
  */
 package org.evosuite.assertion;
 
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.ExecutionObserver;
-import org.evosuite.testcase.ExecutionTracer;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +66,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * @param statement
 	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 */
 	protected void visitDependencies(StatementInterface statement, Scope scope) {
 		for (VariableReference var : currentTest.getDependencies(statement.getReturnValue())) {
@@ -88,7 +88,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * @param statement
 	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 */
 	protected void visitReturnValue(StatementInterface statement, Scope scope) {
 		if (!statement.getReturnClass().equals(void.class)) {
@@ -108,7 +108,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * @param statement
 	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @param var
 	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */

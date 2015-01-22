@@ -26,10 +26,10 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +74,7 @@ public class DefUseFitnessCalculator {
 	 * @param individual
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	public DefUseFitnessCalculator(DefUseCoverageTestFitness goal,
 	        TestChromosome individual, ExecutionResult result) {
@@ -675,7 +675,7 @@ public class DefUseFitnessCalculator {
 	 * @param individual
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @param trace
-	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 * @return a boolean.
 	 */
 	public static boolean traceCoversGoal(DefUseCoverageTestFitness goal,

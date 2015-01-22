@@ -22,6 +22,8 @@ package org.evosuite.testcase;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.PassiveChangeListener;

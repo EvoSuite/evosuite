@@ -32,6 +32,9 @@ import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.EvoRunnerParameters;
 import org.evosuite.runtime.testdata.EnvironmentDataList;
 import org.evosuite.testcase.*;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.Utils;
 import org.junit.runner.RunWith;
@@ -40,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+
 import java.io.File;
 import java.io.PrintStream;
 import java.util.*;
@@ -291,7 +295,7 @@ public class TestSuiteWriter implements Opcodes {
      * </p>
      *
      * @param test a {@link org.evosuite.testcase.TestCase} object.
-     * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+     * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
      */
     protected ExecutionResult runTest(TestCase test) {
 
@@ -479,7 +483,7 @@ public class TestSuiteWriter implements Opcodes {
      * Convert one test case to a Java method
      *
      * @param id     Index of the test case
-     * @param result a {@link org.evosuite.testcase.ExecutionResult} object.
+     * @param result a {@link org.evosuite.testcase.execution.ExecutionResult} object.
      * @return String representation of test case
      */
     protected String testToString(int number, int id, ExecutionResult result) {

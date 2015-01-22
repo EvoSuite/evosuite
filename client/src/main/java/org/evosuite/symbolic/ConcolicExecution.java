@@ -34,9 +34,9 @@ import org.evosuite.symbolic.vm.PathConstraint;
 import org.evosuite.symbolic.vm.SymbolicFunctionVM;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

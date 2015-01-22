@@ -1,13 +1,13 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.execution;
 
 import java.util.*;
 
 import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.setup.CallContext;
-import org.evosuite.testcase.ExecutionTraceImpl.BranchEval;
+import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 
 /**
  * This interface defines the trace data that is collected during execution.
@@ -364,7 +364,7 @@ public interface ExecutionTrace {
 	 * 
 	 * @param objectId
 	 *            a int.
-	 * @return a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 */
 	public ExecutionTrace getTraceForObject(int objectId);
 
@@ -401,7 +401,7 @@ public interface ExecutionTrace {
 	 *            a int.
 	 * @param duCounterEnd
 	 *            a int.
-	 * @return a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 */
 	public ExecutionTrace getTraceInDUCounterRange(DefUse targetDU,
 	        boolean wantToCoverTargetDU, int duCounterStart, int duCounterEnd);
@@ -499,7 +499,7 @@ public interface ExecutionTrace {
 	/**
 	 * Create a lazy copy
 	 * 
-	 * @return a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 */
 	public ExecutionTrace lazyClone();
 

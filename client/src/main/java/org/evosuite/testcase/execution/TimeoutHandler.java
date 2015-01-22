@@ -17,7 +17,7 @@
  * 
  * @author Gordon Fraser
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.execution;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;

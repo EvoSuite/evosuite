@@ -24,8 +24,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.evosuite.assertion.EqualsAssertion;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

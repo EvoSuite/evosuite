@@ -9,10 +9,10 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestCaseExpander;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;

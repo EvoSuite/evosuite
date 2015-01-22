@@ -20,9 +20,9 @@
  */
 package org.evosuite.assertion;
 
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 public class NullAssertion extends Assertion {
 
 	private static final long serialVersionUID = 8486987896764253928L;

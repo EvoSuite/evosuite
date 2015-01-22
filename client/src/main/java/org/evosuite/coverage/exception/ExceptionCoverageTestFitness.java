@@ -19,6 +19,8 @@ package org.evosuite.coverage.exception;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.*;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.objectweb.asm.Type;
@@ -72,7 +74,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
      * @param individual
      *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
      * @param result
-     *            a {@link org.evosuite.testcase.ExecutionResult} object.
+     *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
      * @return a double.
      */
     @Override

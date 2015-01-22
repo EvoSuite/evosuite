@@ -17,10 +17,10 @@
  */
 package org.evosuite.coverage.method;
 
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.MethodCall;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.MethodCall;
 
 /**
  * Fitness function for a single test on a single method.
@@ -79,7 +79,7 @@ public class MethodTraceCoverageTestFitness extends TestFitnessFunction {
 	 * @param individual
 	 *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a double.
 	 */
 	@Override

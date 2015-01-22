@@ -25,9 +25,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.evosuite.coverage.mutation.Mutation;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

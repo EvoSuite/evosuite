@@ -26,7 +26,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.ControlFlowDistance;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
-import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionResult;
 
 /**
  * A single branch coverage goal Either true/false evaluation of a jump
@@ -207,7 +207,7 @@ public class BranchCoverageGoal implements Serializable, Comparable<BranchCovera
 	 * </p>
 	 * 
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a {@link org.evosuite.coverage.ControlFlowDistance} object.
 	 */
 	public ControlFlowDistance getDistance(ExecutionResult result) {

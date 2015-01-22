@@ -22,9 +22,9 @@ package org.evosuite.ga.localsearch;
 
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.ArrayReference;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.NullStatement;

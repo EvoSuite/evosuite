@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;
@@ -62,7 +62,7 @@ public abstract class Contract {
 	 * </p>
 	 * 
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @return a {@link java.util.Collection} object.
 	 */
 	protected Collection<Object> getAllObjects(Scope scope) {
@@ -80,7 +80,7 @@ public abstract class Contract {
 	 * </p>
 	 * 
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @return a {@link java.util.Collection} object.
 	 */
 	protected Collection<Pair<Object>> getAllObjectPairs(Scope scope) {
@@ -161,7 +161,7 @@ public abstract class Contract {
 	 * @param statement
 	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 * @return a boolean.

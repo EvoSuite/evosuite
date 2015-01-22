@@ -42,11 +42,11 @@ import org.evosuite.assertion.PrimitiveTraceEntry;
 import org.evosuite.assertion.PrimitiveTraceObserver;
 import org.evosuite.coverage.TestCoverageGoal;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 
 /**
  * <p>

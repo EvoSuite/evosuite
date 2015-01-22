@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.execution;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Proxy;
@@ -31,6 +31,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.VariableReference;
 
 /**
  * This class represents the state of a test case execution

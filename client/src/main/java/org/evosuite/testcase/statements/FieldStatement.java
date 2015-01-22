@@ -28,13 +28,13 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.ArrayReference;
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.EvosuiteError;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.EvosuiteError;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Label;

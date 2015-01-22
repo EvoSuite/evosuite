@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.StatementInterface;
 

@@ -23,7 +23,7 @@ package org.evosuite.instrumentation;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 import org.evosuite.runtime.reset.ClassResetter;
-import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

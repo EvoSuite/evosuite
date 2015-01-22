@@ -24,7 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.evosuite.testcase.TimeoutHandler;
+import org.evosuite.testcase.execution.TimeoutHandler;
 import org.junit.*;
 
 public class TimeoutTest 

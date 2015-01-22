@@ -20,13 +20,13 @@ package org.evosuite.testcase.statements;
 import com.googlecode.gentyref.GenericTypeReflector;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
 import org.evosuite.testcase.environmentdata.EnvironmentStatements;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;

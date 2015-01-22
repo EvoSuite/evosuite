@@ -18,9 +18,9 @@
 package org.evosuite.coverage.branch;
 
 import org.evosuite.coverage.ControlFlowDistance;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 
 /**
  * Fitness function for a single test on a single branch

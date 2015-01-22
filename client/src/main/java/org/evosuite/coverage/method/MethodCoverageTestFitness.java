@@ -18,6 +18,7 @@
 package org.evosuite.coverage.method;
 
 import org.evosuite.testcase.*;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.StatementInterface;
@@ -82,7 +83,7 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
      * @param individual
      *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
      * @param result
-     *            a {@link org.evosuite.testcase.ExecutionResult} object.
+     *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
      * @return a double.
      */
     @Override
