@@ -23,6 +23,7 @@ package org.evosuite.testcase.localsearch;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCaseExpander;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
@@ -31,7 +32,6 @@ import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +104,7 @@ public class ArrayLocalSearch extends StatementLocalSearch {
 			if (test.getTestCase().getStatement(position) instanceof AssignmentStatement) {
 				logger.debug("Is assignment statement");
 				AssignmentStatement assignment = (AssignmentStatement) test.getTestCase().getStatement(position);
-				StatementInterface valueStatement = test.getTestCase().getStatement(assignment.getValue().getStPosition());
+				Statement valueStatement = test.getTestCase().getStatement(assignment.getValue().getStPosition());
 				if (assignment.getReturnValue().getAdditionalVariableReference() == arrRef) {
 
 					int currentDelta = 0;

@@ -20,13 +20,13 @@
 package org.evosuite.assertion;
 
 import org.evosuite.Properties;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.objectweb.asm.Type;
 
 
@@ -37,7 +37,7 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 	 */
 	/** {@inheritDoc} */
 	@Override
-	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+	protected void visit(Statement statement, Scope scope, VariableReference var) {
 		try {
 			Object object = var.getObject(scope);
 			if (object == null)

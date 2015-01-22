@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericMethod;
 
@@ -29,7 +29,7 @@ public class JUnitTheoryContract extends Contract {
 	}
 	
 	@Override
-	public ContractViolation check(StatementInterface statement, Scope scope,
+	public ContractViolation check(Statement statement, Scope scope,
 			Throwable exception) {
 		for(VariableReference var : getAllVariables(scope)) {
 			logger.debug("Current variable: "+var);
@@ -62,7 +62,7 @@ public class JUnitTheoryContract extends Contract {
 	}
 
 	@Override
-	public void addAssertionAndComments(StatementInterface statement,
+	public void addAssertionAndComments(Statement statement,
 			List<VariableReference> variables, Throwable exception) {
 		TestCase test = statement.getTestCase();
 		int position = statement.getPosition();
@@ -72,10 +72,10 @@ public class JUnitTheoryContract extends Contract {
 		try {
 			Constructor<?> defaultConstructor = theoryReceiver.getClass().getConstructor();
 			GenericConstructor constructor = new GenericConstructor(defaultConstructor, theoryReceiver.getClass());
-			StatementInterface st1 = new ConstructorStatement(test, constructor, new ArrayList<VariableReference>());
+			Statement st1 = new ConstructorStatement(test, constructor, new ArrayList<VariableReference>());
 			VariableReference receiver = test.addStatement(st1, position + 1);
 			
-			StatementInterface st2 = new MethodStatement(test, theoryMethod, receiver, Arrays.asList(new VariableReference[] {test.getStatement(pos).getReturnValue()}));
+			Statement st2 = new MethodStatement(test, theoryMethod, receiver, Arrays.asList(new VariableReference[] {test.getStatement(pos).getReturnValue()}));
 			test.addStatement(st2, position + 2);
 			st2.addComment("Violates theory: "+theoryMethod.getName());
 			

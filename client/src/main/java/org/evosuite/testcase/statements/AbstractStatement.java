@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
 import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.TestFactory;
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class AbstractStatement implements StatementInterface, Serializable {
+public abstract class AbstractStatement implements Statement, Serializable {
 
 	/**
 	 * An interface to enable the concrete statements to use the executer/1
@@ -292,7 +293,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	
 	/** {@inheritDoc} */
 	@Override
-	public final StatementInterface clone() {
+	public final Statement clone() {
 		throw new UnsupportedOperationException("Use statementInterface.clone(TestCase)");
 	}
 
@@ -506,8 +507,8 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public StatementInterface clone(TestCase newTestCase) {
-		StatementInterface result = copy(newTestCase, 0);
+	public Statement clone(TestCase newTestCase) {
+		Statement result = copy(newTestCase, 0);
 		result.getReturnValue().setOriginalCode(retval.getOriginalCode());
 		result.addComment(getComment());
 		return result;

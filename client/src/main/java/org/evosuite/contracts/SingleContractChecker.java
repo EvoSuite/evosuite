@@ -20,10 +20,10 @@
  */
 package org.evosuite.contracts;
 
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +80,7 @@ public class SingleContractChecker extends ExecutionObserver {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void afterStatement(StatementInterface statement, Scope scope,
+	public void afterStatement(Statement statement, Scope scope,
 	        Throwable exception) {
 		try {
 			logger.debug("Checking contract "+contract);
@@ -97,7 +97,7 @@ public class SingleContractChecker extends ExecutionObserver {
 	 * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
 	 */
 	@Override
-	public void beforeStatement(StatementInterface statement, Scope scope) {
+	public void beforeStatement(Statement statement, Scope scope) {
 		// Do nothing
 	}
 

@@ -29,7 +29,6 @@ import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
@@ -148,7 +147,7 @@ public class TestFactory {
 			int newLength = test.size();
 			position += (newLength - length);
 
-			StatementInterface st = new ConstructorStatement(test, constructor,
+			Statement st = new ConstructorStatement(test, constructor,
 			        parameters);
 			return test.addStatement(st, position);
 		} catch (Exception e) {
@@ -202,7 +201,7 @@ public class TestFactory {
 			}
 		}
 
-		StatementInterface st = new FieldStatement(test, field, callee);
+		Statement st = new FieldStatement(test, field, callee);
 
 		return test.addStatement(st, position);
 	}
@@ -250,7 +249,7 @@ public class TestFactory {
 		if (f.equals(var))
 			throw new ConstructionFailedException("Self assignment");
 
-		StatementInterface st = new AssignmentStatement(test, f, var);
+		Statement st = new AssignmentStatement(test, f, var);
 		VariableReference ret = test.addStatement(st, position);
 		// logger.info("FIeld assignment: " + st.getCode());
 		assert (test.isValid());
@@ -283,7 +282,7 @@ public class TestFactory {
 		int newLength = test.size();
 		position += (newLength - length);
 
-		StatementInterface st = new AssignmentStatement(test, fieldVar, value);
+		Statement st = new AssignmentStatement(test, fieldVar, value);
 		VariableReference ret = test.addStatement(st, position);
 		ret.setDistance(callee.getDistance() + 1);
 
@@ -345,7 +344,7 @@ public class TestFactory {
 		int newLength = test.size();
 		position += (newLength - length);
 
-		StatementInterface st = new MethodStatement(test, method, callee, parameters);
+		Statement st = new MethodStatement(test, method, callee, parameters);
 		VariableReference ret = test.addStatement(st, position);
 		if (callee != null)
 			ret.setDistance(callee.getDistance() + 1);
@@ -378,7 +377,7 @@ public class TestFactory {
 		int newLength = test.size();
 		position += (newLength - length);
 
-		StatementInterface st = new MethodStatement(test, method, callee, parameters);
+		Statement st = new MethodStatement(test, method, callee, parameters);
 		VariableReference ret = test.addStatement(st, position);
 		ret.setDistance(callee.getDistance() + 1);
 		logger.debug("Success: Adding method " + method);
@@ -397,7 +396,7 @@ public class TestFactory {
 	private VariableReference addPrimitive(TestCase test, PrimitiveStatement<?> old,
 	        int position) throws ConstructionFailedException {
 		logger.debug("Adding primitive");
-		StatementInterface st = old.clone(test);
+		Statement st = old.clone(test);
 		return test.addStatement(st, position);
 	}
 
@@ -409,7 +408,7 @@ public class TestFactory {
 	 * @param test
 	 * @param s
 	 */
-	public void appendStatement(TestCase test, StatementInterface statement)
+	public void appendStatement(TestCase test, Statement statement)
 	        throws ConstructionFailedException {
 		currentRecursion.clear();
 
@@ -491,7 +490,7 @@ public class TestFactory {
 			logger.debug("Reusing value: " + choice);
 
 			ArrayIndex index = new ArrayIndex(test, arrRef, arrayIndex);
-			StatementInterface st = new AssignmentStatement(test, index, choice);
+			Statement st = new AssignmentStatement(test, index, choice);
 			test.addStatement(st, position);
 		} else {
 			// Assign a new value
@@ -514,7 +513,7 @@ public class TestFactory {
 
 			position += test.size() - oldLength;
 			ArrayIndex index = new ArrayIndex(test, arrRef, arrayIndex);
-			StatementInterface st = new AssignmentStatement(test, index, var);
+			Statement st = new AssignmentStatement(test, index, var);
 			test.addStatement(st, position);
 		}
 	}
@@ -584,7 +583,7 @@ public class TestFactory {
 				VariableReference targetObject = sequence.getLastObject(type);
 				int returnPos = position + targetObject.getStPosition();
 				for (int i = 0; i < sequence.size(); i++) {
-					StatementInterface s = sequence.getStatement(i);
+					Statement s = sequence.getStatement(i);
 					test.addStatement(s.copy(test, position), position + i);
 				}
 				logger.debug("Return type of object sequence: "
@@ -672,7 +671,7 @@ public class TestFactory {
 	 * @param call
 	 * @throws ConstructionFailedException
 	 */
-	public void changeCall(TestCase test, StatementInterface statement,
+	public void changeCall(TestCase test, Statement statement,
 	        GenericAccessibleObject<?> call) throws ConstructionFailedException {
 		int position = statement.getReturnValue().getStPosition();
 
@@ -735,7 +734,7 @@ public class TestFactory {
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.AbstractTestFactory#changeRandomCall(de.unisb.cs.st.evosuite.testcase.TestCase, de.unisb.cs.st.evosuite.testcase.StatementInterface)
 	 */
-	public boolean changeRandomCall(TestCase test, StatementInterface statement) {
+	public boolean changeRandomCall(TestCase test, Statement statement) {
 		logger.debug("Changing statement ", statement.getCode());
 		//+ " in test "
 		List<VariableReference> objects = test.getObjects(statement.getReturnValue().getStPosition());
@@ -856,7 +855,7 @@ public class TestFactory {
 				        "Cannot instantiate a class with a class");
 			}
 		}
-		StatementInterface st = PrimitiveStatement.getRandomStatement(test, clazz,
+		Statement st = PrimitiveStatement.getRandomStatement(test, clazz,
 		                                                              position);
 		VariableReference ret = test.addStatement(st, position);
 		ret.setDistance(recursionDepth);
@@ -885,7 +884,7 @@ public class TestFactory {
 		if (genericType.hasWildcardOrTypeVariables()) {
 			type = genericType.getGenericInstantiation().getType();
 		}
-		StatementInterface st = new NullStatement(test, type);
+		Statement st = new NullStatement(test, type);
 		test.addStatement(st, position);
 		VariableReference ret = test.getStatement(position).getReturnValue();
 		ret.setDistance(recursionDepth);
@@ -1185,7 +1184,7 @@ public class TestFactory {
 			// Change all references to return value at position to something
 			// else
 			for (int i = position + 1; i < test.size(); i++) {
-				StatementInterface s = test.getStatement(i);
+				Statement s = test.getStatement(i);
 				if (s.references(var)) {
 					if (s.isAssignmentStatement()) {
 						AssignmentStatement assignment = (AssignmentStatement) s;
@@ -1225,7 +1224,7 @@ public class TestFactory {
 				// Change all references to return value at position to something
 				// else
 				for (int i = position; i < test.size(); i++) {
-					StatementInterface s = test.getStatement(i);
+					Statement s = test.getStatement(i);
 					for (VariableReference var2 : s.getVariableReferences()) {
 						if (var2 instanceof ArrayIndex) {
 							ArrayIndex ai = (ArrayIndex) var2;

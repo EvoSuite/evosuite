@@ -5,6 +5,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.Properties.DSEType;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -13,7 +14,6 @@ import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 
 public abstract class StatementLocalSearch {
 
@@ -74,7 +74,7 @@ public abstract class StatementLocalSearch {
 		return 0;
 	}
 
-	public static StatementLocalSearch getLocalSearchFor(StatementInterface statement) {
+	public static StatementLocalSearch getLocalSearchFor(Statement statement) {
 		StatementLocalSearch search = null;
 		if (statement instanceof NullStatement) {
 			if (Properties.LOCAL_SEARCH_REFERENCES == false)

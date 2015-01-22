@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;
@@ -186,7 +187,7 @@ public class FieldStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public StatementInterface copy(TestCase newTestCase, int offset) {
+	public Statement copy(TestCase newTestCase, int offset) {
 		if (field.isStatic()) {
 			FieldStatement s = new FieldStatement(newTestCase, field.copy(), null);
 			// s.assertions = copyAssertions(newTestCase, offset);
@@ -438,7 +439,7 @@ public class FieldStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public boolean same(StatementInterface s) {
+	public boolean same(Statement s) {
 		if (this == s)
 			return true;
 		if (s == null)

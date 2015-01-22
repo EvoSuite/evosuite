@@ -30,7 +30,6 @@ import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.SecondaryObjective;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +77,7 @@ public class TestCaseMinimizer {
 		boolean has_deleted = false;
 
 		int num = 0;
-		for (StatementInterface s : t) {
+		for (Statement s : t) {
 			VariableReference var = s.getReturnValue();
 			if (!t.hasReferences(var)) {
 				to_delete.add(num);

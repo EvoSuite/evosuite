@@ -18,7 +18,6 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.GenericClass;
 
 public class TestCaseExpander {
@@ -34,7 +33,7 @@ public class TestCaseExpander {
 		// Deactivated for now - only needed in NL branch
 		// createConcretePrimitives(expandedTest);
 		while (currentPosition < expandedTest.size()) {
-			StatementInterface statement = expandedTest.getStatement(currentPosition);
+			Statement statement = expandedTest.getStatement(currentPosition);
 			if (statement instanceof MethodStatement) {
 				visitMethodStatement(expandedTest, (MethodStatement) statement);
 			} else if (statement instanceof ConstructorStatement) {
@@ -66,7 +65,7 @@ public class TestCaseExpander {
 
 		for (Integer position : positions) {
 			Object value = concreteValues.get(position);
-			StatementInterface statement = test.getStatement(position);
+			Statement statement = test.getStatement(position);
 
 			PrimitiveStatement primitive = PrimitiveStatement.getPrimitiveStatement(test,
 			                                                                        new GenericClass(
@@ -78,7 +77,7 @@ public class TestCaseExpander {
 	}
 
 	private VariableReference duplicateStatement(TestCase test, VariableReference owner) {
-		StatementInterface statement = test.getStatement(owner.getStPosition());
+		Statement statement = test.getStatement(owner.getStPosition());
 		currentPosition++;
 		VariableReference copy = test.addStatement(statement.clone(test),
 		                                           owner.getStPosition() + 1);
@@ -160,7 +159,7 @@ public class TestCaseExpander {
 		int position = statement.getPosition() + 1;
 
 		while (position < test.size()) {
-			StatementInterface st = test.getStatement(position);
+			Statement st = test.getStatement(position);
 			if (st instanceof AssignmentStatement) {
 				if (st.getReturnValue() instanceof ArrayIndex) {
 					ArrayIndex arrayIndex = (ArrayIndex) st.getReturnValue();

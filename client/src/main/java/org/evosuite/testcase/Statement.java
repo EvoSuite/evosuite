@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.testcase.statements;
+package org.evosuite.testcase;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
@@ -28,9 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFactory;
-import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -43,7 +40,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * @author Sebastian Steenbuck
  * @author Gordon Fraser
  */
-public interface StatementInterface {
+public interface Statement {
 
 	/**
 	 * Add a new assertion to statement
@@ -74,9 +71,9 @@ public interface StatementInterface {
 	/**
 	 * Create deep copy of statement
 	 * 
-	 * @return a {@link org.evosuite.testcase.statements.StatementInterface} object.
+	 * @return a {@link org.evosuite.testcase.Statement} object.
 	 */
-	public StatementInterface clone();
+	public Statement clone();
 
 	/**
 	 * <p>
@@ -85,9 +82,9 @@ public interface StatementInterface {
 	 * 
 	 * @param newTestCase
 	 *            the testcase in which this statement will be inserted
-	 * @return a {@link org.evosuite.testcase.statements.StatementInterface} object.
+	 * @return a {@link org.evosuite.testcase.Statement} object.
 	 */
-	public StatementInterface clone(TestCase newTestCase);
+	public Statement clone(TestCase newTestCase);
 
 	/**
 	 * <p>
@@ -98,9 +95,9 @@ public interface StatementInterface {
 	 *            the testcase in which this statement will be inserted
 	 * @param offset
 	 *            a int.
-	 * @return a {@link org.evosuite.testcase.statements.StatementInterface} object.
+	 * @return a {@link org.evosuite.testcase.Statement} object.
 	 */
-	public StatementInterface copy(TestCase newTestCase, int offset);
+	public Statement copy(TestCase newTestCase, int offset);
 
 	/**
 	 * <p>
@@ -386,10 +383,10 @@ public interface StatementInterface {
 	 * the same type.
 	 * 
 	 * @param s
-	 *            a {@link org.evosuite.testcase.statements.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.Statement} object.
 	 * @return a boolean.
 	 */
-	public boolean same(StatementInterface s);
+	public boolean same(Statement s);
 
 	/**
 	 * Sets the set of assertions to statement

@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.PassiveChangeListener;
 import org.objectweb.asm.Opcodes;
@@ -92,7 +91,7 @@ public class VariableReferenceImpl implements VariableReference {
 		if (stPosition == null || changeListener.hasChanged()) {
 			stPosition = null;
 			for (int i = 0; i < testCase.size(); i++) {
-				StatementInterface stmt = testCase.getStatement(i);
+				Statement stmt = testCase.getStatement(i);
 				if (stmt.getReturnValue().equals(this)) {
 					stPosition = i;
 					break;

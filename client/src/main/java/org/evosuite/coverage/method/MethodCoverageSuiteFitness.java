@@ -23,7 +23,6 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;
@@ -125,7 +124,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				continue;
 
 			Integer exceptionPosition = result.getFirstPositionOfThrownException();
-			StatementInterface statement = result.test.getStatement(exceptionPosition);
+			Statement statement = result.test.getStatement(exceptionPosition);
 			if (statement instanceof ConstructorStatement) {
 				ConstructorStatement c = (ConstructorStatement) statement;
 				String className = c.getConstructor().getName();
@@ -157,7 +156,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
                 hasTimeoutOrTestException = true;
             }
 
-            for (StatementInterface stmt : result.test) {
+            for (Statement stmt : result.test) {
                 if (! isValidPosition(result, stmt.getPosition()))
                     break;
                 if ((stmt instanceof MethodStatement || stmt instanceof ConstructorStatement)) {

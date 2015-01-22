@@ -10,6 +10,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;
@@ -17,7 +18,6 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.NullStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +64,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 
 			List<Mutations> mutations = new ArrayList<Mutations>();
 			mutations.add(Mutations.REPLACE);
-			StatementInterface st = test.getTestCase().getStatement(statement);
+			Statement st = test.getTestCase().getStatement(statement);
 			if (!st.getReturnValue().isPrimitive() && !(st instanceof NullStatement)) {
 				mutations.add(Mutations.CALL);
 			}
@@ -133,7 +133,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 		logger.debug("Adding call");
 
 		TestFactory factory = TestFactory.getInstance();
-		StatementInterface theStatement = test.getTestCase().getStatement(statement);
+		Statement theStatement = test.getTestCase().getStatement(statement);
 		VariableReference var = theStatement.getReturnValue();
 
 		int oldLength = test.size();
@@ -156,7 +156,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 		logger.debug("Replacing call");
 
 		TestFactory factory = TestFactory.getInstance();
-		StatementInterface theStatement = test.getTestCase().getStatement(statement);
+		Statement theStatement = test.getTestCase().getStatement(statement);
 		VariableReference var = theStatement.getReturnValue();
 		int oldLength = test.size();
 		try {
@@ -196,7 +196,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 	 */
 	private boolean changeParameters(TestChromosome test, int statement) {
 		logger.debug("Changing parameters");
-		StatementInterface stmt = test.getTestCase().getStatement(statement);
+		Statement stmt = test.getTestCase().getStatement(statement);
 		if (stmt instanceof MethodStatement) {
 			return replaceMethodParameter(test, (MethodStatement) stmt);
 		} else if (stmt instanceof ConstructorStatement) {

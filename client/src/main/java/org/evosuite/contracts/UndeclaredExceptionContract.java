@@ -23,11 +23,11 @@ package org.evosuite.contracts;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 
 
 /**
@@ -42,7 +42,7 @@ public class UndeclaredExceptionContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
+	public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
 		if (!isTargetStatement(statement))
 			return null;
 
@@ -92,7 +92,7 @@ public class UndeclaredExceptionContract extends Contract {
 	}
 	
 	@Override
-	public void addAssertionAndComments(StatementInterface statement,
+	public void addAssertionAndComments(Statement statement,
 			List<VariableReference> variables, Throwable exception) {
 		statement.addComment("Throws undeclared exception: " +exception.getMessage());
 	}

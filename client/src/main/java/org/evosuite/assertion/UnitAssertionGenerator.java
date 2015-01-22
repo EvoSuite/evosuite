@@ -21,10 +21,10 @@
 package org.evosuite.assertion;
 
 import org.evosuite.Properties;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 
 
 /**
@@ -34,7 +34,7 @@ import org.evosuite.testcase.statements.StatementInterface;
  */
 public class UnitAssertionGenerator extends AssertionGenerator {
 
-	private boolean isRelevant(StatementInterface s, TestCase t) {
+	private boolean isRelevant(Statement s, TestCase t) {
 		// Always allow assertions on the last statement
 		if (s.getPosition() == (t.size() - 1))
 			return true;
@@ -64,7 +64,7 @@ public class UnitAssertionGenerator extends AssertionGenerator {
 		}
 
 		for (int i = 0; i < test.size(); i++) {
-			StatementInterface s = test.getStatement(i);
+			Statement s = test.getStatement(i);
 			if (!isRelevant(s, test))
 				s.removeAssertions();
 		}

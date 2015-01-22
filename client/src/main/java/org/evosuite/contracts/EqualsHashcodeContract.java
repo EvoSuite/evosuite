@@ -28,8 +28,8 @@ import org.evosuite.assertion.EqualsAssertion;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.PrimitiveExpression;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.testcase.statements.PrimitiveExpression.Operator;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
@@ -47,7 +47,7 @@ public class EqualsHashcodeContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public ContractViolation check(StatementInterface statement, Scope scope,
+	public ContractViolation check(Statement statement, Scope scope,
 	        Throwable exception) {
 		for (Pair<VariableReference> pair : getAllVariablePairs(scope)) {
 			if(pair.object1 == pair.object2)
@@ -90,7 +90,7 @@ public class EqualsHashcodeContract extends Contract {
 	}
 
 	@Override
-	public void addAssertionAndComments(StatementInterface statement,
+	public void addAssertionAndComments(Statement statement,
 	        List<VariableReference> variables, Throwable exception) {
 		TestCase test = statement.getTestCase();
 
@@ -108,17 +108,17 @@ public class EqualsHashcodeContract extends Contract {
 			        a.getGenericClass());
 
 			// Create x = a.equals(b)
-			StatementInterface st1 = new MethodStatement(test, genericEqualsMethod, a,
+			Statement st1 = new MethodStatement(test, genericEqualsMethod, a,
 			        Arrays.asList(new VariableReference[] { b }));
 			VariableReference x = test.addStatement(st1, statement.getPosition() + 1);
 
 			// Create y = a.hashCode();
-			StatementInterface st2 = new MethodStatement(test, genericHashCodeMethod, a,
+			Statement st2 = new MethodStatement(test, genericHashCodeMethod, a,
 			        Arrays.asList(new VariableReference[] {}));
 			VariableReference y = test.addStatement(st2, statement.getPosition() + 2);
 
 			// Create z = b.hashCode();
-			StatementInterface st3 = new MethodStatement(test, genericHashCodeMethod, b,
+			Statement st3 = new MethodStatement(test, genericHashCodeMethod, b,
 			        Arrays.asList(new VariableReference[] {}));
 			VariableReference z = test.addStatement(st3, statement.getPosition() + 3);
 
@@ -128,7 +128,7 @@ public class EqualsHashcodeContract extends Contract {
 			        Operator.EQUALS, z);
 			w = test.addStatement(exp, statement.getPosition() + 4);
 
-			StatementInterface newStatement = test.getStatement(w.getStPosition());
+			Statement newStatement = test.getStatement(w.getStPosition());
 
 			// Create assertEquals(x, w)
 			EqualsAssertion assertion = new EqualsAssertion();

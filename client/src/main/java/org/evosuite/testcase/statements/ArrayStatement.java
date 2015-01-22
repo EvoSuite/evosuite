@@ -33,6 +33,7 @@ import org.evosuite.Properties;
 import org.evosuite.testcase.ArrayIndex;
 import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.FieldReference;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;
@@ -169,7 +170,7 @@ public class ArrayStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public StatementInterface copy(TestCase newTestCase, int offset) {
+	public Statement copy(TestCase newTestCase, int offset) {
 		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), lengths);
 		// copy.assertions = copyAssertions(newTestCase, offset);
 		return copy;
@@ -298,7 +299,7 @@ public class ArrayStatement extends AbstractStatement {
 	@Override
 	public boolean isValid() {
 		int maxAssignment = 0;
-		for (StatementInterface statement : this.tc) {
+		for (Statement statement : this.tc) {
 			for (VariableReference var : statement.getVariableReferences()) {
 				if (var.getAdditionalVariableReference() == this.retval) {
 					VariableReference currentVar = var;
@@ -324,7 +325,7 @@ public class ArrayStatement extends AbstractStatement {
 	@Override
 	public boolean mutate(TestCase test, TestFactory factory) {
 		int maxAssignment = 0;
-		for (StatementInterface statement : test) {
+		for (Statement statement : test) {
 			for (VariableReference var : statement.getVariableReferences()) {
 				if (var.getAdditionalVariableReference() == this.retval) {
 					VariableReference currentVar = var;
@@ -382,7 +383,7 @@ public class ArrayStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public boolean same(StatementInterface s) {
+	public boolean same(Statement s) {
 		if (this == s)
 			return true;
 		if (s == null)

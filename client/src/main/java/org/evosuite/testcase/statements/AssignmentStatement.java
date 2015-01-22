@@ -34,6 +34,7 @@ import org.evosuite.testcase.ArrayIndex;
 import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.NullReference;
+import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;
@@ -95,7 +96,7 @@ public class AssignmentStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public StatementInterface copy(TestCase newTestCase, int offset) {
+	public Statement copy(TestCase newTestCase, int offset) {
 		try {
 			VariableReference newParam = parameter.copy(newTestCase, offset);
 			VariableReference newTarget;
@@ -292,7 +293,7 @@ public class AssignmentStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public boolean same(StatementInterface s) {
+	public boolean same(Statement s) {
 		if (this == s)
 			return true;
 		if (s == null)

@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
-import org.evosuite.testcase.statements.StatementInterface;
 import org.evosuite.utils.GenericClass;
 
 /**
@@ -208,7 +207,7 @@ public class ArrayReference extends VariableReferenceImpl {
 	public int getMaximumIndex() {
 		int max = 0;
 
-		for (StatementInterface s : testCase) {
+		for (Statement s : testCase) {
 			for(VariableReference var : s.getVariableReferences()) {
 				if(var instanceof ArrayIndex) {
 					ArrayIndex index = (ArrayIndex)var;
@@ -227,7 +226,7 @@ public class ArrayReference extends VariableReferenceImpl {
 	
 	public boolean isInitialized(int index, int position) {
 		int pos = 0;
-		for (StatementInterface s : testCase) {
+		for (Statement s : testCase) {
 			if(pos++ >= position)
 				return false;
 			
