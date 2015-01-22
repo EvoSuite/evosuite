@@ -270,12 +270,12 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, STEADYSTATEGA, ONEPLUSONEEA, MUPLUSLAMBDAGA, RANDOM, NSGAII
+		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, STEADYSTATEGA, RANDOM, NSGAII
 	}
 
 	/** Constant <code>ALGORITHM</code> */
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-	public static Algorithm ALGORITHM = Algorithm.STEADYSTATEGA;
+	public static Algorithm ALGORITHM = Algorithm.MONOTONICGA;
 
 	/** Constant <code>COMPOSITIONAL_FITNESS=false</code> */
 	@Parameter(key = "compositional_fitness", group = "Search Algorithm", description = "Compositional fitness function")

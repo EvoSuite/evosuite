@@ -35,7 +35,7 @@ public class TestCaseReplacer {
 	public TestCase replaceTest(String targetClass, List<TestCase> otherTests,
 	        TestCase test) {
 		// Various environmental setup necessary for EvoSuite
-		Properties.ALGORITHM = Algorithm.STEADYSTATEGA;
+		Properties.ALGORITHM = Algorithm.MONOTONICGA;
 		Properties.STRATEGY = Strategy.ONEBRANCH;
 		ExecutionTracer.enableTraceCalls();
 
