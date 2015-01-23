@@ -33,24 +33,24 @@ public class URLStreamHandlerUtil {
 			parseURLMethod.setAccessible(true);
 			
 		} catch (NoSuchMethodException | SecurityException e) {
-			logger.error("Failed to initialize due to reflection problems: "+e.getMessage());
+			logger.error("Failed to initialize due to reflection problems: "+e.toString());
 		}
 		
 	}
 	
-	public static void parseURL(URLStreamHandler handler, URL url, String spec, int start, int limit){
+	public static void parseURL(URLStreamHandler handler, URL url, String spec, int start, int limit) throws InvocationTargetException {
 		try {
 			parseURLMethod.invoke(handler, url, spec, start, limit);
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			logger.error("Failed due to reflection problems: "+e.getMessage());
+		} catch (IllegalAccessException  e) {
+			logger.error("Failed to call parseURL due to reflection problems: "+e.toString());
 		}
 	}
 	
-	public static URLConnection openConnection(URLStreamHandler handler, URL url, Proxy proxy){
+	public static URLConnection openConnection(URLStreamHandler handler, URL url, Proxy proxy) throws InvocationTargetException {
 		try {
 			return (URLConnection)openConnectionMethod.invoke(handler, url, proxy);
-		} catch (IllegalAccessException |  InvocationTargetException e) {
-			logger.error("Failed due to reflection problems: "+e.getMessage());
+		} catch (IllegalAccessException  e) {
+			logger.error("Failed to call openConnection due to reflection problems: "+e.toString());
 			return null;
 		}
 	}
