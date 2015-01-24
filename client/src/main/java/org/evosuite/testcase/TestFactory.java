@@ -1475,8 +1475,8 @@ public class TestFactory {
 	 */
 	public int insertRandomCallOnObject(TestCase test, int lastPosition) {
 		// Select a random variable
-		VariableReference var = selectVariableForCall(test, lastPosition);
-
+		// VariableReference var = selectVariableForCall(test, lastPosition);
+		VariableReference var = selectRandomVariableForCall(test, lastPosition + 1);
 		boolean success = false;
 		int position = 0;
 		
@@ -1603,7 +1603,7 @@ public class TestFactory {
 			}
 		} else { // if (r <= P_OBJECT) {
 			logger.debug("Adding new call on existing object");
-			position = insertRandomCallOnObject(test, position);
+			position = insertRandomCallOnObject(test, lastPosition);
 			//if (test.size() - oldSize > 1) {
 			//	position += (test.size() - oldSize - 1);
 			//}
@@ -1709,6 +1709,27 @@ public class TestFactory {
 			return var;
 		else
 			return null;
+	}
+	
+	private VariableReference selectRandomVariableForCall(TestCase test, int position) {
+		if (test.isEmpty() || position == 0)
+			return null;
+
+		List<VariableReference> allVariables = test.getObjects(position);
+		Set<VariableReference> candidateVariables = new LinkedHashSet<VariableReference>();
+		for(VariableReference var : allVariables) {
+			if (!(var instanceof NullReference) && 
+					!var.isVoid() &&
+			        !(test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) &&
+			        !var.isPrimitive())
+				candidateVariables.add(var);
+		}
+		if(candidateVariables.isEmpty()) {
+			return null;
+		} else {
+			VariableReference choice = Randomness.choice(candidateVariables);
+			return choice;
+		}
 	}
 
 }
