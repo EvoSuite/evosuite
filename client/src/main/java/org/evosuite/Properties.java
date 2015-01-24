@@ -196,7 +196,7 @@ public class Properties {
 
 	/** Constant <code>MAX_INT=2048</code> */
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")
-	public static int MAX_INT = 100000;
+	public static int MAX_INT = 2048;
 
 	/** Constant <code>RESTRICT_POOL=false</code> */
 	@Parameter(key = "restrict_pool", group = "Test Creation", description = "Prohibit integers in the pool greater than max_int")
