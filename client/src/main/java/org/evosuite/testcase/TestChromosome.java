@@ -278,6 +278,11 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean changed = false;
 		mutationHistory.clear();
 
+		int lastPosition = getLastMutatableStatement();
+		if(Properties.CHOP_MAX_LENGTH && size() >= Properties.CHROMOSOME_LENGTH) {
+			test.chop(lastPosition + 1);
+		}
+		
 		// Delete
 		if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
 			logger.debug("Mutation: delete");
@@ -423,7 +428,7 @@ public class TestChromosome extends ExecutableChromosome {
 		final double ALPHA = Properties.P_STATEMENT_INSERTION; //0.5;
 		int count = 0;
 		TestFactory testFactory = TestFactory.getInstance();
-
+		
 		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
 			count++;
