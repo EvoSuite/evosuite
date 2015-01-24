@@ -40,7 +40,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
@@ -240,7 +239,6 @@ public class InheritanceTreeGenerator {
 		analyzeClassStream(inheritanceTree, stream, false);
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void analyzeClassStream(InheritanceTree inheritanceTree,
 	        InputStream inputStream, boolean onlyPublic) {
 		try {
@@ -250,42 +248,51 @@ public class InheritanceTreeGenerator {
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG
 			        | ClassReader.SKIP_CODE);
-			logger.debug("Analyzing class " + cn.name);
+			analyzeClassNode(inheritanceTree, cn, onlyPublic);
 
-			if ((Opcodes.ACC_INTERFACE & cn.access) != Opcodes.ACC_INTERFACE) {
-				for (Object m : cn.methods) {
-					MethodNode mn = (MethodNode) m;
-					inheritanceTree
-							.addAnalyzedMethod(cn.name, mn.name, mn.desc);
-				}
-				if ((Opcodes.ACC_ABSTRACT & cn.access) == Opcodes.ACC_ABSTRACT) {
-					inheritanceTree.registerAbstractClass(cn.name);
-				}
-			}else{
-				inheritanceTree.registerInterface(cn.name);
-			}
-			if (onlyPublic) {
-				if ((cn.access & Opcodes.ACC_PUBLIC) == 0) {
-					return;
-				}
-			} else {
-				if (!canUse(cn)) {
-					return;
-				}
-			}
-
-			if (cn.superName != null)
-				inheritanceTree.addSuperclass(cn.name, cn.superName, cn.access);
-
-			List<String> interfaces = cn.interfaces;
-			for (String interfaceName : interfaces) {
-				inheritanceTree.addInterface(cn.name, interfaceName);
-			}
 
 		} catch (IOException e) {
 			logger.error("", e);
 		} catch(java.lang.ArrayIndexOutOfBoundsException e) {
 			logger.error("ASM Error while reading class ("+e.getMessage()+")");
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static void analyzeClassNode(InheritanceTree inheritanceTree,
+	        ClassNode cn, boolean onlyPublic) {
+		
+		logger.info("Analyzing class " + cn.name);
+
+		if ((Opcodes.ACC_INTERFACE & cn.access) != Opcodes.ACC_INTERFACE) {
+			for (Object m : cn.methods) {
+				MethodNode mn = (MethodNode) m;
+				inheritanceTree
+				.addAnalyzedMethod(cn.name, mn.name, mn.desc);
+			}
+			if ((Opcodes.ACC_ABSTRACT & cn.access) == Opcodes.ACC_ABSTRACT) {
+				inheritanceTree.registerAbstractClass(cn.name);
+			}
+		}else{
+			inheritanceTree.registerInterface(cn.name);
+		}
+		if (onlyPublic) {
+			if ((cn.access & Opcodes.ACC_PUBLIC) == 0) {
+				return;
+			}
+		} else {
+			if (!canUse(cn)) {
+				logger.info("Cannot use "+cn.name);
+				return;
+			}
+		}
+
+		if (cn.superName != null)
+			inheritanceTree.addSuperclass(cn.name, cn.superName, cn.access);
+
+		List<String> interfaces = cn.interfaces;
+		for (String interfaceName : interfaces) {
+			inheritanceTree.addInterface(cn.name, interfaceName);
 		}
 	}
 
