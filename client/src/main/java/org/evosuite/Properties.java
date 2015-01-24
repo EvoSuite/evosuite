@@ -253,6 +253,9 @@ public class Properties {
 	@Parameter(key = "insertion_score_uut", group = "Test Creation", description = "Score for selection of insertion of UUT calls")
 	public static int INSERTION_SCORE_UUT = 1;
 
+	@Parameter(key = "insertion_uut", group = "Test Creation", description = "Score for selection of insertion of UUT calls")
+	public static double INSERTION_UUT = 0.5;
+
 	/** Constant <code>INSERTION_SCORE_OBJECT=1</code> */
 	@Parameter(key = "insertion_score_object", group = "Test Creation", description = "Score for selection of insertion of call on existing object")
 	public static int INSERTION_SCORE_OBJECT = 1;
@@ -303,6 +306,9 @@ public class Properties {
 	/** Constant <code>CHECK_MAX_LENGTH=true</code> */
 	@Parameter(key = "check_max_length", group = "Search Algorithm", description = "Check length against fixed maximum")
 	public static boolean CHECK_MAX_LENGTH = true;
+
+	@Parameter(key = "chop_max_length", group = "Search Algorithm", description = "Chop statements after exception if length has reached maximum")
+	public static boolean CHOP_MAX_LENGTH = true;
 
 	/** Constant <code>DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS=0</code> */
 	@Parameter(key = "dse_constraint_solver_timeout_millis", group = "Search Algorithm", description = "Maximum number of solving time for Constraint solver in milliseconds")
