@@ -184,10 +184,10 @@ public class CheapPurityAnalyzer {
 		}
 		
 		if (!inheritanceTree.hasClass(className)) {
-			logger.warn(className
+			logger.info(className
 					+ " was not found in the inheritance tree. Using DEFAULT value for cheap-purity analysis");
 			return DEFAULT_PURITY_VALUE;
-		}
+		}		
 
 		Set<String> subclasses = inheritanceTree.getSubclasses(className);
 		for (String subclassName : subclasses) {
@@ -255,9 +255,11 @@ public class CheapPurityAnalyzer {
 	 * @return true if the method is cheap-pure, otherwise false.
 	 */
 	public boolean isPure(java.lang.reflect.Method method) {
-		String className = method.getDeclaringClass().getCanonicalName();
+		// Using getName rather than getCanonicalName because that's what
+		// the inheritancetree also uses
+		String className = method.getDeclaringClass().getName();
 		if(MockList.isAMockClass(className)) {
-			className = method.getDeclaringClass().getSuperclass().getCanonicalName();
+			className = method.getDeclaringClass().getSuperclass().getName();
 		} 
 		
 		String methodName = method.getName();
