@@ -1702,9 +1702,12 @@ public class TestClusterGenerator {
 		Set<Class<?>> actualClasses = new LinkedHashSet<Class<?>>();
 		if (Modifier.isAbstract(clazz.getModifiers())
 		        || Modifier.isInterface(clazz.getModifiers()) || clazz.equals(Enum.class)) {
-			String className = clazz.getCanonicalName();
+			// We have to use getName here and not getCanonicalName
+			// because getCanonicalname uses . rather than $ for inner classes
+			// but the InheritanceTree uses $
+			String className = clazz.getName();
 			if(MockList.isAMockClass(className))
-				className = clazz.getSuperclass().getCanonicalName();
+				className = clazz.getSuperclass().getName();
 			Set<String> subClasses = inheritanceTree.getSubclasses(className);
 			logger.debug("Subclasses of " + clazz.getName() + ": " + subClasses);
 			Map<String, Integer> classDistance = new HashMap<String, Integer>();
