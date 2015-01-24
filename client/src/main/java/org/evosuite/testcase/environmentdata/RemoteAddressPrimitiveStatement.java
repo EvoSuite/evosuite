@@ -73,7 +73,8 @@ public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<Ev
             // use an address that the SUT tried to contact
             EndPointInfo info = Randomness.choice(tc.getAccessedEnvironment().getViewOfRemoteContactedPorts());
             String host = info.getHost();
-            int port = info.getPort();
+            int port = info.getPort();//TODO check why it can be a 0 here
+            port = getPort(port);
             addr = new EvoSuiteRemoteAddress(host,port);
         } else {
             /*
@@ -88,12 +89,18 @@ public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<Ev
             ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
             String host = constantPool.getRandomString();
             int port = constantPool.getRandomInt();
-            if(port<=0){
-                port = 12345; //just a valid port number
-            }
+            port = getPort(port);
             addr = new EvoSuiteRemoteAddress(host,port);
         }
 
         setValue(addr);
     }
+
+    private int getPort(int port) {
+        if(port<=0 || port > 65535){
+            port = 12345; //just a valid port number
+        }
+        return port;
+    }
+
 }
