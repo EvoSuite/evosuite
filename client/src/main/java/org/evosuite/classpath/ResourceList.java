@@ -239,7 +239,7 @@ public class ResourceList {
 				if(!className.startsWith(prefix)){
 					continue;
 				}
-				if(!includeAnonymousClasses && className.contains("$")){
+				if(!includeAnonymousClasses && className.matches(".*\\$\\d+$")) {
 					continue;
 				}
 
