@@ -26,11 +26,13 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -39,6 +41,9 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.GenericAccessibleObject;
+import org.evosuite.utils.GenericConstructor;
+import org.evosuite.utils.GenericMethod;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -273,6 +278,52 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		}
 		return hasTimeoutOrTestException;
 	}
+	
+	private boolean isFullyCovered(String className, String methodName) {
+		List<Branch> branches = BranchPool.retrieveBranchesInMethod(className, methodName);
+		for(Branch branch : branches) {
+			if(!removedBranchesT.contains(branch.getActualBranchId()))
+				return false;
+			if(!removedBranchesF.contains(branch.getActualBranchId()))
+				return false;
+		}
+		return true;
+	}
+	
+	private void removeTestCall(String className, String methodName) {
+		TestCluster cluster = TestCluster.getInstance();
+		List<GenericAccessibleObject<?>> calls = cluster.getTestCalls();
+		for(GenericAccessibleObject<?> call : calls) {
+			if(!call.getDeclaringClass().getName().equals(className)) {
+				continue;
+			}
+			if(call instanceof GenericMethod) {
+				GenericMethod genericMethod = (GenericMethod)call;
+				if(!methodName.startsWith(genericMethod.getName())) {
+					continue;
+				}
+				String desc = Type.getMethodDescriptor(genericMethod.getMethod());
+				if((genericMethod.getName()+desc).equals(methodName)) {
+					logger.info("Removing method "+methodName+" from cluster");
+					cluster.removeTestCall(call);
+					logger.info("Testcalls left: "+cluster.getNumTestCalls());
+				}
+			} else if(call instanceof GenericConstructor) {
+				GenericConstructor genericConstructor = (GenericConstructor)call;
+				if(!methodName.startsWith("<init>")) {
+					continue;
+				}
+				String desc = Type.getConstructorDescriptor(genericConstructor.getConstructor());
+				if(("<init>" + desc).equals(methodName)) {
+					logger.info("Removing constructor "+methodName+" from cluster");
+					cluster.removeTestCall(call);
+					logger.info("Testcalls left: "+cluster.getNumTestCalls());
+				}
+			}
+		}
+	}
+
+	
 	@Override
 	public boolean updateCoveredGoals() {
 		
@@ -283,6 +334,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				totalMethods--;
 				methods.remove(method);
 				removedRootBranches.add(method);
+				removeTestCall(f.getTargetClass(), f.getTargetMethod());
 			} else {
 				throw new IllegalStateException("goal to remove not found");
 			}
@@ -294,6 +346,9 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				removedBranchesT.add(branch);
 				if (removedBranchesF.contains(branch)) {
 					totalBranches--;
+					if(isFullyCovered(f.getTargetClass(), f.getTargetMethod())) {
+						removeTestCall(f.getTargetClass(), f.getTargetMethod());
+					}
 				}
 			} else {
 				throw new IllegalStateException("goal to remove not found");
@@ -303,8 +358,12 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 			TestFitnessFunction f = branchCoverageFalseMap.remove(branch);
 			if (f != null) {
 				removedBranchesF.add(branch);
-				if (removedBranchesT.contains(branch))
+				if (removedBranchesT.contains(branch)) {
 					totalBranches--;
+					if(isFullyCovered(f.getTargetClass(), f.getTargetMethod())) {
+						removeTestCall(f.getTargetClass(), f.getTargetMethod());
+					}
+				}
 			} else {
 				throw new IllegalStateException("goal to remove not found");
 			}
