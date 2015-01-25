@@ -111,9 +111,6 @@ public class MethodCallReplacementCache {
             //java.lang.*
             addJavaLangCalls();
 
-            //java.util.Calendar
-            addCalendarCalls();
-
             // java.security.SecureRandom
             addSecureRandomCalls();
 
@@ -375,29 +372,6 @@ public class MethodCallReplacementCache {
                 "()Ljava/awt/Dimension;", true, false));
     }
 
-    private void addCalendarCalls() {
-        addReplacementCall(new MethodCallReplacement("java/util/Calendar",
-                "getInstance", "()Ljava/util/Calendar;", Opcodes.INVOKESTATIC,
-                "org/evosuite/runtime/Calendar", "getCalendar",
-                "()Ljava/util/Calendar;", false, false));
-
-        addReplacementCall(new MethodCallReplacement("java/util/Calendar",
-                "getInstance", "(Ljava/util/Locale;)Ljava/util/Calendar;", Opcodes.INVOKESTATIC,
-                "org/evosuite/runtime/Calendar", "getCalendar",
-                "(Ljava/util/Locale;)Ljava/util/Calendar;", false, false));
-
-        addReplacementCall(new MethodCallReplacement("java/util/Calendar",
-                "getInstance", "(Ljava/util/TimeZone;)Ljava/util/Calendar;", Opcodes.INVOKESTATIC,
-                "org/evosuite/runtime/Calendar", "getCalendar",
-                "(Ljava/util/TimeZone;)Ljava/util/Calendar;", false, false));
-
-        addReplacementCall(new MethodCallReplacement("java/util/Calendar",
-                "getInstance",
-                "(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;", Opcodes.INVOKESTATIC,
-                "org/evosuite/runtime/Calendar", "getCalendar",
-                "(Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/util/Calendar;",
-                false, false));
-    }
 
     @SuppressWarnings("unused")
     private void addRandomCalls() {
