@@ -190,9 +190,9 @@ public class ConstantInliner extends ExecutionObserver {
 				}
 			}
 		} catch (CodeUnderTestException e) {
-
-			throw new AssertionError("This case isn't handled yet: " + e.getCause()
-			        + ", " + Arrays.asList(e.getStackTrace()));
+			logger.warn("Not inlining test: "+e.getCause());
+			// throw new AssertionError("This case isn't handled yet: " + e.getCause()
+			//        + ", " + Arrays.asList(e.getStackTrace()));
 		}
 
 	}
