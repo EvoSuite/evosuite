@@ -23,6 +23,7 @@ package org.evosuite.runtime;
 
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.lang.MockThread;
+import org.evosuite.runtime.mock.java.util.MockLocale;
 import org.evosuite.runtime.mock.java.util.MockTimeZone;
 import org.evosuite.runtime.thread.ThreadCounter;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
@@ -76,6 +77,7 @@ public class Runtime {
             MockThread.reset();
             ThreadCounter.getInstance().resetSingleton();
             MockTimeZone.reset();
+            MockLocale.reset();
         }
 
 		if (RuntimeSettings.useVFS) {
