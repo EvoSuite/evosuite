@@ -18,10 +18,7 @@ import org.evosuite.runtime.mock.java.lang.*;
 import org.evosuite.runtime.mock.java.net.*;
 import org.evosuite.runtime.mock.java.nio.channels.MockServerSocketChannel;
 import org.evosuite.runtime.mock.java.nio.channels.MockSocketChannel;
-import org.evosuite.runtime.mock.java.util.MockDate;
-import org.evosuite.runtime.mock.java.util.MockGregorianCalendar;
-import org.evosuite.runtime.mock.java.util.MockRandom;
-import org.evosuite.runtime.mock.java.util.MockTimer;
+import org.evosuite.runtime.mock.java.util.*;
 import org.evosuite.runtime.mock.java.util.logging.MockFileHandler;
 import org.evosuite.runtime.mock.java.util.logging.MockLogRecord;
 import org.evosuite.runtime.mock.javax.swing.MockJFileChooser;
@@ -81,6 +78,8 @@ public class MockList {
 			list.add(MockDate.class);
 			list.add(MockRandom.class);
 			list.add(MockGregorianCalendar.class);
+            list.add(MockCalendar.class);
+            //MockTimeZone, MockLocale are not actual mocks
 
             //thread related
             list.add(MockTimer.class);
