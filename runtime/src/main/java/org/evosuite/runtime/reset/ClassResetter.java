@@ -65,8 +65,12 @@ public class ClassResetter {
             Method m = clazz.getDeclaredMethod(STATIC_RESET, (Class<?>[]) null);
             m.setAccessible(true);
             methodMap.put(classNameWithDots, m);
-        } catch (NoSuchMethodException | ClassNotFoundException | SecurityException | IllegalArgumentException e) {
+        } catch (SecurityException | IllegalArgumentException e) {
             logger.error(""+e,e);
+        } catch (NoSuchMethodException | ClassNotFoundException e){
+            //this is not uncommon, as it can happen if static initializer fails.
+            //so no point in having a full trace stack
+            logger.error("Problem in resetting state of class "+classNameWithDots+": "+e);
         }
     }
 	
