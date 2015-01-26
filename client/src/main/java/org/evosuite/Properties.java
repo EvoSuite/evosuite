@@ -256,6 +256,9 @@ public class Properties {
 	@Parameter(key = "insertion_uut", group = "Test Creation", description = "Score for selection of insertion of UUT calls")
 	public static double INSERTION_UUT = 0.5;
 
+	@Parameter(key = "new_object_selection", group = "Test Creation", description = "Score for selection of insertion of UUT calls")
+	public static boolean NEW_OBJECT_SELECTION = true;
+
 	/** Constant <code>INSERTION_SCORE_OBJECT=1</code> */
 	@Parameter(key = "insertion_score_object", group = "Test Creation", description = "Score for selection of insertion of call on existing object")
 	public static int INSERTION_SCORE_OBJECT = 1;
