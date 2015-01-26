@@ -1,5 +1,6 @@
 package org.evosuite.runtime.mock.java.lang;
 
+import org.evosuite.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.thread.ThreadCounter;
@@ -40,14 +41,17 @@ public class MockThread extends Thread implements OverrideMock {
         return Thread.currentThread();
     }
 
+    @EvoSuiteExclude
     public static void yield() {
         Thread.yield();
     }
 
+    @EvoSuiteExclude
     public static void sleep(long millis) throws InterruptedException {
         Thread.sleep(millis);
     }
 
+    @EvoSuiteExclude
     public static void sleep(long millis, int nanos)
             throws InterruptedException {
         Thread.sleep(millis, nanos);
