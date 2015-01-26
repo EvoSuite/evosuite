@@ -25,6 +25,7 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 
 public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
@@ -52,7 +53,8 @@ public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
 			        || var.isPrimitive()
 			        || var.isWrapperType() // TODO: Wrapper types might make sense but there were failing assertions...
 			        || var.isEnum()
-			        || currentTest.getStatement(var.getStPosition()) instanceof PrimitiveStatement)
+			        || currentTest.getStatement(var.getStPosition()) instanceof PrimitiveStatement
+			        || currentTest.getStatement(var.getStPosition()).isAssignmentStatement())
 				return;
 
 			// We don't need assertions on constant values
