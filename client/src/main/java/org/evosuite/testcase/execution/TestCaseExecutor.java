@@ -514,6 +514,10 @@ public class TestCaseExecutor implements ThreadFactory {
 				return true;
 			if(elem.getMethodName().equals("loadClass") && elem.getClassName().equals(org.evosuite.instrumentation.InstrumentingClassLoader.class.getCanonicalName()))
 				return true;
+			// CFontManager is responsible for loading fonts
+			// which can take seconds
+			if(elem.getClassName().equals("sun.font.CFontManager"))
+				return true;
 		}
 		return false;
 	}
