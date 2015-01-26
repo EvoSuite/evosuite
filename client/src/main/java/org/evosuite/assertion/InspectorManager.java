@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.mock.MockList;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.JdkPureMethodsList;
 import org.slf4j.Logger;
@@ -162,6 +163,9 @@ public class InspectorManager {
 
 	private boolean isBlackListed(Method method) {
 		String className = method.getDeclaringClass().getCanonicalName();
+		if(MockList.isAMockClass(className)) {
+			className = method.getDeclaringClass().getSuperclass().getCanonicalName();
+		}
 		if (!blackList.containsKey(className))
 			return false;
 		String methodName = method.getName();
