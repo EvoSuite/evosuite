@@ -1503,7 +1503,7 @@ public class TestFactory {
 			}
 		} 
 		
-		if(!success) {
+		if(!success && TestCluster.getInstance().getNumTestCalls() > 0) {
 			logger.debug("Adding new call on UUT because var was null");
 			if(lastPosition > 0)
 				position = Randomness.nextInt(lastPosition);
@@ -1594,7 +1594,7 @@ public class TestFactory {
 
 		//		if (r <= P_UUT) {
 		boolean success = false;
-		if (r <= Properties.INSERTION_UUT) {
+		if (r <= Properties.INSERTION_UUT && TestCluster.getInstance().getNumTestCalls() > 0) {
 			// add new call of the UUT - only declared in UUT!
 			logger.debug("Adding new call on UUT");
 			success = insertRandomCall(test, position);
