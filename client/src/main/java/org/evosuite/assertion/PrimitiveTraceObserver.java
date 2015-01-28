@@ -27,6 +27,7 @@ import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 
 public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTraceEntry> {
@@ -62,6 +63,11 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 			// We don't need assertions on constant values
 			if (statement instanceof PrimitiveStatement<?>)
 				return;
+			
+			if(statement instanceof MethodStatement) {
+				if(((MethodStatement)statement).getMethod().getName().equals("hashCode"))
+					return;
+			}
 
 			Object object = var.getObject(scope);
 
