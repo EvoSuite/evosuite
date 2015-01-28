@@ -82,7 +82,7 @@ public class InspectorManager {
 		blackList.put("java.awt.Panel",
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.awt.Component",
-				Arrays.asList(new String[] { "toString" }));
+				Arrays.asList(new String[] { "toString", "isVisible" }));
 		blackList.put("java.awt.event.MouseWheelEvent",
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("javax.swing.DefaultListSelectionModel",
