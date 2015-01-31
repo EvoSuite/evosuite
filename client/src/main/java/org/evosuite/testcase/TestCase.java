@@ -114,6 +114,9 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	 */
 	public void clearCoveredGoals();
 
+	
+	public boolean contains(Statement statement);
+	
 	/**
 	 * <p>clone</p>
 	 *

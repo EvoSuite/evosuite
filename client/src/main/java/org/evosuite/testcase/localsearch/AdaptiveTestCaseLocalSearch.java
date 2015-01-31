@@ -7,6 +7,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.DSEType;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.ga.operators.mutation.MutationHistory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestMutationHistoryEntry;
 import org.evosuite.testcase.statements.PrimitiveStatement;
@@ -32,13 +33,19 @@ public class AdaptiveTestCaseLocalSearch extends TestCaseLocalSearch {
 
 		logger.info("Mutation history: " + individual.getMutationHistory().toString());
 		logger.info("Checking {} mutations", individual.getMutationHistory().size());
+		MutationHistory<TestMutationHistoryEntry> history = new MutationHistory<>();
+		history.set(individual.getMutationHistory());
 		for (TestMutationHistoryEntry mutation : individual.getMutationHistory()) {
 			if (LocalSearchBudget.getInstance().isFinished())
 				break;
 
+			// Reference local search may have removed the statement
+			if(!individual.getTestCase().contains(mutation.getStatement()))
+				continue;
+			
 			if (mutation.getMutationType() != TestMutationHistoryEntry.TestMutation.DELETION
-			        && mutation.getStatement().getPosition() <= lastPosition
-			        && mutation.getStatement() instanceof PrimitiveStatement<?>) {
+			        && mutation.getStatement().getPosition() <= lastPosition) {
+//			        && mutation.getStatement() instanceof PrimitiveStatement<?>) {
 				logger.info("Found suitable mutation: " + mutation);
 
 				if (!individual.getTestCase().hasReferences(mutation.getStatement().getReturnValue())

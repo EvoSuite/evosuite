@@ -249,6 +249,15 @@ public class DefaultTestCase implements TestCase, Serializable {
 			statements.remove(length);
 		}
 	}
+	
+	public boolean contains(Statement statement) {
+		for(Statement s : statements) {
+			if(s.equals(statement)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#clearCoveredGoals()
