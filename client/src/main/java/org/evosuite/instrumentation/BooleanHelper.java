@@ -283,7 +283,7 @@ public class BooleanHelper {
 			return 0;
 		} else {
 			double diff = d1 - d2;
-			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0 + Math.abs(diff));
+			double diff2 = diff / (1.0 + Math.abs(diff));
 			if(Double.isNaN(d1) || Double.isNaN(d2) || Double.isInfinite(d1)  || Double.isInfinite(d2)) {
 				return Double.compare(d1, d2);
 			}
