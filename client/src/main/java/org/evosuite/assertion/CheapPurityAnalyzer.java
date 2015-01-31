@@ -9,6 +9,7 @@ import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.InheritanceTree;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.JdkPureMethodsList;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -146,7 +147,20 @@ public class CheapPurityAnalyzer {
 		if (this.interfaceMethodEntries.contains(entry)) {
 			return true;
 		}
-
+		return checkSuperclass(entry);
+		// return DEFAULT_PURITY_VALUE;
+	}
+	
+	private boolean checkSuperclass(MethodEntry entry) {
+		InheritanceTree inheritanceTree = TestCluster.getInheritanceTree();
+		for(String superClassName : inheritanceTree.getSuperclasses(entry.className)) {
+			if(superClassName.equals(entry.className))
+				continue;
+			
+			MethodEntry superEntry = new MethodEntry(superClassName, entry.methodName, entry.descriptor);
+			if(isPure(superEntry))
+				return true;
+		}
 		return DEFAULT_PURITY_VALUE;
 	}
 
