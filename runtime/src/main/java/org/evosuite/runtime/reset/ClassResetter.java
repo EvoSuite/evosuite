@@ -67,7 +67,7 @@ public class ClassResetter {
             methodMap.put(classNameWithDots, m);
         } catch (SecurityException | IllegalArgumentException e) {
             logger.error(""+e,e);
-        } catch (NoSuchMethodException | ClassNotFoundException e){
+        } catch (NoSuchMethodException | ClassNotFoundException | NoClassDefFoundError e){
             //this is not uncommon, as it can happen if static initializer fails.
             //so no point in having a full trace stack
             logger.error("Problem in resetting state of class "+classNameWithDots+": "+e);
