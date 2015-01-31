@@ -117,7 +117,8 @@ public class TestChromosome extends ExecutableChromosome {
 		c.setChanged(isChanged());
 		if (Properties.LOCAL_SEARCH_SELECTIVE) {
 			for (TestMutationHistoryEntry mutation : mutationHistory) {
-				c.mutationHistory.addMutationEntry(mutation.clone(c.getTestCase()));
+				if(test.contains(mutation.getStatement()))
+					c.mutationHistory.addMutationEntry(mutation.clone(c.getTestCase()));
 			}
 		}
 		// c.mutationHistory.set(mutationHistory);
@@ -205,6 +206,10 @@ public class TestChromosome extends ExecutableChromosome {
 
 	public MutationHistory<TestMutationHistoryEntry> getMutationHistory() {
 		return mutationHistory;
+	}
+
+	public void clearMutationHistory() {
+		mutationHistory.clear();
 	}
 
 	public boolean hasRelevantMutations() {

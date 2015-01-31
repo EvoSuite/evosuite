@@ -436,6 +436,7 @@ public class TestCaseExecutor implements ThreadFactory {
 				for (StackTraceElement elem : currentThread.getStackTrace()) {
 					logger.info(elem.toString());
 				}
+				logger.info(tc.toCode());
 				handler.getLastTask().cancel(true);
 				logger.info("Run not finished, waiting...");
 				try {
