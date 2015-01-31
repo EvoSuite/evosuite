@@ -81,6 +81,8 @@ public class InspectorManager {
 		// AWT identifiers are different with every run
 		blackList.put("java.awt.Panel",
 				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.awt.event.ActionEvent",
+				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.awt.Component",
 				Arrays.asList(new String[] { "toString", "isVisible" }));
 		blackList.put("java.awt.event.MouseWheelEvent",
@@ -113,8 +115,9 @@ public class InspectorManager {
 
 		if (!method.getReturnType().isPrimitive()
 				&& !method.getReturnType().equals(String.class)
-				&& !method.getReturnType().isEnum())
+				&& !method.getReturnType().isEnum()) {
 			return false;
+		}
 
 		if (method.getReturnType().equals(void.class))
 			return false;
@@ -142,6 +145,9 @@ public class InspectorManager {
 
 		if (isImpureJDKMethod(method))
 			return false;
+		
+		if(isAWTToString(method))
+			return false;
 
 		if (Properties.PURE_INSPECTORS) {
 			if (!CheapPurityAnalyzer.getInstance().isPure(method)) {
@@ -161,6 +167,15 @@ public class InspectorManager {
 		return !JdkPureMethodsList.instance.isPureJDKMethod(method);
 	}
 
+	private boolean isAWTToString(Method method) {
+		String className = method.getDeclaringClass().getCanonicalName();
+		if(className.startsWith("javax.") || className.startsWith("java.awt.")) {
+			if(method.getName().equals("toString"))
+				return true;
+		}
+		return false;
+	}
+	
 	private boolean isBlackListed(Method method) {
 		String className = method.getDeclaringClass().getCanonicalName();
 		if(MockList.isAMockClass(className)) {
@@ -183,6 +198,8 @@ public class InspectorManager {
 						+ method.getDeclaringClass().getCanonicalName());
 
 				inspectorList.add(new Inspector(clazz, method));
+			} else {
+				logger.debug("Not an inspector: "+method.getName());
 			}
 		}
 		inspectors.put(clazz, inspectorList);
