@@ -304,7 +304,6 @@ public class TestCodeVisitor extends TestVisitor {
 				}
 			}
 		}
-
 		// Ensure outer classes are imported as well
 		Class<?> outerClass = clazz.getEnclosingClass();
 		if(outerClass != null) {
@@ -313,6 +312,11 @@ public class TestCodeVisitor extends TestVisitor {
 			if(simpleOuterName.equals(enclosingName)) {
 				name = enclosingName + name.substring(simpleOuterName.length());
 			}
+		}
+
+		Class<?> declaringClass = clazz.getDeclaringClass();
+		if(declaringClass != null) {
+			getClassName(declaringClass);
 		}
 
 		// We can't use "Test" because of JUnit 
@@ -631,6 +635,14 @@ public class TestCodeVisitor extends TestVisitor {
 			        + getVariableName(source) + "." + inspector.getMethodCall() + "());";
 			// Make sure the enum is imported in the JUnit test
 			getClassName(value.getClass());
+
+		} else if (value.getClass().equals(boolean.class) || value.getClass().equals(Boolean.class)) {
+			if (((Boolean) value).booleanValue())
+				testCode += "assertTrue(" + getVariableName(source) + "."
+				        + inspector.getMethodCall() + "());";
+			else
+				testCode += "assertFalse(" + getVariableName(source) + "."
+				        + inspector.getMethodCall() + "());";
 
 		} else
 			testCode += "assertEquals(" + value + ", " + getVariableName(source) + "."
