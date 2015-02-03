@@ -515,7 +515,7 @@ public class Properties {
 			+ "evosuite.properties";
 
 	public enum StoppingCondition {
-		MAXSTATEMENTS, MAXTESTS, MAXTIME, MAXGENERATIONS, MAXFITNESSEVALUATIONS
+		MAXSTATEMENTS, MAXTESTS, MAXTIME, MAXGENERATIONS, MAXFITNESSEVALUATIONS, TIMEDELTA
 	}
 
 	/** Constant <code>STOPPING_CONDITION</code> */

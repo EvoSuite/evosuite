@@ -96,6 +96,7 @@ import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
 import org.evosuite.ga.stoppingconditions.SocketStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.ga.stoppingconditions.TimeDeltaStoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
@@ -1651,6 +1652,8 @@ public class TestSuiteGenerator {
 			return new MaxTestsStoppingCondition();
 		case MAXSTATEMENTS:
 			return new MaxStatementsStoppingCondition();
+		case TIMEDELTA:
+			return new TimeDeltaStoppingCondition();
 		default:
 			logger.warn("Unknown stopping condition: " + Properties.STOPPING_CONDITION);
 			return new MaxGenerationStoppingCondition();
