@@ -510,8 +510,14 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public List<VariableReference> getObjects(Type type, int position) {
 		List<VariableReference> variables = new LinkedList<VariableReference>();
 
-		for (int i = 0; i < position && i < size(); i++) {
-			VariableReference value = statements.get(i).getReturnValue();
+		for(Statement statement : statements) {
+			if(statement instanceof MethodStatement) {
+				// Avoid using hashCode return values
+				if(((MethodStatement)statement).getMethod().getName().equals("hashCode"))
+					continue;
+			}
+			VariableReference value = statement.getReturnValue();
+
 			if (value == null)
 				continue;
 			if (value instanceof ArrayReference) {
@@ -553,7 +559,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				variables.add(value);
 			} else {
 				addFields(variables, value, type);
-			}
+			}			
 		}
 
 		return variables;
