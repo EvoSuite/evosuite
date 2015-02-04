@@ -59,7 +59,7 @@ public final class SmtOperation extends SmtExpr {
 		SUBSTRING("Substring"), //
 		ENDSWITH("EndsWith"), //
 		CONTAINS("Contains"), //
-		STARTSWITH("StartsWiths"), //
+		STARTSWITH("StartsWith"), //
 		INDEXOF("Indexof"), //
 		LENGTH("Length");
 

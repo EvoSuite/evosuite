@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
 
-public class SmtFunCollector implements SmtExprVisitor<Void, Void> {
+public final class SmtOperatorCollector implements SmtExprVisitor<Void, Void> {
 
 	@Override
 	public Void visit(SmtIntConstant n, Void arg) {
@@ -50,5 +50,10 @@ public class SmtFunCollector implements SmtExprVisitor<Void, Void> {
 
 	public Set<Operator> getOperators() {
 		return operators;
+	}
+
+	@Override
+	public Void visit(SmtBooleanConstant n, Void arg) {
+		return null;
 	}
 }

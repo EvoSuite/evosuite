@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +26,16 @@ import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.smt.SmtConstant;
 import org.evosuite.symbolic.solver.smt.SmtConstantCollector;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 import org.evosuite.symbolic.solver.smt.SmtExprPrinter;
 import org.evosuite.symbolic.solver.smt.SmtIntVariable;
+import org.evosuite.symbolic.solver.smt.SmtOperation;
+import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
+import org.evosuite.symbolic.solver.smt.SmtOperatorCollector;
 import org.evosuite.symbolic.solver.smt.SmtRealVariable;
 import org.evosuite.symbolic.solver.smt.SmtStringConstant;
 import org.evosuite.symbolic.solver.smt.SmtStringVariable;
@@ -151,18 +156,6 @@ public class Z3StrSolver extends Solver {
 		}
 	}
 
-	private static String encodeString(String str) {
-		char[] charArray = str.toCharArray();
-		String ret_val = "__cOnStStR_";
-		for (int i = 0; i < charArray.length; i++) {
-			char c = charArray[i];
-			if (c >= 0 && c <= 255) {
-				ret_val += "_x" + Integer.toHexString(c);
-			}
-		}
-		return ret_val;
-	}
-
 	private static String mkAssert(String constraintStr) {
 		return "(assert " + constraintStr + ")";
 	}
@@ -206,13 +199,75 @@ public class Z3StrSolver extends Solver {
 		}
 		Set<SmtConstant> smtConstants = constantCollector.getSmtConstants();
 
-		return createSmtQuery(smtVariables, smtConstants, assertions);
+		SmtOperatorCollector opCollector = new SmtOperatorCollector();
+		for (SmtExpr smtExpr : assertions) {
+			smtExpr.accept(opCollector, null);
+		}
+		Set<Operator> smtOperators = opCollector.getOperators();
+		boolean addCharToIntFunction;
+		if (smtOperators.contains(SmtOperation.Operator.CHAR_TO_INT)) {
+			addCharToIntFunction = true;
+		} else {
+			addCharToIntFunction = false;
+		}
+
+		return createSmtQuery(smtVariables, smtConstants, assertions,
+				addCharToIntFunction);
+	}
+
+	private final static int ASCII_TABLE_LENGTH = 90;
+
+	private static Set<SmtStringVariable> buildCharVariables() {
+		Set<SmtStringVariable> charVariables = new HashSet<SmtStringVariable>();
+
+		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
+			char c = (char) i;
+			String str = String.valueOf(c);
+			String encodedStr = ExprToZ3StrVisitor.encodeString(str);
+			SmtStringVariable v = new SmtStringVariable(encodedStr);
+			charVariables.add(v);
+		}
+		return charVariables;
+	}
+
+	private static String buildCharToIntFunction() {
+		StringBuffer buff = new StringBuffer();
+		buff.append("(declare-fun " + SmtOperation.Operator.CHAR_TO_INT
+				+ "((x String)) Int");
+		buff.append("\n");
+		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
+			char c = (char) i;
+			String str = String.valueOf(c);
+			String encodedStr = ExprToZ3StrVisitor.encodeString(str);
+			if (i < ASCII_TABLE_LENGTH - 1) {
+				String iteStr = String.format("(ite (= x %s) %s", encodedStr,
+						i);
+				buff.append(iteStr);
+				buff.append("\n");
+			} else {
+				buff.append(i);
+			}
+		}
+		for (int i = 0; i < ASCII_TABLE_LENGTH - 1; i++) {
+			buff.append(")");
+		}
+		buff.append(")");
+		buff.append("\n");
+		return buff.toString();
 	}
 
 	private static String createSmtQuery(Set<SmtVariable> smtVariables,
-			Set<SmtConstant> smtConstants, List<SmtExpr> smtAssertions) {
+			Set<SmtConstant> smtConstants, List<SmtExpr> smtAssertions,
+			boolean addCharToIntFunction) {
+
+		Set<SmtVariable> smtVariablesoDeclare = new HashSet<SmtVariable>(smtVariables);
+		if (addCharToIntFunction) {
+			Set<SmtStringVariable> charVariables = buildCharVariables();
+			smtVariablesoDeclare.addAll(charVariables);
+		}
+
 		StringBuffer buff = new StringBuffer();
-		for (SmtVariable v1 : smtVariables) {
+		for (SmtVariable v1 : smtVariablesoDeclare) {
 			String varName = v1.getName();
 			if (v1 instanceof SmtIntVariable) {
 				String intConst = declareIntConst(varName);
@@ -232,18 +287,11 @@ public class Z3StrSolver extends Solver {
 			}
 		}
 
-		for (SmtConstant smtConstant : smtConstants) {
-			if (smtConstant instanceof SmtStringConstant) {
-				SmtStringConstant smtStringConstant = (SmtStringConstant) smtConstant;
-				String stringValue = smtStringConstant.getConstantValue();
-
-				String encodedStringConstant = encodeString(stringValue);
-				String constDecl = declareStringConst(encodedStringConstant);
-				buff.append(constDecl);
-				buff.append("\n");
-			}
+		if (addCharToIntFunction) {
+			String charToInt = buildCharToIntFunction();
+			buff.append(charToInt);
 		}
-
+		
 		SmtExprPrinter printer = new SmtExprPrinter();
 		for (SmtExpr smtExpr : smtAssertions) {
 			String smtExprString = smtExpr.accept(printer, null);
