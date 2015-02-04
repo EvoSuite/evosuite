@@ -437,26 +437,27 @@ public class TestCaseExecutor implements ThreadFactory {
 					logger.info(elem.toString());
 				}
 				logger.info(tc.toCode());
-				handler.getLastTask().cancel(true);
-				logger.info("Run not finished, waiting...");
-				try {
-					executor.awaitTermination(Properties.SHUTDOWN_TIMEOUT,
-					                          TimeUnit.MILLISECONDS);
-				} catch (InterruptedException e) {
-					logger.info("Interrupted");
-					e.printStackTrace();
-				}
-				if (!callable.isRunFinished()) {
-					while(isInStaticInit()) {
-						logger.info("Run still not finished, but awaiting for static initializer to finish.");
+				while(isInStaticInit()) {
+					logger.info("Run still not finished, but awaiting for static initializer to finish.");
 
-						try {
-							executor.awaitTermination(Properties.SHUTDOWN_TIMEOUT,
-							                          TimeUnit.MILLISECONDS);
-						} catch (InterruptedException e) {
-							logger.info("Interrupted");
-							e.printStackTrace();
-						}						
+					try {
+						executor.awaitTermination(Properties.SHUTDOWN_TIMEOUT,
+						                          TimeUnit.MILLISECONDS);
+					} catch (InterruptedException e) {
+						logger.info("Interrupted");
+						e.printStackTrace();
+					}						
+				}
+
+				if (!callable.isRunFinished()) {
+					handler.getLastTask().cancel(true);
+					logger.info("Run not finished, waiting...");
+					try {
+						executor.awaitTermination(Properties.SHUTDOWN_TIMEOUT,
+								TimeUnit.MILLISECONDS);
+					} catch (InterruptedException e) {
+						logger.info("Interrupted");
+						e.printStackTrace();
 					}
 				}
 					
