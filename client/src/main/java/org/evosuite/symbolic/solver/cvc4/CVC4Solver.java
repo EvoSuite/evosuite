@@ -23,7 +23,7 @@ import org.evosuite.symbolic.solver.SmtStringExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 import org.evosuite.symbolic.solver.smt.SmtExprPrinter;
-import org.evosuite.symbolic.solver.smt.SmtFunCollector;
+import org.evosuite.symbolic.solver.smt.SmtOperatorCollector;
 import org.evosuite.symbolic.solver.smt.SmtIntVariable;
 import org.evosuite.symbolic.solver.smt.SmtOperation;
 import org.evosuite.symbolic.solver.smt.SmtRealVariable;
@@ -187,7 +187,7 @@ public class CVC4Solver extends Solver {
 			return null; // no variables, constraint system is trivial
 		}
 
-		SmtFunCollector funCollector = new SmtFunCollector();
+		SmtOperatorCollector funCollector = new SmtOperatorCollector();
 		for (SmtExpr smtExpr : smtExpressions) {
 			smtExpr.accept(funCollector, null);
 		}

@@ -1,5 +1,6 @@
 package org.evosuite.symbolic.solver;
 
+import org.evosuite.symbolic.solver.smt.SmtBooleanConstant;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 import org.evosuite.symbolic.solver.smt.SmtIntConstant;
 import org.evosuite.symbolic.solver.smt.SmtIntVariable;
@@ -14,9 +15,15 @@ public abstract class SmtExprBuilder {
 	public static final SmtIntConstant ZERO_INT = mkIntConstant(0);
 	public static final SmtRealConstant ZERO_REAL = mkRealConstant(0);
 	public static final SmtIntConstant ONE_INT = mkIntConstant(1);
+	public static final SmtBooleanConstant TRUE = mkBooleanConstant(true);
+	public static final SmtBooleanConstant FALSE = mkBooleanConstant(false);
 
 	public static SmtExpr mkDiv(SmtExpr left, SmtExpr right) {
 		return new SmtOperation(SmtOperation.Operator.DIV, left, right);
+	}
+
+	private static SmtBooleanConstant mkBooleanConstant(boolean b) {
+		return new SmtBooleanConstant(b);
 	}
 
 	public static SmtExpr mkMul(SmtExpr left, SmtExpr right) {
