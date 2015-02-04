@@ -298,8 +298,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		int missingMethods = 0;
 		for (String e : methods) {
 			if (!callCount.containsKey(e)) {
-				fitness += 1.0;
+				//fitness += 1.0;
 				missingMethods += 1;
+			} else {
+				logger.info("Covered method: "+e);
 			}
 		}
 
@@ -319,6 +321,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (String e : branchlessMethods) {
 			if (callCount.keySet().contains(e)) {
 				coverage++;
+			} else {
+				fitness += 1.0;
 			}
 
 		}
