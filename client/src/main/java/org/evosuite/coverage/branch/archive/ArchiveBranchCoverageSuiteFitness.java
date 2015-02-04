@@ -170,7 +170,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	 * @param results
 	 * @param callCount
 	 */
-	private void handleConstructorExceptions(List<ExecutionResult> results,
+	private void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results,
 	        Map<String, Integer> callCount) {
 
 		for (ExecutionResult result : results) {
@@ -188,6 +188,13 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				String name = className + "." + methodName;
 				if (!callCount.containsKey(name)) {
 					callCount.put(name, 1);
+					if (branchlessMethodCoverageMap.containsKey(name)) {
+						result.test.addCoveredGoal(branchlessMethodCoverageMap.get(name));
+						bestChromoBuilder.putTest(branchlessMethodCoverageMap.get(name), result.test);
+						toRemoveRootBranches.add(name);
+						suite.isToBeUpdated(true);
+					}
+
 				}
 			}
 
@@ -223,12 +230,12 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				}
 				//TODO why? check this
 				if (branchlessMethodCoverageMap.containsKey(entry.getKey())) {
+					logger.info("Covered a branchless method: "+entry.getKey());
 					result.test.addCoveredGoal(branchlessMethodCoverageMap.get(entry.getKey()));
 					bestChromoBuilder.putTest(branchlessMethodCoverageMap.get(entry.getKey()), result.test);
 					toRemoveRootBranches.add(entry.getKey());
 					suite.isToBeUpdated(true);
 				}
-
 			}
 			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
 				if (!branchesId.contains(entry.getKey())
@@ -400,7 +407,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		                                                  callCount, trueDistance,
 		                                                  falseDistance);
 		// In case there were exceptions in a constructor
-		handleConstructorExceptions(results, callCount);
+		handleConstructorExceptions(suite, results, callCount);
 
 		// Add requirement on statements
 		if (Properties.BRANCH_STATEMENT) {
