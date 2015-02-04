@@ -159,7 +159,8 @@ public class CheapPurityAnalyzer {
 
 		if (this.interfaceMethodEntries.contains(entry)) {
 			// IF this is an interface method returns true
-			// (WHY?)
+			// since we could not find any implementor of 
+			// this method interface that is impure
 			return true;
 		}
 
@@ -176,14 +177,14 @@ public class CheapPurityAnalyzer {
 			// Then, the closest implementation of m() in the
 			// superclasses of Foo should be checked since this might
 			// be called during runtime
-			boolean purityValueClosestSuperclass = checkSuperclass(entry);
+			boolean purityValueClosestSuperclass = isPureSuperclass(entry);
 
 			return purityValueClosestSuperclass;
 		}
 
 	}
 
-	private boolean checkSuperclass(MethodEntry entry) {
+	private boolean isPureSuperclass(MethodEntry entry) {
 		InheritanceTree inheritanceTree = TestCluster.getInheritanceTree();
 		for (String superClassName : inheritanceTree
 				.getOrderedSuperclasses(entry.className)) {
