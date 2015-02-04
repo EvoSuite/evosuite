@@ -506,7 +506,7 @@ public abstract class TestSolverStringFunctions {
 		Map<String, Object> solution = solver.solve(constraints);
 		return solution;
 	}
-	
+
 	public static Map<String, Object> testCastLongToString(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
@@ -717,7 +717,7 @@ public abstract class TestSolverStringFunctions {
 		tc.appendMethod(null, method, int0);
 		return tc.getDefaultTestCase();
 	}
-	
+
 	private static DefaultTestCase buildTestCastLongToString()
 			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
@@ -751,8 +751,6 @@ public abstract class TestSolverStringFunctions {
 		return tc.getDefaultTestCase();
 	}
 
-	
-	
 	private static DefaultTestCase buildTestSubstringFromTo()
 			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();

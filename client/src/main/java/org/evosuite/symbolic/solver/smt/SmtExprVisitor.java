@@ -2,6 +2,8 @@ package org.evosuite.symbolic.solver.smt;
 
 public interface SmtExprVisitor<K, V> {
 
+	public K visit(SmtBooleanConstant n, V arg);
+
 	public K visit(SmtIntConstant n, V arg);
 
 	public K visit(SmtRealConstant n, V arg);
