@@ -76,14 +76,12 @@ public class CheapPurityAnalyzer {
 	private void addCacheValue(MethodEntry entry, boolean new_value) {
 		if (isCached(entry)) {
 			boolean old_value = this.purityCache.get(entry);
-			if (old_value != new_value) {
+			if (old_value == false && new_value == true) {
 				String fullyQuantifiedMethodName = entry.className + "."
 						+ entry.methodName + entry.descriptor;
 
-				logger.warn("The method "
-						+ fullyQuantifiedMethodName
-						+ " had a different value in the purity cache (old_value="
-						+ old_value + ",new_value=" + new_value + ")");
+				logger.warn("Purity value in cache cannot evolve from NOT_PURE to PURE for method "
+						+ fullyQuantifiedMethodName);
 			}
 		}
 		this.purityCache.put(entry, new_value);
