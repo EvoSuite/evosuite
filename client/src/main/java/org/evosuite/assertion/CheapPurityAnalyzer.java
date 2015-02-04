@@ -39,8 +39,6 @@ public class CheapPurityAnalyzer {
 			.getLogger(CheapPurityAnalyzer.class);
 
 	private final HashSet<MethodEntry> updateFieldMethodList = new HashSet<MethodEntry>();
-	private final HashSet<MethodEntry> notUpdateFieldMethodList = new HashSet<MethodEntry>();
-
 	private final HashMap<MethodEntry, Boolean> purityCache = new HashMap<MethodEntry, Boolean>();
 
 	private static final CheapPurityAnalyzer instance = new CheapPurityAnalyzer();
@@ -95,7 +93,7 @@ public class CheapPurityAnalyzer {
 		if (isRandomCall(entry)) {
 			return false;
 		}
-		
+
 		if (isJdkPureMethod(entry)) {
 			return true;
 		}
@@ -105,12 +103,18 @@ public class CheapPurityAnalyzer {
 		}
 
 		if (this.updateFieldMethodList.contains(entry)) {
+			// If the method has an implementation that
+			// modifies any field, we conclude the method is 
+			// NOT PURE
 			return false;
 		}
 
 		if (staticCalls.containsKey(entry)) {
 			Set<MethodEntry> calls = staticCalls.get(entry);
 			if (checkAnyCallImpure(calls, entry, callStack)) {
+				// If the method has an implementation that
+				// invokes at least one *static method*  that is not 
+				// pure, we conclude the method is NOT PURE
 				return false;
 			}
 		}
@@ -118,6 +122,9 @@ public class CheapPurityAnalyzer {
 		if (specialCalls.containsKey(entry)) {
 			Set<MethodEntry> calls = specialCalls.get(entry);
 			if (checkAnyCallImpure(calls, entry, callStack)) {
+				// If the method has an implementation that
+				// has at least one *special call* that is not 
+				// pure, we conclude the method is NOT PURE
 				return false;
 			}
 		}
@@ -125,6 +132,9 @@ public class CheapPurityAnalyzer {
 		if (virtualCalls.containsKey(entry)) {
 			Set<MethodEntry> calls = virtualCalls.get(entry);
 			if (checkAnyCallImpure(calls, entry, callStack)) {
+				// If the method has an implementation that
+				// invokes at least one *virtual method* that is not 
+				// pure, we conclude the method is NOT PURE
 				return false;
 			}
 		}
@@ -132,35 +142,68 @@ public class CheapPurityAnalyzer {
 		if (interfaceCalls.containsKey(entry)) {
 			Set<MethodEntry> calls = interfaceCalls.get(entry);
 			if (checkAnyCallImpure(calls, entry, callStack)) {
+				// If the method has an implementation that
+				// has at least one *interface call* that is not 
+				// pure, we conclude the method is NOT PURE
 				return false;
 			}
 		}
 
 		// check overriding methods
 		if (checkAnyOverridingMethodImpure(entry, callStack)) {
+			// If there is any descendant of this class that 
+			// has a declaration for this method that is not pure,
+			// we conclude the method is NOT PURE
 			return false;
 		}
 
-		if (this.notUpdateFieldMethodList.contains(entry)) {
-			return true;
-		}
 		if (this.interfaceMethodEntries.contains(entry)) {
+			// IF this is an interface method returns true
+			// (WHY?)
 			return true;
 		}
-		return checkSuperclass(entry);
-		// return DEFAULT_PURITY_VALUE;
+
+		if (this.methodsWithBodies.contains(entry)) {
+			// This means a method body for Foo.m() declared in Foo
+			// and there are no reasons to think Foo.m() 
+			// (namely no calls to impure methods, no field updates, 
+			// no descendant that has an impure implementation),
+			// we conclude the method is *PURE*
+			return true;
+		} else {
+			// This means there is no body for Foo.m() declared in Foo,
+			// but there is no impure descendant of Foo.m() also.
+			// Then, the closest implementation of m() in the
+			// superclasses of Foo should be checked since this might
+			// be called during runtime
+			boolean purityValueClosestSuperclass = checkSuperclass(entry);
+
+			return purityValueClosestSuperclass;
+		}
+
 	}
-	
+
 	private boolean checkSuperclass(MethodEntry entry) {
 		InheritanceTree inheritanceTree = TestCluster.getInheritanceTree();
-		for(String superClassName : inheritanceTree.getSuperclasses(entry.className)) {
-			if(superClassName.equals(entry.className))
+		for (String superClassName : inheritanceTree
+				.getOrderedSuperclasses(entry.className)) {
+			if (superClassName.equals(entry.className))
 				continue;
-			
-			MethodEntry superEntry = new MethodEntry(superClassName, entry.methodName, entry.descriptor);
-			if(isPure(superEntry))
-				return true;
+
+			MethodEntry superEntry = new MethodEntry(superClassName,
+					entry.methodName, entry.descriptor);
+
+			if (methodsWithBodies.contains(superEntry)) {
+				// We can conclude the purity of this method because
+				// we found an implementation in a super class for it
+				boolean purityValueForSuperClass = isPure(superEntry);
+				return purityValueForSuperClass;
+			}
 		}
+
+		// We cannot conclusive decide if the
+		// method is pure or not, so we fail 
+		// to default purity value
 		return DEFAULT_PURITY_VALUE;
 	}
 
@@ -169,11 +212,12 @@ public class CheapPurityAnalyzer {
 			return true;
 		else if (entry.className.equals("java.security.SecureRandom"))
 			return true;
-		else if (entry.className.equals("org.evosuite.Random")) 
+		else if (entry.className.equals("org.evosuite.Random"))
 			return true;
-		else if (entry.className.equals("java.lang.Math") && entry.methodName.equals("random"))
+		else if (entry.className.equals("java.lang.Math")
+				&& entry.methodName.equals("random"))
 			return true;
-		 else 
+		else
 			return false;
 	}
 
@@ -192,16 +236,16 @@ public class CheapPurityAnalyzer {
 		InheritanceTree inheritanceTree = DependencyAnalysis
 				.getInheritanceTree();
 
-		String className = ""+entry.className;
-		while(className.contains("[L")) {
-			className = className.substring(2, className.length()-1);
+		String className = "" + entry.className;
+		while (className.contains("[L")) {
+			className = className.substring(2, className.length() - 1);
 		}
-		
+
 		if (!inheritanceTree.hasClass(className)) {
 			logger.info(className
 					+ " was not found in the inheritance tree. Using DEFAULT value for cheap-purity analysis");
 			return DEFAULT_PURITY_VALUE;
-		}		
+		}
 
 		Set<String> subclasses = inheritanceTree.getSubclasses(className);
 		for (String subclassName : subclasses) {
@@ -225,8 +269,6 @@ public class CheapPurityAnalyzer {
 		return false;
 	}
 
-	
-	
 	private boolean isJdkPureMethod(MethodEntry entry) {
 		String paraz = entry.descriptor;
 		Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(paraz);
@@ -272,15 +314,16 @@ public class CheapPurityAnalyzer {
 		// Using getName rather than getCanonicalName because that's what
 		// the inheritancetree also uses
 		String className = method.getDeclaringClass().getName();
-		if(MockList.isAMockClass(className)) {
+		if (MockList.isAMockClass(className)) {
 			className = method.getDeclaringClass().getSuperclass().getName();
-		} 
-		
+		}
+
 		String methodName = method.getName();
 		String descriptor = Type.getMethodDescriptor(method);
 
 		MethodEntry entry = new MethodEntry(className, methodName, descriptor);
-		return isPure(entry);
+		boolean isPureValue = isPure(entry);
+		return isPureValue;
 	}
 
 	private static class MethodEntry {
@@ -342,14 +385,6 @@ public class CheapPurityAnalyzer {
 		MethodEntry entry = new MethodEntry(classNameWithDots, methodName,
 				descriptor);
 		updateFieldMethodList.add(entry);
-	}
-
-	public void addNotUpdatesFieldMethod(String className, String methodName,
-			String descriptor) {
-		String classNameWithDots = className.replace("/", ".");
-		MethodEntry entry = new MethodEntry(classNameWithDots, methodName,
-				descriptor);
-		notUpdateFieldMethodList.add(entry);
 	}
 
 	private final HashMap<MethodEntry, Set<MethodEntry>> staticCalls = new HashMap<MethodEntry, Set<MethodEntry>>();
@@ -414,11 +449,20 @@ public class CheapPurityAnalyzer {
 
 	private final HashSet<MethodEntry> interfaceMethodEntries = new HashSet<MethodEntry>();
 
+	private final HashSet<MethodEntry> methodsWithBodies = new HashSet<MethodEntry>();
+
 	public void addInterfaceMethod(String className, String methodName,
 			String methodDescriptor) {
 		MethodEntry entry = new MethodEntry(className, methodName,
 				methodDescriptor);
 		interfaceMethodEntries.add(entry);
+	}
+
+	public void addMethodWithBody(String className, String methodName,
+			String methodDescriptor) {
+		MethodEntry entry = new MethodEntry(className, methodName,
+				methodDescriptor);
+		methodsWithBodies.add(entry);
 	}
 
 }
