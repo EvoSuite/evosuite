@@ -51,4 +51,10 @@ public final class SmtConstantCollector implements SmtExprVisitor<Void, Void> {
 	public Set<SmtConstant> getSmtConstants() {
 		return smtConstants;
 	}
+
+	@Override
+	public Void visit(SmtBooleanConstant n, Void arg) {
+		smtConstants.add(n);
+		return null;
+	}
 }

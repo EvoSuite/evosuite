@@ -51,4 +51,9 @@ public final class SmtVariableCollector implements SmtExprVisitor<Void, Void> {
 	public Set<SmtVariable> getSmtVariables() {
 		return smtVariables;
 	}
+
+	@Override
+	public Void visit(SmtBooleanConstant n, Void arg) {
+		return null;
+	}
 }

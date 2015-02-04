@@ -78,4 +78,13 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 		return result.toString();
 	}
 
+	@Override
+	public String visit(SmtBooleanConstant n, Void arg) {
+		if (n.booleanValue()==true) {
+			return "true";
+		} else {
+			return "false";
+		}
+	}
+
 }
