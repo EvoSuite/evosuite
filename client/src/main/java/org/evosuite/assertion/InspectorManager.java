@@ -77,6 +77,12 @@ public class InspectorManager {
 
 		blackList.put(Locale.class.getCanonicalName(),
 				Arrays.asList(new String[] { "getDisplay" }));
+		blackList.put("java.util.Hashtable",
+				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.util.HashSet",
+				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.util.HashMap",
+				Arrays.asList(new String[] { "toString" }));
 
 		// AWT identifiers are different with every run
 		blackList.put("java.awt.Panel",
