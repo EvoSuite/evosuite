@@ -74,7 +74,7 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 		if (!hadInvokeSpecial)
 			return;
 
-		LinePool.addLine(className, methodName, line);
+		LinePool.addLine(className, fullMethodName, line);
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
 		this.visitLdcInsn(line);

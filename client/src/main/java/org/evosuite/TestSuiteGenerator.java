@@ -1014,6 +1014,7 @@ public class TestSuiteGenerator {
 		case WEAKMUTATION:
 			LoggingUtils.getEvoLogger().info("  - Mutation testing (weak)");
 			break;
+        case ARCHIVEMUTATION:
         case ONLYMUTATION:
             LoggingUtils.getEvoLogger().info("  - Only Mutation testing (weak)");
             break;
@@ -1051,6 +1052,7 @@ public class TestSuiteGenerator {
 		case METHODNOEXCEPTION:
 			LoggingUtils.getEvoLogger().info("  - No-Exception Top-Level Method Coverage");
 			break;
+		case ARCHIVELINE:
 		case LINE:
 			LoggingUtils.getEvoLogger().info("  - Line Coverage");
 			break;
