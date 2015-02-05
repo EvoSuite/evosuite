@@ -37,14 +37,11 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
-import org.evosuite.instrumentation.PurityAnalysisClassVisitor;
-import org.evosuite.instrumentation.PurityAnalysisMethodVisitor;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
-import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.ResetExecutor;
@@ -278,7 +275,6 @@ public class TestCaseExecutor implements ThreadFactory {
 			classesToReset.addAll(moreClassesForReset);
 			//sort classes to reset 
 			Collections.sort(classesToReset);
-			logger.info("Resetting selected classes: "+classesToReset);
 			ResetExecutor.getInstance().resetClasses(classesToReset);
 		}
 

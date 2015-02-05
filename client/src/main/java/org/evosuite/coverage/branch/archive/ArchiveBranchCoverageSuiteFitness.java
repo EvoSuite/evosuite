@@ -150,6 +150,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	private void determineCoverageGoals() {
 		List<BranchCoverageTestFitness> goals = new BranchCoverageFactory().getCoverageGoals();
 		for (BranchCoverageTestFitness goal : goals) {
+			bestChromoBuilder.addGoalToCover(goal);
 			if (goal.getBranch() == null) {
 				branchlessMethodCoverageMap.put(goal.getClassName() + "."
 				                                        + goal.getMethod(), goal);
@@ -340,7 +341,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				totalMethods--;
 				methods.remove(method);
 				removedRootBranches.add(method);
-				removeTestCall(f.getTargetClass(), f.getTargetMethod());
+				//removeTestCall(f.getTargetClass(), f.getTargetMethod());
 			} else {
 				throw new IllegalStateException("goal to remove not found");
 			}
@@ -352,9 +353,9 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				removedBranchesT.add(branch);
 				if (removedBranchesF.contains(branch)) {
 					totalBranches--;
-					if(isFullyCovered(f.getTargetClass(), f.getTargetMethod())) {
-						removeTestCall(f.getTargetClass(), f.getTargetMethod());
-					}
+					//if(isFullyCovered(f.getTargetClass(), f.getTargetMethod())) {
+					//	removeTestCall(f.getTargetClass(), f.getTargetMethod());
+					//}
 				}
 			} else {
 				throw new IllegalStateException("goal to remove not found");
@@ -366,9 +367,9 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				removedBranchesF.add(branch);
 				if (removedBranchesT.contains(branch)) {
 					totalBranches--;
-					if(isFullyCovered(f.getTargetClass(), f.getTargetMethod())) {
-						removeTestCall(f.getTargetClass(), f.getTargetMethod());
-					}
+					//if(isFullyCovered(f.getTargetClass(), f.getTargetMethod())) {
+					//	removeTestCall(f.getTargetClass(), f.getTargetMethod());
+					//}
 				}
 			} else {
 				throw new IllegalStateException("goal to remove not found");
