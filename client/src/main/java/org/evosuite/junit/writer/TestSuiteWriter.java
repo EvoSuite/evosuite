@@ -329,6 +329,7 @@ public class TestSuiteWriter implements Opcodes {
         boolean wasSecurityException = TestSuiteWriterUtils.hasAnySecurityException(results);
 
         for (ExecutionResult result : results) {
+        	visitor.clearExceptions();
         	visitor.setExceptions(result.exposeExceptionMapping());
             result.test.accept(visitor);
             imports.addAll(visitor.getImports());
