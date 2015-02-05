@@ -34,12 +34,19 @@ import java.util.concurrent.TimeoutException;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
+import org.evosuite.instrumentation.PurityAnalysisClassVisitor;
+import org.evosuite.instrumentation.PurityAnalysisMethodVisitor;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.ResetExecutor;
 import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
@@ -271,6 +278,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			classesToReset.addAll(moreClassesForReset);
 			//sort classes to reset 
 			Collections.sort(classesToReset);
+			logger.info("Resetting selected classes: "+classesToReset);
 			ResetExecutor.getInstance().resetClasses(classesToReset);
 		}
 
@@ -283,13 +291,33 @@ public class TestCaseExecutor implements ThreadFactory {
 		HashSet<String> moreClassesForStaticReset = new HashSet<String>();
 		for(int position = 0; position < result.getExecutedStatements(); position++) {
 			Statement statement = tc.getStatement(position);				
-			if(statement.isAssignmentStatement()) {
+			if(statement.isAssignmentStatement()) {				
 				if(statement.getReturnValue() instanceof FieldReference) {
 					FieldReference fieldReference = (FieldReference)statement.getReturnValue();
 					if(fieldReference.getField().isStatic()) {
 						moreClassesForStaticReset.add(fieldReference.getField().getOwnerClass().getClassName());
 					}
+				} 
+			} else if(statement instanceof FieldStatement) {
+				// Check if we are invoking a non-pure method on a static field variable
+				FieldStatement fieldStatement = (FieldStatement)statement;
+				if(fieldStatement.getField().isStatic()) {
+					VariableReference fieldReference = fieldStatement.getReturnValue();
+					for (int i = fieldStatement.getPosition() + 1; i < result.getExecutedStatements(); i++) {
+						Statement invokedStatement = tc.getStatement(i);
+						if(invokedStatement.references(fieldReference)) {
+							if(invokedStatement instanceof MethodStatement) {
+								if(fieldReference.equals(((MethodStatement)invokedStatement).getCallee())) {
+									if(!CheapPurityAnalyzer.getInstance().isPure(((MethodStatement)invokedStatement).getMethod().getMethod())) {
+										moreClassesForStaticReset.add(fieldStatement.getField().getOwnerClass().getClassName());
+										break;
+									}
+								}
+							}
+						}
+					}
 				}
+						
 			}
 		}
 		return moreClassesForStaticReset;
