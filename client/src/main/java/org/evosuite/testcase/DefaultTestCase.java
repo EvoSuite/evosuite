@@ -510,9 +510,9 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public List<VariableReference> getObjects(Type type, int position) {
 		List<VariableReference> variables = new LinkedList<VariableReference>();
 
-		for(Statement statement : statements) {
+		for (int i = 0; i < position && i < size(); i++) {
+			Statement statement = statements.get(i);
 			if(statement instanceof MethodStatement) {
-				// Avoid using hashCode return values
 				if(((MethodStatement)statement).getMethod().getName().equals("hashCode"))
 					continue;
 			}
