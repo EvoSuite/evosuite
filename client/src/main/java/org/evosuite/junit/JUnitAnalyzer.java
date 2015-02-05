@@ -25,13 +25,11 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.instrumentation.NonInstrumentingClassLoader;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.junit.xml.JUnitProcessLauncher;
 import org.evosuite.runtime.sandbox.Sandbox;
-import org.evosuite.symbolic.vm.string.builder.StringBuilder_Append;
 import org.evosuite.testcase.TestCase;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -315,7 +313,7 @@ public class JUnitAnalyzer {
 	private static List<File> compileTests(List<TestCase> tests, File dir) {
 
 		TestSuiteWriter suite = new TestSuiteWriter();
-		suite.insertTests(tests);
+		suite.insertAllTests(tests);
 
         //to get name, remove all package before last '.'
         int beginIndex = Properties.TARGET_CLASS.lastIndexOf(".") + 1;
