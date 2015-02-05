@@ -113,7 +113,8 @@ public class TestCodeVisitor extends TestVisitor {
 			String name = classNames.get(clazz);
 			// If there's a dot in the name, then we assume this is the
 			// fully qualified name and we don't need to import
-			if (!name.contains(".")) {
+			if(!name.equals(clazz.getName())) {
+			// if (!name.contains(".")) {
 				imports.add(clazz);
 			}
 		}
@@ -324,7 +325,7 @@ public class TestCodeVisitor extends TestVisitor {
 			name = clazz.getCanonicalName();
 		}
 		classNames.put(clazz, name);
-		
+
 		return name;
 	}
 
@@ -609,7 +610,7 @@ public class TestCodeVisitor extends TestVisitor {
 		VariableReference source = assertion.getSource();
 		Object value = assertion.getValue();
 		Inspector inspector = assertion.getInspector();
-
+		
 		if (value == null) {
 			testCode += "assertNull(" + getVariableName(source) + "."
 			        + inspector.getMethodCall() + "());";
@@ -633,7 +634,7 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (value.getClass().isEnum() || value instanceof Enum) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + "." + inspector.getMethodCall() + "());";
-			// Make sure the enum is imported in the JUnit test
+			// Make sure the enum is imported in the JUnit test			
 			getClassName(value.getClass());
 
 		} else if (value.getClass().equals(boolean.class) || value.getClass().equals(Boolean.class)) {
