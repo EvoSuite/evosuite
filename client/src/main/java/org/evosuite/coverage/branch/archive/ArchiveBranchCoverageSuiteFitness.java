@@ -230,7 +230,6 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				}
 				//TODO why? check this
 				if (branchlessMethodCoverageMap.containsKey(entry.getKey())) {
-					logger.info("Covered a branchless method: "+entry.getKey());
 					result.test.addCoveredGoal(branchlessMethodCoverageMap.get(entry.getKey()));
 					bestChromoBuilder.putTest(branchlessMethodCoverageMap.get(entry.getKey()), result.test);
 					toRemoveRootBranches.add(entry.getKey());
