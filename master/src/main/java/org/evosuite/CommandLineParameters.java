@@ -230,7 +230,8 @@ public class CommandLineParameters {
 		} 
 
 		if (line.hasOption("evosuiteCP")) {
-			String[] entries = line.getOptionValues("evosuiteCP");
+			String entry = line.getOptionValue("evosuiteCP");
+			String[] entries = entry.split(File.pathSeparator);
 			ClassPathHandler.getInstance().setEvoSuiteClassPath(entries);
 		}
 	}
