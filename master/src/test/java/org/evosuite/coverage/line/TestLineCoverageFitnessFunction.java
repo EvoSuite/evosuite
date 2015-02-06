@@ -50,6 +50,7 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 	private Properties.Criterion[] oldCriteria = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length); 
 	private Properties.StoppingCondition oldStoppingCondition = Properties.STOPPING_CONDITION; 
 	private double oldPrimitivePool = Properties.PRIMITIVE_POOL;
+	private boolean oldResetStaticFields = Properties.RESET_STATIC_FIELDS;
 	
 	@Before
 	public void beforeTest() {
@@ -57,6 +58,7 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		oldStoppingCondition = Properties.STOPPING_CONDITION;
 		oldPrimitivePool = Properties.PRIMITIVE_POOL;
         Properties.CRITERION = new Properties.Criterion[] { Criterion.LINE };
+        oldResetStaticFields = Properties.RESET_STATIC_FIELDS;
 		//Properties.MINIMIZE = false;
 	}
 	
@@ -65,6 +67,7 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		Properties.CRITERION = oldCriteria;
 		Properties.STOPPING_CONDITION = oldStoppingCondition;
 		Properties.PRIMITIVE_POOL = oldPrimitivePool;
+		Properties.RESET_STATIC_FIELDS = oldResetStaticFields;
 	}
 
 	@Test
