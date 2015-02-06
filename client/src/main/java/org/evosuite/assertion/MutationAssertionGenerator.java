@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
@@ -35,12 +34,9 @@ import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.reset.ResetManager;
-import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -174,6 +170,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		if (!ArrayUtil.contains(oldCriterion, Criterion.MUTATION)
 				&& !ArrayUtil.contains(oldCriterion, Criterion.WEAKMUTATION)
 				&& !ArrayUtil.contains(oldCriterion, Criterion.ONLYMUTATION)
+				&& !ArrayUtil.contains(oldCriterion, Criterion.ARCHIVEMUTATION)
 				&& !ArrayUtil.contains(oldCriterion, Criterion.STRONGMUTATION)) {
 			Properties.CRITERION = new Criterion[] { Criterion.MUTATION };
 		}

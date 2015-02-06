@@ -96,8 +96,8 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		mutationOperators.add(new InsertUnaryOperator());
 
 		// FIXME: Can't check return types because of side effects
-		mutationOperators.add(new DeleteStatement());
-		mutationOperators.add(new DeleteField());
+		//mutationOperators.add(new DeleteStatement());
+		//mutationOperators.add(new DeleteField());
 		// TODO: Replace iinc?
 	}
 

@@ -22,12 +22,14 @@ import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
 import org.evosuite.coverage.ibranch.archive.ArchiveIBranchSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
+import org.evosuite.coverage.line.archive.ArchiveOnlyLineCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodCoverageFactory;
 import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageFactory;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodTraceCoverageFactory;
 import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
+import org.evosuite.coverage.mutation.ArchiveOnlyMutationSuiteFitness;
 import org.evosuite.coverage.mutation.MutationFactory;
 import org.evosuite.coverage.mutation.OnlyMutationFactory;
 import org.evosuite.coverage.mutation.OnlyMutationSuiteFitness;
@@ -74,6 +76,8 @@ public class FitnessFunctions {
 			return new StrongMutationSuiteFitness();
 		case ONLYMUTATION:
 			return new OnlyMutationSuiteFitness();
+		case ARCHIVEMUTATION:
+			return new ArchiveOnlyMutationSuiteFitness();
 		case DEFUSE:
 			return new DefUseCoverageSuiteFitness();
 		case BRANCH:
@@ -108,6 +112,8 @@ public class FitnessFunctions {
 			return new MethodCoverageSuiteFitness();
 		case METHODNOEXCEPTION:
 			return new MethodNoExceptionCoverageSuiteFitness();
+		case ARCHIVELINE:
+			return new ArchiveOnlyLineCoverageSuiteFitness();
 		case LINE:
 			return new LineCoverageSuiteFitness();
 		case OUTPUT:
@@ -137,6 +143,8 @@ public class FitnessFunctions {
 		case WEAKMUTATION:
 			return new MutationFactory(false);
 		case ONLYMUTATION:
+			return new OnlyMutationFactory();
+		case ARCHIVEMUTATION:
 			return new OnlyMutationFactory();
 		case DEFUSE:
 			return new DefUseCoverageFactory();
@@ -169,6 +177,8 @@ public class FitnessFunctions {
 		case METHODNOEXCEPTION:
 			return new MethodNoExceptionCoverageFactory();
 		case LINE:
+			return new LineCoverageFactory();
+		case ARCHIVELINE:
 			return new LineCoverageFactory();
 		case OUTPUT:
 			return new OutputCoverageFactory();

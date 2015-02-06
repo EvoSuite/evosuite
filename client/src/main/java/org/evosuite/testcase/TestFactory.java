@@ -1473,82 +1473,26 @@ public class TestFactory {
 	 * @param test
 	 * @param position
 	 */
-	public int insertRandomCallOnObject(TestCase test, int lastPosition) {
+	public boolean insertRandomCallOnObject(TestCase test, int position) {
 		// Select a random variable
-		// VariableReference var = selectVariableForCall(test, lastPosition);
-		VariableReference var = selectRandomVariableForCall(test, lastPosition + 1);
+		VariableReference var = selectVariableForCall(test, position);
+//		VariableReference var = selectRandomVariableForCall(test, position);
+
 		boolean success = false;
-		int position = 0;
 		
 		// Add call for this variable at random position
 		if (var != null) {
-			int definedAt = var.getStPosition() + 1;
-			int lastUse = definedAt;
-			
-			// If this is the CUT, then inserting anywhere is fine 
-			if(var.isAssignableTo(Properties.getTargetClass())) {
-				lastUse = lastPosition+1;
-			} else {
-				// if it's not the CUT, then we want to modify it somewhere before it is used
-				for(VariableReference usage : test.getReferences(var)) {
-					lastUse = Math.max(lastUse,  usage.getStPosition());
-				}
-			}
-			if(lastUse > definedAt) {
-				position = Randomness.nextInt(definedAt, lastUse);
-				logger.debug("Inserting call at position " + position + ", chosen var: "
-						+ var.getName() + ", distance: " + var.getDistance() + ", class: "
-						+ var.getClassName());
-				success = insertRandomCallOnObjectAt(test, var, position);
-			}
-		} 
-		
-		if(!success && TestCluster.getInstance().getNumTestCalls() > 0) {
-			logger.debug("Adding new call on UUT because var was null");
-			if(lastPosition > 0)
-				position = Randomness.nextInt(lastPosition);
-			success = insertRandomCall(test, position);
-		}
-		return position;
-	}
-	
-	public int insertRandomCallOnObjectOld(TestCase test, int lastPosition) {
-		// Select a random variable
-		// VariableReference var = selectVariableForCall(test, lastPosition);
-		VariableReference var = selectRandomVariableForCall(test, lastPosition + 1);
-		boolean success = false;
-		int position = 0;
-		
-		// Add call for this variable at random position
-		if (var != null) {
-			int definedAt = var.getStPosition() + 1;
-			int lastUse = definedAt;
-			
-			// If this is the CUT, then inserting anywhere is fine 
-			if(var.isAssignableTo(Properties.getTargetClass())) {
-				lastUse = lastPosition+1;
-			} else {
-				// if it's not the CUT, then we want to modify it somewhere before it is used
-				for(VariableReference usage : test.getReferences(var)) {
-					lastUse = Math.max(lastUse,  usage.getStPosition());
-				}
-			}
-			if(lastUse > definedAt) {
-				position = Randomness.nextInt(definedAt, lastUse);
-				logger.debug("Inserting call at position " + position + ", chosen var: "
-						+ var.getName() + ", distance: " + var.getDistance() + ", class: "
-						+ var.getClassName());
-				success = insertRandomCallOnObjectAt(test, var, position);
-			}
+			logger.debug("Inserting call at position " + position + ", chosen var: "
+			        + var.getName() + ", distance: " + var.getDistance() + ", class: "
+			        + var.getClassName());
+			success = insertRandomCallOnObjectAt(test, var, position);
 		} 
 		
 		if(!success) {
 			logger.debug("Adding new call on UUT because var was null");
-			if(lastPosition > 0)
-				position = Randomness.nextInt(lastPosition);
 			success = insertRandomCall(test, position);
 		}
-		return position;
+		return success;
 	}
 
 	public boolean insertRandomCallOnObjectAt(TestCase test, VariableReference var,
@@ -1604,6 +1548,11 @@ public class TestFactory {
 	 * @see de.unisb.cs.st.evosuite.testcase.AbstractTestFactory#insertRandomStatement(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
 	public int insertRandomStatement(TestCase test, int lastPosition) {
+		final double P = Properties.INSERTION_SCORE_UUT
+		        + Properties.INSERTION_SCORE_OBJECT
+		        + Properties.INSERTION_SCORE_PARAMETER;
+		final double P_UUT = Properties.INSERTION_SCORE_UUT / P;
+		final double P_OBJECT = P_UUT + Properties.INSERTION_SCORE_OBJECT / P;
 
 		int oldSize = test.size();
 		double r = Randomness.nextDouble();
@@ -1625,22 +1574,29 @@ public class TestFactory {
 			logger.debug(test.toCode());
 		}
 
+		//		if (r <= P_UUT) {
+		boolean success = false;
 		if (r <= Properties.INSERTION_UUT && TestCluster.getInstance().getNumTestCalls() > 0) {
 			// add new call of the UUT - only declared in UUT!
 			logger.debug("Adding new call on UUT");
-			insertRandomCall(test, position);
+			success = insertRandomCall(test, position);
 			if (test.size() - oldSize > 1) {
 				position += (test.size() - oldSize - 1);
 			}
-		} else {
+		} else { // if (r <= P_OBJECT) {
 			logger.debug("Adding new call on existing object");
-			if(Properties.NEW_OBJECT_SELECTION)
-				position = insertRandomCallOnObject(test, lastPosition);
-			else {
-				position = insertRandomCallOnObjectOld(test, lastPosition);
+			success = insertRandomCallOnObject(test, position);
+			if (test.size() - oldSize > 1) {
+				position += (test.size() - oldSize - 1);
 			}
+			//		} else {
+			//			logger.debug("Adding new call with existing object as parameter");
+			// insertRandomCallWithObject(test, position);
 		}
-		return position;
+		if (success)
+			return position;
+		else
+			return -1;
 	}
 
 	/**
@@ -1736,7 +1692,7 @@ public class TestFactory {
 		else
 			return null;
 	}
-	
+
 	private VariableReference selectRandomVariableForCall(TestCase test, int position) {
 		if (test.isEmpty() || position == 0)
 			return null;
@@ -1744,10 +1700,10 @@ public class TestFactory {
 		List<VariableReference> allVariables = test.getObjects(position);
 		Set<VariableReference> candidateVariables = new LinkedHashSet<VariableReference>();
 		for(VariableReference var : allVariables) {
-			if (!(var instanceof NullReference) && 
+			if (!(var instanceof NullReference) &&
 					!var.isVoid() &&
-			        !(test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) &&
-			        !var.isPrimitive())
+					!(test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) &&
+					!var.isPrimitive())
 				candidateVariables.add(var);
 		}
 		if(candidateVariables.isEmpty()) {
@@ -1757,5 +1713,4 @@ public class TestFactory {
 			return choice;
 		}
 	}
-
 }

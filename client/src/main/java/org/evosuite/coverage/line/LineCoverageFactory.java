@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.evosuite.Properties;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.testsuite.AbstractFitnessFactory;
@@ -54,10 +53,12 @@ public class LineCoverageFactory extends
 		long start = System.currentTimeMillis();
 
 		for(String className : LinePool.getKnownClasses()) {
-			Set<Integer> lines = LinePool.getLines(className);
-			for (Integer line : lines) {
-				logger.info("Adding goal for method " + className + ". Line " + line + ".");
-				goals.add(new LineCoverageTestFitness(className, Properties.TARGET_METHOD, line));
+			for(String methodName : LinePool.getKnownMethodsFor(className)) {
+				Set<Integer> lines = LinePool.getLines(className, methodName);
+				for (Integer line : lines) {
+					logger.info("Adding goal for method " + className + "."+methodName+", Line " + line + ".");
+					goals.add(new LineCoverageTestFitness(className, methodName, line));
+				}
 			}
 		}
 		goalComputationTime = System.currentTimeMillis() - start;
