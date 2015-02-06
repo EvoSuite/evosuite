@@ -77,11 +77,13 @@ public class TimeDeltaStoppingCondition extends StoppingConditionImpl {
 		} else {
 			// If we haven't even had one generation we might as well give up
 			if(lastImprovement < startTime) {
+				logger.info("Waiting for first generation.");
 				return false;
 			}
 			
-			// If we haven't managed to evolve a whole generation in the time since the last iteration, also continue
-			if((current_time - lastGeneration) / 1000 < Properties.SEARCH_BUDGET) {
+			// If we haven't managed to evolve one generation in the time since the last iteration, also continue
+			if((current_time - lastGeneration) / 1000 > Properties.SEARCH_BUDGET) {
+				logger.info("Waiting for at least a generation within the timeout.");
 				return false;
 			}
 			
