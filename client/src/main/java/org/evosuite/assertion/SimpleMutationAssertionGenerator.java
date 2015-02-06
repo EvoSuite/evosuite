@@ -29,8 +29,6 @@ public class SimpleMutationAssertionGenerator extends
 
 	@Override
 	public void addAssertions(TestSuiteChromosome suite) {
-		setupClassLoader(suite);
-		
 		Set<Integer> tkilled = new HashSet<Integer>();
 		int numTest = 0;
 		for (TestCase test : suite.getTests()) {

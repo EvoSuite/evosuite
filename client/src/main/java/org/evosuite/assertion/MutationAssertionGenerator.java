@@ -168,53 +168,23 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 * 
 	 * @param suite
 	 */
-	protected void setupClassLoader(TestSuiteChromosome suite) {
+	@Override
+	public void setupClassLoader(TestSuiteChromosome suite) {
 		oldCriterion = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 		if (!ArrayUtil.contains(oldCriterion, Criterion.MUTATION)
-		        && !ArrayUtil.contains(oldCriterion, Criterion.WEAKMUTATION)
-		        && !ArrayUtil.contains(oldCriterion, Criterion.ONLYMUTATION)
-		        && !ArrayUtil.contains(oldCriterion, Criterion.STRONGMUTATION)) {
-		    Properties.CRITERION = new Criterion[] { Criterion.MUTATION };
-			Sandbox.goingToExecuteSUTCode();
-            TestGenerationContext.getInstance().goingToExecuteSUTCode();
-			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
-			try {
-
-				TestGenerationContext.getInstance().resetContext();
-				
-				if (Properties.RESET_STATIC_FIELDS) {
-					ResetManager.getInstance().disableTracing();
-					ResetManager.getInstance().setResetAllClasses(true);
-					ResetManager.getInstance().setResetFinalFields(true);
-				}
-				
-				TestGenerationContext.getInstance().goingToExecuteSUTCode();
-				Properties.getTargetClass();
-
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
-
-				for(TestChromosome test : suite.getTestChromosomes()) {
-					DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
-					dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
-					test.setChanged(true);
-					test.clearCachedMutationResults();
-					test.clearCachedResults();
-				}
-			} catch (Throwable e) {
-				LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
-						+ (e.getMessage() != null ? e.getMessage()
-								: e.toString()));
-				logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
-			} finally {
-				TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
-				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
-				Sandbox.doneWithExecutingSUTCode();
-                TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
-			}
-			for (Mutation m : MutationPool.getMutants()) {
-				mutants.put(m.getId(), m);
-			}
-
+				&& !ArrayUtil.contains(oldCriterion, Criterion.WEAKMUTATION)
+				&& !ArrayUtil.contains(oldCriterion, Criterion.ONLYMUTATION)
+				&& !ArrayUtil.contains(oldCriterion, Criterion.STRONGMUTATION)) {
+			Properties.CRITERION = new Criterion[] { Criterion.MUTATION };
+		}
+		if (Properties.RESET_STATIC_FIELDS) {
+			ResetManager.getInstance().disableTracing();
+			ResetManager.getInstance().setResetAllClasses(true);
+			ResetManager.getInstance().setResetFinalFields(true);
+		}
+		changeClassLoader(suite);
+		for (Mutation m : MutationPool.getMutants()) {
+			mutants.put(m.getId(), m);
 		}
 	}
 	
