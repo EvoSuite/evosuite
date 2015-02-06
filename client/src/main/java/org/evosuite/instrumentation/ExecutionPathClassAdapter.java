@@ -20,6 +20,7 @@ package org.evosuite.instrumentation;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.classpath.ResourceList;
+import org.evosuite.runtime.reset.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.ClassVisitor;
@@ -80,6 +81,9 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 			return mv;
 		}
 		if (name.equals("<clinit>"))
+			return mv;
+
+		if (name.equals(ClassResetter.STATIC_RESET))
 			return mv;
 
 		if (!DependencyAnalysis.shouldInstrument(className, name + descriptor))
