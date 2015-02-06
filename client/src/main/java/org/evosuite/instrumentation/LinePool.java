@@ -117,7 +117,14 @@ public class LinePool {
 	public static Set<String> getKnownClasses() {
 		return new HashSet<String>(lineMap.keySet());
 	}
-	
+
+	public static Set<String> getKnownMethodsFor(String className) {
+		if(!lineMap.containsKey(className))
+			return new HashSet<String>();
+		else
+			return lineMap.get(className).keySet();
+	}
+
 	public static void reset() {
 		lineMap.clear();
 	}

@@ -70,7 +70,7 @@ public class TimeDeltaStoppingCondition extends StoppingConditionImpl {
 	public boolean isFinished() {
 		long current_time = System.currentTimeMillis();
 		if (Properties.GLOBAL_TIMEOUT != 0 && startTime != 0
-		        && (current_time - startTime) / 1000 > (Properties.GLOBAL_TIMEOUT/2)) {
+		        && (current_time - startTime) / 1000 > (Properties.GLOBAL_TIMEOUT)) {
 			// Global timeout reached
 			logger.info("Global timeout reached");
 			return true;

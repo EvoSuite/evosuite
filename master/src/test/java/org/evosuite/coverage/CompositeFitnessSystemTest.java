@@ -1,11 +1,9 @@
 package org.evosuite.coverage;
 
 import com.examples.with.different.packagename.coverage.BooleanOneLine;
-import com.examples.with.different.packagename.coverage.MethodReturnsPrimitive;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
