@@ -26,6 +26,12 @@ import java.util.Map;
  */
 public class EvoHttpURLConnection extends HttpURLConnection {
 
+    /** valid HTTP methods. Same as in superclass (in which the array is private) */
+    private static final String[] methods = {
+            "GET", "POST", "HEAD", "OPTIONS", "PUT", "DELETE", "TRACE"
+    };
+
+
     private InputStream stream;
 
     protected EvoHttpURLConnection(URL u) {
@@ -82,7 +88,7 @@ public class EvoHttpURLConnection extends HttpURLConnection {
 
         if(stream == null){
             //TODO should rather mock FileNotFoundException
-            throw new MockIOException(url.getHost());
+            throw new MockIOException("Could not find: "+url.getHost());
         }
 
         return stream;
@@ -110,20 +116,14 @@ public class EvoHttpURLConnection extends HttpURLConnection {
         // be placed for security - the request String could be
         // arbitrarily long.
 
-        /*
+
         for (int i = 0; i < methods.length; i++) {
             if (methods[i].equals(method)) {
-                if (method.equals("TRACE")) {
-                    SecurityManager s = System.getSecurityManager();
-                    if (s != null) {
-                        s.checkPermission(new NetPermission("allowHttpTrace"));
-                    }
-                }
                 this.method = method;
                 return;
             }
         }
-        */ //TODO
+
         throw new ProtocolException("Invalid HTTP method: " + method);
     }
 
