@@ -177,7 +177,7 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		for (LineCoverageTestFitness goal : goals)
 			System.out.println(goal);
 
-		assertEquals(goals.size(), 8);
+		assertEquals(7, goals.size());
 	}
 
 	@Test
@@ -203,6 +203,6 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		for (LineCoverageTestFitness goal : goals)
 			System.out.println(goal);
 
-		assertEquals(goals.size(), 8);
+		assertEquals(7, goals.size());
 	}
 }
