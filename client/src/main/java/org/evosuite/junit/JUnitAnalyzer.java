@@ -353,7 +353,7 @@ public class JUnitAnalyzer {
 				String evosuiteCP = ClassPathHandler.getInstance().getEvoSuiteClassPath();
 
 				String targetProjectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
-				String classpath = evosuiteCP + File.separator + targetProjectCP;
+				String classpath = evosuiteCP + File.pathSeparator + targetProjectCP;
 				optionList.addAll(Arrays.asList("-classpath", classpath));
 			} else {
 				optionList = null;

@@ -134,7 +134,6 @@ import org.evosuite.testcase.TestCaseReplacementFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.ValueMinimizer;
-import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
@@ -615,7 +614,7 @@ public class TestSuiteGenerator {
 	private void addAssertions(TestSuiteChromosome tests) {
 		AssertionGenerator asserter;
 		ContractChecker.setActive(false);
-
+		
 		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
 			asserter = new SimpleMutationAssertionGenerator();
 		} else if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
@@ -625,6 +624,9 @@ public class TestSuiteGenerator {
 		} else
 			asserter = new UnitAssertionGenerator();
 
+		// Remove final fields, and add mutations if necessary
+		// TODO: This shouldn't be done for every suite 
+		asserter.setupClassLoader(tests);
 		asserter.addAssertions(tests);
 
 		if (Properties.FILTER_ASSERTIONS)
