@@ -969,6 +969,11 @@ public class TestCluster {
 	 */
 	public GenericAccessibleObject<?> getRandomTestCall()
 	        throws ConstructionFailedException {
+		if(testMethods.isEmpty()) {
+			logger.debug("No more calls");
+			// TODO: return null, or throw ConstructionFailedException?
+			return null;			
+		}
 		GenericAccessibleObject<?> choice = Randomness.choice(testMethods);
 		logger.debug("Chosen call: " + choice);
 		if (choice.getOwnerClass().hasWildcardOrTypeVariables()) {
