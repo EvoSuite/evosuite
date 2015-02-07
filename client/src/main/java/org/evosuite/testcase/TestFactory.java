@@ -1488,7 +1488,7 @@ public class TestFactory {
 			success = insertRandomCallOnObjectAt(test, var, position);
 		} 
 		
-		if(!success) {
+		if(!success && TestCluster.getInstance().getNumTestCalls() > 0) {
 			logger.debug("Adding new call on UUT because var was null");
 			success = insertRandomCall(test, position);
 		}
