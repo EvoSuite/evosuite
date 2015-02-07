@@ -91,6 +91,10 @@ public class CheapPurityAnalyzer {
 		if (isRandomCall(entry)) {
 			return false;
 		}
+		
+		if(isArrayCall(entry)) {
+			return true;
+		}
 
 		if (isJdkPureMethod(entry)) {
 			return true;
@@ -175,27 +179,28 @@ public class CheapPurityAnalyzer {
 			// Then, the closest implementation of m() in the
 			// superclasses of Foo should be checked since this might
 			// be called during runtime
-			boolean purityValueClosestSuperclass = isPureSuperclass(entry);
+			boolean purityValueClosestSuperclass = isPureSuperclass(entry, callStack);
 
 			return purityValueClosestSuperclass;
 		}
 
 	}
 
-	private boolean isPureSuperclass(MethodEntry entry) {
+	private boolean isPureSuperclass(MethodEntry entry, Stack<MethodEntry> callStack) {
 		InheritanceTree inheritanceTree = TestCluster.getInheritanceTree();
 		for (String superClassName : inheritanceTree
 				.getOrderedSuperclasses(entry.className)) {
 			if (superClassName.equals(entry.className))
 				continue;
-
 			MethodEntry superEntry = new MethodEntry(superClassName,
 					entry.methodName, entry.descriptor);
-
-			if (methodsWithBodies.contains(superEntry)) {
+			if (!callStack.contains(superEntry) && methodsWithBodies.contains(superEntry)) {
 				// We can conclude the purity of this method because
 				// we found an implementation in a super class for it
-				boolean purityValueForSuperClass = isPure(superEntry);
+				Stack<MethodEntry> newStack = new Stack<MethodEntry>();
+				newStack.addAll(callStack);
+				newStack.add(superEntry);
+				boolean purityValueForSuperClass = isPure(superEntry, newStack);
 				return purityValueForSuperClass;
 			}
 		}
@@ -219,6 +224,19 @@ public class CheapPurityAnalyzer {
 		else
 			return false;
 	}
+	
+	/**
+	 * clone, equals, getClass, hashCode, toString seem pure
+	 * TODO: finalize, notify, notifyAll, wait?
+	 * @param entry
+	 * @return
+	 */
+	private boolean isArrayCall(MethodEntry entry) {
+		if(entry.className.startsWith("[")) {
+			return true;
+		}
+		return false;
+	}
 
 	private boolean isPure(MethodEntry entry, Stack<MethodEntry> callStack) {
 		if (isCached(entry)) {
@@ -236,12 +254,12 @@ public class CheapPurityAnalyzer {
 				.getInheritanceTree();
 
 		String className = "" + entry.className;
-		while (className.contains("[L")) {
-			className = className.substring(2, className.length() - 1);
-		}
+//		while (className.contains("[L")) {
+//			className = className.substring(2, className.length() - 1);
+//		}
 
 		if (!inheritanceTree.hasClass(className)) {
-			logger.info(className
+			logger.warn(className
 					+ " was not found in the inheritance tree. Using DEFAULT value for cheap-purity analysis");
 			return DEFAULT_PURITY_VALUE;
 		}
