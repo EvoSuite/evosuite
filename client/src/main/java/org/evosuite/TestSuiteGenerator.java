@@ -519,32 +519,62 @@ public class TestSuiteGenerator {
     private void compileAndCheckTests(List<TestSuiteChromosome> chromosomeList) {
         LoggingUtils.getEvoLogger().info("* Compiling and checking tests");
 
-        if (JUnitAnalyzer.isJavaCompilerAvailable()) {
+        if(!JUnitAnalyzer.isJavaCompilerAvailable()) {
             String msg = "No Java compiler is available. Are you running with the JDK?";
             logger.error(msg);
             throw new RuntimeException(msg);
         }
 
+        ClientServices.getInstance().getClientNode().changeState(ClientState.JUNIT_CHECK);
+
         int numUnstable = 0;
-        boolean unstable = false;
 
         int i = 0;
         for (TestSuiteChromosome chromosome : chromosomeList) {
+
+            //note: compiling and running JUnit tests can be very time consuming
+            if(!TimeController.getInstance().isThereStillTimeInThisPhase()) {
+                break;
+            }
+
             List<TestCase> testCases = chromosome.getTests(); // make copy of current tests
 
             if(chromosomeList.size() > 1) {
                 LoggingUtils.getEvoLogger().info("  - Compiling and checking test " + i);
             }
 
+            //first, let's just get rid of all the tests that do not compile
             JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
-            numUnstable += JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
-            unstable  = numUnstable > 0 || unstable;
+
+            //compile and run each test one at a time. and keep track of total time
+            long start = java.lang.System.currentTimeMillis();
+            Iterator<TestCase> iter = testCases.iterator();
+            while(iter.hasNext()){
+                if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                    break;
+                }
+                TestCase tc = iter.next();
+                List<TestCase> list = new ArrayList<>();
+                list.add(tc);
+                numUnstable += JUnitAnalyzer.handleTestsThatAreUnstable(list);
+                if(list.isEmpty()){
+                    //if the test was unstable and deleted, need to remove it from final testSuite
+                    iter.remove();
+                }
+            }
+            /*
+                compiling and running each single test individually will take more than
+                compiling/running everything in on single suite. so it can be used as an
+                upper bound
+             */
+            long delta = java.lang.System.currentTimeMillis() - start;
+
+            numUnstable += checkAllTestsIfTime(testCases, delta);
 
             //second passage on reverse order, this is to spot dependencies among tests
             if (testCases.size() > 1) {
                 Collections.reverse(testCases);
-                numUnstable += JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
-                unstable = (numUnstable > 0) || unstable;
+                numUnstable += checkAllTestsIfTime(testCases, delta);
             }
 
             chromosome.clearTests(); //remove all tests
@@ -555,8 +585,22 @@ public class TestSuiteGenerator {
             i++;
         }
 
+        boolean unstable = (numUnstable > 0);
+
+        if(!TimeController.getInstance().isThereStillTimeInThisPhase()){
+            logger.warn("JUnit checking timed out");
+        }
+
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.HadUnstableTests, unstable);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.NumUnstableTests,numUnstable);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.NumUnstableTests, numUnstable);
+    }
+
+    private int checkAllTestsIfTime(List<TestCase> testCases, long delta) {
+        if(TimeController.getInstance().hasTimeToExecuteATestCase() &&
+                TimeController.getInstance().isThereStillTimeInThisPhase(delta)) {
+            return JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
+        }
+        return 0;
     }
 
     /**
