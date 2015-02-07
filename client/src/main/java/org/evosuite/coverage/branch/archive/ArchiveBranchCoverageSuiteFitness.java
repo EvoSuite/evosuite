@@ -175,6 +175,11 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				continue;
 
 			Integer exceptionPosition = result.getFirstPositionOfThrownException();
+			
+			// TODO: Not sure why that can happen
+			if(exceptionPosition >= result.test.size())
+				continue;
+			
 			Statement statement = result.test.getStatement(exceptionPosition);
 			if (statement instanceof ConstructorStatement) {
 				ConstructorStatement c = (ConstructorStatement) statement;
