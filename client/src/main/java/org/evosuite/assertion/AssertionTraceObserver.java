@@ -91,13 +91,19 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 */
 	protected void visitReturnValue(Statement statement, Scope scope) {
-		if (!statement.getReturnClass().equals(void.class)) {
-			try {
-				visit(statement, scope, statement.getReturnValue());
-			} catch (CodeUnderTestException e) {
-				// ignore
-			}
+		if (statement.getReturnClass().equals(void.class))
+			return;
+		
+		// No need to assert anything about values just assigned
+		if(statement.isAssignmentStatement())
+			return;
+
+		try {
+			visit(statement, scope, statement.getReturnValue());
+		} catch (CodeUnderTestException e) {
+			// ignore
 		}
+
 	}
 
 	/**
