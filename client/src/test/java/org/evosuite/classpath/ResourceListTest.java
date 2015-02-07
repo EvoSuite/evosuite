@@ -43,7 +43,7 @@ public class ResourceListTest {
 	@Test
 	public void testStreamFromFolder() throws Exception{
 		File localFolder = new File("local_test_data"+File.separator+"aCpEntry");
-		Assert.assertTrue("ERROR: file "+localFolder+" should be avaialable on local file system",localFolder.exists());
+		Assert.assertTrue("ERROR: file "+localFolder+" should be available on local file system",localFolder.exists());
 		ClassPathHandler.getInstance().addElementToTargetProjectClassPath(localFolder.getAbsolutePath());
 		
 		String className = "foo.ExternalClass";
@@ -121,24 +121,35 @@ public class ResourceListTest {
 	}
 	
 	@Test
-	public void testGatherClassNoAnonymous(){
+	public void testGatherClassNoInternal(){
 		Collection<String> classes = ResourceList.getAllClasses(
 				ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix, false);
 		Assert.assertTrue(classes.contains(Foo.class.getName()));
 		Assert.assertTrue( ! classes.contains(Foo.InternalFooClass.class.getName()));
+        Assert.assertEquals(2,classes.size()); //there is also SubPFoo
 	}
-	
-	@Test
-	public void testGatherClassWithAnonymous(){
-		Collection<String> classes = ResourceList.getAllClasses(
-				ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix, true);
-		Assert.assertTrue(classes.contains(Foo.class.getName()));
-		Assert.assertTrue(""+Arrays.toString(classes.toArray()),classes.contains(Foo.InternalFooClass.class.getName()));
-	}
-	
-	
 
-	@Test
+    @Test
+    public void testGatherClassWithInternalButNoAnonymous(){
+        Collection<String> classes = ResourceList.getAllClasses(
+                ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix, true);
+        Assert.assertTrue(classes.contains(Foo.class.getName()));
+        Assert.assertTrue(""+Arrays.toString(classes.toArray()),classes.contains(Foo.InternalFooClass.class.getName()));
+        Assert.assertEquals(3, classes.size());//there is also SubPFoo
+    }
+
+    @Test
+    public void testGatherClassWithInternalIncludingAnonymous(){
+        Collection<String> classes = ResourceList.getAllClasses(
+                ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix, true, false);
+        Assert.assertTrue(classes.contains(Foo.class.getName()));
+        Assert.assertTrue(""+Arrays.toString(classes.toArray()),classes.contains(Foo.InternalFooClass.class.getName()));
+        Assert.assertEquals(4, classes.size());//there is also SubPFoo
+    }
+
+
+
+    @Test
 	public void testLoadOfEvoSuiteTestClassesAsStream() throws IOException {
 		String className = ResourceListFoo.class.getName();
 		InputStream res = ResourceList.getClassAsStream(className);
