@@ -88,7 +88,7 @@ public class TimeController {
 		phaseTimeouts.put(ClientState.ASSERTION_GENERATION, (Long) 1000l * Properties.ASSERTION_TIMEOUT);
 		phaseTimeouts.put(ClientState.CARVING, (Long) 1000l * Properties.CARVING_TIMEOUT);
 		phaseTimeouts.put(ClientState.INITIALIZATION, (Long) 1000l * Properties.INITIALIZATION_TIMEOUT);
-
+        phaseTimeouts.put(ClientState.JUNIT_CHECK, (Long) 1000l * Properties.JUNIT_CHECK_TIMEOUT);
 
 		if(timeSpentInEachPhase!=null){
 			timeSpentInEachPhase.clear();
@@ -156,6 +156,9 @@ public class TimeController {
 		if(Properties.TEST_FACTORY == TestFactory.JUNIT) {
 			time += Properties.CARVING_TIMEOUT;
 		}
+        if(Properties.JUNIT_TESTS && Properties.JUNIT_CHECK){
+            time += Properties.JUNIT_CHECK_TIMEOUT;
+        }
 		return time;
 	}
 
@@ -175,7 +178,7 @@ public class TimeController {
 		return isThereStillTimeInThisPhase(1); 
 	}
 
-	protected boolean isThereStillTimeInThisPhase(long ms){
+    public synchronized boolean isThereStillTimeInThisPhase(long ms){
 
 		if(state.equals(ClientState.NOT_STARTED)){
 			return true;

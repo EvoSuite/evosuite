@@ -600,11 +600,15 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int MINIMIZATION_TIMEOUT = 600;
 
-	@Parameter(key = "assertion_timeout", group = "Search Algorithm", description = "Seconds allowed for assertion generation at the end")
-	@IntValue(min = 0)
-	public static int ASSERTION_TIMEOUT = 600;
+    @Parameter(key = "assertion_timeout", group = "Search Algorithm", description = "Seconds allowed for assertion generation at the end")
+    @IntValue(min = 0)
+    public static int ASSERTION_TIMEOUT = 600;
 
-	@Parameter(key = "carving_timeout", group = "Search Algorithm", description = "Seconds allowed for carving JUnit tests")
+    @Parameter(key = "junit_check_timeout", group = "Search Algorithm", description = "Seconds allowed for checking the generated JUnit files (e.g., compilation and stability)")
+    @IntValue(min = 0)
+    public static int JUNIT_CHECK_TIMEOUT = 600;
+
+    @Parameter(key = "carving_timeout", group = "Search Algorithm", description = "Seconds allowed for carving JUnit tests")
 	@IntValue(min = 0)
 	public static int CARVING_TIMEOUT = 600;
 
