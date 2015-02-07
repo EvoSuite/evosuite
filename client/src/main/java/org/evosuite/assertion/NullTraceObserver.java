@@ -25,7 +25,6 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.ArrayStatement;
-import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 
 public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
