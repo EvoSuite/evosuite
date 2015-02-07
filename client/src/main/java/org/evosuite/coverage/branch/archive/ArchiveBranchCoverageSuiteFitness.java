@@ -492,7 +492,10 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	}
 
 	public TestSuiteChromosome getBestStoredIndividual(){
-		return bestChromoBuilder.getBestChromosome();
+		// TODO: There's a design problem here because
+		//       other fitness functions use the same archive
+		return bestChromoBuilder.getReducedChromosome();
+		//return bestChromoBuilder.getBestChromosome();
 	}
 
 }
