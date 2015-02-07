@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.setup.TestCluster;
@@ -38,7 +39,9 @@ public enum TestsArchive implements Serializable {
 	private final Set<Integer> coveredGoals;
 	
 	private Map<String, Set<TestFitnessFunction>> goalMap = new HashMap<>();
-	
+
+	private Map<TestFitnessFunction, TestCase> testMap = new HashMap<>();
+
 	private TestsArchive() {
 		bestChromo = new TestSuiteChromosome();
 		coveredGoals = new HashSet<>();
@@ -103,6 +106,7 @@ public enum TestsArchive implements Serializable {
 			logger.info("Adding covered goal to archive: "+goal);
 			coveredGoals.add(goal.hashCode());
 			bestChromo.addTest(test);
+			testMap.put(goal, test);
 			updateGoalMap(goal);
 			if(isMethodFullyCovered(goal.getTargetClass(), goal.getTargetMethod())) {
 				removeTestCall(goal.getTargetClass(), goal.getTargetMethod());
@@ -122,6 +126,17 @@ public enum TestsArchive implements Serializable {
 		return bestChromo;
 	}
 	
+	public TestSuiteChromosome getReducedChromosome() {
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		for(Entry<TestFitnessFunction, TestCase> entry : testMap.entrySet()) {
+			if(!entry.getKey().isCoveredBy(suite)) {
+				suite.addTest(entry.getValue());
+			}
+		}
+		logger.info("Reduced test suite from archive: "+suite.size() +" from "+bestChromo.size());
+		return suite;
+	}
+	
 	public int getNumberOfTestsInArchive() {
 		return bestChromo.size();
 	}
@@ -134,6 +149,8 @@ public enum TestsArchive implements Serializable {
 	public void reset() {
 		bestChromo = new TestSuiteChromosome();
 		coveredGoals.clear();
+		goalMap.clear();
+		testMap.clear();
 	}
 
 }

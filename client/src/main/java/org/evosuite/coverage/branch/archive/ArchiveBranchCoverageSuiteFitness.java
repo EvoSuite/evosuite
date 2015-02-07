@@ -175,6 +175,11 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				continue;
 
 			Integer exceptionPosition = result.getFirstPositionOfThrownException();
+			
+			// TODO: Not sure why that can happen
+			if(exceptionPosition >= result.test.size())
+				continue;
+			
 			Statement statement = result.test.getStatement(exceptionPosition);
 			if (statement instanceof ConstructorStatement) {
 				ConstructorStatement c = (ConstructorStatement) statement;
@@ -492,7 +497,10 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	}
 
 	public TestSuiteChromosome getBestStoredIndividual(){
-		return bestChromoBuilder.getBestChromosome();
+		// TODO: There's a design problem here because
+		//       other fitness functions use the same archive
+		return bestChromoBuilder.getReducedChromosome();
+		//return bestChromoBuilder.getBestChromosome();
 	}
 
 }
