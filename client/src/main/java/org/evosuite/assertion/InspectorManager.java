@@ -58,7 +58,8 @@ public class InspectorManager {
 				"java.io.File",
 				Arrays.asList(new String[] { "getPath", "getAbsolutePath",
 						"getCanonicalPath" }));
-
+		blackList.put("java.io.DataOutputStream", Arrays.asList(new String[] { "size"}));
+		
 		// These methods will contain locale specific strings 
 		blackList.put("java.util.Date",
 				Arrays.asList(new String[] { "getLocaleString" }));
@@ -83,6 +84,10 @@ public class InspectorManager {
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.util.HashMap",
 				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.util.AbstractMap",
+				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.util.AbstractCollection",
+				Arrays.asList(new String[] { "toString" }));
 
 		// AWT identifiers are different with every run
 		blackList.put("java.awt.Panel",
@@ -99,6 +104,8 @@ public class InspectorManager {
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.rmi.server.ObjID",
 				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.awt.event.InvocationEvent",
+				Arrays.asList(new String[] { "getWhen"}));
 	}
 
 	/**
