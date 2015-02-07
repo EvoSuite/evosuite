@@ -133,6 +133,7 @@ public enum TestsArchive implements Serializable {
 				suite.addTest(entry.getValue());
 			}
 		}
+		logger.info("Reduced test suite from archive: "+suite.size() +" from "+bestChromo.size());
 		return suite;
 	}
 	
