@@ -171,6 +171,7 @@ public class MockThread extends Thread implements OverrideMock {
     // ---------------
 
     @Override
+    @EvoSuiteExclude
     public synchronized void start() {
         if(MockFramework.isEnabled()) {
             ThreadCounter.getInstance().checkIfCanStartNewThread();
@@ -179,11 +180,13 @@ public class MockThread extends Thread implements OverrideMock {
     }
 
     @Override
+    @EvoSuiteExclude
     public void run() {
         super.run();
     }
 
     @Override
+    @EvoSuiteExclude
     public void interrupt() {
         super.interrupt();
     }
@@ -195,6 +198,7 @@ public class MockThread extends Thread implements OverrideMock {
     }
 
     @Override
+    @EvoSuiteExclude
     public void destroy() {
         super.destroy();
     }
