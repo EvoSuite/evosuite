@@ -5,6 +5,7 @@ package org.evosuite.assertion;
 
 import java.lang.reflect.Array;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -82,6 +83,10 @@ public class ArrayTraceObserver extends AssertionTraceObserver<ArrayTraceEntry> 
 			if (var.getComponentClass() == null)
 				return;
 
+			// Don't include very long arrays in assertions, as code may fail to compile
+			if(Array.getLength(object) > Properties.MAX_ARRAY) 
+				return;
+			
 			logger.debug("Observed value " + object + " for statement "
 			        + statement.getCode());
 			trace.addEntry(statement.getPosition(), var, new ArrayTraceEntry(var,
