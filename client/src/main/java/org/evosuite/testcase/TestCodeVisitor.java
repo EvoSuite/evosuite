@@ -113,8 +113,7 @@ public class TestCodeVisitor extends TestVisitor {
 			String name = classNames.get(clazz);
 			// If there's a dot in the name, then we assume this is the
 			// fully qualified name and we don't need to import
-			if(!name.equals(clazz.getName())) {
-			// if (!name.contains(".")) {
+			if (!name.contains(".")) {
 				imports.add(clazz);
 			}
 		}
