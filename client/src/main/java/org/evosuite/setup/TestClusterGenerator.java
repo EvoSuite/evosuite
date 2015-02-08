@@ -20,7 +20,7 @@
  */
 package org.evosuite.setup;
 
-import java.lang.annotation.Annotation;
+import java.io.FileDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -988,6 +988,11 @@ public class TestClusterGenerator {
 		if (!f.getType().equals(String.class) && !canUse(f.getType())) {
 			return false;
 		}
+		
+		// in, out, err
+		if(f.getDeclaringClass().equals(FileDescriptor.class)) {
+			return false;
+		}
 
 		if (Modifier.isPublic(f.getModifiers())) {
 			// It may still be the case that the field is defined in a non-visible superclass of the class
@@ -1044,14 +1049,6 @@ public class TestClusterGenerator {
 		if (m.isAnnotationPresent(EvoSuiteExclude.class)) {
 			logger.debug("Excluding method with exclusion annotation " + m.getName());
 			return false;
-		} else {
-			logger.debug("Method has no exclusion annotation " + m.getName());
-			for(Annotation a : m.getDeclaredAnnotations()) {
-				logger.debug("1 Has annotation: "+a);
-			}
-			for(Annotation a : m.getAnnotations()) {
-				logger.debug("2 Has annotation: "+a);
-			}
 		}
 
 		if (m.getDeclaringClass().equals(java.lang.Object.class)) {
@@ -1103,7 +1100,7 @@ public class TestClusterGenerator {
 			return false;
 
 		if (m.getName().equals(ClassResetter.STATIC_RESET)) {
-			logger.debug("Ignoring static reset class");
+			logger.debug("Ignoring static reset method");
 			return false;
 		}
 
