@@ -125,6 +125,8 @@ public class TestClusterGenerator {
 	
 
 	private final Set<Pair> dependencies = new LinkedHashSet<Pair>();
+	
+	private final Set<GenericClass> analyzedAbstractClasses = new LinkedHashSet<GenericClass>();
 
 	//XXX refactor and move these as paramethers in all methods. 
 	private InheritanceTree inheritanceTree;
@@ -1439,6 +1441,9 @@ public class TestClusterGenerator {
 				return;
 			}
 		}
+		if(analyzedAbstractClasses.contains(clazz)) {
+			return;
+		}
 
 		logger.debug("Getting concrete classes for " + clazz.getClassName());
 		ConstantPoolManager.getInstance().addNonSUTConstant(Type.getType(clazz.getRawClass()));
@@ -1449,12 +1454,13 @@ public class TestClusterGenerator {
 		        + actualClasses.size());
 		//dependencies.add(new Pair(recursionLevel, Randomness.choice(actualClasses)));
 
+		analyzedAbstractClasses.add(clazz);
 		for (Class<?> targetClass : actualClasses) {
 			logger.debug("Adding concrete class: " + targetClass);
 			dependencies.add(new Pair(recursionLevel, targetClass));
 			//if(++num >= Properties.NUM_CONCRETE_SUBTYPES)
 			//	break;
-		}
+		}		
 	}
 
 	private boolean addDependencyClass(GenericClass clazz, int recursionLevel) {
