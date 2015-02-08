@@ -43,6 +43,9 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 			if (object == null)
 				return;
 
+			if(statement instanceof AssignmentStatement)
+				return;
+
 			ComparisonTraceEntry entry = new ComparisonTraceEntry(var);
 
 			for (VariableReference other : scope.getElements(var.getType())) {
@@ -58,9 +61,6 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 				        && currentTest.getStatement(other.getStPosition()) instanceof PrimitiveStatement)
 					continue; // Don't compare two primitives
 
-				if(statement instanceof AssignmentStatement)
-					continue;
-				
 				if (Properties.PURE_EQUALS) {
 					String className = object.getClass().getCanonicalName();
 					String methodName = "equals";
