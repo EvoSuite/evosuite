@@ -27,6 +27,7 @@ import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 
 public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTraceEntry> {
@@ -46,6 +47,12 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 		// We don't want inspector checks on string constants
 		Statement declaringStatement = currentTest.getStatement(var.getStPosition());
 		if (declaringStatement instanceof PrimitiveStatement<?>)
+			return;
+		
+		if(statement.isAssignmentStatement() && statement.getReturnValue().isArrayIndex())
+			return;
+		
+		if(statement instanceof ConstructorStatement && statement.getReturnValue().isWrapperType())
 			return;
 
 		if (var.isPrimitive() || var.isString() || var.isWrapperType())
