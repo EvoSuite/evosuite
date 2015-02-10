@@ -18,9 +18,13 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ltk.core.refactoring;bundle-version="3.5.0",
  org.eclipse.jdt.core.manipulation;bundle-version="1.4.0",
  org.evosuite.plugins.eclipse.core;bundle-version="0.1.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6,JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,./bin,
+ lib/commons-io-2.4.jar,
+ lib/slf4j-api-1.7.2.jar,
+ lib/slf4j-jdk14-1.7.2.jar,
+ lib/sshj-0.8.1.jar,
  evosuite-eclipse-core/evosuite.jar
 Export-Package: org.evosuite,
  org.evosuite.eclipse,

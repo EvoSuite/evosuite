@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,7 +88,7 @@ import org.evosuite.rmi.service.MasterNodeLocal;
 public class TestGenerationJob extends Job {
 
 	protected final String targetClass;
-	protected final String testClass;
+	protected final String suiteClass;
 
 	protected final IResource target;
 
@@ -95,7 +96,7 @@ public class TestGenerationJob extends Job {
 
 	protected boolean running = false;
 	protected boolean stopped = false;
-	
+	protected boolean writeAllMarkers = true;
 	protected ClientStateInformation lastState = null;
 
 	protected String lastTest = "";
@@ -107,16 +108,19 @@ public class TestGenerationJob extends Job {
 	public TestGenerationJob(Shell shell, final IResource target, String targetClass) {
 		this(shell, target, targetClass, null);
 	}
+
+	public IResource getTarget() {
+		return target;
+	}
 	
-	public TestGenerationJob(Shell shell, final IResource target, String targetClass, String testClass) {
-		super("EvoSuite Test Generation: " + targetClass);
-		this.targetClass = targetClass;
-		if (testClass == null || testClass.isEmpty()) {
-			String tmp = targetClass.replace('.', File.separatorChar);
-			testClass = new String(target.getProject().getLocation() + "/evosuite-tests/" + tmp +
-					Properties.JUNIT_SUFFIX + ".java");
+	public TestGenerationJob(Shell shell, final IResource target, String targetClassName, String suiteClassName) {
+		super("EvoSuite Test Generation: " + targetClassName);
+		this.targetClass = targetClassName;
+		if (suiteClassName == null || suiteClassName.isEmpty()) {
+			String tmp = targetClassName.replace('.', File.separatorChar);
+			suiteClassName = new String(tmp + Properties.JUNIT_SUFFIX + ".java");
 		}
-		this.testClass = testClass;
+		this.suiteClass = suiteClassName;
 		this.target = target;
 		this.shell = shell;
 		IJavaProject jProject = JavaCore.create(target.getProject());
@@ -130,35 +134,38 @@ public class TestGenerationJob extends Job {
 
 	@Override
 	protected IStatus run(final IProgressMonitor monitor) {
-		String disabled = System.getProperty("disable.evosuite");
-		if ( disabled != null && disabled.equals("1")) {
-			System.out.println("TestGenerationJob: disabled.evosuite = 1");
+		Boolean disabled = System.getProperty("evosuite.disable") != null; //  && System.getProperty("evosuite.disable").equals("1")
+		if ( disabled ) {
+			System.out.println("TestGenerationJob: The EvoSuite plugin is disabled :(");
 			return Status.OK_STATUS;
 		}
 
 		// Check that all markers have been cleared 
 		try {
-			final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(testClass));
-			IMarker[] markers = file.findMarkers("EvoSuiteQuickFixes.notcoveredmarker", true, 2);
-			if ( file != null && file.exists() && markers.length > 0) {
-				System.out.println("Markers in TestSuite, can't generate tests");
-				Display.getDefault().syncExec(new Runnable() {
-					@Override
-					public void run() {
-						MessageDialog dialog = new MessageDialog(
+			String suiteFileName = getSuiteFileName(suiteClass);
+			final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
+			if ( file != null && file.exists()) {
+				IMarker[] markers = file.findMarkers("EvoSuiteQuickFixes.newtestmarker", true, 2);
+				Boolean checkMarkers = System.getProperty("evosuite.markers.enforce") != null; 
+				if ( (markers.length > 0) && checkMarkers ) {
+					System.out.println("Markers in test suite, can't generate tests");
+					Display.getDefault().syncExec(new Runnable() {
+						@Override
+						public void run() {
+							MessageDialog dialog = new MessageDialog(
 						        shell,
 						        "JUnit test suite contains marked test cases",
 						        null, // image
 						        "The JUnit test suite \""
-						                + testClass
+						                + suiteClass
 						                + "\" contains marked test cases. Please review them and clear all markers before running EvoSuite again.",
 						        MessageDialog.OK, new String[] { "Ok" }, 0);
-						dialog.open();
-					}
-					
-				});
-				return Status.OK_STATUS;
-			}
+							dialog.open();
+						}					
+					});
+					return Status.OK_STATUS;
+				} else System.out.println("Not checking markers or no markers in test suite");
+			} else System.out.println("File " + suiteFileName + " does not exist");
 		} catch (CoreException e1) {
 			e1.printStackTrace();
 		}
@@ -173,9 +180,11 @@ public class TestGenerationJob extends Job {
 		lastTest = oldTgr;
 		
 		ArrayList<TestGenerationResult> results = runEvoSuite(monitor);
-
 		writeMarkersTarget(results);
-		writeMarkersTestSuite();
+		//uncomment after experiment
+		if (writeAllMarkers)
+			writeMarkersTestSuite();
+		
 		try {
 			target.getProject().refreshLocal(IProject.DEPTH_INFINITE, null);
 			if ("true".equals(target.getProject().getPersistentProperty(
@@ -194,12 +203,12 @@ public class TestGenerationJob extends Job {
 		return Status.OK_STATUS;
 	}
 
-	private ArrayList<TestGenerationResult> runEvoSuite(final IProgressMonitor monitor) {
+	protected ArrayList<TestGenerationResult> runEvoSuite(final IProgressMonitor monitor) {
 		monitor.beginTask("EvoSuite test suite generation", 100);
 		ArrayList<TestGenerationResult> tgrs = new ArrayList<TestGenerationResult>();
 		try {
 			List<String> commands = createCommand();
-			commands.addAll(getAdditionalOptions());
+			commands.addAll(getAdditionalParameters());
 			String[] command = new String[commands.size()];
 			commands.toArray(command);
 			System.out.println("* EvoSuite command: " + Arrays.asList(command));
@@ -419,7 +428,7 @@ public class TestGenerationJob extends Job {
 		}
 	}
 
-	private void syncWithUi(final IResource target) {
+	protected void syncWithUi(final IResource target) {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -749,10 +758,24 @@ public class TestGenerationJob extends Job {
 			System.out.println("**********  Markers are disabled");
 	}
 
+	protected String getSuiteFileName(String suiteClass) {
+		String tmp = suiteClass.replace('.', File.separatorChar);
+		String testClassFileName = new String(target.getProject().getLocation() + "/evosuite-tests/" + tmp + ".java");
+		return testClassFileName;
+	}
+
 	protected void writeMarkersTestSuite() {
-		System.out.println("**********  Writing markers in test suite" + testClass);
-		String fileContents = readFileToString(testClass);
-		
+		System.out.println("**********  Writing markers in test suite" + suiteClass);
+
+		String testClassFileName = getSuiteFileName(suiteClass);
+
+		final IFile fileTestClass = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(testClassFileName));
+
+		String fileContents = readFileToString(testClassFileName);
+		if (fileContents.isEmpty()) {
+			System.out.println("Not writing markers in test suite " + testClassFileName + " (not found)");
+			return;
+		}
 		
 		ASTParser parser = ASTParser.newParser(AST.JLS4);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -763,10 +786,10 @@ public class TestGenerationJob extends Job {
 		    COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
 		    COMPILER_OPTIONS.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
 		
-		parser.setUnitName(testClass);
+		parser.setUnitName(suiteClass);
 		String[] encodings = { ENCODING };
 		String[] classpaths = { classPath };
-		String[] sources = { new File(testClass).getParent() };
+		String[] sources = { new File(testClassFileName).getParent() };
 		parser.setEnvironment(classpaths, sources, encodings, true);
 		parser.setSource(fileContents.toCharArray());
 		
@@ -774,8 +797,6 @@ public class TestGenerationJob extends Job {
 		MethodExtractingVisitor visitor = new MethodExtractingVisitor();
 		compilationUnit.accept(visitor);
 		List<MethodDeclaration> methods = visitor.getMethods();
-
-		final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(testClass));
 		
 		Display.getDefault().syncExec(new Runnable() {
 		    @Override
@@ -783,31 +804,28 @@ public class TestGenerationJob extends Job {
 		        IWorkbenchWindow iw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		        IWorkbenchPage page = iw.getActivePage();
 		        try {
-					IDE.openEditor(page, file, true);
+					IDE.openEditor(page, fileTestClass, true);
 				} catch (PartInitException e1) {
 					System.out.println("Could not open test suite");
 					e1.printStackTrace();
 				}
 		    }
 		});
-		
-		
-		
 		for (MethodDeclaration m : methods) {
 			int lineNumber = compilationUnit.getLineNumber(m.getStartPosition());
 			try {
-				IMarker mark = file.createMarker("EvoSuiteQuickFixes.notcoveredmarker");
-				mark.setAttribute(IMarker.MESSAGE, "This test case needs to be observed.");
+				IMarker mark = fileTestClass.createMarker("EvoSuiteQuickFixes.newtestmarker");
+				mark.setAttribute(IMarker.MESSAGE, "This test case needs to be verified.");
 				mark.setAttribute(IMarker.LINE_NUMBER, lineNumber);
 				mark.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 				mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-				mark.setAttribute(IMarker.LOCATION, file.getName());
+				mark.setAttribute(IMarker.LOCATION, fileTestClass.getName());
 				mark.setAttribute(IMarker.CHAR_START, m.getStartPosition());
-				mark.setAttribute(IMarker.CHAR_END, compilationUnit.getPosition(lineNumber + 1, 0));
+				mark.setAttribute(IMarker.CHAR_END, m.getStartPosition() + 1);
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}
-		}		
+		}
 	}
 	
 	public static String readFileToString(String fileName) {
@@ -824,6 +842,9 @@ public class TestGenerationJob extends Job {
 			} finally {
 				in.close();
 			}
+		} catch (FileNotFoundException fnfe) {
+			System.out.println("File not found " + fileName);
+			return "";
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -832,10 +853,6 @@ public class TestGenerationJob extends Job {
 
 	public boolean isRunning() {
 		return running;
-	}
-
-	protected List<String> getAdditionalOptions() {
-		return new ArrayList<String>();
 	}
 
 	public List<String> getAdditionalParameters() {

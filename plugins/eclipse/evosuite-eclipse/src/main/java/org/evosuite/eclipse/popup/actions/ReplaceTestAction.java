@@ -71,8 +71,8 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.execution.ExecutionTracer;
-import org.evosuite.testcase.factories.RandomLengthTestFactory;
+import org.evosuite.testcase.execution.*;
+import org.evosuite.testcase.factories.*;
 
 @SuppressWarnings("restriction")
 public class ReplaceTestAction implements IObjectActionDelegate {

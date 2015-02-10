@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
@@ -27,13 +28,19 @@ public class ClearMarkersAction implements IObjectActionDelegate {
 	 */
 	@Override
 	public void run(IAction action) {
+		Boolean disabled = System.getProperty("evosuite.markers.clear.disable") != null;
+		if (disabled) {
+			MessageDialog.openInformation(shell, "Evosuite", "Feature not available.");
+			return;
+		}
+		/*
 		for (IResource res : currentSelection) {
 			try {
 				MarkerWriter.clearMarkers(res);
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}
-		}
+		}*/
 	}
 
 	/**

@@ -22,9 +22,9 @@ public class RoamingJob extends Job {
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		String disabled = System.getProperty("disable.evosuite");
-		if ( disabled != null && disabled.equals("1")) {
-			System.out.println("RoamingJob: disabled.evosuite = 1");
+		Boolean disabled = System.getProperty("evosuite.disable") != null; //  && System.getProperty("evosuite.disable").equals("1")
+		if ( disabled ) {
+			System.out.println("RoamingJob: The EvoSuite plugin is disabled :(");
 			return Status.OK_STATUS;
 		}
 		int delay = Activator.getDefault().getPreferenceStore()

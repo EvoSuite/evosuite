@@ -97,12 +97,12 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		getPreferenceStore().setDefault(MARKERS_ENABLED, true);
+		getPreferenceStore().setDefault(MARKERS_ENABLED, false);
 		getPreferenceStore().setDefault("runtime", 30);
 		getPreferenceStore().setDefault("roamtime", 240);
 		getPreferenceStore().setDefault("uncovered", false);
 		getPreferenceStore().setDefault("removed", false);
-		getPreferenceStore().setDefault("automatic", true);
+		getPreferenceStore().setDefault("automatic", false);
 		
 		storeDefaults();
 		//getPreferenceStore().
@@ -110,7 +110,7 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 	
 	public void storeDefaults(){
 		if (!getPreferenceStore().contains(MARKERS_ENABLED)){
-			getPreferenceStore().setValue(MARKERS_ENABLED, true);
+			getPreferenceStore().setValue(MARKERS_ENABLED, false);
 		}
 		
 		if (!getPreferenceStore().contains(RUNTIME)){
@@ -130,7 +130,7 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		}
 		
 		if (!getPreferenceStore().contains(AUTOMATIC_TEST_ON_SAVE)){
-			getPreferenceStore().setValue(AUTOMATIC_TEST_ON_SAVE, true);
+			getPreferenceStore().setValue(AUTOMATIC_TEST_ON_SAVE, false);
 		}
 		try {
 			getPreferenceStore().save();

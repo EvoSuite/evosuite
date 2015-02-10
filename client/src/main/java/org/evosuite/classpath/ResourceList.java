@@ -435,8 +435,11 @@ public class ResourceList {
 
 
 		if (!file.exists()) {
-			throw new IllegalArgumentException("The class path resource "
+			//throw new IllegalArgumentException("The class path resource "
+				//	+ file.getAbsolutePath() + " does not exist");
+			System.out.println("The class path resource "
 					+ file.getAbsolutePath() + " does not exist");
+			return;
 		}
 
 		if (file.isDirectory()) {
