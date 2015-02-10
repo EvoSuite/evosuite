@@ -20,8 +20,8 @@ public class FileQueueAction implements IObjectActionDelegate {
 	
 	@Override
 	public void run(IAction action) {
-		String disabled = System.getProperty("disable.evosuite");
-		if ( disabled != null && disabled.equals("1")) {
+		Boolean disabled = System.getProperty("evosuite.disable") != null; //  && System.getProperty("evosuite.disable").equals("1")
+		if ( disabled ) {
 			MessageDialog.openInformation(shell, "Sorry!", "The EvoSuite plugin is disabled :(");
 			return;
 		}

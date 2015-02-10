@@ -74,9 +74,9 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	@Override
 	public String getMethodDefinition(String testName) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("  @" + getJUnitTestShortName() + "\n");
 		if (Properties.ECLIPSE_PLUGIN)
 			builder.append("  @EvoSuiteTest\n");
+		builder.append("  @" + getJUnitTestShortName() + "\n");
 		builder.append("  public void " + testName + "() ");
 		return builder.toString();
 	}
