@@ -180,7 +180,6 @@ public class MockThread extends Thread implements OverrideMock {
     }
 
     @Override
-    @EvoSuiteExclude
     public void run() {
         super.run();
     }
