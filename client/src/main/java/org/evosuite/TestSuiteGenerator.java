@@ -956,7 +956,7 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
-			if (Properties.CRITERION.length == 1 || Properties.COMPOSITIONAL_FITNESS) {
+			if (bestSuites.size() == 1 ) {
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 			    minimizer.minimize(bestSuites.get(0), true);
 			}
@@ -1007,7 +1007,7 @@ public class TestSuiteGenerator {
 		    //SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), coverage);
 		    CoverageAnalysis.analyzeCriteria(bestSuites.get(0), Properties.ANALYSIS_CRITERIA); // FIXME: can we send all bestSuites?
 		}
-        if (Properties.COMPOSITIONAL_FITNESS)
+        if (Properties.CRITERION.length > 1)
             LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "
                     + NumberFormat.getPercentInstance().format(coverage) + " (average coverage for all fitness functions)");
         else
