@@ -15,21 +15,12 @@ import org.junit.Test;
  */
 public class CompositeFitnessSystemTest extends SystemTest{
 
-    private final boolean COMPOSITIONAL_FITNESS = Properties.COMPOSITIONAL_FITNESS;
-
-    @After
-    public void afterTest() {
-        Properties.COMPOSITIONAL_FITNESS = COMPOSITIONAL_FITNESS;
-    }
-
-
     @Test
     public void testBooleanOneLine_3(){
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = BooleanOneLine.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
-        Properties.COMPOSITIONAL_FITNESS = true;
         Properties.CRITERION = new Properties.Criterion[]{
                 Properties.Criterion.LINE,
                 Properties.Criterion.OUTPUT,

@@ -22,12 +22,10 @@ import java.util.List;
 public class MockTcpSystemTest extends SystemTest{
 
     private static final boolean VNET = Properties.VIRTUAL_NET;
-    private final boolean COMPOSITIONAL_FITNESS = Properties.COMPOSITIONAL_FITNESS;
 
     @After
     public void restoreProperties(){
         Properties.VIRTUAL_NET = VNET;
-        Properties.COMPOSITIONAL_FITNESS = COMPOSITIONAL_FITNESS;
     }
 
 
@@ -45,7 +43,6 @@ public class MockTcpSystemTest extends SystemTest{
         Properties.CRITERION = new Properties.Criterion[]{
                 Properties.Criterion.LINE,
         };
-        Properties.COMPOSITIONAL_FITNESS = true;
 
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -76,7 +73,6 @@ public class MockTcpSystemTest extends SystemTest{
         Properties.CRITERION = new Properties.Criterion[]{
                 Properties.Criterion.LINE,
         };
-        Properties.COMPOSITIONAL_FITNESS = true;
 
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -112,7 +108,6 @@ public class MockTcpSystemTest extends SystemTest{
                 Properties.Criterion.LINE,
                 Properties.Criterion.EXCEPTION
         };
-        Properties.COMPOSITIONAL_FITNESS = true;
 
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -157,8 +152,6 @@ public class MockTcpSystemTest extends SystemTest{
                 Properties.Criterion.LINE,
                 Properties.Criterion.OUTPUT
         };
-        Properties.COMPOSITIONAL_FITNESS = true;
-
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

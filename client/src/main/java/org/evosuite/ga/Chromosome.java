@@ -85,7 +85,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return a double.
 	 */
 	public double getFitness() {
-		if (Properties.COMPOSITIONAL_FITNESS) {
+		if (fitnesses.size() > 1) {
 			double sumFitnesses = 0.0;
 			for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
 				sumFitnesses += fitnesses.get(fitnessFunction);
@@ -392,39 +392,30 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return a double.
 	 */
 	public double getCoverage() {
-        if (Properties.COMPOSITIONAL_FITNESS) {
-            double sum = 0;
-            for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
-                sum += coverages.get(fitnessFunction);
-            }
-            double cov = coverages.isEmpty() ? 0.0 : sum / coverages.size();
-            assert(cov >= 0.0 && cov <= 1.0) : "Incorrect coverage value " + cov + ". Expected value between 0 and 1";
-            return cov;
-        } else
-            return coverages.isEmpty() ? 0.0 : coverages.get( fitnesses.keySet().iterator().next() );
-	}
+        double sum = 0;
+        for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+            sum += coverages.get(fitnessFunction);
+        }
+        double cov = coverages.isEmpty() ? 0.0 : sum / coverages.size();
+        assert (cov >= 0.0 && cov <= 1.0) : "Incorrect coverage value " + cov + ". Expected value between 0 and 1";
+        return cov;
+    }
 
 	public int getNumOfCoveredGoals() {
-		if (Properties.COMPOSITIONAL_FITNESS) {
-			int sum = 0;
-			for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
-				sum += numsCoveredGoals.get(fitnessFunction);
-			}
-			return sum;
-		} else
-			return numsCoveredGoals.isEmpty() ? 0 : numsCoveredGoals.get(fitnesses.keySet().iterator().next());
-	}
+        int sum = 0;
+        for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+            sum += numsCoveredGoals.get(fitnessFunction);
+        }
+        return sum;
+    }
 	
 	public int getNumOfNotCoveredGoals() {
-		if (Properties.COMPOSITIONAL_FITNESS) {
-			int sum = 0;
-			for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
-				sum += numsNotCoveredGoals.get(fitnessFunction);
-			}
-			return sum;
-		} else
-			return numsNotCoveredGoals.isEmpty() ? 0 : numsNotCoveredGoals.get(fitnesses.keySet().iterator().next());
-	}
+        int sum = 0;
+        for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+            sum += numsNotCoveredGoals.get(fitnessFunction);
+        }
+        return sum;
+    }
 
 	public void setNumsOfCoveredGoals(Map<FitnessFunction<?>, Integer> fits) {
 		this.numsCoveredGoals.clear();
