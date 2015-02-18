@@ -950,7 +950,7 @@ public class Properties {
 
 
     @Parameter(key = "virtual_net", group = "Sandbox", description = "Usa a virtual network for all TCP/UDP communications")
-    public static boolean VIRTUAL_NET = false;  //TODO put true once finalized
+    public static boolean VIRTUAL_NET = true;
 
     @Parameter(key = "use_separate_classloader", group = "Sandbox", description = "Usa a separate classloader in the final test cases")
     public static boolean USE_SEPARATE_CLASSLOADER = false;
