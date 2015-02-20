@@ -21,7 +21,7 @@ import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.testcase.environmentdata.EnvironmentStatements;
+import org.evosuite.testcase.statements.environment.EnvironmentStatements;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
