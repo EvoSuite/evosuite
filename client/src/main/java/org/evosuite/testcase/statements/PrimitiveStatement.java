@@ -28,6 +28,7 @@ import org.evosuite.testcase.VariableReferenceImpl;
 import org.evosuite.testcase.statements.environment.EnvironmentStatements;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.numeric.*;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;

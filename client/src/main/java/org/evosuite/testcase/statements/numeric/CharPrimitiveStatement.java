@@ -18,40 +18,43 @@
 /**
  * 
  */
-package org.evosuite.testcase.statements;
+package org.evosuite.testcase.statements.numeric;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
- * <p>BooleanPrimitiveStatement class.</p>
+ * <p>CharPrimitiveStatement class.</p>
  *
  * @author fraser
  */
-public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boolean> {
+public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Character> {
+
+	private static final long serialVersionUID = -1960567565801078784L;
 
 	/**
-	 * <p>Constructor for BooleanPrimitiveStatement.</p>
+	 * <p>Constructor for CharPrimitiveStatement.</p>
 	 *
 	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param value a {@link java.lang.Boolean} object.
+	 * @param value a {@link java.lang.Character} object.
 	 */
-	public BooleanPrimitiveStatement(TestCase tc, Boolean value) {
-		super(tc, boolean.class, value);
+	public CharPrimitiveStatement(TestCase tc, Character value) {
+		super(tc, char.class, value);
+		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * <p>Constructor for BooleanPrimitiveStatement.</p>
+	 * <p>Constructor for CharPrimitiveStatement.</p>
 	 *
 	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public BooleanPrimitiveStatement(TestCase tc) {
-		super(tc, boolean.class, false);
+	public CharPrimitiveStatement(TestCase tc) {
+		super(tc, char.class, (char) 0);
+		// TODO Auto-generated constructor stub
 	}
-
-	private static final long serialVersionUID = 2864789903354543815L;
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
@@ -59,7 +62,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/** {@inheritDoc} */
 	@Override
 	public void zero() {
-		value = false;
+		value = (char) 0;
 	}
 
 	/* (non-Javadoc)
@@ -68,7 +71,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/** {@inheritDoc} */
 	@Override
 	public void pushBytecode(GeneratorAdapter mg) {
-		mg.push((value).booleanValue());
+		mg.push((value).charValue());
 	}
 
 	/* (non-Javadoc)
@@ -77,7 +80,8 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		value = !value.booleanValue();
+		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
+		value = (char) (value.charValue() + delta);
 	}
 
 	/* (non-Javadoc)
@@ -86,7 +90,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/** {@inheritDoc} */
 	@Override
 	public void increment(long delta) {
-		delta();
+		value = (char) (value + delta);
 	}
 
 	/* (non-Javadoc)
@@ -95,7 +99,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
-		value = Randomness.nextBoolean();
+		value = (char) (Randomness.nextChar());
 	}
 
 	/* (non-Javadoc)
@@ -104,16 +108,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/** {@inheritDoc} */
 	@Override
 	public void increment() {
-		delta();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void decrement() {
-		delta();
+		increment((char) 1);
 	}
 
 	/* (non-Javadoc)
@@ -121,9 +116,17 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void setMid(Boolean min, Boolean max) {
-		// TODO Auto-generated method stub
+	public void setMid(Character min, Character max) {
+		value = (char) (min + ((max - min) / 2));
+	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#decrement()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public void decrement() {
+		increment(-1);
 	}
 
 	/* (non-Javadoc)
@@ -132,12 +135,6 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/** {@inheritDoc} */
 	@Override
 	public boolean isPositive() {
-		return !value;
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public void negate() {
-		value = !value;
+		return value >= 0;
 	}
 }

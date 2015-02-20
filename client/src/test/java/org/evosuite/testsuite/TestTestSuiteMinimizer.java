@@ -18,7 +18,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.IntPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericMethod;

@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.testcase.statements;
+package org.evosuite.testcase.statements.numeric;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -26,6 +26,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.statements.PrimitiveStatement;
 
 /**
  * <p>Abstract NumericalPrimitiveStatement class.</p>
