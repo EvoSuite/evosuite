@@ -21,7 +21,7 @@ public class ArrayEqualsAssertion extends Assertion {
 	/** {@inheritDoc} */
 	@Override
 	public Assertion copy(TestCase newTestCase, int offset) {
-		EqualsAssertion s = new EqualsAssertion();
+		ArrayEqualsAssertion s = new ArrayEqualsAssertion();
 		s.source = source.copy(newTestCase, offset);
 		s.value = value;
 		return s;
