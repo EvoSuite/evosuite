@@ -74,7 +74,21 @@ public class PrivateAccess {
     }
 
 
-    public static <T> Object callMethod(Class<T> klass, T instance, String methodName, Class<?>[] types, Object[] inputs)
+    /**
+     * Use reflection to call the given method
+     *
+     * @param klass
+     * @param instance  null for static methods
+     * @param methodName
+     * @param inputs  arrays of inputs
+     * @param types   types for the inputs
+     * @param <T>
+     * @return the result of calling the method
+     * @throws IllegalArgumentException if either klass or methodName are null
+     * @throws AssumptionViolatedException  if method does not exist any more (eg, refactoring)
+     * @throws Throwable the method might throw an internal exception
+     */
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName, Object[] inputs, Class<?>[] types)
             throws IllegalArgumentException, AssumptionViolatedException, Throwable {
 
         if(klass == null){

@@ -56,14 +56,14 @@ public class PrivateAccessTest {
     @Test
     public void testMethod_static() throws Throwable{
         FooMethods.n = 42;
-        Integer res = (Integer) PrivateAccess.callMethod(FooMethods.class, null,"getN",new Class<?>[0], new Object[0]);
+        Integer res = (Integer) PrivateAccess.callMethod(FooMethods.class, null,"getN", new Object[0], new Class<?>[0]);
         Assert.assertEquals(42, res.intValue());
     }
 
     @Test
     public void testMethod_error()  throws Throwable {
         PrivateAccess.setShouldNotFailTest(true);
-        PrivateAccess.callMethod(FooMethods.class, null,"a non-existing method",new Class<?>[0], new Object[0]);
+        PrivateAccess.callMethod(FooMethods.class, null,"a non-existing method", new Object[0], new Class<?>[0]);
         Assert.fail();
     }
 
@@ -71,7 +71,7 @@ public class PrivateAccessTest {
     public void testMethod_fail_on_error(){
         PrivateAccess.setShouldNotFailTest(false);
         try {
-            PrivateAccess.callMethod(FooMethods.class, null, "a non-existing method", new Class<?>[0], new Object[0]);
+            PrivateAccess.callMethod(FooMethods.class, null, "a non-existing method", new Object[0], new Class<?>[0]);
             Assert.fail();
         } catch (AssumptionViolatedException e){
             Assert.fail();
@@ -86,7 +86,7 @@ public class PrivateAccessTest {
     public void testMethod_zero() throws Throwable {
         FooMethods foo = new FooMethods();
         foo.s = "bar";
-        String s = (String) PrivateAccess.callMethod(FooMethods.class, foo, "getS", new Class<?>[0], new Object[0]);
+        String s = (String) PrivateAccess.callMethod(FooMethods.class, foo, "getS", new Object[0], new Class<?>[0]);
         Assert.assertEquals("bar",s);
     }
 
@@ -94,7 +94,7 @@ public class PrivateAccessTest {
     public void testMethod_one() throws Throwable {
         FooMethods foo = new FooMethods();
         PrivateAccess.callMethod(FooMethods.class, foo, "set",
-                new Class<?>[]{String.class}, new Object[]{"bar"});
+                new Object[]{"bar"}, new Class<?>[]{String.class});
         Assert.assertEquals("bar",foo.s);
     }
 
@@ -103,7 +103,7 @@ public class PrivateAccessTest {
         FooMethods foo = new FooMethods();
         FooMethods.n = 0;
         PrivateAccess.callMethod(FooMethods.class, foo, "set",
-                new Class<?>[]{String.class, int.class}, new Object[]{"bar", 666});
+                new Object[]{"bar", 666}, new Class<?>[]{String.class, int.class});
         Assert.assertEquals("bar", foo.s);
         Assert.assertEquals(666,FooMethods.n);
     }
@@ -112,14 +112,14 @@ public class PrivateAccessTest {
     public void testMethod_two_andReturn() throws Throwable {
         FooMethods foo = new FooMethods();
         String res = (String) PrivateAccess.callMethod(FooMethods.class, foo, "compute",
-                new Class<?>[]{String.class, int.class}, new Object[]{"bar", 666});
+                new Object[]{"bar", 666}, new Class<?>[]{String.class, int.class});
         Assert.assertEquals("bar666", res);
     }
 
     @Test
     public void testMethod_throwNPE() throws Throwable{
         try {
-            PrivateAccess.callMethod(FooMethods.class, null, "throwNPE", new Class<?>[0], new Object[0]);
+            PrivateAccess.callMethod(FooMethods.class, null, "throwNPE", new Object[0], new Class<?>[0]);
             Assert.fail();
         } catch (NullPointerException e){
             //OK
