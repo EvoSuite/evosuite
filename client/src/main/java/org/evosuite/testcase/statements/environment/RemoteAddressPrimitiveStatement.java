@@ -1,7 +1,6 @@
-package org.evosuite.testcase.environmentdata;
+package org.evosuite.testcase.statements.environment;
 
 import org.evosuite.runtime.testdata.EvoSuiteAddress;
-import org.evosuite.runtime.testdata.EvoSuiteLocalAddress;
 import org.evosuite.runtime.testdata.EvoSuiteRemoteAddress;
 import org.evosuite.runtime.vnet.EndPointInfo;
 import org.evosuite.seeding.ConstantPool;
