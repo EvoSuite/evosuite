@@ -20,14 +20,7 @@
  */
 package org.evosuite.testcase;
 
-import org.evosuite.testcase.statements.ArrayStatement;
-import org.evosuite.testcase.statements.AssignmentStatement;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.FieldStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.NullStatement;
-import org.evosuite.testcase.statements.PrimitiveExpression;
-import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.*;
 
 
 /**
@@ -135,7 +128,7 @@ public abstract class TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 */
 	public void visitStatement(Statement statement) {
 

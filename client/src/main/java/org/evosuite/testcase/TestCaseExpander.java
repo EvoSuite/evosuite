@@ -12,12 +12,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.statements.ArrayStatement;
-import org.evosuite.testcase.statements.AssignmentStatement;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.NullStatement;
-import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.*;
+import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ArrayReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.GenericClass;
 
 public class TestCaseExpander {

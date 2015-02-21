@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -113,7 +113,7 @@ public abstract class Contract {
 	 * Check if this statement is related to the unit under test
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @return a boolean.
 	 */
 	protected boolean isTargetStatement(Statement statement) {
@@ -159,7 +159,7 @@ public abstract class Contract {
 	 * Check the contract on the current statement in the current scope
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param scope
 	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @param exception

@@ -51,19 +51,9 @@ import org.evosuite.assertion.SameAssertion;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.mock.EvoSuiteMock;
+import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentDataStatement;
-import org.evosuite.testcase.statements.AbstractStatement;
-import org.evosuite.testcase.statements.ArrayStatement;
-import org.evosuite.testcase.statements.AssignmentStatement;
-import org.evosuite.testcase.statements.ClassPrimitiveStatement;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.EnumPrimitiveStatement;
-import org.evosuite.testcase.statements.FieldStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.NullStatement;
-import org.evosuite.testcase.statements.PrimitiveExpression;
-import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.StringPrimitiveStatement;
+import org.evosuite.testcase.variable.*;
 import org.evosuite.utils.*;
 
 import com.googlecode.gentyref.CaptureType;
@@ -147,7 +137,7 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */
@@ -161,7 +151,7 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @return a {@link java.lang.Throwable} object.
 	 */
 	protected Throwable getException(Statement statement) {
@@ -177,7 +167,7 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName(VariableReference var) {
@@ -334,7 +324,7 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getVariableName(VariableReference var) {

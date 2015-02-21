@@ -4,13 +4,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
-import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.symbolic.TestCaseBuilder;
-import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.junit.After;

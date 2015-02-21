@@ -4,8 +4,8 @@
 package org.evosuite.assertion;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.Statement;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;

@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 
 /**
  * <p>SameTraceEntry class.</p>
@@ -24,7 +24,7 @@ public class SameTraceEntry implements OutputTraceEntry {
 	/**
 	 * <p>Constructor for SameTraceEntry.</p>
 	 *
-	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param var a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public SameTraceEntry(VariableReference var) {
 		this.var = var;
@@ -33,7 +33,7 @@ public class SameTraceEntry implements OutputTraceEntry {
 	/**
 	 * <p>addEntry</p>
 	 *
-	 * @param other a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param other a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param value a boolean.
 	 */
 	public void addEntry(VariableReference other, boolean value) {

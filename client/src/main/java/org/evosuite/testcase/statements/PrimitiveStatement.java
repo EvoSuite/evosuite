@@ -20,11 +20,10 @@ package org.evosuite.testcase.statements;
 import com.googlecode.gentyref.GenericTypeReflector;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
-import org.evosuite.testcase.VariableReference;
-import org.evosuite.testcase.VariableReferenceImpl;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.statements.environment.EnvironmentStatements;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
@@ -62,7 +61,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      * </p>
      *
      * @param tc     a {@link org.evosuite.testcase.TestCase} object.
-     * @param varRef a {@link org.evosuite.testcase.VariableReference} object.
+     * @param varRef a {@link org.evosuite.testcase.variable.VariableReference} object.
      * @param value  a T object.
      * @param <T>    a T object.
      */

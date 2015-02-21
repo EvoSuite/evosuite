@@ -17,12 +17,14 @@
  * 
  * @author Gordon Fraser
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.variable;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.utils.GenericClass;

@@ -17,7 +17,7 @@ import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.evosuite.symbolic.solver.search.TestInput1;
 import org.evosuite.symbolic.solver.search.TestInput2;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
 
 public class TestConstraintSolver {

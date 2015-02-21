@@ -30,12 +30,11 @@ import java.util.Set;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
-import org.evosuite.testcase.ArrayIndex;
-import org.evosuite.testcase.ArrayReference;
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
@@ -68,7 +67,7 @@ public class MethodStatement extends AbstractStatement {
 	 * @param method
 	 *            a {@link java.lang.reflect.Method} object.
 	 * @param callee
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param type
 	 *            a {@link java.lang.reflect.Type} object.
 	 * @param parameters
@@ -99,9 +98,9 @@ public class MethodStatement extends AbstractStatement {
 	 * @param method
 	 *            a {@link java.lang.reflect.Method} object.
 	 * @param callee
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param retvar
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param parameters
 	 *            a {@link java.util.List} object.
 	 */
@@ -178,7 +177,7 @@ public class MethodStatement extends AbstractStatement {
 	 * Getter for the field <code>callee</code>.
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getCallee() {
 		return callee;
@@ -190,7 +189,7 @@ public class MethodStatement extends AbstractStatement {
 	 * </p>
 	 * 
 	 * @param callee
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public void setCallee(VariableReference callee) {
 		if (!isStatic())
@@ -415,7 +414,7 @@ public class MethodStatement extends AbstractStatement {
 	 * </p>
 	 * 
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param numParameter
 	 *            a int.
 	 */

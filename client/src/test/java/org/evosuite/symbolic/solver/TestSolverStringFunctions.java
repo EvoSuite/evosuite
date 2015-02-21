@@ -16,7 +16,7 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 
 import com.examples.with.different.packagename.solver.TestCaseCastIntToString;
 import com.examples.with.different.packagename.solver.TestCaseCastStringToInt;
