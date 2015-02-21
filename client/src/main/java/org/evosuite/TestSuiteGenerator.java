@@ -526,7 +526,12 @@ public class TestSuiteGenerator {
         }
 
         ClientServices.getInstance().getClientNode().changeState(ClientState.JUNIT_CHECK);
-
+        
+        // Store this value; if this option is true then the JUnit check
+        // would not succeed, as the JUnit classloader wouldn't find the class
+        boolean junitSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
+        Properties.USE_SEPARATE_CLASSLOADER = false;
+        
         int numUnstable = 0;
 
         int i = 0;
@@ -593,6 +598,8 @@ public class TestSuiteGenerator {
 
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.HadUnstableTests, unstable);
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.NumUnstableTests, numUnstable);
+        Properties.USE_SEPARATE_CLASSLOADER = junitSeparateClassLoader;
+
     }
 
     private int checkAllTestsIfTime(List<TestCase> testCases, long delta) {
