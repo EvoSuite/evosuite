@@ -36,6 +36,7 @@ import org.evosuite.symbolic.ConcolicMutation;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;

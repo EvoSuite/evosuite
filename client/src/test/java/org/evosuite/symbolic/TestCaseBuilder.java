@@ -7,11 +7,11 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
-import org.evosuite.testcase.ArrayIndex;
-import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.FieldReference;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.FieldReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;

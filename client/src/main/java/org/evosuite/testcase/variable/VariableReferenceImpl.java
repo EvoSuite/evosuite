@@ -17,11 +17,13 @@
  * 
  * @author Gordon Fraser
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.variable;
 
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericClass;

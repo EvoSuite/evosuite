@@ -18,10 +18,10 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestVisitor;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;

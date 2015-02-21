@@ -20,8 +20,8 @@
  */
 package org.evosuite.assertion;
 
-import org.evosuite.testcase.Statement;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionTracer;
@@ -64,7 +64,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param scope
 	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 */
@@ -86,7 +86,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param scope
 	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 */
@@ -112,11 +112,11 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param scope
 	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	protected abstract void visit(Statement statement, Scope scope,
 	        VariableReference var) throws CodeUnderTestException;

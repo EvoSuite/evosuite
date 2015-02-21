@@ -20,7 +20,7 @@
  */
 package org.evosuite.contracts;
 
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;

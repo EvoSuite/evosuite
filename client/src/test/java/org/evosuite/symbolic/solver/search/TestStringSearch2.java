@@ -17,9 +17,8 @@ import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
-import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
 
 public class TestStringSearch2 {

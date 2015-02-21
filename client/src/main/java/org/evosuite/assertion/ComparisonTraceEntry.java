@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 
 /**
  * <p>ComparisonTraceEntry class.</p>
@@ -41,7 +41,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	/**
 	 * <p>Constructor for ComparisonTraceEntry.</p>
 	 *
-	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param var a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public ComparisonTraceEntry(VariableReference var) {
 		this.var = var;
@@ -50,7 +50,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	/**
 	 * <p>addEntry</p>
 	 *
-	 * @param other a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param other a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param value a boolean.
 	 */
 	public void addEntry(VariableReference other, boolean value) {

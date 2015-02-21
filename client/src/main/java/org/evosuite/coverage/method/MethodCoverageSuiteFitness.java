@@ -23,6 +23,7 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;

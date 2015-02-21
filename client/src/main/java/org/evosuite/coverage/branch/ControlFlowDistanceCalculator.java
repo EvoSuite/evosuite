@@ -26,7 +26,7 @@ import org.evosuite.coverage.ControlFlowDistance;
 import org.evosuite.coverage.TestCoverageGoal;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlDependency;
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.MethodCall;
 import org.evosuite.testcase.statements.ConstructorStatement;

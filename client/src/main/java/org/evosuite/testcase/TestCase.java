@@ -28,8 +28,10 @@ import java.util.Set;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.environment.AccessedEnvironment;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Listenable;
 
 
@@ -235,7 +237,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	 *            Upper bound in test case up to which objects are considered
 	 * @throws org.evosuite.ga.ConstructionFailedException
 	 *             if no such object exists
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getRandomNonNullNonPrimitiveObject(Type type, int position)
 	        throws ConstructionFailedException;
@@ -248,7 +250,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	 *            Upper bound in test case up to which objects are considered
 	 * @throws org.evosuite.ga.ConstructionFailedException
 	 *             if no such object exists
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getRandomNonNullObject(Type type, int position)
 	        throws ConstructionFailedException;
@@ -268,7 +270,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	 *            Upper bound in test case up to which objects are considered
 	 * @throws ConstructionFailedException
 	 *             if no such object exists
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getRandomObject(int position);
 
@@ -291,7 +293,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	 *            Upper bound in test case up to which objects are considered
 	 * @throws org.evosuite.ga.ConstructionFailedException
 	 *             if no such object exists
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getRandomObject(Type type, int position)
 	        throws ConstructionFailedException;
@@ -309,7 +311,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	 * Get return value (variable) of statement at position
 	 *
 	 * @param position a int.
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getReturnValue(int position);
 

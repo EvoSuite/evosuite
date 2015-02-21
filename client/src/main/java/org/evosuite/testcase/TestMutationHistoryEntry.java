@@ -3,6 +3,7 @@ package org.evosuite.testcase;
 import java.io.Serializable;
 
 import org.evosuite.ga.operators.mutation.MutationHistoryEntry;
+import org.evosuite.testcase.statements.Statement;
 
 public class TestMutationHistoryEntry implements MutationHistoryEntry, Serializable {
 

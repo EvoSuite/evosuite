@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.variable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericClass;
@@ -57,7 +58,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 * @param testCase
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param array
-	 *            a {@link org.evosuite.testcase.ArrayReference} object.
+	 *            a {@link ArrayReference} object.
 	 * @param index
 	 *            a int.
 	 */
@@ -73,7 +74,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 * @param testCase
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param array
-	 *            a {@link org.evosuite.testcase.ArrayReference} object.
+	 *            a {@link ArrayReference} object.
 	 * @param indices
 	 *            a {@link java.util.List} object.
 	 */
@@ -99,7 +100,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 * Getter for the field <code>array</code>.
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.testcase.ArrayReference} object.
+	 * @return a {@link ArrayReference} object.
 	 */
 	public ArrayReference getArray() {
 		return array;
@@ -111,7 +112,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 * </p>
 	 * 
 	 * @param r
-	 *            a {@link org.evosuite.testcase.ArrayReference} object.
+	 *            a {@link ArrayReference} object.
 	 */
 	public void setArray(ArrayReference r) {
 		array = r;

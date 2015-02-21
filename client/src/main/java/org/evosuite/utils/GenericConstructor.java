@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 

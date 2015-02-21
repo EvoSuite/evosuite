@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 
 /**
  * Abstract base class of all execution observers
@@ -95,7 +95,7 @@ public abstract class ExecutionObserver {
 	 * After execution of a statement, the result is passed to the observer
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param scope
 	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @param exception
@@ -118,7 +118,7 @@ public abstract class ExecutionObserver {
 	 * Determine the set of variables that somehow lead to this statement
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @return a {@link java.util.Set} object.
 	 */
 	protected Set<VariableReference> getDependentVariables(Statement statement) {

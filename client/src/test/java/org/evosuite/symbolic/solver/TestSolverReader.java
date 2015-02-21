@@ -7,7 +7,7 @@ import java.util.Map;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 
 import com.examples.with.different.packagename.solver.TestCaseReader;
 

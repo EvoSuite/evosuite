@@ -19,6 +19,7 @@ import org.evosuite.testcase.localsearch.BranchCoverageMap;
 import org.evosuite.testcase.statements.numeric.FloatPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 import org.evosuite.utils.GenericClass;
