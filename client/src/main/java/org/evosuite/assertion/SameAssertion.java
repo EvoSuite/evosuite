@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 
@@ -25,7 +25,7 @@ public class SameAssertion extends Assertion {
 	/**
 	 * <p>Getter for the field <code>dest</code>.</p>
 	 *
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getDest() {
 		return dest;
@@ -34,7 +34,7 @@ public class SameAssertion extends Assertion {
 	/**
 	 * <p>Setter for the field <code>dest</code>.</p>
 	 *
-	 * @param dest a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param dest a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public void setDest(VariableReference dest) {
 		this.dest = dest;

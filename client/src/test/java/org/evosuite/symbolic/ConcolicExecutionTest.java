@@ -12,7 +12,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.junit.After;
 import org.junit.Before;

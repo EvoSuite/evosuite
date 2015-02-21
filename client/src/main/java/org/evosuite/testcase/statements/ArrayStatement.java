@@ -30,13 +30,13 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.Properties;
-import org.evosuite.testcase.ArrayIndex;
-import org.evosuite.testcase.ArrayReference;
-import org.evosuite.testcase.FieldReference;
+import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ArrayReference;
+import org.evosuite.testcase.variable.FieldReference;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericAccessibleObject;
@@ -97,7 +97,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param arrayReference
-	 *            a {@link org.evosuite.testcase.ArrayReference} object.
+	 *            a {@link org.evosuite.testcase.variable.ArrayReference} object.
 	 */
 	public ArrayStatement(TestCase tc, ArrayReference arrayReference) {
 		this(tc, arrayReference,
@@ -112,7 +112,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param arrayReference
-	 *            a {@link org.evosuite.testcase.ArrayReference} object.
+	 *            a {@link org.evosuite.testcase.variable.ArrayReference} object.
 	 * @param length
 	 *            an array of int.
 	 */

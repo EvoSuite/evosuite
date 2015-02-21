@@ -23,7 +23,7 @@ import java.util.Set;
 
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 
 /**
  * Abstract base class of all execution observers

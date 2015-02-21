@@ -15,12 +15,13 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.variable;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericClass;
@@ -63,7 +64,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	/**
 	 * Create a copy of the current variable
 	 * 
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link VariableReference} object.
 	 */
 	public abstract VariableReference clone();
 
@@ -72,7 +73,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * 
 	 * @param newTest
 	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link VariableReference} object.
 	 */
 	public abstract VariableReference clone(TestCase newTest);
 
@@ -83,7 +84,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param offset
 	 *            a int.
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link VariableReference} object.
 	 */
 	public abstract VariableReference copy(TestCase newTest, int offset);
 
@@ -313,7 +314,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * getAdditionalVariableReference
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link VariableReference} object.
 	 */
 	public VariableReference getAdditionalVariableReference();
 
@@ -323,7 +324,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * </p>
 	 * 
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link VariableReference} object.
 	 */
 	public void setAdditionalVariableReference(VariableReference var);
 
@@ -333,9 +334,9 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * </p>
 	 * 
 	 * @param var1
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link VariableReference} object.
 	 * @param var2
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link VariableReference} object.
 	 */
 	public void replaceAdditionalVariableReference(VariableReference var1,
 	        VariableReference var2);
@@ -407,7 +408,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * </p>
 	 * 
 	 * @param r
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link VariableReference} object.
 	 * @return a boolean.
 	 */
 	public boolean same(VariableReference r);

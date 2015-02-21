@@ -27,7 +27,7 @@ import java.util.Set;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +118,7 @@ public abstract class Assertion implements Serializable {
 	/**
 	 * Getter for source variable
 	 * 
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getSource() {
 		return source;

@@ -37,7 +37,7 @@ import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.ConstructorStatement;

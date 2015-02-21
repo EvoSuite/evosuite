@@ -15,6 +15,7 @@ import org.evosuite.SystemTest;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;

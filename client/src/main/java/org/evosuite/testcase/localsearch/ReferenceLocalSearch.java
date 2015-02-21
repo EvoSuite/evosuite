@@ -13,7 +13,7 @@ import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;

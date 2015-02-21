@@ -64,6 +64,7 @@ import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveExpression;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
+import org.evosuite.testcase.variable.*;
 import org.evosuite.utils.*;
 
 import com.googlecode.gentyref.CaptureType;
@@ -177,7 +178,7 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName(VariableReference var) {
@@ -334,7 +335,7 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getVariableName(VariableReference var) {

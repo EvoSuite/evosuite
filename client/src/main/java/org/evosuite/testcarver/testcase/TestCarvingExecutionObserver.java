@@ -1,9 +1,9 @@
 package org.evosuite.testcarver.testcase;
 
 import org.evosuite.testcarver.capture.FieldRegistry;
-import org.evosuite.testcase.FieldReference;
+import org.evosuite.testcase.variable.FieldReference;
 import org.evosuite.testcase.Statement;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;

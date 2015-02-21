@@ -31,8 +31,8 @@ import org.evosuite.testcase.statements.PrimitiveExpression;
 import org.evosuite.testcase.statements.PrimitiveExpression.Operator;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
-import org.evosuite.testcase.VariableReferenceImpl;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.utils.GenericMethod;
 
 /**

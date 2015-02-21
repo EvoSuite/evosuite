@@ -28,7 +28,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.ConstructorStatement;
