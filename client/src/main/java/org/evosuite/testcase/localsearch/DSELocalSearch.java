@@ -18,7 +18,7 @@ import org.evosuite.symbolic.solver.ConstraintCache;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverFactory;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.variable.VariableReference;

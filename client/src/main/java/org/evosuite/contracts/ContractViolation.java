@@ -28,7 +28,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.FieldReference;
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.variable.VariableReference;
@@ -79,7 +79,7 @@ public class ContractViolation {
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */

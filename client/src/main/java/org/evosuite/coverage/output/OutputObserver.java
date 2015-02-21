@@ -20,7 +20,7 @@ package org.evosuite.coverage.output;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;

@@ -23,7 +23,7 @@ package org.evosuite.testcase.localsearch;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.variable.ArrayReference;
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCaseExpander;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;

@@ -39,7 +39,7 @@ import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.variable.FieldReference;
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.statements.FieldStatement;

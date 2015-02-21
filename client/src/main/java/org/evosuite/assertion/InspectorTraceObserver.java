@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;

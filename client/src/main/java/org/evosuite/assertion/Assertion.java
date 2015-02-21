@@ -25,7 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.evosuite.coverage.mutation.Mutation;
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.Scope;
@@ -100,7 +100,7 @@ public abstract class Assertion implements Serializable {
 	 * Setter for statement to which assertion is added
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 */
 	public void setStatement(Statement statement) {
 		this.statement = statement;
@@ -109,7 +109,7 @@ public abstract class Assertion implements Serializable {
 	/**
 	 * Getter for statement to which assertion is added
 	 * 
-	 * @return a {@link org.evosuite.testcase.Statement} object.
+	 * @return a {@link org.evosuite.testcase.statements.Statement} object.
 	 */
 	public Statement getStatement() {
 		return statement;

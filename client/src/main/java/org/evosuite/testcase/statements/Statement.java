@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.statements;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.GenericAccessibleObject;
@@ -72,7 +74,7 @@ public interface Statement {
 	/**
 	 * Create deep copy of statement
 	 * 
-	 * @return a {@link org.evosuite.testcase.Statement} object.
+	 * @return a {@link Statement} object.
 	 */
 	public Statement clone();
 
@@ -83,7 +85,7 @@ public interface Statement {
 	 * 
 	 * @param newTestCase
 	 *            the testcase in which this statement will be inserted
-	 * @return a {@link org.evosuite.testcase.Statement} object.
+	 * @return a {@link Statement} object.
 	 */
 	public Statement clone(TestCase newTestCase);
 
@@ -96,7 +98,7 @@ public interface Statement {
 	 *            the testcase in which this statement will be inserted
 	 * @param offset
 	 *            a int.
-	 * @return a {@link org.evosuite.testcase.Statement} object.
+	 * @return a {@link Statement} object.
 	 */
 	public Statement copy(TestCase newTestCase, int offset);
 
@@ -384,7 +386,7 @@ public interface Statement {
 	 * the same type.
 	 * 
 	 * @param s
-	 *            a {@link org.evosuite.testcase.Statement} object.
+	 *            a {@link Statement} object.
 	 * @return a boolean.
 	 */
 	public boolean same(Statement s);

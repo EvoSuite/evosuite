@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
 import org.evosuite.testcase.variable.ArrayReference;
-import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.TestFactory;

@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.assertion.EqualsAssertion;
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionTracer;

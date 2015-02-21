@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.testcase.variable.NullReference;
-import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.Scope;

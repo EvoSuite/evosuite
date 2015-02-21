@@ -27,7 +27,7 @@ import org.evosuite.symbolic.vm.wrappers.Types;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.FieldReference;
-import org.evosuite.testcase.Statement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
