@@ -18,7 +18,7 @@ import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.IntPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.junit.Assert;

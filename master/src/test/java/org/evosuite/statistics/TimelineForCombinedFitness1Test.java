@@ -19,8 +19,6 @@ public class TimelineForCombinedFitness1Test extends SystemTest {
 
     private final Criterion[] oldCriterion = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 
-    private final boolean COMPOSITIONAL_FITNESS = Properties.COMPOSITIONAL_FITNESS;
-    
     private final String ANALYSIS_CRITERIA = Properties.ANALYSIS_CRITERIA;
     
     private final boolean ASSERTIONS = Properties.ASSERTIONS;
@@ -28,7 +26,6 @@ public class TimelineForCombinedFitness1Test extends SystemTest {
 	@After
 	public void afterTest() {
 		Properties.CRITERION = oldCriterion;
-		Properties.COMPOSITIONAL_FITNESS = COMPOSITIONAL_FITNESS;
 		Properties.ANALYSIS_CRITERIA = ANALYSIS_CRITERIA;
 		Properties.ASSERTIONS = ASSERTIONS;
 	}
@@ -41,7 +38,6 @@ public class TimelineForCombinedFitness1Test extends SystemTest {
         String targetClass = Compositional.class.getCanonicalName();
 
         Properties.TARGET_CLASS = targetClass;
-        Properties.COMPOSITIONAL_FITNESS = true;
         Properties.CRITERION = new Properties.Criterion[4];
         Properties.CRITERION[0] = Properties.Criterion.ONLYBRANCH;
         Properties.CRITERION[1] = Properties.Criterion.METHODNOEXCEPTION;

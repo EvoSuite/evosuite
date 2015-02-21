@@ -1,4 +1,4 @@
-package org.evosuite.testcase.environmentdata;
+package org.evosuite.testcase.statements.environment;
 
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.PrimitiveStatement;

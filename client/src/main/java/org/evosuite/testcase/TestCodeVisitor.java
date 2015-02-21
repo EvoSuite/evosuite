@@ -51,7 +51,7 @@ import org.evosuite.assertion.SameAssertion;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.mock.EvoSuiteMock;
-import org.evosuite.testcase.environmentdata.EnvironmentDataStatement;
+import org.evosuite.testcase.statements.environment.EnvironmentDataStatement;
 import org.evosuite.testcase.statements.AbstractStatement;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;

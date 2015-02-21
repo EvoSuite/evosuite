@@ -18,7 +18,6 @@ public class TestTestSuiteMinimizer extends SystemTest
 	{
 		Properties.CRITERION = new Criterion[1];
         Properties.CRITERION[0] = Criterion.ONLYBRANCH;
-        Properties.COMPOSITIONAL_FITNESS = false;
 
         Properties.MINIMIZE = true;
         Properties.MINIMIZE_VALUES = true;
@@ -69,7 +68,6 @@ public class TestTestSuiteMinimizer extends SystemTest
 		Properties.CRITERION = new Criterion[2];
         Properties.CRITERION[0] = Criterion.ONLYBRANCH;
         Properties.CRITERION[1] = Criterion.LINE;
-        Properties.COMPOSITIONAL_FITNESS = true;
 
         Properties.MINIMIZE = true;
         Properties.MINIMIZE_VALUES = true;

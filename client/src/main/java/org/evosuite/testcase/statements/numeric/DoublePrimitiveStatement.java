@@ -1,59 +1,70 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
  */
-package org.evosuite.testcase.statements;
+package org.evosuite.testcase.statements.numeric;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.evosuite.Properties;
+import org.evosuite.seeding.ConstantPool;
+import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-
 /**
- * <p>CharPrimitiveStatement class.</p>
- *
+ * <p>
+ * DoublePrimitiveStatement class.
+ * </p>
+ * 
  * @author fraser
  */
-public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Character> {
+public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double> {
 
-	private static final long serialVersionUID = -1960567565801078784L;
+	private static final long serialVersionUID = 6229514439946892566L;
 
 	/**
-	 * <p>Constructor for CharPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param value a {@link java.lang.Character} object.
+	 * <p>
+	 * Constructor for DoublePrimitiveStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value
+	 *            a {@link java.lang.Double} object.
 	 */
-	public CharPrimitiveStatement(TestCase tc, Character value) {
-		super(tc, char.class, value);
-		// TODO Auto-generated constructor stub
+	public DoublePrimitiveStatement(TestCase tc, Double value) {
+		super(tc, double.class, value);
 	}
 
 	/**
-	 * <p>Constructor for CharPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * <p>
+	 * Constructor for DoublePrimitiveStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public CharPrimitiveStatement(TestCase tc) {
-		super(tc, char.class, (char) 0);
-		// TODO Auto-generated constructor stub
+	public DoublePrimitiveStatement(TestCase tc) {
+		super(tc, double.class, 0.0);
 	}
 
 	/* (non-Javadoc)
@@ -62,7 +73,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/** {@inheritDoc} */
 	@Override
 	public void zero() {
-		value = (char) 0;
+		value = new Double(0.0);
 	}
 
 	/* (non-Javadoc)
@@ -71,7 +82,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/** {@inheritDoc} */
 	@Override
 	public void pushBytecode(GeneratorAdapter mg) {
-		mg.push((value).charValue());
+		mg.push((value).doubleValue());
 	}
 
 	/* (non-Javadoc)
@@ -80,8 +91,15 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
-		value = (char) (value.charValue() + delta);
+		double P = Randomness.nextDouble();
+		if(P < 1d/3d) {
+			value += Randomness.nextGaussian() * Properties.MAX_DELTA;
+		} else if(P < 2d/3d) {
+			value += Randomness.nextGaussian();
+		} else {
+			int precision = Randomness.nextInt(15);
+			chopPrecision(precision);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -90,7 +108,24 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/** {@inheritDoc} */
 	@Override
 	public void increment(long delta) {
-		value = (char) (value + delta);
+		value = value + delta;
+	}
+	
+	private void chopPrecision(int precision) {
+		if(value.isNaN() || value.isInfinite())
+			return;
+		
+		BigDecimal bd = new BigDecimal(value).setScale(precision, RoundingMode.HALF_EVEN);
+		this.value = bd.doubleValue();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public void increment(double delta) {
+		value = value + delta;
 	}
 
 	/* (non-Javadoc)
@@ -99,7 +134,15 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
-		value = (char) (Randomness.nextChar());
+		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
+			value = Randomness.nextGaussian() * Properties.MAX_INT;
+			int precision = Randomness.nextInt(15);
+			chopPrecision(precision);
+		}
+		else {
+			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
+			value = constantPool.getRandomDouble();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -108,7 +151,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/** {@inheritDoc} */
 	@Override
 	public void increment() {
-		increment((char) 1);
+		increment(1.0);
 	}
 
 	/* (non-Javadoc)
@@ -116,8 +159,8 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void setMid(Character min, Character max) {
-		value = (char) (min + ((max - min) / 2));
+	public void setMid(Double min, Double max) {
+		value = (double) (min + ((max - min) / 2));
 	}
 
 	/* (non-Javadoc)
@@ -126,7 +169,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/** {@inheritDoc} */
 	@Override
 	public void decrement() {
-		increment(-1);
+		increment(-1.0);
 	}
 
 	/* (non-Javadoc)
@@ -136,5 +179,11 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	@Override
 	public boolean isPositive() {
 		return value >= 0;
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void negate() {
+		value = -value;
 	}
 }
