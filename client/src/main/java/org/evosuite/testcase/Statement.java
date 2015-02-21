@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -402,7 +403,7 @@ public interface Statement {
 	 * </p>
 	 * 
 	 * @param newRetVal
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public void setRetval(VariableReference newRetVal);
 

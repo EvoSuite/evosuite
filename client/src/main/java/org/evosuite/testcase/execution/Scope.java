@@ -31,8 +31,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.testcase.ArrayReference;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.ArrayReference;
+import org.evosuite.testcase.variable.VariableReference;
 
 /**
  * This class represents the state of a test case execution

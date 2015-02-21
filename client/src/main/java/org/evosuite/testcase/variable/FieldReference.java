@@ -18,12 +18,13 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.variable;
 
 import java.lang.reflect.Type;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
@@ -59,7 +60,7 @@ public class FieldReference extends VariableReferenceImpl {
 	 * @param field
 	 *            a {@link java.lang.reflect.Field} object.
 	 * @param source
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link VariableReference} object.
 	 */
 	public FieldReference(TestCase testCase, GenericField field, VariableReference source) {
 		super(testCase, field.getFieldType());
@@ -80,7 +81,7 @@ public class FieldReference extends VariableReferenceImpl {
 	 * @param fieldType
 	 *            a {@link java.lang.reflect.Type} object.
 	 * @param source
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link VariableReference} object.
 	 */
 	public FieldReference(TestCase testCase, GenericField field, Type fieldType,
 	        VariableReference source) {
@@ -141,7 +142,7 @@ public class FieldReference extends VariableReferenceImpl {
 	/**
 	 * Access the source object
 	 * 
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link VariableReference} object.
 	 */
 	public VariableReference getSource() {
 		return source;

@@ -27,12 +27,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
-import org.evosuite.testcase.VariableReference;
-import org.evosuite.testcase.VariableReferenceImpl;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
@@ -65,7 +65,7 @@ public class FieldStatement extends AbstractStatement {
 	 * @param field
 	 *            a {@link java.lang.reflect.Field} object.
 	 * @param source
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param type
 	 *            a {@link java.lang.reflect.Type} object.
 	 */
@@ -89,9 +89,9 @@ public class FieldStatement extends AbstractStatement {
 	 * @param field
 	 *            a {@link java.lang.reflect.Field} object.
 	 * @param source
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param ret_var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public FieldStatement(TestCase tc, GenericField field, VariableReference source,
 	        VariableReference ret_var) {
@@ -106,7 +106,7 @@ public class FieldStatement extends AbstractStatement {
 	 * Getter for the field <code>source</code>.
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getSource() {
 		return source;
@@ -149,7 +149,7 @@ public class FieldStatement extends AbstractStatement {
 	 * </p>
 	 * 
 	 * @param source
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public void setSource(VariableReference source) {
 		this.source = source;

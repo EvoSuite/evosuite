@@ -6,7 +6,7 @@ import org.evosuite.runtime.vnet.EndPointInfo;
 import org.evosuite.seeding.ConstantPool;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.StringUtil;
 import org.objectweb.asm.commons.GeneratorAdapter;

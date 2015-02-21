@@ -42,6 +42,7 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.variable.*;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.ListenableList;

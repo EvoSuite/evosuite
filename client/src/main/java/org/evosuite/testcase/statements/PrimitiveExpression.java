@@ -28,8 +28,8 @@ import java.util.Set;
 
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
-import org.evosuite.testcase.VariableReferenceImpl;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -92,14 +92,14 @@ public class PrimitiveExpression extends AbstractStatement {
 	 * @param testCase
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param reference
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param leftOperand
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param operator
 	 *            a {@link org.evosuite.testcase.statements.PrimitiveExpression.Operator}
 	 *            object.
 	 * @param rightOperand
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public PrimitiveExpression(TestCase testCase, VariableReference reference,
 	        VariableReference leftOperand, Operator operator,
@@ -184,7 +184,7 @@ public class PrimitiveExpression extends AbstractStatement {
 	 * Getter for the field <code>leftOperand</code>.
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getLeftOperand() {
 		return leftOperand;
@@ -207,7 +207,7 @@ public class PrimitiveExpression extends AbstractStatement {
 	 * Getter for the field <code>rightOperand</code>.
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getRightOperand() {
 		return rightOperand;

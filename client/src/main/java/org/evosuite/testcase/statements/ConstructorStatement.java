@@ -31,12 +31,12 @@ import java.util.Set;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
-import org.evosuite.testcase.ArrayIndex;
+import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
-import org.evosuite.testcase.VariableReference;
-import org.evosuite.testcase.VariableReferenceImpl;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
@@ -103,7 +103,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 * @param constructor
 	 *            a {@link java.lang.reflect.Constructor} object.
 	 * @param retvar
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param parameters
 	 *            a {@link java.util.List} object.
 	 */
@@ -126,7 +126,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 * @param constructor
 	 *            a {@link java.lang.reflect.Constructor} object.
 	 * @param retvar
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param parameters
 	 *            a {@link java.util.List} object.
 	 * @param check
@@ -354,7 +354,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 * </p>
 	 * 
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param numParameter
 	 *            a int.
 	 */
