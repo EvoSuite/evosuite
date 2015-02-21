@@ -1759,7 +1759,7 @@ public class TestClusterGenerator {
 
 							actualClasses.add(subClazz);
 
-						} catch (ClassNotFoundException e) {
+						} catch (ClassNotFoundException | IncompatibleClassChangeError | NoClassDefFoundError e) {
 							logger.error("Problem for " + Properties.TARGET_CLASS
 							        + ". Class not found: " + subClass, e);
 							logger.error("Removing class from inheritance tree");
