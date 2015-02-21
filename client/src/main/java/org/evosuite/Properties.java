@@ -283,10 +283,6 @@ public class Properties {
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.MONOTONICGA;
 
-	/** Constant <code>COMPOSITIONAL_FITNESS=false</code> */
-	@Parameter(key = "compositional_fitness", group = "Search Algorithm", description = "Compositional fitness function")
-	public static boolean COMPOSITIONAL_FITNESS = false;
-
 	/** Constant <code>RANDOM_SEED</code> */
 	@Parameter(key = "random_seed", group = "Search Algorithm", description = "Seed used for random generator. If left empty, use current time")
 	public static Long RANDOM_SEED = null;
@@ -950,7 +946,7 @@ public class Properties {
 
 
     @Parameter(key = "virtual_net", group = "Sandbox", description = "Usa a virtual network for all TCP/UDP communications")
-    public static boolean VIRTUAL_NET = false;  //TODO put true once finalized
+    public static boolean VIRTUAL_NET = true;
 
     @Parameter(key = "use_separate_classloader", group = "Sandbox", description = "Usa a separate classloader in the final test cases")
     public static boolean USE_SEPARATE_CLASSLOADER = false;

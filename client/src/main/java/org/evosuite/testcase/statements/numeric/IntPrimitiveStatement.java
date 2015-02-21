@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.testcase.statements;
+package org.evosuite.testcase.statements.numeric;
 
 import org.evosuite.Properties;
 import org.evosuite.seeding.ConstantPool;
@@ -29,39 +29,39 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * <p>
- * LongPrimitiveStatement class.
+ * IntPrimitiveStatement class.
  * </p>
  * 
  * @author fraser
  */
-public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
+public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> {
 
-	private static final long serialVersionUID = 6902273233816031053L;
+	private static final long serialVersionUID = -8616399657291345433L;
 
 	/**
 	 * <p>
-	 * Constructor for LongPrimitiveStatement.
+	 * Constructor for IntPrimitiveStatement.
 	 * </p>
 	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param value
-	 *            a {@link java.lang.Long} object.
+	 *            a {@link java.lang.Integer} object.
 	 */
-	public LongPrimitiveStatement(TestCase tc, Long value) {
-		super(tc, long.class, value);
+	public IntPrimitiveStatement(TestCase tc, Integer value) {
+		super(tc, int.class, value);
 	}
 
 	/**
 	 * <p>
-	 * Constructor for LongPrimitiveStatement.
+	 * Constructor for IntPrimitiveStatement.
 	 * </p>
 	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public LongPrimitiveStatement(TestCase tc) {
-		super(tc, long.class, (long) 0);
+	public IntPrimitiveStatement(TestCase tc) {
+		super(tc, int.class, 0);
 	}
 
 	/* (non-Javadoc)
@@ -70,7 +70,7 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public void zero() {
-		value = new Long(0);
+		value = 0;
 	}
 
 	/* (non-Javadoc)
@@ -78,8 +78,8 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void pushBytecode(GeneratorAdapter mg) {
-		mg.push((value).longValue());
+	protected void pushBytecode(GeneratorAdapter mg) {
+		mg.push((value).intValue());
 	}
 
 	/* (non-Javadoc)
@@ -88,7 +88,7 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		long delta = (long)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
+		int delta = (int)Math.floor(Randomness.nextGaussian() * Properties.MAX_DELTA);
 		value = value + delta;
 	}
 
@@ -98,7 +98,7 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public void increment(long delta) {
-		value = value + delta;
+		value = value + (int) delta;
 	}
 
 	/* (non-Javadoc)
@@ -108,11 +108,11 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	@Override
 	public void randomize() {
 		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL) {
-			value = (long)(Randomness.nextGaussian() * Properties.MAX_INT);
+			value = (int)(Randomness.nextGaussian() * Properties.MAX_INT) ;
 		}
 		else {
 			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
-			value = constantPool.getRandomLong();
+			value = constantPool.getRandomInt();
 		}
 	}
 
@@ -130,8 +130,8 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void setMid(Long min, Long max) {
-		value = (long) (min + ((max - min) / 2));
+	public void setMid(Integer min, Integer max) {
+		value = (int) (min + ((max - min) / 2));
 	}
 
 	/* (non-Javadoc)
@@ -156,5 +156,11 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	@Override
 	public void negate() {
 		value = -value;
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Integer getValue() {
+		return value;
 	}
 }

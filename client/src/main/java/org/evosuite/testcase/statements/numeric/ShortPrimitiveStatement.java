@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.testcase.statements;
+package org.evosuite.testcase.statements.numeric;
 
 import org.evosuite.Properties;
 import org.evosuite.seeding.ConstantPool;
