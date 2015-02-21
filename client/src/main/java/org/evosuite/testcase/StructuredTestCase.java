@@ -1,5 +1,7 @@
 package org.evosuite.testcase;
 
+import org.evosuite.testcase.statements.Statement;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;

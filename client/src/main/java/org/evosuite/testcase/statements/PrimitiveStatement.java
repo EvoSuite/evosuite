@@ -20,7 +20,6 @@ package org.evosuite.testcase.statements;
 import com.googlecode.gentyref.GenericTypeReflector;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.variable.VariableReference;

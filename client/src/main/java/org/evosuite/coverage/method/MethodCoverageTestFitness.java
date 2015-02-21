@@ -21,9 +21,8 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
 import org.objectweb.asm.Type;
-
-import java.util.Set;
 
 /**
  * Fitness function for a single test on a single method (no exception)

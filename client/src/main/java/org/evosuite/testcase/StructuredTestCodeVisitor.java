@@ -1,6 +1,7 @@
 package org.evosuite.testcase;
 
 import org.evosuite.assertion.Assertion;
+import org.evosuite.testcase.statements.Statement;
 
 public class StructuredTestCodeVisitor extends TestCodeVisitor {
 
