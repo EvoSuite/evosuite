@@ -8,8 +8,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,6 +22,8 @@ import java.util.logging.LogManager;
 
 import org.evosuite.runtime.RuntimeSettings;
 import  org.junit.*;
+
+import javax.swing.*;
 
 public class MSecurityManagerTest {
 
@@ -48,8 +52,8 @@ public class MSecurityManagerTest {
 		securityManager.goingToEndTestCase();
 		securityManager.restoreDefaultManager();		
 	}
-	
-	
+
+
 	@Test
 	public void testSpecifyStreamHandler() throws Exception{
 		File tmp = null;
