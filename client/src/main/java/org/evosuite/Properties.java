@@ -273,7 +273,15 @@ public class Properties {
 	@Parameter(key = "headless_mode", group = "Test Generation", description = "Run Java in AWT Headless mode")
 	public static boolean HEADLESS_MODE = true;
 
-	// ---------------------------------------------------------------
+    @Parameter(key = "p_reflection_on_private", group = "Test Creation", description = "Probability [0,1] of using reflection to set private fields or call private methods")
+    public static double P_REFLECTION_ON_PRIVATE = 0.0; // TODO of by default. likely need something like 0.5
+
+    @Parameter(key = "reflection_start_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which reflection fields/methods handling is activated")
+    public static double REFLECTION_START_PERCENT = 0.5;
+
+
+
+    // ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
 		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, STEADYSTATEGA, RANDOM, NSGAII

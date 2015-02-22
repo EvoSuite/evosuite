@@ -3,6 +3,9 @@
  */
 package org.evosuite.testcase;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,13 +19,18 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.testcase.execution.TimeoutHandler;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentStatements;
+import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
+import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
+import org.evosuite.testcase.statements.reflection.ReflectionFactory;
 import org.evosuite.testcase.variable.*;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
@@ -52,11 +60,18 @@ public class TestFactory {
 	/** Singleton instance */
 	private static TestFactory instance = null;
 
+    private ReflectionFactory reflectionFactory;
+
+    private TestFactory(){
+        reset();
+    }
+
 	/**
 	 * We keep track of calls already attempted to avoid infinite recursion
 	 */
 	public void reset() {
 		currentRecursion.clear();
+        reflectionFactory = new ReflectionFactory();
 	}
 
 	public static TestFactory getInstance() {
@@ -1361,6 +1376,60 @@ public class TestFactory {
 		return calls;
 	}
 
+
+    private boolean insertRandomReflectionCall(TestCase test, int position, int recursionDepth)
+        throws ConstructionFailedException {
+
+        logger.debug("Recursion depth: " + recursionDepth);
+        if (recursionDepth > Properties.MAX_RECURSION) {
+            logger.debug("Max recursion depth reached");
+            throw new ConstructionFailedException("Max recursion depth reached");
+        }
+
+        int length = test.size();
+        List<VariableReference> parameters = null;
+        Statement st = null;
+
+        if(reflectionFactory.nextUseField()){
+            Field field = reflectionFactory.nextField();
+            parameters = satisfyParameters(test, null,
+                    //we need a reference to the SUT, and one to a variable of same type of chosen field
+                    Arrays.asList((Type)reflectionFactory.getReflectedClass() , (Type)field.getType()),
+                    position, recursionDepth + 1);
+
+            try {
+                st = new PrivateFieldStatement(test,reflectionFactory.getReflectedClass(),field.getName(),
+                        parameters.get(0),parameters.get(1));
+            } catch (NoSuchFieldException e) {
+                logger.error("Reflection problem: "+e,e);
+                throw new ConstructionFailedException("Reflection problem");
+            }
+        } else {
+            //method
+            Method method = reflectionFactory.nextMethod();
+            List<Type> list = new ArrayList<>();
+            list.add(reflectionFactory.getReflectedClass());
+            list.addAll(Arrays.asList(method.getParameterTypes()));
+
+            parameters = satisfyParameters(test, null,list,position, recursionDepth + 1);
+            VariableReference callee = parameters.remove(0);
+
+            try {
+                st = new PrivateMethodStatement(test,reflectionFactory.getReflectedClass(),method.getName(),
+                        callee,parameters);
+            } catch (NoSuchFieldException e) {
+                logger.error("Reflection problem: " + e, e);
+                throw new ConstructionFailedException("Reflection problem");
+            }
+        }
+
+        int newLength = test.size();
+        position += (newLength - length);
+
+        test.addStatement(st, position);
+        return true;
+    }
+
 	/**
 	 * Insert a random call at given position
 	 * 
@@ -1373,6 +1442,13 @@ public class TestFactory {
 		currentRecursion.clear();
 		logger.debug("Inserting random call at position " + position);
 		try {
+
+            if(reflectionFactory.hasPrivateFieldsOrMethods() &&
+                    TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT &&
+                    Randomness.nextDouble() < Properties.P_REFLECTION_ON_PRIVATE){
+                return insertRandomReflectionCall(test,position, 0);
+            }
+
 			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomTestCall();
 			if (o == null) {
 				logger.warn("Have no target methods to test");
@@ -1409,18 +1485,13 @@ public class TestFactory {
 						//	callee = test.getRandomNonNullObject(m.getDeclaringClass(), position);
 						//}
 					}
-					logger.debug("Got callee of type "
-					        + callee.getGenericClass().getTypeName());
-					if (!TestClusterGenerator.canUse(m.getMethod(),
-					                                 callee.getVariableClass())) {
-						logger.debug("Cannot call method " + m + " with callee of type "
-						        + callee.getClassName());
-						throw new ConstructionFailedException(
-						        "Cannot apply method to this callee");
+					logger.debug("Got callee of type " + callee.getGenericClass().getTypeName());
+					if (!TestClusterGenerator.canUse(m.getMethod(), callee.getVariableClass())) {
+						logger.debug("Cannot call method " + m + " with callee of type " + callee.getClassName());
+						throw new ConstructionFailedException("Cannot apply method to this callee");
 					}
 
-					addMethodFor(test, callee,
-					             m.copyWithNewOwner(callee.getGenericClass()), position);
+					addMethodFor(test, callee, m.copyWithNewOwner(callee.getGenericClass()), position);
 				} else {
 					// We only use this for static methods to avoid using wrong constructors (?)
 					addMethod(test, m, position, 0);
@@ -1455,9 +1526,6 @@ public class TestFactory {
 				test.remove(position + i);
 			}
 			return false;
-
-			// logger.info("Attempting search");
-			// test.chop(previous_length);
 		}
 	}
 
