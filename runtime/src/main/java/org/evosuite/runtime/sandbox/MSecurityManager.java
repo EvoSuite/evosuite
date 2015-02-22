@@ -214,7 +214,7 @@ public class MSecurityManager extends SecurityManager {
         masterNodeRemoteMethodNames = Collections.unmodifiableSet(names);
     }
 
-	public Set<Thread> getPriviledThreads(){
+	public Set<Thread> getPrivilegedThreads(){
 		Set<Thread> set = new LinkedHashSet<Thread>();
 		set.addAll(privilegedThreads);
 		return set;
@@ -263,7 +263,7 @@ public class MSecurityManager extends SecurityManager {
 	public boolean isSafeToExecuteSUTCode(){
 		Thread current = Thread.currentThread();
 		if(!privilegedThreads.contains(current)){
-			//the thread is not privileg, so run inside the box
+			//the thread is not privileged, so run inside the box
 			return true;
 		} else {
 			// this can happen if the thread is privileged, but already running SUT code
@@ -303,7 +303,7 @@ public class MSecurityManager extends SecurityManager {
 	 * terminated)
 	 * </p>
 	 */
-	public void makePriviligedAllCurrentThreads() {
+	public void makePrivilegedAllCurrentThreads() {
 		ThreadGroup root = Thread.currentThread().getThreadGroup();
 		while (root.getParent() != null) {
 			root = root.getParent();
@@ -380,11 +380,12 @@ public class MSecurityManager extends SecurityManager {
 	 */
 	public void addPrivilegedThread(Thread t) throws SecurityException {
 		if (privilegedThreads.contains(Thread.currentThread())) {
-			logger.debug("Adding privileged thread: " + t.getName());
+			logger.debug("Adding privileged thread: \"" + t.getName()+"\"" );
 			privilegedThreads.add(t);
 		} else {
+            String current = Thread.currentThread().getName();
 			throw new SecurityException(
-					"Unprivileged thread cannot add a privileged thread");
+					"Unprivileged thread \""+current+"\" cannot add a privileged thread: failed to add \""+t.getName()+"\"\n");
 		}
 	}
 
