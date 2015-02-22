@@ -27,8 +27,10 @@ import java.io.SerializablePermission;
 import java.lang.management.ManagementPermission;
 import java.lang.reflect.Method;
 import java.lang.reflect.ReflectPermission;
+import java.net.InetAddress;
 import java.net.NetPermission;
 import java.net.SocketPermission;
+import java.net.UnknownHostException;
 import java.security.AccessControlContext;
 import java.security.AllPermission;
 import java.security.Permission;
@@ -100,6 +102,15 @@ public class MSecurityManager extends SecurityManager {
 
 	private static final String AWT_HEADLESS = System.getProperty("java.awt.headless");
 
+    private static final String LOCALHOST_NAME;
+    static {
+        String tmp = null;
+        try {
+            tmp = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+        }
+        LOCALHOST_NAME = tmp;
+    }
 	/**
 	 * Needed for the VFS
 	 */
@@ -638,12 +649,6 @@ public class MSecurityManager extends SecurityManager {
 			return checkSocketPermission((SocketPermission) perm);
 		}
 
-		// for (int elementCounter = 0; elementCounter < stackTraceElements.length; elementCounter++) {
-		// FIXME: what is this?
-		// if (e.getClassName().contains("MockingBridge") && Properties.MOCKS)
-		// return true;
-		// }
-
 		/*
 		 * as far as JDK 6 is concern, those should be all possible permissions. But just in case, if there is a permission we don't know, we just
 		 * deny it
@@ -752,8 +757,25 @@ public class MSecurityManager extends SecurityManager {
 
 	protected boolean checkSocketPermission(SocketPermission perm) {
 		/*
-		 * Handling UDP/TCP connections will require special mocks. So, for now we just deny this permission
+		 * Handling UDP/TCP connections are handled by VNET mocks
 		 */
+
+        String action = perm.getActions();
+        String name = perm.getName();
+
+        if(action.equals("resolve") && name.equals(LOCALHOST_NAME)){
+            /*
+                this kind of special: we do allow resolve of local host, although we do mock InetAddress.
+                This is due to all kind of indirect calls in Swing that we do not fully mock, eg like
+                sun.font.FcFontConfiguration.getFcInfoFile
+                this is triggered from
+                JComponent.getFontMetrics
+                which is triggered by the very common
+                JComponent.getPreferredSize
+             */
+            return true;
+        }
+
 		return false;
 	}
 
