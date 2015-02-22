@@ -271,7 +271,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
                 it means that, if ones starts an outgoing connection to 0.0.0.0, it will be
                 redirected to the IP of the local host
              */
-			doConnect(InetAddress.getLocalHost(), port, timeout);
+			doConnect(MockInetAddress.getLocalHost(), port, timeout);
 		} else {
 			doConnect(address, port, timeout);
 		}
