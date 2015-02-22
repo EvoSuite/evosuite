@@ -189,14 +189,14 @@ public class MSecurityManager extends SecurityManager {
 	 * instance is automatically added as "privileged"
 	 */
 	public MSecurityManager() {
-		privilegedThreads = new CopyOnWriteArraySet<Thread>();
+		privilegedThreads = new CopyOnWriteArraySet<>();
 		privilegedThreads.add(Thread.currentThread());
 		defaultManager = System.getSecurityManager();
 		executingTestCase = false;
 		privilegedThreadToIgnore = null;
-		unrecognizedPermissions = new CopyOnWriteArraySet<Permission>();
+		unrecognizedPermissions = new CopyOnWriteArraySet<>();
 
-		filesToDelete = new CopyOnWriteArraySet<File>();
+		filesToDelete = new CopyOnWriteArraySet<>();
 	}
 
     /**
@@ -378,14 +378,18 @@ public class MSecurityManager extends SecurityManager {
 	 * @throws SecurityException
 	 *             if the thread calling this method is not privileged itself
 	 */
-	public void addPrivilegedThread(Thread t) throws SecurityException {
+	public synchronized void addPrivilegedThread(Thread t) throws SecurityException {
 		if (privilegedThreads.contains(Thread.currentThread())) {
 			logger.debug("Adding privileged thread: \"" + t.getName()+"\"" );
 			privilegedThreads.add(t);
 		} else {
             String current = Thread.currentThread().getName();
-			throw new SecurityException(
-					"Unprivileged thread \""+current+"\" cannot add a privileged thread: failed to add \""+t.getName()+"\"\n");
+            String msg = "Unprivileged thread \""+current+"\" cannot add a privileged thread: failed to add \""+t.getName()+"\"";
+            msg += "\nCurrent privileged threads are: ";
+            for(Thread p : privilegedThreads){
+                msg += "\n\""+p.getName()+"\"";
+            }
+			throw new SecurityException(msg);
 		}
 	}
 
