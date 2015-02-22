@@ -201,7 +201,7 @@ public class TimeController {
 			long timeoutInMs = getCurrentPhaseTimeout();
 			long timeSincePhaseStarted = System.currentTimeMillis() - currentPhaseStartTime;
 			long phaseLeft = timeoutInMs - timeSincePhaseStarted;
-			// logger.info("Time left for current phase "+state+": "+phaseLeft);
+			logger.debug("Time left for current phase " + state + ": " + phaseLeft);
 			if(ms > phaseLeft){
 				return false;
 			}
@@ -209,6 +209,23 @@ public class TimeController {
 
 		return true; 
 	}
+
+    /**
+     * Calculate the percentage of progress in which we currently are in the phase.
+     *
+     * @return a value in [0,1] if the current phase has a timeout, otherwise a negative value
+     */
+    public double getPhasePercentage(){
+        if(currentPhaseHasTimeout()){
+            long timeoutInMs = getCurrentPhaseTimeout();
+            long timeSincePhaseStarted = System.currentTimeMillis() - currentPhaseStartTime;
+            double ratio = (double) timeSincePhaseStarted / (double) timeoutInMs;
+            assert ratio >= 0; // but could become >1 due to timer
+            return Math.min(ratio,1);
+        } else {
+            return -1;
+        }
+    }
 
 	private long getCurrentPhaseTimeout() {		
 		return phaseTimeouts.get(state);
