@@ -1,6 +1,7 @@
 package org.evosuite.testcase.statements.reflection;
 
 import org.evosuite.runtime.PrivateAccess;
+import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.FieldReference;
 import org.evosuite.testcase.TestCase;
@@ -46,5 +47,10 @@ public class PrivateFieldStatement extends MethodStatement{
                         param // Object value
                 )
         );
+    }
+
+    @Override
+    public boolean mutate(TestCase test, TestFactory factory) {
+        return super.mutate(test,factory); //TODO
     }
 }

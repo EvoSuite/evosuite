@@ -57,11 +57,6 @@ public class TestCluster {
 
 	protected static final Logger logger = LoggerFactory.getLogger(TestCluster.class);
 
-	/**
-	 * This is the classloader that does the instrumentation - it needs to be
-	 * used by all test code
-	 */
-	// public static ClassLoader classLoader = new InstrumentingClassLoader();
 
 	/** Singleton instance */
 	private static TestCluster instance = null;
@@ -171,8 +166,6 @@ public class TestCluster {
 	}
 
 	public static void reset() {
-		// classLoader = new InstrumentingClassLoader();
-
 		analyzedClasses.clear();
 		testMethods.clear();
 		generators.clear();
@@ -1081,17 +1074,6 @@ public class TestCluster {
 		return false;
 	}
 
-	/**
-	 * Unload all classes; perform cleanup
-	 */
-	public void resetCluster() {
-		analyzedClasses.clear();
-		testMethods.clear();
-		generators.clear();
-		generatorCache.clear();
-		modifiers.clear();
-		CastClassManager.getInstance().clear();
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -1118,13 +1100,9 @@ public class TestCluster {
 		for (GenericClass clazz : modifiers.keySet()) {
 			result.append(" Modifiers for " + clazz.getSimpleName() + ": "
 			        + modifiers.get(clazz).size() + "\n");
-			//try {
-				for (GenericAccessibleObject<?> o : modifiers.get(clazz)) { //getCallsFor(clazz, true)) {
-					result.append(" " + clazz.getSimpleName() + " <- " + o + "\n");
-				}
-			//} catch (ConstructionFailedException e) {
-			//	result.append("ERROR");
-			//}
+			for (GenericAccessibleObject<?> o : modifiers.get(clazz)) { //getCallsFor(clazz, true)) {
+				result.append(" " + clazz.getSimpleName() + " <- " + o + "\n");
+			}
 		}
 		result.append("Test calls\n");
 		for (GenericAccessibleObject<?> testCall : testMethods) {
