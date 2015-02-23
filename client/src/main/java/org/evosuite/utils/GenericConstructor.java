@@ -282,4 +282,31 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 		oos.writeObject(org.objectweb.asm.Type.getConstructorDescriptor(constructor));
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((constructor == null) ? 0 : constructor.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GenericConstructor other = (GenericConstructor) obj;
+		if (constructor == null) {
+			if (other.constructor != null)
+				return false;
+		} else if (!constructor.equals(other.constructor))
+			return false;
+		return true;
+	}
+
+	
 }
