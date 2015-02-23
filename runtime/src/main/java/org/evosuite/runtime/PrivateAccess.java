@@ -131,4 +131,18 @@ public class PrivateAccess {
 
         return result;
     }
+
+    /*
+        TODO likely need one method per number of inputs
+     */
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName)
+            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+        return callMethod(klass,instance,methodName,new Object[0], new Class<?>[0]);
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName, Object input, Class<?> type)
+            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{input}, new Class<?>[]{type});
+    }
 }
