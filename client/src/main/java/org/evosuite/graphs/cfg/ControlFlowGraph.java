@@ -185,6 +185,15 @@ public abstract class ControlFlowGraph<V> extends
 
 		return diameter;
 	}
+	
+	public int getCyclomaticComplexity() {
+		// E = the number of edges of the graph.
+		// N = the number of nodes of the graph.
+		// M = E − N + 2
+		int E = this.edgeCount();
+		int N = this.vertexCount();
+		return E -N + 2;
+	}
 
 	/**
 	 * <p>computeDiameter</p>
