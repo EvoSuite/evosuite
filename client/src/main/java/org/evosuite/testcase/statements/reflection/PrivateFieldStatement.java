@@ -42,7 +42,8 @@ public class PrivateFieldStatement extends MethodStatement{
                 new GenericMethod(setVariable,PrivateAccess.class),
                 null, //it is static
                 Arrays.asList(  // setVariable(Class<T> klass, T instance, String fieldName, Object value)
-                        new ClassPrimitiveStatement(tc,klass).getReturnValue(),  // Class<T> klass
+                        new ConstantValue(tc,new GenericClass(Class.class),klass.getName()+".class"),  // Class<T> klass
+                        //new ClassPrimitiveStatement(tc,klass).getReturnValue(),  // Class<T> klass
                         callee, // T instance
                         new ConstantValue(tc,new GenericClass(String.class),fieldName),  // String fieldName
                         param // Object value
