@@ -2,6 +2,7 @@ package org.evosuite.testcase.statements.reflection;
 
 import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.statements.ClassPrimitiveStatement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.FieldReference;
 import org.evosuite.testcase.TestCase;
@@ -41,7 +42,7 @@ public class PrivateFieldStatement extends MethodStatement{
                 new GenericMethod(setVariable,PrivateAccess.class),
                 null, //it is static
                 Arrays.asList(  // setVariable(Class<T> klass, T instance, String fieldName, Object value)
-                        new FieldReference(tc,new GenericField(klass.getDeclaredField("class"),klass)),  // Class<T> klass
+                        new ClassPrimitiveStatement(tc,klass).getReturnValue(),  // Class<T> klass
                         callee, // T instance
                         new ConstantValue(tc,new GenericClass(String.class),fieldName),  // String fieldName
                         param // Object value
@@ -51,6 +52,8 @@ public class PrivateFieldStatement extends MethodStatement{
 
     @Override
     public boolean mutate(TestCase test, TestFactory factory) {
-        return super.mutate(test,factory); //TODO
+        // just for simplicity
+        return false;
+        //return super.mutate(test,factory); //tricky, as should do some restrictions
     }
 }

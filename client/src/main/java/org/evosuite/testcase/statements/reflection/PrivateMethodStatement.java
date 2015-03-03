@@ -3,6 +3,7 @@ package org.evosuite.testcase.statements.reflection;
 import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.statements.ClassPrimitiveStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.FieldReference;
@@ -11,20 +12,22 @@ import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Test case statement representing a reflection call to a private method of the SUT
+ *
  * Created by Andrea Arcuri on 22/02/15.
  */
 public class PrivateMethodStatement extends MethodStatement {
+
 
     public PrivateMethodStatement(TestCase tc, Class<?> klass , String methodName, VariableReference callee, List<VariableReference> params)
             throws NoSuchFieldException {
         super(
                 tc,
-                new GenericMethod(getPrivateAccessMethod(params.size()),PrivateAccess.class),
+                new GenericMethod(PrivateAccess.getCallMethod(params.size()),PrivateAccess.class),
                 null, //it is static
                 getReflectionParams(tc,klass,methodName,callee,params)
         );
@@ -35,25 +38,22 @@ public class PrivateMethodStatement extends MethodStatement {
             throws NoSuchFieldException{
 
         List<VariableReference> list = new ArrayList<>(3 + inputs.size()*2);
-        list.add(new FieldReference(tc, new GenericField(klass.getDeclaredField("class"), klass)));
+        list.add(new ClassPrimitiveStatement(tc,klass).getReturnValue());
         list.add(callee);
         list.add(new ConstantValue(tc, new GenericClass(String.class), methodName));
 
         for(VariableReference vr : inputs){
             list.add(vr);
-            list.add(new FieldReference(tc, new GenericField(vr.getVariableClass().getDeclaredField("class"), vr.getVariableClass())));
+            list.add(new ClassPrimitiveStatement(tc,vr.getVariableClass()).getReturnValue());
         }
 
         return list;
     }
 
-    private static Method getPrivateAccessMethod(int n){
-        return null; //TODO
-    }
-
-
     @Override
     public boolean mutate(TestCase test, TestFactory factory) {
-        return super.mutate(test,factory); //TODO
+        // just for simplicity
+        return false;
+        //return super.mutate(test,factory); //tricky, as should do some restrictions
     }
 }
