@@ -119,6 +119,9 @@ public class ConstantValue extends VariableReferenceImpl {
 	 */
 	@Override
 	public String getName() {
+        if(value!=null && value instanceof String && ((String)value).endsWith(".class")){
+            return value.toString();
+        }
 		return NumberFormatter.getNumberString(value);
 	}
 
