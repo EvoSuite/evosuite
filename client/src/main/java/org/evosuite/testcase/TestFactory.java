@@ -71,7 +71,7 @@ public class TestFactory {
 	 */
 	public void reset() {
 		currentRecursion.clear();
-        reflectionFactory = new ReflectionFactory();
+        reflectionFactory = null;
 	}
 
 	public static TestFactory getInstance() {
@@ -1442,6 +1442,9 @@ public class TestFactory {
 		currentRecursion.clear();
 		logger.debug("Inserting random call at position " + position);
 		try {
+            if(reflectionFactory==null){
+                reflectionFactory = new ReflectionFactory(Properties.getTargetClass());
+            }
 
             if(reflectionFactory.hasPrivateFieldsOrMethods() &&
                     TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT &&

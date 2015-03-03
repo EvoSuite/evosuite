@@ -5,6 +5,8 @@ import org.junit.internal.AssumptionViolatedException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class used to access private fields/methods by reflection.
@@ -144,5 +146,28 @@ public class PrivateAccess {
     public static <T> Object callMethod(Class<T> klass, T instance, String methodName, Object input, Class<?> type)
             throws IllegalArgumentException, AssumptionViolatedException, Throwable {
         return callMethod(klass,instance,methodName,new Object[]{input}, new Class<?>[]{type});
+    }
+
+
+    public static Method getCallMethod(int nParameters){
+        if(nParameters<0 || nParameters>10){ //TODO implement each of those methods
+            return null;
+        }
+
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Class.class);//klass
+        types.add(Object.class);//T
+        types.add(String.class);//methodName
+
+        for(int i=0; i<nParameters; i++){
+            types.add(Object.class);
+            types.add(Class.class);
+        }
+
+        try {
+            return PrivateAccess.class.getDeclaredMethod("callMethod",types.toArray(new Class[0]));
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
     }
 }
