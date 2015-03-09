@@ -96,7 +96,7 @@ public class MockSocket extends Socket implements OverrideMock {
 	public MockSocket(String host, int port, InetAddress localAddr,
 			int localPort) throws IOException {
 		this(host != null ? new MockInetSocketAddress(host, port) :
-			new MockInetSocketAddress(InetAddress.getByName(null), port),
+			new MockInetSocketAddress(MockInetAddress.getByName(null), port),
 			new MockInetSocketAddress(localAddr, localPort), true);
 	}
 
@@ -111,7 +111,7 @@ public class MockSocket extends Socket implements OverrideMock {
 
 	public MockSocket(String host, int port, boolean stream) throws IOException {
 		this(host != null ? new MockInetSocketAddress(host, port) :
-			new MockInetSocketAddress(InetAddress.getByName(null), port),
+			new MockInetSocketAddress(MockInetAddress.getByName(null), port),
 			(SocketAddress) null, stream);
 	}
 
@@ -295,7 +295,7 @@ public class MockSocket extends Socket implements OverrideMock {
 				in = MockInetAddress.anyLocalAddress();
 			}
 		} catch (SecurityException e) {
-			in = InetAddress.getLoopbackAddress();
+			in = MockInetAddress.getLoopbackAddress();
 		} catch (Exception e) {			
 			in = MockInetAddress.anyLocalAddress();
 		}
@@ -332,7 +332,7 @@ public class MockSocket extends Socket implements OverrideMock {
 	public SocketAddress getRemoteSocketAddress() {
 		if (!isConnected())
 			return null;
-		return new InetSocketAddress(getInetAddress(), getPort());
+		return new MockInetSocketAddress(getInetAddress(), getPort());
 	}
 
 
@@ -340,7 +340,7 @@ public class MockSocket extends Socket implements OverrideMock {
 	public SocketAddress getLocalSocketAddress() {
 		if (!isBound())
 			return null;
-		return new InetSocketAddress(getLocalAddress(), getLocalPort());
+		return new MockInetSocketAddress(getLocalAddress(), getLocalPort());
 	}
 
 
