@@ -117,9 +117,7 @@ public class RuntimeInstrumentation {
 
         ClassNode cn = new AnnotatedClassNode();
 
-        int readFlags = ClassReader.SKIP_FRAMES;
-        readFlags |= ClassReader.SKIP_DEBUG;
-
+        int readFlags = ClassReader.SKIP_FRAMES;       
         reader.accept(cn, readFlags);
         cv = new JSRInlinerClassVisitor(cv);
         try {
