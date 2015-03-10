@@ -1,7 +1,9 @@
 package org.evosuite.runtime.mock.java.net;
 
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -285,9 +287,14 @@ public class MockSocket extends Socket implements OverrideMock {
 	@Override
 	public InetAddress getLocalAddress() {
 
-		if (!isBound())
+		if(! MockFramework.isEnabled()){
+			return super.getLocalAddress();
+		}
+		
+		if (!isBound()){
 			return MockInetAddress.anyLocalAddress();
-
+		}
+		
 		InetAddress in = null;
 		try {
 			in = (InetAddress) getImpl().getOption(SocketOptions.SO_BINDADDR);
