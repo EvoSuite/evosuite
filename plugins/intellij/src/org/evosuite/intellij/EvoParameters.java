@@ -12,7 +12,8 @@ public class EvoParameters {
     public static final String TIME_EVOSUITE_PARAM = "time_evosuite_param";
     public static final String MEMORY_EVOSUITE_PARAM = "memory_evosuite_param";
     public static final String TARGET_FOLDER_EVOSUITE_PARAM = "target_folder_evosuite_param";
-
+    public static final String MVN_LOCATION = "mvn_location";
+    public static final String JAVA_HOME = "JAVA_HOME";
 
     private static final EvoParameters singleton = new EvoParameters();
 
@@ -20,7 +21,8 @@ public class EvoParameters {
     private int memory;
     private int time;
     private String folder;
-
+    private String mvnLocation;
+    private String javaHome;
 
     public static EvoParameters getInstance(){
         return singleton;
@@ -34,7 +36,11 @@ public class EvoParameters {
         cores = p.getOrInitInt(CORES_EVOSUITE_PARAM,1);
         memory = p.getOrInitInt(MEMORY_EVOSUITE_PARAM,500);
         time = p.getOrInitInt(TIME_EVOSUITE_PARAM,1);
-        folder = p.getOrInit(TARGET_FOLDER_EVOSUITE_PARAM,"src/evo");
+        folder = p.getOrInit(TARGET_FOLDER_EVOSUITE_PARAM, "src/evo");
+
+        String envJavaHome = System.getenv("JAVA_HOME");
+        javaHome = p.getOrInit(JAVA_HOME, envJavaHome!=null ? envJavaHome : "");
+        mvnLocation = p.getOrInit(MVN_LOCATION,"");
     }
 
     public void save(Project project){
@@ -43,6 +49,8 @@ public class EvoParameters {
         p.setValue(TIME_EVOSUITE_PARAM,""+time);
         p.setValue(MEMORY_EVOSUITE_PARAM,""+memory);
         p.setValue(TARGET_FOLDER_EVOSUITE_PARAM,folder);
+        p.setValue(JAVA_HOME,javaHome);
+        p.setValue(MVN_LOCATION,mvnLocation);
     }
 
     public int getCores() {
@@ -75,5 +83,21 @@ public class EvoParameters {
 
     public void setFolder(String folder) {
         this.folder = folder;
+    }
+
+    public String getMvnLocation() {
+        return mvnLocation;
+    }
+
+    public void setMvnLocation(String mvnLocation) {
+        this.mvnLocation = mvnLocation;
+    }
+
+    public String getJavaHome() {
+        return javaHome;
+    }
+
+    public void setJavaHome(String javaHome) {
+        this.javaHome = javaHome;
     }
 }
