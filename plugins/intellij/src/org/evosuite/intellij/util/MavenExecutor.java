@@ -126,18 +126,7 @@ public class MavenExecutor {
     private Process execute(AsyncGUINotifier notifier, EvoParameters params, File dir, List<String> classes) {
 
         List<String> list = new ArrayList<String>();
-        /*
-            TODO: should have an option to specify which maven installation
-            to use.
-         */
-        String OS = System.getProperty("os.name");
-        if(OS.toLowerCase().contains("windows")){
-            list.add("mvn.bat");
-        } else {
-            list.add("mvn");
-        }
-
-
+        list.add(params.getMvnLocation());
         list.add("compile");
         list.add("evosuite:generate");
         list.add("-Dcores=" + params.getCores());
@@ -172,7 +161,7 @@ public class MavenExecutor {
             builder.command(command);
 
             Map<String,String> map = builder.environment();
-            //map.put("JAVA_HOME", "TODO"); //TODO should have option to specify with Java version to use
+            map.put("JAVA_HOME", params.getJavaHome());
 
             Process p =  builder.start();
             notifier.attachProcess(p);
