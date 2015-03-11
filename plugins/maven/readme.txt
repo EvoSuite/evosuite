@@ -25,7 +25,11 @@ For example:
 </pluginManagement>
 
 
-where ${evosuiteVersion} specify the version to use. For example, "0.1.0".
+where ${evosuiteVersion} specify the version to use. For example, "0.1.0":
+
+<properties>
+	<evosuiteVersion>0.1.0</evosuiteVersion>
+</properties>
 
 Note: currently EvoSuite is not hosted yet on Maven Central. It is hosted at
 www.evosuite.org/m2. Such remote plugin repository needs to be added to the pom file, eg:
@@ -79,6 +83,17 @@ This is required for when EvoSuite tests are mixed with manually written existin
 		</configuration>
 	</plugin>
 
+
+EvoSuite generates JUnit files, so it requires JUnit on the classpath. EvoSuite does not add it
+automatically as a dependency, as to avoid conflicts with different versions. We recommend to use
+a recent version of JUnit, at least 4.11 or above.
+
+<dependency>
+	<groupId>junit</groupId>
+	<artifactId>junit</artifactId>
+	<version>4.11</version>
+	<scope>test</scope>
+</dependency>
 
 -----------------------------------------------------------
 
@@ -187,10 +202,7 @@ understand error messages. To be sure to use the right version, use the followin
             </plugin>
 
 
-Known issue on Mac: if you install a new version of Maven, and add its path to the $PATH variable in a ~/.profile file,
-then the plugin will not work when called from IntelliJ, unless it is started from command line.
-The issue is that Mac comes with its own installation of Maven (in /usr/share/maven), which might be an older version than 3.1.  
-You need to change the /usr/share/maven symbolic link. 
+
 
 
  
