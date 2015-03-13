@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.testdata.EvoSuiteAddress;
 import org.evosuite.runtime.testdata.EvoSuiteLocalAddress;
 import org.evosuite.runtime.vnet.NativeTcp;
@@ -21,7 +22,8 @@ public class ServerSocketTest {
 
 	@Before
 	public void init(){
-		VirtualNetwork.getInstance().reset();
+        MockFramework.enable();
+        VirtualNetwork.getInstance().reset();
 	}
 	
 	@Test
