@@ -154,17 +154,18 @@ public class Properties {
 	/** Constant <code>DYNAMIC_POOL=0.5</code> */
 	@Parameter(key = "dynamic_pool", group = "Test Creation", description = "Probability to use a primitive from the dynamic pool rather than a random value")
 	@DoubleValue(min = 0.0, max = 1.0)
-	public static double DYNAMIC_POOL = 0.5; //1d / 3d;
+	public static double DYNAMIC_POOL = 0.5;
 
 	/** Constant <code>DYNAMIC_SEEDING=false</code> */
 	@Parameter(key = "dynamic_seeding", group = "Test Creation", description = "Use numeric dynamic seeding")
-	public static boolean DYNAMIC_SEEDING = false;
+	public static boolean DYNAMIC_SEEDING = false;  //TODO why is it deactivated???
 
 	/** Constant <code>DYNAMIC_POOL_SIZE=50</code> */
 	@Parameter(key = "dynamic_pool_size", group = "Test Creation", description = "Number of dynamic constants to keep")
 	public static int DYNAMIC_POOL_SIZE = 50;
 
 	@Parameter(key = "p_special_type_call", group = "Test Creation", description = "Probability of using a non-standard call on a special case (collection/numeric)")
+    @DoubleValue(min = 0.0, max = 1.0)
 	public static double P_SPECIAL_TYPE_CALL = 0.05;
 
 	/** Constant <code>OBJECT_POOL=0.0</code> */
@@ -247,7 +248,7 @@ public class Properties {
 
 	/** Constant <code>USE_DEPRECATED=false</code> */
 	@Parameter(key = "use_deprecated", group = "Test Creation", description = "Include deprecated methods in tests")
-	public static boolean USE_DEPRECATED = false;
+	public static boolean USE_DEPRECATED = true; //should be on by default, otherwise unnecessary lower coverage: up to user if wants to skip them
 
 	/** Constant <code>INSERTION_SCORE_UUT=1</code> */
 	@Parameter(key = "insertion_score_uut", group = "Test Creation", description = "Score for selection of insertion of UUT calls")
@@ -268,15 +269,17 @@ public class Properties {
 	public static int INSERTION_SCORE_PARAMETER = 1;
 
 	@Parameter(key = "consider_main_methods", group = "Test Creation", description = "Generate unit tests for 'main(String[] args)' methods as well")
-	public static boolean CONSIDER_MAIN_METHODS = false; //TODO should be set to true once "context" will work
+	public static boolean CONSIDER_MAIN_METHODS = true; //should be on by default, otherwise unnecessary lower coverage: up to user if wants to skip them
 
 	@Parameter(key = "headless_mode", group = "Test Generation", description = "Run Java in AWT Headless mode")
 	public static boolean HEADLESS_MODE = true;
 
     @Parameter(key = "p_reflection_on_private", group = "Test Creation", description = "Probability [0,1] of using reflection to set private fields or call private methods")
+    @DoubleValue(min = 0.0, max = 1.0)
     public static double P_REFLECTION_ON_PRIVATE = 0.0; // TODO of by default. likely need something like 0.5
 
     @Parameter(key = "reflection_start_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which reflection fields/methods handling is activated")
+    @DoubleValue(min = 0.0, max = 1.0)
     public static double REFLECTION_START_PERCENT = 0.5;
 
 
@@ -340,6 +343,7 @@ public class Properties {
 	public static int DSE_CONSTRAINT_LENGTH = 100000;
 
 	@Parameter(key = "dse_constant_probability", group = "Search Algorithm", description = "Probability with which to use constants from the constraints when resetting variables during search")
+    @DoubleValue(min = 0.0, max = 1.0)
 	public static double DSE_CONSTANT_PROBABILITY = 0.5;
 
 	/** Constant <code>DSE_VARIABLE_RESETS=1</code> */
@@ -351,6 +355,7 @@ public class Properties {
 	public static int LOCAL_SEARCH_RATE = -1;
 
 	@Parameter(key = "local_search_probability", group = "Search Algorithm", description = "Apply local search at every X generation")
+    @DoubleValue(min = 0.0, max = 1.0)
 	public static double LOCAL_SEARCH_PROBABILITY = 1.0;
 
 	@Parameter(key = "local_search_selective", group = "Search Algorithm", description = "Apply local search only to individuals that changed fitness")
@@ -445,26 +450,32 @@ public class Properties {
 
 	/** Constant <code>P_TEST_INSERTION=0.1</code> */
 	@Parameter(key = "p_test_insertion", group = "Search Algorithm", description = "Initial probability of inserting a new test in a test suite")
+    @DoubleValue(min = 0.0, max = 1.0)
 	public static double P_TEST_INSERTION = 0.1;
 
 	/** Constant <code>P_STATEMENT_INSERTION=0.5</code> */
 	@Parameter(key = "p_statement_insertion", group = "Search Algorithm", description = "Initial probability of inserting a new statement in a test case")
+    @DoubleValue(min = 0.0, max = 1.0)
 	public static double P_STATEMENT_INSERTION = 0.5;
 
 	/** Constant <code>P_CHANGE_PARAMETER=0.1</code> */
 	@Parameter(key = "p_change_parameter", group = "Search Algorithm", description = "Initial probability of inserting a new statement in a test case")
+    @DoubleValue(min = 0.0, max = 1.0)
 	public static double P_CHANGE_PARAMETER = 0.1;
 
 	/** Constant <code>P_TEST_DELETE=1d / 3d</code> */
 	@Parameter(key = "p_test_delete", group = "Search Algorithm", description = "Probability of deleting statements during mutation")
+    @DoubleValue(min = 0.0, max = 1.0)
 	public static double P_TEST_DELETE = 1d / 3d;
 
 	/** Constant <code>P_TEST_CHANGE=1d / 3d</code> */
 	@Parameter(key = "p_test_change", group = "Search Algorithm", description = "Probability of changing statements during mutation")
+    @DoubleValue(min = 0.0, max = 1.0)
 	public static double P_TEST_CHANGE = 1d / 3d;
 
 	/** Constant <code>P_TEST_INSERT=1d / 3d</code> */
 	@Parameter(key = "p_test_insert", group = "Search Algorithm", description = "Probability of inserting new statements during mutation")
+    @DoubleValue(min = 0.0, max = 1.0)
 	public static double P_TEST_INSERT = 1d / 3d;
 
 	/** Constant <code>KINCOMPENSATION=1.0</code> */
@@ -1052,6 +1063,7 @@ public class Properties {
 
 	/** Constant <code>SEED_CLONE=0.2</code> */
 	@Parameter(key = "seed_clone", description = "Probability with which existing individuals are cloned")
+    @DoubleValue(min = 0.0, max = 1.0)
 	public static double SEED_CLONE = 0.2;
 
 	/** Constant <code>SEED_MUTATIONS=2</code> */
@@ -1106,11 +1118,6 @@ public class Properties {
 	/** Constant <code>ERROR_BRANCHES=false</code> */
 	@Parameter(key = "error_branches", description = "Instrument code with error checking branches")
 	public static boolean ERROR_BRANCHES = false;
-
-	/*
-	 * FIXME: these 2 following properties will not work if we use the EvoSuite shell script which call MasterProcess directly rather than
-	 * EvoSuite.java
-	 */
 
 	/** Constant <code>ENABLE_ASSERTS_FOR_EVOSUITE=false</code> */
 	@Parameter(key = "enable_asserts_for_evosuite", description = "When running EvoSuite clients, for debugging purposes check its assserts")
@@ -1213,11 +1220,21 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Runtime parameters
 
+    //FIXME: archive should be a separated variable: it has conceptually nothing to do with coverage criteria
 	public enum Criterion {
-		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, ARCHIVEBRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, ARCHIVEIBRANCH, REGRESSION, READABILITY, ONLYBRANCH, ONLYMUTATION, ARCHIVEMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ARCHIVELINE, OUTPUT
+		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, ARCHIVEBRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
+        MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, ARCHIVEIBRANCH, REGRESSION, READABILITY,
+        ONLYBRANCH, ONLYMUTATION, ARCHIVEMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ARCHIVELINE, OUTPUT
 	}
 
-	/** Cache target class */
+    /** Constant <code>CRITERION</code> */
+    @Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")
+    public static Criterion[] CRITERION = new Criterion[] {
+            //these are basic criteria that should be always on by default
+            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD  };
+
+
+    /** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
 
 	/** Constant <code>CP=""</code> */
@@ -1270,11 +1287,6 @@ public class Properties {
 	@Parameter(key = "exclude_ibranches_cut", group = "Runtime", description = "Exclude ibranches in the cut, to speed up ibranch as secondary criterion")
 	public static boolean EXCLUDE_IBRANCHES_CUT = false;
 
-	
-	
-	/** Constant <code>CRITERION</code> */
-	@Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")
-	public static Criterion[] CRITERION = new Criterion[] { Criterion.BRANCH };
 
 	public enum Strategy {
 		ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, REGRESSION
