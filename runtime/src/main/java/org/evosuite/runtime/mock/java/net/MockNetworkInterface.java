@@ -90,24 +90,24 @@ public class MockNetworkInterface implements StaticReplacementMock{
 		return VirtualNetwork.getInstance().getNetworkInterfaceState(ni.getName()).getParent();
 	}
 
-	public boolean isLoopback(NetworkInterface ni) throws SocketException {
+	public static boolean isLoopback(NetworkInterface ni) throws SocketException {
 		return VirtualNetwork.getInstance().getNetworkInterfaceState(ni.getName()).isLoopback(); 
 	}
 
-	public boolean isPointToPoint(NetworkInterface ni) throws SocketException {
+	public static boolean isPointToPoint(NetworkInterface ni) throws SocketException {
 		return VirtualNetwork.getInstance().getNetworkInterfaceState(ni.getName()).isPointToPoint();
 	}
 
 
-	public boolean supportsMulticast(NetworkInterface ni) throws SocketException {
+	public static boolean supportsMulticast(NetworkInterface ni) throws SocketException {
 		return VirtualNetwork.getInstance().getNetworkInterfaceState(ni.getName()).supportsMulticast();
 	}
 
-	public byte[] getHardwareAddress(NetworkInterface ni) throws SocketException {
+	public static byte[] getHardwareAddress(NetworkInterface ni) throws SocketException {
 		return VirtualNetwork.getInstance().getNetworkInterfaceState(ni.getName()).getMacAddr();
 	}
 
-	public int getMTU(NetworkInterface ni) throws SocketException {
+	public static int getMTU(NetworkInterface ni) throws SocketException {
 		return VirtualNetwork.getInstance().getNetworkInterfaceState(ni.getName()).getMTU();
 	}
 
