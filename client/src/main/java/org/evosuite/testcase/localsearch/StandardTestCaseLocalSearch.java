@@ -9,6 +9,7 @@ import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.utils.Randomness;
 
 public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 
@@ -32,6 +33,10 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 
 		//We count down to make the code work when lines are
 		//added during the search (see NullReferenceSearch).
+
+        boolean useDSE = Properties.LOCAL_SEARCH_DSE == DSEType.TEST &&
+                Randomness.nextDouble() < Properties.DSE_PROBABILITY;
+
 		for (int i = lastPosition; i >= 0; i--) {
 			if (LocalSearchBudget.getInstance().isFinished())
 				break;
@@ -49,7 +54,7 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 				continue;
 			}
 
-			if(Properties.LOCAL_SEARCH_DSE == DSEType.TEST)
+			if(useDSE)
 				targetPositions.add(i);
 			else {
 				StatementLocalSearch search = StatementLocalSearch.getLocalSearchFor(test.getStatement(i));

@@ -11,6 +11,7 @@ import org.evosuite.ga.operators.mutation.MutationHistory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestMutationHistoryEntry;
 import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.utils.Randomness;
 
 public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 
@@ -35,7 +36,11 @@ public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 		logger.info("Checking {} mutations", individual.getMutationHistory().size());
 		MutationHistory<TestMutationHistoryEntry> history = new MutationHistory<>();
 		history.set(individual.getMutationHistory());
-		for (TestMutationHistoryEntry mutation : individual.getMutationHistory()) {
+
+        boolean useDSE = Properties.LOCAL_SEARCH_DSE == DSEType.TEST &&
+                Randomness.nextDouble() < Properties.DSE_PROBABILITY;
+
+        for (TestMutationHistoryEntry mutation : individual.getMutationHistory()) {
 			if (LocalSearchBudget.getInstance().isFinished())
 				break;
 
@@ -55,9 +60,9 @@ public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 					continue;
 				}
 
-				if(Properties.LOCAL_SEARCH_DSE == DSEType.TEST)
-					targetPositions.add(mutation.getStatement().getPosition());
-				else {
+				if(useDSE) {
+                    targetPositions.add(mutation.getStatement().getPosition());
+                } else {
 					StatementLocalSearch search = StatementLocalSearch.getLocalSearchFor(mutation.getStatement());
 					if (search != null) {
 						search.doSearch(individual, mutation.getStatement().getPosition(), (LocalSearchObjective<TestChromosome>) objective);
