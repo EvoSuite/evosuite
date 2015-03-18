@@ -15,6 +15,7 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.localsearch.SelectiveTestCaseLocalSearch;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.Randomness;
 
 /**
  * Apply local search only to individuals that changed fitness
@@ -38,7 +39,7 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		// TestSuiteDSE will report attempt to LocalSearchBudget
 		return dse.applyDSE(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
 	}
-	
+
 	private List<TestChromosome> getCandidateTests(TestSuiteChromosome individual) {
 		List<TestChromosome> candidates = new ArrayList<TestChromosome>();
 		for(TestChromosome test : individual.getTestChromosomes()) {
@@ -46,12 +47,12 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			if(test.hasRelevantMutations()) {
 				TestCaseExpander expander = new TestCaseExpander();
 				TestChromosome clone = new TestChromosome();
-				
+
 				if(Properties.LOCAL_SEARCH_EXPAND_TESTS)
 					clone.setTestCase(expander.expandTestCase(test.getTestCase()));
 				else
 					clone.setTestCase(test.getTestCase().clone());
-				
+
 				for (TestMutationHistoryEntry mutation : test.getMutationHistory()) {
 					if(mutation.getMutationType() == TestMutationHistoryEntry.TestMutation.DELETION) {
 						clone.getMutationHistory().addMutationEntry(mutation.clone(clone.getTestCase()));
@@ -72,18 +73,18 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		}
 		return candidates;
 	}
-	
+
 	private boolean applyLocalSearchToTest(TestChromosome clone, TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
-		 individual.addTest(clone);
-		 TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective((TestSuiteFitnessFunction) objective.getFitnessFunction(), individual, individual.size() - 1);
-		 logger.info("Applying local search to test: " + clone.getTestCase().toCode());
-		 SelectiveTestCaseLocalSearch localSearch = new SelectiveTestCaseLocalSearch();
-		 boolean result = localSearch.doSearch(clone, testObjective);
-		 LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
-		 
-		 return result;
+		individual.addTest(clone);
+		TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective((TestSuiteFitnessFunction) objective.getFitnessFunction(), individual, individual.size() - 1);
+		logger.info("Applying local search to test: " + clone.getTestCase().toCode());
+		SelectiveTestCaseLocalSearch localSearch = new SelectiveTestCaseLocalSearch();
+		boolean result = localSearch.doSearch(clone, testObjective);
+		LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
+
+		return result;
 	}
-	
+
 	@Override
 	public boolean doSearch(TestSuiteChromosome individual,
 			LocalSearchObjective<TestSuiteChromosome> objective) {
@@ -92,9 +93,9 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			logger.info("Fitness has not changed, so not applying local search");
 			return false;
 		}
-		
+
 		logger.info("Fitness has changed, applying local search with fitness "
-		        + individual.getFitness());
+				+ individual.getFitness());
 
 		if(Properties.LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION)
 			ensureDoubleExecution(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
@@ -104,21 +105,24 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 
 		if(Properties.LOCAL_SEARCH_DSE == DSEType.SUITE) {
 			// Apply standard DSE on entire suite if it has relevant mutations
-			return applyDSE(individual, objective);
-		} else {
-			// Determine tests that were changed
-			List<TestChromosome> candidates = getCandidateTests(individual);
-			double fitnessBefore = individual.getFitness();
+            if(Randomness.nextDouble() < Properties.DSE_PROBABILITY) {
+                return applyDSE(individual, objective);
+            }
+		} 
 
-			// Apply local search on individual tests
-			for(TestChromosome clone : candidates) {
-				applyLocalSearchToTest(clone, individual, objective);
-			}
-			
-			// Return true if fitness has improved
-			return objective.getFitnessFunction().isMaximizationFunction() ? fitnessBefore < individual.getFitness()
-			        : fitnessBefore > individual.getFitness();
+		// Determine tests that were changed
+		List<TestChromosome> candidates = getCandidateTests(individual);
+		double fitnessBefore = individual.getFitness();
+
+		// Apply local search on individual tests
+		for(TestChromosome clone : candidates) {
+			applyLocalSearchToTest(clone, individual, objective);
 		}
+
+		// Return true if fitness has improved
+		return objective.getFitnessFunction().isMaximizationFunction() ? fitnessBefore < individual.getFitness()
+				: fitnessBefore > individual.getFitness();
+
 	}
 
 }

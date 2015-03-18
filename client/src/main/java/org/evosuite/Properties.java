@@ -322,6 +322,10 @@ public class Properties {
 
 	//----------- DSE, which is a special case of LS ---------------
 	
+	@Parameter(key = "dse_probability", group = "DSE", description = "Probability used to specify when to use DSE instead of regular LS when LS is applied")
+    @DoubleValue(min = 0.0, max = 1.0)
+	public static double DSE_PROBABILITY = 0.5;
+
 	/** Constant <code>DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS=0</code> */
 	@Parameter(key = "dse_constraint_solver_timeout_millis", group = "DSE", description = "Maximum number of solving time for Constraint solver in milliseconds")
 	public static long DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS = 1000;
@@ -347,9 +351,7 @@ public class Properties {
 	public static int DSE_VARIABLE_RESETS = 2;
 
 	public enum DSEType {
-		/** do not use DSE, only AVM*/
-		OFF, 
-		/** for each primitive apply DSE rather than AVM */
+		/** apply DSE per primitive */
 		STATEMENT, 
 		/** apply DSE with all primitives in a test */
 		TEST, 
@@ -358,7 +360,7 @@ public class Properties {
 	} 
 
 	@Parameter(key = "local_search_dse", group = "DSE", description = "Granularity of DSE application")
-	public static DSEType LOCAL_SEARCH_DSE = DSEType.OFF;
+	public static DSEType LOCAL_SEARCH_DSE = DSEType.TEST;
 
 	@Parameter(key = "dse_keep_all_tests", group = "DSE", description = "Keep tests even if they do not increase fitness")
 	public static boolean DSE_KEEP_ALL_TESTS = false;

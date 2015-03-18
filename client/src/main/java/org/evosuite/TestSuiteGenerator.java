@@ -1026,7 +1026,7 @@ public class TestSuiteGenerator {
 		        && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
 
-		if (Properties.LOCAL_SEARCH_DSE != DSEType.OFF) {
+		if (Properties.DSE_PROBABILITY > 0.0 && Properties.LOCAL_SEARCH_RATE > 0 && Properties.LOCAL_SEARCH_PROBABILITY > 0.0) {
 			DSEStats.printStatistics();
 		}
 
