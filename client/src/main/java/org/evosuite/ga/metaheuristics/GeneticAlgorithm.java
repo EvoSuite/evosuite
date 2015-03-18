@@ -244,8 +244,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 	private void updateProbability(double delta){
 		localSearchProbability = Math.pow(
-				1.0 + ((1.0 - localSearchProbability) / localSearchProbability)
-						* Math.exp(delta), -1.0);
+				1.0 + ((1.0 - localSearchProbability) / localSearchProbability) * Math.exp(delta), -1.0);
 	}
 	
 	
