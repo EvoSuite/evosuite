@@ -37,10 +37,12 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			expandTestSuite(individual);
 
 		double fitnessBefore = individual.getFitness();
-		if (Properties.LOCAL_SEARCH_DSE == DSEType.SUITE)
+		if (Properties.LOCAL_SEARCH_DSE == DSEType.SUITE &&
+				Randomness.nextDouble() < Properties.DSE_PROBABILITY){
 			doDSESearch(individual, objective);
-		else
+		} else {
 			doRegularSearch(individual, objective);
+		}
 
 		LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
 
