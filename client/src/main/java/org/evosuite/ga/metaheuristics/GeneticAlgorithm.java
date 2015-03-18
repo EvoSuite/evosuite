@@ -230,29 +230,25 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			if (individual.localSearch(localObjective))
 				improvement = true;
 		}
-
+		
 		if (improvement) {
 			DSEStats.reportNewIncrease();
-			localSearchProbability = Math.pow(
-					1.0 + ((1.0 - localSearchProbability) / localSearchProbability)
-							* Math.exp(-Properties.LOCAL_SEARCH_ADAPTATION_RATE), -1.0);
-			// localSearchProbability *=
-			// Properties.LOCAL_SEARCH_ADAPTATION_RATE;
-			// localSearchProbability = Math.min(localSearchProbability, 1.0);
+			updateProbability(-Properties.LOCAL_SEARCH_ADAPTATION_RATE);
 			logger.debug("Increasing probability of applying LS to " + localSearchProbability);
 		} else {
 			DSEStats.reportNewDecrease();
-			localSearchProbability = Math.pow(
-					1.0 + ((1.0 - localSearchProbability) / localSearchProbability)
-							* Math.exp(Properties.LOCAL_SEARCH_ADAPTATION_RATE), -1.0);
-			// localSearchProbability /=
-			// Properties.LOCAL_SEARCH_ADAPTATION_RATE;
-			// localSearchProbability = Math.max(localSearchProbability,
-			// Double.MIN_VALUE);
+			updateProbability(Properties.LOCAL_SEARCH_ADAPTATION_RATE);
 			logger.debug("Decreasing probability of applying LS to " + localSearchProbability);
 		}
 	}
 
+	private void updateProbability(double delta){
+		localSearchProbability = Math.pow(
+				1.0 + ((1.0 - localSearchProbability) / localSearchProbability)
+						* Math.exp(delta), -1.0);
+	}
+	
+	
 	/**
 	 * Apply dynamic symbolic execution
 	 */
