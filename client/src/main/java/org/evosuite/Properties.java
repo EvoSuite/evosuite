@@ -388,7 +388,7 @@ public class Properties {
 	@Parameter(key = "local_search_rate", group = "Local Search", description = "Apply local search at every X generation")
 	public static int LOCAL_SEARCH_RATE = -1;
 
-	@Parameter(key = "local_search_probability", group = "Local Search", description = "Apply local search at every X generation")
+	@Parameter(key = "local_search_probability", group = "Local Search", description = "Probability of applying local search at every X generation")
     @DoubleValue(min = 0.0, max = 1.0)
 	public static double LOCAL_SEARCH_PROBABILITY = 1.0;
 
@@ -407,7 +407,7 @@ public class Properties {
 	@Parameter(key = "local_search_restore_coverage", group = "Local Search", description = "Add tests that cover branches already covered in the past")
 	public static boolean LOCAL_SEARCH_RESTORE_COVERAGE = true;
 
-	@Parameter(key = "local_search_adaptation_rate", group = "Local Search", description = "Apply local search at every X generation")
+	@Parameter(key = "local_search_adaptation_rate", group = "Local Search", description = "Parameter used to adapt at runtime the probability of applying local search")
 	public static double LOCAL_SEARCH_ADAPTATION_RATE = 0.33;
 	
 	@Parameter(key = "local_search_budget", group = "Local Search", description = "Maximum budget usable for improving individuals per local search")
@@ -415,7 +415,7 @@ public class Properties {
 
 	public enum LocalSearchBudgetType {
 		STATEMENTS, TESTS, 
-		/** TODO what is its unit of time? */
+		/** Time expressed in seconds */
 		TIME, 
 		SUITES, FITNESS_EVALUATIONS
 	}
