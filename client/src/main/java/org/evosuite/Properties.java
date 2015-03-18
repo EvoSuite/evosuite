@@ -320,36 +320,74 @@ public class Properties {
 	@Parameter(key = "chop_max_length", group = "Search Algorithm", description = "Chop statements after exception if length has reached maximum")
 	public static boolean CHOP_MAX_LENGTH = true;
 
+	//----------- DSE ---------------
+	
 	/** Constant <code>DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS=0</code> */
-	@Parameter(key = "dse_constraint_solver_timeout_millis", group = "Search Algorithm", description = "Maximum number of solving time for Constraint solver in milliseconds")
+	@Parameter(key = "dse_constraint_solver_timeout_millis", group = "DSE", description = "Maximum number of solving time for Constraint solver in milliseconds")
 	public static long DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS = 1000;
 
 	/** Constant <code>DSE_RANK_BRANCH_CONDITIONS=false</code> */
-	@Parameter(key = "dse_rank_branch_conditions", group = "Search Algorithm", description = "Rank branch conditions")
+	@Parameter(key = "dse_rank_branch_conditions", group = "DSE", description = "Rank branch conditions")
 	public static boolean DSE_RANK_BRANCH_CONDITIONS = true;
 
 	/** Constant <code>DSE_NEGATE_ALL_CONDITIONS=false</code> */
-	@Parameter(key = "dse_negate_all_conditions", group = "Search Algorithm", description = "Negate all branch conditions in the path condition (covered or not)")
+	@Parameter(key = "dse_negate_all_conditions", group = "DSE", description = "Negate all branch conditions in the path condition (covered or not)")
 	public static boolean DSE_NEGATE_ALL_CONDITIONS = true;
 
-	//@Parameter(key = "dse_adaptive_probability", group = "Search Algorithm", description = "Apply DSE with a certain, adaptive, probability")
+	//@Parameter(key = "dse_adaptive_probability", group = "DSE", description = "Apply DSE with a certain, adaptive, probability")
 	//public static double DSE_ADAPTIVE_PROBABILITY = 0.0;
 
-	//@Parameter(key = "dse_adaptive_rate", group = "Search Algorithm", description = "If successful, increase DSE probability by factor...")
+	//@Parameter(key = "dse_adaptive_rate", group = "DSE", description = "If successful, increase DSE probability by factor...")
 	//public static double DSE_ADAPTIVE_RATE = 2;
 
 	/** Constant <code>DSE_CONSTRAINT_LENGTH=100000</code> */
-	@Parameter(key = "dse_constraint_length", group = "Search Algorithm", description = "Maximal length of the constraints in DSE")
+	@Parameter(key = "dse_constraint_length", group = "DSE", description = "Maximal length of the constraints in DSE")
 	public static int DSE_CONSTRAINT_LENGTH = 100000;
 
-	@Parameter(key = "dse_constant_probability", group = "Search Algorithm", description = "Probability with which to use constants from the constraints when resetting variables during search")
+	@Parameter(key = "dse_constant_probability", group = "DSE", description = "Probability with which to use constants from the constraints when resetting variables during search")
     @DoubleValue(min = 0.0, max = 1.0)
 	public static double DSE_CONSTANT_PROBABILITY = 0.5;
 
 	/** Constant <code>DSE_VARIABLE_RESETS=1</code> */
-	@Parameter(key = "dse_variable_resets", group = "Search Algorithm", description = "Times DSE resets the int and real variables with random values")
+	@Parameter(key = "dse_variable_resets", group = "DSE", description = "Times DSE resets the int and real variables with random values")
 	public static int DSE_VARIABLE_RESETS = 2;
 
+	public enum DSEType {
+		/** do not use DSE*/
+		OFF, 
+		/** TODO explain */
+		STATEMENT, 
+		/** TODO explain */
+		TEST, 
+		/** TODO explain */
+		SUITE;
+	}
+
+	@Parameter(key = "local_search_dse", group = "Search Algorithm", description = "Granularity of DSE application")
+	public static DSEType LOCAL_SEARCH_DSE = DSEType.OFF;
+
+	@Parameter(key = "dse_keep_all_tests", group = "DSE", description = "Keep tests even if they do not increase fitness")
+	public static boolean DSE_KEEP_ALL_TESTS = false;
+
+	public enum SolverType {
+		EVOSUITE_SOLVER, Z3_SOLVER, Z3_STR_SOLVER, CVC4_SOLVER;
+	}
+
+	@Parameter(key = "dse_solver", group = "DSE", description = "Specify which constraint solver to use. Note: external solver will need to be installed and cofigured separately")
+	public static SolverType DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
+
+	@Parameter(key = "z3_path", group = "DSE", description = "Indicates the path to the Z3 solver")
+	public static String Z3_PATH = null;
+
+	@Parameter(key = "z3_str_path", group = "DSE", description = "Indicates the path to the Z3-Str solver")
+	public static String Z3_STR_PATH = null;
+
+	@Parameter(key = "cvc4_path", group = "DSE", description = "Indicates the path to the CVC4 solver")
+	public static String CVC4_PATH = null;
+
+
+	// --------- LS ---------
+	
 	/** Constant <code>LOCAL_SEARCH_RATE=-1</code> */
 	@Parameter(key = "local_search_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
 	public static int LOCAL_SEARCH_RATE = -1;
@@ -373,35 +411,11 @@ public class Properties {
 	@Parameter(key = "local_search_restore_coverage", group = "Search Algorithm", description = "Add tests that cover branches already covered in the past")
 	public static boolean LOCAL_SEARCH_RESTORE_COVERAGE = true;
 
-	public enum DSEType {
-		OFF, STATEMENT, TEST, SUITE;
-	}
-
-	/** Constant <code>LOCAL_SEARCH_BUDGET_TYPE</code> */
-	@Parameter(key = "local_search_dse", group = "Search Algorithm", description = "Granularity of DSE application")
-	public static DSEType LOCAL_SEARCH_DSE = DSEType.OFF;
 
 	@Parameter(key = "local_search_adaptation_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
 	public static double LOCAL_SEARCH_ADAPTATION_RATE = 0.33;
 
-	@Parameter(key = "dse_keep_all_tests", group = "Search Algorithm", description = "Keep tests even if they do not increase fitness")
-	public static boolean DSE_KEEP_ALL_TESTS = false;
-
-	public enum SolverType {
-		EVOSUITE_SOLVER, Z3_SOLVER, Z3_STR_SOLVER, CVC4_SOLVER;
-	}
-
-	@Parameter(key = "z3_path", group = "Solver", description = "Indicates the path to the Z3 solver")
-	public static String Z3_PATH = null;
-
-	@Parameter(key = "z3_str_path", group = "Solver", description = "Indicates the path to the Z3-Str solver")
-	public static String Z3_STR_PATH = null;
-
-	@Parameter(key = "cvc4_path", group = "Solver", description = "Indicates the path to the CVC4 solver")
-	public static String CVC4_PATH = null;
-
-	public static SolverType DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
-
+	
 	/** Constant <code>LOCAL_SEARCH_BUDGET=100</code> */
 	@Parameter(key = "local_search_budget", group = "Search Algorithm", description = "Maximum attempts at improving individuals per local search")
 	public static long LOCAL_SEARCH_BUDGET = 100;
@@ -430,6 +444,8 @@ public class Properties {
 	@Parameter(key = "local_search_references", group = "Search Algorithm", description = "Perform local search on reference types")
 	public static boolean LOCAL_SEARCH_REFERENCES = true;
 
+	//--------------------------
+	
 	/** Constant <code>CROSSOVER_RATE=0.75</code> */
 	@Parameter(key = "crossover_rate", group = "Search Algorithm", description = "Probability of crossover")
 	@DoubleValue(min = 0.0, max = 1.0)
