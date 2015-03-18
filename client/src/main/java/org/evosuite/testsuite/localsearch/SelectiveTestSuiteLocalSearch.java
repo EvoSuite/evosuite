@@ -16,7 +16,11 @@ import org.evosuite.testcase.localsearch.AdaptiveTestCaseLocalSearch;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
-public class AdaptiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
+/**
+ * Apply local search only to individuals that changed fitness
+ * 
+ */
+public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 
 	private boolean applyDSE(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
 		boolean hasRelevantTests = false;
@@ -30,20 +34,9 @@ public class AdaptiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			return false;
 		logger.info("Applying DSE to test suite");
 
-		// DSEBudget.DSEStarted();
 		TestSuiteDSE dse = new TestSuiteDSE();
 		// TestSuiteDSE will report attempt to LocalSearchBudget
 		return dse.applyDSE(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
-//				
-//				if(success) {
-//					Properties.DSE_ADAPTIVE_PROBABILITY *= Properties.DSE_ADAPTIVE_RATE;
-//					Properties.DSE_ADAPTIVE_PROBABILITY = Math.min(Properties.DSE_ADAPTIVE_PROBABILITY, 1.0);
-//				} else {
-//					Properties.DSE_ADAPTIVE_PROBABILITY /= Properties.DSE_ADAPTIVE_RATE;
-//					Properties.DSE_ADAPTIVE_PROBABILITY = Math.max(Properties.DSE_ADAPTIVE_PROBABILITY, 0.0);
-//				}
-
-			//}
 	}
 	
 	private List<TestChromosome> getCandidateTests(TestSuiteChromosome individual) {
