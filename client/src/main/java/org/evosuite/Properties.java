@@ -320,7 +320,7 @@ public class Properties {
 	@Parameter(key = "chop_max_length", group = "Search Algorithm", description = "Chop statements after exception if length has reached maximum")
 	public static boolean CHOP_MAX_LENGTH = true;
 
-	//----------- DSE ---------------
+	//----------- DSE, which is a special case of LS ---------------
 	
 	/** Constant <code>DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS=0</code> */
 	@Parameter(key = "dse_constraint_solver_timeout_millis", group = "DSE", description = "Maximum number of solving time for Constraint solver in milliseconds")
@@ -333,12 +333,6 @@ public class Properties {
 	/** Constant <code>DSE_NEGATE_ALL_CONDITIONS=false</code> */
 	@Parameter(key = "dse_negate_all_conditions", group = "DSE", description = "Negate all branch conditions in the path condition (covered or not)")
 	public static boolean DSE_NEGATE_ALL_CONDITIONS = true;
-
-	//@Parameter(key = "dse_adaptive_probability", group = "DSE", description = "Apply DSE with a certain, adaptive, probability")
-	//public static double DSE_ADAPTIVE_PROBABILITY = 0.0;
-
-	//@Parameter(key = "dse_adaptive_rate", group = "DSE", description = "If successful, increase DSE probability by factor...")
-	//public static double DSE_ADAPTIVE_RATE = 2;
 
 	/** Constant <code>DSE_CONSTRAINT_LENGTH=100000</code> */
 	@Parameter(key = "dse_constraint_length", group = "DSE", description = "Maximal length of the constraints in DSE")
@@ -353,17 +347,17 @@ public class Properties {
 	public static int DSE_VARIABLE_RESETS = 2;
 
 	public enum DSEType {
-		/** do not use DSE*/
+		/** do not use DSE, only AVM*/
 		OFF, 
-		/** TODO explain */
+		/** for each primitive apply DSE rather than AVM */
 		STATEMENT, 
-		/** TODO explain */
+		/** apply DSE with all primitives in a test */
 		TEST, 
-		/** TODO explain */
+		/** DSE on whole suites */
 		SUITE;
-	}
+	} 
 
-	@Parameter(key = "local_search_dse", group = "Search Algorithm", description = "Granularity of DSE application")
+	@Parameter(key = "local_search_dse", group = "DSE", description = "Granularity of DSE application")
 	public static DSEType LOCAL_SEARCH_DSE = DSEType.OFF;
 
 	@Parameter(key = "dse_keep_all_tests", group = "DSE", description = "Keep tests even if they do not increase fitness")
@@ -389,59 +383,59 @@ public class Properties {
 	// --------- LS ---------
 	
 	/** Constant <code>LOCAL_SEARCH_RATE=-1</code> */
-	@Parameter(key = "local_search_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
+	@Parameter(key = "local_search_rate", group = "Local Search", description = "Apply local search at every X generation")
 	public static int LOCAL_SEARCH_RATE = -1;
 
-	@Parameter(key = "local_search_probability", group = "Search Algorithm", description = "Apply local search at every X generation")
+	@Parameter(key = "local_search_probability", group = "Local Search", description = "Apply local search at every X generation")
     @DoubleValue(min = 0.0, max = 1.0)
 	public static double LOCAL_SEARCH_PROBABILITY = 1.0;
 
-	@Parameter(key = "local_search_selective", group = "Search Algorithm", description = "Apply local search only to individuals that changed fitness")
+	@Parameter(key = "local_search_selective", group = "Local Search", description = "Apply local search only to individuals that changed fitness")
 	public static boolean LOCAL_SEARCH_SELECTIVE = false;
 
-	@Parameter(key = "local_search_selective_primitives", group = "Search Algorithm", description = "Only check primitives for selective LS")
-	public static boolean LOCAL_SEARCH_SELECTIVE_PRIMITIVES = false;
+	@Parameter(key = "local_search_selective_primitives", group = "Local Search", description = "Only check primitives for selective LS")
+	public static boolean LOCAL_SEARCH_SELECTIVE_PRIMITIVES = false; //TODO what is this? unclear
 
-	@Parameter(key = "local_search_expand_tests", group = "Search Algorithm", description = "Expand test cases before applying local search such that each primitive is used only once")
+	@Parameter(key = "local_search_expand_tests", group = "Local Search", description = "Expand test cases before applying local search such that each primitive is used only once")
 	public static boolean LOCAL_SEARCH_EXPAND_TESTS = true;
 
-	@Parameter(key = "local_search_ensure_double_execution", group = "Search Algorithm", description = "If a branch is only executed once by a test suite, duplicate that test")
+	@Parameter(key = "local_search_ensure_double_execution", group = "Local Search", description = "If a branch is only executed once by a test suite, duplicate that test")
 	public static boolean LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION = true;
 
-	@Parameter(key = "local_search_restore_coverage", group = "Search Algorithm", description = "Add tests that cover branches already covered in the past")
+	@Parameter(key = "local_search_restore_coverage", group = "Local Search", description = "Add tests that cover branches already covered in the past")
 	public static boolean LOCAL_SEARCH_RESTORE_COVERAGE = true;
 
-
-	@Parameter(key = "local_search_adaptation_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
+	@Parameter(key = "local_search_adaptation_rate", group = "Local Search", description = "Apply local search at every X generation")
 	public static double LOCAL_SEARCH_ADAPTATION_RATE = 0.33;
-
 	
-	/** Constant <code>LOCAL_SEARCH_BUDGET=100</code> */
-	@Parameter(key = "local_search_budget", group = "Search Algorithm", description = "Maximum attempts at improving individuals per local search")
+	@Parameter(key = "local_search_budget", group = "Local Search", description = "Maximum budget usable for improving individuals per local search")
 	public static long LOCAL_SEARCH_BUDGET = 100;
 
 	public enum LocalSearchBudgetType {
-		STATEMENTS, TESTS, TIME, SUITES, FITNESS_EVALUATIONS
+		STATEMENTS, TESTS, 
+		/** TODO what is its unit of time? */
+		TIME, 
+		SUITES, FITNESS_EVALUATIONS
 	}
 
 	/** Constant <code>LOCAL_SEARCH_BUDGET_TYPE</code> */
-	@Parameter(key = "local_search_budget_type", group = "Search Algorithm", description = "Interpretation of local_search_budget")
+	@Parameter(key = "local_search_budget_type", group = "Local Search", description = "Interpretation of local_search_budget")
 	public static LocalSearchBudgetType LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.STATEMENTS;
 
 	/** Constant <code>LOCAL_SEARCH_PROBES=10</code> */
-	@Parameter(key = "local_search_probes", group = "Search Algorithm", description = "How many mutations to apply to a string to check whether it improves coverage")
+	@Parameter(key = "local_search_probes", group = "Local Search", description = "How many mutations to apply to a string to check whether it improves coverage")
 	public static int LOCAL_SEARCH_PROBES = 10;
 
-	@Parameter(key = "local_search_primitives", group = "Search Algorithm", description = "Perform local search on primitive values")
+	@Parameter(key = "local_search_primitives", group = "Local Search", description = "Perform local search on primitive values")
 	public static boolean LOCAL_SEARCH_PRIMITIVES = true;
 
-	@Parameter(key = "local_search_strings", group = "Search Algorithm", description = "Perform local search on primitive values")
+	@Parameter(key = "local_search_strings", group = "Local Search", description = "Perform local search on primitive values")
 	public static boolean LOCAL_SEARCH_STRINGS = true;
 
-	@Parameter(key = "local_search_arrays", group = "Search Algorithm", description = "Perform local search on array statements")
+	@Parameter(key = "local_search_arrays", group = "Local Search", description = "Perform local search on array statements")
 	public static boolean LOCAL_SEARCH_ARRAYS = true;
 
-	@Parameter(key = "local_search_references", group = "Search Algorithm", description = "Perform local search on reference types")
+	@Parameter(key = "local_search_references", group = "Local Search", description = "Perform local search on reference types")
 	public static boolean LOCAL_SEARCH_REFERENCES = true;
 
 	//--------------------------

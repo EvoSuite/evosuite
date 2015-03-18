@@ -12,7 +12,7 @@ import org.evosuite.testcase.TestCaseExpander;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestMutationHistoryEntry;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testcase.localsearch.AdaptiveTestCaseLocalSearch;
+import org.evosuite.testcase.localsearch.SelectiveTestCaseLocalSearch;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -77,7 +77,7 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		 individual.addTest(clone);
 		 TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective((TestSuiteFitnessFunction) objective.getFitnessFunction(), individual, individual.size() - 1);
 		 logger.info("Applying local search to test: " + clone.getTestCase().toCode());
-		 AdaptiveTestCaseLocalSearch localSearch = new AdaptiveTestCaseLocalSearch();
+		 SelectiveTestCaseLocalSearch localSearch = new SelectiveTestCaseLocalSearch();
 		 boolean result = localSearch.doSearch(clone, testObjective);
 		 LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
 		 

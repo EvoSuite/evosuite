@@ -12,7 +12,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestMutationHistoryEntry;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 
-public class AdaptiveTestCaseLocalSearch extends TestCaseLocalSearch {
+public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 
 	@Override
 	public boolean doSearch(TestChromosome individual,
