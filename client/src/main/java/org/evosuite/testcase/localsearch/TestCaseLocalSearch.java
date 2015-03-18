@@ -40,7 +40,7 @@ public abstract class TestCaseLocalSearch implements LocalSearch<TestChromosome>
 
 	public static TestCaseLocalSearch getLocalSearch() {
 		if(Properties.LOCAL_SEARCH_SELECTIVE) {
-			return new AdaptiveTestCaseLocalSearch();
+			return new SelectiveTestCaseLocalSearch();
 		} else {
 			return new StandardTestCaseLocalSearch();
 		}
