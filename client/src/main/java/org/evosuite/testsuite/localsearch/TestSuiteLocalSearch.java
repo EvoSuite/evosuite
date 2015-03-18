@@ -28,7 +28,7 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 	
 	public static TestSuiteLocalSearch getLocalSearch() {
 		if(Properties.LOCAL_SEARCH_SELECTIVE)
-			return new AdaptiveTestSuiteLocalSearch();
+			return new SelectiveTestSuiteLocalSearch();
 		else
 			return new StandardTestSuiteLocalSearch();
 	}
