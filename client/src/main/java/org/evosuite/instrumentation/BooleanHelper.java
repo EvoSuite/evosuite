@@ -864,8 +864,7 @@ public class BooleanHelper {
 					differences += normalize(Math.abs(a.charAt(i) - b.charAt(i)));
 				}
 			}
-			LoggingUtils.getEvoLogger().info("Distance between " + a + " and " + b
-			                                         + " is: " + differences);
+			//LoggingUtils.getEvoLogger().info("Distance between " + a + " and " + b  + " is: " + differences);
 			return differences;
 		}
 	}
