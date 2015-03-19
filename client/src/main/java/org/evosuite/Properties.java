@@ -411,7 +411,7 @@ public class Properties {
 	public static double LOCAL_SEARCH_ADAPTATION_RATE = 0.33;
 	
 	@Parameter(key = "local_search_budget", group = "Local Search", description = "Maximum budget usable for improving individuals per local search")
-	public static long LOCAL_SEARCH_BUDGET = 100;
+	public static long LOCAL_SEARCH_BUDGET = 5;
 
 	public enum LocalSearchBudgetType {
 		STATEMENTS, TESTS, 
@@ -422,7 +422,7 @@ public class Properties {
 
 	/** Constant <code>LOCAL_SEARCH_BUDGET_TYPE</code> */
 	@Parameter(key = "local_search_budget_type", group = "Local Search", description = "Interpretation of local_search_budget")
-	public static LocalSearchBudgetType LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.STATEMENTS;
+	public static LocalSearchBudgetType LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TIME;
 
 	/** Constant <code>LOCAL_SEARCH_PROBES=10</code> */
 	@Parameter(key = "local_search_probes", group = "Local Search", description = "How many mutations to apply to a string to check whether it improves coverage")
