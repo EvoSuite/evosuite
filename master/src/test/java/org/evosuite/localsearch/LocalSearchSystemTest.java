@@ -1,4 +1,4 @@
-package org.evosuite.testcase;
+package org.evosuite.localsearch;
 
 import static org.junit.Assert.*;
 
@@ -15,6 +15,8 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.DefaultLocalSearchObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.localsearch.BranchCoverageMap;
 import org.evosuite.testcase.statements.numeric.FloatPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
@@ -36,7 +38,7 @@ import com.examples.with.different.packagename.localsearch.FloatLocalSearchExamp
 import com.examples.with.different.packagename.localsearch.IntegerLocalSearchExample;
 import com.examples.with.different.packagename.localsearch.StringLocalSearchExample;
 
-public class TestLocalSearch extends SystemTest {
+public class LocalSearchSystemTest extends SystemTest {
 
 	@Before
     public void init(){
