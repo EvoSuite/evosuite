@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -37,7 +38,7 @@ public enum TestsArchive implements Serializable {
 	
 	private TestSuiteChromosome bestChromo;
 	//necessary to avoid having a billion of redundant test cases
-	private final Set<Integer> coveredGoals;
+    private Map<FitnessFunction, Set<Integer>> coveredGoals = new HashMap<>();
 
     private Map<FitnessFunction, Integer> goalsCountMap = new HashMap<>();
 	private Map<FitnessFunction, Set<TestFitnessFunction>> goalMap = new HashMap<>();
@@ -47,7 +48,7 @@ public enum TestsArchive implements Serializable {
 
 	private TestsArchive() {
 		bestChromo = new TestSuiteChromosome();
-		coveredGoals = new HashSet<>();
+		coveredGoals = new HashMap<>();
 	}
 	
 	public void addGoalToCover(FitnessFunction ff, TestFitnessFunction goal) {
@@ -116,9 +117,12 @@ public enum TestsArchive implements Serializable {
     }
 
     public void putTest(FitnessFunction ff, TestFitnessFunction goal, TestCase test) {
-		if (!coveredGoals.contains(goal.hashCode())) {
+        if (!coveredGoals.containsKey(ff)) {
+            coveredGoals.put(ff,new HashSet<Integer>());
+        }
+		if (!coveredGoals.get(ff).contains(goal.hashCode())) {
 			logger.info("Adding covered goal to archive: "+goal);
-			coveredGoals.add(goal.hashCode());
+			coveredGoals.get(ff).add(goal.hashCode());
 			bestChromo.addTest(test);
 			testMap.put(goal, test);
 			updateMaps(ff, goal);
@@ -131,7 +135,9 @@ public enum TestsArchive implements Serializable {
 
     private void setCoverage(FitnessFunction ff, TestFitnessFunction goal) {
         String key = getGoalKey(goal);
-        int covered = coveredGoals.size();
+        int covered = 0;
+        if ( coveredGoals != null && coveredGoals .get(ff) != null)
+            covered = coveredGoals.get(ff).size();
         int total = 0;
         if ( goalsCountMap != null && goalsCountMap.containsKey(ff))
             total = goalsCountMap.get(ff);
@@ -171,8 +177,12 @@ public enum TestsArchive implements Serializable {
 	}
 	
 	@Override
-	public String toString() {		
-		return "Goals covered: "+coveredGoals.size()+", tests: "+bestChromo.size();
+	public String toString() {
+        int sum = 0;
+		for (FitnessFunction ff : coveredGoals.keySet()) {
+            sum += coveredGoals.get(ff).size();
+        }
+        return "Goals covered: " + sum + ", tests: " + bestChromo.size();
 	}
 	
 	public void reset() {
