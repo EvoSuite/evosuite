@@ -18,7 +18,8 @@
 		<module>runtime</module>
 		<module>plugins</module>
 		<module>dsc</module>
-	</modules>
+        <module>standalone_runtime</module>
+    </modules>
 
 	<prerequisites>
 	  <maven>3.1</maven>
@@ -311,6 +312,9 @@
       </extensions>
 
       <plugins>
+
+
+
         <!-- we need at least Maven 3.1 due to special features in EvoSuite Maven Plugin -->
         <plugin>
           <inherited>true</inherited>
