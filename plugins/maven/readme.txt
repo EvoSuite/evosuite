@@ -48,7 +48,7 @@ dependency in the pom.xml:
 
 <dependency>
 	<groupId>org.evosuite</groupId>
-	<artifactId>evosuite-runtime</artifactId>
+	<artifactId>evosuite-standalone-runtime</artifactId>
 	<version>${evosuiteVersion}</version>
 	<scope>test</scope>
 </dependency> 
