@@ -24,7 +24,7 @@
         </dependency>
         <dependency> <!--  FIXME this is temporary -->
             <groupId>org.evosuite</groupId>
-            <artifactId>evosuite-runtime</artifactId>
+            <artifactId>evosuite-standalone-runtime</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
@@ -135,6 +135,7 @@
                         <include>**/*IT.java</include>
                         <include>**/Test*.java</include>
                         <include>**/*Test.java</include>
+                        <include>**/*TestCase.java</include>
                     </includes>
                 </configuration>
                 <executions>
