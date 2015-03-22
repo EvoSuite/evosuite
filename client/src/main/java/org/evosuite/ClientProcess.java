@@ -119,7 +119,9 @@ public class ClientProcess {
 		 * later in the search. Note: this does not affect the generated test
 		 * cases when run from Eclipse (for example). 
 		 */
-		AgentLoader.loadAgent();
+
+        //FIXME: tmp disable to understand what the hack is happening on Jenkins
+		//AgentLoader.loadAgent();
 	}
 
 	private static void setupRuntimeProperties(){
