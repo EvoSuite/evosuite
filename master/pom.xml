@@ -110,6 +110,8 @@
 
             <!-- Force all tests in Master to be run as Integration Tests after the "package" Maven phase.
                  This is to avoid issues with Java Agent that requires a built jar -->
+            <!-- //FIXME: tmp disable to understand what the hack is happening on Jenkins
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -148,7 +150,8 @@
                     </execution>
                 </executions>
             </plugin>
-
+    -->
+            
             <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
