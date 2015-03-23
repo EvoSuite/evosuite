@@ -34,7 +34,6 @@ import java.util.Set;
 
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.Properties.DSEType;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TestFactory;
 import org.evosuite.Properties.TheReplacementFunction;
@@ -944,7 +943,6 @@ public class TestSuiteGenerator {
 		// progressMonitor.updateStatus(33);
 
 		// progressMonitor.updateStatus(66);
-
 		if (Properties.INLINE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
 			ConstantInliner inliner = new ConstantInliner();
@@ -989,14 +987,12 @@ public class TestSuiteGenerator {
 		int number_of_test_cases = 0;
         int totalLengthOfTestCases = 0;
         double coverage = 0.0;
-
         for (TestSuiteChromosome tsc : bestSuites) {
             number_of_test_cases += tsc.size();
             totalLengthOfTestCases += tsc.totalLengthOfTestCases();
             coverage += tsc.getCoverage();
         }
         coverage = coverage / ((double)bestSuites.size());
-
         if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
                 || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 		    //SearchStatistics.getInstance().mutationScore(coverage);
@@ -1073,6 +1069,8 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().info("  - Mutation testing (weak)");
 			break;
         case ARCHIVEMUTATION:
+            LoggingUtils.getEvoLogger().info("  - Only Mutation testing (weak) w/Archive");
+            break;
         case ONLYMUTATION:
             LoggingUtils.getEvoLogger().info("  - Only Mutation testing (weak)");
             break;
@@ -1117,6 +1115,9 @@ public class TestSuiteGenerator {
 		case OUTPUT:
 			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");
 			break;
+        case ARCHIVEBRANCH:
+            LoggingUtils.getEvoLogger().info("  - Branch Coverage w/Archive");
+            break;
 		default:
 			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
 		}
