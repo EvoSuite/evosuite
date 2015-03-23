@@ -145,7 +145,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	private void determineCoverageGoals() {
 		List<BranchCoverageTestFitness> goals = new BranchCoverageFactory().getCoverageGoals();
 		for (BranchCoverageTestFitness goal : goals) {
-			bestChromoBuilder.addGoalToCover(goal);
+			bestChromoBuilder.addGoalToCover(this, goal);
 			if (goal.getBranch() == null) {
 				branchlessMethodCoverageMap.put(goal.getClassName() + "."
 				                                        + goal.getMethod(), goal);
@@ -191,7 +191,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 					callCount.put(name, 1);
 					if (branchlessMethodCoverageMap.containsKey(name)) {
 						result.test.addCoveredGoal(branchlessMethodCoverageMap.get(name));
-						bestChromoBuilder.putTest(branchlessMethodCoverageMap.get(name), result.test);
+						bestChromoBuilder.putTest(this, branchlessMethodCoverageMap.get(name), result.test);
 						toRemoveRootBranches.add(name);
 						suite.isToBeUpdated(true);
 					}
@@ -232,7 +232,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				//TODO why? check this
 				if (branchlessMethodCoverageMap.containsKey(entry.getKey())) {
 					result.test.addCoveredGoal(branchlessMethodCoverageMap.get(entry.getKey()));
-					bestChromoBuilder.putTest(branchlessMethodCoverageMap.get(entry.getKey()), result.test);
+					bestChromoBuilder.putTest(this, branchlessMethodCoverageMap.get(entry.getKey()), result.test);
 					toRemoveRootBranches.add(entry.getKey());
 					suite.isToBeUpdated(true);
 				}
@@ -261,7 +261,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				}
 				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
 					result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
-					bestChromoBuilder.putTest(branchCoverageTrueMap.get(entry.getKey()), result.test);
+					bestChromoBuilder.putTest(this, branchCoverageTrueMap.get(entry.getKey()), result.test);
 					toRemoveBranchesT.add(entry.getKey());
 					suite.isToBeUpdated(true);
 				}
@@ -277,7 +277,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				}
 				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
 					result.test.addCoveredGoal(branchCoverageFalseMap.get(entry.getKey()));
-					bestChromoBuilder.putTest(branchCoverageFalseMap.get(entry.getKey()), result.test);
+					bestChromoBuilder.putTest(this, branchCoverageFalseMap.get(entry.getKey()), result.test);
 					toRemoveBranchesF.add(entry.getKey());
 					suite.isToBeUpdated(true);
 				}
@@ -436,7 +436,7 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		if (totalGoals > 0)
 			suite.setCoverage(this, (double) coverage / (double) totalGoals);
         else
-            suite.setCoverage(this, 0);
+            suite.setCoverage(this, 1);
 
 		suite.setNumOfCoveredGoals(this, coverage);
 		suite.setNumOfNotCoveredGoals(this, totalGoals-coverage);
