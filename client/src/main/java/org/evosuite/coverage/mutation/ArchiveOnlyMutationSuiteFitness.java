@@ -111,7 +111,7 @@ public class ArchiveOnlyMutationSuiteFitness extends MutationSuiteFitness {
 
 		// Second objective: touch all mutants?
 		fitness += MutationPool.getMutantCounter() - touchedMutants.size();
-		int covered = 0;
+		int covered = removedMutants.size();
 
 		for (Double distance : mutant_distance.values()) {
 			if (distance < 0) {
