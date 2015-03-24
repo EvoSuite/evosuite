@@ -131,4 +131,11 @@ public class ArchiveOnlyMutationSuiteFitness extends MutationSuiteFitness {
 		
 		return fitness;
 	}
+
+    public TestSuiteChromosome getBestStoredIndividual(){
+        // TODO: There's a design problem here because
+        //       other fitness functions use the same archive
+        return testArchive.getReducedChromosome();
+        //return testArchive.getBestChromosome();
+    }
 }
