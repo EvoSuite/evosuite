@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.setup.TestCluster;
-import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -134,14 +133,10 @@ public enum TestsArchive implements Serializable {
 	}
 
     private void setCoverage(FitnessFunction ff, TestFitnessFunction goal) {
-        String key = getGoalKey(goal);
-        int covered = 0;
-        if ( coveredGoals != null && coveredGoals .get(ff) != null)
-            covered = coveredGoals.get(ff).size();
-        int total = 0;
-        if ( goalsCountMap != null && goalsCountMap.containsKey(ff))
-            total = goalsCountMap.get(ff);
-        double coverage = total == 0 ? 1.0 : covered / total;
+        assert(goalsCountMap != null);
+        int covered = coveredGoals.get(ff).size();
+        int total = goalsCountMap.containsKey(ff) ? goalsCountMap.get(ff) : 0;
+        double coverage = total == 0 ? 1.0 : (double) covered / (double) total;
         bestChromo.setFitness(ff, 0.0);
         bestChromo.setCoverage(ff, coverage);
     }
