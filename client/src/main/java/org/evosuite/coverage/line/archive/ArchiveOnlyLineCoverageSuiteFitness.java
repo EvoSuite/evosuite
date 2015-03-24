@@ -129,7 +129,7 @@ public class ArchiveOnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunctio
 		List<ExecutionResult> results = runTestSuite(suite);
 		
 		Map<String, Integer> callCount = new HashMap<String, Integer>();
-		Set<Integer> covered_lines = new HashSet<Integer>();
+		Set<Integer> coveredLines = new HashSet<Integer>();
 
 		// Collect stats in the traces 
 		boolean hasTimeoutOrTestException = analyzeTraces(results, callCount);
@@ -137,24 +137,24 @@ public class ArchiveOnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunctio
 		for (ExecutionResult result : results) {
 			for(Integer line : result.getTrace().getCoveredLines()) {
 				if(!removedLines.contains(line))
-					covered_lines.add(line);
+					coveredLines.add(line);
 			}
 		}
 
-		int totalLines = lines.size();
-		int coveredLines = covered_lines.size();
+		int totalLines = lines.size() + removedLines.size();
+		int numCoveredLines = coveredLines.size() + removedLines.size();
 		
-		//logger.info("Covered " + coveredLines + " out of " + totalLines + " lines");
-		fitness += normalize(totalLines - coveredLines);
+		logger.debug("Covered " + numCoveredLines + " out of " + totalLines + " lines, "+removedLines.size() +" in archive");
+		fitness += normalize(totalLines - numCoveredLines);
 		
-		printStatusMessages(suite, coveredLines, fitness);
+		printStatusMessages(suite, numCoveredLines, fitness);
 
 		if (totalLines > 0)
-			suite.setCoverage(this, (double) coveredLines / (double) totalLines);
+			suite.setCoverage(this, (double) numCoveredLines / (double) totalLines);
         else
             suite.setCoverage(this, 1.0);
 
-		suite.setNumOfCoveredGoals(this, coveredLines);
+		suite.setNumOfCoveredGoals(this, numCoveredLines);
 		
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value " + totalLines);
@@ -164,10 +164,10 @@ public class ArchiveOnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunctio
 
 		updateIndividual(this, suite, fitness);
 
-		assert (coveredLines <= totalLines) : "Covered " + coveredLines + " vs total goals " + totalLines;
+		assert (numCoveredLines <= totalLines) : "Covered " + numCoveredLines + " vs total goals " + totalLines;
 		assert (fitness >= 0.0);
-		assert (fitness != 0.0 || coveredLines == totalLines) : "Fitness: " + fitness + ", "
-		        + "coverage: " + coveredLines + "/" + totalLines;
+		assert (fitness != 0.0 || numCoveredLines == totalLines) : "Fitness: " + fitness + ", "
+		        + "coverage: " + numCoveredLines + "/" + totalLines;
 		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
 		        + suite.getCoverage(this);
 
