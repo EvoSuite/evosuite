@@ -139,6 +139,7 @@ public enum TestsArchive implements Serializable {
         double coverage = total == 0 ? 1.0 : (double) covered / (double) total;
         bestChromo.setFitness(ff, 0.0);
         bestChromo.setCoverage(ff, coverage);
+        bestChromo.setNumOfCoveredGoals(ff, covered);
     }
 
     public void registerAllTests(Collection<TestChromosome> tests) {
@@ -162,6 +163,7 @@ public enum TestsArchive implements Serializable {
 		}
         for (FitnessFunction ff : bestChromo.getCoverages().keySet()) {
             suite.setCoverage(ff, bestChromo.getCoverage(ff));
+            suite.setNumOfCoveredGoals(ff, bestChromo.getNumOfCoveredGoals(ff));
         }
 		logger.info("Reduced test suite from archive: "+suite.size() +" from "+bestChromo.size());
 		return suite;

@@ -15,6 +15,7 @@ import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,5 +201,12 @@ public class ArchiveOnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunctio
 
 		}
 	}
+
+    public TestSuiteChromosome getBestStoredIndividual(){
+        // TODO: There's a design problem here because
+        //       other fitness functions use the same archive
+        return testArchive.getReducedChromosome();
+        //return testArchive.getBestChromosome();
+    }
 
 }

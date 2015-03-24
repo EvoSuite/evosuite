@@ -479,7 +479,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            a fitness function
 	 * @return the number of covered goals for {@code ff}
 	 */
-	public double getNumOfCoveredGoals(FitnessFunction<?> ff) {
+	public int getNumOfCoveredGoals(FitnessFunction<?> ff) {
 		return numsCoveredGoals.containsKey(ff) ? numsCoveredGoals.get(ff) : 0;
 	}
 	
@@ -490,7 +490,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            a fitness function
 	 * @return the number of covered goals for {@code ff}
 	 */
-	public double getNumOfNotCoveredGoals(FitnessFunction<?> ff) {
+	public int getNumOfNotCoveredGoals(FitnessFunction<?> ff) {
 		return numsNotCoveredGoals.containsKey(ff) ? numsCoveredGoals.get(ff) : 0;
 	}
 
