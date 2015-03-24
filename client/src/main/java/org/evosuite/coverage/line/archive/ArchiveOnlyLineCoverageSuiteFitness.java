@@ -53,7 +53,7 @@ public class ArchiveOnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunctio
 		List<LineCoverageTestFitness> goals = new LineCoverageFactory().getCoverageGoals();
 		for (LineCoverageTestFitness goal : goals) {
 			linesCoverageMap.put(goal.getLine(), goal);
-			testArchive.addGoalToCover(goal);
+			testArchive.addGoalToCover(this, goal);
 		}
 	}
 	
@@ -107,7 +107,7 @@ public class ArchiveOnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunctio
 					
 					result.test.addCoveredGoal(linesCoverageMap.get(line));
 					toRemoveLines.add(line);
-					testArchive.putTest(linesCoverageMap.get(line), result.test);
+					testArchive.putTest(this, linesCoverageMap.get(line), result.test);
 				}
 			}
 		}

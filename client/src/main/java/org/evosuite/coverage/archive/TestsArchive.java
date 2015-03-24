@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -36,29 +37,37 @@ public enum TestsArchive implements Serializable {
 	
 	private TestSuiteChromosome bestChromo;
 	//necessary to avoid having a billion of redundant test cases
-	private final Set<Integer> coveredGoals;
-	
-	private Map<String, Set<TestFitnessFunction>> goalMap = new HashMap<>();
+    private Map<FitnessFunction, Set<Integer>> coveredGoals = new HashMap<>();
 
+    private Map<FitnessFunction, Integer> goalsCountMap = new HashMap<>();
+	private Map<FitnessFunction, Set<TestFitnessFunction>> goalMap = new HashMap<>();
+    private Map<String, Set<TestFitnessFunction>> methodMap = new HashMap<>();
 	private Map<TestFitnessFunction, TestCase> testMap = new HashMap<>();
+
 
 	private TestsArchive() {
 		bestChromo = new TestSuiteChromosome();
-		coveredGoals = new HashSet<>();
+		coveredGoals = new HashMap<>();
 	}
 	
-	public void addGoalToCover(TestFitnessFunction goal) {
-		String key = goal.getTargetClass()+goal.getTargetMethod();
-		if(!goalMap.containsKey(key)) {
-			goalMap.put(key, new HashSet<TestFitnessFunction>());
+	public void addGoalToCover(FitnessFunction ff, TestFitnessFunction goal) {
+        String key = getGoalKey(goal);
+        if(!methodMap.containsKey(key)) {
+            methodMap.put(key,new HashSet<TestFitnessFunction>());
+        }
+		if(!goalMap.containsKey(ff)) {
+			goalMap.put(ff, new HashSet<TestFitnessFunction>());
+            goalsCountMap.put(ff, 0);
 		}
-		goalMap.get(key).add(goal);
+		goalMap.get(ff).add(goal);
+        methodMap.get(key).add(goal);
+        goalsCountMap.put(ff, goalsCountMap.get(ff) + 1);
 	}
 	
-	protected boolean isMethodFullyCovered(String className, String methodName) {
-		if(!goalMap.containsKey(className+methodName))
+	protected boolean isMethodFullyCovered(String methodKey) {
+		if(!methodMap.containsKey(methodKey))
 			return true;
-		return goalMap.get(className+methodName).isEmpty();
+		return methodMap.get(methodKey).isEmpty();
 	}	
 	
 	protected void removeTestCall(String className, String methodName) {
@@ -94,27 +103,45 @@ public enum TestsArchive implements Serializable {
 		}
 	}
 
-	private void updateGoalMap(TestFitnessFunction goal) {
-		String key = goal.getTargetClass()+goal.getTargetMethod();
-		if(!goalMap.containsKey(key))
+	private void updateMaps(FitnessFunction ff, TestFitnessFunction goal) {
+		String key = getGoalKey(goal);
+		if (! goalMap.containsKey(ff))
 			return;
-		goalMap.get(key).remove(goal);
+        goalMap.get(ff).remove(goal);
+		methodMap.get(key).remove(goal);
 	}
-	
-	public void putTest(TestFitnessFunction goal, TestCase test) {
-		if (!coveredGoals.contains(goal.hashCode())) {
+
+    private String getGoalKey(TestFitnessFunction goal) {
+        return goal.getTargetClass() + goal.getTargetMethod();
+    }
+
+    public void putTest(FitnessFunction ff, TestFitnessFunction goal, TestCase test) {
+        if (!coveredGoals.containsKey(ff)) {
+            coveredGoals.put(ff,new HashSet<Integer>());
+        }
+		if (!coveredGoals.get(ff).contains(goal.hashCode())) {
 			logger.info("Adding covered goal to archive: "+goal);
-			coveredGoals.add(goal.hashCode());
+			coveredGoals.get(ff).add(goal.hashCode());
 			bestChromo.addTest(test);
 			testMap.put(goal, test);
-			updateGoalMap(goal);
-			if(isMethodFullyCovered(goal.getTargetClass(), goal.getTargetMethod())) {
+			updateMaps(ff, goal);
+            setCoverage(ff, goal);
+            if (isMethodFullyCovered(getGoalKey(goal))) {
 				removeTestCall(goal.getTargetClass(), goal.getTargetMethod());
 			}
 		}
 	}
 
-	public void registerAllTests(Collection<TestChromosome> tests) {
+    private void setCoverage(FitnessFunction ff, TestFitnessFunction goal) {
+        assert(goalsCountMap != null);
+        int covered = coveredGoals.get(ff).size();
+        int total = goalsCountMap.containsKey(ff) ? goalsCountMap.get(ff) : 0;
+        double coverage = total == 0 ? 1.0 : (double) covered / (double) total;
+        bestChromo.setFitness(ff, 0.0);
+        bestChromo.setCoverage(ff, coverage);
+    }
+
+    public void registerAllTests(Collection<TestChromosome> tests) {
 		bestChromo.addTests(tests);
 	} 
 	
@@ -133,6 +160,9 @@ public enum TestsArchive implements Serializable {
 				suite.addTest(entry.getValue());
 			}
 		}
+        for (FitnessFunction ff : bestChromo.getCoverages().keySet()) {
+            suite.setCoverage(ff, bestChromo.getCoverage(ff));
+        }
 		logger.info("Reduced test suite from archive: "+suite.size() +" from "+bestChromo.size());
 		return suite;
 	}
@@ -142,14 +172,20 @@ public enum TestsArchive implements Serializable {
 	}
 	
 	@Override
-	public String toString() {		
-		return "Goals covered: "+coveredGoals.size()+", tests: "+bestChromo.size();
+	public String toString() {
+        int sum = 0;
+		for (FitnessFunction ff : coveredGoals.keySet()) {
+            sum += coveredGoals.get(ff).size();
+        }
+        return "Goals covered: " + sum + ", tests: " + bestChromo.size();
 	}
 	
 	public void reset() {
 		bestChromo = new TestSuiteChromosome();
 		coveredGoals.clear();
 		goalMap.clear();
+        goalsCountMap.clear();
+        methodMap.clear();
 		testMap.clear();
 	}
 

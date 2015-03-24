@@ -171,9 +171,9 @@ public class CoverageAnalysis {
 		case AMBIGUITY:
 			return RuntimeVariable.AmbiguityCoverage;
 		case STRONGMUTATION:
+		case ARCHIVEMUTATION:
 		case MUTATION:
 			return RuntimeVariable.MutationScore;
-		case ARCHIVEMUTATION:
 		case ONLYMUTATION:
 			return RuntimeVariable.OnlyMutationScore;
 		case WEAKMUTATION:

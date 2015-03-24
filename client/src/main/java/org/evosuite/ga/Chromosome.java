@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.utils.PublicCloneable;
 import org.slf4j.Logger;
@@ -393,7 +392,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 */
 	public double getCoverage() {
         double sum = 0;
-        for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+        for (FitnessFunction<?> fitnessFunction : coverages.keySet()) {
             sum += coverages.get(fitnessFunction);
         }
         double cov = coverages.isEmpty() ? 0.0 : sum / coverages.size();
@@ -403,7 +402,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	public int getNumOfCoveredGoals() {
         int sum = 0;
-        for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+        for (FitnessFunction<?> fitnessFunction : numsCoveredGoals.keySet()) {
             sum += numsCoveredGoals.get(fitnessFunction);
         }
         return sum;
@@ -411,7 +410,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	
 	public int getNumOfNotCoveredGoals() {
         int sum = 0;
-        for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+        for (FitnessFunction<?> fitnessFunction : numsNotCoveredGoals.keySet()) {
             sum += numsNotCoveredGoals.get(fitnessFunction);
         }
         return sum;

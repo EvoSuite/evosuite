@@ -172,7 +172,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 					}
 					if (Double.compare(distanceT, 0.0) == 0) {
 						result.test.addCoveredGoal(goalT);
-						bestChromoBuilder.putTest(goalT, result.test);
+						bestChromoBuilder.putTest(this, goalT, result.test);
 						toRemoveBranchesT.add(goalT);
 						suite.isToBeUpdated(true);
 					}
@@ -194,7 +194,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 					}
 					if (Double.compare(distanceF, 0.0) == 0) {
 						result.test.addCoveredGoal(goalF);
-						bestChromoBuilder.putTest(goalF, result.test);
+						bestChromoBuilder.putTest(this, goalF, result.test);
 						toRemoveBranchesF.add(goalF);
 						suite.isToBeUpdated(true);
 					}
@@ -213,7 +213,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 					}
 					if (count > 0) {
 						result.test.addCoveredGoal(goal);
-						bestChromoBuilder.putTest(goal, result.test);
+						bestChromoBuilder.putTest(this, goal, result.test);
 						toRemoveRootBranches.add(goal);
 						suite.isToBeUpdated(true);
 					}

@@ -818,7 +818,12 @@ public class Properties {
 	@Parameter(key = "minimize_second_pass", group = "Output", description = "Minimize test suite after generation")
 	public static boolean MINIMIZE_SECOND_PASS = true;
 
-	/** Constant <code>MINIMIZE_SKIP_COINCIDENTAL=true</code> */
+    /** Constant <code>MINIMIZE_SORT=true</code> */
+    @Parameter(key = "minimize_sort", group = "Output", description = "Sort goals before Minimization")
+    public static boolean MINIMIZE_SORT = true;
+
+
+    /** Constant <code>MINIMIZE_SKIP_COINCIDENTAL=true</code> */
 	@Parameter(key = "minimize_skip_coincidental", group = "Output", description = "Minimize test suite after generation")
 	public static boolean MINIMIZE_SKIP_COINCIDENTAL = true;
 
