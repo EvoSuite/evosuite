@@ -36,7 +36,7 @@ public class ArchiveOnlyMutationSuiteFitness extends MutationSuiteFitness {
 		super();
 		testArchive = archive;
 		for(MutationTestFitness goal : mutationGoals) {
-			testArchive.addGoalToCover(goal);
+			testArchive.addGoalToCover(this, goal);
 			mutantMap.put(goal.getMutation().getId(), goal);
 			mutants.add(goal.getMutation().getId());
 		}
@@ -96,7 +96,7 @@ public class ArchiveOnlyMutationSuiteFitness extends MutationSuiteFitness {
 					continue;
 				if(entry.getValue() == 0.0) {
 					toRemoveMutants.add(entry.getKey());
-					testArchive.putTest(mutantMap.get(entry.getKey()), result.test);
+					testArchive.putTest(this, mutantMap.get(entry.getKey()), result.test);
 					result.test.addCoveredGoal(mutantMap.get(entry.getKey()));
 				}
 				if (!mutant_distance.containsKey(entry.getKey()))
