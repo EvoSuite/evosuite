@@ -48,9 +48,11 @@ public class BooleanHelper {
 	public static final int K = Integer.MAX_VALUE - 2;
 	//public static final int K = 1000;
 
-	private static final int TRUE = K;
+    public static final int TRUE = K;
 
-	private static final int FALSE = -K;
+    public static final int FALSE = -K;
+
+    static Map<Integer, Integer> lastDistance = new HashMap<Integer, Integer>();
 
 	/**
 	 * <p>
@@ -74,127 +76,6 @@ public class BooleanHelper {
 		return obj1.equals(obj2) ? TRUE : FALSE;
 	}
 
-	/**
-	 * Helper function that is called instead of Collection.isEmpty
-	 * 
-	 * @param c
-	 *            a {@link java.util.Collection} object.
-	 * @return a int.
-	 */
-	public static int collectionIsEmpty(Collection<?> c) {
-		return c.isEmpty() ? TRUE : -c.size();
-	}
-
-	/**
-	 * Helper function that is called instead of Collection.contains
-	 * 
-	 * @param c
-	 *            a {@link java.util.Collection} object.
-	 * @param o1
-	 *            a {@link java.lang.Object} object.
-	 * @return a int.
-	 */
-	public static int collectionContains(Collection<?> c, Object o1) {
-		if(o1 != null) {
-			TestCluster.getInstance().addCastClassForContainer(o1.getClass());
-		}
-		int matching = 0;
-		double min_distance = Double.MAX_VALUE;
-		for (Object o2 : c) {
-			if (o2.equals(o1))
-				matching++;
-			else {
-				if (o2 != null && o1 != null) {
-					if (o2.getClass().equals(o1.getClass())) {
-						if (o1 instanceof Number) {
-							Number n1 = (Number) o1;
-							Number n2 = (Number) o2;
-							min_distance = Math.min(min_distance,
-							                        Math.abs(n1.doubleValue()
-							                                - n2.doubleValue()));
-						} else if (o2 instanceof String) {
-							ConstantPoolManager.getInstance().addDynamicConstant(o1);
-							min_distance = Math.min(min_distance,
-							                        editDistance((String) o1, (String) o2));
-						}
-					}
-				}
-			}
-		}
-		if (matching > 0)
-			return matching;
-		else {
-			if (min_distance == Double.MAX_VALUE)
-				return -c.size() - 1;
-			else {
-				return -1 * (int) Math.ceil(K * min_distance / (min_distance + 1.0));
-			}
-
-		}
-	}
-
-	/**
-	 * Helper function that is called instead of Collection.containsAll
-	 * 
-	 * @param c
-	 *            a {@link java.util.Collection} object.
-	 * @param c2
-	 *            a {@link java.util.Collection} object.
-	 * @return a int.
-	 */
-	public static int collectionContainsAll(Collection<?> c, Collection<?> c2) {
-		int mismatch = 0;
-		for (Object o : c2) {
-			if (!c.contains(o))
-				mismatch++;
-		}
-		return mismatch > 0 ? -mismatch : c2.size() +1;
-	}
-
-	/**
-	 * Helper function that is called instead of Map.containsKey
-	 * 
-	 * @param o1
-	 *            a {@link java.lang.Object} object.
-	 * @param m
-	 *            a {@link java.util.Map} object.
-	 * @return a int.
-	 */
-	public static int mapContainsKey(Map<?, ?> m, Object o1) {
-		if(o1 != null)
-			TestCluster.getInstance().addCastClassForContainer(o1.getClass());
-
-		return collectionContains(m.keySet(), o1);
-	}
-
-	/**
-	 * Helper function that is called instead of Map.containsValue
-	 * 
-	 * @param o1
-	 *            a {@link java.lang.Object} object.
-	 * @param m
-	 *            a {@link java.util.Map} object.
-	 * @return a int.
-	 */
-	public static int mapContainsValue(Map<?, ?> m, Object o1) {
-		if(o1 != null)
-			TestCluster.getInstance().addCastClassForContainer(o1.getClass());
-
-		return collectionContains(m.values(), o1);
-	}
-
-	/**
-	 * Helper function that is called instead of Map.isEmpty
-	 * 
-	 * @param m
-	 *            a {@link java.util.Map} object.
-	 * @return a int.
-	 */
-	public static int mapIsEmpty(Map<?, ?> m) {
-		return m.isEmpty() ? TRUE : -m.size();
-	}
-
-	static Map<Integer, Integer> lastDistance = new HashMap<Integer, Integer>();
 
 	/**
 	 * Keep track of the distance for this predicate
@@ -205,11 +86,6 @@ public class BooleanHelper {
 	 *            a int.
 	 */
 	public static void pushPredicate(int distance, int branchId) {
-		//		Branch branch = BranchPool.getBranch(branchId);
-		//		//if (branch.getClassName().equals(Properties.TARGET_CLASS))
-		//		System.out.println("Keeping branch id: " + branch.getClassName() + " - "
-		//		        + branchId + " - " + distance);
-		//System.out.println("Keeping branch id: " + branchId + " - " + distance);
 		lastDistance.put(branchId, Math.abs(distance));
 	}
 
@@ -226,30 +102,19 @@ public class BooleanHelper {
 	 */
 	public static int getDistance(int branchId, int approximationLevel, int value) {
 		int distance = Integer.MAX_VALUE;
-		//		if (approximationLevel < 0)
-		//			approximationLevel = 0;
 		if (branchId > 0) {
 			if (lastDistance.containsKey(branchId)) {
 				distance = lastDistance.get(branchId);
 			}
 		}
-		//		Branch branch = BranchPool.getBranch(branchId);
-		//if (branch.getClassName().equals(Properties.TARGET_CLASS))
-		//System.out.println("Getting branch id: " + approximationLevel + "/" + branchId
-		//        + "/" + value + " - " + distance);
-
-		//		System.out.println("Getting branch id: " + branch.getClassName() + " - "
-		//		        + branchId + " - " + distance);
 		double val = (1.0 + normalize(distance)) / Math.pow(2.0, approximationLevel);
-		//double val = (1.0 + Math.abs(distance)) / Math.pow(2.0, approximationLevel);
 
-		//		int d = (int) Math.ceil(K * val / (val + 1));
 		int d = (int) Math.ceil(K * val);
 		if (d == 0)
 			d = 1;
 		if (value <= 0)
 			d = -d;
-		//System.out.println("Value: " + distance + ", Distance: " + d);
+
 		return d;
 	}
 
@@ -259,7 +124,7 @@ public class BooleanHelper {
 	 * @param distance
 	 * @return
 	 */
-	private static double normalize(int distance) {
+	public static double normalize(int distance) {
 		//		double k = K;
 		double k = Properties.MAX_INT;
 		double d = distance;
@@ -607,409 +472,6 @@ public class BooleanHelper {
 		return d[n][m];
 	}
 
-	/**
-	 * <p>
-	 * editDistance
-	 * </p>
-	 * 
-	 * @param s
-	 *            a {@link java.lang.String} object.
-	 * @param t
-	 *            a {@link java.lang.String} object.
-	 * @return a int.
-	 */
-	public static int editDistance(String s, String t) {
-		//if (s == null || t == null) {
-		//	throw new IllegalArgumentException("Strings must not be null");
-		//}
-
-		/*
-		    The difference between this impl. and the previous is that, rather 
-		     than creating and retaining a matrix of size s.length()+1 by t.length()+1, 
-		     we maintain two single-dimensional arrays of length s.length()+1.  The first, d,
-		     is the 'current working' distance array that maintains the newest distance cost
-		     counts as we iterate through the characters of String s.  Each time we increment
-		     the index of String t we are comparing, d is copied to p, the second int[].  Doing so
-		     allows us to retain the previous cost counts as required by the algorithm (taking 
-		     the minimum of the cost count to the left, up one, and diagonally up and to the left
-		     of the current cost count being calculated).  (Note that the arrays aren't really 
-		     copied anymore, just switched...this is clearly much better than cloning an array 
-		     or doing a System.arraycopy() each time  through the outer loop.)
-
-		     Effectively, the difference between the two implementations is this one does not 
-		     cause an out of memory condition when calculating the LD over two very large strings.  		
-		 */
-
-		int n = s.length(); // length of s
-		int m = t.length(); // length of t
-
-		if (n == 0) {
-			return m;
-		} else if (m == 0) {
-			return n;
-		}
-
-		int p[] = new int[n + 1]; //'previous' cost array, horizontally
-		int d[] = new int[n + 1]; // cost array, horizontally
-		int _d[]; //placeholder to assist in swapping p and d
-
-		// indexes into strings s and t
-		int i; // iterates through s
-		int j; // iterates through t
-
-		char t_j; // jth character of t
-
-		int cost; // cost
-
-		for (i = 0; i <= n; i++) {
-			p[i] = i;
-		}
-
-		for (j = 1; j <= m; j++) {
-			t_j = t.charAt(j - 1);
-			d[0] = j;
-
-			for (i = 1; i <= n; i++) {
-				cost = s.charAt(i - 1) == t_j ? 0 : 1;
-				// minimum of cell to the left+1, to the top+1, diagonally left and up +cost				
-				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1] + cost);
-			}
-
-			// copy current distance counts to 'previous row' distance counts
-			_d = p;
-			p = d;
-			d = _d;
-		}
-
-		// our last action in the above loop was to switch d and p, so p now 
-		// actually has the most recent cost counts
-		return p[n];
-	}
-
-	/*
-	 * Return a positive number if the 2 strings are equal, or a <=0 value representing
-	 * how different they are
-	 */
-	/**
-	 * <p>
-	 * StringEquals
-	 * </p>
-	 * 
-	 * @param first
-	 *            a {@link java.lang.String} object.
-	 * @param second
-	 *            a {@link java.lang.Object} object.
-	 * @return a int.
-	 */
-	public static int StringEquals(String first, Object second) {
-		if (first == null) {
-			throw new NullPointerException(
-			        "StringEquals is not supposed to work on a null caller");
-		}
-		// Comparison with null is always false
-		if (second == null) {
-			return -K;
-		}
-
-		if (first.equals(second)) {
-			return K; // Identical
-		} else {
-			ConstantPoolManager.getInstance().addDynamicConstant(first);
-			ConstantPoolManager.getInstance().addDynamicConstant(second);
-			return -getDistanceBasedOnLeftAlignment(first, second.toString());
-		}
-	}
-
-	public static double StringEqualsCharacterDistance(String first, Object second) {
-		if (first == null) {
-			throw new IllegalArgumentException(
-			        "StringEquals is not supposed to work on a null caller");
-		}
-		// Comparison with null is always false
-		if (second == null) {
-			return -K;
-		}
-
-		if (first.equals(second)) {
-			return K; // Identical
-		} else {
-			//System.out.println("Edit distance between " + first + " and " + second
-			//       + " is " + -editDistance(first, second.toString()) + " / "
-			//      + getLevenshteinDistance(first, (String) second));
-			//return -editDistance(first, second.toString());
-			//return -getLevenshteinDistance(first, (String) second);
-			return -getDistanceBasedOnLeftAlignmentCharacterDistance(first,
-			                                                         second.toString());
-		}
-	}
-
-	public static int StringMatches(String str, String regex) {
-		int distance = RegexDistance.getDistance(str, regex);
-
-		if (Properties.DYNAMIC_POOL > 0.0) {
-			if (distance > 0) {
-				String instance = RegexDistance.getRegexInstance(regex);
-				ConstantPoolManager.getInstance().addDynamicConstant(instance);
-			} else {
-				String instance = RegexDistance.getNonMatchingRegexInstance(regex);
-				ConstantPoolManager.getInstance().addDynamicConstant(instance);
-			}
-		}
-
-		if (distance > 0)
-			return -distance;
-		else
-			return K;
-	}
-
-	public static int StringMatchRegex(String regex, CharSequence input) {
-		int distance = RegexDistance.getDistance(input.toString(), regex);
-
-		if (Properties.DYNAMIC_POOL > 0.0) {
-			if (distance > 0) {
-				String instance = RegexDistance.getRegexInstance(regex);
-				ConstantPoolManager.getInstance().addDynamicConstant(instance);
-			} else {
-				String instance = RegexDistance.getNonMatchingRegexInstance(regex);
-				ConstantPoolManager.getInstance().addDynamicConstant(instance);
-			}
-		}
-
-		if (distance > 0)
-			return -distance;
-		else
-			return K;
-	}
-
-	public static int StringMatchRegex(Matcher matcher) {
-		Pattern pattern = matcher.pattern();
-		String regex = pattern.pattern();
-		CharSequence input;
-		try {
-			Field textField = Matcher.class.getDeclaredField("text");
-			textField.setAccessible(true);
-			input = (CharSequence) textField.get(matcher);
-			int distance = RegexDistance.getDistance(input.toString(), regex);
-
-			if (Properties.DYNAMIC_POOL > 0.0) {
-				if (distance > 0) {
-					String instance = RegexDistance.getRegexInstance(regex);
-					ConstantPoolManager.getInstance().addDynamicConstant(instance);
-				} else {
-					String instance = RegexDistance.getNonMatchingRegexInstance(regex);
-					ConstantPoolManager.getInstance().addDynamicConstant(instance);
-				}
-			}
-
-			if (distance > 0)
-				return -distance;
-			else
-				return K;
-		} catch (Throwable t) {
-			// TODO Auto-generated catch block
-			t.printStackTrace();
-			return matcher.matches() ? 1 : -1;
-		}
-	}
-
-	/**
-	 * <p>
-	 * getDistanceBasedOnLeftAlignment
-	 * </p>
-	 * 
-	 * @param a
-	 *            a {@link java.lang.String} object.
-	 * @param b
-	 *            a {@link java.lang.String} object.
-	 * @return a int.
-	 */
-	protected static int getDistanceBasedOnLeftAlignment(String a, String b) {
-		int differences = 0;
-		int min = Math.min(a.length(), b.length());
-		int max = Math.max(a.length(), b.length());
-		differences += (max - min);
-		for (int i = 0; i < min; i++) {
-			/*
-			 * Note: instead of just checking for mismatches, we could use something more sophisticated.
-			 * Eg, "a" is closer to "e" than "!". But maybe, considering the type of local search
-			 * we do, we don't need to do it
-			 */
-			if (a.charAt(i) != b.charAt(i)) {
-				differences++;
-			}
-		}
-		return differences;
-
-	}
-
-	public static double getDistanceBasedOnLeftAlignmentCharacterDistance(String a,
-	        String b) {
-		if (a == b) {
-			return K;
-		} else if (a == null && b != null) {
-			return b.length() + 1; // +1 is important to handle the empty string "" 
-		} else if (a != null && b == null) {
-			return a.length() + 1;
-		} else {
-			double differences = 0.0;
-			int min = Math.min(a.length(), b.length());
-			int max = Math.max(a.length(), b.length());
-			differences += (max - min);
-			for (int i = 0; i < min; i++) {
-				/*
-				 * Note: instead of just checking for mismatches, we could use something more sophisticated.
-				 * Eg, "a" is closer to "e" than "!". But maybe, considering the type of local search
-				 * we do, we don't need to do it
-				 */
-				if (a.charAt(i) != b.charAt(i)) {
-					differences += normalize(Math.abs(a.charAt(i) - b.charAt(i)));
-				}
-			}
-			//LoggingUtils.getEvoLogger().info("Distance between " + a + " and " + b  + " is: " + differences);
-			return differences;
-		}
-	}
-
-	/**
-	 * <p>
-	 * StringEqualsIgnoreCase
-	 * </p>
-	 * 
-	 * @param first
-	 *            a {@link java.lang.String} object.
-	 * @param second
-	 *            a {@link java.lang.String} object.
-	 * @return a int.
-	 */
-	public static int StringEqualsIgnoreCase(String first, String second) {
-		if (first == null) {
-			throw new NullPointerException(
-			        "StringEquals is not supposed to work on a null caller");
-		}
-		// Comparison with null is always false
-		if (second == null) {
-			return -K;
-		}
-		return StringEquals(first.toLowerCase(), second.toLowerCase());
-	}
-
-	/**
-	 * <p>
-	 * StringStartsWith
-	 * </p>
-	 * 
-	 * @param value
-	 *            a {@link java.lang.String} object.
-	 * @param prefix
-	 *            a {@link java.lang.String} object.
-	 * @param start
-	 *            a int.
-	 * @return a int.
-	 */
-	public static int StringStartsWith(String value, String prefix, int start) {
-		int len = Math.min(prefix.length(), value.length());
-		//System.out.println("StartsWith: " + start + ": " + value + " / " + prefix + ": "
-		//        + value.substring(start, start + len) + " / " + prefix + " = "
-		//        + StringEquals(value.substring(start, start + len), prefix));
-		ConstantPoolManager.getInstance().addDynamicConstant(prefix + value);
-		return StringEquals(value.substring(start, start + len), prefix);
-	}
-
-	/**
-	 * <p>
-	 * StringEndsWith
-	 * </p>
-	 * 
-	 * @param value
-	 *            a {@link java.lang.String} object.
-	 * @param suffix
-	 *            a {@link java.lang.String} object.
-	 * @return a int.
-	 */
-	public static int StringEndsWith(String value, String suffix) {
-		int len = Math.min(suffix.length(), value.length());
-		String val1 = value.substring(value.length() - len);
-		ConstantPoolManager.getInstance().addDynamicConstant(value + suffix);
-		return StringEquals(val1, suffix);
-	}
-
-	/**
-	 * <p>
-	 * StringIsEmpty
-	 * </p>
-	 * 
-	 * @param value
-	 *            a {@link java.lang.String} object.
-	 * @return a int.
-	 */
-	public static int StringIsEmpty(String value) {
-		int len = value.length();
-		if (len == 0) {
-			return K;
-		} else {
-			return -len;
-		}
-	}
-
-	/**
-	 * <p>
-	 * StringRegionMatches
-	 * </p>
-	 * 
-	 * @param value
-	 *            a {@link java.lang.String} object.
-	 * @param thisStart
-	 *            a int.
-	 * @param string
-	 *            a {@link java.lang.String} object.
-	 * @param start
-	 *            a int.
-	 * @param length
-	 *            a int.
-	 * @param ignoreCase
-	 *            a boolean.
-	 * @return a int.
-	 */
-	public static int StringRegionMatches(String value, boolean ignoreCase,
-	        int thisStart, String string, int start, int length) {
-		if (value == null || string == null)
-			throw new NullPointerException();
-
-		if (start < 0 || string.length() - start < length) {
-			return -K;
-		}
-
-		if (thisStart < 0 || value.length() - thisStart < length) {
-			return -K;
-		}
-		if (length <= 0) {
-			return K;
-		}
-
-		String s1 = value;
-		String s2 = string;
-		if (ignoreCase) {
-			s1 = s1.toLowerCase();
-			s2 = s2.toLowerCase();
-		}
-		if (Properties.DYNAMIC_POOL > 0.0) {
-			String sub1 = s1.substring(thisStart, length + thisStart);
-			String sub2 = s2.substring(start, length + start);
-			String sn1 = s1.substring(0, thisStart) + sub2
-			        + s1.substring(thisStart + length);
-			String sn2 = s2.substring(0, start) + sub1 + s2.substring(start + length);
-			ConstantPoolManager.getInstance().addDynamicConstant(sn1);
-			ConstantPoolManager.getInstance().addDynamicConstant(sn2);
-		}
-
-		return StringEquals(s1.substring(thisStart, length + thisStart),
-		                    s2.substring(start, length + start));
-	}
-
-	public static int StringRegionMatches(String value, int thisStart, String string,
-	        int start, int length) {
-		return StringRegionMatches(value, false, thisStart, string, start, length);
-	}
 
 	/**
 	 * Replacement function for the Java instanceof instruction, which returns a

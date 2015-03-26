@@ -100,11 +100,11 @@ public class ContainerTransformation {
 					if (methodNode.name.equals("isEmpty")) {
 						
 						logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name 
-								+ " -> " +  Type.getInternalName(BooleanHelper.class) + "." + "collectionIsEmpty");
+								+ " -> " +  Type.getInternalName(ContainerHelper.class) + "." + "collectionIsEmpty");
 						
 						MethodInsnNode n = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(ContainerHelper.class),
 						        "collectionIsEmpty",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] { Type.getType(Collection.class) }), false);
@@ -118,11 +118,11 @@ public class ContainerTransformation {
 					} else if (methodNode.name.equals("contains")) {
 
 						logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name 
-								+ " -> " +  Type.getInternalName(BooleanHelper.class) + "." + "collectionContains");
+								+ " -> " +  Type.getInternalName(ContainerHelper.class) + "." + "collectionContains");
 
 						MethodInsnNode n = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(ContainerHelper.class),
 						        "collectionContains",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -137,11 +137,11 @@ public class ContainerTransformation {
 					} else if (methodNode.name.equals("containsAll")) {
 						
 						logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name 
-								+ " -> " +  Type.getInternalName(BooleanHelper.class) + "." + "collectionContainsAll");
+								+ " -> " +  Type.getInternalName(ContainerHelper.class) + "." + "collectionContainsAll");
 						
 						MethodInsnNode n = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(ContainerHelper.class),
 						        "collectionContainsAll",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -157,11 +157,11 @@ public class ContainerTransformation {
 					if (methodNode.name.equals("isEmpty")) {
 						
 						logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name 
-								+ " -> " +  Type.getInternalName(BooleanHelper.class) + "." + "mapIsEmpty");
+								+ " -> " +  Type.getInternalName(ContainerHelper.class) + "." + "mapIsEmpty");
 
 						MethodInsnNode n = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(ContainerHelper.class),
 						        "mapIsEmpty",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] { Type.getType(Map.class) }), false);
@@ -173,11 +173,11 @@ public class ContainerTransformation {
 					} else if (methodNode.name.equals("containsKey")) {
 						
 						logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name 
-								+ " -> " +  Type.getInternalName(BooleanHelper.class) + "." + "mapContainsKey");
+								+ " -> " +  Type.getInternalName(ContainerHelper.class) + "." + "mapContainsKey");
 
 						MethodInsnNode n = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(ContainerHelper.class),
 						        "mapContainsKey",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -191,11 +191,11 @@ public class ContainerTransformation {
 					} else if (methodNode.name.equals("containsValue")) {
 						
 						logger.debug("Test Transformation of " + methodNode.owner + "." + methodNode.name 
-								+ " -> " +  Type.getInternalName(BooleanHelper.class) + "." + "mapContainsValue");
+								+ " -> " +  Type.getInternalName(ContainerHelper.class) + "." + "mapContainsValue");
 						
 						MethodInsnNode n = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(ContainerHelper.class),
 						        "mapContainsValue",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {

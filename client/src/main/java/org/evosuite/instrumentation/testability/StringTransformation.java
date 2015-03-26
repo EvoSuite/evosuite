@@ -102,7 +102,7 @@ public class StringTransformation {
 
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(StringHelper.class),
 						        "StringEquals",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -130,7 +130,7 @@ public class StringTransformation {
 						changed = true;
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(StringHelper.class),
 						        "StringEqualsIgnoreCase",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -148,7 +148,7 @@ public class StringTransformation {
 						}
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(StringHelper.class),
 						        "StringStartsWith",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -163,7 +163,7 @@ public class StringTransformation {
 						changed = true;
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(StringHelper.class),
 						        "StringEndsWith",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -177,7 +177,7 @@ public class StringTransformation {
 						changed = true;
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(StringHelper.class),
 						        "StringIsEmpty",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] { Type.getType(String.class) }), false);
@@ -188,7 +188,7 @@ public class StringTransformation {
 						changed = true;
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(StringHelper.class),
 						        "StringMatches",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -203,7 +203,7 @@ public class StringTransformation {
 							changed = true;
 							MethodInsnNode equalCheck = new MethodInsnNode(
 							        Opcodes.INVOKESTATIC,
-							        Type.getInternalName(BooleanHelper.class),
+							        Type.getInternalName(StringHelper.class),
 							        "StringRegionMatches",
 							        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] {
 							                Type.getType(String.class), Type.INT_TYPE,
@@ -217,7 +217,7 @@ public class StringTransformation {
 							changed = true;
 							MethodInsnNode equalCheck = new MethodInsnNode(
 							        Opcodes.INVOKESTATIC,
-							        Type.getInternalName(BooleanHelper.class),
+							        Type.getInternalName(StringHelper.class),
 							        "StringRegionMatches",
 							        Type.getMethodDescriptor(Type.INT_TYPE,
 							                                 new Type[] {
@@ -238,7 +238,7 @@ public class StringTransformation {
 						changed = true;
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(StringHelper.class),
 						        "StringMatchRegex",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] {
@@ -252,7 +252,7 @@ public class StringTransformation {
 						changed = true;
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
-						        Type.getInternalName(BooleanHelper.class),
+						        Type.getInternalName(StringHelper.class),
 						        "StringMatchRegex",
 						        Type.getMethodDescriptor(Type.INT_TYPE,
 						                                 new Type[] { Type.getType(Matcher.class) }), false);
@@ -268,7 +268,7 @@ public class StringTransformation {
 	private static boolean isStringMethod(AbstractInsnNode node) {
 		if (node.getOpcode() == Opcodes.INVOKESTATIC) {
 			MethodInsnNode methodInsnNode = (MethodInsnNode) node;
-			return methodInsnNode.owner.equals(Type.getInternalName(BooleanHelper.class))
+			return methodInsnNode.owner.equals(Type.getInternalName(StringHelper.class))
 			        && methodInsnNode.name.startsWith("String");
 		}
 		return false;
@@ -310,7 +310,6 @@ public class StringTransformation {
 						        || isStringMethod(node.getPrevious())) {
 							logger.info("IFNE -> IFGT");
 							branch.setOpcode(Opcodes.IFGT);
-							// branch.setOpcode(Opcodes.IFGE);
 						}
 					} else if (node.getOpcode() == Opcodes.IFEQ) {
 						JumpInsnNode branch = (JumpInsnNode) node;
@@ -318,7 +317,6 @@ public class StringTransformation {
 						        || isStringMethod(node.getPrevious())) {
 							logger.info("IFEQ -> IFLE");
 							branch.setOpcode(Opcodes.IFLE);
-							// branch.setOpcode(Opcodes.IFNE);
 						}
 					} else if (node.getOpcode() == Opcodes.IF_ICMPEQ) {
 						JumpInsnNode branch = (JumpInsnNode) node;
@@ -362,7 +360,6 @@ public class StringTransformation {
 				}
 			} catch (Exception e) {
 				logger.warn("EXCEPTION DURING STRING TRANSFORMATION: " + e);
-				e.printStackTrace();
 				return changed;
 			}
 		}
