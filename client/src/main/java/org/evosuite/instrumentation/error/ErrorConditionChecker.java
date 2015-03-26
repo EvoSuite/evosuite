@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.error;
 
 import java.math.BigDecimal;
 

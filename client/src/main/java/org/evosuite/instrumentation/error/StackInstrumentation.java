@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.evosuite.instrumentation.ErrorConditionMethodAdapter;
 import org.objectweb.asm.Opcodes;
 
 public class StackInstrumentation extends ErrorBranchInstrumenter {

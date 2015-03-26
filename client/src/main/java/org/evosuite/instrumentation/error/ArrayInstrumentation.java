@@ -1,6 +1,5 @@
 package org.evosuite.instrumentation.error;
 
-import org.evosuite.instrumentation.ErrorConditionMethodAdapter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 

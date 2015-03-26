@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.error;
 
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.setup.DependencyAnalysis;

@@ -1,4 +1,4 @@
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.error;
 
 import static org.junit.Assert.assertTrue;
 
@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.evosuite.instrumentation.error.ErrorConditionChecker;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;

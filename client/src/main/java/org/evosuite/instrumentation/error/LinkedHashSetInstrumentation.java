@@ -5,7 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.evosuite.instrumentation.ErrorConditionMethodAdapter;
 import org.objectweb.asm.Opcodes;
 
 public class LinkedHashSetInstrumentation extends ErrorBranchInstrumenter {
