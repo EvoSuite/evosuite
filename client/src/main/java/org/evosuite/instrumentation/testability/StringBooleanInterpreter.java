@@ -49,7 +49,7 @@ public class StringBooleanInterpreter extends BasicInterpreter {
 	        @SuppressWarnings("rawtypes") List values) throws AnalyzerException {
 		if (insn.getOpcode() == Opcodes.INVOKESTATIC) {
 			MethodInsnNode mn = (MethodInsnNode) insn;
-			if (mn.owner.equals(Type.getInternalName(BooleanHelper.class))
+			if (mn.owner.equals(Type.getInternalName(StringHelper.class))
 			        && mn.name.startsWith("String")) {
 				return STRING_BOOLEAN;
 			}
