@@ -1,4 +1,4 @@
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.testability;
 
 import static org.junit.Assert.assertEquals;
 

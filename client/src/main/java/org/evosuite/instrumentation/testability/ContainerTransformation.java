@@ -18,13 +18,14 @@
 /**
  * 
  */
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.testability;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import org.evosuite.instrumentation.TransformationStatistics;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;

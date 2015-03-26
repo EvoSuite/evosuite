@@ -22,6 +22,7 @@ package org.evosuite.instrumentation;
 
 import java.util.List;
 
+import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -89,8 +90,8 @@ public class BooleanValueInterpreter extends BasicInterpreter {
 		} else if (insn.getOpcode() == Opcodes.GETFIELD) {
 			FieldInsnNode fieldNode = (FieldInsnNode) insn;
 			if (BooleanTestabilityTransformation.isTransformedField(fieldNode.owner,
-			                                                        fieldNode.name,
-			                                                        fieldNode.desc))
+                    fieldNode.name,
+                    fieldNode.desc))
 				return BOOLEAN_VALUE;
 		}
 		return super.unaryOperation(insn, value);

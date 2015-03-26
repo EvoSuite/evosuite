@@ -106,7 +106,8 @@ public class Properties {
 	public static boolean EVOSUITE_USE_UISPEC = false;
 
 	/** Constant <code>MAKE_ACCESSIBLE=true</code> */
-	@Parameter(key = "make_accessible", group = "TestCreation", description = "Change default package rights to public package rights (?)")
+    @Deprecated
+	@Parameter(key = "make_accessible", group = "TestCreation", description = "Change default package rights to public package rights")
 	public static boolean MAKE_ACCESSIBLE = false;
 
 	/** Constant <code>STRING_REPLACEMENT=true</code> */

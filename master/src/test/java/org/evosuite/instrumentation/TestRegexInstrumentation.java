@@ -5,9 +5,7 @@ import java.lang.reflect.Method;
 
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
-import org.evosuite.instrumentation.BooleanHelper;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
-import org.evosuite.instrumentation.RegexDistance;
+import org.evosuite.instrumentation.testability.BooleanHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
