@@ -18,10 +18,11 @@
 /**
  * 
  */
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.testability;
 
 import java.util.List;
 
+import org.evosuite.instrumentation.TransformationStatistics;
 import org.evosuite.instrumentation.testability.BooleanHelper;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -39,7 +40,7 @@ import org.objectweb.asm.tree.MethodNode;
  */
 public class ComparisonTransformation {
 
-	ClassNode cn;
+	private final ClassNode cn;
 
 	/**
 	 * <p>Constructor for ComparisonTransformation.</p>

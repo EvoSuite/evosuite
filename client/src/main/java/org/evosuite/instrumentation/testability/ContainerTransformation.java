@@ -49,7 +49,7 @@ public class ContainerTransformation {
 	private static Logger logger = LoggerFactory
 			.getLogger(ContainerTransformation.class);
 
-	ClassNode cn;
+	private final ClassNode cn;
 
 	/**
 	 * <p>Constructor for ContainerTransformation.</p>

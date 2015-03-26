@@ -49,7 +49,7 @@ public class StringTransformation {
 
 	private static Logger logger = LoggerFactory.getLogger(StringTransformation.class);
 
-	ClassNode cn;
+	private final ClassNode cn;
 
 	/**
 	 * <p>
