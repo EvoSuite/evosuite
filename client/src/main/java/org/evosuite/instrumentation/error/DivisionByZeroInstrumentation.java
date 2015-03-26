@@ -1,6 +1,5 @@
 package org.evosuite.instrumentation.error;
 
-import org.evosuite.instrumentation.ErrorConditionMethodAdapter;
 import org.objectweb.asm.Opcodes;
 
 public class DivisionByZeroInstrumentation extends ErrorBranchInstrumenter {

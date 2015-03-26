@@ -18,24 +18,11 @@
 /**
  * 
  */
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.error;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.instrumentation.error.ArrayInstrumentation;
-import org.evosuite.instrumentation.error.ArrayListInstrumentation;
-import org.evosuite.instrumentation.error.CastErrorInstrumentation;
-import org.evosuite.instrumentation.error.DequeInstrumentation;
-import org.evosuite.instrumentation.error.DivisionByZeroInstrumentation;
-import org.evosuite.instrumentation.error.ErrorBranchInstrumenter;
-import org.evosuite.instrumentation.error.LinkedHashSetInstrumentation;
-import org.evosuite.instrumentation.error.LinkedListInstrumentation;
-import org.evosuite.instrumentation.error.NullPointerExceptionInstrumentation;
-import org.evosuite.instrumentation.error.OverflowInstrumentation;
-import org.evosuite.instrumentation.error.QueueInstrumentation;
-import org.evosuite.instrumentation.error.StackInstrumentation;
-import org.evosuite.instrumentation.error.VectorInstrumentation;
 import org.evosuite.runtime.instrumentation.AnnotatedLabel;
 import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
 import org.objectweb.asm.Label;

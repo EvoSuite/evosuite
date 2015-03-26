@@ -1,13 +1,14 @@
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.error;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.evosuite.instrumentation.error.ErrorConditionChecker;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,15 +17,15 @@ import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.Opcodes;
 
 @RunWith(Parameterized.class)
-public class TestLongUnderflow {
+public class TestDoubleUnderflow {
 
-	private long x;
-	private long y;
+	private double x;
+	private double y;
 	
 	// Creates the test data
 	@Parameters
 	public static Collection<Object[]> data() {
-		Object[] values = new Object[] { Long.MIN_VALUE, Long.MIN_VALUE/2, 0, Long.MAX_VALUE/ 2, Long.MAX_VALUE};
+		Object[] values = new Object[] { -Double.MAX_VALUE, -Double.MIN_VALUE/2.0, 0.0, Double.MAX_VALUE/ 2.0, Double.MAX_VALUE};
 		List<Object[]> valuePairs = new ArrayList<Object[]>();
 		for(Object val1 : values) {
 			for(Object val2 : values) {
@@ -34,16 +35,17 @@ public class TestLongUnderflow {
 		return valuePairs;
 	}
 	
-	public TestLongUnderflow(long x, long y) {
+	public TestDoubleUnderflow(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}
 
 
-	private void assertUnderflow(BigDecimal preciseResult, int distance, long longResult) {
-		BigDecimal maxResult = new BigDecimal(Long.MIN_VALUE);
+	private void assertUnderflow(BigDecimal preciseResult, int distance, double doubleResult) {
+		BigDecimal maxResult = new BigDecimal(-Double.MAX_VALUE);
 		if(preciseResult.compareTo(maxResult) < 0) {
-			assertTrue("Expected negative value for "+x+" and "+y+": "+distance+" for "+longResult, distance < 0);
+			assertTrue("Expected negative value for "+x+" and "+y+": "+distance, distance < 0);
+			assertEquals(Double.NEGATIVE_INFINITY, doubleResult, 0.0);
 		} else {
 			assertTrue("Expected positive value for "+x+" and "+y+": "+distance, distance >= 0);
 		}		
@@ -52,27 +54,27 @@ public class TestLongUnderflow {
 	
 	@Test
 	public void testAddUnderflow() {
-		int result = ErrorConditionChecker.underflowDistance(x, y, Opcodes.LADD);
+		int result = ErrorConditionChecker.underflowDistance(x, y, Opcodes.DADD);
 		assertUnderflow(new BigDecimal(x).add(new BigDecimal(y)), result, x + y);
 	}
 
 	@Test
 	public void testSubUnderflow() {
-		int result = ErrorConditionChecker.underflowDistance(x, y, Opcodes.LSUB);
+		int result = ErrorConditionChecker.underflowDistance(x, y, Opcodes.DSUB);
 		assertUnderflow(new BigDecimal(x).subtract(new BigDecimal(y)), result, x - y);
 	}
 
 	@Test
 	public void testMulUnderflow() {
-		int result = ErrorConditionChecker.underflowDistance(x, y, Opcodes.LMUL);
+		int result = ErrorConditionChecker.underflowDistance(x, y, Opcodes.DMUL);
 		assertUnderflow(new BigDecimal(x).multiply(new BigDecimal(y)), result, x * y);
 	}
 
 	@Test
 	public void testDivUnderflow() {
-		Assume.assumeTrue(y != 0L);
+		Assume.assumeTrue(y != 0D);
 
-		int result = ErrorConditionChecker.underflowDistance(x, y, Opcodes.LDIV);
-		assertUnderflow(new BigDecimal(x).divide(new BigDecimal(y), 10, RoundingMode.HALF_UP), result, x / y);
+		int result = ErrorConditionChecker.underflowDistance(x, y, Opcodes.DDIV);
+		assertUnderflow(new BigDecimal(x).divide(new BigDecimal(y)), result, x / y);
 	}
 }
