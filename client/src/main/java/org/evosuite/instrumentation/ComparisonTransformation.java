@@ -22,6 +22,7 @@ package org.evosuite.instrumentation;
 
 import java.util.List;
 
+import org.evosuite.instrumentation.testability.BooleanHelper;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;

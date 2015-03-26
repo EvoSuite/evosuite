@@ -1,4 +1,4 @@
-package org.evosuite.instrumentation.testability;
+package org.evosuite.instrumentation.testability.transformer;
 
 import java.util.HashSet;
 import java.util.List;
@@ -12,8 +12,8 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionFactory;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
-import org.evosuite.instrumentation.BooleanTestabilityTransformation;
-import org.evosuite.instrumentation.DescriptorMapping;
+import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
+import org.evosuite.instrumentation.testability.DescriptorMapping;
 import org.evosuite.instrumentation.TransformationStatistics;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;

@@ -58,7 +58,7 @@ import org.evosuite.annotation.EvoSuiteExclude;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.GraphPool;
-import org.evosuite.instrumentation.BooleanTestabilityTransformation;
+import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.reset.ClassResetter;

@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.testability;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,16 +30,19 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeAnalyzer;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
-import org.evosuite.instrumentation.testability.BitwiseOperatorTransformer;
-import org.evosuite.instrumentation.testability.BooleanArrayIndexTransformer;
-import org.evosuite.instrumentation.testability.BooleanArrayTransformer;
-import org.evosuite.instrumentation.testability.BooleanCallsTransformer;
-import org.evosuite.instrumentation.testability.BooleanDefinitionTransformer;
-import org.evosuite.instrumentation.testability.BooleanDistanceTransformer;
-import org.evosuite.instrumentation.testability.BooleanIfTransformer;
-import org.evosuite.instrumentation.testability.BooleanReturnTransformer;
-import org.evosuite.instrumentation.testability.ImplicitElseTransformer;
-import org.evosuite.instrumentation.testability.InstanceOfTransformer;
+import org.evosuite.instrumentation.BooleanArrayInterpreter;
+import org.evosuite.instrumentation.BooleanValueInterpreter;
+import org.evosuite.instrumentation.TransformationStatistics;
+import org.evosuite.instrumentation.testability.transformer.BitwiseOperatorTransformer;
+import org.evosuite.instrumentation.testability.transformer.BooleanArrayIndexTransformer;
+import org.evosuite.instrumentation.testability.transformer.BooleanArrayTransformer;
+import org.evosuite.instrumentation.testability.transformer.BooleanCallsTransformer;
+import org.evosuite.instrumentation.testability.transformer.BooleanDefinitionTransformer;
+import org.evosuite.instrumentation.testability.transformer.BooleanDistanceTransformer;
+import org.evosuite.instrumentation.testability.transformer.BooleanIfTransformer;
+import org.evosuite.instrumentation.testability.transformer.BooleanReturnTransformer;
+import org.evosuite.instrumentation.testability.transformer.ImplicitElseTransformer;
+import org.evosuite.instrumentation.testability.transformer.InstanceOfTransformer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

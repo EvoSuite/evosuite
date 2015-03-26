@@ -20,7 +20,7 @@
  *
  * @author Gordon Fraser
  */
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.testability;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,7 +55,7 @@ public class DescriptorMapping {
 	/**
 	 * <p>Getter for the field <code>instance</code>.</p>
 	 *
-	 * @return a {@link org.evosuite.instrumentation.DescriptorMapping} object.
+	 * @return a {@link DescriptorMapping} object.
 	 */
 	public static DescriptorMapping getInstance() {
 		if (instance == null)

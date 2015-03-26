@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.instrumentation.testability;
+package org.evosuite.instrumentation.testability.transformer;
 
 import java.util.ArrayList;
 import java.util.HashMap;

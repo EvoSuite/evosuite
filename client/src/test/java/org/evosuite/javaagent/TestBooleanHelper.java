@@ -22,7 +22,7 @@ package org.evosuite.javaagent;
 
 import static org.junit.Assert.assertTrue;
 
-import org.evosuite.instrumentation.BooleanHelper;
+import org.evosuite.instrumentation.testability.BooleanHelper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

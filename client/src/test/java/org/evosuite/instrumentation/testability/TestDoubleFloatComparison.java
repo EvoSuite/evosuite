@@ -1,7 +1,8 @@
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.testability;
 
 import static org.junit.Assert.*;
 
+import org.evosuite.instrumentation.testability.BooleanHelper;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.numeric.DoublePrimitiveStatement;

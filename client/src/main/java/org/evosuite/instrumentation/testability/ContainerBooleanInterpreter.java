@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.testability;
 
 import java.util.List;
 

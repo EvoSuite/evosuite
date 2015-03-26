@@ -1,7 +1,7 @@
-package org.evosuite.instrumentation.testability;
+package org.evosuite.instrumentation.testability.transformer;
 
-import org.evosuite.instrumentation.BooleanHelper;
-import org.evosuite.instrumentation.BooleanTestabilityTransformation;
+import org.evosuite.instrumentation.testability.BooleanHelper;
+import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
 import org.evosuite.instrumentation.TransformationStatistics;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

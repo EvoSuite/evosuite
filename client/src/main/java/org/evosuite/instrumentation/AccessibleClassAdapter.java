@@ -26,12 +26,15 @@ import org.objectweb.asm.Opcodes;
 
 
 /**
- * Turn protected / default access rights to public access rights. This is
+ * Turn protected / default access rights to public access rights. This was
  * necessary because EvoSuite is not in the same package as the UUT, but the
  * tests will reside in the same package.
  *
+ * However, this does not hold now, as all methods can actually be called through reflection
+ *
  * @author Gordon Fraser
  */
+@Deprecated
 public class AccessibleClassAdapter extends ClassVisitor {
 
 	private boolean exclude = false;

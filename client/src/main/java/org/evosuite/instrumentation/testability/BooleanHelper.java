@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.instrumentation;
+package org.evosuite.instrumentation.testability;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
+import org.evosuite.instrumentation.RegexDistance;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.LoggingUtils;
