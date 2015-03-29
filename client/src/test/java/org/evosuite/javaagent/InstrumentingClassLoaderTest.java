@@ -21,7 +21,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestUtil;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
-import org.evosuite.instrumentation.TestabilityTransformationClassLoader;
+import org.evosuite.instrumentation.testability.TestabilityTransformationClassLoader;
 import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.junit.Assert;

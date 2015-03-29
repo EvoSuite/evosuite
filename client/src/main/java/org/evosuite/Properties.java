@@ -106,7 +106,8 @@ public class Properties {
 	public static boolean EVOSUITE_USE_UISPEC = false;
 
 	/** Constant <code>MAKE_ACCESSIBLE=true</code> */
-	@Parameter(key = "make_accessible", group = "TestCreation", description = "Change default package rights to public package rights (?)")
+    @Deprecated
+	@Parameter(key = "make_accessible", group = "TestCreation", description = "Change default package rights to public package rights")
 	public static boolean MAKE_ACCESSIBLE = false;
 
 	/** Constant <code>STRING_REPLACEMENT=true</code> */
@@ -538,11 +539,12 @@ public class Properties {
 	 * Constant
 	 * <code>PROPERTIES_FILE="OUTPUT_DIR + File.separatorevosuite.pro"{trunked}</code>
 	 */
-	public static String PROPERTIES_FILE = OUTPUT_DIR + File.separator
-			+ "evosuite.properties";
+	public static String PROPERTIES_FILE = OUTPUT_DIR + File.separator + "evosuite.properties";
 
 	public enum StoppingCondition {
-		MAXSTATEMENTS, MAXTESTS, MAXTIME, MAXGENERATIONS, MAXFITNESSEVALUATIONS, TIMEDELTA
+		MAXSTATEMENTS, MAXTESTS,
+        /** Max time in seconds */ MAXTIME,
+        MAXGENERATIONS, MAXFITNESSEVALUATIONS, TIMEDELTA
 	}
 
 	/** Constant <code>STOPPING_CONDITION</code> */
@@ -1180,10 +1182,13 @@ public class Properties {
 	@Parameter(key = "replace_system_in", group = "Test Execution", description = "Replace System.in with a smart stub/mock")
 	public static boolean REPLACE_SYSTEM_IN = true;
 
-	@Parameter(key = "mux_started_threads", group = "Test Execution", description = "Max number of threads allowed to be started in each test")
-	public static int MAX_STARTED_THREADS = 100;
+    @Parameter(key = "mux_started_threads", group = "Test Execution", description = "Max number of threads allowed to be started in each test")
+    public static int MAX_STARTED_THREADS = 100;
 
-	// ---------------------------------------------------------------
+    @Parameter(key = "mux_loop_iterations", group = "Test Execution", description = "Max number of iterations allowed per loop")
+    public static long MAX_LOOP_ITERATIONS = 100_000;
+
+    // ---------------------------------------------------------------
 	// Debugging
 
 	/** Constant <code>DEBUG=false</code> */
