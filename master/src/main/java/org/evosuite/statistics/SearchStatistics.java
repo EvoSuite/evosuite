@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
+import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
@@ -108,6 +109,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyBranchFitnessTimeline.name(), new OnlyBranchFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyBranchCoverageTimeline.name(), new OnlyBranchCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.CBranchFitnessTimeline.name(), new CBranchFitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.CBranchCoverageTimeline.name(), new CBranchCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.MethodTraceFitnessTimeline.name(), new MethodTraceFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.MethodTraceCoverageTimeline.name(), new MethodTraceCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.MethodFitnessTimeline.name(), new MethodFitnessSequenceOutputVariableFactory());
@@ -539,6 +542,30 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         @Override
         public Double getValue(TestSuiteChromosome individual) {
             return individual.getCoverageInstanceOf(OnlyBranchCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class CBranchFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public CBranchFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.CBranchFitnessTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(CBranchSuiteFitness.class);
+        }
+    }
+
+    private static class CBranchCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public CBranchCoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.CBranchCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(CBranchSuiteFitness.class);
         }
     }
 
