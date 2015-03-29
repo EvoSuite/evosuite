@@ -13,10 +13,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
-import org.evosuite.runtime.ClassStateSupport;
-import org.evosuite.runtime.GuiSupport;
-import org.evosuite.runtime.InitializingListener;
-import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.*;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.reset.ClassResetter;
@@ -151,7 +148,7 @@ public class Scaffolding {
 		 * only if there was a security exception (and so we need EvoSuite security manager,
 		 * and test runs on separated thread) or if we are doing bytecode replacement (and
 		 * so we need to activate JavaAgent).
-		 * 
+		 *
 		 * But there are cases that we might always want: eg, setup logging
 		 */
 
@@ -160,7 +157,7 @@ public class Scaffolding {
 
 		/*
          * Because this method is perhaps called only once per SUT,
-		 * not much of the point to try to optimize it 
+		 * not much of the point to try to optimize it
 		 */
 
         generateTimeoutRule(bd);
@@ -289,15 +286,15 @@ public class Scaffolding {
             bd.append(");\n");
         }
 
-		
-		/* Not needed any longer, since the issue was fixed with a customized @RunWith 
-		 * 
+
+		/* Not needed any longer, since the issue was fixed with a customized @RunWith
+		 *
 		bd.append("\n");
 
 		List<String> allInstrumentedClasses = TestGenerationContext.getInstance().getClassLoaderForSUT().getViewOfInstrumentedClasses();
-				
+
 		//this have to be done AFTER the classes have been loaded in a specific order
-		bd.append(BLOCK_SPACE);		
+		bd.append(BLOCK_SPACE);
 		bd.append(ClassStateSupport.class.getName()+".retransformIfNeeded(");
 		bd.append(testClassName+ ".class.getClassLoader()");
 
@@ -309,7 +306,7 @@ public class Scaffolding {
 		}
 		bd.append("\n");
 		bd.append(BLOCK_SPACE);
-		bd.append(");\n"); 
+		bd.append(");\n");
 		*/
 
         bd.append(METHOD_SPACE);
@@ -323,7 +320,7 @@ public class Scaffolding {
 
 		/*
 		 * Likely always at least ThreadStopper
-		 * 
+		 *
 		if (!Properties.RESET_STANDARD_STREAMS && !wasSecurityException
 				&& !Properties.REPLACE_CALLS && !Properties.VIRTUAL_FS
 				&& !Properties.RESET_STATIC_FIELDS) {
@@ -393,7 +390,7 @@ public class Scaffolding {
 
 		/*
 		 * Most likely, should always have at least ThreadStopper
-		 * 
+		 *
 		if (!Properties.RESET_STANDARD_STREAMS && !TestSuiteWriterUtils.shouldResetProperties(results)
 				&& !wasSecurityException && !Properties.REPLACE_CALLS
 				&& !Properties.VIRTUAL_FS && !Properties.RESET_STATIC_FIELDS
@@ -445,11 +442,11 @@ public class Scaffolding {
         }
 
 		/*
-		 * We do not mock GUI yet, but still we need to make the JUnit tests to 
+		 * We do not mock GUI yet, but still we need to make the JUnit tests to
 		 * run in headless mode. Checking if SUT needs headless is tricky: check
 		 * for headless exception is brittle if those exceptions are caught before
 		 * propagating to test.
-		 * 
+		 *
 		 * TODO: These things would be handled once we mock GUI. For the time being
 		 * we just always include a reset call if @Before/@After methods are
 		 * generated
@@ -527,7 +524,7 @@ public class Scaffolding {
         if (TestSuiteWriterUtils.shouldResetProperties(results)) {
 			/*
 			 * even if we set all the properties that were read, we still need
-			 * to reset everything to handle the properties that were written 
+			 * to reset everything to handle the properties that were written
 			 */
             bd.append(BLOCK_SPACE);
             bd.append(getResetPropertiesCommand());
@@ -536,7 +533,7 @@ public class Scaffolding {
             Set<String> readProperties = TestSuiteWriterUtils.mergeProperties(results);
             for (String prop : readProperties) {
                 bd.append(BLOCK_SPACE);
-                String currentValue = System.getProperty(prop);
+                String currentValue = java.lang.System.getProperty(prop);
                 String escaped_prop = StringEscapeUtils.escapeJava(prop);
                 if (currentValue != null) {
                     String escaped_currentValue = StringEscapeUtils.escapeJava(currentValue);
@@ -547,7 +544,7 @@ public class Scaffolding {
 					 * In theory, we do not need to clear properties, as that is done with the reset to default.
 					 * Avoiding doing the clear is not only good for readability (ie, less commands) but also
 					 * to avoid crashes when properties are set based on SUT inputs. Eg, in classes like
-					 *  SassToCssBuilder in 108_liferay we ended up with hundreds of thousands set properties... 
+					 *  SassToCssBuilder in 108_liferay we ended up with hundreds of thousands set properties...
 					 */
                     //bd.append("java.lang.System.clearProperty(\"" + escaped_prop + "\"); \n");
                 }
@@ -591,32 +588,6 @@ public class Scaffolding {
             bd.append(RuntimeSettings.class.getName() + ".mockSystemIn = true; \n");
         }
 
-		/*
-		 * Not needed any more here, as done in @RunWith
-		 * 
-		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS) {
-			//need to setup REPLACE_CALLS and instrumentator
-
-			if (Properties.REPLACE_CALLS) {
-				bd.append(BLOCK_SPACE);
-				bd.append(RuntimeSettings.class.getName()+".mockJVMNonDeterminism = true; \n");
-			}
-
-			if (Properties.VIRTUAL_FS) {
-				bd.append(BLOCK_SPACE);
-				bd.append(RuntimeSettings.class.getName()+".useVFS = true; \n");
-			}
-
-			if (Properties.RESET_STATIC_FIELDS) {
-				bd.append(BLOCK_SPACE);
-				bd.append(RuntimeSettings.class.getName()+".resetStaticState = true; \n");
-			}
-
-			bd.append(BLOCK_SPACE);
-			bd.append(InstrumentingAgent.class.getName()+".initialize(); \n");
-		}
-		*/
 
         if (wasSecurityException) {
             //need to setup the Sandbox mode
@@ -639,6 +610,10 @@ public class Scaffolding {
         if (TestSuiteWriterUtils.needToUseAgent()) {
             bd.append(BLOCK_SPACE);
             bd.append(org.evosuite.runtime.Runtime.class.getName() + ".getInstance().resetRuntime(); \n");
+        } else {
+            //it is done inside Runtime, but, if that is not called, we need an explicit call here
+            bd.append(BLOCK_SPACE);
+            bd.append(LoopCounter.class.getName() + ".getInstance().reset(); \n");
         }
 
 
