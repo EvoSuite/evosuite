@@ -21,8 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import org.evosuite.Properties;
-import org.evosuite.instrumentation.TestabilityTransformationClassLoader;
+import org.evosuite.instrumentation.testability.TestabilityTransformationClassLoader;
 
 import junit.framework.Assert;
 

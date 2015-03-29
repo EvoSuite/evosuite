@@ -89,6 +89,8 @@ public class Runtime {
             VirtualNetwork.getInstance().reset();
             VirtualNetwork.getInstance().init();
         }
+
+        LoopCounter.getInstance().reset();
 	}
 
 }

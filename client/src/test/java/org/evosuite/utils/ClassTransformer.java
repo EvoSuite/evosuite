@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.instrumentation.TestabilityTransformationClassLoader;
+import org.evosuite.instrumentation.testability.TestabilityTransformationClassLoader;
 import org.evosuite.testcase.execution.ExecutionTracer;
 
 

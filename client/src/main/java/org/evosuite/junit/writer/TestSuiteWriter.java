@@ -635,8 +635,7 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(":");
             int nr = 1;
             for (TestFitnessFunction goal : coveredGoals) {
-                //builder.append("\n   * " + nr + " " + goal.toString());
-                builder.append("\n   * [goal] " + goal.toString()); // JM: TODO TEMPORARY!!!
+                builder.append("\n   * " + nr + " " + goal.toString());
                 // TODO only for debugging purposes
                 if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
                         && (goal instanceof DefUseCoverageTestFitness)) {

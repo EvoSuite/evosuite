@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import org.evosuite.instrumentation.ErrorConditionMethodAdapter;
 import org.objectweb.asm.Opcodes;
 
 public class QueueInstrumentation extends ErrorBranchInstrumenter {

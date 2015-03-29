@@ -4,14 +4,13 @@
 package org.evosuite.coverage;
 
 import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.coverage.branch.BranchCoverageFactory;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
@@ -203,82 +202,76 @@ public class CoverageAnalysis {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void analyzeCoverage(TestSuiteChromosome testSuite,
-	        Properties.Criterion criterion) {
-		reinstrument(testSuite, criterion);
+	public static void analyzeCoverage(TestSuiteChromosome testSuite, Properties.Criterion criterion) {
+
+        reinstrument(testSuite, criterion);
 		TestFitnessFactory factory = FitnessFunctions.getFitnessFactory(criterion);
 
 		for(TestChromosome test : testSuite.getTestChromosomes()) {
 			test.getTestCase().clearCoveredGoals();
 		}
-		
+
+        StringBuffer buffer = new StringBuffer(1024);
 		int covered = 0;
 		List<TestFitnessFunction> goals = factory.getCoverageGoals();
-		
+        Collections.sort(goals);
+
 		for (TestFitnessFunction goal : goals) {
 			if (goal.isCoveredBy(testSuite)) {
 				logger.debug("Goal {} is covered", goal);
-//				logger.error("COVERED Goal "+ goal.toString());
-
 				covered++;
-				/*
-				if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)) {
-					StatisticEntry entry = SearchStatistics.getInstance().getLastStatisticEntry();
-					if (((DefUseCoverageTestFitness) goal).isInterMethodPair())
-						entry.coveredInterMethodPairs++;
-					else if (((DefUseCoverageTestFitness) goal).isIntraClassPair())
-						entry.coveredIntraClassPairs++;
-					else if (((DefUseCoverageTestFitness) goal).isParameterGoal())
-						entry.coveredParameterPairs++;
-					else
-						entry.coveredIntraMethodPairs++;
-
-				}
-				*/
+                buffer.append("1");
 			} else {
-//				logger.error("NOT COVERED Goal "+ goal.toString());
 				logger.debug("Goal {} is not covered", goal);
+                buffer.append("0");
 			}
 		}
 
+        RuntimeVariable bitStringVariable = getBitStringVariable(criterion);
+        if(bitStringVariable != null){
+            String goalBitString = buffer.toString();
+            ClientServices.getInstance().getClientNode().trackOutputVariable(bitStringVariable,goalBitString);
+        }
+
 		if (goals.isEmpty()) {
-			//SearchStatistics.getInstance().addCoverage(criterion.toString(), 1.0);
 			if (criterion == Properties.Criterion.MUTATION
 			        || criterion == Properties.Criterion.STRONGMUTATION) {
-				//SearchStatistics.getInstance().mutationScore(1.0);
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore,
-				                                                                 1.0);
+				ClientServices.getInstance().getClientNode().trackOutputVariable(
+                        RuntimeVariable.MutationScore, 1.0);
 			}
-			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion
-			                                         + ": 100% (no goals)");
-			ClientServices.getInstance().getClientNode().trackOutputVariable(getCoverageVariable(criterion),
-			                                                                 1.0);
+			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion + ": 100% (no goals)");
+			ClientServices.getInstance().getClientNode().trackOutputVariable(getCoverageVariable(criterion), 1.0);
 		} else {
 
-			//SearchStatistics.getInstance().addCoverage(criterion.toString(), (double) covered / (double) goals.size());
-			ClientServices.getInstance().getClientNode().trackOutputVariable(getCoverageVariable(criterion),
-			                                                                 (double) covered
-			                                                                         / (double) goals.size());
+			ClientServices.getInstance().getClientNode().trackOutputVariable(
+                    getCoverageVariable(criterion), (double) covered / (double) goals.size());
+
 			if (criterion == Properties.Criterion.MUTATION
 			        || criterion == Properties.Criterion.STRONGMUTATION) {
-				//SearchStatistics.getInstance().mutationScore((double) covered / (double) goals.size());
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore,
-				                                                                 (double) covered
-				                                                                         / (double) goals.size());
-				//if (ArrayUtil.contains(oldCriterion, criterion))
-					//SearchStatistics.getInstance().setCoveredGoals(covered);
-
+				ClientServices.getInstance().getClientNode().trackOutputVariable(
+                        RuntimeVariable.MutationScore, (double) covered  / (double) goals.size());
 			}
 
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion "
                     + criterion
                     + ": "
-                    + NumberFormat.getPercentInstance().format((double) covered
-                                                                       / (double) goals.size()));
+                    + NumberFormat.getPercentInstance().format((double) covered  / (double) goals.size()));
 
-			LoggingUtils.getEvoLogger().info("* Number of covered goals: "
-			                                       + covered);
+			LoggingUtils.getEvoLogger().info("* Number of covered goals: " + covered);
 
 		}
 	}
+
+    private static RuntimeVariable getBitStringVariable(Properties.Criterion criterion){
+        switch (criterion){
+            case BRANCH:
+                return RuntimeVariable.CoveredBranchesBitString;
+            case LINE:
+                return RuntimeVariable.CoveredLinesBitString;
+            case WEAKMUTATION:
+                return RuntimeVariable.CoveredWeakMutationBitString;
+            default:
+                return null;
+        }
+    }
 }
