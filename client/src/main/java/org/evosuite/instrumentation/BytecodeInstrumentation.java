@@ -223,7 +223,7 @@ public class BytecodeInstrumentation {
             cv = new MethodCallReplacementClassAdapter(cv, className);
         }
 
-        //cv = new LoopCounterClassAdapter(cv); //FIXME put back once fixed
+        cv = new LoopCounterClassAdapter(cv);
 
         // Testability Transformations
         if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)

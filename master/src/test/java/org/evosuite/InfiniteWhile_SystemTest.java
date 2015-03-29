@@ -8,7 +8,10 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import static org.junit.Assert.fail;
 
 /**
  * Created by Andrea Arcuri on 29/03/15.
@@ -21,7 +24,13 @@ public class InfiniteWhile_SystemTest  extends SystemTest{
         Class<?> clazz = loader.loadClass(InfiniteWhile.class.getCanonicalName());
 
         Method m = clazz.getMethod("infiniteLoop");
-        m.invoke(null);
+        try {
+            m.invoke(null);
+            fail();
+        }catch(InvocationTargetException e){
+            //expected
+            Assert.assertTrue(e.getCause() instanceof TooManyResourcesException);
+        }
     }
 
     @Test(timeout = 30_000)
@@ -40,10 +49,8 @@ public class InfiniteWhile_SystemTest  extends SystemTest{
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        String code = best.toString();
-        System.out.println("EvolvedTestSuite:\n" + best);
 
-        //the test should catch the exception
-        Assert.assertTrue(code.contains(""+ TooManyResourcesException.class.getSimpleName()));
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
 }

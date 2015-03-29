@@ -114,7 +114,7 @@ public class RuntimeInstrumentation {
 
         cv = new KillSwitchClassAdapter(cv);
         
-        //cv = new LoopCounterClassAdapter(cv); //FIXME put back once fixed
+        cv = new LoopCounterClassAdapter(cv);
 
         ClassNode cn = new AnnotatedClassNode();
 
