@@ -1181,10 +1181,13 @@ public class Properties {
 	@Parameter(key = "replace_system_in", group = "Test Execution", description = "Replace System.in with a smart stub/mock")
 	public static boolean REPLACE_SYSTEM_IN = true;
 
-	@Parameter(key = "mux_started_threads", group = "Test Execution", description = "Max number of threads allowed to be started in each test")
-	public static int MAX_STARTED_THREADS = 100;
+    @Parameter(key = "mux_started_threads", group = "Test Execution", description = "Max number of threads allowed to be started in each test")
+    public static int MAX_STARTED_THREADS = 100;
 
-	// ---------------------------------------------------------------
+    @Parameter(key = "mux_loop_iterations", group = "Test Execution", description = "Max number of iterations allowed per loop")
+    public static long MAX_LOOP_ITERATIONS = 1_000_000;
+
+    // ---------------------------------------------------------------
 	// Debugging
 
 	/** Constant <code>DEBUG=false</code> */
