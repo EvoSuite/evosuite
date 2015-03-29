@@ -539,11 +539,12 @@ public class Properties {
 	 * Constant
 	 * <code>PROPERTIES_FILE="OUTPUT_DIR + File.separatorevosuite.pro"{trunked}</code>
 	 */
-	public static String PROPERTIES_FILE = OUTPUT_DIR + File.separator
-			+ "evosuite.properties";
+	public static String PROPERTIES_FILE = OUTPUT_DIR + File.separator + "evosuite.properties";
 
 	public enum StoppingCondition {
-		MAXSTATEMENTS, MAXTESTS, MAXTIME, MAXGENERATIONS, MAXFITNESSEVALUATIONS, TIMEDELTA
+		MAXSTATEMENTS, MAXTESTS,
+        /** Max time in seconds */ MAXTIME,
+        MAXGENERATIONS, MAXFITNESSEVALUATIONS, TIMEDELTA
 	}
 
 	/** Constant <code>STOPPING_CONDITION</code> */
@@ -1185,7 +1186,7 @@ public class Properties {
     public static int MAX_STARTED_THREADS = 100;
 
     @Parameter(key = "mux_loop_iterations", group = "Test Execution", description = "Max number of iterations allowed per loop")
-    public static long MAX_LOOP_ITERATIONS = 1_000_000;
+    public static long MAX_LOOP_ITERATIONS = 100_000;
 
     // ---------------------------------------------------------------
 	// Debugging

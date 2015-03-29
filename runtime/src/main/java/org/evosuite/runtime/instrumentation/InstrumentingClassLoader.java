@@ -106,11 +106,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		if("<evosuite>".equals(name))
 			throw new ClassNotFoundException();
-		//if (instrumentation.isTargetProject(name)) {
-		// if (TestCluster.isTargetClassName(name)) {
-		if (!RuntimeInstrumentation.checkIfCanInstrument(name)
-		        //|| (Properties.VIRTUAL_FS && (name.startsWith("org.apache.commons.vfs") || name.startsWith("org.apache.commons.logging")))
-		        ) {
+		if (!RuntimeInstrumentation.checkIfCanInstrument(name)) {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {
 				return result;
@@ -139,19 +135,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 					return instrumentedClass;
 				}
 			}
-
 		}
-		//} else {
-		//	logger.trace("Not instrumenting: " + name);
-		//}
-		/*
-		Class<?> result = findLoadedClass(name);
-		if (result != null) {
-		return result;
-		}
-		result = classLoader.loadClass(name);
-		return result;
-		*/
 	}
 
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass)

@@ -10,11 +10,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is responsible for the bytecode instrumentations
+ * This class is responsible for the bytecode instrumentation
  * needed for the generated JUnit test cases.
  * 
  * <p>
- * Note: the instrumentation 
+ * Note: the instrumentation will be part of the final JUnit tests and, as such, we should
+ * only keep the instrumentation that affect the functional behavior (so, no branch distances, etc).
  *
  * Created by arcuri on 6/11/14.
  */
@@ -107,19 +108,20 @@ public class RuntimeInstrumentation {
             cv = resetClassAdapter;
         }
 
-        if(RuntimeSettings.mockJVMNonDeterminism || RuntimeSettings.useVFS || RuntimeSettings.useVNET) {
+        if(RuntimeSettings.isUsingAnyMocking()) {
             cv = new MethodCallReplacementClassAdapter(cv, className, !retransformingMode);
         }
 
         cv = new KillSwitchClassAdapter(cv);
         
-        //Note: handling of System.in does not require bytecode instrumentation
+        //cv = new LoopCounterClassAdapter(cv); //FIXME put back once fixed
 
         ClassNode cn = new AnnotatedClassNode();
 
         int readFlags = ClassReader.SKIP_FRAMES;       
         reader.accept(cn, readFlags);
         cv = new JSRInlinerClassVisitor(cv);
+
         try {
             cn.accept(cv);
         } catch (Throwable ex) {
