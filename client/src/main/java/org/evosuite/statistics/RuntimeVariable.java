@@ -128,6 +128,8 @@ public enum RuntimeVariable {
     ExceptionCoverageTimeline,
 	/** A bit string (0/1) representing whether branches (in order) are covered */
 	CoveredBranchesBitString,
+    CoveredLinesBitString,
+    CoveredWeakMutationBitString,
 	/** The obtained score for weak mutation testing */
 	WeakMutationScore,
     /** Only mutation = only infection distance */
