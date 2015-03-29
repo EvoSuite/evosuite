@@ -581,7 +581,7 @@ public class Scaffolding {
             bd.append("" + RuntimeSettings.class.getName() + ".maxNumberOfThreads = "+ Properties.MAX_STARTED_THREADS+"; \n");
         }
 
-        bd.append("" + RuntimeSettings.class.getName() + ".maxNumberOfIterationsPerLoop = " + Properties.MAX_LOOP_ITERATIONS);
+        bd.append("" + RuntimeSettings.class.getName() + ".maxNumberOfIterationsPerLoop = " + Properties.MAX_LOOP_ITERATIONS+"; \n");
 
         if (Properties.REPLACE_SYSTEM_IN) {
             bd.append(BLOCK_SPACE);
