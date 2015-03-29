@@ -36,6 +36,7 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.junit.runner.RunWith;
 import org.objectweb.asm.Opcodes;
@@ -634,7 +635,8 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(":");
             int nr = 1;
             for (TestFitnessFunction goal : coveredGoals) {
-                builder.append("\n   * " + nr + " " + goal.toString());
+                //builder.append("\n   * " + nr + " " + goal.toString());
+                builder.append("\n   * [goal] " + goal.toString()); // JM: TODO TEMPORARY!!!
                 // TODO only for debugging purposes
                 if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
                         && (goal instanceof DefUseCoverageTestFitness)) {
