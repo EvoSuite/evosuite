@@ -27,7 +27,7 @@ public class LoopCounterMethodAdapter extends MethodVisitor {
 
     @Override
     public void visitMaxs(int maxStack, int maxLocals) {
-        super.visitMaxs(maxStack+1, maxLocals);
+        super.visitMaxs(maxStack+2, maxLocals);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class LoopCounterMethodAdapter extends MethodVisitor {
 
         mv.visitLdcInsn(index);
 
-        mv.visitMethodInsn(Opcodes.INVOKEDYNAMIC, LOOP_COUNTER,
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LOOP_COUNTER,
                 "checkLoop", "(I)V", false);
     }
 }
