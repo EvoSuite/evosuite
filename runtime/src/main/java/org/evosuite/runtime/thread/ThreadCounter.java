@@ -1,6 +1,7 @@
 package org.evosuite.runtime.thread;
 
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.TooManyResourcesException;
 
 /**
  * In a JUnit test, we do not want to start hundreds/thousands of
@@ -31,9 +32,9 @@ public class ThreadCounter {
         counter = 0;
     }
 
-    public synchronized void checkIfCanStartNewThread() throws RuntimeException{
-        if(counter == RuntimeSettings.maxNumberOfThreads){
-            throw new RuntimeException("This test case has tried to start too many threads. "+
+    public synchronized void checkIfCanStartNewThread() throws TooManyResourcesException{
+        if(counter >= RuntimeSettings.maxNumberOfThreads){
+            throw new TooManyResourcesException("This test case has tried to start too many threads. "+
                 "Maximum allowed per test is "+RuntimeSettings.maxNumberOfThreads+" threads.");
         }
         counter++;
