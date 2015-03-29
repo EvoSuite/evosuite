@@ -29,7 +29,9 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.runtime.instrumentation.AnnotatedLabel;
+import org.evosuite.testcase.execution.ExecutionTrace;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
@@ -54,6 +56,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(BranchInstrumentation.class);
+
+    private static final String EXECUTION_TRACE = Type.getInternalName(ExecutionTrace.class);
 
 	/*
 	 * (non-Javadoc)
@@ -93,8 +97,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 								}
 							}
 						}
-						mn.instructions.insertBefore(v.getASMNode(),
-						                             getInstrumentation(v));
+						mn.instructions.insertBefore(v.getASMNode(), getInstrumentation(v));
 
 					} else if (v.isSwitch()) {
 
@@ -102,7 +105,6 @@ public class BranchInstrumentation implements MethodInstrumentation {
 						                             getSwitchInstrumentation(v, mn,
 						                                                      className,
 						                                                      methodName));
-
 					}
 				}
 			}
@@ -126,14 +128,14 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			throw new IllegalArgumentException("branch instruction expected");
 		if (!BranchPool.isKnownAsNormalBranchInstruction(instruction))
 			throw new IllegalArgumentException(
-			        "expect given instruction to be known by the BranchPool as a normal branch isntruction");
+			        "expect given instruction to be known by the BranchPool as a normal branch instruction");
 
 		int opcode = instruction.getASMNode().getOpcode();
 		int instructionId = instruction.getInstructionId();
 		int branchId = BranchPool.getActualBranchIdForNormalBranchInstruction(instruction);
 		if (branchId < 0)
 			throw new IllegalStateException(
-			        "expect BranchPool to know branchId for alle branch instructions");
+			        "expect BranchPool to know branchId for all branch instructions");
 
 		InsnList instrumentation = new InsnList();
 
@@ -150,7 +152,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch", "(IIII)V", false));
+                    EXECUTION_TRACE, "passedBranch", "(IIII)V", false));
 			logger.debug("Adding passedBranch val=?, opcode=" + opcode + ", branch="
 			        + branchId + ", bytecode_id=" + instructionId);
 
@@ -167,7 +169,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch", "(IIIII)V", false));
+                    EXECUTION_TRACE, "passedBranch", "(IIIII)V", false));
 			break;
 		case Opcodes.IF_ACMPEQ:
 		case Opcodes.IF_ACMPNE:
@@ -177,7 +179,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch",
+                    EXECUTION_TRACE, "passedBranch",
 			        "(Ljava/lang/Object;Ljava/lang/Object;III)V", false));
 			break;
 		case Opcodes.IFNULL:
@@ -188,7 +190,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch",
+                    EXECUTION_TRACE, "passedBranch",
 			        "(Ljava/lang/Object;III)V", false));
 			break;
 		}
@@ -274,7 +276,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(targetCaseBranchId));
 			instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch", "(IIIII)V", false));
+                    EXECUTION_TRACE, "passedBranch", "(IIIII)V", false));
 		}
 	}
 
@@ -440,7 +442,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		instrumentation.add(new LdcInsnNode(defaultCaseBranchId));
 		instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch", "(IIII)V", false));
+                EXECUTION_TRACE, "passedBranch", "(IIII)V", false));
 
 	}
 
@@ -464,7 +466,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		instrumentation.add(new LdcInsnNode(defaultCaseBranchId));
 		instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch", "(IIII)V", false));
+                EXECUTION_TRACE, "passedBranch", "(IIII)V", false));
 	}
 
 	/*
