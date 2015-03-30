@@ -288,7 +288,7 @@ public enum RuntimeVariable {
 	 */
 	public static boolean validateRuntimeVariables(Map<String,OutputVariable<?>> map){
         if (! Properties.VALIDATE_RUNTIME_VARIABLES) {
-            logger.error("Not validating runtime variables");
+            logger.warn("Not validating runtime variables");
             return true;
         }
         boolean valid = true;
