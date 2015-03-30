@@ -466,8 +466,6 @@ public class TestSuiteGenerator {
 			TestCaseExecutor.getInstance().removeObserver(checker);
 		}
 
-		StatisticsSender.executedAndThenSendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?
-
         ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 
 		LoggingUtils.getEvoLogger().info("* Time spent executing tests: "
