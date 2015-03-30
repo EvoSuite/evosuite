@@ -30,3 +30,6 @@ syntax: regexp
 syntax: regexp
 #^src/main/java/de/unisb/cs/st/evosuite/cfg/CFGPrinter\.java$
 ^examples/*$
+
+syntax: regexp
+^plugins/intellij/\.idea/workspace\.xml$
