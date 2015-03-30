@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,6 +36,7 @@ import java.util.Set;
 
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
@@ -46,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * Central property repository. All global parameters of EvoSuite should be
  * declared as fields here, using the appropriate annotation. Access is possible
  * directly via the fields, or with getter/setter methods.
- * 
+ *
  * @author Gordon Fraser
  */
 public class Properties {
@@ -322,7 +323,7 @@ public class Properties {
 	public static boolean CHOP_MAX_LENGTH = true;
 
 	//----------- DSE, which is a special case of LS ---------------
-	
+
 	@Parameter(key = "dse_probability", group = "DSE", description = "Probability used to specify when to use DSE instead of regular LS when LS is applied")
     @DoubleValue(min = 0.0, max = 1.0)
 	public static double DSE_PROBABILITY = 0.5;
@@ -353,12 +354,12 @@ public class Properties {
 
 	public enum DSEType {
 		/** apply DSE per primitive */
-		STATEMENT, 
+		STATEMENT,
 		/** apply DSE with all primitives in a test */
-		TEST, 
+		TEST,
 		/** DSE on whole suites */
 		SUITE;
-	} 
+	}
 
 	@Parameter(key = "local_search_dse", group = "DSE", description = "Granularity of DSE application")
 	public static DSEType LOCAL_SEARCH_DSE = DSEType.TEST;
@@ -384,7 +385,7 @@ public class Properties {
 
 
 	// --------- LS ---------
-	
+
 	/** Constant <code>LOCAL_SEARCH_RATE=-1</code> */
 	@Parameter(key = "local_search_rate", group = "Local Search", description = "Apply local search at every X generation")
 	public static int LOCAL_SEARCH_RATE = -1;
@@ -410,14 +411,14 @@ public class Properties {
 
 	@Parameter(key = "local_search_adaptation_rate", group = "Local Search", description = "Parameter used to adapt at runtime the probability of applying local search")
 	public static double LOCAL_SEARCH_ADAPTATION_RATE = 0.33;
-	
+
 	@Parameter(key = "local_search_budget", group = "Local Search", description = "Maximum budget usable for improving individuals per local search")
 	public static long LOCAL_SEARCH_BUDGET = 5;
 
 	public enum LocalSearchBudgetType {
-		STATEMENTS, TESTS, 
+		STATEMENTS, TESTS,
 		/** Time expressed in seconds */
-		TIME, 
+		TIME,
 		SUITES, FITNESS_EVALUATIONS
 	}
 
@@ -442,7 +443,7 @@ public class Properties {
 	public static boolean LOCAL_SEARCH_REFERENCES = true;
 
 	//--------------------------
-	
+
 	/** Constant <code>CROSSOVER_RATE=0.75</code> */
 	@Parameter(key = "crossover_rate", group = "Search Algorithm", description = "Probability of crossover")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -600,13 +601,13 @@ public class Properties {
 
 	@Parameter(key = "enable_secondary_objective_after", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
 	public static int ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;
-	
+
 	@Parameter(key = "enable_secondary_starvation", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
 	public static boolean ENABLE_SECONDARY_OBJECTIVE_STARVATION = false;
 
 	@Parameter(key = "starvation_after_generation", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
 	public static int STARVATION_AFTER_GENERATION = 500;
-	
+
 	/** Constant <code>BLOAT_FACTOR=2</code> */
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
 	public static int BLOAT_FACTOR = 2;
@@ -647,7 +648,7 @@ public class Properties {
 
 	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
 	public static boolean TRACK_BOOLEAN_BRANCHES = false;
-	
+
 	@Parameter(key = "track_covered_gradient_branches", group = "Search Algorithm", description = "Track gradient branches that were covered")
 	public static boolean TRACK_COVERED_GRADIENT_BRANCHES = false;
 
@@ -1047,7 +1048,7 @@ public class Properties {
 
 	@Parameter(key = "instrument_libraries", description = "Instrument the libraries used by the project under test")
 	public static boolean INSTRUMENT_LIBRARIES = false;
-	
+
 	/** Constant <code>BREAK_ON_EXCEPTION=true</code> */
 	@Parameter(key = "break_on_exception", description = "Stop test execution if exception occurrs")
 	public static boolean BREAK_ON_EXCEPTION = true;
@@ -1057,7 +1058,7 @@ public class Properties {
 	public static boolean HANDLE_STATIC_FIELDS = true;
 
 	public enum TestFactory {
-		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT, ARCHIVE, SERIALIZATION, 
+		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT, ARCHIVE, SERIALIZATION,
 		SEED_BEST_INDIVIDUAL, SEED_RANDOM_INDIVIDUAL,
 		SEED_BEST_AND_RANDOM_INDIVIDUAL, SEED_BEST_INDIVIDUAL_METHOD,
 		SEED_RANDOM_INDIVIDUAL_METHOD, SEED_MUTATED_BEST_INDIVIDUAL
@@ -1069,10 +1070,10 @@ public class Properties {
 
 	@Parameter(key = "seed_file", description = "File storing TestGenerationResult or GeneticAlgorithm")
 	public static String SEED_FILE = "";
-	
+
 	@Parameter(key = "seed_probability", description = "Probability to seed on methods with randomness involved")
 	public static double SEED_PROBABILITY = 0.1;
-	
+
 	@Parameter(key = "selected_junit", description = "List of fully qualified class names (separated by ':') indicating which JUnit test suites the user has selected (e.g., for seeding)")
 	public static String SELECTED_JUNIT = null;
 
@@ -1183,10 +1184,10 @@ public class Properties {
 	public static boolean REPLACE_SYSTEM_IN = true;
 
     @Parameter(key = "mux_started_threads", group = "Test Execution", description = "Max number of threads allowed to be started in each test")
-    public static int MAX_STARTED_THREADS = 100;
+    public static int MAX_STARTED_THREADS = RuntimeSettings.maxNumberOfThreads;
 
-    @Parameter(key = "mux_loop_iterations", group = "Test Execution", description = "Max number of iterations allowed per loop")
-    public static long MAX_LOOP_ITERATIONS = 100_000;
+    @Parameter(key = "mux_loop_iterations", group = "Test Execution", description = "Max number of iterations allowed per loop. A negative value means no check is done.")
+    public static long MAX_LOOP_ITERATIONS = RuntimeSettings.maxNumberOfIterationsPerLoop;
 
     // ---------------------------------------------------------------
 	// Debugging
@@ -1361,7 +1362,7 @@ public class Properties {
 
 	/**
 	 * Get all parameters that are available
-	 * 
+	 *
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<String> getParameters() {
@@ -1420,7 +1421,7 @@ public class Properties {
 
 	/**
 	 * Load and initialize a properties file from a given path
-	 * 
+	 *
 	 * @param propertiesPath
 	 *            a {@link java.lang.String} object.
 	 */
@@ -1431,7 +1432,7 @@ public class Properties {
 
 	/**
 	 * Load a properties file
-	 * 
+	 *
 	 * @param propertiesPath
 	 *            a {@link java.lang.String} object.
 	 */
@@ -1494,7 +1495,7 @@ public class Properties {
 
 	/**
 	 * Get class of parameter
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @throws org.evosuite.Properties.NoSuchParameterException
@@ -1511,7 +1512,7 @@ public class Properties {
 
 	/**
 	 * Get description string of parameter
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @throws org.evosuite.Properties.NoSuchParameterException
@@ -1530,7 +1531,7 @@ public class Properties {
 
 	/**
 	 * Get group name of parameter
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @throws org.evosuite.Properties.NoSuchParameterException
@@ -1548,7 +1549,7 @@ public class Properties {
 
 	/**
 	 * Get integer boundaries
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @throws org.evosuite.Properties.NoSuchParameterException
@@ -1566,7 +1567,7 @@ public class Properties {
 
 	/**
 	 * Get long boundaries
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @throws org.evosuite.Properties.NoSuchParameterException
@@ -1584,7 +1585,7 @@ public class Properties {
 
 	/**
 	 * Get double boundaries
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @throws org.evosuite.Properties.NoSuchParameterException
@@ -1602,7 +1603,7 @@ public class Properties {
 
 	/**
 	 * Get an integer parameter value
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @throws org.evosuite.Properties.NoSuchParameterException
@@ -1624,7 +1625,7 @@ public class Properties {
 
 	/**
 	 * Get an integer parameter value
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @throws org.evosuite.Properties.NoSuchParameterException
@@ -1646,7 +1647,7 @@ public class Properties {
 
 	/**
 	 * Get a boolean parameter value
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @throws org.evosuite.Properties.NoSuchParameterException
@@ -1668,7 +1669,7 @@ public class Properties {
 
 	/**
 	 * Get a double parameter value
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @throws org.evosuite.Properties.NoSuchParameterException
@@ -1690,7 +1691,7 @@ public class Properties {
 
 	/**
 	 * Get parameter value as string (works for all types)
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @throws org.evosuite.Properties.NoSuchParameterException
@@ -1725,7 +1726,7 @@ public class Properties {
 
 	/**
 	 * Check if there exist any parameter with given name
-	 * 
+	 *
 	 * @param parameterName
 	 * @return
 	 */
@@ -1735,7 +1736,7 @@ public class Properties {
 
 	/**
 	 * Set parameter to new integer value
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @param value
@@ -1766,7 +1767,7 @@ public class Properties {
 
 	/**
 	 * Set parameter to new long value
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @param value
@@ -1797,7 +1798,7 @@ public class Properties {
 
 	/**
 	 * Set parameter to new boolean value
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @param value
@@ -1821,7 +1822,7 @@ public class Properties {
 
 	/**
 	 * Set parameter to new double value
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @param value
@@ -1850,7 +1851,7 @@ public class Properties {
 
 	/**
 	 * Set parameter to new value from String
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @param value
@@ -1926,7 +1927,7 @@ public class Properties {
 	/**
 	 * we need this strict function because Boolean.parseBoolean silently
 	 * ignores malformed strings
-	 * 
+	 *
 	 * @param s
 	 * @return
 	 */
@@ -1952,7 +1953,7 @@ public class Properties {
 	 * <p>
 	 * setValue
 	 * </p>
-	 * 
+	 *
 	 * @param key
 	 *            a {@link java.lang.String} object.
 	 * @param value
@@ -1979,7 +1980,7 @@ public class Properties {
 	/**
 	 * Set the given <code>key</code> variable to the given input Object
 	 * <code>value</code>
-	 * 
+	 *
 	 * @param key
 	 * @param value
 	 * @throws NoSuchParameterException
@@ -2013,7 +2014,7 @@ public class Properties {
 
 	/**
 	 * Singleton accessor
-	 * 
+	 *
 	 * @return a {@link org.evosuite.Properties} object.
 	 */
 	public static Properties getInstance() {
@@ -2024,7 +2025,7 @@ public class Properties {
 
 	/**
 	 * Singleton accessor
-	 * 
+	 *
 	 * @return a {@link org.evosuite.Properties} object.
 	 */
 	public static Properties getInstanceSilent() {
@@ -2035,8 +2036,8 @@ public class Properties {
 
 	/**
 	 * This exception is used when a non-existent parameter is accessed
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public static class NoSuchParameterException extends Exception {
 
@@ -2072,7 +2073,7 @@ public class Properties {
 
 	/**
 	 * Get class object of class under test
-	 * 
+	 *
 	 * @return a {@link java.lang.Class} object.
 	 */
 	public static Class<?> getTargetClass(boolean initialise) {
@@ -2127,7 +2128,7 @@ public class Properties {
 
 	/**
 	 * Get class object of class under test
-	 * 
+	 *
 	 * @return a {@link java.lang.Class} object.
 	 */
 	public static void resetTargetClass() {
@@ -2146,7 +2147,7 @@ public class Properties {
 
 	/**
 	 * Update the evosuite.properties file with the current setting
-	 * 
+	 *
 	 * @param fileName
 	 *            a {@link java.lang.String} object.
 	 */

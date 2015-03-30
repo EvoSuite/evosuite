@@ -223,7 +223,9 @@ public class BytecodeInstrumentation {
             cv = new MethodCallReplacementClassAdapter(cv, className);
         }
 
-        cv = new LoopCounterClassAdapter(cv);
+        if(Properties.MAX_LOOP_ITERATIONS >= 0){
+        		cv = new LoopCounterClassAdapter(cv);
+        }
 
         // Testability Transformations
         if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
