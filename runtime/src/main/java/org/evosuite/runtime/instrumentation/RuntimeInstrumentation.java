@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class is responsible for the bytecode instrumentation
  * needed for the generated JUnit test cases.
- * 
+ *
  * <p>
  * Note: the instrumentation will be part of the final JUnit tests and, as such, we should
  * only keep the instrumentation that affect the functional behavior (so, no branch distances, etc).
@@ -26,19 +26,19 @@ public class RuntimeInstrumentation {
     /**
      * If we are re-instrumenting a class, then we cannot change its
      * signature: eg add new methods
-     * 
+     *
 	 * TODO: remove once we fix instrumentation
 	 */
 	private volatile boolean retransformingMode;
-	
+
 	public RuntimeInstrumentation(){
 		retransformingMode = false;
 	}
-    
+
 	public void setRetransformingMode(boolean on){
 		retransformingMode = on;
 	}
-	
+
     public static boolean checkIfCanInstrument(String className) {
         for (String s : RuntimeInstrumentation.getPackagesShouldNotBeInstrumented()) {
             if (className.startsWith(s)) {
@@ -100,8 +100,8 @@ public class RuntimeInstrumentation {
 
         if(RuntimeSettings.resetStaticState && !retransformingMode) {
         		/*
-        		 * FIXME: currently reset does add a new method, but that does no work 
-        		 * when retransformingMode :( 
+        		 * FIXME: currently reset does add a new method, but that does no work
+        		 * when retransformingMode :(
         		 */
             CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
             resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
@@ -113,12 +113,14 @@ public class RuntimeInstrumentation {
         }
 
         cv = new KillSwitchClassAdapter(cv);
-        
-        cv = new LoopCounterClassAdapter(cv);
+
+        if(RuntimeSettings.maxNumberOfIterationsPerLoop >= 0){
+        		cv = new LoopCounterClassAdapter(cv);
+        }
 
         ClassNode cn = new AnnotatedClassNode();
 
-        int readFlags = ClassReader.SKIP_FRAMES;       
+        int readFlags = ClassReader.SKIP_FRAMES;
         reader.accept(cn, readFlags);
         cv = new JSRInlinerClassVisitor(cv);
 
