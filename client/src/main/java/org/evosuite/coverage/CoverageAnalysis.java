@@ -257,6 +257,7 @@ public class CoverageAnalysis {
                     + ": "
                     + NumberFormat.getPercentInstance().format((double) covered  / (double) goals.size()));
 
+			LoggingUtils.getEvoLogger().info("* Total number of goals: " + goals.size());
 			LoggingUtils.getEvoLogger().info("* Number of covered goals: " + covered);
 
 		}
