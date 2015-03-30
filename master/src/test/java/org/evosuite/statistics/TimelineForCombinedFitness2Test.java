@@ -37,11 +37,12 @@ public class TimelineForCombinedFitness2Test extends SystemTest {
         Properties.ASSERTIONS = false;
         Properties.TARGET_CLASS = targetClass;
         Properties.MINIMIZE = true;
-        Properties.CRITERION = new Properties.Criterion[4];
+        Properties.CRITERION = new Properties.Criterion[5];
         Properties.CRITERION[0] = Properties.Criterion.ONLYBRANCH;
         Properties.CRITERION[1] = Properties.Criterion.METHODNOEXCEPTION;
         Properties.CRITERION[2] = Properties.Criterion.OUTPUT;
         Properties.CRITERION[3] = Properties.Criterion.ONLYMUTATION;
+        Properties.CRITERION[4] = Properties.Criterion.CBRANCH;
 
         StringBuilder analysisCriteria = new StringBuilder();
         analysisCriteria.append(Properties.Criterion.LINE); analysisCriteria.append(",");
@@ -51,6 +52,7 @@ public class TimelineForCombinedFitness2Test extends SystemTest {
         analysisCriteria.append(Properties.Criterion.METHODNOEXCEPTION); analysisCriteria.append(",");
         analysisCriteria.append(Properties.Criterion.OUTPUT); analysisCriteria.append(",");
         analysisCriteria.append(Properties.Criterion.ONLYMUTATION); analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.CBRANCH); analysisCriteria.append(",");
         analysisCriteria.append(Properties.Criterion.EXCEPTION);
         Properties.ANALYSIS_CRITERIA = analysisCriteria.toString();
 
@@ -58,6 +60,8 @@ public class TimelineForCombinedFitness2Test extends SystemTest {
         outputVariables.append(RuntimeVariable.CoverageTimeline); outputVariables.append(",");
         outputVariables.append(RuntimeVariable.OnlyBranchCoverageTimeline); outputVariables.append(",");
         outputVariables.append(RuntimeVariable.MethodNoExceptionCoverageTimeline); outputVariables.append(",");
+        outputVariables.append(RuntimeVariable.CBranchFitnessTimeline); outputVariables.append(",");
+        outputVariables.append(RuntimeVariable.CBranchCoverageTimeline); outputVariables.append(",");
         outputVariables.append(RuntimeVariable.OutputCoverageTimeline);
         Properties.OUTPUT_VARIABLES = outputVariables.toString();
 
@@ -86,6 +90,17 @@ public class TimelineForCombinedFitness2Test extends SystemTest {
         OutputVariable output = getLastTimelineVariable(map, strVar4);
         Assert.assertNotNull(output);
         Assert.assertEquals("Incorrect last timeline value for " + strVar4, 1.0, output.getValue());
+
+        String strVar5 = RuntimeVariable.CBranchFitnessTimeline.toString();
+        OutputVariable cbranchF = getLastTimelineVariable(map, strVar5);
+        Assert.assertNotNull(cbranchF);
+        Assert.assertEquals("Incorrect last timeline value for " + strVar5, 0.0, cbranchF.getValue());
+
+        String strVar6 = RuntimeVariable.CBranchCoverageTimeline.toString();
+        OutputVariable cbranchC = getLastTimelineVariable(map, strVar6);
+        Assert.assertNotNull(cbranchC);
+        Assert.assertEquals("Incorrect last timeline value for " + strVar6, 1.0, cbranchC.getValue());
+
     }
 
     private OutputVariable getLastTimelineVariable(Map<String, OutputVariable<?>> map, String name) {

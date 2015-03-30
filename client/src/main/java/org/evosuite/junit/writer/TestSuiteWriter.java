@@ -36,6 +36,7 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.junit.runner.RunWith;
 import org.objectweb.asm.Opcodes;
