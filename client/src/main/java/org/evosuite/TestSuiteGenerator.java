@@ -877,11 +877,10 @@ public class TestSuiteGenerator {
 			//statistics.searchFinished(ga);
 			zero_fitness.setFinished();
 			for (TestSuiteChromosome best : bestSuites) {
-                for (FitnessFunction ff : best.getFitnesses().keySet()) {
+                for (FitnessFunction<?> ff : getFitnessFunction()) {
                     best.setCoverage(ff, 1.0);
                 }
             }
-
 		}
 
 		long end_time = System.currentTimeMillis() / 1000;
