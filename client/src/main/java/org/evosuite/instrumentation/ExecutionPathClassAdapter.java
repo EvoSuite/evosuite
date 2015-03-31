@@ -44,8 +44,10 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 	            || ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION);
 	}
 
-	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
+
+	/** Skip methods on enums - at least some */
+	private boolean isEnum = false;
 
 	/**
 	 * <p>
@@ -60,6 +62,18 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 	public ExecutionPathClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM5, visitor);
 		this.className = ResourceList.getClassNameFromResourcePath(className);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.ClassAdapter#visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public void visit(int version, int access, String name, String signature,
+	        String superName, String[] interfaces) {
+		super.visit(version, access, name, signature, superName, interfaces);
+		if (superName.equals("java/lang/Enum"))
+			isEnum = true;
 	}
 
 	/*
@@ -89,6 +103,10 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 		if (!DependencyAnalysis.shouldInstrument(className, name + descriptor))
 			return mv;
 
+		if (isEnum && (name.equals("valueOf") || name.equals("values"))) {
+			return mv;
+		}
+		
 		if (isMutation()) {
 			mv = new ReturnValueAdapter(mv, className, name, descriptor);
 		}
