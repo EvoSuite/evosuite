@@ -61,6 +61,10 @@ public class LoopCounter {
             throw new IllegalArgumentException("Loop index cannot be negative");
         }
 
+        if(RuntimeSettings.maxNumberOfIterationsPerLoop < 0){
+            return; //do nothing, no check
+        }
+
         //first check initialization
         if(index >= counters.size()){
             for(int i=0; i < 1 + (index - counters.size()); i++){

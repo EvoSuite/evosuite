@@ -8,7 +8,7 @@ import java.net.URL;
  */
 public class ReadFromURL {
 
-    public boolean checkResource() {
+    public static boolean checkResource() {
         boolean check;
         try {
             URL url = new URL("http://www.evosuite.org/index.html");
