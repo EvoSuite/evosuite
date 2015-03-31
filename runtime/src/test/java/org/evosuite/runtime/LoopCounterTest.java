@@ -1,6 +1,7 @@
 package org.evosuite.runtime;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,6 +22,8 @@ public class LoopCounterTest {
 
     @Test(timeout = 10000)
     public void testInfiniteLoop() {
+
+        Assert.assertTrue(RuntimeSettings.maxNumberOfIterationsPerLoop > 0);//should be on by default
 
         int first = LoopCounter.getInstance().getNewIndex();
         int second = LoopCounter.getInstance().getNewIndex();
