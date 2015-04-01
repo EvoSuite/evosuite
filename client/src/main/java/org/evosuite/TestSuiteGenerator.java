@@ -833,9 +833,6 @@ public class TestSuiteGenerator {
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.AMBIGUITY))
 			ExecutionTracer.enableTraceCalls();
 
-		if (Properties.ANALYSIS_CRITERIA.toUpperCase().contains("CBRANCH")){
-			Properties.INSTRUMENT_METHOD_CALLS = true;
-		}
 		
 		// TODO: why it was only if "analyzing"???
 		// if (analyzing)
@@ -1364,10 +1361,6 @@ public class TestSuiteGenerator {
 		ExecutionTracer.enableTraceCalls();
 		if (ga == null)
 			ga = setup();
-
-		if (Properties.ANALYSIS_CRITERIA.contains("CBRANCH")){
-			Properties.INSTRUMENT_METHOD_CALLS = true;
-		}
 		
 		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		List<TestSuiteFitnessFunction> fitness_functions = getFitnessFunction();
