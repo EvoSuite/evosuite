@@ -308,6 +308,7 @@ public class TestSuiteGenerator {
 					+ ExecutionTraceImpl.gradientBranchesCoveredFalse.size();
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches_Covered, coveredGradientBranchCount);
 		}
+		
 		if(Properties.BRANCH_COMPARISON_TYPES){
 			int cmp_intzero=0, cmp_intint=0, cmp_refref=0, cmp_refnull=0;
 			int bc_lcmp=0, bc_fcmpl=0, bc_fcmpg=0, bc_dcmpl=0, bc_dcmpg=0;
@@ -826,15 +827,16 @@ public class TestSuiteGenerator {
 		// executed with -prefix!
 
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
-//		        || ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
-//		        || ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEIBRANCH)  
-//		        || ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH) 
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.RHO)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.AMBIGUITY))
 			ExecutionTracer.enableTraceCalls();
 
+		if (Properties.ANALYSIS_CRITERIA.toUpperCase().contains("CBRANCH")){
+			Properties.INSTRUMENT_METHOD_CALLS = true;
+		}
+		
 		// TODO: why it was only if "analyzing"???
 		// if (analyzing)
 		ga.resetStoppingConditions();
@@ -1363,6 +1365,10 @@ public class TestSuiteGenerator {
 		if (ga == null)
 			ga = setup();
 
+		if (Properties.ANALYSIS_CRITERIA.contains("CBRANCH")){
+			Properties.INSTRUMENT_METHOD_CALLS = true;
+		}
+		
 		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		List<TestSuiteFitnessFunction> fitness_functions = getFitnessFunction();
 		suiteGA.addFitnessFunctions(fitness_functions);

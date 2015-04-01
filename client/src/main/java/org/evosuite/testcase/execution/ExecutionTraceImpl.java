@@ -461,6 +461,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			falseDistancesSum.put(branch, falseDistancesSum.get(branch) + false_distance);
 
 		if (!disableContext&&(Properties.INSTRUMENT_CONTEXT
+				|| Properties.INSTRUMENT_METHOD_CALLS
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH))) {
 			updateBranchContextMaps(branch, true_distance, false_distance);
