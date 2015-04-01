@@ -1046,6 +1046,9 @@ public class Properties {
 	@Parameter(key = "instrument_context", description = "Also instrument methods called from the SUT")
 	public static boolean INSTRUMENT_CONTEXT = false;
 
+	@Parameter(key = "instrument_method_calls", description = "Instrument methods calls")
+	public static boolean INSTRUMENT_METHOD_CALLS = false;
+	
 	@Parameter(key = "instrument_libraries", description = "Instrument the libraries used by the project under test")
 	public static boolean INSTRUMENT_LIBRARIES = false;
 
