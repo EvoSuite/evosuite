@@ -1579,6 +1579,8 @@ public class TestSuiteGenerator {
 		                                         + suite.getFitness());
         // Search is finished, send statistics
         sendExecutionStatistics();
+        StatisticsSender.executedAndThenSendIndividualToMaster(suite);
+
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
 			CoverageAnalysis.analyzeCriteria(suite, Properties.ANALYSIS_CRITERIA);
