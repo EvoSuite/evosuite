@@ -54,7 +54,7 @@ public class RuntimeSettings {
     /**
      * How many iterations is each loop allowed to take?
      */
-    public static long maxNumberOfIterationsPerLoop = -1; //100_000; //FIXME disabled because breaking stuff
+    public static long maxNumberOfIterationsPerLoop = 100_000;
 
     /**
      * Should tests be executed in a separate instrumenting class loader

@@ -66,8 +66,9 @@ public class LoopCounter {
         }
 
         //first check initialization
-        if(index >= counters.size()){
-            for(int i=0; i < 1 + (index - counters.size()); i++){
+        int size = counters.size();
+        if(index >= size){
+            for(int i=0; i < 1 + (index - size); i++){
                 counters.add(0l);
             }
         }

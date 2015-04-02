@@ -64,8 +64,7 @@ public class MockUrlSystemTest extends SystemTest{
         Properties.TARGET_CLASS = targetClass;
         Properties.SEARCH_BUDGET = 20000;
         Properties.VIRTUAL_NET = true;
-
-        Properties.MAX_LOOP_ITERATIONS = 100000; //FIXME why search fails if this is on???
+        Properties.MAX_LOOP_ITERATIONS = 100000;
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
