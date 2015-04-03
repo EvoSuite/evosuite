@@ -131,20 +131,23 @@ public class ResourceList {
 		String path = name.replace('.', '/') + ".class";
 		String windowsPath = name.replace(".", "\\") + ".class";
 
-		//first try with system classloader
-		InputStream is = ClassLoader.getSystemResourceAsStream(path);
-		if(is!=null){
-			return is;
-		}
-		if (File.separatorChar != '/') {			
-			is = ClassLoader.getSystemResourceAsStream(windowsPath);
-			if(is!=null){
-				return is;
-			}
-		}
+
 
 		String cpEntry = getCache().mapClassToCP.get(name);
 		if(cpEntry==null){
+			// Try with system classloader only if not found on the classpath
+			// because otherwise classes that are EvoSuite dependencies may be
+			// used rather than the version that is the CUT
+			InputStream is = ClassLoader.getSystemResourceAsStream(path);
+			if(is!=null){
+				return is;
+			}
+			if (File.separatorChar != '/') {			
+				is = ClassLoader.getSystemResourceAsStream(windowsPath);
+				if(is!=null){
+					return is;
+				}
+			}
 			if(!getCache().missingClasses.contains(name)){
 				getCache().missingClasses.add(name);
 				/*
