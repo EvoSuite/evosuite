@@ -19,6 +19,7 @@ package org.evosuite.coverage.line;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,16 +89,23 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * all control dependencies
 	 */
 	private void initializeControlDependencies() {
-		for(BytecodeInstruction bi : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllInstructions()) {
-			if(bi.getBasicBlock() == null) {
-				// Labels get no basic block. TODO - why?
-				continue;
-			}
-			for(ControlDependency cd : bi.getControlDependencies()) {
-				if(cd.getBranchExpressionValue()) {
-					branchesToCoverTrue.add(cd.getBranch().getActualBranchId());
-				} else {
-					branchesToCoverFalse.add(cd.getBranch().getActualBranchId());
+		// In case we target more than one class (context, or inner classes) 
+		Set<String> targetClasses = new LinkedHashSet<String>();
+		for(TestFitnessFunction ff : linesCoverageMap.values()) {
+			targetClasses.add(ff.getTargetClass());
+		}
+		for(String className : targetClasses) {
+			for(BytecodeInstruction bi : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className)) {
+				if(bi.getBasicBlock() == null) {
+					// Labels get no basic block. TODO - why?
+					continue;
+				}
+				for(ControlDependency cd : bi.getControlDependencies()) {
+					if(cd.getBranchExpressionValue()) {
+						branchesToCoverTrue.add(cd.getBranch().getActualBranchId());
+					} else {
+						branchesToCoverFalse.add(cd.getBranch().getActualBranchId());
+					}
 				}
 			}
 		}
