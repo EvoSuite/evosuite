@@ -114,7 +114,7 @@ public class CoverageAnalysis {
 	}
 
 	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
-		
+
 		// If coverage of target criteria is not already measured
 		if(!Properties.COVERAGE) {
 			for (Criterion c : Properties.CRITERION) {
@@ -127,6 +127,9 @@ public class CoverageAnalysis {
 
         for (String extraCriterion : Arrays.asList(criteria.toUpperCase().split(",")))
         {
+        	if (extraCriterion.equals("CBRANCH")){
+    			Properties.INSTRUMENT_METHOD_CALLS = true;
+    		}
             // Analyse coverage for extra criteria
             if (! ArrayUtil.contains(Properties.CRITERION, extraCriterion)) {
     		    logger.debug("Measuring additional coverage of target criterion "+extraCriterion);
