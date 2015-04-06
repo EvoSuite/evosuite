@@ -272,6 +272,7 @@ public class CoverageAnalysis {
             case LINE:
             case ARCHIVELINE:
                 return RuntimeVariable.CoveredLinesBitString;
+            case MUTATION:
             case WEAKMUTATION:
             case ARCHIVEMUTATION:
                 return RuntimeVariable.CoveredWeakMutationBitString;
