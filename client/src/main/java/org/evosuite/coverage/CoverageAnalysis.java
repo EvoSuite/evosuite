@@ -267,10 +267,13 @@ public class CoverageAnalysis {
     private static RuntimeVariable getBitStringVariable(Properties.Criterion criterion){
         switch (criterion){
             case BRANCH:
+            case ARCHIVEBRANCH:
                 return RuntimeVariable.CoveredBranchesBitString;
             case LINE:
+            case ARCHIVELINE:
                 return RuntimeVariable.CoveredLinesBitString;
             case WEAKMUTATION:
+            case ARCHIVEMUTATION:
                 return RuntimeVariable.CoveredWeakMutationBitString;
             default:
                 return null;
