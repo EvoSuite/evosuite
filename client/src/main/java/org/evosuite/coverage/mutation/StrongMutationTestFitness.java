@@ -329,8 +329,14 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 			infectionDistance = normalize(result.getTrace().getMutationDistance(mutation.getId()));
 			logger.debug("Infection distance for mutation = " + infectionDistance);
 
+			// Don't re-execute on the mutant if we believe the mutant causes timeouts
+			if (MutationTimeoutStoppingCondition.isDisabled(mutation) && infectionDistance <= 0) { 
+				impactDistance = 0.0;
+			}
 			// If infected check if it is also killed
-			if (infectionDistance <= 0) {
+			else if (infectionDistance <= 0) {
+
+				
 				logger.debug("Running test on mutant " + mutation.getId());
 				MutationExecutionResult mutationResult = individual.getLastExecutionResult(mutation);
 
