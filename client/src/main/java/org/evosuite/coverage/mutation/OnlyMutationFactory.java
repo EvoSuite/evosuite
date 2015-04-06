@@ -14,8 +14,8 @@ public class OnlyMutationFactory extends AbstractFitnessFactory<OnlyMutationTest
 		List<OnlyMutationTestFitness> goals = new ArrayList<OnlyMutationTestFitness>();
 
 		for (Mutation m : MutationPool.getMutants()) {
-			if (MutationTimeoutStoppingCondition.isDisabled(m))
-				continue;
+			//if (MutationTimeoutStoppingCondition.isDisabled(m))
+			//	continue;
 			goals.add(new OnlyMutationTestFitness(m));
 		}
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, goals.size());
