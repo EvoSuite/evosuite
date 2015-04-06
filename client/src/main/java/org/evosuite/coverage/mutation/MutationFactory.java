@@ -88,8 +88,9 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 			if (targetMethod != null && !m.getMethodName().endsWith(targetMethod))
 				continue;
 
-			if (MutationTimeoutStoppingCondition.isDisabled(m))
-				continue;
+			// We need to return all mutants to make coverage values and bitstrings consistent 
+			//if (MutationTimeoutStoppingCondition.isDisabled(m))
+			//	continue;
 			if (strong)
 				goals.add(new StrongMutationTestFitness(m));
 			else

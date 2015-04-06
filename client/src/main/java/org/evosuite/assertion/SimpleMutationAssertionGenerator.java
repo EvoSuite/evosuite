@@ -117,15 +117,21 @@ public class SimpleMutationAssertionGenerator extends
 			}
 
 			assert (m != null);
+			if(MutationTimeoutStoppingCondition.isDisabled(m)) {
+				killed.add(m.getId());
+				continue;
+			}
 			if (timedOutMutations.containsKey(m)) {
 				if (timedOutMutations.get(m) >= Properties.MUTATION_TIMEOUTS) {
 					logger.debug("Skipping timed out mutant");
+					killed.add(m.getId());
 					continue;
 				}
 			}
 			if (exceptionMutations.containsKey(m)) {
 				if (exceptionMutations.get(m) >= Properties.MUTATION_TIMEOUTS) {
 					logger.debug("Skipping mutant with exceptions");
+					killed.add(m.getId());
 					continue;
 				}
 			}
