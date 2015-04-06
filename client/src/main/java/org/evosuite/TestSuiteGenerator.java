@@ -974,8 +974,10 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.COVERAGE) {
-		    for (Properties.Criterion pc : Properties.CRITERION)
+		    for (Properties.Criterion pc : Properties.CRITERION) {
+		        LoggingUtils.getEvoLogger().info("* Coverage analysis for criterion " + pc);
 		        CoverageAnalysis.analyzeCoverage(bestSuites.get(0), pc); // FIXME: can we send all bestSuites?
+            }
 		}
 
 		// progressMonitor.updateStatus(99);
