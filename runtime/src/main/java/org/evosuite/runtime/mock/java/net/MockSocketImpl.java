@@ -12,10 +12,12 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketImpl;
 
-/**
- * TODO need to implement rollback
- */
+
 public abstract class MockSocketImpl extends SocketImpl implements OverrideMock {
+
+    /*
+        does not seem to really need any rollback
+     */
 
     protected MockSocket socket = null;
     protected MockServerSocket serverSocket = null;
