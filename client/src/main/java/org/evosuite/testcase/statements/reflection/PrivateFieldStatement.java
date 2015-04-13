@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 /**
- * Statement representing the setting of a private field, which is done with through reflection in the
+ * Statement representing the setting of a private field, which is done through reflection in the
  * generated JUnit tests.
  *
  * Created by foo on 20/02/15.
