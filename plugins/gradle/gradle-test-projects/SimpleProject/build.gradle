@@ -1,0 +1,17 @@
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath group: 'org.evosuite.plugins', name: 'evosuite-gradle-plugin',
+                version: '0.1.2-SNAPSHOT'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.evosuite.gradle'
+
+dependencies {
+    //compile gradleApi()
+    //testCompile 'junit:junit:4.11'
+}
