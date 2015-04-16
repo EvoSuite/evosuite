@@ -135,7 +135,15 @@ public class EvoSuite {
 				 */
                 String[] unrecognized = line.getArgs();
                 if (unrecognized.length > 0) {
-                    throw new IllegalArgumentException("There are " + unrecognized.length + " unrecognized inputs: " + Arrays.toString(unrecognized));
+                    String msg = "";
+                    if(unrecognized.length==1){
+                        msg = "There is one unrecognized input:";
+                    } else {
+                        msg = "There are " + unrecognized.length + " unrecognized inputs:";
+                    }
+                    msg += " " + Arrays.toString(unrecognized);
+                    msg += "\nRecall, '-Dx=v' assignments should have no space, i.e. '-Dx= v' and '-Dx = v' are wrong";
+                    throw new IllegalArgumentException(msg);
                 }
             }
 
