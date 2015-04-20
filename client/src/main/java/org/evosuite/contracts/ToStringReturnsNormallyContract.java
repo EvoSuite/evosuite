@@ -24,12 +24,12 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
-import org.evosuite.testcase.TestCaseExecutor.TimeoutExceeded;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.execution.TestCaseExecutor.TimeoutExceeded;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.GenericMethod;
 
 
@@ -45,7 +45,7 @@ public class ToStringReturnsNormallyContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
+	public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
 		for(VariableReference var : getAllVariables(scope)) {
 			logger.debug("Current variable: "+var);
 			Object object = scope.getObject(var);
@@ -86,7 +86,7 @@ public class ToStringReturnsNormallyContract extends Contract {
 	}
 
 	@Override
-	public void addAssertionAndComments(StatementInterface statement,
+	public void addAssertionAndComments(Statement statement,
 			List<VariableReference> variables, Throwable exception) {
 		TestCase test = statement.getTestCase();
 		int position = statement.getPosition();
@@ -97,7 +97,7 @@ public class ToStringReturnsNormallyContract extends Contract {
 
 			GenericMethod method = new GenericMethod(hashCodeMethod, a.getGenericClass());
 
-			StatementInterface st1 = new MethodStatement(test, method, a, Arrays.asList(new VariableReference[] {}));
+			Statement st1 = new MethodStatement(test, method, a, Arrays.asList(new VariableReference[] {}));
 			test.addStatement(st1, position + 1);
 			st1.addComment("Throws exception: "+exception.getMessage());
 			

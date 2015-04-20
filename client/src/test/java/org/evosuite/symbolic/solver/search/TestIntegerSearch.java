@@ -41,8 +41,8 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringConstant;
-import org.evosuite.symbolic.solver.search.ConstraintSolver;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
 /**
@@ -59,7 +59,7 @@ public class TestIntegerSearch {
 						-1000000, 1000000), Comparator.EQ, new IntegerConstant(
 						235082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -81,7 +81,7 @@ public class TestIntegerSearch {
 				235082, -1000000, 1000000), Comparator.NE, new IntegerConstant(
 				235082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -103,7 +103,7 @@ public class TestIntegerSearch {
 				235086, -1000000, 1000000), Comparator.LE, new IntegerConstant(
 				235082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -125,7 +125,7 @@ public class TestIntegerSearch {
 				235086, -1000000, 1000000), Comparator.LT, new IntegerConstant(
 				235082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -148,7 +148,7 @@ public class TestIntegerSearch {
 						-1000000, 1000000), Comparator.GE, new IntegerConstant(
 						235082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -171,7 +171,7 @@ public class TestIntegerSearch {
 						-1000000, 1000000), Comparator.GT, new IntegerConstant(
 						235082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -192,7 +192,7 @@ public class TestIntegerSearch {
 				var1, -1000000, 1000000), Comparator.EQ, new IntegerVariable(
 				"test2", var2, -1000000, 1000000)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -216,7 +216,7 @@ public class TestIntegerSearch {
 				var1, -1000000, 1000000), Comparator.NE, new IntegerVariable(
 				"test2", var2, -1000000, 1000000)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -240,7 +240,7 @@ public class TestIntegerSearch {
 				var1, -1000000, 1000000), Comparator.LE, new IntegerVariable(
 				"test2", var2, -1000000, 1000000)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -264,7 +264,7 @@ public class TestIntegerSearch {
 				var1, -1000000, 1000000), Comparator.LT, new IntegerVariable(
 				"test2", var2, -1000000, 1000000)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -288,7 +288,7 @@ public class TestIntegerSearch {
 				var1, -1000000, 1000000), Comparator.GE, new IntegerVariable(
 				"test2", var2, -1000000, 1000000)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -312,7 +312,7 @@ public class TestIntegerSearch {
 				var1, -1000000, 1000000), Comparator.GT, new IntegerVariable(
 				"test2", var2, -1000000, 1000000)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -341,7 +341,7 @@ public class TestIntegerSearch {
 						-1000000, 1000000), Operator.PLUS, new IntegerVariable(
 						"test3", var3, -1000000, 1000000), 0L)));
 
-		ConstraintSolver solver = new ConstraintSolver();
+		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = solver.solve(constraints);
@@ -372,7 +372,7 @@ public class TestIntegerSearch {
 						-1000000, 1000000), Operator.PLUS, new IntegerVariable(
 						"test3", var3, -1000000, 1000000), 0L)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -403,7 +403,7 @@ public class TestIntegerSearch {
 						-1000000, 1000000), Operator.PLUS, new IntegerVariable(
 						"test3", var3, -1000000, 1000000), 0L)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -434,7 +434,7 @@ public class TestIntegerSearch {
 						-1000000, 1000000), Operator.PLUS, new IntegerVariable(
 						"test3", var3, -1000000, 1000000), 0L)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -465,7 +465,7 @@ public class TestIntegerSearch {
 						-1000000, 1000000), Operator.PLUS, new IntegerVariable(
 						"test3", var3, -1000000, 1000000), 0L)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -496,7 +496,7 @@ public class TestIntegerSearch {
 						-1000000, 1000000), Operator.PLUS, new IntegerVariable(
 						"test3", var3, -1000000, 1000000), 0L)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -531,7 +531,7 @@ public class TestIntegerSearch {
 						-1000000, 1000000), Comparator.GE, new IntegerConstant(
 						0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -565,7 +565,7 @@ public class TestIntegerSearch {
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(new IntegerConstraint(mul, Comparator.EQ, iconst2));
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -630,7 +630,7 @@ public class TestIntegerSearch {
 
 		List<Constraint<?>> constraints = Collections
 				.<Constraint<?>> singletonList(constr);
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -670,7 +670,7 @@ public class TestIntegerSearch {
 
 		List<Constraint<?>> constraints = Collections
 				.<Constraint<?>> singletonList(constr);
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -714,7 +714,7 @@ public class TestIntegerSearch {
 		constraints.add(new IntegerConstraint(ivar1, Comparator.NE, iconst1));
 		constraints.add(new IntegerConstraint(ivar1, Comparator.EQ, iconst2));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -759,7 +759,7 @@ public class TestIntegerSearch {
 				new IntegerConstant(0)));
 		constraints.add(new IntegerConstraint(ivar2, Comparator.LE, ivar1));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);

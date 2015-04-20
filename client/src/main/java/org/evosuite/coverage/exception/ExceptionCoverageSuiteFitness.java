@@ -21,20 +21,15 @@ package org.evosuite.coverage.exception;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;
@@ -47,7 +42,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static Logger logger = LoggerFactory.getLogger(ExceptionCoverageSuiteFitness.class);
 
-	protected TestSuiteFitnessFunction baseFF;
+    private static int maxExceptionsCovered = 0;
 
 	/**
 	 * <p>
@@ -55,8 +50,11 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * </p>
 	 */
 	public ExceptionCoverageSuiteFitness() {
-		baseFF = new BranchCoverageSuiteFitness();
 	}
+
+    public static int getMaxExceptionsCovered() {
+        return maxExceptionsCovered;
+    }
 
 	/** {@inheritDoc} */
 	@Override
@@ -70,43 +68,58 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		 * but because "coverage" is only used for stats, no need to update it here, as
 		 * anyway it d be bit difficult to define
 		 */
-		double coverageFitness = baseFF.getFitness(suite);
+		//double coverageFitness = baseFF.getFitness(suite);
 
 		/*
 		 * for each method in the SUT, we keep track of which kind of exceptions were thrown.
 		 * we distinguish between "implicit" and "explicit" 
 		 */
-		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
-		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
+		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new HashMap<>();
+        Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<>();
+        Map<String, Set<Class<?>>> declaredTypesOfExceptions = new HashMap<>();
 
 		List<ExecutionResult> results = runTestSuite(suite);
-		
-		calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions);
 
-		int nExc = getNumExceptions(implicitTypesOfExceptions) + getNumExceptions(explicitTypesOfExceptions);
+		calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions,declaredTypesOfExceptions);
+
+		int nExc = getNumExceptions(implicitTypesOfExceptions) + getNumExceptions(explicitTypesOfExceptions) +
+                getNumExceptions(declaredTypesOfExceptions);
+
+        if (nExc > maxExceptionsCovered) {
+            logger.info("(Exceptions) Best individual covers " + nExc + " exceptions");
+            maxExceptionsCovered = nExc;
+        }
+
+        // I set it here, but in the end it will be recomputed according to the total number of Exceptions
+        suite.setCoverage(this, nExc / (nExc + 1.0));
 
 		double exceptionFitness = 1d / (1d + nExc);
 
-		suite.setFitness(this, coverageFitness + exceptionFitness);
-		return coverageFitness + exceptionFitness;
+        suite.setFitness(this, exceptionFitness);
+
+        return exceptionFitness;
 	}
 
 	
 	
 	/**
-	 * given the list of results, fill the 2 given (empty) maps with exception information
+	 * Given the list of results, fill the 3 given (empty) maps with exception information.
+	 * Also, add exception coverage goals to mapping in {@link ExceptionCoverageFactory}
 	 * 
 	 * @param results
 	 * @param implicitTypesOfExceptions
 	 * @param explicitTypesOfExceptions
+     * @param declaredTypesOfExceptions
 	 * @throws IllegalArgumentException
 	 */
 	public static void calculateExceptionInfo(List<ExecutionResult> results, 
-			Map<String, Set<Class<?>>> implicitTypesOfExceptions, Map<String, Set<Class<?>>> explicitTypesOfExceptions)
+			Map<String, Set<Class<?>>> implicitTypesOfExceptions, Map<String, Set<Class<?>>> explicitTypesOfExceptions,
+            Map<String, Set<Class<?>>> declaredTypesOfExceptions)
 		throws IllegalArgumentException{
 		
 		if(results==null || implicitTypesOfExceptions==null || explicitTypesOfExceptions==null ||
-				!implicitTypesOfExceptions.isEmpty() || !explicitTypesOfExceptions.isEmpty()){
+				!implicitTypesOfExceptions.isEmpty() || !explicitTypesOfExceptions.isEmpty() ||
+                declaredTypesOfExceptions==null || !declaredTypesOfExceptions.isEmpty()){
 			throw new IllegalArgumentException();
 		}
 		
@@ -141,13 +154,13 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				
 				String methodName = "";
 				boolean sutException = false;
-				
+
 				if (result.test.getStatement(i) instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement) result.test.getStatement(i);
 					Method method = ms.getMethod().getMethod();
 					methodName = method.getName() + Type.getMethodDescriptor(method);
-					
-					if (method.getDeclaringClass().equals(Properties.getTargetClass())){
+
+                    if (method.getDeclaringClass().equals(Properties.getTargetClass())){
 						sutException = true;
 					}
 					
@@ -160,38 +173,56 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 						sutException = true;
 					}
 				}
-
-				boolean notDeclared = !result.test.getStatement(i).getDeclaredExceptions().contains(t.getClass());
+				
+				boolean notDeclared = true;
+				// Check if thrown exception is declared, or subclass of a declared exception 
+				for(Class<?> declaredExceptionClass : result.test.getStatement(i).getDeclaredExceptions()) {
+					if(declaredExceptionClass.isAssignableFrom(t.getClass())) {
+						notDeclared = false;
+						break;
+					}
+				}
 
 				/*
 				 * We only consider exceptions that were thrown directly in the SUT (not called libraries)
-				 * and that are not declared in the signature of the method.
 				 */
 
-				if (notDeclared && sutException) {
-					/*
-					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
-					 * input for pre-condition) or implicit ("likely" a real fault).
-					 */
+				if (sutException) {
 
-					boolean isExplicit = isExceptionExplicit.get(result.test).containsKey(i)
-					        && isExceptionExplicit.get(result.test).get(i);
+                    if(notDeclared) {
+                        /*
+					     * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
+					     * input for pre-condition) or implicit ("likely" a real fault).
+					     */
 
-					if (isExplicit) {
-						
-						if (!explicitTypesOfExceptions.containsKey(methodName)){
-							explicitTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
-						}
-						explicitTypesOfExceptions.get(methodName).add(t.getClass());
-						
-					} else {
-						
-						if (!implicitTypesOfExceptions.containsKey(methodName)){
-							implicitTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
-						}
-						implicitTypesOfExceptions.get(methodName).add(t.getClass());
-						
-					}
+                        boolean isExplicit = isExceptionExplicit.get(result.test).containsKey(i)
+                                && isExceptionExplicit.get(result.test).get(i);
+
+                        if (isExplicit) {
+
+                            if (!explicitTypesOfExceptions.containsKey(methodName)) {
+                                explicitTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
+                            }
+                            explicitTypesOfExceptions.get(methodName).add(t.getClass());
+                        } else {
+
+                            if (!implicitTypesOfExceptions.containsKey(methodName)) {
+                                implicitTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
+                            }
+                            implicitTypesOfExceptions.get(methodName).add(t.getClass());
+                        }
+                    } else {
+                        if (!declaredTypesOfExceptions.containsKey(methodName)) {
+                            declaredTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
+                        }
+                        declaredTypesOfExceptions.get(methodName).add(t.getClass());
+                    }
+
+
+                    /*
+                     * Add goal to ExceptionCoverageFactory
+                     */
+                    ExceptionCoverageFactory.getGoals().put(methodName + t.getClass().getName(), new ExceptionCoverageTestFitness(methodName, t.getClass()));
 				}
 
 			}

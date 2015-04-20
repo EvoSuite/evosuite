@@ -48,7 +48,7 @@ public class ReturnValueAdapter extends MethodVisitor {
 	 */
 	public ReturnValueAdapter(MethodVisitor mv, String className, String methodName,
 	        String desc) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		fullMethodName = methodName + desc;
 		this.methodName = methodName;
 		this.className = className;
@@ -96,13 +96,13 @@ public class ReturnValueAdapter extends MethodVisitor {
 			this.visitInsn(Opcodes.DUP);
 			if (type == PDType.FLOAT) {
 				this.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float",
-				                     "floatToRawIntBits", "(F)I");
+				                     "floatToRawIntBits", "(F)I", false);
 			}
 		} else {
 			this.visitInsn(Opcodes.DUP2);
 			if (type == PDType.DOUBLE) {
 				this.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double",
-				                     "doubleToRawLongBits", "(D)J");
+				                     "doubleToRawLongBits", "(D)J", false);
 			}
 			this.visitInsn(Opcodes.DUP2);
 			this.visitIntInsn(Opcodes.BIPUSH, 32);
@@ -114,8 +114,8 @@ public class ReturnValueAdapter extends MethodVisitor {
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
 		this.visitMethodInsn(Opcodes.INVOKESTATIC,
-		                     "org/evosuite/testcase/ExecutionTracer",
-		                     "returnValue", "(ILjava/lang/String;Ljava/lang/String;)V");
+		                     "org/evosuite/testcase/execution/ExecutionTracer",
+		                     "returnValue", "(ILjava/lang/String;Ljava/lang/String;)V", false);
 	}
 
 	private void callLogIReturn() {
@@ -127,9 +127,9 @@ public class ReturnValueAdapter extends MethodVisitor {
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
 		this.visitMethodInsn(Opcodes.INVOKESTATIC,
-		                     "org/evosuite/testcase/ExecutionTracer",
+		                     "org/evosuite/testcase/execution/ExecutionTracer",
 		                     "returnValue",
-		                     "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V");
+		                     "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
 	}
 
 	private void callLogLReturn() {

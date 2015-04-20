@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.evosuite.Properties;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.mock.MockFramework;
 import org.junit.After;
 import org.junit.Test;
 
@@ -27,6 +28,7 @@ public class MockRuntimeLoadingTest {
 		Properties.REPLACE_CALLS = true;
 		
 		InstrumentingClassLoader cl = new InstrumentingClassLoader();
+		MockFramework.enable();
 		Class<?> clazz = cl.loadClass(MemoryCheck.class.getCanonicalName());
 		
 		Object mc = clazz.newInstance();

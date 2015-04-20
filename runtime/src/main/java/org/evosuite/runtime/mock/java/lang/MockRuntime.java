@@ -10,6 +10,7 @@ import java.util.StringTokenizer;
 import org.evosuite.runtime.System.SystemExitException;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.mock.StaticReplacementMock;
+import org.evosuite.runtime.mock.java.io.MockIOException;
 
 
 public class MockRuntime implements StaticReplacementMock{
@@ -75,7 +76,7 @@ public class MockRuntime implements StaticReplacementMock{
 	public static Process exec(Runtime runtime, String command, String[] envp, File dir) throws IOException {
 		
 		if (command.length() == 0)
-			throw new IllegalArgumentException("Empty command");
+			throw new MockIllegalArgumentException("Empty command");
 
 		StringTokenizer st = new StringTokenizer(command);
 		String[] cmdarray = new String[st.countTokens()];
@@ -102,7 +103,7 @@ public class MockRuntime implements StaticReplacementMock{
 		.start();
 		*/
 		//TODO mock ProcessBuilder 
-		throw new IOException("Cannot start processes in a unit test");
+		throw new MockIOException("Cannot start processes in a unit test");
 	}
 
 	public static  void gc(Runtime runtime){

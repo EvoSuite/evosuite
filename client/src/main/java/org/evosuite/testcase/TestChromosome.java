@@ -18,6 +18,7 @@
 package org.evosuite.testcase;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -27,12 +28,16 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.ga.localsearch.TestCaseLocalSearch;
 import org.evosuite.ga.operators.mutation.MutationHistory;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.ConcolicMutation;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
@@ -53,7 +58,7 @@ public class TestChromosome extends ExecutableChromosome {
 	protected MutationHistory<TestMutationHistoryEntry> mutationHistory = new MutationHistory<TestMutationHistoryEntry>();
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
+	private static final List<SecondaryObjective<?>> secondaryObjectives = new ArrayList<SecondaryObjective<?>>();
 
 	/**
 	 * <p>
@@ -113,7 +118,6 @@ public class TestChromosome extends ExecutableChromosome {
 	public Chromosome clone() {
 		TestChromosome c = new TestChromosome();
 		c.test = test.clone();
-		//c.setFitness(getFitness());
 		c.setFitnesses(getFitnesses());
 		c.setLastFitnesses(getLastFitnesses());
 		c.solution = solution;
@@ -121,7 +125,8 @@ public class TestChromosome extends ExecutableChromosome {
 		c.setChanged(isChanged());
 		if (Properties.LOCAL_SEARCH_SELECTIVE) {
 			for (TestMutationHistoryEntry mutation : mutationHistory) {
-				c.mutationHistory.addMutationEntry(mutation.clone(c.getTestCase()));
+				if(test.contains(mutation.getStatement()))
+					c.mutationHistory.addMutationEntry(mutation.clone(c.getTestCase()));
 			}
 		}
 		// c.mutationHistory.set(mutationHistory);
@@ -211,6 +216,10 @@ public class TestChromosome extends ExecutableChromosome {
 		return mutationHistory;
 	}
 
+	public void clearMutationHistory() {
+		mutationHistory.clear();
+	}
+
 	public boolean hasRelevantMutations() {
 
 		if (mutationHistory.isEmpty()) {
@@ -282,6 +291,11 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean changed = false;
 		mutationHistory.clear();
 
+		int lastPosition = getLastMutatableStatement();
+		if(Properties.CHOP_MAX_LENGTH && size() >= Properties.CHROMOSOME_LENGTH) {
+			test.chop(lastPosition + 1);
+		}
+		
 		// Delete
 		if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
 			logger.debug("Mutation: delete");
@@ -305,7 +319,7 @@ public class TestChromosome extends ExecutableChromosome {
 		if (changed) {
 			setChanged(true);
 		}
-		for (StatementInterface s : test) {
+		for (Statement s : test) {
 			s.isValid();
 		}
 	}
@@ -386,7 +400,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 		if (!changed) {
 			for (int position = 0; position <= lastMutatableStatement; position++) {
-				StatementInterface statement = test.getStatement(position);
+				Statement statement = test.getStatement(position);
 				//for (StatementInterface statement : test) {
 				if (Randomness.nextDouble() <= pl) {
 					assert (test.isValid());
@@ -427,7 +441,7 @@ public class TestChromosome extends ExecutableChromosome {
 		final double ALPHA = Properties.P_STATEMENT_INSERTION; //0.5;
 		int count = 0;
 		TestFactory testFactory = TestFactory.getInstance();
-
+		
 		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
 			count++;
@@ -560,26 +574,21 @@ public class TestChromosome extends ExecutableChromosome {
 		return testSuiteFitnessFunction.runTest(this.test);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.Chromosome#compareSecondaryObjective(org.evosuite.ga.Chromosome)
-	 */
-	/** {@inheritDoc} */
 	@Override
-	public int compareSecondaryObjective(Chromosome o) {
+	@SuppressWarnings("unchecked")
+	public  <T extends Chromosome> int compareSecondaryObjective(T o) {
 		int objective = 0;
 		int c = 0;
 
 		while (c == 0 && objective < secondaryObjectives.size()) {
-			SecondaryObjective so = secondaryObjectives.get(objective++);
+			
+			SecondaryObjective<T> so = (SecondaryObjective<T>) secondaryObjectives.get(objective++);
 			if (so == null)
 				break;
-			c = so.compareChromosomes(this, o);
-		}
-		//logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
-		//        + o.size() + " = " + c);
+			c = so.compareChromosomes((T) this, o);
+		} 
 		return c;
 	}
-
 	/**
 	 * Add an additional secondary objective to the end of the list of
 	 * objectives
@@ -587,8 +596,16 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void addSecondaryObjective(SecondaryObjective objective) {
+	public static void addSecondaryObjective(SecondaryObjective<?> objective) {
 		secondaryObjectives.add(objective);
+	}
+	
+	public static void ShuffleSecondaryObjective() {
+		Collections.shuffle(secondaryObjectives);
+	}
+	
+	public static void reverseSecondaryObjective() {
+		Collections.reverse(secondaryObjectives);
 	}
 
 	/**
@@ -597,7 +614,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void removeSecondaryObjective(SecondaryObjective objective) {
+	public static void removeSecondaryObjective(SecondaryObjective<?> objective) {
 		secondaryObjectives.remove(objective);
 	}
 
@@ -608,7 +625,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * 
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<SecondaryObjective> getSecondaryObjectives() {
+	public static List<SecondaryObjective<?>> getSecondaryObjectives() {
 		return secondaryObjectives;
 	}
 

@@ -14,11 +14,12 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.result.TestGenerationResult.Status;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.utils.LoggingUtils;
 
 public class TestGenerationResultBuilder {
@@ -115,7 +116,10 @@ public class TestGenerationResultBuilder {
 		result.setExceptionMutants(exceptionMutants);
 		result.setTestSuiteCode(code);
 		result.setGeneticAlgorithm(ga);
-		result.setTargetCoverage(targetCoverage);
+        for (Map.Entry<FitnessFunction<?>, Double> e : targetCoverages.entrySet()) {
+            result.setTargetCoverage(e.getKey(), e.getValue());
+        }
+
 	}
 	
 	private String code = "";
@@ -142,7 +146,7 @@ public class TestGenerationResultBuilder {
 
 	private Set<MutationInfo> uncoveredMutants = new LinkedHashSet<MutationInfo>();
 
-	private double targetCoverage = 0.0;
+    private LinkedHashMap<FitnessFunction<?>, Double> targetCoverages = new LinkedHashMap<FitnessFunction<?>, Double>();
 	
 	public void setTestCase(String name, String code, TestCase testCase, String comment, ExecutionResult result) {
 		testCode.put(name, code);
@@ -200,6 +204,8 @@ public class TestGenerationResultBuilder {
 	
 	public void setGeneticAlgorithm(GeneticAlgorithm<?> ga) {
 		this.ga = ga;
-		targetCoverage = ga.getBestIndividual().getCoverage();
+        for (Map.Entry<FitnessFunction<?>, Double> e : ga.getBestIndividual().getCoverages().entrySet()) {
+            targetCoverages.put(e.getKey(), e.getValue());
+        }
 	}
 }

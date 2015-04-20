@@ -42,6 +42,7 @@ import org.evosuite.executionmode.MeasureCoverage;
 import org.evosuite.executionmode.PrintStats;
 import org.evosuite.executionmode.Setup;
 import org.evosuite.executionmode.TestGeneration;
+import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.runtime.agent.ToolsJarLocator;
 import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.evosuite.setup.InheritanceTree;
@@ -79,7 +80,7 @@ public class EvoSuite {
     public static String base_dir_path = System.getProperty("user.dir");
 
     public static String generateInheritanceTree(String cp) throws IOException {
-        LoggingUtils.getEvoLogger().info("* Analyzing classpath");
+        LoggingUtils.getEvoLogger().info("* Analyzing classpath (generating inheritance tree)");
         List<String> cpList = Arrays.asList(cp.split(File.pathSeparator));
         // Clear current inheritance file to make sure a new one is generated
         Properties.INHERITANCE_FILE = "";
@@ -140,7 +141,7 @@ public class EvoSuite {
 
             setupProperties();
 
-            if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS || Properties.RESET_STATIC_FIELDS) {
+            if (TestSuiteWriterUtils.needToUseAgent()) {
 				/*
 				 * if we need to activate JavaAgent (eg to handle environment in generated tests), we need
 				 * to be sure we can use tools.jar
@@ -163,6 +164,22 @@ public class EvoSuite {
                 }
             }
 
+            if (!line.hasOption("regressionSuite")) {
+                if (line.hasOption("criterion")) {
+                    //TODO should check if already defined
+                    javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
+
+                    //FIXME should really better handle the validation of javaOpts in the master, not client
+                    try {
+                        Properties.getInstance().setValue("criterion", line.getOptionValue("criterion"));
+                    } catch (Exception e) {
+                        throw new Error("Invalid value for criterion: "+e.getMessage());
+                    }
+                }
+            } else {
+                javaOpts.add("-Dcriterion=regression");
+            }
+
 			/*
 			 * FIXME: every time in the Master we set a parameter with -D,
 			 * we should check if it actually exists (ie detect typos)
@@ -176,13 +193,6 @@ public class EvoSuite {
 
             CommandLineParameters.handleJVMOptions(javaOpts, line);
 
-            if (!line.hasOption("regressionSuite")) {
-                if (line.hasOption("criterion")) {
-                    javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
-                }
-            } else {
-                javaOpts.add("-Dcriterion=regression");
-            }
 
             if (line.hasOption("base_dir")) {
                 base_dir_path = line.getOptionValue("base_dir");

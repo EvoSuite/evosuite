@@ -28,11 +28,11 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.testcase.ExecutionObserver;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericMethod;
 import org.junit.experimental.theories.Theory;
 import org.slf4j.Logger;
@@ -174,7 +174,7 @@ public class ContractChecker extends ExecutionObserver {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void afterStatement(StatementInterface statement, Scope scope,
+	public void afterStatement(Statement statement, Scope scope,
 	        Throwable exception) {
 
 		//if (!ContractChecker.valid) {
@@ -228,7 +228,7 @@ public class ContractChecker extends ExecutionObserver {
 	 * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
 	 */
 	@Override
-	public void beforeStatement(StatementInterface statement, Scope scope) {
+	public void beforeStatement(Statement statement, Scope scope) {
 		// Do nothing
 	}
 

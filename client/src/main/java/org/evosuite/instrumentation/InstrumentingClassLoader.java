@@ -123,6 +123,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 	/** {@inheritDoc} */
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
+		if("<evosuite>".equals(name))
+			throw new ClassNotFoundException();
 		//if (instrumentation.isTargetProject(name)) {
 		// if (TestCluster.isTargetClassName(name)) {
 		if (!BytecodeInstrumentation.checkIfCanInstrument(name)
@@ -171,14 +173,13 @@ public class InstrumentingClassLoader extends ClassLoader {
 		*/
 	}
 
-	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
-	        throws ClassNotFoundException {
-		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
-		
+	private Class<?> instrumentClass(String fullyQualifiedTargetClass)throws ClassNotFoundException  {
 		InputStream is = null;
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
-
+//			if (classes.containsKey(fullyQualifiedTargetClass)) {
+//				return classes.get(fullyQualifiedTargetClass);
+//			}
 			is = isRegression?ResourceList.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass)
 					:ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
 			

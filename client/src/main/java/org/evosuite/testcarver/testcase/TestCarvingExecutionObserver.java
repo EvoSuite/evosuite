@@ -1,13 +1,13 @@
 package org.evosuite.testcarver.testcase;
 
 import org.evosuite.testcarver.capture.FieldRegistry;
-import org.evosuite.testcase.AssignmentStatement;
-import org.evosuite.testcase.ExecutionObserver;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.FieldReference;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.FieldReference;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.utils.GenericField;
 import org.objectweb.asm.Type;
 
@@ -34,7 +34,7 @@ public final class TestCarvingExecutionObserver extends ExecutionObserver {
 	 * own comment..
 	 */
 	@Override
-	public void afterStatement(final StatementInterface statement, final Scope scope,
+	public void afterStatement(final Statement statement, final Scope scope,
 	        final Throwable exception) {
 		if (statement instanceof AssignmentStatement) {
 			final AssignmentStatement assign = (AssignmentStatement) statement;
@@ -58,7 +58,7 @@ public final class TestCarvingExecutionObserver extends ExecutionObserver {
 	 * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
 	 */
 	@Override
-	public void beforeStatement(StatementInterface statement, Scope scope) {
+	public void beforeStatement(Statement statement, Scope scope) {
 		// Do nothing
 	}
 

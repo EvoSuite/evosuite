@@ -12,8 +12,8 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.TestCaseExecutor;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +21,8 @@ import org.junit.Test;
 import com.examples.with.different.packagename.concolic.TestCase0;
 import com.examples.with.different.packagename.concolic.TestCase1;
 import com.examples.with.different.packagename.concolic.TestCase10;
+import com.examples.with.different.packagename.concolic.TestCase100;
+import com.examples.with.different.packagename.concolic.TestCase101;
 import com.examples.with.different.packagename.concolic.TestCase11;
 import com.examples.with.different.packagename.concolic.TestCase12;
 import com.examples.with.different.packagename.concolic.TestCase13;
@@ -112,6 +114,7 @@ import com.examples.with.different.packagename.concolic.TestCase95;
 import com.examples.with.different.packagename.concolic.TestCase96;
 import com.examples.with.different.packagename.concolic.TestCase97;
 import com.examples.with.different.packagename.concolic.TestCase98;
+import com.examples.with.different.packagename.concolic.TestCase99;
 
 public class ConcolicExecutionTest {
 
@@ -2168,6 +2171,52 @@ public class ConcolicExecutionTest {
 		return tc.getDefaultTestCase();
 	}
 
+	private DefaultTestCase buildTestCase99() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		Method method = TestCase99.class.getMethod("test", String.class);
+
+		VariableReference string0 = tc.appendStringPrimitive("10");
+
+		tc.appendMethod(null, method, string0);
+
+		return tc.getDefaultTestCase();
+	}
+
+	private DefaultTestCase buildTestCase100() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		Method method = TestCase100.class.getMethod("test", String.class,
+				int.class);
+
+		VariableReference string0 = tc.appendStringPrimitive("roberto");
+
+		VariableReference int0 = tc.appendIntPrimitive(-1);
+
+		tc.appendMethod(null, method, string0, int0);
+
+		return tc.getDefaultTestCase();
+	}
+
+	private DefaultTestCase buildTestCase101() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		Method method = TestCase101.class.getMethod("test", Class.class,
+				String.class);
+
+		VariableReference clazzPrimitive0 = tc
+				.appendClassPrimitive(TestCase101.class);
+		VariableReference string0 = tc.appendStringPrimitive(TestCase101.class
+				.getName());
+
+		tc.appendMethod(null, method, clazzPrimitive0, string0);
+
+		return tc.getDefaultTestCase();
+	}
+
 	@Test
 	public void testCase94() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase94();
@@ -2203,7 +2252,6 @@ public class ConcolicExecutionTest {
 		assertEquals(18, branch_conditions.size());
 
 	}
-	
 
 	@Test
 	public void testCase98() throws SecurityException, NoSuchMethodException {
@@ -2211,5 +2259,29 @@ public class ConcolicExecutionTest {
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(0, branch_conditions.size());
 
+	}
+
+	@Test
+	public void testCase99() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase99();
+
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
+	}
+
+	@Test
+	public void testCase100() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase100();
+
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
+	}
+
+	@Test
+	public void testCase101() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase101();
+
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
 	}
 }

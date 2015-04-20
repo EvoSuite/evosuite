@@ -17,6 +17,7 @@
  */
 package org.evosuite.coverage.method;
 
+import com.examples.with.different.packagename.Compositional;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -40,7 +41,7 @@ public class TestMethodCoverageFitnessFunction extends SystemTest {
 	@Before
 	public void beforeTest() {
         Properties.CRITERION[0] = Criterion.METHOD;
-		Properties.MINIMIZE = false;
+		//Properties.MINIMIZE = false;
 	}
 
 	@Test
@@ -75,8 +76,25 @@ public class TestMethodCoverageFitnessFunction extends SystemTest {
 		
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(3, goals );
+		Assert.assertEquals(2, goals );
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
+    @Test
+    public void testMethodFitnessCompositionalExample() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = Compositional.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+
+        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+        System.out.println("EvolvedTestSuite:\n" + best);
+        int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals(4, goals );
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }

@@ -18,8 +18,8 @@ import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.search.ConstraintSolver;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
 public class TestRealConstraint {
@@ -55,7 +55,7 @@ public class TestRealConstraint {
 		System.out.println("");
 		System.out.println("Initial: " + String.valueOf(INIT_DOUBLE));
 
-		ConstraintSolver seeker = new ConstraintSolver();
+		EvoSuiteSolver seeker = new EvoSuiteSolver();
 		Map<String, Object> model;
 		try {
 			model = seeker.solve(constraints);

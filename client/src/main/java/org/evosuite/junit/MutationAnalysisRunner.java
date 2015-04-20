@@ -7,7 +7,7 @@ import java.util.Set;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
-import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 import org.junit.runner.notification.RunNotifier;

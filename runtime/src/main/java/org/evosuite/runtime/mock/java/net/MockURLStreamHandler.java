@@ -8,6 +8,7 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.UnknownHostException;
 
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 
 
@@ -17,7 +18,11 @@ public abstract class MockURLStreamHandler extends URLStreamHandler implements O
 
 	@Override
 	protected synchronized InetAddress getHostAddress(URL u) {
-		if (URLUtil.getHostAddress(u) != null)
+        if(! MockFramework.isEnabled()) {
+            return super.getHostAddress(u);
+        }
+
+        if (URLUtil.getHostAddress(u) != null)
 			return URLUtil.getHostAddress(u);
 
 		String host = u.getHost();

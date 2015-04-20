@@ -9,6 +9,7 @@ import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
 import org.evosuite.symbolic.expr.bv.StringMultipleToIntegerExpression;
+import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
@@ -59,6 +60,10 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 		if (distance != -1)
 			return distance;
 
+		distance = getDistanceStringIsInteger(n, leftVal, rightVal);
+		if (distance != -1)
+			return distance;
+
 		Comparator cmpr = n.getComparator();
 		log.debug("Calculating distance for " + leftVal + " " + cmpr + " "
 				+ rightVal);
@@ -90,6 +95,55 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 		}
 	}
 
+	private static long getDistanceStringIsInteger(IntegerConstraint n,
+			long leftVal, long rightVal) {
+
+		if (n.getLeftOperand() instanceof StringUnaryToIntegerExpression
+				&& n.getComparator() == Comparator.NE
+				&& n.getRightOperand() instanceof IntegerConstant) {
+			IntegerConstant right_constant = (IntegerConstant) n
+					.getRightOperand();
+			StringUnaryToIntegerExpression left_string_expr = (StringUnaryToIntegerExpression) n
+					.getLeftOperand();
+
+			if (right_constant.getConcreteValue().longValue() != 0L) {
+				return -1;
+			}
+
+			if (left_string_expr.getOperator() != Operator.IS_INTEGER) {
+				return -1;
+			}
+
+			String string = left_string_expr.getOperand().getConcreteValue();
+			if (string.length() > 0) {
+				char[] charArray = string.toCharArray();
+				int maxDistance = 0;
+				for (int i = 0; i < charArray.length; i++) {
+					char c = charArray[i];
+					int distance;
+					if (!Character.isDigit(c)) {
+						if (c < '0') {
+							distance = '0' - c;
+						} else if (c > '9') {
+							distance = c - '9';
+						} else {
+							throw new RuntimeException(
+									"This branch is unreachable!");
+						}
+						if (maxDistance < distance) {
+							maxDistance = distance;
+						}
+					}
+				}
+				return maxDistance;
+			} else {
+				return Long.MAX_VALUE;
+			}
+
+		}
+		return -1;
+	}
+
 	@Override
 	public Object visit(RealConstraint n, Void arg) {
 		ExpressionExecutor visitor = new ExpressionExecutor();
@@ -105,7 +159,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 			return Math.abs(left - right);
 		case NE:
 
-			return (left - right) != 0 ? (double)0 : (double) 1;
+			return (left - right) != 0 ? (double) 0 : (double) 1;
 		case LT:
 
 			return left - right < 0 ? 0 : left - right + 1;

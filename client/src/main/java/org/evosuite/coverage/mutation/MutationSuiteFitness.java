@@ -26,8 +26,8 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
@@ -79,7 +79,7 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param mutant
 	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
-	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	public ExecutionResult runTest(TestCase test, Mutation mutant) {
 

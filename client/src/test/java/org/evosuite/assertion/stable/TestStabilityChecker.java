@@ -6,7 +6,7 @@ import org.evosuite.Properties;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 
 public abstract class TestStabilityChecker {
 	public static boolean checkStability(List<TestCase> list) {

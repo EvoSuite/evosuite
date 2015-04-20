@@ -25,10 +25,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.evosuite.coverage.mutation.Mutation;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public abstract class Assertion implements Serializable {
 	protected Object value;
 
 	/** Statement to which the assertion is added */
-	protected StatementInterface statement;
+	protected Statement statement;
 	
 	/** Assertion Comment */
 	protected String comment;
@@ -115,25 +115,25 @@ public abstract class Assertion implements Serializable {
 	 * Setter for statement to which assertion is added
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 */
-	public void setStatement(StatementInterface statement) {
+	public void setStatement(Statement statement) {
 		this.statement = statement;
 	}
 
 	/**
 	 * Getter for statement to which assertion is added
 	 * 
-	 * @return a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @return a {@link org.evosuite.testcase.statements.Statement} object.
 	 */
-	public StatementInterface getStatement() {
+	public Statement getStatement() {
 		return statement;
 	}
 
 	/**
 	 * Getter for source variable
 	 * 
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getSource() {
 		return source;

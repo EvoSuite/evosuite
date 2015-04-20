@@ -10,6 +10,15 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
+import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
+import org.evosuite.coverage.line.LineCoverageSuiteFitness;
+import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
+import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
+import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
+import org.evosuite.coverage.mutation.OnlyMutationSuiteFitness;
+import org.evosuite.coverage.output.OutputCoverageSuiteFitness;
+import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.rmi.MasterServices;
@@ -94,7 +103,27 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		sequenceOutputVariableFactories.put(RuntimeVariable.FitnessTimeline.name(), new FitnessSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.SizeTimeline.name(), new SizeSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.LengthTimeline.name(), new LengthSequenceOutputVariableFactory());
-		// sequenceOutputVariableFactories.put("Generation_History", new GenerationSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.TotalExceptionsTimeline.name(), new TotalExceptionsSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.IBranchGoalsTimeline.name(), new IBranchGoalsSequenceOutputVariableFactory());
+
+        sequenceOutputVariableFactories.put(RuntimeVariable.OnlyBranchFitnessTimeline.name(), new OnlyBranchFitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.OnlyBranchCoverageTimeline.name(), new OnlyBranchCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.MethodTraceFitnessTimeline.name(), new MethodTraceFitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.MethodTraceCoverageTimeline.name(), new MethodTraceCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.MethodFitnessTimeline.name(), new MethodFitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.MethodCoverageTimeline.name(), new MethodCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.MethodNoExceptionFitnessTimeline.name(), new MethodNoExceptionFitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.MethodNoExceptionCoverageTimeline.name(), new MethodNoExceptionCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.LineFitnessTimeline.name(), new LineFitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.LineCoverageTimeline.name(), new LineCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.OutputFitnessTimeline.name(), new OutputFitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.OutputCoverageTimeline.name(), new OutputCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.ExceptionFitnessTimeline.name(), new ExceptionFitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.ExceptionCoverageTimeline.name(), new ExceptionCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationFitnessTimeline.name(), new OnlyMutationFitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationCoverageTimeline.name(), new OnlyMutationCoverageSequenceOutputVariableFactory());
+
+        // sequenceOutputVariableFactories.put("Generation_History", new GenerationSequenceOutputVariableFactory());
 		if(MasterServices.getInstance().getMasterNode() != null)
 			MasterServices.getInstance().getMasterNode().addListener(this);
 	}
@@ -123,18 +152,18 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
 		logger.debug("Received individual");
 		bestIndividual.put(rmiClientIdentifier, (TestSuiteChromosome) individual);
+        for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
+            setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
+        }
 		for(SequenceOutputVariableFactory<?> v : sequenceOutputVariableFactories.values()) {
 			v.update((TestSuiteChromosome) individual);
-		}
-		for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
-			setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
 		}
 	}
 
 	/**
 	 * Set an output variable to a value directly 
 	 * 
-	 * @param name
+	 * @param variable
 	 * @param value
 	 */
 	public void setOutputVariable(RuntimeVariable variable, Object value) {
@@ -142,8 +171,17 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	}
 
 	public void setOutputVariable(OutputVariable<?> variable) {
-		outputVariables.put(variable.getName(), variable);
-	}
+        /**
+         * if the output variable is contained in sequenceOutputVariableFactories,
+         * then it must be a DirectSequenceOutputVariableFactory, hence we set its
+         * value so that it can be used to produce the next timeline variable.
+         */
+        if (sequenceOutputVariableFactories.containsKey(variable.getName())) {
+            DirectSequenceOutputVariableFactory<Integer> v = (DirectSequenceOutputVariableFactory<Integer>)sequenceOutputVariableFactories.get(variable.getName());
+            v.setValue((Integer)variable.getValue());
+        } else
+            outputVariables.put(variable.getName(), variable);
+    }
 
 	public void addTestGenerationResult(List<TestGenerationResult> result) {
 	    results.add(result);
@@ -444,4 +482,243 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			return individual.totalLengthOfTestCases();
 		}
 	}
+
+    /**
+     * Total number of exceptions
+     */
+    private static class TotalExceptionsSequenceOutputVariableFactory extends DirectSequenceOutputVariableFactory<Integer> {
+        public TotalExceptionsSequenceOutputVariableFactory() {
+            super(RuntimeVariable.TotalExceptionsTimeline);
+            this.value = 0;
+        }
+
+        @Override
+        public Integer getValue(TestSuiteChromosome individual) {
+            return (Integer) this.value;
+        }
+
+        @Override
+        public void setValue(Integer value) {
+            this.value = value;
+        }
+    }
+
+    /**
+     * Sequence variable for coverage values
+     */
+    private static class IBranchGoalsSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Integer> {
+
+        public IBranchGoalsSequenceOutputVariableFactory() {
+            super(RuntimeVariable.IBranchGoalsTimeline);
+        }
+
+        @Override
+        public Integer getValue(TestSuiteChromosome individual) {
+            return individual.getNumOfNotCoveredGoals();
+        }
+    }
+
+    private static class OnlyBranchFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public OnlyBranchFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.OnlyBranchFitnessTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(OnlyBranchCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class OnlyBranchCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public OnlyBranchCoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.OnlyBranchCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(OnlyBranchCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class MethodTraceFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public MethodTraceFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.MethodTraceFitnessTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(MethodTraceCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class MethodTraceCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public MethodTraceCoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.MethodTraceCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(MethodTraceCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class MethodFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public MethodFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.MethodFitnessTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(MethodCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class MethodCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public MethodCoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.MethodCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(MethodCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class MethodNoExceptionFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public MethodNoExceptionFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.MethodNoExceptionFitnessTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(MethodNoExceptionCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class MethodNoExceptionCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public MethodNoExceptionCoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.MethodNoExceptionCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(MethodNoExceptionCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class RhoFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public RhoFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.RhoCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(RhoCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class LineFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public LineFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.LineFitnessTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(LineCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class LineCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public LineCoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.LineCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(LineCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class OutputFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public OutputFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.OutputFitnessTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(OutputCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class OutputCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public OutputCoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.OutputCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(OutputCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class ExceptionFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public ExceptionFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.ExceptionFitnessTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(ExceptionCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class ExceptionCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public ExceptionCoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.ExceptionCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(ExceptionCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class OnlyMutationFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public OnlyMutationFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.OnlyMutationFitnessTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(OnlyMutationSuiteFitness.class);
+        }
+    }
+
+    private static class OnlyMutationCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public OnlyMutationCoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.OnlyMutationCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(OnlyMutationSuiteFitness.class);
+        }
+    }
 }

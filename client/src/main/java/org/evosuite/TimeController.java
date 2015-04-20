@@ -88,7 +88,7 @@ public class TimeController {
 		phaseTimeouts.put(ClientState.ASSERTION_GENERATION, (Long) 1000l * Properties.ASSERTION_TIMEOUT);
 		phaseTimeouts.put(ClientState.CARVING, (Long) 1000l * Properties.CARVING_TIMEOUT);
 		phaseTimeouts.put(ClientState.INITIALIZATION, (Long) 1000l * Properties.INITIALIZATION_TIMEOUT);
-
+        phaseTimeouts.put(ClientState.JUNIT_CHECK, (Long) 1000l * Properties.JUNIT_CHECK_TIMEOUT);
 
 		if(timeSpentInEachPhase!=null){
 			timeSpentInEachPhase.clear();
@@ -156,6 +156,9 @@ public class TimeController {
 		if(Properties.TEST_FACTORY == TestFactory.JUNIT) {
 			time += Properties.CARVING_TIMEOUT;
 		}
+        if(Properties.JUNIT_TESTS && Properties.JUNIT_CHECK){
+            time += Properties.JUNIT_CHECK_TIMEOUT;
+        }
 		return time;
 	}
 
@@ -175,7 +178,7 @@ public class TimeController {
 		return isThereStillTimeInThisPhase(1); 
 	}
 
-	protected boolean isThereStillTimeInThisPhase(long ms){
+    public synchronized boolean isThereStillTimeInThisPhase(long ms){
 
 		if(state.equals(ClientState.NOT_STARTED)){
 			return true;
@@ -198,7 +201,7 @@ public class TimeController {
 			long timeoutInMs = getCurrentPhaseTimeout();
 			long timeSincePhaseStarted = System.currentTimeMillis() - currentPhaseStartTime;
 			long phaseLeft = timeoutInMs - timeSincePhaseStarted;
-			// logger.info("Time left for current phase "+state+": "+phaseLeft);
+			logger.debug("Time left for current phase " + state + ": " + phaseLeft);
 			if(ms > phaseLeft){
 				return false;
 			}
@@ -206,6 +209,23 @@ public class TimeController {
 
 		return true; 
 	}
+
+    /**
+     * Calculate the percentage of progress in which we currently are in the phase.
+     *
+     * @return a value in [0,1] if the current phase has a timeout, otherwise a negative value
+     */
+    public double getPhasePercentage(){
+        if(currentPhaseHasTimeout()){
+            long timeoutInMs = getCurrentPhaseTimeout();
+            long timeSincePhaseStarted = System.currentTimeMillis() - currentPhaseStartTime;
+            double ratio = (double) timeSincePhaseStarted / (double) timeoutInMs;
+            assert ratio >= 0; // but could become >1 due to timer
+            return Math.min(ratio,1);
+        } else {
+            return -1;
+        }
+    }
 
 	private long getCurrentPhaseTimeout() {		
 		return phaseTimeouts.get(state);

@@ -18,19 +18,27 @@
 package org.evosuite.symbolic.solver;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.expr.Variable;
+import org.evosuite.symbolic.expr.bv.IntegerVariable;
+import org.evosuite.symbolic.expr.fp.RealVariable;
+import org.evosuite.symbolic.expr.str.StringVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Interface for SMT solvers
- * 
+ 
  * @author Gordon Fraser
  */
-public interface Solver {
-	// Set<SymbolicParameter> solveConjunction(ConjunctiveCombination
-	// conjunction);
+public abstract class Solver {
+
+	static Logger logger = LoggerFactory.getLogger(Solver.class);
 
 	/**
 	 * Get concrete values for the parameters used in the path conditions.
@@ -40,6 +48,93 @@ public interface Solver {
 	 * @param constraints
 	 *            a {@link java.util.Collection} object.
 	 */
-	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
+	public abstract Map<String, Object> solve(
+			Collection<Constraint<?>> constraints)
 			throws ConstraintSolverTimeoutException;
+
+	/**
+	 * Returns a mapping from variables to their current concrete values.
+	 * 
+	 * @param variables
+	 * @return a mapping from variables to their current concrete values.
+	 */
+	protected static Map<String, Object> getConcreteValues(
+			Set<Variable<?>> variables) {
+
+		Map<String, Object> concrete_values = new HashMap<String, Object>();
+		for (Variable<?> v : variables) {
+			String var_name = v.getName();
+			Object concrete_value = v.getConcreteValue();
+			concrete_values.put(var_name, concrete_value);
+		}
+		return concrete_values;
+	}
+
+	/**
+	 * Creates a set with all the variables in the constraints.
+	 * 
+	 * @param constraints
+	 *            the constraint system
+	 * @return the set of variables in the constraint system
+	 */
+	protected static Set<Variable<?>> getVariables(
+			Collection<Constraint<?>> constraints) {
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		for (Constraint<?> c : constraints) {
+			variables.addAll(c.getLeftOperand().getVariables());
+			variables.addAll(c.getRightOperand().getVariables());
+		}
+		return variables;
+	}
+
+	/**
+	 * Restore all concrete values of the variables using the concrete_values
+	 * mapping.
+	 * 
+	 * @param variables
+	 * @param concrete_values
+	 */
+	protected static void setConcreteValues(Set<Variable<?>> variables,
+			Map<String, Object> concrete_values) {
+		for (Variable<?> v : variables) {
+
+			String var_name = v.getName();
+			Object concreteValue = concrete_values.get(var_name);
+
+			if (v instanceof StringVariable) {
+				StringVariable sv = (StringVariable) v;
+				String concreteString = (String) concreteValue;
+				sv.setConcreteValue(concreteString);
+			} else if (v instanceof IntegerVariable) {
+				IntegerVariable iv = (IntegerVariable) v;
+				Long concreteInteger = (Long) concreteValue;
+				iv.setConcreteValue(concreteInteger);
+			} else if (v instanceof RealVariable) {
+				RealVariable ir = (RealVariable) v;
+				Double concreteReal = (Double) concreteValue;
+				ir.setConcreteValue(concreteReal);
+			} else {
+				logger.warn("unknow variable type " + v.getClass().getName());
+			}
+		}
+	}
+
+	
+	private static final double DELTA = 1e-15;
+
+	protected static boolean checkSolution(
+			Collection<Constraint<?>> constraints, Map<String, Object> solution) {
+
+		Set<Variable<?>> variables = getVariables(constraints);
+		Map<String, Object> initialValues = getConcreteValues(variables);
+		setConcreteValues(variables, solution);
+		double distance = DistanceEstimator.getDistance(constraints);
+		setConcreteValues(variables, initialValues);
+		if (distance <= DELTA) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }

@@ -12,8 +12,8 @@ import org.evosuite.Properties.OutputFormat;
 import org.evosuite.junit.JUnit3TestAdapter;
 import org.evosuite.junit.JUnit4TestAdapter;
 import org.evosuite.junit.UnitTestAdapter;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +32,15 @@ public class TestSuiteWriterUtils {
 	
 	protected final static Logger logger = LoggerFactory.getLogger(TestSuiteWriterUtils.class);
 
-	
+
+    /**
+     * Check the configuration settings to see if we are doing any instrumentation.
+     * If so, we ll need to use the Java Agent in the generated tests
+     * @return
+     */
 	public static boolean needToUseAgent(){
 		return Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
-				|| Properties.RESET_STATIC_FIELDS;
+				|| Properties.RESET_STATIC_FIELDS || Properties.VIRTUAL_NET;
 	}
 	
 	public static boolean hasAnySecurityException(List<ExecutionResult> results) {

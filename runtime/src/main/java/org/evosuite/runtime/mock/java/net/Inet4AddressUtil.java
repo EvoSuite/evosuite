@@ -29,7 +29,7 @@ public class Inet4AddressUtil {
 	
 	private static Constructor<Inet4Address> constructorStringByteArray;
 	private static Constructor<Inet4Address> constructorStringInt;
-	private static Field holderField;
+	//private static Field holderField;
 	
 	static{
 		try {
@@ -39,10 +39,10 @@ public class Inet4AddressUtil {
 			constructorStringInt = Inet4Address.class.getDeclaredConstructor(String.class, int.class);
 			constructorStringInt.setAccessible(true);
 			
-			holderField = InetAddress.class.getDeclaredField("holder");
-			holderField.setAccessible(true);
+			//holderField = InetAddress.class.getDeclaredField("holder");
+			//holderField.setAccessible(true);
 			
-		} catch (NoSuchMethodException | SecurityException | NoSuchFieldException e) {
+		} catch (NoSuchMethodException | SecurityException e) { // | NoSuchFieldException e) {
 			logger.error("Failed to initialize due to reflection problems: "+e.getMessage());
 		}
 	}

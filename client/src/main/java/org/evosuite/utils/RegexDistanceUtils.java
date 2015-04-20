@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import org.evosuite.symbolic.solver.search.StringAVM;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -95,7 +94,7 @@ public class RegexDistanceUtils {
 	 * @param regex
 	 * @return
 	 */
-	protected static String expandRegex(String regex) {
+	public static String expandRegex(String regex) {
 		// .	Any character (may or may not match line terminators)
 		// \d	A digit: [0-9]
 		String newRegex = regex.replaceAll("\\\\d", "[0-9]");
@@ -241,7 +240,7 @@ public class RegexDistanceUtils {
 	 * Insertion/deletion cost 1, whereas replacement is in [0,1] depending
 	 * on the actual character values. </p>
 	 * 
-	 * <p> Note: the distance is tailored for the {@link StringAVM} algorithm,
+	 * <p> Note: the distance is tailored for the <b>StringAVM<b/> algorithm,
 	 * in which characters are only inserted/appended at the end.</p>
 	 * 
 	 * @param arg
@@ -644,7 +643,6 @@ public class RegexDistanceUtils {
 		 * First row is special, ie very different from the others
 		 * 
 		 * @param graph
-		 * @param STATES
 		 * @param matrix
 		 */
 		private void calculateInsertionCostOnFirstRow(RegexGraph graph, final double[][][] matrix) {

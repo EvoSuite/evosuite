@@ -18,6 +18,7 @@
 package org.evosuite.assertion;
 
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -26,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
@@ -34,18 +34,15 @@ import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.reset.ResetManager;
-import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.ConstructorStatement;
-import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.FieldStatement;
-import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
 //import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ArrayUtil;
@@ -167,52 +164,24 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 * 
 	 * @param suite
 	 */
-	protected void setupClassLoader(TestSuiteChromosome suite) {
-		oldCriterion = Properties.CRITERION;
+	@Override
+	public void setupClassLoader(TestSuiteChromosome suite) {
+		oldCriterion = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 		if (!ArrayUtil.contains(oldCriterion, Criterion.MUTATION)
-		        && !ArrayUtil.contains(oldCriterion, Criterion.WEAKMUTATION)
-		        && !ArrayUtil.contains(oldCriterion, Criterion.STRONGMUTATION)) {
-		    Properties.CRITERION = new Criterion[] { Criterion.MUTATION };
-			Sandbox.goingToExecuteSUTCode();
-            TestGenerationContext.getInstance().goingToExecuteSUTCode();
-			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
-			try {
-
-				TestGenerationContext.getInstance().resetContext();
-				
-				if (Properties.RESET_STATIC_FIELDS) {
-					ResetManager.getInstance().disableTracing();
-					ResetManager.getInstance().setResetAllClasses(true);
-					ResetManager.getInstance().setResetFinalFields(true);
-				}
-				
-				TestGenerationContext.getInstance().goingToExecuteSUTCode();
-				Properties.getTargetClass();
-
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
-
-				for(TestChromosome test : suite.getTestChromosomes()) {
-					DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
-					dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
-					test.setChanged(true);
-					test.clearCachedMutationResults();
-					test.clearCachedResults();
-				}
-			} catch (Throwable e) {
-				LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
-						+ (e.getMessage() != null ? e.getMessage()
-								: e.toString()));
-				logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
-			} finally {
-				TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
-				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
-				Sandbox.doneWithExecutingSUTCode();
-                TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
-			}
-			for (Mutation m : MutationPool.getMutants()) {
-				mutants.put(m.getId(), m);
-			}
-
+				&& !ArrayUtil.contains(oldCriterion, Criterion.WEAKMUTATION)
+				&& !ArrayUtil.contains(oldCriterion, Criterion.ONLYMUTATION)
+				&& !ArrayUtil.contains(oldCriterion, Criterion.ARCHIVEMUTATION)
+				&& !ArrayUtil.contains(oldCriterion, Criterion.STRONGMUTATION)) {
+			Properties.CRITERION = new Criterion[] { Criterion.MUTATION };
+		}
+		if (Properties.RESET_STATIC_FIELDS) {
+			ResetManager.getInstance().disableTracing();
+			ResetManager.getInstance().setResetAllClasses(true);
+			ResetManager.getInstance().setResetFinalFields(true);
+		}
+		changeClassLoader(suite);
+		for (Mutation m : MutationPool.getMutants()) {
+			mutants.put(m.getId(), m);
 		}
 	}
 	
@@ -296,7 +265,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 * @param statement
 	 * @return
 	 */
-	protected boolean justNullAssertion(StatementInterface statement) {
+	protected boolean justNullAssertion(Statement statement) {
 		Set<Assertion> assertions = statement.getAssertions();
 		if (assertions.isEmpty())
 			return false;
@@ -322,7 +291,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		}
 	}
 	
-	protected boolean primitiveWithoutAssertion(StatementInterface statement) {
+	protected boolean primitiveWithoutAssertion(Statement statement) {
 		if(!statement.getReturnValue().isPrimitive())
 			return false;
 		
@@ -354,7 +323,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 */
 	protected boolean isUsedAsCallee(TestCase test, VariableReference var) {
 		for (int pos = var.getStPosition() + 1; pos < test.size(); pos++) {
-			StatementInterface statement = test.getStatement(pos);
+			Statement statement = test.getStatement(pos);
 			if (statement instanceof MethodStatement) {
 				if (((MethodStatement) statement).getCallee() == var)
 					return true;
@@ -376,7 +345,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 */
 	protected void filterRedundantNonnullAssertions(TestCase test) {
 		Set<Assertion> redundantAssertions = new HashSet<Assertion>();
-		for (StatementInterface statement : test) {
+		for (Statement statement : test) {
 			if (statement instanceof ConstructorStatement) {
 				ConstructorStatement cs = (ConstructorStatement) statement;
 				for (Assertion a : cs.getAssertions()) {
@@ -404,7 +373,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 * 
 	 * @param statement
 	 */
-	protected void filterInspectorPrimitiveDuplication(StatementInterface statement) {
+	protected void filterInspectorPrimitiveDuplication(Statement statement) {
 		Set<Assertion> assertions = new HashSet<Assertion>(statement.getAssertions());
 		if (assertions.size() < 2)
 			return;

@@ -16,11 +16,10 @@ import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.reset.ResetManager;
-import org.evosuite.testcase.ConstructorStatement;
-import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.IntPrimitiveStatement;
-import org.evosuite.testcase.TestFactory;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.*;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericMethod;
@@ -191,7 +190,7 @@ public class TestTestSuiteMinimizer
         tsc.setFitness(defuse, previous_defuse_fitness);
         assertEquals(previous_defuse_fitness, 0.0, 0.0);
 
-        List<TestFitnessFactory<?>> factories = new ArrayList<TestFitnessFactory<?>>();
+        List<TestFitnessFactory<? extends TestFitnessFunction>> factories = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
         factories.add(new BranchCoverageFactory());
         factories.add(new DefUseCoverageFactory());
 
@@ -309,7 +308,7 @@ public class TestTestSuiteMinimizer
         tsc.setFitness(defuse, previous_defuse_fitness);
         assertEquals(previous_defuse_fitness, 0.0, 0.0);
 
-        List<TestFitnessFactory<?>> factories = new ArrayList<TestFitnessFactory<?>>();
+        List<TestFitnessFactory<? extends TestFitnessFunction>> factories = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
         factories.add(new BranchCoverageFactory());
         factories.add(new DefUseCoverageFactory());
 

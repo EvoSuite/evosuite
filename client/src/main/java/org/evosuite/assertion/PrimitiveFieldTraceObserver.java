@@ -22,11 +22,11 @@ package org.evosuite.assertion;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
 
 public class PrimitiveFieldTraceObserver extends
         AssertionTraceObserver<PrimitiveFieldTraceEntry> {
@@ -36,11 +36,15 @@ public class PrimitiveFieldTraceObserver extends
 	 */
 	/** {@inheritDoc} */
 	@Override
-	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+	protected void visit(Statement statement, Scope scope, VariableReference var) {
 		logger.debug("Checking fields of " + var);
 		try {
 			if (var == null)
 				return;
+
+			if(statement.isAssignmentStatement() && statement.getReturnValue().isArrayIndex())
+				return;
+
 
 			Object object = var.getObject(scope);
 			int position = statement.getPosition();

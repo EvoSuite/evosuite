@@ -1,5 +1,6 @@
 package org.evosuite.symbolic.vm.string.builder;
 
+import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
@@ -52,13 +53,15 @@ public abstract class StringBuilder_Append extends SymbolicFunction {
 	}
 
 	@Override
-	public final void beforeExecuteFunction() {
+	public final IntegerConstraint beforeExecuteFunction() {
+
 		StringBuilder conc_str_builder = (StringBuilder) this.getConcReceiver();
 		if (conc_str_builder != null) {
 			conc_str_builder_to_string_pre = conc_str_builder.toString();
 		} else {
 			conc_str_builder_to_string_pre = null;
 		}
+		return null;
 	}
 
 	public StringBuilder_Append(SymbolicEnvironment env, String desc) {

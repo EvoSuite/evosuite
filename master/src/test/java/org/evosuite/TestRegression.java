@@ -72,7 +72,7 @@ public class TestRegression extends SystemTest {
 
 	@Test
 	public void testArray() {
-		testCovered(ArrayTest.class.getCanonicalName(), 11);
+		testCovered(ArrayTest.class.getCanonicalName(), 9);
 	}
 
 	@Test
@@ -88,13 +88,19 @@ public class TestRegression extends SystemTest {
 		testCovered(CallTest.class.getCanonicalName(), 3);
 	}
 
-	@Test
-	public void testDependency() {
-		testCovered(DepTest.class.getCanonicalName(), 2);
-		// TODO: Re-run with deprecated active
-	}
+    @Test
+    public void testDependency_noDeprecated() {
+        Properties.USE_DEPRECATED = false;
+        testCovered(DepTest.class.getCanonicalName(), 2);
+    }
 
-	@Test
+    @Test
+    public void testDependency_withDeprecated() {
+        Properties.USE_DEPRECATED = true;
+        testCovered(DepTest.class.getCanonicalName(), 3);
+    }
+
+    @Test
 	public void testEmpty() {
 		testCovered(EmptyTest.class.getCanonicalName(), 2);
 	}

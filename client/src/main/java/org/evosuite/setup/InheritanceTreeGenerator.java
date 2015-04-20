@@ -40,7 +40,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
@@ -49,6 +48,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +69,7 @@ public class InheritanceTreeGenerator {
 	 * @return
 	 */
 	public static InheritanceTree createFromClassPath(List<String> classPath) {
-		if (!Properties.INHERITANCE_FILE.isEmpty()) {
+		if (!Properties.INSTRUMENT_CONTEXT && !Properties.INHERITANCE_FILE.isEmpty()) {
 			try {
 				InheritanceTree tree = readInheritanceTree(Properties.INHERITANCE_FILE);
 				LoggingUtils.getEvoLogger().info("* Inheritance tree loaded from {}",
@@ -239,7 +239,6 @@ public class InheritanceTreeGenerator {
 		analyzeClassStream(inheritanceTree, stream, false);
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void analyzeClassStream(InheritanceTree inheritanceTree,
 	        InputStream inputStream, boolean onlyPublic) {
 		try {
@@ -249,32 +248,51 @@ public class InheritanceTreeGenerator {
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG
 			        | ClassReader.SKIP_CODE);
-			logger.debug("Analyzing class " + cn.name);
+			analyzeClassNode(inheritanceTree, cn, onlyPublic);
 
-			if (onlyPublic) {
-				if ((cn.access & Opcodes.ACC_PUBLIC) == 0) {
-					return;
-				}
-			} else {
-				if (!canUse(cn)) {
-					return;
-				}
-			}
-
-			if (cn.superName != null)
-				inheritanceTree.addSuperclass(cn.name, cn.superName, cn.access);
-
-			List<String> interfaces = cn.interfaces;
-			for (String interfaceName : interfaces) {
-				inheritanceTree.addInterface(cn.name, interfaceName);
-			}
-
-			// TODO: Should we store the ClassNode?
 
 		} catch (IOException e) {
 			logger.error("", e);
 		} catch(java.lang.ArrayIndexOutOfBoundsException e) {
 			logger.error("ASM Error while reading class ("+e.getMessage()+")");
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static void analyzeClassNode(InheritanceTree inheritanceTree,
+	        ClassNode cn, boolean onlyPublic) {
+		
+		logger.info("Analyzing class " + cn.name);
+
+		if ((Opcodes.ACC_INTERFACE & cn.access) != Opcodes.ACC_INTERFACE) {
+			for (Object m : cn.methods) {
+				MethodNode mn = (MethodNode) m;
+				inheritanceTree
+				.addAnalyzedMethod(cn.name, mn.name, mn.desc);
+			}
+			if ((Opcodes.ACC_ABSTRACT & cn.access) == Opcodes.ACC_ABSTRACT) {
+				inheritanceTree.registerAbstractClass(cn.name);
+			}
+		}else{
+			inheritanceTree.registerInterface(cn.name);
+		}
+		if (onlyPublic) {
+			if ((cn.access & Opcodes.ACC_PUBLIC) == 0) {
+				return;
+			}
+		} else {
+			if (!canUse(cn)) {
+				logger.info("Cannot use "+cn.name);
+				return;
+			}
+		}
+
+		if (cn.superName != null)
+			inheritanceTree.addSuperclass(cn.name, cn.superName, cn.access);
+
+		List<String> interfaces = cn.interfaces;
+		for (String interfaceName : interfaces) {
+			inheritanceTree.addInterface(cn.name, interfaceName);
 		}
 	}
 
@@ -355,7 +373,10 @@ public class InheritanceTreeGenerator {
 	 * time, so we perform this analysis only once.
 	 */
 	public static void generateJDKCluster(String... filters) {
-		Collection<String> list = getAllResources();
+
+        int counter = 0;
+
+        Collection<String> list = getAllResources();
 		InheritanceTree inheritanceTree = new InheritanceTree();
 		List<InheritanceTree> others = new ArrayList<InheritanceTree>();
 
@@ -378,7 +399,7 @@ public class InheritanceTreeGenerator {
 		EXCEPTION: for (String name : list) {
 			// We do not consider sun.* and apple.* and com.* 
 			for (String exception : classExceptions) {
-				if (name.startsWith(exception)) {
+				if (name.startsWith(exception.replace('/','.'))) {
 					logger.info("Skipping excluded class " + name);
 					continue EXCEPTION;
 				}
@@ -397,16 +418,24 @@ public class InheritanceTreeGenerator {
 				logger.info("Skipping anonymous class");
 				continue;
 			}
-			InputStream stream = TestGenerationContext.getInstance().getClassLoaderForSUT().getResourceAsStream(name);
-			analyzeClassStream(inheritanceTree, stream, true);
+
+            //InputStream stream = TestGenerationContext.getInstance().getClassLoaderForSUT().getResourceAsStream(name);
+            InputStream stream = ResourceList.getClassAsStream(name);
+
+            if(stream == null){
+                logger.warn("Cannot open/find "+name);
+            } else {
+                analyzeClassStream(inheritanceTree, stream, true);
+                counter++;
+            }
 		}
 
-		logger.info("Finished checking classes, writing data");
+		logger.info("Finished checking classes, writing data for "+counter+" classes");
 
 		// Write data to XML file
 		try {
 			FileOutputStream stream = new FileOutputStream(
-			        new File("src/main/resources/JDK_inheritance.xml"));
+			        new File("client/src/main/resources/JDK_inheritance.xml"));
 			XStream xstream = new XStream();
 			xstream.toXML(inheritanceTree, stream);
 		} catch (FileNotFoundException e) {
@@ -464,18 +493,10 @@ public class InheritanceTreeGenerator {
 		String[] classPathElements = classPath.split(File.pathSeparator);
 
 		for (final String element : classPathElements) {
-			if (element.contains("evosuite-0.1-SNAPSHOT-dependencies.jar"))
-				continue;
-			if (element.endsWith("jpf-annotations.jar"))
-				continue;
-			if (element.endsWith("jpf-classes.jar"))
-				continue;
 			if (element.contains("evosuite"))
 				continue;
 			try {
-				//retval.addAll(ResourceList.getAllClassesAsResources(element, false));
-				//TODO: need to fix based on new ResourceList 
-				throw new RuntimeException("ERROR: this functionality is temporarely disabled");
+				retval.addAll(ResourceList.getAllClasses(element, "",true,true));
 			} catch (IllegalArgumentException e) {
 				System.err.println("Does not exist: " + element);
 			}
@@ -484,6 +505,12 @@ public class InheritanceTreeGenerator {
 		return retval;
 	}
 
+    /*
+        usage example from command line:
+
+        java -cp master/target/evosuite-master-0.1.1-SNAPSHOT-jar-minimal.jar   org.evosuite.setup.InheritanceTreeGenerator
+
+     */
 	public static void main(String[] args) {
 		generateJDKCluster(args);
 	}

@@ -26,6 +26,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -56,11 +57,6 @@ public class TestCluster {
 
 	protected static final Logger logger = LoggerFactory.getLogger(TestCluster.class);
 
-	/**
-	 * This is the classloader that does the instrumentation - it needs to be
-	 * used by all test code
-	 */
-	// public static ClassLoader classLoader = new InstrumentingClassLoader();
 
 	/** Singleton instance */
 	private static TestCluster instance = null;
@@ -170,8 +166,6 @@ public class TestCluster {
 	}
 
 	public static void reset() {
-		// classLoader = new InstrumentingClassLoader();
-
 		analyzedClasses.clear();
 		testMethods.clear();
 		generators.clear();
@@ -227,7 +221,11 @@ public class TestCluster {
 	public void addTestCall(GenericAccessibleObject<?> call) {
 		testMethods.add(call);
 	}
-
+	
+	public void removeTestCall(GenericAccessibleObject<?> call) {
+		testMethods.remove(call);
+	}
+	
 	/**
 	 * Add a new class observed at runtime for container methods
 	 * 
@@ -335,6 +333,9 @@ public class TestCluster {
 					}
 				} else {
 					logger.debug("4. generator " + generatorClazz + " CANNOT be instantiated to " + clazz);
+					for(GenericClass boundClass : generatorClazz.getGenericBounds()) {
+						CastClassManager.getInstance().addCastClass(boundClass, 0);
+					}
 				}
 			}
 			logger.debug("Found generators for " + clazz + ": " + targetGenerators.size());
@@ -961,6 +962,11 @@ public class TestCluster {
 	 */
 	public GenericAccessibleObject<?> getRandomTestCall()
 	        throws ConstructionFailedException {
+		if(testMethods.isEmpty()) {
+			logger.debug("No more calls");
+			// TODO: return null, or throw ConstructionFailedException?
+			return null;			
+		}
 		GenericAccessibleObject<?> choice = Randomness.choice(testMethods);
 		logger.debug("Chosen call: " + choice);
 		if (choice.getOwnerClass().hasWildcardOrTypeVariables()) {
@@ -1068,17 +1074,6 @@ public class TestCluster {
 		return false;
 	}
 
-	/**
-	 * Unload all classes; perform cleanup
-	 */
-	public void resetCluster() {
-		analyzedClasses.clear();
-		testMethods.clear();
-		generators.clear();
-		generatorCache.clear();
-		modifiers.clear();
-		CastClassManager.getInstance().clear();
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -1105,13 +1100,9 @@ public class TestCluster {
 		for (GenericClass clazz : modifiers.keySet()) {
 			result.append(" Modifiers for " + clazz.getSimpleName() + ": "
 			        + modifiers.get(clazz).size() + "\n");
-			//try {
-				for (GenericAccessibleObject<?> o : modifiers.get(clazz)) { //getCallsFor(clazz, true)) {
-					result.append(" " + clazz.getSimpleName() + " <- " + o + "\n");
-				}
-			//} catch (ConstructionFailedException e) {
-			//	result.append("ERROR");
-			//}
+			for (GenericAccessibleObject<?> o : modifiers.get(clazz)) { //getCallsFor(clazz, true)) {
+				result.append(" " + clazz.getSimpleName() + " <- " + o + "\n");
+			}
 		}
 		result.append("Test calls\n");
 		for (GenericAccessibleObject<?> testCall : testMethods) {

@@ -722,7 +722,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 						+ getInstructionType();
 			}
 			return "UNKNOWN Branch I" + instructionId + " "
-					+ getInstructionType();
+					+ getInstructionType() +", jump to "+((JumpInsnNode)asmNode).label.getLabel();
 
 			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}
@@ -767,7 +767,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 			return "INT " + ((IntInsnNode) asmNode).operand + " Type=" + type
 					+ ", Opcode=" + opcode;
 		else if (asmNode instanceof MethodInsnNode)
-			return opcode + " " + ((MethodInsnNode) asmNode).name;
+			return opcode + " " + ((MethodInsnNode) asmNode).owner + "." + ((MethodInsnNode) asmNode).name + ((MethodInsnNode) asmNode).desc;
 		else if (asmNode instanceof JumpInsnNode)
 			return "JUMP " + ((JumpInsnNode) asmNode).label.getLabel()
 					+ " Type=" + type + ", Opcode=" + opcode + ", Stack: "

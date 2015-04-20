@@ -33,9 +33,9 @@ import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealVariable;
-import org.evosuite.symbolic.solver.search.ConstraintSolver;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
-import org.evosuite.symbolic.solver.search.DistanceEstimator;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.DistanceEstimator;
+import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
 public class TestRealSearch {
@@ -46,7 +46,7 @@ public class TestRealSearch {
 				Float.MIN_VALUE, Float.MAX_VALUE), Comparator.EQ,
 				new RealConstant(2.35082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -65,7 +65,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.NE,
 				new RealConstant(2.35082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -85,7 +85,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.LE,
 				new RealConstant(2.35082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -104,7 +104,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.LT,
 				new RealConstant(2.35082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -123,7 +123,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.GE,
 				new RealConstant(2.35082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -142,7 +142,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.GT,
 				new RealConstant(2.35082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -161,7 +161,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.EQ,
 				new RealConstant(0.35082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -181,7 +181,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.LE,
 				new RealConstant(2.35082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -200,7 +200,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.LT,
 				new RealConstant(2.35082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -219,7 +219,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.GE,
 				new RealConstant(2.35082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -238,7 +238,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.GT,
 				new RealConstant(2.35082)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -259,7 +259,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.EQ, new RealVariable(
 				"test2", var2, -1000000.0, 1000000.0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -284,7 +284,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.NE, new RealVariable(
 				"test2", var2, -1000000.0, 1000000.0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -308,7 +308,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.LE, new RealVariable(
 				"test2", var2, -1000000.0, 1000000.0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -332,7 +332,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.LT, new RealVariable(
 				"test2", var2, -1000000.0, 1000000.0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -356,7 +356,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.GE, new RealVariable(
 				"test2", var2, -1000000.0, 1000000.0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -380,7 +380,7 @@ public class TestRealSearch {
 				-1000000.0, 1000000.0), Comparator.GT, new RealVariable(
 				"test2", var2, -1000000.0, 1000000.0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -416,7 +416,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(realVar1, Comparator.GE,
 				new RealConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -447,7 +447,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(realVar, Comparator.EQ,
 				new RealConstant(0.0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -479,7 +479,7 @@ public class TestRealSearch {
 				new RealConstant(2.772399987618165E32)));
 
 		assert (DistanceEstimator.getDistance(constraints) > 0);
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -509,7 +509,7 @@ public class TestRealSearch {
 				Comparator.EQ, new RealConstant(doubleValue)));
 
 		assert (DistanceEstimator.getDistance(constraints) > 0);
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);

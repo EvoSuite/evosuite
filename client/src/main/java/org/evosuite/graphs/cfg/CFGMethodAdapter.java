@@ -32,10 +32,8 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
 import org.evosuite.instrumentation.coverage.BranchInstrumentation;
 import org.evosuite.instrumentation.coverage.DefUseInstrumentation;
-import org.evosuite.instrumentation.coverage.LCSAJsInstrumentation;
 import org.evosuite.instrumentation.coverage.MethodInstrumentation;
 import org.evosuite.instrumentation.coverage.MutationInstrumentation;
-import org.evosuite.instrumentation.coverage.PrimePathInstrumentation;
 import org.evosuite.runtime.reset.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.utils.ArrayUtil;
@@ -123,7 +121,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 		// className,
 		// name.replace('/', '.'), null, desc);
 
-		super(Opcodes.ASM4, new AnnotatedMethodNode(access, name, desc, signature,
+		super(Opcodes.ASM5, new AnnotatedMethodNode(access, name, desc, signature,
 		        exceptions));
 
 		this.next = mv;
@@ -164,22 +162,16 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 		List<MethodInstrumentation> instrumentations = new ArrayList<MethodInstrumentation>();
 		if (DependencyAnalysis.shouldInstrument(className, methodName)) {
-		    if (ArrayUtil.contains(Properties.CRITERION, Criterion.LCSAJ)) {
-				instrumentations.add(new LCSAJsInstrumentation());
-				instrumentations.add(new BranchInstrumentation());
-			}
-		    else if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+		    if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)) {
 				instrumentations.add(new BranchInstrumentation());
 				instrumentations.add(new DefUseInstrumentation());
 			}
-		    else if (ArrayUtil.contains(Properties.CRITERION, Criterion.PATH)) {
-				instrumentations.add(new PrimePathInstrumentation());
-				instrumentations.add(new BranchInstrumentation());
-			}
 		    else if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION)
-		            || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
+		            || ArrayUtil.contains(Properties.CRITERION, Criterion.ONLYMUTATION)
+		            || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)
+		            || ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEMUTATION)) {
 				instrumentations.add(new BranchInstrumentation());
 				instrumentations.add(new MutationInstrumentation());
 			} else {

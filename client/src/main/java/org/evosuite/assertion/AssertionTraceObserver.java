@@ -22,16 +22,18 @@ package org.evosuite.assertion;
 
 import java.util.Set;
 
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.testcase.execution.Scope;
+
 import org.evosuite.Properties;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionObserver;
-import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
-import org.evosuite.testcase.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,11 +72,11 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 */
-	protected void visitDependencies(StatementInterface statement, Scope scope) {
+	protected void visitDependencies(Statement statement, Scope scope) {
 		Set<VariableReference> dependencies = currentTest.getDependencies(statement.getReturnValue());
 		
 		if(Properties.isRegression()){
@@ -101,11 +103,11 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 */
-	protected void visitReturnValue(StatementInterface statement, Scope scope) {
+	protected void visitReturnValue(Statement statement, Scope scope) {
 		
 		if(Properties.isRegression()){
 			Set<VariableReference> dependencies = currentTest.getDependencies(statement.getReturnValue());
@@ -114,13 +116,19 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 			}
 		}
 		
-		if (!statement.getReturnClass().equals(void.class)) {
-			try {
-				visit(statement, scope, statement.getReturnValue());
-			} catch (CodeUnderTestException e) {
-				// ignore
-			}
+		if (statement.getReturnClass().equals(void.class))
+			return;
+		
+		// No need to assert anything about values just assigned
+		if(statement.isAssignmentStatement())
+			return;
+
+		try {
+			visit(statement, scope, statement.getReturnValue());
+		} catch (CodeUnderTestException e) {
+			// ignore
 		}
+
 	}
 	
 	
@@ -129,7 +137,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * This is to avoid generating assertions for statements
 	 * that are not assignable from the CUT.
 	 */
-	private boolean hasCUT(StatementInterface statement, Set<VariableReference> dependencies){
+	private boolean hasCUT(Statement statement, Set<VariableReference> dependencies){
 		boolean hasCUT = false;
 		if (statement instanceof MethodStatement) {
 			MethodStatement ms = (MethodStatement) statement;
@@ -159,13 +167,13 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
-	protected abstract void visit(StatementInterface statement, Scope scope,
+	protected abstract void visit(Statement statement, Scope scope,
 	        VariableReference var) throws CodeUnderTestException;
 
 	/* (non-Javadoc)
@@ -173,7 +181,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public synchronized void afterStatement(StatementInterface statement, Scope scope,
+	public synchronized void afterStatement(Statement statement, Scope scope,
 	        Throwable exception) {
 		//if(checkThread())
 		//	return;
@@ -190,7 +198,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
 	 */
 	@Override
-	public synchronized void beforeStatement(StatementInterface statement, Scope scope) {
+	public synchronized void beforeStatement(Statement statement, Scope scope) {
 		// Do nothing
 	}
 

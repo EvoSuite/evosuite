@@ -27,6 +27,7 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.evosuite.junit.DetermineSUT;
 import org.evosuite.junit.DetermineSUT.NoJUnitClassException;
 
+@SuppressWarnings("restriction")
 public class ExtendSuiteAction extends TestGenerationAction {
 
 	HashSet<IResource> currentSelection = new HashSet<IResource>();
@@ -94,14 +95,14 @@ public class ExtendSuiteAction extends TestGenerationAction {
 
 		String packageName = packageElement.getElementName();
 
-		final String targetClass = (!packageName.equals("") ? packageName + "." : "")
+		final String suiteClass = (!packageName.equals("") ? packageName + "." : "")
 		        + target.getName().replace(".java", "").replace(File.separator, ".");
-		System.out.println("Building new job for " + targetClass);
+		System.out.println("Building new job for " + suiteClass);
 		DetermineSUT det = new DetermineSUT();
 		IJavaProject jProject = JavaCore.create(target.getProject());
 		try {
 			String classPath = target.getWorkspace().getRoot().findMember(jProject.getOutputLocation()).getLocation().toOSString();
-			String SUT = det.getSUTName(targetClass, classPath);
+			String SUT = det.getSUTName(suiteClass, classPath);
 
 			// choose
 			SelectionDialog typeDialog = JavaUI.createTypeDialog(shell,
@@ -125,7 +126,7 @@ public class ExtendSuiteAction extends TestGenerationAction {
 				return;
 			}
 			
-			Job job = new TestExtensionJob(shell, target, SUT, targetClass);
+			Job job = new TestExtensionJob(shell, target, SUT, suiteClass);
 			job.setPriority(Job.SHORT);
 			IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
 			ISchedulingRule rule = ruleFactory.createRule(target.getProject());
@@ -136,11 +137,9 @@ public class ExtendSuiteAction extends TestGenerationAction {
 			job.schedule(); // start as soon as possible
 
 		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch(NoJUnitClassException e) {
-			MessageDialog.openError(shell, "Evosuite",
-					"Cannot find JUnit tests in "+targetClass);
+			MessageDialog.openError(shell, "Evosuite", "Cannot find JUnit tests in " + suiteClass);
 		}
 
 	}

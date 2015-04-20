@@ -28,6 +28,10 @@ import java.util.Set;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.environment.AccessedEnvironment;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Listenable;
 
 
@@ -38,7 +42,7 @@ import org.evosuite.utils.Listenable;
  * @author Gordon Fraser
  * @author Sebastian Steenbuck
  */
-public interface TestCase extends Iterable<StatementInterface>, Cloneable,
+public interface TestCase extends Iterable<Statement>, Cloneable,
         Listenable<Void> {
 
 	/**
@@ -77,7 +81,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 *            New statement
 	 * @return VariableReference of return value
 	 */
-	public VariableReference addStatement(StatementInterface statement);
+	public VariableReference addStatement(Statement statement);
 
 	/**
 	 * Add new statement at position and fix following variable references
@@ -90,14 +94,14 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 *         modify the statement you inserted. You should use the returned
 	 *         variable reference and not use references
 	 */
-	public VariableReference addStatement(StatementInterface statement, int position);
+	public VariableReference addStatement(Statement statement, int position);
 
 	/**
 	 * <p>addStatements</p>
 	 *
 	 * @param statements a {@link java.util.List} object.
 	 */
-	public void addStatements(List<? extends StatementInterface> statements);
+	public void addStatements(List<? extends Statement> statements);
 
 	/**
 	 * Remove all statements after a given position
@@ -112,6 +116,9 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 */
 	public void clearCoveredGoals();
 
+	
+	public boolean contains(Statement statement);
+	
 	/**
 	 * <p>clone</p>
 	 *
@@ -127,11 +134,11 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	public Set<Class<?>> getAccessedClasses();
 
 	/**
-	 * Retrieve a list of filenames accessed during the last execution
+	 * Retrieve an object containing information about what environment components this test interacted with
 	 *
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<String> getAccessedFiles();
+	public AccessedEnvironment getAccessedEnvironment();
 
 	/**
 	 * Get all assertions that exist for this test case
@@ -230,7 +237,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 *            Upper bound in test case up to which objects are considered
 	 * @throws org.evosuite.ga.ConstructionFailedException
 	 *             if no such object exists
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getRandomNonNullNonPrimitiveObject(Type type, int position)
 	        throws ConstructionFailedException;
@@ -243,7 +250,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 *            Upper bound in test case up to which objects are considered
 	 * @throws org.evosuite.ga.ConstructionFailedException
 	 *             if no such object exists
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getRandomNonNullObject(Type type, int position)
 	        throws ConstructionFailedException;
@@ -263,7 +270,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 *            Upper bound in test case up to which objects are considered
 	 * @throws ConstructionFailedException
 	 *             if no such object exists
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getRandomObject(int position);
 
@@ -286,7 +293,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 *            Upper bound in test case up to which objects are considered
 	 * @throws org.evosuite.ga.ConstructionFailedException
 	 *             if no such object exists
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getRandomObject(Type type, int position)
 	        throws ConstructionFailedException;
@@ -304,7 +311,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 * Get return value (variable) of statement at position
 	 *
 	 * @param position a int.
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getReturnValue(int position);
 
@@ -315,7 +322,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 *            Index of statement
 	 * @return Statement at position
 	 */
-	public StatementInterface getStatement(int position);
+	public Statement getStatement(int position);
 	
 	/**
 	 * Check if there is a statement at the given position.
@@ -434,12 +441,6 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 */
 	public void replace(VariableReference var1, VariableReference var2);
 
-	/**
-	 * Keep track of accessed files
-	 *
-	 * @param files a {@link java.util.List} object.
-	 */
-	public void setAccessedFiles(List<String> files);
 
 	/**
 	 * Set new statement at position
@@ -452,7 +453,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 *         modify the statement you inserted. You should use the returned
 	 *         variable reference and not use references
 	 */
-	public VariableReference setStatement(StatementInterface statement, int position);
+	public VariableReference setStatement(Statement statement, int position);
 
 	/**
 	 * Define whether this test case is unstable or not

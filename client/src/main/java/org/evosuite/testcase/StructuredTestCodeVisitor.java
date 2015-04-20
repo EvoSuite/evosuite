@@ -1,6 +1,7 @@
 package org.evosuite.testcase;
 
 import org.evosuite.assertion.Assertion;
+import org.evosuite.testcase.statements.Statement;
 
 public class StructuredTestCodeVisitor extends TestCodeVisitor {
 
@@ -57,7 +58,7 @@ public class StructuredTestCodeVisitor extends TestCodeVisitor {
 	}
 
 	@Override
-	public void visitStatement(StatementInterface statement) {
+	public void visitStatement(Statement statement) {
 		int position = statement.getPosition();
 		if (position == exercisePosition)
 			testCode += "\n// Exercise\n";

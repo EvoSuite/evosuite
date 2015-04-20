@@ -1,12 +1,28 @@
 /**
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * 
+ * You should have received a copy of the GNU Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.eclipse.properties;
 
 import java.net.URL;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.ui.wizards.IClasspathContainerPage;
@@ -14,6 +30,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.evosuite.eclipse.Activator;
+import org.osgi.framework.Bundle;
 
 /**
  * @author Gordon Fraser
@@ -62,11 +80,11 @@ public class EvoSuiteClasspathContainerPage extends org.eclipse.jface.wizard.Wiz
 		return true;
 	}
 
-	@SuppressWarnings("deprecation")
 	public IPath getPath() {
-		URL url = org.eclipse.core.runtime.Platform.getPlugin("org.evosuite.plugins.eclipse.core").getBundle().getEntry("evosuite.jar");
+		Bundle bundle = Platform.getBundle(Activator.EVOSUITE_CORE_BUNDLE);
+		URL url = bundle.getEntry(Activator.EVOSUITE_JAR);
 		try {
-			URL evosuiteLib = org.eclipse.core.runtime.Platform.resolve(url);
+			URL evosuiteLib = FileLocator.resolve(url);
 			System.out.println("Evosuite jar is at " + evosuiteLib.getPath());
 			return new Path(evosuiteLib.getPath());
 		} catch (Exception e) {

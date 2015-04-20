@@ -195,41 +195,56 @@ public class MockInetAddress implements StaticReplacementMock{
 
 
 	public static InetAddress getLoopbackAddress() {
-
-		List<NetworkInterfaceState> list = 
-				VirtualNetwork.getInstance().getAllNetworkInterfaceStates();
-
-		for(NetworkInterfaceState nis : list){
-			if(!nis.isLoopback()){
-				continue;
-			}
-
-			List<InetAddress> addresses = nis.getLocalAddresses();
-			if(addresses==null || addresses.isEmpty()){
-				continue;
-			}
-
-			return addresses.get(0);
-		}
-
-		return null; //nothing  found
+        return 	getFirstValid(true);
 	}
 
 	public static InetAddress getLocalHost() throws UnknownHostException {
 		/* 
-		 * for simplicity, just return the loopback address.
+		 * for simplicity, just return the first address, and fall back
+		 * to loopback if none exists.
 		 * TODO: this ll need to be changed if we mock the name
 		 * of the machine
-		 */ 
-		return getLoopbackAddress(); 
+		 */
+        InetAddress addr = getFirstValid(false);
+        if(addr == null){
+            getLoopbackAddress();
+        }
+		return addr;
 	}
+
+    private static InetAddress getFirstValid(boolean loopback){
+        List<NetworkInterfaceState> list =
+                VirtualNetwork.getInstance().getAllNetworkInterfaceStates();
+
+        for(NetworkInterfaceState nis : list){
+            if(nis.isLoopback() != loopback){
+                continue;
+            }
+
+            List<InetAddress> addresses = nis.getLocalAddresses();
+            if(addresses==null || addresses.isEmpty()){
+                continue;
+            }
+
+            return addresses.get(0);
+        }
+
+        return null; //nothing  found.
+    }
 
 	// ------- package level ----------
 
 
 	public static InetAddress anyLocalAddress() {
-		try {
-			return getByName("0.0.0.0");
+
+        /*
+            TODO: handling 0.0.0.0 is tricky, as it bounds to all local interfaces.
+            As multi-homing is not so common, for now we just use localhost.
+         */
+
+        try {
+            return getLocalHost();
+			//return getByName("0.0.0.0"); //TODO would need to modify VirtualNetwork to support it
 		} catch (UnknownHostException e) {
 			//should never happen
 			return null;

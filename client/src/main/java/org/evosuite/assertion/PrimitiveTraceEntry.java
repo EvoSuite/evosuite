@@ -23,7 +23,7 @@ package org.evosuite.assertion;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 
 
 /**
@@ -40,7 +40,7 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 	/**
 	 * <p>Constructor for PrimitiveTraceEntry.</p>
 	 *
-	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param var a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param value a {@link java.lang.Object} object.
 	 */
 	public PrimitiveTraceEntry(VariableReference var, Object value) {

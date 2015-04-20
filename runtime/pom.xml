@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.evosuite</groupId>
-		<artifactId>evosuite</artifactId>
-		<version>0.1.0-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>org.evosuite</groupId>
+        <artifactId>evosuite</artifactId>
+        <version>0.1.2-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>evosuite-runtime</artifactId>
-	<packaging>jar</packaging>
+    <artifactId>evosuite-runtime</artifactId>
+    <packaging>jar</packaging>
 
-	<!-- "runtime" is what is going to be linked in the user's applications. 
-		As such, it should have no reference to any other EvoSuite module, and we 
-		should try to keep the number of external dependencies to a minimum -->
+    <!-- "runtime" is what is going to be linked in the user's applications.
+        As such, it should have no reference to any other EvoSuite module, and we
+        should try to keep the number of external dependencies to a minimum -->
 
-	<dependencies>
+    <dependencies>
 
         <!-- test dependencies  -->
 
@@ -32,7 +32,8 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <scope>test</scope> <!-- shouldn't end up in final jar-->
+            <scope>test</scope>
+            <!-- shouldn't end up in final jar-->
         </dependency>
 
         <!-- ////////////////////////////////// -->
@@ -41,59 +42,16 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-		<dependency>
-			<groupId>com.sun</groupId>
-			<artifactId>tools</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>com.sun</groupId>
+            <artifactId>tools</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-all</artifactId>
         </dependency>
 
-	</dependencies>
-
-	<build>
-		<plugins>
-
-			<!-- FIXME: this is just temporary to make Master tests compile. To remove once "com.examples..." is properly handled -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.5</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>test-jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-		<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
-				<inherited>true</inherited>
-				<configuration>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-						</manifest>
-						<manifestEntries>
-							<Premain-Class>org.evosuite.runtime.agent.InstrumentingAgent</Premain-Class>
-							<Agent-Class>org.evosuite.runtime.agent.InstrumentingAgent</Agent-Class>
-							<Can-Redefine-Classes>true</Can-Redefine-Classes>
-							<Can-Retransform-Classes>true</Can-Retransform-Classes>
-						</manifestEntries>
-					</archive>
-				</configuration>
-			</plugin>
-		</plugins>
-		
-		
-		
-	</build>
+    </dependencies>
 
 </project>
 	

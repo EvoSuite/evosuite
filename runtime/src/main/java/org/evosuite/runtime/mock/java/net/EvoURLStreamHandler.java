@@ -35,12 +35,16 @@ public class EvoURLStreamHandler extends MockURLStreamHandler{
 	
 	@Override
 	protected URLConnection openConnection(URL u) throws IOException {
-	
+
 		if(! u.getProtocol().trim().equalsIgnoreCase(this.protocol)){
 			//should never happen
 			throw new IOException("Error, protocol mismatch: "+u.getProtocol()+" != "+this.protocol);
 		}
-		
+
+        if(protocol.equals("http") || protocol.equals("https")){
+            return new EvoHttpURLConnection(u);
+        }
+
 		//TODO
 		
 		/*

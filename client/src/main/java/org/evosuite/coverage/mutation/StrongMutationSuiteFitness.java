@@ -1,22 +1,19 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
  */
 package org.evosuite.coverage.mutation;
 
@@ -37,11 +34,11 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -49,7 +46,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * <p>
  * StrongMutationSuiteFitness class.
  * </p>
- * 
+ *
  * @author fraser
  */
 public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
@@ -135,7 +132,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 				double fitness = branchFitness.totalBranches * 2
 				        + branchFitness.totalMethods + 3 * mutationGoals.size();
 				updateIndividual(this, individual, fitness);
-				suite.setCoverage(0.0);
+				suite.setCoverage(this, 0.0);
 				logger.info("Test case has timed out, setting fitness to max value "
 				        + fitness);
 				return fitness;
@@ -282,8 +279,8 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 		*/
 		updateIndividual(this, individual, fitness);
 		updateGoals();
-		suite.setCoverage(1.0 * numKilled / mutationGoals.size());
-		suite.setNumOfCoveredGoals(numKilled);
+		suite.setCoverage(this, 1.0 * numKilled / mutationGoals.size());
+		suite.setNumOfCoveredGoals(this, numKilled);
 		
 		return fitness;
 	}

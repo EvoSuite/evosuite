@@ -49,19 +49,19 @@ public class ObjectCallAdapter extends MethodVisitor {
 	 *            a {@link java.util.Map} object.
 	 */
 	public ObjectCallAdapter(MethodVisitor mv, Map<String, String> descriptors) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		this.descriptors = descriptors;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
 		if (descriptors.containsKey(name + desc)) {
 			logger.info("Replacing call to " + name + desc + " with "
 			        + descriptors.get(name + desc));
-			super.visitMethodInsn(opcode, owner, name, descriptors.get(name + desc));
+			super.visitMethodInsn(opcode, owner, name, descriptors.get(name + desc), itf);
 		} else {
-			super.visitMethodInsn(opcode, owner, name, desc);
+			super.visitMethodInsn(opcode, owner, name, desc, itf);
 		}
 	}
 

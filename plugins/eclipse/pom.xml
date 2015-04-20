@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.evosuite.plugins</groupId>
 		<artifactId>evosuite-plugins</artifactId>
-		<version>0.1.0-SNAPSHOT</version>
+		<version>0.1.2-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>evosuite-eclipse-plugin</artifactId>

@@ -21,11 +21,19 @@
 package org.evosuite.testcase;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.ConstantValue;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +105,7 @@ public class ConstantInliner extends ExecutionObserver {
 		boolean has_deleted = false;
 
 		int num = 0;
-		for (StatementInterface s : t) {
+		for (Statement s : t) {
 			if (s instanceof PrimitiveStatement) {
 
 				VariableReference var = s.getReturnValue();
@@ -131,7 +139,7 @@ public class ConstantInliner extends ExecutionObserver {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void afterStatement(StatementInterface statement, Scope scope,
+	public void afterStatement(Statement statement, Scope scope,
 	        Throwable exception) {
 		try {
 			for (VariableReference var : statement.getVariableReferences()) {
@@ -184,9 +192,9 @@ public class ConstantInliner extends ExecutionObserver {
 				}
 			}
 		} catch (CodeUnderTestException e) {
-
-			throw new AssertionError("This case isn't handled yet: " + e.getCause()
-			        + ", " + Arrays.asList(e.getStackTrace()));
+			logger.warn("Not inlining test: "+e.getCause());
+			// throw new AssertionError("This case isn't handled yet: " + e.getCause()
+			//        + ", " + Arrays.asList(e.getStackTrace()));
 		}
 
 	}
@@ -195,7 +203,7 @@ public class ConstantInliner extends ExecutionObserver {
 	 * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
 	 */
 	@Override
-	public void beforeStatement(StatementInterface statement, Scope scope) {
+	public void beforeStatement(Statement statement, Scope scope) {
 		// Do nothing
 	}
 

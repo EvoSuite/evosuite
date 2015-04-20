@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.runtime.agent.InstrumentingAgent;
+import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.reset.ClassResetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +21,40 @@ import org.slf4j.LoggerFactory;
 public class ClassStateSupport {
 
 	private static final Logger logger = LoggerFactory.getLogger(ClassStateSupport.class);
-	
+
+    /**
+     * Load all the classes with given name with the provided input classloader.
+     * Those classes are all supposed to be instrumented
+     * @param classLoader
+     * @param classNames
+     * @throws java.lang.IllegalStateException if any class is not instrumented
+     */
 	public static void initializeClasses(ClassLoader classLoader, String... classNames){
 
-		List<Class<?>> classes = loadClasses(classLoader, classNames); 
-		//retransformIfNeeded(classes); //can't use it, as input contains only classes with static state
+		List<Class<?>> classes = loadClasses(classLoader, classNames);
+        if(RuntimeSettings.isUsingAnyMocking()) {
+            for (Class<?> clazz : classes) {
+
+                if(clazz.isInterface()){
+                    /*
+                        FIXME: once we ll start to support Java 8, in which interfaces can have code,
+                        we ll need to instrument them as wll
+                     */
+                    continue;
+                }
+
+                if (!InstrumentedClass.class.isAssignableFrom(clazz)) {
+                    String msg = "Class " + clazz.getName() + " was not instrumented by EvoSuite. " +
+                            "This could happen if you are running JUnit tests in a way that is not handled by EvoSuite, in " +
+                            "which some classes are loaded be reflection before the tests are run. Consult the EvoSuite documentation " +
+                            "for possible workarounds for this issue.";
+                    logger.error(msg);
+                    //throw new IllegalStateException(msg); //TODO put back after competition
+                }
+            }
+        }
+
+		//retransformIfNeeded(classes); // cannot do it, as retransformation does not really work reliably for all cases
 	}
 
 	/**

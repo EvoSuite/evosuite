@@ -22,15 +22,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.method.MethodCoverageFactory;
+import org.evosuite.TestGenerationContext;
+import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.graphs.cfg.BytecodeInstructionPool;
+import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.instrumentation.LinePool;
-import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;
@@ -49,11 +53,11 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	// Coverage targets
-	public final Set<Integer> lines;
+	public final Set<Integer> lines = new HashSet<Integer>();
 
 	/**
 	 * <p>
-	 * Constructor for BranchCoverageSuiteFitness.
+	 * Constructor for LineCoverageSuiteFitness.
 	 * </p>
 	 */
 	public LineCoverageSuiteFitness() {
@@ -62,15 +66,49 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
 		/* TODO: Would be nice to use a prefix here */
-		lines = LinePool.getLines(Properties.TARGET_CLASS);
-		
+		for(String className : LinePool.getKnownClasses()) {		
+			lines.addAll(LinePool.getLines(className));
+		}
 		logger.info("Total line coverage goals: " + lines);
-		
-		new MethodCoverageFactory().getCoverageGoals();
+
 		List<LineCoverageTestFitness> goals = new LineCoverageFactory().getCoverageGoals();
 		for (LineCoverageTestFitness goal : goals) {
 			linesCoverageMap.put(goal.getLine(), goal);
 		}
+		
+		initializeControlDependencies();
+	}
+	
+	private Set<Integer> branchesToCoverTrue  = new HashSet<Integer>();
+	private Set<Integer> branchesToCoverFalse = new HashSet<Integer>();
+	private Set<Integer> branchesToCoverBoth  = new HashSet<Integer>();
+	
+	/**
+	 * Add guidance to the fitness function by including branch distances on
+	 * all control dependencies
+	 */
+	private void initializeControlDependencies() {
+		for(BytecodeInstruction bi : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllInstructions()) {
+			if(bi.getBasicBlock() == null) {
+				// Labels get no basic block. TODO - why?
+				continue;
+			}
+			for(ControlDependency cd : bi.getControlDependencies()) {
+				if(cd.getBranchExpressionValue()) {
+					branchesToCoverTrue.add(cd.getBranch().getActualBranchId());
+				} else {
+					branchesToCoverFalse.add(cd.getBranch().getActualBranchId());
+				}
+			}
+		}
+		branchesToCoverBoth.addAll(branchesToCoverTrue);
+		branchesToCoverBoth.retainAll(branchesToCoverFalse);
+		branchesToCoverTrue.removeAll(branchesToCoverBoth);
+		branchesToCoverFalse.removeAll(branchesToCoverBoth);
+		
+		logger.info("Covering branches true: "+branchesToCoverTrue);
+		logger.info("Covering branches false: "+branchesToCoverFalse);
+		logger.info("Covering branches both: "+branchesToCoverBoth);
 	}
 
 	// Some stuff for debug output
@@ -96,7 +134,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				continue;
 
 			Integer exceptionPosition = result.getFirstPositionOfThrownException();
-			StatementInterface statement = result.test.getStatement(exceptionPosition);
+			Statement statement = result.test.getStatement(exceptionPosition);
 			if (statement instanceof ConstructorStatement) {
 				ConstructorStatement c = (ConstructorStatement) statement;
 				String className = c.getConstructor().getName();
@@ -130,13 +168,82 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				if (linesCoverageMap.containsKey(line)) {
 					result.test.addCoveredGoal(linesCoverageMap.get(line));
 				}
-
 			}
 		}
 
 		return hasTimeoutOrTestException;
 	}
 
+	private double getControlDependencyGuidance(List<ExecutionResult> results) {
+		Map<Integer, Integer> predicateCount = new HashMap<Integer, Integer>();
+		Map<Integer, Double> trueDistance = new HashMap<Integer, Double>();
+		Map<Integer, Double> falseDistance = new HashMap<Integer, Double>();
+
+		for (ExecutionResult result : results) {
+			if (result.hasTimeout() || result.hasTestException()) {
+				continue;
+			}
+			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
+				if (!predicateCount.containsKey(entry.getKey()))
+					predicateCount.put(entry.getKey(), entry.getValue());
+				else {
+					predicateCount.put(entry.getKey(),
+							predicateCount.get(entry.getKey())
+							+ entry.getValue());
+				}
+			}
+			for (Entry<Integer, Double> entry : result.getTrace().getTrueDistances().entrySet()) {
+				if (!trueDistance.containsKey(entry.getKey()))
+					trueDistance.put(entry.getKey(), entry.getValue());
+				else {
+					trueDistance.put(entry.getKey(),
+							Math.min(trueDistance.get(entry.getKey()),
+									entry.getValue()));
+				}
+			}
+			for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
+				if (!falseDistance.containsKey(entry.getKey()))
+					falseDistance.put(entry.getKey(), entry.getValue());
+				else {
+					falseDistance.put(entry.getKey(),
+							Math.min(falseDistance.get(entry.getKey()),
+									entry.getValue()));
+				}
+			}
+		}
+		
+		double distance = 0.0;
+
+		for(Integer branchId : branchesToCoverBoth) {
+			if(!predicateCount.containsKey(branchId)) {
+				distance += 2.0;
+			} else if(predicateCount.get(branchId) == 1) {
+				distance += 1.0;
+			} else {
+				distance += normalize(trueDistance.get(branchId));
+				distance += normalize(falseDistance.get(branchId));
+			}
+		}
+		
+		for(Integer branchId : branchesToCoverTrue) {
+			if(!trueDistance.containsKey(branchId)) {
+				distance += 1;
+			} else {
+				distance += normalize(trueDistance.get(branchId));
+			}
+		}
+
+		for(Integer branchId : branchesToCoverFalse) {
+			if(!falseDistance.containsKey(branchId)) {
+				distance += 1;
+			} else {
+				distance += normalize(falseDistance.get(branchId));
+			}
+		}
+		
+		return distance;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -149,6 +256,9 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		double fitness = 0.0;
 
 		List<ExecutionResult> results = runTestSuite(suite);
+		fitness += getControlDependencyGuidance(results);
+		logger.info("Branch distances: "+fitness);
+		
 		Map<String, Integer> callCount = new HashMap<String, Integer>();
 		Set<Integer> covered_lines = new HashSet<Integer>();
 
@@ -171,9 +281,11 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		printStatusMessages(suite, coveredLines, fitness);
 
 		if (totalLines > 0)
-			suite.setCoverage((double) coveredLines / (double) totalLines);
+			suite.setCoverage(this, (double) coveredLines / (double) totalLines);
+        else
+            suite.setCoverage(this, 1.0);
 
-		suite.setNumOfCoveredGoals(coveredLines);
+		suite.setNumOfCoveredGoals(this, coveredLines);
 		
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value " + totalLines);
@@ -187,8 +299,8 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		assert (fitness >= 0.0);
 		assert (fitness != 0.0 || coveredLines == totalLines) : "Fitness: " + fitness + ", "
 		        + "coverage: " + coveredLines + "/" + totalLines;
-		assert (suite.getCoverage() <= 1.0) && (suite.getCoverage() >= 0.0) : "Wrong coverage value "
-		        + suite.getCoverage();
+		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
+		        + suite.getCoverage(this);
 
 		return fitness;
 	}

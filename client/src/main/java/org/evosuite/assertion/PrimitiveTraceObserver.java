@@ -22,12 +22,13 @@ package org.evosuite.assertion;
 import java.lang.reflect.Modifier;
 import java.util.regex.Pattern;
 
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.PrimitiveStatement;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.PrimitiveStatement;
 
 public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTraceEntry> {
 
@@ -35,7 +36,7 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 
 	/** {@inheritDoc} */
 	@Override
-	public synchronized void afterStatement(StatementInterface statement, Scope scope,
+	public synchronized void afterStatement(Statement statement, Scope scope,
 	        Throwable exception) {
 		// By default, no assertions are created for statements that threw exceptions
 		if(exception != null)
@@ -49,7 +50,7 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 	 */
 	/** {@inheritDoc} */
 	@Override
-	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+	protected void visit(Statement statement, Scope scope, VariableReference var) {
 		if(statement.isAssignmentStatement())
 			return;
 
@@ -62,6 +63,11 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 			// We don't need assertions on constant values
 			if (statement instanceof PrimitiveStatement<?>)
 				return;
+			
+			if(statement instanceof MethodStatement) {
+				if(((MethodStatement)statement).getMethod().getName().equals("hashCode"))
+					return;
+			}
 
 			Object object = var.getObject(scope);
 

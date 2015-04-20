@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 
 
 /**
@@ -43,7 +43,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	/**
 	 * <p>Constructor for PrimitiveFieldTraceEntry.</p>
 	 *
-	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param var a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public PrimitiveFieldTraceEntry(VariableReference var) {
 		this.var = var;

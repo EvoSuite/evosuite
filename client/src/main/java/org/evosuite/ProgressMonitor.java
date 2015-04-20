@@ -42,6 +42,10 @@ public class ProgressMonitor implements SearchListener, Serializable {
 
 	private static final long serialVersionUID = -8518559681906649686L;
 
+	private StoppingCondition stoppingCondition = null;
+	private long max = 1;
+	private int currentCoverage = 0;
+
 	protected int lastCoverage = 0;
 	protected int lastProgress = 0;
 	protected int iteration = 0;
@@ -54,8 +58,6 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 * </p>
 	 * 
 	 * @param percent
-	 *            a int.
-	 * @param coverage
 	 *            a int.
 	 */
 	public void updateStatus(int percent) {
@@ -74,12 +76,6 @@ public class ProgressMonitor implements SearchListener, Serializable {
 		//out.writeInt(currentCoverage);
 		//out.writeObject(currentTask);
 	}
-
-	private StoppingCondition stoppingCondition = null;
-
-	private long max = 1;
-
-	private int currentCoverage = 0;
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.GeneticAlgorithm)

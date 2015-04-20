@@ -3,8 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: EvoSuite
 Bundle-SymbolicName: org.evosuite.plugins.eclipse;singleton:=true
 Bundle-Version: 0.1.0.qualifier
-Bundle-Activator: org.evosuite.eclipse.Activator
-Bundle-Vendor: Gordon Fraser - University of Sheffield
+Bundle-Activator:  org.evosuite.eclipse.Activator
+Bundle-Vendor: Gordon Fraser and Thomas White - University of Sheffield
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
@@ -18,6 +18,18 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ltk.core.refactoring;bundle-version="3.5.0",
  org.eclipse.jdt.core.manipulation;bundle-version="1.4.0",
  org.evosuite.plugins.eclipse.core;bundle-version="0.1.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6,JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .
+Bundle-ClassPath: .,./bin,
+ lib/commons-io-2.4.jar,
+ lib/slf4j-api-1.7.2.jar,
+ lib/slf4j-jdk14-1.7.2.jar,
+ lib/sshj-0.8.1.jar,
+ evosuite-eclipse-core/evosuite.jar
+Export-Package: org.evosuite,
+ org.evosuite.eclipse,
+ org.evosuite.eclipse.markers,
+ org.evosuite.eclipse.popup.actions,
+ org.evosuite.eclipse.properties,
+ org.evosuite.eclipse.quickfixes,
+ org.evosuite.eclipse.replace

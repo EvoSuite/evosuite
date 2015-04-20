@@ -4,11 +4,11 @@
 package org.evosuite.assertion;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
 import org.objectweb.asm.Type;
 
 /**
@@ -25,7 +25,7 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+	protected void visit(Statement statement, Scope scope, VariableReference var) {
 		if(statement.isAssignmentStatement())
 			return;
 		

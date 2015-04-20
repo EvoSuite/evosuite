@@ -129,6 +129,7 @@ public enum Operator {
 	LENGTH("length", 1), 
 	TOLOWERCASE("toLowerCase", 1), 
 	TOUPPERCASE("toUpperCase", 1),
+	IS_INTEGER("isInteger", 1),
 	
 	COMPARETO("compareTo", 2), 
 	COMPARETOIGNORECASE("compareToIgnoreCase", 2),
@@ -155,7 +156,9 @@ public enum Operator {
 	LASTINDEXOFCI("lastIndexOfCI", 3),
 	LASTINDEXOFSI("lastIndexOfSI", 3),
 	SUBSTRING("substring", 3);
+	
 
+	
 	private final String str;
 	private final int arity;
 

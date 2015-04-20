@@ -29,9 +29,9 @@ import java.util.Set;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.ExecutionTrace;
-import org.evosuite.testcase.MethodCall;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.MethodCall;
 
 /**
  * 
@@ -54,7 +54,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 * @param targetVariable
 	 *            a {@link java.lang.String} object.
 	 * @param objectTrace
-	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 * @param targetDUPos
 	 *            a {@link java.lang.Integer} object.
 	 * @param objectId
@@ -87,7 +87,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 * @param targetDefinition
 	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
 	 * @param objectTrace
-	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 * @param goalDefPos
 	 *            a {@link java.lang.Integer} object.
 	 * @param objectId
@@ -118,7 +118,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 * @param targetUse
 	 *            a {@link org.evosuite.coverage.dataflow.Use} object.
 	 * @param trace
-	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 * @param objectId
 	 *            a int.
 	 * @return a {@link java.util.List} object.
@@ -145,7 +145,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 * @param targetDefinition
 	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
 	 * @param trace
-	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 * @param objectId
 	 *            a int.
 	 * @return a {@link java.util.List} object.
@@ -179,7 +179,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 * @param targetDefinition
 	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
 	 * @param trace
-	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 * @param startingDUPos
 	 *            a int.
 	 * @param endDUPos
@@ -292,7 +292,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 * @param targetVariable
 	 *            a {@link java.lang.String} object.
 	 * @param trace
-	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 * @param usePos
 	 *            a int.
 	 * @param objectId
@@ -378,7 +378,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 * ExecutionTrace
 	 * 
 	 * @param trace
-	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 */
 	public static void printFinishCalls(ExecutionTrace trace) {
 		for (MethodCall call : trace.getMethodCalls()) {
@@ -477,7 +477,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 * </p>
 	 * 
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<DefUseCoverageTestFitness> getCoveredGoals(ExecutionResult result) {

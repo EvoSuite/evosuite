@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -69,11 +69,11 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		if (totalGoals.size() > 0)
-			suite.setCoverage(coveredGoals.size() / (double) totalGoals.size());
+			suite.setCoverage(this, coveredGoals.size() / (double) totalGoals.size());
 		else
-			suite.setCoverage(1.0);
+			suite.setCoverage(this, 1.0);
 
-		suite.setNumOfCoveredGoals(coveredGoals.size());
+		suite.setNumOfCoveredGoals(this, coveredGoals.size());
 		
 		updateIndividual(this, suite, fitness);
 

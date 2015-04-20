@@ -1,11 +1,11 @@
 package org.evosuite.statistics;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.testsuite.TestSuiteChromosome;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Creates an output variable that represents a sequence of values extracted from
@@ -85,14 +85,22 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 			if(stamp < preferredTime){
 				continue;
 			}
-			
+
 			if(i==0){
 				/*
 				 * it is the first element, so not much to do, we just use it as value
 				 */
 				return values.get(i);
 			}
-			
+
+
+            /*
+             * If we do not want to interpolate, return last observed value
+             */
+            if (! Properties.TIMELINE_INTERPOLATION) {
+                return values.get(i-1);
+            }
+
 			/*
 			 * Now we interpolate the coverage, as usually we don't have the value for exact time we want
 			 */

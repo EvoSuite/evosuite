@@ -43,6 +43,8 @@ import org.slf4j.LoggerFactory;
 
 public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 
+	private static final long TRUE_VALUE = 1L;
+	private static final long FALSE_VALUE = 0L;
 	protected static final Logger log = LoggerFactory
 			.getLogger(ExpressionExecutor.class);
 
@@ -122,9 +124,10 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 		case GETNUMERICVALUE:
 			return (long) Character.getNumericValue((char) leftVal);
 		case ISLETTER:
-			return Character.isLetter((char) leftVal) ? 1L : 0L;
+			return Character.isLetter((char) leftVal) ? TRUE_VALUE
+					: FALSE_VALUE;
 		case ISDIGIT:
-			return Character.isDigit((char) leftVal) ? 1L : 0L;
+			return Character.isDigit((char) leftVal) ? TRUE_VALUE : FALSE_VALUE;
 
 		default:
 			log.warn("IntegerUnaryExpression: unimplemented operator: " + op);
@@ -176,15 +179,15 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 		Operator op = n.getOperator();
 		switch (op) {
 		case EQUALSIGNORECASE:
-			return first.equalsIgnoreCase(second) ? 1L : 0L;
+			return first.equalsIgnoreCase(second) ? TRUE_VALUE : FALSE_VALUE;
 		case EQUALS:
-			return first.equals(second) ? 1L : 0L;
+			return first.equals(second) ? TRUE_VALUE : FALSE_VALUE;
 		case ENDSWITH:
-			return first.endsWith(second) ? 1L : 0L;
+			return first.endsWith(second) ? TRUE_VALUE : FALSE_VALUE;
 		case CONTAINS:
-			return first.contains(second) ? 1L : 0L;
+			return first.contains(second) ? TRUE_VALUE : FALSE_VALUE;
 		case PATTERNMATCHES:
-			return second.matches(first) ? 1L : 0L;
+			return second.matches(first) ? TRUE_VALUE : FALSE_VALUE;
 		case APACHE_ORO_PATTERN_MATCHES: {
 			Perl5Matcher matcher = new Perl5Matcher();
 			Perl5Compiler compiler = new Perl5Compiler();
@@ -194,7 +197,7 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 			} catch (MalformedPatternException e) {
 				throw new RuntimeException(e);
 			}
-			return matcher.matches(second, pattern) ? 1L : 0L;
+			return matcher.matches(second, pattern) ? TRUE_VALUE : FALSE_VALUE;
 
 		}
 		default:
@@ -260,7 +263,8 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 		case STARTSWITH:
 			long start = (Long) other_v.get(0).accept(this, null);
 
-			return first.startsWith(second, (int) start) ? 1L : 0L;
+			return first.startsWith(second, (int) start) ? TRUE_VALUE
+					: FALSE_VALUE;
 
 		case REGIONMATCHES:
 			long frstStart = (Long) other_v.get(0).accept(this, null);
@@ -269,7 +273,8 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 			long ignoreCase = (Long) other_v.get(3).accept(this, null);
 
 			return first.regionMatches(ignoreCase != 0, (int) frstStart,
-					second, (int) secStart, (int) length) ? 1L : 0L;
+					second, (int) secStart, (int) length) ? TRUE_VALUE
+					: FALSE_VALUE;
 		default:
 			log.warn("StringMultipleComparison: unimplemented operator!");
 			return null;
@@ -329,6 +334,15 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 
 		case LENGTH:
 			return (long) exOn.length();
+
+		case IS_INTEGER: {
+			try {
+				Integer.parseInt(exOn);
+				return TRUE_VALUE;
+			} catch (NumberFormatException ex) {
+				return FALSE_VALUE;
+			}
+		}
 
 		default:
 			log.warn("StringUnaryExpression: unimplemented operator!");
@@ -473,7 +487,7 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 
 		String conc_string = (String) n.getString().accept(this, null);
 		if (n.getReaderPosition() >= conc_string.length()) {
-			return -1L;
+			return -TRUE_VALUE;
 		} else {
 			return (long) conc_string.charAt(n.getReaderPosition());
 		}
@@ -609,7 +623,7 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 	public Object visit(HasMoreTokensExpr n, Void arg) {
 		StringTokenizer tokenizer = (StringTokenizer) n.getTokenizerExpr()
 				.accept(this, null);
-		return tokenizer.hasMoreTokens() ? 1L : 0L;
+		return tokenizer.hasMoreTokens() ? TRUE_VALUE : FALSE_VALUE;
 	}
 
 	@Override
@@ -630,7 +644,8 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 
 	@Override
 	public Object visit(StringNextTokenExpr n, Void arg) {
-		StringTokenizer tokenizer = (StringTokenizer) n.getTokenizerExpr().accept(this,null);
+		StringTokenizer tokenizer = (StringTokenizer) n.getTokenizerExpr()
+				.accept(this, null);
 		return tokenizer.nextToken();
 	}
 

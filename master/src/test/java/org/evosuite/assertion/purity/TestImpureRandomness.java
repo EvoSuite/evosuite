@@ -40,7 +40,7 @@ public class TestImpureRandomness extends SystemTest {
 		Properties.RESET_STATIC_FIELDS = true;
 		Properties.REPLACE_CALLS = true;
 		Properties.JUNIT_CHECK = true;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = true;
+		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 	}
 
 	@After

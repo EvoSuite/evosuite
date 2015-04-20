@@ -9,9 +9,9 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.concolic.TestCase86;

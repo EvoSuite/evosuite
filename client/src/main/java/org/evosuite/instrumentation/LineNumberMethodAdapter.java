@@ -54,7 +54,7 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 	 */
 	public LineNumberMethodAdapter(MethodVisitor mv, String className, String methodName,
 	        String desc) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		fullMethodName = methodName + desc;
 		this.className = className;
 		this.methodName = methodName;
@@ -74,13 +74,13 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 		if (!hadInvokeSpecial)
 			return;
 
-		LinePool.addLine(className, methodName, line);
+		LinePool.addLine(className, fullMethodName, line);
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
 		this.visitLdcInsn(line);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-		                   "org/evosuite/testcase/ExecutionTracer",
-		                   "passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V");
+		                   "org/evosuite/testcase/execution/ExecutionTracer",
+		                   "passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V", false);
 	}
 
 	/* (non-Javadoc)
@@ -88,12 +88,12 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
 		if (opcode == Opcodes.INVOKESPECIAL) {
 			if (methodName.equals("<init>"))
 				hadInvokeSpecial = true;
 		}
-		super.visitMethodInsn(opcode, owner, name, desc);
+		super.visitMethodInsn(opcode, owner, name, desc, itf);
 	}
 
 	/* (non-Javadoc)

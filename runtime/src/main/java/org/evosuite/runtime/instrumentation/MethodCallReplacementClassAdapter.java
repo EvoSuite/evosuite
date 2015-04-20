@@ -20,6 +20,8 @@
  */
 package org.evosuite.runtime.instrumentation;
 
+import java.util.Arrays;
+
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.MockList;
 import org.objectweb.asm.ClassVisitor;
@@ -62,7 +64,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	}
 
 	public MethodCallReplacementClassAdapter(ClassVisitor cv, String className, boolean canAddMethods) {
-		super(Opcodes.ASM4, cv);
+		super(Opcodes.ASM5, cv);
 		this.className = className;
 		this.superClassName = null;
 		this.canChangeSignature = canAddMethods;
@@ -103,6 +105,15 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 		superClassName = superNameWithDots;
 		if((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE)
 			isInterface = true;
+		else {
+            /*
+                FIXME: this should be moved in its own adapter, because it is not executed if we do
+                only reset of static state and no mocking
+             */
+			String[] mockedInterfaces = Arrays.copyOf(interfaces, interfaces.length + 1);
+			mockedInterfaces[interfaces.length] = InstrumentedClass.class.getCanonicalName().replace('.', '/');
+			interfaces = mockedInterfaces;
+		}
 		
 		if(MockList.shouldBeMocked(superNameWithDots)) {
 			

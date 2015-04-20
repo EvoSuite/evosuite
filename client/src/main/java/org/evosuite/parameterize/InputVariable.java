@@ -24,10 +24,10 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.GenericClass;
 import org.objectweb.asm.commons.GeneratorAdapter;
 

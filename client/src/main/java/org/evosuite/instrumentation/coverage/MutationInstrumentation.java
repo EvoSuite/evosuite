@@ -46,7 +46,7 @@ import org.evosuite.instrumentation.mutation.ReplaceConstant;
 import org.evosuite.instrumentation.mutation.ReplaceVariable;
 import org.evosuite.runtime.reset.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
-import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -96,8 +96,8 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		mutationOperators.add(new InsertUnaryOperator());
 
 		// FIXME: Can't check return types because of side effects
-		mutationOperators.add(new DeleteStatement());
-		mutationOperators.add(new DeleteField());
+		//mutationOperators.add(new DeleteStatement());
+		//mutationOperators.add(new DeleteField());
 		// TODO: Replace iinc?
 	}
 
@@ -267,7 +267,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			MethodInsnNode touched = new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        Type.getInternalName(ExecutionTracer.class), "passedMutation",
 			        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] {
-			                Type.DOUBLE_TYPE, Type.INT_TYPE }));
+			                Type.DOUBLE_TYPE, Type.INT_TYPE }), false);
 			instructions.add(touched);
 		}
 

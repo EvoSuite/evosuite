@@ -1,5 +1,7 @@
 package org.evosuite.runtime.mock.java.net;
 
+import org.evosuite.runtime.mock.OverrideMock;
+
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +12,10 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketImpl;
 
-public abstract class MockSocketImpl extends SocketImpl{
+/**
+ * TODO need to implement rollback
+ */
+public abstract class MockSocketImpl extends SocketImpl implements OverrideMock {
 
     protected MockSocket socket = null;
     protected MockServerSocket serverSocket = null;

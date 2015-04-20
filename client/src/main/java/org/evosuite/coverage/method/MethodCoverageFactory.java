@@ -17,17 +17,19 @@
  */
 package org.evosuite.coverage.method;
 
+import org.evosuite.Properties;
+import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.testsuite.AbstractFitnessFactory;
+import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.MethodNameMatcher;
-import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.graphs.cfg.BytecodeInstructionPool;
-import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.evosuite.setup.TestClusterGenerator.canUse;
 
 /**
  * <p>
@@ -43,7 +45,7 @@ public class MethodCoverageFactory extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
 	 */
@@ -53,34 +55,45 @@ public class MethodCoverageFactory extends
 		List<MethodCoverageTestFitness> goals = new ArrayList<MethodCoverageTestFitness>();
 
 		long start = System.currentTimeMillis();
-		String targetClass = Properties.TARGET_CLASS;
 
-		final MethodNameMatcher matcher = new MethodNameMatcher();
-		for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
-			if (!(targetClass.equals("") || className.endsWith(targetClass)))
-				continue ;
-			for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
-				if (!matcher.methodMatches(methodName))
-					continue ;
-				logger.info("Adding goal for method " + className + "." + methodName);
-				goals.add(new MethodCoverageTestFitness(className,methodName));
-			}
-		}		
+        String className = Properties.TARGET_CLASS;
+        Class<?> clazz = null;
+        try {
+            clazz = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (clazz != null) {
+            Constructor[] allConstructors = clazz.getDeclaredConstructors();
+            for (Constructor c : allConstructors) {
+                if (canUse(c)) {
+                    String methodName = "<init>" + Type.getConstructorDescriptor(c);
+                    logger.info("Adding goal for constructor " + className + "." + methodName);
+                    goals.add(new MethodCoverageTestFitness(className, methodName));
+                }
+            }
+            Method[] allMethods = clazz.getDeclaredMethods();
+            for (Method m : allMethods) {
+                if (canUse(m)) {
+                    String methodName = m.getName() + Type.getMethodDescriptor(m);
+                    logger.info("Adding goal for method " + className + "." + methodName);
+                    goals.add(new MethodCoverageTestFitness(className, methodName));
+                }
+            }
+        }
 		goalComputationTime = System.currentTimeMillis() - start;
 		return goals;
 	}
-
-
 
 	/**
 	 * Create a fitness function for branch coverage aimed at covering the root
 	 * branch of the given method in the given class. Covering a root branch
 	 * means entering the method.
-	 * 
+	 *
 	 * @param className
-	 *            a {@link java.lang.String} object.
+	 *            a {@link String} object.
 	 * @param method
-	 *            a {@link java.lang.String} object.
+	 *            a {@link String} object.
 	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
 	 *         object.
 	 */

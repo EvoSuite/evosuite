@@ -5,7 +5,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
@@ -20,11 +19,11 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
+@SuppressWarnings("restriction")
 public class ExtendSuiteEditorAction extends ExtendSuiteAction {
 
 	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -41,12 +40,8 @@ public class ExtendSuiteEditorAction extends ExtendSuiteAction {
 			IJavaElement element;
 
 			try {
-				String name;
 				element = root.getElementAt(offset);
 				if (element.getElementType() == IJavaElement.METHOD) {
-					name = element.getElementName();
-					IMethod method = (IMethod) element;
-					name = method.getSource();
 					IJavaElement pDeclaration = element.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 					IPackageFragment pFragment = (IPackageFragment) pDeclaration;
 					String packageName = "";

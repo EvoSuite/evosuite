@@ -28,6 +28,7 @@ import org.evosuite.rmi.service.MasterNodeRemote;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.AgentLoader;
 import org.evosuite.runtime.agent.ToolsJarLocator;
+import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.evosuite.runtime.sandbox.Sandbox;
@@ -118,7 +119,9 @@ public class ClientProcess {
 		 * later in the search. Note: this does not affect the generated test
 		 * cases when run from Eclipse (for example). 
 		 */
-		AgentLoader.loadAgent();
+
+        //FIXME: tmp disable to understand what the hack is happening on Jenkins
+		//AgentLoader.loadAgent();
 	}
 
 	private static void setupRuntimeProperties(){
@@ -126,7 +129,11 @@ public class ClientProcess {
 		RuntimeSettings.mockJVMNonDeterminism = Properties.REPLACE_CALLS;
 		RuntimeSettings.mockSystemIn = Properties.REPLACE_SYSTEM_IN;
 		RuntimeSettings.sandboxMode = Properties.SANDBOX_MODE;
-	}
+        RuntimeSettings.maxNumberOfThreads = Properties.MAX_STARTED_THREADS;
+        RuntimeSettings.useVNET = Properties.VIRTUAL_NET;
+        RuntimeSettings.useSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
+        MethodCallReplacementCache.resetSingleton();
+    }
 
 	/**
 	 * <p>

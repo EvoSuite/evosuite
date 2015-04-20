@@ -28,7 +28,7 @@ import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +60,7 @@ public class FailingTestSet {
 	 * @param contract
 	 *            a {@link org.evosuite.contracts.Contract} object.
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */

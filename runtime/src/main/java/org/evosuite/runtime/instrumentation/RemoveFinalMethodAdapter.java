@@ -46,7 +46,7 @@ public class RemoveFinalMethodAdapter extends MethodVisitor {
 	 */
 	public RemoveFinalMethodAdapter(String className, MethodVisitor mv,
 	        List<String> finalFields) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		this.finalFields = finalFields;
 		this.className = className;
 	}
@@ -78,6 +78,26 @@ public class RemoveFinalMethodAdapter extends MethodVisitor {
 			//if (!owner.equals(className))
 			//	System.out.println("Mismatch: " + className + " / " + owner);
 			super.visitFieldInsn(opcode, owner, name, desc);
+		}
+	}
+	
+	/**
+	 * Calls to cobertura methods are removed to avoid that code coverage
+	 * data is deleted
+	 */
+	@Override
+	public void visitMethodInsn(int opcode, String owner, String name,
+			String desc, boolean itf) {
+		if(opcode == Opcodes.INVOKESTATIC && name.startsWith("__cobertura")) {
+			for(Type parameterType : Type.getArgumentTypes(desc)) {
+				if(parameterType.getSize() == 1) {
+					super.visitInsn(Opcodes.POP);
+				} else if(parameterType.getSize() == 2) {
+					super.visitInsn(Opcodes.POP2);
+				}
+			}
+		} else {
+			super.visitMethodInsn(opcode, owner, name, desc, itf);
 		}
 	}
 }

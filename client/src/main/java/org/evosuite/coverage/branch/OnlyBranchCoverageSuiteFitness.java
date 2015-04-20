@@ -24,12 +24,11 @@ import java.util.Map.Entry;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.lcsaj.LCSAJPool;
-import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;
@@ -53,7 +52,7 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	/**
 	 * <p>
-	 * Constructor for BranchCoverageSuiteFitness.
+	 * Constructor for OnlyBranchCoverageSuiteFitness.
 	 * </p>
 	 */
 	public OnlyBranchCoverageSuiteFitness() {
@@ -87,8 +86,8 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * Initialize the set of known coverage goals
 	 */
 	private void determineCoverageGoals() {
-		List<BranchCoverageTestFitness> goals = new BranchCoverageFactory().getCoverageGoals();
-		for (BranchCoverageTestFitness goal : goals) {
+		List<OnlyBranchCoverageTestFitness> goals = new OnlyBranchCoverageFactory().getCoverageGoals();
+		for (OnlyBranchCoverageTestFitness goal : goals) {
 			if (goal.getBranchExpressionValue())
 				branchCoverageTrueMap.put(goal.getBranch().getActualBranchId(), goal);
 			else
@@ -112,7 +111,7 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				continue;
 
 			Integer exceptionPosition = result.getFirstPositionOfThrownException();
-			StatementInterface statement = result.test.getStatement(exceptionPosition);
+			Statement statement = result.test.getStatement(exceptionPosition);
 			if (statement instanceof ConstructorStatement) {
 				ConstructorStatement c = (ConstructorStatement) statement;
 				String className = c.getConstructor().getName();
@@ -156,39 +155,33 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 			}
 			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
-				if (!LCSAJPool.isLCSAJBranch(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(entry.getKey()))) {
-					if (!predicateCount.containsKey(entry.getKey()))
-						predicateCount.put(entry.getKey(), entry.getValue());
-					else {
-						predicateCount.put(entry.getKey(),
-						                   predicateCount.get(entry.getKey())
-						                           + entry.getValue());
-					}
+				if (!predicateCount.containsKey(entry.getKey()))
+					predicateCount.put(entry.getKey(), entry.getValue());
+				else {
+					predicateCount.put(entry.getKey(),
+							predicateCount.get(entry.getKey())
+							+ entry.getValue());
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().getTrueDistances().entrySet()) {
-				if (!LCSAJPool.isLCSAJBranch(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(entry.getKey()))) {
-					if (!trueDistance.containsKey(entry.getKey()))
-						trueDistance.put(entry.getKey(), entry.getValue());
-					else {
-						trueDistance.put(entry.getKey(),
-						                 Math.min(trueDistance.get(entry.getKey()),
-						                          entry.getValue()));
-					}
-					if (entry.getValue() == 0.0) {
-						result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
-					}
+				if (!trueDistance.containsKey(entry.getKey()))
+					trueDistance.put(entry.getKey(), entry.getValue());
+				else {
+					trueDistance.put(entry.getKey(),
+							Math.min(trueDistance.get(entry.getKey()),
+									entry.getValue()));
+				}
+				if (entry.getValue() == 0.0) {
+					result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
-				if (!LCSAJPool.isLCSAJBranch(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(entry.getKey()))) {
-					if (!falseDistance.containsKey(entry.getKey()))
-						falseDistance.put(entry.getKey(), entry.getValue());
-					else {
-						falseDistance.put(entry.getKey(),
-						                  Math.min(falseDistance.get(entry.getKey()),
-						                           entry.getValue()));
-					}
+				if (!falseDistance.containsKey(entry.getKey()))
+					falseDistance.put(entry.getKey(), entry.getValue());
+				else {
+					falseDistance.put(entry.getKey(),
+							Math.min(falseDistance.get(entry.getKey()),
+									entry.getValue()));
 				}
 				if (entry.getValue() == 0.0) {
 					result.test.addCoveredGoal(branchCoverageFalseMap.get(entry.getKey()));
@@ -256,10 +249,12 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		int coverage = numCoveredBranches;
 
 		if (totalGoals > 0)
-			suite.setCoverage((double) coverage / (double) totalGoals);
+			suite.setCoverage(this, (double) coverage / (double) totalGoals);
+        else
+            suite.setCoverage(this, 1.0);
 
-		suite.setNumOfCoveredGoals(coverage);
-
+		suite.setNumOfCoveredGoals(this, coverage);
+		suite.setNumOfNotCoveredGoals(this, totalGoals-coverage);
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value "
 			        + (totalBranches * 2));
@@ -274,8 +269,8 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		assert (fitness >= 0.0);
 		assert (fitness != 0.0 || coverage == totalGoals) : "Fitness: " + fitness + ", "
 		        + "coverage: " + coverage + "/" + totalGoals;
-		assert (suite.getCoverage() <= 1.0) && (suite.getCoverage() >= 0.0) : "Wrong coverage value "
-		        + suite.getCoverage();
+		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
+		        + suite.getCoverage(this);
 
 		return fitness;
 	}

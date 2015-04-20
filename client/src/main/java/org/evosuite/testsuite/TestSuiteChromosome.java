@@ -18,6 +18,7 @@
 package org.evosuite.testsuite;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,11 +28,11 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.ga.localsearch.TestSuiteLocalSearch;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 
 /**
  * <p>
@@ -43,8 +44,8 @@ import org.evosuite.testcase.TestFitnessFunction;
 public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromosome> {
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
-
+	private static final List<SecondaryObjective<?>> secondaryObjectives = new ArrayList<SecondaryObjective<?>>();
+	private static int secondaryObjIndex = 0;
 	private static final long serialVersionUID = 88380759969800800L;
 
 	/**
@@ -54,17 +55,42 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void addSecondaryObjective(SecondaryObjective objective) {
+	public static void addSecondaryObjective(SecondaryObjective<?> objective) {
 		secondaryObjectives.add(objective);
 	}
 
+	public static void ShuffleSecondaryObjective() {
+		Collections.shuffle(secondaryObjectives);
+	}
+	
+	public static int getSecondaryObjectivesSize(){
+		return secondaryObjectives.size();
+	}
+	
+	public static boolean isFirstSecondaryObjectiveEnabled(){
+		return secondaryObjIndex == 0;
+	}
+	
+	public static void disableFirstSecondaryObjective() {
+		if (secondaryObjIndex != 1)
+			secondaryObjIndex = 1;
+	}
+	
+	public static void enableFirstSecondaryObjective() {
+		if (secondaryObjIndex != 0)
+			secondaryObjIndex = 0;
+	}
+
+	public static void reverseSecondaryObjective() {
+		Collections.reverse(secondaryObjectives);
+	}
 	/**
 	 * Remove secondary objective from list, if it is there
 	 * 
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void removeSecondaryObjective(SecondaryObjective objective) {
+	public static void removeSecondaryObjective(SecondaryObjective<TestSuiteChromosome> objective) {
 		secondaryObjectives.remove(objective);
 	}
 
@@ -145,18 +171,16 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int compareSecondaryObjective(Chromosome o) {
-		int objective = 0;
+	@SuppressWarnings("unchecked")
+	public  <T extends Chromosome> int compareSecondaryObjective(T o) {
+		int objective = secondaryObjIndex;
 		int c = 0;
-
 		while (c == 0 && objective < secondaryObjectives.size()) {
-			SecondaryObjective so = secondaryObjectives.get(objective++);
+			SecondaryObjective<T> so = (SecondaryObjective<T>) secondaryObjectives.get(objective++);
 			if (so == null)
 				break;
-			c = so.compareChromosomes(this, o);
-		}
-		//logger.debug("Comparison: " + fitness + "/" + size() + " vs " + o.fitness + "/"
-		//        + o.size() + " = " + c);
+			c = so.compareChromosomes((T) this, o);
+		} 
 		return c;
 	}
 
@@ -176,7 +200,8 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			}
 		}
 	}
-
+	
+	
 	
 
 	/**
@@ -273,4 +298,5 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		}
 		return result;
 	}
+ 
 }

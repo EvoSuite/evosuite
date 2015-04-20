@@ -52,7 +52,7 @@ public class CFGClassAdapter extends ClassVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public CFGClassAdapter(ClassLoader classLoader, ClassVisitor visitor, String className) {
-		super(Opcodes.ASM4, visitor);
+		super(Opcodes.ASM5, visitor);
 		this.className = className;
 		this.classLoader = classLoader;
 	}

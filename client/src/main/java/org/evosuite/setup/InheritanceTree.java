@@ -20,8 +20,13 @@
  */
 package org.evosuite.setup;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,6 +36,8 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.graph.EdgeReversedGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
@@ -38,21 +45,82 @@ import org.jgrapht.traverse.BreadthFirstIterator;
  */
 public class InheritanceTree {
 
+    private static Logger logger = LoggerFactory.getLogger(InheritanceTree.class);
+
 	private final Map<String, Set<String>> subclassCache = new LinkedHashMap<String, Set<String>>();
 
+	private  Set<String> interfacesSet = new HashSet<>();
+	private  Set<String> abstractClassesSet = new HashSet<>();
+
+	private Map<String, Set<String>> analyzedMethods;
+		
 	private DirectedMultigraph<String, DefaultEdge> inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(
 	        DefaultEdge.class);
 
-	public boolean isMethodDefined(String className, String methodName) {
-		return false;
+	private void initialiseMap(){
+		if (analyzedMethods == null)
+			analyzedMethods = new HashMap<>();
+		if(interfacesSet==null)
+			interfacesSet = new HashSet<>();
+		if(abstractClassesSet ==null)
+			abstractClassesSet = new HashSet<>();
 	}
+	
+	public boolean isClassDefined(String className){
+		initialiseMap();
+		return analyzedMethods.containsKey(className);
+	}
+	
+	public boolean isInterface(String classname) {
+		return interfacesSet.contains(classname);
+	}
+	
+	public boolean isAbstractClass(String classname) {
+		return abstractClassesSet.contains(classname);
+	}
+	
+	public void registerAbstractClass(String abstractClassName) {
+		initialiseMap();
+		abstractClassesSet.add(ResourceList.getClassNameFromResourcePath(abstractClassName));
+	}
+	
+	public void registerInterface(String interfaceName) {
+		initialiseMap();
+		interfacesSet.add(ResourceList.getClassNameFromResourcePath(interfaceName));
+	}
+	
+	public boolean isMethodDefined(String className, String methodNameWdescriptor) {
+		initialiseMap();
+		
+		if(analyzedMethods.get(className)==null) return false;
+		return analyzedMethods.get(className).contains(methodNameWdescriptor);
+	}
+	
+	public boolean isMethodDefined(String className, String methodName, String descriptor) {
+		initialiseMap();
+		
+		if(analyzedMethods.get(className)==null) return false;
+		return analyzedMethods.get(className).contains(methodName+descriptor);
+	}
+	
+	//TODO the initialization in the clinit dosen't work, no idea why - mattia
+	public void addAnalyzedMethod(String classname, String methodname, String descriptor) {
+		initialiseMap();
+		classname = classname.replace(File.separator, ".");
+		Set<String> tmp = analyzedMethods.get(classname);
+		if(tmp==null)
+			analyzedMethods.put(classname, tmp = new HashSet<>());
+		tmp.add(methodname+descriptor);
+	}
+	
+	
 
 	public void addSuperclass(String className, String superName, int access) {
 		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 		String superNameWithDots = ResourceList.getClassNameFromResourcePath(superName);
 
 		if (inheritanceGraph == null) {
-			inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(
+			inheritanceGraph = new DirectedMultigraph<>(
 			        DefaultEdge.class);
 		}
 
@@ -68,6 +136,7 @@ public class InheritanceTree {
 		inheritanceGraph.addVertex(classNameWithDots);
 		inheritanceGraph.addVertex(interfaceNameWithDots);
 		inheritanceGraph.addEdge(interfaceNameWithDots, classNameWithDots);
+		interfacesSet.add(interfaceNameWithDots);
 	}
 
 	public Set<String> getSubclasses(String className) {
@@ -77,8 +146,8 @@ public class InheritanceTree {
 			return subclassCache.get(classNameWithDots);
 
 		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
-			LoggingUtils.getEvoLogger().warn("Class not in inheritance graph: "
-			                                         + classNameWithDots);
+            logger.warn("Class not in inheritance graph: " + classNameWithDots);
+			return new HashSet<>();
 		}
 		Set<String> result = new LinkedHashSet<String>();
 		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
@@ -92,9 +161,13 @@ public class InheritanceTree {
 
 	public Set<String> getSuperclasses(String className) {
 		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
+		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
+            logger.warn("Class not in inheritance graph: " + classNameWithDots);
+			return new HashSet<>();
+		}
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
 		        inheritanceGraph);
-		Set<String> result = new LinkedHashSet<String>();
+		Set<String> result = new LinkedHashSet<>();
 		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
 		        reverseGraph, classNameWithDots);
 		while (bfi.hasNext()) {
@@ -102,6 +175,24 @@ public class InheritanceTree {
 		}
 		return result;
 	}
+	
+	public List<String> getOrderedSuperclasses(String className) {
+		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
+		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
+            logger.warn("Class not in inheritance graph: " + classNameWithDots);
+			return new LinkedList<>();
+		}
+		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
+		        inheritanceGraph);
+		List<String> orderedList = new LinkedList<>();
+		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
+		        reverseGraph, classNameWithDots);
+		while (bfi.hasNext()) {
+			orderedList.add(bfi.next());
+		}
+		return orderedList;
+	}
+	
 
 	public Set<String> getAllClasses() {
 		return inheritanceGraph.vertexSet();

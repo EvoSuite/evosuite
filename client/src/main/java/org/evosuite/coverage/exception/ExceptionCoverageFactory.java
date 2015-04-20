@@ -14,27 +14,30 @@
  * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- * 
- * @author Gordon Fraser
  */
 package org.evosuite.coverage.exception;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 
+/**
+ * Coverage factory for observed exceptions
+ *
+ * @author Gordon Fraser, Jose Miguel Rojas
+ */
 public class ExceptionCoverageFactory extends AbstractFitnessFactory<TestFitnessFunction> {
 
-	/** {@inheritDoc} */
+    private static Map<String, ExceptionCoverageTestFitness> goals = new HashMap<String, ExceptionCoverageTestFitness>();
+
+    public static Map<String, ExceptionCoverageTestFitness> getGoals() {
+        return goals;
+    }
+
+    /** {@inheritDoc} */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
-		return new ArrayList<TestFitnessFunction>();
-		//		throw new RuntimeException("Not really sure what this method should do...");
+		return new ArrayList<TestFitnessFunction>(goals.values());
 	}
-
-	// TODO: Need to return goals of underlying coverage criterion
-	//       plus the exceptions that were observed
-	//       -> and then we will need an explicit coverage goal for an exception
 }

@@ -20,11 +20,11 @@
  */
 package org.evosuite.assertion;
 
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.NumberFormatter;
 public class InspectorAssertion extends Assertion {
 
@@ -37,7 +37,7 @@ public class InspectorAssertion extends Assertion {
 				
 	}
 	
-	public InspectorAssertion(Inspector inspector, StatementInterface statement, VariableReference source, Object value) {
+	public InspectorAssertion(Inspector inspector, Statement statement, VariableReference source, Object value) {
 		this.inspector = inspector;
 		this.source = source;
 		this.statement = statement;

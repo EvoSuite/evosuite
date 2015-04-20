@@ -20,8 +20,8 @@
  */
 package org.evosuite.coverage.mutation;
 
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
 
 /**
  * <p>

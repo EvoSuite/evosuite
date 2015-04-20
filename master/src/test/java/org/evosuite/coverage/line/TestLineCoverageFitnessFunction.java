@@ -17,6 +17,11 @@
  */
 package org.evosuite.coverage.line;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -25,12 +30,16 @@ import org.evosuite.SystemTest;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.FlagExample3;
+import com.examples.with.different.packagename.IntExample;
 import com.examples.with.different.packagename.SingleMethod;
+import com.examples.with.different.packagename.coverage.IntExampleWithNoElse;
+import com.examples.with.different.packagename.staticfield.StaticFoo;
 
 /**
  * @author Jose Miguel Rojas
@@ -38,10 +47,27 @@ import com.examples.with.different.packagename.SingleMethod;
  */
 public class TestLineCoverageFitnessFunction extends SystemTest {
 
+	private Properties.Criterion[] oldCriteria = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length); 
+	private Properties.StoppingCondition oldStoppingCondition = Properties.STOPPING_CONDITION; 
+	private double oldPrimitivePool = Properties.PRIMITIVE_POOL;
+	private boolean oldResetStaticFields = Properties.RESET_STATIC_FIELDS;
+	
 	@Before
 	public void beforeTest() {
-        Properties.CRITERION[0] = Criterion.LINE;
-		Properties.MINIMIZE = false;
+		oldCriteria = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
+		oldStoppingCondition = Properties.STOPPING_CONDITION;
+		oldPrimitivePool = Properties.PRIMITIVE_POOL;
+        Properties.CRITERION = new Properties.Criterion[] { Criterion.LINE };
+        oldResetStaticFields = Properties.RESET_STATIC_FIELDS;
+		//Properties.MINIMIZE = false;
+	}
+	
+	@After
+	public void restoreProperties() {
+		Properties.CRITERION = oldCriteria;
+		Properties.STOPPING_CONDITION = oldStoppingCondition;
+		Properties.PRIMITIVE_POOL = oldPrimitivePool;
+		Properties.RESET_STATIC_FIELDS = oldResetStaticFields;
 	}
 
 	@Test
@@ -81,5 +107,105 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(4, goals );
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+	
+	@Test
+	public void testLineCoverageFitnessBranchGuidance() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = IntExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		// To see whether there is any guidance we turn off
+		// seeding, but need to increase the budget
+		Properties.PRIMITIVE_POOL = 0.0;
+		Properties.SEARCH_BUDGET = 50000;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		
+		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
+		System.out.println("EvolvedTestSuite:\n" + best);
+		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+		Assert.assertEquals(5, goals );
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+	
+	@Test
+	public void testLineCoverageFitnessBranchGuidance2() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = IntExampleWithNoElse.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		// To see whether there is any guidance we turn off
+		// seeding, but need to increase the budget
+		Properties.PRIMITIVE_POOL = 0.0;
+		Properties.SEARCH_BUDGET = 50000;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		
+		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
+		System.out.println("EvolvedTestSuite:\n" + best);
+		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+		Assert.assertEquals(5, goals );
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void testListOfGoalsWith_RESET_STATIC_FIELDS_enable()
+	{
+		String targetClass = StaticFoo.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		Properties.RESET_STATIC_FIELDS = true;
+
+		EvoSuite evosuite = new EvoSuite();
+
+		String[] command = new String[] {
+				"-printStats",
+				"-class", targetClass
+		};
+
+		evosuite.parseCommandLine(command);
+
+		LineCoverageFactory rc = new LineCoverageFactory();
+
+		List<LineCoverageTestFitness> goals = rc.getCoverageGoals();
+		for (LineCoverageTestFitness goal : goals)
+			System.out.println(goal);
+
+		assertEquals(7, goals.size());
+	}
+
+	@Test
+	public void testListOfGoalsWith_RESET_STATIC_FIELDS_disable()
+	{
+		String targetClass = StaticFoo.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		Properties.RESET_STATIC_FIELDS = false;
+
+		EvoSuite evosuite = new EvoSuite();
+
+		String[] command = new String[] {
+				"-printStats",
+				"-class", targetClass
+		};
+
+		evosuite.parseCommandLine(command);
+
+		LineCoverageFactory rc = new LineCoverageFactory();
+
+		List<LineCoverageTestFitness> goals = rc.getCoverageGoals();
+		for (LineCoverageTestFitness goal : goals)
+			System.out.println(goal);
+
+		assertEquals(7, goals.size());
 	}
 }

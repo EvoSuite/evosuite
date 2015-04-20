@@ -26,14 +26,14 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.ConstructorStatement;
-import org.evosuite.testcase.FieldStatement;
-import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +62,7 @@ public abstract class Contract {
 	 * </p>
 	 * 
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @return a {@link java.util.Collection} object.
 	 */
 	protected Collection<Object> getAllObjects(Scope scope) {
@@ -80,7 +80,7 @@ public abstract class Contract {
 	 * </p>
 	 * 
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @return a {@link java.util.Collection} object.
 	 */
 	protected Collection<Pair<Object>> getAllObjectPairs(Scope scope) {
@@ -113,10 +113,10 @@ public abstract class Contract {
 	 * Check if this statement is related to the unit under test
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @return a boolean.
 	 */
-	protected boolean isTargetStatement(StatementInterface statement) {
+	protected boolean isTargetStatement(Statement statement) {
 		//if (statement.getReturnClass().equals(Properties.getTargetClass()))
 		//	return true;
 		if (statement instanceof MethodStatement) {
@@ -159,14 +159,14 @@ public abstract class Contract {
 	 * Check the contract on the current statement in the current scope
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
+	 *            a {@link org.evosuite.testcase.execution.Scope} object.
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 * @return a boolean.
 	 */
-	public abstract ContractViolation check(StatementInterface statement, Scope scope,
+	public abstract ContractViolation check(Statement statement, Scope scope,
 	        Throwable exception);
 
 	/**
@@ -178,7 +178,7 @@ public abstract class Contract {
 	 * @param variables
 	 * @param exception
 	 */
-	public abstract void addAssertionAndComments(StatementInterface statement,
+	public abstract void addAssertionAndComments(Statement statement,
 	        List<VariableReference> variables, Throwable exception);
 
 	public void changeClassLoader(ClassLoader classLoader) {

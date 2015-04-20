@@ -24,9 +24,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.evosuite.assertion.EqualsAssertion;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class EqualsContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
+	public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
 		for(VariableReference var : getAllVariables(scope)) {
 			Object object = scope.getObject(var);
 
@@ -88,7 +88,7 @@ public class EqualsContract extends Contract {
 	}
 
 	@Override
-	public void addAssertionAndComments(StatementInterface statement,
+	public void addAssertionAndComments(Statement statement,
 			List<VariableReference> variables, Throwable exception) {
 		EqualsAssertion assertion = new EqualsAssertion();
 		assertion.setStatement(statement);

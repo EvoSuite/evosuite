@@ -45,7 +45,20 @@ public abstract class FitnessFunction<T extends Chromosome> implements Serializa
 	protected void updateIndividual(FitnessFunction<?> ff, T individual, double fitness) {
 		individual.setFitness(ff, fitness);
 	}
+	
+	protected void updateIndividual(FitnessFunction<?> ff, T individual, double fitness, int toCoverTargets) {
+		individual.setFitness(ff, fitness);
+	}
 
+	/**
+	 * If the fitness function as an archive, returns the best individual in the archive.
+	 * returns null otherwise
+	 * @return
+	 */
+	public T getBestStoredIndividual(){
+		return null;
+	}
+	
 	/**
 	 * Calculate and set fitness function #TODO the 'set fitness' part should be
 	 * done by some abstract super class of all FitnessFunctions
@@ -69,6 +82,9 @@ public abstract class FitnessFunction<T extends Chromosome> implements Serializa
 		if (value < 0d) {
 			throw new IllegalArgumentException("Values to normalize cannot be negative");
 		}
+		if (Double.isInfinite(value)) {
+			return 1.0;
+		}
 		return value / (1.0 + value);
 	}
 
@@ -78,4 +94,15 @@ public abstract class FitnessFunction<T extends Chromosome> implements Serializa
 	 * @return a boolean.
 	 */
 	public abstract boolean isMaximizationFunction();
+	
+	/**
+	 * if the fitness function contains an archive, updates the archive and the fitness values of the population, and returns true.
+	 * if the fitness function doesn't contain an archive, return false.
+	 * 
+	 * This method has to be invoked after each generation.
+	 * @return
+	 */
+	public boolean updateCoveredGoals(){
+		return false;
+	}
 }

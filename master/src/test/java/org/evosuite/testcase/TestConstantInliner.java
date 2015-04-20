@@ -5,6 +5,13 @@ import static org.junit.Assert.assertFalse;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ArrayReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericMethod;
 import org.junit.Test;
@@ -22,7 +29,7 @@ public class TestConstantInliner {
 		ArrayStatement as = new ArrayStatement(test, Object[].class, 3);
 		test.addStatement(as);
 		
-		ArrayReference arrayVar = as.getArrayReference(); 
+		ArrayReference arrayVar = as.getArrayReference();
 		
 		ArrayIndex ai0 = new ArrayIndex(test, arrayVar, 0);
 		ArrayIndex ai1 = new ArrayIndex(test, arrayVar, 1);

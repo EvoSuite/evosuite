@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.utils.LoggingUtils;
@@ -247,16 +248,13 @@ public class JobHandler extends Thread {
 		commands.add("-Dreport_dir=" + reports.getAbsolutePath() + "/" + job.cut);
 		commands.add("-Dtest_dir=" + tests.getAbsolutePath());
 
-		//cmd += " -Derror_branches=true"; 
-		commands.add("-criterion");
-		commands.add("exception");
 		commands.add("-Dtest_factory=" + Properties.TEST_FACTORY);
 		commands.add("-Dseed_clone=" + Properties.SEED_CLONE);
 		commands.add("-Dseed_dir=" + storage.getTmpSeeds().getAbsolutePath());
 
 		commands.addAll(getOutputVariables());
 
-		commands.add("-Djunit_suffix=" + StorageManager.junitSuffix);
+		commands.add("-Djunit_suffix=" + Properties.JUNIT_SUFFIX);
 
 		commands.add("-Denable_asserts_for_evosuite=" + Properties.ENABLE_ASSERTS_FOR_EVOSUITE);
 		String confId = Properties.CONFIGURATION_ID;
@@ -284,16 +282,12 @@ public class JobHandler extends Thread {
 
 		commands.add("-Dmax_size=" + Properties.MAX_SIZE);
 
-		commands.add("-Dsecondary_objectives=totallength");
-		commands.add("-Dtimeout=5000");
 		commands.add("-Dhtml=false");
 		commands.add("-Dlog_timeout=false");
 		commands.add("-Dplot=false");
-		commands.add("-Djunit_tests=true");
 		commands.add("-Dtest_comments=false");
 		commands.add("-Dshow_progress=false");
 		commands.add("-Dsave_all_data=false");
-		commands.add("-Dinline=false");
 
 		/*
 		 * for (de)serialization of classes with static fields, inner classes, etc,
@@ -410,12 +404,13 @@ public class JobHandler extends Thread {
 		 * For now we just do something very basic
 		 */
 
-		final int PHASES = 5;
+		final int PHASES = 6;
 		
 		int initialization = seconds / PHASES;
 		int minimization = seconds / PHASES;
 		int assertions = seconds / PHASES;
 		int extra = seconds / PHASES;
+        int junit = seconds / PHASES;
 
 		final int MAJOR_DELTA = 120;
 		final int MINOR_DELTA = 60;
@@ -425,14 +420,16 @@ public class JobHandler extends Thread {
 			minimization = MAJOR_DELTA;
 			assertions = MAJOR_DELTA;
 			extra = MAJOR_DELTA;
+            junit = MAJOR_DELTA;
 		} else if (seconds > PHASES * MINOR_DELTA) {
 			initialization = MINOR_DELTA;
 			minimization = MINOR_DELTA;
 			assertions = MINOR_DELTA;
 			extra = MINOR_DELTA;
+            junit = MINOR_DELTA;
 		}
 
-		int search = seconds - (initialization + minimization + assertions + extra);
+		int search = seconds - (initialization + minimization + assertions + extra + junit);
 
 		List<String> commands = new ArrayList<String>();
 		commands.add("-Dsearch_budget=" + search);
@@ -441,7 +438,8 @@ public class JobHandler extends Thread {
 		commands.add("-Dinitialization_timeout=" + initialization);
 		commands.add("-Dminimization_timeout=" + minimization);
 		commands.add("-Dassertion_timeout=" + assertions);
-		commands.add("-Dextra_timeout=" + extra);
+        commands.add("-Dextra_timeout=" + extra);
+        commands.add("-Djunit_check_timeout=" + junit);
 
 		return commands;
 	}

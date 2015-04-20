@@ -12,12 +12,12 @@ import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.solver.search.ConstraintSolver;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.evosuite.symbolic.solver.search.TestInput1;
 import org.evosuite.symbolic.solver.search.TestInput2;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
 
 public class TestConstraintSolver {
@@ -89,7 +89,7 @@ public class TestConstraintSolver {
 		System.out.println("Target constraints");
 		printConstraints(constraints);
 
-		ConstraintSolver seeker = new ConstraintSolver();
+		EvoSuiteSolver seeker = new EvoSuiteSolver();
 		Map<String, Object> model = seeker.solve(constraints);
 
 		if (model == null)

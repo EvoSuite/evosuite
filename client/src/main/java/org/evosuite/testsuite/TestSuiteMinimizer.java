@@ -39,12 +39,12 @@ import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.StructuredTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,368 +58,362 @@ import org.slf4j.LoggerFactory;
  */
 public class TestSuiteMinimizer {
 
-	/** Logger */
-	private final static Logger logger = LoggerFactory.getLogger(TestSuiteMinimizer.class);
+    /**
+     * Logger
+     */
+    private final static Logger logger = LoggerFactory.getLogger(TestSuiteMinimizer.class);
 
-	private final List<TestFitnessFactory<?>> testFitnessFactory = new ArrayList<TestFitnessFactory<?>>();
+    private final List<TestFitnessFactory<?>> testFitnessFactory = new ArrayList<TestFitnessFactory<?>>();
 
-	/** Assume the search has not started until startTime != 0 */
-	protected static long startTime = 0L;
+    /**
+     * Assume the search has not started until startTime != 0
+     */
+    protected static long startTime = 0L;
 
-	/**
-	 * <p>
-	 * Constructor for TestSuiteMinimizer.
-	 * </p>
-	 * 
-	 * @param factory
-	 *            a {@link org.evosuite.coverage.TestFitnessFactory} object.
-	 */
-	public TestSuiteMinimizer(TestFitnessFactory<?> factory) {
-		this.testFitnessFactory.add(factory);
-	}
+    /**
+     * <p>
+     * Constructor for TestSuiteMinimizer.
+     * </p>
+     *
+     * @param factory a {@link org.evosuite.coverage.TestFitnessFactory} object.
+     */
+    public TestSuiteMinimizer(TestFitnessFactory<?> factory) {
+        this.testFitnessFactory.add(factory);
+    }
 
-	public TestSuiteMinimizer(List<TestFitnessFactory<?>> factories) {
+    public TestSuiteMinimizer(List<TestFitnessFactory<? extends TestFitnessFunction>> factories) {
         this.testFitnessFactory.addAll(factories);
     }
 
-	/**
-	 * <p>
-	 * minimize
-	 * </p>
-	 * 
-	 * @param suite
-	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
-	 * 
-	 * @param isToMinimizeTests true is to minimize tests, false is to minimize suites.
-	 */
-	public void minimize(TestSuiteChromosome suite, boolean isToMinimizeTests) {
-		startTime = System.currentTimeMillis();
+    /**
+     * <p>
+     * minimize
+     * </p>
+     *
+     * @param suite             a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+     * @param isToMinimizeTests true is to minimize tests, false is to minimize suites.
+     */
+    public void minimize(TestSuiteChromosome suite, boolean isToMinimizeTests) {
+        startTime = System.currentTimeMillis();
 
-		String strategy = Properties.SECONDARY_OBJECTIVE;
-		if (strategy.contains(":"))
-			strategy = strategy.substring(0, strategy.indexOf(':'));
+        String strategy = Properties.SECONDARY_OBJECTIVE;
+        if (strategy.contains(":"))
+            strategy = strategy.substring(0, strategy.indexOf(':'));
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size,
-		                                                                 suite.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length,
-		                                                                 suite.totalLengthOfTestCases());
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size,
+                suite.size());
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length,
+                suite.totalLengthOfTestCases());
 
-		logger.info("Minimization Strategy: " + strategy + ", " + suite.size() + " tests");
-		suite.clearMutationHistory();
+        logger.info("Minimization Strategy: " + strategy + ", " + suite.size() + " tests");
+        suite.clearMutationHistory();
 
-		if (isToMinimizeTests)
-			minimizeTests(suite);
-		else
-		    minimizeSuite(suite);
+        if (isToMinimizeTests)
+            minimizeTests(suite);
+        else
+            minimizeSuite(suite);
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size,
-		                                                                 suite.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length,
-		                                                                 suite.totalLengthOfTestCases());
-	}
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size,
+                suite.size());
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length,
+                suite.totalLengthOfTestCases());
+    }
 
-	private void updateClientStatus(int progress) {
-		ClientState state = ClientState.MINIMIZATION;
-		ClientStateInformation information = new ClientStateInformation(state);
-		information.setProgress(progress);
-		ClientServices.getInstance().getClientNode().changeState(state, information);
-	}
-	
-	private void filterJUnitCoveredGoals(List<TestFitnessFunction> goals) {
-		if(!Properties.JUNIT_EXTEND.isEmpty()) {
-			
-			try {
-				Class<?> junitClass = Class.forName(Properties.JUNIT_EXTEND, true, TestGenerationContext.getClassLoader());
-				List<TestFitnessFunction> coveredGoals = CoverageAnalysis.getCoveredGoals(junitClass, goals);
-				logger.warn("Removing "+coveredGoals.size() +" goals already covered by JUnit (total: "+goals.size()+")");
-				logger.warn("Removing "+coveredGoals +" goals already covered by JUnit (total: "+goals+")");
-				goals.removeAll(coveredGoals);
-			} catch (ClassNotFoundException e) {
-				logger.warn("Failed to find JUnit test suite: "+Properties.JUNIT_EXTEND);
-			}
-		}
-	}
+    private void updateClientStatus(int progress) {
+        ClientState state = ClientState.MINIMIZATION;
+        ClientStateInformation information = new ClientStateInformation(state);
+        information.setProgress(progress);
+        ClientServices.getInstance().getClientNode().changeState(state, information);
+    }
 
-	/**
-	 * Minimize test suite with respect to the isCovered Method of the goals
-	 * defined by the supplied TestFitnessFactory
-	 * 
-	 * @param suite
-	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
-	 */
-	private void minimizeTests(TestSuiteChromosome suite) {
+    private void filterJUnitCoveredGoals(List<TestFitnessFunction> goals) {
+        if (!Properties.JUNIT_EXTEND.isEmpty()) {
 
-		logger.info("Minimizing per test");
+            try {
+                Class<?> junitClass = Class.forName(Properties.JUNIT_EXTEND, true, TestGenerationContext.getClassLoader());
+                List<TestFitnessFunction> coveredGoals = CoverageAnalysis.getCoveredGoals(junitClass, goals);
+                logger.warn("Removing " + coveredGoals.size() + " goals already covered by JUnit (total: " + goals.size() + ")");
+                logger.warn("Removing " + coveredGoals + " goals already covered by JUnit (total: " + goals + ")");
+                goals.removeAll(coveredGoals);
+            } catch (ClassNotFoundException e) {
+                logger.warn("Failed to find JUnit test suite: " + Properties.JUNIT_EXTEND);
+            }
+        }
+    }
 
-		ExecutionTracer.enableTraceCalls();
+    /**
+     * Minimize test suite with respect to the isCovered Method of the goals
+     * defined by the supplied TestFitnessFactory
+     *
+     * @param suite a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+     */
+    private void minimizeTests(TestSuiteChromosome suite) {
 
-		for (TestChromosome test : suite.getTestChromosomes()) {
-			test.setChanged(true);
-			test.clearCachedResults();
-		}
+        logger.info("Minimizing per test");
 
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(
-		        testFitnessFactory.get(0).getCoverageGoals()); // FIXME: can we use all factories here?
-		filterJUnitCoveredGoals(goals);
+        ExecutionTracer.enableTraceCalls();
 
-		List<TestFitnessFunction> branchGoals = new ArrayList<TestFitnessFunction>();
-		int numCovered = 0;
-		int currentGoal = 0;
+        for (TestChromosome test : suite.getTestChromosomes()) {
+            test.setChanged(true);
+            test.clearCachedResults();
+        }
 
-		if (!ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.BRANCH)
-		        && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
-			BranchCoverageFactory branchFactory = new BranchCoverageFactory();
-			branchGoals.addAll(branchFactory.getCoverageGoals());
-			filterJUnitCoveredGoals(branchGoals);
-			goals.addAll(branchGoals);
-		}
-		
+        List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+        for (TestFitnessFactory<?> ff : testFitnessFactory)
+            goals.addAll(ff.getCoverageGoals());
+        filterJUnitCoveredGoals(goals);
 
-		int numGoals = goals.size() - branchGoals.size();
+        List<TestFitnessFunction> branchGoals = new ArrayList<TestFitnessFunction>();
+        int numCovered = 0;
+        int currentGoal = 0;
 
-		Collections.sort(goals);
-		Set<TestFitnessFunction> covered = new LinkedHashSet<TestFitnessFunction>();
-		List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
-		TestSuiteWriter minimizedSuite = new TestSuiteWriter();
+        if (!ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.BRANCH)
+                && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.ARCHIVEBRANCH)
+                && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)
+                && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.ARCHIVEIBRANCH)) {
+            BranchCoverageFactory branchFactory = new BranchCoverageFactory();
+            branchGoals.addAll(branchFactory.getCoverageGoals());
+            filterJUnitCoveredGoals(branchGoals);
+            goals.addAll(branchGoals);
+        }
 
-		for (TestFitnessFunction goal : goals) {
-			updateClientStatus(numGoals > 0 ? 100 * currentGoal / numGoals : 100);
-			currentGoal++;
-			if (isTimeoutReached()) {
+
+        int numGoals = goals.size() - branchGoals.size();
+
+        if (Properties.MINIMIZE_SORT)
+            Collections.sort(goals);
+
+        Set<TestFitnessFunction> covered = new LinkedHashSet<TestFitnessFunction>();
+        List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
+        TestSuiteWriter minimizedSuite = new TestSuiteWriter();
+
+        for (TestFitnessFunction goal : goals) {
+            updateClientStatus(numGoals > 0 ? 100 * currentGoal / numGoals : 100);
+            currentGoal++;
+            if (isTimeoutReached()) {
 				/*
 				 * FIXME: if timeout, this algorithm should be changed in a way that the modifications
 				 * done so far are not lost
 				 */
-				logger.warn("Minimization timeout. Roll back to original test suite");
-				return;
-			}
-			logger.info("Considering goal: " + goal);
-			if(Properties.MINIMIZE_SKIP_COINCIDENTAL) {
-				for (TestChromosome test : minimizedTests) {
-					if (isTimeoutReached()) {
-						logger.warn("Minimization timeout. Roll back to original test suite");
-						return;
-					}
-					if (goal.isCovered(test)) {
-						if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
-							StructuredTestCase structuredTest = (StructuredTestCase) test.getTestCase();
-							if (structuredTest.getTargetMethods().contains(goal.getTargetMethod())) {
-								logger.info("Covered by minimized test targeting "
-										+ structuredTest.getTargetMethods() + ": " + goal
-										+ " ");
-								covered.add(goal);
-								if (!branchGoals.contains(goal))
-									numCovered++;
-								structuredTest.addPrimaryGoal(goal);
-								break;
-							}
+                logger.warn("Minimization timeout. Roll back to original test suite");
+                return;
+            }
+            logger.info("Considering goal: " + goal);
+            if (Properties.MINIMIZE_SKIP_COINCIDENTAL) {
+                for (TestChromosome test : minimizedTests) {
+                    if (isTimeoutReached()) {
+                        logger.warn("Minimization timeout. Roll back to original test suite");
+                        return;
+                    }
+                    if (goal.isCovered(test)) {
+                        if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
+                            StructuredTestCase structuredTest = (StructuredTestCase) test.getTestCase();
+                            if (structuredTest.getTargetMethods().contains(goal.getTargetMethod())) {
+                                logger.info("Covered by minimized test targeting "
+                                        + structuredTest.getTargetMethods() + ": " + goal
+                                        + " ");
+                                covered.add(goal);
+                                if (!branchGoals.contains(goal))
+                                    numCovered++;
+                                structuredTest.addPrimaryGoal(goal);
+                                break;
+                            }
 
-						} else {
-							logger.info("Covered by minimized test: " + goal);
-							covered.add(goal);
-							if (!branchGoals.contains(goal))
-								numCovered++;
-							test.getTestCase().addCoveredGoal(goal);
-							break;
-						}
-					}
-				}
-			}
-			if (covered.contains(goal)) {
-				logger.info("Already covered: " + goal);
-				logger.info("Now the suite covers " + covered.size() + "/"
-				        + goals.size() + " goals");
-				continue;
-			}
-
-			List<TestChromosome> coveredTests = new ArrayList<TestChromosome>();
-			for (TestChromosome test : suite.getTestChromosomes()) {
-				if (goal.isCovered(test)) {
-					coveredTests.add(test);
-				}
-			}
-			Collections.sort(coveredTests);
-			if (!coveredTests.isEmpty()) {
-				TestChromosome test = coveredTests.get(0);
-				org.evosuite.testcase.TestCaseMinimizer minimizer = new org.evosuite.testcase.TestCaseMinimizer(
-				        goal);
-				TestChromosome copy = (TestChromosome) test.clone();
-				if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
-					copy.setTestCase(new StructuredTestCase(test.getTestCase()));
-				}
-				minimizer.minimize(copy);
-				if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
-					// TODO: Find proper way to determine statements
-					((StructuredTestCase) copy.getTestCase()).setExerciseStatement(copy.size() - 1);
-				}
-
-				// TODO: Need proper list of covered goals
-				copy.getTestCase().clearCoveredGoals();
-				if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
-					((StructuredTestCase) copy.getTestCase()).addPrimaryGoal(goal);
-				} else {
-					copy.getTestCase().addCoveredGoal(goal);
-				}
-				minimizedTests.add(copy);
-				minimizedSuite.insertTest(copy.getTestCase());
-				covered.add(goal);
-				if (!branchGoals.contains(goal))
-					numCovered++;
-
-				logger.info("After new test the suite covers " + covered.size() + "/"
-				        + goals.size() + " goals");
-
-			} else {
-				logger.info("Goal is not covered: " + goal);
-			}
-		}
-
-		logger.info("Minimized suite covers " + covered.size() + "/" + goals.size()
-		        + " goals");
-		suite.tests.clear();
-		for (TestCase test : minimizedSuite.getTestCases()) {
-			suite.addTest(test);
-		}
-		if (numGoals == 0)
-			suite.setCoverage(1.0);
-		else 
-			suite.setCoverage((double) numCovered / (double) numGoals);
-		
-		logger.info("Setting coverage to: "+suite.getCoverage());
-
-		if(Properties.MINIMIZE_SECOND_PASS) {
-			removeRedundantTestCases(suite);
-		}
-
-		ClientState state = ClientState.MINIMIZATION;
-		ClientStateInformation information = new ClientStateInformation(state);
-		information.setProgress(100);
-		information.setCoverage((int) (Math.round(suite.getCoverage() * 100)));
-		ClientServices.getInstance().getClientNode().changeState(state, information);
-
-		for (TestFitnessFunction goal : goals) {
-			if (!covered.contains(goal))
-				logger.info("Failed to cover: " + goal);
-		}
-		// suite.tests = minimizedTests;
-	}
-
-	private boolean isTimeoutReached() {
-		return !TimeController.getInstance().isThereStillTimeInThisPhase();
-	}
-
-	/**
-	 * Minimize test suite with respect to the isCovered Method of the goals
-	 * defined by the supplied TestFitnessFactory
-	 * 
-	 * @param suite
-	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
-	 */
-	private void minimizeSuite(TestSuiteChromosome suite) {
-
-		CurrentChromosomeTracker.getInstance().modification(suite);
-
-		// Remove previous results as they do not contain method calls
-		// in the case of whole suite generation
-		for (ExecutableChromosome test : suite.getTestChromosomes()) {
-			test.setChanged(true);
-			test.clearCachedResults();
-		}
-
-		boolean size = false;
-		String strategy = Properties.SECONDARY_OBJECTIVE;
-		if (strategy.contains(":"))
-			strategy = strategy.substring(0, strategy.indexOf(':'));
-		if (strategy.equals("size"))
-			size = true;
-
-		if (strategy.equals("size")) {
-			// If we want to remove tests, start with shortest
-			Collections.sort(suite.tests, new Comparator<TestChromosome>() {
-				@Override
-				public int compare(TestChromosome chromosome1, TestChromosome chromosome2) {
-					return chromosome1.size() - chromosome2.size();
-				}
-			});
-		} else if (strategy.equals("maxlength")) {
-			// If we want to remove the longest test, start with longest
-			Collections.sort(suite.tests, new Comparator<TestChromosome>() {
-				@Override
-				public int compare(TestChromosome chromosome1, TestChromosome chromosome2) {
-					return chromosome2.size() - chromosome1.size();
-				}
-			});
-		}
-
-		List<Double> fitness = new ArrayList<Double>();
-		for (TestFitnessFactory<?> ff : testFitnessFactory)
-		    fitness.add(ff.getFitness(suite));
-
-		boolean changed = true;
-		while (changed && !isTimeoutReached()) {
-			changed = false;
-
-			removeEmptyTestCases(suite);
-
-			for (TestChromosome testChromosome : suite.tests) {
-				if (isTimeoutReached())
-					break;
-
-				for (int i = testChromosome.size() - 1; i >= 0; i--)
-				{
-					if (isTimeoutReached())
-						break;
-
-					logger.debug("Current size: " + suite.size() + "/"
-					        + suite.totalLengthOfTestCases());
-					logger.debug("Deleting statement "
-					        + testChromosome.getTestCase().getStatement(i).getCode()
-					        + " from test");
-					TestChromosome orgiginalTestChromosome = (TestChromosome) testChromosome.clone();
-
-					try {
-						TestFactory testFactory = TestFactory.getInstance();
-						testFactory.deleteStatementGracefully(testChromosome.getTestCase(), i);
-						testChromosome.setChanged(true);
-					} catch (ConstructionFailedException e) {
-						testChromosome.setChanged(false);
-						testChromosome.setTestCase(orgiginalTestChromosome.getTestCase());
-						logger.debug("Deleting failed");
-						continue;
-					}
-
-					int compare_ff = 0;
-
-					List<Double> modifiedVerFitness = new ArrayList<Double>();
-					for (TestFitnessFactory<?> ff : testFitnessFactory)
-                        modifiedVerFitness.add(ff.getFitness(suite));
-
-					for (int i_fit = 0; i_fit < modifiedVerFitness.size(); i_fit++)
-					{
-					    if (Double.compare(modifiedVerFitness.get(i_fit), fitness.get(i_fit)) < 0)
-                        {
-					        compare_ff = -1;
-					        break;
-                        }
-					    else if (Double.compare(modifiedVerFitness.get(i_fit), fitness.get(i_fit)) > 0)
-                        {
-					        compare_ff = 1;
+                        } else {
+                            logger.info("Covered by minimized test: " + goal);
+                            covered.add(goal);
+                            if (!branchGoals.contains(goal))
+                                numCovered++;
+                            test.getTestCase().addCoveredGoal(goal);
                             break;
                         }
-					}
+                    }
+                }
+            }
+            if (covered.contains(goal)) {
+                logger.info("Already covered: " + goal);
+                logger.info("Now the suite covers " + covered.size() + "/"
+                        + goals.size() + " goals");
+                continue;
+            }
 
-					// the value 0 if d1 (previous fitness) is numerically equal to d2 (new fitness)
-					if (compare_ff == 0)
-					{
-					    continue ; // if we can guarantee that we have the same fitness value with less statements, better
-					}
-					else if (compare_ff < -1) // a value less than 0 if d1 is numerically less than d2
-					{
-					    fitness = modifiedVerFitness;
+            List<TestChromosome> coveredTests = new ArrayList<TestChromosome>();
+            for (TestChromosome test : suite.getTestChromosomes()) {
+                if (goal.isCovered(test)) {
+                    coveredTests.add(test);
+                }
+            }
+            Collections.sort(coveredTests);
+            if (!coveredTests.isEmpty()) {
+                TestChromosome test = coveredTests.get(0);
+                org.evosuite.testcase.TestCaseMinimizer minimizer = new org.evosuite.testcase.TestCaseMinimizer(
+                        goal);
+                TestChromosome copy = (TestChromosome) test.clone();
+                if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
+                    copy.setTestCase(new StructuredTestCase(test.getTestCase()));
+                }
+                minimizer.minimize(copy);
+                if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
+                    // TODO: Find proper way to determine statements
+                    ((StructuredTestCase) copy.getTestCase()).setExerciseStatement(copy.size() - 1);
+                }
+
+                // TODO: Need proper list of covered goals
+                copy.getTestCase().clearCoveredGoals();
+                if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
+                    ((StructuredTestCase) copy.getTestCase()).addPrimaryGoal(goal);
+                } else {
+                    copy.getTestCase().addCoveredGoal(goal);
+                }
+                minimizedTests.add(copy);
+                minimizedSuite.insertTest(copy.getTestCase());
+                covered.add(goal);
+                if (!branchGoals.contains(goal))
+                    numCovered++;
+
+                logger.info("After new test the suite covers " + covered.size() + "/"
+                        + goals.size() + " goals");
+
+            } else {
+                logger.info("Goal is not covered: " + goal);
+            }
+        }
+
+        logger.info("Minimized suite covers " + covered.size() + "/" + goals.size()
+                + " goals");
+        suite.tests.clear();
+        for (TestCase test : minimizedSuite.getTestCases()) {
+            suite.addTest(test);
+        }
+        // TODO: revise!
+//		if (numGoals == 0)
+//			suite.setCoverage(1.0);
+//		else
+//			suite.setCoverage((double) numCovered / (double) numGoals);
+
+        if (Properties.MINIMIZE_SECOND_PASS) {
+            removeRedundantTestCases(suite);
+        }
+
+        double suiteCoverage = suite.getCoverage();
+        logger.info("Setting coverage to: " + suiteCoverage);
+
+        ClientState state = ClientState.MINIMIZATION;
+        ClientStateInformation information = new ClientStateInformation(state);
+        information.setProgress(100);
+        information.setCoverage((int) (Math.round(suiteCoverage * 100)));
+        ClientServices.getInstance().getClientNode().changeState(state, information);
+
+        for (TestFitnessFunction goal : goals) {
+            if (!covered.contains(goal))
+                logger.info("Failed to cover: " + goal);
+        }
+        // suite.tests = minimizedTests;
+    }
+
+    private boolean isTimeoutReached() {
+        return !TimeController.getInstance().isThereStillTimeInThisPhase();
+    }
+
+    /**
+     * Minimize test suite with respect to the isCovered Method of the goals
+     * defined by the supplied TestFitnessFactory
+     *
+     * @param suite a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+     */
+    private void minimizeSuite(TestSuiteChromosome suite) {
+
+        CurrentChromosomeTracker.getInstance().modification(suite);
+
+        // Remove previous results as they do not contain method calls
+        // in the case of whole suite generation
+        for (ExecutableChromosome test : suite.getTestChromosomes()) {
+            test.setChanged(true);
+            test.clearCachedResults();
+        }
+
+        String strategy = Properties.SECONDARY_OBJECTIVE;
+        if (strategy.contains(":"))
+            strategy = strategy.substring(0, strategy.indexOf(':'));
+
+        boolean size = false;
+        if (strategy.equals("size")) {
+            size = true;
+            // If we want to remove tests, start with shortest
+            Collections.sort(suite.tests, new Comparator<TestChromosome>() {
+                @Override
+                public int compare(TestChromosome chromosome1, TestChromosome chromosome2) {
+                    return chromosome1.size() - chromosome2.size();
+                }
+            });
+        } else if (strategy.equals("maxlength")) {
+            // If we want to remove the longest test, start with longest
+            Collections.sort(suite.tests, new Comparator<TestChromosome>() {
+                @Override
+                public int compare(TestChromosome chromosome1, TestChromosome chromosome2) {
+                    return chromosome2.size() - chromosome1.size();
+                }
+            });
+        }
+
+        List<Double> fitness = new ArrayList<Double>();
+        for (TestFitnessFactory<?> ff : testFitnessFactory)
+            fitness.add(ff.getFitness(suite));
+
+        boolean changed = true;
+        while (changed && !isTimeoutReached()) {
+            changed = false;
+
+            removeEmptyTestCases(suite);
+
+            for (TestChromosome testChromosome : suite.tests) {
+                if (isTimeoutReached())
+                    break;
+
+                for (int i = testChromosome.size() - 1; i >= 0; i--) {
+                    if (isTimeoutReached())
+                        break;
+
+                    logger.debug("Current size: " + suite.size() + "/"
+                            + suite.totalLengthOfTestCases());
+                    logger.debug("Deleting statement "
+                            + testChromosome.getTestCase().getStatement(i).getCode()
+                            + " from test");
+                    TestChromosome originalTestChromosome = (TestChromosome) testChromosome.clone();
+
+                    try {
+                        TestFactory testFactory = TestFactory.getInstance();
+                        testFactory.deleteStatementGracefully(testChromosome.getTestCase(), i);
+                        testChromosome.setChanged(true);
+                    } catch (ConstructionFailedException e) {
+                        testChromosome.setChanged(false);
+                        testChromosome.setTestCase(originalTestChromosome.getTestCase());
+                        logger.debug("Deleting failed");
+                        continue;
+                    }
+
+                    List<Double> modifiedVerFitness = new ArrayList<Double>();
+                    for (TestFitnessFactory<?> ff : testFitnessFactory)
+                        modifiedVerFitness.add(ff.getFitness(suite));
+
+                    int compare_ff = 0;
+                    for (int i_fit = 0; i_fit < modifiedVerFitness.size(); i_fit++) {
+                        if (Double.compare(modifiedVerFitness.get(i_fit), fitness.get(i_fit)) < 0) {
+                            compare_ff = -1; // new value is lower than previous one
+                            break;
+                        } else if (Double.compare(modifiedVerFitness.get(i_fit), fitness.get(i_fit)) > 0) {
+                            compare_ff = 1; // new value is greater than previous one
+                            break;
+                        }
+                    }
+
+                    // the value 0 if d1 (previous fitness) is numerically equal to d2 (new fitness)
+                    if (compare_ff == 0) {
+                        continue; // if we can guarantee that we have the same fitness value with less statements, better
+                    } else if (compare_ff < -1) // a value less than 0 if d1 is numerically less than d2
+                    {
+                        fitness = modifiedVerFitness;
                         changed = true;
-                        // 
-                        // 
-                        //
                         /**
                          * This means, that we try to delete statements equally
                          * from each test case (If size is 'false'.) The hope is
@@ -428,77 +422,71 @@ public class TestSuiteMinimizer {
                          */
                         if (!size)
                             break;
-					}
-					// and a value greater than 0 if d1 is numerically greater than d2
-					else if (compare_ff == 1)
-                    {
-					    // Restore previous state
+                    }
+                    // and a value greater than 0 if d1 is numerically greater than d2
+                    else if (compare_ff == 1) {
+                        // Restore previous state
                         logger.debug("Can't remove statement "
-                                + orgiginalTestChromosome.getTestCase().getStatement(i).getCode());
+                                + originalTestChromosome.getTestCase().getStatement(i).getCode());
                         logger.debug("Restoring fitness from " + modifiedVerFitness
                                 + " to " + fitness);
-                        testChromosome.setTestCase(orgiginalTestChromosome.getTestCase());
-                        testChromosome.setLastExecutionResult(orgiginalTestChromosome.getLastExecutionResult());
+                        testChromosome.setTestCase(originalTestChromosome.getTestCase());
+                        testChromosome.setLastExecutionResult(originalTestChromosome.getLastExecutionResult());
                         testChromosome.setChanged(false);
                     }
-				}
-			}
-		}
+                }
+            }
+        }
 
-		this.removeEmptyTestCases(suite);
-		this.removeRedundantTestCases(suite);
-	}
+        this.removeEmptyTestCases(suite);
+        this.removeRedundantTestCases(suite);
+    }
 
-	private void removeEmptyTestCases(TestSuiteChromosome suite) {
-		Iterator<TestChromosome> it = suite.tests.iterator();
-		while (it.hasNext()) {
-			ExecutableChromosome test = it.next();
-			if (test.size() == 0) {
-				logger.debug("Removing empty test case");
-				it.remove();
-			}
-		}
-	}
-	
-	private void removeRedundantTestCases(TestSuiteChromosome suite) {
-		// Subsuming tests are inserted in the back, so we start inserting the final tests from there
-		List<TestChromosome> tests = suite.getTestChromosomes();
-		logger.debug("Before removing redundant tests: " + tests.size());
+    private void removeEmptyTestCases(TestSuiteChromosome suite) {
+        Iterator<TestChromosome> it = suite.tests.iterator();
+        while (it.hasNext()) {
+            ExecutableChromosome test = it.next();
+            if (test.size() == 0) {
+                logger.debug("Removing empty test case");
+                it.remove();
+            }
+        }
+    }
 
-		Collections.reverse(tests);
-		List<TestChromosome> finalTests = new ArrayList<TestChromosome>();
-		Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
-		//List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(testFitnessFactory.get(0).getCoverageGoals()); // FIXME: check goals of every test fitness
-		List<List<TestFitnessFunction>> goals = new ArrayList<List<TestFitnessFunction>>(); // FIXME: check goals of every test fitness
+    private void removeRedundantTestCases(TestSuiteChromosome suite) {
+        // Subsuming tests are inserted in the back, so we start inserting the final tests from there
+        List<TestChromosome> tests = suite.getTestChromosomes();
+        logger.debug("Before removing redundant tests: " + tests.size());
 
-		for (TestFitnessFactory<?> tf : testFitnessFactory) {
-		    goals.add((List<TestFitnessFunction>) tf.getCoverageGoals());
-		}
+        Collections.reverse(tests);
+        List<TestChromosome> finalTests = new ArrayList<TestChromosome>();
+        Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
+        List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
-		for(TestChromosome test : tests) {
-			boolean addsNewGoals = false;
-			for (List<TestFitnessFunction> l_goals : goals)
-			{
-    			for (TestFitnessFunction goal : l_goals) {
-    				if(!coveredGoals.contains(goal)) {
-    					if(goal.isCovered(test)) {
-    						addsNewGoals = true;
-    						coveredGoals.add(goal);
-    					}
-    				}
-    			}
-			}
+        for (TestFitnessFactory<?> tf : testFitnessFactory) {
+            goals.addAll((List<TestFitnessFunction>) tf.getCoverageGoals());
+        }
 
-			if(addsNewGoals) {
-				coveredGoals.addAll(test.getTestCase().getCoveredGoals());
-				finalTests.add(test);
-			}
-		}
+        for (TestChromosome test : tests) {
+            boolean addsNewGoals = false;
+            for (TestFitnessFunction goal : goals) {
+                if (!coveredGoals.contains(goal)) {
+                    if (goal.isCovered(test)) {
+                        addsNewGoals = true;
+                        coveredGoals.add(goal);
+                    }
+                }
+            }
 
-		Collections.reverse(finalTests);
-		suite.getTestChromosomes().clear();
-		suite.getTestChromosomes().addAll(finalTests);
-		logger.debug("After removing redundant tests: " + tests.size());
-	}
+            if (addsNewGoals) {
+                coveredGoals.addAll(test.getTestCase().getCoveredGoals());
+                finalTests.add(test);
+            }
+        }
+        Collections.reverse(finalTests);
+        suite.getTestChromosomes().clear();
+        suite.getTestChromosomes().addAll(finalTests);
+        logger.debug("After removing redundant tests: " + tests.size());
 
+    }
 }

@@ -7,7 +7,10 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.solver.search.ConstraintCache;
+import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.RealConstraint;
+import org.evosuite.symbolic.expr.StringConstraint;
+import org.evosuite.symbolic.solver.ConstraintCache;
 import org.evosuite.utils.LoggingUtils;
 
 /**
@@ -33,7 +36,7 @@ public abstract class DSEStats {
 		nrOfSATs = 0;
 		nrOfSolutionWithNoImprovement = 0;
 		nrOfNewTestFound = 0;
-
+		constraintTypeCounter.clear();
 	}
 
 	public static void reportNewUNSAT() {
@@ -117,7 +120,7 @@ public abstract class DSEStats {
 		LoggingUtils.getEvoLogger().info("");
 		printCacheStatistics();
 		LoggingUtils.getEvoLogger().info("");
-		
+
 		LoggingUtils.getEvoLogger().info("");
 		printAdaptationStatistics();
 		LoggingUtils.getEvoLogger().info("");
@@ -135,9 +138,10 @@ public abstract class DSEStats {
 			}
 		}
 		buff.append("]");
-		
+
 		LoggingUtils.getEvoLogger().info("* DSE) Adaptation statistics");
-		LoggingUtils.getEvoLogger().info("* DSE)   Adaptations: " + buff.toString());		
+		LoggingUtils.getEvoLogger().info(
+				"* DSE)   Adaptations: " + buff.toString());
 	}
 
 	private static void printCacheStatistics() {
@@ -239,6 +243,61 @@ public abstract class DSEStats {
 
 	}
 
+	private static void printConstraintTypeStatistics() {
+		int total = constraintTypeCounter.getTotalNumberOfConstraints();
+
+		int integerOnly = constraintTypeCounter.getIntegerOnlyConstraints();
+		int realOnly = constraintTypeCounter.getRealOnlyConstraints();
+		int stringOnly = constraintTypeCounter.getStringOnlyConstraints();
+
+		int integerRealOnly = constraintTypeCounter
+				.getIntegerAndRealConstraints();
+		int integerStringOnly = constraintTypeCounter
+				.getIntegerAndStringConstraints();
+		int realStringOnly = constraintTypeCounter
+				.getRealAndStringConstraints();
+
+		int integerRealStringConstraints = constraintTypeCounter
+				.getIntegerRealAndStringConstraints();
+
+		if (total == 0) {
+			LoggingUtils.getEvoLogger().info(
+					String.format("* DSE)   no constraints",
+							avg_constraint_size));
+		} else {
+			String line1 = String.format(
+					"* DSE)   Number of integer only constraints : %s / %s ",
+					integerOnly, total);
+			String line2 = String.format(
+					"* DSE)   Number of real only constraints : %s", realOnly,
+					total);
+			String line3 = String.format(
+					"* DSE)   Number of string only constraints : %s",
+					stringOnly, total);
+			String line4 = String.format(
+					"* DSE)   Number of integer+real constraints : %s / %s ",
+					integerRealOnly, total);
+			String line5 = String.format(
+					"* DSE)   Number of integer+string constraints : %s / %s ",
+					integerStringOnly, total);
+			String line6 = String.format(
+					"* DSE)   Number of real+string constraints : %s / %s ",
+					realStringOnly, total);
+			String line7 = String
+					.format("* DSE)   Number of integer+real+string constraints : %s / %s ",
+							integerRealStringConstraints, total);
+
+			LoggingUtils.getEvoLogger().info(line1);
+			LoggingUtils.getEvoLogger().info(line2);
+			LoggingUtils.getEvoLogger().info(line3);
+			LoggingUtils.getEvoLogger().info(line4);
+			LoggingUtils.getEvoLogger().info(line5);
+			LoggingUtils.getEvoLogger().info(line6);
+			LoggingUtils.getEvoLogger().info(line7);
+
+		}
+	}
+
 	private static void printConstraintSizeStatistics() {
 		LoggingUtils.getEvoLogger().info("* DSE) Constraint size:");
 		LoggingUtils.getEvoLogger().info(
@@ -282,6 +341,7 @@ public abstract class DSEStats {
 	private static double avg_constraint_size = 0;
 	private static int constraint_count = 0;
 	private static int path_condition_count = 0;
+	private static final ConstraintTypeCounter constraintTypeCounter = new ConstraintTypeCounter();
 
 	public static void reportNewConstraints(
 			Collection<Constraint<?>> constraints) {
@@ -334,6 +394,30 @@ public abstract class DSEStats {
 			constraint_count++;
 		}
 
+		countTypesOfConstraints(constraints);
+
+	}
+
+	private static void countTypesOfConstraints(
+			Collection<Constraint<?>> constraints) {
+		boolean hasIntegerConstraint = false;
+		boolean hasRealConstraint = false;
+		boolean hasStringConstraint = false;
+		for (Constraint<?> constraint : constraints) {
+			if (constraint instanceof StringConstraint) {
+				hasStringConstraint = true;
+			} else if (constraint instanceof IntegerConstraint) {
+				hasIntegerConstraint = true;
+			} else if (constraint instanceof RealConstraint) {
+				hasRealConstraint = true;
+			} else {
+				throw new IllegalArgumentException("The constraint type "
+						+ constraint.getClass().getCanonicalName()
+						+ " is not considered!");
+			}
+		}
+		constraintTypeCounter.addNewConstraint(hasIntegerConstraint,
+				hasRealConstraint, hasStringConstraint);
 	}
 
 	private static long totalSolvingTimeMillis = 0;

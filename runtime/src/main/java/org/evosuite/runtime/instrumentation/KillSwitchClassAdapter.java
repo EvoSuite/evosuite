@@ -14,7 +14,7 @@ import org.objectweb.asm.Opcodes;
 public class KillSwitchClassAdapter  extends ClassVisitor{
 
 	public KillSwitchClassAdapter(ClassVisitor cv) {
-		super(Opcodes.ASM4, cv);
+		super(Opcodes.ASM5, cv);
 	}
 
 	@Override

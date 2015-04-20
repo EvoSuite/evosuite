@@ -1,6 +1,7 @@
 package org.evosuite.runtime.mock.java.net;
 
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URI;
@@ -13,7 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.evosuite.runtime.mock.StaticReplacementMock;
-
+import org.evosuite.runtime.mock.java.io.MockIOException;
 
 
 public class MockURL implements StaticReplacementMock{
@@ -32,8 +33,18 @@ public class MockURL implements StaticReplacementMock{
 		factory = null;
 		handlers.clear();
 	}
-	
-	//TODO handle mocking of constructors
+
+    /**
+     * Provide a valid URL example for the http protocol.
+     */
+    public static URL getHttpExample(){
+        try {
+            return URL("http://www.someFakeButWellFormedURL.org/fooExample");
+        } catch (MalformedURLException e) {
+            //should never happen
+            throw new RuntimeException(e);
+        }
+    }
 
 	// -----  constructors ------------
 
@@ -102,7 +113,7 @@ public class MockURL implements StaticReplacementMock{
 
 
 
-	private static void handleParseUrl(URL url, String spec, URLStreamHandler handler){
+	private static void handleParseUrl(URL url, String spec, URLStreamHandler handler) throws MalformedURLException {
 
 		//code here is based on URL constructor
 
@@ -143,8 +154,12 @@ public class MockURL implements StaticReplacementMock{
 			limit = i;
 		}
 
-		URLStreamHandlerUtil.parseURL(handler, url, spec, start, limit);
-	}
+        try {
+            URLStreamHandlerUtil.parseURL(handler, url, spec, start, limit);
+        } catch (InvocationTargetException e) {
+           throw new MalformedURLException(e.getCause().toString());
+        }
+    }
 
 	//From URL
 	private static boolean isValidProtocol(String protocol) {
@@ -235,7 +250,6 @@ public class MockURL implements StaticReplacementMock{
 
 
 	public static URI toURI(URL url) throws URISyntaxException {
-		//TODO need to mock URI, eg it uses URL in toURL()
 		return new URI (url.toString());
 	}
 
@@ -253,8 +267,12 @@ public class MockURL implements StaticReplacementMock{
 
 		// Create a copy of Proxy as a security measure
 		//Proxy p = proxy == Proxy.NO_PROXY ? Proxy.NO_PROXY : sun.net.ApplicationProxy.create(proxy);
-		return URLStreamHandlerUtil.openConnection(URLUtil.getHandler(url), url, proxy);
-	}
+        try {
+            return URLStreamHandlerUtil.openConnection(URLUtil.getHandler(url), url, proxy);
+        } catch (InvocationTargetException e) {
+            throw new MockIOException(e.getCause());
+        }
+    }
 
 
 	public static InputStream openStream(URL url) throws java.io.IOException {

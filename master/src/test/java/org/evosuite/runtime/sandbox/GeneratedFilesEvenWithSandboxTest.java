@@ -62,7 +62,7 @@ public class GeneratedFilesEvenWithSandboxTest extends SystemTest{
 
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertTrue("Should not achive optimala coverage ", best.getCoverage() < 1);
+		Assert.assertTrue("Should not achieve optimal coverage ", best.getCoverage() < 1);
 
 		//SUT should not generate the file
 		Assert.assertFalse(file.exists());	
