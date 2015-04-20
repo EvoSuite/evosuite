@@ -257,24 +257,24 @@ public class TestExtensionJob extends TestGenerationJob {
 				}
 		    }
 		});
-		
-		for (MethodDeclaration m : methods) {
-			if (newTests.contains(m.getName().toString())) {
-				int lineNumber = compilationUnit.getLineNumber(m.getStartPosition());
-				try {
-					IMarker mark = fileTestClass.createMarker("EvoSuiteQuickFixes.newtestmarker");
-					mark.setAttribute(IMarker.MESSAGE, "This test case needs to be verified.");
-					mark.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-					mark.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-					mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-					mark.setAttribute(IMarker.LOCATION, fileTestClass.getName());
-					mark.setAttribute(IMarker.CHAR_START, m.getStartPosition());
-					mark.setAttribute(IMarker.CHAR_END, m.getStartPosition() + 1);
-				} catch (CoreException e) {
-					e.printStackTrace();
+		if (Activator.markersEnabled()) {
+			for (MethodDeclaration m : methods) {
+				if (newTests.contains(m.getName().toString())) {
+					int lineNumber = compilationUnit.getLineNumber(m.getStartPosition());
+					try {
+						IMarker mark = fileTestClass.createMarker("EvoSuiteQuickFixes.newtestmarker");
+						mark.setAttribute(IMarker.MESSAGE, "This test case needs to be verified.");
+						mark.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+						mark.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+						mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+						mark.setAttribute(IMarker.LOCATION, fileTestClass.getName());
+						mark.setAttribute(IMarker.CHAR_START, m.getStartPosition());
+						mark.setAttribute(IMarker.CHAR_END, m.getStartPosition() + 1);
+					} catch (CoreException e) {
+						e.printStackTrace();
+					}
 				}
 			}
-		}		
+		}
 	}
-
 }
