@@ -170,7 +170,7 @@ public class GenericClass implements Serializable {
 
 		try {
 			return TypeUtils.isAssignable(rhsType, lhsType);
-		} catch (IllegalStateException e) {
+		} catch (Throwable e) {
 			logger.debug("Found unassignable type: " + e);
 			return false;
 		}
