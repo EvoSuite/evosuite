@@ -22,6 +22,10 @@ public class EvoStartDialog extends JDialog {
     private JTextField javaHomeField;
     private JButton selectMavenButton;
     private JButton selectJavaHomeButton;
+    private JTextField evosuiteLocationTesxField;
+    private JButton evosuiteSelectionButton;
+    private JRadioButton mavenRadioButton;
+    private JRadioButton evosuiteRadioButton;
 
     private volatile boolean wasOK = false;
     private volatile EvoParameters params;
@@ -40,7 +44,21 @@ public class EvoStartDialog extends JDialog {
 
         folderField.setText(params.getFolder());
         mavenField.setText(params.getMvnLocation());
+        evosuiteLocationTesxField.setText(params.getEvosuiteJarLocation());
         javaHomeField.setText(params.getJavaHome());
+
+        if(! Utils.isMavenProject(project)){
+            //disable Maven options
+            selectMavenButton.setEnabled(false);
+            mavenRadioButton.setEnabled(false);
+            params.setExecutionMode(EvoParameters.EXECUTION_MODE_JAR);
+        }
+
+        if(params.usesMaven()){
+            mavenRadioButton.setSelected(true);
+        } else {
+            evosuiteRadioButton.setSelected(true);
+        }
     }
 
 
@@ -86,6 +104,55 @@ public class EvoStartDialog extends JDialog {
                 onSelectJavaHome();
             }
         });
+        mavenRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                checkExecution();
+            }
+        });
+        evosuiteRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                checkExecution();
+            }
+        });
+        evosuiteSelectionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                onSelectEvosuite();
+            }
+        });
+    }
+
+    private void onSelectEvosuite() {
+        JFileChooser fc = new JFileChooser();
+        fc.setAcceptAllFileFilterUsed(false);
+        fc.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return checkIfValidEvoSuiteJar(file);
+            }
+
+            @Override
+            public String getDescription() {
+                return "EvoSuite executable jar";
+            }
+        });
+
+        int returnVal = fc.showOpenDialog(null);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            String path = fc.getSelectedFile().getAbsolutePath();
+            params.setEvosuiteJarLocation(path);
+            evosuiteLocationTesxField.setText(path);
+        }
+    }
+
+    private void checkExecution(){
+        if(mavenRadioButton.isSelected()){
+            params.setExecutionMode(EvoParameters.EXECUTION_MODE_MVN);
+        } else if(evosuiteRadioButton.isSelected()){
+            params.setExecutionMode(EvoParameters.EXECUTION_MODE_JAR);
+        }
     }
 
     private void onSelectMvn(){
@@ -152,6 +219,14 @@ public class EvoStartDialog extends JDialog {
         return jf.exists();
     }
 
+    private boolean checkIfValidEvoSuiteJar(File file){
+        if(file == null || !file.exists() || file.isDirectory()){
+            return false;
+        }
+        String name = file.getName().toLowerCase();
+        return name.startsWith("evosuite") && name.endsWith(".jar");
+    }
+
     private boolean checkIfValidMaven(File file){
         if(file == null || !file.exists() || file.isDirectory()){
             return false;
@@ -175,8 +250,10 @@ public class EvoStartDialog extends JDialog {
         String dir = folderField.getText();
         String mvn = mavenField.getText();
         String javaHome = javaHomeField.getText();
+        String evosuiteJar = evosuiteLocationTesxField.getText();
 
         String title = "EvoSuite Plugin";
+
 
         if (cores < 1 || memory < 1 || time < 1) {
             Messages.showMessageDialog(project, "Parameters need positive values",
@@ -184,11 +261,18 @@ public class EvoStartDialog extends JDialog {
             return;
         }
 
-        if(! checkIfValidMaven(new File(mvn))){
+        if(params.usesMaven() && !checkIfValidMaven(new File(mvn))){
             Messages.showMessageDialog(project, "Invalid Maven executable: choose a correct one",
                     title, Messages.getErrorIcon());
             return;
         }
+
+        if(!params.usesMaven() && !checkIfValidEvoSuiteJar(new File(evosuiteJar))){
+            Messages.showMessageDialog(project, "Invalid EvoSuite executable jar: choose a correct evosuite*.jar one",
+                    title, Messages.getErrorIcon());
+            return;
+        }
+
         if(! checkIfValidJavaHome(new File(javaHome))){
             Messages.showMessageDialog(project, "Invalid JDK home: choose a correct one that contains bin/javac",
                     title, Messages.getErrorIcon());
@@ -200,6 +284,7 @@ public class EvoStartDialog extends JDialog {
         params.setTime(time);
         params.setFolder(dir);
         params.setMvnLocation(mvn);
+        params.setEvosuiteJarLocation(evosuiteJar);
         params.setJavaHome(javaHome);
 
         wasOK = true;
