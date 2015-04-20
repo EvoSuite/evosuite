@@ -973,8 +973,10 @@ public class TestClusterGenerator {
 			return false;// handled here to avoid printing reasons
 
 		if (!Properties.USE_DEPRECATED && f.isAnnotationPresent(Deprecated.class)) {
-			logger.debug("Skipping deprecated field " + f.getName());
-			return false;
+			if(!f.getDeclaringClass().equals(Properties.getTargetClass())) {
+				logger.debug("Skipping deprecated field " + f.getName());
+				return false;
+			}
 		}
 
 		if (f.isSynthetic()) {
@@ -1039,8 +1041,10 @@ public class TestClusterGenerator {
 		}
 
 		if (!Properties.USE_DEPRECATED && m.isAnnotationPresent(Deprecated.class)) {
-			logger.debug("Excluding deprecated method " + m.getName());
-			return false;
+			if(!m.getDeclaringClass().equals(Properties.getTargetClass())) {
+				logger.debug("Excluding deprecated method " + m.getName());
+				return false;
+			}
 		}
 
 		if (m.isAnnotationPresent(Test.class)) {
