@@ -92,4 +92,12 @@ public class AccessedEnvironment implements Serializable {
     public Set<String> getViewOfRemoteURLs(){
         return Collections.unmodifiableSet(remoteURLs);
     }
+    
+    public boolean isNetworkAccessed() {
+    	return !remoteURLs.isEmpty() || !localListeningPorts.isEmpty() || !remoteContactedPorts.isEmpty();
+    }
+    
+    public boolean isFileSystemAccessed() {
+    	return !localFiles.isEmpty();
+    }
 }
