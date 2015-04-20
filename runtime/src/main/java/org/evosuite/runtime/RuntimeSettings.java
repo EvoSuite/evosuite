@@ -31,6 +31,11 @@ public class RuntimeSettings {
     public static boolean useVFS = false;
 
     /**
+     * Shall the test cases use a virtual network?
+     */
+    public static boolean useVNET = false;
+
+    /**
      * Should the static state be reset after each test execution?
      */
     public static boolean resetStaticState = false;
@@ -39,4 +44,21 @@ public class RuntimeSettings {
      * How is the sandbox configured?
      */
     public static Sandbox.SandboxMode sandboxMode = Sandbox.SandboxMode.RECOMMENDED;
+
+    /**
+     * How many threads is each test allowed to start?
+     * Note: such checks depend on RuntimeSettings#mockJVMNonDeterminism
+     */
+    public static int maxNumberOfThreads = 100;
+    
+    /**
+     * Should tests be executed in a separate instrumenting class loader
+     * or with the standard classloader and instrumentation via an agent?
+     */
+    public static boolean useSeparateClassLoader = false;
+
+
+    public static boolean isUsingAnyMocking(){
+        return mockJVMNonDeterminism || useVFS || useVNET;
+    }
 }

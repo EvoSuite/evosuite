@@ -4,12 +4,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ * TODO need to implement rollback
  */
 public class MockInetSocketAddress extends InetSocketAddress implements OverrideMock{
 
@@ -18,25 +19,22 @@ public class MockInetSocketAddress extends InetSocketAddress implements Override
 	private static final long serialVersionUID = 5076001401234631237L;
 
 
-	private static String checkHost(String hostname) {
-		if (hostname == null)
-			throw new IllegalArgumentException("hostname can't be null");
-		return hostname;
-	}
-
-
 	public MockInetSocketAddress(int port) {
-		this(MockInetAddress.anyLocalAddress(), port);
+		this(
+                //MockFramework.isEnabled() ?
+                    MockInetAddress.anyLocalAddress() //:
+                //InetAddress.a
+                        , port);
 	}
 
 	public MockInetSocketAddress(InetAddress addr, int port) {
-		super(addr == null ? MockInetAddress.anyLocalAddress() : addr, port); //FIXME InetAddress.anyLocalAddress()
+		super(addr == null ? MockInetAddress.anyLocalAddress() : addr, port);
 	}
 
 	private static InetAddress getResolvedAddressed(String hostname){
 		checkHost(hostname);
 		try {
-			return InetAddress.getByName(hostname);
+			return MockInetAddress.getByName(hostname);
 		} catch(UnknownHostException e) {
 			logger.warn("EvoSuite limitation: unsupported case of hostname resolution for "+hostname);
 			return null;
@@ -81,7 +79,13 @@ public class MockInetSocketAddress extends InetSocketAddress implements Override
 		//return new MockInetSocketAddress(checkPort(port), checkHost(host));
 	}
 
-	
+    private static String checkHost(String hostname) {
+        if (hostname == null)
+            throw new IllegalArgumentException("hostname can't be null");
+        return hostname;
+    }
+
+
 	/*  
 	 * Those are all final
 	 * 

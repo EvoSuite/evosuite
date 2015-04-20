@@ -9,7 +9,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.evosuite.Properties.Parameter;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
@@ -54,7 +53,7 @@ public class CommandLineParameters {
 			}
 		}
 		
-		if(!line.hasOption(Continuous.NAME) & !line.hasOption("startedByCtg")){			
+		if(!line.hasOption(Continuous.NAME) && !line.hasOption("startedByCtg")){			
 			for(Object p : properties.keySet()){
 				if(p.toString().startsWith("ctg_")){
 					throw new IllegalArgumentException("Option "+p+" is only valid in '-"+Continuous.NAME+"' mode");
@@ -104,23 +103,16 @@ public class CommandLineParameters {
 		
 		Option junitPrefix = new Option("junit", true, "junit prefix");
 		Option criterion = new Option("criterion", true,
-				"target criterion for test generation");
+				"target criterion for test generation. Can define more than one criterion by using a ':' separated list");
 		Option seed = new Option("seed", true, "seed for random number generator");
-		Option mem = new Option("mem", true,
-				"heap size for client process (in megabytes)");
-		
+		Option mem = new Option("mem", true,"heap size for client process (in megabytes)");
+		Option libraryPath = new Option("libraryPath", true,"java library path to native libraries of the project under test");
 		Option startedByCtg = new Option("startedByCtg",false, "Determine if current process was started by a CTG process");
-
-		
 		Option extendSuite = new Option("extend", true, "extend an existing test suite");
+		Option inheritance = new Option("inheritanceTree","Cache inheritance tree during setup");
+		Option heapDump = new Option("heapdump", "Create heap dump on client VM out of memory error");
+		Option base_dir = new Option("base_dir", true, "Working directory in which tests and reports will be placed");
 
-		Option inheritance = new Option("inheritanceTree",
-				"Cache inheritance tree during setup");
-		Option heapDump = new Option("heapdump",
-				"Create heap dump on client VM out of memory error");
-
-		Option base_dir = new Option("base_dir", true,
-				"Working directory in which tests and reports will be placed");
 
 		@SuppressWarnings("static-access")
 		Option property = OptionBuilder.withArgName("property=value").hasArgs(2).withValueSeparator().withDescription("use value for given property").create("D");
@@ -145,6 +137,7 @@ public class CommandLineParameters {
 		options.addOption(criterion);
 		options.addOption(seed);
 		options.addOption(mem);
+		options.addOption(libraryPath);
 		options.addOption(evosuiteCP);
 		options.addOption(inheritance);
 		options.addOption(base_dir);
@@ -175,17 +168,22 @@ public class CommandLineParameters {
 	 * @throws Error
 	 */
 	public static void addJavaDOptions(List<String> javaOpts, CommandLine line) throws Error {
-		java.util.Properties properties = line.getOptionProperties("D");
-		Set<String> propertyNames = new HashSet<String>(Properties.getParameters());
-		for (String propertyName : properties.stringPropertyNames()) {
-			if (!propertyNames.contains(propertyName)) {
+
+        java.util.Properties properties = line.getOptionProperties("D");
+		Set<String> propertyNames = new HashSet<>(Properties.getParameters());
+
+        for (String propertyName : properties.stringPropertyNames()) {
+
+            if (!propertyNames.contains(propertyName)) {
 				LoggingUtils.getEvoLogger().error("* Unknown property: " + propertyName);
 				throw new Error("Unknown property: " + propertyName);
 			}
-			String propertyValue = properties.getProperty(propertyName);
+
+            String propertyValue = properties.getProperty(propertyName);
 			javaOpts.add("-D" + propertyName + "=" + propertyValue);
 			System.setProperty(propertyName, propertyValue);
-			try {
+
+            try {
 				Properties.getInstance().setValue(propertyName, propertyValue);
 			} catch (Exception e) {
 				throw new Error("Invalid value for property " + propertyName+": "+propertyValue+". Exception "+e.getMessage(),e);
@@ -232,7 +230,8 @@ public class CommandLineParameters {
 		} 
 
 		if (line.hasOption("evosuiteCP")) {
-			String[] entries = line.getOptionValues("evosuiteCP");
+			String entry = line.getOptionValue("evosuiteCP");
+			String[] entries = entry.split(File.pathSeparator);
 			ClassPathHandler.getInstance().setEvoSuiteClassPath(entries);
 		}
 	}
@@ -243,6 +242,9 @@ public class CommandLineParameters {
 		 */
 		if (line.hasOption("mem")) {
 			javaOpts.add("-Xmx" + line.getOptionValue("mem") + "M");
+		}
+		if (line.hasOption("libraryPath")) {
+			javaOpts.add("-Djava.library.path=" + line.getOptionValue("libraryPath"));
 		}
 
 		if (line.hasOption("heapdump")) {

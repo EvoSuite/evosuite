@@ -20,6 +20,9 @@
  */
 package org.evosuite.coverage.mutation;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,11 +32,11 @@ import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.ActualControlFlowGraph;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 
 /**
  * <p>
@@ -46,7 +49,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = 596930765039928708L;
 
-	protected final Mutation mutation;
+	protected transient Mutation mutation;
 
 	protected final Set<BranchCoverageGoal> controlDependencies = new HashSet<BranchCoverageGoal>();
 
@@ -94,7 +97,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param mutant
 	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
-	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	public static ExecutionResult runTest(TestCase test, Mutation mutant) {
 
@@ -134,7 +137,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	 * </p>
 	 * 
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a double.
 	 */
 	protected double getExecutionDistance(ExecutionResult result) {
@@ -217,4 +220,16 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 		return mutation.getMethodName();
 	}
 
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		oos.writeInt(mutation.getId());
+	}
+
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+
+		int mutationId = ois.readInt();
+		this.mutation = MutationPool.getMutant(mutationId);
+	}
 }

@@ -63,7 +63,7 @@ public class Sandbox {
 			manager = new MSecurityManager();
 			
 			if(privileged == null){
-				manager.makePriviligedAllCurrentThreads();
+				manager.makePrivilegedAllCurrentThreads();
 			} else {
 				for(Thread t : privileged){
 					manager.addPrivilegedThread(t);
@@ -99,7 +99,7 @@ public class Sandbox {
 		
 		Set<Thread> privileged = null;
 		if(manager!=null){
-			privileged = manager.getPriviledThreads();
+			privileged = manager.getPrivilegedThreads();
 		}
 		
 		counter--;

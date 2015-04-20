@@ -2,6 +2,7 @@ package org.evosuite.statistics;
 
 import java.util.Map;
 
+import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,10 @@ public enum RuntimeVariable {
 	Total_Branches,     
 	/** Number of covered branches in CUT */
 	Covered_Branches,
+	/** Total number of gradient branches */
+	Gradient_Branches,
+	/** Total number of covered gradient branches */
+	Gradient_Branches_Covered,  
 	/** The number of lines in the CUT */
 	Lines,
 	/** The actual covered line numbers */
@@ -83,23 +88,53 @@ public enum RuntimeVariable {
 	StatementCoverage,
 	/** The obtained rho coverage */
 	RhoCoverage,
+    RhoCoverageTimeline,
 	/** The obtained ambiguity coverage */
 	AmbiguityCoverage,
 	/** Not only the covered branches ratio, but also including the branchless methods. FIXME: this will need to be changed */
 	BranchCoverage,
 	/** Only the covered branches ratio. */
 	OnlyBranchCoverage,
+    OnlyBranchFitnessTimeline,
+    OnlyBranchCoverageTimeline,
+	CBranchCoverage,
+    IBranchCoverage,
+    IBranchInitialGoals,
+    IBranchInitialGoalsInTargetClass,
+    IBranchGoalsTimeline,
+	/** The obtained method coverage (method calls anywhere in trace) */
+	MethodTraceCoverage,
+    MethodTraceFitnessTimeline,
+    MethodTraceCoverageTimeline,
 	/** The obtained method coverage */
 	MethodCoverage,
+    MethodFitnessTimeline,
+    MethodCoverageTimeline,
+	/** The obtained method coverage (only normal behaviour) */
+	MethodNoExceptionCoverage,
+    MethodNoExceptionFitnessTimeline,
+    MethodNoExceptionCoverageTimeline,
 	/** The obtained line coverage */
 	LineCoverage,
+    LineFitnessTimeline,
+    LineCoverageTimeline,
 	/** The obtained output value coverage */
 	OutputCoverage,
+    OutputFitnessTimeline,
+    OutputCoverageTimeline,
+	/** The obtained exception coverage */
+	ExceptionCoverage,
+    ExceptionFitnessTimeline,
+    ExceptionCoverageTimeline,
 	/** A bit string (0/1) representing whether branches (in order) are covered */
 	CoveredBranchesBitString,
 	/** The obtained score for weak mutation testing */
 	WeakMutationScore,
-	/** The obtained score for (strong) mutation testing*/
+    /** Only mutation = only infection distance */
+	OnlyMutationScore,
+	OnlyMutationFitnessTimeline,
+	OnlyMutationCoverageTimeline,
+    /** The obtained score for (strong) mutation testing*/
 	MutationScore,
 	/** The total time EvoSuite spent generating the test cases */
 	Total_Time,
@@ -111,10 +146,10 @@ public enum RuntimeVariable {
 	Result_Size,
 	/** Total number of statements in final test suite before minimization */
 	Result_Length,
-	/** Either use {@link RuntimeVariable.Size} */
+	/** Either use {@link RuntimeVariable#Size} */
 	@Deprecated
 	Minimized_Size,
-	/** Either use  {@link RuntimeVariable.Length} */
+	/** Either use  {@link RuntimeVariable#Length} */
 	@Deprecated
 	Minimized_Length,
 	/** The random seed used during the search. A random one was used if none was specified at the beginning */
@@ -136,7 +171,9 @@ public enum RuntimeVariable {
 	/** Number of top-level methods throwing an undeclared exception implicitly (ie, no 'new throw') */
 	Implicit_MethodExceptions, 
 	/** Number of undeclared exception types that were implicitly thrown (ie, no 'new throw') at least once */
-	Implicit_TypeExceptions, 
+	Implicit_TypeExceptions,
+    /** Total number of exceptions covered */
+    TotalExceptionsTimeline,
 	/* ----- number of unique permissions that were denied for each kind --- */
 	AllPermission,
 	SecurityPermission,
@@ -156,8 +193,40 @@ public enum RuntimeVariable {
 	AudioPermission,
 	OtherPermission,
 	/* -------------------------------------------------------------------- */
-
-
+	/** Count of branch comparison types in bytecode (static) */
+	Cmp_IntZero,
+	Cmp_IntInt,
+	Cmp_RefNull,
+	Cmp_RefRef,
+	/** Count of branch comparisons reached (dynamic) */
+	Reached_IntZero,
+	Reached_IntInt,
+	Reached_RefNull,
+	Reached_RefRef,
+	/** Count of branch comparisons covered (dynamic) */
+	Covered_IntZero,
+	Covered_IntInt,
+	Covered_RefNull,
+	Covered_RefRef,
+	/** Count of bytecode instructions (static) */
+	BC_lcmp,
+	BC_fcmpl,
+	BC_fcmpg,
+	BC_dcmpl,
+	BC_dcmpg,
+	/** Count of bytecode instructions reached (dynamic) */
+	Reached_lcmp,
+	Reached_fcmpl,
+	Reached_fcmpg,
+	Reached_dcmpl,
+	Reached_dcmpg,
+	/** Count of bytecode instructions reached (dynamic) */
+	Covered_lcmp,
+	Covered_fcmpl,
+	Covered_fcmpg,
+	Covered_dcmpl,
+	Covered_dcmpg,
+	/* -------------------------------------------------------------------- */
 	/* TODO following needs to be implemented/updated. Currently they are not (necessarily) supported */
 	/** (FIXME: need to be implemented) The number of serialized objects that EvoSuite is going to use for seeding strategies */
 	NumberOfInputPoolObjects,
@@ -214,8 +283,11 @@ public enum RuntimeVariable {
 	 * @return
 	 */
 	public static boolean validateRuntimeVariables(Map<String,OutputVariable<?>> map){
-
-		boolean valid = true;
+        if (! Properties.VALIDATE_RUNTIME_VARIABLES) {
+            logger.error("Not validating runtime variables");
+            return true;
+        }
+        boolean valid = true;
 
 		try{
 			Integer totalBranches = getIntegerValue(map,Total_Branches); 
@@ -242,15 +314,15 @@ public enum RuntimeVariable {
 				valid = false;
 			}
 			
-			String criterion = null;
+			String[] criteria = null;
 			if(map.containsKey("criterion")){
-				criterion = map.get("criterion").toString();
+				criteria = map.get("criterion").toString().split(":");
 			}
 			
 			Double coverage = getDoubleValue(map,Coverage);
 			Double branchCoverage = getDoubleValue(map,BranchCoverage);
 			
-			if(criterion!=null && criterion.equalsIgnoreCase(Criterion.BRANCH.toString()) 
+			if(criteria!=null && criteria.length==1 && criteria[0].equalsIgnoreCase(Criterion.BRANCH.toString())
 					&& coverage!=null && branchCoverage!=null){
 				
 				double diff = Math.abs(coverage - branchCoverage);

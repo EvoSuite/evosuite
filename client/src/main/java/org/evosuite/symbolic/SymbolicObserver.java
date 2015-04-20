@@ -24,32 +24,33 @@ import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 import org.evosuite.symbolic.vm.wrappers.Types;
-import org.evosuite.testcase.ArrayIndex;
-import org.evosuite.testcase.ArrayReference;
-import org.evosuite.testcase.ArrayStatement;
-import org.evosuite.testcase.AssignmentStatement;
-import org.evosuite.testcase.BooleanPrimitiveStatement;
-import org.evosuite.testcase.BytePrimitiveStatement;
-import org.evosuite.testcase.CharPrimitiveStatement;
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.ConstructorStatement;
-import org.evosuite.testcase.DoublePrimitiveStatement;
-import org.evosuite.testcase.EnumPrimitiveStatement;
-import org.evosuite.testcase.EvosuiteError;
-import org.evosuite.testcase.ExecutionObserver;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.FieldReference;
-import org.evosuite.testcase.FieldStatement;
-import org.evosuite.testcase.FloatPrimitiveStatement;
-import org.evosuite.testcase.IntPrimitiveStatement;
-import org.evosuite.testcase.LongPrimitiveStatement;
-import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.NullStatement;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.ShortPrimitiveStatement;
-import org.evosuite.testcase.StatementInterface;
-import org.evosuite.testcase.StringPrimitiveStatement;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ArrayReference;
+import org.evosuite.testcase.variable.FieldReference;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.EvosuiteError;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.BytePrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.CharPrimitiveStatement;
+import org.evosuite.testcase.statements.ClassPrimitiveStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.numeric.DoublePrimitiveStatement;
+import org.evosuite.testcase.statements.EnumPrimitiveStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.numeric.FloatPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.LongPrimitiveStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.NullStatement;
+import org.evosuite.testcase.statements.numeric.ShortPrimitiveStatement;
+import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.VM;
@@ -98,7 +99,7 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	@Override
-	public void beforeStatement(StatementInterface s, Scope scope) {
+	public void beforeStatement(Statement s, Scope scope) {
 		if (VM.vm.isStopped()) {
 			return;
 		}
@@ -158,6 +159,10 @@ public class SymbolicObserver extends ExecutionObserver {
 
 			} else if (s instanceof StringPrimitiveStatement) {
 				before((StringPrimitiveStatement) s, scope);
+				
+			} else if (s instanceof ClassPrimitiveStatement) {
+				before((ClassPrimitiveStatement) s, scope);
+
 			} else {
 				throw new UnsupportedOperationException();
 			}
@@ -165,6 +170,10 @@ public class SymbolicObserver extends ExecutionObserver {
 			throw new EvosuiteError(t);
 		}
 
+	}
+
+	private void before(ClassPrimitiveStatement s, Scope scope) {
+		/*do nothing*/
 	}
 
 	private static final int COMPONENT_TYPE_BOOLEAN = 4;
@@ -1139,7 +1148,7 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	@Override
-	public void afterStatement(StatementInterface s, Scope scope, Throwable exception) {
+	public void afterStatement(Statement s, Scope scope, Throwable exception) {
 
 		if (exception != null) {
 			return;
@@ -1198,12 +1207,24 @@ public class SymbolicObserver extends ExecutionObserver {
 
 			} else if (s instanceof StringPrimitiveStatement) {
 				after((StringPrimitiveStatement) s, scope);
+				
+			} else if (s instanceof ClassPrimitiveStatement) {
+				after((ClassPrimitiveStatement) s, scope);
+			
 			} else {
 				throw new UnsupportedOperationException();
 			}
 		} catch (Throwable t) {
 			throw new EvosuiteError(t);
 		}
+	}
+
+	private void after(ClassPrimitiveStatement s, Scope scope) {
+		VariableReference varRef = s.getReturnValue();
+		Class<?> concrete_reference = s.getValue();
+		String varName = varRef.getName();
+		Reference symb_ref = env.heap.getReference(concrete_reference);
+		symb_references.put(varName, symb_ref);
 	}
 
 	private void before(ArrayStatement s, Scope scope) {

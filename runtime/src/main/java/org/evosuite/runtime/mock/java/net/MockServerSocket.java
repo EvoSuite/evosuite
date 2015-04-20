@@ -1,5 +1,7 @@
 package org.evosuite.runtime.mock.java.net;
 
+import org.evosuite.runtime.mock.OverrideMock;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -12,9 +14,11 @@ import java.net.SocketOptions;
 import java.nio.channels.ServerSocketChannel;
 
 /**
+ * TODO need to implement rollback
+ *
  * Created by arcuri on 6/29/14.
  */
-public class MockServerSocket extends ServerSocket{
+public class MockServerSocket extends ServerSocket implements OverrideMock {
 
 	private boolean created = false;
 	private boolean bound = false;
@@ -132,7 +136,7 @@ public class MockServerSocket extends ServerSocket{
 		if (!oldImpl && isBound())
 			throw new SocketException("Already bound");
 		if (endpoint == null)
-			endpoint = new InetSocketAddress(0); //FIXME 
+			endpoint = new MockInetSocketAddress(0);
 		if (!(endpoint instanceof InetSocketAddress))
 			throw new IllegalArgumentException("Unsupported address type");
 		
@@ -276,7 +280,7 @@ public class MockServerSocket extends ServerSocket{
 
 	@Override
 	public ServerSocketChannel getChannel() {
-		return null;
+		return null; //TODO
 	}
 
 	@Override
@@ -333,8 +337,7 @@ public class MockServerSocket extends ServerSocket{
 		
 		InetAddress in = impl.getInetAddress();
 
-		return "ServerSocket[addr=" + in +
-				",localport=" + impl.getLocalPort()  + "]";
+		return "ServerSocket[addr=" + in + ",localport=" + impl.getLocalPort()  + "]";
 	}
 
 

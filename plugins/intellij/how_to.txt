@@ -1,0 +1,12 @@
+To install the EvoSuite plugin for IntelliJ, open the "Preferences" panel (e.g., from the toolbar).
+On the left-side of the panel, choose "Plugins" and, on the right-side, click on
+"Install Plugin from disk...".
+Browse to were the EvoSuiteForIntelliJ.jar file was downloaded, and select it.
+You will need to restart IntelliJ.
+Be sure that the EvoSuite plugin is activated, eg from the menubar
+"File -> Other Settings -> Configure Plugins..."
+
+
+
+To run EvoSuite, just select one or more classes/packages in the "Project" view, right-click
+and choose "Run EvoSuite". Tests will be generated for all the selected classes/packages.

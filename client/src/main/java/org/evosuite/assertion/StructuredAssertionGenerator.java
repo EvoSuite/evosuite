@@ -15,11 +15,11 @@ import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.StructuredTestCase;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 
@@ -111,7 +111,7 @@ public class StructuredAssertionGenerator extends AssertionGenerator {
 		Set<Integer> killedMutants = new HashSet<Integer>();
 
 		for (int position = test.size() - 1; position >= test.getFirstExerciseStatement(); position--) {
-			StatementInterface statement = test.getStatement(position);
+			Statement statement = test.getStatement(position);
 			if (!statement.hasAssertions())
 				continue;
 

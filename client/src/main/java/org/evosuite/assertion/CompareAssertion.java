@@ -20,10 +20,10 @@ package org.evosuite.assertion;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 
 /**
  * Assertion on comparison value of two objects
@@ -41,7 +41,7 @@ public class CompareAssertion extends Assertion {
 	 * Getter for the field <code>dest</code>.
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getDest() {
 		return dest;
@@ -53,7 +53,7 @@ public class CompareAssertion extends Assertion {
 	 * </p>
 	 * 
 	 * @param dest
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public void setDest(VariableReference dest) {
 		this.dest = dest;

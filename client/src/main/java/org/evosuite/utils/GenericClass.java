@@ -32,8 +32,10 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -496,6 +498,48 @@ public class GenericClass implements Serializable {
 		return GenericTypeReflector.getArrayComponentType(type);
 	}
 
+	public Collection<GenericClass> getGenericBounds() {
+		Set<GenericClass> bounds = new LinkedHashSet<GenericClass>();
+		
+		if (isRawClass() || !hasWildcardOrTypeVariables()) {
+			return bounds;
+		}
+
+		if (isWildcardType()) {
+			getGenericWildcardBounds(bounds);
+		} else if (isArray()) {
+			bounds.addAll(getComponentClass().getGenericBounds());
+		} else if (isTypeVariable()) {
+			getGenericTypeVarBounds(bounds);
+		} else if (isParameterizedType()) {
+			getGenericParameterizedTypeBounds(bounds);
+		}	
+		return bounds;
+	}
+	
+	private void getGenericWildcardBounds(Collection<GenericClass> bounds) {
+		for(Type t : ((WildcardType)type).getUpperBounds()) {
+			bounds.add(new GenericClass(t));
+		}
+		for(Type t : ((WildcardType)type).getLowerBounds()) {
+			bounds.add(new GenericClass(t));
+		}
+	}
+	
+	private void getGenericTypeVarBounds(Collection<GenericClass> bounds) {
+		for(Type t : ((TypeVariable<?>)type).getBounds()) {
+			bounds.add(new GenericClass(t));
+		}
+	}
+
+	private void getGenericParameterizedTypeBounds(Collection<GenericClass> bounds) {
+		for(TypeVariable<?> typeVar : getTypeVariables()) {	
+			for(Type t : typeVar.getBounds()) {
+				bounds.add(new GenericClass(t));
+			}
+		}
+	}
+	
 	/**
 	 * Instantiate all type variables randomly, but adhering to type boundaries
 	 * 
@@ -691,7 +735,14 @@ public class GenericClass implements Serializable {
 
 				if (parameterClass.isWildcardType()) {
 					logger.debug("Is wildcard type, here we should value the wildcard boundaries");
+					logger.debug("Wildcard boundaries: "+parameterClass.getGenericBounds());
+					logger.debug("Boundaries of underlying var: "+Arrays.asList(typeParameters.get(numParam).getBounds()));
 					GenericClass parameterInstance = parameterClass.getGenericWildcardInstantiation(extendedMap, recursionLevel + 1);
+					GenericClass parameterTypeClass = new GenericClass(typeParameters.get(numParam));
+//					if(!parameterTypeClass.isAssignableFrom(parameterInstance)) {
+					if(!parameterInstance.satisfiesBoundaries(typeParameters.get(numParam))) {
+						throw new ConstructionFailedException("Invalid generic instance");
+					}
 					//GenericClass parameterInstance = new GenericClass(
 					//        typeParameters.get(numParam)).getGenericInstantiation(extendedMap,
 					//                                                              recursionLevel + 1);
@@ -714,7 +765,7 @@ public class GenericClass implements Serializable {
 		}
 
 		return new GenericClass(new ParameterizedTypeImpl(rawClass, parameterTypes,
-		        ownerType));
+		        ownerType)); 
 	}
 
 	/**

@@ -1,6 +1,5 @@
 package org.evosuite.instrumentation.error;
 
-import org.evosuite.instrumentation.ErrorConditionMethodAdapter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 
@@ -27,7 +26,7 @@ public class CastErrorInstrumentation extends ErrorBranchInstrumenter {
 			mv.visitTypeInsn(Opcodes.NEW, "java/lang/ClassCastException");
 			mv.visitInsn(Opcodes.DUP);
 			mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/ClassCastException",
-			                      "<init>", "()V");
+			                      "<init>", "()V", false);
 			mv.visitInsn(Opcodes.ATHROW);
 			mv.visitLabel(origTarget);
 			mv.tagBranchExit();

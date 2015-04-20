@@ -5,6 +5,8 @@ import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.Properties.TestFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
@@ -131,7 +133,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 		Assert.assertEquals("", 5, carved.test.size());
 
 		for (int i = 0; i < carved.test.size(); i++) {
-			StatementInterface stmt = carved.test.getStatement(i);
+			Statement stmt = carved.test.getStatement(i);
 			boolean valid = stmt.isValid();
 			Assert.assertTrue("Invalid stmt at position " + i, valid);
 		}
@@ -159,7 +161,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 		Assert.assertEquals("", 13, carved.test.size());
 
 		for (int i = 0; i < carved.test.size(); i++) {
-			StatementInterface stmt = carved.test.getStatement(i);
+			Statement stmt = carved.test.getStatement(i);
 			boolean valid = stmt.isValid();
 			Assert.assertTrue("Invalid stmt at position " + i, valid);
 		}
@@ -197,7 +199,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 		Assert.assertEquals(code, 2, carved.test.size());
 
 		for (int i = 0; i < carved.test.size(); i++) {
-			StatementInterface stmt = carved.test.getStatement(i);
+			Statement stmt = carved.test.getStatement(i);
 			boolean valid = stmt.isValid();
 			Assert.assertTrue("Invalid stmt at position " + i, valid);
 		}
@@ -226,7 +228,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 		Assert.assertEquals(code, 4, carved.test.size());
 
 		for (int i = 0; i < carved.test.size(); i++) {
-			StatementInterface stmt = carved.test.getStatement(i);
+			Statement stmt = carved.test.getStatement(i);
 			boolean valid = stmt.isValid();
 			Assert.assertTrue("Invalid stmt at position " + i, valid);
 		}
@@ -251,7 +253,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 		Assert.assertEquals("", 6, carved.test.size());
 
 		for (int i = 0; i < carved.test.size(); i++) {
-			StatementInterface stmt = carved.test.getStatement(i);
+			Statement stmt = carved.test.getStatement(i);
 			boolean valid = stmt.isValid();
 			Assert.assertTrue("Invalid stmt at position " + i, valid);
 		}
@@ -285,7 +287,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 		Assert.assertEquals("", 13, carved.test.size());
 
 		for (int i = 0; i < carved.test.size(); i++) {
-			StatementInterface stmt = carved.test.getStatement(i);
+			Statement stmt = carved.test.getStatement(i);
 			boolean valid = stmt.isValid();
 			Assert.assertTrue("Invalid stmt at position " + i, valid);
 		}
@@ -313,7 +315,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 		Assert.assertEquals("", 10, carved.test.size());
 
 		for (int i = 0; i < carved.test.size(); i++) {
-			StatementInterface stmt = carved.test.getStatement(i);
+			Statement stmt = carved.test.getStatement(i);
 			boolean valid = stmt.isValid();
 			Assert.assertTrue("Invalid stmt at position " + i, valid);
 		}
@@ -341,7 +343,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 		Assert.assertEquals("", 8, carved.test.size());
 
 		for (int i = 0; i < carved.test.size(); i++) {
-			StatementInterface stmt = carved.test.getStatement(i);
+			Statement stmt = carved.test.getStatement(i);
 			boolean valid = stmt.isValid();
 			Assert.assertTrue("Invalid stmt at position " + i, valid);
 		}

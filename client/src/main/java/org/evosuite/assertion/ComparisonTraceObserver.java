@@ -20,13 +20,13 @@
 package org.evosuite.assertion;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.AssignmentStatement;
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.PrimitiveStatement;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.objectweb.asm.Type;
 
 
@@ -37,10 +37,13 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 	 */
 	/** {@inheritDoc} */
 	@Override
-	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+	protected void visit(Statement statement, Scope scope, VariableReference var) {
 		try {
 			Object object = var.getObject(scope);
 			if (object == null)
+				return;
+
+			if(statement instanceof AssignmentStatement)
 				return;
 
 			ComparisonTraceEntry entry = new ComparisonTraceEntry(var);
@@ -58,9 +61,6 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 				        && currentTest.getStatement(other.getStPosition()) instanceof PrimitiveStatement)
 					continue; // Don't compare two primitives
 
-				if(statement instanceof AssignmentStatement)
-					continue;
-				
 				if (Properties.PURE_EQUALS) {
 					String className = object.getClass().getCanonicalName();
 					String methodName = "equals";

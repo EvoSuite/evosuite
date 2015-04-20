@@ -35,6 +35,11 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.testcase.statements.*;
+import org.evosuite.testcase.statements.environment.AccessedEnvironment;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.variable.*;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.ListenableList;
@@ -56,10 +61,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
 
-	private List<String> accessedFiles = new ArrayList<String>();
+	private final AccessedEnvironment accessedEnvironment = new AccessedEnvironment();
 
 	/** The statements */
-	protected final ListenableList<StatementInterface> statements;
+	protected final ListenableList<Statement> statements;
 
 	/** Coverage goals this test covers */
 	private transient Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
@@ -75,8 +80,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 * Constructor
 	 */
 	public DefaultTestCase() {
-		statements = new ListenableList<StatementInterface>(
-		        new ArrayList<StatementInterface>());
+		statements = new ListenableList<Statement>(
+		        new ArrayList<Statement>());
 	}
 
 	/* (non-Javadoc)
@@ -87,9 +92,9 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public void accept(TestVisitor visitor) {
 		visitor.visitTestCase(this);
 
-		Iterator<StatementInterface> iterator = statements.iterator();
+		Iterator<Statement> iterator = statements.iterator();
 		while (iterator.hasNext()) {
-			StatementInterface statement = iterator.next();
+			Statement statement = iterator.next();
 			logger.trace("Visiting statement " + statement.getCode());
 			visitor.visitStatement(statement);
 		}
@@ -169,13 +174,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public VariableReference addStatement(StatementInterface statement) {
+	public VariableReference addStatement(Statement statement) {
 		statements.add(statement);
 		try {
 			assert (isValid());
 		} catch (AssertionError e) {
 			logger.info("Is not valid: ");
-			for (StatementInterface s : statements) {
+			for (Statement s : statements) {
 				try {
 					logger.info(s.getCode());
 				} catch (AssertionError e2) {
@@ -184,10 +189,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 						MethodStatement ms = (MethodStatement) s;
 						if (!ms.isStatic()) {
 							logger.info("Callee: ");
-							logger.info(ms.callee.toString());
+							logger.info(ms.getCallee().toString());
 						}
 						int num = 0;
-						for (VariableReference v : ms.parameters) {
+						for (VariableReference v : ms.getParameterReferences()) {
 							logger.info("Parameter " + num);
 							logger.info(v.getVariableClass().toString());
 							logger.info(v.getClass().toString());
@@ -206,7 +211,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public VariableReference addStatement(StatementInterface statement, int position) {
+	public VariableReference addStatement(Statement statement, int position) {
 		statements.add(position, statement);
 		assert (isValid());
 		return statement.getReturnValue();
@@ -214,7 +219,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	/** {@inheritDoc} */
 	@Override
-	public void addStatements(List<? extends StatementInterface> statements) {
+	public void addStatements(List<? extends Statement> statements) {
 		this.statements.addAll(statements);
 	}
 
@@ -227,7 +232,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 *            a {@link java.lang.ClassLoader} object.
 	 */
 	public void changeClassLoader(ClassLoader loader) {
-		for (StatementInterface s : statements) {
+		for (Statement s : statements) {
 			s.changeClassLoader(loader);
 		}
 	}
@@ -241,6 +246,15 @@ public class DefaultTestCase implements TestCase, Serializable {
 		while (statements.size() > length) {
 			statements.remove(length);
 		}
+	}
+	
+	public boolean contains(Statement statement) {
+		for(Statement s : statements) {
+			if(s.equals(statement)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/* (non-Javadoc)
@@ -271,14 +285,14 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 		*/
 
-		for (StatementInterface s : statements) {
-			StatementInterface copy = s.clone(t);
+		for (Statement s : statements) {
+			Statement copy = s.clone(t);
 			t.statements.add(copy);
 			copy.setRetval(s.getReturnValue().clone(t));
 			copy.setAssertions(s.copyAssertions(t, 0));
 		}
 		t.coveredGoals.addAll(coveredGoals);
-		t.accessedFiles.addAll(accessedFiles);
+		t.accessedEnvironment.copyFrom(accessedEnvironment);
 		t.isFailing = isFailing;
 		//t.exception_statement = exception_statement;
 		//t.exceptionThrown = exceptionThrown;
@@ -325,7 +339,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public Set<Class<?>> getAccessedClasses() {
 		Set<Class<?>> accessed_classes = new LinkedHashSet<Class<?>>();
-		for (StatementInterface s : statements) {
+		for (Statement s : statements) {
 			for (VariableReference var : s.getVariableReferences()) {
 				if (var != null && !var.isPrimitive()) {
 					Class<?> clazz = var.getVariableClass();
@@ -358,14 +372,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 		return accessed_classes;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#getAccessedFiles()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public List<String> getAccessedFiles() {
-		return accessedFiles;
-	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#getAssertions()
@@ -374,7 +380,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public List<Assertion> getAssertions() {
 		List<Assertion> assertions = new ArrayList<Assertion>();
-		for (StatementInterface s : statements) {
+		for (Statement s : statements) {
 			assertions.addAll(s.getAssertions());
 		}
 		return assertions;
@@ -396,13 +402,18 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> exceptions = new LinkedHashSet<Class<?>>();
-		for (StatementInterface statement : statements) {
+		for (Statement statement : statements) {
 			exceptions.addAll(statement.getDeclaredExceptions());
 		}
 		return exceptions;
 	}
 
-	/* (non-Javadoc)
+    @Override
+    public AccessedEnvironment getAccessedEnvironment() {
+        return accessedEnvironment;
+    }
+
+    /* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#getDependencies(org.evosuite.testcase.VariableReference)
 	 */
 	/** {@inheritDoc} */
@@ -413,12 +424,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 		if (var == null || var.getStPosition() == -1)
 			return dependencies;
 
-		Set<StatementInterface> dependentStatements = new LinkedHashSet<StatementInterface>();
+		Set<Statement> dependentStatements = new LinkedHashSet<Statement>();
 		dependentStatements.add(statements.get(var.getStPosition()));
 
 		for (int i = var.getStPosition(); i >= 0; i--) {
-			Set<StatementInterface> newStatements = new LinkedHashSet<StatementInterface>();
-			for (StatementInterface s : dependentStatements) {
+			Set<Statement> newStatements = new LinkedHashSet<Statement>();
+			for (Statement s : dependentStatements) {
 				if (s.references(statements.get(i).getReturnValue())) {
 					newStatements.add(statements.get(i));
 					dependencies.add(statements.get(i).getReturnValue());
@@ -440,7 +451,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public VariableReference getLastObject(Type type, int position)
 	        throws ConstructionFailedException {
 		for (int i = statements.size() - 1; i >= position; i--) {
-			StatementInterface statement = statements.get(i);
+			Statement statement = statements.get(i);
 			VariableReference var = statement.getReturnValue();
 			if (var.isAssignableTo(type))
 				return var;
@@ -498,7 +509,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 		List<VariableReference> variables = new LinkedList<VariableReference>();
 
 		for (int i = 0; i < position && i < size(); i++) {
-			VariableReference value = statements.get(i).getReturnValue();
+			Statement statement = statements.get(i);
+			if(statement instanceof MethodStatement) {
+				if(((MethodStatement)statement).getMethod().getName().equals("hashCode"))
+					continue;
+			}
+			VariableReference value = statement.getReturnValue();
+
 			if (value == null)
 				continue;
 			if (value instanceof ArrayReference) {
@@ -540,7 +557,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				variables.add(value);
 			} else {
 				addFields(variables, value, type);
-			}
+			}			
 		}
 
 		return variables;
@@ -682,7 +699,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public StatementInterface getStatement(int position) {
+	public Statement getStatement(int position) {
 		return statements.get(position);
 	}
 	
@@ -701,7 +718,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public boolean hasAssertions() {
-		for (StatementInterface s : statements) {
+		for (Statement s : statements) {
 			if (s.hasAssertions())
 				return true;
 		}
@@ -714,7 +731,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public boolean hasCastableObject(Type type) {
-		for (StatementInterface st : statements) {
+		for (Statement st : statements) {
 			if (st.getReturnValue().isAssignableFrom(type)) {
 				return true;
 			}
@@ -742,7 +759,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public boolean hasObject(Type type, int position) {
 		for (int i = 0; i < position; i++) {
-			StatementInterface st = statements.get(i);
+			Statement st = statements.get(i);
 			if (st.getReturnValue() == null)
 				continue; // Nop
 			if (st.getReturnValue().isAssignableTo(type)) {
@@ -785,7 +802,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	@Override
 	public boolean isAccessible() {
-		for (StatementInterface statement : statements) {
+		for (Statement statement : statements) {
 			if (!statement.isAccessible())
 				return false;
 		}
@@ -835,7 +852,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isValid() {
-		for (StatementInterface s : statements) {
+		for (Statement s : statements) {
 			assert (s.isValid()) : toCode();
 		}
 		return true;
@@ -846,7 +863,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Iterator<StatementInterface> iterator() {
+	public Iterator<Statement> iterator() {
 		return statements.iterator();
 	}
 
@@ -869,7 +886,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	@Override
 	public void removeAssertion(Assertion assertion) {
-		for (StatementInterface s : statements) {
+		for (Statement s : statements) {
 			s.removeAssertion(assertion);
 		}
 	}
@@ -880,7 +897,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public void removeAssertions() {
-		for (StatementInterface s : statements) {
+		for (Statement s : statements) {
 			s.removeAssertions();
 		}
 	}
@@ -891,19 +908,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
-		for (StatementInterface statement : statements) {
+		for (Statement statement : statements) {
 			statement.replace(var1, var2);
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestCase#setAccessedFiles(java.util.List)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void setAccessedFiles(List<String> files) {
-		accessedFiles = files;
-	}
+
 
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
@@ -922,7 +932,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public VariableReference setStatement(StatementInterface statement, int position) {
+	public VariableReference setStatement(Statement statement, int position) {
 		statements.set(position, statement);
 		assert (isValid());
 		return statement.getReturnValue(); // TODO:

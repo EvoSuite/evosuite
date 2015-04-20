@@ -58,7 +58,7 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 	 */
 	public ExplicitExceptionHandler(MethodVisitor mv, String className,
 	        String methodName, String desc) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		fullMethodName = methodName + desc;
 		this.className = className;
 	}
@@ -71,7 +71,7 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 	public void visitLabel(Label label) {
 		if (label instanceof AnnotatedLabel) {
 			AnnotatedLabel l = (AnnotatedLabel) label;
-			if (l.info == Boolean.TRUE) {
+			if (Boolean.TRUE.equals(l.info)) {
 				inErrorBranch = true;
 			} else {
 				inErrorBranch = false;
@@ -91,9 +91,9 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 			this.visitLdcInsn(className);
 			this.visitLdcInsn(fullMethodName);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			                   "org/evosuite/testcase/ExecutionTracer",
+			                   "org/evosuite/testcase/execution/ExecutionTracer",
 			                   "exceptionThrown",
-			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V");
+			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
 		}
 		super.visitInsn(opcode);
 	}

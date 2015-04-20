@@ -27,7 +27,12 @@ public class RemoteTcpServer {
 	private final SocketOut out;
 	
 	private final SocketIn in;
-	
+
+    /**
+     *
+     * @param address of the remote server
+     * @throws IllegalArgumentException
+     */
 	public RemoteTcpServer(EndPointInfo address) throws IllegalArgumentException{
 		if(!address.getType().equals(ConnectionType.TCP)){
 			throw new IllegalArgumentException("Invalid type: "+address.getType());
@@ -35,8 +40,6 @@ public class RemoteTcpServer {
 		connection = new NativeTcp(null, address);	
 		in = new SocketIn(connection, false);
 		out = new SocketOut(connection, false);
-		
-		VirtualNetwork.getInstance().addRemoteTcpServer(this);
 	}
 
 	public EndPointInfo getAddress() {
@@ -47,7 +50,6 @@ public class RemoteTcpServer {
 	 * This will be called by the virtual network when the
 	 * system under test will try to connect to this server
 	 * 
-	 * @param connection
 	 * @throws IOException
 	 */
 	public synchronized NativeTcp connect(EndPointInfo sutAddress) throws IOException{

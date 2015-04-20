@@ -20,7 +20,9 @@
  */
 package org.evosuite.setup;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -30,89 +32,29 @@ import java.util.List;
  * 
  * @author Gordon Fraser
  */
-public class CallContext {
 
-	private static class Call {
+/**
+ * TODO THIS IS APPROXIMATED call context computed at runtime DO NOT consider
+ * the method signature, but only the method name. Currently, callcontext with
+ * and without signature are considered equal
+ * 
+ * @author mattia
+ *
+ */
+public class CallContext implements Serializable {
 
-		private final String className;
-		private final String methodName;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8650619230188403356L;
 
-		public Call(String classname, String methodName) {
-			this.className = classname;
-			this.methodName = methodName;
-		}
+    private final List<Call> context;
 
-		public Call(Call call) {
-			this.className = call.className;
-			this.methodName = call.methodName;
-		}
+	private final int hcode;
 
-		/**
-		 * @return the className
-		 */
-		public String getClassName() {
-			return className;
-		}
-
-		/**
-		 * @return the methodName
-		 */
-		public String getMethodName() {
-			return methodName;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((className == null) ? 0 : className.hashCode());
-			result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Call other = (Call) obj;
-			if (className == null) {
-				if (other.className != null)
-					return false;
-			} else if (!className.equals(other.className))
-				return false;
-			if (methodName == null) {
-				if (other.methodName != null)
-					return false;
-			} else if (!methodName.equals(other.methodName))
-				return false;
-			return true;
-		}
-
-		public boolean matches(Call other) {
-			if (!other.getClassName().equals(className))
-				return false;
-
-			// The stacktraceelement does not contain the signature
-			// so we just look if the name matches
-			// TODO: Could consider line number?
-			if (methodName.startsWith(other.getMethodName()))
-				return true;
-
-			return false;
-		}
-
-		@Override
-		public String toString() {
-			return className + ":" + methodName;
-		}
-
+	public boolean isEmpty() {
+		return context.isEmpty();
 	}
-
-	private final List<Call> context = new ArrayList<Call>();
 
 	/**
 	 * <p>
@@ -124,29 +66,26 @@ public class CallContext {
 	 */
 	public CallContext(StackTraceElement[] stackTrace) {
 		int startPos = stackTrace.length - 1;
+		List<Call> context = new ArrayList<Call>();
 		while (stackTrace[startPos].getClassName().startsWith("java")
-		        || stackTrace[startPos].getClassName().startsWith("sun")
-		        || stackTrace[startPos].getClassName().startsWith("org.evosuite")) {
+				|| stackTrace[startPos].getClassName().startsWith("sun")
+				|| stackTrace[startPos].getClassName().startsWith("org.evosuite")) {
 			startPos--;
 		}
 		int endPos = 0;
 		while (stackTrace[endPos].getClassName().startsWith("java")
-		        || stackTrace[endPos].getClassName().startsWith("sun")
-		        || stackTrace[endPos].getClassName().startsWith("org.evosuite")) {
+				|| stackTrace[endPos].getClassName().startsWith("sun")
+				|| stackTrace[endPos].getClassName().startsWith("org.evosuite")) {
 			endPos++;
 		}
 
-		//LoggingUtils.getEvoLogger().info("Filtered stacktrace:");
 		for (int i = startPos; i >= endPos; i--) {
 			StackTraceElement element = stackTrace[i];
-			//LoggingUtils.getEvoLogger().info(element.toString());
+			
 			context.add(new Call(element.getClassName(), element.getMethodName()));
-		}
-
-		//		for (StackTraceElement element : stackTrace) {
-		//			if (!element.getClassName().startsWith("org.evosuite"))
-		//				context.add(new Call(element.getClassName(), element.getMethodName()));
-		//		}
+		} 
+		this.context=context;
+		hcode = this.context.hashCode();
 	}
 
 	/**
@@ -156,40 +95,37 @@ public class CallContext {
 	 * @param methodName
 	 */
 	public CallContext(String className, String methodName) {
+		List<Call> context = new ArrayList<Call>();
 		context.add(new Call(className, methodName));
+		this.context=context;
+		hcode = this.context.hashCode();
 	}
-
+	
 	public CallContext() {
-
+		List<Call> context = new ArrayList<Call>();
+		this.context=context;
+		hcode = this.context.hashCode();
 	}
 
-	public void addCallingMethod(String className, String methodName) {
-		context.add(0, new Call(className, methodName));
+	public CallContext(Collection<Call> contextt) {
+		List<Call> context = new ArrayList<Call>();
+		context.addAll(contextt);
+		this.context=context;
+		hcode = this.context.hashCode();
 	}
 
-	public void addCalledMethod(String className, String methodName) {
-		context.add(new Call(className, methodName));
-	}
+	public int size() {
+		return context.size();
 
-	public CallContext getSuperContext(String className, String methodName) {
-		CallContext copy = new CallContext();
-		copy.context.add(new Call(className, methodName));
-		for (Call call : context) {
-			copy.context.add(call);
-		}
-		return copy;
 	}
 
 	/**
-	 * Determine if the concrete stack trace matches this call context
-	 * 
-	 * @param stackTrace
-	 *            an array of {@link java.lang.StackTraceElement} objects.
-	 * @return a boolean.
-	 */
-	public boolean matches(StackTraceElement[] stackTrace) {
-		// TODO: Implement
-		return true;
+	 * attach the className-methodname pair passed as parameter before the
+	 * current context.
+	 **/
+	@Deprecated
+	public CallContext getSuperContext(String className, String methodName) {
+		throw new IllegalStateException("YET TO IMPLEMENT, DEPRECATED");
 	}
 
 	/**
@@ -214,7 +150,9 @@ public class CallContext {
 		return context.get(0).getMethodName();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	/** {@inheritDoc} */
@@ -223,17 +161,15 @@ public class CallContext {
 		StringBuilder builder = new StringBuilder();
 		for (Call call : context) {
 			builder.append(call.toString());
-			builder.append("\n");
+			builder.append(" ");
 		}
-		return builder.toString();
+		String tmp = builder.toString();
+		return tmp.trim();
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((context == null) ? 0 : context.hashCode());
-		return result;
+		return hcode;
 	}
 
 	@Override
@@ -245,18 +181,16 @@ public class CallContext {
 		if (getClass() != obj.getClass())
 			return false;
 		CallContext other = (CallContext) obj;
-		if (context == null) {
-			if (other.context != null)
-				return false;
-		} else if (!context.equals(other.context))
-			return false;
-		return true;
+		if (hcode == other.hcode)
+			return true;
+		return false;
 	}
 
-	public boolean matches(CallContext other) {
-		if (other.context.size() != context.size())
+	public boolean oldMatches(CallContext other) {
+		if (context.size() != other.context.size())
 			return false;
-
+		if (other.hcode == hcode)
+			return true;
 		for (int i = 0; i < context.size(); i++) {
 			Call call1 = context.get(i);
 			Call call2 = other.context.get(i);
@@ -265,6 +199,20 @@ public class CallContext {
 			}
 		}
 
-		return true;
+		return false;
 	}
+	//A empty context matches with everything.
+	public boolean matches(CallContext other) {
+		if (context.isEmpty()||other.context.isEmpty()|| other.hcode == hcode)
+			return true;
+		return false;
+	}
+
+
+    public List<Call> getContext() {
+        return context;
+    }
+	// ----------------
+	// CALL class
+
 }

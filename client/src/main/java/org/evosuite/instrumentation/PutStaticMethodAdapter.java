@@ -23,7 +23,7 @@ package org.evosuite.instrumentation;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 import org.evosuite.runtime.reset.ClassResetter;
-import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -50,7 +50,7 @@ public class PutStaticMethodAdapter extends MethodVisitor {
 	 */
 	public PutStaticMethodAdapter(String className, String methodName,
 			MethodVisitor mv) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		this.className = className;
 		this.methodName = methodName;
 	}
@@ -76,7 +76,7 @@ public class PutStaticMethodAdapter extends MethodVisitor {
 			super.visitLdcInsn(classNameWithDots);
 			super.visitLdcInsn(name);
 			super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
-					PASSED_PUT_STATIC, executionTracerDescriptor);
+					PASSED_PUT_STATIC, executionTracerDescriptor, false);
 		}
 		super.visitFieldInsn(opcode, owner, name, desc);
 	}

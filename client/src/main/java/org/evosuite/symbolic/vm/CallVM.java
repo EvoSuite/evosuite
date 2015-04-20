@@ -544,13 +544,17 @@ public final class CallVM extends AbstractVM {
 			env.topFrame().invokeInstrumentedCode(instrumented);
 		} else
 			methodCall(className, methName, methDesc);
-
 	}
 
 	@Override
-	public void INVOKESPECIAL(Object receiver, String className,
+	public void INVOKESPECIAL(Object conc_receiver, String className,
 			String methName, String methDesc) {
-		INVOKESPECIAL(className, methName, methDesc);
+		String concreteClassName = conc_receiver.getClass().getName();
+		if (concreteClassName != null) {
+			INVOKESPECIAL(concreteClassName, methName, methDesc);
+		} else {
+			INVOKESPECIAL(className, methName, methDesc);
+		}
 	}
 
 	/**
@@ -584,8 +588,9 @@ public final class CallVM extends AbstractVM {
 		if (nullReferenceViolation(conc_receiver, symb_receiver))
 			return;
 
-		Method staticMethod = methodCall(className, methName, methDesc);
-		chooseReceiverType(className, conc_receiver, methDesc, staticMethod);
+		String concreteClassName = conc_receiver.getClass().getName();
+		Method virtualMethod = methodCall(concreteClassName, methName, methDesc);
+		chooseReceiverType(className, conc_receiver, methDesc, virtualMethod);
 	}
 
 	private boolean nullReferenceViolation(Object conc_receiver,
@@ -611,8 +616,8 @@ public final class CallVM extends AbstractVM {
 			return;
 
 		String concreteClassName = conc_receiver.getClass().getName();
-		Method staticMethod = methodCall(concreteClassName, methName, methDesc);
-		chooseReceiverType(className, conc_receiver, methDesc, staticMethod);
+		Method method = methodCall(concreteClassName, methName, methDesc);
+		chooseReceiverType(className, conc_receiver, methDesc, method);
 
 	}
 

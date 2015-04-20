@@ -6,9 +6,9 @@ package org.evosuite.assertion;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 
 /**
  * @author Gordon Fraser
@@ -21,7 +21,7 @@ public class ArrayEqualsAssertion extends Assertion {
 	/** {@inheritDoc} */
 	@Override
 	public Assertion copy(TestCase newTestCase, int offset) {
-		EqualsAssertion s = new EqualsAssertion();
+		ArrayEqualsAssertion s = new ArrayEqualsAssertion();
 		s.source = source.copy(newTestCase, offset);
 		s.value = value;
 		s.comment = comment;

@@ -145,7 +145,7 @@ public class CarvingClassLoader extends ClassLoader {
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
 					byteBuffer.length);
 			if(Modifier.isPrivate(result.getModifiers())) {
-				logger.info("REPLACEING PRIVATE CLASS "+fullyQualifiedTargetClass);
+				logger.info("REPLACING PRIVATE CLASS "+fullyQualifiedTargetClass);
 				result = super.loadClass(fullyQualifiedTargetClass);
 			}
 			classes.put(fullyQualifiedTargetClass, result);

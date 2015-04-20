@@ -25,12 +25,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.assertion.EqualsAssertion;
-import org.evosuite.testcase.ExecutionTracer;
-import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.GenericMethod;
 
 /**
@@ -47,7 +47,7 @@ public class EqualsSymmetricContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public ContractViolation check(StatementInterface statement, Scope scope,
+	public ContractViolation check(Statement statement, Scope scope,
 	        Throwable exception) {
 		for (Pair<VariableReference> pair : getAllVariablePairs(scope)) {
 			// Equals self is covered by EqualsContract
@@ -91,7 +91,7 @@ public class EqualsSymmetricContract extends Contract {
 	}
 
 	@Override
-	public void addAssertionAndComments(StatementInterface statement,
+	public void addAssertionAndComments(Statement statement,
 	        List<VariableReference> variables, Throwable exception) {
 		TestCase test = statement.getTestCase();
 
@@ -105,16 +105,16 @@ public class EqualsSymmetricContract extends Contract {
 			GenericMethod method = new GenericMethod(equalsMethod, a.getGenericClass());
 
 			// Create x = a.equals(b)
-			StatementInterface st1 = new MethodStatement(test, method, a,
+			Statement st1 = new MethodStatement(test, method, a,
 			        Arrays.asList(new VariableReference[] { b }));
 			VariableReference x = test.addStatement(st1, statement.getPosition() + 1);
 
 			// Create y = b.equals(a);
-			StatementInterface st2 = new MethodStatement(test, method, b,
+			Statement st2 = new MethodStatement(test, method, b,
 			        Arrays.asList(new VariableReference[] { a }));
 			VariableReference y = test.addStatement(st2, statement.getPosition() + 2);
 
-			StatementInterface newStatement = test.getStatement(y.getStPosition());
+			Statement newStatement = test.getStatement(y.getStPosition());
 
 			// Create assertEquals(x, y)
 			EqualsAssertion assertion = new EqualsAssertion();

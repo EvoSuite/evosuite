@@ -22,8 +22,8 @@ import java.lang.reflect.Method;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.testcase.ExecutionTrace;
-import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.ClassTransformer;
 import org.junit.Assert;
 import org.junit.Ignore;

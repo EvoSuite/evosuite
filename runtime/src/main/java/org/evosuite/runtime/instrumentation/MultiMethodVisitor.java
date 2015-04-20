@@ -45,7 +45,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	 * @param mv2 a {@link org.objectweb.asm.MethodVisitor} object.
 	 */
 	public MultiMethodVisitor(MethodVisitor mv1, MethodVisitor mv2) {
-		super(Opcodes.ASM4);
+		super(Opcodes.ASM5);
 		this.mv1 = mv1;
 		this.mv2 = mv2;
 	}
@@ -241,6 +241,12 @@ public class MultiMethodVisitor extends MethodVisitor {
 	 * @see org.objectweb.asm.MethodVisitor#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
 	 */
 	/** {@inheritDoc} */
+	@Override
+	public void visitMethodInsn(int arg0, String arg1, String arg2, String arg3, boolean itf) {
+		mv1.visitMethodInsn(arg0, arg1, arg2, arg3, itf);
+		mv2.visitMethodInsn(arg0, arg1, arg2, arg3, itf);
+	}
+	
 	@Override
 	public void visitMethodInsn(int arg0, String arg1, String arg2, String arg3) {
 		mv1.visitMethodInsn(arg0, arg1, arg2, arg3);

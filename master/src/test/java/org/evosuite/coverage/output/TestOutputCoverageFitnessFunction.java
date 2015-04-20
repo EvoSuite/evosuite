@@ -40,7 +40,7 @@ public class TestOutputCoverageFitnessFunction extends SystemTest {
 	@Before
 	public void beforeTest() {
         Properties.CRITERION[0] = Criterion.OUTPUT;
-		Properties.MINIMIZE = false;
+		//Properties.MINIMIZE = false;
 	}
 
 	@Test

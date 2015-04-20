@@ -44,8 +44,8 @@ import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.search.ConstraintSolver;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
 public class TestStringSearch {
@@ -62,7 +62,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.NE,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -86,7 +86,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.EQ,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -110,7 +110,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.NE,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -134,7 +134,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.EQ,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -162,7 +162,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.NE,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -190,7 +190,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.EQ,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -215,7 +215,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.NE,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -240,7 +240,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.EQ,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -265,7 +265,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.NE,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -290,7 +290,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.EQ,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -330,7 +330,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.NE,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -371,7 +371,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.EQ,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -384,30 +384,29 @@ public class TestStringSearch {
 		}
 	}
 
-	
 	@Test
 	public void testInversionOfRegex() {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		
+
 		String var = "a+";
 		String regex = "aaa";
-		
+
 		//so we need to solve it
 		assertFalse(var.matches(regex));
-		
+
 		String variableName = "test1";
-		
+
 		StringVariable strVar = new StringVariable(variableName, var);
 		StringConstant strConst = new StringConstant(regex);
-		
+
 		StringBinaryComparison strComp = new StringBinaryComparison(strConst,
 				Operator.PATTERNMATCHES, strVar, 0L);
-		
+
 		//the constraint should evaluate to true
 		constraints.add(new StringConstraint(strComp, Comparator.NE,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -419,36 +418,37 @@ public class TestStringSearch {
 			 * as the regex defines only one possible matching string,
 			 * then the solution has to be equal to the regex 
 			 */
-			assertEquals(regex,solution);
+			assertEquals(regex, solution);
 		} catch (ConstraintSolverTimeoutException e) {
 			fail();
 		}
-		
+
 		//now let's invert them
 		strVar = new StringVariable(variableName, regex);
 		strConst = new StringConstant(var);
-		
+
 		//the inversion should match immediately
 		assertTrue(regex.matches(var));
-		
+
 		//recreate the same type of constraint
-		strComp = new StringBinaryComparison(strConst,Operator.PATTERNMATCHES, strVar, 0L);
+		strComp = new StringBinaryComparison(strConst, Operator.PATTERNMATCHES,
+				strVar, 0L);
 		constraints.clear();
 		constraints.add(new StringConstraint(strComp, Comparator.NE,
 				new IntegerConstant(0)));
-		
+
 		try {
 			result = skr.solve(constraints);
 			/*
 			 * as "aaa" should already match "a+", then the solver
 			 * should return null
 			 */
-			assertNull(result);			
+			assertNull(result);
 		} catch (ConstraintSolverTimeoutException e) {
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void testRegexMatchesTrue() {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
@@ -461,7 +461,7 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.NE,
 				new IntegerConstant(0)));
 
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -492,7 +492,7 @@ public class TestStringSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(constr1);
 
-		ConstraintSolver solver = new ConstraintSolver();
+		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
 			solution = solver.solve(constraints);
@@ -522,7 +522,7 @@ public class TestStringSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(constr1);
 
-		ConstraintSolver solver = new ConstraintSolver();
+		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
 			solution = solver.solve(constraints);
@@ -556,7 +556,7 @@ public class TestStringSearch {
 		constraints.add(constr1);
 		constraints.add(constr2);
 
-		ConstraintSolver solver = new ConstraintSolver();
+		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
 			solution = solver.solve(constraints);
@@ -578,7 +578,7 @@ public class TestStringSearch {
 				Operator.PATTERNMATCHES, strConst, 0L);
 		constraints.add(new StringConstraint(strComp, Comparator.EQ,
 				new IntegerConstant(0)));
-		ConstraintSolver skr = new ConstraintSolver();
+		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
 			result = skr.solve(constraints);
@@ -608,7 +608,7 @@ public class TestStringSearch {
 		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(constr3);
 
-		ConstraintSolver solver = new ConstraintSolver();
+		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
 			solution = solver.solve(constraints);
@@ -621,7 +621,7 @@ public class TestStringSearch {
 
 	@Test
 	public void testIndexOfC2() {
-		
+
 		String var1value = ":cc]#0l";
 		StringVariable var1 = new StringVariable("var0", var1value);
 
@@ -650,7 +650,7 @@ public class TestStringSearch {
 		constraints.add(constr2);
 		constraints.add(constr3);
 
-		ConstraintSolver solver = new ConstraintSolver();
+		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution = null;
 		try {
 			/*
@@ -658,9 +658,9 @@ public class TestStringSearch {
 			 * So it is ok if sometimes it fails (tried 10 times, failed 3).
 			 */
 			final int TRIES = 20;
-			for(int i=0; i<TRIES; i++){
+			for (int i = 0; i < TRIES; i++) {
 				solution = solver.solve(constraints);
-				if(solution!=null){
+				if (solution != null) {
 					break;
 				}
 			}

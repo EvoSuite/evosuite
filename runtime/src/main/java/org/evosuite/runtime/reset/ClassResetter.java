@@ -62,11 +62,15 @@ public class ClassResetter {
             if(clazz.isInterface() || clazz.isAnonymousClass())
             	return;
             
-            Method m = clazz.getMethod(STATIC_RESET, (Class<?>[]) null);
+            Method m = clazz.getDeclaredMethod(STATIC_RESET, (Class<?>[]) null);
             m.setAccessible(true);
             methodMap.put(classNameWithDots, m);
-        } catch (NoSuchMethodException | ClassNotFoundException | SecurityException | IllegalArgumentException e) {
+        } catch (SecurityException | IllegalArgumentException e) {
             logger.error(""+e,e);
+        } catch (NoSuchMethodException | ClassNotFoundException | NoClassDefFoundError e){
+            //this is not uncommon, as it can happen if static initializer fails.
+            //so no point in having a full trace stack
+            logger.error("Problem in resetting state of class "+classNameWithDots+": "+e);
         }
     }
 	
@@ -86,16 +90,22 @@ public class ClassResetter {
 		}
 		
 		if(loader == null){					
-			new IllegalStateException("No specified loader");
+			throw new IllegalStateException("No specified loader");
 		}
 		
 		Method m = getResetMethod(classNameWithDots);
-		if(m == null)
-			return; // TODO: Error handling
+		if(m == null) {
+            return;
+        }
+
 		try {
 			m.invoke(null, (Object[]) null);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoClassDefFoundError e) {
+		} catch (IllegalAccessException | IllegalArgumentException e) {
             logger.error(""+e,e);
+        } catch (NoClassDefFoundError e){
+            logger.error(e.toString()); //no point in getting stack trace here, as it gives no info
+        } catch(InvocationTargetException e){
+            logger.error(e.toString() , e.getCause()); // we are only interested in the stack trace of the cause
         }
 	}
 

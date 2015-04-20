@@ -1,5 +1,6 @@
 package org.evosuite.symbolic.vm.string.buffer;
 
+import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
@@ -23,13 +24,14 @@ public abstract class StringBuffer_Append extends SymbolicFunction {
 	protected String stringValBeforeExecution;
 
 	@Override
-	public void beforeExecuteFunction() {
+	public IntegerConstraint beforeExecuteFunction() {
 		StringBuffer conc_str_buffer = (StringBuffer) this.getConcReceiver();
 		if (conc_str_buffer != null) {
 			stringValBeforeExecution = conc_str_buffer.toString();
 		} else {
 			stringValBeforeExecution = null;
 		}
+		return null;
 	}
 
 	public static class StringBufferAppend_B extends StringBuffer_Append {

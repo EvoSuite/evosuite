@@ -18,9 +18,9 @@
 package org.evosuite.testsuite;
 
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionTracer;
 
 /**
  * Historical concrete TestFitnessFactories only implement the getGoals() method

@@ -3,7 +3,6 @@ package org.evosuite.instrumentation.error;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.evosuite.instrumentation.ErrorConditionMethodAdapter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -15,7 +14,8 @@ public class NullPointerExceptionInstrumentation extends ErrorBranchInstrumenter
 
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc) {
+			String desc, boolean itf) {
+		
 		// If non-static, add a null check
 		if (opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE) {
 			Type[] args = Type.getArgumentTypes(desc);
@@ -38,6 +38,7 @@ public class NullPointerExceptionInstrumentation extends ErrorBranchInstrumenter
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 		// If non-static, add a null check
+		
 		if (opcode == Opcodes.GETFIELD) {
 			mv.visitInsn(Opcodes.DUP);
 			insertBranch(Opcodes.IFNONNULL, "java/lang/NullPointerException");

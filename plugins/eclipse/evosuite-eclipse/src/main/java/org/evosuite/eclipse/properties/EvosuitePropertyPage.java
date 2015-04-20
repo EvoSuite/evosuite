@@ -1,4 +1,25 @@
+/**
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * 
+ * You should have received a copy of the GNU Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.eclipse.properties;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -10,16 +31,21 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.evosuite.Properties;
 
-public class EvosuitePropertyPage extends PropertyPage {
+public class EvoSuitePropertyPage extends PropertyPage {
 
-	private Combo criterionCombo;
+	// private Combo criterionCombo;
+	
+	private Table criterionList; 
 
 	private Button assertionButton;
 
@@ -33,6 +59,8 @@ public class EvosuitePropertyPage extends PropertyPage {
 
 	private Button sandboxButton;
 
+	private Button scaffoldingButton;
+
 	private Button deterministicButton;
 
 	private Button errorButton;
@@ -41,6 +69,10 @@ public class EvosuitePropertyPage extends PropertyPage {
 
 	private Button dseButton;
 
+	private Button lsButton;
+
+	private Text testSuffix;
+	
 	// private Button evosuiteRunnerButton;
 
 	private Spinner time;
@@ -75,6 +107,9 @@ public class EvosuitePropertyPage extends PropertyPage {
 	public static QualifiedName SANDBOX_PROP_KEY = new QualifiedName("EvoSuite",
 	        "Sandbox");
 
+	public static QualifiedName SCAFFOLDING_PROP_KEY = new QualifiedName("EvoSuite",
+	        "Use scaffolding to hide runtime instrumentation");
+
 	public static QualifiedName DETERMINISTIC_PROP_KEY = new QualifiedName("EvoSuite",
 	        "Transform nondeterministic calls");
 
@@ -86,9 +121,15 @@ public class EvosuitePropertyPage extends PropertyPage {
 
 	public static QualifiedName DSE_PROP_KEY = new QualifiedName("EvoSuite",
 	        "Use GA+DSE hybrid search");
-	
+
+	public static QualifiedName LS_PROP_KEY = new QualifiedName("EvoSuite",
+	        "Use memetic algorithm");
+
 	public static QualifiedName SEED_PROP_KEY = new QualifiedName("EvoSuite",
 	        "Use user-provided seed");	
+
+	public static QualifiedName TEST_SUFFIX_PROP_KEY = new QualifiedName("EvoSuite",
+	        "Suffix to use for generated tests");	
 
 	// public static QualifiedName RUNNER_PROP_KEY = new QualifiedName("EvoSuite",
 	//        "Use EvoSuite JUnit runner in generated test suites");
@@ -96,7 +137,7 @@ public class EvosuitePropertyPage extends PropertyPage {
 	/**
      * 
      */
-	public EvosuitePropertyPage() {
+	public EvoSuitePropertyPage() {
 		super();
 	}
 
@@ -109,24 +150,53 @@ public class EvosuitePropertyPage extends PropertyPage {
 		myComposite.setLayout(mylayout);
 
 		Label criterionlabel = new Label(myComposite, SWT.NONE);
-		criterionlabel.setLayoutData(new GridData());
-		criterionlabel.setText("Coverage criterion");
-		criterionCombo = new Combo(myComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-		criterionCombo.add("Branch coverage");
-		criterionCombo.add("DefUse coverage");
-		criterionCombo.add("Weak mutation testing");
-		criterionCombo.add("Strong mutation testing");
-		String criterion = getCriterion();
-		if (criterion.equals("defuse"))
-			criterionCombo.select(1);
-		else if (criterion.equals("weakmutation"))
-			criterionCombo.select(2);
-		else if (criterion.equals("strongmutation"))
-			criterionCombo.select(3);
-		else
-			criterionCombo.select(0);
-		criterionCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
+		criterionlabel.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
+		criterionlabel.setText("Coverage criteria");
+//		criterionCombo = new Combo(myComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
+//		criterionCombo.add("Branch coverage");
+//		criterionCombo.add("DefUse coverage");
+//		criterionCombo.add("Weak mutation testing");
+//		criterionCombo.add("Strong mutation testing");
+//		String criterion = getCriterion();
+//		if (criterion.equals("defuse"))
+//			criterionCombo.select(1);
+//		else if (criterion.equals("weakmutation"))
+//			criterionCombo.select(2);
+//		else if (criterion.equals("strongmutation"))
+//			criterionCombo.select(3);
+//		else
+//			criterionCombo.select(0);
+//		criterionCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		criterionList = new Table(myComposite, SWT.MULTI | SWT.CHECK | SWT.FULL_SELECTION | SWT.HIDE_SELECTION | SWT.NO_SCROLL | SWT.BORDER);
+		List<String> criteriaSelected = Arrays.asList(getCriteria());
+		for(String criterion : new String[]{ "Methods", 
+											 "Methods invoked directly",
+											 "Methods without exception",
+											 "Lines",
+											 "Branches",
+											 "Exceptions",
+											 "Output partitions",
+											 "Mutation",
+											 }) {
+			TableItem item = new TableItem (criterionList, 0);
+			item.setText (criterion);
+			if(criteriaSelected.contains(criterion))
+				item.setChecked(true);
+			else
+				item.setChecked(false);
+		}
+//		criterionList.add("Methods");
+//		criterionList.add("Methods invoked directly");
+//		criterionList.add("Methods without exception");
+//		criterionList.add("Lines");
+//		criterionList.add("Branches");
+//		criterionList.add("Exceptions");
+//		criterionList.add("Output partitions");
+//		criterionList.add("Mutation");
+		criterionList.setLayoutData(new GridData());
+		criterionList.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		criterionList.setBackground(myComposite.getBackground());
+		
 		Label mylabel = new Label(myComposite, SWT.NONE);
 		mylabel.setLayoutData(new GridData());
 		mylabel.setText("Create assertions");
@@ -150,7 +220,7 @@ public class EvosuitePropertyPage extends PropertyPage {
 
 		Label timelabel = new Label(myComposite, SWT.NONE);
 		timelabel.setLayoutData(new GridData());
-		timelabel.setText("Test generation time (s)");
+		timelabel.setText("Test generation time");
 		time = new Spinner(myComposite, SWT.BORDER);
 		time.setMinimum(0);
 		time.setMaximum(600);
@@ -169,13 +239,13 @@ public class EvosuitePropertyPage extends PropertyPage {
 		time2.setSelection(getReplacementTime());
 		 */
 
-		Label seedLabel= new Label(myComposite, SWT.NONE);
-		seedLabel.setLayoutData(new GridData());
-		seedLabel.setText("Random seed");
-		seed = new Spinner(myComposite, SWT.BORDER);
-		seed.setMinimum(0);
-		seed.setMaximum(60000);
-		seed.setSelection(getSeed());
+		//Label seedLabel= new Label(myComposite, SWT.NONE);
+		//seedLabel.setLayoutData(new GridData());
+		//seedLabel.setText("Random seed");
+		//seed = new Spinner(myComposite, SWT.BORDER);
+		//seed.setMinimum(0);
+		//seed.setMaximum(60000);
+		//seed.setSelection(getSeed());
 		
 		Label mylabel2 = new Label(myComposite, SWT.NONE);
 		mylabel2.setLayoutData(new GridData());
@@ -213,6 +283,14 @@ public class EvosuitePropertyPage extends PropertyPage {
 		sandboxButton.setSelection(getSandboxEnabled());
 		sandboxButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
+		Label mylabel3a = new Label(myComposite, SWT.NONE);
+		mylabel3a.setLayoutData(new GridData());
+		mylabel3a.setText("Use scaffolding");
+		scaffoldingButton = new Button(myComposite, SWT.CHECK);
+		scaffoldingButton.setSelection(getScaffoldingEnabled());
+		scaffoldingButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		
 		//		Label mylabel7 = new Label(myComposite, SWT.NONE);
 		//		mylabel7.setLayoutData(new GridData());
 		//		mylabel7.setText("Use EvoSuite JUnit runner in generated test suites");
@@ -262,6 +340,22 @@ public class EvosuitePropertyPage extends PropertyPage {
 		dseButton = new Button(myComposite, SWT.CHECK);
 		dseButton.setSelection(getDSEEnabled());
 		dseButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label mylabel7a = new Label(myComposite, SWT.NONE);
+		mylabel7a.setLayoutData(new GridData());
+		mylabel7a.setText("Enable local search (memetic algorithm)");
+		lsButton = new Button(myComposite, SWT.CHECK);
+		lsButton.setSelection(getLSEnabled());
+		lsButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label mylabel8 = new Label(myComposite, SWT.NONE);
+		mylabel8.setLayoutData(new GridData());
+		mylabel8.setText("Suffix of EvoSuite generated tests");
+		testSuffix = new Text(myComposite, SWT.SINGLE | SWT.BORDER);
+		testSuffix.setText(getTestSuffix());
+		testSuffix.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		// dseButton.setSelection(getDSEEnabled());
+		// dseButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		return myComposite;
 
@@ -333,13 +427,10 @@ public class EvosuitePropertyPage extends PropertyPage {
 						label.setText("Type not yet supported");
 					}
 				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -445,6 +536,30 @@ public class EvosuitePropertyPage extends PropertyPage {
 		}
 	}
 
+	protected boolean getScaffoldingEnabled() {
+		IResource resource = ((IJavaProject) getElement()).getResource();
+		try {
+			String value = resource.getPersistentProperty(SCAFFOLDING_PROP_KEY);
+			if (value == null)
+				return true;
+			return Boolean.parseBoolean(value);
+		} catch (CoreException e) {
+			return false;
+		}
+	}
+
+	protected void setScaffoldingEnabled(boolean enabled) {
+
+		IResource resource = ((IJavaProject) getElement()).getResource();
+		String value = Boolean.toString(enabled);
+		if (value.equals(""))
+			value = "true";
+		try {
+			resource.setPersistentProperty(SCAFFOLDING_PROP_KEY, value);
+		} catch (CoreException e) {
+		}
+	}
+
 	protected boolean getDeterministicEnabled() {
 		// if(!getEvoSuiteRunnerEnabled())
 		//	return false;
@@ -545,6 +660,31 @@ public class EvosuitePropertyPage extends PropertyPage {
 		} catch (CoreException e) {
 		}
 	}
+	
+	protected boolean getLSEnabled() {
+		IResource resource = ((IJavaProject) getElement()).getResource();
+		try {
+			String value = resource.getPersistentProperty(LS_PROP_KEY);
+			if (value == null)
+				return false;
+			return Boolean.parseBoolean(value);
+		} catch (CoreException e) {
+			return false;
+		}
+	}
+
+	protected void setLSEnabled(boolean enabled) {
+
+		IResource resource = ((IJavaProject) getElement()).getResource();
+		String value = Boolean.toString(enabled);
+		if (value.equals(""))
+			value = "false";
+		try {
+			resource.setPersistentProperty(LS_PROP_KEY, value);
+		} catch (CoreException e) {
+		}
+	}
+
 
 	protected boolean getReportEnabled() {
 		IResource resource = ((IJavaProject) getElement()).getResource();
@@ -678,33 +818,39 @@ public class EvosuitePropertyPage extends PropertyPage {
 		}
 	}
 	
-	protected String getCriterion() {
+	protected String[] getCriteria() {
 		IResource resource = ((IJavaProject) getElement()).getResource();
 		try {
 			String value = resource.getPersistentProperty(CRITERION_PROP_KEY);
 			if (value == null)
-				return "branch";
-			else
-				return value;
+				return new String[] {"Lines", "Branches"};
+			else {
+				StringTokenizer tokenizer = new StringTokenizer(value, ":");
+				int num = tokenizer.countTokens();
+				String[] values = new String[num];
+				for(int i = 0; i < num; i++) {
+					values[i] = tokenizer.nextToken();
+				}
+				return values;
+			}
 		} catch (CoreException e) {
-			return "branch";
+			return new String[] {"Lines", "Branches"};
 		}
 	}
 
-	protected void setCriterion(String value) {
+	protected void setCriteria(String value) {
 		IResource resource = ((IJavaProject) getElement()).getResource();
-		if (value.equals(""))
-			value = "branch";
-		String criterion = value.toLowerCase();
+		//String criterion = value.toLowerCase();
 		try {
-			if (criterion.startsWith("defuse"))
-				resource.setPersistentProperty(CRITERION_PROP_KEY, "defuse");
-			else if (criterion.startsWith("weak"))
-				resource.setPersistentProperty(CRITERION_PROP_KEY, "weakmutation");
-			else if (criterion.startsWith("strong"))
-				resource.setPersistentProperty(CRITERION_PROP_KEY, "strongmutation");
-			else
-				resource.setPersistentProperty(CRITERION_PROP_KEY, "branch");
+			resource.setPersistentProperty(CRITERION_PROP_KEY, value);
+//			if (criterion.startsWith("defuse"))
+//				resource.setPersistentProperty(CRITERION_PROP_KEY, "defuse");
+//			else if (criterion.startsWith("weak"))
+//				resource.setPersistentProperty(CRITERION_PROP_KEY, "weakmutation");
+//			else if (criterion.startsWith("strong"))
+//				resource.setPersistentProperty(CRITERION_PROP_KEY, "strongmutation");
+//			else
+//				resource.setPersistentProperty(CRITERION_PROP_KEY, "branch");
 		} catch (CoreException e) {
 		}
 	}
@@ -731,6 +877,32 @@ public class EvosuitePropertyPage extends PropertyPage {
 		} catch (CoreException e) {
 		}
 	}
+	
+	protected String getTestSuffix() {
+		return Properties.JUNIT_SUFFIX;
+		/*
+		IResource resource = ((IJavaProject) getElement()).getResource();
+		try {
+			String value = resource.getPersistentProperty(TEST_SUFFIX_PROP_KEY);
+			if (value == null)
+				return "EvoSuiteTest";
+			return value;
+		} catch (CoreException e) {
+			return "EvoSuiteTest";
+		}*/
+	}
+
+	protected void setTestSuffix(String suffix) {
+		try {
+			IResource resource = ((IJavaProject) getElement()).getResource();
+			if (! suffix.equals("")) {
+				Properties.JUNIT_SUFFIX = suffix;
+				resource.setPersistentProperty(TEST_SUFFIX_PROP_KEY, suffix);
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.preference.PreferencePage#performOk()
@@ -743,14 +915,28 @@ public class EvosuitePropertyPage extends PropertyPage {
 		setMinimizeTestsEnabled(minimizeTestsButton.getSelection());
 		setMinimizeValuesEnabled(minimizeValuesButton.getSelection());
 		setSandboxEnabled(sandboxButton.getSelection());
+		setScaffoldingEnabled(scaffoldingButton.getSelection());
 		setDeterministicEnabled(deterministicButton.getSelection());
 		setTime(time.getSelection());
-		setCriterion(criterionCombo.getText());
+		boolean first = true;
+		String criteria = "";
+		for(TableItem item : criterionList.getItems()) {
+			if(item.getChecked()) {
+				if(first)
+					first = false;
+				else
+					criteria += ":";
+				criteria += item.getText();
+			}
+		}
+		setCriteria(criteria);
 		setContractsEnabled(contractsButton.getSelection());
 		setErrorBranchesEnabled(errorButton.getSelection());
 		setDSEEnabled(dseButton.getSelection());
+		setLSEnabled(lsButton.getSelection());
+		setTestSuffix(testSuffix.getText());
 		// setEvoSuiteRunnerEnabled(evosuiteRunnerButton.getSelection());
-		//setReplacementTime(time2.getSelection());
+		// setReplacementTime(time2.getSelection());
 		return super.performOk();
 	}
 
@@ -765,11 +951,15 @@ public class EvosuitePropertyPage extends PropertyPage {
 		setReportEnabled(false);
 		setPlotEnabled(false);
 		setSandboxEnabled(true);
+		setScaffoldingEnabled(true);
 		setDeterministicEnabled(false);
 		setContractsEnabled(false);
 		setErrorBranchesEnabled(false);
 		setDSEEnabled(false);
+		setLSEnabled(false);
 		// setEvoSuiteRunnerEnabled(false);
-		setCriterion("branch");
+		// setCriterion("branch");
+		setCriteria("Lines:Branches");
+		setTestSuffix(Properties.JUNIT_SUFFIX);
 	}
 }

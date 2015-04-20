@@ -17,9 +17,9 @@
  */
 package org.evosuite.coverage.line;
 
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 
 /**
  * Fitness function for a single test on a single branch
@@ -90,7 +90,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	 * @param individual
 	 *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a double.
 	 */
 	@Override
@@ -109,7 +109,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return className + (methodName == "" ? "" : "." + methodName) + ":" + line;
+		return className + (methodName == "" ? "" : "." + methodName) + ": Line " + line;
 	}
 
 	/** {@inheritDoc} */
@@ -153,8 +153,8 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 					return methodName.compareTo(otherLineFitness.getMethod());
 				else
 					return line.compareTo(otherLineFitness.getLine());
-		} else
-			return 1;
+		}
+		return 0;
 	}
 
 	/* (non-Javadoc)

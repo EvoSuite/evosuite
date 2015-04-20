@@ -248,6 +248,7 @@ public class TestCurrentTime extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.REPLACE_CALLS = true;
+        //Properties.USE_DEPRECATED = false; // TODO why does the test pass only if USE_DEPRECATED is false???
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

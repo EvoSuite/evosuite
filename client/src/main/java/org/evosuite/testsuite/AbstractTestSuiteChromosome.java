@@ -37,6 +37,8 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
         Chromosome {
 	private static final long serialVersionUID = 1L;
 
+
+	
 	protected List<T> tests = new ArrayList<T>();
 	protected Set<T> unmodifiableTests = new HashSet<T>();
 	protected ChromosomeFactory<T> testChromosomeFactory;
@@ -47,6 +49,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	protected AbstractTestSuiteChromosome(){
 		super();
 	}
+	
 	
 	/**
 	 * <p>Constructor for AbstractTestSuiteChromosome.</p>
@@ -83,7 +86,9 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		this.setFitnesses(source.getFitnesses());
 		this.setLastFitnesses(source.getLastFitnesses());
 		this.setChanged(source.isChanged());
-		this.coverage = source.coverage;
+		this.setCoverages(source.getCoverages());
+        this.setNumsOfCoveredGoals(source.getNumsOfCoveredGoals());
+        this.setNumsOfNotCoveredGoals(source.getNumsNotCoveredGoals());
 	}
 
 	/**

@@ -5,10 +5,10 @@ import java.util.Arrays;
 
 import org.evosuite.Properties;
 import org.evosuite.contracts.ContractViolation;
-import org.evosuite.testcase.ConstructorStatement;
-import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
 
 public class Failure implements Serializable {
 
@@ -42,7 +42,7 @@ public class Failure implements Serializable {
 	}
 	
 	private String getMethodName(TestCase test, int position) {
-		StatementInterface statement = test.getStatement(position);
+		Statement statement = test.getStatement(position);
 		if(statement instanceof MethodStatement) {
 			return ((MethodStatement)statement).getMethod().getName();
 		} else if(statement instanceof ConstructorStatement) {

@@ -28,19 +28,18 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
+import org.evosuite.symbolic.solver.ConstraintCache;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverFactory;
-import org.evosuite.symbolic.solver.search.CachedConstraintSolver;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
-import org.evosuite.testcase.BooleanPrimitiveStatement;
-import org.evosuite.testcase.BytePrimitiveStatement;
-import org.evosuite.testcase.CharPrimitiveStatement;
-import org.evosuite.testcase.IntPrimitiveStatement;
-import org.evosuite.testcase.LongPrimitiveStatement;
-import org.evosuite.testcase.PrimitiveStatement;
-import org.evosuite.testcase.ShortPrimitiveStatement;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.BytePrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.CharPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.LongPrimitiveStatement;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.ShortPrimitiveStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,12 +92,8 @@ public class ConcolicMutation {
 		}
 
 		Solver solver = SolverFactory.getInstance().buildNewSolver();
-		Map<String, Object> values;
-		try {
-			values = solver.solve(constraints);
-		} catch (ConstraintSolverTimeoutException e) {
-			values = null;
-		}
+		Map<String, Object> values = ConstraintCache.getInstance().solve(
+				solver, constraints);
 
 		if (values != null) {
 			// logger.info(values.toString());
@@ -156,7 +151,7 @@ public class ConcolicMutation {
 	 * @return
 	 */
 	private static PrimitiveStatement<?> getStatement(TestCase test, String name) {
-		for (StatementInterface statement : test) {
+		for (Statement statement : test) {
 			if (statement instanceof PrimitiveStatement<?>) {
 				if (statement.getReturnValue().getName().equals(name))
 					return (PrimitiveStatement<?>) statement;

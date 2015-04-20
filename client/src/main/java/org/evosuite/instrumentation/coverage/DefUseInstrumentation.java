@@ -156,7 +156,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			addCallingObjectInstrumentation(staticContext, instrumentation);
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/ExecutionTracer", "passedUse",
+			        "org/evosuite/testcase/execution/ExecutionTracer", "passedUse",
 			        "(Ljava/lang/Object;Ljava/lang/Object;I)V"));
 		}
 		if (DefUsePool.isKnownAsDefinition(v)) {
@@ -165,7 +165,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			addCallingObjectInstrumentation(staticContext, instrumentation);
 			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/ExecutionTracer", "passedDefinition",
+			        "org/evosuite/testcase/execution/ExecutionTracer", "passedDefinition",
 			        "(Ljava/lang/Object;Ljava/lang/Object;I)V"));
 		}
 
@@ -268,7 +268,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 		// using the information available during runtime (the CCFGs)
 		instrumentation.add(new LdcInsnNode(DefUsePool.getDefUseCounter()));
 		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/testcase/ExecutionTracer", "passedFieldMethodCall",
+		        "org/evosuite/testcase/execution/ExecutionTracer", "passedFieldMethodCall",
 		        "(Ljava/lang/Object;Ljava/lang/Object;I)V"));
 		
 

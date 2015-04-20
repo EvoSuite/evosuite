@@ -7,7 +7,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
-import org.evosuite.runtime.reset.ClassResetter;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TransformerForTests implements ClassFileTransformer {
 
-	private static final Logger logger = LoggerFactory.getLogger(TransformerForTests.class);
+	protected static final Logger logger = LoggerFactory.getLogger(TransformerForTests.class);
 
 	private volatile boolean active;
 	private RuntimeInstrumentation instrumenter;
@@ -54,6 +53,9 @@ public class TransformerForTests implements ClassFileTransformer {
 			synchronized(instrumentedClasses){
 				instrumentedClasses.add(classWithDots);
 			}
+
+            logger.debug("Going to instrument: "+classWithDots);
+
 			return instrumenter.transformBytes(loader, className, reader); 
 		}
 	}
@@ -68,7 +70,7 @@ public class TransformerForTests implements ClassFileTransformer {
 		active = true;
 	}
 	
-	public void deacitvate(){
+	public void deactivate(){
 		active = false;
 	}
 }

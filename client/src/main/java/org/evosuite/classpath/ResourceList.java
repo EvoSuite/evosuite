@@ -228,32 +228,48 @@ public class ResourceList {
 
 
 	/**
-	 * Given the target classpath entry (eg folder or jar file), return all the classes (.class files)
+	 * Given the target classpath entry (eg folder or jar file), return the names (eg foo.Foo) of all the classes (.class files)
 	 * inside
 	 * 
 	 * @param classPathEntry
-	 * @param includeAnonymousClasses
+	 * @param includeInternalClasses   should internal classes (ie static and anonymous having $ in their name) be included?
 	 * @return
 	 */
-	public Set<String> getAllClasses(String classPathEntry, boolean includeAnonymousClasses){
-		return getAllClasses(classPathEntry,"",includeAnonymousClasses);
+	public Set<String> getAllClasses(String classPathEntry, boolean includeInternalClasses){
+		return getAllClasses(classPathEntry,"",includeInternalClasses);
 	}
 
+
+    /**
+     * Given the target classpath entry (eg folder or jar file), return the names (eg foo.Foo) of all the classes (.class files)
+     * inside
+     *
+     * @param classPathEntry
+     * @param prefix
+     * @param includeInternalClasses should internal classes (ie static and anonymous having $ in their name) be included?
+     * @return
+     */
+    public static Set<String> getAllClasses(String classPathEntry, String prefix, boolean includeInternalClasses){
+        return getAllClasses(classPathEntry,prefix,includeInternalClasses,true);
+    }
+
+
 	/**
-	 * Given the target classpath entry (eg folder or jar file), return all the classes (.class files)
+	 * Given the target classpath entry (eg folder or jar file), return the names (eg foo.Foo) of all the classes (.class files)
 	 * inside
 	 * 
 	 * @param classPathEntry
 	 * @param prefix
-	 * @param includeAnonymousClasses
+	 * @param includeInternalClasses should internal classes (ie static and anonymous having $ in their name) be included?
+     * @param excludeAnonymous  if including internal classes, should though still exclude the anonymous? (ie keep only the static ones)
 	 * @return
 	 */
-	public Set<String> getAllClasses(String classPathEntry, String prefix, boolean includeAnonymousClasses){
+	public Set<String> getAllClasses(String classPathEntry, String prefix, boolean includeInternalClasses, boolean excludeAnonymous){
 
 		if(classPathEntry.contains(File.pathSeparator)){
 			Set<String> retval = new LinkedHashSet<String>();
 			for(String element : classPathEntry.split(File.pathSeparator)){
-				retval.addAll(getAllClasses(element,prefix,includeAnonymousClasses));
+				retval.addAll(getAllClasses(element,prefix,includeInternalClasses,excludeAnonymous));
 			}
 			return retval;
 		} else {
@@ -274,7 +290,10 @@ public class ResourceList {
 				if(!className.startsWith(prefix)){
 					continue;
 				}
-				if(!includeAnonymousClasses && className.contains("$")){
+                if(!includeInternalClasses && className.contains("$")){
+                    continue;
+                }
+				if(includeInternalClasses && excludeAnonymous && className.matches(".*\\$\\d+$")) {
 					continue;
 				}
 

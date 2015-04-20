@@ -3,7 +3,6 @@ package org.evosuite.runtime.agent;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
@@ -16,8 +15,7 @@ import java.util.jar.Manifest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.tools.attach.VirtualMachine;
+ 
 
 /**
  * This class is responsible to load the jar with the agent
@@ -137,25 +135,19 @@ public class AgentLoader {
 
 
 	private static String getJarPath(){
-		String jarFilePath = null;	
 		String classPath = System.getProperty("java.class.path");
-		String[] tokens = classPath.split(File.pathSeparator); 
+        String jarFilePath = searchInAClassPath(classPath);
 
-		for(String entry : tokens){
-			if(entry==null || entry.isEmpty()){
-				continue;
-			}
-			if(isEvoSuiteMainJar(entry)){
-				jarFilePath = entry;
-				break;
-			}
-		}
 
-		if(jarFilePath==null){
-			jarFilePath = searchInCurrentClassLoaderIfUrlOne();    
-		}
+        if(jarFilePath==null){
+            jarFilePath = searchInCurrentClassLoaderIfUrlOne();
+        }
 
-		if(jarFilePath==null){
+        if(jarFilePath==null){
+            jarFilePath = searchInCurrentClassLoaderIfItProvidesClasspathAPI();
+        }
+
+        if(jarFilePath==null){
 			/*
 			 * this could happen in Eclipse or during test execution in Maven, and so search in compilation 'target' folder 
 			 */    			
@@ -166,6 +158,10 @@ public class AgentLoader {
 			/*
 			 * this could happen in Eclipse or during test execution in Maven, and so search in compilation 'target' folder 
 			 */    			
+			/*
+			 * FIXME: what is this???????? Definitively the above comment
+			 * is just a copy&paste that makes no sense here... 
+			 */
 			jarFilePath = searchInFolder("lib");    			
 		}
 
@@ -179,6 +175,47 @@ public class AgentLoader {
 
 		return jarFilePath; 
 	}
+
+    private static String searchInAClassPath(String classPath){
+        String[] tokens = classPath.split(File.pathSeparator);
+
+        for(String entry : tokens){
+            if(entry==null || entry.isEmpty()){
+                continue;
+            }
+            if(isEvoSuiteMainJar(entry)){
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    private static String searchInCurrentClassLoaderIfItProvidesClasspathAPI(){
+
+        /*
+            this could happen for AntClassLoader.
+            Note: we cannot use instanceof here, as we do not want to add further third-party dependencies
+         */
+
+        ClassLoader loader = AgentLoader.class.getClassLoader();
+        while(loader != null){
+
+            try {
+                Method m = loader.getClass().getMethod("getClasspath");
+                String classPath = (String) m.invoke(loader);
+                String jar = searchInAClassPath(classPath);
+                if(jar != null){
+                    return jar;
+                }
+            } catch (Exception e) {
+                //OK, this can happen, not really an error
+            }
+
+            loader = loader.getParent();
+        }
+
+        return null;
+    }
 
 	private static String searchInCurrentClassLoaderIfUrlOne() {
 

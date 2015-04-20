@@ -19,6 +19,7 @@ package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
 
 /**
  * (1+1)EA
@@ -54,8 +55,10 @@ public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			offspring.mutate();
 		} while (!offspring.isChanged());
 
-
-		getFitnessFunction().getFitness(offspring);
+	    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+	        fitnessFunction.getFitness(offspring);
+	        notifyEvaluation(offspring);
+	    } 
 		notifyEvaluation(offspring);
 		//logger.info("New individual: " + offspring);
 

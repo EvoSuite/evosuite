@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.mock.MockList;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.JdkPureMethodsList;
 import org.slf4j.Logger;
@@ -57,7 +58,8 @@ public class InspectorManager {
 				"java.io.File",
 				Arrays.asList(new String[] { "getPath", "getAbsolutePath",
 						"getCanonicalPath" }));
-
+		blackList.put("java.io.DataOutputStream", Arrays.asList(new String[] { "size"}));
+		
 		// These methods will contain locale specific strings 
 		blackList.put("java.util.Date",
 				Arrays.asList(new String[] { "getLocaleString" }));
@@ -76,12 +78,24 @@ public class InspectorManager {
 
 		blackList.put(Locale.class.getCanonicalName(),
 				Arrays.asList(new String[] { "getDisplay" }));
+		blackList.put("java.util.Hashtable",
+				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.util.HashSet",
+				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.util.HashMap",
+				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.util.AbstractMap",
+				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.util.AbstractCollection",
+				Arrays.asList(new String[] { "toString" }));
 
 		// AWT identifiers are different with every run
 		blackList.put("java.awt.Panel",
 				Arrays.asList(new String[] { "toString" }));
-		blackList.put("java.awt.Component",
+		blackList.put("java.awt.event.ActionEvent",
 				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.awt.Component",
+				Arrays.asList(new String[] { "toString", "isVisible" }));
 		blackList.put("java.awt.event.MouseWheelEvent",
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("javax.swing.DefaultListSelectionModel",
@@ -90,6 +104,8 @@ public class InspectorManager {
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.rmi.server.ObjID",
 				Arrays.asList(new String[] { "toString" }));
+		blackList.put("java.awt.event.InvocationEvent",
+				Arrays.asList(new String[] { "getWhen"}));
 	}
 
 	/**
@@ -112,8 +128,9 @@ public class InspectorManager {
 
 		if (!method.getReturnType().isPrimitive()
 				&& !method.getReturnType().equals(String.class)
-				&& !method.getReturnType().isEnum())
+				&& !method.getReturnType().isEnum()) {
 			return false;
+		}
 
 		if (method.getReturnType().equals(void.class))
 			return false;
@@ -141,6 +158,9 @@ public class InspectorManager {
 
 		if (isImpureJDKMethod(method))
 			return false;
+		
+		if(isAWTToString(method))
+			return false;
 
 		if (Properties.PURE_INSPECTORS) {
 			if (!CheapPurityAnalyzer.getInstance().isPure(method)) {
@@ -160,8 +180,20 @@ public class InspectorManager {
 		return !JdkPureMethodsList.instance.isPureJDKMethod(method);
 	}
 
+	private boolean isAWTToString(Method method) {
+		String className = method.getDeclaringClass().getCanonicalName();
+		if(className.startsWith("javax.") || className.startsWith("java.awt.")) {
+			if(method.getName().equals("toString"))
+				return true;
+		}
+		return false;
+	}
+	
 	private boolean isBlackListed(Method method) {
 		String className = method.getDeclaringClass().getCanonicalName();
+		if(MockList.isAMockClass(className)) {
+			className = method.getDeclaringClass().getSuperclass().getCanonicalName();
+		}
 		if (!blackList.containsKey(className))
 			return false;
 		String methodName = method.getName();
@@ -179,6 +211,8 @@ public class InspectorManager {
 						+ method.getDeclaringClass().getCanonicalName());
 
 				inspectorList.add(new Inspector(clazz, method));
+			} else {
+				logger.debug("Not an inspector: "+method.getName());
 			}
 		}
 		inspectors.put(clazz, inspectorList);

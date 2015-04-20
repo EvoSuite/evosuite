@@ -3,6 +3,9 @@
  */
 package org.evosuite.testcase;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,12 +19,19 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.testcase.execution.TimeoutHandler;
+import org.evosuite.testcase.statements.*;
+import org.evosuite.testcase.statements.environment.EnvironmentStatements;
+import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
+import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
+import org.evosuite.testcase.statements.reflection.ReflectionFactory;
+import org.evosuite.testcase.variable.*;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
@@ -50,11 +60,18 @@ public class TestFactory {
 	/** Singleton instance */
 	private static TestFactory instance = null;
 
+    private ReflectionFactory reflectionFactory;
+
+    private TestFactory(){
+        reset();
+    }
+
 	/**
 	 * We keep track of calls already attempted to avoid infinite recursion
 	 */
 	public void reset() {
 		currentRecursion.clear();
+        reflectionFactory = null;
 	}
 
 	public static TestFactory getInstance() {
@@ -140,7 +157,7 @@ public class TestFactory {
 			int newLength = test.size();
 			position += (newLength - length);
 
-			StatementInterface st = new ConstructorStatement(test, constructor,
+			Statement st = new ConstructorStatement(test, constructor,
 			        parameters);
 			return test.addStatement(st, position);
 		} catch (Exception e) {
@@ -194,7 +211,7 @@ public class TestFactory {
 			}
 		}
 
-		StatementInterface st = new FieldStatement(test, field, callee);
+		Statement st = new FieldStatement(test, field, callee);
 
 		return test.addStatement(st, position);
 	}
@@ -242,7 +259,7 @@ public class TestFactory {
 		if (f.equals(var))
 			throw new ConstructionFailedException("Self assignment");
 
-		StatementInterface st = new AssignmentStatement(test, f, var);
+		Statement st = new AssignmentStatement(test, f, var);
 		VariableReference ret = test.addStatement(st, position);
 		// logger.info("FIeld assignment: " + st.getCode());
 		assert (test.isValid());
@@ -275,7 +292,7 @@ public class TestFactory {
 		int newLength = test.size();
 		position += (newLength - length);
 
-		StatementInterface st = new AssignmentStatement(test, fieldVar, value);
+		Statement st = new AssignmentStatement(test, fieldVar, value);
 		VariableReference ret = test.addStatement(st, position);
 		ret.setDistance(callee.getDistance() + 1);
 
@@ -337,7 +354,7 @@ public class TestFactory {
 		int newLength = test.size();
 		position += (newLength - length);
 
-		StatementInterface st = new MethodStatement(test, method, callee, parameters);
+		Statement st = new MethodStatement(test, method, callee, parameters);
 		VariableReference ret = test.addStatement(st, position);
 		if (callee != null)
 			ret.setDistance(callee.getDistance() + 1);
@@ -370,7 +387,7 @@ public class TestFactory {
 		int newLength = test.size();
 		position += (newLength - length);
 
-		StatementInterface st = new MethodStatement(test, method, callee, parameters);
+		Statement st = new MethodStatement(test, method, callee, parameters);
 		VariableReference ret = test.addStatement(st, position);
 		ret.setDistance(callee.getDistance() + 1);
 		logger.debug("Success: Adding method " + method);
@@ -389,7 +406,7 @@ public class TestFactory {
 	private VariableReference addPrimitive(TestCase test, PrimitiveStatement<?> old,
 	        int position) throws ConstructionFailedException {
 		logger.debug("Adding primitive");
-		StatementInterface st = old.clone(test);
+		Statement st = old.clone(test);
 		return test.addStatement(st, position);
 	}
 
@@ -401,7 +418,7 @@ public class TestFactory {
 	 * @param test
 	 * @param s
 	 */
-	public void appendStatement(TestCase test, StatementInterface statement)
+	public void appendStatement(TestCase test, Statement statement)
 	        throws ConstructionFailedException {
 		currentRecursion.clear();
 
@@ -483,7 +500,7 @@ public class TestFactory {
 			logger.debug("Reusing value: " + choice);
 
 			ArrayIndex index = new ArrayIndex(test, arrRef, arrayIndex);
-			StatementInterface st = new AssignmentStatement(test, index, choice);
+			Statement st = new AssignmentStatement(test, index, choice);
 			test.addStatement(st, position);
 		} else {
 			// Assign a new value
@@ -506,7 +523,7 @@ public class TestFactory {
 
 			position += test.size() - oldLength;
 			ArrayIndex index = new ArrayIndex(test, arrRef, arrayIndex);
-			StatementInterface st = new AssignmentStatement(test, index, var);
+			Statement st = new AssignmentStatement(test, index, var);
 			test.addStatement(st, position);
 		}
 	}
@@ -536,7 +553,6 @@ public class TestFactory {
 	 * @param type
 	 * @param position
 	 * @param recursionDepth
-	 * @param constraint
 	 * @param allowNull
 	 * @return
 	 * @throws ConstructionFailedException
@@ -551,7 +567,7 @@ public class TestFactory {
 				        "Cannot generate unaccessible enum " + clazz);
 			return createPrimitive(test, clazz, position, recursionDepth);
 		} else if (clazz.isPrimitive() || clazz.isClass()
-		        || clazz.getRawClass().equals(EvoSuiteFile.class)) {
+		        || EnvironmentStatements.isEnvironmentData( clazz.getRawClass())) {
 			return createPrimitive(test, clazz, position, recursionDepth);
 		} else if (clazz.isString()) {
 			if (allowNull && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
@@ -577,7 +593,7 @@ public class TestFactory {
 				VariableReference targetObject = sequence.getLastObject(type);
 				int returnPos = position + targetObject.getStPosition();
 				for (int i = 0; i < sequence.size(); i++) {
-					StatementInterface s = sequence.getStatement(i);
+					Statement s = sequence.getStatement(i);
 					test.addStatement(s.copy(test, position), position + i);
 				}
 				logger.debug("Return type of object sequence: "
@@ -665,7 +681,7 @@ public class TestFactory {
 	 * @param call
 	 * @throws ConstructionFailedException
 	 */
-	public void changeCall(TestCase test, StatementInterface statement,
+	public void changeCall(TestCase test, Statement statement,
 	        GenericAccessibleObject<?> call) throws ConstructionFailedException {
 		int position = statement.getReturnValue().getStPosition();
 
@@ -728,7 +744,7 @@ public class TestFactory {
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.AbstractTestFactory#changeRandomCall(de.unisb.cs.st.evosuite.testcase.TestCase, de.unisb.cs.st.evosuite.testcase.StatementInterface)
 	 */
-	public boolean changeRandomCall(TestCase test, StatementInterface statement) {
+	public boolean changeRandomCall(TestCase test, Statement statement) {
 		logger.debug("Changing statement ", statement.getCode());
 		//+ " in test "
 		List<VariableReference> objects = test.getObjects(statement.getReturnValue().getStPosition());
@@ -799,7 +815,7 @@ public class TestFactory {
 			VariableReference current = iterator.next();
 			if (current instanceof ArrayIndex) {
 				ArrayIndex index = (ArrayIndex) current;
-				if (index.getArray().equals(statement.retval))
+				if (index.getArray().equals(statement.getReturnValue()))
 					iterator.remove();
 				// Do not assign values of same type as array to elements
 				// This may e.g. happen if we have Object[], we could otherwise assign Object[] as values
@@ -808,7 +824,7 @@ public class TestFactory {
 
 			}
 		}
-		objects.remove(statement.retval);
+		objects.remove(statement.getReturnValue());
 		logger.debug("Found assignable objects: " + objects.size());
 		Set<GenericAccessibleObject<?>> currentArrayRecursion = new HashSet<GenericAccessibleObject<?>>(
 		        currentRecursion);
@@ -849,7 +865,7 @@ public class TestFactory {
 				        "Cannot instantiate a class with a class");
 			}
 		}
-		StatementInterface st = PrimitiveStatement.getRandomStatement(test, clazz,
+		Statement st = PrimitiveStatement.getRandomStatement(test, clazz,
 		                                                              position);
 		VariableReference ret = test.addStatement(st, position);
 		ret.setDistance(recursionDepth);
@@ -878,7 +894,7 @@ public class TestFactory {
 		if (genericType.hasWildcardOrTypeVariables()) {
 			type = genericType.getGenericInstantiation().getType();
 		}
-		StatementInterface st = new NullStatement(test, type);
+		Statement st = new NullStatement(test, type);
 		test.addStatement(st, position);
 		VariableReference ret = test.getStatement(position).getReturnValue();
 		ret.setDistance(recursionDepth);
@@ -1001,11 +1017,13 @@ public class TestFactory {
 					clazz = clazz.getGenericInstantiation();
 				parameterType = clazz.getType();
 			}
+
 			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isWrapperType() || clazz.isObject() || 
-					clazz.isClass() || clazz.getRawClass().equals(EvoSuiteFile.class) || 
+					clazz.isClass() || EnvironmentStatements.isEnvironmentData(clazz.getRawClass()) ||
 					clazz.isString() || clazz.isArray() || TestCluster.getInstance().hasGenerator(parameterType)) {
 				logger.debug(" Generating new object of type " + parameterType);
-				VariableReference reference = attemptGeneration(test, parameterType,
+
+                VariableReference reference = attemptGeneration(test, parameterType,
 				                                                position, recursionDepth,
 				                                                allowNull);
 				return reference;
@@ -1176,18 +1194,18 @@ public class TestFactory {
 			// Change all references to return value at position to something
 			// else
 			for (int i = position + 1; i < test.size(); i++) {
-				StatementInterface s = test.getStatement(i);
+				Statement s = test.getStatement(i);
 				if (s.references(var)) {
 					if (s.isAssignmentStatement()) {
 						AssignmentStatement assignment = (AssignmentStatement) s;
-						if (assignment.parameter == var) {
+						if (assignment.getValue() == var) {
 							VariableReference replacementVar = Randomness.choice(alternatives);
-							if (assignment.retval.isAssignableFrom(replacementVar)) {
+							if (assignment.getReturnValue().isAssignableFrom(replacementVar)) {
 								s.replace(var, replacementVar);
 							}
-						} else if (assignment.retval == var) {
+						} else if (assignment.getReturnValue() == var) {
 							VariableReference replacementVar = Randomness.choice(alternatives);
-							if (replacementVar.isAssignableFrom(assignment.parameter)) {
+							if (replacementVar.isAssignableFrom(assignment.getValue())) {
 								s.replace(var, replacementVar);
 							}
 						}
@@ -1216,7 +1234,7 @@ public class TestFactory {
 				// Change all references to return value at position to something
 				// else
 				for (int i = position; i < test.size(); i++) {
-					StatementInterface s = test.getStatement(i);
+					Statement s = test.getStatement(i);
 					for (VariableReference var2 : s.getVariableReferences()) {
 						if (var2 instanceof ArrayIndex) {
 							ArrayIndex ai = (ArrayIndex) var2;
@@ -1358,6 +1376,60 @@ public class TestFactory {
 		return calls;
 	}
 
+
+    private boolean insertRandomReflectionCall(TestCase test, int position, int recursionDepth)
+        throws ConstructionFailedException {
+
+        logger.debug("Recursion depth: " + recursionDepth);
+        if (recursionDepth > Properties.MAX_RECURSION) {
+            logger.debug("Max recursion depth reached");
+            throw new ConstructionFailedException("Max recursion depth reached");
+        }
+
+        int length = test.size();
+        List<VariableReference> parameters = null;
+        Statement st = null;
+
+        if(reflectionFactory.nextUseField()){
+            Field field = reflectionFactory.nextField();
+            parameters = satisfyParameters(test, null,
+                    //we need a reference to the SUT, and one to a variable of same type of chosen field
+                    Arrays.asList((Type)reflectionFactory.getReflectedClass() , (Type)field.getType()),
+                    position, recursionDepth + 1);
+
+            try {
+                st = new PrivateFieldStatement(test,reflectionFactory.getReflectedClass(),field.getName(),
+                        parameters.get(0),parameters.get(1));
+            } catch (NoSuchFieldException e) {
+                logger.error("Reflection problem: "+e,e);
+                throw new ConstructionFailedException("Reflection problem");
+            }
+        } else {
+            //method
+            Method method = reflectionFactory.nextMethod();
+            List<Type> list = new ArrayList<>();
+            list.add(reflectionFactory.getReflectedClass());
+            list.addAll(Arrays.asList(method.getParameterTypes()));
+
+            parameters = satisfyParameters(test, null,list,position, recursionDepth + 1);
+            VariableReference callee = parameters.remove(0);
+
+            try {
+                st = new PrivateMethodStatement(test,reflectionFactory.getReflectedClass(),method.getName(),
+                        callee,parameters);
+            } catch (NoSuchFieldException e) {
+                logger.error("Reflection problem: " + e, e);
+                throw new ConstructionFailedException("Reflection problem");
+            }
+        }
+
+        int newLength = test.size();
+        position += (newLength - length);
+
+        test.addStatement(st, position);
+        return true;
+    }
+
 	/**
 	 * Insert a random call at given position
 	 * 
@@ -1370,6 +1442,16 @@ public class TestFactory {
 		currentRecursion.clear();
 		logger.debug("Inserting random call at position " + position);
 		try {
+            if(reflectionFactory==null){
+                reflectionFactory = new ReflectionFactory(Properties.getTargetClass());
+            }
+
+            if(reflectionFactory.hasPrivateFieldsOrMethods() &&
+                    TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT &&
+                    Randomness.nextDouble() < Properties.P_REFLECTION_ON_PRIVATE){
+                return insertRandomReflectionCall(test,position, 0);
+            }
+
 			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomTestCall();
 			if (o == null) {
 				logger.warn("Have no target methods to test");
@@ -1406,18 +1488,13 @@ public class TestFactory {
 						//	callee = test.getRandomNonNullObject(m.getDeclaringClass(), position);
 						//}
 					}
-					logger.debug("Got callee of type "
-					        + callee.getGenericClass().getTypeName());
-					if (!TestClusterGenerator.canUse(m.getMethod(),
-					                                 callee.getVariableClass())) {
-						logger.debug("Cannot call method " + m + " with callee of type "
-						        + callee.getClassName());
-						throw new ConstructionFailedException(
-						        "Cannot apply method to this callee");
+					logger.debug("Got callee of type " + callee.getGenericClass().getTypeName());
+					if (!TestClusterGenerator.canUse(m.getMethod(), callee.getVariableClass())) {
+						logger.debug("Cannot call method " + m + " with callee of type " + callee.getClassName());
+						throw new ConstructionFailedException("Cannot apply method to this callee");
 					}
 
-					addMethodFor(test, callee,
-					             m.copyWithNewOwner(callee.getGenericClass()), position);
+					addMethodFor(test, callee, m.copyWithNewOwner(callee.getGenericClass()), position);
 				} else {
 					// We only use this for static methods to avoid using wrong constructors (?)
 					addMethod(test, m, position, 0);
@@ -1452,9 +1529,6 @@ public class TestFactory {
 				test.remove(position + i);
 			}
 			return false;
-
-			// logger.info("Attempting search");
-			// test.chop(previous_length);
 		}
 	}
 
@@ -1468,17 +1542,23 @@ public class TestFactory {
 	public boolean insertRandomCallOnObject(TestCase test, int position) {
 		// Select a random variable
 		VariableReference var = selectVariableForCall(test, position);
+//		VariableReference var = selectRandomVariableForCall(test, position);
 
+		boolean success = false;
+		
 		// Add call for this variable at random position
 		if (var != null) {
 			logger.debug("Inserting call at position " + position + ", chosen var: "
 			        + var.getName() + ", distance: " + var.getDistance() + ", class: "
 			        + var.getClassName());
-			return insertRandomCallOnObjectAt(test, var, position);
-		} else {
+			success = insertRandomCallOnObjectAt(test, var, position);
+		} 
+		
+		if(!success && TestCluster.getInstance().getNumTestCalls() > 0) {
 			logger.debug("Adding new call on UUT because var was null");
-			return insertRandomCall(test, position);
+			success = insertRandomCall(test, position);
 		}
+		return success;
 	}
 
 	public boolean insertRandomCallOnObjectAt(TestCase test, VariableReference var,
@@ -1562,7 +1642,7 @@ public class TestFactory {
 
 		//		if (r <= P_UUT) {
 		boolean success = false;
-		if (r <= 0.5) {
+		if (r <= Properties.INSERTION_UUT && TestCluster.getInstance().getNumTestCalls() > 0) {
 			// add new call of the UUT - only declared in UUT!
 			logger.debug("Adding new call on UUT");
 			success = insertRandomCall(test, position);
@@ -1679,4 +1759,24 @@ public class TestFactory {
 			return null;
 	}
 
+	private VariableReference selectRandomVariableForCall(TestCase test, int position) {
+		if (test.isEmpty() || position == 0)
+			return null;
+
+		List<VariableReference> allVariables = test.getObjects(position);
+		Set<VariableReference> candidateVariables = new LinkedHashSet<VariableReference>();
+		for(VariableReference var : allVariables) {
+			if (!(var instanceof NullReference) &&
+					!var.isVoid() &&
+					!(test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) &&
+					!var.isPrimitive())
+				candidateVariables.add(var);
+		}
+		if(candidateVariables.isEmpty()) {
+			return null;
+		} else {
+			VariableReference choice = Randomness.choice(candidateVariables);
+			return choice;
+		}
+	}
 }

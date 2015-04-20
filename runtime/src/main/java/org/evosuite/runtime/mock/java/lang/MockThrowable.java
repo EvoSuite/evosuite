@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 
 import javax.naming.InitialContext;
 
-import org.evosuite.runtime.Thread;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
@@ -51,21 +50,21 @@ public class MockThrowable extends Throwable  implements OverrideMock {
 		stackTraceElements = getDefaultStackTrace();
 	}
 
-	private static StackTraceElement[] getDefaultStackTrace(){
-		StackTraceElement[] v =  new StackTraceElement[3];
-		v[0] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
-		v[1] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
-		v[2] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
-		return v;
-	}
-
 	/*
 	 *  ------ special replacements static methods ------------
 	 *  
 	 *  WARN: don't modify the name of these methods, as they are used by reflection in instrumentator
 	 */
-	
-	public static StackTraceElement[] replacement_getStackTrace(Throwable source){
+
+    public static StackTraceElement[] getDefaultStackTrace(){
+        StackTraceElement[] v =  new StackTraceElement[3];
+        v[0] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
+        v[1] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
+        v[2] = new StackTraceElement("<evosuite>", "<evosuite>", "<evosuite>", -1);
+        return v;
+    }
+
+    public static StackTraceElement[] replacement_getStackTrace(Throwable source){
 		if(!MockFramework.isEnabled() || source instanceof EvoSuiteMock){
 			return source.getStackTrace();
 		}

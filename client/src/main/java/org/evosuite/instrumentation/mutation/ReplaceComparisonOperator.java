@@ -189,7 +189,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
 			        "org/evosuite/instrumentation/mutation/ReplaceComparisonOperator",
-			        "getInfectionDistance", "(IIII)D"));
+			        "getInfectionDistance", "(IIII)D", false));
 			break;
 
 		case Opcodes.IFEQ:
@@ -204,7 +204,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
 			        "org/evosuite/instrumentation/mutation/ReplaceComparisonOperator",
-			        "getInfectionDistance", "(III)D"));
+			        "getInfectionDistance", "(III)D", false));
 			break;
 
 		default:

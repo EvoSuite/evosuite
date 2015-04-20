@@ -20,6 +20,8 @@ package org.evosuite.testcase;
 import java.util.List;
 
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -42,7 +44,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * @param individual
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a double.
 	 */
 	public abstract double getFitness(TestChromosome individual, ExecutionResult result);
@@ -158,7 +160,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * @param individual
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a boolean.
 	 */
 	public boolean isCovered(TestChromosome individual, ExecutionResult result) {

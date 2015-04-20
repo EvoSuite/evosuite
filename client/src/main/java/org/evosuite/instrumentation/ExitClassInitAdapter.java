@@ -27,7 +27,7 @@ public class ExitClassInitAdapter extends ClassVisitor {
 	private final String className;
 
 	public ExitClassInitAdapter(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM4, visitor);
+		super(Opcodes.ASM5, visitor);
 		this.className = className;
 	}
 
@@ -102,7 +102,7 @@ public class ExitClassInitAdapter extends ClassVisitor {
 		String classNameWithDots = className.replace("/", ".");
 		mv.visitLdcInsn(classNameWithDots);
 		mv.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
-				EXIT_CLASS_INIT, executionTracerDescriptor);
+				EXIT_CLASS_INIT, executionTracerDescriptor, false);
 
 		
 		mv.visitInsn(Opcodes.RETURN);

@@ -26,11 +26,10 @@ public class GenerateTestsAction extends TestGenerationAction {
 	public void run(IAction action) {
 
 		if (currentSelection.isEmpty()) {
-			MessageDialog.openError(shell, "Evosuite",
+			MessageDialog.openError(shell, "EvoSuite",
 			                        "Unable to generate test cases for selection: Cannot find .java files.");
 		} else if (currentSelection.size() > 1) {
-			MessageDialog.openError(shell, "Evosuite",
-			                        "Please only select one class at a time.");
+			MessageDialog.openError(shell, "EvoSuite", "Please only select one class at a time.");
 		} else {
 
 			for (IResource res : currentSelection) {

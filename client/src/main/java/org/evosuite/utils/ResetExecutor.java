@@ -1,6 +1,5 @@
 package org.evosuite.utils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
@@ -56,21 +55,16 @@ public class ResetExecutor {
 		try {
 			ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
 			Class<?> clazz = Class.forName(className, true, classLoader);
-			Method m = clazz.getMethod(ClassResetter.STATIC_RESET, (Class<?>[]) null);
+			Method m = clazz.getDeclaredMethod(ClassResetter.STATIC_RESET, (Class<?>[]) null);
 			m.setAccessible(true);
 			return m;
 		
-		} catch (ClassNotFoundException e) {
-			logger.debug("Class " + className + " could not be found during setting up of assertion generation ");
 		} catch (NoSuchMethodException e) {
+			//this can happen if class was not instrumented with a static reset
 			logger.debug("__STATIC_RESET() method does not exists in class " + className);
-		} catch (SecurityException e) {
-			logWarn(className,"Security exception thrown during loading of method  __STATIC_RESET() for class " + className);
-		} catch (ExceptionInInitializerError ex) {
-			logWarn(className,"Class " + className + " could not be initialized during __STATIC_RESET() execution: "+ex.getMessage());
-		} catch (LinkageError ex) {
-			logWarn(className,"Class " + className + "  initialization led to a Linkage error during during __STATIC_RESET() execution: "+ex.getMessage());
-		}
+		} catch (Exception | Error e) {
+			logWarn(className,e.getClass()+" thrown while loading method  __STATIC_RESET() for class " + className);
+		} 
 		return null;
 	}
 
@@ -88,34 +82,27 @@ public class ResetExecutor {
 	}
 	
 	private void resetClass(String className) {
+		//className.__STATIC_RESET() exists
+		logger.debug("Resetting class "+className);
+		
 		int mutationActive = MutationObserver.activeMutation;
 		MutationObserver.deactivateMutation();
-		logger.info("Resetting class "+className);
-		try {
+		confirmedResettableClasses.add(className);
+		//execute __STATIC_RESET()
+		Sandbox.goingToExecuteSUTCode();
+        TestGenerationContext.getInstance().goingToExecuteSUTCode();
+
+		Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
+		try {			
 			Method resetMethod = getResetMethod(className);
 			if (resetMethod!=null) {
-				//className.__STATIC_RESET() exists
-				confirmedResettableClasses.add(className);
-				//execute __STATIC_RESET()
-				Sandbox.goingToExecuteSUTCode();
-                TestGenerationContext.getInstance().goingToExecuteSUTCode();
-
-				Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
 				resetMethod.invoke(null, (Object[]) null);
-				
-				Sandbox.doneWithExecutingSUTCode();
-                TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
-
 			}
-		} catch (SecurityException e) {
-			logWarn(className,"Security exception thrown during loading of method  __STATIC_RESET() for class " + className+", "+e.getCause());
-		} catch (IllegalAccessException e) {
-			logWarn(className,"IllegalAccessException during execution of method  __STATIC_RESET() for class " + className+", "+e.getCause());
-		} catch (IllegalArgumentException e) {
-			logWarn(className,"IllegalArgumentException during execution of method  __STATIC_RESET() for class " + className+", "+e.getCause()); 
-		} catch (InvocationTargetException e) {
-			logWarn(className,"InvocationTargetException during execution of method  __STATIC_RESET() for class " + className+", "+e.getCause());
-		} finally {
+		} catch (Exception  e) {
+			logWarn(className,e.getClass() + " thrown during execution of method  __STATIC_RESET() for class " + className+", "+e.getCause());
+		}  finally {
+			Sandbox.doneWithExecutingSUTCode();
+            TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 			MutationObserver.activateMutation(mutationActive);
 		}
 	}

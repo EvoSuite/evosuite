@@ -33,7 +33,7 @@ import org.objectweb.asm.Opcodes;
  */
 public class EmptyVisitor extends ClassVisitor {
 
-	AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM4) {
+	AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM5) {
 
 		@Override
 		public AnnotationVisitor visitAnnotation(String name, String desc) {
@@ -50,7 +50,7 @@ public class EmptyVisitor extends ClassVisitor {
 	 * <p>Constructor for EmptyVisitor.</p>
 	 */
 	public EmptyVisitor() {
-		super(Opcodes.ASM4);
+		super(Opcodes.ASM5);
 	}
 
 	/** {@inheritDoc} */
@@ -63,7 +63,7 @@ public class EmptyVisitor extends ClassVisitor {
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc,
 	        String signature, Object value) {
-		return new FieldVisitor(Opcodes.ASM4) {
+		return new FieldVisitor(Opcodes.ASM5) {
 
 			@Override
 			public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
@@ -76,7 +76,7 @@ public class EmptyVisitor extends ClassVisitor {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, String[] exceptions) {
-		return new MethodVisitor(Opcodes.ASM4) {
+		return new MethodVisitor(Opcodes.ASM5) {
 
 			@Override
 			public AnnotationVisitor visitAnnotationDefault() {

@@ -15,9 +15,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.evosuite.Properties;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -128,7 +128,7 @@ public class OldJWriteUtils extends TestSuiteWriter{
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
 		mg.visitAnnotation("Lorg/junit/Test;", true);
 		int num = 0;
-		for (StatementInterface statement : test) {
+		for (Statement statement : test) {
 			logger.debug("Current statement: " + statement.getCode());
 			statement.getBytecode(mg, locals, exceptions.get(num));
 			num++;

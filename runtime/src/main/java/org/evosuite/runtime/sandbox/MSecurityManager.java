@@ -18,14 +18,19 @@
 package org.evosuite.runtime.sandbox;
 
 import java.awt.AWTPermission;
+import java.awt.print.Printable;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilePermission;
+import java.io.PrintStream;
 import java.io.SerializablePermission;
 import java.lang.management.ManagementPermission;
 import java.lang.reflect.Method;
 import java.lang.reflect.ReflectPermission;
+import java.net.InetAddress;
 import java.net.NetPermission;
 import java.net.SocketPermission;
+import java.net.UnknownHostException;
 import java.security.AccessControlContext;
 import java.security.AllPermission;
 import java.security.Permission;
@@ -97,6 +102,15 @@ public class MSecurityManager extends SecurityManager {
 
 	private static final String AWT_HEADLESS = System.getProperty("java.awt.headless");
 
+    private static final String LOCALHOST_NAME;
+    static {
+        String tmp = null;
+        try {
+            tmp = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+        }
+        LOCALHOST_NAME = tmp;
+    }
 	/**
 	 * Needed for the VFS
 	 */
@@ -175,14 +189,14 @@ public class MSecurityManager extends SecurityManager {
 	 * instance is automatically added as "privileged"
 	 */
 	public MSecurityManager() {
-		privilegedThreads = new CopyOnWriteArraySet<Thread>();
+		privilegedThreads = new CopyOnWriteArraySet<>();
 		privilegedThreads.add(Thread.currentThread());
 		defaultManager = System.getSecurityManager();
 		executingTestCase = false;
 		privilegedThreadToIgnore = null;
-		unrecognizedPermissions = new CopyOnWriteArraySet<Permission>();
+		unrecognizedPermissions = new CopyOnWriteArraySet<>();
 
-		filesToDelete = new CopyOnWriteArraySet<File>();
+		filesToDelete = new CopyOnWriteArraySet<>();
 	}
 
     /**
@@ -200,7 +214,7 @@ public class MSecurityManager extends SecurityManager {
         masterNodeRemoteMethodNames = Collections.unmodifiableSet(names);
     }
 
-	public Set<Thread> getPriviledThreads(){
+	public Set<Thread> getPrivilegedThreads(){
 		Set<Thread> set = new LinkedHashSet<Thread>();
 		set.addAll(privilegedThreads);
 		return set;
@@ -249,7 +263,7 @@ public class MSecurityManager extends SecurityManager {
 	public boolean isSafeToExecuteSUTCode(){
 		Thread current = Thread.currentThread();
 		if(!privilegedThreads.contains(current)){
-			//the thread is not privileg, so run inside the box
+			//the thread is not privileged, so run inside the box
 			return true;
 		} else {
 			// this can happen if the thread is privileged, but already running SUT code
@@ -289,7 +303,7 @@ public class MSecurityManager extends SecurityManager {
 	 * terminated)
 	 * </p>
 	 */
-	public void makePriviligedAllCurrentThreads() {
+	public void makePrivilegedAllCurrentThreads() {
 		ThreadGroup root = Thread.currentThread().getThreadGroup();
 		while (root.getParent() != null) {
 			root = root.getParent();
@@ -331,17 +345,17 @@ public class MSecurityManager extends SecurityManager {
 
 	public void goingToExecuteTestCase() throws IllegalStateException {
 		if (executingTestCase) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("Trying to set up the sandbox while executing a test case");
 		}
 		
-		executingTestCase = true;		
+		executingTestCase = true;
 	}
 
 	public void goingToEndTestCase() throws IllegalStateException {
 		if (!executingTestCase) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("Trying to disable sandbox when not test case was run");
 		}
-
+		
 		/*
 		 * it is important to call this method here as soon as the test case
 		 * has finished executing, because properties could be used by 
@@ -364,13 +378,18 @@ public class MSecurityManager extends SecurityManager {
 	 * @throws SecurityException
 	 *             if the thread calling this method is not privileged itself
 	 */
-	public void addPrivilegedThread(Thread t) throws SecurityException {
+	public synchronized void addPrivilegedThread(Thread t) throws SecurityException {
 		if (privilegedThreads.contains(Thread.currentThread())) {
-			logger.debug("Adding privileged thread: " + t.getName());
+			logger.debug("Adding privileged thread: \"" + t.getName()+"\"" );
 			privilegedThreads.add(t);
 		} else {
-			throw new SecurityException(
-					"Unprivileged thread cannot add a privileged thread");
+            String current = Thread.currentThread().getName();
+            String msg = "Unprivileged thread \""+current+"\" cannot add a privileged thread: failed to add \""+t.getName()+"\"";
+            msg += "\nCurrent privileged threads are: ";
+            for(Thread p : privilegedThreads){
+                msg += "\n\""+p.getName()+"\"";
+            }
+			throw new SecurityException(msg);
 		}
 	}
 
@@ -642,12 +661,6 @@ public class MSecurityManager extends SecurityManager {
 			return checkSocketPermission((SocketPermission) perm);
 		}
 
-		// for (int elementCounter = 0; elementCounter < stackTraceElements.length; elementCounter++) {
-		// FIXME: what is this?
-		// if (e.getClassName().contains("MockingBridge") && Properties.MOCKS)
-		// return true;
-		// }
-
 		/*
 		 * as far as JDK 6 is concern, those should be all possible permissions. But just in case, if there is a permission we don't know, we just
 		 * deny it
@@ -756,8 +769,25 @@ public class MSecurityManager extends SecurityManager {
 
 	protected boolean checkSocketPermission(SocketPermission perm) {
 		/*
-		 * Handling UDP/TCP connections will require special mocks. So, for now we just deny this permission
+		 * Handling UDP/TCP connections are handled by VNET mocks
 		 */
+
+        String action = perm.getActions();
+        String name = perm.getName();
+
+        if(action.equals("resolve") && name.equals(LOCALHOST_NAME)){
+            /*
+                this kind of special: we do allow resolve of local host, although we do mock InetAddress.
+                This is due to all kind of indirect calls in Swing that we do not fully mock, eg like
+                sun.font.FcFontConfiguration.getFcInfoFile
+                this is triggered from
+                JComponent.getFontMetrics
+                which is triggered by the very common
+                JComponent.getPreferredSize
+             */
+            return true;
+        }
+
 		return false;
 	}
 
@@ -967,6 +997,7 @@ public class MSecurityManager extends SecurityManager {
 				|| name.startsWith("accessClassInPackage")
 				|| name.startsWith("defineClassInPackage")
 				|| name.equals("setContextClassLoader")
+                || name.equals("enableContextClassLoaderOverride")
 				|| name.equals("accessDeclaredMembers")) {
 			return true;
 		}

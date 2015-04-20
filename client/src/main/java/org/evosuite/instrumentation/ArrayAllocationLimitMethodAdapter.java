@@ -49,7 +49,7 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 	 */
 	public ArrayAllocationLimitMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
-		super(Opcodes.ASM4, mv, access, methodName, desc);
+		super(Opcodes.ASM5, mv, access, methodName, desc);
 	}
 
 	/* (non-Javadoc)
@@ -65,11 +65,11 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 			               "ARRAY_LIMIT", "I");
 			super.visitJumpInsn(Opcodes.IF_ICMPLT, origTarget);
 			super.visitTypeInsn(Opcodes.NEW,
-			                    "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded");
+			                    "org/evosuite/testcase/execution/TestCaseExecutor$TimeoutExceeded");
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-			                      "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded",
-			                      "<init>", "()V");
+			                      "org/evosuite/testcase/execution/TestCaseExecutor$TimeoutExceeded",
+			                      "<init>", "()V", false);
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
 
@@ -91,11 +91,11 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 			               "ARRAY_LIMIT", "I");
 			super.visitJumpInsn(Opcodes.IF_ICMPLT, origTarget);
 			super.visitTypeInsn(Opcodes.NEW,
-			                    "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded");
+			                    "org/evosuite/testcase/execution/TestCaseExecutor$TimeoutExceeded");
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-			                      "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded",
-			                      "<init>", "()V");
+			                      "org/evosuite/testcase/execution/TestCaseExecutor$TimeoutExceeded",
+			                      "<init>", "()V", false);
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
 
@@ -137,11 +137,11 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		goTo(origTarget);
 		super.visitLabel(errorTarget);
 		super.visitTypeInsn(Opcodes.NEW,
-		                    "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded");
+		                    "org/evosuite/testcase/execution/TestCaseExecutor$TimeoutExceeded");
 		super.visitInsn(Opcodes.DUP);
 		super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-		                      "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded",
-		                      "<init>", "()V");
+		                      "org/evosuite/testcase/execution/TestCaseExecutor$TimeoutExceeded",
+		                      "<init>", "()V", false);
 		super.visitInsn(Opcodes.ATHROW);
 		super.visitLabel(origTarget);
 

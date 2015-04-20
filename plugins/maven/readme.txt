@@ -25,11 +25,22 @@ For example:
 </pluginManagement>
 
 
-where ${evosuiteVersion} specify the version to use. For example, "0.1.0".
+where ${evosuiteVersion} specify the version to use. For example, "0.1.0":
 
-Note: currently EvoSuite is not hosted yet on Maven Central. So, you need to download
-its source code and install it locally, ie "mvn install". Then, you can use the
-created snapshot, eg "0.1.0-SNAPSHOT".
+<properties>
+	<evosuiteVersion>0.1.0</evosuiteVersion>
+</properties>
+
+Note: currently EvoSuite is not hosted yet on Maven Central. It is hosted at
+www.evosuite.org/m2. Such remote plugin repository needs to be added to the pom file, eg:
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>EvoSuite</id>
+            <name>EvoSuite Repository</name>
+            <url>http://www.evosuite.org/m2</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 Beside configuring the plugin, there is also the need to add the EvoSuite runtime, which
 is used by the generated test cases. This can be done by adding the following Maven
@@ -37,10 +48,22 @@ dependency in the pom.xml:
 
 <dependency>
 	<groupId>org.evosuite</groupId>
-	<artifactId>evosuite-runtime</artifactId>
+	<artifactId>evosuite-standalone-runtime</artifactId>
 	<version>${evosuiteVersion}</version>
 	<scope>test</scope>
 </dependency> 
+
+
+Still, dependencies and plugins are handled separately by Maven, even if on same repository.
+You will also need to add this dependency repository to the pom file:
+
+    <repositories>
+        <repository>
+            <id>EvoSuite</id>
+            <name>EvoSuite Repository</name>
+            <url>http://www.evosuite.org/m2</url>
+        </repository>
+    </repositories>
 
 
 You also need to configure the surefire plugin to run an initializing listener for the EvoSuite tests.
@@ -61,12 +84,24 @@ This is required for when EvoSuite tests are mixed with manually written existin
 	</plugin>
 
 
+EvoSuite generates JUnit files, so it requires JUnit on the classpath. EvoSuite does not add it
+automatically as a dependency, as to avoid conflicts with different versions. We recommend to use
+a recent version of JUnit, at least 4.11 or above.
+
+<dependency>
+	<groupId>junit</groupId>
+	<artifactId>junit</artifactId>
+	<version>4.11</version>
+	<scope>test</scope>
+</dependency>
+
 -----------------------------------------------------------
 
-The "evosuite" plugin provides the following goals:
+The "evosuite" plugin provides the following targets:
 
 1) "generate" ->  this is used to generate test cases with EvoSuite. Tests will be generated for
-all classes in all submodules. This target as the following parameters:
+all classes in all submodules. You need to be sure the code is compiled, eg "mvn compile evosuite:generate".
+This target as the following parameters:
 - "memoryInMB": total amount of megabytes EvoSuite is allowed to allocate (default 800)
 - "cores": total number of CPU cores EvoSuite can use (default 1)
 - "timeInMinutesPerClass": how many minutes EvoSuite can spend generating tests for each class (default 2)
@@ -75,7 +110,7 @@ all classes in all submodules. This target as the following parameters:
 2) "info" -> provide info on all the generated tests so far 
 
 
-3) "export" -> by default, EvoSuite creates the tests in the ".continuous_evosuite/evosuite-tests" folder.
+3) "export" -> by default, EvoSuite creates the tests in the ".evosuite/evosuite-tests" folder.
 By using "export", the generated tests will be copied over to another folder, which can
 be set with the "targetFolder" option (default value is "src/test/java").
 Note: if you do not export the tests into "src/test/java" with "mvn evosuite:export", then
@@ -95,18 +130,22 @@ build path. You can add custom source folders with "build-helper-maven-plugin" p
             </goals>
             <configuration>
             	<sources>
-                    <source>.continuous_evosuite/evosuite-tests</source>
+                    <source>${customFolder}</source>
             	</sources>
             </configuration>
         </execution>
     </executions>
 </plugin>
 
-(Need to check difference with "<build><testSourceDirectory>", which is recognized by
-IntelliJ, whereas "build-helper-maven-plugin" is not)
+If ${customFolder} is equal to ".evosuite/evosuite-tests", then you do not need to use "evosuite:export".
+(If you do, then you will get compilation errors, as each test will appear twice on the classpath).
+
+Note: another approach is to override "<build><testSourceDirectory>" to point to ${customFolder}.
+This can be useful if one wants to run "mvn test" only on the EvoSuite generated ones (eg, if having 2 different
+configurations/profiles on Jenkins, one running only the existing manual tests, and the other only the EvoSuite ones).
 
 
-4) "clean" -> delete _all_ data in the ".continuous_evosuite" folder, which is used to
+4) "clean" -> delete _all_ data in the ".evosuite" folder, which is used to
 store all the best tests generated so far.
 
 
@@ -133,6 +172,34 @@ might fail. This can happen if Clover's runtime libraries are not on the classpa
 Either you need to be sure of having all needed libraries on the classpath, or just
 simply make a clean build (e.g., "mvn clean compile") before calling the EvoSuite plugin.
 
+
+------------------
+
+Requirements: the plugin needs Maven 3.1 or higher. If not, it will fail with difficult to
+understand error messages. To be sure to use the right version, use the following plugin:
+
+			<plugin>
+                <inherited>true</inherited>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.3.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven-3</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.1</version>
+                                </requireMavenVersion>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
 
 

@@ -23,12 +23,12 @@ package org.evosuite.contracts;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.ConstructorStatement;
-import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
 
 /**
  * <p>
@@ -44,7 +44,7 @@ public class NullPointerExceptionContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
+	public ContractViolation check(Statement statement, Scope scope, Throwable exception) {
 		if (!isTargetStatement(statement))
 			return null;
 
@@ -90,7 +90,7 @@ public class NullPointerExceptionContract extends Contract {
 	}
 	
 	@Override
-	public void addAssertionAndComments(StatementInterface statement,
+	public void addAssertionAndComments(Statement statement,
 			List<VariableReference> variables, Throwable exception) {
 		statement.addComment("Throws NullPointerException: " +exception.getMessage());
 	}

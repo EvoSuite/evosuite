@@ -17,10 +17,10 @@ import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 
@@ -29,8 +29,6 @@ public class SimpleMutationAssertionGenerator extends
 
 	@Override
 	public void addAssertions(TestSuiteChromosome suite) {
-		setupClassLoader(suite);
-		
 		Set<Integer> tkilled = new HashSet<Integer>();
 		int numTest = 0;
 		for (TestCase test : suite.getTests()) {

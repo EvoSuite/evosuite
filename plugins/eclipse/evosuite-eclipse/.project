@@ -3,7 +3,6 @@
 	<name>evosuite-eclipse</name>
 	<comment></comment>
 	<projects>
-		<project>evosuite</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

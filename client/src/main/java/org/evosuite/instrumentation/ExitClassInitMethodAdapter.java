@@ -54,7 +54,7 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 	 */
 	public ExitClassInitMethodAdapter(String className, String methodName,
 			MethodVisitor mv) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		this.className = className;
 		this.methodName = methodName;
 	}
@@ -71,7 +71,7 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 			String classNameWithDots = className.replace("/", ".");
 			super.visitLdcInsn(classNameWithDots);
 			super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
-					EXIT_CLASS_INIT, executionTracerDescriptor);
+					EXIT_CLASS_INIT, executionTracerDescriptor, false);
 
 		}
 		super.visitInsn(opcode);
@@ -100,7 +100,7 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 			String classNameWithDots = className.replace("/", ".");
 			super.visitLdcInsn(classNameWithDots);
 			super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
-					EXIT_CLASS_INIT, executionTracerDescriptor);
+					EXIT_CLASS_INIT, executionTracerDescriptor, false);
 			super.visitInsn(Opcodes.ATHROW);
 
 			// regenerate try-catch table

@@ -21,10 +21,11 @@ public enum ClientState {
 	MINIMIZING_VALUES("Minimizing values", "Mininizing primitive values in the tests", 6),
 	MINIMIZATION("Minimizing", "Minimizing test cases", 7),
 	ASSERTION_GENERATION("Generating assertions", "Adding assertions to the test cases", 8),
-	WRITING_STATISTICS("Statistics", "Writing statistics to disk", 9),
-	WRITING_TESTS("JUnit", "Writing JUnit tests to disk", 10),
-	DONE("Done", "Test case generation is finished", 11),
-	FINISHED("Finished", "Client process is fully finished", 12);
+	JUNIT_CHECK("Check JUnit", "Validate and fix the generated tests",9),
+    WRITING_STATISTICS("Statistics", "Writing statistics to disk", 10),
+	WRITING_TESTS("JUnit", "Writing JUnit tests to disk", 11),
+	DONE("Done", "Test case generation is finished", 12),
+	FINISHED("Finished", "Client process is fully finished", 13);
 
 	private String name;
 	private String description;

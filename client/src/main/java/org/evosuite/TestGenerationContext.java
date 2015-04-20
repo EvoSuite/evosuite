@@ -5,6 +5,7 @@ package org.evosuite;
 
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -14,7 +15,9 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.LinePool;
 import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -23,8 +26,8 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcarver.extraction.CarvingManager;
-import org.evosuite.testcase.ExecutionTracer;
-import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,6 +124,7 @@ public class TestGenerationContext {
 
 		// TODO: BranchPool should not be static
 		BranchPool.getInstance(classLoader).reset();
+		LinePool.reset();
 		MutationPool.clear();
 
 		// TODO: Clear only pool of current classloader?
@@ -149,17 +153,20 @@ public class TestGenerationContext {
 
 		TestCaseExecutor.initExecutor();
 
+		TestsArchive.instance.reset();
+		
 		// Constant pool
 		ConstantPoolManager.getInstance().reset();
 		ObjectPoolManager.getInstance().reset();
 		CarvingManager.getInstance().clear();
 
-		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)) {
+		if (Properties.INSTRUMENT_CONTEXT
+				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
+				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
 			try {
 				TestClusterGenerator clusterGenerator = new TestClusterGenerator();
 				clusterGenerator.generateCluster(Properties.TARGET_CLASS,
-				                                 DependencyAnalysis.getInheritanceTree(),
-				                                 DependencyAnalysis.getCallTree());
+				                                 DependencyAnalysis.getInheritanceTree(),  DependencyAnalysis.getCallGraph());
 			} catch (RuntimeException e) {
 				logger.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {
@@ -174,5 +181,6 @@ public class TestGenerationContext {
 
 		SystemInUtil.resetSingleton();
 		Runtime.resetSingleton();
+        MethodCallReplacementCache.resetSingleton();
 	}
 }

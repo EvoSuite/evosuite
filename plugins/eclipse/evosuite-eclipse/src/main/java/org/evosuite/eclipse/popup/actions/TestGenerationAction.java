@@ -1,5 +1,19 @@
 /**
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * 
+ * You should have received a copy of the GNU Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.eclipse.popup.actions;
 
@@ -47,14 +61,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.evosuite.Properties;
+import org.evosuite.eclipse.Activator;
+import org.osgi.framework.Bundle;
 
 /**
  * @author Gordon Fraser
  * 
  */
 public abstract class TestGenerationAction implements IObjectActionDelegate {
-
-	public static String EVOSUITE_JAR = "evosuite.jar";
 
 	private static String EVOSUITE_CP = null;
 
@@ -72,8 +86,14 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 	 * @param target
 	 */
 	public void generateTests(IResource target) {
+		Boolean disabled = System.getProperty("evosuite.disable") != null; //  && System.getProperty("evosuite.disable").equals("1")
+		if ( disabled ) {
+			MessageDialog.openInformation(shell, "Sorry!", "The EvoSuite Plugin is disabled :(");
+			return;
+		}
+		System.out.println("EvoSuite Plugin is enabled");
+		System.out.println("[TestGenerationAction] Generating tests for " + target.toString());
 		IFolder folder = target.getProject().getFolder("evosuite-tests");
-
 		if (!folder.exists()) {
 			// Create evosuite-tests directory and add as source folder
 			try {
@@ -88,10 +108,9 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 				jProject.setRawClasspath(newEntries, null);
 
 			} catch (Throwable t) {
-				// TODO
+				t.printStackTrace();
 			}
 		}
-
 		addTestJob(target);
 	}
 
@@ -102,24 +121,25 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 	 */
 	protected void addTestJob(final IResource target) {
 		IJavaElement element = JavaCore.create(target);
+		if (element == null) {
+			return;
+		}
 		IJavaElement packageElement = element.getParent();
 
 		String packageName = packageElement.getElementName();
 
 		final String targetClass = (!packageName.isEmpty() ? packageName + "." : "")
 		        + target.getName().replace(".java", "").replace(File.separator, ".");
+		System.out.println("* Scheduling new automated job for " + targetClass);
 		final String targetClassWithoutPackage = target.getName().replace(".java", "");
-		System.out.println("Building new job for " + targetClass);
 
-		String tmp = targetClass.replace('.', File.separatorChar);
-
-		String targetPath = target.getProject().getLocation() + "/evosuite-tests/" + tmp +
-		        //+ tmp.substring(0, tmp.lastIndexOf(File.separator) + 1) 
-		        //+ tmp.substring(tmp.lastIndexOf(File.separator) + 1) + 
-				Properties.JUNIT_SUFFIX + ".java";
-		System.out.println("Checking for " + targetPath);
-		File testSuite = new File(targetPath);
-		if (testSuite.exists()) {
+		final String suiteClassName = targetClass + Properties.JUNIT_SUFFIX;
+		
+		final String suiteFileName = target.getProject().getLocation() + "/evosuite-tests/" + 
+										suiteClassName.replace('.', File.separatorChar) + ".java";
+		System.out.println("Checking for " + suiteFileName);
+		File suiteFile = new File(suiteFileName);
+		if (suiteFile.exists()) {
 
 			MessageDialog dialog = new MessageDialog(
 			        shell,
@@ -134,18 +154,14 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 			int returnCode = dialog.open();
 			if (returnCode == 1) {
 				// Rename
-				renameTarget(target, packageName, targetClassWithoutPackage + Properties.JUNIT_SUFFIX + ".java");
-				//tmp + Properties.JUNIT_SUFFIX 
-				             // "Test" + tmp.substring(tmp.lastIndexOf(File.separator) + 1)
-				  //                   + ".java");
-
+				renameSuite(target, packageName, targetClassWithoutPackage + Properties.JUNIT_SUFFIX + ".java");
 			} else if (returnCode > 1) {
 				// Cancel
 				return;
 			}
 		}
 
-		Job job = new TestGenerationJob(shell, target, targetClass);
+		Job job = new TestGenerationJob(shell, target, targetClass, suiteClassName);
 		job.setPriority(Job.SHORT);
 		IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
 		ISchedulingRule rule = ruleFactory.createRule(target.getProject());
@@ -187,56 +203,54 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 	 * If there already exists a test suite for the chosen target class, then
 	 * renaming the old test suite is one of the options the user can choose
 	 * 
-	 * @param target
+	 * @param suite
 	 * @param packageName
-	 * @param targetPath
+	 * @param suitePath
 	 */
-	public void renameTarget(final IResource target, String packageName, String targetPath) {
-		System.out.println("Renaming "+targetPath +" in package "+packageName);
+	public void renameSuite(final IResource suite, String packageName, String suitePath) {
+		System.out.println("Renaming " + suitePath + " in package " + packageName);
 		IPackageFragment[] packages;
 		try {
-			packages = JavaCore.create(target.getProject()).getPackageFragments();
+			packages = JavaCore.create(suite.getProject()).getPackageFragments();
 			System.out.println("Packages found: "+packages.length);
 			for (IPackageFragment f : packages) {
-				//System.out.println("Current package: "+f.getElementName());
-				if (f.getKind() == IPackageFragmentRoot.K_SOURCE)
-					if (f.getElementName().equals(packageName)) {
-						for (ICompilationUnit cu : f.getCompilationUnits()) {
-							if (cu.getElementName().equals(targetPath)) {
-								System.out.println(f.getElementName() + " = "
-								        + cu.getElementName());
-								RefactoringContribution contribution = RefactoringCore.getRefactoringContribution(IJavaRefactorings.RENAME_COMPILATION_UNIT);
-								RenameJavaElementDescriptor descriptor = (RenameJavaElementDescriptor) contribution.createDescriptor();
-								descriptor.setProject(cu.getResource().getProject().getName());
-								descriptor.setNewName(getNewName(cu.getElementName(),
-								                                 f.getCompilationUnits())); // new name for a Class
-								descriptor.setJavaElement(cu);
+				if ((f.getKind() == IPackageFragmentRoot.K_SOURCE) 
+						&& (f.getElementName().equals(packageName))) {
+					
+					for (ICompilationUnit cu : f.getCompilationUnits()) {
+						
+						String cuName = cu.getElementName();
+						System.out.println("targetPath = " + suitePath);
+						System.out.println("cuName = " + cuName);
+						if (cuName.equals(suitePath)) {
+							RefactoringContribution contribution = RefactoringCore.getRefactoringContribution(IJavaRefactorings.RENAME_COMPILATION_UNIT);
+							RenameJavaElementDescriptor descriptor = (RenameJavaElementDescriptor) contribution.createDescriptor();
+							descriptor.setProject(cu.getResource().getProject().getName());
+							String newName = getNewName(cuName, f.getCompilationUnits());
+							System.out.println("New name for Test Suite: " + newName);
+							descriptor.setNewName(newName); // new name for a Class
+							descriptor.setJavaElement(cu);
 
-								RefactoringStatus status = new RefactoringStatus();
-								try {
-									Refactoring refactoring = descriptor.createRefactoring(status);
+							RefactoringStatus status = new RefactoringStatus();
+							try {
+								Refactoring refactoring = descriptor.createRefactoring(status);
 
-									IProgressMonitor monitor = new NullProgressMonitor();
-									refactoring.checkInitialConditions(monitor);
-									refactoring.checkFinalConditions(monitor);
-									Change change = refactoring.createChange(monitor);
-									change.perform(monitor);
+								IProgressMonitor monitor = new NullProgressMonitor();
+								refactoring.checkInitialConditions(monitor);
+								refactoring.checkFinalConditions(monitor);
+								Change change = refactoring.createChange(monitor);
+								change.perform(monitor);
 
-								} catch (CoreException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-
+							} catch (CoreException e) {
+								e.printStackTrace();
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
 						}
 					}
+				}
 			}
-
 		} catch (JavaModelException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
@@ -255,13 +269,12 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 		boolean hasOldEvoSuite = false;
 
 		try {
-			IClasspathContainer container = JavaCore.getClasspathContainer(new Path(
-			        "org.evosuite.eclipse.classpathContainerInitializer"), project);
-			System.out.println("EvoSuite JAR at: " + container);
+			Path containerPath = new Path("org.evosuite.eclipse.classpathContainerInitializer");
+			IClasspathContainer container = JavaCore.getClasspathContainer(containerPath, project);
+			System.out.println("EvoSuite JAR at: " + container.getPath().toOSString());
 
 			IClasspathEntry[] oldEntries = project.getRawClasspath();
-			ArrayList<IClasspathEntry> newEntries = new ArrayList<IClasspathEntry>(
-			        oldEntries.length + 1);
+			ArrayList<IClasspathEntry> newEntries = new ArrayList<IClasspathEntry>(oldEntries.length + 1);
 
 			IClasspathEntry cpentry = JavaCore.newContainerEntry(junitPath);
 
@@ -277,11 +290,10 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 					if (path.equals(container.getPath())) {
 						hasEvoSuite = true;
 					}
-				} else if(curr.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+				} else if (curr.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 					// Check for older EvoSuite entries
 					IPath path = curr.getPath();
-					if(path.toFile().getName().equals("evosuite.jar")) {
-						System.out.println("NOT EVOSUITE? "+path);
+					if (path.toFile().getName().equals(Activator.EVOSUITE_JAR)) {
 						if (path.equals(container.getPath())) {
 							System.out.println("Is current evosuite!");
 							hasEvoSuite = true;
@@ -291,7 +303,12 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 							continue;
 						}
 					}
-
+					if (path.equals(cpentry.getPath())) {
+						hasJUnit = true;
+					}
+					if (path.equals(container.getPath())) {
+						hasEvoSuite = true;
+					}
 				}
 
 				if (curr != null) {
@@ -314,15 +331,14 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 				}
 			}
 			
-			System.out.println("New classpath: "+newEntries);
+			System.out.println("New classpath: " + newEntries);
 
-			//newEntries.add(JavaCore.newContainerEntry(EvoSuiteClasspathContainer.ID));
+			// newEntries.add(JavaCore.newContainerEntry(EvoSuiteClasspathContainer.ID));
 
 			// Convert newEntries to an array
 			IClasspathEntry[] newCPEntries = newEntries.toArray(new IClasspathEntry[newEntries.size()]);
 			project.setRawClasspath(newCPEntries, null);
 		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -340,13 +356,12 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 		if (EVOSUITE_CP != null)
 			return EVOSUITE_CP;
 
-		URL url = Platform.getBundle("org.evosuite.plugins.eclipse.core").getEntry(EVOSUITE_JAR);
-		// URL url = org.eclipse.core.runtime.Platform.getPlugin("evosuite-eclipse-core").getBundle().getEntry("evosuite-0.1-SNAPSHOT-jar-minimal.jar");
+		Bundle bundle = Platform.getBundle(Activator.EVOSUITE_CORE_BUNDLE);
+		URL url = bundle.getEntry(Activator.EVOSUITE_JAR);
+				
 		try {
 			URL evosuiteLib = FileLocator.resolve(url);
-			// URL evosuiteLib = org.eclipse.core.runtime.Platform.resolve(url);
-			System.out.println("Evosuite jar is at " + evosuiteLib.getPath());
-			// EVOSUITE_CP = evosuiteLib.getFile();
+			System.out.println("Evosuite JAR is at " + evosuiteLib.getPath());
 			if (evosuiteLib.getPath().startsWith("file")) {
 				System.out.println("Need to extract jar");
 				EVOSUITE_CP = setupJar(evosuiteLib);
@@ -354,30 +369,11 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 				System.out.println("Don't need to extract jar");
 				EVOSUITE_CP = evosuiteLib.getFile();
 			}
-
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
-		/*
-		URL pluginURL = GenerateTestsAction.class.getClassLoader().getResource("lib"
-		                                                                               + File.separator
-		                                                                               + EVOSUITE_JAR);
-
-		URL evosuiteLib;
-		try {
-			evosuiteLib = org.eclipse.core.runtime.Platform.resolve(pluginURL);
-			System.out.println("Evosuite jar is at " + evosuiteLib.getPath());
-			if (evosuiteLib.getPath().startsWith("file")) {
-				EVOSUITE_CP = setupJar(evosuiteLib);
-			} else {
-				EVOSUITE_CP = evosuiteLib.getFile();
-			}
-		} catch (Exception e) {
-		}
-		*/
 
 		return EVOSUITE_CP;
-
 	}
 
 	/**
@@ -389,7 +385,7 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 	 */
 	protected static String setupJar(URL evosuiteLib) throws IOException {
 		String tmpDir = System.getProperty("java.io.tmpdir");
-		String jarName = tmpDir + File.separator + EVOSUITE_JAR;
+		String jarName = tmpDir + File.separator + Activator.EVOSUITE_JAR;
 		System.out.println("Copying jar file to " + jarName);
 		File tempJar = new File(jarName);
 		writeFile(evosuiteLib.openStream(), new File(jarName));

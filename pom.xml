@@ -7,7 +7,7 @@
 	<artifactId>evosuite</artifactId>
 	<name>EvoSuite</name>
 	<description>n/a</description>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<url>http://www.evosuite.org/</url>
 	<inceptionYear>2010</inceptionYear>
@@ -17,8 +17,13 @@
 		<module>client</module>
 		<module>runtime</module>
 		<module>plugins</module>
-        <module>dsc</module>
-	</modules>
+		<module>dsc</module>
+        <module>standalone_runtime</module>
+    </modules>
+
+	<prerequisites>
+	  <maven>3.1</maven>
+	</prerequisites>
 
 	<developers>
 		<developer>
@@ -195,7 +200,7 @@
 				<!-- Apache 2 -->
 				<groupId>com.googlecode.gentyref</groupId>
 				<artifactId>gentyref</artifactId>
-				<version>1.1.0</version>
+				<version>1.2.0</version>
 			</dependency>
 			<dependency> 
 				<!-- LGPL -->
@@ -231,7 +236,7 @@
 				<!-- Apache 2 -->
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
-				<version>3.1</version>
+				<version>3.3.2</version>
 				<!-- Version 3.2.1 leads to a NPE in org.jcvi.jillion.fasta.qual.QualityFastaRecordWriterBuilder 
 					in 92_jcvi-javacommon -->
 			</dependency>
@@ -264,14 +269,6 @@
 
 
 
-	<distributionManagement>
-		<repository>
-		<id>EvoSuite</id>
-		<name>EvoSuite Repository</name>
-		<url>www.evosuite.org/m2/</url>
-		</repository>
-	</distributionManagement>
-
 	<repositories>
 		<repository>
 			<releases>
@@ -293,157 +290,189 @@
 			</repository> -->
 	</repositories>
 
-	<build>
-		<plugins>
-            <!-- we need at least Maven 3.1 due to special features in EvoSuite Maven Plugin -->
-            <plugin>
-                <inherited>true</inherited>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.3.1</version>
-                <executions>
-                    <execution>
-                        <id>enforce-maven-3</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <requireMavenVersion>
-                                    <version>3.1</version>
-                                </requireMavenVersion>
-                            </rules>
-                            <fail>true</fail>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-			<!-- Generate startings scripts for different platforms -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>appassembler-maven-plugin</artifactId>
-				<version>1.8</version>
-				<configuration>
-					<!-- Set the target configuration directory to be used in the bin scripts -->
-					<configurationDirectory>conf</configurationDirectory>
-					<!-- Copy the contents from "/src/main/config" to the target configuration 
-						directory in the assembled application -->
-					<copyConfigurationDirectory>false</copyConfigurationDirectory>
-					<!-- Include the target configuration directory in the beginning of 
-						the classpath declaration in the bin scripts -->
-					<includeConfigurationDirectoryInClasspath>false</includeConfigurationDirectoryInClasspath>
-					<!-- set alternative assemble directory -->
-					<assembleDirectory>${project.build.directory}</assembleDirectory>
-					<!-- Extra JVM arguments that will be included in the bin scripts -->
-					<extraJvmArguments>-Xms128m -Xmx1024m  </extraJvmArguments>
-					<platforms>
-						<platform>windows</platform>
-						<platform>unix</platform>
-					</platforms>
-					<programs>
-						<program>
-							<mainClass>org.evosuite.EvoSuite</mainClass>
-							<name>EvoSuite</name>
-							<commandLineArguments>
-								<!-- Add two predefined command line arguments <commandLineArgument>arg1</commandLineArgument> 
-									<commandLineArgument>arg2</commandLineArgument> -->
-							</commandLineArguments>
-						</program>
-					</programs>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.9</version>
-			</plugin>
 
-			<!-- <plugin> -->
-			<!-- <groupId>com.mycila.maven-license-plugin</groupId> -->
-			<!-- <artifactId>maven-license-plugin</artifactId> -->
-			<!-- <version>1.9</version> -->
-			<!-- <configuration> -->
-			<!-- <header>src/etc/header.txt</header> -->
-			<!-- <excludes> -->
-			<!-- <exclude>DSC_LICENSE.txt</exclude> -->
-			<!-- </excludes> -->
-			<!-- </configuration> -->
-			<!-- </plugin> -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.9</version>
-				<configuration>
-					<downloadSources>true</downloadSources>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-					<encoding>${project.build.sourceEncoding}</encoding>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
-				<configuration>
-					<source>1.7</source>
-				</configuration>
-			</plugin>
-			<!-- TODO Update URL. -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.6</version>
-				<configuration>
-					<encoding>${project.build.sourceEncoding}</encoding>
-				</configuration>
-			</plugin>
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-dependency-plugin</artifactId> 
-				<version>2.5.1</version> <executions> <execution> <id>copy</id> <phase>compile</phase> 
-				<goals> <goal>copy</goal> </goals> <configuration> <artifactItems> <artifactItem> 
-				<groupId>com.googlecode.jmockit</groupId> <artifactId>jmockit</artifactId> 
-				<version>0.999.16</version> <overWrite>true</overWrite> <outputDirectory>target/</outputDirectory> 
-				<destFileName>jmockit.jar</destFileName> </artifactItem> </artifactItems> 
-				</configuration> </execution> </executions> </plugin> -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.17</version>
-				<configuration>
-					<skipTests>${skipTests}</skipTests>
-					<forkCount>1</forkCount>
-					<reuseForks>false</reuseForks>
-					<reportFormat>xml</reportFormat>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
-				<configuration>
-					<includePom>true</includePom>
-					<excludes>
-						<exclude>src/exsyst/java/**</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
+    <!-- Once we publish EvoSuite as open source, we should rather deploy to MavenCentral -->
+    <distributionManagement>
+        <repository>
+            <id>EvoSuite</id>
+            <name>EvoSuite Repository</name>
+            <url>${deployURL}</url>
+        </repository>
+    </distributionManagement>
+
+
+    <build>
+      <!-- this is needed for "deploy" with SSH -->
+      <extensions>
+        <extension>
+          <groupId>org.apache.maven.wagon</groupId>
+          <artifactId>wagon-ssh-external</artifactId>
+          <version>2.7</version>
+        </extension>
+      </extensions>
+
+      <plugins>
+
+
+
+        <!-- we need at least Maven 3.1 due to special features in EvoSuite Maven Plugin -->
+        <plugin>
+          <inherited>true</inherited>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>1.3.1</version>
+          <executions>
+            <execution>
+              <id>enforce-maven-3</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <requireMavenVersion>
+                    <version>3.1</version>
+                  </requireMavenVersion>
+                </rules>
+                <fail>true</fail>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+	<!-- Generate startings scripts for different platforms -->
+	<plugin>
+	  <groupId>org.codehaus.mojo</groupId>
+	  <artifactId>appassembler-maven-plugin</artifactId>
+	  <version>1.8.1</version>
+	  <configuration>
+	    <!-- Set the target configuration directory to be used in the bin scripts -->
+	    <configurationDirectory>conf</configurationDirectory>
+	    <!-- Copy the contents from "/src/main/config" to the target configuration 
+		 directory in the assembled application -->
+	    <copyConfigurationDirectory>false</copyConfigurationDirectory>
+	    <!-- Include the target configuration directory in the beginning of 
+		 the classpath declaration in the bin scripts -->
+	    <includeConfigurationDirectoryInClasspath>false</includeConfigurationDirectoryInClasspath>
+	    <!-- set alternative assemble directory -->
+	    <assembleDirectory>${project.build.directory}</assembleDirectory>
+	    <!-- Extra JVM arguments that will be included in the bin scripts -->
+	    <extraJvmArguments>-Xms128m -Xmx1024m  </extraJvmArguments>
+	    <platforms>
+	      <platform>windows</platform>
+	      <platform>unix</platform>
+	    </platforms>
+	    <programs>
+	      <program>
+		<mainClass>org.evosuite.EvoSuite</mainClass>
+		<name>EvoSuite</name>
+		<commandLineArguments>
+		  <!-- Add two predefined command line arguments <commandLineArgument>arg1</commandLineArgument> 
+		       <commandLineArgument>arg2</commandLineArgument> -->
+		</commandLineArguments>
+	      </program>
+	    </programs>
+	  </configuration>
+	</plugin>
+	<plugin>
+	  <groupId>org.codehaus.mojo</groupId>
+	  <artifactId>build-helper-maven-plugin</artifactId>
+	  <version>1.9.1</version>
+	</plugin>
+	<plugin>
+	  <groupId>org.codehaus.mojo</groupId>
+	  <artifactId>findbugs-maven-plugin</artifactId>
+	  <version>3.0.0</version>
+	  <configuration>
+	    <xmlOutput>true</xmlOutput>
+	    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
+	  </configuration>
+	</plugin>
+
+	<!-- <plugin> -->
+	<!-- <groupId>com.mycila.maven-license-plugin</groupId> -->
+	<!-- <artifactId>maven-license-plugin</artifactId> -->
+	<!-- <version>1.9</version> -->
+	<!-- <configuration> -->
+	<!-- <header>src/etc/header.txt</header> -->
+	<!-- <excludes> -->
+	<!-- <exclude>DSC_LICENSE.txt</exclude> -->
+	<!-- </excludes> -->
+	<!-- </configuration> -->
+	<!-- </plugin> -->
+	<plugin>
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-eclipse-plugin</artifactId>
+	  <version>2.9</version>
+	  <configuration>
+	    <downloadSources>true</downloadSources>
+	  </configuration>
+	</plugin>
+	<plugin>
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-compiler-plugin</artifactId>
+	  <version>3.2</version>
+	  <configuration>
+	    <source>1.7</source>
+	    <target>1.7</target>
+	    <encoding>${project.build.sourceEncoding}</encoding>
+	  </configuration>
+	</plugin>
+	<plugin>
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-javadoc-plugin</artifactId>
+	  <version>2.10.1</version>
+	  <configuration>
+	    <source>1.7</source>
+	  </configuration>
+	</plugin>
+	<!-- TODO Update URL. -->
+	<plugin>
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-release-plugin</artifactId>
+	  <version>2.5.1</version>
+	</plugin>
+	<plugin>
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-resources-plugin</artifactId>
+	  <version>2.7</version>
+	  <configuration>
+	    <encoding>${project.build.sourceEncoding}</encoding>
+	  </configuration>
+	</plugin>
+	<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-dependency-plugin</artifactId> 
+	     <version>2.5.1</version> <executions> <execution> <id>copy</id> <phase>compile</phase> 
+	     <goals> <goal>copy</goal> </goals> <configuration> <artifactItems> <artifactItem> 
+	     <groupId>com.googlecode.jmockit</groupId> <artifactId>jmockit</artifactId> 
+	     <version>0.999.16</version> <overWrite>true</overWrite> <outputDirectory>target/</outputDirectory> 
+	     <destFileName>jmockit.jar</destFileName> </artifactItem> </artifactItems> 
+	     </configuration> </execution> </executions> </plugin> -->
+	<plugin>
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-surefire-plugin</artifactId>
+	  <version>2.18</version>
+	  <configuration>
+	    <skipTests>${skipTests}</skipTests>
+	    <forkCount>1</forkCount>
+	    <reuseForks>false</reuseForks>
+	    <reportFormat>xml</reportFormat>
+	  </configuration>
+	</plugin>
+	<plugin>
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-source-plugin</artifactId>
+	  <version>2.4</version>
+	  <configuration>
+	    <includePom>true</includePom>
+	    <excludes>
+	      <exclude>src/exsyst/java/**</exclude>
+	    </excludes>
+	  </configuration>
+	</plugin>
 
 			<!-- pluging to run tests after 'package' phase in 'integration-test' -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.17</version>
+				<version>2.18</version>
 				<configuration>
 					<includes>
 						<include>**/*IT.java</include>
@@ -459,12 +488,28 @@
 					</execution>
 				</executions>
 			</plugin>
-
+            <!-- Need for issues when "deploy" -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 
 		<pluginManagement>
 			<plugins>
-
+                <plugin>
+                    <!-- This is used differently in "runtime" pom-->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
 				<!-- <plugin> <groupId>org.jacoco</groupId> <artifactId>jacoco-maven-plugin</artifactId> 
 					<version>0.7.1.201405082137</version> <executions> <execution> <id>default-prepare-agent</id> 
 					<goals> <goal>prepare-agent</goal> </goals> </execution> <execution> <id>default-report</id> 
@@ -474,7 +519,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.3</version>
+					<version>3.4</version>
 				</plugin>
 				<!-- Removed Eclipse m2e lifecycle mapping plugin. For a better solution 
 					see: http://stackoverflow.com/questions/7409823/m2e-lifecycle-mapping-not-found -->
@@ -488,7 +533,7 @@
 	    <plugin>
 	      <groupId>org.codehaus.mojo</groupId>
 	      <artifactId>findbugs-maven-plugin</artifactId>
-	      <version>2.5.3</version>
+	      <version>3.0.0</version>
 	      <configuration>
 		<xmlOutput>true</xmlOutput>
 		<excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
@@ -499,6 +544,7 @@
 	    <plugin>
 	      <groupId>org.apache.maven.plugins</groupId>
 	      <artifactId>maven-pmd-plugin</artifactId>
+	      <version>3.2</version>
 	      <configuration>
 		<targetJdk>1.7</targetJdk>
 	      </configuration>
@@ -506,15 +552,17 @@
 	    <plugin>
 	      <groupId>org.apache.maven.plugins</groupId>
 	      <artifactId>maven-project-info-reports-plugin</artifactId>
-	      <version>2.1.1</version>
+	      <version>2.7</version>
 	    </plugin>
 	    <plugin>
 	      <groupId>org.apache.maven.plugins</groupId>
 	      <artifactId>maven-surefire-report-plugin</artifactId>
+	      <version>2.18</version>
 	    </plugin>
 	    <plugin>
 	      <groupId>org.apache.maven.plugins</groupId>
 	      <artifactId>maven-jxr-plugin</artifactId>
+	      <version>2.5</version>
 	    </plugin>
 	    <plugin>
               <groupId>org.codehaus.mojo</groupId>
@@ -527,6 +575,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<skipTests>true</skipTests>
+        <deployURL>Needs to be fixed in Jenkins</deployURL>
 	</properties>
 
 </project>

@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 	/**
 	 * <p>Constructor for InspectorTraceEntry.</p>
 	 *
-	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param var a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public InspectorTraceEntry(VariableReference var) {
 		this.var = var;

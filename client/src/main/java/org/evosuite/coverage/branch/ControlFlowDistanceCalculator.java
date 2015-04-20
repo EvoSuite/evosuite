@@ -26,8 +26,11 @@ import org.evosuite.coverage.ControlFlowDistance;
 import org.evosuite.coverage.TestCoverageGoal;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlDependency;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.MethodCall;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.MethodCall;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +85,7 @@ public class ControlFlowDistanceCalculator {
 	 * For more information look at this class's class comment
 	 * 
 	 * @param result
-	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @param branch
 	 *            a {@link org.evosuite.coverage.branch.Branch} object.
 	 * @param value
@@ -143,6 +146,35 @@ public class ControlFlowDistanceCalculator {
 		return d;
 	}
 
+	/**
+	 * If there is an exception in a superconstructor, then the corresponding
+	 * constructor might not be included in the execution trace
+	 * 
+	 * @param results
+	 * @param callCount
+	 */
+	private static boolean hasConstructorException(ExecutionResult result,
+			String className, String methodName) {
+
+		if (result.hasTimeout() || result.hasTestException()
+				|| result.noThrownExceptions())
+			return false;
+
+		Integer exceptionPosition = result.getFirstPositionOfThrownException();
+		Statement statement = result.test.getStatement(exceptionPosition);
+		if (statement instanceof ConstructorStatement) {
+			ConstructorStatement c = (ConstructorStatement) statement;
+			String constructorClassName = c.getConstructor().getName();
+			String constructorMethodName = "<init>"
+					+ Type.getConstructorDescriptor(c.getConstructor().getConstructor());
+			if(constructorClassName.equals(className) && constructorMethodName.equals(methodName)) {
+				return true;
+			}
+	
+		}
+		return false;
+	}
+	
 	private static ControlFlowDistance getRootDistance(ExecutionResult result,
 	        String className, String methodName) {
 
@@ -155,6 +187,9 @@ public class ControlFlowDistanceCalculator {
 			        + methodName)) {
 				return d;
 			}
+		}
+		if(hasConstructorException(result, className, methodName)) {
+			return d;
 		}
 
 		d.increaseApproachLevel();

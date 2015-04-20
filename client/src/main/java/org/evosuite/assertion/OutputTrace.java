@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	 * @param entry
 	 *            a T object.
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @param <T>
 	 *            a T object.
 	 */
@@ -63,7 +63,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	 * @param position
 	 *            a int.
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @return a T object.
 	 */
 	public synchronized T getEntry(int position, VariableReference var) {
@@ -84,7 +84,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	 * @param position
 	 *            a int.
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @return a boolean.
 	 */
 	public boolean containsEntry(int position, VariableReference var) {

@@ -5,12 +5,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.Scanner;
 
-import org.evosuite.runtime.vnet.EvoSuiteAddress;
+import org.evosuite.runtime.mock.MockFramework;
+import org.evosuite.runtime.testdata.EvoSuiteAddress;
+import org.evosuite.runtime.testdata.EvoSuiteLocalAddress;
 import org.evosuite.runtime.vnet.NativeTcp;
-import org.evosuite.runtime.vnet.NetworkHandling;
+import org.evosuite.runtime.testdata.NetworkHandling;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,7 +22,8 @@ public class ServerSocketTest {
 
 	@Before
 	public void init(){
-		VirtualNetwork.getInstance().reset();
+        MockFramework.enable();
+        VirtualNetwork.getInstance().reset();
 	}
 	
 	@Test
@@ -112,7 +114,7 @@ public class ServerSocketTest {
 		
 		//send a message on tcp connection, although SUT is not listening yet
 		String msg = "Hello World! Sent from mocked TCP connection";
-		EvoSuiteAddress addr = new EvoSuiteAddress(localAddress,localPort);
+        EvoSuiteLocalAddress addr = new EvoSuiteLocalAddress(localAddress,localPort);
 		NetworkHandling.sendMessageOnTcp(addr, msg);
 		
 		//open listening port, and read message

@@ -1,5 +1,7 @@
 package org.evosuite.testcase;
 
+import org.evosuite.testcase.statements.Statement;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,7 +18,7 @@ public class StructuredTestCase extends DefaultTestCase {
 	private final Set<Integer> targetStatements = new HashSet<Integer>();
 
 	public StructuredTestCase(TestCase test) {
-		for (StatementInterface statement : test) {
+		for (Statement statement : test) {
 			addStatement(statement.clone(this));
 		}
 	}

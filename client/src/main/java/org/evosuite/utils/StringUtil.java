@@ -19,8 +19,27 @@
  * @author Gordon Fraser
  */
 package org.evosuite.utils;
+
+import org.apache.commons.lang3.StringEscapeUtils;
+
 public abstract class StringUtil {
-	/**
+
+    public static String getEscapedString(String original) {
+        char[] charArray = StringEscapeUtils.escapeJava((String) original).toCharArray();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < charArray.length; ++i) {
+            char a = charArray[i];
+            if (a > 255) {
+                sb.append("\\u");
+                sb.append(Integer.toHexString(a));
+            } else {
+                sb.append(a);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
 	 * <p>escapeQuotes</p>
 	 *
 	 * @param str a {@link java.lang.String} object.

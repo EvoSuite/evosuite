@@ -21,16 +21,29 @@
 package org.evosuite.assertion;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
+import org.evosuite.Properties.Criterion;
+import org.evosuite.coverage.mutation.Mutation;
+import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.runtime.reset.ResetManager;
+import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.ArrayUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +122,7 @@ public abstract class AssertionGenerator {
 	 * 
 	 * @param test
 	 *            The test case that should be executed
-	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	protected ExecutionResult runTest(TestCase test) {
 		ExecutionResult result = new ExecutionResult(test);
@@ -176,6 +189,54 @@ public abstract class AssertionGenerator {
 		Randomness.shuffle(tests);
 		for(TestChromosome test : tests) {
 			filterFailingAssertions(test.getTestCase());
+		}
+	}
+	
+	/**
+	 * Reinstrument to make sure final fields are removed
+	 * 
+	 * @param suite
+	 */
+	public void setupClassLoader(TestSuiteChromosome suite) {
+		if (!Properties.RESET_STATIC_FIELDS) {
+			return;
+		}
+		ResetManager.getInstance().disableTracing();
+		ResetManager.getInstance().setResetAllClasses(true);
+		ResetManager.getInstance().setResetFinalFields(true);
+		changeClassLoader(suite);
+	}
+	
+	protected void changeClassLoader(TestSuiteChromosome suite) {
+		Sandbox.goingToExecuteSUTCode();
+		TestGenerationContext.getInstance().goingToExecuteSUTCode();
+		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+		try {
+			
+
+			TestGenerationContext.getInstance().resetContext();
+			TestGenerationContext.getInstance().goingToExecuteSUTCode();
+			Properties.getTargetClass();
+
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
+
+			for(TestChromosome test : suite.getTestChromosomes()) {
+				DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
+				dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
+				test.setChanged(true);
+				test.clearCachedMutationResults();
+				test.clearCachedResults();
+			}
+		} catch (Throwable e) {
+			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
+					+ (e.getMessage() != null ? e.getMessage()
+							: e.toString()));
+			logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
+		} finally {
+			TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+			Sandbox.doneWithExecutingSUTCode();
+			TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
 		}
 	}
 	

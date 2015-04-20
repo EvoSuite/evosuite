@@ -23,10 +23,11 @@ import java.util.Set;
 
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestSuiteGenerator;
+import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -37,7 +38,7 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 public class AllDefsCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 1L;
 
-	static List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory(Criterion.ALLDEFS).getCoverageGoals();
+	static List<? extends TestFitnessFunction> goals = FitnessFunctions.getFitnessFactory(Criterion.ALLDEFS).getCoverageGoals();
 
 	/** Constant <code>totalGoals=goals.size()</code> */
 	public static int totalGoals = goals.size();
@@ -95,10 +96,10 @@ public class AllDefsCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	        Set<TestFitnessFunction> coveredGoals) {
 
 		if (goals.size() > 0)
-			suite.setCoverage(coveredGoals.size() / (double) goals.size());
+			suite.setCoverage(this, coveredGoals.size() / (double) goals.size());
 		else
-			suite.setCoverage(1.0);
+			suite.setCoverage(this, 1.0);
 		
-		suite.setNumOfCoveredGoals(coveredGoals.size());
+		suite.setNumOfCoveredGoals(this, coveredGoals.size());
 	}
 }

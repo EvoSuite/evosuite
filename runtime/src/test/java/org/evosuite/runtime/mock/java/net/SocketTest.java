@@ -1,9 +1,7 @@
 package org.evosuite.runtime.mock.java.net;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.net.*;
 import java.util.Scanner;
 
 import org.junit.Assert;
@@ -36,8 +34,8 @@ public class SocketTest {
 	@Test
 	public void testConnectNoAnswer() throws IOException{
 		
-		InetAddress addr = InetAddress.getByName("127.42.42.42");
-		SocketAddress saddr = new InetSocketAddress(addr, 12345);
+		InetAddress addr = MockInetAddress.getByName("127.42.42.42");
+		SocketAddress saddr = new MockInetSocketAddress(addr, 12345);
 		MockSocket s = new MockSocket();
 				
 		try{
@@ -54,11 +52,12 @@ public class SocketTest {
 		
 		String remoteHost = "127.42.0.42";
 		int remotePort = 666;
-		InetSocketAddress saddr = new InetSocketAddress(InetAddress.getByName(remoteHost), remotePort);
+		InetSocketAddress saddr = new MockInetSocketAddress(MockInetAddress.getByName(remoteHost), remotePort);
 		MockSocket s = new MockSocket();
 		
 		RemoteTcpServer server = new RemoteTcpServer(new EndPointInfo(saddr.getAddress().getHostAddress(), saddr.getPort(), ConnectionType.TCP));
-		String msgFromServer = "server";
+        VirtualNetwork.getInstance().addRemoteTcpServer(server);
+        String msgFromServer = "server";
 		server.sendMessage(msgFromServer);
 		
 		s.connect(saddr);
@@ -72,4 +71,48 @@ public class SocketTest {
 		
 		s.close();
 	}
+
+
+    @Test
+    public void testOperationsWithNoException() throws Exception {
+
+        /*
+            test is due to issue in loading org.apache.mina.transport.socket.nio.SocketSessionConfigImpl
+            accessed by ioproject.client.network.Server in 77_io-project
+         */
+
+        Socket socket = new MockSocket();
+
+        try {
+            socket.getReuseAddress();
+            int DEFAULT_RECEIVE_BUFFER_SIZE = socket.getReceiveBufferSize();
+            int DEFAULT_SEND_BUFFER_SIZE = socket.getSendBufferSize();
+            socket.getKeepAlive();
+            socket.getOOBInline();
+            socket.getSoLinger();
+            socket.getTcpNoDelay();
+
+            try {
+                socket.setReceiveBufferSize(DEFAULT_RECEIVE_BUFFER_SIZE);
+            } catch (SocketException e) {
+            }
+
+            try {
+                socket.setSendBufferSize(DEFAULT_SEND_BUFFER_SIZE);
+            } catch (SocketException e) {
+            }
+
+            try {
+                socket.getTrafficClass();
+
+            } catch (SocketException e) {
+
+            }
+        } catch (SocketException se){
+            try {
+                socket.close();
+            } catch (IOException ioe) {
+            }
+        }
+    }
 }

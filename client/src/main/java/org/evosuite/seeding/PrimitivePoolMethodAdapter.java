@@ -46,7 +46,7 @@ public class PrimitivePoolMethodAdapter extends MethodVisitor {
 	 *            a {@link org.objectweb.asm.MethodVisitor} object.
 	 */
 	public PrimitivePoolMethodAdapter(MethodVisitor mv, String className) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		this.className = className;
 	}
 

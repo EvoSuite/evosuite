@@ -6,6 +6,13 @@ package org.evosuite.testcase;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+
 /**
  * @author Gordon Fraser
  * 
@@ -31,7 +38,7 @@ public class ConcreteValueObserver extends ExecutionObserver {
 	 * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
 	 */
 	@Override
-	public void beforeStatement(StatementInterface statement, Scope scope) {
+	public void beforeStatement(Statement statement, Scope scope) {
 		// TODO Auto-generated method stub
 
 	}
@@ -40,7 +47,7 @@ public class ConcreteValueObserver extends ExecutionObserver {
 	 * @see org.evosuite.testcase.ExecutionObserver#afterStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
 	@Override
-	public void afterStatement(StatementInterface statement, Scope scope,
+	public void afterStatement(Statement statement, Scope scope,
 	        Throwable exception) {
 		int numStatement = statement.getPosition();
 		VariableReference returnValue = statement.getReturnValue();

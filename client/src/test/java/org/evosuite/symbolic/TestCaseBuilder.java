@@ -3,32 +3,32 @@ package org.evosuite.symbolic;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
-import org.evosuite.testcase.ArrayIndex;
-import org.evosuite.testcase.ArrayReference;
-import org.evosuite.testcase.ArrayStatement;
-import org.evosuite.testcase.AssignmentStatement;
-import org.evosuite.testcase.BooleanPrimitiveStatement;
-import org.evosuite.testcase.BytePrimitiveStatement;
-import org.evosuite.testcase.CharPrimitiveStatement;
-import org.evosuite.testcase.ConstructorStatement;
+import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.DoublePrimitiveStatement;
-import org.evosuite.testcase.EnumPrimitiveStatement;
-import org.evosuite.testcase.FieldReference;
-import org.evosuite.testcase.FieldStatement;
-import org.evosuite.testcase.FloatPrimitiveStatement;
-import org.evosuite.testcase.IntPrimitiveStatement;
-import org.evosuite.testcase.LongPrimitiveStatement;
-import org.evosuite.testcase.MethodStatement;
-import org.evosuite.testcase.NullStatement;
-import org.evosuite.testcase.ShortPrimitiveStatement;
-import org.evosuite.testcase.StringPrimitiveStatement;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.variable.FieldReference;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.BytePrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.CharPrimitiveStatement;
+import org.evosuite.testcase.statements.ClassPrimitiveStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.numeric.DoublePrimitiveStatement;
+import org.evosuite.testcase.statements.EnumPrimitiveStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.numeric.FloatPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.LongPrimitiveStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.NullStatement;
+import org.evosuite.testcase.statements.numeric.ShortPrimitiveStatement;
+import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
@@ -225,5 +225,11 @@ public class TestCaseBuilder {
 		CharPrimitiveStatement primitiveStmt = new CharPrimitiveStatement(tc, c);
 		tc.addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
+	}
+
+	public VariableReference appendClassPrimitive(Class<?> value) {
+		ClassPrimitiveStatement stmt = new ClassPrimitiveStatement(tc, value);
+		tc.addStatement(stmt);
+		return stmt.getReturnValue();
 	}
 }

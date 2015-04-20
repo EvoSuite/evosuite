@@ -107,4 +107,25 @@ public class LinePool {
 
 		return num;
 	}
+	
+	/**
+	 * Returns a Set containing all classes for which this pool knows lines
+	 * for as Strings
+	 * 
+	 * @return a {@link java.util.Set} object.
+	 */
+	public static Set<String> getKnownClasses() {
+		return new HashSet<String>(lineMap.keySet());
+	}
+
+	public static Set<String> getKnownMethodsFor(String className) {
+		if(!lineMap.containsKey(className))
+			return new HashSet<String>();
+		else
+			return lineMap.get(className).keySet();
+	}
+
+	public static void reset() {
+		lineMap.clear();
+	}
 }

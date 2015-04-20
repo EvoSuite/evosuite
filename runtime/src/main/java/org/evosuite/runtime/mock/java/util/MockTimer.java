@@ -6,7 +6,9 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
+import org.evosuite.runtime.thread.ThreadCounter;
 
 public class MockTimer extends Timer implements OverrideMock{
 
@@ -14,7 +16,7 @@ public class MockTimer extends Timer implements OverrideMock{
 	
 	/**
 	 * As interrupting threads might not work on Timer objects, 
-	 * explicitely kill all created instances 
+	 * explicitly kill all created instances
 	 */
 	public static synchronized void stopAllTimers(){
 		for(Timer timer : instances){
@@ -24,7 +26,14 @@ public class MockTimer extends Timer implements OverrideMock{
 	}
 	
 	private static synchronized void registerTimer(Timer timer){
-		instances.add(timer);
+        if(MockFramework.isEnabled()) {
+            try{
+                ThreadCounter.getInstance().checkIfCanStartNewThread();
+            } catch(RuntimeException e) {
+                timer.cancel();
+            }
+        }
+        instances.add(timer);
 	}
 	
 	// ---------  constructors  --------------

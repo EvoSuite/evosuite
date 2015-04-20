@@ -51,12 +51,11 @@ import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.assertion.SameAssertion;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.parameterize.InputVariable;
-import org.evosuite.runtime.EvoSuiteFile;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericField;
-import org.evosuite.utils.GenericMethod;
-import org.evosuite.utils.NumberFormatter;
+import org.evosuite.runtime.mock.EvoSuiteMock;
+import org.evosuite.testcase.statements.*;
+import org.evosuite.testcase.statements.environment.EnvironmentDataStatement;
+import org.evosuite.testcase.variable.*;
+import org.evosuite.utils.*;
 
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
@@ -139,11 +138,11 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */
-	public void setException(StatementInterface statement, Throwable exception) {
+	public void setException(Statement statement, Throwable exception) {
 		exceptions.put(statement.getPosition(), exception);
 	}
 
@@ -153,10 +152,10 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @return a {@link java.lang.Throwable} object.
 	 */
-	protected Throwable getException(StatementInterface statement) {
+	protected Throwable getException(Statement statement) {
 		if (exceptions != null && exceptions.containsKey(statement.getPosition()))
 			return exceptions.get(statement.getPosition());
 
@@ -169,7 +168,7 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName(VariableReference var) {
@@ -296,7 +295,6 @@ public class TestCodeVisitor extends TestVisitor {
 				}
 			}
 		}
-
 		// Ensure outer classes are imported as well
 		Class<?> outerClass = clazz.getEnclosingClass();
 		if(outerClass != null) {
@@ -307,12 +305,17 @@ public class TestCodeVisitor extends TestVisitor {
 			}
 		}
 
+		Class<?> declaringClass = clazz.getDeclaringClass();
+		if(declaringClass != null) {
+			getClassName(declaringClass);
+		}
+
 		// We can't use "Test" because of JUnit 
 		if (name.equals("Test")) {
 			name = clazz.getCanonicalName();
 		}
 		classNames.put(clazz, name);
-		
+
 		return name;
 	}
 
@@ -322,7 +325,7 @@ public class TestCodeVisitor extends TestVisitor {
 	 * </p>
 	 * 
 	 * @param var
-	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getVariableName(VariableReference var) {
@@ -465,8 +468,15 @@ public class TestCodeVisitor extends TestVisitor {
 			        + getVariableName(source) + ");";
 			// Make sure the enum is imported in the JUnit test
 			getClassName(value.getClass());
-
-		} else if (source.isWrapperType()) {
+		} else if(source.getVariableClass().equals(boolean.class) || source.getVariableClass().equals(Boolean.class)){
+            Boolean flag = (Boolean) value;
+            if(flag){
+                stmt += "assertTrue(";
+            } else {
+                stmt += "assertFalse(";
+            }
+            stmt += "" + getVariableName(source) + ");";
+        } else if (source.isWrapperType()) {
 			if (source.getVariableClass().equals(Float.class)) {
 				stmt += "assertEquals(" + NumberFormatter.getNumberString(value)
 				        + ", (float)" + getVariableName(source) + ", 0.01F);";
@@ -559,7 +569,15 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (value.getClass().equals(String.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + "." + field.getName() + ");";
-		} else if (value.getClass().isEnum()) {
+		} else if(value.getClass().equals(Boolean.class)){
+            Boolean flag = (Boolean) value;
+            if(flag){
+                testCode += "assertTrue(";
+            } else {
+                testCode += "assertFalse(";
+            }
+            testCode += "" + getVariableName(source) + "." + field.getName() + ");";
+        }else if (value.getClass().isEnum()) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + "." + field.getName() + ");";
 			// Make sure the enum is imported in the JUnit test
@@ -582,7 +600,7 @@ public class TestCodeVisitor extends TestVisitor {
 		VariableReference source = assertion.getSource();
 		Object value = assertion.getValue();
 		Inspector inspector = assertion.getInspector();
-
+		
 		if (value == null) {
 			testCode += "assertNull(" + getVariableName(source) + "."
 			        + inspector.getMethodCall() + "());";
@@ -606,8 +624,16 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (value.getClass().isEnum() || value instanceof Enum) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + "." + inspector.getMethodCall() + "());";
-			// Make sure the enum is imported in the JUnit test
+			// Make sure the enum is imported in the JUnit test			
 			getClassName(value.getClass());
+
+		} else if (value.getClass().equals(boolean.class) || value.getClass().equals(Boolean.class)) {
+			if (((Boolean) value).booleanValue())
+				testCode += "assertTrue(" + getVariableName(source) + "."
+				        + inspector.getMethodCall() + "());";
+			else
+				testCode += "assertFalse(" + getVariableName(source) + "."
+				        + inspector.getMethodCall() + "());";
 
 		} else
 			testCode += "assertEquals(" + value + ", " + getVariableName(source) + "."
@@ -753,7 +779,7 @@ public class TestCodeVisitor extends TestVisitor {
             testCode += assertion.getComment();
 	}
 
-	private void addAssertions(StatementInterface statement) {
+	private void addAssertions(Statement statement) {
 		boolean assertionAdded = false;
 		if (getException(statement) != null) {
 			// Assumption: The statement that throws an exception is the last statement of a test.
@@ -807,20 +833,7 @@ public class TestCodeVisitor extends TestVisitor {
 
 	}
 
-	private String getEscapedString(String original) {
-		char[] charArray = StringEscapeUtils.escapeJava((String) original).toCharArray();
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < charArray.length; ++i) {
-			char a = charArray[i];
-			if (a > 255) {
-				sb.append("\\u");
-				sb.append(Integer.toHexString(a));
-			} else {
-				sb.append(a);
-			}
-		}
-		return sb.toString();
-	}
+
 	
 	/*
 	 * (non-Javadoc)
@@ -839,25 +852,15 @@ public class TestCodeVisitor extends TestVisitor {
 				        + getVariableName(retval) + " = null;\n";
 
 			} else {
-				String escapedString = getEscapedString((String)value);
+				String escapedString = StringUtil.getEscapedString((String) value);
 				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 						+ getVariableName(retval) + " = \"" + escapedString + "\";\n";
 			}
 			// testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 			// + getVariableName(retval) + " = \""
 			// + StringEscapeUtils.escapeJava((String) value) + "\";\n";
-		} else if (statement instanceof FileNamePrimitiveStatement) {
-			// changed by Daniel
-			if (value != null) {
-				String escapedPath = getEscapedString(((EvoSuiteFile) value).getPath());
-				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-				        + getVariableName(retval) + " = new "
-				        + ((Class<?>) retval.getType()).getSimpleName() + "(\""
-				        + escapedPath + "\");\n";
-			} else {
-				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-				        + getVariableName(retval) + " = null;\n";
-			}
+		} else if (statement instanceof EnvironmentDataStatement) {
+			testCode += ((EnvironmentDataStatement<?>) statement).getTestCode(getVariableName(retval));
 		} else if (statement instanceof ClassPrimitiveStatement) {
 			StringBuilder builder = new StringBuilder();
 			String className = getClassName(retval);
@@ -1056,7 +1059,7 @@ public class TestCodeVisitor extends TestVisitor {
 			result += "// Undeclared exception!\n";
 		}
 
-		boolean lastStatement = statement.getPosition() == statement.tc.size() - 1;
+		boolean lastStatement = statement.getPosition() == statement.getTestCase().size() - 1;
 		boolean unused = !Properties.ASSERTIONS ? exception != null : test != null
 		        && !test.hasReferences(retval);
 
@@ -1146,10 +1149,7 @@ public class TestCodeVisitor extends TestVisitor {
 	public String generateCatchBlock(AbstractStatement statement, Throwable exception) {
 		String result = "";
 
-		// we can only catch a public class
-		Class<?> ex = exception.getClass();
-		while (!Modifier.isPublic(ex.getModifiers()))
-			ex = ex.getSuperclass();
+		Class<?> ex = getExceptionClassToUse(exception);
 
 		// preparing the catch block
 		result += " catch(" + getClassName(ex) + " e) {\n";
@@ -1171,6 +1171,18 @@ public class TestCodeVisitor extends TestVisitor {
 		result += "}\n";// closing the catch block
 		return result;
 	}
+
+    private Class<?> getExceptionClassToUse(Throwable exception){
+        /*
+            we can only catch a public class.
+            for "readability" of tests, it shouldn't be a mock one either
+          */
+        Class<?> ex = exception.getClass();
+        while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex)) {
+            ex = ex.getSuperclass();
+        }
+        return ex;
+    }
 
 	private String getSimpleTypeName(Type type) {
 		String typeName = getTypeName(type);
@@ -1267,12 +1279,12 @@ public class TestCodeVisitor extends TestVisitor {
 	 * implementation but may be used in future extensions.
 	 **/
 	public String generateFailAssertion(AbstractStatement statement, Throwable exception) {
-		Class<?> ex = exception.getClass();
+        Class<?> ex = getExceptionClassToUse(exception);
+
 		// boolean isExpected = getDeclaredExceptions().contains(ex);
-		while (!Modifier.isPublic(ex.getModifiers()))
-			ex = ex.getSuperclass();
-		// if (isExpected)      
-		String stmt =  " fail(\"Expecting exception: " + getClassName(ex) + "\");\n";
+		// if (isExpected)
+
+        String stmt =  " fail(\"Expecting exception: " + getClassName(ex) + "\");\n";
 		
 		if(isTestUnstable()){
 			/*
@@ -1344,7 +1356,7 @@ public class TestCodeVisitor extends TestVisitor {
 	public void visitAssignmentStatement(AssignmentStatement statement) {
 		String cast = "";
 		VariableReference retval = statement.getReturnValue();
-		VariableReference parameter = statement.parameter;
+		VariableReference parameter = statement.getValue();
 
 		if (!retval.getVariableClass().equals(parameter.getVariableClass()))
 			cast = "(" + getClassName(retval) + ") ";
@@ -1368,7 +1380,7 @@ public class TestCodeVisitor extends TestVisitor {
 	}
 
 	@Override
-	public void visitStatement(StatementInterface statement) {
+	public void visitStatement(Statement statement) {
 		if (!statement.getComment().isEmpty()) {
 			String comment = statement.getComment();
 			for (String line : comment.split("\n")) {

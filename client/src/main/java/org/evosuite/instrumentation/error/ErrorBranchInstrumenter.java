@@ -3,13 +3,16 @@ package org.evosuite.instrumentation.error;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.evosuite.instrumentation.ErrorConditionMethodAdapter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ErrorBranchInstrumenter {
 
+	protected static final Logger logger = LoggerFactory.getLogger(ErrorBranchInstrumenter.class);
+	
 	protected ErrorConditionMethodAdapter mv;
 	
 	protected String methodName;
@@ -39,11 +42,16 @@ public class ErrorBranchInstrumenter {
 			mv.loadLocal(to.get(i));
 		}	
 	}
-	
+
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+		throw new RuntimeException("This method should not be called since ASM5 API is used");
+	}
+
+	
+	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
 		
 	}
-	
+
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 		
 	}
@@ -68,7 +76,7 @@ public class ErrorBranchInstrumenter {
 		mv.visitTypeInsn(Opcodes.NEW, exception);
 		mv.visitInsn(Opcodes.DUP);
 		mv.visitMethodInsn(Opcodes.INVOKESPECIAL, exception,
-		                      "<init>", "()V");
+		                      "<init>", "()V", false);
 		mv.visitInsn(Opcodes.ATHROW);
 		mv.visitLabel(origTarget);
 		mv.tagBranchExit();
@@ -80,7 +88,7 @@ public class ErrorBranchInstrumenter {
 		mv.visitTypeInsn(Opcodes.NEW, exception);
 		mv.visitInsn(Opcodes.DUP);
 		mv.visitMethodInsn(Opcodes.INVOKESPECIAL, exception,
-		                      "<init>", "()V");
+		                      "<init>", "()V", false);
 		mv.visitInsn(Opcodes.ATHROW);
 		mv.visitLabel(origTarget);
 	}

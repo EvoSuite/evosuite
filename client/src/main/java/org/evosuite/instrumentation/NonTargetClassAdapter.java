@@ -41,7 +41,7 @@ public class NonTargetClassAdapter extends ClassVisitor {
 	 * @param className a {@link java.lang.String} object.
 	 */
 	public NonTargetClassAdapter(ClassVisitor cv, String className) {
-		super(Opcodes.ASM4, cv);
+		super(Opcodes.ASM5, cv);
 		this.className = className;
 	}
 
@@ -52,7 +52,8 @@ public class NonTargetClassAdapter extends ClassVisitor {
 
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 		mv = new JSRInlinerAdapter(mv, access, name, desc, signature, exceptions);
-		mv = new YieldAtLineNumberMethodAdapter(mv, className, name);
+		if(!"<clinit>".equals(name))
+			mv = new YieldAtLineNumberMethodAdapter(mv, className, name);
 		return mv; //new ArrayAllocationLimitMethodAdapter(mv, className, name, access, desc);
 	}
 }

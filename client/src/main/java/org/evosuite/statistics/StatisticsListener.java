@@ -4,6 +4,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
@@ -74,6 +75,8 @@ public class StatisticsListener implements SearchListener {
 			timeFromLastGenerationUpdate = System.currentTimeMillis();
 			// Enqueue current best individual
 			individuals.offer(algorithm.getBestIndividual());
+            // send timeline variable directly
+            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TotalExceptionsTimeline, ExceptionCoverageSuiteFitness.getMaxExceptionsCovered());
 		}	
 	}
 
@@ -86,6 +89,7 @@ public class StatisticsListener implements SearchListener {
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, MaxTestsStoppingCondition.getNumExecutedTests());
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generations, algorithm.getAge());
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Fitness_Evaluations, numFitnessEvaluations);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TotalExceptionsTimeline, ExceptionCoverageSuiteFitness.getMaxExceptionsCovered());
 
 		if(algorithm.getBestIndividual() instanceof TestSuiteChromosome) {
 			reportTestSuiteResult((TestSuiteChromosome) algorithm.getBestIndividual());

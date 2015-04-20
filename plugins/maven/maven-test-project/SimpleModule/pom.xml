@@ -5,13 +5,13 @@
 	<groupId>maven-test-project</groupId>
 	<artifactId>SimpleModule</artifactId>
 	<name>SimpleModule</name>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
 	<parent>
 		<groupId>maven-test-project</groupId>
 		<artifactId>ParentProject</artifactId>
-		<version>0.1.0-SNAPSHOT</version>
+		<version>0.1.1-SNAPSHOT</version>
 	</parent>
 	
 

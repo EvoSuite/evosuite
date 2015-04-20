@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import org.evosuite.testcase.EvosuiteError;
+import org.evosuite.testcase.execution.EvosuiteError;
 import org.objectweb.asm.Type;
 
 /**

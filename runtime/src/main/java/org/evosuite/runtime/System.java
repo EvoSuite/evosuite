@@ -136,7 +136,9 @@ public class System {
 			}
 		} else {
 			String var = perm.getName();
-			readProperties.add(var);
+			synchronized (readProperties) {
+                readProperties.add(var);
+            }
 		}
 
 		return true;
@@ -144,8 +146,12 @@ public class System {
 
 	public static Set<String> getAllPropertiesReadSoFar(){
 		Set<String> copy = new LinkedHashSet<String>();
-		copy.addAll(readProperties);
-		return copy;
+
+        synchronized (readProperties) {
+            copy.addAll(readProperties);
+        }
+
+        return copy;
 	}
 
 	/**
@@ -302,7 +308,9 @@ public class System {
 		 * we want to keep track of them when they are accessed in
 		 * static blocks, and also from non-instrumented classes
 		 */
-		readProperties.clear();
+        synchronized (readProperties) {
+            readProperties.clear();
+        }
 	}
 
 	/**

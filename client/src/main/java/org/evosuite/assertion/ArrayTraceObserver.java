@@ -5,14 +5,15 @@ package org.evosuite.assertion;
 
 import java.lang.reflect.Array;
 
-import org.evosuite.testcase.ArrayStatement;
-import org.evosuite.testcase.AssignmentStatement;
-import org.evosuite.testcase.CodeUnderTestException;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.PrimitiveStatement;
-import org.evosuite.testcase.Scope;
-import org.evosuite.testcase.StatementInterface;
-import org.evosuite.testcase.VariableReference;
+import org.evosuite.Properties;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.PrimitiveStatement;
 
 /**
  * @author Gordon Fraser
@@ -22,7 +23,7 @@ public class ArrayTraceObserver extends AssertionTraceObserver<ArrayTraceEntry> 
 
 	/** {@inheritDoc} */
 	@Override
-	public synchronized void afterStatement(StatementInterface statement, Scope scope,
+	public synchronized void afterStatement(Statement statement, Scope scope,
 	        Throwable exception) {
 		// By default, no assertions are created for statements that threw exceptions
 		if(exception != null)
@@ -46,7 +47,7 @@ public class ArrayTraceObserver extends AssertionTraceObserver<ArrayTraceEntry> 
 	 */
 	/** {@inheritDoc} */
 	@Override
-	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
+	protected void visit(Statement statement, Scope scope, VariableReference var) {
 		logger.debug("Checking array " + var);
 		try {
 			// Need only legal values
@@ -82,6 +83,10 @@ public class ArrayTraceObserver extends AssertionTraceObserver<ArrayTraceEntry> 
 			if (var.getComponentClass() == null)
 				return;
 
+			// Don't include very long arrays in assertions, as code may fail to compile
+			if(Array.getLength(object) > Properties.MAX_ARRAY) 
+				return;
+			
 			logger.debug("Observed value " + object + " for statement "
 			        + statement.getCode());
 			trace.addEntry(statement.getPosition(), var, new ArrayTraceEntry(var,

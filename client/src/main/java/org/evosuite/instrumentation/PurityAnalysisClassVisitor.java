@@ -83,7 +83,7 @@ public class PurityAnalysisClassVisitor extends ClassVisitor {
 	 */
 	public PurityAnalysisClassVisitor(ClassVisitor visitor, String className,
 			CheapPurityAnalyzer purityAnalyzer) {
-		super(Opcodes.ASM4, visitor);
+		super(Opcodes.ASM5, visitor);
 		this.className = className;
 		this.purityAnalyzer = purityAnalyzer;
 	}
@@ -93,35 +93,44 @@ public class PurityAnalysisClassVisitor extends ClassVisitor {
 	public MethodVisitor visitMethod(int methodAccess, String name,
 			String descriptor, String signature, String[] exceptions) {
 
-		if (visitingInterface==true) {
-			purityAnalyzer.addInterfaceMethod(className.replace("/", "."), name, descriptor);
+
+		if (visitingInterface == true) {
+			purityAnalyzer.addInterfaceMethod(className.replace("/", "."),
+					name, descriptor);
 		} else {
-			purityAnalyzer.addMethod(className.replace("/", "."), name, descriptor);
+			purityAnalyzer.addMethod(className.replace("/", "."), name,
+					descriptor);
+			if ((methodAccess & Opcodes.ACC_ABSTRACT) != Opcodes.ACC_ABSTRACT) {
+				purityAnalyzer.addMethodWithBody(className.replace("/", "."), name,
+					descriptor);
+			} else {
+				// The declaration of this method is abstract. So 
+				// there is no method body for this method in this class
+			}
 		}
+
 		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor,
 				signature, exceptions);
-		PurityAnalysisMethodVisitor putStaticMethodAdapter = new PurityAnalysisMethodVisitor(
+		PurityAnalysisMethodVisitor purityAnalysisMethodVisitor = new PurityAnalysisMethodVisitor(
 				className, name, descriptor, mv, purityAnalyzer);
 		MethodEntry methodEntry = new MethodEntry(className, name, descriptor);
-		this.method_adapters.put(methodEntry, putStaticMethodAdapter);
-		return putStaticMethodAdapter;
+		this.method_adapters.put(methodEntry, purityAnalysisMethodVisitor);
+		return purityAnalysisMethodVisitor;
 	}
 
 	@Override
 	public void visitEnd() {
 		for (MethodEntry method_entry : this.method_adapters.keySet()) {
+
 			if (this.method_adapters.get(method_entry).updatesField()) {
 				purityAnalyzer.addUpdatesFieldMethod(method_entry.className,
-						method_entry.methodName, method_entry.descriptor);
-			} else {
-				purityAnalyzer.addNotUpdatesFieldMethod(method_entry.className,
 						method_entry.methodName, method_entry.descriptor);
 			}
 		}
 	}
 
 	private boolean visitingInterface = false;
-	
+
 	@Override
 	public void visit(int version, int access, String name, String signature,
 			String superName, String[] interfaces) {

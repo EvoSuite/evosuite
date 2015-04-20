@@ -42,6 +42,7 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.rmi.service.ClientState;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -235,6 +236,7 @@ public class ExternalProcessHandler {
 			};
 			clientRunningOnThread.setName("client");
 			clientRunningOnThread.start();
+            Sandbox.addPriviligedThread(clientRunningOnThread);
 		}
 
 		startSignalHandler();

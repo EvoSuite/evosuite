@@ -16,8 +16,8 @@ import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.search.ConstraintSolver;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
 public class TestStringSearch3 {
@@ -51,7 +51,7 @@ public class TestStringSearch3 {
 		constraints.add(cnstr2);
 		constraints.add(cnstr3);
 
-		ConstraintSolver solver = new ConstraintSolver();
+		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
 			solution = solver.solve(constraints);

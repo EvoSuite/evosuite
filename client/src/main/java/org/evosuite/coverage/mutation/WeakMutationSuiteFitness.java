@@ -15,9 +15,6 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.coverage.mutation;
 
 import java.util.HashMap;
@@ -28,7 +25,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -50,6 +47,16 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 	@Override
 	public double getFitness(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
+		/**
+		 * e.g. classes with only static constructors
+		 */
+		if (mutationGoals.size() == 0) {
+			updateIndividual(this, individual, 0.0);
+			((TestSuiteChromosome) individual).setCoverage(this, 1.0);
+			((TestSuiteChromosome) individual).setNumOfCoveredGoals(this, 0);
+			return 0.0;
+		}
+
 		List<ExecutionResult> results = runTestSuite(individual);
 
 		// First objective: achieve branch coverage
@@ -93,9 +100,8 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		}
 		
 		updateIndividual(this, individual, fitness);
-		((TestSuiteChromosome) individual).setCoverage(1.0 * covered
-		        / mutationGoals.size());
-		((TestSuiteChromosome) individual).setNumOfCoveredGoals(covered);
+		((TestSuiteChromosome) individual).setCoverage(this, 1.0 * covered / mutationGoals.size());
+		((TestSuiteChromosome) individual).setNumOfCoveredGoals(this, covered);
 		
 		return fitness;
 	}

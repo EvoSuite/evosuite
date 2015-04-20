@@ -7,13 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.ExecutionTrace;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -39,6 +40,9 @@ public class StatisticsSender {
 		if(individual == null){
 			throw new IllegalArgumentException("No defined individual to send");
 		}
+		if(!Properties.NEW_STATISTICS)
+			return;
+
 		ClientServices.getInstance().getClientNode().updateStatistics(individual);
 
 	}
@@ -52,6 +56,8 @@ public class StatisticsSender {
 		if(testSuite == null){
 			throw new IllegalArgumentException("No defined test suite to send");
 		}
+		if(!Properties.NEW_STATISTICS)
+			return;
 
 		/*
 		 * TODO: shouldn't a test that was never executed always be executed before sending?
@@ -85,8 +91,9 @@ public class StatisticsSender {
 		 */
 		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new HashMap<>();
 		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<>();
+        Map<String, Set<Class<?>>> declaredTypesOfExceptions = new HashMap<>();
 
-		ExceptionCoverageSuiteFitness.calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions);
+		ExceptionCoverageSuiteFitness.calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions,declaredTypesOfExceptions);
 
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
 				RuntimeVariable.Explicit_MethodExceptions, ExceptionCoverageSuiteFitness.getNumExceptions(explicitTypesOfExceptions));
@@ -110,6 +117,7 @@ public class StatisticsSender {
 		Set<String> coveredMethods = new HashSet<String>();
 		Set<Integer> coveredTrueBranches = new HashSet<Integer>();
 		Set<Integer> coveredFalseBranches = new HashSet<Integer>();
+		Set<String> coveredBranchlessMethods = new HashSet<String>();
 		Set<Integer> coveredLines = new HashSet<Integer>();
 
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
@@ -117,6 +125,7 @@ public class StatisticsSender {
 			coveredMethods.addAll(trace.getCoveredMethods());
 			coveredTrueBranches.addAll(trace.getCoveredTrueBranches());
 			coveredFalseBranches.addAll(trace.getCoveredFalseBranches());
+			coveredBranchlessMethods.addAll(trace.getCoveredBranchlessMethods());
 			coveredLines.addAll(trace.getCoveredLines());
 		}
 
@@ -126,6 +135,8 @@ public class StatisticsSender {
 				RuntimeVariable.Covered_Methods, coveredMethods.size());	
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
 				RuntimeVariable.Covered_Branches, coveredTrueBranches.size() + coveredFalseBranches.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(
+				RuntimeVariable.Covered_Branchless_Methods, coveredBranchlessMethods.size());
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
 				RuntimeVariable.Covered_Lines, coveredLines);
 	}

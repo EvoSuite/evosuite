@@ -74,8 +74,11 @@ public class RuntimeInstrumentation {
                 "org.apache.commons.logging.Log",// Leads to ExceptionInInitializerException when re-instrumenting classes that use a logger
                 "org.jcp.xml.dsig.internal.dom.", //Security exception in ExecutionTracer?
                 "com_cenqua_clover", "com.cenqua", //these are for Clover code coverage instrumentation
+                "net.sourceforge.cobertura", // cobertura code coverage instrumentation
                 "javafx.", // JavaFX crashes when instrumented
-                "ch.qos.logback" // Instrumentation makes logger events sent to the master un-serialisable
+                "ch.qos.logback", // Instrumentation makes logger events sent to the master un-serialisable
+                "org.apache.lucene.util.SPIClassIterator", "org.apache.lucene.analysis.util.AnalysisSPILoader", "org.apache.lucene.analysis.util.CharFilterFactory",
+                "org.apache.struts.util.MessageResources", "org.dom4j.DefaultDocumentFactory" // These classes all cause problems with re-instrumentation
         };
     }
 
@@ -104,7 +107,7 @@ public class RuntimeInstrumentation {
             cv = resetClassAdapter;
         }
 
-        if(RuntimeSettings.mockJVMNonDeterminism || RuntimeSettings.useVFS) {
+        if(RuntimeSettings.mockJVMNonDeterminism || RuntimeSettings.useVFS || RuntimeSettings.useVNET) {
             cv = new MethodCallReplacementClassAdapter(cv, className, !retransformingMode);
         }
 
@@ -114,9 +117,7 @@ public class RuntimeInstrumentation {
 
         ClassNode cn = new AnnotatedClassNode();
 
-        int readFlags = ClassReader.SKIP_FRAMES;
-        readFlags |= ClassReader.SKIP_DEBUG;
-
+        int readFlags = ClassReader.SKIP_FRAMES;       
         reader.accept(cn, readFlags);
         cv = new JSRInlinerClassVisitor(cv);
         try {

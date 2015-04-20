@@ -13,7 +13,7 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.search.DistanceEstimator;
+import org.evosuite.symbolic.solver.DistanceEstimator;
 import org.junit.Test;
 
 public class TestStringDistance {

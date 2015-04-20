@@ -15,8 +15,8 @@ import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.search.ConstraintSolver;
-import org.evosuite.symbolic.solver.search.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
 public class TestConstraintSolver3 {
@@ -54,7 +54,7 @@ public class TestConstraintSolver3 {
 		System.out.println("");
 		System.out.println("Initial: " + INIT_STRING);
 
-		ConstraintSolver seeker = new ConstraintSolver();
+		EvoSuiteSolver seeker = new EvoSuiteSolver();
 		Map<String, Object> model;
 		try {
 			model = seeker.solve(constraints);

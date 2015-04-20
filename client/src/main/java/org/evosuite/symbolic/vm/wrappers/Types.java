@@ -44,6 +44,10 @@ public interface Types {
 	public static String JAVA_LANG_STRING = String.class.getName().replace(".",
 			"/");
 
+	public static Type STRING_TYPE = Type.getType(String.class);
+	public static String STR_TO_INT_DESCRIPTOR = Type.getMethodDescriptor(
+			INT_TYPE, STRING_TYPE);
+
 	// valueOf Descriptos
 	public static String I_TO_INTEGER = Type.getMethodDescriptor(INTEGER,
 			INT_TYPE);
@@ -97,8 +101,7 @@ public interface Types {
 	public static String D_TO_VOID = Type.getMethodDescriptor(VOID_TYPE,
 			DOUBLE_TYPE);
 
-	public static String C_TO_I = Type.getMethodDescriptor(INT_TYPE,
-			CHAR_TYPE);
+	public static String C_TO_I = Type.getMethodDescriptor(INT_TYPE, CHAR_TYPE);
 
 	public static String C_TO_Z = Type.getMethodDescriptor(BOOLEAN_TYPE,
 			CHAR_TYPE);

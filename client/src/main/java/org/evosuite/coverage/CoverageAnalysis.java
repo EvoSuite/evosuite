@@ -5,24 +5,24 @@ package org.evosuite.coverage;
 
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import org.evosuite.testsuite.SearchStatistics;
 
 /**
  * @author Gordon Fraser
@@ -32,7 +32,7 @@ public class CoverageAnalysis {
 
 	private static final Logger logger = LoggerFactory.getLogger(CoverageAnalysis.class);
 
-	private static boolean isMutationCriterion(Properties.Criterion[] criteria) {
+	private static boolean isMutationCriterion(Set<Criterion> criteria) {
 	    for (Properties.Criterion pc : criteria) {
 	        if (isMutationCriterion(pc))
 	            return true;
@@ -45,6 +45,8 @@ public class CoverageAnalysis {
 		case MUTATION:
 		case WEAKMUTATION:
 		case STRONGMUTATION:
+		case ONLYMUTATION:
+		case ARCHIVEMUTATION:
 			return true;
 		default:
 			return false;
@@ -53,8 +55,23 @@ public class CoverageAnalysis {
 
 	private static void reinstrument(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
-	    Properties.Criterion oldCriterion[] = Properties.CRITERION;
+		Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 
+		//XXX this is horrible, need refactoring
+		Set<Criterion> oldCriteria = new HashSet<>();
+		for (Criterion c : Properties.CRITERION) {
+			oldCriteria.add(c);
+			if (c.equals(Criterion.ARCHIVEBRANCH))
+				oldCriteria.add(Criterion.BRANCH);
+			if (c.equals(Criterion.ARCHIVEIBRANCH))
+				oldCriteria.add(Criterion.IBRANCH);
+		}
+		if (Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("ibranch")
+				|| Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("archiveibranch")) {
+			oldCriteria.add(Properties.Criterion.IBRANCH);
+			ExecutionTracer.enableContext();
+		}
+	    	    
 		if (!ExecutionTracer.isTraceCallsEnabled()) {
 			ExecutionTracer.enableTraceCalls();
 			testSuite.setChanged(true);
@@ -64,22 +81,9 @@ public class CoverageAnalysis {
 				test.clearCachedMutationResults();
 			}
 		}
-
-		if (ArrayUtil.contains(oldCriterion, criterion))
-			return;
-
-		if (isMutationCriterion(criterion) && isMutationCriterion(oldCriterion)) {
-		    if (ArrayUtil.contains(oldCriterion, Properties.Criterion.WEAKMUTATION)) {
-				testSuite.setChanged(true);
-				for (TestChromosome test : testSuite.getTestChromosomes()) {
-					test.setChanged(true);
-					test.clearCachedResults();
-					test.clearCachedMutationResults();
-				}
-			}
-			return;
-		}
-
+		
+		if (oldCriteria.contains(criterion))
+			return; 
 
 		testSuite.setChanged(true);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
@@ -88,19 +92,13 @@ public class CoverageAnalysis {
 			test.clearCachedMutationResults();
 		}
 
-		/*
-		List<Properties.Criterion> mutationCriteria = Arrays.asList(new Properties.Criterion[] {
-		        Properties.Criterion.WEAKMUTATION, Properties.Criterion.STRONGMUTATION,
-		        Properties.Criterion.MUTATION });
-		if (mutationCriteria.contains(criterion)
-		        && mutationCriteria.contains(oldCriterion))
-			return;
-			*/
+        if (isMutationCriterion(criterion) && isMutationCriterion(oldCriteria))
+            return;
 
 		Properties.CRITERION = new Properties.Criterion[1];
 		Properties.CRITERION[0] = criterion;
 		
-		LoggingUtils.getEvoLogger().info("Re-instrumenting for criterion: "
+		logger.info("Re-instrumenting for criterion: "
 		                                         + criterion);
 		TestGenerationContext.getInstance().resetContext();
 		
@@ -109,45 +107,40 @@ public class CoverageAnalysis {
 		Properties.getTargetClass();
 
 		// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
-		LoggingUtils.getEvoLogger().info("Changing classloader of test suite for criterion: "
+		logger.info("Changing classloader of test suite for criterion: "
 		                                         + criterion);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
 			dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
 		}
-
+		Properties.CRITERION = oldCriterion;
 	}
 
 	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
-	    Criterion[] oldCriterion = Properties.CRITERION;
-		List<String> criteriaList = Arrays.asList(criteria.split(","));
-		for (Criterion c : oldCriterion) {
-		    criteriaList.remove(c.name());
-		}
-	    for (String criterion : criteria.split(","))
-	    {
-			/*
-			if (SearchStatistics.getInstance().hasCoverage(criterion)) {
-				LoggingUtils.getEvoLogger().info("Skipping measuring coverage of criterion: "
-				                                         + criterion);
-				continue;
+		
+		// If coverage of target criteria is not already measured
+		if(!Properties.COVERAGE) {
+			for (Criterion c : Properties.CRITERION) {
+				// Analyse coverage for enabled criteria
+				// LoggingUtils.getEvoLogger().info("  - " + c.name());
+				logger.debug("Measuring coverage of target criterion "+c);
+				analyzeCoverage(testSuite, c.name());
 			}
-			*/
-			analyzeCoverage(testSuite, criterion);
 		}
 
-		LoggingUtils.getEvoLogger().info("Reinstrumenting for original criterion ");
-		//reinstrument(testSuite, oldCriterion);
-		Properties.CRITERION = oldCriterion;
-		for (Criterion c : oldCriterion) {
-		    LoggingUtils.getEvoLogger().info("  - " + c.name());
-		    analyzeCoverage(testSuite, c.name());
-		}
+        for (String extraCriterion : Arrays.asList(criteria.toUpperCase().split(",")))
+        {
+            // Analyse coverage for extra criteria
+            if (! ArrayUtil.contains(Properties.CRITERION, extraCriterion)) {
+    		    logger.debug("Measuring additional coverage of target criterion "+extraCriterion);
+                analyzeCoverage(testSuite, extraCriterion);
+            }
+        }
 	}
 
 	public static void analyzeCoverage(TestSuiteChromosome testSuite, String criterion) {
 		try {
-			LoggingUtils.getEvoLogger().info("Measuring coverage of criterion: "
+			logger.info("Measuring coverage of criterion: "
 			                                         + criterion);
 
 			Properties.Criterion crit = Properties.Criterion.valueOf(criterion.toUpperCase());
@@ -162,32 +155,46 @@ public class CoverageAnalysis {
 		case ALLDEFS:
 			return RuntimeVariable.AllDefCoverage;
 		case BRANCH:
-		case EXCEPTION:
 			return RuntimeVariable.BranchCoverage;
+		case ARCHIVEBRANCH:
+			return RuntimeVariable.BranchCoverage;
+		case CBRANCH:
+			return RuntimeVariable.CBranchCoverage;
+		case EXCEPTION:
+			return RuntimeVariable.ExceptionCoverage;
 		case DEFUSE:
 			return RuntimeVariable.DefUseCoverage;
 		case STATEMENT:
 			return RuntimeVariable.StatementCoverage;
 		case RHO:
-            return RuntimeVariable.RhoCoverage;
+			return RuntimeVariable.RhoCoverage;
 		case AMBIGUITY:
-            return RuntimeVariable.AmbiguityCoverage;
+			return RuntimeVariable.AmbiguityCoverage;
 		case STRONGMUTATION:
+		case ARCHIVEMUTATION:
 		case MUTATION:
 			return RuntimeVariable.MutationScore;
+		case ONLYMUTATION:
+			return RuntimeVariable.OnlyMutationScore;
 		case WEAKMUTATION:
 			return RuntimeVariable.WeakMutationScore;
 		case ONLYBRANCH:
 			return RuntimeVariable.OnlyBranchCoverage;
+		case METHODTRACE:
+			return RuntimeVariable.MethodTraceCoverage;
 		case METHOD:
 			return RuntimeVariable.MethodCoverage;
+		case METHODNOEXCEPTION:
+			return RuntimeVariable.MethodNoExceptionCoverage;
+		case ARCHIVELINE:
 		case LINE:
 			return RuntimeVariable.LineCoverage;
 		case OUTPUT:
 			return RuntimeVariable.OutputCoverage;
 		case IBRANCH:
-		case LCSAJ:
-		case PATH:
+			return RuntimeVariable.IBranchCoverage;
+		case ARCHIVEIBRANCH:
+			return RuntimeVariable.IBranchCoverage;
 		case REGRESSION:
 		default:
 			throw new RuntimeException("Criterion not supported: " + criterion);
@@ -198,9 +205,8 @@ public class CoverageAnalysis {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void analyzeCoverage(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
-
 		reinstrument(testSuite, criterion);
-		TestFitnessFactory factory = TestSuiteGenerator.getFitnessFactory(criterion);
+		TestFitnessFactory factory = FitnessFunctions.getFitnessFactory(criterion);
 
 		for(TestChromosome test : testSuite.getTestChromosomes()) {
 			test.getTestCase().clearCoveredGoals();
@@ -212,6 +218,8 @@ public class CoverageAnalysis {
 		for (TestFitnessFunction goal : goals) {
 			if (goal.isCoveredBy(testSuite)) {
 				logger.debug("Goal {} is covered", goal);
+//				logger.error("COVERED Goal "+ goal.toString());
+
 				covered++;
 				/*
 				if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)) {
@@ -228,6 +236,7 @@ public class CoverageAnalysis {
 				}
 				*/
 			} else {
+//				logger.error("NOT COVERED Goal "+ goal.toString());
 				logger.debug("Goal {} is not covered", goal);
 			}
 		}
@@ -262,10 +271,13 @@ public class CoverageAnalysis {
 			}
 
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion "
-			                                         + criterion
-			                                         + ": "
-			                                         + NumberFormat.getPercentInstance().format((double) covered
-			                                                                                            / (double) goals.size()));
+                    + criterion
+                    + ": "
+                    + NumberFormat.getPercentInstance().format((double) covered
+                                                                       / (double) goals.size()));
+
+			LoggingUtils.getEvoLogger().info("* Number of covered goals: "
+			                                       + covered);
 
 		}
 	}

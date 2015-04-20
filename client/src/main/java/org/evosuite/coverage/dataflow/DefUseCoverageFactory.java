@@ -34,7 +34,7 @@ import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.JdkPureMethodsList;
@@ -128,18 +128,18 @@ public class DefUseCoverageFactory extends
 
 		LoggingUtils.getEvoLogger().info("* Creating DefUse-Pairs from CCFG...");
 		duGoals.addAll(getCCFGPairs());
-		LoggingUtils.getEvoLogger().info("..created " + getIntraMethodGoalsCount()
+		LoggingUtils.getEvoLogger().info("  ..created " + getIntraMethodGoalsCount()
 		                                         + " intra-method-, "
 		                                         + getInterMethodGoalsCount()
 		                                         + " inter-method- and "
 		                                         + getIntraClassGoalsCount()
 		                                         + " intra-class-pairs");
 
-		LoggingUtils.getEvoLogger().info(duGoals.toString());
+		LoggingUtils.getEvoLogger().info("  "+duGoals.toString());
 
 		LoggingUtils.getEvoLogger().info("* Creating parameter goals...");
 		duGoals.addAll(getParameterGoals());
-		LoggingUtils.getEvoLogger().info(" created " + getParamGoalsCount()
+		LoggingUtils.getEvoLogger().info("  created " + getParamGoalsCount()
 		                                         + " parameter goals");
 
 		called = true;

@@ -5,9 +5,8 @@ import java.lang.reflect.Method;
 
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
-import org.evosuite.instrumentation.BooleanHelper;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
-import org.evosuite.instrumentation.RegexDistance;
+import org.evosuite.instrumentation.testability.BooleanHelper;
+import org.evosuite.instrumentation.testability.StringHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,7 +25,7 @@ public class TestRegexInstrumentation extends SystemTest {
 		Assert.assertEquals(0.0, org.evosuite.instrumentation.RegexDistance.getDistance(matching, TrivialForDynamicSeedingRegex.REGEX), 0.0);
 		
 		//now check that what done in the instrumentation return a positive value
-		int comp = BooleanHelper.StringMatches(matching, TrivialForDynamicSeedingRegex.REGEX);
+		int comp = StringHelper.StringMatches(matching, TrivialForDynamicSeedingRegex.REGEX);
 		Assert.assertTrue(""+comp,comp>0);
 		
 		//actually load the class, and see if it works

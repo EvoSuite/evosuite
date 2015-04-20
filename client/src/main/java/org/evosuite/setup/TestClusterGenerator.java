@@ -20,7 +20,7 @@
  */
 package org.evosuite.setup;
 
-import java.lang.annotation.Annotation;
+import java.io.FileDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -48,14 +49,16 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.annotation.EvoSuiteExclude;
+import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.GraphPool;
-import org.evosuite.instrumentation.BooleanTestabilityTransformation;
+import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.reset.ClassResetter;
@@ -63,6 +66,7 @@ import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.setup.PutStaticMethodCollector.MethodIdentifier;
+import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.GenericAccessibleObject;
@@ -111,22 +115,36 @@ public class TestClusterGenerator {
 
 	private final Set<GenericAccessibleObject<?>> dependencyCache = new LinkedHashSet<GenericAccessibleObject<?>>();
 
+	private final static Map<Class<?>, Set<Method>> methodCache = new HashMap<Class<?>, Set<Method>>();
+
 	private final Set<GenericClass> genericCastClasses = new LinkedHashSet<GenericClass>();
 
 	private final Set<Class<?>> concreteCastClasses = new LinkedHashSet<Class<?>>();
 
 	private final Set<Class<?>> containerClasses = new LinkedHashSet<Class<?>>();
+	
 
-	public void generateCluster(String targetClass, InheritanceTree inheritanceTree,
-	        CallTree callTree) throws RuntimeException, ClassNotFoundException {
+	private final Set<Pair> dependencies = new LinkedHashSet<Pair>();
+	
+	private final Set<GenericClass> analyzedAbstractClasses = new LinkedHashSet<GenericClass>();
 
+	//XXX refactor and move these as paramethers in all methods. 
+	private InheritanceTree inheritanceTree;
+	private CallGraph callGraph;
+	
+	
+	public void generateCluster(String targetClass, InheritanceTree inheritanceTree, CallGraph callGraph) throws RuntimeException, ClassNotFoundException {
 		this.inheritanceTree = inheritanceTree;
+		this.callGraph = callGraph;
 		TestCluster.setInheritanceTree(inheritanceTree);
 
 		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
-			for (String callTreeClass : DependencyAnalysis.getCallTree().getClasses()) {
+			for (String callTreeClass : callGraph.getClasses()) {
 				try {
-					TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(callTreeClass);
+					if(callGraph.isCalledClass(callTreeClass)){
+						if(!Properties.INSTRUMENT_LIBRARIES && !DependencyAnalysis.isTargetProject(callTreeClass)) continue;
+						TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(callTreeClass);
+					}
 				} catch (ClassNotFoundException e) {
 					logger.info("Class not found: " + callTreeClass + ": " + e);
 				}
@@ -401,6 +419,26 @@ public class TestClusterGenerator {
 			targetClasses.addAll(subclasses);
 		}
 
+// load all the interesting classes from the callgraph, 
+// need more testing, seems to slow down the search
+//		if(Properties.INSTRUMENT_CONTEXT){
+//			Set<String> toLoad;
+//			if(Properties.INSTRUMENT_LIBRARIES){
+//				toLoad = callGraph.getClassesUnderTest();
+//			}else{
+//				toLoad = new HashSet<>();
+//				for (String className : callGraph.getClassesUnderTest()) {
+//					if (!Properties.INSTRUMENT_LIBRARIES
+//							&& !DependencyAnalysis.isTargetProject(className))
+//						continue;
+//					toLoad.add(className);
+//				}
+//				
+//			}
+//			targetClasses.addAll(loadClasses(toLoad));
+//
+//		}
+
 		// To make sure we also have anonymous inner classes double check inner classes using ASM
 		ClassNode targetClassNode = DependencyAnalysis.getClassNode(Properties.TARGET_CLASS);
 		Queue<InnerClassNode> innerClasses = new LinkedList<InnerClassNode>();
@@ -497,8 +535,14 @@ public class TestClusterGenerator {
 
 					GenericMethod genericMethod = new GenericMethod(method, clazz);
 					cluster.addTestCall(genericMethod);
-					cluster.addModifier(new GenericClass(clazz), //.getWithWildcardTypes(),
-					                    genericMethod);
+					// TODO: We could restrict this to pure methods here
+					//       but for SUT classes without impure methods
+					//       this can affect the chances of covering the targets
+					//       so for now we keep all pure methods.
+					//       In the long run, covered methods maybe should be
+					//       removed?
+					cluster.addModifier(new GenericClass(clazz),
+							genericMethod);
 					addDependencies(genericMethod, 1);
 					GenericClass retClass = new GenericClass(method.getReturnType());
 
@@ -516,6 +560,7 @@ public class TestClusterGenerator {
 
 				if (canUse(field, clazz)) {
 					GenericField genericField = new GenericField(field, clazz);
+
 					addDependencies(genericField, 1);
 					cluster.addGenerator(new GenericClass(field.getGenericType()), //.getWithWildcardTypes(),
 					                     genericField);
@@ -523,6 +568,8 @@ public class TestClusterGenerator {
 					if (!Modifier.isFinal(field.getModifiers())) {
 						logger.debug("Is not final");
 						cluster.addTestCall(new GenericField(field, clazz));
+						cluster.addModifier(new GenericClass(clazz),
+			                    genericField);
 					} else {
 						logger.debug("Is final");
 						if (Modifier.isStatic(field.getModifiers())
@@ -700,7 +747,13 @@ public class TestClusterGenerator {
 	 * @return
 	 */
 	public static Set<Method> getMethods(Class<?> clazz) {
-
+		
+		// As this is expensive, doing some caching here
+		// Note that with the change of a class loader the cached values could
+		// be thrown away
+		if(methodCache.containsKey(clazz)) {
+			return methodCache.get(clazz);
+		}
 		Map<String, Method> helper = new TreeMap<String, Method>();
 
 		if (clazz.getSuperclass() != null) {
@@ -726,6 +779,7 @@ public class TestClusterGenerator {
 
 		Set<Method> methods = new LinkedHashSet<Method>();
 		methods.addAll(helper.values());
+		methodCache.put(clazz, methods);
 		return methods;
 	}
 
@@ -850,13 +904,16 @@ public class TestClusterGenerator {
 			return false;
 		}
 
+		// TODO: This should be unnecessary if Java reflection works...
+		// This is inefficient 
 		if (ANONYMOUS_MATCHER1.matcher(c.getName()).matches()) {
-			logger.debug(c + " looks like an anonymous class, ignoring it");
+			logger.debug(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+")");
 			return false;
 		}
 
+		// TODO: This should be unnecessary if Java reflection works...
 		if (ANONYMOUS_MATCHER2.matcher(c.getName()).matches()) {
-			logger.debug(c + " looks like an anonymous class, ignoring it");
+			logger.debug(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+")");
 			return false;
 		}
 
@@ -933,6 +990,11 @@ public class TestClusterGenerator {
 		if (!f.getType().equals(String.class) && !canUse(f.getType())) {
 			return false;
 		}
+		
+		// in, out, err
+		if(f.getDeclaringClass().equals(FileDescriptor.class)) {
+			return false;
+		}
 
 		if (Modifier.isPublic(f.getModifiers())) {
 			// It may still be the case that the field is defined in a non-visible superclass of the class
@@ -989,14 +1051,6 @@ public class TestClusterGenerator {
 		if (m.isAnnotationPresent(EvoSuiteExclude.class)) {
 			logger.debug("Excluding method with exclusion annotation " + m.getName());
 			return false;
-		} else {
-			logger.debug("Method has no exclusion annotation " + m.getName());
-			for(Annotation a : m.getDeclaredAnnotations()) {
-				logger.debug("1 Has annotation: "+a);
-			}
-			for(Annotation a : m.getAnnotations()) {
-				logger.debug("2 Has annotation: "+a);
-			}
 		}
 
 		if (m.getDeclaringClass().equals(java.lang.Object.class)) {
@@ -1048,7 +1102,7 @@ public class TestClusterGenerator {
 			return false;
 
 		if (m.getName().equals(ClassResetter.STATIC_RESET)) {
-			logger.debug("Ignoring static reset class");
+			logger.debug("Ignoring static reset method");
 			return false;
 		}
 
@@ -1273,10 +1327,6 @@ public class TestClusterGenerator {
 
 	};
 
-	private final Set<Pair> dependencies = new LinkedHashSet<Pair>();
-
-	private InheritanceTree inheritanceTree = null;
-
 	private void addDependencies(GenericConstructor constructor, int recursionLevel) {
 		if (recursionLevel > Properties.CLUSTER_RECURSION) {
 			logger.debug("Maximum recursion level reached, not adding dependencies of {}",
@@ -1391,6 +1441,9 @@ public class TestClusterGenerator {
 				return;
 			}
 		}
+		if(analyzedAbstractClasses.contains(clazz)) {
+			return;
+		}
 
 		logger.debug("Getting concrete classes for " + clazz.getClassName());
 		ConstantPoolManager.getInstance().addNonSUTConstant(Type.getType(clazz.getRawClass()));
@@ -1401,12 +1454,13 @@ public class TestClusterGenerator {
 		        + actualClasses.size());
 		//dependencies.add(new Pair(recursionLevel, Randomness.choice(actualClasses)));
 
+		analyzedAbstractClasses.add(clazz);
 		for (Class<?> targetClass : actualClasses) {
 			logger.debug("Adding concrete class: " + targetClass);
 			dependencies.add(new Pair(recursionLevel, targetClass));
 			//if(++num >= Properties.NUM_CONCRETE_SUBTYPES)
 			//	break;
-		}
+		}		
 	}
 
 	private boolean addDependencyClass(GenericClass clazz, int recursionLevel) {
@@ -1430,7 +1484,7 @@ public class TestClusterGenerator {
 			}
 		}
 		
-		if(clazz.equals(String.class)) {
+		if(clazz.isString()) {
 			return false;
 		}
 
@@ -1511,10 +1565,16 @@ public class TestClusterGenerator {
 					GenericMethod genericMethod = new GenericMethod(method, clazz);
 					try {
 						addDependencies(genericMethod, recursionLevel + 1);
-						cluster.addModifier(clazz, //.getWithWildcardTypes(), 
-								genericMethod);
-						//					GenericClass retClass = new GenericClass(
-						//					        genericMethod.getReturnType(), method.getReturnType());
+						if(!Properties.PURE_INSPECTORS) {
+							cluster.addModifier(new GenericClass(clazz),
+									genericMethod);
+						} else {
+							if(!CheapPurityAnalyzer.getInstance().isPure(method)) {
+								cluster.addModifier(new GenericClass(clazz),
+										genericMethod);							
+							}
+						}
+
 						GenericClass retClass = new GenericClass(method.getReturnType());
 
 						if (!retClass.isPrimitive() && !retClass.isVoid()
@@ -1571,7 +1631,50 @@ public class TestClusterGenerator {
 		}
 		return true;
 	}
+	
+	public static Set<Class<?>> loadClasses(Collection<String> classNames){
+		Set<Class<?>> loadedClasses = new HashSet<>();
+		for (String subClass : classNames) {
+				try {
+					Class<?> subClazz = Class.forName(subClass,
+					                                  false,
+					                                  TestGenerationContext.getInstance().getClassLoaderForSUT());
+					if (!canUse(subClazz))
+						continue;
+					if (subClazz.isInterface())
+						continue;
+					if (Modifier.isAbstract(subClazz.getModifiers())) {
+						if(!hasStaticGenerator(subClazz))
+							continue;
+					}
+					Class<?> mock = MockList.getMockClass(subClazz.getCanonicalName());
+					if (mock != null) {
+						/*
+						 * If we are mocking this class, then such class should not be used
+						 * in the generated JUnit test cases, but rather its mock.
+						 */
+//						logger.debug("Adding mock " + mock + " instead of "
+//						        + clazz);
+						subClazz = mock;
+					} else {
 
+						if (!checkIfCanUse(subClazz.getCanonicalName())) {
+							continue;
+						}
+					}
+
+					loadedClasses.add(subClazz);
+
+				} catch (ClassNotFoundException e) {
+					logger.error("Problem for " + Properties.TARGET_CLASS
+					        + ". Class not found: " + subClass, e);
+					logger.error("Removing class from inheritance tree");
+				}
+			}
+		return loadedClasses;
+	}
+
+	
 	public static Set<Class<?>> getConcreteClasses(Class<?> clazz,
 	        InheritanceTree inheritanceTree) {
 
@@ -1602,7 +1705,13 @@ public class TestClusterGenerator {
 		Set<Class<?>> actualClasses = new LinkedHashSet<Class<?>>();
 		if (Modifier.isAbstract(clazz.getModifiers())
 		        || Modifier.isInterface(clazz.getModifiers()) || clazz.equals(Enum.class)) {
-			Set<String> subClasses = inheritanceTree.getSubclasses(clazz.getName());
+			// We have to use getName here and not getCanonicalName
+			// because getCanonicalname uses . rather than $ for inner classes
+			// but the InheritanceTree uses $
+			String className = clazz.getName();
+			if(MockList.isAMockClass(className))
+				className = clazz.getSuperclass().getName();
+			Set<String> subClasses = inheritanceTree.getSubclasses(className);
 			logger.debug("Subclasses of " + clazz.getName() + ": " + subClasses);
 			Map<String, Integer> classDistance = new HashMap<String, Integer>();
 			int maxDistance = -1;
@@ -1650,7 +1759,7 @@ public class TestClusterGenerator {
 
 							actualClasses.add(subClazz);
 
-						} catch (ClassNotFoundException e) {
+						} catch (ClassNotFoundException | IncompatibleClassChangeError | NoClassDefFoundError e) {
 							logger.error("Problem for " + Properties.TARGET_CLASS
 							        + ". Class not found: " + subClass, e);
 							logger.error("Removing class from inheritance tree");
@@ -1752,8 +1861,9 @@ public class TestClusterGenerator {
 	 * @return
 	 */
 	private static int getPackageDistance(String className1, String className2) {
-		String[] package1 = className1.split("\\.|\\$");
-		String[] package2 = className2.split("\\.|\\$");
+		
+		String[] package1 = StringUtils.split(className1, '.');
+		String[] package2 = StringUtils.split(className2, '.');
 
 		int distance = 0;
 		int same = 1;

@@ -164,7 +164,9 @@ public abstract class ArrayUtil {
 	 */
 	public static boolean contains(Object[] array, Object object) {
 	    for (Object obj : array) {
-	        if (obj.equals(object))
+	    	if (object instanceof String && obj.toString().equals(object))
+		        return true;
+	    	else if (obj.equals(object))
 	            return true;
 	    }
 	    return false;

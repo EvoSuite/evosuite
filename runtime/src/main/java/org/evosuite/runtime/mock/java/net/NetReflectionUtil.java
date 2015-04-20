@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Helper class used to call package level methods in java.net
  * 
+ * TODO this will be needed for rollbacks
+ * 
  * @author arcuri
  *
  */

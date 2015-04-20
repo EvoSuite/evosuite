@@ -3,6 +3,7 @@ package org.evosuite.result;
 import java.io.Serializable;
 import java.util.Set;
 
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestCase;
 
@@ -29,7 +30,7 @@ public interface TestGenerationResult extends Serializable {
 	public String[] getTargetCriterion();
 	
 	/** Coverage level of the target criterion */
-	public double getTargetCoverage();
+	public double getTargetCoverage(FitnessFunction<?> function);
 	
 	/** Map from test method to EvoSuite test case */
 	public TestCase getTestCase(String name);

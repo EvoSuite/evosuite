@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringMultipleExpression;
@@ -23,8 +24,8 @@ public final class StringBuffer_SetLength extends SymbolicFunction {
 		super(env, Types.JAVA_LANG_STRING_BUFFER, SET_LENGTH,
 				Types.INT_TO_VOID_DESCRIPTOR);
 	}
-	
-	private String pre_conc_value=null;
+
+	private String pre_conc_value = null;
 
 	@Override
 	public Object executeFunction() {
@@ -68,13 +69,13 @@ public final class StringBuffer_SetLength extends SymbolicFunction {
 	}
 
 	@Override
-	public void beforeExecuteFunction() {
+	public IntegerConstraint beforeExecuteFunction() {
 		StringBuffer conc_str_buffer = (StringBuffer) this.getConcReceiver();
-		if (conc_str_buffer!=null) {
-			pre_conc_value =conc_str_buffer.toString();
+		if (conc_str_buffer != null) {
+			pre_conc_value = conc_str_buffer.toString();
 		} else {
-			pre_conc_value=null;
+			pre_conc_value = null;
 		}
-
+		return null;
 	}
 }

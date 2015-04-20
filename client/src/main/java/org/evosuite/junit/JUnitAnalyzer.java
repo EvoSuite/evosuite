@@ -25,7 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.NonInstrumentingClassLoader;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.junit.xml.JUnitProcessLauncher;
@@ -53,6 +53,8 @@ public class JUnitAnalyzer {
 	private static final String JAVA = ".java";
 	private static final String CLASS = ".class";
 
+	
+	private static NonInstrumentingClassLoader loader = new NonInstrumentingClassLoader(ClassLoader.getSystemClassLoader());
 	
 	/**
 	 * Try to compile each test separately, and remove the ones that cannot be
@@ -170,13 +172,16 @@ public class JUnitAnalyzer {
 				
 				if(testName == null){
 					/*
-					 * this can happen if there is a failure in the scaffolding (eg @After/@Before).
+					 * this can happen if there is a failure in the scaffolding (eg @AfterClass/@BeforeClass).
 					 * in such case, everything need to be deleted
 					 */
-					logger.error("Issue in scaffolding of the test suite. Stack trace:");
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Issue in scaffolding of the test suite: "+failure.getMessage()+"\n");
+                    sb.append("Stack trace:\n");
 					for (String elem : failure.getExceptionStackTrace()) {
-						logger.error(elem);
+                        sb.append(elem+"\n");
 					}
+                    logger.error(sb.toString());
 					numUnstable = tests.size();
 					tests.clear();
 					return numUnstable;
@@ -308,10 +313,12 @@ public class JUnitAnalyzer {
 	private static List<File> compileTests(List<TestCase> tests, File dir) {
 
 		TestSuiteWriter suite = new TestSuiteWriter();
-		suite.insertTests(tests);
+		suite.insertAllTests(tests);
 
-		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-		name += (NUM++) + "_Test" ; //postfix
+        //to get name, remove all package before last '.'
+        int beginIndex = Properties.TARGET_CLASS.lastIndexOf(".") + 1;
+		String name = Properties.TARGET_CLASS.substring(beginIndex);
+		name += "_" +(NUM++) + "_tmp_" + Properties.JUNIT_SUFFIX ; //postfix
 
 		try {
 			//now generate the JUnit test case
@@ -346,7 +353,7 @@ public class JUnitAnalyzer {
 				String evosuiteCP = ClassPathHandler.getInstance().getEvoSuiteClassPath();
 
 				String targetProjectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
-				String classpath = evosuiteCP + File.separator + targetProjectCP;
+				String classpath = evosuiteCP + File.pathSeparator + targetProjectCP;
 				optionList.addAll(Arrays.asList("-classpath", classpath));
 			} else {
 				optionList = null;
@@ -530,6 +537,7 @@ public class JUnitAnalyzer {
 	 * 
 	 * @param tests
 	 * @return
+     * @deprecated  not used anymore, as check are done in different methods now, and old "assert" was not really valid
 	 */
 	public static boolean verifyCompilationAndExecution(List<TestCase> tests) {
 
@@ -680,7 +688,8 @@ public class JUnitAnalyzer {
 		Class<?> testClass = null;
 		try {
 			logger.info("Loading class " + className);
-			testClass = ((InstrumentingClassLoader) TestGenerationContext.getInstance().getClassLoaderForSUT()).loadClassFromFile(className,
+			//testClass = ((InstrumentingClassLoader) TestGenerationContext.getInstance().getClassLoaderForSUT()).loadClassFromFile(className,
+			testClass = loader.loadClassFromFile(className,
 			                                                                                                                      fileName);
 		} catch (ClassNotFoundException e) {
 			logger.error("Failed to load test case " + className + " from file "

@@ -58,7 +58,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	private boolean isInterface = false;
 	
 	private boolean isAnonymous = false;
-
+	
 	private boolean clinitFound = false;
 
 	private boolean definesUid = false;
@@ -80,7 +80,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public CreateClassResetClassAdapter(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM4, visitor);
+		super(Opcodes.ASM5, visitor);
 		this.className = className;
 	}
 
@@ -163,8 +163,11 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 			//determineSerialisableUID();
 
 			// duplicates existing <clinit>
-			MethodVisitor visitMethod = super.visitMethod(methodAccess
-					| Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
+			// TODO: Removed | Opcodes.ACC_PUBLIC
+			//       Does __STATIC_RESET need to be public?
+			//       <clinit> apparently can be private, resulting
+			//       in illegal modifiers
+			MethodVisitor visitMethod = super.visitMethod(methodAccess | Opcodes.ACC_STATIC,
 					ClassResetter.STATIC_RESET, descriptor, signature,
 					exceptions);
 
@@ -240,7 +243,9 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		mv.visitCode();
 		for (StaticField staticField : static_fields) {
 
-			if (!finalFields.contains(staticField.name)) {
+			if (!finalFields.contains(staticField.name)
+					&& !staticField.name.startsWith("__cobertura")
+					&& !staticField.name.startsWith("$jacoco")) {
 
 				logger.info("Adding bytecode for initializing field "
 						+ staticField.name);
