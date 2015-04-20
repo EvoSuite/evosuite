@@ -196,6 +196,7 @@ public class CoverageAnalysis {
 		case ARCHIVEIBRANCH:
 			return RuntimeVariable.IBranchCoverage;
 		case REGRESSION:
+			return RuntimeVariable.BranchCoverage;
 		default:
 			throw new RuntimeException("Criterion not supported: " + criterion);
 
