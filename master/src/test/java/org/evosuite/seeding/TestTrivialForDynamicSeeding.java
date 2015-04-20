@@ -50,7 +50,8 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		String targetClass = TrivialForDynamicSeeding.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.DYNAMIC_POOL = 1d / 3d;
+		// Properties.DYNAMIC_POOL = 2d / 3d;
+		// Properties.SEARCH_BUDGET = 30000;
 		ConstantPoolManager.getInstance().reset();
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -92,7 +93,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		String targetClass = TrivialForDynamicSeedingStartsWith.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.DYNAMIC_POOL = 1d / 3d;
+		// Properties.DYNAMIC_POOL = 1d / 3d;
 		ConstantPoolManager.getInstance().reset();
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -136,7 +137,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		String targetClass = TrivialForDynamicSeedingEndsWith.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.DYNAMIC_POOL = 1d / 3d;
+		// Properties.DYNAMIC_POOL = 1d / 3d;
 		ConstantPoolManager.getInstance().reset();
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -180,7 +181,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		String targetClass = TrivialForDynamicSeedingRegionMatches.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.DYNAMIC_POOL = 1d / 3d;
+		// Properties.DYNAMIC_POOL = 1d / 3d;
 		ConstantPoolManager.getInstance().reset();
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -224,7 +225,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		String targetClass = TrivialForDynamicSeedingRegionMatchesCase.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.DYNAMIC_POOL = 1d / 3d;
+		// Properties.DYNAMIC_POOL = 1d / 3d;
 		ConstantPoolManager.getInstance().reset();
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };//, "-Ddynamic_pool=0.333"
