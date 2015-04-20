@@ -133,7 +133,7 @@ public class ResourceList {
 	// --------- public methods  ----------------- 
 	// -------------------------------------------
 
-	protected void resetCache(){
+	public void resetCache(){
 		cache = null;
 	}
 
