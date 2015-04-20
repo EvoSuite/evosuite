@@ -4,7 +4,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.evosuite.intellij.util.AsyncGUINotifier;
-import org.evosuite.intellij.util.MavenExecutor;
+import org.evosuite.intellij.util.EvoSuiteExecutor;
 
 /**
  * Created by arcuri on 10/15/14.
@@ -22,7 +22,7 @@ public class StopEvoAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        MavenExecutor.getInstance().stopRun();
+        EvoSuiteExecutor.getInstance().stopRun();
         notifier.printOnConsole("\n\n\nEvoSuite run has been cancelled\n");
     }
 }
