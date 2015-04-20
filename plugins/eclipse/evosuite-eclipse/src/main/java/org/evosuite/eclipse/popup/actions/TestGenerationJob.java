@@ -480,7 +480,7 @@ public class TestGenerationJob extends Job {
 				"-Dassertion_timeout=" + time, 
 				"-Dpure_inspectors=true", 
 				"-Dnew_statistics=false",
-				"-Declipse_plugin=" + (Activator.markersEnabled() ? "true" : "false")
+				"-Declipse_plugin=true"
 				// "-Dsandbox_mode=IO",
 				// "-Djava.rmi.server.codebase=file:///Remote/evosuite-0.1-SNAPSHOT-jar-minimal.jar"
 				}));
