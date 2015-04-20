@@ -169,14 +169,13 @@ public class EvoSuitePropertyPage extends PropertyPage {
 //		criterionCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		criterionList = new Table(myComposite, SWT.MULTI | SWT.CHECK | SWT.FULL_SELECTION | SWT.HIDE_SELECTION | SWT.NO_SCROLL | SWT.BORDER);
 		List<String> criteriaSelected = Arrays.asList(getCriteria());
-		for(String criterion : new String[]{ "Methods", 
-											 "Methods invoked directly",
-											 "Methods without exception",
-											 "Lines",
-											 "Branches",
-											 "Exceptions",
-											 "Output partitions",
-											 "Mutation",
+		for(String criterion : new String[]{ "MethodNoException",
+											 "Line",
+											 "Branch",
+											 "CBranch",
+											 "Exception",
+											 "Output",
+											 "WeakMutation",
 											 }) {
 			TableItem item = new TableItem (criterionList, 0);
 			item.setText (criterion);
@@ -823,7 +822,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		try {
 			String value = resource.getPersistentProperty(CRITERION_PROP_KEY);
 			if (value == null)
-				return new String[] {"Lines", "Branches"};
+				return new String[] {"Line", "Branch"};
 			else {
 				StringTokenizer tokenizer = new StringTokenizer(value, ":");
 				int num = tokenizer.countTokens();
@@ -834,7 +833,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 				return values;
 			}
 		} catch (CoreException e) {
-			return new String[] {"Lines", "Branches"};
+			return new String[] {"Line", "Branch"};
 		}
 	}
 
