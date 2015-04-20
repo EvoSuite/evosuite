@@ -2,7 +2,6 @@ package org.evosuite.intellij;
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.impl.ConsoleViewImpl;
-import com.intellij.ide.actions.AboutAction;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -14,7 +13,6 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import org.evosuite.intellij.util.MavenExecutor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
