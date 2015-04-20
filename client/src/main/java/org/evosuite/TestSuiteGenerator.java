@@ -315,6 +315,7 @@ public class TestSuiteGenerator {
 					+ ExecutionTraceImpl.gradientBranchesCoveredFalse.size();
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches_Covered, coveredGradientBranchCount);
 		}
+		
 		if(Properties.BRANCH_COMPARISON_TYPES){
 			int cmp_intzero=0, cmp_intint=0, cmp_refref=0, cmp_refnull=0;
 			int bc_lcmp=0, bc_fcmpl=0, bc_fcmpg=0, bc_dcmpl=0, bc_dcmpg=0;
@@ -474,8 +475,6 @@ public class TestSuiteGenerator {
 		if (Properties.CHECK_CONTRACTS) {
 			TestCaseExecutor.getInstance().removeObserver(checker);
 		}
-
-		StatisticsSender.executedAndThenSendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?
 
         ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 
@@ -855,15 +854,13 @@ public class TestSuiteGenerator {
 		// executed with -prefix!
 
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
-//		        || ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
-//		        || ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEIBRANCH)  
-//		        || ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH) 
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.RHO)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.AMBIGUITY))
 			ExecutionTracer.enableTraceCalls();
 
+		
 		// TODO: why it was only if "analyzing"???
 		// if (analyzing)
 		ga.resetStoppingConditions();
@@ -906,11 +903,10 @@ public class TestSuiteGenerator {
 			//statistics.searchFinished(ga);
 			zero_fitness.setFinished();
 			for (TestSuiteChromosome best : bestSuites) {
-                for (FitnessFunction ff : best.getFitnesses().keySet()) {
+                for (FitnessFunction<?> ff : getFitnessFunction()) {
                     best.setCoverage(ff, 1.0);
                 }
             }
-
 		}
 
 		long end_time = System.currentTimeMillis() / 1000;
@@ -1005,8 +1001,10 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.COVERAGE) {
-		    for (Properties.Criterion pc : Properties.CRITERION)
+		    for (Properties.Criterion pc : Properties.CRITERION) {
+		        LoggingUtils.getEvoLogger().info("* Coverage analysis for criterion " + pc);
 		        CoverageAnalysis.analyzeCoverage(bestSuites.get(0), pc); // FIXME: can we send all bestSuites?
+            }
 		}
 
 		// progressMonitor.updateStatus(99);
@@ -1787,7 +1785,7 @@ public class TestSuiteGenerator {
 		ExecutionTracer.enableTraceCalls();
 		if (ga == null)
 			ga = setup();
-
+		
 		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		List<TestSuiteFitnessFunction> fitness_functions = getFitnessFunction();
 		suiteGA.addFitnessFunctions(fitness_functions);
@@ -2005,6 +2003,8 @@ public class TestSuiteGenerator {
 		                                         + suite.getFitness());
         // Search is finished, send statistics
         sendExecutionStatistics();
+        StatisticsSender.executedAndThenSendIndividualToMaster(suite);
+
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
 			CoverageAnalysis.analyzeCriteria(suite, Properties.ANALYSIS_CRITERIA);

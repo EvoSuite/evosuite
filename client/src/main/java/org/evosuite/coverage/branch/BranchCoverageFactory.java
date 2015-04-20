@@ -46,17 +46,6 @@ public class BranchCoverageFactory extends
 		AbstractFitnessFactory<BranchCoverageTestFitness> {
 
 	private static final Logger logger = LoggerFactory.getLogger(BranchCoverageFactory.class);
-
-	
-	
-	private boolean isCUT(String className) {
-		if (!Properties.TARGET_CLASS.equals("")
-				&& !(className.equals(Properties.TARGET_CLASS) || className
-						.startsWith(Properties.TARGET_CLASS + "$"))) {
-			return false;
-		}
-		return true;
-	}
 	
 	
 	/**

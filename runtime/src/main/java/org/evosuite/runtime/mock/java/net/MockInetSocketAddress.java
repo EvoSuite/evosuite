@@ -9,9 +9,6 @@ import org.evosuite.runtime.mock.OverrideMock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * TODO need to implement rollback
- */
 public class MockInetSocketAddress extends InetSocketAddress implements OverrideMock{
 
 	private static final Logger logger = LoggerFactory.getLogger(MockInetSocketAddress.class);
@@ -20,29 +17,25 @@ public class MockInetSocketAddress extends InetSocketAddress implements Override
 
 
 	public MockInetSocketAddress(int port) {
-		this(
-                //MockFramework.isEnabled() ?
-                    MockInetAddress.anyLocalAddress() //:
-                //InetAddress.a
+		this( MockFramework.isEnabled() ?
+                    MockInetAddress.anyLocalAddress() :
+                    NetReflectionUtil.anyLocalAddress()
                         , port);
 	}
 
 	public MockInetSocketAddress(InetAddress addr, int port) {
-		super(addr == null ? MockInetAddress.anyLocalAddress() : addr, port);
+		super(addr == null ?
+                (MockFramework.isEnabled() ?
+                        MockInetAddress.anyLocalAddress() :
+                        NetReflectionUtil.anyLocalAddress())
+                : addr, port);
 	}
 
-	private static InetAddress getResolvedAddressed(String hostname){
-		checkHost(hostname);
-		try {
-			return MockInetAddress.getByName(hostname);
-		} catch(UnknownHostException e) {
-			logger.warn("EvoSuite limitation: unsupported case of hostname resolution for "+hostname);
-			return null;
-		}
-	}
-	
 	public MockInetSocketAddress(String hostname, int port) {
-		this(getResolvedAddressed(hostname), port); 
+		super(MockFramework.isEnabled() ?
+                        getResolvedAddressed(hostname).getHostAddress() :
+                    hostname
+                , port);
 		/*
 		 * TODO we are not mocking this constructor properly.
 		 * We should use reflection to modify the state of 
@@ -64,7 +57,17 @@ public class MockInetSocketAddress extends InetSocketAddress implements Override
 		*/
 	}
 
-	// private constructor for creating unresolved instances
+    private static InetAddress getResolvedAddressed(String hostname){
+        checkHost(hostname);
+        try {
+            return MockInetAddress.getByName(hostname);
+        } catch(UnknownHostException e) {
+            logger.warn("EvoSuite limitation: unsupported case of hostname resolution for "+hostname);
+            return null;
+        }
+    }
+
+    // private constructor for creating unresolved instances
 	/*
 	private MockInetSocketAddress(int port, String hostname) {
 		holder = new InetSocketAddressHolder(hostname, null, port);

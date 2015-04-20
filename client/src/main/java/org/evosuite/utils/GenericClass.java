@@ -1478,7 +1478,7 @@ public class GenericClass implements Serializable {
 					TypeVariable<?> value = (TypeVariable<?>)ownerVariableMap.get(var);
 					if(ownerVariableMap.containsKey(value)) {
 						Type other = ownerVariableMap.get(value);
-						if(var != other) {
+						if(var != other && value != other) {
 							logger.debug("Replacing "+var+" with "+other);
 							ownerVariableMap.put(var, other);
 							changed = true;

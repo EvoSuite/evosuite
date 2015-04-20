@@ -1,22 +1,22 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.instrumentation.coverage;
 
@@ -29,7 +29,10 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.runtime.instrumentation.AnnotatedLabel;
+import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
@@ -47,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * BranchInstrumentation class.
  * </p>
- * 
+ *
  * @author Copied from CFGMethodAdapter
  */
 public class BranchInstrumentation implements MethodInstrumentation {
@@ -55,10 +58,11 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(BranchInstrumentation.class);
 
-	private ClassLoader classLoader;
+    private static final String EXECUTION_TRACER = Type.getInternalName(ExecutionTracer.class);
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb
 	 * .asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String,
@@ -69,8 +73,6 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	@Override
 	public void analyze(ClassLoader classLoader, MethodNode mn, String className,
 	        String methodName, int access) {
-		this.classLoader = classLoader;
-		
 		RawControlFlowGraph graph = GraphPool.getInstance(classLoader).getRawCFG(className,
 		                                                                         methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
@@ -88,16 +90,15 @@ public class BranchInstrumentation implements MethodInstrumentation {
 								if(aLabel.isStartTag()) {
 									if(!aLabel.shouldIgnore()) {
 										logger.debug("Found artificial branch: "+v);
-										Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(v);
+										Branch b = BranchPool.getBranchForInstruction(v);
 										b.setInstrumented(true);
 									} else {
-										continue; 
+										continue;
 									}
 								}
 							}
 						}
-						mn.instructions.insertBefore(v.getASMNode(),
-						                             getInstrumentation(v));
+						mn.instructions.insertBefore(v.getASMNode(), getInstrumentation(v));
 
 					} else if (v.isSwitch()) {
 
@@ -105,7 +106,6 @@ public class BranchInstrumentation implements MethodInstrumentation {
 						                             getSwitchInstrumentation(v, mn,
 						                                                      className,
 						                                                      methodName));
-
 					}
 				}
 			}
@@ -117,7 +117,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	 * <p>
 	 * getInstrumentation
 	 * </p>
-	 * 
+	 *
 	 * @param instruction
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
@@ -127,16 +127,16 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			throw new IllegalArgumentException("null given");
 		if (!instruction.isActualBranch())
 			throw new IllegalArgumentException("branch instruction expected");
-		if (!BranchPool.getInstance(classLoader).isKnownAsNormalBranchInstruction(instruction))
+		if (!BranchPool.isKnownAsNormalBranchInstruction(instruction))
 			throw new IllegalArgumentException(
-			        "expect given instruction to be known by the BranchPool as a normal branch isntruction");
+			        "expect given instruction to be known by the BranchPool as a normal branch instruction");
 
 		int opcode = instruction.getASMNode().getOpcode();
 		int instructionId = instruction.getInstructionId();
-		int branchId = BranchPool.getInstance(classLoader).getActualBranchIdForNormalBranchInstruction(instruction);
+		int branchId = BranchPool.getActualBranchIdForNormalBranchInstruction(instruction);
 		if (branchId < 0)
 			throw new IllegalStateException(
-			        "expect BranchPool to know branchId for alle branch instructions");
+			        "expect BranchPool to know branchId for all branch instructions");
 
 		InsnList instrumentation = new InsnList();
 
@@ -153,7 +153,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch", "(IIII)V", false));
+                    EXECUTION_TRACER, "passedBranch", "(IIII)V", false));
 			logger.debug("Adding passedBranch val=?, opcode=" + opcode + ", branch="
 			        + branchId + ", bytecode_id=" + instructionId);
 
@@ -170,7 +170,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch", "(IIIII)V", false));
+                    EXECUTION_TRACER, "passedBranch", "(IIIII)V", false));
 			break;
 		case Opcodes.IF_ACMPEQ:
 		case Opcodes.IF_ACMPNE:
@@ -180,7 +180,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch",
+                    EXECUTION_TRACER, "passedBranch",
 			        "(Ljava/lang/Object;Ljava/lang/Object;III)V", false));
 			break;
 		case Opcodes.IFNULL:
@@ -191,7 +191,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch",
+                    EXECUTION_TRACER, "passedBranch",
 			        "(Ljava/lang/Object;III)V", false));
 			break;
 		}
@@ -200,21 +200,21 @@ public class BranchInstrumentation implements MethodInstrumentation {
 
 	/**
 	 * Creates the instrumentation for switch statements as follows:
-	 * 
+	 *
 	 * For each case <key>: in the switch, two calls to the ExecutionTracer are
 	 * added to the instrumentation, indicating whether the case is hit directly
 	 * or not. This is done by addInstrumentationForSwitchCases().
-	 * 
+	 *
 	 * Additionally in order to trace the execution of the default: case of the
 	 * switch, the following instrumentation is added using
 	 * addDefaultCaseInstrumentation():
-	 * 
+	 *
 	 * A new switch, holding the same <key>s as the original switch we want to
 	 * cover. All cases point to a label after which a call to the
 	 * ExecutionTracer is added, indicating that the default case was not hit
 	 * directly. Symmetrically the new switch has a default case: holding a call
 	 * to the ExecutionTracer to indicate that the default will be hit directly.
-	 * 
+	 *
 	 * @param v
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @param mn
@@ -242,7 +242,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	/**
 	 * For each actual case <key>: of a switch this method adds instrumentation
 	 * for the Branch corresponding to that case to the given instruction list.
-	 * 
+	 *
 	 * @param v
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @param instrumentation
@@ -258,7 +258,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		if (!v.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
 
-		List<Branch> caseBranches = BranchPool.getInstance(classLoader).getCaseBranchesForSwitch(v);
+		List<Branch> caseBranches = BranchPool.getCaseBranchesForSwitch(v);
 
 		if (caseBranches == null || caseBranches.isEmpty())
 			throw new IllegalStateException(
@@ -277,7 +277,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(targetCaseBranchId));
 			instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch", "(IIIII)V", false));
+                    EXECUTION_TRACER, "passedBranch", "(IIIII)V", false));
 		}
 	}
 
@@ -285,7 +285,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	 * <p>
 	 * addInstrumentationForDefaultSwitchCase
 	 * </p>
-	 * 
+	 *
 	 * @param v
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @param instrumentation
@@ -306,7 +306,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	 * <p>
 	 * addInstrumentationForDefaultTableswitchCase
 	 * </p>
-	 * 
+	 *
 	 * @param v
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @param instrumentation
@@ -344,7 +344,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	 * <p>
 	 * addInstrumentationForDefaultLookupswitchCase
 	 * </p>
-	 * 
+	 *
 	 * @param v
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @param instrumentation
@@ -384,7 +384,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	 * <p>
 	 * addDefaultCaseInstrumentation
 	 * </p>
-	 * 
+	 *
 	 * @param v
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @param instrumentation
@@ -402,7 +402,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	        InsnList instrumentation, AbstractInsnNode mySwitch, LabelNode defaultLabel,
 	        LabelNode caseLabel, LabelNode endLabel) {
 
-		int defaultCaseBranchId = BranchPool.getInstance(classLoader).getDefaultBranchForSwitch(v).getActualBranchId();
+		int defaultCaseBranchId = BranchPool.getDefaultBranchForSwitch(v).getActualBranchId();
 
 		// add helper switch
 		instrumentation.add(new InsnNode(Opcodes.DUP));
@@ -427,7 +427,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	 * <p>
 	 * addDefaultCaseCoveredCall
 	 * </p>
-	 * 
+	 *
 	 * @param v
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @param instrumentation
@@ -443,7 +443,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		instrumentation.add(new LdcInsnNode(defaultCaseBranchId));
 		instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch", "(IIII)V", false));
+                EXECUTION_TRACER, "passedBranch", "(IIII)V", false));
 
 	}
 
@@ -451,7 +451,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	 * <p>
 	 * addDefaultCaseNotCoveredCall
 	 * </p>
-	 * 
+	 *
 	 * @param v
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @param instrumentation
@@ -467,12 +467,12 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		instrumentation.add(new LdcInsnNode(defaultCaseBranchId));
 		instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/testcase/execution/ExecutionTracer", "passedBranch", "(IIII)V", false));
+                EXECUTION_TRACER, "passedBranch", "(IIII)V", false));
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods
 	 * ()
@@ -485,7 +485,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
 	 */

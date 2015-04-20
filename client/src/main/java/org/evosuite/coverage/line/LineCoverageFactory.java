@@ -53,6 +53,10 @@ public class LineCoverageFactory extends
 		long start = System.currentTimeMillis();
 
 		for(String className : LinePool.getKnownClasses()) {
+			// Only lines in CUT
+			if(!isCUT(className)) 
+				continue;
+
 			for(String methodName : LinePool.getKnownMethodsFor(className)) {
 				Set<Integer> lines = LinePool.getLines(className, methodName);
 				for (Integer line : lines) {

@@ -17,6 +17,7 @@
  */
 package org.evosuite.testsuite;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -39,6 +40,16 @@ public abstract class AbstractFitnessFactory<T extends TestFitnessFunction> impl
 	 */
 	public static long goalComputationTime = 0l;
 
+	
+	protected boolean isCUT(String className) {
+		if (!Properties.TARGET_CLASS.equals("")
+				&& !(className.equals(Properties.TARGET_CLASS) || className
+						.startsWith(Properties.TARGET_CLASS + "$"))) {
+			return false;
+		}
+		return true;
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public double getFitness(TestSuiteChromosome suite) {
