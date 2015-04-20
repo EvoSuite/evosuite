@@ -143,7 +143,7 @@ public class TestTestSuiteMinimizer
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(new BranchCoverageFactory());
         minimizer.minimize(tsc, false);
         System.out.println(tsc.getTests().get(0).toCode());
-        assertTrue(tsc.getTests().get(0).toCode().equals("FlagExample1 flagExample1_0 = new FlagExample1();\nint int0 = 28234;\nboolean boolean0 = flagExample1_0.testMe(int0);\n"));
+        assertTrue(tsc.getTests().get(0).toCode().equals("FlagExample1 flagExample1_0 = new FlagExample1();\nint int0 = 28234;\nflagExample1_0.testMe(int0);\n"));
 
         double fitness = ff.getFitness(tsc);
         assertEquals(previous_fitness, fitness, 0.0);
@@ -197,7 +197,7 @@ public class TestTestSuiteMinimizer
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(factories);
         minimizer.minimize(tsc, false);
         System.out.println(tsc.getTests().get(0).toCode());
-        assertTrue(tsc.getTests().get(0).toCode().equals("FlagExample1 flagExample1_0 = new FlagExample1();\nint int0 = 28234;\nboolean boolean0 = flagExample1_0.testMe(int0);\n"));
+        assertTrue(tsc.getTests().get(0).toCode().equals("FlagExample1 flagExample1_0 = new FlagExample1();\nint int0 = 28234;\nflagExample1_0.testMe(int0);\n"));
 
         double branch_fitness = branch.getFitness(tsc);
         assertEquals(previous_branch_fitness, branch_fitness, 0.0);
@@ -252,7 +252,7 @@ public class TestTestSuiteMinimizer
 
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(new BranchCoverageFactory());
         minimizer.minimize(tsc, false);
-        assertTrue(tsc.getTests().get(0).toCode().equals("FlagExample1 flagExample1_0 = new FlagExample1();\nint int0 = 28234;\nint int1 = 28241;\nboolean boolean0 = flagExample1_0.testMe(int1);\nboolean boolean1 = flagExample1_0.testMe(int0);\n"));
+        assertTrue(tsc.getTests().get(0).toCode().equals("FlagExample1 flagExample1_0 = new FlagExample1();\nint int0 = 28234;\nint int1 = 28241;\nflagExample1_0.testMe(int1);\nflagExample1_0.testMe(int0);\n"));
 
         double fitness = ff.getFitness(tsc);
         assertEquals(previous_fitness, fitness, 0.0);
@@ -315,7 +315,7 @@ public class TestTestSuiteMinimizer
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(factories);
         minimizer.minimize(tsc, false);
         System.out.println(tsc.getTests().get(0).toCode());
-        assertTrue(tsc.getTests().get(0).toCode().equals("FlagExample1 flagExample1_0 = new FlagExample1();\nint int0 = 28234;\nint int1 = 28241;\nboolean boolean0 = flagExample1_0.testMe(int1);\nboolean boolean1 = flagExample1_0.testMe(int0);\n"));
+        assertTrue(tsc.getTests().get(0).toCode().equals("FlagExample1 flagExample1_0 = new FlagExample1();\nint int0 = 28234;\nint int1 = 28241;\nflagExample1_0.testMe(int1);\nflagExample1_0.testMe(int0);\n"));
 
         double branch_fitness = branch.getFitness(tsc);
         assertEquals(previous_branch_fitness, branch_fitness, 0.0);
