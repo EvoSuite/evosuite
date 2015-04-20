@@ -184,6 +184,10 @@ public class BytecodeInstrumentation {
             cv = new PurityAnalysisClassVisitor(cv, className, purityAnalyzer);
         }
 
+        if(Properties.MAX_LOOP_ITERATIONS >= 0){
+    		cv = new LoopCounterClassAdapter(cv);
+        }
+        
         // Apply transformations to class under test and its owned classes
         if (DependencyAnalysis.shouldAnalyze(classNameWithDots)) {
             logger.debug("Applying target transformation to class " + classNameWithDots);
@@ -223,9 +227,7 @@ public class BytecodeInstrumentation {
             cv = new MethodCallReplacementClassAdapter(cv, className);
         }
 
-        if(Properties.MAX_LOOP_ITERATIONS >= 0){
-        		cv = new LoopCounterClassAdapter(cv);
-        }
+
 
         // Testability Transformations
         if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
