@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
@@ -347,10 +348,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		}
 		
 		if(Properties.BRANCH_COMPARISON_TYPES){
-			int opcode = BranchPool.getBranch(branch).getInstruction().getASMNode().getOpcode();
+			int opcode = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(branch).getInstruction().getASMNode().getOpcode();
 			int previousOpcode = -2;
-			if(BranchPool.getBranch(branch).getInstruction().getASMNode().getPrevious()!=null)
-				previousOpcode = BranchPool.getBranch(branch).getInstruction().getASMNode().getPrevious().getOpcode();
+			if(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(branch).getInstruction().getASMNode().getPrevious()!=null)
+				previousOpcode = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(branch).getInstruction().getASMNode().getPrevious().getOpcode();
 			boolean cTrue = coveredTrue.containsKey(branch);
 			boolean cFalse = coveredFalse.containsKey(branch);
 			switch (previousOpcode) {
@@ -680,7 +681,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			} else {
 				coveredMethods.put(id, coveredMethods.get(id) + 1);
 			}
-            Set<String> bms = BranchPool.getBranchlessMethods();
+            Set<String> bms = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchlessMethods();
             if (bms.contains(id)) {
                 if (!coveredBranchlessMethods.containsKey(id)) {
                     coveredBranchlessMethods.put(id, 1);

@@ -32,8 +32,8 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.testcase.ExecutionObserver;
-import org.evosuite.testcase.MethodStatement;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

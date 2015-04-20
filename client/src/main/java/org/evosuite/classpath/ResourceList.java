@@ -249,7 +249,7 @@ public class ResourceList {
      * @param includeInternalClasses should internal classes (ie static and anonymous having $ in their name) be included?
      * @return
      */
-    public static Set<String> getAllClasses(String classPathEntry, String prefix, boolean includeInternalClasses){
+    public Set<String> getAllClasses(String classPathEntry, String prefix, boolean includeInternalClasses){
         return getAllClasses(classPathEntry,prefix,includeInternalClasses,true);
     }
 

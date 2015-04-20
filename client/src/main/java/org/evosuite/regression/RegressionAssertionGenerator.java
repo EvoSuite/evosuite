@@ -15,9 +15,9 @@ import org.evosuite.assertion.PrimitiveTraceObserver;
 import org.evosuite.assertion.SameTraceEntry;
 import org.evosuite.assertion.SameTraceObserver;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 
 
 public class RegressionAssertionGenerator extends AssertionGenerator {

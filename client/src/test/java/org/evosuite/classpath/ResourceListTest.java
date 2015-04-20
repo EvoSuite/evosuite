@@ -132,7 +132,7 @@ public class ResourceListTest {
 
     @Test
     public void testGatherClassWithInternalButNoAnonymous(){
-        Collection<String> classes = ResourceList.getAllClasses(
+        Collection<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
                 ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix, true);
         Assert.assertTrue(classes.contains(Foo.class.getName()));
         Assert.assertTrue(""+Arrays.toString(classes.toArray()),classes.contains(Foo.InternalFooClass.class.getName()));
@@ -141,7 +141,7 @@ public class ResourceListTest {
 
     @Test
     public void testGatherClassWithInternalIncludingAnonymous(){
-        Collection<String> classes = ResourceList.getAllClasses(
+        Collection<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
                 ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix, true, false);
         Assert.assertTrue(classes.contains(Foo.class.getName()));
         Assert.assertTrue(""+Arrays.toString(classes.toArray()),classes.contains(Foo.InternalFooClass.class.getName()));

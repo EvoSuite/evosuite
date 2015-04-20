@@ -40,6 +40,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
@@ -420,7 +421,7 @@ public class InheritanceTreeGenerator {
 			}
 
             //InputStream stream = TestGenerationContext.getInstance().getClassLoaderForSUT().getResourceAsStream(name);
-            InputStream stream = ResourceList.getClassAsStream(name);
+            InputStream stream = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(name);
 
             if(stream == null){
                 logger.warn("Cannot open/find "+name);
@@ -496,7 +497,7 @@ public class InheritanceTreeGenerator {
 			if (element.contains("evosuite"))
 				continue;
 			try {
-				retval.addAll(ResourceList.getAllClasses(element, "",true,true));
+				retval.addAll(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(element, "",true,true));
 			} catch (IllegalArgumentException e) {
 				System.err.println("Does not exist: " + element);
 			}

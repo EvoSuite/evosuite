@@ -348,7 +348,7 @@ public class DependencyAnalysis {
 				.getInstance()
 				.getClientNode()
 				.trackOutputVariable(RuntimeVariable.Total_Methods,
-						CFGMethodAdapter.getNumMethods(.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())));
+						CFGMethodAdapter.getNumMethods(TestGenerationContext.getInstance().getClassLoaderForSUT()));
 
 		ClientServices.getInstance().getClientNode()
 				.trackOutputVariable(RuntimeVariable.Lines, LinePool.getNumLines());

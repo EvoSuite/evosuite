@@ -20,7 +20,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.junit.JUnitAnalyzer;
-import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;

@@ -15,10 +15,10 @@ import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.ExecutionTracer;
-import org.evosuite.testcase.MethodCall;
-import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.testcase.execution.MethodCall;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -507,7 +507,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 				+ " - coverage:" + coverage + " - ex: " + numExceptions
 				+ " - tex: " + totalExceptions);*/
 		individual
-				.setCoverage((bcFitness.totalCovered + bcFitnessRegression.totalCovered) / 2.0);
+				.setCoverage(this, (bcFitness.totalCovered + bcFitnessRegression.totalCovered) / 2.0);
 		updateIndividual(this, individual, fitness);
 
 		if (fitness < bestFitness) {
