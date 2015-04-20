@@ -1,8 +1,5 @@
 package org.evosuite.intellij;
 
-import com.intellij.execution.filters.TextConsoleBuilderFactory;
-import com.intellij.execution.impl.ConsoleViewImpl;
-import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -13,16 +10,10 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.openapi.wm.ToolWindowType;
-import com.intellij.psi.PsiFile;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentFactory;
 import org.evosuite.intellij.util.AsyncGUINotifier;
-import org.evosuite.intellij.util.MavenExecutor;
+import org.evosuite.intellij.util.EvoSuiteExecutor;
 
-import javax.swing.*;
 import java.io.File;
 import java.util.*;
 
@@ -46,13 +37,13 @@ public class EvoAction extends AnAction {
 
         final AsyncGUINotifier notifier = IntelliJNotifier.getNotifier(project);
 
-        if (MavenExecutor.getInstance().isAlreadyRunning()) {
+        if (EvoSuiteExecutor.getInstance().isAlreadyRunning()) {
             Messages.showMessageDialog(project, "An instance of EvoSuite is already running",
                     title, Messages.getErrorIcon());
             return;
         }
 
-        Map<String,List<String>> map = getCUTsToTest(event);
+        Map<String,Set<String>> map = getCUTsToTest(event);
         if(map==null || map.isEmpty()){
             Messages.showMessageDialog(project, "No '.java' file or non-empty source folder was selected in a valid Maven module",
                     title, Messages.getErrorIcon());
@@ -73,7 +64,7 @@ public class EvoAction extends AnAction {
             }
             });
             EvoParameters.getInstance().save(project);
-            MavenExecutor.getInstance().run(EvoParameters.getInstance(),map,notifier);
+            EvoSuiteExecutor.getInstance().run(project,EvoParameters.getInstance(),map,notifier);
         }
     }
 
@@ -82,9 +73,9 @@ public class EvoAction extends AnAction {
      *
      * @return a map where key is a maven module root path, and value a list of full class names of CUTs
      */
-    private Map<String, List<String>> getCUTsToTest(AnActionEvent event){
+    private Map<String, Set<String>> getCUTsToTest(AnActionEvent event){
 
-        Map<String,List<String>> map = new LinkedHashMap<String, List<String>>();
+        Map<String,Set<String>> map = new LinkedHashMap<String, Set<String>>();
 
         /*
             full paths of all source root folders.
@@ -112,64 +103,64 @@ public class EvoAction extends AnAction {
             String path = new File(virtualFile.getCanonicalPath()).getAbsolutePath();
             String maven = getMavenModuleFolder(projectDir, path);
 
-            if(maven==null){
-                //the selected file is not inside any maven folder
-                continue;
+            Set<String> classes = map.get(maven);
+            if(classes == null){
+                classes = new LinkedHashSet<String>();
+                map.put(maven, classes);
             }
 
-            String root = getSourceRootForFile(path,roots);
+            String root = getSourceRootForFile(path, roots);
+
             if(root == null){
                 /*
                     the chosen file is not in a source folder.
                     Need to check if its parent of any of them
                  */
-                if(isParentOfSourceRoot(path,roots)){
-                    /*
-                        we chose a parent of a source root, eg src in src/main/java, so take whole module.
-                        This is represented by a null list
-                     */
-                    map.put(maven, null);
-                }
-
-                continue;
-            }
-
-            if(map.containsKey(maven) && map.get(maven)==null){
-                /*
-                    special case: we are already covering the whole module, so no point
-                    in also specifying single files inside it
-                 */
-                continue;
-            }
-
-            List<String> classes = map.get(maven);
-            if(classes == null){
-                classes = new ArrayList<String>();
-                map.put(maven, classes);
-            }
-
-            if(!virtualFile.isDirectory()){
-                if(!path.endsWith(".java")){
-                    // likely a resource file
+                Set<String> included = getIncludedSourceRoots(path,roots);
+                if(included==null || included.isEmpty()){
                     continue;
                 }
 
-                String name = getCUTName(path, root);
-                classes.add(name);
+                for(String sourceFolder : included){
+                    scanFolder(new File(sourceFolder),classes,sourceFolder);
+                }
+
             } else {
-                scanFolder(virtualFile,classes,root);
+                if(!virtualFile.isDirectory()){
+                    if(!path.endsWith(".java")){
+                        // likely a resource file
+                        continue;
+                    }
+
+                    String name = getCUTName(path, root);
+                    classes.add(name);
+                } else {
+                    scanFolder(new File(virtualFile.getCanonicalPath()),classes,root);
+                }
+
             }
+
+            //if(map.containsKey(maven) && map.get(maven)==null){
+                /*
+                    special case: we are already covering the whole module, so no point
+                    in also specifying single files inside it
+
+                    FIXME: this actually should not happen anymore. However, now there is
+                    potential performance issue of always having to determine every single .java file
+                 */
+              //  continue;
+            //}
         }
 
         return map;
     }
 
-    private void scanFolder(VirtualFile virtualFile, List<String> classes, String root) {
-        for(VirtualFile child : virtualFile.getChildren()){
+    private void scanFolder(File file, Set<String> classes, String root) {
+        for(File child : file.listFiles()){
             if(child.isDirectory()){
-                scanFolder(child,classes,root);
+                scanFolder(child, classes, root);
             } else {
-                String path = child.getCanonicalPath();
+                String path = child.getAbsolutePath();
                 if(path.endsWith(".java")){
                     String name = getCUTName(path,root);
                     classes.add(name);
@@ -185,13 +176,14 @@ public class EvoAction extends AnAction {
         return name;
     }
 
-    private boolean isParentOfSourceRoot(String path, Set<String> roots){
+    private Set<String> getIncludedSourceRoots(String path, Set<String> roots){
+        Set<String> set = new HashSet<String>();
         for(String root : roots){
             if(root.startsWith(path)){
-                return true;
+               set.add(root);
             }
         }
-        return false;
+        return set;
     }
 
     private String getSourceRootForFile(String path, Set<String> roots){
@@ -203,20 +195,30 @@ public class EvoAction extends AnAction {
         return null;
     }
 
+    /**
+     *
+     * @param projectDir
+     * @param source
+     * @return the absolute path of the first folder in the hierarchy (going up) containing a pom.xml file.
+     *      if it is not in a Maven module, rather return {@code projectDir}
+     */
     private String getMavenModuleFolder( String projectDir, String source){
         File file = new File(source);
         while(file != null){
+
             if(! file.getAbsolutePath().startsWith(projectDir)){
-                return null; //we went too up in the hierarchy
+                return projectDir; //we went too up in the hierarchy
             }
+
             if(file.isDirectory()){
                 File pom = new File(file,"pom.xml");
                 if(pom.exists()){
                     return file.getAbsolutePath();
                 }
             }
+
             file = file.getParentFile();
         }
-        return null;
+        return projectDir;
     }
 }

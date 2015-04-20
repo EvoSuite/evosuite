@@ -14,6 +14,11 @@ public class EvoParameters {
     public static final String TARGET_FOLDER_EVOSUITE_PARAM = "target_folder_evosuite_param";
     public static final String MVN_LOCATION = "mvn_location";
     public static final String JAVA_HOME = "JAVA_HOME";
+    public static final String EVOSUITE_JAR_LOCATION = "evosuite_jar_location";
+    public static final String EXECUTION_MODE = "execution_mode";
+
+    public static final String EXECUTION_MODE_MVN = "JAR";
+    public static final String EXECUTION_MODE_JAR = "MVN";
 
     private static final EvoParameters singleton = new EvoParameters();
 
@@ -23,12 +28,18 @@ public class EvoParameters {
     private String folder;
     private String mvnLocation;
     private String javaHome;
+    private String evosuiteJarLocation;
+    private String executionMode;
 
     public static EvoParameters getInstance(){
         return singleton;
     }
 
     private EvoParameters(){
+    }
+
+    public boolean usesMaven(){
+        return executionMode.equals(EXECUTION_MODE_MVN);
     }
 
     public void load(Project project){
@@ -41,6 +52,8 @@ public class EvoParameters {
         String envJavaHome = System.getenv("JAVA_HOME");
         javaHome = p.getOrInit(JAVA_HOME, envJavaHome!=null ? envJavaHome : "");
         mvnLocation = p.getOrInit(MVN_LOCATION,"");
+        evosuiteJarLocation = p.getOrInit(EVOSUITE_JAR_LOCATION,"");
+        executionMode = p.getOrInit(EXECUTION_MODE,EXECUTION_MODE_MVN);
     }
 
     public void save(Project project){
@@ -51,6 +64,8 @@ public class EvoParameters {
         p.setValue(TARGET_FOLDER_EVOSUITE_PARAM,folder);
         p.setValue(JAVA_HOME,javaHome);
         p.setValue(MVN_LOCATION,mvnLocation);
+        p.setValue(EVOSUITE_JAR_LOCATION,evosuiteJarLocation);
+        p.setValue(EXECUTION_MODE,executionMode);
     }
 
     public int getCores() {
@@ -99,5 +114,21 @@ public class EvoParameters {
 
     public void setJavaHome(String javaHome) {
         this.javaHome = javaHome;
+    }
+
+    public String getEvosuiteJarLocation() {
+        return evosuiteJarLocation;
+    }
+
+    public void setEvosuiteJarLocation(String evosuiteJarLocation) {
+        this.evosuiteJarLocation = evosuiteJarLocation;
+    }
+
+    public String getExecutionMode() {
+        return executionMode;
+    }
+
+    public void setExecutionMode(String executionMode) {
+        this.executionMode = executionMode;
     }
 }
