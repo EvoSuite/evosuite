@@ -250,7 +250,7 @@ public class Properties {
 
 	/** Constant <code>USE_DEPRECATED=false</code> */
 	@Parameter(key = "use_deprecated", group = "Test Creation", description = "Include deprecated methods in tests")
-	public static boolean USE_DEPRECATED = true; //should be on by default, otherwise unnecessary lower coverage: up to user if wants to skip them
+	public static boolean USE_DEPRECATED = false;
 
 	/** Constant <code>INSERTION_SCORE_UUT=1</code> */
 	@Parameter(key = "insertion_score_uut", group = "Test Creation", description = "Score for selection of insertion of UUT calls")
