@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -110,18 +111,18 @@ public class ArchiveBranchCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		
 		if (prefix.isEmpty()) {
 			prefix = Properties.TARGET_CLASS;
-			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
-			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
-			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
-			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
-			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
+			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(TestGenerationContext.getInstance().getClassLoaderForSUT(),prefix);
+			totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForPrefix(prefix);
+			numBranchlessMethods = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumBranchlessMethodsPrefix(prefix);
+			branchlessMethods = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchlessMethodsPrefix(prefix);
+			methods = CFGMethodAdapter.getMethodsPrefix(TestGenerationContext.getInstance().getClassLoaderForSUT(), prefix);
 
 		} else {
-			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
-			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
-			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
-			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
-			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
+			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(TestGenerationContext.getInstance().getClassLoaderForSUT(),prefix);
+			totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForPrefix(prefix);
+			numBranchlessMethods = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumBranchlessMethodsPrefix(prefix);
+			branchlessMethods = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchlessMethodsPrefix(prefix);
+			methods = CFGMethodAdapter.getMethodsPrefix(TestGenerationContext.getInstance().getClassLoaderForSUT(), prefix);
 		}
 		branchesId = new HashSet<>();
 

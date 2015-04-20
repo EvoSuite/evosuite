@@ -522,7 +522,7 @@ public class BranchPool {
 	 * @param prefix
 	 *            a {@link java.lang.String} object.
 	 */
-	public static Set<Integer> getBranchIdsForPrefix(String prefix) {
+	public Set<Integer> getBranchIdsForPrefix(String prefix) {
 		Set<Integer> ids = new HashSet<>();
 		Set<Branch> sutBranches = new HashSet<>();
 		for (String className : branchMap.keySet()) {

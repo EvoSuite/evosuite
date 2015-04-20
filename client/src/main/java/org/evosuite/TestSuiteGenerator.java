@@ -101,6 +101,7 @@ import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.regression.RegressionSearchListener;
+import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosome;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosome;
@@ -319,7 +320,7 @@ public class TestSuiteGenerator {
 		if(Properties.BRANCH_COMPARISON_TYPES){
 			int cmp_intzero=0, cmp_intint=0, cmp_refref=0, cmp_refnull=0;
 			int bc_lcmp=0, bc_fcmpl=0, bc_fcmpg=0, bc_dcmpl=0, bc_dcmpg=0;
-			for(Branch b:BranchPool.getAllBranches()){
+			for(Branch b:BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllBranches()){
 				int branchOpCode = b.getInstruction().getASMNode().getOpcode();
 				int previousOpcode = -2;
 				if(b.getInstruction().getASMNode().getPrevious() != null)
@@ -1178,7 +1179,7 @@ public class TestSuiteGenerator {
 			//statistics.searchFinished(ga);
 			zero_fitness.setFinished();
 			//for (TestSuiteChromosome best : bestSuites)
-			bestSuites.setCoverage(1.0);
+			bestSuites.setCoverage(fitness_functions.get(0),1.0);
 		}
 
 		long end_time = System.currentTimeMillis() / 1000;
