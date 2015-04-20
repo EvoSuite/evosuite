@@ -1,0 +1,27 @@
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'maven-publish'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+
+dependencies {
+    compile gradleApi()
+    testCompile 'junit:junit:4.11'
+}
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            groupId 'org.evosuite.plugins'
+            artifactId 'evosuite-gradle-plugin'
+            version '0.1.2-SNAPSHOT'
+
+        }
+    }
+}

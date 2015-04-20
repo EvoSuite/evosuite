@@ -98,6 +98,8 @@ public enum RuntimeVariable {
     OnlyBranchFitnessTimeline,
     OnlyBranchCoverageTimeline,
 	CBranchCoverage,
+    CBranchFitnessTimeline,
+    CBranchCoverageTimeline,
     IBranchCoverage,
     IBranchInitialGoals,
     IBranchInitialGoalsInTargetClass,
@@ -128,6 +130,8 @@ public enum RuntimeVariable {
     ExceptionCoverageTimeline,
 	/** A bit string (0/1) representing whether branches (in order) are covered */
 	CoveredBranchesBitString,
+    CoveredLinesBitString,
+    CoveredWeakMutationBitString,
 	/** The obtained score for weak mutation testing */
 	WeakMutationScore,
     /** Only mutation = only infection distance */
@@ -284,7 +288,7 @@ public enum RuntimeVariable {
 	 */
 	public static boolean validateRuntimeVariables(Map<String,OutputVariable<?>> map){
         if (! Properties.VALIDATE_RUNTIME_VARIABLES) {
-            logger.error("Not validating runtime variables");
+            logger.warn("Not validating runtime variables");
             return true;
         }
         boolean valid = true;

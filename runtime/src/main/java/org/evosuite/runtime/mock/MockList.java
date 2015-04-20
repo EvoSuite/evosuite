@@ -100,9 +100,6 @@ public class MockList {
 		}
 
         if(RuntimeSettings.useVNET){
-
-            //TODO double check that all OverrideMocks implement rollback
-
             list.add(MockDatagramSocket.class);
             list.add(MockInetAddress.class);
             list.add(MockInetSocketAddress.class);

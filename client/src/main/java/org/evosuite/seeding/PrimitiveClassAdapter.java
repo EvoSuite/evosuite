@@ -18,6 +18,7 @@
 package org.evosuite.seeding;
 
 import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -44,6 +45,9 @@ public class PrimitiveClassAdapter extends ClassVisitor {
 
 	private final ConstantPoolManager poolManager = ConstantPoolManager.getInstance();
 
+	/** Skip methods on enums - at least some */
+	private boolean isEnum = false;
+
 	/**
 	 * <p>
 	 * Constructor for PrimitiveClassAdapter.
@@ -58,6 +62,18 @@ public class PrimitiveClassAdapter extends ClassVisitor {
 		super(Opcodes.ASM5, visitor);
 		this.className = className.replaceAll("/", ".");
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.ClassAdapter#visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public void visit(int version, int access, String name, String signature,
+	        String superName, String[] interfaces) {
+		super.visit(version, access, name, signature, superName, interfaces);
+		if (superName.equals("java/lang/Enum"))
+			isEnum = true;
+	}
 
 	/** {@inheritDoc} */
 	@Override
@@ -71,6 +87,17 @@ public class PrimitiveClassAdapter extends ClassVisitor {
 				poolManager.addSUTConstant(Type.getType(desc));
 			} else {
 				poolManager.addNonSUTConstant(value);
+			}
+			if(isEnum) {
+				// static final values in enums are likely enum values
+				if((access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL &&
+				   (access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
+						if (DependencyAnalysis.isTargetClassName(className)) {
+							poolManager.addSUTConstant(name);
+						} else {
+							poolManager.addNonSUTConstant(name);
+						}
+				   }
 			}
 			// primitive_pool.add(value);
 		}

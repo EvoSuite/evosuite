@@ -22,14 +22,13 @@ package org.evosuite.setup;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.coverage.branch.BranchCoverageFactory;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -39,6 +38,8 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.setup.callgraph.CallGraphGenerator;
 import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ArrayUtil;
 import org.junit.Test;
 import org.junit.runners.Suite;
@@ -323,6 +324,7 @@ public class DependencyAnalysis {
 													// ClassReader.SKIP_DEBUG);
 		return cn;
 	}
+
 
 	private static void gatherStatistics() {
 		ClientServices.getInstance().getClientNode()

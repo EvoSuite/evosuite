@@ -30,10 +30,7 @@ import org.evosuite.instrumentation.testability.ComparisonTransformation;
 import org.evosuite.instrumentation.testability.ContainerTransformation;
 import org.evosuite.instrumentation.testability.StringTransformation;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
-import org.evosuite.runtime.instrumentation.AnnotatedClassNode;
-import org.evosuite.runtime.instrumentation.CreateClassResetClassAdapter;
-import org.evosuite.runtime.instrumentation.MethodCallReplacementClassAdapter;
-import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
+import org.evosuite.runtime.instrumentation.*;
 import org.evosuite.runtime.reset.ResetManager;
 import org.evosuite.seeding.PrimitiveClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
@@ -226,6 +223,9 @@ public class BytecodeInstrumentation {
             cv = new MethodCallReplacementClassAdapter(cv, className);
         }
 
+        if(Properties.MAX_LOOP_ITERATIONS >= 0){
+        		cv = new LoopCounterClassAdapter(cv);
+        }
 
         // Testability Transformations
         if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)

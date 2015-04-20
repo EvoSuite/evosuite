@@ -547,7 +547,7 @@ public class TestGenerationJob extends Job {
 		}
 		if ("false".equals(target.getProject().getPersistentProperty(
 				EvoSuitePropertyPage.SCAFFOLDING_PROP_KEY))) {
-			commands.add("-Dscaffolding=false");
+			commands.add("-Dtest_scaffolding=false");
 			commands.add("-Dno_runtime_dependency=true");
 		}
 		if ("true".equals(target.getProject().getPersistentProperty(
@@ -811,19 +811,21 @@ public class TestGenerationJob extends Job {
 				}
 		    }
 		});
-		for (MethodDeclaration m : methods) {
-			int lineNumber = compilationUnit.getLineNumber(m.getStartPosition());
-			try {
-				IMarker mark = fileTestClass.createMarker("EvoSuiteQuickFixes.newtestmarker");
-				mark.setAttribute(IMarker.MESSAGE, "This test case needs to be verified.");
-				mark.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-				mark.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-				mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-				mark.setAttribute(IMarker.LOCATION, fileTestClass.getName());
-				mark.setAttribute(IMarker.CHAR_START, m.getStartPosition());
-				mark.setAttribute(IMarker.CHAR_END, m.getStartPosition() + 1);
-			} catch (CoreException e) {
-				e.printStackTrace();
+		if (Activator.markersEnabled()) {
+			for (MethodDeclaration m : methods) {
+				int lineNumber = compilationUnit.getLineNumber(m.getStartPosition());
+				try {
+					IMarker mark = fileTestClass.createMarker("EvoSuiteQuickFixes.newtestmarker");
+					mark.setAttribute(IMarker.MESSAGE, "This test case needs to be verified.");
+					mark.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+					mark.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+					mark.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+					mark.setAttribute(IMarker.LOCATION, fileTestClass.getName());
+					mark.setAttribute(IMarker.CHAR_START, m.getStartPosition());
+					mark.setAttribute(IMarker.CHAR_END, m.getStartPosition() + 1);
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

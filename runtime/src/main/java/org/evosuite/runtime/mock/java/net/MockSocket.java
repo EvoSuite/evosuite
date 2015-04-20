@@ -20,9 +20,7 @@ import java.net.SocketOptions;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 
-/**
- * TODO need to implement rollback
- */
+
 public class MockSocket extends Socket implements OverrideMock {
 	
 	private Object closeLock = new Object();
@@ -39,11 +37,18 @@ public class MockSocket extends Socket implements OverrideMock {
 
 	//-------- constructors  ---------------------------
 
+    /**
+     * TODO rollback here would be very complicated, as would need to replicate every single
+     * constructor code by reflection, as they have side-effects we cannot avoid
+     */
+
 	public MockSocket() {
 		super();
+        if(!MockFramework.isEnabled()){
+            return;
+        }
 		setImpl();
 	}
-
 
 	public MockSocket(Proxy proxy) {
 		// Create a copy of Proxy as a security measure
@@ -75,7 +80,11 @@ public class MockSocket extends Socket implements OverrideMock {
 
 
 	protected MockSocket(MockSocketImpl impl) throws SocketException {
-		this.impl = impl;
+		super(impl);
+        if(!MockFramework.isEnabled()){
+            return;
+        }
+        this.impl = impl;
 		if (impl != null) {
 			this.impl.setSocket(this);
 		}
@@ -159,7 +168,9 @@ public class MockSocket extends Socket implements OverrideMock {
 	}
 
 	
-	
+	/*
+	    in superclass it is package level, so it is not overriden
+	 */
 	protected void setImpl() {
 		impl = new EvoSuiteSocket();
 		impl.setSocket(this);
