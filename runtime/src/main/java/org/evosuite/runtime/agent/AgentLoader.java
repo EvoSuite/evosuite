@@ -104,7 +104,17 @@ public class AgentLoader {
 	}
 
 	private static boolean isEvoSuiteMainJar(String path) throws IllegalArgumentException{
-		
+
+		if(path.endsWith("classes")){
+			/*
+				we need to treat this specially:
+				eg, Jenkins/Maven on Linux on a module with only tests ended up
+				with not creating "target/classes" (it does on Mac though) but still putting
+				it on the classpath
+			 */
+			return false;
+		}
+
 		File file = new File(path);
 		if(!file.exists()){
 			throw new IllegalArgumentException("Non-existing file "+path);
