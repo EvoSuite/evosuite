@@ -59,7 +59,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final Set<String> branchlessMethods;
 	private final Set<String> methods;
 	
-	private final ClassLoader classLoader;
+	private transient final ClassLoader classLoader;
 	private final Set<Integer> branchesId;
 	
 	

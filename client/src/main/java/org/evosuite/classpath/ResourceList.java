@@ -178,7 +178,7 @@ public class ResourceList {
 		
 
 		String cpEntry = getCache().mapClassToCP.get(name);
-		logger.warn("Now reading: " + cpEntry);
+		logger.debug("REGRESSION: Now reading: " + cpEntry);
 		if(cpEntry==null){
 			if(!getCache().missingClasses.contains(name)){
 				getCache().missingClasses.add(name);
