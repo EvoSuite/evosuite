@@ -6,6 +6,7 @@ package org.evosuite;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.ExampleFieldClass;
@@ -88,7 +89,9 @@ public class TestRegression extends SystemTest {
 		testCovered(CallTest.class.getCanonicalName(), 3);
 	}
 
+	// Deprecated is now only applied to dependencies
     @Test
+    @Ignore
     public void testDependency_noDeprecated() {
         Properties.USE_DEPRECATED = false;
         testCovered(DepTest.class.getCanonicalName(), 2);
