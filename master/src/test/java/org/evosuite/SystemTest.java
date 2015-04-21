@@ -131,9 +131,10 @@ public class SystemTest {
 		String master = getMasterTestsTarget();
 		String runtime = getRuntimeTestsTarget();
 		String client = getClientTestsTarget();
+		String external = getExternalTarget();
 
 		EvoSuite evosuite = new EvoSuite();
-		String[] command = new String[] { "-setup", master,runtime, client };
+		String[] command = new String[] { "-setup", master,runtime, client, external };
 
 		Object result = evosuite.parseCommandLine(command);
 		Assert.assertNull(result);
@@ -146,6 +147,13 @@ public class SystemTest {
 	}
 
     //FIXME: these will change once com.examples goes to its own module
+
+	private static String getExternalTarget(){
+		String target = System.getProperty("user.dir") + File.separator + "external";
+
+		checkFile(target);
+		return target;
+	}
 
 	private static String getMasterTestsTarget() {
 		String target = System.getProperty("user.dir") + File.separator + "target"
