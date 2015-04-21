@@ -43,7 +43,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 	public int max_branch_fitness_valueO = 0;
 	public int max_branch_fitness_valueR = 0;
 
-	RegressionExecutionObserver observer;
+	transient RegressionExecutionObserver observer;
 	//RegressionMethodExecutionObserver methodObserver;
 
 	BranchCoverageSuiteFitness bcFitness;

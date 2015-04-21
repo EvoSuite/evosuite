@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,12 +43,15 @@ import org.slf4j.LoggerFactory;
  * @author Gordon Fraser
  */
 public class InstrumentingClassLoader extends ClassLoader {
+	/**
+	 * 
+	 */
 	private final static Logger logger = LoggerFactory.getLogger(InstrumentingClassLoader.class);
 	private final BytecodeInstrumentation instrumentation;
 	private final ClassLoader classLoader;
 	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 	private transient Boolean isRegression = false;
-
+	
 	/**
 	 * <p>
 	 * Constructor for InstrumentingClassLoader.
@@ -56,7 +60,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public InstrumentingClassLoader() {
 		this(new BytecodeInstrumentation());
 		setClassAssertionStatus(Properties.TARGET_CLASS, true);
-		logger.warn("standard classloader running now");
+		logger.debug("REGRESSION: standard classloader running now");
 	}
 	
 	/**
@@ -68,7 +72,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		this(new BytecodeInstrumentation());
 		setClassAssertionStatus(Properties.TARGET_CLASS, true);
 		this.isRegression  = isRegression;
-		logger.warn("regression classloader running now");
+		logger.debug("REGRESSION: regression classloader running now");
 	}
 
 	/**
@@ -147,7 +151,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 				if (result != null) {
 					return result;
 				} else {
-					logger.warn("Seeing class for first time: " + name);
+					logger.info("Seeing class for first time: " + name);
 					Class<?> instrumentedClass = null;
 					//LoggingUtils.muteCurrentOutAndErrStream();
 					try {

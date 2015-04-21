@@ -22,15 +22,15 @@ public class RegressionTestChromosome extends ExecutableChromosome {
 
 	private static final long serialVersionUID = -6345178117840330196L;
 
-	private transient TestChromosome theTest;
+	private TestChromosome theTest;
 
-	private transient  TestChromosome theSameTestForTheOtherClassLoader;
+	private TestChromosome theSameTestForTheOtherClassLoader;
 	
-	public transient String fitnessData = "";
+	public String fitnessData = "";
 
-	public transient double objDistance = 0.0;
+	public double objDistance = 0.0;
 	
-	public transient int diffExceptions = 0;
+	public int diffExceptions = 0;
 
 	// TODO: This doesn't really belong here
 	private transient ClassLoader theClassLoader = null;
