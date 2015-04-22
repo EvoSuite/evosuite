@@ -51,7 +51,7 @@ public abstract class Assertion implements Serializable {
 	protected Statement statement;
 	
 	/** Assertion Comment */
-	protected transient String comment;
+	protected String comment;
 
 	protected transient Set<Mutation> killedMutants = new LinkedHashSet<Mutation>();
 
