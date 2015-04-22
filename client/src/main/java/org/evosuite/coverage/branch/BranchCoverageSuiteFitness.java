@@ -59,7 +59,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final Set<String> branchlessMethods;
 	private final Set<String> methods;
 	
-	private transient final ClassLoader classLoader;
 	private final Set<Integer> branchesId;
 	
 	
@@ -81,8 +80,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	public BranchCoverageSuiteFitness(ClassLoader classLoader) {
 		
-		this.classLoader = classLoader;
-
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
 		if (prefix.isEmpty()) {

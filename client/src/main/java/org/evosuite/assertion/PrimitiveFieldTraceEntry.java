@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.variable.VariableReference;
 
 
@@ -139,7 +140,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 		if (assertion instanceof PrimitiveFieldAssertion) {
 			PrimitiveFieldAssertion ass = (PrimitiveFieldAssertion) assertion;
 			//TODO: removed ` && fieldMap.containsKey(ass.field)` for regression testing.
-			if (ass.source.equals(var))
+			if (ass.source.equals(var) && (Properties.isRegression() ||  fieldMap.containsKey(ass.field)))
 				return !fieldMap.get(ass.field).equals(ass.value);
 		}
 		return false;

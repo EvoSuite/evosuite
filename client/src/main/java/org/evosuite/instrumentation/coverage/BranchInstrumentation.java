@@ -60,7 +60,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 
     private static final String EXECUTION_TRACER = Type.getInternalName(ExecutionTracer.class);
     
-    private transient ClassLoader classLoader;
+    private ClassLoader classLoader;
 
 	/*
 	 * (non-Javadoc)

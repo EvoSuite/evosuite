@@ -85,16 +85,9 @@ public class BranchPool {
 
 	private static Map<ClassLoader, BranchPool> instanceMap = new HashMap<ClassLoader, BranchPool>();
 
-	private final ClassLoader classLoader;
-
-	/** Private constructor */
-	private BranchPool(ClassLoader classLoader) {
-		this.classLoader = classLoader;
-	}
-
 	public static BranchPool getInstance(ClassLoader classLoader) {
 		if (!instanceMap.containsKey(classLoader)) {
-			instanceMap.put(classLoader, new BranchPool(classLoader));
+			instanceMap.put(classLoader, new BranchPool());
 		}
 
 		return instanceMap.get(classLoader);
