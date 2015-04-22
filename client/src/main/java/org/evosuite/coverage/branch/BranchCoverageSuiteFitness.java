@@ -86,7 +86,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			prefix = Properties.TARGET_CLASS;
 			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(classLoader, prefix);
 			totalBranches = BranchPool.getInstance(classLoader).getBranchCountForPrefix(prefix);
-			numBranchlessMethods = BranchPool.getInstance(classLoader).getNumBranchlessMethods(prefix);
+			numBranchlessMethods = BranchPool.getInstance(classLoader).getNumBranchlessMethodsPrefix(prefix);
 			branchlessMethods = BranchPool.getInstance(classLoader).getBranchlessMethodsPrefix(prefix);
 			branchesId = BranchPool.getInstance(classLoader).getBranchIdsForPrefix(prefix);
 			methods = CFGMethodAdapter.getMethods(classLoader, prefix);
