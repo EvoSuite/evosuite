@@ -4,8 +4,10 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.evosuite.intellij.EvoParameters;
 import org.jetbrains.annotations.NotNull;
 
@@ -206,20 +208,29 @@ public class EvoSuiteExecutor {
             list.add("-Dctg_selected_cuts="+cuts);
         }
 
-        //TODO sounds useful
-        //ProjectJdkTable.getInstance().getAllJdks();
+        String cp = "";
 
-        ProjectRootManager projectManager = ProjectRootManager.getInstance(project);
+        //ProjectRootManager projectManager = ProjectRootManager.getInstance(project);
         //projectManager.getFullClassPath();
         //ModuleRootManager mrm = ModuleRootManager.getInstance()
 
-        //list.add("-DCP=" + cp);//TODO
-
-
         ProjectFileIndex pfi = ProjectFileIndex.SERVICE.getInstance(project);
         Module m = pfi.getModuleForFile(project.getProjectFile());
-        ModuleRootManager mrm = ModuleRootManager.getInstance(m);
+
+        boolean first = true;
+        for(VirtualFile vf : OrderEnumerator.orderEntries(m).recursively().getClassesRoots()){
+            if(first){
+                cp = vf.getCanonicalPath();
+                first = false;
+            } else {
+                cp += File.pathSeparator + vf.getCanonicalPath();
+            }
+        }
+
+        //ModuleRootManager mrm = ModuleRootManager.getInstance(m);
         //mrm.getFileIndex()
+
+        list.add("-DCP=" + cp);
 
         //TODO need export
 
