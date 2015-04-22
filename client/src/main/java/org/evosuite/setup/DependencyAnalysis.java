@@ -332,11 +332,6 @@ public class DependencyAnalysis {
 		ClientServices
 				.getInstance()
 				.getClientNode()
-				.trackOutputVariable(RuntimeVariable.CoveredBranchesBitString,
-						(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter()) * 2);
-		ClientServices
-				.getInstance()
-				.getClientNode()
 				.trackOutputVariable(RuntimeVariable.Total_Branches,
 						(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter()) * 2);
 		ClientServices
