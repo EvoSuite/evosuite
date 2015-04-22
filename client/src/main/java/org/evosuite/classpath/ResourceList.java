@@ -155,31 +155,24 @@ public class ResourceList {
 	 * @return
 	 */
 	public InputStream getClassAsStream(String name) {
+
 		String path = name.replace('.', '/') + ".class";
 		String windowsPath = name.replace(".", "\\") + ".class";
 
-		//first try with system classloader
-		InputStream is = null;
-		if(Properties.isRegression()){
-			//is = this.classLoader.getResourceAsStream(path);
-		}
-		else{
-			is = ClassLoader.getSystemResourceAsStream(path);
-			if(is!=null){
-				return is;
-			}
-			if (File.separatorChar != '/') {			
-				is = ClassLoader.getSystemResourceAsStream(windowsPath);
-				if(is!=null){
-					return is;
-				}
-			}
-		}
-		
-
 		String cpEntry = getCache().mapClassToCP.get(name);
-		logger.debug("REGRESSION: Now reading: " + cpEntry);
 		if(cpEntry==null){
+			logger.warn("Regression? {} | Now Reading: {}", Properties.isRegression()?"YES":"NO", name);
+			/*
+				the cache is initialized based on what is on the project classpath.
+				but that does not include the Java API, although it is accessed by
+				the SUT.
+			 */
+
+			InputStream ins = getClassAsStreamFromClassLoader(name);
+			if(ins != null){
+				return ins;
+			}
+
 			if(!getCache().missingClasses.contains(name)){
 				getCache().missingClasses.add(name);
 				/*
@@ -360,6 +353,26 @@ public class ResourceList {
 	// -------------------------------------------
 	// --------- private/protected methods  ------ 
 	// -------------------------------------------
+
+	private static InputStream getClassAsStreamFromClassLoader(String name) {
+
+		String path = name.replace('.', '/') + ".class";
+		String windowsPath = name.replace(".", "\\") + ".class";
+
+		//first try with system classloader
+		InputStream is = ClassLoader.getSystemResourceAsStream(path);
+		if (is != null) {
+			return is;
+		}
+		if (File.separatorChar != '/') {
+			is = ClassLoader.getSystemResourceAsStream(windowsPath);
+			if (is != null) {
+				return is;
+			}
+		}
+
+		return null;
+	}
 
 	private static boolean isClassAnInterface(InputStream input) throws IOException{
 		try{

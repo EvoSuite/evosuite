@@ -90,11 +90,12 @@ public class CFGClassAdapter extends ClassVisitor {
 			return mv;
 		}
 
-		if (!Properties.USE_DEPRECATED
-		        && (methodAccess & Opcodes.ACC_DEPRECATED) == Opcodes.ACC_DEPRECATED) {
-			logger.info("Skipping deprecated method " + name);
-			return mv;
-		}
+		// We ignore deprecated only for dependencies, not for the SUT
+//		if (!Properties.USE_DEPRECATED
+//		        && (methodAccess & Opcodes.ACC_DEPRECATED) == Opcodes.ACC_DEPRECATED) {
+//			logger.info("Skipping deprecated method " + name);
+//			return mv;
+//		}
 
 		if (isEnum && (name.equals("valueOf") || name.equals("values"))) {
 			logger.info("Skipping enum valueOf");

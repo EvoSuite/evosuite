@@ -3,13 +3,14 @@
  */
 package org.evosuite.assertion;
 
-import org.evosuite.Properties;
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
-import org.objectweb.asm.Type;
 
 /**
  * <p>
@@ -26,7 +27,14 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 	/** {@inheritDoc} */
 	@Override
 	protected void visit(Statement statement, Scope scope, VariableReference var) {
+		// TODO: Only MethodStatement?
 		if(statement.isAssignmentStatement())
+			return;
+		if(statement instanceof PrimitiveStatement<?>)
+			return;
+		if(statement instanceof ArrayStatement)
+			return;
+		if(statement instanceof ConstructorStatement)
 			return;
 		
 		try {
@@ -41,20 +49,12 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 			for (VariableReference other : scope.getElements(var.getType())) {
 				if (other == var)
 					continue;
-				if(other.isPrimitive())
-					continue;
+
 				Object otherObject = other.getObject(scope);
 				if (otherObject == null)
 					continue;
-
-				if (Properties.PURE_EQUALS) {
-					String className = object.getClass().getCanonicalName();
-					String methodName = "equals";
-					String descriptor = Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.getType(Object.class));
-					CheapPurityAnalyzer cheapPurityAnalyzer = CheapPurityAnalyzer.getInstance();
-					if (!cheapPurityAnalyzer.isPure(className, methodName, descriptor))
-						continue; //Don't compare using impure equals(Object) methods		
-				}
+				if(otherObject.getClass() != object.getClass())
+					continue;
 				
 				try {
 					logger.debug("Comparison of " + var + " with " + other + " is: "

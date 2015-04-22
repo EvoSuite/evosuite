@@ -170,7 +170,7 @@ public class GenericClass implements Serializable {
 
 		try {
 			return TypeUtils.isAssignable(rhsType, lhsType);
-		} catch (IllegalStateException e) {
+		} catch (Throwable e) {
 			logger.debug("Found unassignable type: " + e);
 			return false;
 		}
@@ -1635,6 +1635,8 @@ public class GenericClass implements Serializable {
 					logger.debug("Not assignable from "+toString());
 					// If the boundary is not assignable it may still be possible 
 					// to instantiate the generic to an assignable type
+					if(type instanceof WildcardType)
+						continue;
 					if (GenericTypeReflector.erase(type).isAssignableFrom(getRawClass())) {
 						Type instanceType = GenericTypeReflector.getExactSuperType(type,
 						                                                           getRawClass());

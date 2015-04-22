@@ -281,11 +281,11 @@ public class InheritanceTreeGenerator {
 			if ((cn.access & Opcodes.ACC_PUBLIC) == 0) {
 				return;
 			}
-		} else {
-			if (!canUse(cn)) {
-				logger.info("Cannot use "+cn.name);
-				return;
-			}
+//		} else {
+//			if (!canUse(cn)) {
+//				logger.info("Cannot use "+cn.name);
+//				return;
+//			}
 		}
 
 		if (cn.superName != null)

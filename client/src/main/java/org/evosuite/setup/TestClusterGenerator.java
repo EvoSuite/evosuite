@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -115,7 +116,9 @@ public class TestClusterGenerator {
 
 	private final Set<GenericAccessibleObject<?>> dependencyCache = new LinkedHashSet<GenericAccessibleObject<?>>();
 
-	private final static Map<Class<?>, Set<Method>> methodCache = new HashMap<Class<?>, Set<Method>>();
+	private final static Map<Class<?>, Set<Method>> methodCache = new LinkedHashMap<Class<?>, Set<Method>>();
+	
+	private final static Map<Class<?>, Set<Field>> accessibleFieldCache = new LinkedHashMap<Class<?>, Set<Field>>();
 
 	private final Set<GenericClass> genericCastClasses = new LinkedHashSet<GenericClass>();
 
@@ -827,6 +830,10 @@ public class TestClusterGenerator {
 	 * @return
 	 */
 	public static Set<Field> getAccessibleFields(Class<?> clazz) {
+		if(accessibleFieldCache.containsKey(clazz)) {
+			return accessibleFieldCache.get(clazz);
+		}
+
 		Set<Field> fields = new LinkedHashSet<Field>();
 		try {
 			for (Field f : clazz.getFields()) {
@@ -838,6 +845,8 @@ public class TestClusterGenerator {
 			logger.info("Error while accessing fields of class " + clazz.getName()
 			        + " - check allowed permissions: " + t);
 		}
+		
+		accessibleFieldCache.put(clazz, fields);
 		return fields;
 	}
 
@@ -904,19 +913,6 @@ public class TestClusterGenerator {
 			return false;
 		}
 
-		// TODO: This should be unnecessary if Java reflection works...
-		// This is inefficient 
-		if (ANONYMOUS_MATCHER1.matcher(c.getName()).matches()) {
-			logger.debug(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+")");
-			return false;
-		}
-
-		// TODO: This should be unnecessary if Java reflection works...
-		if (ANONYMOUS_MATCHER2.matcher(c.getName()).matches()) {
-			logger.debug(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+")");
-			return false;
-		}
-
 		if (c.getName().startsWith("junit"))
 			return false;
 
@@ -941,6 +937,20 @@ public class TestClusterGenerator {
 		        && !c.getName().contains(".")) {
 			return false;
 		}
+		
+		// TODO: This should be unnecessary if Java reflection works...
+		// This is inefficient 
+		if (ANONYMOUS_MATCHER1.matcher(c.getName()).matches()) {
+			logger.warn(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+")");
+			return false;
+		}
+
+		// TODO: This should be unnecessary if Java reflection works...
+		if (ANONYMOUS_MATCHER2.matcher(c.getName()).matches()) {
+			logger.warn(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+")");
+			return false;
+		}
+
 
 		if (Modifier.isPublic(c.getModifiers())) {
 			return true;
@@ -973,8 +983,10 @@ public class TestClusterGenerator {
 			return false;// handled here to avoid printing reasons
 
 		if (!Properties.USE_DEPRECATED && f.isAnnotationPresent(Deprecated.class)) {
-			logger.debug("Skipping deprecated field " + f.getName());
-			return false;
+			if(!f.getDeclaringClass().equals(Properties.getTargetClass())) {
+				logger.debug("Skipping deprecated field " + f.getName());
+				return false;
+			}
 		}
 
 		if (f.isSynthetic()) {
@@ -1039,8 +1051,10 @@ public class TestClusterGenerator {
 		}
 
 		if (!Properties.USE_DEPRECATED && m.isAnnotationPresent(Deprecated.class)) {
-			logger.debug("Excluding deprecated method " + m.getName());
-			return false;
+			if(!m.getDeclaringClass().equals(Properties.getTargetClass())) {
+				logger.debug("Excluding deprecated method " + m.getName());
+				return false;
+			}
 		}
 
 		if (m.isAnnotationPresent(Test.class)) {

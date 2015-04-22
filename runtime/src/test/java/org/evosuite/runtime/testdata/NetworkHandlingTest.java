@@ -1,6 +1,7 @@
 package org.evosuite.runtime.testdata;
 
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.net.MockDatagramSocket;
 import org.evosuite.runtime.mock.java.net.MockInetAddress;
 import org.evosuite.runtime.mock.java.net.MockURL;
@@ -25,11 +26,13 @@ public class NetworkHandlingTest {
     public void init(){
         RuntimeSettings.useVNET = true;
         VirtualNetwork.getInstance().reset();
+        MockFramework.enable();
     }
 
     @After
     public void tearDown(){
         RuntimeSettings.useVNET = VNET;
+        MockFramework.disable();
     }
 
     @Test(timeout = 500)
