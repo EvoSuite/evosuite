@@ -671,7 +671,7 @@ public class BranchPool {
 		return methods;
 	}
 	
-	public static boolean isBranchlessMethod(String className, String methodName) {
+	public boolean isBranchlessMethod(String className, String methodName) {
 		Map<String, Integer> methodMap = branchlessMethods.get(className);
 		if(methodMap != null) {
 			return methodMap.containsKey(methodName);

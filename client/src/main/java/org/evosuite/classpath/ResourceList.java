@@ -161,7 +161,7 @@ public class ResourceList {
 
 		String cpEntry = getCache().mapClassToCP.get(name);
 		if(cpEntry==null){
-			logger.warn("Regression? {} | Now Reading: {}", Properties.isRegression()?"YES":"NO", name);
+			
 			/*
 				the cache is initialized based on what is on the project classpath.
 				but that does not include the Java API, although it is accessed by
