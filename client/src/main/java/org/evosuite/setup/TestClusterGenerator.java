@@ -497,7 +497,7 @@ public class TestClusterGenerator {
 				if (canUse(constructor)) {
 					GenericConstructor genericConstructor = new GenericConstructor(
 					        constructor, clazz);
-					//cluster.addTestCall(genericConstructor);
+					cluster.addTestCall(genericConstructor);
 					// TODO: Add types!
 					cluster.addGenerator(new GenericClass(clazz), //.getWithWildcardTypes(),
 					                     genericConstructor);

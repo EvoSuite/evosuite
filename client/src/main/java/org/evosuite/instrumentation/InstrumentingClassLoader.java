@@ -50,7 +50,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	private final BytecodeInstrumentation instrumentation;
 	private final ClassLoader classLoader;
 	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
-	private transient Boolean isRegression = false;
+	private boolean isRegression = false;
 	
 	/**
 	 * <p>
