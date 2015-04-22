@@ -697,7 +697,7 @@ public class CoverageAnalysis {
         Collections.sort(tests, new Comparator<Class<?>>() {
             @Override
             public int compare(Class<?> t0, Class<?> t1) {
-                return Integer.valueOf(t1.getName().length()).compareTo(t0.getName().length());
+                return Integer.compare(t1.getName().length(), t0.getName().length());
             }
         });
     }

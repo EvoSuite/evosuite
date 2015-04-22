@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.setup.DependencyAnalysis;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -20,14 +21,16 @@ public class DependencyAnalysisTest {
 		Properties.CRITERION = new Criterion[1];
 		Properties.CRITERION[0]=Criterion.IBRANCH;
 		List<String> classpath = new ArrayList<>();
-		classpath.add(System.getProperty("user.dir") + "/target/test-classes");
+		String cp = System.getProperty("user.dir") + "/target/test-classes";
+		classpath.add(cp);
+		ClassPathHandler.getInstance().addElementToTargetProjectClassPath(cp);
 		try {
 			DependencyAnalysis
 					.analyze(
 							"com.examples.with.different.packagename.context.complex.EntryPointsClass",
 							classpath);
 		} catch (ClassNotFoundException | RuntimeException e) {
-			Assert.fail();
+			Assert.fail(e.toString());
 		}
 	}
 

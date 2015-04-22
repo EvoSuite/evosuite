@@ -292,8 +292,9 @@ public class CFGMethodAdapter extends MethodVisitor {
 		return !((this.access & Opcodes.ACC_SYNTHETIC) != 0
 		        || (this.access & Opcodes.ACC_BRIDGE) != 0 || (this.access & Opcodes.ACC_NATIVE) != 0)
 		        && !methodName.contains("<clinit>")
-		        && !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
-		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
+		        && !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE);
+		        // We now only ignore deprecated dependencies; any code in the SUT should be covered
+		        //		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
 	}
 	
 	public Set<String> getMethods(String className) {

@@ -64,6 +64,7 @@ public class RuntimeInstrumentation {
                 "de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite", "org.uispec4j",
                 "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
                 "testing.generation.evosuite", "com.yourkit", "com.vladium.emma.", "daikon.",
+                "org.netbeans.lib.profiler", // VisualVM profiler
                 // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
                 "apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
                 "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc", "org.mozilla.javascript.gen.c",

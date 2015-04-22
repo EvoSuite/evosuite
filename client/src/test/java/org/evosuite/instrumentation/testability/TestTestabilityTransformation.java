@@ -6,6 +6,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.evosuite.Properties;
+import org.evosuite.classpath.ClassPathHandler;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.FlagExample1;
@@ -17,6 +19,12 @@ public class TestTestabilityTransformation {
 
 	// TODO: Not yet working
 
+	@BeforeClass
+	public static void init(){
+		String cp = System.getProperty("user.dir") + "/target/test-classes";
+		ClassPathHandler.getInstance().addElementToTargetProjectClassPath(cp);
+	}
+	
 	@Test
 	public void testSimpleFlag() throws ClassNotFoundException, InstantiationException,
 	        IllegalAccessException, SecurityException, NoSuchMethodException,

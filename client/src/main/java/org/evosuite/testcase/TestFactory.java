@@ -3,7 +3,6 @@
  */
 package org.evosuite.testcase;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -25,7 +24,6 @@ import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.testcase.execution.TimeoutHandler;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentStatements;
 import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
