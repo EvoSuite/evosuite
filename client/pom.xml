@@ -105,27 +105,6 @@
             <groupId>oro</groupId>
             <artifactId>oro</artifactId>
         </dependency>
-        <dependency>
-			<groupId>jaba</groupId>
-			<artifactId>jaba</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>jdiff</groupId>
-			<artifactId>jdiff</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>rt</groupId>
-			<artifactId>rt</artifactId>
-			<version>1.6</version>
-		</dependency>
-		<dependency>
-			<groupId>util</groupId>
-			<artifactId>util</artifactId>
-			<version>1.0</version>
-		</dependency>
-
     </dependencies>
     <repositories>
     	<repository>
