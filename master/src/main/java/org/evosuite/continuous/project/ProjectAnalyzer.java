@@ -202,8 +202,8 @@ public class ProjectAnalyzer {
 				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 				instrumenting.loadClass(className);
 
-				numberOfBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter();
-				hasCode = (numberOfBranches > 0) || (BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchlessMethods().size() > 0);
+				numberOfBranches = BranchPool.getInstance(instrumenting).getBranchCounter();
+				hasCode = (numberOfBranches > 0) || (BranchPool.getInstance(instrumenting).getBranchlessMethods().size() > 0);
 
 				/*
 				 * just to avoid possible issues with instrumenting classloader
