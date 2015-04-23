@@ -98,6 +98,35 @@ public class ResourceList {
 			}
 		}
 
+		/**
+		 * Keep track of all jars we opened.
+		 * Key -> the path of the jar file
+		 */
+		public Map<String,JarFile> openedJars = new LinkedHashMap<>();
+
+		public JarFile getJar(String entry){
+			if(openedJars.containsKey(entry)){
+				return openedJars.get(entry);
+			}
+			try {
+				JarFile jar = new JarFile(entry);
+				openedJars.put(entry,jar);
+				return jar;
+			} catch (IOException e) {
+				logger.error("Error while reading jar file "+entry+": "+e.getMessage(),e);
+				return null;
+			}
+		}
+
+		public void close(){
+			for(JarFile jar : openedJars.values()){
+				try {
+					jar.close();
+				} catch (IOException e) {
+					logger.error("Cannot close jar file " + jar.getName() + ". " + e.toString());
+				}
+			}
+		}
 	}
 	
 
@@ -134,6 +163,9 @@ public class ResourceList {
 	// -------------------------------------------
 
 	public void resetCache(){
+		if(cache!=null){
+			cache.close();
+		}
 		cache = null;
 	}
 
@@ -186,17 +218,23 @@ public class ResourceList {
 		}
 
 		if(cpEntry.endsWith(".jar")){
-			try(JarFile jar = new JarFile(cpEntry)){
-				JarEntry entry = jar.getJarEntry(path);
-				if(entry == null){
-					logger.error("Error: could not find "+path+" inside of jar file "+cpEntry);
-					return null;
-				}
-				return jar.getInputStream(entry);
+			JarFile jar = getCache().getJar(cpEntry);
+			if(jar==null){
+				return null;
+			}
+			JarEntry entry = jar.getJarEntry(path);
+			if(entry == null){
+				logger.error("Error: could not find "+path+" inside of jar file "+cpEntry);
+				return null;
+			}
+			InputStream is = null;
+			try {
+				is = jar.getInputStream(entry);
 			} catch (IOException e) {
 				logger.error("Error while reading jar file "+cpEntry+": "+e.getMessage(),e);
 				return null;
-			} 
+			}
+			return is;
 		} else {
 			//if not a jar, it is a folder
 			File classFile = null;
@@ -543,12 +581,7 @@ public class ResourceList {
 	}
 
 	private void scanJar(String jarEntry) {
-		JarFile zf;
-		try {
-			zf = new JarFile(jarEntry);
-		} catch (final Exception e) {
-			throw new Error(e);
-		}
+		JarFile zf = getCache().getJar(jarEntry);
 
 		Enumeration<?> e = zf.entries();
 		while (e.hasMoreElements()) {
@@ -563,11 +596,6 @@ public class ResourceList {
 			getCache().mapClassToCP.put(className, jarEntry);//getPackageName
 			getCache().mapCPtoClasses.get(jarEntry).add(className);
 			getCache().addPrefix(getParentPackageName(className), jarEntry);
-		}
-		try {
-			zf.close();
-		} catch (final IOException e1) {
-			throw new Error(e1);
 		}
 	}
 
