@@ -24,7 +24,7 @@ public class TestTestabilityTransformation {
 		String cp = System.getProperty("user.dir") + "/target/test-classes";
 		ClassPathHandler.getInstance().addElementToTargetProjectClassPath(cp);
 	}
-	
+
 	@Test
 	public void testSimpleFlag() throws ClassNotFoundException, InstantiationException,
 	        IllegalAccessException, SecurityException, NoSuchMethodException,
