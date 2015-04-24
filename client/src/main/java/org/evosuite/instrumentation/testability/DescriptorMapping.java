@@ -31,6 +31,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
@@ -316,7 +317,7 @@ public class DescriptorMapping {
 			        + className + "." + methodName);
 			ClassReader reader;
 			try {
-				reader = new ClassReader(name);
+				reader = new ClassReader(ResourceList.getClassAsStream(name));
 				ClassNode parent = new ClassNode();
 				reader.accept(parent, ClassReader.EXPAND_FRAMES);
 
@@ -377,7 +378,7 @@ public class DescriptorMapping {
 			        + className + "." + methodName + transformedDesc);
 			ClassReader reader;
 			try {
-				reader = new ClassReader(name);
+				reader = new ClassReader(ResourceList.getClassAsStream(name));
 				ClassNode parent = new ClassNode();
 				reader.accept(parent, ClassReader.EXPAND_FRAMES);
 
@@ -433,7 +434,7 @@ public class DescriptorMapping {
 
 			ClassReader reader;
 			try {
-				reader = new ClassReader(name);
+				reader = new ClassReader(ResourceList.getClassAsStream(name));
 				ClassNode parent = new ClassNode();
 				reader.accept(parent, ClassReader.EXPAND_FRAMES);
 
