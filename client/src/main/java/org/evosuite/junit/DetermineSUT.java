@@ -249,7 +249,7 @@ public class DetermineSUT {
 	}
 
 	private ClassNode loadClassNode(String className) throws IOException {
-		ClassReader reader = new ClassReader(className);
+		ClassReader reader = new ClassReader(ResourceList.getClassAsStream(className));
 
 		ClassNode cn = new ClassNode();
 		reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG);	
