@@ -21,6 +21,7 @@
 package org.evosuite.setup;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -319,11 +320,15 @@ public class DependencyAnalysis {
 
 	private static ClassNode loadClassNode(String className) throws IOException {
 		
-		ClassReader reader = new ClassReader(ResourceList.getClassAsStream(className));
-
+		InputStream classStream = ResourceList.getClassAsStream(className);
 		ClassNode cn = new ClassNode();
-		reader.accept(cn, ClassReader.SKIP_FRAMES); // |
-													// ClassReader.SKIP_DEBUG);
+		try {
+			ClassReader reader = new ClassReader(classStream);
+			reader.accept(cn, ClassReader.SKIP_FRAMES); // |
+			// ClassReader.SKIP_DEBUG);
+		} finally {
+			classStream.close(); // ASM does not close the stream
+		}
 		return cn;
 	}
 
