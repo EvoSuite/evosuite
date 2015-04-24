@@ -27,6 +27,7 @@ import java.util.*;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
@@ -317,7 +318,8 @@ public class DependencyAnalysis {
 	}
 
 	private static ClassNode loadClassNode(String className) throws IOException {
-		ClassReader reader = new ClassReader(className);
+		
+		ClassReader reader = new ClassReader(ResourceList.getClassAsStream(className));
 
 		ClassNode cn = new ClassNode();
 		reader.accept(cn, ClassReader.SKIP_FRAMES); // |
