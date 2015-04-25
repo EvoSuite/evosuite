@@ -348,17 +348,11 @@ public class JUnitAnalyzer {
 
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(generated);
 
-			List<String> optionList;
-			if (Properties.CLIENT_ON_THREAD) {
-				optionList = new ArrayList<String>();
-				String evosuiteCP = ClassPathHandler.getInstance().getEvoSuiteClassPath();
-
-				String targetProjectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
-				String classpath = evosuiteCP + File.pathSeparator + targetProjectCP;
-				optionList.addAll(Arrays.asList("-classpath", classpath));
-			} else {
-				optionList = null;
-			}
+			List<String> optionList = new ArrayList<>();
+			String evosuiteCP = ClassPathHandler.getInstance().getEvoSuiteClassPath();
+			String targetProjectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
+			String classpath = targetProjectCP + File.pathSeparator + evosuiteCP;
+			optionList.addAll(Arrays.asList("-classpath", classpath));
 
 			CompilationTask task = compiler.getTask(null, fileManager, diagnostics,
 			                                        optionList, null, compilationUnits);
