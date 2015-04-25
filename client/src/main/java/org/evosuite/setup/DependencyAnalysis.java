@@ -321,6 +321,14 @@ public class DependencyAnalysis {
 	private static ClassNode loadClassNode(String className) throws IOException {
 		
 		InputStream classStream = ResourceList.getClassAsStream(className);
+		if(classStream == null) {
+			// This used to throw an IOException that leads to null being
+			// returned, so for now we're just returning null directly
+			// TODO: Proper treatment of missing classes (can also be
+			//       invalid calls, e.g. [L/java/lang/Object;)
+			logger.info("Could not find class file: "+className);
+			return null;
+		}
 		ClassNode cn = new ClassNode();
 		try {
 			ClassReader reader = new ClassReader(classStream);
