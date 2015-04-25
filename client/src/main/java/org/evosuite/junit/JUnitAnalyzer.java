@@ -54,7 +54,7 @@ public class JUnitAnalyzer {
 	private static final String CLASS = ".class";
 
 	
-	private static NonInstrumentingClassLoader loader = new NonInstrumentingClassLoader(ClassLoader.getSystemClassLoader());
+	private static final NonInstrumentingClassLoader loader = new NonInstrumentingClassLoader();
 	
 	/**
 	 * Try to compile each test separately, and remove the ones that cannot be
@@ -257,6 +257,7 @@ public class JUnitAnalyzer {
 	}
 
 	private static JUnitResult runJUnitOnCurrentProcess(Class<?>[] testClasses) {
+
 		JUnitCore runner = new JUnitCore();
 
 		/*
@@ -425,7 +426,7 @@ public class JUnitAnalyzer {
 		 * 
 		 * A simple option is to just use an instrumenting class loader,
 		 * as it does exactly the same type of instrumentation.
-		 * TODO: but a better idea would be to use a new 
+		 * But a better idea would be to use a new
 		 * non-instrumenting classloader to re-load the CUT, and so see
 		 * if the JavaAgent works properly.
 		 */
@@ -461,7 +462,7 @@ public class JUnitAnalyzer {
 		 * to re-loaded it for a .class file that is in the same folder
 		 */
 		
-		List<File> otherClasses = new LinkedList<File>();
+		List<File> otherClasses = new LinkedList<>();
 		
 		for(File file : parentFolder.listFiles()){
 			String  name = removeFileExtension(file.getName());
@@ -477,35 +478,6 @@ public class JUnitAnalyzer {
 		return otherClasses;
 	}
 	
-	@Deprecated // this code looks wrong
-	private static List<File> _listOnlyFiles(List<File> tests) {
-		List<File> otherClasses = new LinkedList<File>();
-
-		for (File test : tests) {
-			File folder = test.getParentFile();
-			String testFileNameNoExt = removeFileExtension(test.getName());
-
-			for (File file : folder.listFiles()) {
-				if (file.equals(test)) {
-					continue;
-				}
-
-				String fileNameNoExt = removeFileExtension(file.getName());
-				if (fileNameNoExt.equals(testFileNameNoExt)) {
-					/*
-					 * if we already loaded a CUT due to its .java, do not want
-					 * to re-loaded it for a .class
-					 */
-					continue;
-				}
-
-				if (file.isFile()) {
-					otherClasses.add(file);
-				}
-			}
-		}
-		return otherClasses;
-	}
 
 	private static String removeFileExtension(String str) {
 		if (str == null) {
@@ -626,7 +598,7 @@ public class JUnitAnalyzer {
 			loadClass(file);			
 		}
 		
-		List<Class<?>> classes = new ArrayList<Class<?>>();
+		List<Class<?>> classes = new ArrayList<>();
 		
 		/*
 		 * once the scaffoldings are loaded, we can load the tests that
@@ -661,7 +633,6 @@ public class JUnitAnalyzer {
 			packagePrefix += ".";
 		}
 
-
 		String name = file.getName();
 
 		if (!name.endsWith(JAVA) && !name.endsWith(CLASS)) {
@@ -676,8 +647,7 @@ public class JUnitAnalyzer {
 
 		if (name.endsWith(JAVA)) {
 			name = name.substring(0, name.length() - JAVA.length());
-			fileName = fileName.substring(0, fileName.length() - JAVA.length())
-			        + ".class";
+			fileName = fileName.substring(0, fileName.length() - JAVA.length()) + ".class";
 		} else {
 			assert name.endsWith(CLASS);
 			name = name.substring(0, name.length() - CLASS.length());
@@ -689,12 +659,10 @@ public class JUnitAnalyzer {
 		try {
 			logger.info("Loading class " + className);
 			//testClass = ((InstrumentingClassLoader) TestGenerationContext.getInstance().getClassLoaderForSUT()).loadClassFromFile(className,
-			testClass = loader.loadClassFromFile(className,
-			                                                                                                                      fileName);
+			testClass = loader.loadClassFromFile(className,fileName);
 		} catch (ClassNotFoundException e) {
 			logger.error("Failed to load test case " + className + " from file "
 			        + file.getAbsolutePath() + " , error " + e, e);
-			return null;
 		}
 		return testClass;
 	}
