@@ -1048,7 +1048,13 @@ public class GenericClass implements Serializable {
 			Type ownerType = pType.getOwnerType();
 			Map<TypeVariable<?>, Type> superTypeMap = superClass.getTypeVariableMap();
 			Type[] origArguments = pType.getActualTypeArguments();
-			Type[] arguments = Arrays.copyOf(origArguments, origArguments.length);
+			Type[] arguments = new Type[origArguments.length];
+			// For some reason, doing this would lead to arguments being
+			// of component type TypeVariable, which would lead to
+			// ArrayStoreException if we try to assign a WildcardType
+			//Type[] arguments = Arrays.copyOf(origArguments, origArguments.length);
+			for(int i = 0; i < origArguments.length; i++)
+				arguments[i] = origArguments[i];
 			List<TypeVariable<?>> variables = getTypeVariables();
 			for (int i = 0; i < arguments.length; i++) {
 				TypeVariable<?> var = variables.get(i);
