@@ -149,27 +149,8 @@ public class EvoSuite {
 
             setupProperties();
 
-            if (TestSuiteWriterUtils.needToUseAgent()) {
-				/*
-				 * if we need to activate JavaAgent (eg to handle environment in generated tests), we need
-				 * to be sure we can use tools.jar
-				 *
-				 * This throws an exception if not available
-				 */
-                ToolsJarLocator locator = new ToolsJarLocator(Properties.TOOLS_JAR_LOCATION);
-                locator.getLoaderForToolsJar();
-                if (locator.getLocationNotOnClasspath() != null) {
-                    try {
-			            /*
-			             * it is important that tools.jar ends up in the classpath of the _system_ classloader,
-			             * otherwise exceptions in EvoSuite classes using tools.jar
-			             */
-                        logger.info("Using JDK libraries at: " + locator.getLocationNotOnClasspath());
-                        ClassPathHacker.addFile(locator.getLocationNotOnClasspath());  //FIXME needs refactoring
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to add " + locator.getLocationNotOnClasspath() + " to system classpath");
-                    }
-                }
+            if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
+                ClassPathHacker.initializeToolJar();
             }
 
             if (!line.hasOption("regressionSuite")) {
