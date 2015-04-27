@@ -42,6 +42,12 @@ public class Utils {
             if(entry.endsWith("!")){
                 entry = entry.substring(0,entry.length()-1);
             }
+
+            if(entry.endsWith("zip")){
+                //for some reasons, Java src.zip can end up on dependencies...
+                continue;
+            }
+
             cp += File.pathSeparator + entry;
         }
         return cp;
