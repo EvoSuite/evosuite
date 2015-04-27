@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.Properties;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -47,14 +49,19 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
     // Each test gets a set of distinct covered goals, these are mapped by goal string
     private final Map<String, TestFitnessFunction> outputCoverageMap = new HashMap<String, TestFitnessFunction>();
 
+	private final TestsArchive testsArchive;
 
+    public OutputCoverageSuiteFitness() {
+    	this(TestsArchive.instance);
+    }
     /**
      * <p>
      * Constructor for OutputCoverageSuiteFitness.
      * </p>
      */
-    public OutputCoverageSuiteFitness() {
-
+    public OutputCoverageSuiteFitness(TestsArchive archive) {
+    	testsArchive = archive;
+    	
         // Add observer
         TestCaseExecutor executor = TestCaseExecutor.getInstance();
         OutputObserver observer = new OutputObserver();
@@ -73,6 +80,9 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         List<OutputCoverageTestFitness> goals = new OutputCoverageFactory().getCoverageGoals();
         for (OutputCoverageTestFitness goal : goals) {
             outputCoverageMap.put(goal.toString(), goal);
+			// if(Properties.TEST_ARCHIVE)
+			//	testsArchive.addGoalToCover(this, goal);
+
         }
     }
 
@@ -133,7 +143,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         for (String strGoal : strGoals) {
             if (outputCoverageMap.containsKey(strGoal)) {
                 setOfCoveredGoals.add(strGoal);
-                result.test.addCoveredGoal(outputCoverageMap.get(strGoal));
+                result.test.addCoveredGoal(outputCoverageMap.get(strGoal));    				
             }
         }
     }

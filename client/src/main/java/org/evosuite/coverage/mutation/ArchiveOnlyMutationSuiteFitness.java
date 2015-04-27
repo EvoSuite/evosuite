@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -36,14 +37,17 @@ public class ArchiveOnlyMutationSuiteFitness extends MutationSuiteFitness {
 		super();
 		testArchive = archive;
 		for(MutationTestFitness goal : mutationGoals) {
-			testArchive.addGoalToCover(this, goal);
 			mutantMap.put(goal.getMutation().getId(), goal);
 			mutants.add(goal.getMutation().getId());
+			if(Properties.TEST_ARCHIVE)
+				testArchive.addGoalToCover(this, goal);
 		}
 	}
 	
 	@Override
 	public boolean updateCoveredGoals() {
+		if(!Properties.TEST_ARCHIVE)
+			return false;
 		
 		for (Integer mutant : toRemoveMutants) {
 			boolean removed = mutants.remove(mutant);
@@ -95,9 +99,11 @@ public class ArchiveOnlyMutationSuiteFitness extends MutationSuiteFitness {
 				if(!mutants.contains(entry.getKey()) || removedMutants.contains(entry.getKey()))
 					continue;
 				if(entry.getValue() == 0.0) {
-					toRemoveMutants.add(entry.getKey());
-					testArchive.putTest(this, mutantMap.get(entry.getKey()), result.test);
 					result.test.addCoveredGoal(mutantMap.get(entry.getKey()));
+					if(Properties.TEST_ARCHIVE) {
+						toRemoveMutants.add(entry.getKey());
+						testArchive.putTest(this, mutantMap.get(entry.getKey()), result.test);
+					}
 				}
 				if (!mutant_distance.containsKey(entry.getKey()))
 					mutant_distance.put(entry.getKey(), entry.getValue());
@@ -133,6 +139,9 @@ public class ArchiveOnlyMutationSuiteFitness extends MutationSuiteFitness {
 	}
 
     public TestSuiteChromosome getBestStoredIndividual(){
+		if(!Properties.TEST_ARCHIVE) {
+			return null;
+		}
         // TODO: There's a design problem here because
         //       other fitness functions use the same archive
         return testArchive.getReducedChromosome();

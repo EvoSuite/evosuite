@@ -22,7 +22,7 @@ import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
 import org.evosuite.coverage.ibranch.archive.ArchiveIBranchSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
-import org.evosuite.coverage.line.archive.ArchiveOnlyLineCoverageSuiteFitness;
+import org.evosuite.coverage.line.OnlyLineCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodCoverageFactory;
 import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageFactory;
@@ -112,8 +112,8 @@ public class FitnessFunctions {
 			return new MethodCoverageSuiteFitness();
 		case METHODNOEXCEPTION:
 			return new MethodNoExceptionCoverageSuiteFitness();
-		case ARCHIVELINE:
-			return new ArchiveOnlyLineCoverageSuiteFitness();
+		case ONLYLINE:
+			return new OnlyLineCoverageSuiteFitness();
 		case LINE:
 			return new LineCoverageSuiteFitness();
 		case OUTPUT:
@@ -178,7 +178,7 @@ public class FitnessFunctions {
 			return new MethodNoExceptionCoverageFactory();
 		case LINE:
 			return new LineCoverageFactory();
-		case ARCHIVELINE:
+		case ONLYLINE:
 			return new LineCoverageFactory();
 		case OUTPUT:
 			return new OutputCoverageFactory();

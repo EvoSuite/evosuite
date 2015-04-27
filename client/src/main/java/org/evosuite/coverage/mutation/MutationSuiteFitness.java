@@ -20,15 +20,22 @@
  */
 package org.evosuite.coverage.mutation;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 
@@ -47,19 +54,58 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected final List<MutationTestFitness> mutationGoals;
 
-	/**
-	 * <p>
-	 * Constructor for MutationSuiteFitness.
-	 * </p>
-	 */
+	protected final TestsArchive testArchive;
+
+	public final Set<Integer> mutants = new HashSet<Integer>();
+
+	public final Set<Integer> removedMutants = new HashSet<Integer>();
+
+	public final Set<Integer> toRemoveMutants = new HashSet<Integer>();
+
+	public final Map<Integer, MutationTestFitness> mutantMap = new HashMap<Integer, MutationTestFitness>();
+
 	public MutationSuiteFitness() {
+		this(TestsArchive.instance);
+	}
+	
+	public MutationSuiteFitness(TestsArchive testArchive) {
+		this.testArchive = testArchive;
 		MutationFactory factory = new MutationFactory(
-		        ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION));
+		        ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION));
 		mutationGoals = factory.getCoverageGoals();
 		logger.info("Mutation goals: " + mutationGoals.size());
 		branchFitness = new BranchCoverageSuiteFitness();
+		
+		for(MutationTestFitness goal : mutationGoals) {
+			mutantMap.put(goal.getMutation().getId(), goal);
+			mutants.add(goal.getMutation().getId());
+			if(Properties.TEST_ARCHIVE)
+				testArchive.addGoalToCover(this, goal);
+		}
+
 	}
 
+	@Override
+	public boolean updateCoveredGoals() {
+		if(!Properties.TEST_ARCHIVE)
+			return false;
+		
+		for (Integer mutant : toRemoveMutants) {
+			boolean removed = mutants.remove(mutant);
+			TestFitnessFunction f = mutantMap.remove(mutant);
+			if (removed && f != null) {
+				removedMutants.add(mutant);
+			} else {
+				throw new IllegalStateException("goal to remove not found");
+			}
+		}
+
+		toRemoveMutants.clear();
+		logger.info("Current state of archive: "+testArchive.toString());
+		
+		return true;
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult runTest(TestCase test) {
@@ -93,4 +139,13 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	@Override
 	public abstract double getFitness(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual);
+	
+    public TestSuiteChromosome getBestStoredIndividual(){
+		if(!Properties.TEST_ARCHIVE) {
+			return null;
+		}
+        // TODO: There's a design problem here because
+        //       other fitness functions use the same archive
+        return testArchive.getReducedChromosome();
+    }
 }

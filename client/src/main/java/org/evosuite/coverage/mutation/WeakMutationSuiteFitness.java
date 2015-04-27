@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -67,12 +68,24 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		 */
 		double fitness = branchFitness.getFitness(individual);
 		Map<Integer, Double> mutant_distance = new HashMap<Integer, Double>();
-		Set<Integer> touchedMutants = new HashSet<Integer>();
+		Set<Integer> touchedMutants = new HashSet<Integer>(removedMutants);
 
 		for (ExecutionResult result : results) {
 			touchedMutants.addAll(result.getTrace().getTouchedMutants());
 
 			for (Entry<Integer, Double> entry : result.getTrace().getMutationDistances().entrySet()) {
+				if(!mutants.contains(entry.getKey()) || removedMutants.contains(entry.getKey()))
+					continue;
+
+				if(entry.getValue() == 0.0) {
+					result.test.addCoveredGoal(mutantMap.get(entry.getKey()));
+					if(Properties.TEST_ARCHIVE) {
+						toRemoveMutants.add(entry.getKey());
+						testArchive.putTest(this, mutantMap.get(entry.getKey()), result.test);
+						individual.isToBeUpdated(true);
+					}
+				}
+				
 				if (!mutant_distance.containsKey(entry.getKey()))
 					mutant_distance.put(entry.getKey(), entry.getValue());
 				else {
@@ -85,7 +98,7 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 
 		// Second objective: touch all mutants?
 		fitness += MutationPool.getMutantCounter() - touchedMutants.size();
-		int covered = 0;
+		int covered = removedMutants.size();
 
 		for (Double distance : mutant_distance.values()) {
 			if (distance < 0) {
@@ -95,8 +108,9 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 			}
 
 			fitness += normalize(distance);
-			if (distance == 0.0)
+			if (distance == 0.0) {
 				covered++;
+			}
 		}
 		
 		updateIndividual(this, individual, fitness);

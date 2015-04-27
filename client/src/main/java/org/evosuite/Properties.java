@@ -1067,6 +1067,9 @@ public class Properties {
 		SEED_RANDOM_INDIVIDUAL_METHOD, SEED_MUTATED_BEST_INDIVIDUAL
 	}
 
+	@Parameter(key = "test_archive", description = "Use an archive of covered goals during test generation")
+	public static boolean TEST_ARCHIVE = true;
+
 	/** Constant <code>TEST_FACTORY</code> */
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
 	public static TestFactory TEST_FACTORY = TestFactory.RANDOM;
@@ -1250,7 +1253,7 @@ public class Properties {
 	public enum Criterion {
 		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, ARCHIVEBRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
         MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, ARCHIVEIBRANCH, REGRESSION, READABILITY,
-        ONLYBRANCH, ONLYMUTATION, ARCHIVEMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ARCHIVELINE, OUTPUT
+        ONLYBRANCH, ONLYMUTATION, ARCHIVEMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT
 	}
 
     /** Constant <code>CRITERION</code> */
