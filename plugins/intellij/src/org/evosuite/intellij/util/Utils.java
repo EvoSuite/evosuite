@@ -32,7 +32,6 @@ public class Utils {
 
     public static String getFullClassPath(Module m){
         String cp = "";
-
         cp += CompilerPaths.getModuleOutputPath(m,false);
 
         for(VirtualFile vf : OrderEnumerator.orderEntries(m).recursively().getClassesRoots()){
