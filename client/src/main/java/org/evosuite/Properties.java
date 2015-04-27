@@ -693,6 +693,10 @@ public class Properties {
 	@Parameter(key = "ctg_selected_cuts", group = "Continuous Test Generation", description = "Comma ',' separated list of CUTs to use in CTG. If none specified, then test all classes")
 	public static String CTG_SELECTED_CUTS = null;
 
+	@Parameter(key = "ctg_export_folder", group = "Continuous Test Generation", description = "If specified, make a copy of all tests into the target export folder")
+	public static String CTG_EXPORT_FOLDER = null;
+
+
 	/**
 	 * The types of CTG schedules that can be used
 	 */
