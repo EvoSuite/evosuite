@@ -9,6 +9,7 @@ import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import org.evosuite.intellij.EvoParameters;
 import org.jetbrains.annotations.NotNull;
 
@@ -131,6 +132,7 @@ public class EvoSuiteExecutor {
                         return;
                     }
                 }
+                VirtualFileManager.getInstance().syncRefresh();
                 notifier.success("EvoSuite run is completed");
             }
         };
