@@ -101,7 +101,7 @@ public class StandardGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 		population = newGeneration;
         //archive
-        updateFitnessFuntions();
+        updateFitnessFunctions();
 		for (T t : population) {
 			if(t.isToBeUpdated()){
 			    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {

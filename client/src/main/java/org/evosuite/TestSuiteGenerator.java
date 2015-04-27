@@ -814,10 +814,10 @@ public class TestSuiteGenerator {
 		List<TestSuiteFitnessFunction> fitness_functions = getFitnessFunction();
 		ga.addFitnessFunctions(fitness_functions);
 
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
-		    for (FitnessFunction<?> fitness_function : fitness_functions)
-		        ga.addListener((StrongMutationSuiteFitness) fitness_function);
-		}
+//		if (ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
+//		    for (FitnessFunction<?> fitness_function : fitness_functions)
+//		        ga.addListener((StrongMutationSuiteFitness) fitness_function);
+//		}
 
 		//ga.setChromosomeFactory(getChromosomeFactory(fitness_function));
 		ga.setChromosomeFactory(getChromosomeFactory(fitness_functions.get(0))); // FIXME: just one fitness function?
@@ -1106,7 +1106,7 @@ public class TestSuiteGenerator {
 		case METHODNOEXCEPTION:
 			LoggingUtils.getEvoLogger().info("  - No-Exception Top-Level Method Coverage");
 			break;
-		case ARCHIVELINE:
+		case ONLYLINE:
 		case LINE:
 			LoggingUtils.getEvoLogger().info("  - Line Coverage");
 			break;

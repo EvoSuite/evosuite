@@ -71,13 +71,14 @@ public class CoverageAnalysis {
 	    	    
 		if (!ExecutionTracer.isTraceCallsEnabled()) {
 			ExecutionTracer.enableTraceCalls();
-			testSuite.setChanged(true);
-			for (TestChromosome test : testSuite.getTestChromosomes()) {
-				test.setChanged(true);
-				test.clearCachedResults();
-				test.clearCachedMutationResults();
-			}
 		}
+		testSuite.setChanged(true);
+		for (TestChromosome test : testSuite.getTestChromosomes()) {
+			test.setChanged(true);
+			test.clearCachedResults();
+			test.clearCachedMutationResults();
+		}
+
 		
 		if (oldCriteria.contains(criterion))
 			return; 
@@ -186,7 +187,7 @@ public class CoverageAnalysis {
 			return RuntimeVariable.MethodCoverage;
 		case METHODNOEXCEPTION:
 			return RuntimeVariable.MethodNoExceptionCoverage;
-		case ARCHIVELINE:
+		case ONLYLINE:
 		case LINE:
 			return RuntimeVariable.LineCoverage;
 		case OUTPUT:
@@ -270,7 +271,7 @@ public class CoverageAnalysis {
             case ARCHIVEBRANCH:
                 return RuntimeVariable.CoveredBranchesBitString;
             case LINE:
-            case ARCHIVELINE:
+            case ONLYLINE:
                 return RuntimeVariable.CoveredLinesBitString;
             case MUTATION:
             case WEAKMUTATION:

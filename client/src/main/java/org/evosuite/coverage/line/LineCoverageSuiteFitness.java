@@ -27,18 +27,17 @@ import java.util.Map.Entry;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,20 +48,25 @@ import org.slf4j.LoggerFactory;
  */
 public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
-	private static final long serialVersionUID = 7075862615475014070L;
+	private static final long serialVersionUID = -6369027784777941998L;
+
+	private final TestsArchive testArchive;
 
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	// Coverage targets
 	public final Set<Integer> lines = new HashSet<Integer>();
 
-	/**
-	 * <p>
-	 * Constructor for LineCoverageSuiteFitness.
-	 * </p>
-	 */
-	public LineCoverageSuiteFitness() {
+	public final Set<Integer> removedLines = new HashSet<Integer>();
 
+	public final Set<Integer> toRemoveLines = new HashSet<Integer>();
+
+	public LineCoverageSuiteFitness() {
+		this(TestsArchive.instance);
+	}
+	
+	public LineCoverageSuiteFitness(TestsArchive bestChromoBuilder) {
+		this.testArchive = bestChromoBuilder;
 		@SuppressWarnings("unused")
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
@@ -75,10 +79,179 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		List<LineCoverageTestFitness> goals = new LineCoverageFactory().getCoverageGoals();
 		for (LineCoverageTestFitness goal : goals) {
 			linesCoverageMap.put(goal.getLine(), goal);
+			if(Properties.TEST_ARCHIVE)
+				testArchive.addGoalToCover(this, goal);
 		}
 		
 		initializeControlDependencies();
 	}
+	
+	// Some stuff for debug output
+	public int maxCoveredLines = 0;
+	public double bestFitness = Double.MAX_VALUE;
+
+	// Each test gets a set of distinct covered goals, these are mapped by line id
+	private final Map<Integer, TestFitnessFunction> linesCoverageMap = new HashMap<Integer, TestFitnessFunction>();
+
+
+	@Override
+	public boolean updateCoveredGoals() {
+		if(!Properties.TEST_ARCHIVE)
+			return false;
+		
+		for (Integer line : toRemoveLines) {
+			boolean removed = lines.remove(line);
+			TestFitnessFunction f = linesCoverageMap.remove(line);
+			if (removed && f != null) {
+				removedLines.add(line);
+				//removeTestCall(f.getTargetClass(), f.getTargetMethod());
+			} else {
+				throw new IllegalStateException("goal to remove not found");
+			}
+		}
+
+		toRemoveLines.clear();
+		logger.info("Current state of archive: "+testArchive.toString());
+		
+		return true;
+	}
+	
+	/**
+	 * Iterate over all execution results and summarize statistics
+	 * 
+	 * @param results
+	 * @param callCount
+	 * @return
+	 */
+	private boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results, Map<String, Integer> callCount) {
+		boolean hasTimeoutOrTestException = false;
+
+		for (ExecutionResult result : results) {
+			if (result.hasTimeout() || result.hasTestException()) {
+				hasTimeoutOrTestException = true;
+			}
+
+			for (Integer line : result.getTrace().getCoveredLines()) {
+				if (linesCoverageMap.containsKey(line)) {
+					if(!lines.contains(line) || removedLines.contains(line)) 
+						continue;
+					
+					result.test.addCoveredGoal(linesCoverageMap.get(line));
+					if(Properties.TEST_ARCHIVE) {
+						toRemoveLines.add(line);
+						testArchive.putTest(this, linesCoverageMap.get(line), result.test);
+						suite.isToBeUpdated(true);
+					}
+				}
+			}
+		}
+
+		return hasTimeoutOrTestException;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Execute all tests and count covered branches
+	 */
+	@Override
+	public double getFitness(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+		logger.trace("Calculating branch fitness");
+		double fitness = 0.0;
+
+		List<ExecutionResult> results = runTestSuite(suite);
+		fitness += getControlDependencyGuidance(results);
+		logger.info("Branch distances: "+fitness);
+
+		Map<String, Integer> callCount = new HashMap<String, Integer>();
+		Set<Integer> coveredLines = new HashSet<Integer>();
+
+		// Collect stats in the traces 
+		boolean hasTimeoutOrTestException = analyzeTraces(suite, results, callCount);
+
+		for (ExecutionResult result : results) {
+			for(Integer line : result.getTrace().getCoveredLines()) {
+				if(!removedLines.contains(line))
+					coveredLines.add(line);
+			}
+		}
+
+		int totalLines = lines.size() + removedLines.size();
+		int numCoveredLines = coveredLines.size() + removedLines.size();
+		
+		logger.debug("Covered " + numCoveredLines + " out of " + totalLines + " lines, "+removedLines.size() +" in archive");
+		fitness += normalize(totalLines - numCoveredLines);
+		
+		printStatusMessages(suite, numCoveredLines, fitness);
+
+		if (totalLines > 0)
+			suite.setCoverage(this, (double) numCoveredLines / (double) totalLines);
+        else
+            suite.setCoverage(this, 1.0);
+
+		suite.setNumOfCoveredGoals(this, numCoveredLines);
+		
+		if (hasTimeoutOrTestException) {
+			logger.info("Test suite has timed out, setting fitness to max value " + totalLines);
+			fitness = totalLines;
+			//suite.setCoverage(0.0);
+		}
+
+		updateIndividual(this, suite, fitness);
+
+		assert (numCoveredLines <= totalLines) : "Covered " + numCoveredLines + " vs total goals " + totalLines;
+		assert (fitness >= 0.0);
+		assert (fitness != 0.0 || numCoveredLines == totalLines) : "Fitness: " + fitness + ", "
+		        + "coverage: " + numCoveredLines + "/" + totalLines;
+		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
+		        + suite.getCoverage(this);
+
+		return fitness;
+	}
+
+	/**
+	 * Some useful debug information
+	 * 
+	 * @param coveredLines
+	 * @param fitness
+	 */
+	private void printStatusMessages(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
+	        int coveredLines, double fitness) {
+		if (coveredLines > maxCoveredLines) {
+			maxCoveredLines = coveredLines;
+			logger.info("(Lines) Best individual covers " + coveredLines + "/"
+			        + lines + " lines");
+			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
+			        + suite.totalLengthOfTestCases());
+		}
+
+		if (fitness < bestFitness) {
+			logger.info("(Fitness) Best individual covers " + coveredLines + "/"
+			        + lines + " lines");
+			bestFitness = fitness;
+			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
+			        + suite.totalLengthOfTestCases());
+
+		}
+	}
+
+    public TestSuiteChromosome getBestStoredIndividual(){
+		if(!Properties.TEST_ARCHIVE)
+			return null;
+		
+        // TODO: There's a design problem here because
+        //       other fitness functions use the same archive
+        return testArchive.getReducedChromosome();
+        //return testArchive.getBestChromosome();
+    }
+    
+	
+	
+	
+
+	
 	
 	private Set<Integer> branchesToCoverTrue  = new HashSet<Integer>();
 	private Set<Integer> branchesToCoverFalse = new HashSet<Integer>();
@@ -117,69 +290,6 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		logger.info("Covering branches true: "+branchesToCoverTrue);
 		logger.info("Covering branches false: "+branchesToCoverFalse);
 		logger.info("Covering branches both: "+branchesToCoverBoth);
-	}
-
-	// Some stuff for debug output
-	public int maxCoveredLines = 0;
-	public double bestFitness = Double.MAX_VALUE;
-
-	// Each test gets a set of distinct covered goals, these are mapped by line id
-	private final Map<Integer, TestFitnessFunction> linesCoverageMap = new HashMap<Integer, TestFitnessFunction>();
-
-	/**
-	 * If there is an exception in a superconstructor, then the corresponding
-	 * constructor might not be included in the execution trace
-	 * 
-	 * @param results
-	 * @param callCount
-	 */
-	private void handleConstructorExceptions(List<ExecutionResult> results,
-	        Map<String, Integer> callCount) {
-
-		for (ExecutionResult result : results) {
-			if (result.hasTimeout() || result.hasTestException()
-			        || result.noThrownExceptions())
-				continue;
-
-			Integer exceptionPosition = result.getFirstPositionOfThrownException();
-			Statement statement = result.test.getStatement(exceptionPosition);
-			if (statement instanceof ConstructorStatement) {
-				ConstructorStatement c = (ConstructorStatement) statement;
-				String className = c.getConstructor().getName();
-				String methodName = "<init>"
-				        + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
-				String name = className + "." + methodName;
-				if (!callCount.containsKey(name)) {
-					callCount.put(name, 1);
-				}
-			}
-
-		}
-	}
-
-	/**
-	 * Iterate over all execution results and summarize statistics
-	 * 
-	 * @param results
-	 * @param callCount
-	 * @return
-	 */
-	private boolean analyzeTraces(List<ExecutionResult> results, Map<String, Integer> callCount) {
-		boolean hasTimeoutOrTestException = false;
-
-		for (ExecutionResult result : results) {
-			if (result.hasTimeout() || result.hasTestException()) {
-				hasTimeoutOrTestException = true;
-			}
-
-			for (Integer line : result.getTrace().getCoveredLines()) {
-				if (linesCoverageMap.containsKey(line)) {
-					result.test.addCoveredGoal(linesCoverageMap.get(line));
-				}
-			}
-		}
-
-		return hasTimeoutOrTestException;
 	}
 
 	private double getControlDependencyGuidance(List<ExecutionResult> results) {
@@ -251,93 +361,6 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		return distance;
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Execute all tests and count covered branches
-	 */
-	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
-		logger.trace("Calculating branch fitness");
-		double fitness = 0.0;
 
-		List<ExecutionResult> results = runTestSuite(suite);
-		fitness += getControlDependencyGuidance(results);
-		logger.info("Branch distances: "+fitness);
-		
-		Map<String, Integer> callCount = new HashMap<String, Integer>();
-		Set<Integer> covered_lines = new HashSet<Integer>();
-
-		// Collect stats in the traces 
-		boolean hasTimeoutOrTestException = analyzeTraces(results, callCount);
-
-		// In case there were exceptions in a constructor
-		handleConstructorExceptions(results, callCount);
-
-		for (ExecutionResult result : results) {
-			covered_lines.addAll(result.getTrace().getCoveredLines());
-		}
-
-		int totalLines = lines.size();
-		int coveredLines = covered_lines.size();
-		
-		logger.info("Covered " + coveredLines + " out of " + totalLines + " lines");
-		fitness += normalize(totalLines - coveredLines);
-		
-		printStatusMessages(suite, coveredLines, fitness);
-
-		if (totalLines > 0)
-			suite.setCoverage(this, (double) coveredLines / (double) totalLines);
-        else
-            suite.setCoverage(this, 1.0);
-
-		suite.setNumOfCoveredGoals(this, coveredLines);
-		
-		if (hasTimeoutOrTestException) {
-			logger.info("Test suite has timed out, setting fitness to max value " + totalLines);
-			fitness = totalLines;
-			//suite.setCoverage(0.0);
-		}
-
-		updateIndividual(this, suite, fitness);
-
-		assert (coveredLines <= totalLines) : "Covered " + coveredLines + " vs total goals " + totalLines;
-		assert (fitness >= 0.0);
-		assert (fitness != 0.0 || coveredLines == totalLines) : "Fitness: " + fitness + ", "
-		        + "coverage: " + coveredLines + "/" + totalLines;
-		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
-		        + suite.getCoverage(this);
-
-		return fitness;
-	}
-
-	/**
-	 * Some useful debug information
-	 * 
-	 * @param coveredLines
-	 * @param fitness
-	 */
-	private void printStatusMessages(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
-	        int coveredLines, double fitness) {
-		if (coveredLines > maxCoveredLines) {
-			maxCoveredLines = coveredLines;
-			logger.info("(Lines) Best individual covers " + coveredLines + "/"
-			        + lines + " lines");
-			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.totalLengthOfTestCases());
-		}
-
-		if (fitness < bestFitness) {
-			logger.info("(Fitness) Best individual covers " + coveredLines + "/"
-			        + lines + " lines");
-			bestFitness = fitness;
-			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
-			        + suite.totalLengthOfTestCases());
-
-		}
-	}
 
 }
