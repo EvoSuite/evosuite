@@ -132,7 +132,7 @@ public class EvoSuiteExecutor {
                         return;
                     }
                 }
-                VirtualFileManager.getInstance().syncRefresh();
+                VirtualFileManager.getInstance().asyncRefresh(null);
                 notifier.success("EvoSuite run is completed");
             }
         };

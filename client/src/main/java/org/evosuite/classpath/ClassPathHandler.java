@@ -148,7 +148,7 @@ public class ClassPathHandler {
 			throw new IllegalArgumentException("Classpath element does not exist on disk at: "+element);
 		}
 		if(!element.endsWith(".jar") && !file.isDirectory()){
-			throw new IllegalArgumentException("A classpath element should either be a jar or a folder");
+			throw new IllegalArgumentException("A classpath element should either be a jar or a folder: "+element);
 		}
 	}
 	
