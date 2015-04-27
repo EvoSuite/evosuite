@@ -710,7 +710,7 @@ public class Properties {
 	 * Maven plugin will use the default, best one
 	 */
 	@Parameter(key = "ctg_schedule", group = "Continuous Test Generation", description = "Schedule used to run jobs")
-	public static AvailableSchedule CTG_SCHEDULE = AvailableSchedule.SIMPLE;
+	public static AvailableSchedule CTG_SCHEDULE = AvailableSchedule.BUDGET;
 
 	// ---------------------------------------------------------------
 	// Single branch mode
