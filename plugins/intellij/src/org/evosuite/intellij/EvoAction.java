@@ -13,6 +13,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import org.evosuite.intellij.util.AsyncGUINotifier;
 import org.evosuite.intellij.util.EvoSuiteExecutor;
+import org.evosuite.intellij.util.Utils;
 
 import java.io.File;
 import java.util.*;
@@ -86,27 +87,36 @@ public class EvoAction extends AnAction {
         Project project = event.getData(PlatformDataKeys.PROJECT);
         String projectDir = new File(project.getBaseDir().getCanonicalPath()).getAbsolutePath(); //note: need "File" to avoid issues in Windows
 
+        Set<String> modulePaths = new LinkedHashSet<String>(); //TODO refactor to include roots in it
+
         for (Module module : ModuleManager.getInstance(project).getModules()) {
             for(VirtualFile sourceRoot : ModuleRootManager.getInstance(module).getSourceRoots()){
                 String path = new File(sourceRoot.getCanonicalPath()).getAbsolutePath();
-                if(getMavenModuleFolder(projectDir, path) != null) {
+                roots.add(path);
+                /*
+                if(getModuleFolder(projectDir, path) != null) {
                     roots.add(path);
+                } else {
+                    //should never happen? above code comes from when we were only supporting Maven. maybe now deprecated/convoluted?
                 }
+                */
             }
+
+            modulePaths.add(Utils.getFolderLocation(module));
         }
 
-        if(roots.isEmpty()){
+        if (roots.isEmpty()){
             return null;
         }
 
         for(VirtualFile virtualFile : event.getData(PlatformDataKeys.VIRTUAL_FILE_ARRAY)){
             String path = new File(virtualFile.getCanonicalPath()).getAbsolutePath();
-            String maven = getMavenModuleFolder(projectDir, path);
+            String module = getModuleFolder(projectDir, path, modulePaths);
 
-            Set<String> classes = map.get(maven);
+            Set<String> classes = map.get(module);
             if(classes == null){
                 classes = new LinkedHashSet<String>();
-                map.put(maven, classes);
+                map.put(module, classes);
             }
 
             String root = getSourceRootForFile(path, roots);
@@ -202,18 +212,24 @@ public class EvoAction extends AnAction {
      * @return the absolute path of the first folder in the hierarchy (going up) containing a pom.xml file.
      *      if it is not in a Maven module, rather return {@code projectDir}
      */
-    private String getMavenModuleFolder( String projectDir, String source){
+    private String getModuleFolder(String projectDir, String source, Set<String> modulePaths){
         File file = new File(source);
         while(file != null){
 
-            if(! file.getAbsolutePath().startsWith(projectDir)){
+            String path = file.getAbsolutePath();
+
+            if(! path.startsWith(projectDir)){
                 return projectDir; //we went too up in the hierarchy
             }
 
             if(file.isDirectory()){
                 File pom = new File(file,"pom.xml");
                 if(pom.exists()){
-                    return file.getAbsolutePath();
+                    return path;
+                }
+                //with new check, maybe pom.xml is not needed any more
+                if(modulePaths.contains(path)){
+                    return path;
                 }
             }
 
