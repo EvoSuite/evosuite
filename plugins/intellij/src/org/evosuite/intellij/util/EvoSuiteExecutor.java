@@ -1,6 +1,7 @@
 package org.evosuite.intellij.util;
 
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -138,12 +139,11 @@ public class EvoSuiteExecutor {
 
     private Process execute( Project project, AsyncGUINotifier notifier, EvoParameters params, File dir, Set<String> classes) {
 
-
-        List<String> list = null;
+        List<String> list;
         if(params.usesMaven()){
             list = getMavenCommand(params, classes);
         } else {
-            list = getEvoJarCommand(project, params, classes);
+            list = getEvoJarCommand(project, dir,params, classes);
         }
 
         String[] command = list.toArray(new String[list.size()]);
@@ -178,13 +178,13 @@ public class EvoSuiteExecutor {
 
     }
 
-    private List<String> getEvoJarCommand( Project project, EvoParameters params, Set<String> classes) throws IllegalArgumentException{
+    private List<String> getEvoJarCommand( Project project, File dir, EvoParameters params, Set<String> classes) throws IllegalArgumentException{
         List<String> list = new ArrayList<String>();
         String java = "java";
         if(Utils.isWindows()){
             java += ".exe";
         }
-        list.add(params.getJavaHome() + File.separator + java);
+        list.add(params.getJavaHome() + File.separator + "bin" + File.separator + java);
         list.add("-jar");
         list.add(params.getEvosuiteJarLocation());
 
@@ -208,28 +208,19 @@ public class EvoSuiteExecutor {
             list.add("-Dctg_selected_cuts="+cuts);
         }
 
-        String cp = "";
-
-        //ProjectRootManager projectManager = ProjectRootManager.getInstance(project);
-        //projectManager.getFullClassPath();
-        //ModuleRootManager mrm = ModuleRootManager.getInstance()
-
-        ProjectFileIndex pfi = ProjectFileIndex.SERVICE.getInstance(project);
-        Module m = pfi.getModuleForFile(project.getProjectFile());
-
-        boolean first = true;
-        for(VirtualFile vf : OrderEnumerator.orderEntries(m).recursively().getClassesRoots()){
-            if(first){
-                cp = vf.getCanonicalPath();
-                first = false;
-            } else {
-                cp += File.pathSeparator + vf.getCanonicalPath();
-            }
+        if(dir==null || !dir.exists()){
+            throw new IllegalArgumentException("Invalid module dir");
         }
 
-        //ModuleRootManager mrm = ModuleRootManager.getInstance(m);
-        //mrm.getFileIndex()
+        Module module;
+        for(Module m : ModuleManager.getInstance(project).getModules()){
+            //if(m.et) //FIXME
+        }
 
+        ProjectFileIndex pfi = ProjectFileIndex.SERVICE.getInstance(project);
+        Module m = pfi.getModuleForFile(project.getProjectFile()); //FIXME
+
+        String cp = Utils.getFullClassPath(m);
         list.add("-DCP=" + cp);
 
         //TODO need export
