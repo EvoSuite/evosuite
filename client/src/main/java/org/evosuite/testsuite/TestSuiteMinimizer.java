@@ -159,9 +159,8 @@ public class TestSuiteMinimizer {
         }
 
         List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-        for (TestFitnessFactory<?> ff : testFitnessFactory) {
+        for (TestFitnessFactory<?> ff : testFitnessFactory)
             goals.addAll(ff.getCoverageGoals());
-        }
         filterJUnitCoveredGoals(goals);
 
         List<TestFitnessFunction> branchGoals = new ArrayList<TestFitnessFunction>();
@@ -199,7 +198,7 @@ public class TestSuiteMinimizer {
                 logger.warn("Minimization timeout. Roll back to original test suite");
                 return;
             }
-            logger.warn("Considering goal: " + goal);
+            logger.info("Considering goal: " + goal);
             if (Properties.MINIMIZE_SKIP_COINCIDENTAL) {
                 for (TestChromosome test : minimizedTests) {
                     if (isTimeoutReached()) {
@@ -221,7 +220,7 @@ public class TestSuiteMinimizer {
                             }
 
                         } else {
-                            logger.warn("Covered by minimized test: " + goal);
+                            logger.info("Covered by minimized test: " + goal);
                             covered.add(goal);
                             if (!branchGoals.contains(goal))
                                 numCovered++;
@@ -232,8 +231,8 @@ public class TestSuiteMinimizer {
                 }
             }
             if (covered.contains(goal)) {
-                logger.warn("Already covered: " + goal);
-                logger.warn("Now the suite covers " + covered.size() + "/"
+                logger.info("Already covered: " + goal);
+                logger.info("Now the suite covers " + covered.size() + "/"
                         + goals.size() + " goals");
                 continue;
             }
@@ -250,7 +249,6 @@ public class TestSuiteMinimizer {
                 org.evosuite.testcase.TestCaseMinimizer minimizer = new org.evosuite.testcase.TestCaseMinimizer(
                         goal);
                 TestChromosome copy = (TestChromosome) test.clone();
-                logger.warn("Trying test "+copy.getTestCase().toCode());
                 if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
                     copy.setTestCase(new StructuredTestCase(test.getTestCase()));
                 }
@@ -259,7 +257,6 @@ public class TestSuiteMinimizer {
                     // TODO: Find proper way to determine statements
                     ((StructuredTestCase) copy.getTestCase()).setExerciseStatement(copy.size() - 1);
                 }
-                logger.warn("Minimized test "+copy.getTestCase().toCode());
 
                 // TODO: Need proper list of covered goals
                 copy.getTestCase().clearCoveredGoals();
@@ -273,17 +270,17 @@ public class TestSuiteMinimizer {
                 covered.add(goal);
                 if (!branchGoals.contains(goal))
                     numCovered++;
-                logger.warn("Adding test "+copy.getTestCase().toCode());
-                logger.warn("After new test the suite covers " + covered.size() + "/"
-                        + goals.size() + " goals with "+minimizedTests.size()+" tests / "+minimizedSuite.getTestCases().size());
+
+                logger.info("After new test the suite covers " + covered.size() + "/"
+                        + goals.size() + " goals");
 
             } else {
-                logger.warn("Goal is not covered: " + goal);
+                logger.info("Goal is not covered: " + goal);
             }
         }
 
-        logger.warn("Minimized suite covers " + covered.size() + "/" + goals.size()
-                + " goals with "+minimizedSuite.getTestCases().size()+" tests / "+minimizedTests.size());
+        logger.info("Minimized suite covers " + covered.size() + "/" + goals.size()
+                + " goals");
         suite.tests.clear();
         for (TestCase test : minimizedSuite.getTestCases()) {
             suite.addTest(test);
@@ -299,7 +296,7 @@ public class TestSuiteMinimizer {
         }
 
         double suiteCoverage = suite.getCoverage();
-        logger.warn("Setting coverage to: " + suiteCoverage);
+        logger.info("Setting coverage to: " + suiteCoverage);
 
         ClientState state = ClientState.MINIMIZATION;
         ClientStateInformation information = new ClientStateInformation(state);
@@ -309,7 +306,7 @@ public class TestSuiteMinimizer {
 
         for (TestFitnessFunction goal : goals) {
             if (!covered.contains(goal))
-                logger.warn("Failed to cover: " + goal);
+                logger.info("Failed to cover: " + goal);
         }
         // suite.tests = minimizedTests;
     }

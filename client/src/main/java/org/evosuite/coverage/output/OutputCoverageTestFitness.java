@@ -171,6 +171,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
         for (String strGoal : strGoals) {
             if (strGoal.equals(goal.toString())) {
                 fitness = 0.0;
+                break;
             }
         }
         updateIndividual(this, individual, fitness);

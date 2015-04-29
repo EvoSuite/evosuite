@@ -20,10 +20,9 @@ public class CompositeFitnessSystemTest extends SystemTest{
 
         String targetClass = BooleanOneLine.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
-        Properties.TEST_ARCHIVE = true;
         
         Properties.CRITERION = new Properties.Criterion[]{
-                //Properties.Criterion.LINE,
+                Properties.Criterion.LINE,
                 Properties.Criterion.OUTPUT,
                 Properties.Criterion.EXCEPTION
         };
