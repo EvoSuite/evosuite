@@ -178,7 +178,6 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 	public TestSuiteChromosome updateSolution(TestSuiteChromosome suite) {
 		
 		Properties.TEST_ARCHIVE = false;
-		logger.warn("Best individual "+suite.size()+" has fitness: "+suite.getFitness());
 		TestSuiteChromosome best = suite.clone();
 		for(Entry<TestFitnessFunction, TestCase> entry : testMap.entrySet()) {
 			if(!entry.getKey().isCoveredBy(best)) {
@@ -194,7 +193,6 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 //        }
 		Properties.TEST_ARCHIVE = true;
 		logger.info("Reduced test suite from archive: "+suite.size() +" from "+bestChromo.size());
-		logger.warn("Archive individual "+suite.size()+" has fitness: "+best.getFitness());
 
 		return best;
 	}
