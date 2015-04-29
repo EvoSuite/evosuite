@@ -56,15 +56,14 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUseFitnessCalculator;
+import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
-import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
 import org.evosuite.ga.Archive;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
-import org.evosuite.ga.IBranchSecondaryObjective;
 import org.evosuite.ga.MinimizeSizeSecondaryObjective;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.TournamentChromosomeFactory;
@@ -1068,9 +1067,6 @@ public class TestSuiteGenerator {
 		case WEAKMUTATION:
 			LoggingUtils.getEvoLogger().info("  - Mutation testing (weak)");
 			break;
-        case ARCHIVEMUTATION:
-            LoggingUtils.getEvoLogger().info("  - Only Mutation testing (weak) w/Archive");
-            break;
         case ONLYMUTATION:
             LoggingUtils.getEvoLogger().info("  - Only Mutation testing (weak)");
             break;
@@ -1115,9 +1111,6 @@ public class TestSuiteGenerator {
 		case OUTPUT:
 			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");
 			break;
-        case ARCHIVEBRANCH:
-            LoggingUtils.getEvoLogger().info("  - Branch Coverage w/Archive");
-            break;
 		default:
 			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
 		}
@@ -1990,8 +1983,6 @@ public class TestSuiteGenerator {
 			return new MinimizeSizeSecondaryObjective();
 		else if (name.equalsIgnoreCase("ibranch"))
 			return new IBranchSecondaryObjective(FitnessFunctions.getFitnessFunction(Criterion.IBRANCH));
-		else if (name.equalsIgnoreCase("archiveibranch"))
-			return new IBranchSecondaryObjective(FitnessFunctions.getFitnessFunction(Criterion.ARCHIVEIBRANCH));
 		else if (name.equalsIgnoreCase("maxlength"))
 			return new MinimizeMaxLengthSecondaryObjective();
 		else if (name.equalsIgnoreCase("averagelength"))

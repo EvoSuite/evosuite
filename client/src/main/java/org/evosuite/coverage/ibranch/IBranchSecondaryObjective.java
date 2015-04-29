@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga;
+package org.evosuite.coverage.ibranch;
 
+import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -49,9 +50,10 @@ public class IBranchSecondaryObjective extends
 		if (!chromosome2.hasExecutedFitness(ff) || chromosome2.isChanged())
 			ff.getFitness(chromosome2);
 
-		logger.debug("Comparing sizes: " + chromosome1.getFitness(ff) + " vs "
+		logger.warn("Comparing sizes: " + chromosome1.getFitness(ff) + " vs "
 				+ chromosome2.getFitness(ff));
 		int i = (int) Math.signum(chromosome1.getFitness(ff) - chromosome2.getFitness(ff));
+		logger.warn("Result: "+i);
 		ff.updateCoveredGoals();
 		return i; 
 	}

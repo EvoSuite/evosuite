@@ -167,8 +167,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 		    else if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION)
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.ONLYMUTATION)
-		            || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)
-		            || ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEMUTATION)) {
+		            || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 				instrumentations.add(new BranchInstrumentation());
 				instrumentations.add(new MutationInstrumentation());
 			} else {
