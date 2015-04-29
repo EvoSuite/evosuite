@@ -184,7 +184,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		TestSuiteChromosome best = suite.clone();
 		for(Entry<TestFitnessFunction, TestCase> entry : testMap.entrySet()) {
 			if(!entry.getKey().isCoveredBy(best)) {
-				best.addTest(entry.getValue());
+				best.addTest(entry.getValue().clone());
 			}
 		}
 		for(FitnessFunction ff : coveredGoals.keySet()) {
