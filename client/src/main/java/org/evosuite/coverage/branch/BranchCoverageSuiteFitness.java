@@ -199,6 +199,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException()) {
 				hasTimeoutOrTestException = true;
+				continue;
 			}
 			
 			for (Entry<String, Integer> entry : result.getTrace().getMethodExecutionCount().entrySet()) {
