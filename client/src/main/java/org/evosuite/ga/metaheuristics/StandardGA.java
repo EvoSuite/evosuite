@@ -180,7 +180,7 @@ public class StandardGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			this.notifyIteration();
 		}
 		
-		retrieveBestSuiteFromArchives();
+		updateBestIndividualFromArchive();
 		notifySearchFinished();
 	}
 

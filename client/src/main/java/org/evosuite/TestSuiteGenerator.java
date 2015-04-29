@@ -50,6 +50,7 @@ import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.FitnessLogger;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.archive.ArchiveTestChromosomeFactory;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
@@ -58,6 +59,7 @@ import org.evosuite.coverage.dataflow.DefUseFitnessCalculator;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
+import org.evosuite.ga.Archive;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
@@ -2057,16 +2059,26 @@ public class TestSuiteGenerator {
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 * @return a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T extends Chromosome> GeneticAlgorithm<T> getGeneticAlgorithm(
 	        ChromosomeFactory<T> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");
-			return new OnePlusOneEA<T>(factory);
+			{
+				OnePlusOneEA<T> ga = new OnePlusOneEA<T>(factory); 
+				if (Properties.STRATEGY == Strategy.EVOSUITE && Properties.TEST_ARCHIVE)
+					ga.setArchive((Archive<T>) TestsArchive.instance);
+
+				return ga;
+			}
 		case MONOTONICGA:
 			logger.info("Chosen search algorithm: MonotonicGA");
 			{
 				MonotonicGA<T> ga = new MonotonicGA<T>(factory);
+				if (Properties.STRATEGY == Strategy.EVOSUITE && Properties.TEST_ARCHIVE)
+					ga.setArchive((Archive<T>) TestsArchive.instance);
+
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -2083,6 +2095,9 @@ public class TestSuiteGenerator {
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
 				SteadyStateGA<T> ga = new SteadyStateGA<T>(factory);
+				if (Properties.STRATEGY == Strategy.EVOSUITE && Properties.TEST_ARCHIVE)
+					ga.setArchive((Archive<T>) TestsArchive.instance);
+
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -2097,13 +2112,24 @@ public class TestSuiteGenerator {
 			}
 		case RANDOM:
 			logger.info("Chosen search algorithm: Random");
-			return new RandomSearch<T>(factory);
+			{
+				RandomSearch<T> ga = new RandomSearch<T>(factory);
+				if (Properties.STRATEGY == Strategy.EVOSUITE && Properties.TEST_ARCHIVE)
+					ga.setArchive((Archive<T>) TestsArchive.instance);
+				
+				return ga;
+			}
         case NSGAII:
             logger.info("Chosen search algorithm: NSGAII");
             return new NSGAII<T>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
-			return new StandardGA<T>(factory);
+			{
+				StandardGA<T> ga = new StandardGA<T>(factory);
+				if (Properties.STRATEGY == Strategy.EVOSUITE && Properties.TEST_ARCHIVE)
+					ga.setArchive((Archive<T>) TestsArchive.instance);
+				return ga;
+			}
 		}
 
 	}

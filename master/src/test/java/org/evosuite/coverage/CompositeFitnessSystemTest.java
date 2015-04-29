@@ -20,8 +20,10 @@ public class CompositeFitnessSystemTest extends SystemTest{
 
         String targetClass = BooleanOneLine.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
+        Properties.TEST_ARCHIVE = true;
+        
         Properties.CRITERION = new Properties.Criterion[]{
-                Properties.Criterion.LINE,
+                //Properties.Criterion.LINE,
                 Properties.Criterion.OUTPUT,
                 Properties.Criterion.EXCEPTION
         };
@@ -31,6 +33,7 @@ public class CompositeFitnessSystemTest extends SystemTest{
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
+        System.out.println(best);
         /*
             Should be 3 tests:
             1) return true

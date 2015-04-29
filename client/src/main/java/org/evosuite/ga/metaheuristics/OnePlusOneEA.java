@@ -107,6 +107,8 @@ public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 			this.notifyIteration();
 		}
+		
+		updateBestIndividualFromArchive();
 		notifySearchFinished();
 	}
 }

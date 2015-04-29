@@ -35,7 +35,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = 4609519536866911970L;
 
-	protected BytecodeInstruction goalInstruction;
+	protected transient BytecodeInstruction goalInstruction;
 	protected List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
 
 	BranchCoverageTestFitness lastCoveringFitness = null;
@@ -166,5 +166,13 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public String getTargetMethod() {
 		return goalInstruction.getMethodName();
+	}
+	
+	private void writeObject() {
+		
+	}
+	
+	private void readObject() {
+		
 	}
 }

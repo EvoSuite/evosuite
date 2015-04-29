@@ -46,8 +46,6 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 	/** Branchless methods map. */
 	private final Map<String, Map<CallContext, IBranchTestFitness>> methodsMap;
 
-	private final TestsArchive bestChromoBuilder;
-
 	private final Set<IBranchTestFitness> toRemoveBranchesT = new HashSet<>();
 	private final Set<IBranchTestFitness> toRemoveBranchesF = new HashSet<>();
 	private final Set<IBranchTestFitness> toRemoveRootBranches = new HashSet<>();
@@ -57,11 +55,6 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 	private final Set<IBranchTestFitness> removedRootBranches = new HashSet<>();
 
 	public ArchiveIBranchSuiteFitness() {
-		this(TestsArchive.instance);
-	}
-
-	public ArchiveIBranchSuiteFitness(TestsArchive bestChromoBuilder) {
-		this.bestChromoBuilder = bestChromoBuilder;
 		goalsMap = new HashMap<>();
 		methodsMap = new HashMap<>();
 		IBranchFitnessFactory factory = new IBranchFitnessFactory();
@@ -139,7 +132,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	public TestSuiteChromosome getBestStoredIndividual() {
-		return bestChromoBuilder.getBestChromosome();
+		return TestsArchive.instance.getBestChromosome();
 	}
 
 	/*
@@ -172,7 +165,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 					}
 					if (Double.compare(distanceT, 0.0) == 0) {
 						result.test.addCoveredGoal(goalT);
-						bestChromoBuilder.putTest(this, goalT, result.test);
+						TestsArchive.instance.putTest(this, goalT, result.test);
 						toRemoveBranchesT.add(goalT);
 						suite.isToBeUpdated(true);
 					}
@@ -194,7 +187,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 					}
 					if (Double.compare(distanceF, 0.0) == 0) {
 						result.test.addCoveredGoal(goalF);
-						bestChromoBuilder.putTest(this, goalF, result.test);
+						TestsArchive.instance.putTest(this, goalF, result.test);
 						toRemoveBranchesF.add(goalF);
 						suite.isToBeUpdated(true);
 					}
@@ -213,7 +206,7 @@ public class ArchiveIBranchSuiteFitness extends TestSuiteFitnessFunction {
 					}
 					if (count > 0) {
 						result.test.addCoveredGoal(goal);
-						bestChromoBuilder.putTest(this, goal, result.test);
+						TestsArchive.instance.putTest(this, goal, result.test);
 						toRemoveRootBranches.add(goal);
 						suite.isToBeUpdated(true);
 					}

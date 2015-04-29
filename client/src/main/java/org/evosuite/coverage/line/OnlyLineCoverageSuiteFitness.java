@@ -23,8 +23,6 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	
 	private static final long serialVersionUID = -6369027784777941998L;
 
-	private final TestsArchive testArchive;
-
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	// Coverage targets
@@ -35,11 +33,6 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public final Set<Integer> toRemoveLines = new HashSet<Integer>();
 
 	public OnlyLineCoverageSuiteFitness() {
-		this(TestsArchive.instance);
-	}
-	
-	public OnlyLineCoverageSuiteFitness(TestsArchive bestChromoBuilder) {
-		this.testArchive = bestChromoBuilder;
 		@SuppressWarnings("unused")
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
@@ -53,7 +46,7 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (LineCoverageTestFitness goal : goals) {
 			linesCoverageMap.put(goal.getLine(), goal);
 			if(Properties.TEST_ARCHIVE)
-				testArchive.addGoalToCover(this, goal);
+				TestsArchive.instance.addGoalToCover(this, goal);
 		}
 	}
 	
@@ -82,7 +75,7 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		toRemoveLines.clear();
-		logger.info("Current state of archive: "+testArchive.toString());
+		logger.info("Current state of archive: "+TestsArchive.instance.toString());
 		
 		return true;
 	}
@@ -110,7 +103,7 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					result.test.addCoveredGoal(linesCoverageMap.get(line));
 					if(Properties.TEST_ARCHIVE) {
 						toRemoveLines.add(line);
-						testArchive.putTest(this, linesCoverageMap.get(line), result.test);
+						TestsArchive.instance.putTest(this, linesCoverageMap.get(line), result.test);
 					}
 				}
 			}
@@ -210,7 +203,7 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			return null;
         // TODO: There's a design problem here because
         //       other fitness functions use the same archive
-        return testArchive.getReducedChromosome();
+        return TestsArchive.instance.getReducedChromosome();
         //return testArchive.getBestChromosome();
     }
 
