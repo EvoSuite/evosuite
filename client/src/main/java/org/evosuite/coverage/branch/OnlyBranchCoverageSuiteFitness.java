@@ -128,8 +128,9 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		boolean hasTimeoutOrTestException = false;
 		for (ExecutionResult result : results) {
-			if (result.hasTimeout() || result.hasTestException()) {
+			if (result.hasTimeout() || result.hasTestException()) {			
 				hasTimeoutOrTestException = true;
+				continue;
 			}
 			
 			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
