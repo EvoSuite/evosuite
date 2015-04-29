@@ -120,6 +120,9 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
     }
 
     public void putTest(FitnessFunction<?> ff, TestFitnessFunction goal, TestCase test) {
+		if (! goalMap.containsKey(ff))
+			return;
+
         if (!coveredGoals.containsKey(ff)) {
             coveredGoals.put(ff,new HashSet<Integer>());
         }

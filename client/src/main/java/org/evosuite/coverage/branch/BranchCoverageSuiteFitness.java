@@ -50,9 +50,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	// Coverage targets
+	public int totalGoals;
 	public int totalMethods;
 	public int totalBranches;
-	public int totalGoals;
 	public final int numBranchlessMethods;
 	private final Set<String> branchlessMethods;
 	private final Set<String> methods;
@@ -135,6 +135,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					branchCoverageFalseMap.put(goal.getBranch().getActualBranchId(), goal);
 			}
 		}
+		totalGoals = goals.size();
 	}
 
 	/**
@@ -210,7 +211,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					callCount.put(entry.getKey(),
 					              callCount.get(entry.getKey()) + entry.getValue());
 				}
-				//TODO why? check this
+				// If a specific target method is set we need to check
+				// if this is a target branch or not
 				if (branchlessMethodCoverageMap.containsKey(entry.getKey())) {
 					result.test.addCoveredGoal(branchlessMethodCoverageMap.get(entry.getKey()));
 					if(Properties.TEST_ARCHIVE) {
@@ -403,7 +405,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		// Calculate coverage
 		int coverage = numCoveredBranches;
-		for (String e : branchlessMethods) {
+		for (String e : branchlessMethodCoverageMap.keySet()) {
 			if (callCount.keySet().contains(e)) {
 				coverage++;
 			}
