@@ -1982,7 +1982,7 @@ public class TestSuiteGenerator {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
 		else if (name.equalsIgnoreCase("ibranch"))
-			return new IBranchSecondaryObjective(FitnessFunctions.getFitnessFunction(Criterion.IBRANCH));
+			return new IBranchSecondaryObjective();
 		else if (name.equalsIgnoreCase("maxlength"))
 			return new MinimizeMaxLengthSecondaryObjective();
 		else if (name.equalsIgnoreCase("averagelength"))
