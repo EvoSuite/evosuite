@@ -9,6 +9,7 @@ import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import org.evosuite.intellij.EvoParameters;
 import org.jetbrains.annotations.NotNull;
 
@@ -131,6 +132,7 @@ public class EvoSuiteExecutor {
                         return;
                     }
                 }
+                VirtualFileManager.getInstance().asyncRefresh(null);
                 notifier.success("EvoSuite run is completed");
             }
         };
@@ -202,6 +204,7 @@ public class EvoSuiteExecutor {
         list.add("-Dctg_memory="+params.getMemory());
         list.add("-Dctg_cores="+params.getCores());
         list.add("-Dctg_time_per_class=" + params.getTime());
+        list.add("-Dctg_export_folder=" + params.getFolder());
 
         String cuts = getCommaList(classes);
         if(cuts!=null){
@@ -211,19 +214,23 @@ public class EvoSuiteExecutor {
         if(dir==null || !dir.exists()){
             throw new IllegalArgumentException("Invalid module dir");
         }
+        String folderPath = dir.getAbsolutePath();
 
-        Module module;
+        Module module = null;
         for(Module m : ModuleManager.getInstance(project).getModules()){
-            //if(m.et) //FIXME
+            String modulePath = Utils.getFolderLocation(m);
+            if(modulePath.equals(folderPath)){
+                module = m;
+                break;
+            }
         }
 
-        ProjectFileIndex pfi = ProjectFileIndex.SERVICE.getInstance(project);
-        Module m = pfi.getModuleForFile(project.getProjectFile()); //FIXME
+        if(module == null){
+            throw new IllegalArgumentException("Cannot determine module for "+folderPath);
+        }
 
-        String cp = Utils.getFullClassPath(m);
+        String cp = Utils.getFullClassPath(module);
         list.add("-DCP=" + cp);
-
-        //TODO need export
 
         return list;
     }
@@ -243,7 +250,7 @@ public class EvoSuiteExecutor {
             list.add("-Dcuts=" + cuts);
         }
 
-        list.add("evosuite:export");
+        list.add("evosuite:export"); //note, here -Dctg_export_folder would do as well
         list.add("-DtargetFolder=" + params.getFolder());
         return list;
     }

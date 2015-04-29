@@ -35,9 +35,6 @@ public class EvoStartDialog extends JDialog {
         this.project = project;
         this.params = params;
 
-        //coreField.setText(""+params.getCores());
-        //memoryField.setText(""+params.getMemory());
-        //timeField.setText(""+params.getTime());
         coreField.setValue(params.getCores());
         memoryField.setValue(params.getMemory());
         timeField.setValue(params.getTime());
@@ -62,6 +59,7 @@ public class EvoStartDialog extends JDialog {
         } else {
             evosuiteRadioButton.setSelected(true);
         }
+        checkExecution();
     }
 
 
@@ -83,7 +81,7 @@ public class EvoStartDialog extends JDialog {
             }
         });
 
-// call onCancel() when cross is clicked
+        // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -91,7 +89,7 @@ public class EvoStartDialog extends JDialog {
             }
         });
 
-// call onCancel() on ESCAPE
+        // call onCancel() on ESCAPE
         contentPane.registerKeyboardAction(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onCancel();
@@ -156,6 +154,11 @@ public class EvoStartDialog extends JDialog {
         } else if(evosuiteRadioButton.isSelected()){
             params.setExecutionMode(EvoParameters.EXECUTION_MODE_JAR);
         }
+
+        evosuiteLocationTesxField.setEnabled(evosuiteRadioButton.isSelected());
+        evosuiteSelectionButton.setEnabled(evosuiteRadioButton.isSelected());
+        mavenField.setEnabled(mavenRadioButton.isSelected());
+        selectMavenButton.setEnabled(mavenRadioButton.isSelected());
     }
 
     private void onSelectMvn(){

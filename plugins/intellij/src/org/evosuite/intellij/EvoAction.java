@@ -46,7 +46,7 @@ public class EvoAction extends AnAction {
 
         Map<String,Set<String>> map = getCUTsToTest(event);
         if(map==null || map.isEmpty()){
-            Messages.showMessageDialog(project, "No '.java' file or non-empty source folder was selected in a valid Maven module",
+            Messages.showMessageDialog(project, "No '.java' file or non-empty source folder was selected in a valid module",
                     title, Messages.getErrorIcon());
             return;
         }
@@ -113,10 +113,13 @@ public class EvoAction extends AnAction {
             String path = new File(virtualFile.getCanonicalPath()).getAbsolutePath();
             String module = getModuleFolder(projectDir, path, modulePaths);
 
+            if(module == null){
+                continue;
+            }
+
             Set<String> classes = map.get(module);
             if(classes == null){
                 classes = new LinkedHashSet<String>();
-                map.put(module, classes);
             }
 
             String root = getSourceRootForFile(path, roots);
@@ -149,6 +152,8 @@ public class EvoAction extends AnAction {
                 }
 
             }
+
+            map.put(module, classes);
 
             //if(map.containsKey(maven) && map.get(maven)==null){
                 /*
@@ -209,8 +214,7 @@ public class EvoAction extends AnAction {
      *
      * @param projectDir
      * @param source
-     * @return the absolute path of the first folder in the hierarchy (going up) containing a pom.xml file.
-     *      if it is not in a Maven module, rather return {@code projectDir}
+     * @return
      */
     private String getModuleFolder(String projectDir, String source, Set<String> modulePaths){
         File file = new File(source);
@@ -219,7 +223,8 @@ public class EvoAction extends AnAction {
             String path = file.getAbsolutePath();
 
             if(! path.startsWith(projectDir)){
-                return projectDir; //we went too up in the hierarchy
+                //return projectDir; //we went too up in the hierarchy
+                return null;
             }
 
             if(file.isDirectory()){
