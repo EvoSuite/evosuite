@@ -43,7 +43,6 @@ public class CoverageAnalysis {
 		case WEAKMUTATION:
 		case STRONGMUTATION:
 		case ONLYMUTATION:
-		case ARCHIVEMUTATION:
 			return true;
 		default:
 			return false;
@@ -58,10 +57,6 @@ public class CoverageAnalysis {
 		Set<Criterion> oldCriteria = new HashSet<>();
 		for (Criterion c : Properties.CRITERION) {
 			oldCriteria.add(c);
-			if (c.equals(Criterion.ARCHIVEBRANCH))
-				oldCriteria.add(Criterion.BRANCH);
-			if (c.equals(Criterion.ARCHIVEIBRANCH))
-				oldCriteria.add(Criterion.IBRANCH);
 		}
 		if (Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("ibranch")
 				|| Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("archiveibranch")) {
@@ -157,8 +152,6 @@ public class CoverageAnalysis {
 			return RuntimeVariable.AllDefCoverage;
 		case BRANCH:
 			return RuntimeVariable.BranchCoverage;
-		case ARCHIVEBRANCH:
-			return RuntimeVariable.BranchCoverage;
 		case CBRANCH:
 			return RuntimeVariable.CBranchCoverage;
 		case EXCEPTION:
@@ -172,7 +165,6 @@ public class CoverageAnalysis {
 		case AMBIGUITY:
 			return RuntimeVariable.AmbiguityCoverage;
 		case STRONGMUTATION:
-		case ARCHIVEMUTATION:
 		case MUTATION:
 			return RuntimeVariable.MutationScore;
 		case ONLYMUTATION:
@@ -193,8 +185,6 @@ public class CoverageAnalysis {
 		case OUTPUT:
 			return RuntimeVariable.OutputCoverage;
 		case IBRANCH:
-			return RuntimeVariable.IBranchCoverage;
-		case ARCHIVEIBRANCH:
 			return RuntimeVariable.IBranchCoverage;
 		case REGRESSION:
 		default:
@@ -268,14 +258,12 @@ public class CoverageAnalysis {
     private static RuntimeVariable getBitStringVariable(Properties.Criterion criterion){
         switch (criterion){
             case BRANCH:
-            case ARCHIVEBRANCH:
                 return RuntimeVariable.CoveredBranchesBitString;
             case LINE:
             case ONLYLINE:
                 return RuntimeVariable.CoveredLinesBitString;
             case MUTATION:
             case WEAKMUTATION:
-            case ARCHIVEMUTATION:
                 return RuntimeVariable.CoveredWeakMutationBitString;
             default:
                 return null;

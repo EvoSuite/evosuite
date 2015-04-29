@@ -170,7 +170,6 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		if (!ArrayUtil.contains(oldCriterion, Criterion.MUTATION)
 				&& !ArrayUtil.contains(oldCriterion, Criterion.WEAKMUTATION)
 				&& !ArrayUtil.contains(oldCriterion, Criterion.ONLYMUTATION)
-				&& !ArrayUtil.contains(oldCriterion, Criterion.ARCHIVEMUTATION)
 				&& !ArrayUtil.contains(oldCriterion, Criterion.STRONGMUTATION)) {
 			Properties.CRITERION = new Criterion[] { Criterion.MUTATION };
 		}
