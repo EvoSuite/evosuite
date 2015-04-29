@@ -129,14 +129,8 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		return TestsArchive.instance.getBestChromosome();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
-	 */
-	@Override
-	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	
+	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, boolean updateChromosome) {
 		double fitness = 0.0; // branchFitness.getFitness(suite);
 		List<ExecutionResult> results = runTestSuite(suite);
 
@@ -158,6 +152,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 						distanceMap.put(goalT, distanceT);
 					}
 					if (Double.compare(distanceT, 0.0) == 0) {
+						if(updateChromosome)
 						result.test.addCoveredGoal(goalT);
 						if(Properties.TEST_ARCHIVE) {
 							TestsArchive.instance.putTest(this, goalT, result.test);
@@ -182,7 +177,8 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 						distanceMap.put(goalF, distanceF);
 					}
 					if (Double.compare(distanceF, 0.0) == 0) {
-						result.test.addCoveredGoal(goalF);
+						if(updateChromosome)
+							result.test.addCoveredGoal(goalF);
 						if(Properties.TEST_ARCHIVE) {
 							TestsArchive.instance.putTest(this, goalF, result.test);
 							toRemoveBranchesF.add(goalF);
@@ -203,7 +199,8 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 						callCount.put(goal, count);
 					}
 					if (count > 0) {
-						result.test.addCoveredGoal(goal);
+						if(updateChromosome)
+							result.test.addCoveredGoal(goal);
 						if(Properties.TEST_ARCHIVE) {
 							TestsArchive.instance.putTest(this, goal, result.test);
 							toRemoveRootBranches.add(goal);
@@ -234,18 +231,30 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 				fitness += distance;
 			}
 		}
-		numCoveredGoals += removedBranchesF.size();
-		numCoveredGoals += removedBranchesT.size();
-		numCoveredGoals += removedRootBranches.size();
 
-		if (totGoals > 0) {
-			suite.setCoverage(this, (double) numCoveredGoals / (double) totGoals);
+		if(updateChromosome) {
+			numCoveredGoals += removedBranchesF.size();
+			numCoveredGoals += removedBranchesT.size();
+			numCoveredGoals += removedRootBranches.size();
+			if (totGoals > 0) {
+				suite.setCoverage(this, (double) numCoveredGoals / (double) totGoals);
+			}
+			suite.setNumOfCoveredGoals(this, numCoveredGoals);
+			suite.setNumOfNotCoveredGoals(this, totGoals - numCoveredGoals);
+			updateIndividual(this, suite, fitness);
 		}
-		suite.setNumOfCoveredGoals(this, numCoveredGoals);
-		suite.setNumOfNotCoveredGoals(this, totGoals - numCoveredGoals);
-		updateIndividual(this, suite, fitness);
-
 		return fitness;
+	}	
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+		return getFitness(suite, true);
 	}
 
 	@Override

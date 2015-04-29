@@ -917,8 +917,17 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected void updateBestIndividualFromArchive() {
 		if(archive == null)
 			return;
-		
+
 		T best = archive.createMergedSolution(getBestIndividual());
+
+		// The archive may contain tests evaluated with a fitness function
+		// that is not part of the optimization (e.g. ibranch secondary objective)
+		Iterator<FitnessFunction<?>> it = best.getCoverages().keySet().iterator();
+		while(it.hasNext()) {
+			FitnessFunction<?> ff = it.next();
+			if(!fitnessFunctions.contains(ff))
+				it.remove();
+		}
 		population.add(0, best);
 	}
 

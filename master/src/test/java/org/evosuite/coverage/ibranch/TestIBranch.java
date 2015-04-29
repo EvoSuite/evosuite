@@ -113,11 +113,12 @@ public class TestIBranch extends SystemTest {
 
 	
 	@Test
-	public void testIbranchAsSecondaryObjective() {
+	public void testIBranchAsSecondaryObjective() {
         Properties.CRITERION = new Properties.Criterion[] { Criterion.BRANCH };
         Properties.SECONDARY_OBJECTIVE="ibranch:totallength";
         
         Properties.TEST_ARCHIVE = false;
+        Properties.SEARCH_BUDGET = 60000;
 		EvoSuite evosuite = new EvoSuite();		
 		String targetClass = EntryPointsClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
