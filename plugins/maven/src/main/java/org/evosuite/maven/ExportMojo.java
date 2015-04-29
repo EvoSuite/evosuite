@@ -16,6 +16,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.eclipse.aether.RepositorySystemSession;
 import org.evosuite.Properties;
+import org.evosuite.continuous.ContinuousTestGeneration;
 import org.evosuite.continuous.persistency.StorageManager;
 
 /**
@@ -49,28 +50,20 @@ public class ExportMojo extends AbstractMojo{
 
 		File basedir = project.getBasedir();
 
-		String evoFolderName = Properties.CTG_FOLDER+File.separator+ StorageManager.TEST_FOLDER_NAME;
-		File evoFolder = new File(basedir.getAbsolutePath()+File.separator+evoFolderName);
-		
-		File[] children = evoFolder.listFiles();
-		boolean isEmpty = children==null || children.length==0;
-		
-		if(isEmpty){
-			getLog().info("Nothing to export");
-			return;
-		}
-		
-		File target = new File(basedir.getAbsolutePath()+File.separator+targetFolder);
-		
 		try {
-			FileUtils.copyDirectory(evoFolder, target);
+			boolean exported = ContinuousTestGeneration.exportToFolder(basedir.getAbsolutePath(),targetFolder);
+			if(!exported){
+				getLog().info("Nothing to export");
+				return;
+			}
 		} catch (IOException e) {
 			String msg = "Error while exporting tests: "+e.getMessage();
 			getLog().error(msg);
-			throw new MojoFailureException(msg); 
+			throw new MojoFailureException(msg);
 		}
-		
-		getLog().info("Exported tests from "+evoFolder+" to "+target);
+
+		File target = new File(basedir.getAbsolutePath()+File.separator+targetFolder);
+		getLog().info("Exported tests to "+target);
 	}
 
 }
