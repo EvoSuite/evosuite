@@ -122,6 +122,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException()) {
 				hasTimeoutOrTestException = true;
+				continue;
 			}
 
 			for (Integer line : result.getTrace().getCoveredLines()) {
