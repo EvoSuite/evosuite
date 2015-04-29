@@ -918,7 +918,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		if(archive == null)
 			return;
 		
-		T best = archive.updateSolution(getBestIndividual());
+		T best = archive.createMergedSolution(getBestIndividual());
 		population.add(0, best);
 	}
 

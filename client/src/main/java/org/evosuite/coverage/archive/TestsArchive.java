@@ -175,7 +175,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public TestSuiteChromosome updateSolution(TestSuiteChromosome suite) {
+	public TestSuiteChromosome createMergedSolution(TestSuiteChromosome suite) {
 		
 		Properties.TEST_ARCHIVE = false;
 		TestSuiteChromosome best = suite.clone();
