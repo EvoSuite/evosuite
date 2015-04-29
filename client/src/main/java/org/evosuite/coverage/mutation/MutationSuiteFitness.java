@@ -54,8 +54,6 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected final List<MutationTestFitness> mutationGoals;
 
-	protected final TestsArchive testArchive;
-
 	public final Set<Integer> mutants = new HashSet<Integer>();
 
 	public final Set<Integer> removedMutants = new HashSet<Integer>();
@@ -65,11 +63,6 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	public final Map<Integer, MutationTestFitness> mutantMap = new HashMap<Integer, MutationTestFitness>();
 
 	public MutationSuiteFitness() {
-		this(TestsArchive.instance);
-	}
-	
-	public MutationSuiteFitness(TestsArchive testArchive) {
-		this.testArchive = testArchive;
 		MutationFactory factory = new MutationFactory(
 		        ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION));
 		mutationGoals = factory.getCoverageGoals();
@@ -80,7 +73,7 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 			mutantMap.put(goal.getMutation().getId(), goal);
 			mutants.add(goal.getMutation().getId());
 			if(Properties.TEST_ARCHIVE)
-				testArchive.addGoalToCover(this, goal);
+				TestsArchive.instance.addGoalToCover(this, goal);
 		}
 
 	}
@@ -101,7 +94,7 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		toRemoveMutants.clear();
-		logger.info("Current state of archive: "+testArchive.toString());
+		logger.info("Current state of archive: "+TestsArchive.instance.toString());
 		
 		return true;
 	}
@@ -146,6 +139,6 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 		}
         // TODO: There's a design problem here because
         //       other fitness functions use the same archive
-        return testArchive.getReducedChromosome();
+        return TestsArchive.instance.getReducedChromosome();
     }
 }

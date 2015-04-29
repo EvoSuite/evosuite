@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -170,7 +171,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 						newKilled.add(mutantId);
 						if(Properties.TEST_ARCHIVE) {
 							toRemoveMutants.add(mutantFitness.getMutation().getId());
-							testArchive.putTest(this, mutantFitness, result.test);
+							TestsArchive.instance.putTest(this, mutantFitness, result.test);
 							individual.isToBeUpdated(true);
 						}
 					}

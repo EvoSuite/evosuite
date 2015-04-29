@@ -68,8 +68,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new HashMap<Integer, TestFitnessFunction>();
 	private final Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new HashMap<String, TestFitnessFunction>();
 
-	private final TestsArchive bestChromoBuilder;
-
 	private final Set<Integer> toRemoveBranchesT = new HashSet<>();
 	private final Set<Integer> toRemoveBranchesF = new HashSet<>();
 	private final Set<String> toRemoveRootBranches = new HashSet<>();	
@@ -86,21 +84,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * </p>
 	 */
 	public BranchCoverageSuiteFitness() {
-		this(TestsArchive.instance);
-	}
-	
-	
-	/**
-	 * <p>
-	 * Constructor for BranchCoverageSuiteFitness.
-	 * </p>
-	 */
-	public BranchCoverageSuiteFitness(TestsArchive bestChromoBuilder) {
 
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
-		this.bestChromoBuilder = bestChromoBuilder;
-		
 		if (prefix.isEmpty()) {
 			prefix = Properties.TARGET_CLASS;
 			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
@@ -136,7 +122,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		List<BranchCoverageTestFitness> goals = new BranchCoverageFactory().getCoverageGoals();
 		for (BranchCoverageTestFitness goal : goals) {
 			if(Properties.TEST_ARCHIVE)
-				bestChromoBuilder.addGoalToCover(this, goal);
+				TestsArchive.instance.addGoalToCover(this, goal);
 			
 			if (goal.getBranch() == null) {
 				branchlessMethodCoverageMap.put(goal.getClassName() + "."
@@ -184,7 +170,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					if (branchlessMethodCoverageMap.containsKey(name)) {
 						result.test.addCoveredGoal(branchlessMethodCoverageMap.get(name));
 						if(Properties.TEST_ARCHIVE) {
-							bestChromoBuilder.putTest(this, branchlessMethodCoverageMap.get(name), result.test);
+							TestsArchive.instance.putTest(this, branchlessMethodCoverageMap.get(name), result.test);
 							toRemoveRootBranches.add(name);
 							suite.isToBeUpdated(true);
 						}
@@ -227,7 +213,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				if (branchlessMethodCoverageMap.containsKey(entry.getKey())) {
 					result.test.addCoveredGoal(branchlessMethodCoverageMap.get(entry.getKey()));
 					if(Properties.TEST_ARCHIVE) {
-						bestChromoBuilder.putTest(this, branchlessMethodCoverageMap.get(entry.getKey()), result.test);
+						TestsArchive.instance.putTest(this, branchlessMethodCoverageMap.get(entry.getKey()), result.test);
 						toRemoveRootBranches.add(entry.getKey());
 						suite.isToBeUpdated(true);
 					}
@@ -258,7 +244,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
 					result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
 					if(Properties.TEST_ARCHIVE) {
-						bestChromoBuilder.putTest(this, branchCoverageTrueMap.get(entry.getKey()), result.test);
+						TestsArchive.instance.putTest(this, branchCoverageTrueMap.get(entry.getKey()), result.test);
 						toRemoveBranchesT.add(entry.getKey());
 						suite.isToBeUpdated(true);
 					}
@@ -276,7 +262,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
 					result.test.addCoveredGoal(branchCoverageFalseMap.get(entry.getKey()));
 					if(Properties.TEST_ARCHIVE) {
-						bestChromoBuilder.putTest(this, branchCoverageFalseMap.get(entry.getKey()), result.test);
+						TestsArchive.instance.putTest(this, branchCoverageFalseMap.get(entry.getKey()), result.test);
 						toRemoveBranchesF.add(entry.getKey());
 						suite.isToBeUpdated(true);
 					}
@@ -337,7 +323,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		toRemoveRootBranches.clear();
 		toRemoveBranchesF.clear();
 		toRemoveBranchesT.clear();
-		logger.info("Current state of archive: "+bestChromoBuilder.toString());
+		logger.info("Current state of archive: "+TestsArchive.instance.toString());
 		
 		return true;
 	}
@@ -497,7 +483,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		// TODO: There's a design problem here because
 		//       other fitness functions use the same archive
-		return bestChromoBuilder.getReducedChromosome();
+		return TestsArchive.instance.getReducedChromosome();
 		//return bestChromoBuilder.getBestChromosome();
 	}
 }

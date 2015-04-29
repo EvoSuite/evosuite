@@ -173,7 +173,6 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                 fitness = 0.0;
             }
         }
-
         updateIndividual(this, individual, fitness);
         return fitness;
     }

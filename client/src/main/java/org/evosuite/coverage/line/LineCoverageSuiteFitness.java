@@ -50,8 +50,6 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = -6369027784777941998L;
 
-	private final TestsArchive testArchive;
-
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	// Coverage targets
@@ -62,11 +60,6 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public final Set<Integer> toRemoveLines = new HashSet<Integer>();
 
 	public LineCoverageSuiteFitness() {
-		this(TestsArchive.instance);
-	}
-	
-	public LineCoverageSuiteFitness(TestsArchive bestChromoBuilder) {
-		this.testArchive = bestChromoBuilder;
 		@SuppressWarnings("unused")
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
@@ -80,7 +73,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (LineCoverageTestFitness goal : goals) {
 			linesCoverageMap.put(goal.getLine(), goal);
 			if(Properties.TEST_ARCHIVE)
-				testArchive.addGoalToCover(this, goal);
+				TestsArchive.instance.addGoalToCover(this, goal);
 		}
 		
 		initializeControlDependencies();
@@ -111,7 +104,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		toRemoveLines.clear();
-		logger.info("Current state of archive: "+testArchive.toString());
+		logger.info("Current state of archive: "+TestsArchive.instance.toString());
 		
 		return true;
 	}
@@ -139,7 +132,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					result.test.addCoveredGoal(linesCoverageMap.get(line));
 					if(Properties.TEST_ARCHIVE) {
 						toRemoveLines.add(line);
-						testArchive.putTest(this, linesCoverageMap.get(line), result.test);
+						TestsArchive.instance.putTest(this, linesCoverageMap.get(line), result.test);
 						suite.isToBeUpdated(true);
 					}
 				}
@@ -243,7 +236,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
         // TODO: There's a design problem here because
         //       other fitness functions use the same archive
-        return testArchive.getReducedChromosome();
+        return TestsArchive.instance.getReducedChromosome();
         //return testArchive.getBestChromosome();
     }
     

@@ -82,6 +82,7 @@ public class StatisticsListener implements SearchListener {
 
 	@Override
 	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+		
 		// If the search is finished, we may want to clear the queue and just send the final element?
 		//individuals.clear(); // TODO: Maybe have a check on size
 		individuals.offer(algorithm.getBestIndividual());

@@ -19,8 +19,6 @@ public class ArchiveOnlyMutationSuiteFitness extends MutationSuiteFitness {
 
 	private static final long serialVersionUID = -8194940669364526758L;
 
-	private final TestsArchive testArchive;
-
 	public final Set<Integer> mutants = new HashSet<Integer>();
 
 	public final Set<Integer> removedMutants = new HashSet<Integer>();
@@ -30,17 +28,11 @@ public class ArchiveOnlyMutationSuiteFitness extends MutationSuiteFitness {
 	public final Map<Integer, MutationTestFitness> mutantMap = new HashMap<Integer, MutationTestFitness>();
 	
 	public ArchiveOnlyMutationSuiteFitness() {
-		this(TestsArchive.instance);
-	}
-	
-	public ArchiveOnlyMutationSuiteFitness(TestsArchive archive) {
-		super();
-		testArchive = archive;
 		for(MutationTestFitness goal : mutationGoals) {
 			mutantMap.put(goal.getMutation().getId(), goal);
 			mutants.add(goal.getMutation().getId());
 			if(Properties.TEST_ARCHIVE)
-				testArchive.addGoalToCover(this, goal);
+				TestsArchive.instance.addGoalToCover(this, goal);
 		}
 	}
 	
@@ -60,7 +52,7 @@ public class ArchiveOnlyMutationSuiteFitness extends MutationSuiteFitness {
 		}
 
 		toRemoveMutants.clear();
-		logger.info("Current state of archive: "+testArchive.toString());
+		logger.info("Current state of archive: "+TestsArchive.instance.toString());
 		
 		return true;
 	}
@@ -102,7 +94,7 @@ public class ArchiveOnlyMutationSuiteFitness extends MutationSuiteFitness {
 					result.test.addCoveredGoal(mutantMap.get(entry.getKey()));
 					if(Properties.TEST_ARCHIVE) {
 						toRemoveMutants.add(entry.getKey());
-						testArchive.putTest(this, mutantMap.get(entry.getKey()), result.test);
+						TestsArchive.instance.putTest(this, mutantMap.get(entry.getKey()), result.test);
 					}
 				}
 				if (!mutant_distance.containsKey(entry.getKey()))
@@ -144,7 +136,7 @@ public class ArchiveOnlyMutationSuiteFitness extends MutationSuiteFitness {
 		}
         // TODO: There's a design problem here because
         //       other fitness functions use the same archive
-        return testArchive.getReducedChromosome();
+        return TestsArchive.instance.getReducedChromosome();
         //return testArchive.getBestChromosome();
     }
 }

@@ -43,7 +43,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static Logger logger = LoggerFactory.getLogger(ExceptionCoverageSuiteFitness.class);
 
     private static int maxExceptionsCovered = 0;
-
+    
 	/**
 	 * <p>
 	 * Constructor for ExceptionCoverageSuiteFitness.
@@ -51,7 +51,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	public ExceptionCoverageSuiteFitness() {
 	}
-
+	
     public static int getMaxExceptionsCovered() {
         return maxExceptionsCovered;
     }
@@ -91,7 +91,10 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
         }
 
         // I set it here, but in the end it will be recomputed according to the total number of Exceptions
-        suite.setCoverage(this, nExc / (nExc + 1.0));
+        //suite.setCoverage(this, nExc / (nExc + 1.0));
+        // TODO: Why was this not set to 100%
+        // TODO: Can we avoid setting a coverage value for exception coverage?
+       // suite.setCoverage(this, 1.0);
 
 		double exceptionFitness = 1d / (1d + nExc);
 
@@ -222,7 +225,8 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     /*
                      * Add goal to ExceptionCoverageFactory
                      */
-                    ExceptionCoverageFactory.getGoals().put(methodName + t.getClass().getName(), new ExceptionCoverageTestFitness(methodName, t.getClass()));
+                    ExceptionCoverageTestFitness goal = new ExceptionCoverageTestFitness(methodName, t.getClass());
+                    ExceptionCoverageFactory.getGoals().put(methodName + t.getClass().getName(), goal);
 				}
 
 			}

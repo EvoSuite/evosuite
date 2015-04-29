@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -81,7 +82,7 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 					result.test.addCoveredGoal(mutantMap.get(entry.getKey()));
 					if(Properties.TEST_ARCHIVE) {
 						toRemoveMutants.add(entry.getKey());
-						testArchive.putTest(this, mutantMap.get(entry.getKey()), result.test);
+						TestsArchive.instance.putTest(this, mutantMap.get(entry.getKey()), result.test);
 						individual.isToBeUpdated(true);
 					}
 				}

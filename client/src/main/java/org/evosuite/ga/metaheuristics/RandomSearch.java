@@ -91,6 +91,7 @@ public class RandomSearch<T extends Chromosome> extends GeneticAlgorithm<T> {
 			evolve();
 			this.notifyIteration();
 		}
+		updateBestIndividualFromArchive();
 		notifySearchFinished();
 	}
 

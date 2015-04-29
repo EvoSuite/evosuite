@@ -278,7 +278,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			
 		}
 		//archive
-		retrieveBestSuiteFromArchives();
+		updateBestIndividualFromArchive();
 		
 		notifySearchFinished();
 	}
