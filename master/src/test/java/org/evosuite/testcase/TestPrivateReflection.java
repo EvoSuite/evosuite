@@ -1,6 +1,5 @@
 package org.evosuite.testcase;
 
-import com.examples.with.different.packagename.pool.DependencyClass;
 import com.examples.with.different.packagename.reflection.OnlyPrivateMethods;
 import com.examples.with.different.packagename.reflection.PrivateFieldInPrivateMethod;
 import com.examples.with.different.packagename.reflection.PrivateFieldInPublicMethod;
