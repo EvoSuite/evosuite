@@ -3,7 +3,6 @@ package org.evosuite.testcase.statements.reflection;
 import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
-import org.evosuite.testcase.statements.ClassPrimitiveStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
@@ -58,4 +57,10 @@ public class PrivateMethodStatement extends MethodStatement {
         return false;
         //return super.mutate(test,factory); //tricky, as should do some restrictions
     }
+    
+	@Override
+	public boolean isReflectionStatement() {
+		return true;
+	}
+
 }

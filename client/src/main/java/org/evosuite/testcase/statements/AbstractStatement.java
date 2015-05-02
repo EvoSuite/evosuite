@@ -534,4 +534,9 @@ public abstract class AbstractStatement implements Statement, Serializable {
 	 */
 	public void negate() {
 	}
+	
+	@Override
+	public boolean isReflectionStatement() {
+		return false;
+	}
 }

@@ -395,6 +395,9 @@ public class TestChromosome extends ExecutableChromosome {
 			for (int position = 0; position <= lastMutatableStatement; position++) {
 				Statement statement = test.getStatement(position);
 				//for (StatementInterface statement : test) {
+				if(statement.isReflectionStatement())
+					continue;
+				
 				if (Randomness.nextDouble() <= pl) {
 					assert (test.isValid());
 					int oldDistance = statement.getReturnValue().getDistance();

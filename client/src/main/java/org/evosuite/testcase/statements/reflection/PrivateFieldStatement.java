@@ -62,4 +62,9 @@ public class PrivateFieldStatement extends MethodStatement{
         return false;
         //return super.mutate(test,factory); //tricky, as should do some restrictions
     }
+    
+	@Override
+	public boolean isReflectionStatement() {
+		return true;
+	}
 }
