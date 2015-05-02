@@ -92,6 +92,7 @@ public class TestIBranch extends SystemTest {
 		oldCriteria = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 		oldStoppingCondition = Properties.STOPPING_CONDITION;
 		oldPrimitivePool = Properties.PRIMITIVE_POOL;
+		TestSuiteChromosome.removeAllSecondaryObjectives();
 		secondary=Properties.SECONDARY_OBJECTIVE;
 		budget = Properties.SEARCH_BUDGET;
         Properties.INSTRUMENT_CONTEXT = true;

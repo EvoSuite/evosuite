@@ -94,6 +94,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		secondaryObjectives.remove(objective);
 	}
 
+	public static void removeAllSecondaryObjectives() {
+		secondaryObjectives.clear();
+	}
+
 	/**
 	 * <p>
 	 * Constructor for TestSuiteChromosome.
