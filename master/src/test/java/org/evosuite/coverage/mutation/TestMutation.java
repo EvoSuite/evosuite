@@ -177,6 +177,7 @@ public class TestMutation extends SystemTest {
 		boolean archive = Properties.TEST_ARCHIVE;
 		Properties.TEST_ARCHIVE = true;
         Properties.CRITERION = new Properties.Criterion[] { Criterion.STRONGMUTATION };
+        Properties.SEARCH_BUDGET = 50000;
 
 		String targetClass = SimpleMutationExample2.class.getCanonicalName();
 		
