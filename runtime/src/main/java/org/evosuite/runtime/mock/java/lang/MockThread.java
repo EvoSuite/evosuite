@@ -35,7 +35,7 @@ public class MockThread extends Thread implements OverrideMock {
 
 
 
-    // ------ static unchanged methods  --------
+    // ------ static  methods  --------
 
     public static Thread currentThread() {
         return Thread.currentThread();
@@ -48,13 +48,14 @@ public class MockThread extends Thread implements OverrideMock {
 
     @EvoSuiteExclude
     public static void sleep(long millis) throws InterruptedException {
-        Thread.sleep(millis);
+        //no point in doing any sleep
+        MockThread.yield(); //just in case to change thread
     }
 
     @EvoSuiteExclude
     public static void sleep(long millis, int nanos)
             throws InterruptedException {
-        Thread.sleep(millis, nanos);
+        MockThread.sleep(millis);
     }
 
     public static boolean interrupted() {
