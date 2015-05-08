@@ -38,21 +38,28 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
 
     private static final long serialVersionUID = 1221020001417476348L;
 
-    protected final String methodName;
-    protected final Class<?> clazz;
+    /**
+     * name+descriptor
+     */
+    protected final String methodIdentifier;
+
+    /**
+     * The class representing the thrown exception, eg NPE an IAE
+     */
+    protected final Class<?> exceptionClass;
 
     /**
      * Constructor - fitness is specific to a method
-     * @param methodName the method name
-     * @param clazz the exception class
+     * @param methodIdentifier the method name
+     * @param exceptionClass the exception class
      * @throws IllegalArgumentException
      */
-    public ExceptionCoverageTestFitness(String methodName, Class<?> clazz) throws IllegalArgumentException{
-        if ((methodName == null) || (clazz == null)) {
+    public ExceptionCoverageTestFitness(String methodIdentifier, Class<?> exceptionClass) throws IllegalArgumentException{
+        if ((methodIdentifier == null) || (exceptionClass == null)) {
             throw new IllegalArgumentException("method name and exception class cannot be null");
         }
-        this.clazz = clazz;
-        this.methodName = methodName;
+        this.exceptionClass = exceptionClass;
+        this.methodIdentifier = methodIdentifier;
     }
 
     /**
@@ -63,7 +70,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
      * @return a {@link String} object.
      */
     public String getMethod() {
-        return methodName;
+        return methodIdentifier;
     }
 
     /**
@@ -80,6 +87,8 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
     @Override
     public double getFitness(TestChromosome individual, ExecutionResult result) {
         double fitness = 1.0;
+
+        //FIXME: should use same check as in ExceptionCoverageSuiteFitness
 
         //iterate on the indexes of the statements that resulted in an exception
         for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
@@ -136,7 +145,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
 					 * input for pre-condition) or implicit ("likely" a real fault).
 					 */
 
-                if (this.methodName.equals(methodName) && this.clazz.equals(t.getClass()))
+                if (this.methodIdentifier.equals(methodName) && this.exceptionClass.equals(t.getClass()))
                     fitness = 0.0;
             }
         }
@@ -146,14 +155,14 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return methodName + clazz.getName();
+        return methodIdentifier + exceptionClass.getName();
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
         int iConst = 17;
-        return 53 * iConst + methodName.hashCode() * iConst + clazz.hashCode();
+        return 53 * iConst + methodIdentifier.hashCode() * iConst + exceptionClass.hashCode();
     }
 
     /** {@inheritDoc} */
@@ -166,10 +175,10 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         if (getClass() != obj.getClass())
             return false;
         ExceptionCoverageTestFitness other = (ExceptionCoverageTestFitness) obj;
-        if (! methodName.equals(other.methodName)) {
+        if (! methodIdentifier.equals(other.methodIdentifier)) {
             return false;
         } else
-            return clazz.equals(other.getClazz());
+            return exceptionClass.equals(other.exceptionClass);
     }
 
     /* (non-Javadoc)
@@ -179,13 +188,13 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
     public int compareTo(TestFitnessFunction other) {
         if (other instanceof ExceptionCoverageTestFitness) {
             ExceptionCoverageTestFitness otherMethodFitness = (ExceptionCoverageTestFitness) other;
-            if (methodName.equals(otherMethodFitness.getMethod())) {
-                if (clazz.equals(((ExceptionCoverageTestFitness) other).getClazz()))
+            if (methodIdentifier.equals(otherMethodFitness.getMethod())) {
+                if (exceptionClass.equals(((ExceptionCoverageTestFitness) other).exceptionClass))
                     return 0;
                 else
-                    return clazz.getName().compareTo(otherMethodFitness.getClazz().getName());
+                    return exceptionClass.getName().compareTo(otherMethodFitness.exceptionClass.getName());
             } else
-                return methodName.compareTo(otherMethodFitness.getMethod());
+                return methodIdentifier.compareTo(otherMethodFitness.getMethod());
         }
         return 0;
     }
@@ -207,7 +216,4 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         return getMethod();
     }
 
-    public Class<?> getClazz() {
-        return clazz;
-    }
 }
