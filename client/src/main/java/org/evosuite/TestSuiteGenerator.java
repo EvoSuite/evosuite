@@ -839,23 +839,8 @@ public class TestSuiteGenerator {
 		// if (analyzing)
 		ga.resetStoppingConditions();
 
-		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactory();
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-		if(goalFactories.size() == 1) {
-			TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
-			LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
-			goals.addAll(factory.getCoverageGoals());
-		} else {
-			LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
-			for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-				goals.addAll(goalFactory.getCoverageGoals());
-				LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
-						+ " " + goalFactory.getCoverageGoals().size());
-			}
-		}
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
-		                                                                 goals.size());
-		List<TestSuiteChromosome> bestSuites = new ArrayList<TestSuiteChromosome>();
+		List<TestFitnessFunction> goals = getGoals(true);
+		List<TestSuiteChromosome> bestSuites = new ArrayList<>();
         /*
          * Proceed with search if CRITERION=EXCEPTION, even if goals is empty
          */
@@ -884,6 +869,9 @@ public class TestSuiteGenerator {
 		}
 
 		long end_time = System.currentTimeMillis() / 1000;
+
+		goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
 		// Newline after progress bar
 		if (Properties.SHOW_PROGRESS)
@@ -957,7 +945,7 @@ public class TestSuiteGenerator {
 		if (Properties.MINIMIZE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
-			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			if (bestSuites.size() == 1 ) {
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 			    minimizer.minimize(bestSuites.get(0), true);
@@ -1048,7 +1036,35 @@ public class TestSuiteGenerator {
 		return bestSuites;
 	}
 
-    private void sendExecutionStatistics() {
+	private List<TestFitnessFunction> getGoals(boolean verbose) {
+		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactory();
+		List<TestFitnessFunction> goals = new ArrayList<>();
+
+		if(goalFactories.size() == 1) {
+			TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
+			goals.addAll(factory.getCoverageGoals());
+
+			if(verbose) {
+				LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
+			}
+		} else {
+			if(verbose) {
+				LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
+			}
+
+			for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+				goals.addAll(goalFactory.getCoverageGoals());
+
+				if(verbose) {
+					LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
+							+ " " + goalFactory.getCoverageGoals().size());
+				}
+			}
+		}
+		return goals;
+	}
+
+	private void sendExecutionStatistics() {
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Statements_Executed, MaxStatementsStoppingCondition.getNumExecutedStatements());
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, MaxTestsStoppingCondition.getNumExecutedTests());
     }
