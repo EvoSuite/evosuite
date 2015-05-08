@@ -116,74 +116,18 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			throw new IllegalArgumentException();
 		}
 
-		//keep track of what is directly thrown in SUT with "throw new ..."
-		Map<TestCase, Map<Integer, Boolean>> isExceptionExplicit = new HashMap<>();
-
 		// for each test case
 		for (ExecutionResult result : results) {
-			isExceptionExplicit.put(result.test, result.explicitExceptions);
 
 			//iterate on the indexes of the statements that resulted in an exception
 			for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
-				if (i >= result.test.size()) {
-					// Timeouts are put after the last statement if the process was forcefully killed
+				if(ExceptionCoverageHelper.shouldSkip(result,i)){
 					continue;
 				}
 
-				//not interested in security exceptions when Sandbox is active
-				Throwable t = result.getExceptionThrownAtPosition(i);
-				if (t instanceof SecurityException && Properties.SANDBOX){
-					continue;
-				}
-
-				/*
-				 	Ignore exceptions thrown in the test code itself. Eg, due to mutation we
-				 	can end up with tests like:
-
-				 	Foo foo = null:
-					foo.bar();
-				  */
-				if (t instanceof CodeUnderTestException){
-					continue;
-				}
-
-				// This is to cover cases not handled by CodeUnderTestException, or if bug in EvoSuite itself
-				if (t.getStackTrace().length > 0
-						&& t.getStackTrace()[0].getClassName().startsWith("org.evosuite.testcase")) {
-					continue;
-				}
-
-
-				String methodIdentifier = ""; //eg name+descriptor
-				boolean sutException = false; // was the exception originated by a direct call on the SUT?
-
-				if (result.test.getStatement(i) instanceof MethodStatement) {
-					MethodStatement ms = (MethodStatement) result.test.getStatement(i);
-					Method method = ms.getMethod().getMethod();
-					methodIdentifier = method.getName() + Type.getMethodDescriptor(method);
-
-                    if (method.getDeclaringClass().equals(Properties.getTargetClass())){
-						sutException = true;
-					}
-					
-				} else if (result.test.getStatement(i) instanceof ConstructorStatement) {
-					ConstructorStatement cs = (ConstructorStatement) result.test.getStatement(i);
-					Constructor<?> constructor = cs.getConstructor().getConstructor();
-					methodIdentifier = "<init>" + Type.getConstructorDescriptor(constructor);
-					
-					if (constructor.getDeclaringClass().equals(Properties.getTargetClass())){
-						sutException = true;
-					}
-				}
-				
-				boolean notDeclared = true;
-				// Check if thrown exception is declared, or subclass of a declared exception 
-				for(Class<?> declaredExceptionClass : result.test.getStatement(i).getDeclaredExceptions()) {
-					if(declaredExceptionClass.isAssignableFrom(t.getClass())) {
-						notDeclared = false;
-						break;
-					}
-				}
+				Class<?> exceptionClass = ExceptionCoverageHelper.getExceptionClass(result,i);
+				String methodIdentifier = ExceptionCoverageHelper.getMethodIdentifier(result, i); //eg name+descriptor
+				boolean sutException = ExceptionCoverageHelper.isSutException(result,i); // was the exception originated by a direct call on the SUT?
 
 				/*
 				 * We only consider exceptions that were thrown by calling directly the SUT (not the other
@@ -193,41 +137,43 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 				if (sutException) {
 
+					boolean notDeclared = ! ExceptionCoverageHelper.isDeclared(result,i);
+
                     if(notDeclared) {
                         /*
 					     * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
 					     * input for pre-condition) or implicit ("likely" a real fault).
 					     */
 
-                        boolean isExplicit = isExceptionExplicit.get(result.test).containsKey(i)
-                                && isExceptionExplicit.get(result.test).get(i);
+                        boolean isExplicit = ExceptionCoverageHelper.isExplicit(result,i);
 
                         if (isExplicit) {
 
                             if (!explicitTypesOfExceptions.containsKey(methodIdentifier)) {
                                 explicitTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
                             }
-                            explicitTypesOfExceptions.get(methodIdentifier).add(t.getClass());
+                            explicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
                         } else {
 
                             if (!implicitTypesOfExceptions.containsKey(methodIdentifier)) {
                                 implicitTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
                             }
-                            implicitTypesOfExceptions.get(methodIdentifier).add(t.getClass());
+                            implicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
                         }
                     } else {
                         if (!declaredTypesOfExceptions.containsKey(methodIdentifier)) {
                             declaredTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
                         }
-                        declaredTypesOfExceptions.get(methodIdentifier).add(t.getClass());
+                        declaredTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
                     }
 
+
+					ExceptionCoverageTestFitness.ExceptionType type = ExceptionCoverageHelper.getType(result,i);
                     /*
                      * Add goal to ExceptionCoverageFactory
-                     * FIXME: need refactoring and define type, ie explicit, implicit, declared
                      */
-                    ExceptionCoverageTestFitness goal = new ExceptionCoverageTestFitness(methodIdentifier, t.getClass());
-                    ExceptionCoverageFactory.getGoals().put(methodIdentifier + t.getClass().getName(), goal);
+                    ExceptionCoverageTestFitness goal = new ExceptionCoverageTestFitness(methodIdentifier, exceptionClass, type);
+                    ExceptionCoverageFactory.getGoals().put(goal.getKey(), goal);
 				}
 
 			}

@@ -29,7 +29,7 @@ import org.evosuite.testsuite.AbstractFitnessFactory;
  */
 public class ExceptionCoverageFactory extends AbstractFitnessFactory<TestFitnessFunction> {
 
-    private static Map<String, ExceptionCoverageTestFitness> goals = new HashMap<String, ExceptionCoverageTestFitness>();
+    private static Map<String, ExceptionCoverageTestFitness> goals = new LinkedHashMap<>();
 
     public static Map<String, ExceptionCoverageTestFitness> getGoals() {
         return goals;

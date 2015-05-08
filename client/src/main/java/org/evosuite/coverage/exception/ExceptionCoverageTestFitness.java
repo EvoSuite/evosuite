@@ -38,6 +38,14 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
 
     private static final long serialVersionUID = 1221020001417476348L;
 
+    public enum ExceptionType {
+        /** unexpected exception directly thrown with a "throw new..." */
+        EXPLICIT,
+        /** unexpected exception not thrown directly in the SUT, eg NPE on variable access*/
+        IMPLICIT,
+        /** Thrown exception which is expected, because declared in signature with "throws"*/
+        DECLARED};
+
     /**
      * name+descriptor
      */
@@ -48,18 +56,25 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
      */
     protected final Class<?> exceptionClass;
 
+    protected final ExceptionType type;
+
     /**
      * Constructor - fitness is specific to a method
      * @param methodIdentifier the method name
      * @param exceptionClass the exception class
      * @throws IllegalArgumentException
      */
-    public ExceptionCoverageTestFitness(String methodIdentifier, Class<?> exceptionClass) throws IllegalArgumentException{
-        if ((methodIdentifier == null) || (exceptionClass == null)) {
-            throw new IllegalArgumentException("method name and exception class cannot be null");
+    public ExceptionCoverageTestFitness(String methodIdentifier, Class<?> exceptionClass, ExceptionType type) throws IllegalArgumentException{
+        if ((methodIdentifier == null) || (exceptionClass == null) || type==null) {
+            throw new IllegalArgumentException("method name and exception class and type cannot be null");
         }
         this.exceptionClass = exceptionClass;
         this.methodIdentifier = methodIdentifier;
+        this.type = type;
+    }
+
+    public String getKey(){
+        return methodIdentifier + "_" + exceptionClass.getName() + "_" + type;
     }
 
     /**
@@ -88,65 +103,27 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
     public double getFitness(TestChromosome individual, ExecutionResult result) {
         double fitness = 1.0;
 
-        //FIXME: should use same check as in ExceptionCoverageSuiteFitness
-
         //iterate on the indexes of the statements that resulted in an exception
         for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
-            if (i >= result.test.size()) {
-                // Timeouts are put after the last statement if the process was forcefully killed
+            if(ExceptionCoverageHelper.shouldSkip(result,i)){
                 continue;
             }
-            //not interested in security exceptions when Sandbox is active
-            Throwable t = result.getExceptionThrownAtPosition(i);
-            if (t instanceof SecurityException && Properties.SANDBOX){
-                continue;
-            }
+            Class<?> exceptionClass = ExceptionCoverageHelper.getExceptionClass(result,i);
+            String methodIdentifier = ExceptionCoverageHelper.getMethodIdentifier(result, i); //eg name+descriptor
+            boolean sutException = ExceptionCoverageHelper.isSutException(result,i); // was the exception originated by a direct call on the SUT?
 
-            // If the exception was thrown in the test directly, it is also not interesting
-            if (t.getStackTrace().length > 0
-                    && t.getStackTrace()[0].getClassName().startsWith("org.evosuite.testcase")) {
-                continue;
-            }
-
-            // Ignore exceptions thrown in the test code itself
-            if (t instanceof CodeUnderTestException){
-                continue;
-            }
-
-            String methodName = "";
-            boolean sutException = false;
-
-            if (result.test.getStatement(i) instanceof MethodStatement) {
-                MethodStatement ms = (MethodStatement) result.test.getStatement(i);
-                Method method = ms.getMethod().getMethod();
-                methodName = method.getName() + Type.getMethodDescriptor(method);
-
-                if (method.getDeclaringClass().equals(Properties.getTargetClass())){
-                    sutException = true;
-                }
-
-            } else if (result.test.getStatement(i) instanceof ConstructorStatement) {
-                ConstructorStatement cs = (ConstructorStatement) result.test.getStatement(i);
-                Constructor<?> constructor = cs.getConstructor().getConstructor();
-                methodName = "<init>" + Type.getConstructorDescriptor(constructor);
-
-                if (constructor.getDeclaringClass().equals(Properties.getTargetClass())){
-                    sutException = true;
-                }
-            }
-
-				/*
-				 * We only consider exceptions that were thrown directly in the SUT (not called libraries)
-				 */
-
+            /*
+			 * We only consider exceptions that were thrown directly in the SUT (not called libraries)
+			 */
             if (sutException) {
-					/*
-					 * FIXME: we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
-					 * input for pre-condition) or implicit ("likely" a real fault).
-					 */
 
-                if (this.methodIdentifier.equals(methodName) && this.exceptionClass.equals(t.getClass()))
+                ExceptionType type = ExceptionCoverageHelper.getType(result,i);
+
+                if (this.methodIdentifier.equals(methodIdentifier) && this.exceptionClass.equals(exceptionClass) &&
+                        this.type.equals(type)) {
                     fitness = 0.0;
+                    break;
+                }
             }
         }
         return fitness;
@@ -155,7 +132,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return methodIdentifier + exceptionClass.getName();
+        return getKey();
     }
 
     /** {@inheritDoc} */
@@ -177,8 +154,13 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         ExceptionCoverageTestFitness other = (ExceptionCoverageTestFitness) obj;
         if (! methodIdentifier.equals(other.methodIdentifier)) {
             return false;
-        } else
-            return exceptionClass.equals(other.exceptionClass);
+        } else {
+            if(! exceptionClass.equals(other.exceptionClass)){
+                return false;
+            } else {
+                return this.type.equals(other.type);
+            }
+        }
     }
 
     /* (non-Javadoc)
@@ -189,9 +171,9 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         if (other instanceof ExceptionCoverageTestFitness) {
             ExceptionCoverageTestFitness otherMethodFitness = (ExceptionCoverageTestFitness) other;
             if (methodIdentifier.equals(otherMethodFitness.getMethod())) {
-                if (exceptionClass.equals(((ExceptionCoverageTestFitness) other).exceptionClass))
-                    return 0;
-                else
+                if (exceptionClass.equals(((ExceptionCoverageTestFitness) other).exceptionClass)) {
+                    return this.type.compareTo(((ExceptionCoverageTestFitness) other).type);
+                } else
                     return exceptionClass.getName().compareTo(otherMethodFitness.exceptionClass.getName());
             } else
                 return methodIdentifier.compareTo(otherMethodFitness.getMethod());
