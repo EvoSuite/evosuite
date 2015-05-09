@@ -87,8 +87,8 @@ public class MethodNoExceptionCoverageSuiteFitness extends TestSuiteFitnessFunct
         	logger.warn("Class could not be loaded: " + className);
         }
         if (clazz != null) {
-            Constructor[] allConstructors = clazz.getDeclaredConstructors();
-            for (Constructor c : allConstructors) {
+            Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
+            for (Constructor<?> c : allConstructors) {
                 if (canUse(c)) {
                     String descriptor = Type.getConstructorDescriptor(c);
                     logger.info("Adding goal for constructor " + className + ".<init>" + descriptor);

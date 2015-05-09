@@ -45,6 +45,17 @@ public class TestMethodCoverageFitnessFunction extends SystemTest {
 	}
 
 	@Test
+	public void testMethodFitnessSimpleExampleWithArchive() {
+		Properties.TEST_ARCHIVE = true;
+		testMethodFitnessSimpleExample();
+	}
+
+	@Test
+	public void testMethodFitnessSimpleExampleWithoutArchive() {
+		Properties.TEST_ARCHIVE = false;
+		testMethodFitnessSimpleExample();
+	}
+
 	public void testMethodFitnessSimpleExample() {
 		EvoSuite evosuite = new EvoSuite();
 		
@@ -63,6 +74,17 @@ public class TestMethodCoverageFitnessFunction extends SystemTest {
 	}
 
 	@Test
+	public void testMethodFitnessFlagExample3WithArchive() {
+		Properties.TEST_ARCHIVE = true;
+		testMethodFitnessFlagExample3();
+	}
+	
+	@Test
+	public void testMethodFitnessFlagExample3WithoutArchive() {
+		Properties.TEST_ARCHIVE = false;
+		testMethodFitnessFlagExample3();
+	}
+	
 	public void testMethodFitnessFlagExample3() {
 		EvoSuite evosuite = new EvoSuite();
 
@@ -81,6 +103,17 @@ public class TestMethodCoverageFitnessFunction extends SystemTest {
 	}
 
     @Test
+    public void testMethodFitnessCompositionalExampleWithArchive() {
+    	Properties.TEST_ARCHIVE = true;
+    	testMethodFitnessCompositionalExample();
+    }
+    
+    @Test
+    public void testMethodFitnessCompositionalExampleWithoutArchive() {
+    	Properties.TEST_ARCHIVE = false;
+    	testMethodFitnessCompositionalExample();
+    }
+    
     public void testMethodFitnessCompositionalExample() {
         EvoSuite evosuite = new EvoSuite();
 

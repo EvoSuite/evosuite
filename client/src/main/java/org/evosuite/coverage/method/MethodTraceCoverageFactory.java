@@ -68,8 +68,8 @@ public class MethodTraceCoverageFactory extends
             e.printStackTrace();
         }
         if (clazz != null) {
-            Constructor[] allConstructors = clazz.getDeclaredConstructors();
-            for (Constructor c : allConstructors) {
+            Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
+            for (Constructor<?> c : allConstructors) {
                 if (canUse(c)) {
                     String methodName = "<init>" + Type.getConstructorDescriptor(c);
                     logger.info("Adding goal for constructor " + className + "." + methodName);
