@@ -26,10 +26,9 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.evosuite.setup.TestClusterGenerator.canUse;
 
 /**
  * <p>
@@ -47,6 +46,20 @@ public class MethodTraceCoverageFactory extends
 
 	private static final Logger logger = LoggerFactory.getLogger(MethodTraceCoverageFactory.class);
 
+
+	protected static boolean isUsable(Method m) {
+		return !m.isSynthetic() &&
+		       !m.isBridge() &&
+		       !Modifier.isNative(m.getModifiers()) &&
+		       !m.getName().contains("<clinit>");
+	}
+	
+	protected static boolean isUsable(Constructor<?> c) {
+		return !c.isSynthetic() &&
+		       !Modifier.isNative(c.getModifiers()) &&
+		       !c.getName().contains("<clinit>");
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -70,7 +83,7 @@ public class MethodTraceCoverageFactory extends
         if (clazz != null) {
             Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
             for (Constructor<?> c : allConstructors) {
-                if (canUse(c)) {
+                if (isUsable(c)) {
                     String methodName = "<init>" + Type.getConstructorDescriptor(c);
                     logger.info("Adding goal for constructor " + className + "." + methodName);
                     goals.add(new MethodTraceCoverageTestFitness(className, methodName));
@@ -78,7 +91,7 @@ public class MethodTraceCoverageFactory extends
             }
             Method[] allMethods = clazz.getDeclaredMethods();
             for (Method m : allMethods) {
-                if (canUse(m)) {
+                if (isUsable(m)) {
                     String methodName = m.getName() + Type.getMethodDescriptor(m);
                     logger.info("Adding goal for method " + className + "." + methodName);
                     goals.add(new MethodTraceCoverageTestFitness(className, methodName));

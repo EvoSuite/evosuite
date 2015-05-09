@@ -18,6 +18,7 @@
 package org.evosuite.coverage.method;
 
 import com.examples.with.different.packagename.*;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -25,6 +26,7 @@ import org.evosuite.SystemTest;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -35,6 +37,16 @@ import org.junit.Test;
  *
  */
 public class TestMethodNoExceptionCoverageFitnessFunction extends SystemTest {
+
+    private static final Criterion[] defaultCriterion = Properties.CRITERION;
+    
+    private static boolean defaultArchive = Properties.TEST_ARCHIVE;
+
+	@After
+	public void resetProperties() {
+		Properties.CRITERION = defaultCriterion;
+		Properties.TEST_ARCHIVE = defaultArchive;
+	}
 
 	@Before
 	public void beforeTest() {
@@ -80,6 +92,18 @@ public class TestMethodNoExceptionCoverageFitnessFunction extends SystemTest {
     }
 
     @Test
+    public void testMethodNoExceptionFitnessImplicitExplicitExampleWithArchive() {
+    	Properties.TEST_ARCHIVE = true;
+    	testMethodNoExceptionFitnessImplicitExplicitExample();
+    }
+    
+
+    @Test
+    public void testMethodNoExceptionFitnessImplicitExplicitExampleWithoutArchive() {
+    	Properties.TEST_ARCHIVE = false;
+    	testMethodNoExceptionFitnessImplicitExplicitExample();
+    }
+
     public void testMethodNoExceptionFitnessImplicitExplicitExample() {
         EvoSuite evosuite = new EvoSuite();
 
@@ -98,6 +122,17 @@ public class TestMethodNoExceptionCoverageFitnessFunction extends SystemTest {
     }
 
     @Test
+    public void testMethodFitnessCompositionalExampleWithArchive() {
+    	Properties.TEST_ARCHIVE = true;
+    	testMethodFitnessCompositionalExample();
+    }
+    
+    @Test
+    public void testMethodFitnessCompositionalExampleWithoutArchive() {
+    	Properties.TEST_ARCHIVE = false;
+    	testMethodFitnessCompositionalExample();
+    }
+
     public void testMethodFitnessCompositionalExample() {
         EvoSuite evosuite = new EvoSuite();
 
