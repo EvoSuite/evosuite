@@ -39,12 +39,14 @@ import java.util.Map;
 public class TestImplicitExplicitExceptions  extends SystemTest {
 
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
+    
+    private static boolean defaultArchive = Properties.TEST_ARCHIVE;
 
 	@After
 	public void resetProperties() {
 		Properties.CRITERION = defaultCriterion;
+		Properties.TEST_ARCHIVE = defaultArchive;
 	}
-
 
 	@Test
 	public void testExceptionFitness_NoArchive() {

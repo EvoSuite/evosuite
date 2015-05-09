@@ -18,6 +18,7 @@
 package org.evosuite.coverage.method;
 
 import com.examples.with.different.packagename.Compositional;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -25,6 +26,7 @@ import org.evosuite.SystemTest;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +39,16 @@ import com.examples.with.different.packagename.SingleMethod;
  *
  */
 public class TestMethodCoverageFitnessFunction extends SystemTest {
+
+    private static final Criterion[] defaultCriterion = Properties.CRITERION;
+    
+    private static boolean defaultArchive = Properties.TEST_ARCHIVE;
+
+	@After
+	public void resetProperties() {
+		Properties.CRITERION = defaultCriterion;
+		Properties.TEST_ARCHIVE = defaultArchive;
+	}
 
 	@Before
 	public void beforeTest() {

@@ -50,18 +50,18 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
     // Coverage targets
-	public final int totalMethods;
-	public final Set<String> methods;
+	protected final int totalMethods;
+	protected final Set<String> methods;
 
     // Some stuff for debug output
-    public int maxCoveredMethods = 0;
-    public double bestFitness = Double.MAX_VALUE;
+    protected int maxCoveredMethods = 0;
+    protected double bestFitness = Double.MAX_VALUE;
     
-    private Set<String> toRemoveMethods = new LinkedHashSet<>();
-    private Set<String> removedMethods  = new LinkedHashSet<>();
+    protected Set<String> toRemoveMethods = new LinkedHashSet<>();
+    protected Set<String> removedMethods  = new LinkedHashSet<>();
 
     // Each test gets a set of distinct covered goals, these are mapped by branch id
-    private final Map<String, TestFitnessFunction> methodCoverageMap = new HashMap<String, TestFitnessFunction>();
+    protected final Map<String, TestFitnessFunction> methodCoverageMap = new HashMap<String, TestFitnessFunction>();
 
     /**
 	 * <p>
@@ -76,7 +76,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		determineCoverageGoals();
 	}
 
-    private void determineMethods() {
+    protected void determineMethods() {
         String className = Properties.TARGET_CLASS;
         Class<?> clazz = null;
         try {
@@ -107,7 +107,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	/**
 	 * Initialize the set of known coverage goals
 	 */
-	private void determineCoverageGoals() {
+	protected void determineCoverageGoals() {
 		List<MethodCoverageTestFitness> goals = new MethodCoverageFactory().getCoverageGoals();
 		for (MethodCoverageTestFitness goal : goals) {
             methodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), goal);
@@ -123,7 +123,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param results
 	 * @param calledMethods
 	 */
-	private void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
+	protected void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
 			List<ExecutionResult> results,
 	        Set<String> calledMethods) {
 
@@ -162,7 +162,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param calledMethods
 	 * @return
 	 */
-	private boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, 
+	protected boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, 
 			List<ExecutionResult> results,
 	        Set<String> calledMethods) {
 		boolean hasTimeoutOrTestException = false;
@@ -197,7 +197,6 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
     						toRemoveMethods.add(fullName);
     						suite.isToBeUpdated(true);
     					}
-
                     }
                 }
             }
@@ -205,7 +204,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		return hasTimeoutOrTestException;
 	}
 
-    private boolean isValidPosition(ExecutionResult result, Integer position) {
+    protected boolean isValidPosition(ExecutionResult result, Integer position) {
         List<Integer> exceptionPositions = asSortedList(result.getPositionsWhereExceptionsWereThrown());
         if (Properties.BREAK_ON_EXCEPTION) {
             return exceptionPositions.isEmpty() ? true : position > exceptionPositions.get(0);
@@ -215,7 +214,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
     }
 
-    private static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
+    protected static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
         List<T> list = new ArrayList<T>(c);
         java.util.Collections.sort(list);
         return list;
@@ -287,7 +286,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param coveredMethods
 	 * @param fitness
 	 */
-	private void printStatusMessages(
+	protected void printStatusMessages(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
 	        int coveredMethods, double fitness) {
 		if (coveredMethods > maxCoveredMethods) {
@@ -326,6 +325,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				throw new IllegalStateException("goal to remove not found");
 			}
 		}
+		toRemoveMethods.clear();
 		
 		return true;
 	}

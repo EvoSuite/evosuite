@@ -23,18 +23,15 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.evosuite.setup.TestClusterGenerator.canUse;
 
 /**
  * Fitness function for a whole test suite for all methods.
@@ -43,37 +40,14 @@ import static org.evosuite.setup.TestClusterGenerator.canUse;
  * 
  * @author Gordon Fraser, Jose Miguel Rojas
  */
-public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
+public class MethodTraceCoverageSuiteFitness extends MethodCoverageSuiteFitness {
 
 	private static final long serialVersionUID = 4958063899628649732L;
 
 	private final static Logger logger = LoggerFactory.getLogger(MethodTraceCoverageSuiteFitness.class);
 
-	// Coverage targets
-	public final int totalMethods;
-	private final Set<String> methods;
-
-	/**
-	 * <p>
-	 * Constructor for MethodTraceCoverageSuiteFitness.
-	 * </p>
-	 */
-	public MethodTraceCoverageSuiteFitness() {
-        methods = new HashSet<String>();
-        determineMethods();
-        totalMethods = methods.size();
-        logger.info("Total methods: " + totalMethods + ": " + methods);
-        determineCoverageGoals();
-	}
-
-	// Some stuff for debug output
-	public int maxCoveredMethods = 0;
-	public double bestFitness = Double.MAX_VALUE;
-
-	// Each test gets a set of distinct covered goals, these are mapped by branch id
-	private final Map<String, TestFitnessFunction> methodCoverageMap = new HashMap<String, TestFitnessFunction>();
-
-    private void determineMethods() {
+	@Override
+    protected void determineMethods() {
         String className = Properties.TARGET_CLASS;
         Class<?> clazz = null;
         try {
@@ -84,7 +58,7 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
         if (clazz != null) {
             Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
             for (Constructor<?> c : allConstructors) {
-                if (canUse(c)) {
+                if (MethodTraceCoverageFactory.isUsable(c)) {
                     String descriptor = Type.getConstructorDescriptor(c);
                     logger.info("Adding goal for constructor " + className + ".<init>" + descriptor);
                     methods.add(c.getDeclaringClass().getName() + ".<init>" + descriptor);
@@ -92,7 +66,7 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
             }
             Method[] allMethods = clazz.getDeclaredMethods();
             for (Method m : allMethods) {
-                if (canUse(m)) {
+                if (MethodTraceCoverageFactory.isUsable(m)) {
                     String descriptor = Type.getMethodDescriptor(m);
                     logger.info("Adding goal for method " + className + "." + m.getName() + descriptor);
                     methods.add(m.getDeclaringClass().getName() + "." + m.getName() + descriptor);
@@ -104,10 +78,13 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	/**
 	 * Initialize the set of known coverage goals
 	 */
-	private void determineCoverageGoals() {
+	@Override
+	protected void determineCoverageGoals() {
 		List<MethodTraceCoverageTestFitness> goals = new MethodTraceCoverageFactory().getCoverageGoals();
 		for (MethodTraceCoverageTestFitness goal : goals) {
 			methodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), goal);
+			if(Properties.TEST_ARCHIVE)
+				TestsArchive.instance.addGoalToCover(this, goal);
 		}
 	}
 
@@ -118,8 +95,10 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param results
 	 * @param callCount
 	 */
-	private void handleConstructorExceptions(List<ExecutionResult> results,
-	        Map<String, Integer> callCount) {
+	@Override
+	protected void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
+			List<ExecutionResult> results,
+			Set<String> calledMethods) {
 
 		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException()
@@ -134,12 +113,18 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				String methodName = "<init>"
 				        + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
 				String name = className + "." + methodName;
-				if (methodCoverageMap.containsKey(name) && !callCount.containsKey(name)) {
+				if (methodCoverageMap.containsKey(name) && calledMethods.contains(name) && !removedMethods.contains(name)) {
                     // only consider goal methods
-					callCount.put(name, 1);
+					calledMethods.add(name);
+                    result.test.addCoveredGoal(methodCoverageMap.get(name));
+					if(Properties.TEST_ARCHIVE) {
+						TestsArchive.instance.putTest(this, methodCoverageMap.get(name), result.test);
+						toRemoveMethods.add(name);
+						suite.isToBeUpdated(true);
+					}
+
 				}
 			}
-
 		}
 	}
 
@@ -150,8 +135,10 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param callCount
 	 * @return
 	 */
-	private boolean analyzeTraces(List<ExecutionResult> results,
-	        Map<String, Integer> callCount) {
+	@Override
+	protected boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, 
+			List<ExecutionResult> results,
+	        Set<String> calledMethods) {
 		boolean hasTimeoutOrTestException = false;
 
 		for (ExecutionResult result : results) {
@@ -160,83 +147,19 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			}
 
 			for (Entry<String, Integer> entry : result.getTrace().getMethodExecutionCount().entrySet()) {
+				if(!methods.contains(entry.getKey())||removedMethods.contains(entry.getKey())) continue;
 				if (methodCoverageMap.containsKey(entry.getKey())) {
-					if (!callCount.containsKey(entry.getKey()))
-						callCount.put(entry.getKey(), entry.getValue());
-					else {
-						callCount.put(entry.getKey(),
-					              callCount.get(entry.getKey()) + entry.getValue());
+					calledMethods.add(entry.getKey());
+					result.test.addCoveredGoal(methodCoverageMap.get(entry.getKey()));					
+					if(Properties.TEST_ARCHIVE) {
+						TestsArchive.instance.putTest(this, methodCoverageMap.get(entry.getKey()), result.test);
+						toRemoveMethods.add(entry.getKey());
+						suite.isToBeUpdated(true);
 					}
-					result.test.addCoveredGoal(methodCoverageMap.get(entry.getKey()));
-				}
-
+                }
 			}
 		}
 		return hasTimeoutOrTestException;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Execute all tests and count covered branches
-	 */
-	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
-		logger.trace("Calculating method fitness");
-		double fitness = 0.0;
-
-		List<ExecutionResult> results = runTestSuite(suite);
-		Map<String, Integer> callCount = new HashMap<String, Integer>();
-
-		// Collect stats in the traces 
-		boolean hasTimeoutOrTestException = analyzeTraces(results, callCount);
-
-		// In case there were exceptions in a constructor
-		handleConstructorExceptions(results, callCount);
-
-        logger.info("CallCount: " + callCount.keySet().toString() + " (length=" + callCount.keySet().size() + ")");
-
-		// Ensure all methods are called
-		int missingMethods = 0;
-		for (String e : methods) {
-			if (!callCount.containsKey(e)) {
-                logger.info("Method not covered in trace: " + e);
-				fitness += 1.0;
-				missingMethods += 1;
-			}
-		}
-        logger.debug("Fitness: " + fitness);
-        logger.debug("Number of missing methods: " + missingMethods);
-		printStatusMessages(suite, totalMethods - missingMethods, fitness);
-
-		// Calculate coverage
-		int coverage = callCount.keySet().size();
-
-		if (totalMethods > 0) {
-            logger.debug("Coverage: " + (double) coverage / (double) totalMethods);
-            suite.setCoverage(this, (double) coverage / (double) totalMethods);
-        } else {
-            logger.debug("Coverage (0 methods): " + 1.0);
-            suite.setCoverage(this, 1.0);
-        }
-		suite.setNumOfCoveredGoals(this, coverage);
-		if (hasTimeoutOrTestException) {
-			logger.info("Test suite has timed out, setting fitness to max value " + totalMethods);
-			fitness = totalMethods;
-			//suite.setCoverage(0.0);
-		}
-
-		updateIndividual(this, suite, fitness);
-
-		assert (coverage <= totalMethods) : "Covered " + coverage + " vs total goals " + totalMethods;
-		assert (fitness >= 0.0);
-		assert (fitness != 0.0 || coverage == totalMethods) : "Fitness: " + fitness + ", "
-		        + "coverage: " + coverage + "/" + totalMethods;
-		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
-		        + suite.getCoverage(this);
-
-		return fitness;
 	}
 
 	/**
@@ -245,7 +168,8 @@ public class MethodTraceCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param coveredMethods
 	 * @param fitness
 	 */
-	private void printStatusMessages(
+	@Override
+	protected void printStatusMessages(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
 	        int coveredMethods, double fitness) {
 		if (coveredMethods > maxCoveredMethods) {
