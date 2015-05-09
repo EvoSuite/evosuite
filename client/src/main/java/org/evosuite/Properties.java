@@ -628,23 +628,23 @@ public class Properties {
 	/** Constant <code>MINIMIZATION_TIMEOUT=600</code> */
 	@Parameter(key = "minimization_timeout", group = "Search Algorithm", description = "Seconds allowed for minimization at the end")
 	@IntValue(min = 0)
-	public static int MINIMIZATION_TIMEOUT = 600;
+	public static int MINIMIZATION_TIMEOUT = 120;
 
     @Parameter(key = "assertion_timeout", group = "Search Algorithm", description = "Seconds allowed for assertion generation at the end")
     @IntValue(min = 0)
-    public static int ASSERTION_TIMEOUT = 600;
+    public static int ASSERTION_TIMEOUT = 120;
 
     @Parameter(key = "junit_check_timeout", group = "Search Algorithm", description = "Seconds allowed for checking the generated JUnit files (e.g., compilation and stability)")
     @IntValue(min = 0)
-    public static int JUNIT_CHECK_TIMEOUT = 600;
+    public static int JUNIT_CHECK_TIMEOUT = 120;
 
     @Parameter(key = "carving_timeout", group = "Search Algorithm", description = "Seconds allowed for carving JUnit tests")
 	@IntValue(min = 0)
-	public static int CARVING_TIMEOUT = 600;
+	public static int CARVING_TIMEOUT = 120;
 
 	@Parameter(key = "initialization_timeout", group = "Search Algorithm", description = "Seconds allowed for initializing the search")
 	@IntValue(min = 0)
-	public static int INITIALIZATION_TIMEOUT = 600;
+	public static int INITIALIZATION_TIMEOUT = 120;
 
 	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
 	public static boolean TRACK_BOOLEAN_BRANCHES = false;
