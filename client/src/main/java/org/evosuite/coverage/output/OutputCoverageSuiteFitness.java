@@ -19,9 +19,13 @@ package org.evosuite.coverage.output;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.evosuite.Properties;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -47,6 +51,10 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
     // Each test gets a set of distinct covered goals, these are mapped by goal string
     private final Map<String, TestFitnessFunction> outputCoverageMap = new HashMap<String, TestFitnessFunction>();
 
+    private Set<String> toRemoveGoals = new LinkedHashSet<>();
+    private Set<String> removedGoals  = new LinkedHashSet<>();
+
+    
     public OutputCoverageSuiteFitness() {    	
         // Add observer
         TestCaseExecutor executor = TestCaseExecutor.getInstance();
@@ -66,8 +74,8 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         List<OutputCoverageTestFitness> goals = new OutputCoverageFactory().getCoverageGoals();
         for (OutputCoverageTestFitness goal : goals) {
             outputCoverageMap.put(goal.toString(), goal);
-			// if(Properties.TEST_ARCHIVE)
-			//	testsArchive.addGoalToCover(this, goal);
+			if(Properties.TEST_ARCHIVE)
+				TestsArchive.instance.addGoalToCover(this, goal);
 
         }
     }
@@ -92,17 +100,17 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             if (result.hasTimeout() || result.hasTestException()) {
                 hasTimeoutOrTestException = true;
             } else {
-                updateCoveredGoals(result, setOfCoveredGoals);
+                updateCoveredGoals(suite, result, setOfCoveredGoals);
             }
         }
 
-        int coveredGoals = setOfCoveredGoals.size();
+        int coveredGoals = setOfCoveredGoals.size() + removedGoals.size();
 
         if (hasTimeoutOrTestException) {
             logger.info("Test suite has timed out, setting fitness to max value " + totalGoals);
             fitness = totalGoals;
         } else
-            fitness = computeDistance(results, setOfCoveredGoals);
+            fitness = computeDistance(suite, results, setOfCoveredGoals);
 
         if (totalGoals > 0)
             suite.setCoverage(this, (double) coveredGoals / (double) totalGoals);
@@ -124,17 +132,23 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         return fitness;
     }
 
-    private void updateCoveredGoals(ExecutionResult result, HashSet<String> setOfCoveredGoals) {
+    private void updateCoveredGoals(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, HashSet<String> setOfCoveredGoals) {
         HashSet<String> strGoals = OutputCoverageTestFitness.listCoveredGoals(result.getReturnValues());
         for (String strGoal : strGoals) {
+        	if(removedGoals.contains(strGoal)) continue;
             if (outputCoverageMap.containsKey(strGoal)) {
                 setOfCoveredGoals.add(strGoal);
-                result.test.addCoveredGoal(outputCoverageMap.get(strGoal));    				
+                result.test.addCoveredGoal(outputCoverageMap.get(strGoal));
+                if(Properties.TEST_ARCHIVE) {
+					TestsArchive.instance.putTest(this, outputCoverageMap.get(strGoal), result.test);
+					toRemoveGoals.add(strGoal);
+					suite.isToBeUpdated(true);                	
+                }
             }
         }
     }
 
-    public double computeDistance(List<ExecutionResult> results, HashSet<String> setOfCoveredGoals) {
+    public double computeDistance(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results, HashSet<String> setOfCoveredGoals) {
         Map<String, Double> mapDistances = new HashMap<String, Double>();
         for (ExecutionResult result : results) {
             if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions())
@@ -184,7 +198,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                         } else {
                             goalSuffix = OutputCoverageFactory.NUM_POSITIVE;
                         }
-                        updateDistances(mapDistances, className, methodName, value);
+                        updateDistances(suite, mapDistances, className, methodName, value);
                         break;
                     case Type.ARRAY:
                     case Type.OBJECT:
@@ -201,16 +215,23 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
                 if (!goalSuffix.isEmpty()) {
                     String strGoal = OutputCoverageFactory.goalString(className, methodName, goalSuffix);
+                    if(removedGoals.contains(strGoal)) 
+                    	continue;
                     if (outputCoverageMap.containsKey(strGoal)) {
                         setOfCoveredGoals.add(strGoal);
                         result.test.addCoveredGoal(outputCoverageMap.get(strGoal));
+                        if(Properties.TEST_ARCHIVE) {
+        					TestsArchive.instance.putTest(this, outputCoverageMap.get(strGoal), result.test);
+        					toRemoveGoals.add(strGoal);
+        					suite.isToBeUpdated(true);                	
+                        }
                     }
                 }
             }
         }
         double distance = 0.0;
         for (String strG : outputCoverageMap.keySet()) {
-            if (!setOfCoveredGoals.contains(strG)) {
+            if (!setOfCoveredGoals.contains(strG) && !removedGoals.contains(strG)) {
                 if (mapDistances.containsKey(strG)) {
                     distance += normalize(mapDistances.get(strG));
                 } else
@@ -220,7 +241,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         return distance;
     }
 
-    private void updateDistances(Map<String, Double> mapDistances, String className, String methodName, double value) {
+    private void updateDistances(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, Map<String, Double> mapDistances, String className, String methodName, double value) {
         String goalNegative = OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_NEGATIVE);
         String goalZero = OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_ZERO);
         String goalPositive = OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_POSITIVE);
