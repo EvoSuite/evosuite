@@ -93,7 +93,7 @@ public class StatisticsSender {
 		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<>();
         Map<String, Set<Class<?>>> declaredTypesOfExceptions = new HashMap<>();
 
-		ExceptionCoverageSuiteFitness.calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions,declaredTypesOfExceptions);
+		ExceptionCoverageSuiteFitness.calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions,declaredTypesOfExceptions, null);
 
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
 				RuntimeVariable.Explicit_MethodExceptions, ExceptionCoverageSuiteFitness.getNumExceptions(explicitTypesOfExceptions));

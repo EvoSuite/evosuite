@@ -24,6 +24,7 @@ import org.evosuite.SystemTest;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,16 @@ import com.examples.with.different.packagename.SingleMethod;
  */
 public class TestMethodTraceCoverageFitnessFunction extends SystemTest {
 
+    private static final Criterion[] defaultCriterion = Properties.CRITERION;
+    
+    private static boolean defaultArchive = Properties.TEST_ARCHIVE;
+
+	@After
+	public void resetProperties() {
+		Properties.CRITERION = defaultCriterion;
+		Properties.TEST_ARCHIVE = defaultArchive;
+	}
+
 	@Before
 	public void beforeTest() {
         Properties.CRITERION[0] = Criterion.METHODTRACE;
@@ -45,6 +56,17 @@ public class TestMethodTraceCoverageFitnessFunction extends SystemTest {
 	}
 
 	@Test
+	public void testMethodFitnessSimpleExampleWithArchive() {
+		Properties.TEST_ARCHIVE = true;
+		testMethodFitnessSimpleExample();
+	}
+	
+	@Test
+	public void testMethodFitnessSimpleExampleWithoutArchive() {
+		Properties.TEST_ARCHIVE = false;
+		testMethodFitnessSimpleExample();
+	}
+	
 	public void testMethodFitnessSimpleExample() {
 		EvoSuite evosuite = new EvoSuite();
 		
@@ -63,6 +85,17 @@ public class TestMethodTraceCoverageFitnessFunction extends SystemTest {
 	}
 
 	@Test
+	public void testMethodFitnessFlagExample3WithArchive() {
+		Properties.TEST_ARCHIVE = true;
+		testMethodFitnessFlagExample3();
+	}
+	
+	@Test
+	public void testMethodFitnessFlagExample3WithoutArchive() {
+		Properties.TEST_ARCHIVE = false;
+		testMethodFitnessFlagExample3();
+	}
+
 	public void testMethodFitnessFlagExample3() {
 		EvoSuite evosuite = new EvoSuite();
 
@@ -76,11 +109,22 @@ public class TestMethodTraceCoverageFitnessFunction extends SystemTest {
 		
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(2, goals);
+		Assert.assertEquals(3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
     @Test
+    public void testMethodFitnessCompositionalExampleWithArchive() {
+    	Properties.TEST_ARCHIVE = true;
+    	testMethodFitnessCompositionalExample();
+    }
+    
+    @Test
+    public void testMethodFitnessCompositionalExampleWithoutArchive() {
+    	Properties.TEST_ARCHIVE = false;
+    	testMethodFitnessCompositionalExample();
+    }
+    
     public void testMethodFitnessCompositionalExample() {
         EvoSuite evosuite = new EvoSuite();
 

@@ -19,6 +19,7 @@ package org.evosuite.coverage.method;
 
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -49,15 +50,18 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
     // Coverage targets
-	public final int totalMethods;
-	public final Set<String> methods;
+	protected final int totalMethods;
+	protected final Set<String> methods;
 
     // Some stuff for debug output
-    public int maxCoveredMethods = 0;
-    public double bestFitness = Double.MAX_VALUE;
+    protected int maxCoveredMethods = 0;
+    protected double bestFitness = Double.MAX_VALUE;
+    
+    protected Set<String> toRemoveMethods = new LinkedHashSet<>();
+    protected Set<String> removedMethods  = new LinkedHashSet<>();
 
     // Each test gets a set of distinct covered goals, these are mapped by branch id
-    private final Map<String, TestFitnessFunction> methodCoverageMap = new HashMap<String, TestFitnessFunction>();
+    protected final Map<String, TestFitnessFunction> methodCoverageMap = new HashMap<String, TestFitnessFunction>();
 
     /**
 	 * <p>
@@ -72,7 +76,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		determineCoverageGoals();
 	}
 
-    private void determineMethods() {
+    protected void determineMethods() {
         String className = Properties.TARGET_CLASS;
         Class<?> clazz = null;
         try {
@@ -81,8 +85,8 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
             e.printStackTrace();
         }
         if (clazz != null) {
-            Constructor[] allConstructors = clazz.getDeclaredConstructors();
-            for (Constructor c : allConstructors) {
+            Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
+            for (Constructor<?> c : allConstructors) {
                 if (canUse(c)) {
                     String descriptor = Type.getConstructorDescriptor(c);
                     logger.info("Adding goal for constructor " + className + ".<init>" + descriptor);
@@ -103,10 +107,13 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	/**
 	 * Initialize the set of known coverage goals
 	 */
-	private void determineCoverageGoals() {
+	protected void determineCoverageGoals() {
 		List<MethodCoverageTestFitness> goals = new MethodCoverageFactory().getCoverageGoals();
-		for (MethodCoverageTestFitness goal : goals)
+		for (MethodCoverageTestFitness goal : goals) {
             methodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), goal);
+			if(Properties.TEST_ARCHIVE)
+				TestsArchive.instance.addGoalToCover(this, goal);
+		}
 	}
 
 	/**
@@ -116,7 +123,8 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param results
 	 * @param calledMethods
 	 */
-	private void handleConstructorExceptions(List<ExecutionResult> results,
+	protected void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
+			List<ExecutionResult> results,
 	        Set<String> calledMethods) {
 
 		for (ExecutionResult result : results) {
@@ -132,9 +140,15 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				String methodName = "<init>"
 				        + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
 				String name = className + "." + methodName;
-				if (methodCoverageMap.containsKey(name) && !calledMethods.contains(name)) {
+				if (methodCoverageMap.containsKey(name) && !calledMethods.contains(name) && !removedMethods.contains(name)) {
                     // only include methods being called
                     calledMethods.add(name);
+                    result.test.addCoveredGoal(methodCoverageMap.get(name));
+					if(Properties.TEST_ARCHIVE) {
+						TestsArchive.instance.putTest(this, methodCoverageMap.get(name), result.test);
+						toRemoveMethods.add(name);
+						suite.isToBeUpdated(true);
+					}
 				}
 			}
 
@@ -148,7 +162,8 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param calledMethods
 	 * @return
 	 */
-	private boolean analyzeTraces(List<ExecutionResult> results,
+	protected boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, 
+			List<ExecutionResult> results,
 	        Set<String> calledMethods) {
 		boolean hasTimeoutOrTestException = false;
 
@@ -173,9 +188,15 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
                         methodName = "<init>" + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
                     }
                     String fullName = className + "." + methodName;
+    				if(!methods.contains(fullName)||removedMethods.contains(fullName)) continue;
                     if (methodCoverageMap.containsKey(fullName)) {
                         calledMethods.add(fullName);
                         result.test.addCoveredGoal(methodCoverageMap.get(fullName));
+    					if(Properties.TEST_ARCHIVE) {
+    						TestsArchive.instance.putTest(this, methodCoverageMap.get(fullName), result.test);
+    						toRemoveMethods.add(fullName);
+    						suite.isToBeUpdated(true);
+    					}
                     }
                 }
             }
@@ -183,7 +204,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		return hasTimeoutOrTestException;
 	}
 
-    private boolean isValidPosition(ExecutionResult result, Integer position) {
+    protected boolean isValidPosition(ExecutionResult result, Integer position) {
         List<Integer> exceptionPositions = asSortedList(result.getPositionsWhereExceptionsWereThrown());
         if (Properties.BREAK_ON_EXCEPTION) {
             return exceptionPositions.isEmpty() ? true : position > exceptionPositions.get(0);
@@ -193,7 +214,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
     }
 
-    private static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
+    protected static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
         List<T> list = new ArrayList<T>(c);
         java.util.Collections.sort(list);
         return list;
@@ -214,10 +235,10 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		Set<String> calledMethods = new HashSet<String>();
 
 		// Collect stats in the traces 
-		boolean hasTimeoutOrTestException = analyzeTraces(results, calledMethods);
+		boolean hasTimeoutOrTestException = analyzeTraces(suite, results, calledMethods);
 
 		// In case there were exceptions in a constructor
-		handleConstructorExceptions(results, calledMethods);
+		handleConstructorExceptions(suite, results, calledMethods);
 
 		// Ensure all methods are called
 		int missingMethods = 0;
@@ -229,7 +250,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
         // Calculate coverage
-        int coveredMethods = calledMethods.size();
+        int coveredMethods = calledMethods.size() + removedMethods.size();
         assert (totalMethods == coveredMethods + missingMethods);
 
         printStatusMessages(suite, totalMethods - missingMethods, fitness);
@@ -265,7 +286,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param coveredMethods
 	 * @param fitness
 	 */
-	private void printStatusMessages(
+	protected void printStatusMessages(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
 	        int coveredMethods, double fitness) {
 		if (coveredMethods > maxCoveredMethods) {
@@ -286,4 +307,26 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 	}
 
+	@Override
+	public boolean updateCoveredGoals() {
+		
+		if(!Properties.TEST_ARCHIVE)
+			return false;
+		
+		for (String method : toRemoveMethods) {
+			boolean removed = methods.remove(method);
+			TestFitnessFunction f = methodCoverageMap.remove(method);
+			if (removed && f != null) {
+				// totalMethods--;
+				methods.remove(method);
+				removedMethods.add(method);
+				//removeTestCall(f.getTargetClass(), f.getTargetMethod());
+			} else {
+				throw new IllegalStateException("goal to remove not found");
+			}
+		}
+		toRemoveMethods.clear();
+		
+		return true;
+	}
 }
