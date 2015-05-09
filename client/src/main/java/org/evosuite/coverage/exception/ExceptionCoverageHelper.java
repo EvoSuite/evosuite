@@ -4,7 +4,6 @@ import org.evosuite.Properties;
 import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.AbstractStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.objectweb.asm.Type;

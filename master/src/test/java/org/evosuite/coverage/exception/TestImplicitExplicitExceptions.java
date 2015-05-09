@@ -39,12 +39,14 @@ import java.util.Map;
 public class TestImplicitExplicitExceptions  extends SystemTest {
 
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
+    
+    private static boolean defaultArchive = Properties.TEST_ARCHIVE;
 
 	@After
 	public void resetProperties() {
 		Properties.CRITERION = defaultCriterion;
+		Properties.TEST_ARCHIVE = defaultArchive;
 	}
-
 
 	@Test
 	public void testExceptionFitness_NoArchive() {
@@ -85,7 +87,7 @@ public class TestImplicitExplicitExceptions  extends SystemTest {
 		 * there are 2 undeclared exceptions (both implicit and explicit),
 		 * and 3 declared: so fit = 1 / (1+5)
 		 */
-		Assert.assertEquals("Wrong fitness: ", 1d / 6d, fitness, 0.001);
+		Assert.assertEquals("Wrong fitness: ", 1d / 6d, fitness, 0.0000001);
 
         Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
         Assert.assertNotNull(map);
