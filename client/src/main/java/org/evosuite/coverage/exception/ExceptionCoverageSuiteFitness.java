@@ -19,20 +19,18 @@
  */
 package org.evosuite.coverage.exception;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +71,17 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		List<ExecutionResult> results = runTestSuite(suite);
 
-		calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions,declaredTypesOfExceptions);
-
+		calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions,declaredTypesOfExceptions, this);
+		
+		if(Properties.TEST_ARCHIVE) {
+			// If we are using the archive, then fitness is by definition 0
+			// as all assertions already covered are in the archive
+			suite.setFitness(this,  0.0);
+			suite.setCoverage(this, 1.0);
+			maxExceptionsCovered = ExceptionCoverageFactory.getGoals().size();
+			return 0.0;
+		}
+		
 		int nExc = getNumExceptions(implicitTypesOfExceptions) + getNumExceptions(explicitTypesOfExceptions) +
                 getNumExceptions(declaredTypesOfExceptions);
 
@@ -89,7 +96,11 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		double exceptionFitness = 1d / (1d + nExc);
 
         suite.setFitness(this, exceptionFitness);
-
+        if(maxExceptionsCovered > 0)
+        	suite.setCoverage(this, nExc / maxExceptionsCovered);
+        else
+        	suite.setCoverage(this, 1.0);
+        
         return exceptionFitness;
 	}
 
@@ -107,7 +118,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	public static void calculateExceptionInfo(List<ExecutionResult> results, 
 			Map<String, Set<Class<?>>> implicitTypesOfExceptions, Map<String, Set<Class<?>>> explicitTypesOfExceptions,
-            Map<String, Set<Class<?>>> declaredTypesOfExceptions)
+            Map<String, Set<Class<?>>> declaredTypesOfExceptions, ExceptionCoverageSuiteFitness contextFitness)
 		throws IllegalArgumentException{
 		
 		if(results==null || implicitTypesOfExceptions==null || explicitTypesOfExceptions==null ||
@@ -173,7 +184,14 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                      * Add goal to ExceptionCoverageFactory
                      */
                     ExceptionCoverageTestFitness goal = new ExceptionCoverageTestFitness(methodIdentifier, exceptionClass, type);
-                    ExceptionCoverageFactory.getGoals().put(goal.getKey(), goal);
+                    String key = goal.getKey();
+                    if(!ExceptionCoverageFactory.getGoals().containsKey(key)) {
+                    	ExceptionCoverageFactory.getGoals().put(key, goal);
+                    	if(Properties.TEST_ARCHIVE && contextFitness != null) {
+                    		TestsArchive.instance.addGoalToCover(contextFitness, goal);
+                    		TestsArchive.instance.putTest(contextFitness, goal, result.test);
+                    	}
+                    }
 				}
 
 			}

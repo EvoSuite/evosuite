@@ -85,7 +85,7 @@ public class TestImplicitExplicitExceptions  extends SystemTest {
 		 * there are 2 undeclared exceptions (both implicit and explicit),
 		 * and 3 declared: so fit = 1 / (1+5)
 		 */
-		Assert.assertEquals("Wrong fitness: ", 1d / 6d, fitness, 0.001);
+		Assert.assertEquals("Wrong fitness: ", 1d / 6d, fitness, 0.0000001);
 
         Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
         Assert.assertNotNull(map);
