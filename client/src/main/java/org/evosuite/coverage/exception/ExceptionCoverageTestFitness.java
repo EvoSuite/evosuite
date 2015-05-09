@@ -17,16 +17,9 @@
  */
 package org.evosuite.coverage.exception;
 
-import org.evosuite.Properties;
 import org.evosuite.testcase.*;
-import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.objectweb.asm.Type;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 
 /**
  * Fitness function for a single test on a single exception
