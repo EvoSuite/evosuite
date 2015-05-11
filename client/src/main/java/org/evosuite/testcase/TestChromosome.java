@@ -111,8 +111,8 @@ public class TestChromosome extends ExecutableChromosome {
 	public Chromosome clone() {
 		TestChromosome c = new TestChromosome();
 		c.test = test.clone();
-		c.setFitnesses(getFitnesses());
-		c.setLastFitnesses(getLastFitnesses());
+		c.setFitnesses(getFitnessValues());
+		c.setLastFitnesses(getPreviousFitnessValues());
 		c.solution = solution;
 		c.copyCachedResults(this);
 		c.setChanged(isChanged());

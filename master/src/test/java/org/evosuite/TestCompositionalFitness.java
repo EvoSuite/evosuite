@@ -72,7 +72,7 @@ public class TestCompositionalFitness extends SystemTest {
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 
-        Map<FitnessFunction<?>, Double> fitnesses = best.getFitnesses();
+        Map<FitnessFunction<?>, Double> fitnesses = best.getFitnessValues();
         double sum = 0.0;
         double cov = 0.0;
         for (FitnessFunction<?> fitness : fitnesses.keySet()) {
@@ -80,7 +80,7 @@ public class TestCompositionalFitness extends SystemTest {
             cov += best.getCoverage(fitness);
             assert (fitnesses.get(fitness) == best.getFitness(fitness));
         }
-        cov = cov / best.getCoverages().size();
+        cov = cov / best.getCoverageValues().size();
         Assert.assertEquals("Inconsistent fitness: ", sum, best.getFitness(), 0.001);
         Assert.assertEquals("Inconsistent coverage: ", cov, best.getCoverage(), 0.001);
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);

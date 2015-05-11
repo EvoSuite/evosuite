@@ -922,7 +922,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 		// The archive may contain tests evaluated with a fitness function
 		// that is not part of the optimization (e.g. ibranch secondary objective)
-		Iterator<FitnessFunction<?>> it = best.getCoverages().keySet().iterator();
+		Iterator<FitnessFunction<?>> it = best.getCoverageValues().keySet().iterator();
 		while(it.hasNext()) {
 			FitnessFunction<?> ff = it.next();
 			if(!fitnessFunctions.contains(ff))
