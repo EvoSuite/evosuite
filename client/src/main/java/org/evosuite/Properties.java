@@ -1076,7 +1076,7 @@ public class Properties {
 
 	/** Constant <code>TEST_FACTORY</code> */
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
-	public static TestFactory TEST_FACTORY = TestFactory.RANDOM;
+	public static TestFactory TEST_FACTORY = TestFactory.ARCHIVE;
 
 	@Parameter(key = "seed_file", description = "File storing TestGenerationResult or GeneticAlgorithm")
 	public static String SEED_FILE = "";
