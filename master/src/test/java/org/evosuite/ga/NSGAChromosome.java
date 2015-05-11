@@ -71,8 +71,8 @@ public class NSGAChromosome extends Chromosome
 	@Override
 	public Chromosome clone() {
 		NSGAChromosome c = new NSGAChromosome();
-		c.setFitnesses(this.getFitnessValues());
-		c.setLastFitnesses(this.getPreviousFitnessValues());
+		c.setFitnessValues(this.getFitnessValues());
+		c.setPreviousFitnessValues(this.getPreviousFitnessValues());
 		for (Variable v : this.getVariables()) {
 			c.addVariable(v.clone());
 		}
