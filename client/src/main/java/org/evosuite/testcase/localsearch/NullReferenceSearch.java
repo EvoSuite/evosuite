@@ -44,8 +44,8 @@ public class NullReferenceSearch extends StatementLocalSearch {
 				test.setTestCase(oldTest);
 				test.setLastExecutionResult(oldResult);
 				//test.setFitness(oldFitness);
-				test.setFitnesses(oldFitnesses);
-				test.setLastFitnesses(oldLastFitnesses);
+				test.setFitnessValues(oldFitnesses);
+				test.setPreviousFitnessValues(oldLastFitnesses);
 			} else {
 				return true;
 			}

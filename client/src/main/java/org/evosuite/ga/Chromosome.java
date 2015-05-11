@@ -107,13 +107,13 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		return this.previousFitnessValues.containsKey(ff);
 	}
 
-	public void setFitnesses(Map<FitnessFunction<?>, Double> fits) {
+	public void setFitnessValues(Map<FitnessFunction<?>, Double> fits) {
 		//TODO mainfitness?
 		this.fitnessValues.clear();
 		this.fitnessValues.putAll(fits);
 	}
 
-	public void setLastFitnesses(Map<FitnessFunction<?>, Double> lastFits) {
+	public void setPreviousFitnessValues(Map<FitnessFunction<?>, Double> lastFits) {
 		this.previousFitnessValues.clear();
 		this.previousFitnessValues.putAll(lastFits);
 	}
