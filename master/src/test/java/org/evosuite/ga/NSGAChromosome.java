@@ -76,7 +76,6 @@ public class NSGAChromosome extends Chromosome
 		for (Variable v : this.getVariables()) {
 			c.addVariable(v.clone());
 		}
-		c.setSolution(this.isSolution());
 		c.setChanged(this.isChanged());
 		c.setCoverages(this.getCoverages());
 		c.setNumsOfCoveredGoals(this.getNumsOfCoveredGoals());
