@@ -52,9 +52,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/** Previous fitness, to see if there was an improvement */
 	private LinkedHashMap<FitnessFunction<?>, Double> lastFitnesses = new LinkedHashMap<FitnessFunction<?>, Double>();
 
-	/** True if this is a solution */
-	protected boolean solution = false;
-
 	/** Has this chromosome changed since its fitness was last evaluated? */
 	private boolean changed = true;
 
@@ -225,27 +222,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Is this a valid solution?
-	 * 
-	 * @return a boolean.
-	 */
-	public boolean isSolution() {
-		return solution;
-	}
-
-	/**
-	 * <p>
-	 * Setter for the field <code>solution</code>.
-	 * </p>
-	 * 
-	 * @param value
-	 *            a boolean.
-	 */
-	public void setSolution(boolean value) {
-		solution = value;
 	}
 
 	/**
