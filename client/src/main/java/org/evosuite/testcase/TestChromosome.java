@@ -113,7 +113,6 @@ public class TestChromosome extends ExecutableChromosome {
 		c.test = test.clone();
 		c.setFitnessValues(getFitnessValues());
 		c.setPreviousFitnessValues(getPreviousFitnessValues());
-		c.solution = solution;
 		c.copyCachedResults(this);
 		c.setChanged(isChanged());
 		if (Properties.LOCAL_SEARCH_SELECTIVE) {
