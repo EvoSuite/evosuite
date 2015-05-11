@@ -934,7 +934,7 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Inlining constants");
 
 			for (TestSuiteChromosome best : bestSuites) {
-                Map<FitnessFunction<?>, Double> fitnesses = best.getFitnesses();
+                Map<FitnessFunction<?>, Double> fitnesses = best.getFitnessValues();
 
                 inliner.inline(best);
                 for (FitnessFunction<?> fitness : fitnesses.keySet())

@@ -33,8 +33,8 @@ public class NullReferenceSearch extends StatementLocalSearch {
 		TestCase oldTest = newTest.clone();
 		ExecutionResult oldResult = test.getLastExecutionResult();
 		//double oldFitness = test.getFitness();
-		Map<FitnessFunction<?>, Double> oldFitnesses = test.getFitnesses();
-		Map<FitnessFunction<?>, Double> oldLastFitnesses = test.getLastFitnesses();
+		Map<FitnessFunction<?>, Double> oldFitnesses = test.getFitnessValues();
+		Map<FitnessFunction<?>, Double> oldLastFitnesses = test.getPreviousFitnessValues();
 
 		try {
 			TestFactory.getInstance().attemptGeneration(newTest,

@@ -83,10 +83,10 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		}
 
 		//this.setFitness(source.getFitness());
-		this.setFitnesses(source.getFitnesses());
-		this.setLastFitnesses(source.getLastFitnesses());
+		this.setFitnesses(source.getFitnessValues());
+		this.setLastFitnesses(source.getPreviousFitnessValues());
 		this.setChanged(source.isChanged());
-		this.setCoverages(source.getCoverages());
+		this.setCoverageValues(source.getCoverageValues());
         this.setNumsOfCoveredGoals(source.getNumsOfCoveredGoals());
         this.setNumsOfNotCoveredGoals(source.getNumsNotCoveredGoals());
 	}

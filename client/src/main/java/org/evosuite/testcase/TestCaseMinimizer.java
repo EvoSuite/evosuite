@@ -186,8 +186,8 @@ public class TestCaseMinimizer {
 					c.test = copy.test;
 					c.copyCachedResults(copy);
 					//c.setFitness(copy.getFitness());
-					c.setFitnesses(copy.getFitnesses());
-			        c.setLastFitnesses(copy.getLastFitnesses());
+					c.setFitnesses(copy.getFitnessValues());
+			        c.setLastFitnesses(copy.getPreviousFitnessValues());
 					c.setChanged(false);
 				}
 			}

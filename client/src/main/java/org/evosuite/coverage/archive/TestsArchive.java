@@ -168,7 +168,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 				suite.addTest(entry.getValue());
 			}
 		}
-        for (FitnessFunction<?> ff : bestChromo.getCoverages().keySet()) {
+        for (FitnessFunction<?> ff : bestChromo.getCoverageValues().keySet()) {
             suite.setCoverage(ff, bestChromo.getCoverage(ff));
             suite.setNumOfCoveredGoals(ff, bestChromo.getNumOfCoveredGoals(ff));
         }
