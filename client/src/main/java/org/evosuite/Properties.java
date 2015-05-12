@@ -407,7 +407,7 @@ public class Properties {
 	public static boolean LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION = true;
 
 	@Parameter(key = "local_search_restore_coverage", group = "Local Search", description = "Add tests that cover branches already covered in the past")
-	public static boolean LOCAL_SEARCH_RESTORE_COVERAGE = true;
+	public static boolean LOCAL_SEARCH_RESTORE_COVERAGE = false; // Not needed with archive
 
 	@Parameter(key = "local_search_adaptation_rate", group = "Local Search", description = "Parameter used to adapt at runtime the probability of applying local search")
 	public static double LOCAL_SEARCH_ADAPTATION_RATE = 0.33;
