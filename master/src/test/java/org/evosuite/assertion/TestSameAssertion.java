@@ -118,6 +118,7 @@ public class TestSameAssertion extends SystemTest {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		boolean hasSameAssertion = false;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
 		for(TestChromosome testChromosome : best.getTestChromosomes()) {
 			for(Assertion assertion : testChromosome.getTestCase().getAssertions()) {
 				if(assertion instanceof SameAssertion) {
@@ -126,7 +127,6 @@ public class TestSameAssertion extends SystemTest {
 				}
 			}
 		}
-		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertTrue(hasSameAssertion);
 
 	}
