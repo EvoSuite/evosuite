@@ -168,7 +168,7 @@ FIXED = " -mem 2500 \
   -Dminimization_timeout=120 \
   -Dassertion_timeout=120 \
   -Dextra_timeout=120 \
-  -Doutput_variables=\"configuration_id,group_id,TARGET_CLASS,Length,Size,LineCoverage,BranchCoverage,OutputCoverage,WeakMutationScore,Implicit_MethodExceptions\" \
+  -Doutput_variables=\"configuration_id,group_id,TARGET_CLASS,search_budget,Length,Size,LineCoverage,BranchCoverage,OutputCoverage,WeakMutationScore,Implicit_MethodExceptions\" \
  "
 
 MINSEED = int(sys.argv[2])

@@ -17,6 +17,7 @@ html <- function(){
 	classes = length(unique(dt$TARGET_CLASS))
 	projects = length(unique(dt$group_id))
 	version = gsub("_",".",VERSION)
+	budget = unique(dt$search_budget) / 60
 
 	PAGE = paste(GENERATED_FILES,"/results.html",sep="")
 	unlink(PAGE)
@@ -33,7 +34,7 @@ html <- function(){
 	cat("	</head> \n")
 	cat("	<body> \n")
 	cat("		<h1>Results for version ",version,"</h1> \n")
-	cat("		<p>Data results on ",classes," classes out of ",projects," projects. </p> \n" , sep="")
+	cat("		<p>Data results on ",classes," classes out of ",projects," projects. Search budget ",budget," minutes per class.</p> \n" , sep="")
 	cat("		<p>Barplots for line coverage:</p>\n")
 	cat("		<div> \n")
 	cat("			<img src='",FIGURE_CLASSES,"' alt='Coverage per class' />\n", sep="")
@@ -279,6 +280,7 @@ addMissingClasses <- function(dt,pathToClassDescription){
 			}
 			row$TARGET_CLASS=class
 			row$group_id=p
+			row$search_budget=dt[1,]$search_budget
 
 			dt = rbind(dt,row)
 		}
