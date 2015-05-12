@@ -41,6 +41,10 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 			if (LocalSearchBudget.getInstance().isFinished())
 				break;
 
+			if(objective.isDone()) {
+				break;
+			}
+			
 			if (i >= individual.size()) {
 				logger.warn("Test size decreased unexpectedly during local search, aborting local search");
 				logger.warn(individual.getTestCase().toCode());
@@ -64,7 +68,7 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 					if(search.doSearch(individual, i, (LocalSearchObjective<TestChromosome>) objective))
 						result = true;
 					// i = s.getPosition();
-					logger.info("Old position was: "+i+", adjusting to: "+ (i + search.getPositionDelta()));
+					logger.debug("Old position was: "+i+", adjusting to: "+ (i + search.getPositionDelta()));
 					i += search.getPositionDelta();
 					test = individual.getTestCase();
 				}
@@ -80,7 +84,7 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 		LocalSearchBudget.getInstance().countLocalSearchOnTest();
 
 		assert individual.getFitness() <= oldFitness;
-		logger.info("Test after local search: " + individual.getTestCase().toCode());
+		logger.warn("Test after local search: " + individual.getTestCase().toCode());
 
 		return result;
 		

@@ -25,9 +25,11 @@ import java.math.RoundingMode;
 
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.numeric.NumericalPrimitiveStatement;
+import org.evosuite.testsuite.localsearch.TestSuiteLocalSearchObjective;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +55,14 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective<TestChromosome> objective) {
 
+		TestCase slice = test.getTestCase().clone();
+		int newPos = slice.sliceFor(slice.getStatement(statement).getReturnValue());
+		TestCase oldTest = test.getTestCase();
+		test.setTestCase(slice);
+		objective = ((TestSuiteLocalSearchObjective)objective).getCopyForTest(test);
+		int oldStatement = statement;
+		statement = newPos;
+
 		boolean improved = false;
 
 		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.getTestCase().getStatement(statement);
@@ -68,6 +78,7 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 		else if(change == 0) {
 			// Only apply search after the comma if the fitness was affected by the first part of the search
 			logger.info("Stopping search as variable doesn't influence fitness");
+			test.setTestCase(oldTest);
 			return improved;
 		}
 		logger.info("Checking after the comma: " + p.getCode());
@@ -84,7 +95,14 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 				improved = true;
 		}
 
-		logger.info("Finished local search with result " + p.getCode());
+		logger.debug("Finished local search with result " + p.getCode());
+		if(improved) {
+			NumericalPrimitiveStatement<T> ps = (NumericalPrimitiveStatement<T>) oldTest.getStatement(oldStatement);
+			ps.setValue(p.getValue());
+		}
+		test.setChanged(true);
+		test.setTestCase(oldTest);
+
 		return improved;
 	}
 
@@ -140,7 +158,7 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 			done = true;
 			// Try +1
 			p.increment(initialDelta);
-			logger.info("Trying increment of " + p.getCode());
+			logger.warn("Trying increment of " + p.getCode());
 			//logger.info(" -> " + p.getCode());
 			int change = objective.hasChanged(test);
 			if(change != 0)
@@ -161,10 +179,11 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 				test.setChanged(false);
 
 				p.increment(-initialDelta);
-				logger.info("Trying decrement of " + p.getCode());
+				logger.warn("Trying decrement of " + p.getCode());
 				//logger.info(" -> " + p.getCode());
 				change = objective.hasChanged(test);
 				if (change < 0) {
+					logger.warn("Iterating because of improvement");
 					changed = change;
 					done = false;
 					iterate(-factor * initialDelta, factor, objective, test, p, statement);
@@ -172,6 +191,7 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 					oldResult = test.getLastExecutionResult();
 
 				} else {
+					logger.warn("Not iterating because no improvement");
 					p.setValue(oldValue);
 					test.setLastExecutionResult(oldResult);
 					test.setChanged(false);
@@ -189,7 +209,7 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 		boolean improvement = false;
 		T oldValue = p.getValue();
 		ExecutionResult oldResult = test.getLastExecutionResult();
-		logger.info("Trying increment " + delta + " of " + p.getCode());
+		logger.warn("Trying increment " + delta + " of " + p.getCode());
 
 		p.increment(delta);
 		while (objective.hasImproved(test)) {
@@ -200,7 +220,7 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 			delta = factor * delta;
 			//if (delta > 1)
 			//	return improvement;
-			logger.info("Trying increment " + delta + " of " + p.getCode());
+			logger.warn("Trying increment " + delta + " of " + p.getCode());
 			p.increment(delta);
 		}
 

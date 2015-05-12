@@ -18,6 +18,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.localsearch.BranchCoverageMap;
+import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testcase.statements.numeric.FloatPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.statements.MethodStatement;
@@ -27,7 +28,6 @@ import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericMethod;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +43,7 @@ public class LocalSearchSystemTest extends SystemTest {
 	@Before
     public void init(){
         Properties.DSE_PROBABILITY = 0.0;
+        Properties.PRIMITIVE_POOL = 0.0;
     }
 	
 	

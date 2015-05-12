@@ -21,9 +21,11 @@
 package org.evosuite.testcase.localsearch;
 
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.numeric.NumericalPrimitiveStatement;
+import org.evosuite.testsuite.localsearch.TestSuiteLocalSearchObjective;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,14 @@ public class IntegerLocalSearch<T> extends StatementLocalSearch {
 	        LocalSearchObjective<TestChromosome> objective) {
 
 		boolean improved = false;
+		
+		TestCase slice = test.getTestCase().clone();
+		int newPos = slice.sliceFor(slice.getStatement(statement).getReturnValue());
+		TestCase oldTest = test.getTestCase();
+		test.setTestCase(slice);
+		objective = ((TestSuiteLocalSearchObjective)objective).getCopyForTest(test);
+		int oldStatement = statement;
+		statement = newPos;
 
 		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.getTestCase().getStatement(statement);
 		ExecutionResult oldResult = test.getLastExecutionResult();
@@ -92,6 +102,13 @@ public class IntegerLocalSearch<T> extends StatementLocalSearch {
 			}
 		}
 
+		if(improved) {
+			NumericalPrimitiveStatement<T> ps = (NumericalPrimitiveStatement<T>) oldTest.getStatement(oldStatement);
+			ps.setValue(p.getValue());
+		}
+		test.setChanged(true);
+		test.setTestCase(oldTest);
+		
 		logger.info("Finished local search with result " + p.getCode());
 		return improved;
 	}
