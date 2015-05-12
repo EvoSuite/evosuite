@@ -623,7 +623,7 @@ public class Properties {
 	/** Constant <code>GLOBAL_TIMEOUT=600</code> */
 	@Parameter(key = "global_timeout", group = "Search Algorithm", description = "Maximum seconds allowed for entire search when not using time as stopping criterion")
 	@IntValue(min = 0)
-	public static int GLOBAL_TIMEOUT = 600;
+	public static int GLOBAL_TIMEOUT = 120;
 
 	/** Constant <code>MINIMIZATION_TIMEOUT=600</code> */
 	@Parameter(key = "minimization_timeout", group = "Search Algorithm", description = "Seconds allowed for minimization at the end")

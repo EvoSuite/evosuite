@@ -1,12 +1,14 @@
 #!/usr/bin/python
 
 # How to run EvoSuite
-EVOSUITE="java -Xmx400M -jar $HOME/evosuite/evosuite-master-0.1.1-SNAPSHOT-jar-minimal.jar"
+EVOSUITE="java -Xmx400M -jar $HOME/evosuite/evosuite-0.1.1.jar"
 
 # Location of SF110
 CASESTUDY_DIR="$HOME/SF110/dist"
 
-EXPERIMENT_NAME="BaseEvoSuite"
+CONFIG_NAME = "0.1.1"
+
+EXPERIMENT_NAME="EvoSuite"
 
 def getScriptHead():
     s =  "#!/bin/bash\n"
@@ -16,7 +18,7 @@ def getScriptHead():
     s += "if [ -f /etc/profile ]; then \n"
     s += ". /etc/profile \n"
     s += "fi \n"
-    s += "module load Java/1.7.0_21 \n"
+    s += "module load  lang/Java/1.7.0_21 \n"
     return s
 
 #import experiments_base
