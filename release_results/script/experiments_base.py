@@ -162,6 +162,12 @@ FIXED = " -mem 2500 \
   -Dplot=false \
   -Dshow_progress=false \
   -Denable_asserts_for_evosuite=true \
+  -Dsearch_budget=120 \
+  -Dinitialization_timeout=120 \
+  -Dglobal_timeout=120 \
+  -Dminimization_timeout=120 \
+  -Dassertion_timeout=120 \
+  -Dextra_timeout=120 \
   -Doutput_variables=\"configuration_id,group_id,TARGET_CLASS,Length,Size,LineCoverage,BranchCoverage,OutputCoverage,WeakMutationScore,Implicit_MethodExceptions\" \
  "
 
@@ -176,7 +182,7 @@ ENTRIES_PER_JOB= round( (N_CONF * (NUM_CLASSES * (MAXSEED - MINSEED)) / (MAX_JOB
 
 # Create the actual jobs
 
-createJobs(MINSEED, MAXSEED, "Base" , " " , "-generateSuite")
+createJobs(MINSEED, MAXSEED, CONFIG_NAME , " " , "-generateSuite")
 
 print "Seeds: %d, projects: %d, configs: %d" % ((MAXSEED - MINSEED), NUM_CLASSES, CONFIG_ID)
 print "Total number of jobs created: %d" % JOB_ID
