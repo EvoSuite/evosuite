@@ -62,6 +62,9 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		List<TestChromosome> tests = individual.getTestChromosomes();
 		for (int i = 0; i < tests.size(); i++) {
 			TestChromosome test = tests.get(i);
+			if(test.hasLocalSearchBeenApplied())
+				continue;
+
 			logger.debug("Local search on test " + i + ", current fitness: "
 			        + individual.getFitness());
 			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
@@ -76,6 +79,7 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			logger.debug("Local search budget not yet used up");
 
 			test.localSearch(testObjective);
+			test.setLocalSearchApplied(true);
 		}
 
 	}
