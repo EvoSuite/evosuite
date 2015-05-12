@@ -18,7 +18,7 @@ def getScriptHead():
     s += "if [ -f /etc/profile ]; then \n"
     s += ". /etc/profile \n"
     s += "fi \n"
-    s += "module load Java/1.7.0_80 \n"
+    s += "module load  lang/Java/1.7.0_21 \n"
     return s
 
 #import experiments_base
