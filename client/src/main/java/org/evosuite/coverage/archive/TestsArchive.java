@@ -18,6 +18,7 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericConstructor;
@@ -120,6 +121,15 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
         return goal.getTargetClass() + goal.getTargetMethod();
     }
 
+    public void putTest(FitnessFunction<?> ff, TestFitnessFunction goal, ExecutionResult result) {
+    	TestCase testClone = result.test.clone();
+    	if(!result.noThrownExceptions()) {
+    		testClone.chop(result.getFirstPositionOfThrownException());
+    	}
+    	putTest(ff, goal, result.test);
+    }
+    
+    // This method will keep the test, so it needs to be a clone if it is used again outside
     public void putTest(FitnessFunction<?> ff, TestFitnessFunction goal, TestCase test) {
 		if (! goalMap.containsKey(ff)) {
 			return;
@@ -131,9 +141,8 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		if (!coveredGoals.get(ff).contains(goal.hashCode())) {
 			logger.debug("Adding covered goal to archive: "+goal);
 			coveredGoals.get(ff).add(goal);
-			TestCase testClone = test.clone();
-			bestChromo.addTest(testClone);
-			testMap.put(goal, testClone);
+			bestChromo.addTest(test);
+			testMap.put(goal, test);
 			updateMaps(ff, goal);
             setCoverage(ff, goal);
             if (isMethodFullyCovered(getGoalKey(goal))) {

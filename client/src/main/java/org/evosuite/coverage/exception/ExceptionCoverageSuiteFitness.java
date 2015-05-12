@@ -189,7 +189,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     	ExceptionCoverageFactory.getGoals().put(key, goal);
                     	if(Properties.TEST_ARCHIVE && contextFitness != null) {
                     		TestsArchive.instance.addGoalToCover(contextFitness, goal);
-                    		TestsArchive.instance.putTest(contextFitness, goal, result.test);
+                    		TestsArchive.instance.putTest(contextFitness, goal, result);
                     	}
                     }
 				}

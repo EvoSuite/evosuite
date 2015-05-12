@@ -118,7 +118,7 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 					result.test.addCoveredGoal(mutantMap.get(entry.getKey()));
 					if(Properties.TEST_ARCHIVE) {
 						toRemoveMutants.add(entry.getKey());
-						TestsArchive.instance.putTest(this, mutantMap.get(entry.getKey()), result.test);
+						TestsArchive.instance.putTest(this, mutantMap.get(entry.getKey()), result);
 						individual.isToBeUpdated(true);
 					}
 				}
