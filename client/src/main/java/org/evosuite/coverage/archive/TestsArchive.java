@@ -41,7 +41,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 	
 	private TestSuiteChromosome bestChromo;
 	//necessary to avoid having a billion of redundant test cases
-    private Map<FitnessFunction<?>, Set<Integer>> coveredGoals = new HashMap<>();
+    private Map<FitnessFunction<?>, Set<TestFitnessFunction>> coveredGoals = new HashMap<>();
 
     private Map<FitnessFunction<?>, Integer> goalsCountMap = new HashMap<>();
 	private Map<FitnessFunction<?>, Set<TestFitnessFunction>> goalMap = new HashMap<>();
@@ -66,6 +66,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		goalMap.get(ff).add(goal);
         methodMap.get(key).add(goal);
         goalsCountMap.put(ff, goalsCountMap.get(ff) + 1);
+        logger.info("Registering new goal: "+goal);
 	}
 	
 	protected boolean isMethodFullyCovered(String methodKey) {
@@ -120,17 +121,19 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
     }
 
     public void putTest(FitnessFunction<?> ff, TestFitnessFunction goal, TestCase test) {
-		if (! goalMap.containsKey(ff))
+		if (! goalMap.containsKey(ff)) {
 			return;
+		}
 
         if (!coveredGoals.containsKey(ff)) {
-            coveredGoals.put(ff,new HashSet<Integer>());
+            coveredGoals.put(ff,new HashSet<TestFitnessFunction>());
         }
 		if (!coveredGoals.get(ff).contains(goal.hashCode())) {
-			logger.info("Adding covered goal to archive: "+goal);
-			coveredGoals.get(ff).add(goal.hashCode());
-			bestChromo.addTest(test);
-			testMap.put(goal, test);
+			logger.debug("Adding covered goal to archive: "+goal);
+			coveredGoals.get(ff).add(goal);
+			TestCase testClone = test.clone();
+			bestChromo.addTest(testClone);
+			testMap.put(goal, testClone);
 			updateMaps(ff, goal);
             setCoverage(ff, goal);
             if (isMethodFullyCovered(getGoalKey(goal))) {
