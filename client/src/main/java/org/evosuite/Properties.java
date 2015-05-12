@@ -160,7 +160,7 @@ public class Properties {
 
 	/** Constant <code>DYNAMIC_SEEDING=false</code> */
 	@Parameter(key = "dynamic_seeding", group = "Test Creation", description = "Use numeric dynamic seeding")
-	public static boolean DYNAMIC_SEEDING = false;  //TODO why is it deactivated???
+	public static boolean DYNAMIC_SEEDING = true;
 
 	/** Constant <code>DYNAMIC_POOL_SIZE=50</code> */
 	@Parameter(key = "dynamic_pool_size", group = "Test Creation", description = "Number of dynamic constants to keep")
