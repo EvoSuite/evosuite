@@ -62,10 +62,6 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		List<TestChromosome> tests = individual.getTestChromosomes();
 		for (int i = 0; i < tests.size(); i++) {
 			TestChromosome test = tests.get(i);
-			if (individual.isUnmodifiable(test)) {
-				continue;
-			}
-
 			logger.debug("Local search on test " + i + ", current fitness: "
 			        + individual.getFitness());
 			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(

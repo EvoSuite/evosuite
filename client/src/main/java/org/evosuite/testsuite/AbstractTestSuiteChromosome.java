@@ -22,9 +22,7 @@ package org.evosuite.testsuite;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
@@ -40,7 +38,6 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 
 	
 	protected List<T> tests = new ArrayList<T>();
-	protected Set<T> unmodifiableTests = new HashSet<T>();
 	protected ChromosomeFactory<T> testChromosomeFactory;
 
 	/**
@@ -98,14 +95,11 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 */
 	public void addTest(T test) {
 		tests.add(test);
-		unmodifiableTests.remove(test);
 		this.setChanged(true);
 	}
 	
 	public void deleteTest(T test) {
 		boolean changed = tests.remove(test);
-		if(!changed)
-			changed = unmodifiableTests.remove(test);
 		if(changed)
 			this.setChanged(true);
 	}
@@ -118,7 +112,6 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	public void addTests(Collection<T> tests) {
 		for (T test : tests) {
 			tests.add(test);
-			unmodifiableTests.remove(test);
 		}
 		if (!tests.isEmpty())
 			this.setChanged(true);
@@ -131,7 +124,6 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 */
 	public void addUnmodifiableTest(T test) {
 		tests.add(test);
-		unmodifiableTests.add(test);
 		this.setChanged(true);
 	}
 
@@ -154,16 +146,12 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 
 		while (tests.size() > position1) {
 			tests.remove(position1);
-			unmodifiableTests.remove(position1);
 		}
 
 		for (int num = position2; num < other.size(); num++) {
 			T otherTest =  chromosome.tests.get(num);
 			T clonedTest = (T) otherTest.clone();
 			tests.add(clonedTest);
-			if(chromosome.unmodifiableTests.contains(otherTest)){
-				unmodifiableTests.add(clonedTest);
-			}
 		}
 
 		this.setChanged(true);
@@ -208,9 +196,6 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		// Mutate existing test cases
 		for (int i = 0; i < tests.size(); i++) {
 			T test = tests.get(i);
-			if (unmodifiableTests.contains(test))
-				continue;
-
 			if (Randomness.nextDouble() < 1.0 / tests.size()) {
 				test.mutate();
 				changed = true;
@@ -224,7 +209,6 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		        && size() < Properties.MAX_SIZE; count++) {
 			T test = testChromosomeFactory.getChromosome();
 			tests.add(test);
-			unmodifiableTests.remove(test);
 			logger.debug("Adding new test case");
 			changed = true;
 		}
