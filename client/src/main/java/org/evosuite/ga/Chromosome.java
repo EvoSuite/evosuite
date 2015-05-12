@@ -55,6 +55,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/** Has this chromosome changed since its fitness was last evaluated? */
 	private boolean changed = true;
 
+	/** Has local search been applied to this individual since it was last changed? */
+	private boolean localSearchApplied = false;
+
 	private LinkedHashMap<FitnessFunction<?>, Double> coverageValues = new LinkedHashMap<FitnessFunction<?>, Double>();
 
 	private LinkedHashMap<FitnessFunction<?>, Integer> numsNotCoveredGoals = new LinkedHashMap<FitnessFunction<?>, Integer>();
@@ -352,6 +355,17 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 */
 	public void setChanged(boolean changed) {
 		this.changed = changed;
+		// If it's changed, then that also implies LS is possible again
+		localSearchApplied = false;
+	}
+	
+	
+	public boolean hasLocalSearchBeenApplied() {
+		return localSearchApplied;
+	}
+
+	public void setLocalSearchApplied(boolean localSearchApplied) {
+		this.localSearchApplied = localSearchApplied;
 	}
 
 	/**
