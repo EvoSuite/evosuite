@@ -155,7 +155,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 						if(updateChromosome)
 						result.test.addCoveredGoal(goalT);
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goalT, result.test);
+							TestsArchive.instance.putTest(this, goalT, result);
 							toRemoveBranchesT.add(goalT);
 							suite.isToBeUpdated(true);
 						}
@@ -180,7 +180,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 						if(updateChromosome)
 							result.test.addCoveredGoal(goalF);
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goalF, result.test);
+							TestsArchive.instance.putTest(this, goalF, result);
 							toRemoveBranchesF.add(goalF);
 							suite.isToBeUpdated(true);
 						}
@@ -202,7 +202,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 						if(updateChromosome)
 							result.test.addCoveredGoal(goal);
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goal, result.test);
+							TestsArchive.instance.putTest(this, goal, result);
 							toRemoveRootBranches.add(goal);
 							suite.isToBeUpdated(true);
 						}

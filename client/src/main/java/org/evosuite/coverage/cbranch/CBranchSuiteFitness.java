@@ -180,7 +180,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 							continue;
 						result.test.addCoveredGoal(goalT);
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goalT, result.test);
+							TestsArchive.instance.putTest(this, goalT, result);
 							toRemoveGoals.add(goalT);
 							suite.isToBeUpdated(true);
 						}
@@ -198,7 +198,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 							continue;
 						result.test.addCoveredGoal(goalF);
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goalF, result.test);
+							TestsArchive.instance.putTest(this, goalF, result);
 							toRemoveGoals.add(goalF);
 							suite.isToBeUpdated(true);
 						}
@@ -250,7 +250,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 						result.test.addCoveredGoal(goal);
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goal, result.test);
+							TestsArchive.instance.putTest(this, goal, result);
 							toRemoveGoals.add(goal);
 							suite.isToBeUpdated(true);
 						}

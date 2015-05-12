@@ -738,7 +738,7 @@ public class GenericClass implements Serializable {
 					logger.debug("Wildcard boundaries: "+parameterClass.getGenericBounds());
 					logger.debug("Boundaries of underlying var: "+Arrays.asList(typeParameters.get(numParam).getBounds()));
 					GenericClass parameterInstance = parameterClass.getGenericWildcardInstantiation(extendedMap, recursionLevel + 1);
-					GenericClass parameterTypeClass = new GenericClass(typeParameters.get(numParam));
+					//GenericClass parameterTypeClass = new GenericClass(typeParameters.get(numParam));
 //					if(!parameterTypeClass.isAssignableFrom(parameterInstance)) {
 					if(!parameterInstance.satisfiesBoundaries(typeParameters.get(numParam))) {
 						throw new ConstructionFailedException("Invalid generic instance");
@@ -1531,7 +1531,7 @@ public class GenericClass implements Serializable {
 			boundType = GenericUtils.replaceTypeVariablesWithWildcards(boundType);
 
 			//logger.debug("Bound after variable replacement: " + boundType);
-			if (!concreteClass.isAssignableTo(boundType)) {
+			if (!concreteClass.isAssignableTo(boundType) && !(boundType instanceof WildcardType)) {
 				//logger.debug("Not assignable: " + type + " and " + boundType);
 				// If the boundary is not assignable it may still be possible 
 				// to instantiate the generic to an assignable type
@@ -1547,8 +1547,8 @@ public class GenericClass implements Serializable {
 						isAssignable = false;
 						break;
 					}
-					GenericClass instanceClass = new GenericClass(instanceType,
-					        getRawClass());
+//					GenericClass instanceClass = new GenericClass(instanceType,
+//					        getRawClass());
 
 //					logger.debug("Instance type is " + instanceType);
 //					if (instanceClass.hasTypeVariables())

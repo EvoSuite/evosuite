@@ -171,7 +171,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 						newKilled.add(mutantId);
 						if(Properties.TEST_ARCHIVE) {
 							toRemoveMutants.add(mutantFitness.getMutation().getId());
-							TestsArchive.instance.putTest(this, mutantFitness, result.test);
+							TestsArchive.instance.putTest(this, mutantFitness, result);
 							individual.isToBeUpdated(true);
 						}
 					}
