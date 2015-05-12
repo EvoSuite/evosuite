@@ -55,7 +55,7 @@ public class TestInnerClassGoals extends SystemTest {
 
 		 System.out.println(best);
 		 int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
-		 Assert.assertEquals(7, goals );
+		 Assert.assertEquals(8, goals );
 		 Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	 }
 	 
@@ -100,7 +100,7 @@ public class TestInnerClassGoals extends SystemTest {
 
 		 System.out.println(best);
 		 int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
-		 Assert.assertEquals(7, goals );
+		 Assert.assertEquals(8, goals );
 		 Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	 }
 	 
@@ -146,7 +146,7 @@ public class TestInnerClassGoals extends SystemTest {
 
 		 System.out.println(best);
 		 int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
-		 Assert.assertEquals(7, goals );
+		 Assert.assertEquals(8, goals );
 		 Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	 }
 }
