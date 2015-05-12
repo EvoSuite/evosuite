@@ -18,6 +18,7 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericConstructor;
@@ -41,7 +42,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 	
 	private TestSuiteChromosome bestChromo;
 	//necessary to avoid having a billion of redundant test cases
-    private Map<FitnessFunction<?>, Set<Integer>> coveredGoals = new HashMap<>();
+    private Map<FitnessFunction<?>, Set<TestFitnessFunction>> coveredGoals = new HashMap<>();
 
     private Map<FitnessFunction<?>, Integer> goalsCountMap = new HashMap<>();
 	private Map<FitnessFunction<?>, Set<TestFitnessFunction>> goalMap = new HashMap<>();
@@ -66,6 +67,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		goalMap.get(ff).add(goal);
         methodMap.get(key).add(goal);
         goalsCountMap.put(ff, goalsCountMap.get(ff) + 1);
+        logger.info("Registering new goal: "+goal);
 	}
 	
 	protected boolean isMethodFullyCovered(String methodKey) {
@@ -119,16 +121,26 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
         return goal.getTargetClass() + goal.getTargetMethod();
     }
 
+    public void putTest(FitnessFunction<?> ff, TestFitnessFunction goal, ExecutionResult result) {
+    	TestCase testClone = result.test.clone();
+    	if(!result.noThrownExceptions()) {
+    		testClone.chop(result.getFirstPositionOfThrownException());
+    	}
+    	putTest(ff, goal, result.test);
+    }
+    
+    // This method will keep the test, so it needs to be a clone if it is used again outside
     public void putTest(FitnessFunction<?> ff, TestFitnessFunction goal, TestCase test) {
-		if (! goalMap.containsKey(ff))
+		if (! goalMap.containsKey(ff)) {
 			return;
+		}
 
         if (!coveredGoals.containsKey(ff)) {
-            coveredGoals.put(ff,new HashSet<Integer>());
+            coveredGoals.put(ff,new HashSet<TestFitnessFunction>());
         }
 		if (!coveredGoals.get(ff).contains(goal.hashCode())) {
-			logger.info("Adding covered goal to archive: "+goal);
-			coveredGoals.get(ff).add(goal.hashCode());
+			logger.debug("Adding covered goal to archive: "+goal);
+			coveredGoals.get(ff).add(goal);
 			bestChromo.addTest(test);
 			testMap.put(goal, test);
 			updateMaps(ff, goal);

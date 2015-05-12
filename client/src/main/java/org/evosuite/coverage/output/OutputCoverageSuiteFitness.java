@@ -140,7 +140,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                 setOfCoveredGoals.add(strGoal);
                 result.test.addCoveredGoal(outputCoverageMap.get(strGoal));
                 if(Properties.TEST_ARCHIVE) {
-					TestsArchive.instance.putTest(this, outputCoverageMap.get(strGoal), result.test);
+					TestsArchive.instance.putTest(this, outputCoverageMap.get(strGoal), result);
 					toRemoveGoals.add(strGoal);
 					suite.isToBeUpdated(true);                	
                 }
@@ -221,7 +221,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                         setOfCoveredGoals.add(strGoal);
                         result.test.addCoveredGoal(outputCoverageMap.get(strGoal));
                         if(Properties.TEST_ARCHIVE) {
-        					TestsArchive.instance.putTest(this, outputCoverageMap.get(strGoal), result.test);
+        					TestsArchive.instance.putTest(this, outputCoverageMap.get(strGoal), result);
         					toRemoveGoals.add(strGoal);
         					suite.isToBeUpdated(true);                	
                         }

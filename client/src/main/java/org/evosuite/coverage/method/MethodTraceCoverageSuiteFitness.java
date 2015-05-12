@@ -118,7 +118,7 @@ public class MethodTraceCoverageSuiteFitness extends MethodCoverageSuiteFitness 
 					calledMethods.add(name);
                     result.test.addCoveredGoal(methodCoverageMap.get(name));
 					if(Properties.TEST_ARCHIVE) {
-						TestsArchive.instance.putTest(this, methodCoverageMap.get(name), result.test);
+						TestsArchive.instance.putTest(this, methodCoverageMap.get(name), result);
 						toRemoveMethods.add(name);
 						suite.isToBeUpdated(true);
 					}
@@ -152,7 +152,7 @@ public class MethodTraceCoverageSuiteFitness extends MethodCoverageSuiteFitness 
 					calledMethods.add(entry.getKey());
 					result.test.addCoveredGoal(methodCoverageMap.get(entry.getKey()));					
 					if(Properties.TEST_ARCHIVE) {
-						TestsArchive.instance.putTest(this, methodCoverageMap.get(entry.getKey()), result.test);
+						TestsArchive.instance.putTest(this, methodCoverageMap.get(entry.getKey()), result);
 						toRemoveMethods.add(entry.getKey());
 						suite.isToBeUpdated(true);
 					}

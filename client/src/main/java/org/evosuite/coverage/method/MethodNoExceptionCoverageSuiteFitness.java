@@ -103,10 +103,9 @@ public class MethodNoExceptionCoverageSuiteFitness extends MethodCoverageSuiteFi
                         calledMethods.add(fullName);
                         result.test.addCoveredGoal(methodCoverageMap.get(fullName));
     					if(Properties.TEST_ARCHIVE) {
-    						TestsArchive.instance.putTest(this, methodCoverageMap.get(fullName), result.test);
+    						TestsArchive.instance.putTest(this, methodCoverageMap.get(fullName), result);
     						toRemoveMethods.add(fullName);
     						suite.isToBeUpdated(true);
-    						LoggingUtils.getEvoLogger().info("Covered new goal: "+methodCoverageMap.get(fullName));
     					}
 
                     }
