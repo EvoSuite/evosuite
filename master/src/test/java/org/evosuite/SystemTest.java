@@ -19,8 +19,7 @@ package org.evosuite;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StatisticsBackend;
@@ -94,7 +93,10 @@ public class SystemTest {
 		
 		TestGenerationContext.getInstance().resetContext();
 		ResetManager.getInstance().clearManager();
-		Randomness.setSeed(42);
+
+		//change seed every month
+		long seed = new GregorianCalendar().get(Calendar.MONTH);
+		Randomness.setSeed(seed);
 
 		currentProperties = (java.util.Properties) System.getProperties().clone();
 		
