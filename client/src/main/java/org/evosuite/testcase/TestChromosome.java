@@ -115,6 +115,7 @@ public class TestChromosome extends ExecutableChromosome {
 		c.setPreviousFitnessValues(getPreviousFitnessValues());
 		c.copyCachedResults(this);
 		c.setChanged(isChanged());
+		c.setLocalSearchApplied(hasLocalSearchBeenApplied());
 		if (Properties.LOCAL_SEARCH_SELECTIVE) {
 			for (TestMutationHistoryEntry mutation : mutationHistory) {
 				if(test.contains(mutation.getStatement()))
