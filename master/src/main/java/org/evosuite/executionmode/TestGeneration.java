@@ -270,6 +270,16 @@ public class TestGeneration {
 			// place for this
 		}
 
+		if(Properties.JMC){
+			//FIXME: does not seem to work, at least on Mac. Looks like some RMI conflict
+			cmdLine.add("-XX:+UnlockCommercialFeatures");
+			cmdLine.add("-XX:+FlightRecorder");
+			cmdLine.add("-Dcom.sun.management.jmxremote");
+			cmdLine.add("-Dcom.sun.management.jmxremote.autodiscovery");
+			cmdLine.add("-Dcom.sun.management.jmxremote.authenticate=false");
+			cmdLine.add("-Dcom.sun.management.jmxremote.ssl=false");
+		}
+
 		for (String arg : args) {
 			if (!arg.startsWith("-DCP=")) {
 				cmdLine.add(arg);
