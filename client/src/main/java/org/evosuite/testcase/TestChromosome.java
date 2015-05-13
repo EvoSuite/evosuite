@@ -37,7 +37,6 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
@@ -115,6 +114,7 @@ public class TestChromosome extends ExecutableChromosome {
 		c.setPreviousFitnessValues(getPreviousFitnessValues());
 		c.copyCachedResults(this);
 		c.setChanged(isChanged());
+		c.setLocalSearchApplied(hasLocalSearchBeenApplied());
 		if (Properties.LOCAL_SEARCH_SELECTIVE) {
 			for (TestMutationHistoryEntry mutation : mutationHistory) {
 				if(test.contains(mutation.getStatement()))
@@ -400,8 +400,6 @@ public class TestChromosome extends ExecutableChromosome {
 				if (Randomness.nextDouble() <= pl) {
 					assert (test.isValid());
 					int oldDistance = statement.getReturnValue().getDistance();
-					if (statement instanceof StringPrimitiveStatement) {
-					}
 					if (statement.mutate(test, testFactory)) {
 						changed = true;
 						mutationHistory.addMutationEntry(new TestMutationHistoryEntry(

@@ -110,6 +110,8 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	 *            Length of the test case after chopping
 	 */
 	public void chop(int length);
+	
+	public int sliceFor(VariableReference var);
 
 	/**
 	 * Remove all covered goals

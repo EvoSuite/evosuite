@@ -13,6 +13,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestMutationHistoryEntry;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.localsearch.SelectiveTestCaseLocalSearch;
+import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
@@ -52,6 +53,11 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 					clone.setTestCase(expander.expandTestCase(test.getTestCase()));
 				else
 					clone.setTestCase(test.getTestCase().clone());
+				
+				// Random restart if we have already tried LS on this test
+				if(test.hasLocalSearchBeenApplied()) {
+					TestCaseLocalSearch.randomizePrimitives(clone.getTestCase());
+				}
 
 				for (TestMutationHistoryEntry mutation : test.getMutationHistory()) {
 					if(mutation.getMutationType() == TestMutationHistoryEntry.TestMutation.DELETION) {
