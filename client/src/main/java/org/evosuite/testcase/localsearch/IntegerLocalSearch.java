@@ -89,6 +89,7 @@ public class IntegerLocalSearch<T> extends StatementLocalSearch {
 				p.increment(-1);
 				logger.info("Trying decrement of " + p.getCode());
 				if (objective.hasImproved(test)) {
+					improved = true;
 					done = false;
 					iterate(-2, objective, test, p, statement);
 					oldValue = p.getValue();

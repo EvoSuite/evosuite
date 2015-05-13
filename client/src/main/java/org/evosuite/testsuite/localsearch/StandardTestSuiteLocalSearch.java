@@ -63,6 +63,9 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		List<TestChromosome> tests = individual.getTestChromosomes();
 		for (int i = 0; i < tests.size(); i++) {
 			TestChromosome test = tests.get(i);
+			
+			// If we have already tried local search before on this test
+			// without success, we reset all primitive values before trying again 
 			if(test.hasLocalSearchBeenApplied()) {
 				TestCaseLocalSearch.randomizePrimitives(test.getTestCase());
 			}
