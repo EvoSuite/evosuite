@@ -22,7 +22,10 @@ package org.evosuite.testcase.localsearch;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearch;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.PrimitiveStatement;
+import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +46,14 @@ public abstract class TestCaseLocalSearch implements LocalSearch<TestChromosome>
 			return new SelectiveTestCaseLocalSearch();
 		} else {
 			return new StandardTestCaseLocalSearch();
+		}
+	}
+	
+	public static void randomizePrimitives(TestCase test) {
+		for(Statement s : test) {
+			if(s instanceof PrimitiveStatement<?>) {
+				((PrimitiveStatement<?>)s).randomize();
+			}
 		}
 	}
 

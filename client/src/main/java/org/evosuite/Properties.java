@@ -160,7 +160,7 @@ public class Properties {
 
 	/** Constant <code>DYNAMIC_SEEDING=false</code> */
 	@Parameter(key = "dynamic_seeding", group = "Test Creation", description = "Use numeric dynamic seeding")
-	public static boolean DYNAMIC_SEEDING = false;  //TODO why is it deactivated???
+	public static boolean DYNAMIC_SEEDING = true;
 
 	/** Constant <code>DYNAMIC_POOL_SIZE=50</code> */
 	@Parameter(key = "dynamic_pool_size", group = "Test Creation", description = "Number of dynamic constants to keep")
@@ -407,7 +407,7 @@ public class Properties {
 	public static boolean LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION = true;
 
 	@Parameter(key = "local_search_restore_coverage", group = "Local Search", description = "Add tests that cover branches already covered in the past")
-	public static boolean LOCAL_SEARCH_RESTORE_COVERAGE = true;
+	public static boolean LOCAL_SEARCH_RESTORE_COVERAGE = false; // Not needed with archive
 
 	@Parameter(key = "local_search_adaptation_rate", group = "Local Search", description = "Parameter used to adapt at runtime the probability of applying local search")
 	public static double LOCAL_SEARCH_ADAPTATION_RATE = 0.33;

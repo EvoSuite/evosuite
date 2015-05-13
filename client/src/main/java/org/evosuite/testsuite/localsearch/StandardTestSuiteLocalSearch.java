@@ -7,6 +7,7 @@ import org.evosuite.Properties.DSEType;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
@@ -62,8 +63,11 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		List<TestChromosome> tests = individual.getTestChromosomes();
 		for (int i = 0; i < tests.size(); i++) {
 			TestChromosome test = tests.get(i);
-			if (individual.isUnmodifiable(test)) {
-				continue;
+			
+			// If we have already tried local search before on this test
+			// without success, we reset all primitive values before trying again 
+			if(test.hasLocalSearchBeenApplied()) {
+				TestCaseLocalSearch.randomizePrimitives(test.getTestCase());
 			}
 
 			logger.debug("Local search on test " + i + ", current fitness: "
@@ -80,6 +84,7 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			logger.debug("Local search budget not yet used up");
 
 			test.localSearch(testObjective);
+			test.setLocalSearchApplied(true);
 		}
 
 	}

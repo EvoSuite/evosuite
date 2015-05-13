@@ -24,6 +24,7 @@ import java.util.*;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
@@ -62,6 +63,7 @@ public class SystemTest {
 		System.setProperties(currentProperties);
 		Properties.getInstance().resetToDefaults();
 		ExceptionCoverageFactory.getGoals().clear();
+		TestsArchive.instance.reset();
 	}
 
 	@Before
@@ -76,7 +78,7 @@ public class SystemTest {
 		Properties.PLOT = false;
 
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
-		Properties.SEARCH_BUDGET = 10000;
+		Properties.SEARCH_BUDGET = 30000;
 
 		Properties.GLOBAL_TIMEOUT = 120;
 		Properties.MINIMIZATION_TIMEOUT = 8;
