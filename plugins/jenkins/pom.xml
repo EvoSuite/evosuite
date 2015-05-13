@@ -1,26 +1,25 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
-<!--
-  <parent>
-    <groupId>org.evosuite.plugins</groupId>
-    <artifactId>evosuite-plugins</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
-  </parent>
--->
 
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.538</version>
+    <version>1.613</version>
   </parent>
 
   <groupId>org.evosuite.plugins</groupId>
   <artifactId>evosuite-jenkins-plugin</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <name>Jenkins Plugin for EvoSuite</name>
+  <version>0.1.0-SNAPSHOT</version> <!-- FIXME same version as EvoSuite? -->
   <packaging>hpi</packaging>
 
-  <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jdk.version>1.7</jdk.version>
+  </properties>
+
   <repositories>
     <repository>
       <id>repo.jenkins-ci.org</id>
@@ -34,12 +33,47 @@
       <url>http://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
-    <dependencies>
-        <dependency>
-            <groupId>org.jenkins-ci.main</groupId>
-            <artifactId>maven-plugin</artifactId>
-            <version>2.0</version>
-            <type>jar</type>
-        </dependency>
-    </dependencies>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.jenkins-ci.main</groupId>
+      <artifactId>maven-plugin</artifactId>
+      <version>2.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>mercurial</artifactId>
+      <version>1.52</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>git</artifactId>
+      <version>2.3.5</version>
+    </dependency>
+    <!-- FIXME add evosuite-maven-plugin as a dependency? -->
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.3</version>
+        <configuration>
+          <source>${jdk.version}</source>
+          <target>${jdk.version}</target>
+          <encoding>${project.build.sourceEncoding}</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jenkins-ci.tools</groupId>
+        <artifactId>maven-hpi-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <showDeprecation>true</showDeprecation>
+          <disabledTestInjection>true</disabledTestInjection>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

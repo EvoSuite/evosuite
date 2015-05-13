@@ -1,0 +1,14 @@
+(Working in progress notes on how to build and debug the EvoSuite Jenkins Plugin).
+
+1. copy dotm2_settings.xml to ~/.m2/settings.xml
+2. how to run/debug the plugin?
+   2.1 if you just want to try the plugin, execute ./run.sh or run.bat
+   2.2 if you are developing the plugin and want to debug, execute ./debug.sh or debug.bat
+       2.2.1 on Eclipse go to Run -> Debug Configurations -> Remote Java Application
+             and create a new launch with the following configurations:
+             Project should be 'evosuite-jenkins-plugin'
+             Connection Type, "Standard (Socket Attach)"
+             Host, localhost
+             Port, 8000
+   2.3 redirect your browser to http://localhost:8080/jenkins
+
