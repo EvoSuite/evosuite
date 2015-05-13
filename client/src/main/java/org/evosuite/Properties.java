@@ -1211,6 +1211,10 @@ public class Properties {
 	@IntValue(min = 1024, max = 65535)
 	public static int PORT = 1044;
 
+	@Parameter(key = "jmc", group = "Debugging", description = "Experimental: activate Flight Recorder in spawn client process for Java Mission Controll")
+	public static boolean JMC = false;
+
+
 	// ---------------------------------------------------------------
 	// TODO: Fix description
 	public enum AlternativeFitnessCalculationMode {
