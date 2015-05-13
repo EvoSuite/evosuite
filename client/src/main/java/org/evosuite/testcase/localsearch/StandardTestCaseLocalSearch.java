@@ -22,6 +22,7 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 		boolean result = false;
 		
 		// Only apply local search up to the point where an exception was thrown
+		// TODO: Check whether this conflicts with test expansion
 		int lastPosition = individual.size() - 1;
 		if (individual.getLastExecutionResult() != null && !individual.isChanged()) {
 			Integer lastPos = individual.getLastExecutionResult().getFirstPositionOfThrownException();
@@ -84,7 +85,7 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 		LocalSearchBudget.getInstance().countLocalSearchOnTest();
 
 		assert individual.getFitness() <= oldFitness;
-		logger.warn("Test after local search: " + individual.getTestCase().toCode());
+		// logger.warn("Test after local search: " + individual.getTestCase().toCode());
 
 		return result;
 		
