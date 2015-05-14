@@ -1,17 +1,47 @@
-VERSION = "0_1_1"
+source("util.R")
+
+VERSION = "0_1_2"
 
 GENERATED_FILES = paste("../generated_files","/",VERSION,sep="")
-DATA_DIR = paste("../data","/",VERSION,sep="")
-ZIP_FILE = paste(DATA_DIR,"/","compressedData.zip",sep="")
-
+SELECTION_FILE = paste("../generated_files","/","selection.txt",sep="")
 CS_FILE = "sf110.txt"
+
+DATA_DIR = paste("../data","/",VERSION,sep="")
+
+ALL_ZIP_FILE = paste(DATA_DIR,"/","compressedData_all.zip",sep="")
+SELECTION_ZIP_FILE = paste(DATA_DIR,"/","compressedData_selection.zip",sep="")
+
 
 FIGURE_CLASSES = "barplotClasses.jpeg"
 FIGURE_PROJECTS = "barplotProjects.jpeg"
 
-html <- function(){
 
-	dt <- read.table(gzfile(ZIP_FILE),header=T)
+processDataAll <- function(){
+	dt = processData(DATA_DIR,CS_FILE,ALL_ZIP_FILE)
+	return(dt)
+}
+
+processDataSelection <- function(){
+	dt = processData(DATA_DIR,SELECTION_FILE,SELECTION_ZIP_FILE)
+	return(dt)
+}
+
+htmlAll <- function(){
+	html(ALL_ZIP_FILE)
+}
+
+htmlSelection <- function(){
+	html(SELECTION_ZIP_FILE)
+}
+
+
+makeSelection <- function(){
+	sampleStratifiedSelection(CS_FILE,1000,SELECTION_FILE)
+}
+
+html <- function(zipFile){
+
+	dt <- read.table(gzfile(zipFile),header=T)
 	figures(dt)
 
 	classes = length(unique(dt$TARGET_CLASS))
@@ -134,172 +164,3 @@ figures <- function(dt){
 }
 
 
-processData <- function(){
-	dt = gatherAllTables(DATA_DIR);
-
-	dt = addMissingClasses(dt,CS_FILE)
-
-	write.table(dt, file = gzfile(ZIP_FILE))
-
-	return(dt)
-}
-
-# split by '.', and return last token
-getClassName <- function(class){
-	k = strsplit(class,'.',fixed=TRUE)
-	k = k[[1]]
-	return(k[length(k)])
-}
-
-# split by "_"
-getProjectName <- function(proj){
-	k = strsplit(proj,'_',fixed=TRUE)
-	k = k[[1]]
-	return(k[2])
-}
-
-checkClasses <-function(dt, pathToClassDescription){
-
-	mp <-  read.table(pathToClassDescription,header=F)
-	PROJ_COLUMN = 1
-	CLASS_COLUMN = 2
-
-	### NOTE: this check is not 100% safe, as would not recongnize classes with same full name but different projects (although such possibility should be pretty rare)
-	projects = unique(as.vector(mp[,PROJ_COLUMN]))
-	foundClasses = unique(as.vector(dt$TARGET_CLASS))
-
-	### check if class names are indeed unique
-	allExpectedClasses = as.vector(mp[, CLASS_COLUMN])
-	if(length(allExpectedClasses) != length(unique(allExpectedClasses))){
-		dif = length(allExpectedClasses) - length(unique(allExpectedClasses))
-		cat("WARNING: there are classes with same full names, # =",dif,"\n")
-		### TODO if this really happens, add more logging
-	}
-
-
-	total_counter = 0
-
-	summary = c()
-
-	for(proj in projects){
-
-		expectedClasses = unique(as.vector(mp[mp$V1==proj , CLASS_COLUMN]))
-		numberOfExpected = as.numeric(length(expectedClasses))
-
-		local_counter =  0
-
-		for(class in expectedClasses){
-			if(! any(foundClasses==class)){
-				cat("Missing:",class," , in project ",proj,"\n")
-				local_counter = local_counter + 1
-			}
-		}
-
-		if(local_counter > 0 ){
-			cat("\nProject",proj,"has",local_counter,"mismatches out of a total of",numberOfExpected,"classes  \n\n")
-			total_counter = total_counter + local_counter
-		}
-
-		ratio = ((numberOfExpected-local_counter) / numberOfExpected) * 100
-		info = paste(proj,"\t",ratio,"%\n",sep="")
-		summary = c(summary,info)
-	}
-
-	cat(summary)
-	cat("\n Total number of missing classes",total_counter,"out of",length(allExpectedClasses),"\n")
-}
-
-gatherAndSaveData <- function(directory,zipFile){
-	cat("Loading data...",date(),"\n")
-
-	dt = gatherAllTables(directory)
-
-	cat("Data is loaded. Starting compressing. ",date(),"\n")
-
-	write.table(dt, file = gzfile(zipFile))
-
-	cat("Data is compressed and saved. Starting reading back. ",date(),"\n")
-
-	table <- read.table(gzfile(zipFile),header=T)
-
-	cat("Data read back. Done! ",date(),"\n")
-
-	return(table)
-}
-
-gatherAllTables <- function(directory){
-	allTables = NULL
-
-	for(table in list.files(directory,recursive=TRUE,full.names=TRUE,pattern="statistics.csv") ){
-
-		#cat("Reading: ",table,"\n")
-
-		tryCatch( {dt <- read.csv(table,header=T)} ,
-				error = function(e){
-					cat("Error in reading table ",table,"\n", paste(e), "\n")
-				})
-
-		if(is.null(allTables)){
-			allTables = dt
-		} else {
-			tryCatch( {allTables = rbind(allTables,dt)} ,
-					error = function(e){
-						cat("Error in concatenating table ",table,"\n", paste(e), "\n")
-					})
-		}
-	}
-	return(allTables)
-}
-
-addMissingClasses <- function(dt,pathToClassDescription){
-
-	mp <-  read.table(pathToClassDescription,header=F)
-	PROJ_COLUMN = 1
-	CLASS_COLUMN = 2
-
-	projects = unique(as.vector(mp[,PROJ_COLUMN]))
-
-	totalMissing = 0
-
-	for(p in projects){
-		allExpectedClasses = unique(as.vector(mp[mp$V1==p, CLASS_COLUMN]))
-		foundClasses = unique(as.vector(dt$TARGET_CLASS[dt$group_id==p]))
-
-		diff = length(allExpectedClasses) - length(foundClasses)
-		if(diff == 0){
-			next()
-		}
-		cat("found ",diff," missing classes in ",p,"\n")
-		totalMissing = totalMissing + diff
-
-		missing = allExpectedClasses[!areInTheSubset(allExpectedClasses,foundClasses)]
-
-		for(class in missing){
-			row = dt[1,]
-			for(i in 1:length(row)){
-				if(is.numeric(row[[i]])){
-					row[[i]] = 0
-				}
-			}
-			row$TARGET_CLASS=class
-			row$group_id=p
-			row$search_budget=dt[1,]$search_budget
-
-			dt = rbind(dt,row)
-		}
-	}
-
-	cat("Total missing classes: ",totalMissing,"\n")
-	return(dt)
-}
-
-### return a boolean vector, where each position in respect to x is true if that element appear in y
-areInTheSubset <- function(x,y){
-
-	### first consider vector with all FALSE
-	result = x!=x
-	for(k in y){
-		result = result | x==k
-	}
-	return(result)
-}
