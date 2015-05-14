@@ -259,6 +259,8 @@ addMissingClasses <- function(dt,pathToClassDescription){
 
 	projects = unique(as.vector(mp[,PROJ_COLUMN]))
 
+	totalMissing = 0
+
 	for(p in projects){
 		allExpectedClasses = unique(as.vector(mp[mp$V1==p, CLASS_COLUMN]))
 		foundClasses = unique(as.vector(dt$TARGET_CLASS[dt$group_id==p]))
@@ -268,6 +270,7 @@ addMissingClasses <- function(dt,pathToClassDescription){
 			next()
 		}
 		cat("found ",diff," missing classes in ",p,"\n")
+		totalMissing = totalMissing + diff
 
 		missing = allExpectedClasses[!areInTheSubset(allExpectedClasses,foundClasses)]
 
@@ -286,6 +289,7 @@ addMissingClasses <- function(dt,pathToClassDescription){
 		}
 	}
 
+	cat("Total missing classes: ",totalMissing,"\n")
 	return(dt)
 }
 
