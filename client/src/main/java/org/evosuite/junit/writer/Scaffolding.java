@@ -257,9 +257,9 @@ public class Scaffolding {
     }
 
     private void generateInitializeClasses(String testClassName, StringBuilder bd) {
-
-        if (Properties.NO_RUNTIME_DEPENDENCY)
-            return;
+        
+        //if (Properties.NO_RUNTIME_DEPENDENCY) // Jose: this makes the test suite not compile
+        //    return;							// when test_scaffolding=false and no_runtime_dependency=true 
 
         List<String> allInstrumentedClasses = TestGenerationContext.getInstance().getClassLoaderForSUT().getViewOfInstrumentedClasses();
         List<String> classesToInit = getClassesToInit(allInstrumentedClasses);
