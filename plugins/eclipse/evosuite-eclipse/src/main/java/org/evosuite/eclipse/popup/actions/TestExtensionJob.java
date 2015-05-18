@@ -178,8 +178,6 @@ public class TestExtensionJob extends TestGenerationJob {
 				for(MethodDeclaration newMethod : newMethods) {
 					
 					if(hasMethod(classType, newMethod.getName().toString())) {
-						if(newMethod.getName().toString().equals("initEvoSuiteFramework"))
-							continue;
 						
 						System.out.println("Test suite already contains method: " + newMethod.getName());
 						int num = 1;
