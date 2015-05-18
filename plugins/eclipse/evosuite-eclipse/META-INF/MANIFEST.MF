@@ -4,7 +4,7 @@ Bundle-Name: EvoSuite
 Bundle-SymbolicName: org.evosuite.plugins.eclipse;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Bundle-Activator:  org.evosuite.eclipse.Activator
-Bundle-Vendor: Gordon Fraser and Thomas White - University of Sheffield
+Bundle-Vendor: Gordon Fraser, Jose Miguel Rojas and Thomas White - University of Sheffield
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
@@ -26,8 +26,7 @@ Bundle-ClassPath: .,./bin,
  lib/slf4j-jdk14-1.7.2.jar,
  lib/sshj-0.8.1.jar,
  evosuite-eclipse-core/evosuite.jar
-Export-Package: org.evosuite,
- org.evosuite.eclipse,
+Export-Package: org.evosuite.eclipse,
  org.evosuite.eclipse.markers,
  org.evosuite.eclipse.popup.actions,
  org.evosuite.eclipse.properties,
