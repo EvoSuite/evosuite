@@ -1,5 +1,8 @@
 package org.evosuite.intellij.util;
 
+import com.intellij.openapi.compiler.CompileContext;
+import com.intellij.openapi.compiler.CompileStatusNotification;
+import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -19,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Singleton used to run EvoSuite Maven plugin on a background process
@@ -108,14 +113,41 @@ public class EvoSuiteExecutor {
                         return;
                     }
 
+                    Module module = Utils.getModule(project,modulePath);
+                    if(module == null){
+                        notifier.failed("Failed to determine IntelliJ module for "+modulePath);
+                        return;
+                    } else {
+                        final AtomicBoolean ok = new AtomicBoolean(true);
+                        final CountDownLatch latch = new CountDownLatch(1);
+                        //TODO: maybe this is not really needed if using Maven plugin?
+                        CompilerManager.getInstance(project).make(module,new CompileStatusNotification(){
+                            @Override
+                            public void finished(boolean aborted, int errors, int warnings, CompileContext compileContext) {
+                                if(errors > 0){
+                                    ok.set(false);
+                                }
+                                latch.countDown();
+                            }
+                        });
+                        try {
+                            latch.await();
+                        } catch (InterruptedException e) {
+                            return;
+                        }
+                        if(! ok.get()){
+                            notifier.failed("Compilation failure. Fix the compilation issues before running EvoSuite.");
+                            return;
+                        }
+                    }
+
                     File dir = new File(modulePath);
                     //should be on background process
                     Process p = execute(project,notifier, params, dir, suts.get(modulePath));
                     if(p == null){
                         return;
                     }
-
-
+                    
                     int res = 0;
                     try {
                         /*

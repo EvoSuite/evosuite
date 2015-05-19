@@ -2,6 +2,7 @@ package org.evosuite.intellij.util;
 
 import com.intellij.openapi.compiler.CompilerPaths;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEnumerator;
@@ -28,6 +29,15 @@ public class Utils {
         ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
         VirtualFile[] contentRoots = rootManager.getContentRoots(); //TODO check why IntelliJ does return an array here
         return new File(contentRoots[0].getCanonicalPath()).getAbsolutePath();
+    }
+
+    public static Module getModule(Project project, String folderLocation){
+        for(Module m : ModuleManager.getInstance(project).getModules()){
+            if(getFolderLocation(m).equals(folderLocation)){
+                return m;
+            }
+        }
+        return null;
     }
 
     public static String getFullClassPath(Module m){
