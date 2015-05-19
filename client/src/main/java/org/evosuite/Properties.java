@@ -1351,6 +1351,10 @@ public class Properties {
 	@Parameter(key = "min_free_mem", group = "Runtime", description = "Minimum amount of available memory")
 	public static int MIN_FREE_MEM = 50 * 1000 * 1000;
 
+
+	@Parameter(key = "max_perm_size", group = "Runtime", description = "MaxPermSize (in MB) for the client process")
+	public static int MAX_PERM_SIZE = 256;
+
 	/** Constant <code>CLIENT_ON_THREAD=false</code> */
 	@Parameter(key = "client_on_thread", group = "Runtime", description = "Run client process on same JVM of master in separate thread. To be used only for debugging purposes")
 	public static volatile boolean CLIENT_ON_THREAD = false;
