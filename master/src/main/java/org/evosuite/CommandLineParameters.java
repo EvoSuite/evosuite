@@ -251,7 +251,6 @@ public class CommandLineParameters {
 			javaOpts.add("-XX:+HeapDumpOnOutOfMemoryError");
 		}
 
-		//TODO maybe should be a parameter
-		javaOpts.add("-XX:MaxPermSize=256m");
+		javaOpts.add("-XX:MaxPermSize="+Properties.MAX_PERM_SIZE+"m");
 	}
 }
