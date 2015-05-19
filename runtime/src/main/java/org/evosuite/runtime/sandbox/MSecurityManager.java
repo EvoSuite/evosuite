@@ -514,8 +514,9 @@ public class MSecurityManager extends SecurityManager {
 				}
 			}
 		}
-		
-		
+
+
+
 		if (RuntimeSettings.sandboxMode.equals(Sandbox.SandboxMode.IO)) {
 			PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
 
@@ -698,7 +699,15 @@ public class MSecurityManager extends SecurityManager {
 	 */
 	private boolean checkIfEvoSuiteRMI(Permission perm) {
 
-		//FIXME: this does not check if it is the SUT that calls RMI
+		/*
+			FIXME: this does not check if it is the SUT that calls RMI.
+
+			This would be a reason more to actually mock RMI in VNET
+		 */
+
+		if(! Thread.currentThread().getName().startsWith("RMI ")){
+			return false;
+		}
 
 		final String pattern = "sun.rmi.";
 		boolean foundRMI = false;

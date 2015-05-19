@@ -250,5 +250,8 @@ public class CommandLineParameters {
 		if (line.hasOption("heapdump")) {
 			javaOpts.add("-XX:+HeapDumpOnOutOfMemoryError");
 		}
+
+		//TODO maybe should be a parameter
+		javaOpts.add("-XX:MaxPermSize=256m");
 	}
 }
