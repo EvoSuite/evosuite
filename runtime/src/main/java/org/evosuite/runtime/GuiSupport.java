@@ -17,7 +17,20 @@ public class GuiSupport {
 	 * Where the tests run in headless mode?
 	 */
 	private static final boolean isDefaultHeadless = GraphicsEnvironment.isHeadless();
-	
+
+	private static Field headless; // need reflection
+
+	static{
+		try {
+			//AWT classes check GraphicsEnvironment for headless state
+			headless = java.awt.GraphicsEnvironment.class.getDeclaredField("headless");
+			headless.setAccessible(true);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException  e) {
+			//this should never happen. if it doesn't work, then all GUI tests would be messed up :(
+			throw new RuntimeException("ERROR: failed to use reflection for AWT Headless state: "+e.getMessage(),e);
+		}
+	}
+
 	/**
 	 * Set the JVM in headless mode
 	 */
@@ -58,16 +71,13 @@ public class GuiSupport {
 		
 		//changing system property is not enough
 		java.lang.System.setProperty("java.awt.headless", ""+isHeadless);
-		
-		Field headless; // need reflection
+
 		try {
-			//AWT classes check GraphicsEnvironment for headless state
-			headless = java.awt.GraphicsEnvironment.class.getDeclaredField("headless");
-			headless.setAccessible(true);
 			headless.set(null, (Boolean) isHeadless);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			//this should never happen. if it doesn't work, then all GUI tests would be messed up :( 
+		} catch (IllegalAccessException e) {
+			//this should never happen. if it doesn't work, then all GUI tests would be messed up :(
 			throw new RuntimeException("ERROR: failed to change AWT Headless state: "+e.getMessage(),e);
-		}		
+		}
+
 	}
 }
