@@ -42,9 +42,29 @@ public class EvoSuiteHttpServletRequestTest {
         Assert.assertNull(val);
         Assert.assertTrue(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(param));
 
-        req.addParam(param,"some value");
+        req.addParam(param, "some value");
         val = req.getParameter(param);
         Assert.assertNotNull(val);
         Assert.assertTrue(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(param));
+    }
+
+    @Test
+    public void testParametersMap(){
+        String p1 = "p1";
+        String p2 = "p2";
+
+        Assert.assertFalse(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(p1));
+        Assert.assertFalse(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(p2));
+
+        EvoSuiteHttpServletRequest req = new EvoSuiteHttpServletRequest();
+        req.getParameterMap().containsKey(p1);
+
+        Assert.assertTrue(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(p1));
+        Assert.assertFalse(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(p2));
+
+        req.getParameterMap().keySet().contains(p2);
+
+        Assert.assertTrue(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(p1));
+        Assert.assertTrue(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(p2));
     }
 }

@@ -27,6 +27,7 @@ public class EvoSuiteHttpServletResponse implements HttpServletResponse{
 
 	private ServletOutputStream stream;
 	private PrintWriter writer;
+	private String contentType;
 
 	public EvoSuiteHttpServletResponse(){
 		buffer = new ArrayList<>();
@@ -34,6 +35,8 @@ public class EvoSuiteHttpServletResponse implements HttpServletResponse{
 		committed = false;
 		encoding = "ISO-8859-1";
 		stream = null;
+		writer = null;
+		contentType = null;
 	}
 
 
@@ -60,8 +63,7 @@ public class EvoSuiteHttpServletResponse implements HttpServletResponse{
 
 	@Override
 	public String getContentType() {
-		// TODO Auto-generated method stub
-		return null;
+		return contentType;
 	}
 
 	@Override
@@ -175,8 +177,7 @@ public class EvoSuiteHttpServletResponse implements HttpServletResponse{
 
 	@Override
 	public void setContentType(String arg0) {
-		// TODO Auto-generated method stub
-
+		contentType = arg0;
 	}
 
 	@Override
