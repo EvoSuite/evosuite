@@ -17,8 +17,14 @@ public class TestDataJavaEE {
      */
     private final Set<String> httpRequestParameters;
 
+    /**
+     * Keep track of all http request dispatchers
+     */
+    private final Set<String> dispatchers;
+
     private TestDataJavaEE(){
         httpRequestParameters = new CopyOnWriteArraySet<>();
+        dispatchers = new CopyOnWriteArraySet<>();
     }
 
     public static TestDataJavaEE getInstance(){
@@ -27,10 +33,22 @@ public class TestDataJavaEE {
 
     public void reset(){
         httpRequestParameters.clear();
+        dispatchers.clear();
     }
 
     public Set<String> getViewOfHttpRequestParameters(){
         return Collections.unmodifiableSet(httpRequestParameters);
+    }
+
+    public Set<String> getViewOfDispatchers(){
+        return Collections.unmodifiableSet(dispatchers);
+    }
+
+    public void accessedDispatcher(String dispatcherName) throws IllegalArgumentException{
+        if(dispatcherName == null){
+            throw new IllegalArgumentException("Null input");
+        }
+        dispatchers.add(dispatcherName);
     }
 
     public void accessedHttpRequestParameter(String param) throws IllegalArgumentException{

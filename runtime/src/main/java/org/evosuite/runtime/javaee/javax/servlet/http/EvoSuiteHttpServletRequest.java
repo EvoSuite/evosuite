@@ -170,9 +170,41 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public Map<String, String[]> getParameterMap() {
-		return Collections.unmodifiableMap(new LinkedHashMap<String, String[]>() {{
-			this.putAll(parameters);
-		}});
+
+		/*
+			here all the fuzz is to check if the existence of any specific property is checked for.
+			this is actually done in some of the tested SUTs
+		 */
+
+		return Collections.unmodifiableMap(new LinkedHashMap<String, String[]>() {
+			{this.putAll(parameters);}
+			@Override public Set<String> keySet(){
+				final Set<String> set = super.keySet();
+				return Collections.unmodifiableSet(new LinkedHashSet<String>(){
+					{this.addAll(set);}
+					@Override public boolean contains(Object k){
+						if(! (k instanceof String)){
+							return false;
+						}
+						String val = (String) k;
+						if(val!=null && !val.trim().isEmpty()){
+							TestDataJavaEE.getInstance().accessedHttpRequestParameter(val);
+						}
+						return super.contains(val);
+					}
+				});
+			}
+			@Override public boolean containsKey(Object k){
+				if(! (k instanceof String)){
+					return false;
+				}
+				String key = (String) k;
+				if(key!=null && !key.trim().isEmpty()){
+					TestDataJavaEE.getInstance().accessedHttpRequestParameter(key);
+				}
+				return super.containsKey(key);
+			}
+		});
 	}
 
 	@Override
