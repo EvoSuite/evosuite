@@ -634,11 +634,15 @@ public class Properties {
     @IntValue(min = 0)
     public static int ASSERTION_TIMEOUT = 60;
 
-    @Parameter(key = "junit_check_timeout", group = "Search Algorithm", description = "Seconds allowed for checking the generated JUnit files (e.g., compilation and stability)")
-    @IntValue(min = 0)
-    public static int JUNIT_CHECK_TIMEOUT = 60;
+	@Parameter(key = "junit_check_timeout", group = "Search Algorithm", description = "Seconds allowed for checking the generated JUnit files (e.g., compilation and stability)")
+	@IntValue(min = 0)
+	public static int JUNIT_CHECK_TIMEOUT = 60;
 
-    @Parameter(key = "carving_timeout", group = "Search Algorithm", description = "Seconds allowed for carving JUnit tests")
+	@Parameter(key = "write_junit_timeout", group = "Search Algorithm", description = "Seconds allowed to write on disk the generated JUnit files")
+	@IntValue(min = 0)
+	public static int WRITE_JUNIT_TIMEOUT = 60; //Note: we need it, as we currently first run the tests before we write them
+
+	@Parameter(key = "carving_timeout", group = "Search Algorithm", description = "Seconds allowed for carving JUnit tests")
 	@IntValue(min = 0)
 	public static int CARVING_TIMEOUT = 120;
 
@@ -1159,9 +1163,12 @@ public class Properties {
 
 	// ---------------------------------------------------------------
 	// Test Execution
-	/** Constant <code>TIMEOUT=5000</code> */
-	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")
-	public static int TIMEOUT = 5000;
+	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed to execute the body of a test")
+	public static int TIMEOUT = 3000;
+
+	@Parameter(key = "timeout_reset", group = "Test Execution", description = "Milliseconds allowed to execute the static reset of a test")
+	public static int TIMEOUT_RESET = 2000;
+
 
 	@Parameter(key = "concolic_timeout", group = "Test Execution", description = "Milliseconds allowed per test during concolic execution")
 	public static int CONCOLIC_TIMEOUT = 15000;

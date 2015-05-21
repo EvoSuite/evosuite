@@ -75,6 +75,7 @@ def getEvoSuiteCall(seed, configId, config, project, clazz, id, strategy, coreIn
   global FIXED
   global CALL_ID
   global CORES
+  global TIMEOUT
 
   logfile = "%s/%d_%s_%s_%s" % (LOGDIR, JOB_ID, configId, seed, project)
   reportfile="%s/%d/c%d" % (REPORTS, id, coreIndex)
@@ -84,6 +85,8 @@ def getEvoSuiteCall(seed, configId, config, project, clazz, id, strategy, coreIn
   result = "pushd . > /dev/null 2>&1 \n"
   result += "cd %s/%s\n" % (CASESTUDY_DIR, project)
 
+  if CORES != 1 :
+      result += "timeout -k " + TIMEOUT + " " + TIMEOUT + "  "
 
   result += ""+EVOSUITE+" "+strategy+" -class "+ clazz +" -seed "+str(seed)
   result += " -Dconfiguration_id="+configId+ " -Dgroup_id="+project
@@ -93,6 +96,7 @@ def getEvoSuiteCall(seed, configId, config, project, clazz, id, strategy, coreIn
 
   if CORES != 1 :
     result += " & "
+    result += "\npids+=($!) "
 
   result += "\n"
 
@@ -107,6 +111,7 @@ def createJobs(minSeed, maxSeed, configId, config, strategy="-generateSuite"):
   global CASESTUDY_DIR
   global JOB_ID
   global CONFIG_ID
+  global TIMEOUT
 
   path_1 = "%s/%s_EvoSuite_%d_%s_%d.sh" %(SCRIPTDIR, USERNAME, JOB_ID, configId, minSeed)
   script=open(path_1, "w")
@@ -121,10 +126,11 @@ def createJobs(minSeed, maxSeed, configId, config, strategy="-generateSuite"):
     random.shuffle(CLASSES)
 
     for entry in CLASSES:
+
       if num >= ENTRIES_PER_JOB:
 
         if(CORES > 1):
-            script.write("wait \n")
+            script.write("wait \"${pids[@]}\" \n")
             coreIndex = 0
         script.close()
 
@@ -137,17 +143,21 @@ def createJobs(minSeed, maxSeed, configId, config, strategy="-generateSuite"):
       else:
         num += 1
 
+      if(CORES>1 and coreIndex==0):
+        #first call
+        script.write("pids=() \n\n")
+
       script.write(getEvoSuiteCall(seed, configId, config, entry[0], entry[1], JOB_ID, strategy, coreIndex))
 
       if(CORES > 1):
         coreIndex += 1
 
       if(CORES > 1  and coreIndex == CORES):
-        script.write("\n\n wait \n\n")
+        script.write("\n\n wait \"${pids[@]}\" \n\n")
         coreIndex = 0
 
   if(CORES > 1):
-    script.write("wait \n")
+    script.write("wait \"${pids[@]}\" \n")
   script.close()
 
   JOB_ID += 1
@@ -155,6 +165,8 @@ def createJobs(minSeed, maxSeed, configId, config, strategy="-generateSuite"):
 
   return
 
+
+TIMEOUT="10m"
 
 # Fixed set of parameters to use in all jobs
 FIXED = " -mem 2500 \
@@ -165,9 +177,10 @@ FIXED = " -mem 2500 \
   -Dsearch_budget=120 \
   -Dinitialization_timeout=120 \
   -Dglobal_timeout=120 \
-  -Dminimization_timeout=120 \
-  -Dassertion_timeout=120 \
-  -Dextra_timeout=120 \
+  -Dminimization_timeout=60 \
+  -Dassertion_timeout=60 \
+  -Dextra_timeout=60 \
+  -Djunit_check_timeout=60 \
   -Doutput_variables=\"configuration_id,group_id,TARGET_CLASS,search_budget,Length,Size,LineCoverage,BranchCoverage,OutputCoverage,WeakMutationScore,Implicit_MethodExceptions\" \
  "
 

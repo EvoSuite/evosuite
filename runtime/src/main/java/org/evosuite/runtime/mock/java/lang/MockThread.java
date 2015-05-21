@@ -51,7 +51,7 @@ public class MockThread extends Thread implements OverrideMock {
         //no point in doing any sleep
         //MockThread.yield(); //just in case to change thread
         //FIXME quite a few side effects
-        Thread.sleep(Math.min(millis,500));
+        Thread.sleep(Math.min(millis,50));
     }
 
     @EvoSuiteExclude
