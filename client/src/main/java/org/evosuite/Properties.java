@@ -628,15 +628,15 @@ public class Properties {
 	/** Constant <code>MINIMIZATION_TIMEOUT=600</code> */
 	@Parameter(key = "minimization_timeout", group = "Search Algorithm", description = "Seconds allowed for minimization at the end")
 	@IntValue(min = 0)
-	public static int MINIMIZATION_TIMEOUT = 120;
+	public static int MINIMIZATION_TIMEOUT = 60;
 
     @Parameter(key = "assertion_timeout", group = "Search Algorithm", description = "Seconds allowed for assertion generation at the end")
     @IntValue(min = 0)
-    public static int ASSERTION_TIMEOUT = 120;
+    public static int ASSERTION_TIMEOUT = 60;
 
     @Parameter(key = "junit_check_timeout", group = "Search Algorithm", description = "Seconds allowed for checking the generated JUnit files (e.g., compilation and stability)")
     @IntValue(min = 0)
-    public static int JUNIT_CHECK_TIMEOUT = 120;
+    public static int JUNIT_CHECK_TIMEOUT = 60;
 
     @Parameter(key = "carving_timeout", group = "Search Algorithm", description = "Seconds allowed for carving JUnit tests")
 	@IntValue(min = 0)
@@ -645,6 +645,10 @@ public class Properties {
 	@Parameter(key = "initialization_timeout", group = "Search Algorithm", description = "Seconds allowed for initializing the search")
 	@IntValue(min = 0)
 	public static int INITIALIZATION_TIMEOUT = 120;
+
+	@Parameter(key = "extra_timeout", group = "Search Algorithm", description = "Extra seconds allowed for the search")
+	@IntValue(min = 0)
+	public static int EXTRA_TIMEOUT = 60;
 
 	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
 	public static boolean TRACK_BOOLEAN_BRANCHES = false;
@@ -655,10 +659,6 @@ public class Properties {
 	@Parameter(key = "branch_comparison_types", group = "Search Algorithm", description = "Track branch comparison types based on the bytecode")
 	public static boolean BRANCH_COMPARISON_TYPES = false;
 
-	/** Constant <code>EXTRA_TIMEOUT=120</code> */
-	@Parameter(key = "extra_timeout", group = "Search Algorithm", description = "Extra seconds allowed for the search")
-	@IntValue(min = 0)
-	public static int EXTRA_TIMEOUT = 120;
 
 	@Parameter(key = "analysis_criteria", group = "Output", description = "List of criteria which should be measured on the completed test suite")
 	public static String ANALYSIS_CRITERIA = "";

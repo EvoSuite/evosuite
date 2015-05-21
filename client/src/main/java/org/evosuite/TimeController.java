@@ -122,6 +122,18 @@ public class TimeController {
 			timeSpentInEachPhase.put(state, elapsed);
 			
 			logger.debug("Phase "+state+" lasted "+ (elapsed/1000) + " seconds");
+
+
+			//check if spent too much time, eg due to bug in EvoSuite
+			if(currentPhaseHasTimeout()) {
+				long timeoutInMs = getCurrentPhaseTimeout();
+				long left = timeoutInMs - elapsed;
+				if( left < - (0.1 * timeoutInMs)){
+					//just check if phase went over by more than 10%...
+					logger.warn("Phase "+state + " lasted too long, "+ (elapsed/1000) + " seconds more than allowed.");
+				}
+			}
+
 		}
 
 		state = newState;
