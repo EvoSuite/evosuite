@@ -1,6 +1,8 @@
 package org.evosuite.runtime.javaee.javax.servlet.http;
 
 import org.evosuite.runtime.javaee.TestDataJavaEE;
+import org.evosuite.runtime.javaee.javax.servlet.EvoAsyncContext;
+import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 
 import java.io.BufferedReader;
@@ -9,14 +11,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.*;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.DispatcherType;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,7 +43,7 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 	private int remotePort;
 
 	private Map<String, String[]> parameters;
-
+	private AsyncContext asyncContext;
 
     public EvoSuiteHttpServletRequest(){
         /*
@@ -71,12 +67,60 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 		remotePort = 61386; //any would do
 
 		parameters = new LinkedHashMap<>();
+		asyncContext = null;
 	}
 
     // ------- super classes overridden methods  ---------------
 
 	@Override
-	public AsyncContext getAsyncContext() {
+	public AsyncContext getAsyncContext() throws IllegalStateException{
+		if(asyncContext == null){
+			throw new IllegalStateException("Async context not initialized");
+		}
+		return asyncContext;
+	}
+
+	@Override
+	public boolean isAsyncStarted() {
+		if(asyncContext==null){
+			//TODO check on asyncContext if "dispatch" or "complete" were called (need new is* method for that)
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean isAsyncSupported() {
+		Servlet sut = EvoServletState.getServlet();
+		WebServlet annotation = sut.getClass().getAnnotation(WebServlet.class);
+		if(annotation == null){
+			return false; //TODO: unsure if really correct. need more investigation
+		}
+		return annotation.asyncSupported();
+	}
+
+	@Override
+	public AsyncContext startAsync() throws IllegalStateException {
+		if(!isAsyncSupported() || EvoServletState.getResponse().isCommitted()){
+		/*
+			Need also to handle:
+			- this request is within the scope of a filter
+			- this method is called again without any asynchronous dispatch (resulting from one of the AsyncContext.dispatch methods),
+			  is called outside the scope of any such dispatch, or is called again within the scope of the same dispatch
+		 */
+			throw new IllegalStateException("Cannot start async");
+		}
+		if(asyncContext==null){
+			asyncContext = new EvoAsyncContext();
+		} else {
+			//should re-init, as per JavaDoc
+		}
+		return asyncContext;
+	}
+
+	@Override
+	public AsyncContext startAsync(ServletRequest arg0, ServletResponse arg1)
+			throws IllegalStateException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -177,29 +221,39 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 		 */
 
 		return Collections.unmodifiableMap(new LinkedHashMap<String, String[]>() {
-			{this.putAll(parameters);}
-			@Override public Set<String> keySet(){
+			{
+				this.putAll(parameters);
+			}
+
+			@Override
+			public Set<String> keySet() {
 				final Set<String> set = super.keySet();
-				return Collections.unmodifiableSet(new LinkedHashSet<String>(){
-					{this.addAll(set);}
-					@Override public boolean contains(Object k){
-						if(! (k instanceof String)){
+				return Collections.unmodifiableSet(new LinkedHashSet<String>() {
+					{
+						this.addAll(set);
+					}
+
+					@Override
+					public boolean contains(Object k) {
+						if (!(k instanceof String)) {
 							return false;
 						}
 						String val = (String) k;
-						if(val!=null && !val.trim().isEmpty()){
+						if (val != null && !val.trim().isEmpty()) {
 							TestDataJavaEE.getInstance().accessedHttpRequestParameter(val);
 						}
 						return super.contains(val);
 					}
 				});
 			}
-			@Override public boolean containsKey(Object k){
-				if(! (k instanceof String)){
+
+			@Override
+			public boolean containsKey(Object k) {
+				if (!(k instanceof String)) {
 					return false;
 				}
 				String key = (String) k;
-				if(key!=null && !key.trim().isEmpty()){
+				if (key != null && !key.trim().isEmpty()) {
 					TestDataJavaEE.getInstance().accessedHttpRequestParameter(key);
 				}
 				return super.containsKey(key);
@@ -279,17 +333,6 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 		return null;
 	}
 
-	@Override
-	public boolean isAsyncStarted() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isAsyncSupported() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	@Override
 	public boolean isSecure() {
@@ -316,18 +359,7 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 
 	}
 
-	@Override
-	public AsyncContext startAsync() throws IllegalStateException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public AsyncContext startAsync(ServletRequest arg0, ServletResponse arg1)
-			throws IllegalStateException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public boolean authenticate(HttpServletResponse arg0) throws IOException,

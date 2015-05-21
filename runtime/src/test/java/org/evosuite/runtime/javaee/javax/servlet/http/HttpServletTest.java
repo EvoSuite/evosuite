@@ -2,12 +2,15 @@ package org.evosuite.runtime.javaee.javax.servlet.http;
 
 import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletConfig;
+import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,6 +27,7 @@ public class HttpServletTest {
     @Before
     public void init(){
         TestDataJavaEE.getInstance().reset();
+        EvoServletState.reset();
     }
 
     @Test
@@ -87,5 +91,43 @@ public class HttpServletTest {
         Assert.assertTrue(body.contains(delegate)); //the name of the delegate should appear in the response
 
         Assert.assertTrue(TestDataJavaEE.getInstance().getViewOfDispatchers().contains(delegate));
+    }
+
+    @Test
+    public void testNoAsyn() throws ServletException {
+
+        HttpServlet servlet = new HttpServlet() {
+            @Override
+            public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            }
+        };
+        EvoServletState.initServlet(servlet);
+        boolean supported = EvoServletState.getRequest().isAsyncSupported();
+        Assert.assertFalse(supported);
+    }
+
+    @Test
+    public void testAsyn() throws ServletException, IOException {
+
+        HttpServlet servlet = new  AnnotatedServlet_for_testAsyn();
+        EvoServletState.initServlet(servlet);
+        boolean supported = EvoServletState.getRequest().isAsyncSupported();
+        Assert.assertTrue(supported);
+
+        servlet.service(EvoServletState.getRequest(), EvoServletState.getResponse());
+
+        String body = EvoServletState.getResponse().getBody();
+        Assert.assertEquals("foo", body);
+    }
+
+    @WebServlet(value = "/bar", asyncSupported = true)
+    private class AnnotatedServlet_for_testAsyn extends HttpServlet {
+        @Override
+        public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            AsyncContext context = req.startAsync();
+            PrintWriter out = context.getResponse().getWriter();
+            out.print("foo");
+            out.close();
+        }
     }
 }
