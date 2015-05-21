@@ -15,6 +15,11 @@ public class RuntimeSettings {
      */
 
     /**
+     *  The full name of the class we are unit testing, ie the system under test (SUT)
+     */
+    public static String className = "unknown";
+
+    /**
      * Shall the test cases use the mocking framework to remove non-determinism like
      * CPU clock?
      */
