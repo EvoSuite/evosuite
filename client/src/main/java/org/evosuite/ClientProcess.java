@@ -126,6 +126,7 @@ public class ClientProcess {
         RuntimeSettings.maxNumberOfIterationsPerLoop = Properties.MAX_LOOP_ITERATIONS;
         RuntimeSettings.useVNET = Properties.VIRTUAL_NET;
         RuntimeSettings.useSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
+		RuntimeSettings.className = Properties.TARGET_CLASS;
         MethodCallReplacementCache.resetSingleton();
     }
 

@@ -574,6 +574,9 @@ public class Scaffolding {
         //bd.append("org.evosuite.utils.LoggingUtils.setLoggingForJUnit(); \n");
 
         bd.append(BLOCK_SPACE);
+        bd.append("" + RuntimeSettings.class.getName() + ".className = \""+ Properties.TARGET_CLASS+"\"; \n");
+
+        bd.append(BLOCK_SPACE);
         bd.append("" + GuiSupport.class.getName() + ".initialize(); \n");
 
         if(Properties.REPLACE_CALLS) {
@@ -671,6 +674,6 @@ public class Scaffolding {
         for (String s : threadsToIgnore) {
             bd.append(", " + s);
         }
-        bd.append(");\n");
+        bd.append(");\n\n");
     }
 }
