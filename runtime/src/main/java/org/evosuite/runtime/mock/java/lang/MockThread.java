@@ -49,7 +49,9 @@ public class MockThread extends Thread implements OverrideMock {
     @EvoSuiteExclude
     public static void sleep(long millis) throws InterruptedException {
         //no point in doing any sleep
-        MockThread.yield(); //just in case to change thread
+        //MockThread.yield(); //just in case to change thread
+        //FIXME quite a few side effects
+        Thread.sleep(Math.min(millis,500));
     }
 
     @EvoSuiteExclude

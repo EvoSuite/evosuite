@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.TestGenerationContext;
+import org.evosuite.TimeController;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.reset.ClassResetter;
@@ -45,6 +46,11 @@ public class ResetExecutor {
 	public void resetClasses(List<String> classesToReset) {
 		//try to reset each collected class
 		for (String className : classesToReset) {
+			//this can be expensive
+			if(! TimeController.getInstance().isThereStillTimeInThisPhase()){
+				logger.warn("Stopped resetting of classes due to phase timeout");
+				break;
+			}
 			resetClass(className);
 		}
 	}
