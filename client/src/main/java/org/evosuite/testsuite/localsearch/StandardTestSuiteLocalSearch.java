@@ -68,6 +68,7 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			// without success, we reset all primitive values before trying again 
 			if(test.hasLocalSearchBeenApplied()) {
 				TestCaseLocalSearch.randomizePrimitives(test.getTestCase());
+				((TestSuiteFitnessFunction) objective.getFitnessFunction()).getFitness(individual);
 			}
 
 			logger.debug("Local search on test " + i + ", current fitness: "
