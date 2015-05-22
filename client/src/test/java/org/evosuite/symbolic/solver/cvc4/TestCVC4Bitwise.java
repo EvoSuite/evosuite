@@ -29,7 +29,7 @@ public class TestCVC4Bitwise {
 			ConstraintSolverTimeoutException {
 		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: cvc4 should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
