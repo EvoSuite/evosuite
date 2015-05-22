@@ -33,8 +33,8 @@ public class HttpServletTest {
     @Test
     public void testSimpleScenarioWithParams() throws IOException {
 
-        EvoSuiteHttpServletRequest req = new EvoSuiteHttpServletRequest();
-        EvoSuiteHttpServletResponse res = new EvoSuiteHttpServletResponse();
+        EvoHttpServletRequest req = new EvoHttpServletRequest();
+        EvoHttpServletResponse res = new EvoHttpServletResponse();
 
         req.addParam("foo", "bar");
 
@@ -61,8 +61,8 @@ public class HttpServletTest {
             }
         };
 
-        EvoSuiteHttpServletRequest req = new EvoSuiteHttpServletRequest();
-        EvoSuiteHttpServletResponse resp = new EvoSuiteHttpServletResponse();
+        EvoHttpServletRequest req = new EvoHttpServletRequest();
+        EvoHttpServletResponse resp = new EvoHttpServletResponse();
 
         try{
             servlet.service(req,resp);
@@ -86,7 +86,7 @@ public class HttpServletTest {
         servlet.service(req, resp);
 
         String body = resp.getBody();
-        Assert.assertNotEquals(EvoSuiteHttpServletResponse.WARN_NO_COMMITTED, body);
+        Assert.assertNotEquals(EvoHttpServletResponse.WARN_NO_COMMITTED, body);
         Assert.assertTrue(body.length() > 0);
         Assert.assertTrue(body.contains(delegate)); //the name of the delegate should appear in the response
 

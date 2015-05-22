@@ -22,9 +22,24 @@ public class TestDataJavaEE {
      */
     private final Set<String> dispatchers;
 
+    /**
+     * Did the SUT check the content type of the request or of any of its parts?
+     */
+    private volatile boolean readContentType;
+
+
+    /**
+     * Keep track of which parts were asked for.
+     * The set is {@code null} if no part was ever read, not even with a get all.
+     */
+    private volatile Set<String> partNames;
+
+
     private TestDataJavaEE(){
         httpRequestParameters = new CopyOnWriteArraySet<>();
         dispatchers = new CopyOnWriteArraySet<>();
+        readContentType = false;
+        partNames = null;
     }
 
     public static TestDataJavaEE getInstance(){
@@ -34,6 +49,8 @@ public class TestDataJavaEE {
     public void reset(){
         httpRequestParameters.clear();
         dispatchers.clear();
+        readContentType = false;
+        partNames = null;
     }
 
     public Set<String> getViewOfHttpRequestParameters(){
@@ -42,6 +59,26 @@ public class TestDataJavaEE {
 
     public Set<String> getViewOfDispatchers(){
         return Collections.unmodifiableSet(dispatchers);
+    }
+
+    public Set<String> getViewOfParts(){
+        if(partNames==null){
+            return null;
+        }
+        return Collections.unmodifiableSet(partNames);
+    }
+
+    public void accessPart(String name){
+        if(partNames==null){
+            partNames = new CopyOnWriteArraySet<>();
+        }
+        if(name != null){
+            partNames.add(name);
+        }
+    }
+
+    public void accessContentType(){
+        readContentType = true;
     }
 
     public void accessedDispatcher(String dispatcherName) throws IllegalArgumentException{

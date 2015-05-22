@@ -15,7 +15,7 @@ import java.util.*;
  *
  * Created by Andrea Arcuri on 20/05/15.
  */
-public class EvoSuiteHttpServletResponse implements HttpServletResponse{
+public class EvoHttpServletResponse implements HttpServletResponse{
 
 	public static final String WARN_NO_COMMITTED = "WARN: the response was not committed";
 
@@ -29,7 +29,7 @@ public class EvoSuiteHttpServletResponse implements HttpServletResponse{
 	private PrintWriter writer;
 	private String contentType;
 
-	public EvoSuiteHttpServletResponse(){
+	public EvoHttpServletResponse(){
 		buffer = new ArrayList<>();
 		bufferSize = 1024;
 		committed = false;
@@ -73,9 +73,9 @@ public class EvoSuiteHttpServletResponse implements HttpServletResponse{
 	}
 
 	@Override
-	public ServletOutputStream getOutputStream() throws IOException {
+	public ServletOutputStream getOutputStream() throws IOException,IllegalStateException {
 		if(writer != null){
-			return null; //TODO unclear what to do if writer is already on
+			throw new IllegalStateException("Get stream failed because get writer has already been called");
 		}
 
 		if(stream == null) {
@@ -112,13 +112,13 @@ public class EvoSuiteHttpServletResponse implements HttpServletResponse{
 	}
 
 	@Override
-	public PrintWriter getWriter() throws IOException {
+	public PrintWriter getWriter() throws IOException,IllegalStateException {
 		//TODO somehow we should use "encoding" here, but maybe not so important for unit testing
 		if(writer != null){
 			return writer;
 		}
 		if(stream != null){
-			return null; //TODO unclear what to do here
+			throw new IllegalStateException("Get writer failed because get stream has already been called");
 		}
 		writer = new PrintWriter(getOutputStream());
 		return writer;
@@ -265,15 +265,21 @@ public class EvoSuiteHttpServletResponse implements HttpServletResponse{
 	}
 
 	@Override
-	public void sendError(int arg0) throws IOException {
-		// TODO Auto-generated method stub
-
+	public void sendError(int arg0) throws IOException, IllegalStateException {
+		sendError(arg0,"");
 	}
 
 	@Override
-	public void sendError(int arg0, String arg1) throws IOException {
-		// TODO Auto-generated method stub
+	public void sendError(int arg0, String arg1) throws IOException, IllegalStateException {
+		if(isCommitted()){
+			throw new IllegalStateException("Response already committed");
+		}
+		contentType = "text/html";
 
+		resetBuffer();
+		PrintWriter out = getWriter();
+		out.println("ERROR page. Code: "+arg0+". Message: "+arg1);
+		out.close();
 	}
 
 	@Override

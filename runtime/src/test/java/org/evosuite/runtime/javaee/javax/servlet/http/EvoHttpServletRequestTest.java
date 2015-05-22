@@ -8,7 +8,7 @@ import org.junit.Test;
 /**
  * Created by Andrea Arcuri on 20/05/15.
  */
-public class EvoSuiteHttpServletRequestTest {
+public class EvoHttpServletRequestTest {
 
     @Before
     public void init(){
@@ -17,14 +17,14 @@ public class EvoSuiteHttpServletRequestTest {
 
     @Test
     public void testGetUri(){
-        EvoSuiteHttpServletRequest req = new EvoSuiteHttpServletRequest();
+        EvoHttpServletRequest req = new EvoHttpServletRequest();
         Assert.assertNotNull(req.getRequestURI());
     }
 
     @Test
     public void testAsPost(){
         String POST = "POST";
-        EvoSuiteHttpServletRequest req = new EvoSuiteHttpServletRequest();
+        EvoHttpServletRequest req = new EvoHttpServletRequest();
         String m = req.getMethod();
         Assert.assertNotEquals(m,POST); //default should not be POST
         req.asPOST();
@@ -37,7 +37,7 @@ public class EvoSuiteHttpServletRequestTest {
         String param = "foo";
         Assert.assertFalse(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(param));
 
-        EvoSuiteHttpServletRequest req = new EvoSuiteHttpServletRequest();
+        EvoHttpServletRequest req = new EvoHttpServletRequest();
         String val = req.getParameter(param);
         Assert.assertNull(val);
         Assert.assertTrue(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(param));
@@ -56,7 +56,7 @@ public class EvoSuiteHttpServletRequestTest {
         Assert.assertFalse(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(p1));
         Assert.assertFalse(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(p2));
 
-        EvoSuiteHttpServletRequest req = new EvoSuiteHttpServletRequest();
+        EvoHttpServletRequest req = new EvoHttpServletRequest();
         req.getParameterMap().containsKey(p1);
 
         Assert.assertTrue(TestDataJavaEE.getInstance().getViewOfHttpRequestParameters().contains(p1));

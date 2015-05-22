@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 /**
  * Created by Andrea Arcuri on 20/05/15.
  */
-public class EvoSuiteHttpServletResponseTest {
+public class EvoHttpServletResponseTest {
 
     @Test
     public void testSimpleWrite() throws IOException {
@@ -17,7 +17,7 @@ public class EvoSuiteHttpServletResponseTest {
         String b = "foo";
         String c = "</html>";
 
-        EvoSuiteHttpServletResponse res = new EvoSuiteHttpServletResponse();
+        EvoHttpServletResponse res = new EvoHttpServletResponse();
         Assert.assertFalse(res.isCommitted());
 
         PrintWriter out = res.getWriter();
@@ -25,7 +25,7 @@ public class EvoSuiteHttpServletResponseTest {
         out.print(b);
         out.print(c);
 
-        Assert.assertEquals(EvoSuiteHttpServletResponse.WARN_NO_COMMITTED, res.getBody());
+        Assert.assertEquals(EvoHttpServletResponse.WARN_NO_COMMITTED, res.getBody());
 
         out.close();
 
