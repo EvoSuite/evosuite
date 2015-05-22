@@ -1,6 +1,7 @@
 package org.evosuite.runtime.vnet;
 
 import org.evosuite.runtime.mock.java.io.MockIOException;
+import org.evosuite.runtime.util.ByteDataInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,63 +37,7 @@ public class RemoteFile {
      * @return a new {@code InputStream} instance that can be used to read the content of this remote file
      */
     public InputStream getInputStream(){
-        return new RemoteFileInputStream();
+        return new ByteDataInputStream(data);
     }
 
-
-    private class RemoteFileInputStream extends InputStream{
-
-        private final AtomicInteger pos;
-        private volatile boolean closed;
-
-        public RemoteFileInputStream(){
-            pos = new AtomicInteger(0);
-            closed = false;
-        }
-
-        @Override
-        public int read() throws IOException{
-            throwExceptionIfClosed();
-
-            int available = available();
-            if(available <= 0){
-                return -1; // never block
-            } else {
-                int index = pos.getAndIncrement();
-                return data[index];
-            }
-        }
-
-
-        @Override
-        public int available() throws IOException {
-            throwExceptionIfClosed();
-            int dif = data.length - pos.get();
-            return dif;
-        }
-
-        @Override
-        public void close() throws IOException {
-            closed = true;
-        }
-
-        @Override
-        public synchronized void mark(int readlimit) {}
-
-        @Override
-        public synchronized void reset() throws IOException {
-            throw new IOException("mark/reset not supported");
-        }
-
-       @Override
-        public boolean markSupported() {
-            return false;
-        }
-
-        private void throwExceptionIfClosed() throws IOException{
-            if(closed){
-                throw new MockIOException();
-            }
-        }
-    }
 }

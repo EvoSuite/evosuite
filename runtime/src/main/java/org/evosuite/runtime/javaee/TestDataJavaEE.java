@@ -68,6 +68,10 @@ public class TestDataJavaEE {
         return Collections.unmodifiableSet(partNames);
     }
 
+    public boolean wasContentTypeRead(){
+        return readContentType;
+    }
+
     public void accessPart(String name){
         if(partNames==null){
             partNames = new CopyOnWriteArraySet<>();
