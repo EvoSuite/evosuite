@@ -1,6 +1,7 @@
 package org.evosuite.runtime.javaee.javax.servlet.http;
 
 import org.evosuite.runtime.javaee.TestDataJavaEE;
+import org.evosuite.runtime.util.ByteDataInputStream;
 
 import javax.servlet.http.Part;
 import java.io.IOException;
@@ -25,8 +26,7 @@ public class EvoPart implements Part {
 
     @Override
     public InputStream getInputStream() throws IOException {
-        //TODO refactor with RemoteFile
-        return null;
+        return new ByteDataInputStream(body);
     }
 
     @Override
