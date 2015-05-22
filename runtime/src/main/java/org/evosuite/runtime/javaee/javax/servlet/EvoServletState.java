@@ -1,8 +1,8 @@
 package org.evosuite.runtime.javaee.javax.servlet;
 
 import org.evosuite.annotation.EvoSuiteExclude;
-import org.evosuite.runtime.javaee.javax.servlet.http.EvoSuiteHttpServletRequest;
-import org.evosuite.runtime.javaee.javax.servlet.http.EvoSuiteHttpServletResponse;
+import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletRequest;
+import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletResponse;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.Servlet;
@@ -20,8 +20,8 @@ public class EvoServletState {
      */
 
     private static EvoServletConfig config;
-    private static EvoSuiteHttpServletRequest req;
-    private static EvoSuiteHttpServletResponse resp;
+    private static EvoHttpServletRequest req;
+    private static EvoHttpServletResponse resp;
 
     /**
      * Usually, this will be the SUT
@@ -36,16 +36,18 @@ public class EvoServletState {
         servlet = null;
     }
 
-    @EvoSuiteExclude // should be automatically added after "new" instance of a servlet
-    public static void initServlet(Servlet servlet) throws IllegalStateException, IllegalArgumentException, ServletException {
+    @EvoSuiteExclude // TODO should be automatically added after "new" instance of a servlet. input should not be null
+    public static <T extends Servlet> T initServlet(T servlet) throws IllegalStateException, IllegalArgumentException, ServletException {
         if(servlet == null){
             throw new IllegalArgumentException("Null servlet");
         }
         if(EvoServletState.servlet != null){
+            //TODO constraint that instance of Servlet can be initiated only once per test
             throw new IllegalStateException("Should only be one servlet per test");
         }
         EvoServletState.servlet = servlet;
         servlet.init(getConfiguration());
+        return servlet;
     }
 
     @EvoSuiteExclude
@@ -67,18 +69,18 @@ public class EvoServletState {
         return config;
     }
 
-    public static EvoSuiteHttpServletRequest getRequest() throws IllegalStateException{
+    public static EvoHttpServletRequest getRequest() throws IllegalStateException{
         checkInit();
         if(req == null){
-            req = new EvoSuiteHttpServletRequest();
+            req = new EvoHttpServletRequest();
         }
         return req;
     }
 
-    public static EvoSuiteHttpServletResponse getResponse() throws IllegalStateException{
+    public static EvoHttpServletResponse getResponse() throws IllegalStateException{
         checkInit();
         if(resp == null){
-            resp = new EvoSuiteHttpServletResponse();
+            resp = new EvoHttpServletResponse();
         }
         return resp;
     }

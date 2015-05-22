@@ -25,7 +25,11 @@ import javax.servlet.http.Part;
  *
  * Created by Andrea Arcuri on 20/05/15.
  */
-public class EvoSuiteHttpServletRequest implements HttpServletRequest {
+public class EvoHttpServletRequest implements HttpServletRequest {
+
+	public static final String TEXT_XML_CONTENT_FORMAT = "text/xml";
+	public static final String TEXT_HTML_CONTENT_FORMAT = "text/html";
+	public static final String MULTIPART_FORM_CONTENT_FORMAT = "multipart/form-data";
 
     private String contextPath;
     private String servletPath;
@@ -44,8 +48,9 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 
 	private Map<String, String[]> parameters;
 	private AsyncContext asyncContext;
+	private Map<String, EvoPart> parts;
 
-    public EvoSuiteHttpServletRequest(){
+    public EvoHttpServletRequest(){
         /*
             Note: quite a few of these fields could be good to be set by the test
             cases directly, but they might just increase the search space without
@@ -68,6 +73,7 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 
 		parameters = new LinkedHashMap<>();
 		asyncContext = null;
+		parts = new LinkedHashMap<>();
 	}
 
     // ------- super classes overridden methods  ---------------
@@ -103,7 +109,7 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 	public AsyncContext startAsync() throws IllegalStateException {
 		if(!isAsyncSupported() || EvoServletState.getResponse().isCommitted()){
 		/*
-			Need also to handle:
+			TODO Need also to handle:
 			- this request is within the scope of a filter
 			- this method is called again without any asynchronous dispatch (resulting from one of the AsyncContext.dispatch methods),
 			  is called outside the scope of any such dispatch, or is called again within the scope of the same dispatch
@@ -157,6 +163,7 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getContentType() {
+		TestDataJavaEE.getInstance().accessContentType();
 		return contentType;
 	}
 
@@ -431,14 +438,21 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public Part getPart(String arg0) throws IOException, ServletException {
-		// TODO Auto-generated method stub
-		return null;
+		if(! MULTIPART_FORM_CONTENT_FORMAT.equals(contentType)){
+			throw new ServletException("Cannot access parts if request is not of type "+MULTIPART_FORM_CONTENT_FORMAT);
+		}
+		TestDataJavaEE.getInstance().accessPart(arg0);
+		return parts.get(arg0);
 	}
 
 	@Override
 	public Collection<Part> getParts() throws IOException, ServletException {
-		// TODO Auto-generated method stub
-		return null;
+		if(! MULTIPART_FORM_CONTENT_FORMAT.equals(contentType)){
+			throw new ServletException("Cannot access parts if request is not of type "+MULTIPART_FORM_CONTENT_FORMAT);
+		}
+
+		TestDataJavaEE.getInstance().accessPart(null);
+		return new ArrayList<Part>(){{addAll(parts.values());}};
 	}
 
 	@Override
@@ -500,8 +514,13 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public Principal getUserPrincipal() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Principal() {
+			@Override
+			public String getName() {
+				return "EvoSuitePrincipal";
+			}
+		};
+		//TODO return null if not authenticated?
 	}
 
 	@Override
@@ -557,10 +576,14 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 	@Override
 	public String toString(){
 		//TODO: might need more stuff
-		return EvoSuiteHttpServletRequest.class.getSimpleName() + " [ " + getMethod() + " " + getRequestURI() + " ]";
+		return EvoHttpServletRequest.class.getSimpleName() + " [ " + getMethod() + " " + getRequestURI() + " ]";
 	}
 
     // ---------  public methods used only in EvoSuite -------------------
+
+	/*
+		Constrain on calling them based on whether we test doPost, doGet or doPut
+	 */
 
 
     public void asPOST(){
@@ -575,13 +598,22 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
         setHttpMethod(HttpMethod.PUT);
     }
 
+
+	/*
+		TODO constrain that those are called only if contentType is read, and only one is called
+	 */
+
     public void asTextXml(){
-        setContentType("text/xml");
+        setContentType(TEXT_XML_CONTENT_FORMAT);
     }
 
-    public void asMultipartFormData(){
+	public void asTextHtml(){
+		setContentType(TEXT_HTML_CONTENT_FORMAT);
+	}
+
+	public void asMultipartFormData(){
         //TODO only if POST?
-        setContentType("multipart/form-data");
+        setContentType(MULTIPART_FORM_CONTENT_FORMAT);
     }
 
 	public void addParam(String key, String value) throws IllegalArgumentException{
@@ -598,6 +630,10 @@ public class EvoSuiteHttpServletRequest implements HttpServletRequest {
 
 		parameters.put(key, params);
 
+	}
+
+	public void addPart(EvoPart p){
+		parts.put(p.getName(), p);
 	}
 
     // --------- private methods -----------------------------------------
