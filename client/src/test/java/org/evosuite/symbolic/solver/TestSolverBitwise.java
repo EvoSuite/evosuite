@@ -1,5 +1,8 @@
 package org.evosuite.symbolic.solver;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
@@ -17,7 +20,7 @@ import com.examples.with.different.packagename.solver.TestCaseShiftLeft;
 import com.examples.with.different.packagename.solver.TestCaseShiftRight;
 import com.examples.with.different.packagename.solver.TestCaseShiftRightUnsigned;
 
-public abstract class TestSolverBitwise {
+public class TestSolverBitwise {
 
 	private static DefaultTestCase buildTestCaseBitAnd()
 			throws SecurityException, NoSuchMethodException {
@@ -58,8 +61,8 @@ public abstract class TestSolverBitwise {
 	private static DefaultTestCase buildTestCaseBitNot()
 			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference int0 = tc.appendIntPrimitive(~0);
-		VariableReference int1 = tc.appendIntPrimitive(0);
+		VariableReference int0 = tc.appendIntPrimitive(~10);
+		VariableReference int1 = tc.appendIntPrimitive(10);
 
 		Method method = TestCaseBitNot.class.getMethod("test", int.class,
 				int.class);
@@ -67,15 +70,18 @@ public abstract class TestSolverBitwise {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testBitAnd(Solver solver) throws SecurityException,
+	public static void testBitAnd(Solver solver) throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseBitAnd();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertEquals(var0.intValue(), (var1.intValue() & 1));
 	}
 
 	public static Map<String, Object>  testBitOr(Solver solver) throws SecurityException,
@@ -88,15 +94,18 @@ public abstract class TestSolverBitwise {
 		return solution;
 	}
 
-	public static Map<String, Object> testBitXor(Solver solver) throws SecurityException,
+	public static void testBitXor(Solver solver) throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseBitXor();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertEquals(var0.intValue(), (var1.intValue() ^ 1));
 	}
 
 	public static Map<String, Object>  testBitNot(Solver solver) throws SecurityException,
@@ -120,18 +129,21 @@ public abstract class TestSolverBitwise {
 		return solution;
 	}
 
-	public static Map<String, Object> testShiftRight(Solver solver) throws SecurityException,
+	public static void testShiftRight(Solver solver) throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseShiftRight();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertEquals(var0.intValue(), var1.intValue() >> 1);
 	}
 
-	public static Map<String, Object> testShiftRightUnsigned(Solver solver)
+	public static void testShiftRightUnsigned(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
@@ -139,8 +151,11 @@ public abstract class TestSolverBitwise {
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertEquals(var0.intValue(), var1.intValue() >>> 1);
 	}
 
 	private static DefaultTestCase buildTestCaseShiftLeft()
