@@ -49,6 +49,7 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 	private Map<String, String[]> parameters;
 	private AsyncContext asyncContext;
 	private Map<String, EvoPart> parts;
+	private String principalName;
 
     public EvoHttpServletRequest(){
         /*
@@ -514,13 +515,16 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public Principal getUserPrincipal() {
+		if(principalName == null || principalName.trim().isEmpty()){
+			return null;
+		}
+
 		return new Principal() {
 			@Override
 			public String getName() {
-				return "EvoSuitePrincipal";
+				return principalName;
 			}
 		};
-		//TODO return null if not authenticated?
 	}
 
 	@Override
@@ -636,7 +640,12 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 		parts.put(p.getName(), p);
 	}
 
-    // --------- private methods -----------------------------------------
+
+	public void setPrincipalName(String principalName) {
+		this.principalName = principalName;
+	}
+
+	// --------- private methods -----------------------------------------
 
     private void setHttpMethod(HttpMethod m) throws IllegalArgumentException{
         if(m == null){
