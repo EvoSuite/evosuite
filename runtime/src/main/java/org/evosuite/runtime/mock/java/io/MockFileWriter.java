@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-import org.evosuite.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.vfs.VirtualFileSystem;

@@ -1,6 +1,6 @@
 package org.evosuite.runtime.javaee.javax.servlet;
 
-import org.evosuite.annotation.EvoSuiteExclude;
+import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletRequest;
 import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletResponse;
 
