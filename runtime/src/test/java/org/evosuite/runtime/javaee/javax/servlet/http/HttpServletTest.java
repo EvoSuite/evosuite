@@ -14,8 +14,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.Scanner;
 
 /**
  * Used to test both Request and Response together
@@ -29,6 +32,132 @@ public class HttpServletTest {
         TestDataJavaEE.getInstance().reset();
         EvoServletState.reset();
     }
+
+    @Test
+    public void testExecutedMethod() throws ServletException, IOException{
+
+        final boolean[] val = new boolean[3];
+
+        HttpServlet servlet = new HttpServlet() {
+            @Override
+            public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                val[0] = true;
+            }
+            @Override
+            public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                val[1] = true;
+            }
+            @Override
+            public void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                val[2] = true;
+            }
+        };
+
+        EvoServletState.initServlet(servlet);
+        EvoHttpServletRequest req = EvoServletState.getRequest();
+        req.asPOST();
+        servlet.service(req, EvoServletState.getResponse());
+        Assert.assertTrue(val[0]);
+        Assert.assertTrue(!val[1]);
+        Assert.assertTrue(!val[2]);
+
+        val[0] = false;
+        EvoServletState.reset();
+        EvoServletState.initServlet(servlet);
+        req = EvoServletState.getRequest();
+        req.asGET();
+        servlet.service(req, EvoServletState.getResponse());
+        Assert.assertTrue(!val[0]);
+        Assert.assertTrue(val[1]);
+        Assert.assertTrue(! val[2]);
+
+        val[1] = false;
+        EvoServletState.reset();
+        EvoServletState.initServlet(servlet);
+        req = EvoServletState.getRequest();
+        req.asPUT();
+        servlet.service(req, EvoServletState.getResponse());
+        Assert.assertTrue(!val[0]);
+        Assert.assertTrue(!val[1]);
+        Assert.assertTrue(val[2]);
+
+    }
+
+    @Test
+    public void testParts() throws ServletException, IOException{
+
+        HttpServlet servlet = new HttpServlet() {
+            @Override
+            public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                Collection<Part> parts = req.getParts();
+                String s = "";
+                for(Part p : parts){
+                    Scanner in = new Scanner(p.getInputStream());
+                    s += in.nextLine();
+                    in.close();
+                }
+                PrintWriter out = resp.getWriter();
+                out.print(s);
+                out.close();
+            }
+        };
+
+        String msg0 = "foo";
+        String msg1 = "bar";
+
+        EvoServletState.initServlet(servlet);
+        EvoHttpServletRequest req = EvoServletState.getRequest();
+        req.asPOST();
+        req.asMultipartFormData();
+        req.addPart(new EvoPart("first", msg0));
+        req.addPart(new EvoPart("second", msg1));
+
+        servlet.service(req, EvoServletState.getResponse());
+
+        Assert.assertTrue(TestDataJavaEE.getInstance().getViewOfParts().size() == 0);
+        Assert.assertTrue(EvoServletState.getResponse().getBody().equals(msg0+msg1));
+    }
+
+    @Test
+    public void testContentType() throws ServletException, IOException {
+
+        HttpServlet servlet = new HttpServlet() {
+            @Override
+            public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                String contentType = req.getContentType();
+                if(!contentType.equals("multipart/form-data")){
+                    resp.sendError(42);
+                    return;
+                }
+                resp.flushBuffer();
+            }
+        };
+
+        Assert.assertFalse(TestDataJavaEE.getInstance().wasContentTypeRead());
+
+        EvoServletState.initServlet(servlet);
+        EvoHttpServletRequest req = EvoServletState.getRequest();
+        req.asPOST();
+        req.asTextXml();
+
+        servlet.service(req, EvoServletState.getResponse());
+
+        Assert.assertTrue(TestDataJavaEE.getInstance().wasContentTypeRead());
+        Assert.assertTrue(EvoServletState.getResponse().getBody().contains("42"));
+
+        EvoServletState.reset();
+        EvoServletState.initServlet(servlet);
+        req = EvoServletState.getRequest();
+        req.asPOST();
+        req.asMultipartFormData();
+
+        Assert.assertFalse(EvoServletState.getResponse().isCommitted());
+        servlet.service(req, EvoServletState.getResponse());
+
+        Assert.assertFalse(EvoServletState.getResponse().getBody().contains("42"));
+        Assert.assertTrue(EvoServletState.getResponse().isCommitted());
+    }
+
 
     @Test
     public void testSimpleScenarioWithParams() throws IOException {
