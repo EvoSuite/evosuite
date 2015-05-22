@@ -29,6 +29,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
 import org.evosuite.instrumentation.coverage.BranchInstrumentation;
 import org.evosuite.instrumentation.coverage.DefUseInstrumentation;
@@ -143,7 +144,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-		if(Type.getDescriptor(org.evosuite.annotation.EvoSuiteExclude.class).equals(desc)) {
+		if(Type.getDescriptor(EvoSuiteExclude.class).equals(desc)) {
 			logger.info("Method has EvoSuite annotation: "+desc);
 			excludeMethod = true;
 		}
