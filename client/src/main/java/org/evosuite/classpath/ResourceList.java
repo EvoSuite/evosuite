@@ -559,9 +559,14 @@ public class ResourceList {
 			}
 
 			String className = getClassNameFromResourcePath(entryName);
-			getCache().mapClassToCP.put(className, jarEntry);//getPackageName
-			getCache().mapCPtoClasses.get(jarEntry).add(className);
-			getCache().addPrefix(getParentPackageName(className), jarEntry);
+			
+			// The same class may exist in different classpath entries
+			// and only the first one is kept
+			if(!getCache().mapClassToCP.containsKey(className)) {
+				getCache().mapClassToCP.put(className, jarEntry);//getPackageName
+				getCache().mapCPtoClasses.get(jarEntry).add(className);
+				getCache().addPrefix(getParentPackageName(className), jarEntry);
+			}
 		}
 	}
 
