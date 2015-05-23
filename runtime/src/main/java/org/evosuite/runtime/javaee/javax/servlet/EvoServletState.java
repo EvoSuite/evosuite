@@ -1,5 +1,6 @@
 package org.evosuite.runtime.javaee.javax.servlet;
 
+import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletRequest;
 import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletResponse;
@@ -36,7 +37,12 @@ public class EvoServletState {
         servlet = null;
     }
 
-    @EvoSuiteExclude // TODO should be automatically added after "new" instance of a servlet. input should not be null
+    @EvoSuiteExclude
+    public static Servlet getServlet() {
+        return servlet;
+    }
+
+    @Constraints(atMostOnce = true, noNullInputs = true)
     public static <T extends Servlet> T initServlet(T servlet) throws IllegalStateException, IllegalArgumentException, ServletException {
         if(servlet == null){
             throw new IllegalArgumentException("Null servlet");
@@ -49,18 +55,8 @@ public class EvoServletState {
         servlet.init(getConfiguration());
         return servlet;
     }
-
-    @EvoSuiteExclude
-    public static Servlet getServlet() {
-        return servlet;
-    }
-
-    /*
-        following methods should only be called _after_  initServlet is called.
-
-        TODO: maybe use some constrain system when doing mutation of test cases
-     */
-
+    
+    @Constraints(atMostOnce = true, after = "initServlet")
     public static EvoServletConfig getConfiguration() throws IllegalStateException{
         checkInit();
         if(config == null){
@@ -69,6 +65,7 @@ public class EvoServletState {
         return config;
     }
 
+    @Constraints(atMostOnce = true, after = "initServlet")
     public static EvoHttpServletRequest getRequest() throws IllegalStateException{
         checkInit();
         if(req == null){
@@ -77,6 +74,7 @@ public class EvoServletState {
         return req;
     }
 
+    @Constraints(atMostOnce = true, after = "initServlet")
     public static EvoHttpServletResponse getResponse() throws IllegalStateException{
         checkInit();
         if(resp == null){
@@ -85,6 +83,7 @@ public class EvoServletState {
         return resp;
     }
 
+    @Constraints(atMostOnce = true, after = "initServlet")
     public static AsyncContext getAsyncContext() throws IllegalStateException{
         checkInit();
         if(getRequest().isAsyncStarted()){

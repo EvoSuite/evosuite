@@ -10,6 +10,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class TestDataJavaEE {
 
+    public static final String HTTP_REQUEST_CONTENT_TYPE= "javaee.servlet.http.contentType";
+    public static final String HTTP_REQUEST_PARAM = "javaee.servlet.http.param";
+    public static final String HTTP_REQUEST_PART = "javaee.servlet.http.part";
+    public static final String HTTP_REQUEST_PRINCIPAL = "javaee.servlet.http.principal";
+
     private static final TestDataJavaEE singleton = new TestDataJavaEE();
 
     /**

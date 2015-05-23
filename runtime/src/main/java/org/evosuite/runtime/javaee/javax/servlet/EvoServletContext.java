@@ -1,5 +1,6 @@
 package org.evosuite.runtime.javaee.javax.servlet;
 
+import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
 import org.evosuite.runtime.javaee.TestDataJavaEE;
 
 import java.io.InputStream;
@@ -23,6 +24,8 @@ import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.descriptor.JspConfigDescriptor;
 
+
+@EvoSuiteClassExclude
 public class EvoServletContext implements ServletContext{
 
 	private final Map<String, RequestDispatcher> dispatchers;

@@ -1,5 +1,7 @@
 package org.evosuite.runtime.javaee.javax.servlet;
 
+import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
+
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncListener;
 import javax.servlet.ServletContext;
@@ -10,6 +12,7 @@ import javax.servlet.ServletResponse;
 /**
  * Created by Andrea Arcuri on 21/05/15.
  */
+@EvoSuiteClassExclude
 public class EvoAsyncContext implements AsyncContext {
 
 	@Override
