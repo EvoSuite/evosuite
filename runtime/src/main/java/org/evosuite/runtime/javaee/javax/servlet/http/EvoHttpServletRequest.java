@@ -1,5 +1,9 @@
 package org.evosuite.runtime.javaee.javax.servlet.http;
 
+import org.evosuite.runtime.annotation.Constraints;
+import org.evosuite.runtime.annotation.EvoSuiteAssertionOnly;
+import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
+import org.evosuite.runtime.annotation.EvoSuiteInclude;
 import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.javaee.javax.servlet.EvoAsyncContext;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
@@ -25,6 +29,7 @@ import javax.servlet.http.Part;
  *
  * Created by Andrea Arcuri on 20/05/15.
  */
+@EvoSuiteClassExclude
 public class EvoHttpServletRequest implements HttpServletRequest {
 
 	public static final String TEXT_XML_CONTENT_FORMAT = "text/xml";
@@ -87,6 +92,7 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 		return asyncContext;
 	}
 
+	@EvoSuiteAssertionOnly
 	@Override
 	public boolean isAsyncStarted() {
 		if(asyncContext==null){
@@ -96,6 +102,7 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 		return true;
 	}
 
+	@EvoSuiteAssertionOnly
 	@Override
 	public boolean isAsyncSupported() {
 		Servlet sut = EvoServletState.getServlet();
@@ -585,41 +592,46 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 
     // ---------  public methods used only in EvoSuite -------------------
 
-	/*
-		Constrain on calling them based on whether we test doPost, doGet or doPut
-	 */
 
-
+	@EvoSuiteInclude
+	@Constraints(atMostOnce = true , excludeOthers = {"asGET","asPUT"})
     public void asPOST(){
         setHttpMethod(HttpMethod.POST);
     }
 
+	@EvoSuiteInclude
+	@Constraints(atMostOnce = true , excludeOthers = {"asPOST","asPUT"})
     public void asGET(){
         setHttpMethod(HttpMethod.GET);
     }
 
+	@EvoSuiteInclude
+	@Constraints(atMostOnce = true , excludeOthers = {"asGET","asPOST"})
     public void asPUT(){
         setHttpMethod(HttpMethod.PUT);
     }
 
 
-	/*
-		TODO constrain that those are called only if contentType is read, and only one is called
-	 */
-
+	@EvoSuiteInclude
+	@Constraints(atMostOnce = true , excludeOthers = {"asMultipartFormData","asTextHtml"}, dependOnProperties = TestDataJavaEE.HTTP_REQUEST_CONTENT_TYPE)
     public void asTextXml(){
         setContentType(TEXT_XML_CONTENT_FORMAT);
     }
 
+	@EvoSuiteInclude
+	@Constraints(atMostOnce = true , excludeOthers = {"asTextXml","asMultipartFormData"}, dependOnProperties = TestDataJavaEE.HTTP_REQUEST_CONTENT_TYPE)
 	public void asTextHtml(){
 		setContentType(TEXT_HTML_CONTENT_FORMAT);
 	}
 
+	@EvoSuiteInclude
+	@Constraints(atMostOnce = true , excludeOthers = {"asTextXml","asTextHtml"}, dependOnProperties = TestDataJavaEE.HTTP_REQUEST_CONTENT_TYPE, after="asPOST")
 	public void asMultipartFormData(){
-        //TODO only if POST?
         setContentType(MULTIPART_FORM_CONTENT_FORMAT);
     }
 
+	@EvoSuiteInclude
+	@Constraints(dependOnProperties = TestDataJavaEE.HTTP_REQUEST_PARAM, after = "asMultipartFormData")
 	public void addParam(String key, String value) throws IllegalArgumentException{
 		if(key==null || value==null){
 			throw new IllegalArgumentException("Null input");
@@ -636,11 +648,15 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 
 	}
 
+	@EvoSuiteInclude
+	@Constraints(dependOnProperties = TestDataJavaEE.HTTP_REQUEST_PART)
 	public void addPart(EvoPart p){
 		parts.put(p.getName(), p);
 	}
 
 
+	@EvoSuiteInclude
+	@Constraints(dependOnProperties = TestDataJavaEE.HTTP_REQUEST_PRINCIPAL)
 	public void setPrincipalName(String principalName) {
 		this.principalName = principalName;
 	}

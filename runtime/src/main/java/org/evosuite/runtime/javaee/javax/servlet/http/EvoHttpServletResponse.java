@@ -1,5 +1,8 @@
 package org.evosuite.runtime.javaee.javax.servlet.http;
 
+import org.evosuite.runtime.annotation.EvoSuiteAssertionOnly;
+import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
 import javax.servlet.http.Cookie;
@@ -15,6 +18,7 @@ import java.util.*;
  *
  * Created by Andrea Arcuri on 20/05/15.
  */
+@EvoSuiteClassExclude
 public class EvoHttpServletResponse implements HttpServletResponse{
 
 	public static final String WARN_NO_COMMITTED = "WARN: the response was not committed";
@@ -61,6 +65,7 @@ public class EvoHttpServletResponse implements HttpServletResponse{
 		return encoding;
 	}
 
+	@EvoSuiteAssertionOnly
 	@Override
 	public String getContentType() {
 		return contentType;
@@ -124,6 +129,7 @@ public class EvoHttpServletResponse implements HttpServletResponse{
 		return writer;
 	}
 
+	@EvoSuiteAssertionOnly
 	@Override
 	public boolean isCommitted() {
 		return committed;
@@ -258,6 +264,7 @@ public class EvoHttpServletResponse implements HttpServletResponse{
 		return null;
 	}
 
+	@EvoSuiteAssertionOnly
 	@Override
 	public int getStatus() {
 		// TODO Auto-generated method stub
@@ -326,6 +333,7 @@ public class EvoHttpServletResponse implements HttpServletResponse{
 	 * body of the response.
 	 * @return
 	 */
+	@EvoSuiteAssertionOnly
 	public String getBody(){
 
 		if(!isCommitted()){

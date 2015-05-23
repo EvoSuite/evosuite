@@ -1,5 +1,7 @@
 package org.evosuite.runtime.javaee.javax.servlet;
 
+import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -8,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+@EvoSuiteClassExclude
 public class EvoRequestDispatcher implements RequestDispatcher{
 
 	private final String name;

@@ -1,5 +1,9 @@
 package org.evosuite.runtime.javaee.javax.servlet;
 
+import org.evosuite.runtime.annotation.Constraints;
+import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
+import org.evosuite.runtime.annotation.EvoSuiteInclude;
+
 import java.util.Enumeration;
 
 import javax.servlet.RequestDispatcher;
@@ -13,6 +17,7 @@ import javax.servlet.ServletContext;
  * @author foo
  *
  */
+@EvoSuiteClassExclude
 public class EvoServletConfig implements ServletConfig{
 
 	private EvoServletContext context;
@@ -47,6 +52,8 @@ public class EvoServletConfig implements ServletConfig{
 
 	//------------ EvoSuite test methods -----------------
 
+	@EvoSuiteInclude
+	@Constraints(noNullInputs = true)
 	public void createDispatcher(String name){
 		context.createDispatcher(name);
 	}

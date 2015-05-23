@@ -1,5 +1,8 @@
 package org.evosuite.runtime.javaee.javax.servlet.http;
 
+import org.evosuite.runtime.annotation.Constraints;
+import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
+import org.evosuite.runtime.annotation.EvoSuiteInclude;
 import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.util.ByteDataInputStream;
 
@@ -11,13 +14,15 @@ import java.util.Collection;
 /**
  * Created by Andrea Arcuri on 22/05/15.
  */
+@EvoSuiteClassExclude
 public class EvoPart implements Part {
 
     private final String name;
     private final String body;
     private String contentType;
 
-    //TODO constraint non-null input. As Part is indexed by name, no point in having null?
+    @EvoSuiteInclude
+    @Constraints(noNullInputs = true)
     public EvoPart(String name, String body) {
         this.name = name;
         this.body = body;
@@ -84,16 +89,19 @@ public class EvoPart implements Part {
 
     // ---------- EvoSuite test methods -------------------
 
-    	/*
-		TODO constrain that those are called only if contentType is read, and only one is called
-	 */
 
+    @EvoSuiteInclude
+    @Constraints(atMostOnce = true , excludeOthers = "asTextHtml", dependOnProperties = TestDataJavaEE.HTTP_REQUEST_CONTENT_TYPE)
     public void asTextXml(){
         contentType = EvoHttpServletRequest.TEXT_XML_CONTENT_FORMAT;
     }
 
+
+    @EvoSuiteInclude
+    @Constraints(atMostOnce = true , excludeOthers = "asTextXml", dependOnProperties = TestDataJavaEE.HTTP_REQUEST_CONTENT_TYPE)
     public void asTextHtml(){
         contentType = EvoHttpServletRequest.TEXT_HTML_CONTENT_FORMAT;
     }
+
 
 }
