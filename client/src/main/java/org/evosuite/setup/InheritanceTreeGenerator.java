@@ -99,7 +99,7 @@ public class InheritanceTreeGenerator {
 
 			logger.debug("Analyzing classpath entry " + classPathEntry);
 			LoggingUtils.getEvoLogger().info("  - " + classPathEntry);
-	        for(String className : ResourceList.getAllClasses(classPathEntry, true)) {
+	        for(String className : ResourceList.getAllClasses(classPathEntry, "", true, false)) {
 	        	// handle individual class
 				analyzeClassStream(inheritanceTree, ResourceList.getClassAsStream(className), false);
 	        }
