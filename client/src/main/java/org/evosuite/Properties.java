@@ -2094,6 +2094,10 @@ public class Properties {
 	public static Class<?> getTargetClass() {
 		return getTargetClass(true);
 	}
+	
+	public static boolean hasTargetClassBeenLoaded() {
+		return TARGET_CLASS_INSTANCE != null;
+	}
 
 	/**
 	 * Get class object of class under test
