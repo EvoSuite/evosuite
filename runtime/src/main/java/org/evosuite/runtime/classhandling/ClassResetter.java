@@ -1,10 +1,11 @@
-package org.evosuite.runtime.reset;
+package org.evosuite.runtime.classhandling;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.runtime.TooManyResourcesException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,7 +106,12 @@ public class ClassResetter {
         } catch (NoClassDefFoundError e){
             logger.error(e.toString()); //no point in getting stack trace here, as it gives no info
         } catch(InvocationTargetException e){
-            logger.error(e.toString() , e.getCause()); // we are only interested in the stack trace of the cause
+			Throwable cause = e.getCause();
+			if(cause instanceof TooManyResourcesException){
+				logger.error(e.toString());
+			} else {
+				logger.error(e.toString(), cause); // we are only interested in the stack trace of the cause
+			}
         }
 	}
 

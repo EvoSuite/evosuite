@@ -41,7 +41,7 @@ public class MockThread extends Thread implements OverrideMock {
 
             Thread t = new Thread(); t.start();
 
-            however, at is does nothing, no point in starting it anyway
+            however, as it does nothing, no point in starting it anyway
          */
 
         return  match(sut,threadName) || match(sut,targetName);

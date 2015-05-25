@@ -35,7 +35,7 @@ import org.evosuite.instrumentation.coverage.BranchInstrumentation;
 import org.evosuite.instrumentation.coverage.DefUseInstrumentation;
 import org.evosuite.instrumentation.coverage.MethodInstrumentation;
 import org.evosuite.instrumentation.coverage.MutationInstrumentation;
-import org.evosuite.runtime.reset.ClassResetter;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.AnnotationVisitor;

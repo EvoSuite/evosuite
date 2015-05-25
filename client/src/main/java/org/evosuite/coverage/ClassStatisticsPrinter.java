@@ -21,7 +21,7 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.instrumentation.LinePool;
-import org.evosuite.runtime.reset.ClassResetter;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;

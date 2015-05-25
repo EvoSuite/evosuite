@@ -1,12 +1,12 @@
-package org.evosuite.runtime;
+package org.evosuite.runtime.classhandling;
 
 import java.lang.instrument.UnmodifiableClassException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
-import org.evosuite.runtime.reset.ClassResetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ public class ClassStateSupport {
                 if(clazz.isInterface()){
                     /*
                         FIXME: once we ll start to support Java 8, in which interfaces can have code,
-                        we ll need to instrument them as wll
+                        we ll need to instrument them as well
                      */
                     continue;
                 }
@@ -68,18 +68,11 @@ public class ClassStateSupport {
 		}
 	}
 
-	/*
-	public static void instrumentAlreadyLoadedClasses(){
-		//this is too extreme: eg it picks up all Eclipse classes when tests are run from Eclipse... 
-		Class<?>[] classes = InstrumentingAgent.getInstumentation().getAllLoadedClasses();
-		retransformIfNeeded(Arrays.asList(classes));
-	}
-	*/
-
 	/**
 	 * If any of the loaded class was not instrumented yet, then re-instrument them.
 	 * Note: re-instrumentation is more limited, as cannot change class signature
 	 */
+	@Deprecated
 	public static void retransformIfNeeded(ClassLoader classLoader, String... classNames){
 		List<Class<?>> classes = new ArrayList<>();
 		for(String name : classNames){
@@ -97,6 +90,7 @@ public class ClassStateSupport {
 	 * Note: re-instrumentation is more limited, as cannot change class signature
 	 * @param classes
 	 */
+	@Deprecated
 	public static void retransformIfNeeded(List<Class<?>> classes) {
 
 		if(classes==null || classes.isEmpty()){
