@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.evosuite.runtime.reset.ClassResetter;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;

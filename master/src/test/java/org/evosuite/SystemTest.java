@@ -29,7 +29,7 @@ import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.runtime.mock.MockFramework;
-import org.evosuite.runtime.reset.ResetManager;
+import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;

@@ -1,4 +1,4 @@
-package org.evosuite.runtime.reset;
+package org.evosuite.runtime.classhandling;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -8,9 +8,9 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.reset.StaticInitCatchImplicitNullPointer;
+import com.examples.with.different.packagename.reset.ClassWithStaticInitializerTryCatch;
 
-public class TestStaticInitCatchImplicitNullPointer extends SystemTest {
+public class TestIssueStaticInitializerWithTryCatch extends SystemTest {
 
 	/*
 	 * These tests are based on issues found on project 44_summa, which is using the lucene API.
@@ -40,7 +40,7 @@ public class TestStaticInitCatchImplicitNullPointer extends SystemTest {
 
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = StaticInitCatchImplicitNullPointer.class.getCanonicalName();
+		String targetClass = ClassWithStaticInitializerTryCatch.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };

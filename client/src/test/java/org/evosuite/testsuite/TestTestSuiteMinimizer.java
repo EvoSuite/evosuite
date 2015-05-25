@@ -15,7 +15,7 @@ import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.runtime.reset.ResetManager;
+import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;

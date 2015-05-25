@@ -33,7 +33,7 @@ import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.runtime.reset.ResetManager;
+import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
