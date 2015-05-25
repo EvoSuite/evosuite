@@ -96,13 +96,15 @@ public class ClassStateSupport {
 		InstrumentingAgent.activate();
 		boolean safe = Sandbox.isSafeToExecuteSUTCode();
 
-		assert !Sandbox.isSecurityManagerInitialized() || Sandbox.isOnAndExecutingSUTCode();
+		//assert !Sandbox.isSecurityManagerInitialized() || Sandbox.isOnAndExecutingSUTCode();
 
 		for (int i=0; i< classNames.length;i++) {
 
 			org.evosuite.runtime.Runtime.getInstance().resetRuntime();
 
 			String classNameToLoad = classNames[i];
+
+			Sandbox.goingToExecuteSUTCode();
 
 			try {
 				if(!safe){
@@ -117,6 +119,7 @@ public class ClassStateSupport {
 				if(!safe){
 					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 				}
+				Sandbox.doneWithExecutingSUTCode();
 			}
 		}
 		InstrumentingAgent.deactivate();

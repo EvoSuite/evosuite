@@ -1,5 +1,7 @@
 package org.evosuite.runtime.classhandling;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -152,9 +154,12 @@ public class ClassResetter {
 
 			Throwable cause = e.getCause();
 			if(cause instanceof TooManyResourcesException){
-				logWarn(classNameWithDots, e.toString());
+				logWarn(classNameWithDots, e.toString() + ", caused by: "+cause.toString());
 			} else {
-				logWarn(classNameWithDots, e.toString() + "\nCaused by:\n"+cause.toString()); // we are only interested in the stack trace of the cause
+				StringWriter errors = new StringWriter();
+				cause.printStackTrace(new PrintWriter(errors));
+				logWarn(classNameWithDots, e.toString() + ", caused by: "+cause.toString()+"\n"+errors.toString());
+				// we are only interested in the stack trace of the cause
 			}
         } finally {
 			if(!safe){

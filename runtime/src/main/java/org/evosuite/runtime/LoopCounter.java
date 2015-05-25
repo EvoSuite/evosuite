@@ -72,6 +72,7 @@ public class LoopCounter {
                 counters.add(0l);
             }
         }
+        assert index < counters.size();
 
         //do increment
         long value = counters.get(index) + 1l;
