@@ -173,7 +173,8 @@ public class TestGeneration {
 			return true;
 		}
 
-		LoggingUtils.getEvoLogger().info("* Unknown class: " + target);
+		LoggingUtils.getEvoLogger().info("* Unknown class: " + target +
+				". Be sure its full qualifying name  is correct and the classpath is properly set with '-projectCP'");
 
 		return false;
 	}
