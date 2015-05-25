@@ -23,6 +23,26 @@ getProjectName <- function(proj){
 }
 
 
+
+zeroCoverageClasses <- function(dt,outputFile){
+
+	projects = sort(unique(dt$group_id))
+
+	TABLE = outputFile
+	unlink(TABLE)
+	sink(TABLE, append=TRUE, split=TRUE)
+
+	for(proj in projects){
+		classes = sort(unique(dt$TARGET_CLASS[dt$group_id==proj & dt$LineCoverage==0]))
+
+		for(cl in classes){
+			cat(proj,"\t",cl,"\n")
+		}
+	}
+
+	sink()
+}
+
 sampleStratifiedSelection <- function(pathToClassDescription, n, outputFile){
 
 	mp <-  read.table(pathToClassDescription,header=F)
