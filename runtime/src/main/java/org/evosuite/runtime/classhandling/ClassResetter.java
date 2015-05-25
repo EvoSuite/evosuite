@@ -7,7 +7,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.runtime.TooManyResourcesException;
+import org.evosuite.runtime.*;
+import org.evosuite.runtime.agent.InstrumentingAgent;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,22 +132,35 @@ public class ClassResetter {
             return;
         }
 
-		//FIXME: this is outside of the SANDBOX!!!
+		boolean safe = Sandbox.isSafeToExecuteSUTCode();
+
+		InstrumentingAgent.activate();
+		org.evosuite.runtime.Runtime.getInstance().resetRuntime();
 
 		try {
+			if(!safe){
+				Sandbox.goingToExecuteSUTCode();
+			}
 			m.invoke(null, (Object[]) null);
 		} catch (IllegalAccessException | IllegalArgumentException e) {
             logger.error(""+e,e);
         } catch (NoClassDefFoundError e){
             logger.error(e.toString()); //no point in getting stack trace here, as it gives no info
         } catch(InvocationTargetException e){
+
 			Throwable cause = e.getCause();
 			if(cause instanceof TooManyResourcesException){
-				logger.error(e.toString());
+				logWarn(classNameWithDots, e.toString());
 			} else {
-				logger.error(e.toString(), cause); // we are only interested in the stack trace of the cause
+				logWarn(classNameWithDots, e.toString() + "\nCaused by:\n"+cause.toString()); // we are only interested in the stack trace of the cause
 			}
-        }
+        } finally {
+			if(!safe){
+				Sandbox.doneWithExecutingSUTCode();
+			}
+		}
+
+		InstrumentingAgent.deactivate();
 	}
 
 }

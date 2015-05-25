@@ -57,8 +57,6 @@ public class ResetExecutor {
 
 	private void resetClass(String className) {
 
-		//FIXME this should be aligned with ClassResetter
-
 		//className.__STATIC_RESET() exists
 		logger.debug("Resetting class " + className);
 		
@@ -76,7 +74,7 @@ public class ResetExecutor {
 			if (resetMethod!=null) {
 				resetMethod.invoke(null, (Object[]) null);
 			}
-		} catch (Exception  e) {
+		} catch (Throwable  e) {
 			ClassResetter.getInstance().logWarn(className, e.getClass() + " thrown during execution of method  __STATIC_RESET() for class " + className + ", " + e.getCause());
 		}  finally {
 			Sandbox.doneWithExecutingSUTCode();
