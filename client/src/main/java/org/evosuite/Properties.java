@@ -2105,6 +2105,7 @@ public class Properties {
 	 * @return a {@link java.lang.Class} object.
 	 */
 	public static Class<?> getTargetClass(boolean initialise) {
+
 		if (TARGET_CLASS_INSTANCE != null
 				&& TARGET_CLASS_INSTANCE.getCanonicalName()
 						.equals(TARGET_CLASS))
@@ -2129,30 +2130,10 @@ public class Properties {
 			setClassPrefix();
 
 		} catch (ClassNotFoundException e) {
-			LoggingUtils.getEvoLogger().info(
-					"* Could not find class under test: "
-							+ Properties.TARGET_CLASS + ": " + e);
-			for (StackTraceElement s : e.getStackTrace()) {
-				LoggingUtils.getEvoLogger().info("   " + s.toString());
-			}
-			Throwable cause = e.getCause();
-			while (cause != null) {
-				LoggingUtils.getEvoLogger().info("Caused by: " + cause);
-				for (StackTraceElement s : cause.getStackTrace()) {
-					LoggingUtils.getEvoLogger().info("   " + s.toString());
-				}
-				cause = cause.getCause();
-			}
-			/*
-			 * FIXME: Why this sleep???
-			 */
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e1) {
-				logger.debug(e1.getMessage());
-			}
-		} finally {
+			LoggingUtils.getEvoLogger().warn(
+					"* Could not find class under test " + Properties.TARGET_CLASS + ": " + e);
 		}
+
 		return TARGET_CLASS_INSTANCE;
 	}
 
