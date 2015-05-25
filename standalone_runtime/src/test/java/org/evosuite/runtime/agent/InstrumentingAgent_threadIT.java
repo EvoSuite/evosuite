@@ -44,10 +44,12 @@ public class InstrumentingAgent_threadIT {
     public void testTooManyThreads(){
 
         RuntimeSettings.maxNumberOfThreads = 100;
-        Object obj = null;
+
+		Object obj = null;
 
         try{
             InstrumentingAgent.activate();
+			RuntimeSettings.className = StartThreads.class.getName();
 
             StartThreads st = new StartThreads();
             st.exe(50);

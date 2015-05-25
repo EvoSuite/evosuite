@@ -36,6 +36,14 @@ public class MockThread extends Thread implements OverrideMock {
         String threadName = this.getClass().getName();
         String targetName = target==null ? null : target.getClass().getName();
 
+        /*
+            Note: this check would not recognize code like:
+
+            Thread t = new Thread(); t.start();
+
+            however, at is does nothing, no point in starting it anyway
+         */
+
         return  match(sut,threadName) || match(sut,targetName);
     }
 
