@@ -350,6 +350,10 @@ public class MSecurityManager extends SecurityManager {
 		executingTestCase = true;
 	}
 
+	public boolean isExecutingTestCase(){
+		return executingTestCase;
+	}
+
 	public void goingToEndTestCase() throws IllegalStateException {
 		if (!executingTestCase) {
 			throw new IllegalStateException("Trying to disable sandbox when not test case was run");

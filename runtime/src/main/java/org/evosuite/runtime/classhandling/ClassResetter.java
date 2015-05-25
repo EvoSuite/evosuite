@@ -134,12 +134,14 @@ public class ClassResetter {
 
 		boolean safe = Sandbox.isSafeToExecuteSUTCode();
 
+		assert !Sandbox.isSecurityManagerInitialized() || Sandbox.isOnAndExecutingSUTCode();
+
 		InstrumentingAgent.activate();
 		org.evosuite.runtime.Runtime.getInstance().resetRuntime();
 
 		try {
 			if(!safe){
-				Sandbox.goingToExecuteSUTCode();
+				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 			}
 			m.invoke(null, (Object[]) null);
 		} catch (IllegalAccessException | IllegalArgumentException e) {
@@ -156,7 +158,7 @@ public class ClassResetter {
 			}
         } finally {
 			if(!safe){
-				Sandbox.doneWithExecutingSUTCode();
+				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			}
 		}
 

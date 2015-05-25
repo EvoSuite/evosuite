@@ -96,6 +96,8 @@ public class ClassStateSupport {
 		InstrumentingAgent.activate();
 		boolean safe = Sandbox.isSafeToExecuteSUTCode();
 
+		assert !Sandbox.isSecurityManagerInitialized() || Sandbox.isOnAndExecutingSUTCode();
+
 		for (int i=0; i< classNames.length;i++) {
 
 			org.evosuite.runtime.Runtime.getInstance().resetRuntime();
@@ -104,7 +106,7 @@ public class ClassStateSupport {
 
 			try {
 				if(!safe){
-					Sandbox.goingToExecuteSUTCode();
+					Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 				}
 				Class<?> aClass = Class.forName(classNameToLoad, true, classLoader);
 				classes.add(aClass);
@@ -113,7 +115,7 @@ public class ClassStateSupport {
 				logger.error("Could not initialize " + classNameToLoad+": "+ex.getMessage());
 			} finally {
 				if(!safe){
-					Sandbox.doneWithExecutingSUTCode();
+					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 				}
 			}
 		}
