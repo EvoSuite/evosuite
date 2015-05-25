@@ -24,16 +24,27 @@ public class ClassStateSupport {
 
     /**
      * Load all the classes with given name with the provided input classloader.
-     * Those classes are all supposed to be instrumented
+     * Those classes are all supposed to be instrumented.
+	 *
+	 * <p>
+	 *     This method will usually be called in a @BeforeClass initialization
+	 * </p>
+	 *
      * @param classLoader
      * @param classNames
-     * @throws java.lang.IllegalStateException if any class is not instrumented
      */
-	public static void initializeClasses(ClassLoader classLoader, String... classNames){
+	public static boolean initializeClasses(ClassLoader classLoader, String... classNames){
+
+		boolean problem = false;
 
 		List<Class<?>> classes = loadClasses(classLoader, classNames);
-        if(RuntimeSettings.isUsingAnyMocking()) {
-            for (Class<?> clazz : classes) {
+		if(classes.size() != classNames.length){
+			problem = true;
+		}
+
+		if(RuntimeSettings.isUsingAnyMocking()) {
+
+			for (Class<?> clazz : classes) {
 
                 if(clazz.isInterface()){
                     /*
@@ -49,16 +60,24 @@ public class ClassStateSupport {
                             "which some classes are loaded be reflection before the tests are run. Consult the EvoSuite documentation " +
                             "for possible workarounds for this issue.";
                     logger.error(msg);
-                    //throw new IllegalStateException(msg);
+					problem = true;
+                    //throw new IllegalStateException(msg); // throwing an exception might be a bit too extreme
                 }
             }
         }
+
+		return problem;
 
 		//retransformIfNeeded(classes); // cannot do it, as retransformation does not really work :(
 	}
 
 	/**
-	 * Reset the static state of all the given classes
+	 * Reset the static state of all the given classes.
+	 *
+	 * <p>
+	 *     This method will be usually called after a test is executed, ie in a @After
+	 * </p>
+	 *
 	 * @param classNames
 	 */
 	public static void resetClasses(String... classNames) {
