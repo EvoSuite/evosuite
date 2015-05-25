@@ -120,9 +120,16 @@ public class Scaffolding {
         }
 
 
-        if (wasSecurityException) {
+        if (Properties.RESET_STATIC_FIELDS || wasSecurityException) {
+            /*
+                for simplicity, when doing static reset, we always activate the sandbox,
+                as anyway its code is only going to be in the scaffolding
+             */
             list.add(Sandbox.class.getCanonicalName());
             list.add(Sandbox.SandboxMode.class.getCanonicalName());
+        }
+
+        if (wasSecurityException) {
             list.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
             list.add(java.util.concurrent.Executors.class.getCanonicalName());
             list.add(java.util.concurrent.Future.class.getCanonicalName());
@@ -360,7 +367,7 @@ public class Scaffolding {
             bd.append("resetClasses(); \n");
         }
 
-        if (wasSecurityException) {
+        if (Properties.RESET_STATIC_FIELDS || wasSecurityException) {
             bd.append(BLOCK_SPACE);
             bd.append(Sandbox.class.getName() + ".doneWithExecutingSUTCode(); \n");
         }
@@ -416,7 +423,7 @@ public class Scaffolding {
             bd.append(ShutdownHookHandler.class.getName() + ".getInstance().initHandler(); \n");
         }
 
-        if (wasSecurityException) {
+        if (Properties.RESET_STATIC_FIELDS || wasSecurityException) {
             bd.append(BLOCK_SPACE);
             bd.append(Sandbox.class.getName() + ".goingToExecuteSUTCode(); \n");
         }
@@ -491,11 +498,14 @@ public class Scaffolding {
             bd.append(METHOD_SPACE);
             bd.append("public static void clearEvoSuiteFramework(){ \n");
 
-            if (wasSecurityException) {
-                bd.append(BLOCK_SPACE);
-                bd.append(EXECUTOR_SERVICE + ".shutdownNow(); \n");
+            if (Properties.RESET_STATIC_FIELDS || wasSecurityException) {
                 bd.append(BLOCK_SPACE);
                 bd.append("Sandbox.resetDefaultSecurityManager(); \n");
+            }
+
+            if(wasSecurityException){
+                bd.append(BLOCK_SPACE);
+                bd.append(EXECUTOR_SERVICE + ".shutdownNow(); \n");
             }
 
             if (TestSuiteWriterUtils.shouldResetProperties(results)) {
@@ -594,7 +604,7 @@ public class Scaffolding {
         }
 
 
-        if (wasSecurityException) {
+        if(Properties.RESET_STATIC_FIELDS || wasSecurityException){
             //need to setup the Sandbox mode
             bd.append(BLOCK_SPACE);
             bd.append(RuntimeSettings.class.getName() + ".sandboxMode = " +
@@ -602,14 +612,16 @@ public class Scaffolding {
 
             bd.append(BLOCK_SPACE);
             bd.append(Sandbox.class.getName() + ".initializeSecurityManagerForSUT(); \n");
+        }
 
+        if (wasSecurityException) {
             bd.append(BLOCK_SPACE);
             bd.append(EXECUTOR_SERVICE + " = Executors.newCachedThreadPool(); \n");
         }
 
         if (Properties.RESET_STATIC_FIELDS) {
             bd.append(BLOCK_SPACE);
-            bd.append("initializeClasses();" + "\n");
+            bd.append(InitializingListener.INITIALIZE_CLASSES_METHOD+"();" + "\n");
         }
 
         if (TestSuiteWriterUtils.needToUseAgent()) {

@@ -7,6 +7,7 @@ import java.util.List;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,18 +93,29 @@ public class ClassStateSupport {
 
 		List<Class<?>> classes = new ArrayList<>();
 
-		InstrumentingAgent.activate(); 
-		for (int i=0; i< classNames.length;i++) {
-			org.evosuite.runtime.Runtime.getInstance().resetRuntime(); 
-			String classNameToLoad = classNames[i];
-			try {
-				//FIXME: this is outside of the SANDBOX!!!
+		InstrumentingAgent.activate();
+		boolean safe = Sandbox.isSafeToExecuteSUTCode();
 
+		for (int i=0; i< classNames.length;i++) {
+
+			org.evosuite.runtime.Runtime.getInstance().resetRuntime();
+
+			String classNameToLoad = classNames[i];
+
+			try {
+				if(!safe){
+					Sandbox.goingToExecuteSUTCode();
+				}
 				Class<?> aClass = Class.forName(classNameToLoad, true, classLoader);
 				classes.add(aClass);
+
 			} catch (Exception | Error ex) {
 				logger.error("Could not initialize " + classNameToLoad+": "+ex.getMessage());
-			} 
+			} finally {
+				if(!safe){
+					Sandbox.doneWithExecutingSUTCode();
+				}
+			}
 		}
 		InstrumentingAgent.deactivate();
 		return classes;
