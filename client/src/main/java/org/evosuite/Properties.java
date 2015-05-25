@@ -2120,6 +2120,8 @@ public class Properties {
 			 * Those cases should be handled here before starting the search.
 			 */
 
+			//FIXME: this is outside of the SANDBOX!!!
+
 			Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
 
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,

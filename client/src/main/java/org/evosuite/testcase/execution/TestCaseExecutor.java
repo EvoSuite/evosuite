@@ -332,7 +332,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		Scope scope = new Scope();
 		ExecutionResult result = execute(tc, scope, timeout);
 
-		if (Properties.RESET_STATIC_FIELDS && TimeController.getInstance().isThereStillTimeInThisPhase(2000)) {
+		if (Properties.RESET_STATIC_FIELDS && TimeController.getInstance().isThereStillTimeInThisPhase(Properties.TIMEOUT_RESET)) {
 			resetClasses(tc, result);
 		}
 		return result;

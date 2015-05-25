@@ -3,7 +3,9 @@ package org.evosuite.runtime.classhandling;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.evosuite.runtime.TooManyResourcesException;
 import org.slf4j.Logger;
@@ -32,8 +34,19 @@ public class ClassResetter {
 
 	private ClassLoader loader;
 	
-	private Map<ClassLoader, Map<String, Method>> resetMethodCache = new HashMap<>();
-	
+	private final Map<ClassLoader, Map<String, Method>> resetMethodCache;
+
+	/**
+	 * Keep track of all classes for which we have already issued a warning
+	 * if problems.
+	 */
+	private final Set<String> alreadyLoggedErrors;
+
+	private ClassResetter(){
+		resetMethodCache = new HashMap<>();
+		alreadyLoggedErrors = new HashSet<>();
+	}
+
 	/**
 	 * Return singleton instance
 	 * @return
@@ -48,34 +61,52 @@ public class ClassResetter {
 		}
 		this.loader = loader;
 	}
-	
-	
+
+
+	/**
+	 * Only log once for a class
+	 * @param className
+	 * @param msg
+	 */
+	public synchronized void logWarn(String className, String msg){
+		if(alreadyLoggedErrors.contains(className)){
+			return; // do not log a second time
+		}
+		alreadyLoggedErrors.add(className);
+		logger.warn(msg);
+	}
+
 	private void cacheResetMethod(String classNameWithDots) {
-        if (!resetMethodCache.containsKey(loader)) {
+
+		if (!resetMethodCache.containsKey(loader)) {
             resetMethodCache.put(loader, new HashMap<String, Method>());
         }
-        Map<String, Method> methodMap = resetMethodCache.get(loader);
-        if (methodMap.containsKey(classNameWithDots))
-            return;
+
+		Map<String, Method> methodMap = resetMethodCache.get(loader);
+        if (methodMap.containsKey(classNameWithDots)) {
+			return;
+		}
 
         try {
             Class<?> clazz = loader.loadClass(classNameWithDots);
-            if(clazz.isInterface() || clazz.isAnonymousClass())
-            	return;
+
+			if(clazz.isInterface() || clazz.isAnonymousClass()) {
+				return;
+			}
             
             Method m = clazz.getDeclaredMethod(STATIC_RESET, (Class<?>[]) null);
             m.setAccessible(true);
             methodMap.put(classNameWithDots, m);
-        } catch (SecurityException | IllegalArgumentException e) {
-            logger.error(""+e,e);
-        } catch (NoSuchMethodException | ClassNotFoundException | NoClassDefFoundError e){
-            //this is not uncommon, as it can happen if static initializer fails.
-            //so no point in having a full trace stack
-            logger.error("Problem in resetting state of class "+classNameWithDots+": "+e);
-        }
-    }
+
+        } catch (NoSuchMethodException e) {
+			//this can happen if class was not instrumented with a static reset
+			logger.debug("__STATIC_RESET() method does not exists in class " + classNameWithDots);
+		} catch (Exception | Error e) {
+			logWarn(classNameWithDots, e.getClass() + " thrown while loading method  __STATIC_RESET() for class " + classNameWithDots);
+		}
+	}
 	
-	private Method getResetMethod(String classNameWithDots) {
+	public Method getResetMethod(String classNameWithDots) {
 		cacheResetMethod(classNameWithDots);
 		return resetMethodCache.get(loader).get(classNameWithDots);
 	}
@@ -98,6 +129,8 @@ public class ClassResetter {
 		if(m == null) {
             return;
         }
+
+		//FIXME: this is outside of the SANDBOX!!!
 
 		try {
 			m.invoke(null, (Object[]) null);

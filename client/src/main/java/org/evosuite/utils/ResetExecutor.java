@@ -22,14 +22,7 @@ public class ResetExecutor {
 
 	private static final ResetExecutor instance = new ResetExecutor();
 
-	/**
-	 * Keep track of all classes for which we have already issued a warning
-	 * if problems.
-	 */
-	private final Set<String> alreadyLoggedErrors;
-
 	private ResetExecutor() {
-		alreadyLoggedErrors = new HashSet<>();
 	}
 	
 
@@ -44,6 +37,8 @@ public class ResetExecutor {
 
 	public void resetClasses(List<String> classesToReset) {
 		//try to reset each collected class
+
+		ClassResetter.getInstance().setClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
 
 		long start = System.currentTimeMillis();
 
@@ -60,37 +55,6 @@ public class ResetExecutor {
 		}
 	}
 
-
-	private Method getResetMethod(String className) {
-		try {
-			ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
-			Class<?> clazz = Class.forName(className, true, classLoader);
-			Method m = clazz.getDeclaredMethod(ClassResetter.STATIC_RESET, (Class<?>[]) null);
-			m.setAccessible(true);
-			return m;
-		
-		} catch (NoSuchMethodException e) {
-			//this can happen if class was not instrumented with a static reset
-			logger.debug("__STATIC_RESET() method does not exists in class " + className);
-		} catch (Exception | Error e) {
-			logWarn(className,e.getClass()+" thrown while loading method  __STATIC_RESET() for class " + className);
-		} 
-		return null;
-	}
-
-	/**
-	 * Only log once for a class
-	 * @param className
-	 * @param msg
-	 */
-	private synchronized void logWarn(String className, String msg){
-		if(alreadyLoggedErrors.contains(className)){
-			return; // do not log a second time
-		}
-		alreadyLoggedErrors.add(className);
-		logger.warn(msg);
-	}
-	
 	private void resetClass(String className) {
 
 		//FIXME this should be aligned with ClassResetter
@@ -108,12 +72,12 @@ public class ResetExecutor {
 		Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
 
 		try {
-			Method resetMethod = getResetMethod(className);
+			Method resetMethod = ClassResetter.getInstance().getResetMethod(className);
 			if (resetMethod!=null) {
 				resetMethod.invoke(null, (Object[]) null);
 			}
 		} catch (Exception  e) {
-			logWarn(className,e.getClass() + " thrown during execution of method  __STATIC_RESET() for class " + className+", "+e.getCause());
+			ClassResetter.getInstance().logWarn(className, e.getClass() + " thrown during execution of method  __STATIC_RESET() for class " + className + ", " + e.getCause());
 		}  finally {
 			Sandbox.doneWithExecutingSUTCode();
             TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
