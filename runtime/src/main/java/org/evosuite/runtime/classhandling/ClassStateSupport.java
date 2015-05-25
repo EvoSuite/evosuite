@@ -49,12 +49,12 @@ public class ClassStateSupport {
                             "which some classes are loaded be reflection before the tests are run. Consult the EvoSuite documentation " +
                             "for possible workarounds for this issue.";
                     logger.error(msg);
-                    //throw new IllegalStateException(msg); //TODO put back after competition
+                    //throw new IllegalStateException(msg);
                 }
             }
         }
 
-		//retransformIfNeeded(classes); // cannot do it, as retransformation does not really work reliably for all cases
+		//retransformIfNeeded(classes); // cannot do it, as retransformation does not really work :(
 	}
 
 	/**
@@ -67,6 +67,32 @@ public class ClassStateSupport {
 			ClassResetter.getInstance().reset(classNameToReset); 
 		}
 	}
+
+
+	private static List<Class<?>> loadClasses(ClassLoader classLoader, String... classNames) {
+
+		List<Class<?>> classes = new ArrayList<>();
+
+		InstrumentingAgent.activate(); 
+		for (int i=0; i< classNames.length;i++) {
+			org.evosuite.runtime.Runtime.getInstance().resetRuntime(); 
+			String classNameToLoad = classNames[i];
+			try {
+				//FIXME: this is outside of the SANDBOX!!!
+
+				Class<?> aClass = Class.forName(classNameToLoad, true, classLoader);
+				classes.add(aClass);
+			} catch (Exception | Error ex) {
+				logger.error("Could not initialize " + classNameToLoad+": "+ex.getMessage());
+			} 
+		}
+		InstrumentingAgent.deactivate();
+		return classes;
+	}
+
+
+
+	// deprecated ---------------------------------
 
 	/**
 	 * If any of the loaded class was not instrumented yet, then re-instrument them.
@@ -84,7 +110,7 @@ public class ClassStateSupport {
 		}
 		retransformIfNeeded(classes);
 	}
-	
+
 	/**
 	 * If any of the loaded class was not instrumented yet, then re-instrument them.
 	 * Note: re-instrumentation is more limited, as cannot change class signature
@@ -96,19 +122,19 @@ public class ClassStateSupport {
 		if(classes==null || classes.isEmpty()){
 			return;
 		}
-		
+
 		List<Class<?>> classToReInstument = new ArrayList<>();
 
 		/*
-		InstrumentingAgent.activate(); 
+		InstrumentingAgent.activate();
 		for(Class<?> cl : classes){
 
 			try{
 				InstrumentingAgent.getInstumentation().retransformClasses(cl);
-			} catch(UnsupportedOperationException e){ 
+			} catch(UnsupportedOperationException e){
 				/ *
 				 * this happens if class was already loaded by JUnit (eg the abstract class problem)
-				 * and re-instrumentation do change the signature 
+				 * and re-instrumentation do change the signature
 				 * /
 				classToReInstument.add(cl);
 			} catch(Exception | Error e){
@@ -118,17 +144,17 @@ public class ClassStateSupport {
 
 		}
 		*/
-		
+
 		for(Class<?> cl : classes){
 			if(! InstrumentingAgent.getTransformer().isClassAlreadyTransformed(cl.getName())){
 				classToReInstument.add(cl);
 			}
 		}
-		
+
 		if(classToReInstument.isEmpty()){
 			return;
 		}
-		
+
 		InstrumentingAgent.setRetransformingMode(true);
 		try {
 			if(!classToReInstument.isEmpty()){
@@ -137,8 +163,8 @@ public class ClassStateSupport {
 		} catch (UnmodifiableClassException e) {
 			//this shouldn't really happen, as already checked in previous loop
 			java.lang.System.err.println("Could not re-instrument classes");
-		} catch(UnsupportedOperationException e){  
-			//if this happens, then it is a bug in EvoSuite :( 
+		} catch(UnsupportedOperationException e){
+			//if this happens, then it is a bug in EvoSuite :(
 			logger.error("EvoSuite wrong re-instrumentation: "+e.getMessage());
 		}finally{
 			InstrumentingAgent.setRetransformingMode(false);
@@ -146,24 +172,4 @@ public class ClassStateSupport {
 
 		InstrumentingAgent.deactivate();
 	}
-
-	private static List<Class<?>> loadClasses(ClassLoader classLoader, String... classNames) {
-
-		List<Class<?>> classes = new ArrayList<>();
-
-		InstrumentingAgent.activate(); 
-		for (int i=0; i< classNames.length;i++) {
-			org.evosuite.runtime.Runtime.getInstance().resetRuntime(); 
-			String classNameToLoad = classNames[i];
-			try {
-				Class<?> aClass = Class.forName(classNameToLoad, true, classLoader);
-				classes.add(aClass);
-			} catch (Exception | Error ex) {
-				logger.error("Could not initialize " + classNameToLoad+": "+ex.getMessage());
-			} 
-		}
-		InstrumentingAgent.deactivate();
-		return classes;
-	}
-
 }

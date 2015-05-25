@@ -100,8 +100,8 @@ public class CoverageAnalysis {
 		Properties.getTargetClass();
 
 		// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
-		logger.info("Changing classloader of test suite for criterion: "
-		                                         + criterion);
+		logger.info("Changing classloader of test suite for criterion: " + criterion);
+
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
 			dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());

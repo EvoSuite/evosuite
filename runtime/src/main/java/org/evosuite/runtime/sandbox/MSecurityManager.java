@@ -243,8 +243,7 @@ public class MSecurityManager extends SecurityManager {
 	 * @throws SecurityException
 	 * @throws IllegalStateException
 	 */
-	public void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException,
-	IllegalStateException {
+	public void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException, IllegalStateException {
 		if (!privilegedThreads.contains(Thread.currentThread())) {
 			throw new SecurityException("Current thread is not privileged");
 		}

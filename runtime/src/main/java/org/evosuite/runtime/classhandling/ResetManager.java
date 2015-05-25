@@ -5,12 +5,17 @@ import java.util.List;
 
 public class ResetManager {
 
-	private static ResetManager instance;
+	private static final ResetManager instance = new ResetManager();
+
+	private boolean resetAllClasses = false;
+	private boolean tracingIsEnabled = true;
+	private boolean resetFinalFields = false;
+	private final List<String> classInitializationOrder = new LinkedList<>();
+
+	private ResetManager() {
+	}
 
 	public synchronized static ResetManager getInstance() {
-		if (instance == null) {
-			instance = new ResetManager();
-		}
 		return instance;
 	}
 
@@ -20,16 +25,7 @@ public class ResetManager {
 		classInitializationOrder.clear();;
 		resetFinalFields = false;
 	}
-	
-	private boolean resetAllClasses = false;
-	private boolean tracingIsEnabled = true;
-	private final List<String> classInitializationOrder = new LinkedList<String>();
-	private boolean resetFinalFields = false;
 
-	private ResetManager() {
-		
-	}
-	
 	public boolean isTracingEnabled() {
 		return tracingIsEnabled;
 	}
@@ -42,12 +38,16 @@ public class ResetManager {
 		tracingIsEnabled = false;
 	}
 
+	/**
+	 * This method is added in the transformed bytecode
+	 *
+	 * @param className
+	 */
 	public static void exitClassInit(String className) {
 		String classNameWithDots = className.replace("/", ".");
 
-		ResetManager classInitOrder = getInstance();
-		if (classInitOrder.isTracingEnabled()) {
-			classInitOrder.addClassInitialization(classNameWithDots);
+		if (getInstance().isTracingEnabled()) {
+			getInstance().addClassInitialization(classNameWithDots);
 		}
 	}
 
@@ -72,6 +72,7 @@ public class ResetManager {
 	public void setResetFinalFields(boolean b) {
 		resetFinalFields = b;
 	}
+
 	public boolean getResetFinalFields() {
 		return resetFinalFields;
 	}
