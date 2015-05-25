@@ -4,12 +4,14 @@ VERSION = "0_1_2"
 
 GENERATED_FILES = paste("../generated_files","/",VERSION,sep="")
 SELECTION_FILE = paste("../generated_files","/","selection.txt",sep="")
+PROBLEM_FILE = paste(GENERATED_FILES,"/","problems.txt",sep="")
 CS_FILE = "sf110.txt"
 
 DATA_DIR = paste("../data","/",VERSION,sep="")
 
 ALL_ZIP_FILE = paste(DATA_DIR,"/","compressedData_all.zip",sep="")
 SELECTION_ZIP_FILE = paste(DATA_DIR,"/","compressedData_selection.zip",sep="")
+PROBLEM_ZIP_FILE = paste(DATA_DIR,"/","compressedData_problems.zip",sep="")
 
 
 FIGURE_CLASSES = "barplotClasses.jpeg"
@@ -26,12 +28,27 @@ processDataSelection <- function(){
 	return(dt)
 }
 
+processDataProblem <- function(){
+	dt = processData(DATA_DIR,PROBLEM_FILE,PROBLEM_ZIP_FILE)
+	return(dt)
+}
+
+
+createProblemFile <- function(){
+	dt <- read.table(gzfile(ALL_ZIP_FILE),header=T)
+	zeroCoverageClasses(dt,PROBLEM_FILE)
+}
+
 htmlAll <- function(){
 	html(ALL_ZIP_FILE)
 }
 
 htmlSelection <- function(){
 	html(SELECTION_ZIP_FILE)
+}
+
+htmlProblems <- function(){
+	html(PROBLEM_ZIP_FILE)
 }
 
 
