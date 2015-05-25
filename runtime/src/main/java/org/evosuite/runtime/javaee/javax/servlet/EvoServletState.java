@@ -42,20 +42,23 @@ public class EvoServletState {
         return servlet;
     }
 
+    /*
+        Note: the constraints here imply that at most one servlet can be tested in  single test case
+     */
+
     @Constraints(atMostOnce = true, noNullInputs = true)
     public static <T extends Servlet> T initServlet(T servlet) throws IllegalStateException, IllegalArgumentException, ServletException {
         if(servlet == null){
             throw new IllegalArgumentException("Null servlet");
         }
         if(EvoServletState.servlet != null){
-            //TODO constraint that instance of Servlet can be initiated only once per test
             throw new IllegalStateException("Should only be one servlet per test");
         }
         EvoServletState.servlet = servlet;
         servlet.init(getConfiguration());
         return servlet;
     }
-    
+
     @Constraints(atMostOnce = true, after = "initServlet")
     public static EvoServletConfig getConfiguration() throws IllegalStateException{
         checkInit();
