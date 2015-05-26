@@ -47,18 +47,18 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	}
 	protected boolean toBeUpdated=false;
 	/** Last recorded fitness value */
-	private LinkedHashMap<FitnessFunction<?>, Double> fitnesses = new LinkedHashMap<FitnessFunction<?>, Double>();
+	private LinkedHashMap<FitnessFunction<?>, Double> fitnessValues = new LinkedHashMap<FitnessFunction<?>, Double>();
 	
 	/** Previous fitness, to see if there was an improvement */
-	private LinkedHashMap<FitnessFunction<?>, Double> lastFitnesses = new LinkedHashMap<FitnessFunction<?>, Double>();
-
-	/** True if this is a solution */
-	protected boolean solution = false;
+	private LinkedHashMap<FitnessFunction<?>, Double> previousFitnessValues = new LinkedHashMap<FitnessFunction<?>, Double>();
 
 	/** Has this chromosome changed since its fitness was last evaluated? */
 	private boolean changed = true;
 
-	private LinkedHashMap<FitnessFunction<?>, Double> coverages = new LinkedHashMap<FitnessFunction<?>, Double>();
+	/** Has local search been applied to this individual since it was last changed? */
+	private boolean localSearchApplied = false;
+
+	private LinkedHashMap<FitnessFunction<?>, Double> coverageValues = new LinkedHashMap<FitnessFunction<?>, Double>();
 
 	private LinkedHashMap<FitnessFunction<?>, Integer> numsNotCoveredGoals = new LinkedHashMap<FitnessFunction<?>, Integer>();
 
@@ -84,41 +84,41 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return a double.
 	 */
 	public double getFitness() {
-		if (fitnesses.size() > 1) {
+		if (fitnessValues.size() > 1) {
 			double sumFitnesses = 0.0;
-			for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
-				sumFitnesses += fitnesses.get(fitnessFunction);
+			for (FitnessFunction<?> fitnessFunction : fitnessValues.keySet()) {
+				sumFitnesses += fitnessValues.get(fitnessFunction);
 			}
 			return sumFitnesses;
 		} else
-			return fitnesses.isEmpty() ? 0.0 : fitnesses.get(fitnesses.keySet().iterator().next());
+			return fitnessValues.isEmpty() ? 0.0 : fitnessValues.get(fitnessValues.keySet().iterator().next());
 	}
 
 	public double getFitness(FitnessFunction<?> ff) {
-		return fitnesses.containsKey(ff) ? fitnesses.get(ff) : 0.0;
+		return fitnessValues.containsKey(ff) ? fitnessValues.get(ff) : 0.0;
 	}
 
-	public Map<FitnessFunction<?>, Double> getFitnesses() {
-		return this.fitnesses;
+	public Map<FitnessFunction<?>, Double> getFitnessValues() {
+		return this.fitnessValues;
 	}
 
-	public Map<FitnessFunction<?>, Double> getLastFitnesses() {
-		return this.lastFitnesses;
+	public Map<FitnessFunction<?>, Double> getPreviousFitnessValues() {
+		return this.previousFitnessValues;
 	}
 	
 	public boolean hasExecutedFitness(FitnessFunction<?> ff) {
-		return this.lastFitnesses.containsKey(ff);
+		return this.previousFitnessValues.containsKey(ff);
 	}
 
-	public void setFitnesses(Map<FitnessFunction<?>, Double> fits) {
+	public void setFitnessValues(Map<FitnessFunction<?>, Double> fits) {
 		//TODO mainfitness?
-		this.fitnesses.clear();
-		this.fitnesses.putAll(fits);
+		this.fitnessValues.clear();
+		this.fitnessValues.putAll(fits);
 	}
 
-	public void setLastFitnesses(Map<FitnessFunction<?>, Double> lastFits) {
-		this.lastFitnesses.clear();
-		this.lastFitnesses.putAll(lastFits);
+	public void setPreviousFitnessValues(Map<FitnessFunction<?>, Double> lastFits) {
+		this.previousFitnessValues.clear();
+		this.previousFitnessValues.putAll(lastFits);
 	}
 
 	public boolean isToBeUpdated() {
@@ -167,9 +167,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            the coverage value for {@code ff}
 	 */
 	public void addFitness(FitnessFunction<?> ff, double fitnessValue, double coverage) {
-		this.fitnesses.put(ff, fitnessValue);
-		this.lastFitnesses.put(ff, fitnessValue);
-		this.coverages.put(ff, coverage);
+		this.fitnessValues.put(ff, fitnessValue);
+		this.previousFitnessValues.put(ff, fitnessValue);
+		this.coverageValues.put(ff, coverage);
 		this.numsCoveredGoals.put(ff, 0);
 		this.numsNotCoveredGoals.put(ff, -1);
 	}
@@ -189,9 +189,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 */
 	public void addFitness(FitnessFunction<?> ff, double fitnessValue, double coverage,
 			int numCoveredGoals) { 
-		this.fitnesses.put(ff, fitnessValue);
-		this.lastFitnesses.put(ff, fitnessValue);
-		this.coverages.put(ff, coverage);
+		this.fitnessValues.put(ff, fitnessValue);
+		this.previousFitnessValues.put(ff, fitnessValue);
+		this.coverageValues.put(ff, coverage);
 		this.numsCoveredGoals.put(ff, numCoveredGoals);
 		this.numsNotCoveredGoals.put(ff, -1);
 	}
@@ -209,43 +209,22 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 					+ ff.getClass().getName());
 		}
 
-		if (!fitnesses.containsKey(ff)) {
-			lastFitnesses.put(ff, value);
-			fitnesses.put(ff, value);
+		if (!fitnessValues.containsKey(ff)) {
+			previousFitnessValues.put(ff, value);
+			fitnessValues.put(ff, value);
 		} else {
-			lastFitnesses.put(ff, fitnesses.get(ff));
-			fitnesses.put(ff, value);
+			previousFitnessValues.put(ff, fitnessValues.get(ff));
+			fitnessValues.put(ff, value);
 		}
 	}
 
 	public boolean hasFitnessChanged() {
-		for (FitnessFunction<?> ff : fitnesses.keySet()) {
-			if (!fitnesses.get(ff).equals(lastFitnesses.get(ff))) {
+		for (FitnessFunction<?> ff : fitnessValues.keySet()) {
+			if (!fitnessValues.get(ff).equals(previousFitnessValues.get(ff))) {
 				return true;
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Is this a valid solution?
-	 * 
-	 * @return a boolean.
-	 */
-	public boolean isSolution() {
-		return solution;
-	}
-
-	/**
-	 * <p>
-	 * Setter for the field <code>solution</code>.
-	 * </p>
-	 * 
-	 * @param value
-	 *            a boolean.
-	 */
-	public void setSolution(boolean value) {
-		solution = value;
 	}
 
 	/**
@@ -376,6 +355,17 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 */
 	public void setChanged(boolean changed) {
 		this.changed = changed;
+		// If it's changed, then that also implies LS is possible again
+		localSearchApplied = false;
+	}
+	
+	
+	public boolean hasLocalSearchBeenApplied() {
+		return localSearchApplied;
+	}
+
+	public void setLocalSearchApplied(boolean localSearchApplied) {
+		this.localSearchApplied = localSearchApplied;
 	}
 
 	/**
@@ -392,10 +382,10 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 */
 	public double getCoverage() {
         double sum = 0;
-        for (FitnessFunction<?> fitnessFunction : coverages.keySet()) {
-            sum += coverages.get(fitnessFunction);
+        for (FitnessFunction<?> fitnessFunction : coverageValues.keySet()) {
+            sum += coverageValues.get(fitnessFunction);
         }
-        double cov = coverages.isEmpty() ? 0.0 : sum / coverages.size();
+        double cov = coverageValues.isEmpty() ? 0.0 : sum / coverageValues.size();
         assert (cov >= 0.0 && cov <= 1.0) : "Incorrect coverage value " + cov + ". Expected value between 0 and 1";
         return cov;
     }
@@ -436,13 +426,13 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		return numsNotCoveredGoals;
 	}
 	
-	public Map<FitnessFunction<?>, Double> getCoverages() {
-		return this.coverages;
+	public Map<FitnessFunction<?>, Double> getCoverageValues() {
+		return this.coverageValues;
 	}
 
-	public void setCoverages(Map<FitnessFunction<?>, Double> coverages) {
-		this.coverages.clear();
-		this.coverages.putAll(coverages);
+	public void setCoverageValues(Map<FitnessFunction<?>, Double> coverages) {
+		this.coverageValues.clear();
+		this.coverageValues.putAll(coverages);
 	}
 
 	// public void setNumOfCoveredGoals(int numOfCoveredGoals) {
@@ -457,7 +447,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @return the number of covered goals for {@code ff}
 	 */
 	public double getCoverage(FitnessFunction<?> ff) {
-		return coverages.containsKey(ff) ? coverages.get(ff) : 0.0;
+		return coverageValues.containsKey(ff) ? coverageValues.get(ff) : 0.0;
 	}
 
 	/**
@@ -469,7 +459,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            the coverage value
 	 */
 	public void setCoverage(FitnessFunction<?> ff, double coverage) {
-		this.coverages.put(ff, coverage);
+		this.coverageValues.put(ff, coverage);
 	}
 
 	/**
@@ -531,17 +521,17 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	}
 
 	public double getFitnessInstanceOf(Class<?> clazz) {
-		for (FitnessFunction<?> fitnessFunction : fitnesses.keySet()) {
+		for (FitnessFunction<?> fitnessFunction : fitnessValues.keySet()) {
 			if (clazz.isInstance(fitnessFunction))
-				return fitnesses.get(fitnessFunction);
+				return fitnessValues.get(fitnessFunction);
 		}
 		return 0.0;
 	}
 
 	public double getCoverageInstanceOf(Class<?> clazz) {
-		for (FitnessFunction<?> fitnessFunction : coverages.keySet()) {
+		for (FitnessFunction<?> fitnessFunction : coverageValues.keySet()) {
 			if (clazz.isInstance(fitnessFunction))
-				return coverages.get(fitnessFunction);
+				return coverageValues.get(fitnessFunction);
 		}
 		return 0.0;
 	}

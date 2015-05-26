@@ -212,7 +212,7 @@ public class InstrumentingAgent_IT {
 
 	
 	@Test
-	public void testInstrumetation() throws Exception{
+	public void testInstrumentation() throws Exception{
 	
 		try{
 			InstrumentingAgent.activate();

@@ -11,7 +11,7 @@ import org.evosuite.testcase.variable.VariableReference;
 
 import com.examples.with.different.packagename.solver.TestCaseReader;
 
-public abstract class TestSolverReader {
+public class TestSolverReader {
 
 	private static DefaultTestCase buildTestStringReader()
 			throws SecurityException, NoSuchMethodException {

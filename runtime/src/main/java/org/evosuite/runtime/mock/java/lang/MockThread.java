@@ -1,9 +1,12 @@
 package org.evosuite.runtime.mock.java.lang;
 
-import org.evosuite.annotation.EvoSuiteExclude;
+import org.evosuite.runtime.annotation.EvoSuiteExclude;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.thread.ThreadCounter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Threads are very complex to handle.
- * For the moment, we mock only certain aspects
+ * For the moment, we mock only certain aspects: TODO
  *
  * Created by arcuri on 9/23/14.
  */
@@ -20,12 +23,47 @@ public class MockThread extends Thread implements OverrideMock {
 
     // ----- mock internals -------
 
+    private static final Logger logger = LoggerFactory.getLogger(MockThread.class);
+
     private static final Map<Integer, Long> threadMap = new ConcurrentHashMap<>();
 
     public static void reset() {
         threadMap.clear();
     }
 
+    private boolean isSutRelated(){
+        String sut = RuntimeSettings.className;
+        String threadName = this.getClass().getName();
+        String targetName = target==null ? null : target.getClass().getName();
+
+        /*
+            Note: this check would not recognize code like:
+
+            Thread t = new Thread(); t.start();
+
+            however, as it does nothing, no point in starting it anyway
+         */
+
+        return  match(sut,threadName) || match(sut,targetName);
+    }
+
+    private boolean match(String sut, String other){
+        if(other==null || other.length() < sut.length()){
+            return false;
+        }
+        if(other.length() == sut.length()){
+            //is the thread the SUT itself?
+            return other.equals(sut);
+        } else {
+            //anonymous or internal class of the SUT
+            return other.startsWith(sut+"$");
+        }
+    }
+
+    /**
+     * a copy of the private field in superclass
+     */
+    private Runnable target;
 
     // ------ public static fields --------
 
@@ -34,8 +72,7 @@ public class MockThread extends Thread implements OverrideMock {
     public final static int MAX_PRIORITY = 10;
 
 
-
-    // ------ static unchanged methods  --------
+    // ------ static  methods  --------
 
     public static Thread currentThread() {
         return Thread.currentThread();
@@ -48,13 +85,15 @@ public class MockThread extends Thread implements OverrideMock {
 
     @EvoSuiteExclude
     public static void sleep(long millis) throws InterruptedException {
-        Thread.sleep(millis);
+        //no point in doing any sleep
+        //MockThread.yield(); //just in case to change thread //FIXME quite a few side effects
+        Thread.sleep(Math.min(millis,50)); //TODO maybe should be a parameter
     }
 
     @EvoSuiteExclude
     public static void sleep(long millis, int nanos)
             throws InterruptedException {
-        Thread.sleep(millis, nanos);
+        MockThread.sleep(millis);
     }
 
     public static boolean interrupted() {
@@ -119,11 +158,13 @@ public class MockThread extends Thread implements OverrideMock {
 
     public MockThread(Runnable target) {
         super(target);
+        this.target = target;
         mockSetup(null);
     }
 
     public MockThread(ThreadGroup group, Runnable target) {
         super(group, target);
+        this.target = target;
         mockSetup(null);
     }
 
@@ -139,17 +180,20 @@ public class MockThread extends Thread implements OverrideMock {
 
     public MockThread(Runnable target, String name) {
         super(target, name);
+        this.target = target;
         mockSetup(name);
     }
 
     public MockThread(ThreadGroup group, Runnable target, String name) {
         super(group, target, name);
+        this.target = target;
         mockSetup(name);
     }
 
     public MockThread(ThreadGroup group, Runnable target, String name,
                       long stackSize) {
         super(group, target, name, stackSize);
+        this.target = target;
         mockSetup(name);
     }
 
@@ -164,7 +208,7 @@ public class MockThread extends Thread implements OverrideMock {
                 to change the one automatically given by the JVM,
                 as it could be non-deterministic
              */
-            setName("Thread-"+getId());
+            setName("MockThread-"+getId());
         }
     }
 
@@ -173,9 +217,24 @@ public class MockThread extends Thread implements OverrideMock {
     @Override
     @EvoSuiteExclude
     public synchronized void start() {
-        if(MockFramework.isEnabled()) {
-            ThreadCounter.getInstance().checkIfCanStartNewThread();
+
+        if(!MockFramework.isEnabled()){
+            super.start();
+            return;
         }
+
+        if(!isSutRelated()){
+            //no point in starting those 3rd party threads
+            return;
+        }
+
+        ThreadCounter.getInstance().checkIfCanStartNewThread();
+
+        /*
+            TODO: we could rather buffer them like we did for hooks, and execute them at the end.
+            We could even have methods in the test-cluster to execute some of those threads till they yield
+            within the test case
+         */
         super.start();
     }
 

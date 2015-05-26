@@ -15,6 +15,11 @@ public class RuntimeSettings {
      */
 
     /**
+     *  The full name of the class we are unit testing, ie the system under test (SUT)
+     */
+    public static String className = "unknown";
+
+    /**
      * Shall the test cases use the mocking framework to remove non-determinism like
      * CPU clock?
      */
@@ -65,5 +70,12 @@ public class RuntimeSettings {
 
     public static boolean isUsingAnyMocking(){
         return mockJVMNonDeterminism || useVFS || useVNET;
+    }
+
+    public static void deactivateAllMocking(){
+        mockJVMNonDeterminism = false;
+        useVNET = false;
+        useVFS = false;
+        assert ! isUsingAnyMocking();
     }
 }

@@ -17,6 +17,7 @@
  */
 package org.evosuite.coverage.exception;
 
+import com.examples.with.different.packagename.coverage.ImplicitAndExplicitExceptionInSameMethod;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -38,20 +39,36 @@ import java.util.Map;
 public class TestImplicitExplicitExceptions  extends SystemTest {
 
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
+    
+    private static boolean defaultArchive = Properties.TEST_ARCHIVE;
 
 	@After
 	public void resetProperties() {
 		Properties.CRITERION = defaultCriterion;
+		Properties.TEST_ARCHIVE = defaultArchive;
 	}
 
 	@Test
-	public void testExceptionFitness() {
+	public void testExceptionFitness_NoArchive() {
+		//archive should have no impact
+		Properties.TEST_ARCHIVE = false;
+		testExceptionFitness();
+	}
+
+	@Test
+	public void testExceptionFitness_WithArchive() {
+		Properties.TEST_ARCHIVE = true;
+		testExceptionFitness();
+	}
+
+
+	private void testExceptionFitness() {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = ImplicitExplicitException.class.getCanonicalName();
 		
 		Properties.TARGET_CLASS = targetClass;
-		Properties.CRITERION[0] = Properties.Criterion.EXCEPTION;
+		Properties.CRITERION = new Criterion[]{Properties.Criterion.EXCEPTION};
 		Properties.OUTPUT_VARIABLES = ""+
 				RuntimeVariable.Explicit_MethodExceptions + "," +
 				RuntimeVariable.Explicit_TypeExceptions + "," +
@@ -70,7 +87,7 @@ public class TestImplicitExplicitExceptions  extends SystemTest {
 		 * there are 2 undeclared exceptions (both implicit and explicit),
 		 * and 3 declared: so fit = 1 / (1+5)
 		 */
-		Assert.assertEquals("Wrong fitness: ", 1d / 6d, fitness, 0.001);
+		Assert.assertEquals("Wrong fitness: ", 1d / 6d, fitness, 0.0000001);
 
         Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
         Assert.assertNotNull(map);
@@ -78,6 +95,33 @@ public class TestImplicitExplicitExceptions  extends SystemTest {
         Assert.assertEquals(1 , map.get(RuntimeVariable.Explicit_TypeExceptions.toString()).getValue());
         Assert.assertEquals(1 , map.get(RuntimeVariable.Implicit_MethodExceptions.toString()).getValue());
         Assert.assertEquals(1 , map.get(RuntimeVariable.Implicit_TypeExceptions.toString()).getValue());
+	}
+
+	@Test
+	public void testImplicitAndExplicitExceptionInSameMethod() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = ImplicitAndExplicitExceptionInSameMethod.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.CRITERION = new Criterion[]{Properties.Criterion.EXCEPTION};
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		double fitness = best.getFitness();
+		/*
+		 * there are 2 undeclared exceptions (both implicit and explicit).
+		 * there are also 2 declared, but same type and same method, so count as 1
+		 *
+		 * fit = 1 / (1+3)
+		 *
+		 */
+		Assert.assertEquals("Wrong fitness: ", 1d / 4d, fitness, 0.001);
 	}
 
 }

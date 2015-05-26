@@ -6,7 +6,6 @@ import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,6 +20,7 @@ public class CompositeFitnessSystemTest extends SystemTest{
 
         String targetClass = BooleanOneLine.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
+        
         Properties.CRITERION = new Properties.Criterion[]{
                 Properties.Criterion.LINE,
                 Properties.Criterion.OUTPUT,
@@ -32,6 +32,7 @@ public class CompositeFitnessSystemTest extends SystemTest{
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
+        System.out.println(best);
         /*
             Should be 3 tests:
             1) return true

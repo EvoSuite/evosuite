@@ -265,19 +265,21 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private int getNumAssertions(ExecutionResult orig_result,
+	private int getNumAssertions(ExecutionResult origResult,
 	        ExecutionResult mutant_result) {
 		int num = 0;
-		if (orig_result.test.size() == 0)
+		if (origResult.test.size() == 0) {
+			logger.debug("Orig test is empty?");
 			return 0;
+		}
 
 		for (Class<?> observerClass : observerClasses) {
 			OutputTrace trace = mutant_result.getTrace(observerClass);
-			OutputTrace orig = orig_result.getTrace(observerClass);
+			OutputTrace orig = origResult.getTrace(observerClass);
 
 			if (orig == null) {
 				String msg = "No trace for " + observerClass + ". Traces: ";
-				for (OutputTrace t : orig_result.getTraces())
+				for (OutputTrace t : origResult.getTraces())
 					msg += " " + t.toString();
 				logger.error(msg);
 			} else {

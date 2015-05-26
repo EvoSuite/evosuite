@@ -18,11 +18,10 @@ import org.evosuite.TestSuiteGenerator;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.GraphPool;
-import org.evosuite.graphs.cfg.ActualControlFlowGraph;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.instrumentation.LinePool;
-import org.evosuite.runtime.reset.ClassResetter;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
@@ -39,15 +38,34 @@ public class ClassStatisticsPrinter {
 
 	private static final Logger logger = LoggerFactory.getLogger(ClassStatisticsPrinter.class);
 
-	private static void reinstrument(Properties.Criterion criterion) {
+	private static boolean reinstrument(Properties.Criterion criterion) {
 		Properties.CRITERION = new Properties.Criterion[1];
 		Properties.CRITERION[0] = criterion;
 
 		logger.info("Re-instrumenting for criterion: " + criterion);
 		TestGenerationContext.getInstance().resetContext();
+
+		try {
+			// we have to analyse the dependencies of the TargetClass
+			// again, because resetContext() of TestGenerationContext
+			// class is just generating a new TestCluster for some
+			// specific cases. and if the dependencies are not analysed,
+			// could be that for example inner classes are not loaded,
+			// and therefore their goals will not be considered
+			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+					Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
+		} catch (ClassNotFoundException | RuntimeException e) {
+			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
+                    + (e.getMessage() != null ? e.getMessage()
+                            : e.toString()));
+			return false;
+		}
+
 		// Need to load class explicitly in case there are no test cases.
 		// If there are tests, then this is redundant
 		Properties.getTargetClass(false);
+
+		return true;
 	}
 
 	/**
@@ -141,7 +159,9 @@ public class ClassStatisticsPrinter {
 
 		Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 		for (Criterion criterion : oldCriterion) {
-			reinstrument(criterion);
+			if (!reinstrument(criterion)) {
+				return ;
+			}
 
 			List<TestFitnessFactory<?>> factories = TestSuiteGenerator.getFitnessFactory();
 

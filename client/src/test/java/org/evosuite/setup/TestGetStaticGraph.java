@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.classpath.ClassPathHandler;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.staticusage.Bar1;
@@ -25,6 +27,13 @@ import com.examples.with.different.packagename.staticusage.Foo;
 
 
 public class TestGetStaticGraph {
+
+
+	@BeforeClass
+	public static void init(){
+		String cp = System.getProperty("user.dir") + "/target/test-classes";
+		ClassPathHandler.getInstance().addElementToTargetProjectClassPath(cp);
+	}
 
 	@Test
 	public void testFoo() {

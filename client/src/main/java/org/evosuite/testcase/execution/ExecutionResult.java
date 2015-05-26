@@ -416,6 +416,8 @@ public class ExecutionResult implements Cloneable {
 		copy.explicitExceptions.putAll(explicitExceptions);
 		copy.executionTime = executionTime;
 		copy.objectPool.addAll(objectPool);
+		if(returnValues != null)
+			copy.returnValues = new HashMap<MethodStatement, Object>(returnValues);
 		for (Class<?> clazz : traces.keySet()) {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}

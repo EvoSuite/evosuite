@@ -139,6 +139,13 @@ public class Sandbox {
 		manager.goingToEndTestCase();
 	}
 
+	public static boolean isOnAndExecutingSUTCode(){
+		if(!isSecurityManagerInitialized()){
+			return false;
+		}
+		return manager.isExecutingTestCase();
+	}
+
 	public static void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException,
 	        IllegalStateException {
 		if (!isSecurityManagerInitialized()) {

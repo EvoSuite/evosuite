@@ -71,14 +71,13 @@ public class NSGAChromosome extends Chromosome
 	@Override
 	public Chromosome clone() {
 		NSGAChromosome c = new NSGAChromosome();
-		c.setFitnesses(this.getFitnesses());
-		c.setLastFitnesses(this.getLastFitnesses());
+		c.setFitnessValues(this.getFitnessValues());
+		c.setPreviousFitnessValues(this.getPreviousFitnessValues());
 		for (Variable v : this.getVariables()) {
 			c.addVariable(v.clone());
 		}
-		c.setSolution(this.isSolution());
 		c.setChanged(this.isChanged());
-		c.setCoverages(this.getCoverages());
+		c.setCoverageValues(this.getCoverageValues());
 		c.setNumsOfCoveredGoals(this.getNumsOfCoveredGoals());
 		c.updateAge(this.getAge());
 		c.setRank(this.getRank());
@@ -99,8 +98,8 @@ public class NSGAChromosome extends Chromosome
 		int hashCode = 0;
 
 		hashCode = hashCode * 37 + this.getVariables().hashCode();
-	    hashCode = hashCode * 37 + this.getFitnesses().hashCode();
-	    hashCode = hashCode * 37 + this.getLastFitnesses().hashCode();
+	    hashCode = hashCode * 37 + this.getFitnessValues().hashCode();
+	    hashCode = hashCode * 37 + this.getPreviousFitnessValues().hashCode();
 
 	    return hashCode;
 	}

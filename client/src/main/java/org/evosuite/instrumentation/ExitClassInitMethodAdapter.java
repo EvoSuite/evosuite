@@ -25,7 +25,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.evosuite.runtime.reset.ResetManager;
+import org.evosuite.runtime.classhandling.ResetManager;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

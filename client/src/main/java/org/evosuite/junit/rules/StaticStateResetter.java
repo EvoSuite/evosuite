@@ -18,7 +18,7 @@ public class StaticStateResetter extends BaseRule {
 		/*
 		 * FIXME: tmp hack done during refactoring
 		 */
-		org.evosuite.runtime.reset.ClassResetter.getInstance().setClassLoader(
+		org.evosuite.runtime.classhandling.ClassResetter.getInstance().setClassLoader(
 				TestGenerationContext.getInstance().getClassLoaderForSUT());
 	}
 	
@@ -31,7 +31,7 @@ public class StaticStateResetter extends BaseRule {
 		for (int i=0; i< classNames.length;i++) {
 			String classNameToReset = classNames[i];
 			try {
-				org.evosuite.runtime.reset.ClassResetter.getInstance().reset(classNameToReset); 
+				org.evosuite.runtime.classhandling.ClassResetter.getInstance().reset(classNameToReset);
 			} catch (Throwable t) {
 			}
 		}

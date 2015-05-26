@@ -1,11 +1,16 @@
 package org.evosuite.symbolic.solver;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
 
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 
@@ -20,7 +25,7 @@ import com.examples.with.different.packagename.solver.TestCaseLte;
 import com.examples.with.different.packagename.solver.TestCaseMod;
 import com.examples.with.different.packagename.solver.TestCaseNeq;
 
-public abstract class TestSolverSimpleMath {
+public class TestSolverSimpleMath {
 
 	private static DefaultTestCase buildTestCaseAdd() throws SecurityException,
 			NoSuchMethodException {
@@ -142,87 +147,90 @@ public abstract class TestSolverSimpleMath {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testAdd(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+	public static void testAdd(Solver solver) throws SecurityException,
+			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseAdd();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		return solution;
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
+
+		assertEquals(var0.intValue(), var0.intValue() + var1.intValue());
 	}
 
-	public static Map<String, Object> testSub(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+	public static void testSub(Solver solver) throws SecurityException,
+			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseSub();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertEquals(var0.intValue(), var1.intValue() - 10);
 	}
 
-	public static Map<String, Object> testMod(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+	public static void testMod(Solver solver) throws SecurityException,
+			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMod();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertEquals(var0.intValue(), var1.intValue() % 2);
 	}
 
-	public static Map<String, Object> testMod2(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
-
-		DefaultTestCase tc = buildTestCaseMod2();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
-
-		return solution;
-	}
-
-	public static Map<String, Object> testDiv(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+	public static void testDiv(Solver solver) throws SecurityException,
+			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseDiv();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertEquals(var0.intValue(), var1.intValue() / 5);
 	}
 
-	public static Map<String, Object> testMul(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+	public static void testMul(Solver solver) throws SecurityException,
+			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMul();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertTrue(var0.intValue() != 0);
+		assertEquals(var1.intValue(), var0.intValue() * 2);
 	}
 
-	public static Map<String, Object> testMul2(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+	public static void testMul2(Solver solver) throws SecurityException,
+			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMul2();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
 
-		return solution;
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
+
+		assertEquals(10, var0.intValue() * var1.intValue());
 
 	}
 
@@ -250,89 +258,88 @@ public abstract class TestSolverSimpleMath {
 		return tc.getDefaultTestCase();
 	}
 
-	private static DefaultTestCase buildTestCaseMod2()
-			throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference int0 = tc.appendIntPrimitive(0);
-		VariableReference int1 = tc.appendIntPrimitive(6);
-
-		Method method = TestCaseBinaryOp.class.getMethod("testMod2", int.class,
-				int.class);
-		tc.appendMethod(null, method, int0, int1);
-		return tc.getDefaultTestCase();
-	}
-
-	public static Map<String, Object> testEq(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+	public static void testEq(Solver solver) throws SecurityException,
+			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseEq();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertEquals(var0.intValue(), var1.intValue());
 	}
 
-	public static Map<String, Object> testNeq(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+	public static void testNeq(Solver solver) throws SecurityException,
+			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseNeq();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertTrue(var0.intValue() != var1.intValue());
 	}
 
-	public static Map<String, Object> testLt(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+	public static void testLt(Solver solver) throws SecurityException,
+			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseLt();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertTrue(var0.intValue() < var1.intValue());
 	}
 
-	public static Map<String, Object> testLte(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+	public static void testLte(Solver solver) throws SecurityException,
+			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseLte();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertTrue(var0.intValue() <= var1.intValue());
 	}
 
-	public static Map<String, Object> testGt(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+	public static void testGt(Solver solver) throws SecurityException,
+			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseGt();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertTrue(var0.intValue() > var1.intValue());
 	}
 
-	public static Map<String, Object> testGte(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+	public static void testGte(Solver solver) throws SecurityException,
+			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseGte();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertTrue(var0.intValue() >= var1.intValue());
 	}
 
 	private static DefaultTestCase buildTestCaseCastRealToInt()
@@ -346,7 +353,7 @@ public abstract class TestSolverSimpleMath {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testCastRealToInt(Solver solver)
+	public static void testCastRealToInt(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
@@ -354,11 +361,14 @@ public abstract class TestSolverSimpleMath {
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Double var0 = (Double) solution.get("var0");
 
-		return solution;
+		assertTrue(var0.doubleValue() != 0);
+		assertTrue(var0.intValue() == 0);
 	}
 
-	public static Map<String, Object> testCastIntToReal(Solver solver)
+	public static void testCastIntToReal(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
@@ -366,8 +376,10 @@ public abstract class TestSolverSimpleMath {
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Long var0 = (Long) solution.get("var0");
 
-		return solution;
+		assertEquals(var0.intValue(), (int)var0.doubleValue() );
 	}
 
 	private static DefaultTestCase buildTestCaseCastIntToReal()

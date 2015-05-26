@@ -243,8 +243,7 @@ public class MSecurityManager extends SecurityManager {
 	 * @throws SecurityException
 	 * @throws IllegalStateException
 	 */
-	public void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException,
-	IllegalStateException {
+	public void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException, IllegalStateException {
 		if (!privilegedThreads.contains(Thread.currentThread())) {
 			throw new SecurityException("Current thread is not privileged");
 		}
@@ -349,6 +348,10 @@ public class MSecurityManager extends SecurityManager {
 		}
 		
 		executingTestCase = true;
+	}
+
+	public boolean isExecutingTestCase(){
+		return executingTestCase;
 	}
 
 	public void goingToEndTestCase() throws IllegalStateException {
@@ -521,8 +524,9 @@ public class MSecurityManager extends SecurityManager {
 				}
 			}
 		}
-		
-		
+
+
+
 		if (RuntimeSettings.sandboxMode.equals(Sandbox.SandboxMode.IO)) {
 			PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
 
@@ -705,7 +709,15 @@ public class MSecurityManager extends SecurityManager {
 	 */
 	private boolean checkIfEvoSuiteRMI(Permission perm) {
 
-		//FIXME: this does not check if it is the SUT that calls RMI
+		/*
+			FIXME: this does not check if it is the SUT that calls RMI.
+
+			This would be a reason more to actually mock RMI in VNET
+		 */
+
+		if(! Thread.currentThread().getName().startsWith("RMI ")){
+			return false;
+		}
 
 		final String pattern = "sun.rmi.";
 		boolean foundRMI = false;

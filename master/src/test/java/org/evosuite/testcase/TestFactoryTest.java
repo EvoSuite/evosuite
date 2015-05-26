@@ -34,16 +34,22 @@ public class TestFactoryTest extends SystemTest {
 
 	private double P_OBJECT_REUSE = Properties.OBJECT_REUSE_PROBABILITY;
 	private double P_PRIMITIVE_REUSE = Properties.PRIMITIVE_REUSE_PROBABILITY;
+	private boolean ARCHIVE = Properties.TEST_ARCHIVE;
 	
 	@After
 	public void restoreProperties() {
 		Properties.OBJECT_REUSE_PROBABILITY = P_OBJECT_REUSE;
 		Properties.PRIMITIVE_REUSE_PROBABILITY = P_PRIMITIVE_REUSE;
+		Properties.TEST_ARCHIVE = ARCHIVE;
 	}
 	
 	@Before
 	public void setupCluster() {
 		EvoSuite evosuite = new EvoSuite();
+		
+		// Archive will remove test calls,
+		// invalidating testTestCalls
+		Properties.TEST_ARCHIVE = false;
 
 		String targetClass = FactoryExample.class.getCanonicalName();
 
