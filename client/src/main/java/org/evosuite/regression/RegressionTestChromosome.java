@@ -71,7 +71,7 @@ public class RegressionTestChromosome extends ExecutableChromosome {
 		copy.theClassLoader = TestGenerationContext.getInstance().getRegressionClassLoaderForSUT(); // I don't think this should be a member of this class to be honest!
 		copy.theTest = (TestChromosome) theTest.clone();
 		copy.theSameTestForTheOtherClassLoader = (TestChromosome) theSameTestForTheOtherClassLoader.clone();
-		copy.setFitnesses(getFitnesses());
+		copy.setFitnessValues(getFitnessValues());
 		copy.fitnessData = fitnessData;
 		copy.objDistance = objDistance;
 		return copy;

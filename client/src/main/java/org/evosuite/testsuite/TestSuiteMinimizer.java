@@ -130,7 +130,7 @@ public class TestSuiteMinimizer {
         if (!Properties.JUNIT_EXTEND.isEmpty()) {
 
             try {
-                Class<?> junitClass = Class.forName(Properties.JUNIT_EXTEND, true, TestGenerationContext.getClassLoader());
+                Class<?> junitClass = Class.forName(Properties.JUNIT_EXTEND, true, TestGenerationContext.getInstance().getClassLoaderForSUT());
                 List<TestFitnessFunction> coveredGoals = CoverageAnalysis.getCoveredGoals(junitClass, goals);
                 logger.warn("Removing " + coveredGoals.size() + " goals already covered by JUnit (total: " + goals.size() + ")");
                 logger.warn("Removing " + coveredGoals + " goals already covered by JUnit (total: " + goals + ")");

@@ -250,7 +250,7 @@ public class DetermineSUT {
 	}
 
 	private ClassNode loadClassNode(String className) throws IOException {
-		ClassReader reader = new ClassReader(ResourceList.getClassAsStream(className));
+		ClassReader reader = new ClassReader(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className));
 
 		ClassNode cn = new ClassNode();
 		reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG);	
