@@ -444,9 +444,9 @@ public class TestSuiteGenerator {
 				}
 			}
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, 0);
-		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, 0);
+		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Size, 0);
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, 0);
-            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, 0);
+            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Length, 0);
 
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
 			                                                                 goals.size());
@@ -653,6 +653,7 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
 			suite.writeTestSuite(name + suffix, testDir);
 			
+			// If in regression mode, create a separate copy of the tests 
 			if (!RegressionSearchListener.statsID.equals("")) {
 				File evosuiterTestDir = new File("evosuiter-stats");
 
@@ -2384,6 +2385,8 @@ public class TestSuiteGenerator {
 			return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
 		case REGRESSION:
 			return new RegressionTestChromosomeFactory();
+		case REGRESSIONTESTS:
+			return new RegressionTestChromosomeFactory();	
 		default:
 			return new RandomLengthTestFactory();
 		}
@@ -2621,7 +2624,7 @@ public class TestSuiteGenerator {
 				RelativeSuiteLengthBloatControl bloat_control = new org.evosuite.testsuite.RelativeSuiteLengthBloatControl();
 				ga.addBloatControl(bloat_control);
 				ga.addListener(bloat_control);
-			} else if (Properties.STRATEGY == Strategy.REGRESSION ){
+			} else if (Properties.STRATEGY == Strategy.REGRESSION || Properties.STRATEGY == Strategy.REGRESSIONTESTS ){
 				RelativeSuiteLengthBloatControl bloat_control = new org.evosuite.testsuite.RelativeSuiteLengthBloatControl();
 				ga.addBloatControl(bloat_control);
 				ga.addListener(bloat_control);
