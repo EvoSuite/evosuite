@@ -19,23 +19,26 @@
  */
 package org.evosuite.coverage.exception;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Exception fitness is different from the others, as we do not know a priori how
+ * many exceptions could de thrown in the SUT. In other words, we cannot really
+ * speak about coverage percentage here
+ */
 public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 1565793073526627496L;
@@ -43,36 +46,24 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static Logger logger = LoggerFactory.getLogger(ExceptionCoverageSuiteFitness.class);
 
     private static int maxExceptionsCovered = 0;
+    
 
-	/**
-	 * <p>
-	 * Constructor for ExceptionCoverageSuiteFitness.
-	 * </p>
-	 */
 	public ExceptionCoverageSuiteFitness() {
 	}
-
+	
     public static int getMaxExceptionsCovered() {
         return maxExceptionsCovered;
     }
 
-	/** {@inheritDoc} */
 	@Override
 	public double getFitness(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		logger.trace("Calculating exception fitness");
 
-		/*
-		 * We first calculate fitness based on coverage. this not only 
-		 * has side-effect of changing "fitness" in individual, but also "coverage".
-		 * but because "coverage" is only used for stats, no need to update it here, as
-		 * anyway it d be bit difficult to define
-		 */
-		//double coverageFitness = baseFF.getFitness(suite);
 
 		/*
 		 * for each method in the SUT, we keep track of which kind of exceptions were thrown.
-		 * we distinguish between "implicit" and "explicit" 
+		 * we distinguish between "implicit", "explicit" and "declared"
 		 */
 		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new HashMap<>();
         Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<>();
@@ -80,8 +71,17 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		List<ExecutionResult> results = runTestSuite(suite);
 
-		calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions,declaredTypesOfExceptions);
-
+		calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions,declaredTypesOfExceptions, this);
+		
+		if(Properties.TEST_ARCHIVE) {
+			// If we are using the archive, then fitness is by definition 0
+			// as all assertions already covered are in the archive
+			suite.setFitness(this,  0.0);
+			suite.setCoverage(this, 1.0);
+			maxExceptionsCovered = ExceptionCoverageFactory.getGoals().size();
+			return 0.0;
+		}
+		
 		int nExc = getNumExceptions(implicitTypesOfExceptions) + getNumExceptions(explicitTypesOfExceptions) +
                 getNumExceptions(declaredTypesOfExceptions);
 
@@ -90,13 +90,17 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
             maxExceptionsCovered = nExc;
         }
 
-        // I set it here, but in the end it will be recomputed according to the total number of Exceptions
-        suite.setCoverage(this, nExc / (nExc + 1.0));
+        // We cannot set a coverage here, as it does not make any sense
+       	// suite.setCoverage(this, 1.0);
 
 		double exceptionFitness = 1d / (1d + nExc);
 
         suite.setFitness(this, exceptionFitness);
-
+        if(maxExceptionsCovered > 0)
+        	suite.setCoverage(this, nExc / maxExceptionsCovered);
+        else
+        	suite.setCoverage(this, 1.0);
+        
         return exceptionFitness;
 	}
 
@@ -114,7 +118,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	public static void calculateExceptionInfo(List<ExecutionResult> results, 
 			Map<String, Set<Class<?>>> implicitTypesOfExceptions, Map<String, Set<Class<?>>> explicitTypesOfExceptions,
-            Map<String, Set<Class<?>>> declaredTypesOfExceptions)
+            Map<String, Set<Class<?>>> declaredTypesOfExceptions, ExceptionCoverageSuiteFitness contextFitness)
 		throws IllegalArgumentException{
 		
 		if(results==null || implicitTypesOfExceptions==null || explicitTypesOfExceptions==null ||
@@ -122,72 +126,29 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                 declaredTypesOfExceptions==null || !declaredTypesOfExceptions.isEmpty()){
 			throw new IllegalArgumentException();
 		}
-		
-		Map<TestCase, Map<Integer, Boolean>> isExceptionExplicit = new HashMap<TestCase, Map<Integer, Boolean>>();
 
 		// for each test case
 		for (ExecutionResult result : results) {
-			isExceptionExplicit.put(result.test, result.explicitExceptions);
 
 			//iterate on the indexes of the statements that resulted in an exception
 			for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
-				if (i >= result.test.size()) {
-					// Timeouts are put after the last statement if the process was forcefully killed
+				if(ExceptionCoverageHelper.shouldSkip(result,i)){
 					continue;
 				}
-				//not interested in security exceptions when Sandbox is active
-				Throwable t = result.getExceptionThrownAtPosition(i);
-				if (t instanceof SecurityException && Properties.SANDBOX){
-					continue;
-				}
-				
-				// If the exception was thrown in the test directly, it is also not interesting
-				if (t.getStackTrace().length > 0
-				        && t.getStackTrace()[0].getClassName().startsWith("org.evosuite.testcase")) {
-					continue;
-				}
-				
-				// Ignore exceptions thrown in the test code itself
-				if (t instanceof CodeUnderTestException){
-					continue;
-				}
-				
-				String methodName = "";
-				boolean sutException = false;
 
-				if (result.test.getStatement(i) instanceof MethodStatement) {
-					MethodStatement ms = (MethodStatement) result.test.getStatement(i);
-					Method method = ms.getMethod().getMethod();
-					methodName = method.getName() + Type.getMethodDescriptor(method);
-
-                    if (method.getDeclaringClass().equals(Properties.getTargetClass())){
-						sutException = true;
-					}
-					
-				} else if (result.test.getStatement(i) instanceof ConstructorStatement) {
-					ConstructorStatement cs = (ConstructorStatement) result.test.getStatement(i);
-					Constructor<?> constructor = cs.getConstructor().getConstructor();
-					methodName = "<init>" + Type.getConstructorDescriptor(constructor);
-					
-					if (constructor.getDeclaringClass().equals(Properties.getTargetClass())){
-						sutException = true;
-					}
-				}
-				
-				boolean notDeclared = true;
-				// Check if thrown exception is declared, or subclass of a declared exception 
-				for(Class<?> declaredExceptionClass : result.test.getStatement(i).getDeclaredExceptions()) {
-					if(declaredExceptionClass.isAssignableFrom(t.getClass())) {
-						notDeclared = false;
-						break;
-					}
-				}
+				Class<?> exceptionClass = ExceptionCoverageHelper.getExceptionClass(result,i);
+				String methodIdentifier = ExceptionCoverageHelper.getMethodIdentifier(result, i); //eg name+descriptor
+				boolean sutException = ExceptionCoverageHelper.isSutException(result,i); // was the exception originated by a direct call on the SUT?
 
 				/*
-				 * We only consider exceptions that were thrown directly in the SUT (not called libraries)
+				 * We only consider exceptions that were thrown by calling directly the SUT (not the other
+				 * used libraries). However, this would ignore cases in which the SUT is indirectly tested
+				 * through another class
 				 */
 
 				if (sutException) {
+
+					boolean notDeclared = ! ExceptionCoverageHelper.isDeclared(result,i);
 
                     if(notDeclared) {
                         /*
@@ -195,34 +156,42 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					     * input for pre-condition) or implicit ("likely" a real fault).
 					     */
 
-                        boolean isExplicit = isExceptionExplicit.get(result.test).containsKey(i)
-                                && isExceptionExplicit.get(result.test).get(i);
+                        boolean isExplicit = ExceptionCoverageHelper.isExplicit(result,i);
 
                         if (isExplicit) {
 
-                            if (!explicitTypesOfExceptions.containsKey(methodName)) {
-                                explicitTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
+                            if (!explicitTypesOfExceptions.containsKey(methodIdentifier)) {
+                                explicitTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
                             }
-                            explicitTypesOfExceptions.get(methodName).add(t.getClass());
+                            explicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
                         } else {
 
-                            if (!implicitTypesOfExceptions.containsKey(methodName)) {
-                                implicitTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
+                            if (!implicitTypesOfExceptions.containsKey(methodIdentifier)) {
+                                implicitTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
                             }
-                            implicitTypesOfExceptions.get(methodName).add(t.getClass());
+                            implicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
                         }
                     } else {
-                        if (!declaredTypesOfExceptions.containsKey(methodName)) {
-                            declaredTypesOfExceptions.put(methodName, new HashSet<Class<?>>());
+                        if (!declaredTypesOfExceptions.containsKey(methodIdentifier)) {
+                            declaredTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
                         }
-                        declaredTypesOfExceptions.get(methodName).add(t.getClass());
+                        declaredTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
                     }
 
 
+					ExceptionCoverageTestFitness.ExceptionType type = ExceptionCoverageHelper.getType(result,i);
                     /*
                      * Add goal to ExceptionCoverageFactory
                      */
-                    ExceptionCoverageFactory.getGoals().put(methodName + t.getClass().getName(), new ExceptionCoverageTestFitness(methodName, t.getClass()));
+                    ExceptionCoverageTestFitness goal = new ExceptionCoverageTestFitness(methodIdentifier, exceptionClass, type);
+                    String key = goal.getKey();
+                    if(!ExceptionCoverageFactory.getGoals().containsKey(key)) {
+                    	ExceptionCoverageFactory.getGoals().put(key, goal);
+                    	if(Properties.TEST_ARCHIVE && contextFitness != null) {
+                    		TestsArchive.instance.addGoalToCover(contextFitness, goal);
+                    		TestsArchive.instance.putTest(contextFitness, goal, result);
+                    	}
+                    }
 				}
 
 			}

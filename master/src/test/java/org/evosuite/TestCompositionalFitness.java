@@ -13,14 +13,13 @@ import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.output.OutputCoverageSuiteFitness;
-import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
+import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.defuse.DefUseExample1;
@@ -73,7 +72,7 @@ public class TestCompositionalFitness extends SystemTest {
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 
-        Map<FitnessFunction<?>, Double> fitnesses = best.getFitnesses();
+        Map<FitnessFunction<?>, Double> fitnesses = best.getFitnessValues();
         double sum = 0.0;
         double cov = 0.0;
         for (FitnessFunction<?> fitness : fitnesses.keySet()) {
@@ -81,7 +80,7 @@ public class TestCompositionalFitness extends SystemTest {
             cov += best.getCoverage(fitness);
             assert (fitnesses.get(fitness) == best.getFitness(fitness));
         }
-        cov = cov / best.getCoverages().size();
+        cov = cov / best.getCoverageValues().size();
         Assert.assertEquals("Inconsistent fitness: ", sum, best.getFitness(), 0.001);
         Assert.assertEquals("Inconsistent coverage: ", cov, best.getCoverage(), 0.001);
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -93,6 +92,7 @@ public class TestCompositionalFitness extends SystemTest {
 
         String targetClass = GCD.class.getCanonicalName();
 
+        Properties.TEST_ARCHIVE = true;
         Properties.TARGET_CLASS = targetClass;
         Properties.CRITERION = new Properties.Criterion[2];
         Properties.CRITERION[0] = Criterion.ONLYBRANCH;
@@ -125,7 +125,7 @@ public class TestCompositionalFitness extends SystemTest {
     @Test
     public void testCompositionalGetFitnessForOneFunction() {
         TestSuiteChromosome c = new TestSuiteChromosome();
-        StatementCoverageSuiteFitness f1 = new StatementCoverageSuiteFitness();
+        LineCoverageSuiteFitness f1 = new LineCoverageSuiteFitness();
         c.addFitness(f1);
         c.setFitness(f1, ANY_DOUBLE_1);
         assertEquals(ANY_DOUBLE_1, c.getFitness(), 0.001);
@@ -134,7 +134,7 @@ public class TestCompositionalFitness extends SystemTest {
     @Test
     public void testCompositionalGetFitnessForTwoFunctions() {
         TestSuiteChromosome c = new TestSuiteChromosome();
-        StatementCoverageSuiteFitness f1 = new StatementCoverageSuiteFitness();
+        LineCoverageSuiteFitness f1 = new LineCoverageSuiteFitness();
         c.addFitness(f1);
         c.setFitness(f1, ANY_DOUBLE_1);
         BranchCoverageSuiteFitness f2 = new BranchCoverageSuiteFitness();

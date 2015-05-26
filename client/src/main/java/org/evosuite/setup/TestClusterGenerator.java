@@ -47,7 +47,6 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -55,14 +54,14 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
-import org.evosuite.annotation.EvoSuiteExclude;
+import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.mock.MockList;
-import org.evosuite.runtime.reset.ClassResetter;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -877,9 +876,6 @@ public class TestClusterGenerator {
 		}
 	}
 
-	private static final Pattern ANONYMOUS_MATCHER1 = Pattern.compile(".*\\$\\d+.*$");
-	private static final Pattern ANONYMOUS_MATCHER2 = Pattern.compile(".*\\.\\d+.*$");
-
 	public static boolean canUse(java.lang.reflect.Type t) {
 		if(t instanceof Class<?>) {
 			return canUse((Class<?>) t);
@@ -940,17 +936,10 @@ public class TestClusterGenerator {
 		
 		// TODO: This should be unnecessary if Java reflection works...
 		// This is inefficient 
-		if (ANONYMOUS_MATCHER1.matcher(c.getName()).matches()) {
-			logger.warn(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+")");
+		if(isAnonymousClass(c.getName())) {
+			logger.warn(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+") "+c.getSimpleName());
 			return false;
 		}
-
-		// TODO: This should be unnecessary if Java reflection works...
-		if (ANONYMOUS_MATCHER2.matcher(c.getName()).matches()) {
-			logger.warn(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+")");
-			return false;
-		}
-
 
 		if (Modifier.isPublic(c.getModifiers())) {
 			return true;
@@ -983,7 +972,7 @@ public class TestClusterGenerator {
 			return false;// handled here to avoid printing reasons
 
 		if (!Properties.USE_DEPRECATED && f.isAnnotationPresent(Deprecated.class)) {
-			if(!f.getDeclaringClass().equals(Properties.getTargetClass())) {
+			if(Properties.hasTargetClassBeenLoaded() && !f.getDeclaringClass().equals(Properties.getTargetClass())) {
 				logger.debug("Skipping deprecated field " + f.getName());
 				return false;
 			}
@@ -1051,7 +1040,7 @@ public class TestClusterGenerator {
 		}
 
 		if (!Properties.USE_DEPRECATED && m.isAnnotationPresent(Deprecated.class)) {
-			if(!m.getDeclaringClass().equals(Properties.getTargetClass())) {
+			if(Properties.hasTargetClassBeenLoaded() && !m.getDeclaringClass().equals(Properties.getTargetClass())) {
 				logger.debug("Excluding deprecated method " + m.getName());
 				return false;
 			}
@@ -1742,6 +1731,10 @@ public class TestClusterGenerator {
 			while (actualClasses.isEmpty() && distance <= maxDistance) {
 				logger.debug(" Current distance: " + distance);
 				for (String subClass : subClasses) {
+					if (isAnonymousClass(subClass)) {
+						continue;
+					}
+
 					if (classDistance.get(subClass) == distance) {
 						try {
 							Class<?> subClazz = Class.forName(subClass,
@@ -1895,6 +1888,17 @@ public class TestClusterGenerator {
 			distance += package2.length - same;
 
 		return distance;
+	}
+	
+	public static boolean isAnonymousClass(String className) {
+		int pos = className.lastIndexOf('$');
+		if(pos < 0)
+			return false;
+		char firstLetter = className.charAt(pos + 1);
+		if(firstLetter >= '0' && firstLetter <= '9')
+			return true;
+		
+		return false;	
 	}
 
 }

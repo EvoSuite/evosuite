@@ -21,6 +21,7 @@
 package org.evosuite;
 
 import org.evosuite.classpath.ClassPathHacker;
+import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
@@ -63,8 +64,10 @@ public class ClientProcess {
 		setupRuntimeProperties();
 		Sandbox.setCheckForInitialization(Properties.SANDBOX);
 		MockFramework.enable();
-		
-		initializeToolJar();
+
+		if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
+			initializeToolJar();
+		}
 
 		MSecurityManager.setupMasterNodeRemoteHandling(MasterNodeRemote.class);
 
@@ -89,23 +92,9 @@ public class ClientProcess {
 		ClientServices.getInstance().stopServices();
 	}
 
-	/**
-	 * Locate and add to classpath the tools.jar.
-	 * It is important that tools.jar ends up in the classpath of the _system_ classloader,
-	 * otherwise exceptions in EvoSuite classes using tools.jar
-	 */
 	private void initializeToolJar() {
 
-		ToolsJarLocator locator = new ToolsJarLocator(Properties.TOOLS_JAR_LOCATION);
-		locator.getLoaderForToolsJar();
-		if (locator.getLocationNotOnClasspath() != null) {
-			try {
-				logger.info("Using JDK libraries at: " + locator.getLocationNotOnClasspath());
-				ClassPathHacker.addFile(locator.getLocationNotOnClasspath());  //FIXME needs refactoring
-			} catch (IOException e) {
-				throw new RuntimeException("Failed to add " + locator.getLocationNotOnClasspath() + " to system classpath");
-			}
-		}
+		ClassPathHacker.initializeToolJar();
 
 		/*
 		 * We load the agent although we "might" not use it.
@@ -120,7 +109,11 @@ public class ClientProcess {
 		 * cases when run from Eclipse (for example). 
 		 */
 
-        //FIXME: tmp disable to understand what the hack is happening on Jenkins
+        /*
+        	TODO: tmp disabled to understand what the hack is happening on Jenkins.
+        	however, it does not seem necessary any more, after quite a few refactoring/changes
+        	in how agents are used (but don't know why...)
+         */
 		//AgentLoader.loadAgent();
 	}
 
@@ -133,6 +126,7 @@ public class ClientProcess {
         RuntimeSettings.maxNumberOfIterationsPerLoop = Properties.MAX_LOOP_ITERATIONS;
         RuntimeSettings.useVNET = Properties.VIRTUAL_NET;
         RuntimeSettings.useSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
+		RuntimeSettings.className = Properties.TARGET_CLASS;
         MethodCallReplacementCache.resetSingleton();
     }
 

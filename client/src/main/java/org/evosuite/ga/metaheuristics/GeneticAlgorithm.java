@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
+import org.evosuite.ga.Archive;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
@@ -97,6 +98,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected int currentIteration = 0;
 
 	protected double localSearchProbability = Properties.LOCAL_SEARCH_PROBABILITY;
+	
+	protected transient Archive<T> archive = null;
 
 	/**
 	 * Constructor
@@ -452,6 +455,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		return str.toString();
 	}
 
+	
+	public void setArchive(Archive<T> archive) {
+		this.archive = archive;
+	}
+	
 	/**
 	 * Set new fitness function (i.e., for new mutation)
 	 * 
@@ -595,7 +603,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	/**
 	 * update archive fitness functions
 	 */
-	protected void updateFitnessFuntions() {
+	protected void updateFitnessFunctions() {
 		for (FitnessFunction<T> f : fitnessFunctions) {
 			f.updateCoveredGoals();
 		}
@@ -634,7 +642,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * 
 	 * @return a {@link org.evosuite.ga.Chromosome} object.
 	 */
-	public Chromosome getBestIndividual() {
+	public T getBestIndividual() {
 
 		if (population.isEmpty()) {
 			return this.chromosomeFactory.getChromosome();
@@ -906,13 +914,21 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		}
 	}
 
-	protected void retrieveBestSuiteFromArchives() {
-		for (FitnessFunction<T> f : fitnessFunctions) {
-			if (f.getBestStoredIndividual() != null) {
-				population.add(0, f.getBestStoredIndividual());
-				break;
-			}
+	protected void updateBestIndividualFromArchive() {
+		if(archive == null)
+			return;
+
+		T best = archive.createMergedSolution(getBestIndividual());
+
+		// The archive may contain tests evaluated with a fitness function
+		// that is not part of the optimization (e.g. ibranch secondary objective)
+		Iterator<FitnessFunction<?>> it = best.getCoverageValues().keySet().iterator();
+		while(it.hasNext()) {
+			FitnessFunction<?> ff = it.next();
+			if(!fitnessFunctions.contains(ff))
+				it.remove();
 		}
+		population.add(0, best);
 	}
 
 	/**

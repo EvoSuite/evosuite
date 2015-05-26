@@ -20,6 +20,11 @@
  */
 package org.evosuite.classpath;
 
+import org.evosuite.Properties;
+import org.evosuite.runtime.agent.ToolsJarLocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -33,7 +38,32 @@ import java.net.URLClassLoader;
  */
 public class ClassPathHacker {
 
+	private static Logger logger = LoggerFactory.getLogger(ClassPathHacker.class);
+
 	private static final Class<?>[] parameters = new Class[] { URL.class };
+
+	/**
+	 * Locate and add to classpath the tools.jar.
+	 * It is important that tools.jar ends up in the classpath of the <emp>system</emp> classloader,
+	 * otherwise exceptions in EvoSuite classes using tools.jar
+	 *
+	 *  <p>
+	 * If we need to activate JavaAgent (eg to handle environment in generated tests), we need
+	 * to be sure we can use tools.jar
+	 */
+	public static void initializeToolJar() throws RuntimeException {
+		ToolsJarLocator locator = new ToolsJarLocator(Properties.TOOLS_JAR_LOCATION);
+		locator.getLoaderForToolsJar();
+		if (locator.getLocationNotOnClasspath() != null) {
+			try {
+				logger.info("Using JDK libraries at: " + locator.getLocationNotOnClasspath());
+				addFile(locator.getLocationNotOnClasspath());  //FIXME needs refactoring
+			} catch (IOException e) {
+				throw new RuntimeException("Failed to add " + locator.getLocationNotOnClasspath() + " to system classpath");
+			}
+		}
+
+	}
 
 	/**
 	 * <p>addFile</p>

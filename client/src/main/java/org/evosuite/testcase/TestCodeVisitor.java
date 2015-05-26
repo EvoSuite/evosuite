@@ -1081,7 +1081,7 @@ public class TestCodeVisitor extends TestVisitor {
 		                                             method.isOverloaded(parameters), 0);
 
 		String callee_str = "";
-		if (!retval.isAssignableFrom(method.getReturnType())
+		if (!unused && !retval.isAssignableFrom(method.getReturnType())
 		        && !retval.getVariableClass().isAnonymousClass()
 		        // Static generic methods are a special case where we shouldn't add a cast
 		        && !(isGenericMethod && method.getParameterTypes().length == 0 && method.isStatic())) {

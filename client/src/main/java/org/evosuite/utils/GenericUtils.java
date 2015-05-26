@@ -7,6 +7,7 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.slf4j.Logger;
@@ -34,10 +35,13 @@ public class GenericUtils {
 	public static Type replaceTypeVariables(Type targetType,
 	        Map<TypeVariable<?>, Type> typeMap) {
 		Type returnType = targetType;
-		for (TypeVariable<?> var : typeMap.keySet()) {
-			//logger.debug("Current variable: "+var+" of type "+typeMap.get(var)+" in "+returnType);
-			returnType = replaceTypeVariable(returnType, var, typeMap.get(var));
+		for(Entry<TypeVariable<?>, Type> entry : typeMap.entrySet()) {
+			returnType = replaceTypeVariable(returnType, entry.getKey(), entry.getValue());
 		}
+//		for (TypeVariable<?> var : typeMap.keySet()) {
+//			//logger.debug("Current variable: "+var+" of type "+typeMap.get(var)+" in "+returnType);
+//			returnType = replaceTypeVariable(returnType, var, typeMap.get(var));
+//		}
 
 		return returnType;
 	}
@@ -128,17 +132,17 @@ public class GenericUtils {
 			return new WildcardTypeImpl(upperBounds, lowerBounds);
 		} else if (targetType instanceof TypeVariable<?>) {
 			if (targetType.equals(variable)) {
-				logger.debug("Do equal: " + variable + "/" + targetType);
+				//logger.debug("Do equal: " + variable + "/" + targetType);
 				return variableType;
 			} else {
-				logger.debug("Do not equal: " + variable + "/" + targetType);
-				logger.debug("Do not equal: " + variable.getGenericDeclaration() + "/"
-				        + ((TypeVariable<?>) targetType).getGenericDeclaration());
+				//logger.debug("Do not equal: " + variable + "/" + targetType);
+				//logger.debug("Do not equal: " + variable.getGenericDeclaration() + "/"
+				//        + ((TypeVariable<?>) targetType).getGenericDeclaration());
 				return targetType;
 			}
 		} else {
-			logger.debug("Unknown type of class " + targetType.getClass() + ": "
-			        + targetType);
+			//logger.debug("Unknown type of class " + targetType.getClass() + ": "
+			//        + targetType);
 			return targetType;
 		}
 	}

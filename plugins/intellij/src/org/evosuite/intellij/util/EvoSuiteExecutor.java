@@ -1,6 +1,10 @@
 package org.evosuite.intellij.util;
 
+import com.intellij.openapi.compiler.CompileContext;
+import com.intellij.openapi.compiler.CompileStatusNotification;
+import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -8,6 +12,7 @@ import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import org.evosuite.intellij.EvoParameters;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Singleton used to run EvoSuite Maven plugin on a background process
@@ -106,13 +113,40 @@ public class EvoSuiteExecutor {
                         return;
                     }
 
+                    Module module = Utils.getModule(project,modulePath);
+                    if(module == null){
+                        notifier.failed("Failed to determine IntelliJ module for "+modulePath);
+                        return;
+                    } else {
+                        final AtomicBoolean ok = new AtomicBoolean(true);
+                        final CountDownLatch latch = new CountDownLatch(1);
+                        //TODO: maybe this is not really needed if using Maven plugin?
+                        CompilerManager.getInstance(project).make(module,new CompileStatusNotification(){
+                            @Override
+                            public void finished(boolean aborted, int errors, int warnings, CompileContext compileContext) {
+                                if(errors > 0){
+                                    ok.set(false);
+                                }
+                                latch.countDown();
+                            }
+                        });
+                        try {
+                            latch.await();
+                        } catch (InterruptedException e) {
+                            return;
+                        }
+                        if(! ok.get()){
+                            notifier.failed("Compilation failure. Fix the compilation issues before running EvoSuite.");
+                            return;
+                        }
+                    }
+
                     File dir = new File(modulePath);
                     //should be on background process
                     Process p = execute(project,notifier, params, dir, suts.get(modulePath));
                     if(p == null){
                         return;
                     }
-
 
                     int res = 0;
                     try {
@@ -130,6 +164,7 @@ public class EvoSuiteExecutor {
                         return;
                     }
                 }
+                VirtualFileManager.getInstance().asyncRefresh(null);
                 notifier.success("EvoSuite run is completed");
             }
         };
@@ -138,12 +173,11 @@ public class EvoSuiteExecutor {
 
     private Process execute( Project project, AsyncGUINotifier notifier, EvoParameters params, File dir, Set<String> classes) {
 
-
-        List<String> list = null;
+        List<String> list;
         if(params.usesMaven()){
             list = getMavenCommand(params, classes);
         } else {
-            list = getEvoJarCommand(project, params, classes);
+            list = getEvoJarCommand(project, dir,params, classes);
         }
 
         String[] command = list.toArray(new String[list.size()]);
@@ -178,13 +212,13 @@ public class EvoSuiteExecutor {
 
     }
 
-    private List<String> getEvoJarCommand( Project project, EvoParameters params, Set<String> classes) throws IllegalArgumentException{
+    private List<String> getEvoJarCommand( Project project, File dir, EvoParameters params, Set<String> classes) throws IllegalArgumentException{
         List<String> list = new ArrayList<String>();
         String java = "java";
         if(Utils.isWindows()){
             java += ".exe";
         }
-        list.add(params.getJavaHome() + File.separator + java);
+        list.add(params.getJavaHome() + File.separator + "bin" + File.separator + java);
         list.add("-jar");
         list.add(params.getEvosuiteJarLocation());
 
@@ -202,37 +236,33 @@ public class EvoSuiteExecutor {
         list.add("-Dctg_memory="+params.getMemory());
         list.add("-Dctg_cores="+params.getCores());
         list.add("-Dctg_time_per_class=" + params.getTime());
+        list.add("-Dctg_export_folder=" + params.getFolder());
 
         String cuts = getCommaList(classes);
         if(cuts!=null){
             list.add("-Dctg_selected_cuts="+cuts);
         }
 
-        String cp = "";
+        if(dir==null || !dir.exists()){
+            throw new IllegalArgumentException("Invalid module dir");
+        }
+        String folderPath = dir.getAbsolutePath();
 
-        //ProjectRootManager projectManager = ProjectRootManager.getInstance(project);
-        //projectManager.getFullClassPath();
-        //ModuleRootManager mrm = ModuleRootManager.getInstance()
-
-        ProjectFileIndex pfi = ProjectFileIndex.SERVICE.getInstance(project);
-        Module m = pfi.getModuleForFile(project.getProjectFile());
-
-        boolean first = true;
-        for(VirtualFile vf : OrderEnumerator.orderEntries(m).recursively().getClassesRoots()){
-            if(first){
-                cp = vf.getCanonicalPath();
-                first = false;
-            } else {
-                cp += File.pathSeparator + vf.getCanonicalPath();
+        Module module = null;
+        for(Module m : ModuleManager.getInstance(project).getModules()){
+            String modulePath = Utils.getFolderLocation(m);
+            if(modulePath.equals(folderPath)){
+                module = m;
+                break;
             }
         }
 
-        //ModuleRootManager mrm = ModuleRootManager.getInstance(m);
-        //mrm.getFileIndex()
+        if(module == null){
+            throw new IllegalArgumentException("Cannot determine module for "+folderPath);
+        }
 
+        String cp = Utils.getFullClassPath(module);
         list.add("-DCP=" + cp);
-
-        //TODO need export
 
         return list;
     }
@@ -252,7 +282,7 @@ public class EvoSuiteExecutor {
             list.add("-Dcuts=" + cuts);
         }
 
-        list.add("evosuite:export");
+        list.add("evosuite:export"); //note, here -Dctg_export_folder would do as well
         list.add("-DtargetFolder=" + params.getFolder());
         return list;
     }

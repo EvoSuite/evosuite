@@ -31,7 +31,6 @@ import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 
 /**
@@ -94,6 +93,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		secondaryObjectives.remove(objective);
 	}
 
+	public static void removeAllSecondaryObjectives() {
+		secondaryObjectives.clear();
+	}
+
 	/**
 	 * <p>
 	 * Constructor for TestSuiteChromosome.
@@ -153,7 +156,6 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	public void clearTests() {
 		tests.clear();
-		unmodifiableTests.clear();
 	}
 
 	/**
@@ -195,7 +197,6 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			for (int i = 0; i < tests.size(); i++) {
 				if (tests.get(i).getTestCase().equals((testCase))) {
 					tests.remove(i);
-					unmodifiableTests.remove(i);
 				}
 			}
 		}
@@ -233,10 +234,6 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		}
 		return testcases;
 	}
-	
-	public boolean isUnmodifiable(TestChromosome test) {
-		return unmodifiableTests.contains(test);
-	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -254,24 +251,6 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	public void mutate() {
 		for (int i = 0; i < Properties.NUMBER_OF_MUTATIONS; i++) {
 			super.mutate();
-		}
-	}
-
-	/**
-	 * <p>
-	 * restoreTests
-	 * </p>
-	 * 
-	 * @param backup
-	 *            a {@link java.util.ArrayList} object.
-	 */
-	public void restoreTests(ArrayList<TestCase> backup) {
-		tests.clear();
-		unmodifiableTests.clear();
-		TestCaseExecutor executor = TestCaseExecutor.getInstance();
-		for (TestCase testCase : backup) {
-			addTest(testCase);
-			executor.execute(testCase);
 		}
 	}
 	

@@ -45,6 +45,11 @@ public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalS
 		this.fitness = fitness;
 	}
 
+	@Override
+	public boolean isDone() {
+		return false;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#hasImproved(org.evosuite.ga.Chromosome)
 	 */

@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.utils.LoggingUtils;
@@ -404,13 +403,14 @@ public class JobHandler extends Thread {
 		 * For now we just do something very basic
 		 */
 
-		final int PHASES = 6;
+		final int PHASES = 7;
 		
 		int initialization = seconds / PHASES;
 		int minimization = seconds / PHASES;
 		int assertions = seconds / PHASES;
 		int extra = seconds / PHASES;
         int junit = seconds / PHASES;
+		int write = seconds / PHASES;
 
 		final int MAJOR_DELTA = 120;
 		final int MINOR_DELTA = 60;
@@ -421,15 +421,17 @@ public class JobHandler extends Thread {
 			assertions = MAJOR_DELTA;
 			extra = MAJOR_DELTA;
             junit = MAJOR_DELTA;
+			write = MAJOR_DELTA;
 		} else if (seconds > PHASES * MINOR_DELTA) {
 			initialization = MINOR_DELTA;
 			minimization = MINOR_DELTA;
 			assertions = MINOR_DELTA;
 			extra = MINOR_DELTA;
             junit = MINOR_DELTA;
+			write = MINOR_DELTA;
 		}
 
-		int search = seconds - (initialization + minimization + assertions + extra + junit);
+		int search = seconds - (initialization + minimization + assertions + extra + junit + write);
 
 		List<String> commands = new ArrayList<String>();
 		commands.add("-Dsearch_budget=" + search);
@@ -440,6 +442,7 @@ public class JobHandler extends Thread {
 		commands.add("-Dassertion_timeout=" + assertions);
         commands.add("-Dextra_timeout=" + extra);
         commands.add("-Djunit_check_timeout=" + junit);
+		commands.add("-Dwrite_junit_timeout=" + write);
 
 		return commands;
 	}

@@ -14,16 +14,14 @@ public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChrom
 
 	private final static Logger logger = LoggerFactory.getLogger(ArchiveTestChromosomeFactory.class);
 	
-	private TestsArchive archive = TestsArchive.instance;
-	
 	private ChromosomeFactory<TestChromosome> defaultFactory = new RandomLengthTestFactory();
 	
 	@Override
 	public TestChromosome getChromosome() {
 		TestChromosome test = null;
-		if(archive.getNumberOfTestsInArchive() > 0 && Randomness.nextDouble() < Properties.SEED_CLONE) {
+		if(TestsArchive.instance.getNumberOfTestsInArchive() > 0 && Randomness.nextDouble() < Properties.SEED_CLONE) {
 			logger.info("Creating test based on archive");
-			test = Randomness.choice(archive.getBestChromosome().getTestChromosomes());
+			test = (TestChromosome) Randomness.choice(TestsArchive.instance.getBestChromosome().getTestChromosomes()).clone();
 		} else {
 			logger.info("Creating random test");
 			test = defaultFactory.getChromosome();

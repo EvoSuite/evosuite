@@ -1,5 +1,9 @@
 package org.evosuite.symbolic.solver;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
@@ -15,7 +19,7 @@ import com.examples.with.different.packagename.solver.TestCaseFloatMin;
 import com.examples.with.different.packagename.solver.TestCaseFloatRound;
 import com.examples.with.different.packagename.solver.TestCaseFloatTrigonometry;
 
-public abstract  class TestSolverMathFloat {
+public class TestSolverMathFloat {
 
 	private static DefaultTestCase buildTestCaseFloatAbs()
 			throws SecurityException, NoSuchMethodException {
@@ -27,15 +31,17 @@ public abstract  class TestSolverMathFloat {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testAbs(Solver solver) throws SecurityException,
+	public static void testAbs(Solver solver) throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseFloatAbs();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Double var0 = (Double) solution.get("var0");
 
-		return solution;
+		assertTrue(Math.abs(var0.doubleValue()) > 0);
 	}
 
 	private static DefaultTestCase buildTestCaseFloatTrigonometry()
@@ -84,28 +90,37 @@ public abstract  class TestSolverMathFloat {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testMax(Solver solver) throws SecurityException,
+	public static void testMax(Solver solver) throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMax();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Double var0 = (Double) solution.get("var0");
+		Double var1 = (Double) solution.get("var1");
 
-		return solution;
+		assertEquals(10, Math.max(var0.doubleValue(), var1.doubleValue()),
+				DELTA);
 	}
 
-	public static Map<String, Object> testMin(Solver solver) throws SecurityException,
+	public static void testMin(Solver solver) throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMin();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Double var0 = (Double) solution.get("var0");
+		Double var1 = (Double) solution.get("var1");
 
-		return solution;
+		assertEquals(10, Math.min(var0.doubleValue(), var1.doubleValue()),
+				DELTA);
 	}
 
+	private static final double DELTA = 1e-15;
 
 	private static DefaultTestCase buildTestCaseRound()
 			throws SecurityException, NoSuchMethodException {
@@ -120,14 +135,17 @@ public abstract  class TestSolverMathFloat {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testRound(Solver solver) throws SecurityException,
+	public static void testRound(Solver solver) throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseRound();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
+		assertNotNull(solution);
+		Double var0 = (Double) solution.get("var0");
+		Long var1 = (Long) solution.get("var1");
 
-		return solution;
+		assertEquals(Math.round(var0.doubleValue()), var1.intValue());
 	}
 }

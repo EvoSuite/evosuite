@@ -250,5 +250,7 @@ public class CommandLineParameters {
 		if (line.hasOption("heapdump")) {
 			javaOpts.add("-XX:+HeapDumpOnOutOfMemoryError");
 		}
+
+		javaOpts.add("-XX:MaxPermSize="+Properties.MAX_PERM_SIZE+"m");
 	}
 }

@@ -204,7 +204,7 @@ public class TestGenerationResultBuilder {
 	
 	public void setGeneticAlgorithm(GeneticAlgorithm<?> ga) {
 		this.ga = ga;
-        for (Map.Entry<FitnessFunction<?>, Double> e : ga.getBestIndividual().getCoverages().entrySet()) {
+        for (Map.Entry<FitnessFunction<?>, Double> e : ga.getBestIndividual().getCoverageValues().entrySet()) {
             targetCoverages.put(e.getKey(), e.getValue());
         }
 	}

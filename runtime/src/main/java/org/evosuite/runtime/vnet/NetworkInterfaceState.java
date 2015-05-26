@@ -25,6 +25,23 @@ public class NetworkInterfaceState {
 
 	private static final Logger logger = LoggerFactory.getLogger(NetworkInterfaceState.class);
 
+	private final static Constructor<NetworkInterface> constructor;
+	private final static Field nameField;
+	private final static Field indexField;
+
+	static{
+		try {
+			constructor = NetworkInterface.class.getDeclaredConstructor();
+			constructor.setAccessible(true);
+			nameField = NetworkInterface.class.getDeclaredField("name");
+			nameField.setAccessible(true);
+			indexField = NetworkInterface.class.getDeclaredField("index");
+			indexField.setAccessible(true);
+		} catch (NoSuchMethodException | NoSuchFieldException e) {
+			//shouldn't really happen
+			throw new RuntimeException("Bug: failed to init "+NetworkInterfaceState.class+": "+e.getMessage());
+		}
+	}
 	
 	private NetworkInterface ni;	
 	private final List<InetAddress> localAddresses;
@@ -47,16 +64,10 @@ public class NetworkInterfaceState {
 		localAddresses = Collections.singletonList(anAddress);
 		
 		try {
-			Constructor<NetworkInterface> constructor = NetworkInterface.class.getDeclaredConstructor();
-			constructor.setAccessible(true);
 			ni = constructor.newInstance();
-			Field nameField = NetworkInterface.class.getDeclaredField("name");
-			nameField.setAccessible(true);
-			Field indexField = NetworkInterface.class.getDeclaredField("index");
-			indexField.setAccessible(true);
 			nameField.set(ni, name);
 			indexField.set(ni, index);
-		} catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+		} catch (IllegalArgumentException | InvocationTargetException | InstantiationException | IllegalAccessException | SecurityException e) {
 			//shouldn't really happen
 			logger.error("Reflection problems: "+e.getMessage());
 		}

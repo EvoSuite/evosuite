@@ -425,11 +425,19 @@ public class CastClassManager {
 	        boolean allowRecursion, Map<TypeVariable<?>, Type> ownerVariableMap) {
 
 		List<GenericClass> assignableClasses = getAssignableClasses(typeVariable,
-		                                                            allowRecursion,
+		                                                            false,
 		                                                            ownerVariableMap);
 
 		logger.debug("Assignable classes to " + typeVariable + ": " + assignableClasses);
 
+		// If we were not able to find an assignable class without recursive types
+		// we try again but allowing recursion
+		if(assignableClasses.isEmpty()) {
+			assignableClasses = getAssignableClasses(typeVariable,
+                    allowRecursion,
+                    ownerVariableMap);
+		}
+		
 		//special case
 		if (assignableClasses.isEmpty()) {
 			logger.debug("Trying to add new cast class");
@@ -457,11 +465,22 @@ public class CastClassManager {
 
 		logger.debug("Getting assignable classes for wildcard");
 		List<GenericClass> assignableClasses = getAssignableClasses(wildcardType,
-		                                                            allowRecursion,
+		                                                            false,
 		                                                            ownerVariableMap);
 		logger.debug("Assignable classes to " + wildcardType + ": " + assignableClasses);
 
+		// If we were not able to find an assignable class without recursive types
+		// we try again but allowing recursion
 		if (assignableClasses.isEmpty()) {
+			if(allowRecursion) {
+			assignableClasses.addAll(getAssignableClasses(wildcardType,
+                    allowRecursion,
+                    ownerVariableMap));
+			}
+		}
+		
+		if (assignableClasses.isEmpty()) {
+
 			logger.debug("Trying to add new cast class");
 			if (addAssignableClass(wildcardType, ownerVariableMap)) {
 				assignableClasses = getAssignableClasses(wildcardType, allowRecursion,

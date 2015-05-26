@@ -177,7 +177,8 @@ public class TestGeneration {
 			return true;
 		}
 
-		LoggingUtils.getEvoLogger().info("* Unknown class: " + target);
+		LoggingUtils.getEvoLogger().info("* Unknown class: " + target +
+				". Be sure its full qualifying name  is correct and the classpath is properly set with '-projectCP'");
 
 		return false;
 	}
@@ -272,6 +273,16 @@ public class TestGeneration {
 			LoggingUtils.getEvoLogger().info("* Waiting for remote debugger to connect on port "
 			                                         + Properties.PORT + "..."); // TODO find the right
 			// place for this
+		}
+
+		if(Properties.JMC){
+			//FIXME: does not seem to work, at least on Mac. Looks like some RMI conflict
+			cmdLine.add("-XX:+UnlockCommercialFeatures");
+			cmdLine.add("-XX:+FlightRecorder");
+			cmdLine.add("-Dcom.sun.management.jmxremote");
+			cmdLine.add("-Dcom.sun.management.jmxremote.autodiscovery");
+			cmdLine.add("-Dcom.sun.management.jmxremote.authenticate=false");
+			cmdLine.add("-Dcom.sun.management.jmxremote.ssl=false");
 		}
 
 		for (String arg : args) {
@@ -496,91 +507,6 @@ public class TestGeneration {
 		return results;
 	}
 
-	
-	/**
-	 * Locates the resources that have to be prepended to bootclasspath in order
-	 * to have all classes in the Client JVM that are needed for VFS
-	 * functionality. Extracts and creates it if necessary.
-	 * 
-	 * @return a string denoting one or more with the system's pathSeparator
-	 *         separated pathes to one or more jars containing evosuite-io,
-	 *         commons-vfs2 and commons-logging; <code>null</code> if one or
-	 *         more resources could not be found or accessed
-	 */
-	private static String locateEvoSuiteIOClasses() {
-		String stringToBePrependedToBootclasspath = null;
-
-		// try to find it inside the jar // FIXME this does still not seem to be the golden solution
-		InputStream evosuiteIOjarInputStream = EvoSuite.class.getClassLoader().getResourceAsStream("evosuite-io.jar"); // created by maven with the
-		// jar-minimal.xml assembly
-		// file - contains the
-		// evosuite-io classes
-		// plus the needed
-		// commons-vfs2 and
-		// commons-logging
-		// dependencies
-		if (evosuiteIOjarInputStream != null) {
-			// extract evosuite-io.jar into the system-default temporary directory
-			String tmpFilePath = System.getProperty("java.io.tmpdir") + File.separator
-			        + "evosuite-io.jar";
-			File tmpFile = new File(tmpFilePath);
-			tmpFile.deleteOnExit();
-
-			try {
-				IOUtils.copy(evosuiteIOjarInputStream, new FileOutputStream(tmpFile));
-				stringToBePrependedToBootclasspath = tmpFilePath;
-			} catch (IOException e) {
-				throw new IllegalStateException(
-				        "Error while extracing the evosuite-io JAR file!", e);
-			}
-		} else {
-			// if not found try to locate all needed jars in classpath
-			logger.info("\"evosuite-io.jar\" could not be found by EvoSuite.class.getClassLoader().getResource. "
-			        + "EvoSuite is likely not executing out of an executable jar file at the moment. "
-			        + "Now trying to locate all needed jars for VFS functionality in classpath instead...");
-			URL[] urls = ((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs();
-			URL evosuiteIOjar = null;
-			URL commonsVFSjar = null;
-			URL commonsLoggingjar = null;
-			for (URL url : urls) {
-				if (evosuiteIOjar != null && commonsVFSjar != null
-				        && commonsLoggingjar != null)
-					break;
-
-				if (url.getPath().matches(".*evosuite-io.*\\.jar")) {
-					evosuiteIOjar = url;
-					continue;
-				}
-
-				if (url.getPath().matches(".*commons-vfs2.*\\.jar")) {
-					commonsVFSjar = url;
-					continue;
-				}
-
-				if (url.getPath().matches(".*commons-logging.*\\.jar")) {
-					commonsLoggingjar = url;
-					continue;
-				}
-			}
-
-			if (evosuiteIOjar == null || !(new File(evosuiteIOjar.getPath())).canRead()) {
-				throw new IllegalStateException("The evosuite-io JAR cannot be read!");
-			} else if (commonsVFSjar == null
-			        || !(new File(commonsVFSjar.getPath())).canRead()) {
-				throw new IllegalStateException("The commons-vfs2 JAR cannot be read!");
-			} else if (commonsLoggingjar == null
-			        || !(new File(commonsLoggingjar.getPath())).canRead()) {
-				throw new IllegalStateException("The commons-logging JAR cannot be read!");
-			} else {
-				logger.info("All needed jars for VFS functionality are in classpath and readable!");
-				stringToBePrependedToBootclasspath = evosuiteIOjar.getPath()
-				        + File.pathSeparator + commonsVFSjar.getPath()
-				        + File.pathSeparator + commonsLoggingjar.getPath();
-			}
-		}
-
-		return stringToBePrependedToBootclasspath;
-	}
 	
 	private static List<List<TestGenerationResult>> generateTestsTarget(Properties.Strategy strategy, String target,
 	        List<String> args) {

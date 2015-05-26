@@ -19,13 +19,18 @@
  */
 package org.evosuite.coverage.statement;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -35,7 +40,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = 4609519536866911970L;
 
-	protected BytecodeInstruction goalInstruction;
+	protected transient BytecodeInstruction goalInstruction;
 	protected List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
 
 	BranchCoverageTestFitness lastCoveringFitness = null;
@@ -166,5 +171,21 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public String getTargetMethod() {
 		return goalInstruction.getMethodName();
+	}
+	
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		oos.writeObject(goalInstruction.getClassName());
+		oos.writeObject(goalInstruction.getMethodName());
+		oos.writeInt(goalInstruction.getInstructionId());
+	}
+	
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+    	IOException {
+		ois.defaultReadObject();
+		String className  = (String)ois.readObject();
+		String methodName = (String)ois.readObject();
+		int instructionId = ois.readInt();
+		BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstruction(className, methodName, instructionId);
 	}
 }

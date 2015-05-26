@@ -54,11 +54,11 @@ public class TestTestSuiteMinimizer extends SystemTest
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome c = (TestSuiteChromosome) ga.getBestIndividual();
-
-        Assert.assertEquals(c.getFitness(), 0.0, 0.0);
-        Assert.assertEquals(c.getCoverage(), 1.0, 0.0);
-        Assert.assertEquals(c.getNumOfCoveredGoals(ga.getFitnessFunction()), 6.0, 0.0);
-        Assert.assertEquals(c.size(), 5);
+        
+        Assert.assertEquals(0.0, c.getFitness(), 0.0);
+        Assert.assertEquals(1.0, c.getCoverage(), 0.0);
+        Assert.assertEquals(6.0, c.getNumOfCoveredGoals(ga.getFitnessFunction()), 0.0);
+        Assert.assertEquals(5, c.size());
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -109,15 +109,15 @@ public class TestTestSuiteMinimizer extends SystemTest
         final FitnessFunction onlybranch = ga.getFitnessFunctions().get(0);
         final FitnessFunction line = ga.getFitnessFunctions().get(1);
 
-        Assert.assertEquals(c.getFitness(onlybranch), 0.0, 0.0);
-        Assert.assertEquals(c.getFitness(line), 0.0, 0.0);
+        Assert.assertEquals(0.0, c.getFitness(onlybranch), 0.0);
+        Assert.assertEquals(0.0, c.getFitness(line), 0.0);
 
-        Assert.assertEquals(c.getCoverage(onlybranch), 1.0, 0.0);
-        Assert.assertEquals(c.getCoverage(line), 1.0, 0.0);
+        Assert.assertEquals(1.0, c.getCoverage(onlybranch), 0.0);
+        Assert.assertEquals(1.0, c.getCoverage(line), 0.0);
 
-        Assert.assertEquals(c.getNumOfCoveredGoals(onlybranch), 6.0, 0.0);
-        Assert.assertEquals(c.getNumOfCoveredGoals(line), 9.0, 0.0);
+        Assert.assertEquals(6.0, c.getNumOfCoveredGoals(onlybranch), 0.0);
+        Assert.assertEquals(9.0, c.getNumOfCoveredGoals(line), 0.0);
 
-        Assert.assertEquals(c.size(), 8);
+        Assert.assertEquals(8, c.size());
 	}
 }

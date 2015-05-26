@@ -21,14 +21,14 @@
 package org.evosuite.setup;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.branch.BranchCoverageFactory;
-import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -38,8 +38,6 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.setup.callgraph.CallGraphGenerator;
 import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ArrayUtil;
 import org.junit.Test;
 import org.junit.runners.Suite;
@@ -317,11 +315,24 @@ public class DependencyAnalysis {
 	}
 
 	private static ClassNode loadClassNode(String className) throws IOException {
-		ClassReader reader = new ClassReader(className);
-
+		
+		InputStream classStream = ResourceList.getClassAsStream(className);
+		if(classStream == null) {
+			// This used to throw an IOException that leads to null being
+			// returned, so for now we're just returning null directly
+			// TODO: Proper treatment of missing classes (can also be
+			//       invalid calls, e.g. [L/java/lang/Object;)
+			logger.info("Could not find class file: "+className);
+			return null;
+		}
 		ClassNode cn = new ClassNode();
-		reader.accept(cn, ClassReader.SKIP_FRAMES); // |
-													// ClassReader.SKIP_DEBUG);
+		try {
+			ClassReader reader = new ClassReader(classStream);
+			reader.accept(cn, ClassReader.SKIP_FRAMES); // |
+			// ClassReader.SKIP_DEBUG);
+		} finally {
+			classStream.close(); // ASM does not close the stream
+		}
 		return cn;
 	}
 
