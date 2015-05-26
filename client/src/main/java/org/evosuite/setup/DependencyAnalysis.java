@@ -316,7 +316,7 @@ public class DependencyAnalysis {
 
 	private static ClassNode loadClassNode(String className) throws IOException {
 		
-		InputStream classStream = ResourceList.getClassAsStream(className);
+		InputStream classStream = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className);
 		if(classStream == null) {
 			// This used to throw an IOException that leads to null being
 			// returned, so for now we're just returning null directly
