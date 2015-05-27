@@ -2,12 +2,10 @@ package org.evosuite.mock.java.lang;
 
 import com.examples.with.different.packagename.mock.java.lang.ExtendingThread;
 import com.examples.with.different.packagename.mock.java.lang.LongSleep;
-import com.examples.with.different.packagename.mock.java.lang.MemorySum;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
