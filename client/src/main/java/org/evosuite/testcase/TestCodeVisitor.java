@@ -551,24 +551,31 @@ public class TestCodeVisitor extends TestVisitor {
 		Object value = assertion.getValue();
 		Field field = assertion.getField();
 
+		String target = "";
+		if(Modifier.isStatic(field.getModifiers())) {
+			target = getClassName(field.getDeclaringClass()) + "." + field.getName();
+		} else {
+			target = getVariableName(source) + "." + field.getName();
+		}
+		
 		if (value == null) {
-			testCode += "assertNull(" + getVariableName(source) + "." + field.getName()
+			testCode += "assertNull(" + target
 			        + ");";
 		} else if (value.getClass().equals(Long.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-			        + getVariableName(source) + "." + field.getName() + ");";
+			        + target + ");";
 		} else if (value.getClass().equals(Float.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-			        + getVariableName(source) + "." + field.getName() + ", 0.01F);";
+			        + target + ", 0.01F);";
 		} else if (value.getClass().equals(Double.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-			        + getVariableName(source) + "." + field.getName() + ", 0.01D);";
+			        + target + ", 0.01D);";
 		} else if (value.getClass().equals(Character.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-			        + getVariableName(source) + "." + field.getName() + ");";
+			        + target + ");";
 		} else if (value.getClass().equals(String.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-			        + getVariableName(source) + "." + field.getName() + ");";
+			        + target + ");";
 		} else if(value.getClass().equals(Boolean.class)){
             Boolean flag = (Boolean) value;
             if(flag){
@@ -576,16 +583,16 @@ public class TestCodeVisitor extends TestVisitor {
             } else {
                 testCode += "assertFalse(";
             }
-            testCode += "" + getVariableName(source) + "." + field.getName() + ");";
+            testCode += "" + target + ");";
         }else if (value.getClass().isEnum()) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-			        + getVariableName(source) + "." + field.getName() + ");";
+			        + target + ");";
 			// Make sure the enum is imported in the JUnit test
 			getClassName(value.getClass());
 
 		} else
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-			        + getVariableName(source) + "." + field.getName() + ");";
+			        + target + ");";
 	}
 
 	/**
