@@ -63,8 +63,8 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 
 	private boolean definesUid = false;
 	
-	private boolean alreadyInstrumented = false;
-
+	private boolean resetMethodAdded = false;
+	
 	private long serialUID = -1L;
 
 	private final List<String> finalFields = new ArrayList<String>();
@@ -94,11 +94,6 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		isInterface = ((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE);
 		if (ANONYMOUS_MATCHER1.matcher(name).matches()) {
 			isAnonymous = true;
-		}
-		String instrumentedInterface = InstrumentedClass.class.getCanonicalName().replace('.', '/');
-		for(String interf : interfaces) {
-			if(interf.equals(instrumentedInterface))
-				alreadyInstrumented = true;
 		}
 	}
 
@@ -163,8 +158,8 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 
 		MethodVisitor mv = super.visitMethod(methodAccess, methodName,
 				descriptor, signature, exceptions);
-
-		if (methodName.equals("<clinit>") && !isInterface && !isAnonymous && !alreadyInstrumented) {
+		
+		if (methodName.equals("<clinit>") && !isInterface && !isAnonymous && !resetMethodAdded) {
 			clinitFound = true;
 			logger.info("Found static initializer in class " + className);
 			//determineSerialisableUID();
@@ -181,6 +176,8 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 			CreateClassResetMethodAdapter staticResetMethodAdapter = new CreateClassResetMethodAdapter(
 					visitMethod, className, this.static_fields, finalFields);
 
+			resetMethodAdded = true;
+			
 			if (this.removeUpdatesOnFinalFields) {
 				MethodVisitor mv2 = new RemoveFinalMethodAdapter(className,
 						staticResetMethodAdapter, finalFields);
@@ -189,13 +186,19 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 			} else {
 				return new MultiMethodVisitor(staticResetMethodAdapter, mv);
 			}
+		} else if(methodName.equals(ClassResetter.STATIC_RESET)) {
+			if(resetMethodAdded) {
+				// Do not add reset method a second time
+			} else {
+				resetMethodAdded = true;
+			}
 		}
 		return mv;
 	}
 
 	@Override
 	public void visitEnd() {
-		if (!clinitFound && !isInterface && !isAnonymous && !alreadyInstrumented) {
+		if (!clinitFound && !isInterface && !isAnonymous && !resetMethodAdded) {
 			// create brand new __STATIC_RESET
 			if (!definesUid) {
 				//determineSerialisableUID();
