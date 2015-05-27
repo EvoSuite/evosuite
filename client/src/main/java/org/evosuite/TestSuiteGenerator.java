@@ -101,6 +101,7 @@ import org.evosuite.ga.stoppingconditions.TimeDeltaStoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
+import org.evosuite.regression.RegressionAssertionCounter;
 import org.evosuite.regression.RegressionSearchListener;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosome;
@@ -1350,14 +1351,14 @@ public class TestSuiteGenerator {
 				 * suite.getFitness(), clone.getFitness());
 				 */
 				executedStatemets+= test.size();
-				numAssertions = RegressionSearchListener.getNumAssertions(
+				numAssertions = RegressionAssertionCounter.getNumAssertions(
 						clone, false);
 				logger.warn("Generated test with {} assertions.", numAssertions);
 				totalTestCount++;
 				if (numAssertions > 0) {
 					numAssertions = 0;
-					boolean compilable = JUnitAnalyzer.verifyCompilationAndExecution(testCases);
-					if(compilable){
+					//boolean compilable = JUnitAnalyzer.verifyCompilationAndExecution(testCases);
+					if(true){
 						JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
 						JUnitAnalyzer.handleTestsThatAreUnstable(testCases);	
 						if(testCases.size()>0){
@@ -1373,7 +1374,7 @@ public class TestSuiteGenerator {
 							//test.set
 							//clone.addTest(testCases);
 							 
-							numAssertions = RegressionSearchListener.getNumAssertions(
+							numAssertions = RegressionAssertionCounter.getNumAssertions(
 									clone, false ,false);
 							logger.warn("Keeping {} assertions.", numAssertions);
 							if (numAssertions > 0) {
