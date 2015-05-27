@@ -3,8 +3,6 @@ package org.evosuite.runtime.mock.java.lang;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import javax.naming.InitialContext;
-
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
