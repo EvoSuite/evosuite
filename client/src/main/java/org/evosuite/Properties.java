@@ -1271,7 +1271,7 @@ public class Properties {
         REGRESSION,	REGRESSIONTESTS
 	}
 
-	/** Constant <code>CRITERION</code> */
+    /** Constant <code>CRITERION</code> */
     @Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")
     public static Criterion[] CRITERION = new Criterion[] {
             //these are basic criteria that should be always on by default
@@ -1361,7 +1361,7 @@ public class Properties {
 	
 	/** Constant <code>REGRESSION_USE_FITNESS</code> */
 	@Parameter(key = "regression_use_fitness", group = "Runtime", description = "Which fitness values will be used")
-	public static int REGRESSION_USE_FITNESS = 0;
+	public static int REGRESSION_USE_FITNESS = 4;
 	
 	/** Constant <code>REGRESSION_ANALYZE</code> */
 	@Parameter(key = "regression_analyze", group = "Runtime", description = "Analyze the classes under test, to ensure the effectiveness of evosuite")

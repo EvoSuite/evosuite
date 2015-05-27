@@ -822,7 +822,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 	}
 
-	/* (non-Javadoc)
+	/* This is a minimizing fitness function
 	 * @see org.evosuite.ga.FitnessFunction#isMaximizationFunction()
 	 */
 	@Override
