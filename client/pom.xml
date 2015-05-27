@@ -105,13 +105,8 @@
             <groupId>oro</groupId>
             <artifactId>oro</artifactId>
         </dependency>
+        
     </dependencies>
-    <repositories>
-    	<repository>
-            <id>lib</id>
-	        <url>file://${basedir}/lib</url>
-        </repository>
-    </repositories>
 
     <build>
         <plugins>

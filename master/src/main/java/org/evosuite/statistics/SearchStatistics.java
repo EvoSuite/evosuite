@@ -21,6 +21,7 @@ import org.evosuite.coverage.mutation.OnlyMutationSuiteFitness;
 import org.evosuite.coverage.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.regression.RegressionTestSuiteChromosome;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientState;
@@ -30,6 +31,7 @@ import org.evosuite.statistics.backend.ConsoleStatisticsBackend;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.statistics.backend.HTMLStatisticsBackend;
 import org.evosuite.statistics.backend.StatisticsBackend;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.LoggingUtils;
@@ -154,6 +156,13 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			return;
 
 		logger.debug("Received individual");
+		if (individual instanceof RegressionTestSuiteChromosome) {
+			TestSuiteChromosome tmpTestSuite = new TestSuiteChromosome();
+			List<TestCase> allRegressionTests = ((RegressionTestSuiteChromosome) individual).getTests();
+			for (TestCase t : allRegressionTests)
+				tmpTestSuite.addTest(t);
+			individual = tmpTestSuite;
+		}
 		bestIndividual.put(rmiClientIdentifier, (TestSuiteChromosome) individual);
         for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
             setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
