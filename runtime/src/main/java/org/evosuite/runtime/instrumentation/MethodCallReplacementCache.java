@@ -358,11 +358,18 @@ public class MethodCallReplacementCache {
                 "org/evosuite/runtime/Reflection", "getDeclaredMethods",
                 "(Ljava/lang/Class;)[Ljava/lang/reflect/Method;", false, false));
 
+        /*
+
+            FIXME: it is unclear why getResource was mocked away by always returning null.
+            At least at a first look, it seems quite wrong, and it breaks quite a few static
+            initializers (eg in Liferay).
+            If it led to some unstable tests, then we could just mock it properly
+
         //java/lang/ClassLoader
         addReplacementCall(new MethodCallReplacement("java/lang/ClassLoader",
                 "getResource", "(Ljava/lang/String;)Ljava/net/URL;", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/ResourceLoader",
                 "getResource", "(Ljava/lang/String;)Ljava/net/URL;", true, false));
-
+        */
     }
 
     private void addGUICalls() {
