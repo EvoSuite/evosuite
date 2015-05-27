@@ -160,10 +160,11 @@ public class TestGenerationContext {
 		ObjectPoolManager.getInstance().reset();
 		CarvingManager.getInstance().clear();
 
+		// TODO: Why are we doing this?
 		if (Properties.INSTRUMENT_CONTEXT
 				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
-				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)
-				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.CBRANCH)) {
+				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
+//				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.CBRANCH)) {
 			try {
 				TestClusterGenerator clusterGenerator = new TestClusterGenerator();
 				clusterGenerator.generateCluster(Properties.TARGET_CLASS,

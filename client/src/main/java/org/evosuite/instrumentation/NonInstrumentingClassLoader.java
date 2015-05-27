@@ -1,26 +1,14 @@
 package org.evosuite.instrumentation;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import org.evosuite.Properties;
-import org.evosuite.classpath.ResourceList;
 import org.evosuite.runtime.util.ComputeClassWriter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class NonInstrumentingClassLoader extends InstrumentingClassLoader {
-	private final static Logger logger = LoggerFactory.getLogger(NonInstrumentingClassLoader.class);
-
 
 	public NonInstrumentingClassLoader(){
 		super();
