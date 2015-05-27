@@ -62,6 +62,8 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	private boolean clinitFound = false;
 
 	private boolean definesUid = false;
+	
+	private boolean alreadyInstrumented = false;
 
 	private long serialUID = -1L;
 
@@ -92,6 +94,11 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		isInterface = ((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE);
 		if (ANONYMOUS_MATCHER1.matcher(name).matches()) {
 			isAnonymous = true;
+		}
+		String instrumentedInterface = InstrumentedClass.class.getCanonicalName().replace('.', '/');
+		for(String interf : interfaces) {
+			if(interf.equals(instrumentedInterface))
+				alreadyInstrumented = true;
 		}
 	}
 
@@ -157,7 +164,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		MethodVisitor mv = super.visitMethod(methodAccess, methodName,
 				descriptor, signature, exceptions);
 
-		if (methodName.equals("<clinit>") && !isInterface && !isAnonymous) {
+		if (methodName.equals("<clinit>") && !isInterface && !isAnonymous && !alreadyInstrumented) {
 			clinitFound = true;
 			logger.info("Found static initializer in class " + className);
 			//determineSerialisableUID();
