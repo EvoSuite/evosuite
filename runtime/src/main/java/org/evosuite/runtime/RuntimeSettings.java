@@ -78,4 +78,11 @@ public class RuntimeSettings {
         useVFS = false;
         assert ! isUsingAnyMocking();
     }
+
+    public static void activateAllMocking(){
+        mockJVMNonDeterminism = true;
+        useVNET = true;
+        useVFS = true;
+        assert isUsingAnyMocking();
+    }
 }
