@@ -195,7 +195,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 
 	@Override
 	public void visitEnd() {
-		if (!clinitFound && !isInterface && !isAnonymous) {
+		if (!clinitFound && !isInterface && !isAnonymous && !alreadyInstrumented) {
 			// create brand new __STATIC_RESET
 			if (!definesUid) {
 				//determineSerialisableUID();
