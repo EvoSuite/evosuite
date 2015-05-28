@@ -1,7 +1,10 @@
 package org.evosuite.continuous;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.continuous.job.JobDefinition;
 import org.evosuite.continuous.job.JobExecutor;
@@ -84,19 +87,26 @@ public class ContinuousTestGeneration {
     private final String projectClassPath;
 	
     private CtgConfiguration configuration;
-    
+
+	/**
+	 * An optional folder where to make a copy of the generated tests
+	 */
+	private final String exportFolder;
+
     /**
      * Specify which CUT to use. If {@code null} then use everything in target/prefix
      */
     private String[] cuts; 
     
-    public ContinuousTestGeneration(String target, String projectClassPath, String prefix, CtgConfiguration conf, String[] cuts) {
+    public ContinuousTestGeneration(String target, String projectClassPath, String prefix, CtgConfiguration conf, String[] cuts,
+									String exportFolder) {
 		super();		
 		this.target = target;
 		this.prefix = prefix;
 		this.projectClassPath = projectClassPath;
 		this.configuration = conf;
 		this.cuts = cuts;
+		this.exportFolder = exportFolder;
 	}
 	
     /**
@@ -104,56 +114,80 @@ public class ContinuousTestGeneration {
      * 
      * @return
      */
-    public String execute(){
+	public String execute() {
 
-    		//init the local storage manager
-    		StorageManager storage = new StorageManager();
-    		if(!storage.isStorageOk()){
-    			return "Failed to initialize local storage system";
-    		}
-    		
-    		//TODO: it seems like this cannot be done, as history depends on it
-    		//storage.deleteOldTmpFolders();
-    		
-    		if(!storage.createNewTmpFolders()){
-    			return "Failed to create tmp folders";
-    		}
-			
-    		//check project
-    		ProjectAnalyzer analyzer = new ProjectAnalyzer(target,prefix,cuts);
-    		ProjectStaticData data = analyzer.analyze();
-    		
-    		if(data.getTotalNumberOfTestableCUTs() == 0){
-    			return "There is no class to test in the chosen project\n" +
-                        "Target: "+target+"\n"+
-                        "Prefix: '"+prefix+"'\n";
-    		}
-    		
-    		if(Properties.CTG_TIME_PER_CLASS != null){
-    			configuration = configuration.getWithChangedTime(Properties.CTG_TIME_PER_CLASS, data.getTotalNumberOfTestableCUTs());
-    		}
-    		
-    		JobScheduler scheduler = new JobScheduler(data,configuration);
-    		JobExecutor executor = new JobExecutor(storage,projectClassPath,configuration);
-    		
-    		//loop: define (partial) schedule
-    		while(scheduler.canExecuteMore()){
-    			List<JobDefinition> jobs = scheduler.createNewSchedule();
-    			executor.executeJobs(jobs,configuration.getNumberOfUsableCores());
-    			executor.waitForJobs();
-    		}
-    		
-    		String description = storage.mergeAndCommitChanges(data);
+		//init the local storage manager
+		StorageManager storage = new StorageManager();
+		if (!storage.isStorageOk()) {
+			return "Failed to initialize local storage system";
+		}
 
-    		//call home
-    		if(configuration.callHome){
-    			//TODO
-    		}
-    		
-    		return description;
-    }
-    
-    /**
+		//TODO: it seems like this cannot be done, as history depends on it
+		//storage.deleteOldTmpFolders();
+
+		if (!storage.createNewTmpFolders()) {
+			return "Failed to create tmp folders";
+		}
+
+		//check project
+		ProjectAnalyzer analyzer = new ProjectAnalyzer(target, prefix, cuts);
+		ProjectStaticData data = analyzer.analyze();
+
+		if (data.getTotalNumberOfTestableCUTs() == 0) {
+			return "There is no class to test in the chosen project\n" +
+					"Target: " + target + "\n" +
+					"Prefix: '" + prefix + "'\n";
+		}
+
+		if (Properties.CTG_TIME_PER_CLASS != null) {
+			configuration = configuration.getWithChangedTime(Properties.CTG_TIME_PER_CLASS, data.getTotalNumberOfTestableCUTs());
+		}
+
+		JobScheduler scheduler = new JobScheduler(data, configuration);
+		JobExecutor executor = new JobExecutor(storage, projectClassPath, configuration);
+
+		//loop: define (partial) schedule
+		while (scheduler.canExecuteMore()) {
+			List<JobDefinition> jobs = scheduler.createNewSchedule();
+			executor.executeJobs(jobs, configuration.getNumberOfUsableCores());
+			executor.waitForJobs();
+		}
+
+		String description = storage.mergeAndCommitChanges(data);
+
+		if(exportFolder != null){
+			try {
+				exportToFolder(".",exportFolder);
+			} catch (IOException e) {
+				return "Failed to export tests: "+e.getMessage();
+			}
+		}
+
+		//call home
+		if (configuration.callHome) {
+			//TODO
+		}
+
+		return description;
+	}
+
+	public static boolean exportToFolder(String baseFolder, String exportFolder) throws IOException {
+		File basedir = new File(baseFolder);
+		File evoFolder = new File(basedir.getAbsolutePath()+File.separator+Properties.CTG_BESTS_DIR);
+
+		File[] children = evoFolder.listFiles();
+		boolean isEmpty = children==null || children.length==0;
+
+		if(isEmpty){
+			return false;
+		}
+
+		File target = new File(basedir.getAbsolutePath()+File.separator+exportFolder);
+		FileUtils.copyDirectory(evoFolder, target);
+		return true;
+	}
+
+	/**
      * Clean all persistent data (eg files on disk) that
      * CTG has created so far
      */

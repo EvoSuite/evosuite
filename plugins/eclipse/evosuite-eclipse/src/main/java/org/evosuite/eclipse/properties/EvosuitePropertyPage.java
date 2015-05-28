@@ -40,12 +40,13 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
 
 public class EvoSuitePropertyPage extends PropertyPage {
 
 	// private Combo criterionCombo;
 	
-	private Table criterionList; 
+	private Table criteriaList; 
 
 	private Button assertionButton;
 
@@ -81,8 +82,8 @@ public class EvoSuitePropertyPage extends PropertyPage {
 
 	private Spinner time2;
 
-	public static QualifiedName CRITERION_PROP_KEY = new QualifiedName("EvoSuite",
-	        "Coverage criterion");
+	public static QualifiedName CRITERIA_PROP_KEY = new QualifiedName("EvoSuite",
+	        "Coverage criteria");
 
 	public static QualifiedName ASSERTION_PROP_KEY = new QualifiedName("EvoSuite",
 	        "Assertions");
@@ -167,18 +168,18 @@ public class EvoSuitePropertyPage extends PropertyPage {
 //		else
 //			criterionCombo.select(0);
 //		criterionCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		criterionList = new Table(myComposite, SWT.MULTI | SWT.CHECK | SWT.FULL_SELECTION | SWT.HIDE_SELECTION | SWT.NO_SCROLL | SWT.BORDER);
+		criteriaList = new Table(myComposite, SWT.MULTI | SWT.CHECK | SWT.FULL_SELECTION | SWT.HIDE_SELECTION | SWT.NO_SCROLL | SWT.BORDER);
 		List<String> criteriaSelected = Arrays.asList(getCriteria());
-		for(String criterion : new String[]{ "Method", 
-											 "Methodtrace",
-											 "Methodnoexception",
-											 "Line",
+
+		for(String criterion : new String[]{ "Line",
 											 "Branch",
 											 "Exception",
+											 "WeakMutation",
 											 "Output",
-											 "Mutation",
-											 }) {
-			TableItem item = new TableItem (criterionList, 0);
+											 "Method",
+											 "MethodNoException",
+											 "CBranch"}) {
+			TableItem item = new TableItem (criteriaList, 0);
 			item.setText (criterion);
 			if(criteriaSelected.contains(criterion))
 				item.setChecked(true);
@@ -193,9 +194,9 @@ public class EvoSuitePropertyPage extends PropertyPage {
 //		criterionList.add("Exceptions");
 //		criterionList.add("Output partitions");
 //		criterionList.add("Mutation");
-		criterionList.setLayoutData(new GridData());
-		criterionList.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		criterionList.setBackground(myComposite.getBackground());
+		criteriaList.setLayoutData(new GridData());
+		criteriaList.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		criteriaList.setBackground(myComposite.getBackground());
 		
 		Label mylabel = new Label(myComposite, SWT.NONE);
 		mylabel.setLayoutData(new GridData());
@@ -820,10 +821,11 @@ public class EvoSuitePropertyPage extends PropertyPage {
 	
 	protected String[] getCriteria() {
 		IResource resource = ((IJavaProject) getElement()).getResource();
+		String[] defaultCriteria = new String[] {"Line", "Branch", "Exception", "WeakMutation", "Output", "Method", "MethodNoException", "CBranch"};
 		try {
-			String value = resource.getPersistentProperty(CRITERION_PROP_KEY);
+			String value = resource.getPersistentProperty(CRITERIA_PROP_KEY);
 			if (value == null)
-				return new String[] {"Line", "Branch"};
+				return defaultCriteria;
 			else {
 				StringTokenizer tokenizer = new StringTokenizer(value, ":");
 				int num = tokenizer.countTokens();
@@ -834,7 +836,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 				return values;
 			}
 		} catch (CoreException e) {
-			return new String[] {"Line", "Branch"};
+			return defaultCriteria;
 		}
 	}
 
@@ -842,7 +844,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		IResource resource = ((IJavaProject) getElement()).getResource();
 		//String criterion = value.toLowerCase();
 		try {
-			resource.setPersistentProperty(CRITERION_PROP_KEY, value);
+			resource.setPersistentProperty(CRITERIA_PROP_KEY, value);
 //			if (criterion.startsWith("defuse"))
 //				resource.setPersistentProperty(CRITERION_PROP_KEY, "defuse");
 //			else if (criterion.startsWith("weak"))
@@ -920,7 +922,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		setTime(time.getSelection());
 		boolean first = true;
 		String criteria = "";
-		for(TableItem item : criterionList.getItems()) {
+		for(TableItem item : criteriaList.getItems()) {
 			if(item.getChecked()) {
 				if(first)
 					first = false;
@@ -958,8 +960,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		setDSEEnabled(false);
 		setLSEnabled(false);
 		// setEvoSuiteRunnerEnabled(false);
-		// setCriterion("branch");
-		setCriteria("Line:Branch");
+		setCriteria("Line:Branch:Exception:WeakMutation:Output:Method:MethodNoException:CBranch");
 		setTestSuffix(Properties.JUNIT_SUFFIX);
 	}
 }

@@ -52,17 +52,24 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.ui.actions.OrganizeImportsAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -140,36 +147,82 @@ public class TestGenerationJob extends Job {
 			return Status.OK_STATUS;
 		}
 
-		// Check that all markers have been cleared 
-		try {
-			String suiteFileName = getSuiteFileName(suiteClass);
-			final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
-			if ( file != null && file.exists()) {
-				IMarker[] markers = file.findMarkers("EvoSuiteQuickFixes.newtestmarker", true, 2);
-				Boolean checkMarkers = System.getProperty("evosuite.markers.enforce") != null; 
-				if ( (markers.length > 0) && checkMarkers ) {
-					System.out.println("Markers in test suite, can't generate tests");
+		final String suiteFileName = getSuiteFileName(suiteClass);
+		final IFile fileSuite = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
+		if ( fileSuite != null && fileSuite.exists()) {
+			// Open test suite in editor
+			Display.getDefault().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					IWorkbenchWindow iw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					IWorkbenchPage page = iw.getActivePage();
+					try {
+						IDE.openEditor(page, fileSuite, true);
+					} catch (PartInitException e1) {
+						System.out.println("Could not open test suite");
+						e1.printStackTrace();
+					}
+				}
+			});
+			
+			// Generated tests should be checked by tester?
+			Boolean checkMarkers = System.getProperty("evosuite.markers.enforce") != null;
+			if ( checkMarkers ) {
+
+				String fileContents = readFileToString(suiteFileName);
+
+				ASTParser parser = ASTParser.newParser(AST.JLS4);
+				parser.setKind(ASTParser.K_COMPILATION_UNIT);
+				parser.setStatementsRecovery(true);
+
+				Map<String, String> COMPILER_OPTIONS = new HashMap<String, String>(JavaCore.getOptions());
+				COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+				COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+				COMPILER_OPTIONS.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
+
+				parser.setUnitName(suiteClass);
+				String[] encodings = { ENCODING };
+				String[] classpaths = { classPath };
+				String[] sources = { new File(suiteFileName).getParent() };
+				parser.setEnvironment(classpaths, sources, encodings, true);
+				parser.setSource(fileContents.toCharArray());
+
+				CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+				final List<String> uncheckedMethods = new ArrayList<String>();
+				compilationUnit.accept(new ASTVisitor() {
+					@Override
+					public boolean visit(MemberValuePair node) {
+						if (node.getName().toString().equals("checked") && ! ((BooleanLiteral)node.getValue()).booleanValue()) { 
+							NormalAnnotation ann = (NormalAnnotation) node.getParent();
+							MethodDeclaration method = (MethodDeclaration)ann.getParent();
+							uncheckedMethods.add(method.getName().toString());
+							return false;
+						}
+						return true;
+					}
+				});
+				if (uncheckedMethods.size() > 0) {
 					Display.getDefault().syncExec(new Runnable() {
 						@Override
 						public void run() {
 							MessageDialog dialog = new MessageDialog(
-						        shell,
-						        "JUnit test suite contains marked test cases",
-						        null, // image
-						        "The JUnit test suite \""
-						                + suiteClass
-						                + "\" contains marked test cases. Please review them and clear all markers before running EvoSuite again.",
-						        MessageDialog.OK, new String[] { "Ok" }, 0);
+									shell,
+									"JUnit test suite contains unit tests that need to be checked",
+									null, // image
+									"The JUnit test suite "
+									+ suiteClass
+									+ " contains test cases that need to be checked:\n"
+									+ uncheckedMethods.toString(),
+									MessageDialog.OK, new String[] { "Ok" }, 0);
 							dialog.open();
 						}					
 					});
 					return Status.OK_STATUS;
-				} else System.out.println("Not checking markers or no markers in test suite");
-			} else System.out.println("File " + suiteFileName + " does not exist");
-		} catch (CoreException e1) {
-			e1.printStackTrace();
-		}
-
+				}
+			} else
+				System.out.println("Not checking markers.");
+		} else 
+			System.out.println("File " + suiteFileName + " does not exist");
 		
 		setThread(new Thread());
 		running = true;
@@ -190,7 +243,34 @@ public class TestGenerationJob extends Job {
 			if ("true".equals(target.getProject().getPersistentProperty(
 					EvoSuitePropertyPage.REPORT_PROP_KEY))) {
 				syncWithUi(target);
-			}
+			};
+			
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						final IFile generatedSuite = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
+						ICompilationUnit cu=JavaCore.createCompilationUnitFrom(generatedSuite);
+						IWorkbenchWindow iw = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow();
+						IWorkbenchPage page = iw.getActivePage();
+						IEditorPart part = IDE.openEditor(page, generatedSuite, true);
+						// Remove unused imports
+						// TODO: not sure if this is the right place to do this though
+						Boolean removeUnused = System.getProperty("evosuite.organize.imports") != null;
+						if ( removeUnused ) {
+							OrganizeImportsAction a=new OrganizeImportsAction(part.getSite());
+							a.run(cu);
+							cu.commitWorkingCopy(true, null);
+							cu.save(null, true);
+						}
+					} catch (PartInitException e1) {
+						System.out.println("Could not open test suite");
+						e1.printStackTrace();
+					} catch (JavaModelException e) {
+						System.out.println("Something went wrong while saving test suite after removing unused imports");
+						e.printStackTrace();
+					};
+				}});
 		} catch (CoreException e) {
 			System.out.println("Dear me");
 			e.printStackTrace();
@@ -608,7 +688,7 @@ public class TestGenerationJob extends Job {
 		}
 		*/
 		String criterion = target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.CRITERION_PROP_KEY);
+				EvoSuitePropertyPage.CRITERIA_PROP_KEY);
 		if (criterion != null) {
 			commands.add("-criterion");
 			commands.add(criterion);
@@ -765,53 +845,54 @@ public class TestGenerationJob extends Job {
 	}
 
 	protected void writeMarkersTestSuite() {
-		System.out.println("**********  Writing markers in test suite" + suiteClass);
-
-		String testClassFileName = getSuiteFileName(suiteClass);
-
-		final IFile fileTestClass = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(testClassFileName));
-
-		String fileContents = readFileToString(testClassFileName);
-		if (fileContents.isEmpty()) {
-			System.out.println("Not writing markers in test suite " + testClassFileName + " (not found)");
-			return;
-		}
-		
-		ASTParser parser = ASTParser.newParser(AST.JLS4);
-		parser.setKind(ASTParser.K_COMPILATION_UNIT);
-		parser.setStatementsRecovery(true);
-		
-		Map<String, String> COMPILER_OPTIONS = new HashMap<String, String>(JavaCore.getOptions());
-		 COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
-		    COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
-		    COMPILER_OPTIONS.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-		
-		parser.setUnitName(suiteClass);
-		String[] encodings = { ENCODING };
-		String[] classpaths = { classPath };
-		String[] sources = { new File(testClassFileName).getParent() };
-		parser.setEnvironment(classpaths, sources, encodings, true);
-		parser.setSource(fileContents.toCharArray());
-		
-		CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
-		MethodExtractingVisitor visitor = new MethodExtractingVisitor();
-		compilationUnit.accept(visitor);
-		List<MethodDeclaration> methods = visitor.getMethods();
-		
-		Display.getDefault().syncExec(new Runnable() {
-		    @Override
-		    public void run() {
-		        IWorkbenchWindow iw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		        IWorkbenchPage page = iw.getActivePage();
-		        try {
-					IDE.openEditor(page, fileTestClass, true);
-				} catch (PartInitException e1) {
-					System.out.println("Could not open test suite");
-					e1.printStackTrace();
-				}
-		    }
-		});
 		if (Activator.markersEnabled()) {
+			System.out.println("**********  Writing markers in test suite" + suiteClass);
+
+			String testClassFileName = getSuiteFileName(suiteClass);
+
+			final IFile fileTestClass = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(testClassFileName));
+
+			String fileContents = readFileToString(testClassFileName);
+			if (fileContents.isEmpty()) {
+				System.out.println("Not writing markers in test suite " + testClassFileName + " (not found)");
+				return;
+			}
+
+			ASTParser parser = ASTParser.newParser(AST.JLS4);
+			parser.setKind(ASTParser.K_COMPILATION_UNIT);
+			parser.setStatementsRecovery(true);
+
+			Map<String, String> COMPILER_OPTIONS = new HashMap<String, String>(JavaCore.getOptions());
+			COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+			COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+			COMPILER_OPTIONS.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
+
+			parser.setUnitName(suiteClass);
+			String[] encodings = { ENCODING };
+			String[] classpaths = { classPath };
+			String[] sources = { new File(testClassFileName).getParent() };
+			parser.setEnvironment(classpaths, sources, encodings, true);
+			parser.setSource(fileContents.toCharArray());
+
+			CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+			MethodExtractingVisitor visitor = new MethodExtractingVisitor();
+			compilationUnit.accept(visitor);
+			List<MethodDeclaration> methods = visitor.getMethods();
+		
+			Display.getDefault().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					IWorkbenchWindow iw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					IWorkbenchPage page = iw.getActivePage();
+					try {
+						IDE.openEditor(page, fileTestClass, true);
+					} catch (PartInitException e1) {
+						System.out.println("Could not open test suite");
+						e1.printStackTrace();
+					}
+				}
+			});
+
 			for (MethodDeclaration m : methods) {
 				int lineNumber = compilationUnit.getLineNumber(m.getStartPosition());
 				try {
@@ -827,7 +908,8 @@ public class TestGenerationJob extends Job {
 					e.printStackTrace();
 				}
 			}
-		}
+		} else
+			System.out.println("**********  Markers are disabled");
 	}
 	
 	public static String readFileToString(String fileName) {

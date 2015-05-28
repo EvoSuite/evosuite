@@ -17,15 +17,12 @@
  */
 package org.evosuite.coverage.ibranch;
 
-import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.SystemTest;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
@@ -35,12 +32,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.FlagExample3;
-import com.examples.with.different.packagename.IntExample;
-import com.examples.with.different.packagename.SingleMethod;
 import com.examples.with.different.packagename.context.complex.EntryPointsClass;
-import com.examples.with.different.packagename.coverage.IntExampleWithNoElse;
-import com.examples.with.different.packagename.staticfield.StaticFoo;
 
 /** 
 	 * Ibranch Goals of provacomplex.EntryPointsClass.
@@ -93,11 +85,14 @@ public class TestIBranch extends SystemTest {
 	private double oldPrimitivePool = Properties.PRIMITIVE_POOL;
 	private long budget = Properties.SEARCH_BUDGET;
 	private String secondary = Properties.SECONDARY_OBJECTIVE;
+	private boolean oldArchive = Properties.TEST_ARCHIVE;
+	
 	@Before
 	public void beforeTest() {
 		oldCriteria = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 		oldStoppingCondition = Properties.STOPPING_CONDITION;
 		oldPrimitivePool = Properties.PRIMITIVE_POOL;
+		TestSuiteChromosome.removeAllSecondaryObjectives();
 		secondary=Properties.SECONDARY_OBJECTIVE;
 		budget = Properties.SEARCH_BUDGET;
         Properties.INSTRUMENT_CONTEXT = true;
@@ -113,15 +108,18 @@ public class TestIBranch extends SystemTest {
 		Properties.SECONDARY_OBJECTIVE=secondary;
 		Properties.INSTRUMENT_CONTEXT = false;
 		Properties.SEARCH_BUDGET = budget;
+		Properties.TEST_ARCHIVE = oldArchive;
 	}
 
 
 	
 	@Test
-	public void testIbranchAsSecondaryObjective() {
+	public void testIBranchAsSecondaryObjective() {
         Properties.CRITERION = new Properties.Criterion[] { Criterion.BRANCH };
         Properties.SECONDARY_OBJECTIVE="ibranch:totallength";
         
+        Properties.TEST_ARCHIVE = false;
+        Properties.SEARCH_BUDGET = 60000;
 		EvoSuite evosuite = new EvoSuite();		
 		String targetClass = EntryPointsClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
@@ -140,7 +138,7 @@ public class TestIBranch extends SystemTest {
 	@Test
 	public void testArchiveIBranchAsSecondaryObjective() {
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.BRANCH };
-        Properties.SECONDARY_OBJECTIVE="archiveibranch:totallength";
+        Properties.SECONDARY_OBJECTIVE="ibranch:totallength";
 		
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = EntryPointsClass.class.getCanonicalName();
@@ -162,6 +160,7 @@ public class TestIBranch extends SystemTest {
 		Properties.SEARCH_BUDGET = 140000;
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.IBRANCH };
         Properties.SECONDARY_OBJECTIVE="totallength";
+        Properties.TEST_ARCHIVE = false;
 		
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = EntryPointsClass.class.getCanonicalName();
@@ -181,7 +180,7 @@ public class TestIBranch extends SystemTest {
 	@Test
 	public void testArchiveIBranch() {
 		Properties.SEARCH_BUDGET = 100000;
-		Properties.CRITERION = new Properties.Criterion[] { Criterion.ARCHIVEIBRANCH };
+		Properties.CRITERION = new Properties.Criterion[] { Criterion.IBRANCH };
         Properties.SECONDARY_OBJECTIVE="totallength";
 		
 		EvoSuite evosuite = new EvoSuite();

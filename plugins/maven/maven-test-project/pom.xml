@@ -16,7 +16,7 @@
 
 
 	<properties>
-		<evosuiteVersion>0.1.1-SNAPSHOT</evosuiteVersion>  <!-- this needs to be overriden with -D -->
+		<evosuiteVersion>0.1.2-SNAPSHOT</evosuiteVersion>  <!-- this needs to be overriden with -D -->
 	</properties>
 
 	<dependencies>
@@ -28,7 +28,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.evosuite</groupId>
-			<artifactId>evosuite-runtime</artifactId>
+			<artifactId>evosuite-standalone-runtime</artifactId>
 			<version>${evosuiteVersion}</version>
 			<!-- <scope>system</scope> <systemPath>${basedir}/../../../../runtime/target/evosuite-runtime-${evosuiteVersion}.jar</systemPath> -->
 		</dependency>

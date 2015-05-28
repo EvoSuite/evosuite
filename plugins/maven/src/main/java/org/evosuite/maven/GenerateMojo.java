@@ -22,17 +22,42 @@ import org.evosuite.maven.util.EvoSuiteRunner;
 @Mojo( name = "generate" , requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDependencyCollection = ResolutionScope.RUNTIME)
 public class GenerateMojo extends AbstractMojo{
 
+	/**
+	 * Total Memory (in MB) that CTG will use
+	 */
 	@Parameter( property = "memoryInMB", defaultValue = "800" )
 	private int memoryInMB;
 
+	/**
+	 * Number of cores CTG will use
+	 */
 	@Parameter( property = "cores", defaultValue = "1" )
 	private int numberOfCores;
 
+	/**
+	 * Comma ',' separated list of CUTs to use in CTG. If none specified, then test all classes
+	 */
 	@Parameter( property = "cuts" )
 	private String cuts;
 
+	/**
+	 * How many minutes to allocate for each class
+	 */
 	@Parameter( property = "timeInMinutesPerClass", defaultValue = "2" )
 	private int timeInMinutesPerClass;
+
+	/**
+	 * How many minutes to allocate for each project/module. If this parameter is not set, then the total time will be timeInMinutesPerClass x number_of_classes
+	 */
+	@Parameter( property = "timeInMinutesPerProject" )
+	private int timeInMinutesPerProject;
+
+	/**
+	 * Coverage criterion. Can define more than one criterion by using a ':' separated list
+	 */
+	// FIXME would be nice to have the value of Properties.CRITERION but seems to be not possible
+	@Parameter( property = "criterion", defaultValue = "LINE:BRANCH:EXCEPTION:WEAKMUTATION:OUTPUT:METHOD:METHODNOEXCEPTION:CBRANCH" )
+	private String criterion;
 
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
 	private MavenProject project;
@@ -46,7 +71,7 @@ public class GenerateMojo extends AbstractMojo{
 	@Parameter(defaultValue="${repositorySystemSession}", required = true, readonly = true)
 	private RepositorySystemSession repoSession;
 
-	
+	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException{
 
 		getLog().info("Going to generate tests with EvoSuite");
@@ -123,9 +148,15 @@ public class GenerateMojo extends AbstractMojo{
 		params.add("execute");
 		params.add("-target");
 		params.add(target);
+		params.add("-Dcriterion="+criterion);
 		params.add("-Dctg_memory="+memoryInMB);
 		params.add("-Dctg_cores="+numberOfCores);
-		params.add("-Dctg_time_per_class="+timeInMinutesPerClass);
+		if (timeInMinutesPerProject != 0) {
+			params.add("-Dctg_time="+timeInMinutesPerProject);
+			params.add("-Dctg_min_time_per_job="+timeInMinutesPerClass);
+		} else {
+			params.add("-Dctg_time_per_class="+timeInMinutesPerClass); // there is no time limit, so test all classes X minutes
+		}
 		if(cuts!=null){
 			params.add("-Dctg_selected_cuts="+cuts);
 		}

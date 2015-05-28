@@ -266,7 +266,6 @@ public class StorageManager {
 		 */
 		Map<String,CsvJUnitData> reports = new LinkedHashMap<String,CsvJUnitData>();
 		for(File file : generatedReports){
-			LoggingUtils.getEvoLogger().info("File: " + file.getAbsolutePath());
 			CsvJUnitData data = CsvJUnitData.openFile(file);
 			if(data==null){
 				logger.warn("Cannot process "+file.getAbsolutePath());

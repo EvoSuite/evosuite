@@ -2,21 +2,14 @@ package org.evosuite.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuilder;
-import org.eclipse.aether.RepositorySystemSession;
-import org.evosuite.Properties;
-import org.evosuite.continuous.persistency.StorageManager;
+import org.evosuite.continuous.ContinuousTestGeneration;
 
 /**
  * When run, EvoSuite generate tests in a specific folder.
@@ -49,28 +42,20 @@ public class ExportMojo extends AbstractMojo{
 
 		File basedir = project.getBasedir();
 
-		String evoFolderName = Properties.CTG_DIR+File.separator+ Properties.CTG_BESTS_DIR;
-		File evoFolder = new File(basedir.getAbsolutePath()+File.separator+evoFolderName);
-		
-		File[] children = evoFolder.listFiles();
-		boolean isEmpty = children==null || children.length==0;
-		
-		if(isEmpty){
-			getLog().info("Nothing to export");
-			return;
-		}
-		
-		File target = new File(basedir.getAbsolutePath()+File.separator+targetFolder);
-		
 		try {
-			FileUtils.copyDirectory(evoFolder, target);
+			boolean exported = ContinuousTestGeneration.exportToFolder(basedir.getAbsolutePath(),targetFolder);
+			if(!exported){
+				getLog().info("Nothing to export");
+				return;
+			}
 		} catch (IOException e) {
 			String msg = "Error while exporting tests: "+e.getMessage();
 			getLog().error(msg);
-			throw new MojoFailureException(msg); 
+			throw new MojoFailureException(msg);
 		}
-		
-		getLog().info("Exported tests from "+evoFolder+" to "+target);
+
+		File target = new File(basedir.getAbsolutePath()+File.separator+targetFolder);
+		getLog().info("Exported tests to "+target);
 	}
 
 }

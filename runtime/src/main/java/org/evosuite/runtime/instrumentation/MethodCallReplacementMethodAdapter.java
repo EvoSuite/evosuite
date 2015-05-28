@@ -106,8 +106,9 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					}
 					if (replacement.getMethodName().equals("<init>"))
 						replacement.insertConstructorCall(this, replacement, isSelf);
-					else
+					else {
 						replacement.insertMethodCall(this, Opcodes.INVOKESPECIAL);
+					}
 				}
 			}
 		}

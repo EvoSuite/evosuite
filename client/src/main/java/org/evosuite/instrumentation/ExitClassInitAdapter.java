@@ -2,7 +2,7 @@ package org.evosuite.instrumentation;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
-import org.evosuite.runtime.reset.ResetManager;
+import org.evosuite.runtime.classhandling.ResetManager;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;

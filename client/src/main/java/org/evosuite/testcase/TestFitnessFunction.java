@@ -110,7 +110,10 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	}
 
 	public boolean isCoveredBy(TestSuiteChromosome testSuite) {
+		int num = 1;
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
+			logger.debug("Checking goal against test "+num+"/"+testSuite.size());
+			num++;
 			if (isCovered(test))
 				return true;
 		}

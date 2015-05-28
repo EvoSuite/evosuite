@@ -43,7 +43,6 @@ public class CoverageAnalysis {
 		case WEAKMUTATION:
 		case STRONGMUTATION:
 		case ONLYMUTATION:
-		case ARCHIVEMUTATION:
 			return true;
 		default:
 			return false;
@@ -58,10 +57,6 @@ public class CoverageAnalysis {
 		Set<Criterion> oldCriteria = new HashSet<>();
 		for (Criterion c : Properties.CRITERION) {
 			oldCriteria.add(c);
-			if (c.equals(Criterion.ARCHIVEBRANCH))
-				oldCriteria.add(Criterion.BRANCH);
-			if (c.equals(Criterion.ARCHIVEIBRANCH))
-				oldCriteria.add(Criterion.IBRANCH);
 		}
 		if (Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("ibranch")
 				|| Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("archiveibranch")) {
@@ -71,13 +66,14 @@ public class CoverageAnalysis {
 	    	    
 		if (!ExecutionTracer.isTraceCallsEnabled()) {
 			ExecutionTracer.enableTraceCalls();
-			testSuite.setChanged(true);
-			for (TestChromosome test : testSuite.getTestChromosomes()) {
-				test.setChanged(true);
-				test.clearCachedResults();
-				test.clearCachedMutationResults();
-			}
 		}
+		testSuite.setChanged(true);
+		for (TestChromosome test : testSuite.getTestChromosomes()) {
+			test.setChanged(true);
+			test.clearCachedResults();
+			test.clearCachedMutationResults();
+		}
+
 		
 		if (oldCriteria.contains(criterion))
 			return; 
@@ -104,8 +100,8 @@ public class CoverageAnalysis {
 		Properties.getTargetClass();
 
 		// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
-		logger.info("Changing classloader of test suite for criterion: "
-		                                         + criterion);
+		logger.info("Changing classloader of test suite for criterion: " + criterion);
+
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
 			dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
@@ -156,8 +152,6 @@ public class CoverageAnalysis {
 			return RuntimeVariable.AllDefCoverage;
 		case BRANCH:
 			return RuntimeVariable.BranchCoverage;
-		case ARCHIVEBRANCH:
-			return RuntimeVariable.BranchCoverage;
 		case CBRANCH:
 			return RuntimeVariable.CBranchCoverage;
 		case EXCEPTION:
@@ -171,7 +165,6 @@ public class CoverageAnalysis {
 		case AMBIGUITY:
 			return RuntimeVariable.AmbiguityCoverage;
 		case STRONGMUTATION:
-		case ARCHIVEMUTATION:
 		case MUTATION:
 			return RuntimeVariable.MutationScore;
 		case ONLYMUTATION:
@@ -186,14 +179,12 @@ public class CoverageAnalysis {
 			return RuntimeVariable.MethodCoverage;
 		case METHODNOEXCEPTION:
 			return RuntimeVariable.MethodNoExceptionCoverage;
-		case ARCHIVELINE:
+		case ONLYLINE:
 		case LINE:
 			return RuntimeVariable.LineCoverage;
 		case OUTPUT:
 			return RuntimeVariable.OutputCoverage;
 		case IBRANCH:
-			return RuntimeVariable.IBranchCoverage;
-		case ARCHIVEIBRANCH:
 			return RuntimeVariable.IBranchCoverage;
 		case REGRESSION:
 		default:
@@ -267,14 +258,12 @@ public class CoverageAnalysis {
     private static RuntimeVariable getBitStringVariable(Properties.Criterion criterion){
         switch (criterion){
             case BRANCH:
-            case ARCHIVEBRANCH:
                 return RuntimeVariable.CoveredBranchesBitString;
             case LINE:
-            case ARCHIVELINE:
+            case ONLYLINE:
                 return RuntimeVariable.CoveredLinesBitString;
             case MUTATION:
             case WEAKMUTATION:
-            case ARCHIVEMUTATION:
                 return RuntimeVariable.CoveredWeakMutationBitString;
             default:
                 return null;

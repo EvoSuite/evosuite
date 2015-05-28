@@ -50,19 +50,20 @@ import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.FitnessLogger;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.archive.ArchiveTestChromosomeFactory;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUseFitnessCalculator;
+import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
-import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
+import org.evosuite.ga.Archive;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
-import org.evosuite.ga.IBranchSecondaryObjective;
 import org.evosuite.ga.MinimizeSizeSecondaryObjective;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.TournamentChromosomeFactory;
@@ -814,10 +815,10 @@ public class TestSuiteGenerator {
 		List<TestSuiteFitnessFunction> fitness_functions = getFitnessFunction();
 		ga.addFitnessFunctions(fitness_functions);
 
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
-		    for (FitnessFunction<?> fitness_function : fitness_functions)
-		        ga.addListener((StrongMutationSuiteFitness) fitness_function);
-		}
+//		if (ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
+//		    for (FitnessFunction<?> fitness_function : fitness_functions)
+//		        ga.addListener((StrongMutationSuiteFitness) fitness_function);
+//		}
 
 		//ga.setChromosomeFactory(getChromosomeFactory(fitness_function));
 		ga.setChromosomeFactory(getChromosomeFactory(fitness_functions.get(0))); // FIXME: just one fitness function?
@@ -838,23 +839,8 @@ public class TestSuiteGenerator {
 		// if (analyzing)
 		ga.resetStoppingConditions();
 
-		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactory();
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-		if(goalFactories.size() == 1) {
-			TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
-			LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
-			goals.addAll(factory.getCoverageGoals());
-		} else {
-			LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
-			for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-				goals.addAll(goalFactory.getCoverageGoals());
-				LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
-						+ " " + goalFactory.getCoverageGoals().size());
-			}
-		}
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
-		                                                                 goals.size());
-		List<TestSuiteChromosome> bestSuites = new ArrayList<TestSuiteChromosome>();
+		List<TestFitnessFunction> goals = getGoals(true);
+		List<TestSuiteChromosome> bestSuites = new ArrayList<>();
         /*
          * Proceed with search if CRITERION=EXCEPTION, even if goals is empty
          */
@@ -883,6 +869,9 @@ public class TestSuiteGenerator {
 		}
 
 		long end_time = System.currentTimeMillis() / 1000;
+
+		goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
 		// Newline after progress bar
 		if (Properties.SHOW_PROGRESS)
@@ -945,7 +934,7 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Inlining constants");
 
 			for (TestSuiteChromosome best : bestSuites) {
-                Map<FitnessFunction<?>, Double> fitnesses = best.getFitnesses();
+                Map<FitnessFunction<?>, Double> fitnesses = best.getFitnessValues();
 
                 inliner.inline(best);
                 for (FitnessFunction<?> fitness : fitnesses.keySet())
@@ -956,7 +945,7 @@ public class TestSuiteGenerator {
 		if (Properties.MINIMIZE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
-			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goalFactories);
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			if (bestSuites.size() == 1 ) {
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 			    minimizer.minimize(bestSuites.get(0), true);
@@ -1047,7 +1036,35 @@ public class TestSuiteGenerator {
 		return bestSuites;
 	}
 
-    private void sendExecutionStatistics() {
+	private List<TestFitnessFunction> getGoals(boolean verbose) {
+		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactory();
+		List<TestFitnessFunction> goals = new ArrayList<>();
+
+		if(goalFactories.size() == 1) {
+			TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
+			goals.addAll(factory.getCoverageGoals());
+
+			if(verbose) {
+				LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
+			}
+		} else {
+			if(verbose) {
+				LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
+			}
+
+			for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+				goals.addAll(goalFactory.getCoverageGoals());
+
+				if(verbose) {
+					LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
+							+ " " + goalFactory.getCoverageGoals().size());
+				}
+			}
+		}
+		return goals;
+	}
+
+	private void sendExecutionStatistics() {
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Statements_Executed, MaxStatementsStoppingCondition.getNumExecutedStatements());
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, MaxTestsStoppingCondition.getNumExecutedTests());
     }
@@ -1066,9 +1083,6 @@ public class TestSuiteGenerator {
 		case WEAKMUTATION:
 			LoggingUtils.getEvoLogger().info("  - Mutation testing (weak)");
 			break;
-        case ARCHIVEMUTATION:
-            LoggingUtils.getEvoLogger().info("  - Only Mutation testing (weak) w/Archive");
-            break;
         case ONLYMUTATION:
             LoggingUtils.getEvoLogger().info("  - Only Mutation testing (weak)");
             break;
@@ -1106,16 +1120,13 @@ public class TestSuiteGenerator {
 		case METHODNOEXCEPTION:
 			LoggingUtils.getEvoLogger().info("  - No-Exception Top-Level Method Coverage");
 			break;
-		case ARCHIVELINE:
+		case ONLYLINE:
 		case LINE:
 			LoggingUtils.getEvoLogger().info("  - Line Coverage");
 			break;
 		case OUTPUT:
 			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");
 			break;
-        case ARCHIVEBRANCH:
-            LoggingUtils.getEvoLogger().info("  - Branch Coverage w/Archive");
-            break;
 		default:
 			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
 		}
@@ -1987,9 +1998,7 @@ public class TestSuiteGenerator {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
 		else if (name.equalsIgnoreCase("ibranch"))
-			return new IBranchSecondaryObjective(FitnessFunctions.getFitnessFunction(Criterion.IBRANCH));
-		else if (name.equalsIgnoreCase("archiveibranch"))
-			return new IBranchSecondaryObjective(FitnessFunctions.getFitnessFunction(Criterion.ARCHIVEIBRANCH));
+			return new IBranchSecondaryObjective();
 		else if (name.equalsIgnoreCase("maxlength"))
 			return new MinimizeMaxLengthSecondaryObjective();
 		else if (name.equalsIgnoreCase("averagelength"))
@@ -2057,16 +2066,26 @@ public class TestSuiteGenerator {
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 * @return a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T extends Chromosome> GeneticAlgorithm<T> getGeneticAlgorithm(
 	        ChromosomeFactory<T> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");
-			return new OnePlusOneEA<T>(factory);
+			{
+				OnePlusOneEA<T> ga = new OnePlusOneEA<T>(factory); 
+				if (Properties.STRATEGY == Strategy.EVOSUITE && Properties.TEST_ARCHIVE)
+					ga.setArchive((Archive<T>) TestsArchive.instance);
+
+				return ga;
+			}
 		case MONOTONICGA:
 			logger.info("Chosen search algorithm: MonotonicGA");
 			{
 				MonotonicGA<T> ga = new MonotonicGA<T>(factory);
+				if (Properties.STRATEGY == Strategy.EVOSUITE && Properties.TEST_ARCHIVE)
+					ga.setArchive((Archive<T>) TestsArchive.instance);
+
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -2083,6 +2102,9 @@ public class TestSuiteGenerator {
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
 				SteadyStateGA<T> ga = new SteadyStateGA<T>(factory);
+				if (Properties.STRATEGY == Strategy.EVOSUITE && Properties.TEST_ARCHIVE)
+					ga.setArchive((Archive<T>) TestsArchive.instance);
+
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -2097,13 +2119,24 @@ public class TestSuiteGenerator {
 			}
 		case RANDOM:
 			logger.info("Chosen search algorithm: Random");
-			return new RandomSearch<T>(factory);
+			{
+				RandomSearch<T> ga = new RandomSearch<T>(factory);
+				if (Properties.STRATEGY == Strategy.EVOSUITE && Properties.TEST_ARCHIVE)
+					ga.setArchive((Archive<T>) TestsArchive.instance);
+				
+				return ga;
+			}
         case NSGAII:
             logger.info("Chosen search algorithm: NSGAII");
             return new NSGAII<T>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
-			return new StandardGA<T>(factory);
+			{
+				StandardGA<T> ga = new StandardGA<T>(factory);
+				if (Properties.STRATEGY == Strategy.EVOSUITE && Properties.TEST_ARCHIVE)
+					ga.setArchive((Archive<T>) TestsArchive.instance);
+				return ga;
+			}
 		}
 
 	}

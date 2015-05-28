@@ -32,7 +32,6 @@ public class TestSerialization {
 		chromosome.setCoverage(null, 0.5);
 		chromosome.updateAge(24);
 		chromosome.setChanged(true);
-		chromosome.setSolution(true);
 		chromosome.addTest(testChromosome);
 		oos.writeObject(chromosome);
 		byte [] baSerialized = baos.toByteArray();
@@ -45,7 +44,6 @@ public class TestSerialization {
 		Assert.assertEquals(chromosome.getCoverage(), copy.getCoverage(), 0.0);
 		Assert.assertEquals(chromosome.getCoveredGoals(), copy.getCoveredGoals());
 		Assert.assertEquals(chromosome.isChanged(), copy.isChanged());
-		Assert.assertEquals(chromosome.isSolution(), copy.isSolution());
 		
 		Assert.assertEquals(chromosome.getTestChromosome(0).getFitness(), copy.getTestChromosome(0).getFitness(), 0.0);
 	}

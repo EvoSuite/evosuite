@@ -34,6 +34,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.TimeController;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
@@ -45,7 +46,7 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.ResetExecutor;
-import org.evosuite.runtime.reset.ResetManager;
+import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.util.SystemInUtil;
@@ -330,7 +331,8 @@ public class TestCaseExecutor implements ThreadFactory {
 	public ExecutionResult execute(TestCase tc, int timeout) {
 		Scope scope = new Scope();
 		ExecutionResult result = execute(tc, scope, timeout);
-		if (Properties.RESET_STATIC_FIELDS) {
+
+		if (Properties.RESET_STATIC_FIELDS && TimeController.getInstance().isThereStillTimeInThisPhase(Properties.TIMEOUT_RESET)) {
 			resetClasses(tc, result);
 		}
 		return result;

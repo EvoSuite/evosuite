@@ -44,24 +44,7 @@ public class TestCaseBinaryOp {
 		}
 	}
 
-	public static boolean testDiv2(int x, int y) {
-		if (10 == x / y) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	public static boolean testMod(int x, int y) {
-		int z = x % y;
-		if (x == z) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public static boolean testMod2(int x, int y) {
 		int z = x % y;
 		if (x == z) {
 			return true;

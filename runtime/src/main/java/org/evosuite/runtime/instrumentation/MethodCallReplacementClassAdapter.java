@@ -23,6 +23,7 @@ package org.evosuite.runtime.instrumentation;
 import java.util.Arrays;
 
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.mock.MockList;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -110,9 +111,18 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
                 FIXME: this should be moved in its own adapter, because it is not executed if we do
                 only reset of static state and no mocking
              */
-			String[] mockedInterfaces = Arrays.copyOf(interfaces, interfaces.length + 1);
-			mockedInterfaces[interfaces.length] = InstrumentedClass.class.getCanonicalName().replace('.', '/');
-			interfaces = mockedInterfaces;
+			boolean found = false;
+			String instrumentedInterface = InstrumentedClass.class.getCanonicalName().replace('.', '/');
+			for(String interf : interfaces) {
+				if(interf.equals(instrumentedInterface))
+					found = true;
+			}
+			if(!found) {
+				logger.info("Adding mock interface to class "+name);
+				String[] mockedInterfaces = Arrays.copyOf(interfaces, interfaces.length + 1);
+				mockedInterfaces[interfaces.length] = InstrumentedClass.class.getCanonicalName().replace('.', '/');
+				interfaces = mockedInterfaces;
+			}
 		}
 		
 		if(MockList.shouldBeMocked(superNameWithDots)) {
@@ -140,7 +150,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 				Method hashCodeMethod = Method.getMethod("int hashCode()");
 				GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, hashCodeMethod, null, null, this);
 				mg.loadThis();
-				mg.visitAnnotation(Type.getDescriptor(org.evosuite.annotation.EvoSuiteExclude.class), true);
+				mg.visitAnnotation(Type.getDescriptor(EvoSuiteExclude.class), true);
 				mg.invokeStatic(Type.getType(org.evosuite.runtime.System.class), Method.getMethod("int identityHashCode(Object)"));
 				mg.returnValue();
 				mg.endMethod();

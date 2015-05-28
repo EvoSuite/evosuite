@@ -8,7 +8,6 @@ import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
-import org.evosuite.coverage.branch.archive.ArchiveBranchCoverageSuiteFitness;
 import org.evosuite.coverage.cbranch.CBranchFitnessFactory;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.dataflow.AllDefsCoverageFactory;
@@ -19,17 +18,15 @@ import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
 import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
-import org.evosuite.coverage.ibranch.archive.ArchiveIBranchSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
-import org.evosuite.coverage.line.archive.ArchiveOnlyLineCoverageSuiteFitness;
+import org.evosuite.coverage.line.OnlyLineCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodCoverageFactory;
 import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageFactory;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodTraceCoverageFactory;
 import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
-import org.evosuite.coverage.mutation.ArchiveOnlyMutationSuiteFitness;
 import org.evosuite.coverage.mutation.MutationFactory;
 import org.evosuite.coverage.mutation.OnlyMutationFactory;
 import org.evosuite.coverage.mutation.OnlyMutationSuiteFitness;
@@ -76,20 +73,14 @@ public class FitnessFunctions {
 			return new StrongMutationSuiteFitness();
 		case ONLYMUTATION:
 			return new OnlyMutationSuiteFitness();
-		case ARCHIVEMUTATION:
-			return new ArchiveOnlyMutationSuiteFitness();
 		case DEFUSE:
 			return new DefUseCoverageSuiteFitness();
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
-		case ARCHIVEBRANCH:
-			return new ArchiveBranchCoverageSuiteFitness();
 		case CBRANCH:
 			return new CBranchSuiteFitness();
 		case IBRANCH:
 			return new IBranchSuiteFitness();
-		case ARCHIVEIBRANCH:
-			return new ArchiveIBranchSuiteFitness();
 		case STATEMENT:
 			return new StatementCoverageSuiteFitness();
 		case RHO:
@@ -112,8 +103,8 @@ public class FitnessFunctions {
 			return new MethodCoverageSuiteFitness();
 		case METHODNOEXCEPTION:
 			return new MethodNoExceptionCoverageSuiteFitness();
-		case ARCHIVELINE:
-			return new ArchiveOnlyLineCoverageSuiteFitness();
+		case ONLYLINE:
+			return new OnlyLineCoverageSuiteFitness();
 		case LINE:
 			return new LineCoverageSuiteFitness();
 		case OUTPUT:
@@ -144,19 +135,13 @@ public class FitnessFunctions {
 			return new MutationFactory(false);
 		case ONLYMUTATION:
 			return new OnlyMutationFactory();
-		case ARCHIVEMUTATION:
-			return new OnlyMutationFactory();
 		case DEFUSE:
 			return new DefUseCoverageFactory();
 		case BRANCH:
 			return new BranchCoverageFactory();
-		case ARCHIVEBRANCH:
-			return new BranchCoverageFactory();
 		case CBRANCH:
 			return new CBranchFitnessFactory();
 		case IBRANCH:
-			return new IBranchFitnessFactory();
-		case ARCHIVEIBRANCH:
 			return new IBranchFitnessFactory();
 		case STATEMENT:
 			return new StatementCoverageFactory();
@@ -178,7 +163,7 @@ public class FitnessFunctions {
 			return new MethodNoExceptionCoverageFactory();
 		case LINE:
 			return new LineCoverageFactory();
-		case ARCHIVELINE:
+		case ONLYLINE:
 			return new LineCoverageFactory();
 		case OUTPUT:
 			return new OutputCoverageFactory();

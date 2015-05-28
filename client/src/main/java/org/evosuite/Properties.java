@@ -160,7 +160,7 @@ public class Properties {
 
 	/** Constant <code>DYNAMIC_SEEDING=false</code> */
 	@Parameter(key = "dynamic_seeding", group = "Test Creation", description = "Use numeric dynamic seeding")
-	public static boolean DYNAMIC_SEEDING = false;  //TODO why is it deactivated???
+	public static boolean DYNAMIC_SEEDING = true;
 
 	/** Constant <code>DYNAMIC_POOL_SIZE=50</code> */
 	@Parameter(key = "dynamic_pool_size", group = "Test Creation", description = "Number of dynamic constants to keep")
@@ -407,7 +407,7 @@ public class Properties {
 	public static boolean LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION = true;
 
 	@Parameter(key = "local_search_restore_coverage", group = "Local Search", description = "Add tests that cover branches already covered in the past")
-	public static boolean LOCAL_SEARCH_RESTORE_COVERAGE = true;
+	public static boolean LOCAL_SEARCH_RESTORE_COVERAGE = false; // Not needed with archive
 
 	@Parameter(key = "local_search_adaptation_rate", group = "Local Search", description = "Parameter used to adapt at runtime the probability of applying local search")
 	public static double LOCAL_SEARCH_ADAPTATION_RATE = 0.33;
@@ -623,28 +623,36 @@ public class Properties {
 	/** Constant <code>GLOBAL_TIMEOUT=600</code> */
 	@Parameter(key = "global_timeout", group = "Search Algorithm", description = "Maximum seconds allowed for entire search when not using time as stopping criterion")
 	@IntValue(min = 0)
-	public static int GLOBAL_TIMEOUT = 600;
+	public static int GLOBAL_TIMEOUT = 120;
 
 	/** Constant <code>MINIMIZATION_TIMEOUT=600</code> */
 	@Parameter(key = "minimization_timeout", group = "Search Algorithm", description = "Seconds allowed for minimization at the end")
 	@IntValue(min = 0)
-	public static int MINIMIZATION_TIMEOUT = 600;
+	public static int MINIMIZATION_TIMEOUT = 60;
 
     @Parameter(key = "assertion_timeout", group = "Search Algorithm", description = "Seconds allowed for assertion generation at the end")
     @IntValue(min = 0)
-    public static int ASSERTION_TIMEOUT = 600;
+    public static int ASSERTION_TIMEOUT = 60;
 
-    @Parameter(key = "junit_check_timeout", group = "Search Algorithm", description = "Seconds allowed for checking the generated JUnit files (e.g., compilation and stability)")
-    @IntValue(min = 0)
-    public static int JUNIT_CHECK_TIMEOUT = 600;
-
-    @Parameter(key = "carving_timeout", group = "Search Algorithm", description = "Seconds allowed for carving JUnit tests")
+	@Parameter(key = "junit_check_timeout", group = "Search Algorithm", description = "Seconds allowed for checking the generated JUnit files (e.g., compilation and stability)")
 	@IntValue(min = 0)
-	public static int CARVING_TIMEOUT = 600;
+	public static int JUNIT_CHECK_TIMEOUT = 60;
+
+	@Parameter(key = "write_junit_timeout", group = "Search Algorithm", description = "Seconds allowed to write on disk the generated JUnit files")
+	@IntValue(min = 0)
+	public static int WRITE_JUNIT_TIMEOUT = 60; //Note: we need it, as we currently first run the tests before we write them
+
+	@Parameter(key = "carving_timeout", group = "Search Algorithm", description = "Seconds allowed for carving JUnit tests")
+	@IntValue(min = 0)
+	public static int CARVING_TIMEOUT = 120;
 
 	@Parameter(key = "initialization_timeout", group = "Search Algorithm", description = "Seconds allowed for initializing the search")
 	@IntValue(min = 0)
-	public static int INITIALIZATION_TIMEOUT = 600;
+	public static int INITIALIZATION_TIMEOUT = 120;
+
+	@Parameter(key = "extra_timeout", group = "Search Algorithm", description = "Extra seconds allowed for the search")
+	@IntValue(min = 0)
+	public static int EXTRA_TIMEOUT = 60;
 
 	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
 	public static boolean TRACK_BOOLEAN_BRANCHES = false;
@@ -655,10 +663,6 @@ public class Properties {
 	@Parameter(key = "branch_comparison_types", group = "Search Algorithm", description = "Track branch comparison types based on the bytecode")
 	public static boolean BRANCH_COMPARISON_TYPES = false;
 
-	/** Constant <code>EXTRA_TIMEOUT=120</code> */
-	@Parameter(key = "extra_timeout", group = "Search Algorithm", description = "Extra seconds allowed for the search")
-	@IntValue(min = 0)
-	public static int EXTRA_TIMEOUT = 120;
 
 	@Parameter(key = "analysis_criteria", group = "Output", description = "List of criteria which should be measured on the completed test suite")
 	public static String ANALYSIS_CRITERIA = "";
@@ -714,6 +718,10 @@ public class Properties {
 	@Parameter(key = "ctg_selected_cuts", group = "Continuous Test Generation", description = "Comma ',' separated list of CUTs to use in CTG. If none specified, then test all classes")
 	public static String CTG_SELECTED_CUTS = null;
 
+	@Parameter(key = "ctg_export_folder", group = "Continuous Test Generation", description = "If specified, make a copy of all tests into the target export folder")
+	public static String CTG_EXPORT_FOLDER = null;
+
+
 	/**
 	 * The types of CTG schedules that can be used
 	 */
@@ -727,7 +735,7 @@ public class Properties {
 	 * Maven plugin will use the default, best one
 	 */
 	@Parameter(key = "ctg_schedule", group = "Continuous Test Generation", description = "Schedule used to run jobs")
-	public static AvailableSchedule CTG_SCHEDULE = AvailableSchedule.SIMPLE;
+	public static AvailableSchedule CTG_SCHEDULE = AvailableSchedule.BUDGET;
 
 	// ---------------------------------------------------------------
 	// Single branch mode
@@ -1088,9 +1096,12 @@ public class Properties {
 		SEED_RANDOM_INDIVIDUAL_METHOD, SEED_MUTATED_BEST_INDIVIDUAL
 	}
 
+	@Parameter(key = "test_archive", description = "Use an archive of covered goals during test generation")
+	public static boolean TEST_ARCHIVE = true;
+
 	/** Constant <code>TEST_FACTORY</code> */
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
-	public static TestFactory TEST_FACTORY = TestFactory.RANDOM;
+	public static TestFactory TEST_FACTORY = TestFactory.ARCHIVE;
 
 	@Parameter(key = "seed_file", description = "File storing TestGenerationResult or GeneticAlgorithm")
 	public static String SEED_FILE = "";
@@ -1173,9 +1184,12 @@ public class Properties {
 
 	// ---------------------------------------------------------------
 	// Test Execution
-	/** Constant <code>TIMEOUT=5000</code> */
-	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")
-	public static int TIMEOUT = 5000;
+	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed to execute the body of a test")
+	public static int TIMEOUT = 3000;
+
+	@Parameter(key = "timeout_reset", group = "Test Execution", description = "Milliseconds allowed to execute the static reset of a test")
+	public static int TIMEOUT_RESET = 2000;
+
 
 	@Parameter(key = "concolic_timeout", group = "Test Execution", description = "Milliseconds allowed per test during concolic execution")
 	public static int CONCOLIC_TIMEOUT = 15000;
@@ -1225,6 +1239,10 @@ public class Properties {
 	@IntValue(min = 1024, max = 65535)
 	public static int PORT = 1044;
 
+	@Parameter(key = "jmc", group = "Debugging", description = "Experimental: activate Flight Recorder in spawn client process for Java Mission Controll")
+	public static boolean JMC = false;
+
+
 	// ---------------------------------------------------------------
 	// TODO: Fix description
 	public enum AlternativeFitnessCalculationMode {
@@ -1267,18 +1285,17 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Runtime parameters
 
-    //FIXME: archive should be a separated variable: it has conceptually nothing to do with coverage criteria
 	public enum Criterion {
-		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, ARCHIVEBRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
-        MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, ARCHIVEIBRANCH, REGRESSION, READABILITY,
-        ONLYBRANCH, ONLYMUTATION, ARCHIVEMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ARCHIVELINE, OUTPUT
+		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
+        MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, REGRESSION, READABILITY,
+        ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT
 	}
 
     /** Constant <code>CRITERION</code> */
     @Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")
     public static Criterion[] CRITERION = new Criterion[] {
             //these are basic criteria that should be always on by default
-            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD  };
+            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
 
 
     /** Cache target class */
@@ -1361,6 +1378,10 @@ public class Properties {
 	/** Constant <code>MIN_FREE_MEM=50 * 1000 * 1000</code> */
 	@Parameter(key = "min_free_mem", group = "Runtime", description = "Minimum amount of available memory")
 	public static int MIN_FREE_MEM = 50 * 1000 * 1000;
+
+
+	@Parameter(key = "max_perm_size", group = "Runtime", description = "MaxPermSize (in MB) for the client process")
+	public static int MAX_PERM_SIZE = 256;
 
 	/** Constant <code>CLIENT_ON_THREAD=false</code> */
 	@Parameter(key = "client_on_thread", group = "Runtime", description = "Run client process on same JVM of master in separate thread. To be used only for debugging purposes")
@@ -2094,6 +2115,10 @@ public class Properties {
 	public static Class<?> getTargetClass() {
 		return getTargetClass(true);
 	}
+	
+	public static boolean hasTargetClassBeenLoaded() {
+		return TARGET_CLASS_INSTANCE != null;
+	}
 
 	/**
 	 * Get class object of class under test
@@ -2101,6 +2126,7 @@ public class Properties {
 	 * @return a {@link java.lang.Class} object.
 	 */
 	public static Class<?> getTargetClass(boolean initialise) {
+
 		if (TARGET_CLASS_INSTANCE != null
 				&& TARGET_CLASS_INSTANCE.getCanonicalName()
 						.equals(TARGET_CLASS))
@@ -2123,30 +2149,10 @@ public class Properties {
 			setClassPrefix();
 
 		} catch (ClassNotFoundException e) {
-			LoggingUtils.getEvoLogger().info(
-					"* Could not find class under test: "
-							+ Properties.TARGET_CLASS + ": " + e);
-			for (StackTraceElement s : e.getStackTrace()) {
-				LoggingUtils.getEvoLogger().info("   " + s.toString());
-			}
-			Throwable cause = e.getCause();
-			while (cause != null) {
-				LoggingUtils.getEvoLogger().info("Caused by: " + cause);
-				for (StackTraceElement s : cause.getStackTrace()) {
-					LoggingUtils.getEvoLogger().info("   " + s.toString());
-				}
-				cause = cause.getCause();
-			}
-			/*
-			 * FIXME: Why this sleep???
-			 */
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e1) {
-				logger.debug(e1.getMessage());
-			}
-		} finally {
+			LoggingUtils.getEvoLogger().warn(
+					"* Could not find class under test " + Properties.TARGET_CLASS + ": " + e);
 		}
+
 		return TARGET_CLASS_INSTANCE;
 	}
 

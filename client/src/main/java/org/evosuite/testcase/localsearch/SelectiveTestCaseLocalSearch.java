@@ -10,7 +10,6 @@ import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.operators.mutation.MutationHistory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestMutationHistoryEntry;
-import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.utils.Randomness;
 
 public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {

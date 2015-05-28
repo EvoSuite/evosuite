@@ -10,3 +10,18 @@ Be sure that the EvoSuite plugin is activated, eg from the menubar
 
 To run EvoSuite, just select one or more classes/packages in the "Project" view, right-click
 and choose "Run EvoSuite". Tests will be generated for all the selected classes/packages.
+
+
+--------------
+
+Gradle settings to import runtime:
+
+repositories {
+    maven {
+        url "http://www.evosuite.org/m2"
+    }
+}
+
+dependencies {
+    testCompile 'org.evosuite:evosuite-standalone-runtime:0.1.1'
+}

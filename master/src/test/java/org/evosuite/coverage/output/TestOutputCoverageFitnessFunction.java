@@ -24,6 +24,7 @@ import org.evosuite.SystemTest;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +38,16 @@ import com.examples.with.different.packagename.coverage.MethodReturnsPrimitive;
  */
 public class TestOutputCoverageFitnessFunction extends SystemTest {
 
+    private static final Criterion[] defaultCriterion = Properties.CRITERION;
+    
+    private static boolean defaultArchive = Properties.TEST_ARCHIVE;
+
+	@After
+	public void resetProperties() {
+		Properties.CRITERION = defaultCriterion;
+		Properties.TEST_ARCHIVE = defaultArchive;
+	}
+
 	@Before
 	public void beforeTest() {
         Properties.CRITERION[0] = Criterion.OUTPUT;
@@ -44,6 +55,17 @@ public class TestOutputCoverageFitnessFunction extends SystemTest {
 	}
 
 	@Test
+	public void testOutputCoveragePrimitiveTypesWithArchive() {
+		Properties.TEST_ARCHIVE = true;
+		testOutputCoveragePrimitiveTypes();
+	}
+	
+	@Test
+	public void testOutputCoveragePrimitiveTypesWithoutArchive() {
+		Properties.TEST_ARCHIVE = false;
+		testOutputCoveragePrimitiveTypes();
+	}
+		
 	public void testOutputCoveragePrimitiveTypes() {
 		EvoSuite evosuite = new EvoSuite();
 		
@@ -62,6 +84,17 @@ public class TestOutputCoverageFitnessFunction extends SystemTest {
 	}
 
 	@Test
+	public void testOutputCoverageObjectTypeWithArchive() {
+		Properties.TEST_ARCHIVE = true;
+		testOutputCoverageObjectType();
+	}
+	
+	@Test
+	public void testOutputCoverageObjectTypeWithoutArchive() {
+		Properties.TEST_ARCHIVE = false;
+		testOutputCoverageObjectType();
+	}
+		
 	public void testOutputCoverageObjectType() {
 		EvoSuite evosuite = new EvoSuite();
 

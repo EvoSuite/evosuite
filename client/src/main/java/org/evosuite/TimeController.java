@@ -89,6 +89,7 @@ public class TimeController {
 		phaseTimeouts.put(ClientState.CARVING, (Long) 1000l * Properties.CARVING_TIMEOUT);
 		phaseTimeouts.put(ClientState.INITIALIZATION, (Long) 1000l * Properties.INITIALIZATION_TIMEOUT);
         phaseTimeouts.put(ClientState.JUNIT_CHECK, (Long) 1000l * Properties.JUNIT_CHECK_TIMEOUT);
+		phaseTimeouts.put(ClientState.WRITING_TESTS, (Long) 1000l * Properties.WRITE_JUNIT_TIMEOUT);
 
 		if(timeSpentInEachPhase!=null){
 			timeSpentInEachPhase.clear();
@@ -122,6 +123,18 @@ public class TimeController {
 			timeSpentInEachPhase.put(state, elapsed);
 			
 			logger.debug("Phase "+state+" lasted "+ (elapsed/1000) + " seconds");
+
+
+			//check if spent too much time, eg due to bug in EvoSuite
+			if(currentPhaseHasTimeout()) {
+				long timeoutInMs = getCurrentPhaseTimeout();
+				long left = timeoutInMs - elapsed;
+				if( left < - (0.1 * timeoutInMs)){
+					//just check if phase went over by more than 10%...
+					logger.warn("Phase "+state + " lasted too long, "+ (-left/1000) + " seconds more than allowed.");
+				}
+			}
+
 		}
 
 		state = newState;
@@ -156,9 +169,13 @@ public class TimeController {
 		if(Properties.TEST_FACTORY == TestFactory.JUNIT) {
 			time += Properties.CARVING_TIMEOUT;
 		}
-        if(Properties.JUNIT_TESTS && Properties.JUNIT_CHECK){
-            time += Properties.JUNIT_CHECK_TIMEOUT;
+        if(Properties.JUNIT_TESTS){
+			time += Properties.WRITE_JUNIT_TIMEOUT;
+			if(Properties.JUNIT_CHECK) {
+				time += Properties.JUNIT_CHECK_TIMEOUT;
+			}
         }
+
 		return time;
 	}
 

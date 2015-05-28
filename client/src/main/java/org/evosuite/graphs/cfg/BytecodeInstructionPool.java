@@ -591,4 +591,20 @@ public class BytecodeInstructionPool {
 		}
 		return r;
 	}
+	
+	public BytecodeInstruction getFirstInstructionAtLineNumber(String className, String methodName, int lineNumber) {
+		// TODO
+		if (instructionMap.get(className) == null)
+			return null;
+		if (instructionMap.get(className).get(methodName) == null)
+			return null;
+		if (instructionMap.get(className).get(methodName).isEmpty())
+			return null;
+
+		for (BytecodeInstruction ins : instructionMap.get(className).get(methodName)) {
+			if (ins.getLineNumber() == lineNumber)
+				return ins;
+		}
+		return null;
+	}
 }
