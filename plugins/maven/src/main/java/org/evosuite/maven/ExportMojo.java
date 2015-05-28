@@ -49,7 +49,7 @@ public class ExportMojo extends AbstractMojo{
 
 		File basedir = project.getBasedir();
 
-		String evoFolderName = Properties.CTG_FOLDER+File.separator+ StorageManager.TEST_FOLDER_NAME;
+		String evoFolderName = Properties.CTG_DIR+File.separator+ Properties.CTG_BESTS_DIR;
 		File evoFolder = new File(basedir.getAbsolutePath()+File.separator+evoFolderName);
 		
 		File[] children = evoFolder.listFiles();

@@ -108,18 +108,16 @@ public class ContinuousTestGeneration {
 
     		//init the local storage manager
     		StorageManager storage = new StorageManager();
-    		boolean storageOK = storage.openForWriting();
-    		if(!storageOK){
+    		if(!storage.isStorageOk()){
     			return "Failed to initialize local storage system";
     		}
     		
     		//TODO: it seems like this cannot be done, as history depends on it
     		//storage.deleteOldTmpFolders();
     		
-    		storageOK = storage.createNewTmpFolders();
-		if(!storageOK){
-			return "Failed to create tmp folders";
-		}  
+    		if(!storage.createNewTmpFolders()){
+    			return "Failed to create tmp folders";
+    		}
 			
     		//check project
     		ProjectAnalyzer analyzer = new ProjectAnalyzer(target,prefix,cuts);
@@ -170,8 +168,7 @@ public class ContinuousTestGeneration {
      */
     public String info(){
     		
-		StorageManager storage = new StorageManager();    	
-		ProjectInfo projectInfo = storage.getDatabaseProjectInfo(); 
+		ProjectInfo projectInfo = StorageManager.getDatabaseProjectInfo(); 
 		
 		if(projectInfo==null){
 			return "No info available";

@@ -7,8 +7,6 @@ import org.evosuite.continuous.job.JobDefinition;
 import org.evosuite.continuous.job.JobScheduler;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Root class for the different kinds of schedule.
@@ -37,8 +35,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public abstract class ScheduleType {
-
-	private static Logger logger = LoggerFactory.getLogger(ScheduleType.class);
 
 	protected final JobScheduler scheduler;
 	

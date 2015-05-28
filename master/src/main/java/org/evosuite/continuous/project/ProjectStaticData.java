@@ -2,24 +2,27 @@ package org.evosuite.continuous.project;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.evosuite.Properties;
-import org.evosuite.continuous.persistency.CsvJUnitData;
-import org.evosuite.statistics.RuntimeVariable;
-
-import au.com.bytecode.opencsv.CSVReader;
+import org.evosuite.continuous.persistency.StorageManager;
+import org.evosuite.xsd.ProjectInfo;
+import org.evosuite.xsd.TestSuite;
+import org.evosuite.xsd.TestSuiteCoverage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -48,6 +51,8 @@ import au.com.bytecode.opencsv.CSVReader;
  */
 public class ProjectStaticData {
 
+	private static Logger logger = LoggerFactory.getLogger(ProjectStaticData.class);
+
 	/**
 	 * Map from CUT full class name (key) to ClassInfo object (value)
 	 */
@@ -56,37 +61,67 @@ public class ProjectStaticData {
 	/**
      * 
      */
-    private final Set<String> filesChanged;
+    private final Set<String> modifiedFiles;
 
     /**
      * 
      */
     private final HashMap<String, List<Double>> coverage;
 
+    /**
+     * 
+     */
 	private ProjectGraph graph = null;
 
+	/**
+	 * 
+	 */
 	public ProjectStaticData() {
 		classes = new ConcurrentHashMap<String, ClassInfo>();
 
-		this.filesChanged = new HashSet<String>();
-        this.coverage = new HashMap<String, List<Double>>();
-        
+		this.modifiedFiles = new LinkedHashSet<String>();
+        this.coverage = new LinkedHashMap<String, List<Double>>();
 	}
 
+	/**
+	 * 
+	 */
 	public void initializeLocalHistory() {
-		// Load history file
+		if (Properties.CTG_HISTORY_FILE == null) {
+			logger.info("ctg history file is not set");
+			return ;
+		}
+
+		//
+		// 1. Load history changes
+		//
         BufferedReader br = null;
         try {
             String sCurrentLine;
 
             br = new BufferedReader(new FileReader(Properties.CTG_HISTORY_FILE));
             while ((sCurrentLine = br.readLine()) != null) {
-                String[] split = sCurrentLine.split(",");
-                this.filesChanged.add(split[0]);
+                String[] split = sCurrentLine.split("\t");
+
+                switch (split[0]) {
+                	case "A": // 'added' and 'modified' are treated equally
+                	case "M":
+                		// only consider .java entries
+                		if (split[1].endsWith(".java"))
+                			this.modifiedFiles.add(split[1].replace(File.separator, "."));
+                		break;
+                	case "D":
+                		// ignore
+                		break;
+                	default:
+                		logger.error("option '" + split[0] + "' in the " + Properties.CTG_HISTORY_FILE + " file not supported");
+                		break;
+                }
             }
+        } catch (FileNotFoundException e) {
+        	logger.error("'" + Properties.CTG_HISTORY_FILE + "' file not found");
         } catch (IOException e) {
-            // ok, if the CTG_HISTORY_FILE does not exists
-            // is to generate test cases to all classes
+            logger.error("error reading '" + Properties.CTG_HISTORY_FILE + "' file", e);
         } finally {
             try {
                 if (br != null)
@@ -96,50 +131,25 @@ public class ProjectStaticData {
             }
         }
 
-        // Load Previous Coverage
-        File tmp = new File(Properties.CTG_FOLDER + "/" + Properties.CTG_TMP_FOLDER);
+        //
+        // 2. Load previous CTG data
+        //
+        ProjectInfo p = StorageManager.getDatabaseProjectInfo();
+        if (p.getGeneratedTestSuites().size() == 0) {
+        	return ; // we still do not have coverage
+        }
 
-        File[] tmp_dirs = tmp.listFiles();
-        if (tmp_dirs == null || tmp_dirs.length == 0)
-            return ;
+        for (TestSuite suite : p.getGeneratedTestSuites()) {
+        	String targetClass = suite.getFullNameOfTargetClass();
 
-        Arrays.sort(tmp_dirs);
-        for (File tmp_dir : tmp_dirs)
-        {
-            if (tmp_dir.getName().equals(Properties.SEED_DIR))
-                continue ;
+        	List<Double> previous_coverages = new ArrayList<Double>();
+        	for (TestSuiteCoverage suite_coverage : suite.getCoverageTestSuites()) {
+        		previous_coverages.add(suite_coverage.getBranchCoverage());
+        		// TODO now is just BranchCoverage in the future we should
+        		// edit this and add support to other kind of coverage
+        	}
 
-            if (tmp_dir.isDirectory())
-            {
-                File subjects = new File(tmp_dir.getAbsolutePath() + "/reports");
-                if (subjects.listFiles() == null)
-                    continue ;
-
-                for (File subject : subjects.listFiles())
-                {
-                    if (subject.isDirectory())
-                    {
-                        List<String[]> rows = null;
-                        try {
-                            CSVReader reader = new CSVReader(new FileReader(subject.getAbsolutePath() + "/statistics.csv"));
-                            rows = reader.readAll();
-                            reader.close();
-                        }
-                        catch (Exception e) {
-                            continue;
-                        }
-                        if (rows == null || rows.isEmpty())
-                            continue ;
-
-                        String targetClass = CsvJUnitData.getValue(rows, "TARGET_CLASS").trim();
-                        double branchCoverage = Double.parseDouble(CsvJUnitData.getValue(rows, RuntimeVariable.BranchCoverage.toString()));
-
-                        List<Double> class_coverages = this.coverage.containsKey(targetClass) ? this.coverage.get(targetClass) : new ArrayList<Double>();
-                        class_coverages.add(branchCoverage);
-                        this.coverage.put(targetClass, class_coverages);
-                    }
-                }
-            }
+        	this.coverage.put(targetClass, previous_coverages);
         }
 	}
 
@@ -272,7 +282,11 @@ public class ProjectStaticData {
      * Return the history statistics of a class
      */
     public boolean hasChanged(String className) {
-        return this.filesChanged.contains(className);
+    	for (String modified_file_name : this.modifiedFiles) {
+    		if (modified_file_name.contains(className))
+    			return true;
+    	}
+    	return false;
     }
 
     /**

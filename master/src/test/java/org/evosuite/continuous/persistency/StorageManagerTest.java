@@ -16,7 +16,7 @@ public class StorageManagerTest {
 		sm.clean();
 		
 		try{
-			ProjectInfo info = sm.getDatabaseProjectInfo();
+			ProjectInfo info = StorageManager.getDatabaseProjectInfo();
 			Assert.assertNotNull(info);
 		} finally {
 			sm.clean();
