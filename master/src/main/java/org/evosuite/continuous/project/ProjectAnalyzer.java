@@ -3,19 +3,15 @@ package org.evosuite.continuous.project;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
-
-import javax.swing.event.ListSelectionEvent;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.AvailableSchedule;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
-import org.evosuite.Properties.AvailableSchedule;
 import org.evosuite.continuous.job.schedule.HistorySchedule;
 import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
 import org.evosuite.coverage.branch.BranchPool;
@@ -228,7 +224,7 @@ public class ProjectAnalyzer {
 			data.addNewClass(ci);
 
 			if (Properties.CTG_SCHEDULE == AvailableSchedule.HISTORY) {
-				ci.setChanged(data.hasChanged(theClass.getCanonicalName()));
+				ci.setChanged(data.hasChanged(theClass.getCanonicalName() + ".java"));
 				ci.setCoverageImproved(data.hasCoverageImproved(theClass.getCanonicalName(), HistorySchedule.COMMIT_IMPROVEMENT));
 			}
 		}

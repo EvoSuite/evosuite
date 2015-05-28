@@ -21,20 +21,28 @@
 		</xs:complexType>
 	</xs:element>
 
-
 	<xs:complexType name="TestSuite">
 		<xs:sequence>
 			<xs:element name="fullNameOfTargetClass" type="xs:string" />
 			<xs:element name="fullNameOfTestSuite" type="xs:string" />
+			<xs:element name="totalEffortInSeconds" type="xs:nonNegativeInteger" />
+			<xs:sequence>
+				<xs:element name="coverageTestSuites" type="TestSuiteCoverage" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="TestSuiteCoverage">
+		<xs:sequence>
+			<!-- TODO add other criteria -->
+			<xs:element name="id" type="xs:nonNegativeInteger" />
 			<xs:element name="branchCoverage" type="percentage" />
 			<xs:element name="numberOfTests" type="xs:nonNegativeInteger" />
 			<xs:element name="totalNumberOfStatements" type="xs:nonNegativeInteger" />			
-			<xs:element name="totalEffortInSeconds" type="xs:nonNegativeInteger" />
-			<xs:element name="effortFromLastModificationInSeconds" type="xs:nonNegativeInteger" />			
+			<xs:element name="effortInSeconds" type="xs:nonNegativeInteger" />			
 			<xs:sequence>
 				<xs:element name="failures" type="Failure" minOccurs="0" maxOccurs="unbounded" />
 			</xs:sequence>
-
 		</xs:sequence>
 	</xs:complexType>
 
