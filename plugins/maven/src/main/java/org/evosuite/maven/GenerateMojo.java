@@ -49,7 +49,7 @@ public class GenerateMojo extends AbstractMojo{
 	/**
 	 * How many minutes to allocate for each project/module. If this parameter is not set, then the total time will be timeInMinutesPerClass x number_of_classes
 	 */
-	@Parameter( property = "timeInMinutesPerProject" )
+	@Parameter( property = "timeInMinutesPerProject", defaultValue = "0" )
 	private int timeInMinutesPerProject;
 
 	/**
@@ -58,6 +58,12 @@ public class GenerateMojo extends AbstractMojo{
 	// FIXME would be nice to have the value of Properties.CRITERION but seems to be not possible
 	@Parameter( property = "criterion", defaultValue = "LINE:BRANCH:EXCEPTION:WEAKMUTATION:OUTPUT:METHOD:METHODNOEXCEPTION:CBRANCH" )
 	private String criterion;
+
+	/**
+	 * Schedule used to run CTG (SIMPLE, BUDGET, SEEDING, BUDGET_AND_SEEDING, HISTORY)
+	 */
+	@Parameter( property = "schedule", defaultValue = "BUDGET" )
+	private String schedule;
 
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
 	private MavenProject project;
@@ -149,6 +155,7 @@ public class GenerateMojo extends AbstractMojo{
 		params.add("-target");
 		params.add(target);
 		params.add("-Dcriterion="+criterion);
+		params.add("-Dctg_schedule="+schedule);
 		params.add("-Dctg_memory="+memoryInMB);
 		params.add("-Dctg_cores="+numberOfCores);
 		if (timeInMinutesPerProject != 0) {
