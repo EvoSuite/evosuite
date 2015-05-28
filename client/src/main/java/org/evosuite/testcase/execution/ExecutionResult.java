@@ -367,7 +367,8 @@ public class ExecutionResult implements Cloneable {
 
 		for (Integer i : exceptions.keySet()) {
 			Throwable t = exceptions.get(i);
-			assert i>=0 && i<test.size();
+			// Exceptions can be placed at test.size(), e.g. for timeouts
+			assert i>=0 && i<=test.size() : "Exception "+t+" at position "+i+" in test of length "+test.size()+": "+test.toCode(exceptions);
 			if(i >= test.size())
 				continue;
 			

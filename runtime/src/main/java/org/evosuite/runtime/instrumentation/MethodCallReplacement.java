@@ -1,12 +1,17 @@
 package org.evosuite.runtime.instrumentation;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.runtime.mock.InvokeSpecialMock;
 import org.evosuite.runtime.mock.MockFramework;
+import org.evosuite.runtime.mock.MockList;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -26,6 +31,8 @@ public class MethodCallReplacement {
 
 	private final boolean popCallee;
 	private final boolean popUninitialisedReference;
+	
+	private static final Logger logger = LoggerFactory.getLogger(MethodCallReplacement.class);
 
 	/**
 	 * 
@@ -93,12 +100,41 @@ public class MethodCallReplacement {
 				mv.loadLocal(to.get(i));
 			}
 		}
-		mv.visitMethodInsn(opcode, replacementClassName, replacementMethodName,
-				replacementDesc, false);
+		if(opcode == Opcodes.INVOKESPECIAL && MockList.shouldBeMocked(className.replace('/', '.'))) {
+			insertInvokeSpecialForMockedSuperclass(mv);
+		} else {
+			if(opcode == Opcodes.INVOKESPECIAL) {
+				logger.info("Not mocking invokespecial: "+replacementMethodName +" for class " + className );
+			}
+			mv.visitMethodInsn(opcode, replacementClassName, replacementMethodName,
+					replacementDesc, false);
+		}
 		mv.visitJumpInsn(Opcodes.GOTO, afterOrigCallLabel);
 		mv.visitLabel(origCallLabel);
 		mv.getNextVisitor().visitMethodInsn(origOpcode, className, methodName, desc, false); // TODO: What is itf here?
 		mv.visitLabel(afterOrigCallLabel);
+	}
+	
+	public void insertInvokeSpecialForMockedSuperclass(MethodCallReplacementMethodAdapter mv) {
+		int numArguments = Type.getArgumentTypes(replacementDesc).length;
+		mv.push(numArguments);
+		mv.newArray(Type.getType(Object.class));
+		for(int i = 0; i < numArguments; i++) {
+			mv.arrayStore(Type.getType(Object.class));
+		}
+		mv.push(methodName);
+		mv.push(desc);
+		Method invokeSpecialMethod = InvokeSpecialMock.class.getDeclaredMethods()[0];
+		
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, InvokeSpecialMock.class.getCanonicalName().replace('.', '/'), 
+				"invokeSpecial", Type.getMethodDescriptor(invokeSpecialMethod), false);
+		
+		if(Type.getReturnType(desc).equals(Type.VOID_TYPE)) {
+			mv.pop();
+		} else {
+			mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getReturnType(desc).getInternalName());
+		}
+
 	}
 
 	public void insertConstructorCall(MethodCallReplacementMethodAdapter mv,
