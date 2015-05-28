@@ -26,6 +26,7 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cdg.ControlDependenceGraph;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FrameNode;
@@ -788,8 +789,20 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		else if (asmNode instanceof TableSwitchInsnNode)
 			return "TableSwitchInsnNode" + " " + asmNode.getOpcode() + " Type="
 					+ type + ", Opcode=" + opcode;
-		else if (asmNode instanceof TypeInsnNode)
-			return "NEW " + ((TypeInsnNode) asmNode).desc;
+		else if (asmNode instanceof TypeInsnNode) {
+			switch(asmNode.getOpcode()) {
+			case Opcodes.NEW:
+				return "NEW " + ((TypeInsnNode) asmNode).desc;
+			case Opcodes.ANEWARRAY:
+				return "ANEWARRAY " + ((TypeInsnNode) asmNode).desc;
+			case Opcodes.CHECKCAST:
+				return "CHECKCAST " + ((TypeInsnNode) asmNode).desc;
+			case Opcodes.INSTANCEOF:
+				return "INSTANCEOF " + ((TypeInsnNode) asmNode).desc;
+			default:
+				return "Unknown node" + " Type=" + type + ", Opcode=" + opcode;
+			}
+		}
 		// return "TYPE " + " " + node.getOpcode() + " Type=" + type
 		// + ", Opcode=" + opcode;
 		else if (asmNode instanceof VarInsnNode)
