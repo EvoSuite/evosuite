@@ -62,8 +62,7 @@ public class InitializingListener extends RunListener{
             by the final users, not really in the experiments.
             So, activating everything should be fine
          */
-        RuntimeSettings.useVFS = true;
-        RuntimeSettings.mockJVMNonDeterminism = true;
+        RuntimeSettings.activateAllMocking();
         RuntimeSettings.mockSystemIn = true;
         RuntimeSettings.resetStaticState = true;
 

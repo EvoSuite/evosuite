@@ -75,6 +75,13 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		this.lastFitness = fitness.getFitness(suite);
 		this.lastCoverage = suite.getCoverage(fitness);
 	}
+	
+	public TestSuiteLocalSearchObjective getCopyForTest(TestChromosome test) {
+		TestSuiteChromosome s = new TestSuiteChromosome();
+		s.addTest(test);
+		s.addTest((TestChromosome) test.clone());
+		return new TestSuiteLocalSearchObjective(fitness, s, 0);
+	}
 
 	public void verifyFitnessValue() {
 		assert(lastFitness == suite.getFitness(this.fitness));
@@ -85,6 +92,11 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		double currentFitness2 = fitness.getFitness(suite);
 		assert(lastFitness == currentFitness1) : "Fitness values; "+lastFitness+", "+currentFitness1+", "+currentFitness2;
 		assert(currentFitness1 == currentFitness2) : "Fitness values; "+lastFitness+", "+currentFitness1+", "+currentFitness2;
+	}
+	
+	@Override
+	public boolean isDone() {
+		return !fitness.isMaximizationFunction() && fitness.getFitness(suite) == 0.0;
 	}
 	
 	/* (non-Javadoc)

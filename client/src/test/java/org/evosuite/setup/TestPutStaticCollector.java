@@ -5,7 +5,9 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collections;
 import java.util.Set;
 
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.setup.PutStaticMethodCollector.MethodIdentifier;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.objectweb.asm.Type;
 
@@ -13,6 +15,12 @@ import com.examples.with.different.packagename.staticusage.FooBar1;
 import com.examples.with.different.packagename.staticusage.FooBar2;
 
 public class TestPutStaticCollector {
+
+	@BeforeClass
+	public static void init(){
+		String cp = System.getProperty("user.dir") + "/target/test-classes";
+		ClassPathHandler.getInstance().addElementToTargetProjectClassPath(cp);
+	}
 
 	@Test
 	public void testFooBar1() {

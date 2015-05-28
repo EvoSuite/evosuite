@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -246,6 +247,45 @@ public class DefaultTestCase implements TestCase, Serializable {
 		while (statements.size() > length) {
 			statements.remove(length);
 		}
+	}
+	
+	@Override
+	public int sliceFor(VariableReference var) {
+		
+		Set<VariableReference> dependencies = new LinkedHashSet<VariableReference>();
+
+		Set<Statement> dependentStatements = new LinkedHashSet<Statement>();
+		dependentStatements.add(statements.get(var.getStPosition()));
+		int lastPosition = var.getStPosition();
+		// Add all statements that use this var
+		for(VariableReference ref : getReferences(var)) {
+			if(ref.getStPosition() > lastPosition)
+				lastPosition = ref.getStPosition();
+			dependentStatements.add(statements.get(ref.getStPosition()));
+		}
+
+		for (int i = lastPosition; i >= 0; i--) {
+			Set<Statement> newStatements = new LinkedHashSet<Statement>();
+			for (Statement s : dependentStatements) {
+				if (s.references(statements.get(i).getReturnValue())) {
+					newStatements.add(statements.get(i));
+					dependencies.add(statements.get(i).getReturnValue());
+					break;
+				}
+			}
+			dependentStatements.addAll(newStatements);
+		}
+		List<Integer> dependentPositions = new ArrayList<Integer>();
+		for(Statement s : dependentStatements) {
+			dependentPositions.add(s.getPosition());
+		}
+		Collections.sort(dependentPositions, Collections.reverseOrder());
+		for(Integer pos = size(); pos >= 0 ; pos--) {
+			if(!dependentPositions.contains(pos)) {
+				remove(pos);
+			}
+		}
+		return var.getStPosition();
 	}
 	
 	public boolean contains(Statement statement) {

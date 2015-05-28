@@ -119,9 +119,14 @@ public class ConstantValue extends VariableReferenceImpl {
 	 */
 	@Override
 	public String getName() {
-        if(value!=null && value instanceof String && ((String)value).endsWith(".class")){
+		if(value == null)
+			return "null";
+		else if(value instanceof String && ((String)value).endsWith(".class")){
             return value.toString();
-        }
+        } 
+		else if(value instanceof Class<?>){
+            return ((Class<?>)value).getName()+".class";
+        } 
 		return NumberFormatter.getNumberString(value);
 	}
 
@@ -156,6 +161,17 @@ public class ConstantValue extends VariableReferenceImpl {
 		}
 
 		return false;
+	}
+	
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		super.changeClassLoader(loader);
+		if(value instanceof Class<?>) {
+			GenericClass genericClass = new GenericClass((Class<?>)value);
+			genericClass.changeClassLoader(loader);
+			value = genericClass.getRawClass();
+
+		}
 	}
 
 }

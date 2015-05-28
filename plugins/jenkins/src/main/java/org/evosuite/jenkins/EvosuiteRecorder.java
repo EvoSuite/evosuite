@@ -6,15 +6,29 @@ import hudson.Launcher;
 import hudson.maven.AbstractMavenProject;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.BuildListener;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.plugins.git.GitChangeSet;
+import hudson.plugins.git.GitChangeSetList;
+import hudson.plugins.git.GitSCM;
+import hudson.plugins.mercurial.MercurialChangeSet;
+import hudson.plugins.mercurial.MercurialChangeSetList;
+import hudson.plugins.mercurial.MercurialSCM;
+import hudson.scm.ChangeLogParser;
+import hudson.scm.EditType;
+import hudson.scm.PollingResult;
+import hudson.scm.SCMRevisionState;
+import hudson.scm.ChangeLogSet;
+import hudson.scm.ChangeLogSet.Entry;
+import hudson.scm.SCM;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 import hudson.util.FormValidation;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,9 +37,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
 import javax.servlet.ServletException;
+
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+import org.xml.sax.SAXException;
 
 /**
  */
@@ -91,6 +108,57 @@ public class EvosuiteRecorder extends Recorder {
 	 @Override
 	 public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
 			 BuildListener listener) throws InterruptedException, IOException {
+
+		 MavenModuleSet p = (MavenModuleSet) build.getProject();
+		 SCM scm = p.getScm();
+
+		 // hudson.plugins.mercurial.MercurialSCM
+		 if (scm.getType().equals(MercurialSCM.class.getCanonicalName())) {
+			 System.out.println("eheheh I'm using Mercurial @ " + build.getWorkspace());
+
+			 for (ChangeLogSet<? extends Entry> change : build.getChangeSets()) {
+				 System.out.println("change: " + change.toString());
+
+				 for (MercurialChangeSet changeset : ((MercurialChangeSetList) change)) {
+					 System.out.println(changeset.getAddedPaths());
+					 System.out.println(changeset.getDeletedPaths());
+					 System.out.println(changeset.getModifiedPaths());
+				 }
+			 }
+		 }
+		 else if (scm.getType().equals(GitSCM.class.getCanonicalName()))
+		 {
+			 System.out.println("eheheh I'm using Git @ " + build.getWorkspace());
+
+			 for (ChangeLogSet<? extends Entry> change : build.getChangeSets()) {
+				 System.out.println("change: " + change.toString());
+
+				 for (GitChangeSet changeset : ((GitChangeSetList) change)) {
+					 for (hudson.plugins.git.GitChangeSet.Path path : changeset.getPaths()) {
+						 switch (path.getEditType().getName()) {
+						 	case "add":
+						 		System.out.println("A " + path.getPath());
+						 		break;
+						 	case "delete":
+						 		System.out.println("D " + path.getPath());
+						 		break;
+						 	case "edit":
+						 		System.out.println("M " + path.getPath());
+						 		break;
+						 	default:
+						 		break;
+						 }
+					 }
+				 }
+			 }
+		 }
+		 else {
+			 System.err.println("SCM of type " + scm.getType() + " not supported");
+		 }
+		 
+		 
+		 
+		 
 		 listener.getLogger().append("Creating Evosuite Statistics\n");
 		 AbstractMavenProject<?, ?> prj = ((AbstractMavenProject<?, ?>) build
 				 .getProject());
@@ -127,9 +195,8 @@ public class EvosuiteRecorder extends Recorder {
 	 /* (non-Javadoc)
 	  * @see hudson.tasks.Recorder#getDescriptor()
 	  */
-	 @SuppressWarnings({"rawtypes"})
 	 @Override
-	 public BuildStepDescriptor getDescriptor() {
+	 public BuildStepDescriptor<Publisher> getDescriptor() {
 		 return DESCRIPTOR;
 	 }
 

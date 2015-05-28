@@ -19,16 +19,17 @@ package org.evosuite;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.runtime.mock.MockFramework;
-import org.evosuite.runtime.reset.ResetManager;
+import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
@@ -61,6 +62,8 @@ public class SystemTest {
 		ResetManager.getInstance().clearManager();
 		System.setProperties(currentProperties);
 		Properties.getInstance().resetToDefaults();
+		ExceptionCoverageFactory.getGoals().clear();
+		TestsArchive.instance.reset();
 	}
 
 	@Before
@@ -75,7 +78,7 @@ public class SystemTest {
 		Properties.PLOT = false;
 
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
-		Properties.SEARCH_BUDGET = 10000;
+		Properties.SEARCH_BUDGET = 30000;
 
 		Properties.GLOBAL_TIMEOUT = 120;
 		Properties.MINIMIZATION_TIMEOUT = 8;
@@ -92,7 +95,10 @@ public class SystemTest {
 		
 		TestGenerationContext.getInstance().resetContext();
 		ResetManager.getInstance().clearManager();
-		Randomness.setSeed(42);
+
+		//change seed every month
+		long seed = new GregorianCalendar().get(Calendar.MONTH);
+		Randomness.setSeed(seed);
 
 		currentProperties = (java.util.Properties) System.getProperties().clone();
 		

@@ -59,13 +59,13 @@ public class ComputeClassWriter extends ClassWriter {
         		info1 = typeInfo(type1);
             } catch (NullPointerException e) {
             	// May happen if class is not found
-                throw new RuntimeException("Class not found: "+type1+": "+e.toString());
+                throw new RuntimeException("Class not found: "+type1+": "+e.toString(), e);
         	}
         	try {
         		info2 = typeInfo(type2);
             } catch (NullPointerException e) {
             	// May happen if class is not found
-                throw new RuntimeException("Class not found: "+type2+": "+e.toString());
+                throw new RuntimeException("Class not found: "+type2+": "+e.toString(), e);
         	}
 
             if ((info1.getAccess() & Opcodes.ACC_INTERFACE) != 0) {

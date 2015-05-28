@@ -29,12 +29,13 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
 import org.evosuite.instrumentation.coverage.BranchInstrumentation;
 import org.evosuite.instrumentation.coverage.DefUseInstrumentation;
 import org.evosuite.instrumentation.coverage.MethodInstrumentation;
 import org.evosuite.instrumentation.coverage.MutationInstrumentation;
-import org.evosuite.runtime.reset.ClassResetter;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.AnnotationVisitor;
@@ -143,7 +144,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-		if(Type.getDescriptor(org.evosuite.annotation.EvoSuiteExclude.class).equals(desc)) {
+		if(Type.getDescriptor(EvoSuiteExclude.class).equals(desc)) {
 			logger.info("Method has EvoSuite annotation: "+desc);
 			excludeMethod = true;
 		}
@@ -167,8 +168,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 		    else if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION)
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.ONLYMUTATION)
-		            || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)
-		            || ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEMUTATION)) {
+		            || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 				instrumentations.add(new BranchInstrumentation());
 				instrumentations.add(new MutationInstrumentation());
 			} else {

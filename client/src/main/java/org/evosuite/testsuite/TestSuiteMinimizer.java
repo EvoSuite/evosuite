@@ -168,9 +168,7 @@ public class TestSuiteMinimizer {
         int currentGoal = 0;
 
         if (!ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.BRANCH)
-                && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.ARCHIVEBRANCH)
-                && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)
-                && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.ARCHIVEIBRANCH)) {
+                && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
             BranchCoverageFactory branchFactory = new BranchCoverageFactory();
             branchGoals.addAll(branchFactory.getCoverageGoals());
             filterJUnitCoveredGoals(branchGoals);

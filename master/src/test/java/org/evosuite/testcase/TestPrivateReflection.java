@@ -1,6 +1,5 @@
 package org.evosuite.testcase;
 
-import com.examples.with.different.packagename.pool.DependencyClass;
 import com.examples.with.different.packagename.reflection.OnlyPrivateMethods;
 import com.examples.with.different.packagename.reflection.PrivateFieldInPrivateMethod;
 import com.examples.with.different.packagename.reflection.PrivateFieldInPublicMethod;
@@ -49,6 +48,7 @@ public class TestPrivateReflection extends SystemTest {
         Object result = evosuite.parseCommandLine(command);
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println(best.toString());
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
 

@@ -80,7 +80,8 @@ public class Continuous {
 				cp,
 				prefix,
 				CtgConfiguration.getFromParameters(),
-				cuts
+				cuts,
+				Properties.CTG_EXPORT_FOLDER
 				);
 
 		/*

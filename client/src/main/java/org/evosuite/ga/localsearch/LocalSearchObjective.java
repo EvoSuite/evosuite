@@ -31,6 +31,8 @@ import org.evosuite.ga.FitnessFunction;
  */
 public interface LocalSearchObjective<T extends Chromosome> {
 
+	public boolean isDone();
+	
 	/**
 	 * <p>hasImproved</p>
 	 *

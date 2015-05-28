@@ -31,6 +31,7 @@ public class CleanMojo extends AbstractMojo{
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
 	private MavenProject project;
 	
+	@Override
 	public void execute() throws MojoExecutionException,MojoFailureException{
 
 		getLog().info("Going to clean all EvoSuite data");

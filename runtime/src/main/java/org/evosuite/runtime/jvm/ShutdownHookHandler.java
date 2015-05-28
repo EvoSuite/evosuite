@@ -131,7 +131,10 @@ public class ShutdownHookHandler {
 		//the shutdown hook threads should still be checked against the sandbox
 		boolean safe = Sandbox.isSafeToExecuteSUTCode();
 		int n = -1;
-		
+
+		assert !Sandbox.isSecurityManagerInitialized() || Sandbox.isOnAndExecutingSUTCode() :
+				"Executing hooks outside of a test case, but with sandbox on";
+
 		try{
 			if(!safe){
 				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
@@ -144,7 +147,6 @@ public class ShutdownHookHandler {
 				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			}
 		}
-		
 		return n;
 	}
 	

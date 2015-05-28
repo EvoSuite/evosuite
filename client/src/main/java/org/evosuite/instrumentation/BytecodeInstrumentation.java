@@ -31,7 +31,7 @@ import org.evosuite.instrumentation.testability.ContainerTransformation;
 import org.evosuite.instrumentation.testability.StringTransformation;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.runtime.instrumentation.*;
-import org.evosuite.runtime.reset.ResetManager;
+import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.seeding.PrimitiveClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;

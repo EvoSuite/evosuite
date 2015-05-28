@@ -539,6 +539,23 @@ public class ResourceList {
 				String relativeFilePath = file.getAbsolutePath().replace(classPathFolder + File.separator,"");
 				String className = getClassNameFromResourcePath(relativeFilePath);
 
+				// The same class may exist in different classpath entries
+				// and only the first one is kept
+				if(getCache().mapClassToCP.containsKey(className))
+					continue;
+				
+				// If there is an outer class, then we also have a classpath
+				// problem and should ignore this
+				if(className.contains("$")) {
+					String outerClass = className.substring(0, className.indexOf('$'));
+					if(getCache().mapClassToCP.containsKey(outerClass)) {
+						if(!getCache().mapClassToCP.get(outerClass).equals(classPathFolder)) {
+							continue;
+						}
+					}
+				}
+
+
 				getCache().mapClassToCP.put(className, classPathFolder);
 				getCache().mapCPtoClasses.get(classPathFolder).add(className);
 				getCache().addPrefix(prefix, classPathFolder);
@@ -559,6 +576,21 @@ public class ResourceList {
 			}
 
 			String className = getClassNameFromResourcePath(entryName);
+			
+			// The same class may exist in different classpath entries
+			// and only the first one is kept
+			if(getCache().mapClassToCP.containsKey(className))
+				continue;
+			
+			if(className.contains("$")) {
+				String outerClass = className.substring(0, className.indexOf('$'));
+				if(getCache().mapClassToCP.containsKey(outerClass)) {
+					if(!getCache().mapClassToCP.get(outerClass).equals(jarEntry)) {
+						continue;
+					}
+				}
+			}
+			
 			getCache().mapClassToCP.put(className, jarEntry);//getPackageName
 			getCache().mapCPtoClasses.get(jarEntry).add(className);
 			getCache().addPrefix(getParentPackageName(className), jarEntry);

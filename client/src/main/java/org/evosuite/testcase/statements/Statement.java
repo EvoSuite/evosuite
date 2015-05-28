@@ -314,6 +314,8 @@ public interface Statement {
 	 */
 	public boolean isAssignmentStatement();
 
+	public boolean isReflectionStatement();
+
 	/**
 	 * Tests if the throwable defined by t is declared to be thrown by the
 	 * underlying type. Obviously this can only return true for methods and

@@ -100,7 +100,8 @@ public class EvosuiteProjectAction implements Action{
                 // no build action is associated with this build, so skip it
                 continue;
             }
-            ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(currentBuild);
+            //ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(currentBuild);
+            ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(AbstractBuild.fromExternalizableId("" + currentBuild.getNumber()));
             if (Double.isNaN(evosuiteBuildAction.OverallCoverage)){
                 coverageDataSetBuilder.add(0, "overall coverage", label);
             }

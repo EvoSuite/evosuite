@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.evosuite.runtime.reset.ClassResetter;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -62,7 +62,9 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	private boolean clinitFound = false;
 
 	private boolean definesUid = false;
-
+	
+	private boolean resetMethodAdded = false;
+	
 	private long serialUID = -1L;
 
 	private final List<String> finalFields = new ArrayList<String>();
@@ -156,8 +158,8 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 
 		MethodVisitor mv = super.visitMethod(methodAccess, methodName,
 				descriptor, signature, exceptions);
-
-		if (methodName.equals("<clinit>") && !isInterface && !isAnonymous) {
+		
+		if (methodName.equals("<clinit>") && !isInterface && !isAnonymous && !resetMethodAdded) {
 			clinitFound = true;
 			logger.info("Found static initializer in class " + className);
 			//determineSerialisableUID();
@@ -174,6 +176,8 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 			CreateClassResetMethodAdapter staticResetMethodAdapter = new CreateClassResetMethodAdapter(
 					visitMethod, className, this.static_fields, finalFields);
 
+			resetMethodAdded = true;
+			
 			if (this.removeUpdatesOnFinalFields) {
 				MethodVisitor mv2 = new RemoveFinalMethodAdapter(className,
 						staticResetMethodAdapter, finalFields);
@@ -182,13 +186,19 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 			} else {
 				return new MultiMethodVisitor(staticResetMethodAdapter, mv);
 			}
+		} else if(methodName.equals(ClassResetter.STATIC_RESET)) {
+			if(resetMethodAdded) {
+				// Do not add reset method a second time
+			} else {
+				resetMethodAdded = true;
+			}
 		}
 		return mv;
 	}
 
 	@Override
 	public void visitEnd() {
-		if (!clinitFound && !isInterface && !isAnonymous) {
+		if (!clinitFound && !isInterface && !isAnonymous && !resetMethodAdded) {
 			// create brand new __STATIC_RESET
 			if (!definesUid) {
 				//determineSerialisableUID();

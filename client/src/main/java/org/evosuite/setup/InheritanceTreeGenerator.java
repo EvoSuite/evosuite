@@ -99,7 +99,12 @@ public class InheritanceTreeGenerator {
 
 			logger.debug("Analyzing classpath entry " + classPathEntry);
 			LoggingUtils.getEvoLogger().info("  - " + classPathEntry);
-			analyze(inheritanceTree, classPathEntry);
+	        for(String className : ResourceList.getAllClasses(classPathEntry, "", true, false)) {
+	        	// handle individual class
+				analyzeClassStream(inheritanceTree, ResourceList.getClassAsStream(className), false);
+	        }
+
+			// analyze(inheritanceTree, classPathEntry);
 		}
 		return inheritanceTree;
 	}
@@ -263,6 +268,10 @@ public class InheritanceTreeGenerator {
 	        ClassNode cn, boolean onlyPublic) {
 		
 		logger.info("Analyzing class " + cn.name);
+		
+		// Don't load classes already seen from a different CP entry
+		if(inheritanceTree.hasClass(cn.name))
+			return;
 
 		if ((Opcodes.ACC_INTERFACE & cn.access) != Opcodes.ACC_INTERFACE) {
 			for (Object m : cn.methods) {

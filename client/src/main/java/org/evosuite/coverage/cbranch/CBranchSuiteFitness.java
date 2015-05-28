@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.evosuite.Properties;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -24,6 +26,9 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
  * @author Gordon Fraser, mattia
  * 
  */
+
+// TODO: Archive handling could be improved to use branchIds and thus reduce
+//       the overhead of calculating the fitness function
 
 // TODO fix count goal, when a suite executes a branch only one time we should
 // return 0.5 and not the distance.
@@ -42,6 +47,9 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 	private final Map<String, CBranchTestFitness> privateMethodsMethodsMap;
 
+	private final Set<CBranchTestFitness> toRemoveGoals = new HashSet<>();	
+	private final Set<CBranchTestFitness> removedGoals = new HashSet<>();
+
 	public CBranchSuiteFitness() {
 		contextGoalsMap = new HashMap<>();
 		privateMethodsGoalsMap = new HashMap<>();
@@ -51,6 +59,9 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 		CBranchFitnessFactory factory = new CBranchFitnessFactory();
 		branchGoals = factory.getCoverageGoals();
 		for (CBranchTestFitness goal : branchGoals) {
+			if(Properties.TEST_ARCHIVE)
+				TestsArchive.instance.addGoalToCover(this, goal);
+
 			if (goal.getBranchGoal() != null && goal.getBranchGoal().getBranch() != null) {
 				int branchId = goal.getBranchGoal().getBranch().getActualBranchId();
 
@@ -165,7 +176,14 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 						distanceMap.put(goalT, distanceT);
 					}
 					if (Double.compare(distanceT, 0.0) == 0) {
+						if(removedGoals.contains(goalT))
+							continue;
 						result.test.addCoveredGoal(goalT);
+						if(Properties.TEST_ARCHIVE) {
+							TestsArchive.instance.putTest(this, goalT, result);
+							toRemoveGoals.add(goalT);
+							suite.isToBeUpdated(true);
+						}
 					}
 					// //
 					CBranchTestFitness goalF = getContextGoal(branchId, context, false);
@@ -176,7 +194,15 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 						distanceMap.put(goalF, distanceF);
 					}
 					if (Double.compare(distanceF, 0.0) == 0) {
+						if(removedGoals.contains(goalF))
+							continue;
 						result.test.addCoveredGoal(goalF);
+						if(Properties.TEST_ARCHIVE) {
+							TestsArchive.instance.putTest(this, goalF, result);
+							toRemoveGoals.add(goalF);
+							suite.isToBeUpdated(true);
+						}
+
 					}
 				}
 
@@ -219,14 +245,25 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 						callCounter.put(goal.hashCode(), count);
 					}
 					if (count > 0) {
+						if(removedGoals.contains(goal))
+							continue;
+
 						result.test.addCoveredGoal(goal);
+						if(Properties.TEST_ARCHIVE) {
+							TestsArchive.instance.putTest(this, goal, result);
+							toRemoveGoals.add(goal);
+							suite.isToBeUpdated(true);
+						}
+
 					}
 				}
 			}
 		}
 
-		int numCoveredGoals = 0;
+		int numCoveredGoals = removedGoals.size();
 		for (CBranchTestFitness goal : branchGoals) {
+			if(removedGoals.contains(goal))
+				continue;
 			Double distance = distanceMap.get(goal);
 			if (distance == null)
 				distance = 1.0;
@@ -262,4 +299,20 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 		return fitness;
 	}
+	
+	@Override
+	public boolean updateCoveredGoals() {
+		
+		if(!Properties.TEST_ARCHIVE)
+			return false;
+		
+		for(CBranchTestFitness goal : toRemoveGoals) {
+			removedGoals.add(goal);
+		}
+		
+		toRemoveGoals.clear();
+		
+		return true;
+	}
+	
 }

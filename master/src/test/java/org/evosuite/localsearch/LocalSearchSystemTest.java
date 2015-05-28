@@ -40,11 +40,20 @@ import com.examples.with.different.packagename.localsearch.StringLocalSearchExam
 
 public class LocalSearchSystemTest extends SystemTest {
 
+	private static final double oldPrimitivePool = Properties.PRIMITIVE_POOL;
+	private static final double oldDseProbability = Properties.DSE_PROBABILITY;
+	
 	@Before
     public void init(){
         Properties.DSE_PROBABILITY = 0.0;
+        Properties.PRIMITIVE_POOL = 0.0;
     }
 	
+	@After
+	public void restoreProperties() {
+		Properties.DSE_PROBABILITY = oldDseProbability;
+		Properties.PRIMITIVE_POOL = oldPrimitivePool;
+	}
 	
 	
 	@Test
@@ -77,10 +86,11 @@ public class LocalSearchSystemTest extends SystemTest {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.LOCAL_SEARCH_RATE = 1;
 		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
+		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.SUITES;
+		Properties.LOCAL_SEARCH_BUDGET = 10;
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = false;
-		Properties.SEARCH_BUDGET = 20000;
+		Properties.SEARCH_BUDGET = 50000;
 		
 		// Make sure that local search will have effect
 		Properties.CHROMOSOME_LENGTH = 5;

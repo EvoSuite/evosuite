@@ -49,6 +49,8 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 			for (VariableReference other : scope.getElements(var.getType())) {
 				if (other == var)
 					continue;
+				if(other.isPrimitive())
+					continue;
 
 				Object otherObject = other.getObject(scope);
 				if (otherObject == null)

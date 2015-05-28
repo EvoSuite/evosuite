@@ -31,7 +31,6 @@ public class ImplicitExplicitException {
 		if(x==null){
 			throw new NullPointerException();
 		}
-		x.toString();
 	}
 	
 	public void implicitDeclared(Integer x) throws NullPointerException{
@@ -42,10 +41,9 @@ public class ImplicitExplicitException {
 		if(x==null){
 			throw new NullPointerException();
 		}
-		x.toString();
 	}
 	
-	public void shouldBeIgnored() throws IllegalArgumentException {
+	public void directExplicitDeclared() throws IllegalArgumentException {
 		throw new IllegalArgumentException();
 	}
 	

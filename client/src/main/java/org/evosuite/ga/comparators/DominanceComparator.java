@@ -37,7 +37,7 @@ public class DominanceComparator
 
         int flag; // stores the result of the comparison
 
-        for (FitnessFunction<?> ff : c1.getFitnesses().keySet()) {
+        for (FitnessFunction<?> ff : c1.getFitnessValues().keySet()) {
             double value1 = c1.getFitness(ff);
             double value2 = c2.getFitness(ff);
 

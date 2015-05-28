@@ -59,17 +59,14 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 				logger.info("Skipping test with timeout or exception");
 				continue;
 			}
-
+			
+			// If local search has already been applied on the original test
+			// then we also set that flag on the expanded test
+			boolean hasLocalSearchBeenApplied = test.hasLocalSearchBeenApplied();
 			TestCase newTest = test.getTestCase().clone();
-			// TODO: We could cut away the call that leads to an exception?
-			/*
-			 * if (!test.getLastExecutionResult().noThrownExceptions()) { while
-			 * (newTest.size() - 1 >=
-			 * test.getLastExecutionResult().getFirstPositionOfThrownException
-			 * ()) { newTest.remove(newTest.size() - 1); } }
-			 */
 			TestCase expandedTest = expandTestCase(newTest);
-			newTestSuite.addTest(expandedTest);
+			TestChromosome expandedTestChromosome = newTestSuite.addTest(expandedTest);
+			expandedTestChromosome.setLocalSearchApplied(hasLocalSearchBeenApplied);
 		}		
 		List<TestChromosome> oldTests = individual.getTestChromosomes();
 		oldTests.clear();

@@ -17,6 +17,19 @@
  */
 package org.evosuite.coverage.line;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.evosuite.TestGenerationContext;
+import org.evosuite.coverage.branch.BranchCoverageFactory;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.graphs.cfg.BytecodeInstructionPool;
+import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -48,6 +61,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 		this.className = className;
 		this.methodName = methodName;
 		this.line = line;
+		setupDependencies();
 	}
 
 	/**
@@ -82,6 +96,48 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	public Integer getLine() {
 		return line;
 	}
+	
+	protected transient BytecodeInstruction goalInstruction;
+	protected transient List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
+
+	private void setupDependencies() {
+		goalInstruction = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getFirstInstructionAtLineNumber(className, methodName, line);
+
+		if(goalInstruction == null)
+			return;
+		
+		Set<ControlDependency> cds = goalInstruction.getControlDependencies();
+
+		for (ControlDependency cd : cds) {
+			BranchCoverageTestFitness fitness = BranchCoverageFactory.createBranchCoverageTestFitness(cd);
+
+			branchFitnesses.add(fitness);
+		}
+
+		if (goalInstruction.isRootBranchDependent())
+			branchFitnesses.add(BranchCoverageFactory.createRootBranchTestFitness(goalInstruction));
+
+		if (cds.isEmpty() && !goalInstruction.isRootBranchDependent())
+			throw new IllegalStateException(
+			        "expect control dependencies to be empty only for root dependent instructions: "
+			                + toString());
+
+		if (branchFitnesses.isEmpty())
+			throw new IllegalStateException(
+			        "an instruction is at least on the root branch of it's method");
+
+	}
+	
+	@Override
+	public boolean isCovered(ExecutionResult result) {
+		for ( Integer coveredLine : result.getTrace().getCoveredLines()) {
+			if (coveredLine.intValue() == this.line.intValue()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -101,6 +157,25 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 				fitness = 0.0;
 				break;
 			}
+		}
+		if(fitness != 0.0) {
+			double r = Double.MAX_VALUE;
+
+			// Find minimum distance to satisfying any of the control dependencies
+			for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
+				double newFitness = branchFitness.getFitness(individual, result);
+				if (newFitness == 0.0) {
+					// If the control dependency was covered, then likely
+					// an exception happened before the line was reached
+					newFitness = 1.0;
+				} else {
+					newFitness = 1.0 + normalize(newFitness);
+				}
+				if (newFitness < r)
+					r = newFitness;
+			}
+			
+			fitness = r;
 		}
 		updateIndividual(this, individual, fitness);
 		return fitness;
@@ -172,4 +247,15 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	public String getTargetMethod() {
 		return getMethod();
 	}
+	
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+		ois.defaultReadObject();
+		branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
+		setupDependencies();
+	}
+	
+	private void writeObject(ObjectOutputStream oos) throws ClassNotFoundException, IOException {
+		oos.defaultWriteObject();
+	}
+
 }
