@@ -1,0 +1,9 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
+  <t:summary icon="/plugin/evosuite-jenkins-plugin/icons/evosuite.png">
+    <b>EvoSuite Statistics</b> <br/>
+
+    Number of Modules: ${it.NumberOfModules}<br/>
+    Number of Testable Classes: ${it.NumberOfTestableClasses}<br/>
+    Average Branch Coverage: ${it.OverallCoverage}%<br/>
+  </t:summary>
+</j:jelly>
