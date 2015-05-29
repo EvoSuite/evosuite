@@ -1,0 +1,10 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
+<div class="evosuite-trend-caption">
+  <div class="evosuite-trend"> Evosuite Coverage Trend Graph</div>
+  <div>
+    <img src="evosuite-project/coverageGraph" lazymap="evosuite-project/coverageMap"/>
+    <br/>
+    <a href="evosuite-project">enlarge</a>
+  </div>
+</div>
+</j:jelly>
