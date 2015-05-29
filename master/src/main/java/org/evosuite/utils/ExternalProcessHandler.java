@@ -19,19 +19,11 @@
  */
 package org.evosuite.utils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.RemoteException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import org.evosuite.ClientProcess;
@@ -82,6 +74,8 @@ public class ExternalProcessHandler {
 	protected volatile CountDownLatch latch;
 
 	protected String base_dir = System.getProperty("user.dir");
+
+	private String hsErrFile;
 
 	/**
 	 * <p>
@@ -146,15 +140,52 @@ public class ExternalProcessHandler {
 		
 		logger.debug("Going to start process with command (note ',' is replace by ' '): "+Arrays.toString(command).replace(",", " "));
 		
-		List<String> formatted = new LinkedList<String>();
+		List<String> formatted = new LinkedList<>();
 		for(String s : command){
 			String token = s.trim();
 			if(!token.isEmpty()){
 				formatted.add(token);
 			}
 		}
-		
+
+		hsErrFile = "hs_err_EvoSuite_client_p"+getServerPort()+"_t"+System.currentTimeMillis();
+		String option = "-XX:ErrorFile="+hsErrFile;
+		formatted.add(1,option); // add it after the first "java" command
+
 		return startProcess(formatted.toArray(new String[0]), null);
+	}
+
+	protected boolean didClientJVMCrash(){
+		return new File(hsErrFile).exists();
+	}
+
+	protected String getAndDeleteHsErrFile(){
+		if(!didClientJVMCrash()){
+			return null;
+		}
+
+		StringBuffer buffer = new StringBuffer();
+
+		File file = new File(hsErrFile);
+		file.deleteOnExit();
+
+		try(Scanner in = new Scanner(file);) {
+			while(in.hasNextLine()){
+				String row = in.nextLine();
+				//do not read the full file, just the header
+				if(row.startsWith("#")){
+					buffer.append(row+"\n");
+				} else {
+					break; //end of the header
+				}
+			}
+		} catch (FileNotFoundException e) {
+			//shouldn't really happen
+			logger.error("Error while reading "+file.getAbsolutePath() + ": "+e.getMessage());
+			return null;
+		}
+
+		return buffer.toString();
 	}
 
 	public String getProcessState(){
@@ -293,12 +324,6 @@ public class ExternalProcessHandler {
 	 */
 	public int getServerPort() {
 		return MasterServices.getInstance().getRegistryPort();
-		/*
-		if (server != null)
-			return server.getLocalPort();
-		else
-			return -1;
-		 */
 	}
 
 	/**
@@ -581,7 +606,16 @@ public class ExternalProcessHandler {
 			}
 		} catch (InterruptedException e) {		
 		} catch(RemoteException e){
-			logger.error("Class "+ Properties.TARGET_CLASS+". Lost connection with clients.\n"+MasterServices.getInstance().getMasterNode().getSummaryOfClientStatuses(),e);
+
+			String msg = "Class "+ Properties.TARGET_CLASS+". Lost connection with clients.\n"+MasterServices.getInstance().getMasterNode().getSummaryOfClientStatuses();
+
+			if(didClientJVMCrash()){
+				String err = getAndDeleteHsErrFile();
+				msg += "The JVM of the client process did crash:\n"+err;
+				logger.error(msg);
+			} else {
+				logger.error(msg, e);
+			}
 		}
 
 		killProcess();
