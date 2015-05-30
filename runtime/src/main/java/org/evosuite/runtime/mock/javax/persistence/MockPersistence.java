@@ -22,6 +22,8 @@ public class MockPersistence extends Persistence implements OverrideMock{
      */
     private static final String EVOSUITE_DB = "EvoSuiteDB";
 
+    // -------- mocked methods  ----------------------
+
     public MockPersistence() {
     }
 
@@ -37,5 +39,12 @@ public class MockPersistence extends Persistence implements OverrideMock{
 
     public static PersistenceUtil getPersistenceUtil() {
         return Persistence.getPersistenceUtil();
+    }
+
+    // -------  EvoSuite methods ---------------------
+
+    public static EntityManagerFactory getDefaultFactory(){
+        //TODO properly with cache and reset
+        return createEntityManagerFactory("");
     }
 }
