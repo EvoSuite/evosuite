@@ -53,4 +53,23 @@ public @interface Constraints {
      * @return
      */
     String[] dependOnProperties() default  {};
+
+    /**
+     * Input parameters of this method should not be changed.
+     * If those are primitives (e.g., String or int) it is recommended
+     * that they become inlined
+     *
+     * @return
+     */
+    boolean notMutable() default false;
+
+    /**
+     * Specify if this method can be added to a test case as part of the search.
+     * If not, it means that it will added only in some special cases, eg as a result
+     * of some other events.
+     * An example is dependency injection in JavaEE.
+     *
+     * @return
+     */
+    boolean noDirectInsertion() default false;
 }
