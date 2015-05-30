@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import static org.junit.Assert.*;
@@ -65,6 +66,20 @@ public class InjectorTest {
         Assert.assertFalse(Injector.hasPostConstruct(String.class));
     }
 
+    @Test
+    public void testInjection_EntityManager(){
+
+        Foo foo = new Foo();
+        Assert.assertNull(foo.getPersistence());
+        Assert.assertNull(foo.getEM());
+
+        Assert.assertTrue(Injector.hasEntityManager(Foo.class));
+        Injector.injectEntityManager(foo, Foo.class);
+
+        Assert.assertNull(foo.getPersistence());//this should had been skipped, as invalid type
+        Assert.assertNotNull(foo.getEM());
+    }
+
 
     private class Foo {
 
@@ -75,6 +90,9 @@ public class InjectorTest {
 
         @PersistenceContext
         private Object persistence;
+
+        @PersistenceContext
+        private EntityManager em;
 
         private boolean init = false;
 
@@ -97,6 +115,10 @@ public class InjectorTest {
 
         public Object getPersistence() {
             return persistence;
+        }
+
+        public EntityManager getEM(){
+            return em;
         }
     }
 }
