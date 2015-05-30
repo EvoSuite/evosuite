@@ -57,6 +57,17 @@
             <artifactId>jboss-servlet-api_3.1_spec</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.0-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
 
     </dependencies>
 
