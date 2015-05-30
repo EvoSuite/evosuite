@@ -59,6 +59,12 @@ public class InjectorTest {
         Assert.assertTrue(foo.isInit());
     }
 
+    @Test
+    public void testHasPostConstruct(){
+        Assert.assertTrue(Injector.hasPostConstruct(Foo.class));
+        Assert.assertFalse(Injector.hasPostConstruct(String.class));
+    }
+
 
     private class Foo {
 

@@ -3,6 +3,7 @@ package org.evosuite.runtime.javaee.injection;
 import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.runtime.annotation.BoundInputVariable;
 import org.evosuite.runtime.annotation.Constraints;
+import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.junit.internal.AssumptionViolatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +46,30 @@ public class Injector {
             throw new IllegalArgumentException("Null input parameter");
         }
 
-        String className = instance.getClass().getName();
+        Class<?> clazz = instance.getClass();
+        if(!hasPostConstruct(clazz)){
+            throw new IllegalArgumentException("The class "+clazz.getName()+" does not have a @PostConstruct");
+        }
+
+        Method m = postConstructCache.get(clazz.getName());
+        assert m != null;
+
+        try {
+            m.invoke(instance);
+        } catch (IllegalAccessException e) {
+            //should never happen
+            logger.error(e.toString());
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("Failed to execute @PostConstructor in "+clazz.getName(),e);
+        }
+    }
+
+    @EvoSuiteExclude
+    public static boolean hasPostConstruct(Class<?> clazz){
+        String className = clazz.getName();
         if(! postConstructCache.containsKey(className)){
             Method pc = null;
-            for(Method m : instance.getClass().getDeclaredMethods()){
+            for(Method m : clazz.getDeclaredMethods()){
                 for(Annotation annotation : m.getDeclaredAnnotations()){
                     if(annotation instanceof PostConstruct){
                         pc = m;
@@ -61,17 +82,6 @@ public class Injector {
         }
 
         Method m = postConstructCache.get(className);
-        if(m==null){
-            throw new IllegalArgumentException("The class "+className+" does not have a @PostConstruct");
-        }
-
-        try {
-            m.invoke(instance);
-        } catch (IllegalAccessException e) {
-            //should never happen
-            logger.error(e.toString());
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException("Failed to execute @PostConstructor in "+className,e);
-        }
+        return m != null;
     }
 }
