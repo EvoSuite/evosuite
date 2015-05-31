@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    JPA provider definition for JavaEE / Hibernate.
+    This is needed to have a JPA accessed database in memory.
+
+    Some documentation at:
+
+    https://docs.jboss.org/author/display/WFLY8/JPA+Reference+Guide
+    https://docs.jboss.org/hibernate/entitymanager/3.5/reference/en/html/configuration.html
+    https://access.redhat.com/documentation/en-US/JBoss_Enterprise_Application_Platform/4.2/html-single/Hibernate_EntityManager_User_Guide/index.html
+-->
+
+<persistence version="2.0"
+             xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+
+    <persistence-unit name="EvoSuiteDB" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:." />
+            <property name="javax.persistence.jdbc.user" value="sa" />
+            <property name="javax.persistence.jdbc.password" value="" />
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+            <property name="hibernate.connection.shutdown" value="true"/>
+            <!-- <property name="hibernate.hbm2ddl.auto" value="create-drop"/> -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.archive.autodetection" value="class, hbm"/>
+        </properties>
+    </persistence-unit>
+</persistence>

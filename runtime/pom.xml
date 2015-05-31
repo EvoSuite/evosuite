@@ -36,7 +36,7 @@
             <!-- shouldn't end up in final jar-->
         </dependency>
 
-        <!-- Java EE dependencies. Should all be "provided" -->
+        <!-- Java EE dependencies. Most should be "provided" -->
         <dependency>
             <groupId>org.jboss.spec.javax.servlet</groupId>
             <artifactId>jboss-servlet-api_3.1_spec</artifactId>
@@ -53,6 +53,18 @@
             <groupId>org.hibernate.javax.persistence</groupId>
             <artifactId>hibernate-jpa-2.0-api</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <scope>compile</scope> <!-- Note: this has to be part of the distribution.
+                TODO check if it should be shaded, and possible side effects -->
+        </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>compile</scope>
         </dependency>
 
 
