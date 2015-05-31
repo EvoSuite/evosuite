@@ -2,7 +2,13 @@
 
 <!--
     JPA provider definition for JavaEE / Hibernate.
-    This is needed to have a JPA accessed database in memory
+    This is needed to have a JPA accessed database in memory.
+
+    Some documentation at:
+
+    https://docs.jboss.org/author/display/WFLY8/JPA+Reference+Guide
+    https://docs.jboss.org/hibernate/entitymanager/3.5/reference/en/html/configuration.html
+    https://access.redhat.com/documentation/en-US/JBoss_Enterprise_Application_Platform/4.2/html-single/Hibernate_EntityManager_User_Guide/index.html
 -->
 
 <persistence version="2.0"
@@ -20,7 +26,9 @@
             <property name="hibernate.show_sql" value="true" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
             <property name="hibernate.connection.shutdown" value="true"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+            <!-- <property name="hibernate.hbm2ddl.auto" value="create-drop"/> -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.archive.autodetection" value="class, hbm"/>
         </properties>
     </persistence-unit>
 </persistence>

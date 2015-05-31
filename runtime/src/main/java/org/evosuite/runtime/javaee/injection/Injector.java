@@ -4,6 +4,7 @@ import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.runtime.annotation.BoundInputVariable;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
+import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.mock.javax.persistence.MockPersistence;
 import org.junit.internal.AssumptionViolatedException;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public class Injector {
         String field = entityManagerCache.get(clazz.getName());
         assert field != null;
 
-        inject(instance,clazz,field, MockPersistence.getDefaultFactory().createEntityManager());
+        inject(instance, clazz, field, DBManager.getInstance().getDefaultEntityManager());
     }
 
 
