@@ -293,9 +293,9 @@
 			</dependency>
 			<dependency>
 				<!-- HSQLDB License	http://hsqldb.org/web/hsqlLicense.html, based on BSD -->
-				<groupId>hsqldb</groupId>
+				<groupId>org.hsqldb</groupId>
 				<artifactId>hsqldb</artifactId>
-				<version>1.8.0.10</version>
+				<version>2.3.2</version>
 			</dependency>
 
 

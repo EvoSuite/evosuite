@@ -1,5 +1,6 @@
 package org.evosuite.runtime.mock.javax.persistence;
 
+import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.mock.OverrideMock;
 
 import javax.persistence.EntityManagerFactory;
@@ -17,10 +18,6 @@ import java.util.Map;
  */
 public class MockPersistence extends Persistence implements OverrideMock{
 
-    /**
-     * JPA unit hardcoded in persistence.xml
-     */
-    private static final String EVOSUITE_DB = "EvoSuiteDB";
 
     // -------- mocked methods  ----------------------
 
@@ -28,14 +25,11 @@ public class MockPersistence extends Persistence implements OverrideMock{
     }
 
     public static EntityManagerFactory createEntityManagerFactory(String persistenceUnitName) {
-        //TODO wrapper for EntityManagerFactory: goal of keeping track of what is called on EntityManager
-        return Persistence.createEntityManagerFactory(EVOSUITE_DB);
+        return DBManager.getInstance().getDefaultFactory();
     }
 
     public static EntityManagerFactory createEntityManagerFactory(String persistenceUnitName, Map properties) {
-        //TODO wrapper for EntityManagerFactory: goal of keeping track of what is called on EntityManager
-        return Persistence.createEntityManagerFactory(EVOSUITE_DB,properties);
-    }
+        return DBManager.getInstance().getDefaultFactory();    }
 
     public static PersistenceUtil getPersistenceUtil() {
         return Persistence.getPersistenceUtil();
@@ -43,8 +37,5 @@ public class MockPersistence extends Persistence implements OverrideMock{
 
     // -------  EvoSuite methods ---------------------
 
-    public static EntityManagerFactory getDefaultFactory(){
-        //TODO properly with cache and reset
-        return createEntityManagerFactory("");
-    }
+
 }
