@@ -2,9 +2,12 @@ package org.evosuite.continuous.persistency;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +29,7 @@ public class CsvJUnitData {
 	private static Logger logger = LoggerFactory.getLogger(CsvJUnitData.class);
 
 	private String targetClass;	
-	private double branchCoverage;	
+	private Map<String, Double> coverageValues = new LinkedHashMap<String, Double>();
 	private int totalNumberOfStatements;	
 	private int numberOfTests;	
 	private int totalNumberOfFailures;
@@ -71,11 +74,45 @@ public class CsvJUnitData {
 		try{
 			data.targetClass = getValue(rows,"TARGET_CLASS").trim();		
 			data.configurationId = 0; //TODO. note: it has nothing to do with configuration_id, need refactoring			
-			data.branchCoverage = Double.parseDouble(getValue(rows,RuntimeVariable.BranchCoverage.toString()));	
+
+			// is there a better of doing this? probably yes...
+			if (hasCriterion(rows, RuntimeVariable.LineCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.LineCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.LineCoverage.toString())));
+			if (hasCriterion(rows, RuntimeVariable.StatementCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.StatementCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.StatementCoverage.toString())));
+			if (hasCriterion(rows, RuntimeVariable.BranchCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.BranchCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.BranchCoverage.toString())));
+			if (hasCriterion(rows, RuntimeVariable.OnlyBranchCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.OnlyBranchCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.OnlyBranchCoverage.toString())));
+			if (hasCriterion(rows, RuntimeVariable.CBranchCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.CBranchCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.CBranchCoverage.toString())));
+			if (hasCriterion(rows, RuntimeVariable.IBranchCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.IBranchCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.IBranchCoverage.toString())));
+			if (hasCriterion(rows, RuntimeVariable.ExceptionCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.ExceptionCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.ExceptionCoverage.toString())));
+			if (hasCriterion(rows, RuntimeVariable.WeakMutationScore.toString()))
+				data.coverageValues.put(RuntimeVariable.WeakMutationScore.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.WeakMutationScore.toString())));
+			if (hasCriterion(rows, RuntimeVariable.OnlyMutationScore.toString()))
+				data.coverageValues.put(RuntimeVariable.OnlyMutationScore.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.OnlyMutationScore.toString())));
+			if (hasCriterion(rows, RuntimeVariable.MutationScore.toString()))
+				data.coverageValues.put(RuntimeVariable.MutationScore.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.MutationScore.toString())));
+			if (hasCriterion(rows, RuntimeVariable.OutputCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.OutputCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.OutputCoverage.toString())));
+			if (hasCriterion(rows, RuntimeVariable.MethodCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.MethodCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.MethodCoverage.toString())));
+			if (hasCriterion(rows, RuntimeVariable.MethodTraceCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.MethodTraceCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.MethodTraceCoverage.toString())));
+			if (hasCriterion(rows, RuntimeVariable.MethodNoExceptionCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.MethodNoExceptionCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.MethodNoExceptionCoverage.toString())));
+			if (hasCriterion(rows, RuntimeVariable.AllDefCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.AllDefCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.AllDefCoverage.toString())));
+			if (hasCriterion(rows, RuntimeVariable.DefUseCoverage.toString()))
+				data.coverageValues.put(RuntimeVariable.DefUseCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.DefUseCoverage.toString())));
+
 			data.totalNumberOfStatements = Integer.parseInt(getValue(rows,RuntimeVariable.Length.toString()));
 			data.durationInSeconds = Integer.parseInt(getValue(rows,RuntimeVariable.Total_Time.toString())) / 1000;
 			data.numberOfTests = Integer.parseInt(getValue(rows,RuntimeVariable.Size.toString()));
-			
+
 			data.totalNumberOfFailures = 0; //TODO
 		} catch(Exception e){
 			logger.error("Error while parsing CSV file: "+e,e);
@@ -85,7 +122,7 @@ public class CsvJUnitData {
 		return data; 
 	}
 
-	public static String getValue(List<String[]> rows, String columnName){
+	private static String getValue(List<String[]> rows, String columnName){
 		String[] names = rows.get(0);
 		String[] values = rows.get(1);
 
@@ -97,12 +134,20 @@ public class CsvJUnitData {
 		return null;
 	}
 
+	private static boolean hasCriterion(List<String[]> rows, String criterion) {
+		return ArrayUtil.contains(rows.get(0), criterion);
+	}
+
 	public String getTargetClass(){
 		return targetClass; 
 	}
 
-	public double getBranchCoverage(){
-		return branchCoverage; 
+	public Map<String, Double> getCoverageValues() {
+		return this.coverageValues; 
+	}
+
+	public double getCoverage(String criterion) {
+		return this.coverageValues.get(criterion);
 	}
 
 	public int getTotalNumberOfStatements(){
