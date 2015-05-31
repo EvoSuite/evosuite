@@ -70,6 +70,7 @@ public class RuntimeInstrumentation {
                 "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc", "org.mozilla.javascript.gen.c",
                 "corina.cross.Single",  // I really don't know what is wrong with this class, but we need to exclude it
                 "org.slf4j",
+                "org.hibernate","org.hsqldb","org.jboss", // used in the generated JUnit files to test JavaEE applications relying on database
                 "org.apache.commons.discovery.tools.DiscoverSingleton",
                 "org.apache.commons.discovery.resource.ClassLoaders",
                 "org.apache.commons.discovery.resource.classes.DiscoverClasses",
