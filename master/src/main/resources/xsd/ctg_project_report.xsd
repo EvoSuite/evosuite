@@ -13,7 +13,7 @@
 			<xs:sequence>
 				<xs:element name="totalNumberOfClasses" type="xs:nonNegativeInteger" />
 				<xs:element name="totalNumberOfTestableClasses" type="xs:nonNegativeInteger" />
-				<xs:element name="averageBranchCoverage" type="percentage" /> <!-- note, this is a derived value -->
+				<xs:element name="overallCoverage" type="percentage" /> <!-- note, this is a derived value -->
 				<xs:sequence>
 					<xs:element name="generatedTestSuites" type="TestSuite" minOccurs="0" maxOccurs="unbounded" />
 				</xs:sequence>
@@ -34,15 +34,23 @@
 
 	<xs:complexType name="TestSuiteCoverage">
 		<xs:sequence>
-			<!-- TODO add other criteria -->
 			<xs:element name="id" type="xs:nonNegativeInteger" />
-			<xs:element name="branchCoverage" type="percentage" />
+			<xs:sequence>
+				<xs:element name="coverage" type="CriterionCoverage" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
 			<xs:element name="numberOfTests" type="xs:nonNegativeInteger" />
 			<xs:element name="totalNumberOfStatements" type="xs:nonNegativeInteger" />			
 			<xs:element name="effortInSeconds" type="xs:nonNegativeInteger" />			
 			<xs:sequence>
 				<xs:element name="failures" type="Failure" minOccurs="0" maxOccurs="unbounded" />
 			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="CriterionCoverage">
+		<xs:sequence>
+			<xs:element name="criterion" type="xs:string" />
+			<xs:element name="coverageValue" type="percentage" />
 		</xs:sequence>
 	</xs:complexType>
 
