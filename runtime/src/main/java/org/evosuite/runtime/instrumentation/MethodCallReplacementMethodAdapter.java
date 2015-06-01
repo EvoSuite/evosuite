@@ -82,8 +82,13 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
 
 		boolean isReplaced = false;
-		// static replacement methods
-		if(MethodCallReplacementCache.getInstance().hasReplacementCall(owner, name+desc)) {
+		// Static replacement methods
+		// For invokespecial this can only be used if a constructor is called,
+		// not for super calls because not all mock classes may be superclasses
+		// of the actual object. E.g. Throwable -> Exception -> RuntimeException
+		// A MockRuntimeException is not a subclass of MockException and MockThrowable
+		if(MethodCallReplacementCache.getInstance().hasReplacementCall(owner, name+desc) && 
+				(opcode != Opcodes.INVOKESPECIAL || name.equals("<init>"))) {
 			MethodCallReplacement replacement = MethodCallReplacementCache.getInstance().getReplacementCall(owner, name+desc);
 			isReplaced = true;
 			replacement.insertMethodCall(this, Opcodes.INVOKESTATIC);
@@ -94,7 +99,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			if(MethodCallReplacementCache.getInstance().hasSpecialReplacementCall(owner, name+desc)) {
 				MethodCallReplacement replacement = MethodCallReplacementCache.getInstance().getSpecialReplacementCall(owner, name+desc);
 				if (replacement.isTarget(owner, name, desc)
-						&& opcode == Opcodes.INVOKESPECIAL) {
+						&& opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
 					isReplaced = true;
 					hasBeenInstrumented = true;
 					boolean isSelf = false;
