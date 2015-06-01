@@ -5,6 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -14,11 +18,11 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 import org.evosuite.continuous.ContinuousTestGeneration;
+import org.evosuite.xsd.CriterionCoverage;
 import org.evosuite.xsd.ProjectInfo;
 import org.evosuite.xsd.TestSuite;
 import org.evosuite.xsd.TestSuiteCoverage;
 
-import hudson.maven.MavenModule;
 import hudson.model.Action;
 
 public class ModuleAction implements Action {
@@ -94,7 +98,28 @@ public class ModuleAction implements Action {
 		if (this.projectInfo == null) {
 			return 0.0;
 		}
-		return this.projectInfo.getAverageBranchCoverage() * 100;
+		return this.projectInfo.getOverallCoverage() * 100;
+	}
+
+	public Map<String, List<Double>> getCoverageValues() {
+		Map<String, List<Double>> coverageValues = new LinkedHashMap<String, List<Double>>();
+
+		for (TestSuite testSuite : this.projectInfo.getGeneratedTestSuites()) {
+			// get the last coverage report
+			TestSuiteCoverage testSuiteCoverage = testSuite.getCoverageTestSuites().get( testSuite.getCoverageTestSuites().size() - 1 );
+
+			for (CriterionCoverage criterionCoverage : testSuiteCoverage.getCoverage()) {
+				List<Double> coverages = new ArrayList<Double>();
+				if (coverageValues.containsKey(criterionCoverage.getCriterion())) {
+					coverages = coverageValues.get(criterionCoverage.getCriterion());
+				}
+
+				coverages.add(criterionCoverage.getCoverageValue());
+				coverageValues.put(criterionCoverage.getCriterion(), coverages);
+			}
+		}
+
+		return coverageValues;
 	}
 
 	// data for jelly template

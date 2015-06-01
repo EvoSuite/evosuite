@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.evosuite.Properties;
 import org.evosuite.continuous.persistency.StorageManager;
+import org.evosuite.xsd.CriterionCoverage;
 import org.evosuite.xsd.ProjectInfo;
 import org.evosuite.xsd.TestSuite;
 import org.evosuite.xsd.TestSuiteCoverage;
@@ -66,7 +67,7 @@ public class ProjectStaticData {
     /**
      * 
      */
-    private final HashMap<String, List<Double>> coverage;
+    private final HashMap<String, List<Map<String, Double>>> coverages;
 
     /**
      * 
@@ -80,7 +81,7 @@ public class ProjectStaticData {
 		classes = new ConcurrentHashMap<String, ClassInfo>();
 
 		this.modifiedFiles = new LinkedHashSet<String>();
-        this.coverage = new LinkedHashMap<String, List<Double>>();
+        this.coverages = new LinkedHashMap<String, List<Map<String, Double>>>();
 	}
 
 	/**
@@ -142,14 +143,17 @@ public class ProjectStaticData {
         for (TestSuite suite : p.getGeneratedTestSuites()) {
         	String targetClass = suite.getFullNameOfTargetClass();
 
-        	List<Double> previous_coverages = new ArrayList<Double>();
+        	List<Map<String, Double>> suite_coverages = new ArrayList<Map<String, Double>>();
         	for (TestSuiteCoverage suite_coverage : suite.getCoverageTestSuites()) {
-        		previous_coverages.add(suite_coverage.getBranchCoverage());
-        		// TODO now is just BranchCoverage in the future we should
-        		// edit this and add support to other kind of coverage
+        		Map<String, Double> previous_coverages = new LinkedHashMap<String, Double>();
+        		for (CriterionCoverage coverage : suite_coverage.getCoverage()) {
+        			previous_coverages.put(coverage.getCriterion(), coverage.getCoverageValue());
+        		}
+
+        		suite_coverages.add(previous_coverages);
         	}
 
-        	this.coverage.put(targetClass, previous_coverages);
+        	this.coverages.put(targetClass, suite_coverages);
         }
 	}
 
@@ -169,7 +173,7 @@ public class ProjectStaticData {
 		public final boolean hasCode;
 
 		private boolean hasChanged = true;
-        private boolean hasCoverageImproved = true;
+        private boolean isToTest = true;
 
 		public ClassInfo(Class<?> theClass, int numberOfBranches, boolean hasCode) {
 			super();
@@ -193,11 +197,11 @@ public class ProjectStaticData {
             return this.hasChanged;
         }
 
-        public void setCoverageImproved(boolean coverage) {
-            this.hasCoverageImproved = coverage;
+        public void isToTest(boolean isToTest) {
+            this.isToTest = isToTest;
         }
-        public boolean hasCoverageImproved() {
-            return this.hasCoverageImproved;
+        public boolean isToTest() {
+            return this.isToTest;
         }
 	}
 
@@ -292,35 +296,53 @@ public class ProjectStaticData {
     /**
      * Return previous test coverage
      */
-    public List<Double> getPreviousCoverage(String className) {
-        return this.coverage.get(className);
+    public List<Map<String, Double>> getPreviousCoverages(String className) {
+        return this.coverages.get(className);
     }
 
     /**
      * Has the coverage improved in last N commits
      */
-    public boolean hasCoverageImproved(String className, int n)
-    {
-        double lastCoverage = 0.0;
-        try {
-            lastCoverage = this.coverage.get(className).get( this.coverage.get(className).size() - 1 );
-            if (lastCoverage == 1.0) // if we achieve 100% coverage we don't want to test this class
-                return false;
-        } catch (NullPointerException e) {
-            // ok, we get an exception here because we aren't no using HistorySchedule or we don't have yet history coverage,
-            // so lets return true
+    public boolean isToTest(String className, int n) {
+
+    	List<Map<String, Double>> classCoverage = this.coverages.get(className);
+    	if (classCoverage == null) {
+    		return true; // first time
+    	}
+
+    	Map<String, Double> previousCoverage = classCoverage.get( this.coverages.get(className).size() - 1 );
+
+    	// check if all criteria have been covered
+    	boolean one_hundred_percent_coverage = true;
+    	for (String criterion : previousCoverage.keySet()) {
+    		if (previousCoverage.get(criterion) < 1.0) {
+    			one_hundred_percent_coverage = false;
+    			break ;
+    		}
+    	}
+
+    	// we've achieved 100% coverage (even if just one execution),
+    	// so we don't want to test this class
+        if (one_hundred_percent_coverage)
+            return false;
+
+        // not enough data
+        if (this.coverages.get(className).size() < n)
             return true;
-        }
 
-        if (this.coverage.get(className).size() < n)
-            return true;
+        // we just keep track of the best test suite generated so far,
+        // however if the coverage of any criterion did not increased
+        // in the last N commits, there is no point continue testing.
+        // if at some point the className is changed, then the class
+        // should be tested again
 
-        for (int i = this.coverage.get(className).size() - 2; i > this.coverage.get(className).size() - 1 - n; i--) {
-            if (i < 0)
-                return false;
-
-            if (this.coverage.get(className).get(i) < lastCoverage)
-                return true;
+        // has the coverage of any criterion improved in the last N commits?
+        for (int i = this.coverages.get(className).size() - 1; i > this.coverages.get(className).size() - 1 - n; i--) {
+        	for (String criterion : this.coverages.get(className).get(i).keySet()) {
+        		if (this.coverages.get(className).get(i).get(criterion) < previousCoverage.get(criterion)) {
+        			return true;
+        		}
+        	}
         }
 
         return false;

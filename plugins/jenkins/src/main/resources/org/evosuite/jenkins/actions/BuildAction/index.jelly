@@ -10,7 +10,7 @@
              yellow #FCE94F
              green  #008000
         -->
-        <div> ${it.OverallCoverage}% coverage</div>
+        <div> ${it.OverallCoverage}% overall coverage</div>
         <div style="width:100%; height:1em; background-color: #FCE94F">
           <div style="width:${it.OverallCoverage}%; height: 1em; background-color: #008000; float: left"></div>
         </div>
