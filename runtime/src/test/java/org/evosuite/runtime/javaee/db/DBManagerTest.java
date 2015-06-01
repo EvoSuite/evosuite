@@ -20,13 +20,15 @@ public class DBManagerTest {
         cleared = DBManager.getInstance().clearDatabase();
         Assert.assertTrue(cleared);
 
+
+
         String key = "foo";
         String value = "bar";
         KVPair pair = new KVPair(key,value);
 
         EntityManager em = DBManager.getInstance().getDefaultEntityManager();
 
-
+        em.getTransaction().begin();
 
         KVPair queried = null;
 
@@ -37,6 +39,8 @@ public class DBManagerTest {
         queried = em.find(KVPair.class,key);
         Assert.assertNotNull(queried); //now it should be found
         Assert.assertEquals(value, queried.getValue());
+
+        em.getTransaction().commit();
 
         //clean the db again
         cleared = DBManager.getInstance().clearDatabase();
