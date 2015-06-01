@@ -225,7 +225,7 @@ public class ProjectAnalyzer {
 
 			if (Properties.CTG_SCHEDULE == AvailableSchedule.HISTORY) {
 				ci.setChanged(data.hasChanged(theClass.getCanonicalName() + ".java"));
-				ci.setCoverageImproved(data.hasCoverageImproved(theClass.getCanonicalName(), HistorySchedule.COMMIT_IMPROVEMENT));
+				ci.isToTest(data.isToTest(theClass.getCanonicalName(), HistorySchedule.COMMIT_IMPROVEMENT));
 			}
 		}
 
