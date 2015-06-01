@@ -73,15 +73,15 @@ public class HistorySchedule
             }
             else
             {
-                if (!c_info.hasCoverageImproved())
+                if (c_info.isToTest())
                 {
-                    LoggingUtils.getEvoLogger().info("[NI] " + c_info.getClassName()); // NI - not improved
-                    continue;
+                	budget *= HistorySchedule.OLD_CLASS;
+                    LoggingUtils.getEvoLogger().info("[O] " + c_info.getClassName()); // O - original/old
                 }
                 else
                 {
-                    budget *= HistorySchedule.OLD_CLASS;
-                    LoggingUtils.getEvoLogger().info("[O] " + c_info.getClassName()); // O - original/old
+                	LoggingUtils.getEvoLogger().info("[NI] " + c_info.getClassName()); // NI - not improved
+                    continue;
                 }
             }
 

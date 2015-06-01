@@ -122,9 +122,6 @@ public class ContinuousTestGeneration {
 			return "Failed to initialize local storage system";
 		}
 
-		//TODO: it seems like this cannot be done, as history depends on it
-		//storage.deleteOldTmpFolders();
-
 		if (!storage.createNewTmpFolders()) {
 			return "Failed to create tmp folders";
 		}
@@ -217,8 +214,8 @@ public class ContinuousTestGeneration {
 				projectInfo.getTotalNumberOfTestableClasses()+"\n");
     		sb.append("Number of generated test suites: "+
     				projectInfo.getGeneratedTestSuites().size()+"\n");
-		sb.append("Average branch coverage: "+
-    				projectInfo.getAverageBranchCoverage()+"\n");
+		sb.append("Overall coverage: "+
+    				projectInfo.getOverallCoverage()+"\n");
     		
     		return sb.toString();
     }
