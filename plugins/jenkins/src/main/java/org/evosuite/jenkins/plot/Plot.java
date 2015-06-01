@@ -3,7 +3,6 @@ package org.evosuite.jenkins.plot;
 import hudson.model.AbstractProject;
 import hudson.util.ColorPalette;
 import hudson.util.Graph;
-import hudson.util.ShiftedCategoryAxis;
 
 import java.util.Calendar;
 
@@ -11,7 +10,6 @@ import org.evosuite.jenkins.actions.ProjectAction;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.CategoryToolTipGenerator;
@@ -26,14 +24,12 @@ public abstract class Plot extends Graph {
 	protected ProjectAction project;
 	private CategoryDataset dataset;
 	private String yLabel;
-	private boolean legend;
 
-	public Plot(ProjectAction project, String yLabel, boolean legend) {
+	public Plot(ProjectAction project, String yLabel) {
 		super(Calendar.getInstance(), 350, 150);
 
 		this.project = project;
 		this.yLabel = yLabel;
-		this.legend = legend;
 	}
 
 	public void setCategoryDataset(CategoryDataset dataset) {
@@ -42,22 +38,21 @@ public abstract class Plot extends Graph {
 
 	@Override
 	protected JFreeChart createGraph() {
-		final JFreeChart chart = ChartFactory.createLineChart(null, "Build Number #", this.yLabel, this.dataset, PlotOrientation.VERTICAL, this.legend, true, true);
+		final JFreeChart chart = ChartFactory.createLineChart(null, "Build Number #", this.yLabel, this.dataset, PlotOrientation.VERTICAL, true, true, true);
 
 		CategoryPlot plot = (CategoryPlot) chart.getPlot();
-		ValueAxis yAxis = plot.getRangeAxis();
-		CategoryAxis domainAxis = new ShiftedCategoryAxis("Build Number");
-		plot.setDomainAxis(domainAxis);
-		domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+
+		CategoryAxis domainAxis = new CategoryAxis();
+		//domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
 		domainAxis.setLowerMargin(0.0);
 		domainAxis.setUpperMargin(0.0);
 		domainAxis.setCategoryMargin(0.0);
 
-		if (this.legend) {
-			yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-		} else {
-			yAxis.setRange(0, 100);
-		}
+		plot.setDomainAxis(domainAxis);
+
+		ValueAxis yAxis = plot.getRangeAxis();
+		yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+		yAxis.setRange(0.0, 100.0);
 
 		URLAndTooltipRenderer urlRenderer = new URLAndTooltipRenderer(this.project.getProject());
 		ColorPalette.apply(urlRenderer);

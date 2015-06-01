@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -27,8 +28,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.evosuite.Properties;
 import org.evosuite.continuous.project.ProjectStaticData;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
+import org.evosuite.xsd.CriterionCoverage;
 import org.evosuite.xsd.ProjectInfo;
 import org.evosuite.xsd.TestSuite;
 import org.evosuite.xsd.TestSuiteCoverage;
@@ -378,12 +379,19 @@ public class StorageManager {
 		db.setTotalNumberOfTestableClasses(BigInteger.valueOf(n));
 
 		double coverage = 0d;
-		for(TestSuite suite : db.getGeneratedTestSuites()){
-			coverage += suite.getCoverageTestSuites().get( suite.getCoverageTestSuites().size() - 1 ).getBranchCoverage();
+		for (TestSuite suite : db.getGeneratedTestSuites()) {
+			TestSuiteCoverage suite_coverage = suite.getCoverageTestSuites().get( suite.getCoverageTestSuites().size() - 1 );
+
+			double criterion_coverage = 0d;
+			for (CriterionCoverage c : suite_coverage.getCoverage()) {
+				criterion_coverage += c.getCoverageValue();
+			}
+
+			coverage += (criterion_coverage / (double) suite_coverage.getCoverage().size());
 		}
 
 		coverage = coverage / (double) n;
-		db.setAverageBranchCoverage(coverage);
+		db.setOverallCoverage(coverage);
 	}
 
 	/**
@@ -425,7 +433,17 @@ public class StorageManager {
 
 		TestSuiteCoverage new_coverage_test_suite = new TestSuiteCoverage();
 		new_coverage_test_suite.setId(BigInteger.valueOf( suite.getCoverageTestSuites().size() ));
-		new_coverage_test_suite.setBranchCoverage(csv.getBranchCoverage());
+
+		List<CriterionCoverage> coverageValues = new ArrayList<CriterionCoverage>();
+		for (String criterion : csv.getCoverageValues().keySet()) {
+			CriterionCoverage coverage = new CriterionCoverage();
+			coverage.setCriterion(criterion);
+			coverage.setCoverageValue(csv.getCoverage(criterion));
+
+			coverageValues.add(coverage);
+		}
+		new_coverage_test_suite.getCoverage().addAll(coverageValues);
+
 		new_coverage_test_suite.setNumberOfTests(BigInteger.valueOf(csv.getNumberOfTests()));
 		new_coverage_test_suite.setTotalNumberOfStatements(BigInteger.valueOf(csv.getTotalNumberOfStatements()));
 
@@ -496,6 +514,7 @@ public class StorageManager {
 	}
 
 	private boolean isBetterThanOldOne(TestsOnDisk suite, ProjectInfo db) {
+
 		if(suite.csvData == null) {
 			// no data available
 			return false; 
@@ -514,31 +533,40 @@ public class StorageManager {
 			return true;
 		}
 
-		double oldCov = old.getCoverageTestSuites().get( old.getCoverageTestSuites().size() - 1 ).getBranchCoverage();
-		double newCov = suite.csvData.getBranchCoverage();
-		double covDif = Math.abs(newCov - oldCov); 
-		
-		if(covDif > 0.0001){
-			/*
-			 * this check is to avoid issues with double truncation 
-			 */
-			return newCov > oldCov;
+		// first, check if the coverage of at least one criterion is better
+		TestSuiteCoverage previousCoverage = old.getCoverageTestSuites().get( old.getCoverageTestSuites().size() - 1 );
+		for (CriterionCoverage criterion : previousCoverage.getCoverage()) {
+			double oldCov = criterion.getCoverageValue();
+			double newCov = suite.csvData.getCoverage(criterion.getCriterion());
+			double covDif = Math.abs(newCov - oldCov); 
+
+			if (covDif > 0.0001) {
+				/*
+				 * this check is to avoid issues with double truncation 
+				 */
+				return newCov > oldCov;
+			}
 		}
-		
-		//here coverage seems the same, so look at failures
-		int oldFail = old.getCoverageTestSuites().get( old.getCoverageTestSuites().size() - 1 ).getFailures().size();
+
+		// ok, coverage seems the same, so look at failures
+		int oldFail = previousCoverage.getFailures().size();
 		int newFail = suite.csvData.getTotalNumberOfFailures();
-		if(newFail != oldFail){
+		if (newFail != oldFail) {
 			return newFail > oldFail;
 		}
-		
-		//TODO: here we could check other things, like mutation score
-		
-		//everything seems same, so look at size 
-		int oldSize = old.getCoverageTestSuites().get( old.getCoverageTestSuites().size() - 1 ).getTotalNumberOfStatements().intValue();
+
+		// everything seems same, so look at size 
+		int oldSize = previousCoverage.getTotalNumberOfStatements().intValue();
 		int newSize = suite.csvData.getTotalNumberOfStatements();
-		
-		return newSize < oldSize; 
+		if (newSize != oldSize) {
+			return newSize < oldSize;
+		}
+
+		// at last, look the number of test cases
+		int oldNumTests = previousCoverage.getNumberOfTests().intValue();
+		int newNumTests = suite.csvData.getNumberOfTests();
+
+		return newNumTests <= oldNumTests; 
 	}
 
 	/**
@@ -618,8 +646,7 @@ public class StorageManager {
 		try{
 			JAXBContext jaxbContext = JAXBContext.newInstance(ProjectInfo.class);
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			Schema schema = factory.newSchema(new StreamSource(
-					StorageManager.class.getResourceAsStream("/xsd/ctg_project_report.xsd")));
+			Schema schema = factory.newSchema(new StreamSource(StorageManager.class.getResourceAsStream("/xsd/ctg_project_report.xsd")));
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbUnmarshaller.setSchema(schema);
 			ProjectInfo project = (ProjectInfo) jaxbUnmarshaller.unmarshal(stream);

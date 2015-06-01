@@ -13,7 +13,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.evosuite.jenkins.plot.CoveragePlot;
 import org.kohsuke.stapler.StaplerRequest;
@@ -50,12 +52,12 @@ public class ProjectAction implements Action {
 	}
 
 	public void doCoverageGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
-		CoveragePlot c = new CoveragePlot(this, "Overall Coverage %", false);
+		CoveragePlot c = new CoveragePlot(this, "Coverage %");
 		c.doCoverageGraph(req, rsp);
 	}
 
 	public void doCoverageMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
-		CoveragePlot c = new CoveragePlot(this, "Overall Coverage", false);
+		CoveragePlot c = new CoveragePlot(this, "Coverage");
 		c.doCoverageMap(req, rsp);
 	}
 
@@ -70,6 +72,24 @@ public class ProjectAction implements Action {
 		}
 
 		return coverage / this.modules.size();
+	}
+
+	public Map<String, List<Double>> getCoverageValues() {
+		Map<String, List<Double>> coverageValues = new LinkedHashMap<String, List<Double>>();
+
+		for (ModuleAction module : this.modules) {
+			for (String criterion : module.getCoverageValues().keySet()) {
+				List<Double> coverages = new ArrayList<Double>();
+				if (coverageValues.containsKey(criterion)) {
+					coverages = coverageValues.get(criterion);
+				}
+
+				coverages.addAll( module.getCoverageValues().get(criterion) );
+				coverageValues.put(criterion, coverages);
+			}
+		}
+
+		return coverageValues;
 	}
 
 	@Override

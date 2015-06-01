@@ -2,7 +2,7 @@
 <div class="evosuite-trend-caption">
   <div class="evosuite-trend"> Evosuite Coverage Trend Graph</div>
   <div>
-    <img src="evosuite-project/coverageGraph" lazymap="evosuite-project/coverageMap"/>
+    <img src="evosuite-project/coverageGraph?width=500&amp;height=350&amp;" width="500" height="350" lazymap="evosuite-project/coverageMap?width=500&amp;height=350&amp;"/>
     <br/>
     <a href="evosuite-project">enlarge</a>
   </div>
