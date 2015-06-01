@@ -5,6 +5,8 @@ import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import org.evosuite.jenkins.actions.BuildAction;
 import org.evosuite.jenkins.actions.ProjectAction;
@@ -14,8 +16,8 @@ import org.kohsuke.stapler.StaplerResponse;
 
 public class CoveragePlot extends Plot {
 
-	public CoveragePlot(ProjectAction project, String yLabel, boolean legend) {
-		super(project, yLabel, legend);
+	public CoveragePlot(ProjectAction project, String yLabel) {
+		super(project, yLabel);
 	}
 
 	public void doCoverageGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
@@ -46,8 +48,16 @@ public class CoveragePlot extends Plot {
 				continue;
 			}
 
-			double coverage = build_action.getProjectAction().getOverallCoverage();
-			coverageDataSetBuilder.add(coverage, "overall coverage", new ChartUtil.NumberOnlyBuildLabel(build));
+			Map<String, List<Double>> coverageValues = build_action.getProjectAction().getCoverageValues();
+			for (String criterion : coverageValues.keySet()) {
+				double coverage = 0.0;
+				for (Double value : coverageValues.get(criterion)) {
+					coverage += value;
+				}
+
+				coverage = coverage / coverageValues.get(criterion).size() * 100.0;
+				coverageDataSetBuilder.add(coverage, criterion, new ChartUtil.NumberOnlyBuildLabel(build));
+			}
 		}
 
 		return coverageDataSetBuilder.build();
