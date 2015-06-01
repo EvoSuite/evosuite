@@ -16,11 +16,13 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.eclipse.aether.RepositorySystemSession;
+import org.evosuite.Properties;
 import org.evosuite.maven.util.EvoSuiteRunner;
-
+import org.evosuite.maven.util.FileUtils;
+import org.evosuite.maven.util.HistoryChanges;
 
 @Mojo( name = "generate" , requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDependencyCollection = ResolutionScope.RUNTIME)
-public class GenerateMojo extends AbstractMojo{
+public class GenerateMojo extends AbstractMojo {
 
 	/**
 	 * Total Memory (in MB) that CTG will use
@@ -76,6 +78,16 @@ public class GenerateMojo extends AbstractMojo{
 
 	@Parameter(defaultValue="${repositorySystemSession}", required = true, readonly = true)
 	private RepositorySystemSession repoSession;
+
+	/**
+	 * Defines files in the source directories to include (all .java files by default).
+	 */
+	private String[] includes = {"**/*.java"};
+
+	/**
+	 * Defines which of the included files in the source directories to exclude (non by default).
+	 */
+	private String[] excludes;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException{
@@ -142,10 +154,16 @@ public class GenerateMojo extends AbstractMojo{
 			getLog().info("Nothing to test");
 			return;
 		}
-		
+
+		try {
+			List<File> files = FileUtils.scan(this.project.getCompileSourceRoots(), this.includes, this.excludes);
+			HistoryChanges.keepTrack(basedir.getAbsolutePath(), files);
+		} catch (Exception e) {
+			throw new MojoExecutionException("", e);
+		}
+
 		runEvoSuiteOnSeparatedProcess(target, cp, basedir.getAbsolutePath()); 
 	}
-
 
 	private void runEvoSuiteOnSeparatedProcess(String target, String cp, String dir) throws MojoFailureException {
 			
@@ -156,6 +174,9 @@ public class GenerateMojo extends AbstractMojo{
 		params.add(target);
 		params.add("-Dcriterion="+criterion);
 		params.add("-Dctg_schedule="+schedule);
+		if (schedule.toUpperCase().equals(Properties.AvailableSchedule.HISTORY.toString())) {
+			params.add("-Dctg_history_file=" + dir + File.separator + Properties.CTG_DIR + File.separator + "history_file");
+		}
 		params.add("-Dctg_memory="+memoryInMB);
 		params.add("-Dctg_cores="+numberOfCores);
 		if (timeInMinutesPerProject != 0) {
