@@ -3,26 +3,15 @@ package org.evosuite.runtime.javaee.db;
 import org.hibernate.internal.SessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.orm.hibernate3.HibernateExceptionTranslator;
-import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -49,7 +38,7 @@ public class DBManager {
     private static final DBManager singleton = new DBManager();
 
     private final EntityManagerFactory factory;
-    private final EntityManager em;
+    private  EntityManager em;
 
     private DBManager(){
         //TODO inside any DB call should be not instrumentation. although partially handled in
@@ -60,8 +49,6 @@ public class DBManager {
 
         //factory = Persistence.createEntityManagerFactory(EVOSUITE_DB);
         factory = createEMFWithSpring();
-
-
         em = factory.createEntityManager();
     }
 
@@ -73,8 +60,18 @@ public class DBManager {
         return factory;
     }
 
-    public EntityManager getDefaultEntityManager(){
+    public EntityManager getCurrentEntityManager(){
         return em;
+    }
+
+    public void createNewEntityManager(){
+        if(em!=null){
+            if(em.getTransaction().isActive()){
+                em.getTransaction().rollback();
+            }
+            em.close();
+        }
+        em = factory.createEntityManager();
     }
 
     public boolean clearDatabase() {
@@ -118,6 +115,7 @@ public class DBManager {
             em.getTransaction().rollback();
         }
         clearDatabase();
+        createNewEntityManager();
     }
 
 
@@ -144,62 +142,5 @@ public class DBManager {
         em.afterPropertiesSet();
 
         return em.getObject();
-    }
-
-
-    @Configuration
-    @EnableTransactionManagement
-    private class StandaloneDataJpaConfig {
-
-        @Bean
-        public DataSource dataSource() {
-
-            DriverManagerDataSource dataSource = new DriverManagerDataSource();
-            dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
-            dataSource.setUrl("jdbc:hsqldb:mem:.");
-            dataSource.setUsername("sa");
-            dataSource.setPassword("");
-            return dataSource;
-            /*
-            return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL)
-                    .addScript("classpath:sql/schema.sql")
-                    .addScript("classpath:sql/import-users.sql")
-                    .build();
-                    */
-        }
-
-        @Bean
-        public PlatformTransactionManager transactionManager() {
-
-            JpaTransactionManager txManager = new JpaTransactionManager();
-            txManager.setEntityManagerFactory(entityManagerFactory());
-            return txManager;
-        }
-
-        @Bean
-        public HibernateExceptionTranslator hibernateExceptionTranslator() {
-            return new HibernateExceptionTranslator();
-        }
-
-        @Bean
-        public EntityManagerFactory entityManagerFactory() {
-
-            // will set the provider to 'org.hibernate.ejb.HibernatePersistence'
-            HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-            // will set hibernate.show_sql to 'true'
-            vendorAdapter.setShowSql(true);
-            // if set to true, will set hibernate.hbm2ddl.auto to 'update'
-            vendorAdapter.setGenerateDdl(false);
-
-            LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-            factory.setJpaVendorAdapter(vendorAdapter);
-            factory.setPackagesToScan("com.geowarin.standalonedatajpa.model");
-            factory.setDataSource(dataSource());
-
-            // This will trigger the creation of the entity manager factory
-            factory.afterPropertiesSet();
-
-            return factory.getObject();
-        }
     }
 }

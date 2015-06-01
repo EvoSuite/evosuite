@@ -1,32 +1,121 @@
 package org.evosuite.runtime.javaee.db;
 
+import org.hibernate.internal.SessionImpl;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.EntityManager;
 
-import static org.junit.Assert.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Created by Andrea Arcuri on 31/05/15.
  */
 public class DBManagerTest {
 
+    @Before
+    public void init(){
+        DBManager.getInstance().initDB();
+    }
+
+    @Test
+    public void testTableInitialization() throws SQLException {
+        Connection c = ((SessionImpl) DBManager.getInstance().getCurrentEntityManager().getDelegate()).connection();
+        Statement s = c.createStatement();
+
+        Set<String> tables = new LinkedHashSet<>();
+        ResultSet rs = s.executeQuery("select table_name " +
+                "from INFORMATION_SCHEMA.system_tables " +
+                "where table_type='TABLE' and table_schem='PUBLIC'");
+        while (rs.next()) {
+            if (!rs.getString(1).startsWith("DUAL_")) {
+                tables.add(rs.getString(1));
+            }
+        }
+        rs.close();
+        s.close();
+
+        Assert.assertTrue(tables.contains("KVPair_table".toUpperCase()));
+    }
+
+    @Test
+    public void testDirectSQLModifications() throws SQLException {
+
+        String tableName = "KVPair_table";
+
+        Connection c = ((SessionImpl) DBManager.getInstance().getCurrentEntityManager().getDelegate()).connection();
+        Statement s = c.createStatement();
+
+        ResultSet rs = s.executeQuery("select * from "+tableName);
+        Assert.assertFalse(rs.next()); // no data
+        rs.close();
+
+        s.executeUpdate("INSERT INTO KVPair_table VALUES 'a', 'b'");
+
+        rs = s.executeQuery("SELECT * from "+tableName);
+        Assert.assertTrue(rs.next());
+        String a = rs.getString(1);
+        String b = rs.getString(2);
+        rs.close();
+
+        Assert.assertEquals("a", a);
+        Assert.assertEquals("b", b);
+
+        s.executeUpdate("DELETE from " + tableName);
+        rs = s.executeQuery("select * from "+tableName);
+        Assert.assertFalse(rs.next()); // no data
+
+        s.close();
+    }
+
+
+    @Test
+    public void testDirectSQLInsertFollowedByClear() throws SQLException {
+
+        String tableName = "KVPair_table";
+
+        Connection c = ((SessionImpl) DBManager.getInstance().getCurrentEntityManager().getDelegate()).connection();
+        Statement s = c.createStatement();
+
+        ResultSet rs = null;
+
+        s.executeUpdate("INSERT INTO KVPair_table VALUES 'a', 'b'");
+
+        rs = s.executeQuery("SELECT * from "+tableName);
+        Assert.assertTrue(rs.next());
+        rs.close();
+        s.close();
+
+        DBManager.getInstance().clearDatabase();
+
+        s = c.createStatement();
+        rs = s.executeQuery("SELECT * from " + tableName);
+        Assert.assertFalse(rs.next()); // no data
+        rs.close();
+        s.close();
+    }
+
+
     @Test
     public void testClearDatabase() throws Exception {
 
         boolean cleared = false;
 
+        //cleaning up should work
         cleared = DBManager.getInstance().clearDatabase();
         Assert.assertTrue(cleared);
-
-
 
         String key = "foo";
         String value = "bar";
         KVPair pair = new KVPair(key,value);
 
-        EntityManager em = DBManager.getInstance().getDefaultEntityManager();
+        EntityManager em = DBManager.getInstance().getCurrentEntityManager();
 
         em.getTransaction().begin();
 
@@ -42,12 +131,24 @@ public class DBManagerTest {
 
         em.getTransaction().commit();
 
+        EntityManager secondEM = DBManager.getInstance().getDefaultFactory().createEntityManager();
+        queried = secondEM.find(KVPair.class, key);
+        Assert.assertNotNull(queried); //should be found
+        secondEM.close();
+
         //clean the db again
         cleared = DBManager.getInstance().clearDatabase();
         Assert.assertTrue(cleared);
 
-        //object shouldn't be in db now
+
+        EntityManager thirdEM = DBManager.getInstance().getDefaultFactory().createEntityManager();
+        queried = thirdEM.find(KVPair.class, key);
+        Assert.assertNull(queried); //should not be found
+        thirdEM.close();
+
+
+        //object should be found in first em, as its cache is not updated
         queried = em.find(KVPair.class, key);
-        Assert.assertNull(queried); //n
+        Assert.assertNotNull(queried);
     }
 }

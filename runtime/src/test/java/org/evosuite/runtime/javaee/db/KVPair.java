@@ -18,7 +18,7 @@ import javax.persistence.Table;
  * @author Mike Musgrove
  */
 @Entity
-@Table(name = "BMT_KVPair")
+@Table(name = "KVPair_table")
 public class KVPair implements Serializable {
     /** Default value included to remove warning. **/
     private static final long serialVersionUID = 1L;
