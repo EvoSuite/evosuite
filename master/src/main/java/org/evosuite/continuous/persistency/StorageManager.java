@@ -536,6 +536,9 @@ public class StorageManager {
 		// first, check if the coverage of at least one criterion is better
 		TestSuiteCoverage previousCoverage = old.getCoverageTestSuites().get( old.getCoverageTestSuites().size() - 1 );
 		for (CriterionCoverage criterion : previousCoverage.getCoverage()) {
+			if (!suite.csvData.hasCriterion(criterion.getCriterion())) {
+				continue ;
+			}
 			double oldCov = criterion.getCoverageValue();
 			double newCov = suite.csvData.getCoverage(criterion.getCriterion());
 			double covDif = Math.abs(newCov - oldCov); 
