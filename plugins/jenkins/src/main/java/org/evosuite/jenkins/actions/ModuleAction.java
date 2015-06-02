@@ -7,8 +7,10 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -148,5 +150,36 @@ public class ModuleAction implements Action {
 			total_effort += suite.getTotalEffortInSeconds().intValue();
 		}
 		return total_effort;
+	}
+
+	public Set<String> getCriterion() {
+		Set<String> names = new LinkedHashSet<String>();
+		for (TestSuite testSuite : this.projectInfo.getGeneratedTestSuites()) {
+			for (TestSuiteCoverage testSuiteCoverage : testSuite.getCoverageTestSuites()) {
+				for (CriterionCoverage criterionCoverage : testSuiteCoverage.getCoverage()) {
+					names.add(criterionCoverage.getCriterion());
+				}
+			}
+		}
+		return names;
+	}
+
+	public double getCriterionCoverage(String criterion) {
+		double coverage = 0.0;
+		int count = 0;
+
+		for (TestSuite testSuite : this.projectInfo.getGeneratedTestSuites()) {
+			// get the last coverage report
+			TestSuiteCoverage testSuiteCoverage = testSuite.getCoverageTestSuites().get( testSuite.getCoverageTestSuites().size() - 1 );
+
+			for (CriterionCoverage criterionCoverage : testSuiteCoverage.getCoverage()) {
+				if (criterionCoverage.getCriterion().equals(criterion)) {
+					coverage += criterionCoverage.getCoverageValue();
+					count++;
+				}
+			}
+		}
+
+		return coverage / count * 100.0;
 	}
 }
