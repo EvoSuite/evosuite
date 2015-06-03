@@ -64,8 +64,7 @@ public class BuildAction implements Action {
 	}
 
 	public String getOverallCoverage() {
-		NumberFormat formatter = new DecimalFormat("#0.00");
-		return formatter.format(this.projectAction.getOverallCoverage());
+		return this.projectAction.getOverallCoverage();
 	}
 
 	public Map<String, String> getCriterion() {

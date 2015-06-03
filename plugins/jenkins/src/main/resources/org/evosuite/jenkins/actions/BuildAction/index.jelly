@@ -2,7 +2,7 @@
   <l:layout title="trendlayout">
     <st:include it="${it.build}" page="sidepanel.jelly"/>
     <l:main-panel>
-      <h1>EvoSuite Report for build #${it.build.number}</h1>
+      <h1>EvoSuite Build Statistics #${it.build.number}</h1>
       <!-- TODO what about a progress bar for each criteria? -->
       <div>
         <!--
