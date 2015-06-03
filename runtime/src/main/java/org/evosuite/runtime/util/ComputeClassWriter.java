@@ -196,7 +196,8 @@ public class ComputeClassWriter extends ClassWriter {
         		throw new NullPointerException("Class not found "+type);
             return new ClassReader(is);
         } finally {
-            is.close();
+        	if(is != null)
+        		is.close();
         }
     }
 }
