@@ -62,7 +62,7 @@
             <artifactId>javax.inject</artifactId>
             <scope>compile</scope>
         </dependency>
-        
+
 
     </dependencies>
 

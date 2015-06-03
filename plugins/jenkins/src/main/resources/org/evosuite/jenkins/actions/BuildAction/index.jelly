@@ -2,7 +2,7 @@
   <l:layout title="trendlayout">
     <st:include it="${it.build}" page="sidepanel.jelly"/>
     <l:main-panel>
-      <h1>EvoSuite Report for build #${it.build.number}</h1>
+      <h1>EvoSuite Build Statistics #${it.build.number}</h1>
       <!-- TODO what about a progress bar for each criteria? -->
       <div>
         <!--
@@ -14,6 +14,13 @@
         <div style="width:100%; height:1em; background-color: #FCE94F">
           <div style="width:${it.OverallCoverage}%; height: 1em; background-color: #008000; float: left"></div>
         </div>
+        <j:forEach var="criterion" items="${it.Criterion.keySet()}">
+        	<br />
+        	<div> ${it.Criterion.get(criterion)}% ${criterion}</div>
+	        <div style="width:100%; height:1em; background-color: #FCE94F">
+	          <div style="width:${it.Criterion.get(criterion)}%; height: 1em; background-color: #008000; float: left"></div>
+	        </div>
+        </j:forEach>
         <br />
       </div>
       <table id="evosuite-build-report" class="sortable pane bigtable">

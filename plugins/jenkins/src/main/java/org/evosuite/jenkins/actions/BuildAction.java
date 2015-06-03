@@ -3,7 +3,10 @@ package org.evosuite.jenkins.actions;
 import hudson.model.Action;
 import hudson.model.AbstractBuild;
 
-import java.util.List;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Collection;
+import java.util.Map;
 
 public class BuildAction implements Action {
 
@@ -19,8 +22,8 @@ public class BuildAction implements Action {
 		return this.projectAction;
 	}
 
-	public List<ModuleAction> getModules() {
-		return this.projectAction.getModules();
+	public Collection<ModuleAction> getModules() {
+		return this.projectAction.getModules().values();
 	}
 
 	public AbstractBuild<?, ?> getBuild() {
@@ -28,7 +31,7 @@ public class BuildAction implements Action {
 	}
 
 	public boolean build() {
-		for (ModuleAction module_action : this.projectAction.getModules()) {
+		for (ModuleAction module_action : this.projectAction.getModules().values()) {
 			module_action.build();
 		}
 		// FIXME should we return the result of build?
@@ -60,7 +63,11 @@ public class BuildAction implements Action {
 		return this.projectAction.getNumberOfTestableClasses();
 	}
 
-	public double getOverallCoverage() {
+	public String getOverallCoverage() {
 		return this.projectAction.getOverallCoverage();
+	}
+
+	public Map<String, String> getCriterion() {
+		return this.projectAction.getCriterion();
 	}
 }

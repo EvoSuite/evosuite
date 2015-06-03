@@ -150,6 +150,14 @@ public class CsvJUnitData {
 		return this.coverageValues.get(criterion);
 	}
 
+	public boolean hasCriterion(String criterion) {
+		return this.coverageValues.containsKey(criterion);
+	}
+
+	public int getNumberOfCriterion() {
+		return this.coverageValues.size();
+	}
+
 	public int getTotalNumberOfStatements(){
 		return totalNumberOfStatements; 
 	}
