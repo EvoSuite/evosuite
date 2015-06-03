@@ -4,6 +4,6 @@
 
     Number of Modules: ${it.NumberOfModules}<br/>
     Number of Testable Classes: ${it.NumberOfTestableClasses}<br/>
-    Average Branch Coverage: ${it.OverallCoverage}%<br/>
+    Overall Coverage: ${it.OverallCoverage}%<br/>
   </t:summary>
 </j:jelly>
