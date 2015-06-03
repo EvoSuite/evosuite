@@ -65,9 +65,11 @@ public class ProjectAction implements Action {
 		c.doCoverageMap(req, rsp);
 	}
 
-	public double getOverallCoverage() {
+	public String getOverallCoverage() {
+		NumberFormat formatter = new DecimalFormat("#0.00");
+
 		if (this.modules.isEmpty()) {
-			return 0.0;
+			return formatter.format(0.0);
 		}
 
 		double coverage = 0.0;
@@ -75,7 +77,7 @@ public class ProjectAction implements Action {
 			coverage += module.getOverallCoverage();
 		}
 
-		return coverage / this.modules.size();
+		return formatter.format(coverage / this.modules.size());
 	}
 
 	public Map<String, List<Double>> getCoverageValues() {
@@ -142,23 +144,19 @@ public class ProjectAction implements Action {
 
 		Map<String, String> coverageValues = new LinkedHashMap<String, String>();
 		for (String criterionName : names) {
-			NumberFormat formatter = new DecimalFormat("#0.00");
-			coverageValues.put(criterionName, formatter.format(this.getCriterionCoverage(criterionName)));
+			coverageValues.put(criterionName, this.getCriterionCoverage(criterionName));
 		}
 
 		return coverageValues;
 	}
 
-	private double getCriterionCoverage(String criterion) {
-		if (this.modules.isEmpty()) {
-			return 0.0;
-		}
-
+	private String getCriterionCoverage(String criterion) {
 		double coverage = 0.0;
 		for (ModuleAction module : this.modules.values()) {
 			coverage += module.getCriterionCoverage(criterion);
 		}
 
-		return coverage / this.modules.size();
+		NumberFormat formatter = new DecimalFormat("#0.00");
+		return formatter.format(coverage / this.modules.size());
 	}
 }
