@@ -686,13 +686,34 @@ public class Properties {
 	public static int CTG_MIN_TIME_PER_JOB = 1;
 
 	@Parameter(key = "ctg_folder", group = "Continuous Test Generation", description = "Where generated files will be stored")
-	public static String CTG_FOLDER = ".evosuite";
+	public static String CTG_DIR = ".evosuite";
 
-	@Parameter(key = "ctg_tmp_folder", group = "Continuous Test Generation", description = "Temporary directory")
-	public static String CTG_TMP_FOLDER = "tmp";
+	@Parameter(key = "ctg_bests_folder", group = "Continuous Test Generation", description = "Folder where all the best test suites generated so far in all CTG runs are stored")
+	public static String CTG_BESTS_DIR = CTG_DIR + File.separator + "evosuite-tests";
 
-	@Parameter(key = "ctg_history_file", group = "Continuous Test Generation", description = "File with the history of every class")
-	public static String CTG_HISTORY_FILE = "";
+	@Parameter(key = "ctg_generation_dir_prefix", group = "Continuous Test Generation", description = "")
+	public static String CTG_GENERATION_DIR_PREFIX = null;
+
+	@Parameter(key = "ctg_logs_dir", group = "Continuous Test Generation", description = "")
+	public static String CTG_LOGS_DIR = "logs";
+
+	@Parameter(key = "ctg_pools_dir", group = "Continuous Test Generation", description = "")
+	public static String CTG_POOLS_DIR = "pools";
+
+	@Parameter(key = "ctg_reports_dir", group = "Continuous Test Generation", description = "")
+	public static String CTG_REPORTS_DIR = "reports";
+
+	@Parameter(key = "ctg_seeds_dir", group = "Continuous Test Generation", description = "")
+	public static String CTG_SEEDS_DIR = CTG_DIR + File.separator + "evosuite-seeds";
+
+	@Parameter(key = "ctg_tests_dir", group = "Continuous Test Generation", description = "")
+	public static String CTG_TESTS_DIR = "tests";
+
+	@Parameter(key = "ctg_project_info", group = "Continuous Test Generation", description = "XML file which stores stats about all CTG executions")
+	public static String CTG_PROJECT_INFO = CTG_DIR + File.separator + "project_info.xml";
+
+	@Parameter(key = "ctg_history_file", group = "Continuous Test Generation", description = "File with the list of new(A)/modified(M)/deleted(D) files")
+	public static String CTG_HISTORY_FILE = null;
 
 	@Parameter(key = "ctg_selected_cuts", group = "Continuous Test Generation", description = "Comma ',' separated list of CUTs to use in CTG. If none specified, then test all classes")
 	public static String CTG_SELECTED_CUTS = null;

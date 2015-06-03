@@ -25,11 +25,11 @@ public class JobExecutorTest {
 
 	@Before
 	public void init(){
+		Properties.CTG_DIR = ".tmp_for_testing_" + JobExecutorTest.class.getName();
 		if(storage!=null){
 			storage.clean();
 		}
-		storage = new StorageManager(".tmp_for_testing_"+this.getClass().getName());
-		storage.clean();
+		storage = new StorageManager();
 	}
 
 	@Test(timeout = 90000)
@@ -37,7 +37,7 @@ public class JobExecutorTest {
 
 		Properties.TEST_SCAFFOLDING = true;
 		
-		boolean storageOK = storage.openForWriting();
+		boolean storageOK = storage.isStorageOk();
 		Assert.assertTrue(storageOK);
 		storageOK = storage.createNewTmpFolders();
 		Assert.assertTrue(storageOK);
@@ -70,15 +70,18 @@ public class JobExecutorTest {
 		exe.waitForJobs();
 
 		data = storage.gatherGeneratedTestsOnDisk();
-		Assert.assertEquals("Tmp folder: "+storage.getTmpFolder(), 4, data.size());	 // this depends on Properties.TEST_SCAFFOLDING	
+		// if Properties.TEST_SCAFFOLDING is enabled, we should have
+		// 4 java files (2 test cases and 2 scaffolding files), however
+		// 'storage' just returns the 2 test cases
+		Assert.assertEquals("Tmp folder: "+Properties.CTG_DIR, 2, data.size());
 
 		storage.clean();
 	}
 
 	@Test
-	public void testEventSequeneWhenWrongSchedule() throws InterruptedException{
+	public void testEventSequenceWhenWrongSchedule() throws InterruptedException{
 
-		boolean storageOK = storage.openForWriting();
+		boolean storageOK = storage.isStorageOk();
 		Assert.assertTrue(storageOK);
 		storageOK = storage.createNewTmpFolders();
 		Assert.assertTrue(storageOK);
@@ -137,5 +140,7 @@ public class JobExecutorTest {
 		finally{
 			t.interrupt();
 		}
+
+		storage.clean();
 	}
 }

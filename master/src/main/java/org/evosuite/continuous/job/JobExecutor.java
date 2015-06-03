@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -80,7 +79,7 @@ public class JobExecutor {
 			String projectClassPath, CtgConfiguration conf) throws IllegalArgumentException{
 
 		this.storage = storage;
-		if(storage.getTmpFolder() == null){
+		if (!storage.isStorageOk()) {
 			throw new IllegalArgumentException("Storage is not initalized");
 		}
 		

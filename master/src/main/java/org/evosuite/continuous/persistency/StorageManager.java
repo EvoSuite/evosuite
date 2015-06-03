@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.math.BigInteger;
-import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -15,9 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
-import javax.annotation.Resources;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -31,8 +29,10 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.evosuite.Properties;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.evosuite.utils.Utils;
+import org.evosuite.xsd.CriterionCoverage;
 import org.evosuite.xsd.ProjectInfo;
 import org.evosuite.xsd.TestSuite;
+import org.evosuite.xsd.TestSuiteCoverage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,48 +46,27 @@ public class StorageManager {
 
 	private static Logger logger = LoggerFactory.getLogger(StorageManager.class);
 
-    public static final String TEST_FOLDER_NAME = "evosuite-tests";
+    private File tmpLogs = null;
+	private File tmpReports = null;
+	private File tmpTests = null;
+	private File tmpPools = null;
+	private File tmpSeeds = null;
 
-	private final String rootFolderName;
+	private boolean isStorageOk = false;
 
-	private final String projectFileName = "project_info.xml";
-
-	private File tmpFolder;
-	private File tmpLogs;
-	private File tmpReports;
-	private File tmpTests;
-	private File tmpPools;
-	private File tmpSeeds;
-	
-	/**
-	 * Folder where all the best test suites generated so far in all CTG runs are stored
-	 */
-	private File testsFolder;
-	
-	public StorageManager(String rootFolderName) {
-		super();
-		this.rootFolderName = rootFolderName;
-		this.tmpFolder = null;
-	}
-
-	public StorageManager(){
-		this(Properties.CTG_FOLDER);
+	public StorageManager() {
+		this.isStorageOk = this.openForWriting();
 	}
 
 	/**
 	 * Open connection to Storage Manager
+	 * Note: Here we just make sure we can write on disk
 	 * 
 	 * @return
 	 */
-	public boolean openForWriting(){
+	private boolean openForWriting() {
 
-		/*
-		 * Note: here we just make sure we can write on disk
-		 */
-
-		boolean created = false;
-		
-		File root = new File(rootFolderName);
+		File root = new File(Properties.CTG_DIR);
 		if(root.exists()){
 			if(root.isDirectory()){
 				if(!root.canWrite()){					
@@ -101,46 +80,28 @@ public class StorageManager {
 					logger.error("Folder "+root+" is a file, and failed to delete it");
 					return false;
 				} else {
-					created = root.mkdirs();
-					if(!created){
+					if(!root.mkdirs()){
 						logger.error("Failed to mkdir "+root.getAbsolutePath());
 						return false;
 					}
 				}
 			}
 		} else {
-			created = root.mkdirs();
-			if(!created){
+			if(!root.mkdirs()){
 				logger.error("Failed to mkdir "+root.getAbsolutePath());
 				return false;
 			}
 		}
-		
-		testsFolder = new File(root.getAbsolutePath()+File.separator+TEST_FOLDER_NAME);
+
+		File testsFolder = new File(Properties.CTG_BESTS_DIR);
 		if(!testsFolder.exists()){
-			created = testsFolder.mkdirs();
-			if(!created){
+			if(!testsFolder.mkdirs()){
 				logger.error("Failed to mkdir "+testsFolder.getAbsolutePath());
 				return false;
 			}
 		}
-		
-		return true;		
-	}
 
-	
-	/**
-	 * Delete all current tmp files 
-	 * 
-	 * @return
-	 */
-	public void deleteOldTmpFolders(){
-		File f = new File(getTmpFolderPath());
-		FileUtils.deleteQuietly(f);
-	}
-	
-	private String getTmpFolderPath(){
-		return rootFolderName+"/"+Properties.CTG_TMP_FOLDER;
+		return true;		
 	}
 	
 	/**
@@ -148,41 +109,55 @@ public class StorageManager {
 	 * 
 	 * @return
 	 */
-	public boolean createNewTmpFolders(){
-		String tmpPath = getTmpFolderPath();
+	public boolean createNewTmpFolders() {
 
-		Date now = new Date();
-		String time = DateFormatUtils.format(
-				now, "yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
-
-		File tmp = new File(tmpPath+"/tmp_"+time+"_"+UUID.randomUUID().toString());
-		boolean created;
-		if (new File(tmpPath).exists())
-			created = tmp.mkdir();
-		else
-			created = tmp.mkdirs();
-
-		if (created) {
-			tmpFolder = tmp;
-		}
-		else {
-			tmpFolder = null;
+		if (!this.isStorageOk) {
 			return false;
 		}
 
-		//if we created the "tmp" folder, then it should be fine to create new folders in it
+		String time = DateFormatUtils.format(new Date(), "yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
+		File tmp = null;
 
-		tmpLogs = new File(tmpFolder.getAbsolutePath()+"/logs");
-		tmpLogs.mkdirs();
-		tmpReports = new File(tmpFolder.getAbsolutePath()+"/reports");
-		tmpReports.mkdirs();
-		tmpTests = new File(tmpFolder.getAbsolutePath()+"/tests");
-		tmpTests.mkdirs();
-		tmpPools = new File(tmpFolder.getAbsolutePath()+"/pools");
-		tmpPools.mkdirs();
-		tmpSeeds = new File(tmpPath+"/"+Properties.SEED_DIR);
-		tmpSeeds.mkdirs();
-		
+		if (Properties.CTG_GENERATION_DIR_PREFIX == null)
+			tmp = new File(Properties.CTG_DIR + File.separator + "tmp_" + time);
+		else
+			tmp = new File(Properties.CTG_DIR + File.separator + Properties.CTG_GENERATION_DIR_PREFIX + "_" + time);
+
+		if (!tmp.mkdir())
+			return false;
+
+		// if we created the "tmp" folder or already exists, then it should be fine to create new folders in it
+
+		Properties.CTG_LOGS_DIR    = tmp.getAbsolutePath() + File.separator + Properties.CTG_LOGS_DIR;
+		Properties.CTG_REPORTS_DIR = tmp.getAbsolutePath() + File.separator + Properties.CTG_REPORTS_DIR;
+		Properties.CTG_TESTS_DIR   = tmp.getAbsolutePath() + File.separator + Properties.CTG_TESTS_DIR;
+		Properties.CTG_POOLS_DIR   = tmp.getAbsolutePath() + File.separator + Properties.CTG_POOLS_DIR;
+
+		this.tmpLogs = new File(Properties.CTG_LOGS_DIR);
+		if (!this.tmpLogs.exists() && !this.tmpLogs.mkdirs()) {
+			return false;
+		}
+
+		this.tmpReports = new File(Properties.CTG_REPORTS_DIR);
+		if (!this.tmpReports.exists() && !this.tmpReports.mkdirs()) {
+			return false;
+		}
+
+		this.tmpTests = new File(Properties.CTG_TESTS_DIR);
+		if (!this.tmpTests.exists() && !this.tmpTests.mkdirs()) {
+			return false;
+		}
+
+		this.tmpPools = new File(Properties.CTG_POOLS_DIR);
+		if (!this.tmpPools.exists() && !this.tmpPools.mkdirs()) {
+			return false;
+		}
+
+		this.tmpSeeds = new File(Properties.CTG_SEEDS_DIR);
+		if (!this.tmpSeeds.exists() && !this.tmpSeeds.mkdirs()) {
+			return false;
+		}
+
 		return true;
 	}
 
@@ -193,9 +168,9 @@ public class StorageManager {
 	 */
 	public boolean clean(){
 		try {
-			FileUtils.deleteDirectory(new File(rootFolderName));
+			FileUtils.deleteDirectory(new File(Properties.CTG_DIR));
 		} catch (IOException e) {
-			logger.error("Cannot delete folder "+rootFolderName+": "+e,e);
+			logger.error("Cannot delete folder "+Properties.CTG_DIR+": "+e,e);
 			return false;
 		}
 		return true;
@@ -242,7 +217,7 @@ public class StorageManager {
 			throw new NullPointerException("ProjectStaticData 'current' cannot be null");
 		}
 		
-		ProjectInfo db = getDatabaseProjectInfo();
+		ProjectInfo db = StorageManager.getDatabaseProjectInfo();
 		String info = removeNoMoreExistentData(db,current);
 
 		info += "\n\n=== CTG run results ===";
@@ -304,6 +279,9 @@ public class StorageManager {
 		 * Try to extract info for each generated JUnit test suite
 		 */
 		for(File test : generatedTests){
+			if (test.getAbsolutePath().contains(Properties.SCAFFOLDING_SUFFIX)) {
+				continue ;
+			}
 			
 			String testName = extractClassName(tmpTests,test);
 			
@@ -375,21 +353,20 @@ public class StorageManager {
 			writer = new StringWriter();
 			JAXBContext context = JAXBContext.newInstance(ProjectInfo.class);            
 			Marshaller m = context.createMarshaller();
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true); // TODO remove me!
 			m.marshal(db, writer);
 		} catch(Exception e){
 			logger.error("Failed to create XML representation: "+e.getMessage(),e);
 		}
-
-		String xml = writer.toString();
 		
 		/*
 		 * TODO: to be safe, we should first write to tmp file, delete original, and then
 		 * rename the tmp
 		 */
-		File current = new File(rootFolderName + File.separator + projectFileName);
+		File current = new File(Properties.CTG_PROJECT_INFO);
 		current.delete();
 		try {
-			FileUtils.write(current, xml);
+			FileUtils.write(current, writer.toString());
 		} catch (IOException e) {
 			logger.error("Failed to write to database: "+e.getMessage(),e);
 		}
@@ -402,12 +379,19 @@ public class StorageManager {
 		db.setTotalNumberOfTestableClasses(BigInteger.valueOf(n));
 
 		double coverage = 0d;
-		for(TestSuite suite : db.getGeneratedTestSuites()){
-			coverage += suite.getBranchCoverage();
+		for (TestSuite suite : db.getGeneratedTestSuites()) {
+			TestSuiteCoverage suite_coverage = suite.getCoverageTestSuites().get( suite.getCoverageTestSuites().size() - 1 );
+
+			double criterion_coverage = 0d;
+			for (CriterionCoverage c : suite_coverage.getCoverage()) {
+				criterion_coverage += c.getCoverageValue();
+			}
+
+			coverage += (criterion_coverage / (double) suite_coverage.getCoverage().size());
 		}
 
 		coverage = coverage / (double) n;
-		db.setAverageBranchCoverage(coverage);
+		db.setOverallCoverage(coverage);
 	}
 
 	/**
@@ -420,57 +404,71 @@ public class StorageManager {
 	private void updateDatabase(TestsOnDisk ondisk, ProjectInfo db) {
 
 		assert ondisk.isValid();
-		
-		TestSuite suite = new TestSuite();
+
 		CsvJUnitData csv = ondisk.csvData;
-		suite.setBranchCoverage(csv.getBranchCoverage());
-		suite.setFullNameOfTargetClass(csv.getTargetClass());
-		suite.setNumberOfTests(BigInteger.valueOf(csv.getNumberOfTests()));
-		suite.setTotalNumberOfStatements(BigInteger.valueOf(csv.getTotalNumberOfStatements()));
-		
-		TestSuite old = null;
+
+		String testName = extractClassName(tmpTests, ondisk.testSuite);
+
+		TestSuite suite = null;
 		Iterator<TestSuite> iter = db.getGeneratedTestSuites().iterator();
-		while(iter.hasNext()){
+		while (iter.hasNext()) {
 			TestSuite tmp = iter.next();
-			if(tmp.getFullNameOfTargetClass().equals(csv.getTargetClass())){
-				old = tmp;
+			if (tmp.getFullNameOfTargetClass().equals(csv.getTargetClass())) {
+				suite = tmp;
+
 				iter.remove();
 				break;
 			}
 		}
 
-		int oldTotalEffort = 0;
-		int oldEffortFromModification = 0;
-		
-		if(old != null){
-			oldTotalEffort = old.getTotalEffortInSeconds().intValue();
-			oldEffortFromModification = old.getEffortFromLastModificationInSeconds().intValue();
+		// first generation
+		BigInteger totalEffort = BigInteger.ZERO;
+		if (suite == null) {
+			suite = new TestSuite();
+			suite.setFullNameOfTestSuite(testName);
+			suite.setFullNameOfTargetClass(csv.getTargetClass());
+		} else {
+			totalEffort = suite.getTotalEffortInSeconds();
 		}
-		
-		int duration = oldTotalEffort+csv.getDurationInSeconds();
-		suite.setEffortFromLastModificationInSeconds(BigInteger.valueOf(oldEffortFromModification+duration));
-		suite.setTotalEffortInSeconds(BigInteger.valueOf(oldTotalEffort+duration));
 
-		String testName = extractClassName(tmpTests,ondisk.testSuite);
-		suite.setFullNameOfTestSuite(testName); 
-		
+		TestSuiteCoverage new_coverage_test_suite = new TestSuiteCoverage();
+		new_coverage_test_suite.setId(BigInteger.valueOf( suite.getCoverageTestSuites().size() ));
+
+		List<CriterionCoverage> coverageValues = new ArrayList<CriterionCoverage>();
+		for (String criterion : csv.getCoverageValues().keySet()) {
+			CriterionCoverage coverage = new CriterionCoverage();
+			coverage.setCriterion(criterion);
+			coverage.setCoverageValue(csv.getCoverage(criterion));
+
+			coverageValues.add(coverage);
+		}
+		new_coverage_test_suite.getCoverage().addAll(coverageValues);
+
+		new_coverage_test_suite.setNumberOfTests(BigInteger.valueOf(csv.getNumberOfTests()));
+		new_coverage_test_suite.setTotalNumberOfStatements(BigInteger.valueOf(csv.getTotalNumberOfStatements()));
+
+		BigInteger duration = new BigInteger(String.valueOf(csv.getDurationInSeconds()));
+		suite.setTotalEffortInSeconds(totalEffort.add(duration));
+		new_coverage_test_suite.setEffortInSeconds(duration);
+
+		suite.getCoverageTestSuites().add(new_coverage_test_suite);
 		db.getGeneratedTestSuites().add(suite);
-				
+
 		/*
 		 * TODO to properly update failure data, we will first need
 		 * to change how we output such info in EvoSuite (likely
 		 * we will need something more than statistics.csv)
 		 */
-		
+
 		/*
 		 * So far we have modified only the content of db.
 		 * Need also to update the actual test cases 
 		 */
 		removeTestSuite(testName);
 		addTestSuite(ondisk.testSuite);
-		
+
 		File scaffolding = getScaffoldingIfExists(ondisk.testSuite);
-		if(scaffolding!=null){
+		if (scaffolding != null) {
 			addTestSuite(scaffolding);
 		}
 	}
@@ -505,10 +503,9 @@ public class StorageManager {
 	private void addTestSuite(File newlyGeneratedTestSuite) {
 		String testName = extractClassName(tmpTests,newlyGeneratedTestSuite);
 		
-		String path = testName.replace(".", File.separator);
-		path += ".java";
-		File file = new File(testsFolder.getAbsolutePath()+File.separator+path);
-		
+		String path = testName.replace(".", File.separator) + ".java";
+		File file = new File(Properties.CTG_BESTS_DIR + File.separator + path);
+
 		try {
 			FileUtils.copyFile(newlyGeneratedTestSuite, file);
 		} catch (IOException e) {
@@ -517,6 +514,7 @@ public class StorageManager {
 	}
 
 	private boolean isBetterThanOldOne(TestsOnDisk suite, ProjectInfo db) {
+
 		if(suite.csvData == null) {
 			// no data available
 			return false; 
@@ -535,31 +533,43 @@ public class StorageManager {
 			return true;
 		}
 
-		double oldCov = old.getBranchCoverage();
-		double newCov = suite.csvData.getBranchCoverage();
-		double covDif = Math.abs(newCov - oldCov); 
-		
-		if(covDif > 0.0001){
-			/*
-			 * this check is to avoid issues with double truncation 
-			 */
-			return newCov > oldCov;
+		// first, check if the coverage of at least one criterion is better
+		TestSuiteCoverage previousCoverage = old.getCoverageTestSuites().get( old.getCoverageTestSuites().size() - 1 );
+		for (CriterionCoverage criterion : previousCoverage.getCoverage()) {
+			if (!suite.csvData.hasCriterion(criterion.getCriterion())) {
+				continue ;
+			}
+			double oldCov = criterion.getCoverageValue();
+			double newCov = suite.csvData.getCoverage(criterion.getCriterion());
+			double covDif = Math.abs(newCov - oldCov); 
+
+			if (covDif > 0.0001) {
+				/*
+				 * this check is to avoid issues with double truncation 
+				 */
+				return newCov > oldCov;
+			}
 		}
-		
-		//here coverage seems the same, so look at failures
-		int oldFail = old.getFailures().size();
+
+		// ok, coverage seems the same, so look at failures
+		int oldFail = previousCoverage.getFailures().size();
 		int newFail = suite.csvData.getTotalNumberOfFailures();
-		if(newFail != oldFail){
+		if (newFail != oldFail) {
 			return newFail > oldFail;
 		}
-		
-		//TODO: here we could check other things, like mutation score
-		
-		//everything seems same, so look at size 
-		int oldSize = old.getTotalNumberOfStatements().intValue();
+
+		// everything seems same, so look at size 
+		int oldSize = previousCoverage.getTotalNumberOfStatements().intValue();
 		int newSize = suite.csvData.getTotalNumberOfStatements();
-		
-		return newSize < oldSize; 
+		if (newSize != oldSize) {
+			return newSize < oldSize;
+		}
+
+		// at last, look the number of test cases
+		int oldNumTests = previousCoverage.getNumberOfTests().intValue();
+		int newNumTests = suite.csvData.getNumberOfTests();
+
+		return newNumTests <= oldNumTests; 
 	}
 
 	/**
@@ -596,7 +606,7 @@ public class StorageManager {
 		
 		String path = testName.replace(".", File.separator);
 		path += ".java";
-		File file = new File(testsFolder.getAbsolutePath()+File.separator+path);
+		File file = new File(Properties.CTG_BESTS_DIR + File.separator + path);
 		
 		if(!file.exists()){
 			logger.debug("Nothing to delete, as following file does not exist: "+file.getAbsolutePath());
@@ -613,9 +623,9 @@ public class StorageManager {
 	 * 
 	 * @return
 	 */
-	public ProjectInfo getDatabaseProjectInfo(){
+	public static ProjectInfo getDatabaseProjectInfo(){
 
-		File current = new File(rootFolderName + File.separator + projectFileName);
+		File current = new File(Properties.CTG_PROJECT_INFO);
 		InputStream stream = null;
 		if(!current.exists()){
 			/*
@@ -623,7 +633,7 @@ public class StorageManager {
 			 */
 			String empty = "/xsd/ctg_project_report_empty.xml";
 			try {
-				stream = this.getClass().getResourceAsStream(empty);
+				stream = StorageManager.class.getResourceAsStream(empty);
 			} catch (Exception e) {
 				throw new RuntimeException("Failed to read resource "+empty+" , "+e.getMessage());
 			}
@@ -639,8 +649,7 @@ public class StorageManager {
 		try{
 			JAXBContext jaxbContext = JAXBContext.newInstance(ProjectInfo.class);
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			Schema schema = factory.newSchema(new StreamSource(
-					this.getClass().getResourceAsStream("/xsd/ctg_project_report.xsd")));
+			Schema schema = factory.newSchema(new StreamSource(StorageManager.class.getResourceAsStream("/xsd/ctg_project_report.xsd")));
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbUnmarshaller.setSchema(schema);
 			ProjectInfo project = (ProjectInfo) jaxbUnmarshaller.unmarshal(stream);
@@ -650,10 +659,6 @@ public class StorageManager {
 			logger.error(msg,e);
 			throw new RuntimeException(msg);
 		}
-	}
-
-	public File getTmpFolder() {
-		return tmpFolder;
 	}
 
 	public File getTmpLogs() {
@@ -674,5 +679,9 @@ public class StorageManager {
 
 	public File getTmpSeeds() {
 		return this.tmpSeeds;
+	}
+
+	public boolean isStorageOk() {
+		return this.isStorageOk;
 	}
 }

@@ -10,7 +10,6 @@ import org.evosuite.continuous.job.schedule.HistorySchedule;
 import org.evosuite.continuous.job.schedule.ScheduleType;
 import org.evosuite.continuous.job.schedule.SeedingSchedule;
 import org.evosuite.continuous.job.schedule.SimpleSchedule;
-import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

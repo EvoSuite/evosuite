@@ -2,24 +2,28 @@ package org.evosuite.continuous.project;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.evosuite.Properties;
-import org.evosuite.continuous.persistency.CsvJUnitData;
-import org.evosuite.statistics.RuntimeVariable;
-
-import au.com.bytecode.opencsv.CSVReader;
+import org.evosuite.continuous.persistency.StorageManager;
+import org.evosuite.xsd.CriterionCoverage;
+import org.evosuite.xsd.ProjectInfo;
+import org.evosuite.xsd.TestSuite;
+import org.evosuite.xsd.TestSuiteCoverage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -48,6 +52,8 @@ import au.com.bytecode.opencsv.CSVReader;
  */
 public class ProjectStaticData {
 
+	private static Logger logger = LoggerFactory.getLogger(ProjectStaticData.class);
+
 	/**
 	 * Map from CUT full class name (key) to ClassInfo object (value)
 	 */
@@ -56,37 +62,67 @@ public class ProjectStaticData {
 	/**
      * 
      */
-    private final Set<String> filesChanged;
+    private final Set<String> modifiedFiles;
 
     /**
      * 
      */
-    private final HashMap<String, List<Double>> coverage;
+    private final HashMap<String, List<Map<String, Double>>> coverages;
 
+    /**
+     * 
+     */
 	private ProjectGraph graph = null;
 
+	/**
+	 * 
+	 */
 	public ProjectStaticData() {
 		classes = new ConcurrentHashMap<String, ClassInfo>();
 
-		this.filesChanged = new HashSet<String>();
-        this.coverage = new HashMap<String, List<Double>>();
-        
+		this.modifiedFiles = new LinkedHashSet<String>();
+        this.coverages = new LinkedHashMap<String, List<Map<String, Double>>>();
 	}
 
+	/**
+	 * 
+	 */
 	public void initializeLocalHistory() {
-		// Load history file
+		if (Properties.CTG_HISTORY_FILE == null) {
+			logger.info("ctg history file is not set");
+			return ;
+		}
+
+		//
+		// 1. Load history changes
+		//
         BufferedReader br = null;
         try {
             String sCurrentLine;
 
             br = new BufferedReader(new FileReader(Properties.CTG_HISTORY_FILE));
             while ((sCurrentLine = br.readLine()) != null) {
-                String[] split = sCurrentLine.split(",");
-                this.filesChanged.add(split[0]);
+                String[] split = sCurrentLine.split("\t");
+
+                switch (split[0]) {
+                	case "A": // 'added' and 'modified' are treated equally
+                	case "M":
+                		// only consider .java entries
+                		if (split[1].endsWith(".java"))
+                			this.modifiedFiles.add(split[1].replace(File.separator, "."));
+                		break;
+                	case "D":
+                		// ignore
+                		break;
+                	default:
+                		logger.error("option '" + split[0] + "' in the " + Properties.CTG_HISTORY_FILE + " file not supported");
+                		break;
+                }
             }
+        } catch (FileNotFoundException e) {
+        	logger.error("'" + Properties.CTG_HISTORY_FILE + "' file not found");
         } catch (IOException e) {
-            // ok, if the CTG_HISTORY_FILE does not exists
-            // is to generate test cases to all classes
+            logger.error("error reading '" + Properties.CTG_HISTORY_FILE + "' file", e);
         } finally {
             try {
                 if (br != null)
@@ -96,50 +132,28 @@ public class ProjectStaticData {
             }
         }
 
-        // Load Previous Coverage
-        File tmp = new File(Properties.CTG_FOLDER + "/" + Properties.CTG_TMP_FOLDER);
+        //
+        // 2. Load previous CTG data
+        //
+        ProjectInfo p = StorageManager.getDatabaseProjectInfo();
+        if (p.getGeneratedTestSuites().size() == 0) {
+        	return ; // we still do not have coverage
+        }
 
-        File[] tmp_dirs = tmp.listFiles();
-        if (tmp_dirs == null || tmp_dirs.length == 0)
-            return ;
+        for (TestSuite suite : p.getGeneratedTestSuites()) {
+        	String targetClass = suite.getFullNameOfTargetClass();
 
-        Arrays.sort(tmp_dirs);
-        for (File tmp_dir : tmp_dirs)
-        {
-            if (tmp_dir.getName().equals(Properties.SEED_DIR))
-                continue ;
+        	List<Map<String, Double>> suite_coverages = new ArrayList<Map<String, Double>>();
+        	for (TestSuiteCoverage suite_coverage : suite.getCoverageTestSuites()) {
+        		Map<String, Double> previous_coverages = new LinkedHashMap<String, Double>();
+        		for (CriterionCoverage coverage : suite_coverage.getCoverage()) {
+        			previous_coverages.put(coverage.getCriterion(), coverage.getCoverageValue());
+        		}
 
-            if (tmp_dir.isDirectory())
-            {
-                File subjects = new File(tmp_dir.getAbsolutePath() + "/reports");
-                if (subjects.listFiles() == null)
-                    continue ;
+        		suite_coverages.add(previous_coverages);
+        	}
 
-                for (File subject : subjects.listFiles())
-                {
-                    if (subject.isDirectory())
-                    {
-                        List<String[]> rows = null;
-                        try {
-                            CSVReader reader = new CSVReader(new FileReader(subject.getAbsolutePath() + "/statistics.csv"));
-                            rows = reader.readAll();
-                            reader.close();
-                        }
-                        catch (Exception e) {
-                            continue;
-                        }
-                        if (rows == null || rows.isEmpty())
-                            continue ;
-
-                        String targetClass = CsvJUnitData.getValue(rows, "TARGET_CLASS").trim();
-                        double branchCoverage = Double.parseDouble(CsvJUnitData.getValue(rows, RuntimeVariable.BranchCoverage.toString()));
-
-                        List<Double> class_coverages = this.coverage.containsKey(targetClass) ? this.coverage.get(targetClass) : new ArrayList<Double>();
-                        class_coverages.add(branchCoverage);
-                        this.coverage.put(targetClass, class_coverages);
-                    }
-                }
-            }
+        	this.coverages.put(targetClass, suite_coverages);
         }
 	}
 
@@ -159,7 +173,7 @@ public class ProjectStaticData {
 		public final boolean hasCode;
 
 		private boolean hasChanged = true;
-        private boolean hasCoverageImproved = true;
+        private boolean isToTest = true;
 
 		public ClassInfo(Class<?> theClass, int numberOfBranches, boolean hasCode) {
 			super();
@@ -183,11 +197,11 @@ public class ProjectStaticData {
             return this.hasChanged;
         }
 
-        public void setCoverageImproved(boolean coverage) {
-            this.hasCoverageImproved = coverage;
+        public void isToTest(boolean isToTest) {
+            this.isToTest = isToTest;
         }
-        public boolean hasCoverageImproved() {
-            return this.hasCoverageImproved;
+        public boolean isToTest() {
+            return this.isToTest;
         }
 	}
 
@@ -272,41 +286,63 @@ public class ProjectStaticData {
      * Return the history statistics of a class
      */
     public boolean hasChanged(String className) {
-        return this.filesChanged.contains(className);
+    	for (String modified_file_name : this.modifiedFiles) {
+    		if (modified_file_name.contains(className))
+    			return true;
+    	}
+    	return false;
     }
 
     /**
      * Return previous test coverage
      */
-    public List<Double> getPreviousCoverage(String className) {
-        return this.coverage.get(className);
+    public List<Map<String, Double>> getPreviousCoverages(String className) {
+        return this.coverages.get(className);
     }
 
     /**
      * Has the coverage improved in last N commits
      */
-    public boolean hasCoverageImproved(String className, int n)
-    {
-        double lastCoverage = 0.0;
-        try {
-            lastCoverage = this.coverage.get(className).get( this.coverage.get(className).size() - 1 );
-            if (lastCoverage == 1.0) // if we achieve 100% coverage we don't want to test this class
-                return false;
-        } catch (NullPointerException e) {
-            // ok, we get an exception here because we aren't no using HistorySchedule or we don't have yet history coverage,
-            // so lets return true
+    public boolean isToTest(String className, int n) {
+
+    	List<Map<String, Double>> classCoverage = this.coverages.get(className);
+    	if (classCoverage == null) {
+    		return true; // first time
+    	}
+
+    	Map<String, Double> previousCoverage = classCoverage.get( this.coverages.get(className).size() - 1 );
+
+    	// check if all criteria have been covered
+    	boolean one_hundred_percent_coverage = true;
+    	for (String criterion : previousCoverage.keySet()) {
+    		if (previousCoverage.get(criterion) < 1.0) {
+    			one_hundred_percent_coverage = false;
+    			break ;
+    		}
+    	}
+
+    	// we've achieved 100% coverage (even if just one execution),
+    	// so we don't want to test this class
+        if (one_hundred_percent_coverage)
+            return false;
+
+        // not enough data
+        if (this.coverages.get(className).size() < n)
             return true;
-        }
 
-        if (this.coverage.get(className).size() < n)
-            return true;
+        // we just keep track of the best test suite generated so far,
+        // however if the coverage of any criterion did not increased
+        // in the last N commits, there is no point continue testing.
+        // if at some point the className is changed, then the class
+        // should be tested again
 
-        for (int i = this.coverage.get(className).size() - 2; i > this.coverage.get(className).size() - 1 - n; i--) {
-            if (i < 0)
-                return false;
-
-            if (this.coverage.get(className).get(i) < lastCoverage)
-                return true;
+        // has the coverage of any criterion improved in the last N commits?
+        for (int i = this.coverages.get(className).size() - 1; i > this.coverages.get(className).size() - 1 - n; i--) {
+        	for (String criterion : this.coverages.get(className).get(i).keySet()) {
+        		if (this.coverages.get(className).get(i).get(criterion) < previousCoverage.get(criterion)) {
+        			return true;
+        		}
+        	}
         }
 
         return false;

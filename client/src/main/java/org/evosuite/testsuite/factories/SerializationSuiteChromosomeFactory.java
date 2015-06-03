@@ -61,7 +61,7 @@ public class SerializationSuiteChromosomeFactory
         try
         {
             ObjectInputStream in =
-                new ObjectInputStream(new FileInputStream(Properties.SEED_DIR + "/" + Properties.TARGET_CLASS));
+                new ObjectInputStream(new FileInputStream(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
 
             while (true)
             {

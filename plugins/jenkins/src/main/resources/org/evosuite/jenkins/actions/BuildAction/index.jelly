@@ -1,0 +1,57 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+  <l:layout title="trendlayout">
+    <st:include it="${it.build}" page="sidepanel.jelly"/>
+    <l:main-panel>
+      <h1>EvoSuite Build Statistics #${it.build.number}</h1>
+      <!-- TODO what about a progress bar for each criteria? -->
+      <div>
+        <!--
+             red    #EF2929
+             yellow #FCE94F
+             green  #008000
+        -->
+        <div> ${it.OverallCoverage}% overall coverage</div>
+        <div style="width:100%; height:1em; background-color: #FCE94F">
+          <div style="width:${it.OverallCoverage}%; height: 1em; background-color: #008000; float: left"></div>
+        </div>
+        <j:forEach var="criterion" items="${it.Criterion.keySet()}">
+        	<br />
+        	<div> ${it.Criterion.get(criterion)}% ${criterion}</div>
+	        <div style="width:100%; height:1em; background-color: #FCE94F">
+	          <div style="width:${it.Criterion.get(criterion)}%; height: 1em; background-color: #008000; float: left"></div>
+	        </div>
+        </j:forEach>
+        <br />
+      </div>
+      <table id="evosuite-build-report" class="sortable pane bigtable">
+        <tr>
+          <td class="pane-header">Module</td>
+          <td class="pane-header">Number of Testable Classes</td>
+          <td class="pane-header">Number of Tests</td>
+          <td class="pane-header">Number of Statements</td>
+          <td class="pane-header">Total Effort (seconds)</td>
+        </tr>
+        <j:forEach var="moduleAction" items="${it.Modules}">
+          <tr>
+            <td class="pane">
+              <!-- this URL is not working. don't know yet how this will be handled -->
+              <a href="/jenkins/${moduleAction.URL}"><st:out value="${moduleAction.Name}"/></a>
+            </td>
+            <td>
+              <st:out value="${moduleAction.NumberOfTestableClasses}"/>
+            </td>
+            <td>
+              <st:out value="${moduleAction.NumberOfTests}"/>
+            </td>
+            <td>
+              <st:out value="${moduleAction.NumberOfStatements}"/>
+            </td>
+            <td>
+              <st:out value="${moduleAction.TotalEffort}"/>
+            </td>
+          </tr>
+        </j:forEach>
+      </table>
+    </l:main-panel>
+  </l:layout>
+</j:jelly>
