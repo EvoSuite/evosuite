@@ -264,12 +264,57 @@
 				<artifactId>oro</artifactId>
 				<version>2.0.8</version>
 			</dependency>
+
+			<!--  JavaEE -->
+
 			<dependency>
 				<!-- GPL, but classpath exception -->
 				<groupId>org.jboss.spec.javax.servlet</groupId>
 				<artifactId>jboss-servlet-api_3.1_spec</artifactId>
 				<version>1.0.0.Final</version>
 			</dependency>
+
+			<!-- LGPL 2.1 -->
+			<!--
+			<dependency>
+
+				<groupId>org.hibernate.javax.persistence</groupId>
+				<artifactId>hibernate-jpa-2.0-api</artifactId>
+				<version>1.0.1.Final</version>
+			</dependency>
+			-->
+			<dependency>
+				<!-- LGPL 2.1 -->
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-entitymanager</artifactId>
+				<version>4.3.10.Final</version>
+			</dependency>
+			<dependency>
+				<!-- Apache 2 -->
+				<groupId>javax.inject</groupId>
+				<artifactId>javax.inject</artifactId>
+				<version>1</version>
+			</dependency>
+			<dependency>
+				<!-- HSQLDB License	http://hsqldb.org/web/hsqlLicense.html, based on BSD -->
+				<groupId>org.hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
+				<version>2.3.2</version>
+			</dependency>
+			<dependency>
+				<!-- Apache 2 -->
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-orm</artifactId>
+				<version>4.1.6.RELEASE</version>
+			</dependency>
+			<dependency>
+				<!-- Apache 2 -->
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>4.1.6.RELEASE</version>
+			</dependency>
+
+
 		</dependencies>
 	</dependencyManagement>
 

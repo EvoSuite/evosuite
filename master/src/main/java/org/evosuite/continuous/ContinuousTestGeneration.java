@@ -118,16 +118,11 @@ public class ContinuousTestGeneration {
 
 		//init the local storage manager
 		StorageManager storage = new StorageManager();
-		boolean storageOK = storage.openForWriting();
-		if (!storageOK) {
+		if (!storage.isStorageOk()) {
 			return "Failed to initialize local storage system";
 		}
 
-		//TODO: it seems like this cannot be done, as history depends on it
-		//storage.deleteOldTmpFolders();
-
-		storageOK = storage.createNewTmpFolders();
-		if (!storageOK) {
+		if (!storage.createNewTmpFolders()) {
 			return "Failed to create tmp folders";
 		}
 
@@ -175,8 +170,7 @@ public class ContinuousTestGeneration {
 
 	public static boolean exportToFolder(String baseFolder, String exportFolder) throws IOException {
 		File basedir = new File(baseFolder);
-		String evoFolderName = Properties.CTG_FOLDER+ File.separator+ StorageManager.TEST_FOLDER_NAME;
-		File evoFolder = new File(basedir.getAbsolutePath()+File.separator+evoFolderName);
+		File evoFolder = new File(basedir.getAbsolutePath()+File.separator+Properties.CTG_BESTS_DIR);
 
 		File[] children = evoFolder.listFiles();
 		boolean isEmpty = children==null || children.length==0;
@@ -205,8 +199,7 @@ public class ContinuousTestGeneration {
      */
     public String info(){
     		
-		StorageManager storage = new StorageManager();    	
-		ProjectInfo projectInfo = storage.getDatabaseProjectInfo(); 
+		ProjectInfo projectInfo = StorageManager.getDatabaseProjectInfo(); 
 		
 		if(projectInfo==null){
 			return "No info available";
@@ -221,8 +214,8 @@ public class ContinuousTestGeneration {
 				projectInfo.getTotalNumberOfTestableClasses()+"\n");
     		sb.append("Number of generated test suites: "+
     				projectInfo.getGeneratedTestSuites().size()+"\n");
-		sb.append("Average branch coverage: "+
-    				projectInfo.getAverageBranchCoverage()+"\n");
+		sb.append("Overall coverage: "+
+    				projectInfo.getOverallCoverage()+"\n");
     		
     		return sb.toString();
     }

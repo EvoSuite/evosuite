@@ -120,7 +120,13 @@ public class MethodCallReplacement {
 		mv.push(numArguments);
 		mv.newArray(Type.getType(Object.class));
 		for(int i = 0; i < numArguments; i++) {
+			// param, array			
+			mv.dupX1();                    // array, param, array			
+			mv.swap();                     // array, array, param			
+			mv.push(numArguments - i - 1); // array, array, param, index
+			mv.swap();                     // array, array, index, param			
 			mv.arrayStore(Type.getType(Object.class));
+			// array
 		}
 		mv.push(methodName);
 		mv.push(desc);

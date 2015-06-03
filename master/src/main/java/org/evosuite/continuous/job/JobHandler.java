@@ -11,8 +11,8 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.continuous.persistency.StorageManager;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,8 +243,7 @@ public class JobHandler extends Thread {
 		File tests = storage.getTmpTests();
 
 		//TODO check if it works on Windows... likely not	
-		//cmd += " -Dreport_dir=" + reports.getAbsolutePath() + "/job" + job.jobID;
-		commands.add("-Dreport_dir=" + reports.getAbsolutePath() + "/" + job.cut);
+		commands.add("-Dreport_dir=" + reports.getAbsolutePath() + File.separator + job.cut);
 		commands.add("-Dtest_dir=" + tests.getAbsolutePath());
 
 		commands.add("-Dtest_factory=" + Properties.TEST_FACTORY);
@@ -252,6 +251,21 @@ public class JobHandler extends Thread {
 		commands.add("-Dseed_dir=" + storage.getTmpSeeds().getAbsolutePath());
 
 		commands.addAll(getOutputVariables());
+		if (Properties.ANALYSIS_CRITERIA.isEmpty()) {
+			commands.add("-Danalysis_criteria=" +
+					Properties.Criterion.LINE + "," + Properties.Criterion.STATEMENT + "," +
+					Properties.Criterion.BRANCH + "," + Properties.Criterion.ONLYBRANCH + "," + Properties.Criterion.CBRANCH + "," + Properties.Criterion.IBRANCH + "," +
+					Properties.Criterion.EXCEPTION + "," +
+					Properties.Criterion.WEAKMUTATION + "," + Properties.Criterion.ONLYMUTATION + "," + Properties.Criterion.MUTATION + "," +
+					Properties.Criterion.OUTPUT + "," +
+					Properties.Criterion.METHOD + "," + Properties.Criterion.METHODTRACE + "," + Properties.Criterion.METHODNOEXCEPTION);
+		} else {
+			commands.add("-Danalysis_criteria=" + Properties.ANALYSIS_CRITERIA);
+		}
+		commands.add("-Dcriterion=" + Arrays.toString(Properties.CRITERION).
+												replace("[", "").
+												replace("]", "").
+												replaceAll(", ", ":"));
 
 		commands.add("-Djunit_suffix=" + Properties.JUNIT_SUFFIX);
 
@@ -272,12 +286,14 @@ public class JobHandler extends Thread {
 		commands.add("-Dp_object_pool=" + Properties.P_OBJECT_POOL);
 
 		/*
-		 * these 2 options should always be 'true'.
+		 * these 4 options should always be 'true'.
 		 * Here we take them as parameter, just because for experiments
 		 * we might skip those phases if we do not analyze their results
 		 */
 		commands.add("-Dminimize=" + Properties.MINIMIZE);
 		commands.add("-Dassertions=" + Properties.ASSERTIONS);
+		commands.add("-Djunit_tests=" + Properties.JUNIT_TESTS);
+		commands.add("-Djunit_check=" + Properties.JUNIT_CHECK);
 
 		commands.add("-Dmax_size=" + Properties.MAX_SIZE);
 
@@ -287,6 +303,7 @@ public class JobHandler extends Thread {
 		commands.add("-Dtest_comments=false");
 		commands.add("-Dshow_progress=false");
 		commands.add("-Dsave_all_data=false");
+		commands.add("-Dcoverage=" + Properties.COVERAGE);
 
 		/*
 		 * for (de)serialization of classes with static fields, inner classes, etc,
@@ -295,8 +312,9 @@ public class JobHandler extends Thread {
 		commands.add("-Dreset_static_fields=true");
 		commands.add("-Dreplace_calls=true");
 
-		if (!Properties.CTG_HISTORY_FILE.isEmpty())
+		if (Properties.CTG_HISTORY_FILE != null) {
 			commands.add("-Dctg_history_file=" + Properties.CTG_HISTORY_FILE);
+		}
 
 		return commands;
 	}
@@ -337,26 +355,36 @@ public class JobHandler extends Thread {
 
 	private List<String> getOutputVariables() {
 		List<String> commands = new ArrayList<String>();
-		String cmd = "-Doutput_variables=";
-		cmd += "TARGET_CLASS,configuration_id,";
-		cmd += "ctg_min_time_per_job,ctg_schedule,search_budget,p_object_pool,";
-		cmd += RuntimeVariable.Covered_Branches + ",";
-		cmd += RuntimeVariable.Total_Branches + ",";
-		cmd += RuntimeVariable.BranchCoverage + ",";
-		//cmd += RuntimeVariable.NumberOfInputPoolObjects + ",";
-		cmd += RuntimeVariable.Size + ",";
-		cmd += RuntimeVariable.Length + ",";
-		cmd += RuntimeVariable.Statements_Executed + ",";
-		cmd += RuntimeVariable.Total_Time + ",";
-		cmd += RuntimeVariable.Implicit_MethodExceptions + ",";
-		cmd += RuntimeVariable.Random_Seed + ",";
-		cmd += RuntimeVariable.Explicit_MethodExceptions;
 
-		if (Properties.CTG_TIME_PER_CLASS != null) {
-			cmd += ",ctg_time_per_class";
+		if (Properties.OUTPUT_VARIABLES == null) {
+			// add some default output variables
+			String cmd = "";
+			cmd += "TARGET_CLASS,configuration_id,criterion,";
+			cmd += "ctg_min_time_per_job,ctg_schedule,search_budget,p_object_pool,";
+			//cmd += RuntimeVariable.NumberOfInputPoolObjects + ",";
+			cmd += RuntimeVariable.Size + ",";
+			cmd += RuntimeVariable.Length + ",";
+			cmd += RuntimeVariable.Statements_Executed + ",";
+			cmd += RuntimeVariable.Total_Time + ",";
+			cmd += RuntimeVariable.Random_Seed + ",";
+			cmd += RuntimeVariable.Explicit_MethodExceptions + "," +  RuntimeVariable.Explicit_TypeExceptions + ",";
+			cmd += RuntimeVariable.Implicit_MethodExceptions + "," +  RuntimeVariable.Implicit_TypeExceptions + ",";
+
+			cmd += RuntimeVariable.LineCoverage + "," + RuntimeVariable.StatementCoverage + "," +
+					RuntimeVariable.BranchCoverage + "," + RuntimeVariable.OnlyBranchCoverage + "," + RuntimeVariable.CBranchCoverage + "," + RuntimeVariable.IBranchCoverage + "," +
+					RuntimeVariable.ExceptionCoverage + "," + RuntimeVariable.WeakMutationScore + "," + RuntimeVariable.OnlyMutationScore + "," + RuntimeVariable.MutationScore + "," +
+					RuntimeVariable.OutputCoverage + "," +
+					RuntimeVariable.MethodCoverage + "," + RuntimeVariable.MethodTraceCoverage + "," + RuntimeVariable.MethodNoExceptionCoverage;
+
+			if (Properties.CTG_TIME_PER_CLASS != null) {
+				cmd += ",ctg_time_per_class";
+			}
+
+			commands.add("-Doutput_variables=" + cmd);
+		} else {
+			commands.add("-Doutput_variables=" + Properties.OUTPUT_VARIABLES);
 		}
-		commands.add(cmd);
-		
+
 		if (Properties.CTG_TIME_PER_CLASS != null) {
 			commands.add("-Dctg_time_per_class=" + Properties.CTG_TIME_PER_CLASS);
 		}

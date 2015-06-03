@@ -70,6 +70,15 @@ public class RuntimeInstrumentation {
                 "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc", "org.mozilla.javascript.gen.c",
                 "corina.cross.Single",  // I really don't know what is wrong with this class, but we need to exclude it
                 "org.slf4j",
+                /**
+                 * FIXME:
+                 * JavaEE libraries should be shaded, and not being here in blacklist, as many side-effects.
+                 * If there is need of having any blacklisted library which is also an EvoSuite
+                 * dependency, then we MUST modify classloader to always load the version of the SUT
+                 * (currently it seems we delegate to parent classloader, which gives EvoSuite's version?)
+                 *
+                 * */
+                //"org.hibernate","org.hsqldb","org.jboss", // used in the generated JUnit files to test JavaEE applications relying on database
                 "org.apache.commons.discovery.tools.DiscoverSingleton",
                 "org.apache.commons.discovery.resource.ClassLoaders",
                 "org.apache.commons.discovery.resource.classes.DiscoverClasses",

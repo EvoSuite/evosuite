@@ -45,6 +45,24 @@
 
         <!-- External Libraries -->
 
+        <!-- Java EE dependencies.
+
+             Here, they need to be part of the EvoSuite executable.
+             However, in "runtime" module they should be as "provided".
+             Ie, the runtime jar should not contain those libraries, as to
+             avoid conflicts with the configuration of the SUT
+          -->
+        <dependency>
+            <groupId>org.jboss.spec.javax.servlet</groupId>
+            <artifactId>jboss-servlet-api_3.1_spec</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
 
     </dependencies>
 

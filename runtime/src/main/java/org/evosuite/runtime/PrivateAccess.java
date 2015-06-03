@@ -2,6 +2,7 @@ package org.evosuite.runtime;
 
 import org.junit.internal.AssumptionViolatedException;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,6 +28,7 @@ public class PrivateAccess {
         shouldNotFailTest = b;
     }
 
+
     /**
      * Use reflection to set the given field
      *
@@ -39,6 +41,24 @@ public class PrivateAccess {
      * @throws AssumptionViolatedException  if the the field does not exist anymore (eg due to refactoring)
      */
     public  static <T> void setVariable(Class<T> klass, T instance, String fieldName, Object value)
+            throws IllegalArgumentException, AssumptionViolatedException {
+        setVariable(klass,instance,fieldName,value,null);
+    }
+
+    /**
+     * Use reflection to set the given field
+     *
+     * @param klass
+     * @param instance  null if field is static
+     * @param fieldName
+     * @param value
+     * @param <T>  the class type
+     * @param tagsToCheck if not null, then the field has to have at least one the tags in such list
+     * @throws IllegalArgumentException if klass or fieldName are null
+     * @throws AssumptionViolatedException  if the the field does not exist anymore (eg due to refactoring)
+     */
+    public  static <T> void setVariable(Class<T> klass, T instance, String fieldName, Object value,
+                                        List<Class<? extends Annotation>> tagsToCheck)
             throws IllegalArgumentException, AssumptionViolatedException {
 
         if(klass == null){
@@ -66,6 +86,22 @@ public class PrivateAccess {
         }
         assert field != null;
         field.setAccessible(true);
+
+        if(tagsToCheck != null){
+            boolean match = false;
+            for(Annotation ann : field.getDeclaredAnnotations()){
+                Class<?> tag = ann.annotationType();
+                if(tagsToCheck.contains(tag)){
+                    match = true;
+                    break;
+                }
+            }
+
+            if(!match){
+                throw new IllegalArgumentException("The field "+fieldName+" in class "+klass.getName()+
+                        "does not have any valid annotation");
+            }
+        }
 
         try {
             field.set(instance,value);
