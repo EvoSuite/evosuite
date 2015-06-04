@@ -52,7 +52,9 @@ public class RegressionSearchListener implements SearchListener {
 
 	public static File statsFile;
 	public static double lastOD = 0.0;
-	public static int lastAssertions = 0;
+	public static int lastAssertions = -1;
+	
+	public double lastFitnessObserved = Double.MAX_VALUE;
 
 	/*
 	 * Create a stats directory and/or file when the search starts
@@ -117,8 +119,14 @@ public class RegressionSearchListener implements SearchListener {
 		// last diff)
 		ind.fitnessData = ind.fitnessData.replace("numDifferentExceptions", ""
 				+ exceptionDiff);
+		
+		boolean fitnessNotChanged = false;
+		if(ind.getFitness() >= lastFitnessObserved){
+			fitnessNotChanged = true;
+		}
+		lastFitnessObserved = ind.getFitness();
 
-		int curAssertions = RegressionAssertionCounter.getNumAssertions(ind);
+		int curAssertions = fitnessNotChanged ? lastAssertions:RegressionAssertionCounter.getNumAssertions(ind);
 		// curAssertions += ind.diffExceptions;
 
 		if (curAssertions > 0) {

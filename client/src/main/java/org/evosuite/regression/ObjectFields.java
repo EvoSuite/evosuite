@@ -243,16 +243,16 @@ public class ObjectFields {
 
 	public Map<Integer, Map<String, Map<String, Object>>> getObjectVariables() {
 
-		List<Map<Integer, Map<String, Object>>> ov = new ArrayList<Map<Integer, Map<String, Object>>>();
+		//List<Map<Integer, Map<String, Object>>> ov = new ArrayList<Map<Integer, Map<String, Object>>>();
 
-		Map<Integer, Map<String, Object>> variable_field = new HashMap<Integer, Map<String, Object>>();
+		//Map<Integer, Map<String, Object>> variable_field = new HashMap<Integer, Map<String, Object>>();
 
 		Map<Integer, Map<String, Map<String, Object>>> variable_ref_field = new HashMap<Integer, Map<String, Map<String, Object>>>();
 
-		Map<String, Object> field_value = new HashMap<String, Object>();
+		//Map<String, Object> field_value = new HashMap<String, Object>();
 
 		// Collection<Field> fields = getAllFields(c);
-		List<Object> values = new ArrayList<Object>();
+		//List<Object> values = new ArrayList<Object>();
 		/*
 		 * for (Field field : fields) { if (p.getClass().isPrimitive())
 		 * values.add(getObjectValue(getFieldValue(field, p))); else

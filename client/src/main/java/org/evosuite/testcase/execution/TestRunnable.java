@@ -168,7 +168,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		ExecutionTracer.disable();
 		try {
 			for (ExecutionObserver observer : observers) {
-				observer.testExecutionFinished(result);
+				observer.testExecutionFinished(result, scope);
 			}
 		} finally {
 			ExecutionTracer.enable();

@@ -107,7 +107,7 @@ public abstract class ExecutionObserver {
 	/**
 	 * Allow observers to update the execution result at the end the execution of a test.
 	 */
-	public abstract void testExecutionFinished(ExecutionResult r);
+	public abstract void testExecutionFinished(ExecutionResult r, Scope s);
 	
 	/**
 	 * Need a way to clear previously produced results

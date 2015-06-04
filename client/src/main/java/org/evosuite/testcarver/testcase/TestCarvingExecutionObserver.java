@@ -71,7 +71,7 @@ public final class TestCarvingExecutionObserver extends ExecutionObserver {
 	}
 
 	@Override
-	public void testExecutionFinished(ExecutionResult r) {
+	public void testExecutionFinished(ExecutionResult r, Scope s) {
 		// do nothing
 	}
 
