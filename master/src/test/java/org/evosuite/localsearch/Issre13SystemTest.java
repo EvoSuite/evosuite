@@ -2,8 +2,11 @@ package org.evosuite.localsearch;
 
 import com.examples.with.different.packagename.localsearch.DseBar;
 import com.examples.with.different.packagename.localsearch.IntegerLocalSearchExample;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.Properties.DSEType;
+import org.evosuite.Properties.SolverType;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -57,6 +60,9 @@ public class Issre13SystemTest extends SystemTest{
 
         Properties.DSE_PROBABILITY = 1.0; //force using only DSE, no LS
 
+        Properties.DSE_SOLVER = SolverType.Z3_STR_SOLVER;
+        Properties.Z3_STR_PATH = "/home/galeotti/Z3-str/str";
+        
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
         Object result = evosuite.parseCommandLine(command);
