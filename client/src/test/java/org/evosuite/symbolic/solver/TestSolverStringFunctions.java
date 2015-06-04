@@ -29,6 +29,7 @@ import com.examples.with.different.packagename.solver.TestCaseStringConcat;
 import com.examples.with.different.packagename.solver.TestCaseStringContains;
 import com.examples.with.different.packagename.solver.TestCaseStringEndsWith;
 import com.examples.with.different.packagename.solver.TestCaseStringEquals;
+import com.examples.with.different.packagename.solver.TestCaseStringEqualsIgnoreCase;
 import com.examples.with.different.packagename.solver.TestCaseStringIndexOfChar;
 import com.examples.with.different.packagename.solver.TestCaseStringIndexOfCharInt;
 import com.examples.with.different.packagename.solver.TestCaseStringIndexOfString;
@@ -103,6 +104,7 @@ public class TestSolverStringFunctions {
 		tc.appendMethod(null, method, string0);
 		return tc.getDefaultTestCase();
 	}
+
 
 	private static DefaultTestCase buildTestNotEquals()
 			throws SecurityException, NoSuchMethodException {
@@ -230,6 +232,7 @@ public class TestSolverStringFunctions {
 		assertEquals("Hello World", var0);
 	}
 
+	
 	public static void testStringNotEquals(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
