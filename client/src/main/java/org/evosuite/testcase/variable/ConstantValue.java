@@ -121,9 +121,9 @@ public class ConstantValue extends VariableReferenceImpl {
 	public String getName() {
 		if(value == null)
 			return "null";
-		else if(value instanceof String && ((String)value).endsWith(".class")){
-            return value.toString();
-        } 
+		//else if(value instanceof String && ((String)value).endsWith(".class")){
+        //    return value.toString();
+        //} 
 		else if(value instanceof Class<?>){
             return ((Class<?>)value).getName()+".class";
         } 

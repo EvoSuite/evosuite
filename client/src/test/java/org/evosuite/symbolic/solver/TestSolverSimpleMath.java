@@ -189,18 +189,15 @@ public class TestSolverSimpleMath {
 		assertEquals(var0.intValue(), var1.intValue() % 2);
 	}
 
-	public static void testDiv(Solver solver) throws SecurityException,
+	public static Map<String, Object> testDiv(Solver solver) throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseDiv();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
-		Long var0 = (Long) solution.get("var0");
-		Long var1 = (Long) solution.get("var1");
-
-		assertEquals(var0.intValue(), var1.intValue() / 5);
+		
+		return solution;
 	}
 
 	public static void testMul(Solver solver) throws SecurityException,
@@ -218,20 +215,15 @@ public class TestSolverSimpleMath {
 		assertEquals(var1.intValue(), var0.intValue() * 2);
 	}
 
-	public static void testMul2(Solver solver) throws SecurityException,
+	public static Map<String, Object> testMul2(Solver solver) throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMul2();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
 
-		Long var0 = (Long) solution.get("var0");
-		Long var1 = (Long) solution.get("var1");
-
-		assertEquals(10, var0.intValue() * var1.intValue());
-
+		return solution;
 	}
 
 	private static DefaultTestCase buildTestCaseDiv() throws SecurityException,
