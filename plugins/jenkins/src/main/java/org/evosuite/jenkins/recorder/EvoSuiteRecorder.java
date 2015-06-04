@@ -26,17 +26,12 @@ public class EvoSuiteRecorder extends Recorder {
 
 	@Extension
 	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
-	private final boolean enable;
 
 	private ProjectAction projectAction = null;
 
 	@DataBoundConstructor
-	public EvoSuiteRecorder(Boolean enable) {
-		this.enable = enable;
-	}
-
-	public boolean getEnable() {
-		return this.enable;
+	public EvoSuiteRecorder() {
+		// empty
 	}
 
 	@Override
@@ -56,11 +51,12 @@ public class EvoSuiteRecorder extends Recorder {
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
 
 		AbstractMavenProject<?, ?> project = ((AbstractMavenProject<?, ?>) build.getProject());
-		this.projectAction.perform(project, build.getWorkspace());
-
-		BuildAction build_action = new BuildAction(this.projectAction, build);
+		this.projectAction.perform(project, build);
+		
+		BuildAction build_action = new BuildAction(build, this.projectAction);
 		build.addAction(build_action);
-		return build_action.build();
+
+		return true;
 	}
 
 	/*

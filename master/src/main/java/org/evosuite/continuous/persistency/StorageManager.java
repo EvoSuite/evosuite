@@ -433,6 +433,7 @@ public class StorageManager {
 
 		TestSuiteCoverage new_coverage_test_suite = new TestSuiteCoverage();
 		new_coverage_test_suite.setId(BigInteger.valueOf( suite.getCoverageTestSuites().size() ));
+		new_coverage_test_suite.setFullPathOfTestSuite(ondisk.testSuite.getAbsolutePath());
 
 		List<CriterionCoverage> coverageValues = new ArrayList<CriterionCoverage>();
 		for (String criterion : csv.getCoverageValues().keySet()) {

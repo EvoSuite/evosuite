@@ -4,12 +4,14 @@ import hudson.model.AbstractProject;
 import hudson.util.ColorPalette;
 import hudson.util.Graph;
 
+import java.awt.Color;
 import java.util.Calendar;
 
 import org.evosuite.jenkins.actions.ProjectAction;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.CategoryToolTipGenerator;
@@ -39,16 +41,18 @@ public abstract class Plot extends Graph {
 	@Override
 	protected JFreeChart createGraph() {
 		final JFreeChart chart = ChartFactory.createLineChart(null, "Build Number #", this.yLabel, this.dataset, PlotOrientation.VERTICAL, true, true, true);
+		chart.setBackgroundPaint(Color.WHITE);
 
 		CategoryPlot plot = (CategoryPlot) chart.getPlot();
 
 		CategoryAxis domainAxis = new CategoryAxis();
-		//domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+		domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
 		domainAxis.setLowerMargin(0.0);
 		domainAxis.setUpperMargin(0.0);
 		domainAxis.setCategoryMargin(0.0);
 
 		plot.setDomainAxis(domainAxis);
+		plot.setBackgroundPaint(Color.WHITE);
 
 		ValueAxis yAxis = plot.getRangeAxis();
 		yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
