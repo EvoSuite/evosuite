@@ -1,7 +1,8 @@
-package org.evosuite.symbolic.solver.z3str;
+package org.evosuite.symbolic.solver.cvc4;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.Map;
 
@@ -12,34 +13,34 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestZ3StrSimpleMath {
+public class TestCVC4SimpleMath {
 
-	private static final String DEFAULT_Z3_STR_PATH = Properties.Z3_STR_PATH;
+	private static final String DEFAULT_CVC4_PATH = Properties.CVC4_PATH;
 
 	@BeforeClass
 	public static void configureZ3StrPath() {
-		String z3StrPath = System.getenv("z3_str_path");
+		String z3StrPath = System.getenv("cvc4_path");
 		if (z3StrPath != null) {
-			Properties.Z3_STR_PATH = z3StrPath;
+			Properties.CVC4_PATH = z3StrPath;
 		}
 	}
 
 	@AfterClass
 	public static void restoreZ3StrPath() {
-		Properties.Z3_STR_PATH = DEFAULT_Z3_STR_PATH;
+		Properties.CVC4_PATH = DEFAULT_CVC4_PATH;
 	}
 
 	@Test
 	public void testAdd() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testAdd(solver);
 	}
 
@@ -47,13 +48,13 @@ public class TestZ3StrSimpleMath {
 	public void testSub() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testSub(solver);
 	}
 
@@ -61,13 +62,13 @@ public class TestZ3StrSimpleMath {
 	public void testMul() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testMul(solver);
 	}
 
@@ -75,13 +76,13 @@ public class TestZ3StrSimpleMath {
 	public void testDiv() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		Map<String, Object> solution = TestSolverSimpleMath.testDiv(solver);
 		
 		assertNotNull(solution);
@@ -96,13 +97,13 @@ public class TestZ3StrSimpleMath {
 	public void testEq() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 		
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testEq(solver);
 	}
 
@@ -110,13 +111,13 @@ public class TestZ3StrSimpleMath {
 	public void testNeq() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testNeq(solver);
 	}
 
@@ -124,13 +125,13 @@ public class TestZ3StrSimpleMath {
 	public void testLt() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testLt(solver);
 	}
 
@@ -138,13 +139,13 @@ public class TestZ3StrSimpleMath {
 	public void testGt() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testGt(solver);
 	}
 
@@ -152,13 +153,13 @@ public class TestZ3StrSimpleMath {
 	public void testLte() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testLte(solver);
 	}
 
@@ -166,13 +167,13 @@ public class TestZ3StrSimpleMath {
 	public void testGte() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testGte(solver);
 	}
 
@@ -180,13 +181,13 @@ public class TestZ3StrSimpleMath {
 	public void testMod() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testMod(solver);
 	}
 
@@ -194,34 +195,27 @@ public class TestZ3StrSimpleMath {
 	public void testMul2() throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
-		Map<String, Object> solution = TestSolverSimpleMath.testMul2(solver);
-		assertNotNull(solution);
-
-		Long var0 = (Long) solution.get("var0");
-		Long var1 = (Long) solution.get("var1");
-
-		assertEquals(10, var0.intValue() * var1.intValue());
-
+		CVC4Solver solver = new CVC4Solver();
+		TestSolverSimpleMath.testMul2(solver);
 	}
 
 	@Test
 	public void testCastRealToInt() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testCastRealToInt(solver);
 	}
 
@@ -229,13 +223,13 @@ public class TestZ3StrSimpleMath {
 	public void testCastIntToReal() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.CVC4_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: cvc4_path should be configured to execute this test case");
 			return;
 		}
 
-		Z3StrSolver solver = new Z3StrSolver();
+		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testCastIntToReal(solver);
 	}
 }
