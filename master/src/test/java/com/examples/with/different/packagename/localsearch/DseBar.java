@@ -10,11 +10,9 @@ public class DseBar {
 
 	public void coverMe(DseFoo f) {
 		String y = x + f.getX();
-		if (f.getX() == 5) {
-			if (y.equals("baz5")) {
-				System.out.println("TARGET");
-			}
+		if (y.equals("baz5")) {
+			System.out.println("TARGET");
 		}
 	}
-	
+
 }
