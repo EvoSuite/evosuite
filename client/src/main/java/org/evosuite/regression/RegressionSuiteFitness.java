@@ -187,37 +187,41 @@ logger.warn("initialising regression Suite Fitness... ##########################
 	 * 
 	 * @ n: coverage new
 	 */
-	public boolean useMeasure(char name) {
+	public boolean useMeasure(RegressionMeasure m) {
 		boolean flag = false;
 		switch (Properties.REGRESSION_USE_FITNESS) {
 		case 6:
-			if (name == 'c' || name == 'o')
-				flag = true;
+			if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.COVERAGE_OLD)
+				return true;
 			break;
 		case 5:
-			if (name == 'c' || name == 'b' || name == 'o' || name == 'n')
+			if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.BRANCH_DISTANCE || 
+					m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
 				flag = true;
 			break;
 		case 4:
-			if (name == 'c' || name == 's' || name == 'o' || name == 'n')
+			if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.STATE_DIFFERENCE ||
+					m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
 				flag = true;
 			break;
 		case 3:
-			if (name == 'b')
+			if (m == RegressionMeasure.BRANCH_DISTANCE)
 				flag = true;
 			break;
 		case 2:
-			if (name == 's')
+			if (m == RegressionMeasure.STATE_DIFFERENCE)
 				flag = true;
 			break;
 		case 1:
-			if (name == 'c' || name == 'o' || name == 'n')
+			if (m == RegressionMeasure.COVERAGE || 
+					m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
 				flag = true;
 			break;
 		case 0:
 		default:
-			if (name == 'c' || name == 's' || name == 'b' || name == 'o'
-					|| name == 'n')
+			if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.STATE_DIFFERENCE || 
+					m == RegressionMeasure.BRANCH_DISTANCE || 
+					m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
 				flag = true;
 			break;
 
@@ -231,7 +235,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 	@Override
 	public double getFitness(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
-		if (useMeasure('s')) {
+		if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
 			switch (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE) {
 			case 3:
 				//TestCaseExecutor.getInstance().addObserver(methodObserver);
@@ -243,7 +247,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 			}
 		}
 		// TODO Auto-generated method stub
-		if (useMeasure('s')) {
+		if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
 			switch (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE) {
 			case 3:
 				//methodObserver.clearPools();
@@ -319,7 +323,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 			startTime = System.nanoTime();
 
-			if (useMeasure('b')) {
+			if (useMeasure(RegressionMeasure.BRANCH_DISTANCE)) {
 				this.getBranchDistance(result1.getTrace().getMethodCalls(),
 						result2.getTrace().getMethodCalls());
 			}
@@ -332,7 +336,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 			 * .addToPools(regressionTest.getOriginalObjectPool(),regressionTest
 			 * .getRegressionObjectPool()); break; case 0: default:
 			 */
-			if (useMeasure('s')) {
+			if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
 				observer.addToPools(result1.objectPool, result2.objectPool);
 			}
 			/*
@@ -346,7 +350,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 		startTime = System.nanoTime();
 		double objectDfitness = 0;
-		if (useMeasure('s')) {
+		if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
 			switch (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE) {
 			case 3:
 				//distance = getTestObjectsDistancePerMethod();
@@ -376,7 +380,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 				.getTestSuite();
 
 		AbstractTestSuiteChromosome<TestChromosome> testRegressionSuiteChromosome = null;
-		if (useMeasure('n')) {
+		if (useMeasure(RegressionMeasure.COVERAGE_NEW)) {
 			testRegressionSuiteChromosome = suite
 					.getTestSuiteForTheOtherClassLoader();
 		}
@@ -385,10 +389,10 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		 * bcFitnessRegression .getFitness(testRegressionSuiteChromosome);
 		 */
 		double coverage_old = 0, coverage_new = 0;
-		if (useMeasure('o')) {
+		if (useMeasure(RegressionMeasure.COVERAGE_OLD)) {
 			coverage_old = bcFitness.getFitness(testSuiteChromosome);
 		}
-		if (useMeasure('n')) {
+		if (useMeasure(RegressionMeasure.COVERAGE_NEW)) {
 			coverage_new = bcFitnessRegression
 					.getFitness(testRegressionSuiteChromosome);
 		}
@@ -401,7 +405,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		double branchDfitness = 0;
 
 		double totalBranchDistanceFitness = 0.0;
-		if (useMeasure('b')) {
+		if (useMeasure(RegressionMeasure.BRANCH_DISTANCE)) {
 			for (Map.Entry<Integer, Double> br : branchDistanceMap.entrySet()) {
 				// logger.warn("branch " + br.getKey() +" value " +
 				// br.getValue());
@@ -504,7 +508,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 		/*logger.warn("OBJ distance: " + distance + " - fitness:" + fitness
 				+ " - branchDistance:" + totalBranchDistanceFitness
-				+ " - coverage:" + coverage + " - ex: " + numExceptions
+				+ " - coverage:" + coverage + " - ex: " + exceptionDistance
 				+ " - tex: " + totalExceptions);*/
 		individual
 				.setCoverage(this, (bcFitness.totalCovered + bcFitnessRegression.totalCovered) / 2.0);
@@ -545,6 +549,10 @@ logger.warn("initialising regression Suite Fitness... ##########################
 			 * (!addsSeen.isEmpty()) maxAdds = Math.max(maxAdds,
 			 * Collections.max(addsSeen.values())); }
 			 */
+			logger.warn("OBJ distance: " + distance + " - fitness:" + fitness
+					+ " - branchDistance:" + totalBranchDistanceFitness
+					+ " - coverage:" + coverage + " - ex: " + exceptionDistance
+					+ " - tex: " + totalExceptions);
 			logger.warn("Timings so far: Test Execution - "
 					+ (RegressionSearchListener.testExecutionTime + 1)
 					/ 1000000 + " | Assertion - "
@@ -715,9 +723,9 @@ logger.warn("initialising regression Suite Fitness... ##########################
 						
 						double objectDistance = ObjectDistanceCalculator
 								.getObjectMapDistance(map1_value, map2_value);
-						// logger.warn("oDistance: " + objectDistance);
-						// logger.warn("var1: " +map1_value + " | var2: " +
-						// map2_value);
+						/* logger.warn("oDistance: " + objectDistance);
+						 logger.warn("var1: " +map1_value + " | var2: " +
+						 map2_value);*/
 						/*if(map1_value.containsKey("fake_var_java_lang_Double") && (Double)map1_value.get("fake_var_java_lang_Double")==0.5){
 						logger.warn("Map1: {} | Map2: {} " , map1_value,map2_value);
 						
@@ -730,8 +738,8 @@ logger.warn("initialising regression Suite Fitness... ##########################
 							maxClassDistance.put(
 									internal_map1_entries.getKey(),
 									Double.valueOf(objectDistance));
-						// logger.warn(internal_map1_entries.getKey() + ": " +
-						// map1_value + " --VS-- "+ map2_value);
+						/* logger.warn(internal_map1_entries.getKey() + ": " +
+						 map1_value + " --VS-- "+ map2_value);*/
 						/*
 						 * 
 						 * for (Map.Entry<String, Object> internal_map1_entry :
@@ -784,14 +792,14 @@ logger.warn("initialising regression Suite Fitness... ##########################
 				// maxClassDistance.size() + " > " + entries);
 
 			}
-			String entries = "";
+			//String entries = "";
 			double temp_dis = 0.0;
 			for (Map.Entry<String, Double> maxEntry : maxClassDistance
 					.entrySet()) {
 				temp_dis += maxEntry.getValue();
-				/*
-				 * entries += maxEntry.getKey().toString() + " : " +
-				 * maxEntry.getValue().toString() + " | ";
+				
+				/*  entries += maxEntry.getKey().toString() + " : " +
+				  maxEntry.getValue().toString() + " | ";
 				 */
 			}
 
@@ -814,8 +822,8 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		// logger.warn("dis is " + distance);
 		// return 0;
 		distance += ObjectDistanceCalculator.different_variables;
-		//if(distance>0)
-		//	logger.warn("distance was {}",distance);
+		/*if(distance>0)
+			logger.warn("distance was {}",distance);*/
 		return distance
 				/ ((observer.objectMapPool.size() == 0) ? 1
 						: observer.objectMapPool.size());

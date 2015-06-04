@@ -77,7 +77,7 @@ public class NullTraceEntry implements OutputTraceEntry {
 				NullAssertion assertion = new NullAssertion();
 				assertion.value = isNull;
 				assertion.source = var;
-				assertion.setcomment("// Original Value: " + var +" | Regression Value: " + otherEntry.var);
+				assertion.setcomment("// (Null) Original Value: " + var +" | Regression Value: " + otherEntry.var);
 				assertions.add(assertion);
 				assert (assertion.isValid());
 			}

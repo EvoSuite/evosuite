@@ -91,7 +91,7 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 	}
 
 	@Override
-	public void testExecutionFinished(ExecutionResult r) {
+	public void testExecutionFinished(ExecutionResult r, Scope s) {
 		// do nothing
 	}
 }

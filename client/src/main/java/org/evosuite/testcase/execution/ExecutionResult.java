@@ -416,6 +416,7 @@ public class ExecutionResult implements Cloneable {
 		copy.trace = trace.lazyClone();
 		copy.explicitExceptions.putAll(explicitExceptions);
 		copy.executionTime = executionTime;
+		//TODO: possible memory leak here!
 		copy.objectPool.addAll(objectPool);
 		if(returnValues != null)
 			copy.returnValues = new HashMap<MethodStatement, Object>(returnValues);
