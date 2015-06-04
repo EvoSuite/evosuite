@@ -1,6 +1,7 @@
 package org.evosuite.testcase;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
@@ -17,6 +19,7 @@ import org.evosuite.utils.GenericMethod;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.ObjectParameter;
+import com.examples.with.different.packagename.StringConstantInliningExample;
 
 public class TestConstantInliner {
 
@@ -58,4 +61,53 @@ public class TestConstantInliner {
 		String code = test.toCode();
 		assertFalse(code.contains("objectParameter0.testMe(objectArray0"));
 	}
+	
+	@Test
+	public void testStringQuoting() throws NoSuchMethodException, SecurityException {
+		DefaultTestCase test = new DefaultTestCase();
+		ConstructorStatement cs = new ConstructorStatement(test, new GenericConstructor(StringConstantInliningExample.class.getConstructor(), StringConstantInliningExample.class), new ArrayList<VariableReference>());
+		VariableReference objectVar = test.addStatement(cs);
+		
+		StringPrimitiveStatement stringStatement = new StringPrimitiveStatement(test, "EXAMPLE");
+		VariableReference stringParam = test.addStatement(stringStatement);
+		
+		List<VariableReference> parameters = new ArrayList<VariableReference>();
+		parameters.add(stringParam);
+		test.addStatement(new MethodStatement(test, new GenericMethod(StringConstantInliningExample.class.getMethods()[0], StringConstantInliningExample.class), objectVar, parameters));
+		System.out.println(test.toCode());
+		
+		ConstantInliner inliner = new ConstantInliner();
+		inliner.inline(test);
+		
+		String code = test.toCode();
+		System.out.println(code);
+		assertFalse(code.contains("foo(EXAMPLE)"));
+		assertTrue(code.contains("foo(\"EXAMPLE\")"));
+	}
+	
+	@Test
+	public void testStringEndingWithClass() throws NoSuchMethodException, SecurityException {
+		DefaultTestCase test = new DefaultTestCase();
+		ConstructorStatement cs = new ConstructorStatement(test, new GenericConstructor(StringConstantInliningExample.class.getConstructor(), StringConstantInliningExample.class), new ArrayList<VariableReference>());
+		VariableReference objectVar = test.addStatement(cs);
+		
+		StringPrimitiveStatement stringStatement = new StringPrimitiveStatement(test, "test.class");
+		VariableReference stringParam = test.addStatement(stringStatement);
+		
+		List<VariableReference> parameters = new ArrayList<VariableReference>();
+		parameters.add(stringParam);
+		test.addStatement(new MethodStatement(test, new GenericMethod(StringConstantInliningExample.class.getMethods()[0], StringConstantInliningExample.class), objectVar, parameters));
+		System.out.println(test.toCode());
+		
+		ConstantInliner inliner = new ConstantInliner();
+		inliner.inline(test);
+		
+		String code = test.toCode();
+		System.out.println(code);
+		assertFalse(code.contains("foo(test.class)"));
+		assertTrue(code.contains("foo(\"test.class\")"));
+	}
+	
+	
+	
 }
