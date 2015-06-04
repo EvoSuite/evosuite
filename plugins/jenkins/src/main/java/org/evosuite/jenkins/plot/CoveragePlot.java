@@ -5,8 +5,7 @@ import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.evosuite.jenkins.actions.BuildAction;
 import org.evosuite.jenkins.actions.ProjectAction;
@@ -48,14 +47,9 @@ public class CoveragePlot extends Plot {
 				continue;
 			}
 
-			Map<String, List<Double>> coverageValues = build_action.getProjectAction().getCoverageValues();
-			for (String criterion : coverageValues.keySet()) {
-				double coverage = 0.0;
-				for (Double value : coverageValues.get(criterion)) {
-					coverage += value;
-				}
-
-				coverage = coverage / coverageValues.get(criterion).size() * 100.0;
+			Set<String> criteria = build_action.getProjectAction().getCriteria();
+			for (String criterion : criteria) {
+				double coverage = build_action.getProjectAction().getCriterionCoverage(criterion);
 				coverageDataSetBuilder.add(coverage, criterion, new ChartUtil.NumberOnlyBuildLabel(build));
 			}
 		}
