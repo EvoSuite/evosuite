@@ -1,24 +1,24 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
   <l:layout title="trendlayout">
      <!--css="/plugin/evosuite-jenkins-plugin/css/style.css"-->
-     <st:include it="${it.project}" page="sidepanel.jelly"/>
+     <st:include it="${it.getProject()}" page="sidepanel.jelly"/>
      <l:main-panel>
-     <h1>EvoSuite Project Statistics</h1>
+     <h1>EvoSuite statistics of Project '${it.getName()}'</h1>
      <div>
         <!--
              red    #EF2929
              yellow #FCE94F
              green  #008000
         -->
-        <div> ${it.OverallCoverage}% overall coverage</div>
+        <div> ${it.getOverallCoverage()}% overall coverage</div>
         <div style="width:100%; height:1em; background-color: #FCE94F">
-          <div style="width:${it.OverallCoverage}%; height: 1em; background-color: #008000; float: left"></div>
+          <div style="width:${it.getOverallCoverage()}%; height: 1em; background-color: #008000; float: left"></div>
         </div>
-        <j:forEach var="criterion" items="${it.Criterion.keySet()}">
+        <j:forEach var="criterion" items="${it.getCriteria()}">
         	<br />
-        	<div> ${it.Criterion.get(criterion)}% ${criterion}</div>
+        	<div> ${it.getCriterionCoverage(criterion)}% ${criterion}</div>
 	        <div style="width:100%; height:1em; background-color: #FCE94F">
-	          <div style="width:${it.Criterion.get(criterion)}%; height: 1em; background-color: #008000; float: left"></div>
+	          <div style="width:${it.getCriterionCoverage(criterion)}%; height: 1em; background-color: #008000; float: left"></div>
 	        </div>
         </j:forEach>
         <br />

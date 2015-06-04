@@ -5,6 +5,7 @@ import hudson.maven.AbstractMavenProject;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.model.Action;
+import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 
 import java.io.File;
@@ -12,13 +13,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.jenkins.plot.CoveragePlot;
@@ -27,75 +24,12 @@ import org.kohsuke.stapler.StaplerResponse;
 
 public class ProjectAction implements Action {
 
-	private AbstractProject<?, ?> project;
-	private Map<String, ModuleAction> modules = new LinkedHashMap<String, ModuleAction>();
+	private final AbstractProject<?, ?> project;
+	private List<ModuleAction> modules;
 
 	public ProjectAction(AbstractProject<?, ?> project) {
 		this.project = (AbstractProject<?, ?>) project;
-	}
-
-	public void perform(AbstractMavenProject<?, ?> project, FilePath workspace) {
-		MavenModuleSet prj = (MavenModuleSet) this.project;
-		for (MavenModule module : prj.getModules()) {
-			Path path = Paths.get(workspace.getRemote()
-					+ File.separator + (module.getRelativePath() != "" ? module.getRelativePath() + File.separator : "")
-					+ ".evosuite" + File.separator + "project_info.xml");
-
-			if (Files.exists(path)) {
-				this.modules.put(module.getName(), new ModuleAction(module.getName(), path));
-			}
-		}
-	}
-
-	public AbstractProject<?, ?> getProject() {
-		return this.project;
-	}
-
-	public Map<String, ModuleAction> getModules() {
-		return this.modules;
-	}
-
-	public void doCoverageGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
-		CoveragePlot c = new CoveragePlot(this, "Coverage %");
-		c.doCoverageGraph(req, rsp);
-	}
-
-	public void doCoverageMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
-		CoveragePlot c = new CoveragePlot(this, "Coverage");
-		c.doCoverageMap(req, rsp);
-	}
-
-	public String getOverallCoverage() {
-		NumberFormat formatter = new DecimalFormat("#0.00");
-
-		if (this.modules.isEmpty()) {
-			return formatter.format(0.0);
-		}
-
-		double coverage = 0.0;
-		for (ModuleAction module : this.modules.values()) {
-			coverage += module.getOverallCoverage();
-		}
-
-		return formatter.format(coverage / this.modules.size());
-	}
-
-	public Map<String, List<Double>> getCoverageValues() {
-		Map<String, List<Double>> coverageValues = new LinkedHashMap<String, List<Double>>();
-
-		for (ModuleAction module : this.modules.values()) {
-			for (String criterion : module.getCoverageValues().keySet()) {
-				List<Double> coverages = new ArrayList<Double>();
-				if (coverageValues.containsKey(criterion)) {
-					coverages = coverageValues.get(criterion);
-				}
-
-				coverages.addAll( module.getCoverageValues().get(criterion) );
-				coverageValues.put(criterion, coverages);
-			}
-		}
-
-		return coverageValues;
+		this.modules = new ArrayList<ModuleAction>();
 	}
 
 	@Override
@@ -113,50 +47,120 @@ public class ProjectAction implements Action {
 		return "evosuite-project";
 	}
 
+	public AbstractProject<?, ?> getProject() {
+		return this.project;
+	}
+
+	public String getName() {
+		return this.project.getName();
+	}
+
+	public List<ModuleAction> getModules() {
+		return this.modules;
+	}
+	
+	public void perform(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build) {
+		FilePath workspace = build.getWorkspace();
+
+		MavenModuleSet prj = (MavenModuleSet) this.project;
+		for (MavenModule module : prj.getModules()) {
+			Path project_info = Paths.get(workspace.getRemote()
+					+ File.separator + (module.getRelativePath() != "" ? module.getRelativePath() + File.separator : "")
+					+ ".evosuite" + File.separator + "project_info.xml");
+
+			if (Files.exists(project_info)) {
+				ModuleAction m = new ModuleAction(build, module.getName());
+				m.build(project_info);
+				this.modules.add(m);
+			}
+		}
+	}
+
+	public void doCoverageGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
+		CoveragePlot c = new CoveragePlot(this, "Coverage %");
+		c.doCoverageGraph(req, rsp);
+	}
+
+	public void doCoverageMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
+		CoveragePlot c = new CoveragePlot(this, "Coverage");
+		c.doCoverageMap(req, rsp);
+	}
+	
 	// data for jelly template
 
+	/**
+	 * 
+	 * @return
+	 */
 	public int getNumberOfModules() {
 		return this.modules.size();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public int getNumberOfTestableClasses() {
 		if (this.modules.isEmpty()) {
 			return 0;
 		}
 
-		int count = 0;
-		for (ModuleAction module : this.modules.values()) {
-			count += module.getNumberOfTestableClasses();
+		int classes = 0;
+		for (ModuleAction m : this.modules) {
+			classes += m.getNumberOfTestableClasses();
 		}
 
-		return count;
+		return classes;
 	}
 
-	public Map<String, String> getCriterion() {
+	/**
+	 * 
+	 * @return
+	 */
+	public Set<String> getCriteria() {
+		Set<String> criteria = new LinkedHashSet<String>();
 		if (this.modules.isEmpty()) {
-			return null;
+			return criteria;
 		}
 
-		Set<String> names = new LinkedHashSet<String>();
-		for (ModuleAction module : this.modules.values()) {
-			names.addAll(module.getCriterion());
+		for (ModuleAction m : this.modules) {
+			criteria.addAll(m.getCriteria());
 		}
 
-		Map<String, String> coverageValues = new LinkedHashMap<String, String>();
-		for (String criterionName : names) {
-			coverageValues.put(criterionName, this.getCriterionCoverage(criterionName));
+		return criteria;
+	}
+	/**
+	 * 
+	 * @return
+	 */
+	public double getOverallCoverage() {
+		if (this.modules.isEmpty()) {
+			return 0.0;
 		}
 
-		return coverageValues;
+		double coverage = 0.0;
+		for (ModuleAction m : this.modules) {
+			coverage += m.getOverallCoverage();
+		}
+
+		return coverage / this.modules.size();
 	}
 
-	private String getCriterionCoverage(String criterion) {
-		double coverage = 0.0;
-		for (ModuleAction module : this.modules.values()) {
-			coverage += module.getCriterionCoverage(criterion);
+	/**
+	 * 
+	 * @param criterionName
+	 * @return
+	 */
+	public double getCriterionCoverage(String criterionName) {
+		if (this.modules.isEmpty()) {
+			return 0.0;
 		}
 
-		NumberFormat formatter = new DecimalFormat("#0.00");
-		return formatter.format(coverage / this.modules.size());
+		double coverage = 0.0;
+		for (ModuleAction m : this.modules) {
+			coverage += m.getCriterionCoverage(criterionName);
+		}
+
+		return coverage / this.modules.size();
 	}
 }
