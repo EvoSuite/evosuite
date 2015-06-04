@@ -1,15 +1,16 @@
 package org.evosuite.jenkins.actions;
 
+import hudson.model.Action;
+import hudson.model.AbstractBuild;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.xml.XMLConstants;
@@ -20,43 +21,73 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 import org.evosuite.continuous.ContinuousTestGeneration;
-import org.evosuite.xsd.CriterionCoverage;
 import org.evosuite.xsd.ProjectInfo;
 import org.evosuite.xsd.TestSuite;
-import org.evosuite.xsd.TestSuiteCoverage;
-
-import hudson.model.Action;
 
 public class ModuleAction implements Action {
 
-	private final String name;
-	private final Path path;
-	private ProjectInfo projectInfo = null;
+	private final AbstractBuild<?, ?> build;
 
-	public ModuleAction(String name, Path path) {
+	private final String name;
+	private ProjectInfo projectInfo;
+	private List<ClassAction> classes;
+
+	public ModuleAction(AbstractBuild<?, ?> build, String name) {
 		this.name = name;
-		this.path = path;
+		this.build = build;
+
+		this.classes = new ArrayList<ClassAction>();
+	}
+
+	@Override
+	public String getIconFileName() {
+		return null;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return this.name;
+	}
+
+	@Override
+	public String getUrlName() {
+		return null;
+	}
+
+	public Object getDynamic(String token) {
+		for (ClassAction c : this.classes) {
+			if (c.getName().equals(token)) {
+				return c;
+			}
+		}
+
+		return null;
+	}
+
+	public AbstractBuild<?, ?> getBuild() {
+		return this.build;
 	}
 
 	public String getName() {
 		return this.name;
 	}
 
-	public String getURL() {
-		return this.name.replace(":", "$");
-	}
-
-	public Path getPath() {
-		return this.path;
-	}
-
 	public ProjectInfo getProjectInfo() {
 		return this.projectInfo;
 	}
 
-	public boolean build() {
+	public List<ClassAction> getClasses() {
+		return this.classes;
+	}
+
+	/**
+	 * 
+	 * @param project_info
+	 * @return
+	 */
+	public boolean build(Path project_info) {
 		try {
-			File tempfile = new File(this.path.toString());
+			File tempfile = new File(project_info.toString());
 			InputStream stream = new FileInputStream(tempfile);
 
 			JAXBContext jaxbContext = JAXBContext.newInstance(ProjectInfo.class);
@@ -68,6 +99,15 @@ public class ModuleAction implements Action {
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbUnmarshaller.setSchema(schema);
 			this.projectInfo = (ProjectInfo) jaxbUnmarshaller.unmarshal(stream);
+
+			for (TestSuite suite : this.projectInfo.getGeneratedTestSuites()) {
+				ClassAction c = new ClassAction(suite, this.getBuild());
+
+				String fullPathOfTestSuite = suite.getCoverageTestSuites().get( suite.getCoverageTestSuites().size() - 1 ).getFullPathOfTestSuite();
+				c.highlightSource(fullPathOfTestSuite);
+
+				this.classes.add(c);
+			}
 		}
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -81,105 +121,124 @@ public class ModuleAction implements Action {
 		return true;
 	}
 
-	@Override
-	public String getIconFileName() {
-		return "/plugin/evosuite-jenkins-plugin/icons/evosuite.png";
-	}
-
-	@Override
-	public String getDisplayName() {
-		return "EvoSuite Module Statistics";
-	}
-
-	@Override
-	public String getUrlName() {
-		return "evosuite-module";
-	}
-
-	public double getOverallCoverage() {
-		if (this.projectInfo == null) {
-			return 0.0;
-		}
-		return this.projectInfo.getOverallCoverage() * 100;
-	}
-
-	public Map<String, List<Double>> getCoverageValues() {
-		Map<String, List<Double>> coverageValues = new LinkedHashMap<String, List<Double>>();
-
-		for (TestSuite testSuite : this.projectInfo.getGeneratedTestSuites()) {
-			// get the last coverage report
-			TestSuiteCoverage testSuiteCoverage = testSuite.getCoverageTestSuites().get( testSuite.getCoverageTestSuites().size() - 1 );
-
-			for (CriterionCoverage criterionCoverage : testSuiteCoverage.getCoverage()) {
-				List<Double> coverages = new ArrayList<Double>();
-				if (coverageValues.containsKey(criterionCoverage.getCriterion())) {
-					coverages = coverageValues.get(criterionCoverage.getCriterion());
-				}
-
-				coverages.add(criterionCoverage.getCoverageValue());
-				coverageValues.put(criterionCoverage.getCriterion(), coverages);
-			}
-		}
-
-		return coverageValues;
-	}
-
 	// data for jelly template
 
+	/**
+	 * 
+	 * @return
+	 */
 	public int getNumberOfTestableClasses() {
 		return this.projectInfo.getTotalNumberOfTestableClasses().intValue();
 	}
 
-	public int getNumberOfTests() {
-		return this.projectInfo.getGeneratedTestSuites().size();
-	}
-
+	/**
+	 * 
+	 * @return
+	 */
 	public int getNumberOfStatements() {
-		int num_statements = 0;
-		for (TestSuite suite : this.projectInfo.getGeneratedTestSuites()) {
-			for (TestSuiteCoverage coverage_suite : suite.getCoverageTestSuites()) {
-				num_statements += coverage_suite.getTotalNumberOfStatements().intValue();
-			}
+		if (this.classes.isEmpty()) {
+			return 0;
 		}
-		return num_statements;
+
+		int statements = 0;
+		for (ClassAction c : this.classes) {
+			statements += c.getNumberOfStatements();
+		}
+
+		return (int) Math.round( ((double) statements) / ((double) this.classes.size()) );
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public int getTotalEffort() {
-		int total_effort = 0;
-		for (TestSuite suite : this.projectInfo.getGeneratedTestSuites()) {
-			total_effort += suite.getTotalEffortInSeconds().intValue();
+		if (this.classes.isEmpty()) {
+			return 0;
 		}
-		return total_effort;
+
+		int effort = 0;
+		for (ClassAction c : this.classes) {
+			effort += c.getTotalEffort();
+		}
+
+		return (int) Math.round( ((double) effort) / ((double) this.classes.size()) );
 	}
 
-	public Set<String> getCriterion() {
-		Set<String> names = new LinkedHashSet<String>();
-		for (TestSuite testSuite : this.projectInfo.getGeneratedTestSuites()) {
-			for (TestSuiteCoverage testSuiteCoverage : testSuite.getCoverageTestSuites()) {
-				for (CriterionCoverage criterionCoverage : testSuiteCoverage.getCoverage()) {
-					names.add(criterionCoverage.getCriterion());
-				}
-			}
+	/**
+	 * 
+	 * @return
+	 */
+	public int getNumberOfTests() {
+		if (this.classes.isEmpty()) {
+			return 0;
 		}
-		return names;
+
+		int tests = 0;
+		for (ClassAction c : this.classes) {
+			tests += c.getNumberOfTests();
+		}
+
+		return (int) Math.round( ((double) tests) / ((double) this.classes.size()) );
 	}
 
-	public double getCriterionCoverage(String criterion) {
+	/**
+	 * 
+	 * @return
+	 */
+	public Set<String> getCriteria() {
+		Set<String> criteria = new LinkedHashSet<String>();
+		if (this.classes.isEmpty()) {
+			return criteria;
+		}
+
+		for (ClassAction c : this.classes) {
+			criteria.addAll(c.getCriteria());
+		}
+
+		return criteria;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public double getOverallCoverage() {
+		if (this.classes.isEmpty()) {
+			return 0.0;
+		}
+
 		double coverage = 0.0;
-		int count = 0;
-
-		for (TestSuite testSuite : this.projectInfo.getGeneratedTestSuites()) {
-			// get the last coverage report
-			TestSuiteCoverage testSuiteCoverage = testSuite.getCoverageTestSuites().get( testSuite.getCoverageTestSuites().size() - 1 );
-
-			for (CriterionCoverage criterionCoverage : testSuiteCoverage.getCoverage()) {
-				if (criterionCoverage.getCriterion().equals(criterion)) {
-					coverage += criterionCoverage.getCoverageValue();
-					count++;
-				}
-			}
+		for (ClassAction c : this.classes) {
+			coverage += c.getOverallCoverage();
 		}
 
-		return coverage / count * 100.0;
+		return coverage / this.classes.size();
+	}
+
+	/**
+	 * 
+	 * @param criterionName
+	 * @return
+	 */
+	public double getCriterionCoverage(String criterionName) {
+		if (this.classes.isEmpty()) {
+			return 0.0;
+		}
+
+		double coverage = 0.0;
+		for (ClassAction c : this.classes) {
+			coverage += c.getCriterionCoverage(criterionName);
+		}
+
+		return coverage / this.classes.size();
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getURL() {
+		return this.name.replace(":", "$");
 	}
 }
