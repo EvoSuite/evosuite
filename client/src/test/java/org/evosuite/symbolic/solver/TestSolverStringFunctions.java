@@ -262,7 +262,7 @@ public class TestSolverStringFunctions {
 		assertNotEquals("Hello".length(), var0.length());
 	}
 
-	public static void testStringStartsWithIndex(Solver solver)
+	public static Map<String, Object> testStringStartsWithIndex(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			ConstraintSolverTimeoutException {
 
@@ -270,11 +270,7 @@ public class TestSolverStringFunctions {
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		assertNotNull(solution);
-		String var0 = (String) solution.get("var0");
-
-		assertNotNull(var0);
-		assertTrue(var0.startsWith("Hello", 5));
+		return solution;
 	}
 
 	public static void testStringEndsWith(Solver solver)
