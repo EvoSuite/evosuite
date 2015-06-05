@@ -1629,6 +1629,9 @@ public class TestFactory {
 			max = 1;
 
 		int position = Randomness.nextInt(max);
+		
+		if(Properties.isRegression())
+			position = lastPosition;
 
 		if (logger.isDebugEnabled()) {
 			//for (int i = 0; i < test.size(); i++) {
