@@ -3,9 +3,9 @@ package org.evosuite.coverage.archive;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,7 +16,6 @@ import org.evosuite.ga.Archive;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -40,18 +39,25 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestsArchive.class);
 	
-	private TestSuiteChromosome bestChromo;
 	//necessary to avoid having a billion of redundant test cases
     private Map<FitnessFunction<?>, Set<TestFitnessFunction>> coveredGoals = new HashMap<>();
 
     private Map<FitnessFunction<?>, Integer> goalsCountMap = new HashMap<>();
+
+    // This can probably be optimised, but to remove the testsuitechromosome
+    // I'm just replicating the maps we used in here
+    private Map<FitnessFunction<?>, Integer> coveredGoalsCountMap = new HashMap<>();
+    private Map<FitnessFunction<?>, Double> coverageMap = new HashMap<>();
+    
 	private Map<FitnessFunction<?>, Set<TestFitnessFunction>> goalMap = new HashMap<>();
     private Map<String, Set<TestFitnessFunction>> methodMap = new HashMap<>();
 	private Map<TestFitnessFunction, TestCase> testMap = new HashMap<>();
-
+	
+	// To avoid duplicate tests there's a set of all tests
+	// but is this redundant wrt testMap.values()?
+	private Set<TestCase> testCases = new LinkedHashSet<TestCase>();
 
 	private TestsArchive() {
-		bestChromo = new TestSuiteChromosome();
 		coveredGoals = new HashMap<>();
 	}
 	
@@ -141,12 +147,21 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		if (!coveredGoals.get(ff).contains(goal)) {
 			logger.debug("Adding covered goal to archive: "+goal);
 			coveredGoals.get(ff).add(goal);
-			bestChromo.addTest(test);
+			// TestSuiteChromosome contains a list, but we don't need duplicate tests
+			testCases.add(test);
 			testMap.put(goal, test);
 			updateMaps(ff, goal);
             setCoverage(ff, goal);
             if (isMethodFullyCovered(getGoalKey(goal))) {
 				removeTestCall(goal.getTargetClass(), goal.getTargetMethod());
+			}
+		} else {
+			// If we try to add a test for a goal we've already covered
+			// and the new test is shorter, keep the shorter one
+			if(test.size() < testMap.get(goal).size()) {
+				testCases.remove(testMap.get(goal));
+				testCases.add(test);
+				testMap.put(goal, test);
 			}
 		}
 	}
@@ -156,23 +171,10 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
         int covered = coveredGoals.get(ff).size();
         int total = goalsCountMap.containsKey(ff) ? goalsCountMap.get(ff) : 0;
         double coverage = total == 0 ? 1.0 : (double) covered / (double) total;
-        bestChromo.setFitness(ff, 0.0);
-        bestChromo.setCoverage(ff, coverage);
-        bestChromo.setNumOfCoveredGoals(ff, covered);
+        coveredGoalsCountMap.put(ff, covered);
+        coverageMap.put(ff, coverage);
     }
 
-    public void registerAllTests(Collection<TestChromosome> tests) {
-		bestChromo.addTests(tests);
-	} 
-	
-	/**
-	 * return the chromosome with the tests of the archive
-	 * @return
-	 */
-	public  TestSuiteChromosome getBestChromosome() {
-		return bestChromo;
-	}
-	
 	public TestSuiteChromosome getReducedChromosome() {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		for(Entry<TestFitnessFunction, TestCase> entry : testMap.entrySet()) {
@@ -180,11 +182,11 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 				suite.addTest(entry.getValue());
 			}
 		}
-        for (FitnessFunction<?> ff : bestChromo.getCoverageValues().keySet()) {
-            suite.setCoverage(ff, bestChromo.getCoverage(ff));
-            suite.setNumOfCoveredGoals(ff, bestChromo.getNumOfCoveredGoals(ff));
+        for (FitnessFunction<?> ff : coverageMap.keySet()) {
+        	suite.setCoverage(ff, coverageMap.get(ff));
+        	suite.setNumOfCoveredGoals(ff, coveredGoalsCountMap.get(ff));
         }
-		logger.info("Reduced test suite from archive: "+suite.size() +" from "+bestChromo.size());
+		logger.info("Reduced test suite from archive: "+suite.size() +" from "+testCases.size());
 		return suite;
 	}
 	
@@ -207,13 +209,17 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 //            suite.setNumOfCoveredGoals(ff, bestChromo.getNumOfCoveredGoals(ff));
 //        }
 		Properties.TEST_ARCHIVE = true;
-		logger.info("Reduced test suite from archive: "+suite.size() +" from "+bestChromo.size());
+		logger.info("Reduced test suite from archive: "+suite.size() +" from "+testCases.size());
 
 		return best;
 	}
 	
 	public int getNumberOfTestsInArchive() {
-		return bestChromo.size();
+		return testCases.size();
+	}
+	
+	public Set<TestCase> getTests() {
+		return testCases;
 	}
 	
 	@Override
@@ -222,16 +228,18 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		for (FitnessFunction<?> ff : coveredGoals.keySet()) {
             sum += coveredGoals.get(ff).size();
         }
-        return "Goals covered: " + sum + ", tests: " + bestChromo.size();
+        return "Goals covered: " + sum + ", tests: " + testCases.size();
 	}
 	
 	public void reset() {
-		bestChromo = new TestSuiteChromosome();
+		testCases.clear();
 		coveredGoals.clear();
 		goalMap.clear();
         goalsCountMap.clear();
         methodMap.clear();
 		testMap.clear();
+		coveredGoalsCountMap.clear();
+		coverageMap.clear();
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {

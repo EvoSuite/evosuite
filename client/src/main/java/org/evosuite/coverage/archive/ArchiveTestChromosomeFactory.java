@@ -21,7 +21,8 @@ public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChrom
 		TestChromosome test = null;
 		if(TestsArchive.instance.getNumberOfTestsInArchive() > 0 && Randomness.nextDouble() < Properties.SEED_CLONE) {
 			logger.info("Creating test based on archive");
-			test = (TestChromosome) Randomness.choice(TestsArchive.instance.getBestChromosome().getTestChromosomes()).clone();
+			test = new TestChromosome();
+			test.setTestCase(Randomness.choice(TestsArchive.instance.getTests()).clone());
 		} else {
 			logger.info("Creating random test");
 			test = defaultFactory.getChromosome();
