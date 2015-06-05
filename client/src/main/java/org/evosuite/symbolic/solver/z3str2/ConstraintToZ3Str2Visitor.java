@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.solver.z3str;
+package org.evosuite.symbolic.solver.z3str2;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,14 +11,14 @@ import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 
-class ConstraintToZ3StrVisitor implements ConstraintVisitor<SmtExpr, Void> {
+class ConstraintToZ3Str2Visitor implements ConstraintVisitor<SmtExpr, Void> {
 
-	public ConstraintToZ3StrVisitor() {
+	public ConstraintToZ3Str2Visitor() {
 	}
 
 	@Override
 	public SmtExpr visit(IntegerConstraint c, Void arg) {
-		ExprToZ3StrVisitor v = new ExprToZ3StrVisitor();
+		ExprToZ3Str2Visitor v = new ExprToZ3Str2Visitor();
 
 		SmtExpr left = c.getLeftOperand().accept(v, null);
 		SmtExpr right = c.getRightOperand().accept(v, null);
@@ -34,7 +34,7 @@ class ConstraintToZ3StrVisitor implements ConstraintVisitor<SmtExpr, Void> {
 
 	@Override
 	public SmtExpr visit(RealConstraint c, Void arg) {
-		ExprToZ3StrVisitor v = new ExprToZ3StrVisitor();
+		ExprToZ3Str2Visitor v = new ExprToZ3Str2Visitor();
 
 		SmtExpr left = c.getLeftOperand().accept(v, null);
 		SmtExpr right = c.getRightOperand().accept(v, null);
@@ -50,7 +50,7 @@ class ConstraintToZ3StrVisitor implements ConstraintVisitor<SmtExpr, Void> {
 
 	@Override
 	public SmtExpr visit(StringConstraint c, Void arg) {
-		ExprToZ3StrVisitor v = new ExprToZ3StrVisitor();
+		ExprToZ3Str2Visitor v = new ExprToZ3Str2Visitor();
 
 		SmtExpr left = c.getLeftOperand().accept(v, null);
 		SmtExpr right = c.getRightOperand().accept(v, null);
