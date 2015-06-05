@@ -18,8 +18,12 @@ public abstract class SmtExprBuilder {
 	public static final SmtBooleanConstant TRUE = mkBooleanConstant(true);
 	public static final SmtBooleanConstant FALSE = mkBooleanConstant(false);
 
-	public static SmtExpr mkDiv(SmtExpr left, SmtExpr right) {
+	public static SmtExpr mkIntDiv(SmtExpr left, SmtExpr right) {
 		return new SmtOperation(SmtOperation.Operator.DIV, left, right);
+	}
+
+	public static SmtExpr mkRealDiv(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.SLASH, left, right);
 	}
 
 	private static SmtBooleanConstant mkBooleanConstant(boolean b) {
