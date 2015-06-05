@@ -20,10 +20,13 @@
  */
 package org.evosuite.coverage.mutation;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.Strategy;
 import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 
 
@@ -36,14 +39,16 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MutationTimeoutStoppingCondition.class);
 
-	//public static Map<Mutation, Integer> timeouts = new HashMap<Mutation, Integer>();
+	public static Map<Mutation, Integer> timeouts = new HashMap<Mutation, Integer>();
 
 	private static final long serialVersionUID = -7347443938884126325L;
 
-	private static int timeouts = 0;
+	private static int timeout = 0;
 
 	private static boolean hasException = false;
 
+	private static Set<Mutation> exceptions = new HashSet<Mutation>();
+	
 	private static int MAX_TIMEOUTS = Properties.MUTATION_TIMEOUTS;
 
 	private static Set<Mutation> disabled = new HashSet<Mutation>();
@@ -64,7 +69,11 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
-		return timeouts;
+		if (Properties.STRATEGY != Strategy.ONEBRANCH){
+			return 0;
+		}else{
+			return timeout;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -75,11 +84,15 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	public boolean isFinished() {
 		logger.debug("Number of timeouts registered for this mutant: " + timeouts + "/"
 		        + MAX_TIMEOUTS);
-
-		if (timeouts >= MAX_TIMEOUTS) {
+		
+		if (Properties.STRATEGY != Strategy.ONEBRANCH){
+			return false;
+		}
+		
+		if (timeout >= MAX_TIMEOUTS) {
 			logger.debug("Mutation timed out, stopping search");
 		}
-		return timeouts >= MAX_TIMEOUTS || hasException;
+		return timeout >= MAX_TIMEOUTS || hasException;
 	}
 
 	/* (non-Javadoc)
@@ -88,8 +101,13 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public void reset() {
-		timeouts = 0;
-		hasException = false;
+		if (Properties.STRATEGY != Strategy.ONEBRANCH){
+			timeouts = new HashMap<Mutation, Integer>();
+			exceptions = new HashSet<Mutation>();
+		}else{
+			timeout = 0;
+			hasException = false;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -113,9 +131,23 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 */
 	public static void timeOut(Mutation mutation) {
-		timeouts++;
-		if (timeouts >= MAX_TIMEOUTS)
-			disabled.add(mutation);
+		
+		if (Properties.STRATEGY != Strategy.ONEBRANCH){
+			int t = 1;
+			if (timeouts.containsKey(mutation)){
+				t = timeouts.get(mutation) + 1;
+			}
+			timeouts.put(mutation, t);
+			
+	//		timeouts++;
+			if (t >= MAX_TIMEOUTS)
+				disabled.add(mutation);
+		}else{
+			timeout++;
+			if (timeout >= MAX_TIMEOUTS){
+				disabled.add(mutation);
+			}
+		}
 	}
 
 	// TODO: Still need a good way to call this
@@ -125,14 +157,20 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 */
 	public static void raisedException(Mutation mutation) {
-		hasException = true;
+		if (Properties.STRATEGY != Strategy.ONEBRANCH){
+			exceptions.add(mutation);
+		}else{
+			hasException = true;
+		}
 		disabled.add(mutation);
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
-		timeouts = (int) value;
+		if (Properties.STRATEGY == Strategy.ONEBRANCH){
+			timeout = (int) value;
+		}
 	}
 
 }
