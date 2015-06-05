@@ -108,8 +108,7 @@ public class ClassAction implements Action {
 			return 0;
 		}
 
-		TestSuiteCoverage suiteCoverage = this.suite.getCoverageTestSuites().get( this.suite.getCoverageTestSuites().size() - 1 );
-		return suiteCoverage.getEffortInSeconds().intValue();
+		return suite.getTotalEffortInSeconds().intValue();
 	}
 
 	/**
