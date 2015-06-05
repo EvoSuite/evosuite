@@ -27,8 +27,6 @@ public class EvoSuiteRecorder extends Recorder {
 	@Extension
 	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-	private ProjectAction projectAction = null;
-
 	@DataBoundConstructor
 	public EvoSuiteRecorder() {
 		// empty
@@ -36,10 +34,12 @@ public class EvoSuiteRecorder extends Recorder {
 
 	@Override
 	public Action getProjectAction(AbstractProject<?, ?> project) {
-		if (this.projectAction == null) {
-			this.projectAction = new ProjectAction(project);
+		if (project.getLastBuild() != null) {
+			ProjectAction lastProject = project.getLastBuild().getAction(BuildAction.class).getProjectAction();
+			return new ProjectAction(project, lastProject.getModules());
 		}
-		return this.projectAction;
+
+		return new ProjectAction(project);
 	}
 
 	@Override
@@ -51,9 +51,12 @@ public class EvoSuiteRecorder extends Recorder {
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
 
 		AbstractMavenProject<?, ?> project = ((AbstractMavenProject<?, ?>) build.getProject());
-		this.projectAction.perform(project, build);
-		
-		BuildAction build_action = new BuildAction(build, this.projectAction);
+		ProjectAction projectAction = new ProjectAction(project);
+		if (!projectAction.perform(project, build)) {
+			return false;
+		}
+
+		BuildAction build_action = new BuildAction(build, projectAction);
 		build.addAction(build_action);
 
 		return true;
