@@ -232,15 +232,15 @@ public class Z3StrSolver extends Solver {
 
 	private static String buildCharToIntFunction() {
 		StringBuffer buff = new StringBuffer();
-		buff.append("(declare-fun " + SmtOperation.Operator.CHAR_TO_INT
-				+ "((x String)) Int");
+		buff.append("(define-fun " + SmtOperation.Operator.CHAR_TO_INT
+				+ "((x!1 String)) Int");
 		buff.append("\n");
 		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
 			char c = (char) i;
 			String str = String.valueOf(c);
 			String encodedStr = ExprToZ3StrVisitor.encodeString(str);
 			if (i < ASCII_TABLE_LENGTH - 1) {
-				String iteStr = String.format("(ite (= x %s) %s", encodedStr,
+				String iteStr = String.format("(ite (= x!1 %s) %s", encodedStr,
 						i);
 				buff.append(iteStr);
 				buff.append("\n");

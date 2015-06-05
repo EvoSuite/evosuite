@@ -125,6 +125,7 @@ public class TestZ3StrStringFunctions {
 
 		Z3StrSolver solver = new Z3StrSolver();
 		TestSolverStringFunctions.testStringStartsWith(solver);
+
 	}
 
 	@Test
@@ -138,15 +139,9 @@ public class TestZ3StrStringFunctions {
 		}
 
 		Z3StrSolver solver = new Z3StrSolver();
-		Map<String, Object> solution = TestSolverStringFunctions.testStringStartsWithIndex(solver);
+		TestSolverStringFunctions.testStringStartsWithIndex(solver);
 
-		assertNotNull(solution);
-		String var0 = (String) solution.get("var0");
-
-		assertNotNull(var0);
-		assertTrue(var0.startsWith("Hello", 5));
-
-
+		// The solution can be UNSAT since the StartsWith has no index in Z3-str
 	}
 
 	@Test

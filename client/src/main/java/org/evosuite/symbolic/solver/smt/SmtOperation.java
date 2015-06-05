@@ -24,7 +24,8 @@ public final class SmtOperation extends SmtExpr {
 		GE(">="), // 
 		REAL2INT("to_int"), // 
 		INT2REAL("to_real"), //
-		DIV("/"), //
+		DIV("div"), //
+		SLASH("/"), //
 		STR_SUBSTR("str.substr"), // 
 		STR_REPLACE("str.replace"), //
 		STR_INDEXOF("str.indexof"), //
