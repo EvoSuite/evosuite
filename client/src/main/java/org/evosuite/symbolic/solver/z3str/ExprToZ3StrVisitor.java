@@ -61,7 +61,7 @@ class ExprToZ3StrVisitor implements ExpressionVisitor<SmtExpr, Void> {
 		switch (e.getOperator()) {
 
 		case DIV: {
-			return SmtExprBuilder.mkDiv(left, right);
+			return SmtExprBuilder.mkIntDiv(left, right);
 		}
 		case MUL: {
 			return SmtExprBuilder.mkMul(left, right);
@@ -260,7 +260,7 @@ class ExprToZ3StrVisitor implements ExpressionVisitor<SmtExpr, Void> {
 		switch (e.getOperator()) {
 
 		case DIV: {
-			SmtExpr divExpr = SmtExprBuilder.mkDiv(left, right);
+			SmtExpr divExpr = SmtExprBuilder.mkRealDiv(left, right);
 			return divExpr;
 		}
 		case MUL: {
@@ -457,7 +457,12 @@ class ExprToZ3StrVisitor implements ExpressionVisitor<SmtExpr, Void> {
 		for (int i = 0; i < charArray.length; i++) {
 			char c = charArray[i];
 			if (c >= 0 && c <= 255) {
-				ret_val += "_x" + Integer.toHexString(c);
+				if (Integer.toHexString(c).length()==1) {
+					// padding
+					ret_val += "_x0" + Integer.toHexString(c);
+				} else {
+					ret_val += "_x" + Integer.toHexString(c);
+				}
 			}
 		}
 		return ret_val;
@@ -758,7 +763,7 @@ class ExprToZ3StrVisitor implements ExpressionVisitor<SmtExpr, Void> {
 		switch (op) {
 		case INDEXOFCI:
 		case INDEXOFSI: {
-			//over-approximate using INDEXOF
+			// over-approximate using INDEXOF
 			SmtExpr left = e.getLeftOperand().accept(this, null);
 			SmtExpr right = e.getRightOperand().accept(this, null);
 			SmtExpr indexOfExpr = SmtExprBuilder.mkIndexOf(left, right);
