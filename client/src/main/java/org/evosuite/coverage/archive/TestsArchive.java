@@ -138,7 +138,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
         if (!coveredGoals.containsKey(ff)) {
             coveredGoals.put(ff,new HashSet<TestFitnessFunction>());
         }
-		if (!coveredGoals.get(ff).contains(goal.hashCode())) {
+		if (!coveredGoals.get(ff).contains(goal)) {
 			logger.debug("Adding covered goal to archive: "+goal);
 			coveredGoals.get(ff).add(goal);
 			bestChromo.addTest(test);
