@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +91,8 @@ public class SameTraceEntry implements OutputTraceEntry {
 					assertion.source = var;
 					assertion.dest = equalityMapIntVar.get(otherVar);
 					assertion.value = equalityMap.get(equalityMapIntVar.get(otherVar));
-					assertion.setcomment("// Original Value: " + equalityMap.get(equalityMapIntVar.get(otherVar)) +" | Regression Value: " + otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
+					if(Properties.isRegression())
+						assertion.setcomment("// (Same) Original Value: " + equalityMap.get(equalityMapIntVar.get(otherVar)) +" | Regression Value: " + otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
 					assertions.add(assertion);
 					assert (assertion.isValid());
 				}

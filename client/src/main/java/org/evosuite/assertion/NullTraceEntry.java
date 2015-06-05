@@ -23,6 +23,7 @@ package org.evosuite.assertion;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.variable.VariableReference;
 
 
@@ -77,7 +78,8 @@ public class NullTraceEntry implements OutputTraceEntry {
 				NullAssertion assertion = new NullAssertion();
 				assertion.value = isNull;
 				assertion.source = var;
-				assertion.setcomment("// (Null) Original Value: " + var +" | Regression Value: " + otherEntry.var);
+				if(Properties.isRegression())
+					assertion.setcomment("// (Null) Original Value: " + var +" | Regression Value: " + otherEntry.var);
 				assertions.add(assertion);
 				assert (assertion.isValid());
 			}
