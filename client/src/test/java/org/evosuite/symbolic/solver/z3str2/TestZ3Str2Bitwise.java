@@ -14,7 +14,7 @@ public class TestZ3Str2Bitwise {
 
 	@BeforeClass
 	public static void configureZ3StrPath() {
-		String z3StrPath = System.getenv("z3_str_path");
+		String z3StrPath = System.getenv("z3_str2_path");
 		if (z3StrPath != null) {
 			Properties.Z3_STR2_PATH = z3StrPath;
 		}
@@ -30,7 +30,7 @@ public class TestZ3Str2Bitwise {
 			ConstraintSolverTimeoutException {
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: z3_str2_path should be configured to execute this test case");
 			return;
 		}
 
@@ -43,7 +43,7 @@ public class TestZ3Str2Bitwise {
 			ConstraintSolverTimeoutException {
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: z3_str2_path should be configured to execute this test case");
 			return;
 		}
 
@@ -56,7 +56,7 @@ public class TestZ3Str2Bitwise {
 			ConstraintSolverTimeoutException {
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: z3_str2_path should be configured to execute this test case");
 			return;
 		}
 
@@ -69,7 +69,7 @@ public class TestZ3Str2Bitwise {
 			ConstraintSolverTimeoutException {
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: z3_str2_path should be configured to execute this test case");
 			return;
 		}
 
@@ -82,7 +82,7 @@ public class TestZ3Str2Bitwise {
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: z3_str2_path should be configured to execute this test case");
 			return;
 		}
 
@@ -95,7 +95,7 @@ public class TestZ3Str2Bitwise {
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: z3_str2_path should be configured to execute this test case");
 			return;
 		}
 
@@ -108,7 +108,7 @@ public class TestZ3Str2Bitwise {
 			NoSuchMethodException, ConstraintSolverTimeoutException {
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
-					.println("Warning: z3_str_path should be configured to execute this test case");
+					.println("Warning: z3_str2_path should be configured to execute this test case");
 			return;
 		}
 
