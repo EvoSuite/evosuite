@@ -35,6 +35,7 @@
 	<xs:complexType name="TestSuiteCoverage">
 		<xs:sequence>
 			<xs:element name="id" type="xs:nonNegativeInteger" />
+			<xs:element name="fullPathOfTestSuite" type="xs:string" />
 			<xs:sequence>
 				<xs:element name="coverage" type="CriterionCoverage" minOccurs="0" maxOccurs="unbounded" />
 			</xs:sequence>

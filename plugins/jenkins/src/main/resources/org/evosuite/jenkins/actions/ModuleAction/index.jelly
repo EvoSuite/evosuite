@@ -2,7 +2,7 @@
   <l:layout title="trendlayout">
     <st:include it="${it.getBuild()}" page="sidepanel.jelly"/>
     <l:main-panel>
-      <h1>EvoSuite statistics of Build #${it.build.number}</h1>
+      <h1>EvoSuite statistics of Module '${it.getName()}' #${it.build.number}</h1>
       <div>
         <!--
              red    #EF2929
@@ -22,30 +22,26 @@
         </j:forEach>
         <br />
       </div>
-      <table id="evosuite-build-report" class="sortable pane bigtable">
+      <table id="evosuite-module-report" class="sortable pane bigtable">
         <tr>
-          <td class="pane-header">Module</td>
-          <td class="pane-header">Number of Testable Classes</td>
+          <td class="pane-header">Class</td>
           <td class="pane-header">Number of Tests</td>
           <td class="pane-header">Number of Statements</td>
           <td class="pane-header">Total Effort (seconds)</td>
         </tr>
-        <j:forEach var="moduleAction" items="${it.getModules()}">
+        <j:forEach var="testableClass" items="${it.getClasses()}">
           <tr>
-            <td class="pane">
-              <a href="${moduleAction.getURL()}"><st:out value="${moduleAction.getName()}"/></a>
+         	<td>
+              <a href="${testableClass.getName()}"><st:out value="${testableClass.getName()}"/></a>
             </td>
             <td>
-              <st:out value="${moduleAction.getNumberOfTestableClasses()}"/>
+              <st:out value="${testableClass.getNumberOfTests()}"/>
             </td>
             <td>
-              <st:out value="${moduleAction.getNumberOfTests()}"/>
+              <st:out value="${testableClass.getNumberOfStatements()}"/>
             </td>
             <td>
-              <st:out value="${moduleAction.getNumberOfStatements()}"/>
-            </td>
-            <td>
-              <st:out value="${moduleAction.getTotalEffort()}"/>
+              <st:out value="${testableClass.getTotalEffort()}"/>
             </td>
           </tr>
         </j:forEach>

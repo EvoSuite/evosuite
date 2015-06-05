@@ -3,39 +3,18 @@ package org.evosuite.jenkins.actions;
 import hudson.model.Action;
 import hudson.model.AbstractBuild;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Collection;
-import java.util.Map;
+import java.util.List;
+import java.util.Set;
 
 public class BuildAction implements Action {
 
-	private final ProjectAction projectAction;
 	private final AbstractBuild<?, ?> build;
 
-	public BuildAction(ProjectAction projectAction, AbstractBuild<?, ?> build) {
-		this.projectAction = projectAction;
+	private final ProjectAction projectAction;
+
+	public BuildAction(AbstractBuild<?, ?> build, ProjectAction projectAction) {
 		this.build = build;
-	}
-
-	public ProjectAction getProjectAction() {
-		return this.projectAction;
-	}
-
-	public Collection<ModuleAction> getModules() {
-		return this.projectAction.getModules().values();
-	}
-
-	public AbstractBuild<?, ?> getBuild() {
-		return this.build;
-	}
-
-	public boolean build() {
-		for (ModuleAction module_action : this.projectAction.getModules().values()) {
-			module_action.build();
-		}
-		// FIXME should we return the result of build?
-		return true;
+		this.projectAction = projectAction;
 	}
 
 	@Override
@@ -53,21 +32,52 @@ public class BuildAction implements Action {
 		return "evosuite-build";
 	}
 
-	// data for jelly template
+	public Object getDynamic(String token) {
+		for (ModuleAction m : this.projectAction.getModules()) {
+			if (m.getName().equals(token.replace("$", ":"))) {
+				return m;
+			}
+		}
 
+		return null;
+	}
+	/*public Object getDynamic(String token, org.kohsuke.stapler.StaplerRequest req, org.kohsuke.stapler.StaplerResponse rsp) {
+		org.kohsuke.stapler.StaplerRequest _req = req;
+		org.kohsuke.stapler.StaplerResponse _rsp = rsp;
+		return null;
+	}*/
+
+	public AbstractBuild<?, ?> getBuild() {
+		return this.build;
+	}
+
+	public ProjectAction getProjectAction() {
+		return this.projectAction;
+	}
+
+	// data for jelly template
+	
 	public int getNumberOfModules() {
 		return this.projectAction.getNumberOfModules();
 	}
 
 	public int getNumberOfTestableClasses() {
-		return this.projectAction.getNumberOfTestableClasses();
+		return (int) this.projectAction.getNumberOfTestableClasses();
 	}
 
-	public String getOverallCoverage() {
+	public Set<String> getCriteria() {
+		return this.projectAction.getCriteria();
+	}
+
+	public double getOverallCoverage() {
 		return this.projectAction.getOverallCoverage();
 	}
 
-	public Map<String, String> getCriterion() {
-		return this.projectAction.getCriterion();
+	public double getCriterionCoverage(String criterionName) {
+		return this.projectAction.getCriterionCoverage(criterionName);
+	}
+
+	public List<ModuleAction> getModules() {
+		return this.projectAction.getModules();
 	}
 }
