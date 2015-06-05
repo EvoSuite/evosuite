@@ -17,15 +17,15 @@ public class TestCVC4StringFunctions {
 	private static final String DEFAULT_CVC4_PATH = Properties.CVC4_PATH;
 
 	@BeforeClass
-	public static void configureZ3StrPath() {
-		String z3StrPath = System.getenv("cvc4_path");
-		if (z3StrPath != null) {
-			Properties.CVC4_PATH = z3StrPath;
+	public static void configureCVC4Path() {
+		String cvc4Path = System.getenv("cvc4_path");
+		if (cvc4Path != null) {
+			Properties.CVC4_PATH = cvc4Path;
 		}
 	}
 
 	@AfterClass
-	public static void restoreZ3StrPath() {
+	public static void restoreCVC4Path() {
 		Properties.CVC4_PATH = DEFAULT_CVC4_PATH;
 	}
 

@@ -24,6 +24,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearch;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
@@ -52,6 +53,9 @@ public abstract class TestCaseLocalSearch implements LocalSearch<TestChromosome>
 	public static void randomizePrimitives(TestCase test) {
 		for(Statement s : test) {
 			if(s instanceof PrimitiveStatement<?>) {
+				if (s instanceof NullStatement) {
+					continue; // ignore NullStatement
+				}
 				((PrimitiveStatement<?>)s).randomize();
 			}
 		}
