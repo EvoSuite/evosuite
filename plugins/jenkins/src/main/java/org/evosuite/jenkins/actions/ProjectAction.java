@@ -25,11 +25,15 @@ import org.kohsuke.stapler.StaplerResponse;
 public class ProjectAction implements Action {
 
 	private final AbstractProject<?, ?> project;
-	private List<ModuleAction> modules;
+	private List<ModuleAction> modules = new ArrayList<ModuleAction>();
 
 	public ProjectAction(AbstractProject<?, ?> project) {
 		this.project = (AbstractProject<?, ?>) project;
-		this.modules = new ArrayList<ModuleAction>();
+	}
+
+	public ProjectAction(AbstractProject<?, ?> project, List<ModuleAction> modules) {
+		this.project = (AbstractProject<?, ?>) project;
+		this.modules.addAll(modules);
 	}
 
 	@Override
@@ -59,7 +63,7 @@ public class ProjectAction implements Action {
 		return this.modules;
 	}
 	
-	public void perform(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build) {
+	public boolean perform(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build) {
 		FilePath workspace = build.getWorkspace();
 
 		MavenModuleSet prj = (MavenModuleSet) this.project;
@@ -70,10 +74,14 @@ public class ProjectAction implements Action {
 
 			if (Files.exists(project_info)) {
 				ModuleAction m = new ModuleAction(build, module.getName());
-				m.build(project_info);
+				if (!m.build(project_info)) {
+					return false;
+				}
 				this.modules.add(m);
 			}
 		}
+
+		return true;
 	}
 
 	public void doCoverageGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
