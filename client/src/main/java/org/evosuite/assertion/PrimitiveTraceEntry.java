@@ -23,6 +23,7 @@ package org.evosuite.assertion;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.variable.VariableReference;
 
 
@@ -77,8 +78,9 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 					PrimitiveAssertion assertion = new PrimitiveAssertion();
 					assertion.value = value;
 					assertion.source = var;
-					assertion.setcomment("// (Primitive) Original Value: " + value
-					        + " | Regression Value: " + otherEntry.value);
+					if(Properties.isRegression())
+						assertion.setcomment("// (Primitive) Original Value: " + value
+								+ " | Regression Value: " + otherEntry.value);
 					assertions.add(assertion);
 					assert (assertion.isValid());
 				}

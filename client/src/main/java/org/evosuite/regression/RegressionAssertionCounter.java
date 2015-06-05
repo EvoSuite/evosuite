@@ -232,100 +232,8 @@ public class RegressionAssertionCounter {
 				RegressionSearchListener.exceptionDiff += exDiff;
 
 				// The following ugly code adds exception diff comments
-				for (Entry<Integer, Throwable> origException : originalExceptionMapping
-						.entrySet()) {
-					if (!regressionExceptionMapping.containsKey(origException
-							.getKey())) {
-						logger.warn(
-								"Test with exception \"{}\" was: \n{}\n---------\nException:\n{}",
-								origException.getValue().getMessage(),
-								regressionTest.getTheTest().getTestCase(),
-								origException.getValue().toString());
-						if (regressionTest.getTheTest().getTestCase()
-								.hasStatement(origException.getKey())
-								&& !regressionTest.getTheTest().getTestCase()
-										.getStatement(origException.getKey())
-										.getComment()
-										.contains("modified version")) {
-							regressionTest
-									.getTheTest()
-									.getTestCase()
-									.getStatement(origException.getKey())
-									.addComment(
-											"EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    "
-													+ origException.getValue()
-															.getMessage()
-													+ "\n");
-							// regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    "
-							// + origException.getValue().getMessage() + "\n");
-						}
-					} else {
-						if (!origException
-								.getValue()
-								.getMessage()
-								.equals(regressionExceptionMapping.get(
-										origException.getKey()).getMessage())) {
-							if (regressionTest.getTheTest().getTestCase()
-									.hasStatement(origException.getKey())
-									&& !regressionTest
-											.getTheTest()
-											.getTestCase()
-											.getStatement(
-													origException.getKey())
-											.getComment()
-											.contains("EXCEPTION DIFF:"))
-								regressionTest
-										.getTheTest()
-										.getTestCase()
-										.getStatement(origException.getKey())
-										.addComment(
-												"EXCEPTION DIFF:\nDifferent Exceptions were thrown:\nOriginal Version:\n    "
-														+ origException
-																.getValue()
-																.getMessage()
-														+ "\nModified Version:\n    "
-														+ regressionExceptionMapping
-																.get(origException
-																		.getKey())
-																.getMessage()
-														+ "\n");
-						}
-						// If both show the same error, pop the error from the
-						// regression exception, to get to a diff.
-						regressionExceptionMapping.remove(origException
-								.getKey());
-					}
-				}
-				for (Entry<Integer, Throwable> regException : regressionExceptionMapping
-						.entrySet()) {
-					if (regressionTest.getTheTest().getTestCase()
-							.hasStatement(regException.getKey())
-							&& !regressionTest.getTheTest().getTestCase()
-									.getStatement(regException.getKey())
-									.getComment().contains("original version")) {
-						logger.warn(
-								"Regression Test with exception \"{}\" was: \n{}\n---------\nException:\n{}",
-								regException.getValue().getMessage(),
-								regressionTest.getTheTest().getTestCase(),
-								regException.getValue().toString());
-						regressionTest
-								.getTheTest()
-								.getTestCase()
-								.getStatement(regException.getKey())
-								.addComment(
-										"EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    "
-												+ regException.getValue()
-														.getMessage() + "\n\n");
-						regressionTest
-								.getTheSameTestForTheOtherClassLoader()
-								.getTestCase()
-								.getStatement(regException.getKey())
-								.addComment(
-										"EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    "
-												+ regException.getValue()
-														.getMessage() + "\n\n");
-					}
-				}
+				addExceptionAssertions(regressionTest,
+						originalExceptionMapping, regressionExceptionMapping);
 
 				// if(result1.hasTestException() || result2.hasTestException()
 				// || result1.hasUndeclaredException() ||
@@ -366,6 +274,106 @@ public class RegressionAssertionCounter {
 		if (removeAssertions)
 			regressionTest.getTheTest().getTestCase().removeAssertions();
 		return totalCount;
+	}
+
+	private static void addExceptionAssertions(
+			RegressionTestChromosome regressionTest,
+			Map<Integer, Throwable> originalExceptionMapping,
+			Map<Integer, Throwable> regressionExceptionMapping) {
+		for (Entry<Integer, Throwable> origException : originalExceptionMapping
+				.entrySet()) {
+			if (!regressionExceptionMapping.containsKey(origException
+					.getKey())) {
+				logger.warn(
+						"Test with exception \"{}\" was: \n{}\n---------\nException:\n{}",
+						origException.getValue().getMessage(),
+						regressionTest.getTheTest().getTestCase(),
+						origException.getValue().toString());
+				if (regressionTest.getTheTest().getTestCase()
+						.hasStatement(origException.getKey())
+						&& !regressionTest.getTheTest().getTestCase()
+								.getStatement(origException.getKey())
+								.getComment()
+								.contains("modified version")) {
+					regressionTest
+							.getTheTest()
+							.getTestCase()
+							.getStatement(origException.getKey())
+							.addComment(
+									"EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    "
+											+ origException.getValue()
+													.getMessage()
+											+ "\n");
+					// regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    "
+					// + origException.getValue().getMessage() + "\n");
+				}
+			} else {
+				if (!origException
+						.getValue()
+						.getMessage()
+						.equals(regressionExceptionMapping.get(
+								origException.getKey()).getMessage())) {
+					if (regressionTest.getTheTest().getTestCase()
+							.hasStatement(origException.getKey())
+							&& !regressionTest
+									.getTheTest()
+									.getTestCase()
+									.getStatement(
+											origException.getKey())
+									.getComment()
+									.contains("EXCEPTION DIFF:"))
+						regressionTest
+								.getTheTest()
+								.getTestCase()
+								.getStatement(origException.getKey())
+								.addComment(
+										"EXCEPTION DIFF:\nDifferent Exceptions were thrown:\nOriginal Version:\n    "
+												+ origException
+														.getValue()
+														.getMessage()
+												+ "\nModified Version:\n    "
+												+ regressionExceptionMapping
+														.get(origException
+																.getKey())
+														.getMessage()
+												+ "\n");
+				}
+				// If both show the same error, pop the error from the
+				// regression exception, to get to a diff.
+				regressionExceptionMapping.remove(origException
+						.getKey());
+			}
+		}
+		for (Entry<Integer, Throwable> regException : regressionExceptionMapping
+				.entrySet()) {
+			if (regressionTest.getTheTest().getTestCase()
+					.hasStatement(regException.getKey())
+					&& !regressionTest.getTheTest().getTestCase()
+							.getStatement(regException.getKey())
+							.getComment().contains("original version")) {
+				logger.warn(
+						"Regression Test with exception \"{}\" was: \n{}\n---------\nException:\n{}",
+						regException.getValue().getMessage(),
+						regressionTest.getTheTest().getTestCase(),
+						regException.getValue().toString());
+				regressionTest
+						.getTheTest()
+						.getTestCase()
+						.getStatement(regException.getKey())
+						.addComment(
+								"EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    "
+										+ regException.getValue()
+												.getMessage() + "\n\n");
+				regressionTest
+						.getTheSameTestForTheOtherClassLoader()
+						.getTestCase()
+						.getStatement(regException.getKey())
+						.addComment(
+								"EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    "
+										+ regException.getValue()
+												.getMessage() + "\n\n");
+			}
+		}
 	}
 
 }

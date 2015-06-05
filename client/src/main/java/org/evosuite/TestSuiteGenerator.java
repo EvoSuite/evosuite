@@ -309,6 +309,105 @@ public class TestSuiteGenerator {
 		// Make sure target class is loaded at this point
 		TestCluster.getInstance();
 
+		trackBranches();
+
+		if (TestCluster.getInstance().getNumTestCalls() == 0) {
+			LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
+			                                         + Properties.TARGET_CLASS);
+			List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+			List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactory();
+			if(goalFactories.size() == 1) {
+				TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
+				LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
+				goals.addAll(factory.getCoverageGoals());
+			} else {
+				LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
+				for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+					goals.addAll(goalFactory.getCoverageGoals());
+					LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
+							+ " " + goalFactory.getCoverageGoals().size());
+				}
+			}
+		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, 0);
+		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Size, 0);
+		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, 0);
+            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Length, 0);
+
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
+			                                                                 goals.size());
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
+                    goals.size());
+			sendExecutionStatistics();
+			StatisticsSender.executedAndThenSendIndividualToMaster(new TestSuiteChromosome());
+			return new ArrayList<TestSuiteChromosome>();
+		}
+
+		ContractChecker checker = null;
+		if (Properties.CHECK_CONTRACTS) {
+			checker = new ContractChecker();
+			TestCaseExecutor.getInstance().addObserver(checker);
+		}
+
+		if (Properties.STRATEGY == Strategy.EVOSUITE)
+		    tests.addAll(generateWholeSuite());
+		else if (Properties.STRATEGY == Strategy.RANDOM)
+		    tests.add(generateRandomTests());
+		else if (Properties.STRATEGY == Strategy.RANDOM_FIXED)
+		    tests.add(generateFixedRandomTests());
+		else if (Properties.STRATEGY == Strategy.REGRESSION)
+		    tests.add(generateRegressionSuite());
+		else
+		    tests.add(generateIndividualTests());
+
+		if (Properties.CHECK_CONTRACTS) {
+			TestCaseExecutor.getInstance().removeObserver(checker);
+		}
+
+        ClientServices.getInstance().getClientNode().publishPermissionStatistics();
+
+		LoggingUtils.getEvoLogger().info("* Time spent executing tests: "
+		                                         + TestCaseExecutor.timeExecuted + "ms");
+
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
+			if (Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION)
+				LoggingUtils.getEvoLogger().info("* Time spent calculating alternative fitness: "
+				                                         + DefUseFitnessCalculator.alternativeTime
+				                                         + "ms");
+			LoggingUtils.getEvoLogger().info("* Time spent calculating single fitnesses: "
+			                                         + DefUseCoverageTestFitness.singleFitnessTime
+			                                         + "ms");
+		}
+
+		if (Properties.ASSERTIONS && !Properties.isRegression()) {
+			LoggingUtils.getEvoLogger().info("* Generating assertions");
+			// progressMonitor.setCurrentPhase("Generating assertions");
+			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
+			addAssertions(tests);
+			StatisticsSender.sendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?
+		}
+
+		if (Properties.CHECK_CONTRACTS) {
+			for (TestSuiteChromosome test : tests) {
+    		    for (TestCase failing_test : FailingTestSet.getFailingTests()) {
+    				test.addTest(failing_test);
+    			}
+		    }
+			FailingTestSet.sendStatistics();
+		}
+
+        if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
+            compileAndCheckTests(tests);
+        }
+
+		writeObjectPool(tests);
+
+		return tests;
+	}
+
+	/**
+	 * 
+	 */
+	private void trackBranches() {
 		if(Properties.TRACK_BOOLEAN_BRANCHES){
 			int gradientBranchCount = ExecutionTraceImpl.gradientBranches.size() * 2;
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches, gradientBranchCount);
@@ -426,98 +525,6 @@ public class TestSuiteGenerator {
 			}
 
 		}
-
-		if (TestCluster.getInstance().getNumTestCalls() == 0) {
-			LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
-			                                         + Properties.TARGET_CLASS);
-			List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-			List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactory();
-			if(goalFactories.size() == 1) {
-				TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
-				LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
-				goals.addAll(factory.getCoverageGoals());
-			} else {
-				LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
-				for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-					goals.addAll(goalFactory.getCoverageGoals());
-					LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
-							+ " " + goalFactory.getCoverageGoals().size());
-				}
-			}
-		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, 0);
-		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Size, 0);
-		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, 0);
-            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Length, 0);
-
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
-			                                                                 goals.size());
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
-                    goals.size());
-			sendExecutionStatistics();
-			StatisticsSender.executedAndThenSendIndividualToMaster(new TestSuiteChromosome());
-			return new ArrayList<TestSuiteChromosome>();
-		}
-
-		ContractChecker checker = null;
-		if (Properties.CHECK_CONTRACTS) {
-			checker = new ContractChecker();
-			TestCaseExecutor.getInstance().addObserver(checker);
-		}
-
-		if (Properties.STRATEGY == Strategy.EVOSUITE)
-		    tests.addAll(generateWholeSuite());
-		else if (Properties.STRATEGY == Strategy.RANDOM)
-		    tests.add(generateRandomTests());
-		else if (Properties.STRATEGY == Strategy.RANDOM_FIXED)
-		    tests.add(generateFixedRandomTests());
-		else if (Properties.STRATEGY == Strategy.REGRESSION)
-		    tests.add(generateRegressionSuite());
-		else
-		    tests.add(generateIndividualTests());
-
-		if (Properties.CHECK_CONTRACTS) {
-			TestCaseExecutor.getInstance().removeObserver(checker);
-		}
-
-        ClientServices.getInstance().getClientNode().publishPermissionStatistics();
-
-		LoggingUtils.getEvoLogger().info("* Time spent executing tests: "
-		                                         + TestCaseExecutor.timeExecuted + "ms");
-
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
-			if (Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION)
-				LoggingUtils.getEvoLogger().info("* Time spent calculating alternative fitness: "
-				                                         + DefUseFitnessCalculator.alternativeTime
-				                                         + "ms");
-			LoggingUtils.getEvoLogger().info("* Time spent calculating single fitnesses: "
-			                                         + DefUseCoverageTestFitness.singleFitnessTime
-			                                         + "ms");
-		}
-
-		if (Properties.ASSERTIONS) {
-			LoggingUtils.getEvoLogger().info("* Generating assertions");
-			// progressMonitor.setCurrentPhase("Generating assertions");
-			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
-			addAssertions(tests);
-			StatisticsSender.sendIndividualToMaster(tests.get(0)); // FIXME: can we pass the list of testsuitechromosomes?
-		}
-
-		if (Properties.CHECK_CONTRACTS) {
-			for (TestSuiteChromosome test : tests) {
-    		    for (TestCase failing_test : FailingTestSet.getFailingTests()) {
-    				test.addTest(failing_test);
-    			}
-		    }
-			FailingTestSet.sendStatistics();
-		}
-
-        if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
-            compileAndCheckTests(tests);
-        }
-
-		writeObjectPool(tests);
-
-		return tests;
 	}
 
     /**

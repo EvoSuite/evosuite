@@ -102,7 +102,8 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 					assertion.value = fieldMap.get(field);
 					assertion.field = field;
 					assertion.source = var;
-					assertion.setcomment("// (PField) Original Value: " + fieldMap.get(field) +" | Regression Value: " + otherEntry.fieldMap.get(field));
+					if(Properties.isRegression())
+						assertion.setcomment("// (PField) Original Value: " + fieldMap.get(field) +" | Regression Value: " + otherEntry.fieldMap.get(field));
 					assertions.add(assertion);
 					assert (assertion.isValid());
 

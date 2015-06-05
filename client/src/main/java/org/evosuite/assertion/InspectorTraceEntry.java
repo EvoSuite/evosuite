@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +126,8 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 					assertion.value = inspectorMap.get(methodInspectorMap.get(inspector));
 					assertion.inspector = methodInspectorMap.get(inspector);
 					assertion.source = var;
-					assertion.setcomment("// (Inspector) Original Value: "
+					if(Properties.isRegression())
+						assertion.setcomment("// (Inspector) Original Value: "
 					        + inspectorMap.get(methodInspectorMap.get(inspector)) + " | Regression Value: "
 					        + otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)));
 					assertions.add(assertion);
