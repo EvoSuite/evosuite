@@ -199,7 +199,7 @@ public class ConstraintVerifier {
         String afterKlassName = klassAndMethod[0];
         String afterMethodName = klassAndMethod[1];
 
-        for(int j=i-1; j>=0 ; j++){
+        for(int j=i-1; j>=0 ; j--){
             Statement previous = tc.getStatement(j);
             if(! (previous instanceof MethodStatement)){
                 continue;
@@ -213,6 +213,8 @@ public class ConstraintVerifier {
             }
         }
 
+        logger.error("'after' constraint violated at position "+i+". Not found previous call to '"+
+                    after + "' in test case:\n"+tc.toCode());
         return false;
     }
 
