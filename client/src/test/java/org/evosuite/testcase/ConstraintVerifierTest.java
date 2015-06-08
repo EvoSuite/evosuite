@@ -33,10 +33,8 @@ public class ConstraintVerifierTest {
         Properties.OBJECT_REUSE_PROBABILITY = defaultORP;
     }
 
-    //TODO test after
+
     //TODO test bounded variable init
-
-
 
 
     @Test
@@ -69,6 +67,24 @@ public class ConstraintVerifierTest {
         Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
     }
 
+
+    @Test
+    public void testAfter() throws Exception{
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        //this method has an "after" constraint
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(EvoServletState.class.getDeclaredMethod("getRequest"), EvoServletState.class), 0, 0);
+
+        Assert.assertEquals(1, tc.size());
+        Assert.assertFalse(ConstraintVerifier.verifyTest(tc));
+
+        VariableReference con = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(Object.class.getConstructor(), Object.class), 0, 0);
+
+        //TODO
+    }
 
     @Test
     public void testAtMostOnce() throws Exception{
