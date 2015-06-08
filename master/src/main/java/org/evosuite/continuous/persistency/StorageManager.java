@@ -128,31 +128,27 @@ public class StorageManager {
 
 		// if we created the "tmp" folder or already exists, then it should be fine to create new folders in it
 
-		Properties.CTG_LOGS_DIR    = tmp.getAbsolutePath() + File.separator + Properties.CTG_LOGS_DIR;
-		Properties.CTG_REPORTS_DIR = tmp.getAbsolutePath() + File.separator + Properties.CTG_REPORTS_DIR;
-		Properties.CTG_TESTS_DIR   = tmp.getAbsolutePath() + File.separator + Properties.CTG_TESTS_DIR;
-		Properties.CTG_POOLS_DIR   = tmp.getAbsolutePath() + File.separator + Properties.CTG_POOLS_DIR;
-
-		this.tmpLogs = new File(Properties.CTG_LOGS_DIR);
+		this.tmpLogs = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_LOGS_DIR);
 		if (!this.tmpLogs.exists() && !this.tmpLogs.mkdirs()) {
 			return false;
 		}
 
-		this.tmpReports = new File(Properties.CTG_REPORTS_DIR);
+		this.tmpReports = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_REPORTS_DIR);
 		if (!this.tmpReports.exists() && !this.tmpReports.mkdirs()) {
 			return false;
 		}
 
-		this.tmpTests = new File(Properties.CTG_TESTS_DIR);
+		this.tmpTests = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_TESTS_DIR);
 		if (!this.tmpTests.exists() && !this.tmpTests.mkdirs()) {
 			return false;
 		}
 
-		this.tmpPools = new File(Properties.CTG_POOLS_DIR);
+		this.tmpPools = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_POOLS_DIR);
 		if (!this.tmpPools.exists() && !this.tmpPools.mkdirs()) {
 			return false;
 		}
 
+		//TODO why is this one not created under TMP folder?
 		this.tmpSeeds = new File(Properties.CTG_SEEDS_DIR);
 		if (!this.tmpSeeds.exists() && !this.tmpSeeds.mkdirs()) {
 			return false;
@@ -534,6 +530,12 @@ public class StorageManager {
 			return true;
 		}
 
+		File oldFile = getFileForTargetBestTest(old.getFullNameOfTestSuite());
+		if(!oldFile.exists()){
+			//this could happen if file was manually removed
+			return true;
+		}
+		
 		// first, check if the coverage of at least one criterion is better
 		TestSuiteCoverage previousCoverage = old.getCoverageTestSuites().get( old.getCoverageTestSuites().size() - 1 );
 		for (CriterionCoverage criterion : previousCoverage.getCoverage()) {
@@ -604,10 +606,8 @@ public class StorageManager {
 	 * @param
 	 */
 	private void removeTestSuite(String testName) {
-		
-		String path = testName.replace(".", File.separator);
-		path += ".java";
-		File file = new File(Properties.CTG_BESTS_DIR + File.separator + path);
+
+		File file = getFileForTargetBestTest(testName);
 		
 		if(!file.exists()){
 			logger.debug("Nothing to delete, as following file does not exist: "+file.getAbsolutePath());
@@ -617,6 +617,12 @@ public class StorageManager {
 				logger.warn("Failed to delete "+file.getAbsolutePath());
 			}
 		}
+	}
+
+	private File getFileForTargetBestTest(String testName) {
+		String path = testName.replace(".", File.separator);
+		path += ".java";
+		return new File(Properties.CTG_BESTS_DIR + File.separator + path);
 	}
 
 	/**
