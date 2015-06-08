@@ -68,7 +68,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		switch (e.getOperator()) {
 
 		case DIV: {
-			SmtExpr expr = SmtExprBuilder.mkDiv(left, right);
+			SmtExpr expr = SmtExprBuilder.mkIntDiv(left, right);
 			return expr;
 		}
 		case MUL: {
@@ -288,7 +288,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		switch (e.getOperator()) {
 
 		case DIV: {
-			SmtExpr expr = SmtExprBuilder.mkDiv(left, right);
+			SmtExpr expr = SmtExprBuilder.mkRealDiv(left, right);
 			return expr;
 		}
 		case MUL: {

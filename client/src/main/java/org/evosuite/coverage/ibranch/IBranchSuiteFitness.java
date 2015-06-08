@@ -126,7 +126,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	public TestSuiteChromosome getBestStoredIndividual() {
-		return TestsArchive.instance.getBestChromosome();
+		return TestsArchive.instance.getReducedChromosome();
 	}
 
 	
