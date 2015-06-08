@@ -239,15 +239,15 @@ public class JobHandler extends Thread {
 
 		File reports = storage.getTmpReports();
 		File tests = storage.getTmpTests();
+		File seedOut = storage.getTmpSeeds();
 
-		//TODO check if it works on Windows... likely not	
 		commands.add("-Dreport_dir=" + reports.getAbsolutePath() + File.separator + job.cut);
 		commands.add("-Dtest_dir=" + tests.getAbsolutePath());
 
 		commands.add("-Dtest_factory=" + Properties.TEST_FACTORY);
 		commands.add("-Dseed_clone=" + Properties.SEED_CLONE);
-		commands.add("-Dctg_seeds_dir_in=" + Properties.CTG_SEEDS_DIR_IN);
-		commands.add("-Dctg_seeds_dir_out=" + Properties.CTG_SEEDS_DIR_OUT);
+		commands.add("-Dctg_seeds_dir_in=" + storage.getSeedInFolder().getAbsolutePath());
+		commands.add("-Dctg_seeds_dir_out=" + seedOut.getAbsolutePath());
 
 		commands.addAll(getOutputVariables());
 		if (Properties.ANALYSIS_CRITERIA.isEmpty()) {
