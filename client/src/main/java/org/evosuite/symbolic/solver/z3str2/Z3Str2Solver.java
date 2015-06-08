@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.solver.z3str;
+package org.evosuite.symbolic.solver.z3str2;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -46,7 +46,7 @@ import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Z3StrSolver extends Solver {
+public class Z3Str2Solver extends Solver {
 
 	private static final class TimeoutTask extends TimerTask {
 		private final Process process;
@@ -111,7 +111,7 @@ public class Z3StrSolver extends Solver {
 		String z3TempFileName = tempDir.getAbsolutePath() + File.separatorChar
 				+ EVOSUITE_Z3_STR_FILENAME;
 
-		if (Properties.Z3_STR_PATH == null) {
+		if (Properties.Z3_STR2_PATH == null) {
 			String errMsg = "Property Z3_STR_PATH should be setted in order to use the Z3StrSolver!";
 			logger.error(errMsg);
 			throw new IllegalStateException(errMsg);
@@ -119,12 +119,12 @@ public class Z3StrSolver extends Solver {
 
 		try {
 			Utils.writeFile(smtQuery, z3TempFileName);
-			String z3Cmd = Properties.Z3_STR_PATH + " -f " + z3TempFileName;
+			String z3Cmd = Properties.Z3_STR2_PATH + " -f " + z3TempFileName;
 			ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 			launchNewProcess(z3Cmd, smtQuery, timeout, stdout);
 
 			String z3ResultStr = stdout.toString("UTF-8");
-			Z3StrModelParser parser = new Z3StrModelParser();
+			Z3Str2ModelParser parser = new Z3Str2ModelParser();
 			Map<String, Object> initialValues = getConcreteValues(variables);
 
 			if (z3ResultStr.contains("unknown sort")
@@ -174,7 +174,7 @@ public class Z3StrSolver extends Solver {
 
 	private static String buildSmtQuery(Collection<Constraint<?>> constraints) {
 
-		ConstraintToZ3StrVisitor v = new ConstraintToZ3StrVisitor();
+		ConstraintToZ3Str2Visitor v = new ConstraintToZ3Str2Visitor();
 		List<SmtExpr> assertions = new LinkedList<SmtExpr>();
 		for (Constraint<?> c : constraints) {
 			SmtExpr smtExpr = c.accept(v, null);
@@ -223,7 +223,7 @@ public class Z3StrSolver extends Solver {
 		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
 			char c = (char) i;
 			String str = String.valueOf(c);
-			String encodedStr = ExprToZ3StrVisitor.encodeString(str);
+			String encodedStr = ExprToZ3Str2Visitor.encodeString(str);
 			SmtStringVariable v = new SmtStringVariable(encodedStr);
 			charVariables.add(v);
 		}
@@ -232,15 +232,15 @@ public class Z3StrSolver extends Solver {
 
 	private static String buildCharToIntFunction() {
 		StringBuffer buff = new StringBuffer();
-		buff.append("(declare-fun " + SmtOperation.Operator.CHAR_TO_INT
-				+ "((x String)) Int");
+		buff.append("(define-fun " + SmtOperation.Operator.CHAR_TO_INT
+				+ "((x!1 String)) Int");
 		buff.append("\n");
 		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
 			char c = (char) i;
 			String str = String.valueOf(c);
-			String encodedStr = ExprToZ3StrVisitor.encodeString(str);
+			String encodedStr = ExprToZ3Str2Visitor.encodeString(str);
 			if (i < ASCII_TABLE_LENGTH - 1) {
-				String iteStr = String.format("(ite (= x %s) %s", encodedStr,
+				String iteStr = String.format("(ite (= x!1 %s) %s", encodedStr,
 						i);
 				buff.append(iteStr);
 				buff.append("\n");

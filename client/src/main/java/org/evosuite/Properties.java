@@ -368,7 +368,7 @@ public class Properties {
 	public static boolean DSE_KEEP_ALL_TESTS = false;
 
 	public enum SolverType {
-		EVOSUITE_SOLVER, Z3_SOLVER, Z3_STR_SOLVER, CVC4_SOLVER;
+		EVOSUITE_SOLVER, Z3_SOLVER, Z3_STR2_SOLVER, CVC4_SOLVER;
 	}
 
 	@Parameter(key = "dse_solver", group = "DSE", description = "Specify which constraint solver to use. Note: external solver will need to be installed and cofigured separately")
@@ -377,8 +377,8 @@ public class Properties {
 	@Parameter(key = "z3_path", group = "DSE", description = "Indicates the path to the Z3 solver")
 	public static String Z3_PATH = null;
 
-	@Parameter(key = "z3_str_path", group = "DSE", description = "Indicates the path to the Z3-Str solver")
-	public static String Z3_STR_PATH = null;
+	@Parameter(key = "z3_str2_path", group = "DSE", description = "Indicates the path to the Z3-Str2 solver")
+	public static String Z3_STR2_PATH = null;
 
 	@Parameter(key = "cvc4_path", group = "DSE", description = "Indicates the path to the CVC4 solver")
 	public static String CVC4_PATH = null;

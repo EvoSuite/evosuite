@@ -1,10 +1,10 @@
-package org.evosuite.symbolic.solver.z3str;
+package org.evosuite.symbolic.solver.z3str2;
 
 import java.text.DecimalFormat;
 
 import org.evosuite.symbolic.solver.SmtStringExprBuilder;
 
-public abstract class Z3StrExprBuilder extends SmtStringExprBuilder {
+public abstract class Z3Str2ExprBuilder extends SmtStringExprBuilder {
 
 	public static String mkStringLiteral(String str) {
 		return "\"" + str + "\"";

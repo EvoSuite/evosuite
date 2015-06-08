@@ -1,9 +1,9 @@
-package org.evosuite.symbolic.solver.z3str;
+package org.evosuite.symbolic.solver.z3str2;
 
 import java.util.HashMap;
 import java.util.Map;
 
-class Z3StrModelParser {
+class Z3Str2ModelParser {
 
 	public Map<String, Object> parse(String z3Model,
 			Map<String, Object> initialValues) {
