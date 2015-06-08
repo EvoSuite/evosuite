@@ -101,21 +101,20 @@ public class StorageManager {
 			}
 		}
 
-		File seedFolder = new File(root,"evosuite-"+Properties.CTG_SEEDS_DIR_NAME);
+		File seedFolder = getSeedInFolder();
 		if(!seedFolder.exists()){
 			if(!seedFolder.mkdirs()){
 				logger.error("Failed to mkdir "+seedFolder.getAbsolutePath());
 			}
 		}
-		/*
-			Note: this side effect on Properties is on purpose, as this properties is
-			by default null and it is going to be used by client process
-		 */
-		Properties.CTG_SEEDS_DIR_IN = seedFolder.getAbsolutePath();
 
 		return true;		
 	}
-	
+
+	public File getSeedInFolder(){
+		return new File(new File(Properties.CTG_DIR),"evosuite-"+Properties.CTG_SEEDS_DIR_NAME);
+	}
+
 	/**
 	 * Create a new tmp folder for this CTG session
 	 * 
@@ -164,12 +163,6 @@ public class StorageManager {
 		if (!this.tmpSeeds.exists() && !this.tmpSeeds.mkdirs()) {
 			return false;
 		}
-		/*
-			Note: this side effect on Properties is on purpose, as this property is
-			by default null and it is going to be used by client process
-		 */
-		Properties.CTG_SEEDS_DIR_OUT = tmpSeeds.getAbsolutePath();
-
 
 		return true;
 	}
@@ -193,27 +186,23 @@ public class StorageManager {
 		public final File testSuite;
 		public final String cut;
 		public final CsvJUnitData csvData;
+		public final File serializedSuite;
 		
-		
-		public TestsOnDisk(File testSuite, CsvJUnitData csvData) {
+		public TestsOnDisk(File testSuite, CsvJUnitData csvData, File serializedSuite) {
 			super();
 			this.testSuite = testSuite;
 			this.csvData = csvData;
 			this.cut = csvData.getTargetClass();
+			this.serializedSuite = serializedSuite; //this might be null
 		}
-		
-		public TestsOnDisk(File testSuite, File csvFile, String cut) {
-			super();
-			this.testSuite = testSuite;
-			this.cut = cut;
-			csvData = CsvJUnitData.openFile(csvFile);
-		}
-		
+
 		public boolean isValid(){
 			return testSuite!=null && testSuite.exists() &&
 					cut!=null && !cut.isEmpty() &&
 					csvData!=null && 
-					cut.equals(csvData.getTargetClass());
+					cut.equals(csvData.getTargetClass()) &&
+					(serializedSuite==null || serializedSuite.getName().endsWith(Properties.CTG_SEEDS_EXT))
+					;
 		}
 	}
 	
@@ -231,7 +220,7 @@ public class StorageManager {
 		}
 		
 		ProjectInfo db = StorageManager.getDatabaseProjectInfo();
-		String info = removeNoMoreExistentData(db,current);
+		String info = removeNoMoreExistentData(db, current);
 
 		info += "\n\n=== CTG run results ===";
 		
@@ -271,7 +260,8 @@ public class StorageManager {
 		List<TestsOnDisk> list = new LinkedList<TestsOnDisk>();
 		List<File> generatedTests = Utils.getAllFilesInSubFolder(tmpTests.getAbsolutePath(), ".java");
 		List<File> generatedReports = Utils.getAllFilesInSubFolder(tmpReports.getAbsolutePath(), ".csv");
-		
+		List<File> generatedSerialized = Utils.getAllFilesInSubFolder(tmpSeeds.getAbsolutePath(), Properties.CTG_SEEDS_EXT);
+
 		/*
 		 * Key -> name of CUT
 		 * Value -> data extracted from CSV file 
@@ -279,7 +269,7 @@ public class StorageManager {
 		 * We use a map, otherwise we could have 2 inner loops going potentially on thousands
 		 * of classes, ie, O(n^2) complexity
 		 */
-		Map<String,CsvJUnitData> reports = new LinkedHashMap<String,CsvJUnitData>();
+		Map<String,CsvJUnitData> reports = new LinkedHashMap<>();
 		for(File file : generatedReports){
 			CsvJUnitData data = CsvJUnitData.openFile(file);
 			if(data==null){
@@ -288,7 +278,18 @@ public class StorageManager {
 				reports.put(data.getTargetClass(), data);
 			}
 		}
-		
+
+		/*
+		 * Key -> class name of CUT
+		 * Value -> file location of serialized test suite
+		 */
+		Map<String,File> seeds = new LinkedHashMap<>();
+		for(File file : generatedSerialized){
+			//this asssumes that seed files are in the form cutName.seed
+			String cut = file.getName().substring(0 , file.getName().length() - Properties.CTG_SEEDS_EXT.length());
+			seeds.put(cut,file);
+		}
+
 		/*
 		 * Try to extract info for each generated JUnit test suite
 		 */
@@ -315,14 +316,19 @@ public class StorageManager {
 			}
 			//String cut = testName.substring(0, testName.indexOf(junitSuffix)); //This does not work, eg cases like _N_suffix
 						
-			CsvJUnitData data = reports.get(cut); 
-			
+			CsvJUnitData data = reports.get(cut);
 			if(data==null){
 				logger.warn("No CSV file for CUT "+cut+" with test suite at "+test.getAbsolutePath());
 				continue;
 			}
-			
-			TestsOnDisk info = new TestsOnDisk(test, data);
+
+			File seed = seeds.get(cut);
+			if(seed == null){
+				logger.warn("No '"+Properties.CTG_SEEDS_EXT+"' file was generated for CUT "+cut);
+				//do not skip, as this might happen if custom factory (ie no archive) was used for some experiments
+			}
+
+			TestsOnDisk info = new TestsOnDisk(test, data, seed);
 			if(info.isValid()){
 				list.add(info);
 			} else {
@@ -486,6 +492,16 @@ public class StorageManager {
 		if (scaffolding != null) {
 			addTestSuite(scaffolding);
 		}
+
+		if(ondisk.serializedSuite != null){
+			File target = new File(getSeedInFolder(), ondisk.serializedSuite.getName());
+			target.delete();
+			try {
+				FileUtils.copyFile(ondisk.serializedSuite, target);
+			} catch (IOException e) {
+				logger.error("Failed to copy over a new generated serialized test suite: "+e.getMessage(),e);
+			}
+		}
 	}
 
 	private File getScaffoldingIfExists(File testSuite) throws IllegalArgumentException{
@@ -520,6 +536,7 @@ public class StorageManager {
 		
 		String path = testName.replace(".", File.separator) + ".java";
 		File file = new File(Properties.CTG_BESTS_DIR + File.separator + path);
+		file.delete(); //the following copy does not overwrite
 
 		try {
 			FileUtils.copyFile(newlyGeneratedTestSuite, file);
