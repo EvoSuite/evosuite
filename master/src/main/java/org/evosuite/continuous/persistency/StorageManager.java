@@ -148,7 +148,7 @@ public class StorageManager {
 			return false;
 		}
 
-		//TODO why is this one not created under TMP folder? 
+		//TODO why is this one not created under TMP folder?
 		this.tmpSeeds = new File(Properties.CTG_SEEDS_DIR);
 		if (!this.tmpSeeds.exists() && !this.tmpSeeds.mkdirs()) {
 			return false;
@@ -530,6 +530,12 @@ public class StorageManager {
 			return true;
 		}
 
+		File oldFile = getFileForTargetBestTest(old.getFullNameOfTestSuite());
+		if(!oldFile.exists()){
+			//this could happen if file was manually removed
+			return true;
+		}
+		
 		// first, check if the coverage of at least one criterion is better
 		TestSuiteCoverage previousCoverage = old.getCoverageTestSuites().get( old.getCoverageTestSuites().size() - 1 );
 		for (CriterionCoverage criterion : previousCoverage.getCoverage()) {
@@ -600,10 +606,8 @@ public class StorageManager {
 	 * @param
 	 */
 	private void removeTestSuite(String testName) {
-		
-		String path = testName.replace(".", File.separator);
-		path += ".java";
-		File file = new File(Properties.CTG_BESTS_DIR + File.separator + path);
+
+		File file = getFileForTargetBestTest(testName);
 		
 		if(!file.exists()){
 			logger.debug("Nothing to delete, as following file does not exist: "+file.getAbsolutePath());
@@ -613,6 +617,12 @@ public class StorageManager {
 				logger.warn("Failed to delete "+file.getAbsolutePath());
 			}
 		}
+	}
+
+	private File getFileForTargetBestTest(String testName) {
+		String path = testName.replace(".", File.separator);
+		path += ".java";
+		return new File(Properties.CTG_BESTS_DIR + File.separator + path);
 	}
 
 	/**
