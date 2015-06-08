@@ -198,7 +198,8 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 			T test = tests.get(i);
 			if (Randomness.nextDouble() < 1.0 / tests.size()) {
 				test.mutate();
-				changed = true;
+				if(test.isChanged())
+					changed = true;
 			}
 		}
 

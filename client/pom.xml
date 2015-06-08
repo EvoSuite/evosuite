@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.evosuite</groupId>
 		<artifactId>evosuite</artifactId>
-		<version>0.1.3-SNAPSHOT</version>
+		<version>0.2.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>evosuite-client</artifactId>
@@ -105,6 +105,14 @@
             <groupId>oro</groupId>
             <artifactId>oro</artifactId>
         </dependency>
+
+        <!-- Java EE -->
+        <dependency>
+            <groupId>org.jboss.spec.javax.servlet</groupId>
+            <artifactId>jboss-servlet-api_3.1_spec</artifactId>
+            <scope>test</scope>
+        </dependency>
+
 
     </dependencies>
 
