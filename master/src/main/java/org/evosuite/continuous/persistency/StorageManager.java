@@ -101,6 +101,18 @@ public class StorageManager {
 			}
 		}
 
+		File seedFolder = new File(root,"evosuite-"+Properties.CTG_SEEDS_DIR_NAME);
+		if(!seedFolder.exists()){
+			if(!seedFolder.mkdirs()){
+				logger.error("Failed to mkdir "+seedFolder.getAbsolutePath());
+			}
+		}
+		/*
+			Note: this side effect on Properties is on purpose, as this properties is
+			by default null and it is going to be used by client process
+		 */
+		Properties.CTG_SEEDS_DIR_IN = seedFolder.getAbsolutePath();
+
 		return true;		
 	}
 	
@@ -128,31 +140,36 @@ public class StorageManager {
 
 		// if we created the "tmp" folder or already exists, then it should be fine to create new folders in it
 
-		this.tmpLogs = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_LOGS_DIR);
+		this.tmpLogs = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_TMP_LOGS_DIR_NAME);
 		if (!this.tmpLogs.exists() && !this.tmpLogs.mkdirs()) {
 			return false;
 		}
 
-		this.tmpReports = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_REPORTS_DIR);
+		this.tmpReports = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_TMP_REPORTS_DIR_NAME);
 		if (!this.tmpReports.exists() && !this.tmpReports.mkdirs()) {
 			return false;
 		}
 
-		this.tmpTests = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_TESTS_DIR);
+		this.tmpTests = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_TMP_TESTS_DIR_NAME);
 		if (!this.tmpTests.exists() && !this.tmpTests.mkdirs()) {
 			return false;
 		}
 
-		this.tmpPools = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_POOLS_DIR);
+		this.tmpPools = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_TMP_POOLS_DIR_NAME);
 		if (!this.tmpPools.exists() && !this.tmpPools.mkdirs()) {
 			return false;
 		}
 
-		//TODO why is this one not created under TMP folder?
-		this.tmpSeeds = new File(Properties.CTG_SEEDS_DIR);
+		this.tmpSeeds = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_SEEDS_DIR_NAME);
 		if (!this.tmpSeeds.exists() && !this.tmpSeeds.mkdirs()) {
 			return false;
 		}
+		/*
+			Note: this side effect on Properties is on purpose, as this property is
+			by default null and it is going to be used by client process
+		 */
+		Properties.CTG_SEEDS_DIR_OUT = tmpSeeds.getAbsolutePath();
+
 
 		return true;
 	}
@@ -227,6 +244,7 @@ public class StorageManager {
 		
 		int better = 0;
 		for(TestsOnDisk suite : suites){
+			//TODO remove check, but only after seeding from previous CTG
 			if(isBetterThanOldOne(suite,db)){
 				updateDatabase(suite,db);
 				better++;
@@ -510,6 +528,11 @@ public class StorageManager {
 		}
 	}
 
+	/*
+		this not really reliable, as CUT could have changed. tracking compilation would be cumbersome (many edge
+		cases), and not even so useful, as we would lose info each time of a "mvn clean"
+	 */
+	@Deprecated
 	private boolean isBetterThanOldOne(TestsOnDisk suite, ProjectInfo db) {
 
 		if(suite.csvData == null) {
@@ -535,7 +558,7 @@ public class StorageManager {
 			//this could happen if file was manually removed
 			return true;
 		}
-		
+
 		// first, check if the coverage of at least one criterion is better
 		TestSuiteCoverage previousCoverage = old.getCoverageTestSuites().get( old.getCoverageTestSuites().size() - 1 );
 		for (CriterionCoverage criterion : previousCoverage.getCoverage()) {
@@ -685,7 +708,7 @@ public class StorageManager {
 	}
 
 	public File getTmpSeeds() {
-		return this.tmpSeeds;
+		return tmpSeeds;
 	}
 
 	public boolean isStorageOk() {

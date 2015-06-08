@@ -159,7 +159,7 @@ public class JobHandler extends Thread {
 
 	private List<String> getCommandString(JobDefinition job) {
 
-		List<String> commands = new ArrayList<String>();
+		List<String> commands = new ArrayList<>();
 		commands.add("java");		
 		String classpath = System.getProperty("java.class.path");
 		commands.add("-cp");
@@ -177,13 +177,11 @@ public class JobHandler extends Thread {
 		 *  it is important to set it before calling EvoSuite, as it has to be read by Master before loading properties.
 		 *  Note: the Client will get it automatically from Master
 		 */
-		commands.add("-D" + LoggingUtils.USE_DIFFERENT_LOGGING_XML_PARAMETER
-				+ "=logback-ctg.xml");
+		commands.add("-D" + LoggingUtils.USE_DIFFERENT_LOGGING_XML_PARAMETER + "=logback-ctg.xml");
 
 		StorageManager storage = executor.getStorage();
 		File logs = storage.getTmpLogs();
-		//cmd += " -Devosuite.log.folder=" + logs.getAbsolutePath() + "/job" + job.jobID;
-		commands.add("-Devosuite.log.folder=" + logs.getAbsolutePath() + "/" + job.cut);
+		commands.add("-Devosuite.log.folder=" + logs.getAbsolutePath() + File.separator + job.cut);
 
 		if (Properties.LOG_LEVEL != null && !Properties.LOG_LEVEL.isEmpty()) {
 			commands.add("-Dlog.level=" + Properties.LOG_LEVEL);
@@ -248,7 +246,8 @@ public class JobHandler extends Thread {
 
 		commands.add("-Dtest_factory=" + Properties.TEST_FACTORY);
 		commands.add("-Dseed_clone=" + Properties.SEED_CLONE);
-		commands.add("-Dseed_dir=" + storage.getTmpSeeds().getAbsolutePath());
+		commands.add("-Dctg_seeds_dir_in=" + Properties.CTG_SEEDS_DIR_IN);
+		commands.add("-Dctg_seeds_dir_out=" + Properties.CTG_SEEDS_DIR_OUT);
 
 		commands.addAll(getOutputVariables());
 		if (Properties.ANALYSIS_CRITERIA.isEmpty()) {
@@ -389,12 +388,12 @@ public class JobHandler extends Thread {
 			commands.add("-Dctg_time_per_class=" + Properties.CTG_TIME_PER_CLASS);
 		}
 
+		commands.add("-startedByCtg");
 		/*
 		 * Master/Client will not use these variables.
 		 * But here we include them just to be sure that they will end
 		 * up in the generated CSV files
 		 */
-		commands.add("-startedByCtg");
 		commands.add("-Dctg_schedule=" + Properties.CTG_SCHEDULE);
 		commands.add("-Dctg_min_time_per_job=" + Properties.CTG_MIN_TIME_PER_JOB);
 

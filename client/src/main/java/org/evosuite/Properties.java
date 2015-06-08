@@ -694,20 +694,29 @@ public class Properties {
 	@Parameter(key = "ctg_generation_dir_prefix", group = "Continuous Test Generation", description = "")
 	public static String CTG_GENERATION_DIR_PREFIX = null;
 
-	@Parameter(key = "ctg_logs_dir", group = "Continuous Test Generation", description = "")
-	public static String CTG_LOGS_DIR = "logs";
+	@Parameter(key = "ctg_tmp_logs_dir_name", group = "Continuous Test Generation", description = "")
+	public static String CTG_TMP_LOGS_DIR_NAME = "logs";
 
-	@Parameter(key = "ctg_pools_dir", group = "Continuous Test Generation", description = "")
-	public static String CTG_POOLS_DIR = "pools";
+	@Parameter(key = "ctg_tmp_pools_dir_name", group = "Continuous Test Generation", description = "")
+	public static String CTG_TMP_POOLS_DIR_NAME = "pools";
 
-	@Parameter(key = "ctg_reports_dir", group = "Continuous Test Generation", description = "")
-	public static String CTG_REPORTS_DIR = "reports";
+	@Parameter(key = "ctg_tmp_reports_dir_name", group = "Continuous Test Generation", description = "")
+	public static String CTG_TMP_REPORTS_DIR_NAME = "reports";
 
-	@Parameter(key = "ctg_seeds_dir", group = "Continuous Test Generation", description = "")
-	public static String CTG_SEEDS_DIR = CTG_DIR + File.separator + "evosuite-seeds";
+	@Parameter(key = "ctg_tmp_tests_dir_name", group = "Continuous Test Generation", description = "")
+	public static String CTG_TMP_TESTS_DIR_NAME = "tests";
 
-	@Parameter(key = "ctg_tests_dir", group = "Continuous Test Generation", description = "")
-	public static String CTG_TESTS_DIR = "tests";
+	@Parameter(key = "ctg_seeds_dir_in", group = "Continuous Test Generation", description = "If specified, load serialized tests from that folder")
+	public static String CTG_SEEDS_DIR_IN = null;
+
+	@Parameter(key = "ctg_seeds_dir_in", group = "Continuous Test Generation", description = "If specified, save serialized tests to that folder")
+	public static String CTG_SEEDS_DIR_OUT = null;
+
+	@Parameter(key = "ctg_seeds_dir_name", group = "Continuous Test Generation", description = "Name of seed folder where the serialized tests are stored")
+	public static String CTG_SEEDS_DIR_NAME = "seeds";
+
+	@Parameter(key = "ctg_seeds_ext", group = "Continuous Test Generation", description = "File extension for serialized test files")
+	public static String CTG_SEEDS_EXT = "seed";
 
 	@Parameter(key = "ctg_project_info", group = "Continuous Test Generation", description = "XML file which stores stats about all CTG executions")
 	public static String CTG_PROJECT_INFO = CTG_DIR + File.separator + "project_info.xml";
@@ -1126,7 +1135,7 @@ public class Properties {
 	public static int SEED_MUTATIONS = 2;
 
 	/** Constant <code>SEED_DIR=""</code> */
-	@Parameter(key = "seed_dir", group = "Output", description = "Directory name to save best chromosomes")
+	@Parameter(key = "seed_dir", group = "Output", description = "Directory name where the best chromosomes are saved")
 	public static String SEED_DIR = "evosuite-seeds";
 
 	/** Constant <code>CONCOLIC_MUTATION=0.0</code> */

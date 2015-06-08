@@ -127,6 +127,10 @@ public class ContinuousTestGeneration {
 			return "Failed to create tmp folders";
 		}
 
+		//this null properties should had been set once storage is open
+		assert Properties.CTG_SEEDS_DIR_OUT != null;
+		assert Properties.CTG_SEEDS_DIR_IN != null;
+
 		//check project
 		ProjectAnalyzer analyzer = new ProjectAnalyzer(target, prefix, cuts);
 		ProjectStaticData data = analyzer.analyze();
