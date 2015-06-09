@@ -233,13 +233,13 @@ public class StorageManager {
 		
 		int better = 0;
 		for(TestsOnDisk suite : suites){
-			//TODO remove check, but only after seeding from previous CTG
-			if(isBetterThanOldOne(suite,db)){
-				updateDatabase(suite,db);
-				better++;
-			}
+			//Removed, as it was wrongly implemented, and anyway we always do seeding from previous CTG runs
+			//if(isBetterThanOldOne(suite,db)){
+			updateDatabase(suite,db);
+			better++;
+			//}
 		}
-		info += "\nBetter test suites: "+better;
+		//info += "\nBetter test suites: "+better;
 		
 		updateProjectStatistics(db,current);
 		commitDatabase(db);
@@ -285,8 +285,8 @@ public class StorageManager {
 		 */
 		Map<String,File> seeds = new LinkedHashMap<>();
 		for(File file : generatedSerialized){
-			//this asssumes that seed files are in the form cutName.seed
-			String cut = file.getName().substring(0 , file.getName().length() - Properties.CTG_SEEDS_EXT.length());
+			//this assumes that seed files are in the form cutName.seed
+			String cut = file.getName().substring(0 , file.getName().length() - (Properties.CTG_SEEDS_EXT.length() + 1));
 			seeds.put(cut,file);
 		}
 

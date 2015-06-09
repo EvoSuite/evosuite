@@ -706,11 +706,11 @@ public class Properties {
 	@Parameter(key = "ctg_tmp_tests_dir_name", group = "Continuous Test Generation", description = "")
 	public static String CTG_TMP_TESTS_DIR_NAME = "tests";
 
-	@Parameter(key = "ctg_seeds_dir_in", group = "Continuous Test Generation", description = "If specified, load serialized tests from that folder")
-	public static String CTG_SEEDS_DIR_IN = null;
+	@Parameter(key = "ctg_seeds_file_in", group = "Continuous Test Generation", description = "If specified, load serialized tests from that file")
+	public static String CTG_SEEDS_FILE_IN = null;
 
-	@Parameter(key = "ctg_seeds_dir_in", group = "Continuous Test Generation", description = "If specified, save serialized tests to that folder")
-	public static String CTG_SEEDS_DIR_OUT = null;
+	@Parameter(key = "ctg_seeds_file_out", group = "Continuous Test Generation", description = "If specified, save serialized tests to that file")
+	public static String CTG_SEEDS_FILE_OUT = null;
 
 	@Parameter(key = "ctg_seeds_dir_name", group = "Continuous Test Generation", description = "Name of seed folder where the serialized tests are stored")
 	public static String CTG_SEEDS_DIR_NAME = "seeds";

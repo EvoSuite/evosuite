@@ -240,14 +240,14 @@ public class JobHandler extends Thread {
 		File reports = storage.getTmpReports();
 		File tests = storage.getTmpTests();
 		File seedOut = storage.getTmpSeeds();
+		File seedIn = storage.getSeedInFolder();
 
 		commands.add("-Dreport_dir=" + reports.getAbsolutePath() + File.separator + job.cut);
 		commands.add("-Dtest_dir=" + tests.getAbsolutePath());
 
-		commands.add("-Dtest_factory=" + Properties.TEST_FACTORY);
-		commands.add("-Dseed_clone=" + Properties.SEED_CLONE);
-		commands.add("-Dctg_seeds_dir_in=" + storage.getSeedInFolder().getAbsolutePath());
-		commands.add("-Dctg_seeds_dir_out=" + seedOut.getAbsolutePath());
+		String seedsFileName = job.cut + "." + Properties.CTG_SEEDS_EXT;
+		commands.add("-Dctg_seeds_file_out=" + seedOut.getAbsolutePath() + File.separator +seedsFileName);
+		commands.add("-Dctg_seeds_file_in=" + seedIn.getAbsolutePath() + File.separator +seedsFileName);
 
 		commands.addAll(getOutputVariables());
 		if (Properties.ANALYSIS_CRITERIA.isEmpty()) {
