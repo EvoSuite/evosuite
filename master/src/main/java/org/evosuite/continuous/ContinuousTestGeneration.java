@@ -155,7 +155,7 @@ public class ContinuousTestGeneration {
 			executor.waitForJobs();
 		}
 
-		String description = storage.mergeAndCommitChanges(data);
+		String description = storage.mergeAndCommitChanges(data, cuts);
 
 		if(exportFolder != null){
 			try {
