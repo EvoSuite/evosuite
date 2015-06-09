@@ -37,13 +37,13 @@ public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChrom
 		if(!seededTests.isEmpty()){
 			/*
 				Ideally, we should populate the archive directly when EvoSuite starts.
-				But might be bit tricky based on current archive implementation.
+				But might be bit tricky based on current archive implementation (which needs executed tests).
 				So, easiest approach is to just return tests here, with no mutation on those.
-				However, this is done just once per tests, as anyway those will end up
+				However, this is done just once per test, as anyway those will end up
 				in archive.
 			 */
 			TestChromosome test = seededTests.remove(seededTests.size()-1); //pull out one element, 'last' just for efficiency
-			test.getTestCase().removeAssertions(); // no assertions are using during search
+			test.getTestCase().removeAssertions(); // no assertions are used during search
 			return test;
 		}
 
