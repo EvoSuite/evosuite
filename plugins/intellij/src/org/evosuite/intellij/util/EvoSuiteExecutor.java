@@ -186,7 +186,8 @@ public class EvoSuiteExecutor {
         for(String c : command){
             concat += c + "  ";
         }
-        concat+="\nin folder: "+dir.getAbsolutePath();
+        concat += "\nin folder: "+dir.getAbsolutePath();
+        concat += "\n";
 
         System.out.println(concat);
         notifier.printOnConsole(concat);//FIXME: done here it gets cleared by IntelliJ... really fucking annoying
