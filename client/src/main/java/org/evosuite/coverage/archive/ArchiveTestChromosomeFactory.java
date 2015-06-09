@@ -34,7 +34,7 @@ public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChrom
 	@Override
 	public TestChromosome getChromosome() {
 
-		if(!seededTests.isEmpty()){
+		if(seededTests!=null && !seededTests.isEmpty()){
 			/*
 				Ideally, we should populate the archive directly when EvoSuite starts.
 				But might be bit tricky based on current archive implementation (which needs executed tests).
