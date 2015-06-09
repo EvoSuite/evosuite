@@ -7,14 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -232,7 +225,7 @@ public class StorageManager {
 	 * @param data
 	 * @return
 	 */
-	public String mergeAndCommitChanges(ProjectStaticData current) throws NullPointerException{
+	public String mergeAndCommitChanges(ProjectStaticData current, String[] cuts) throws NullPointerException{
 
 		if(current == null){
 			throw new NullPointerException("ProjectStaticData 'current' cannot be null");
@@ -244,12 +237,47 @@ public class StorageManager {
 		info += "\n\n=== CTG run results ===";
 		
 		/*
-		 * Check what test cases have been actually generated
+		 * Check what test cases have been actually generating
 		 * in this CTG run
 		 */
 		List<TestsOnDisk> suites = gatherGeneratedTestsOnDisk();
 		info += "\nNew test suites: "+suites.size();
-		
+
+		//identify for which CUTs we failed to generate tests
+		if(cuts != null && cuts.length != suites.size()){
+			//this can happen if crash for some CUTs
+			Set<String> presents = new LinkedHashSet<>();
+			for(TestsOnDisk ts : suites){
+				String name = ts.cut;
+				presents.add(name);
+			}
+
+			Set<String> expected = new LinkedHashSet<>();
+			Collections.addAll(expected,cuts);
+			List<String> missing = new ArrayList<>();
+			for(String exp : expected){
+				if(!presents.contains(exp)){
+					missing.add(exp);
+				}
+			}
+
+			if(! missing.isEmpty()){
+				if(missing.size()==1){
+					info += "\n\nWARN: failed to generate tests for "+missing.get(0);
+				} else {
+					info += "\n\nMissing classes:";
+
+					Collections.sort(missing);
+					for(String m : missing){
+						info += "\n" + m;
+					}
+
+					String summary = "\n\nWARN: failed to generate tests for "+missing.size()+" classes out of "+expected.size();
+					info += summary;
+				}
+			}
+		}
+
 		int better = 0;
 		for(TestsOnDisk suite : suites){
 			//Removed, as it was wrongly implemented, and anyway we always do seeding from previous CTG runs
