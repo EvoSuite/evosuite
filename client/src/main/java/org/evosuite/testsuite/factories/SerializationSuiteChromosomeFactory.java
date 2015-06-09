@@ -98,7 +98,7 @@ public class SerializationSuiteChromosomeFactory
             try
             {
                 ObjectOutputStream out =
-                    new DebuggingObjectOutputStream(new FileOutputStream(Properties.SEED_DIR + "/"
+                    new DebuggingObjectOutputStream(new FileOutputStream(Properties.SEED_DIR + File.separator
                         + Properties.TARGET_CLASS));
 
                 // keep the previous suite

@@ -12,6 +12,7 @@ import org.evosuite.continuous.job.JobScheduler;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.continuous.project.ProjectAnalyzer;
 import org.evosuite.continuous.project.ProjectStaticData;
+import org.evosuite.utils.FileSystemUtils;
 import org.evosuite.xsd.ProjectInfo;
 
 
@@ -122,6 +123,10 @@ public class ContinuousTestGeneration {
 			return "Failed to initialize local storage system";
 		}
 
+		if(Properties.CTG_DELETE_OLD_TMP_FOLDERS){
+			storage.deleteAllOldTmpFolders();
+		}
+
 		if (!storage.createNewTmpFolders()) {
 			return "Failed to create tmp folders";
 		}
@@ -150,7 +155,7 @@ public class ContinuousTestGeneration {
 			executor.waitForJobs();
 		}
 
-		String description = storage.mergeAndCommitChanges(data);
+		String description = storage.mergeAndCommitChanges(data, cuts);
 
 		if(exportFolder != null){
 			try {
@@ -180,7 +185,8 @@ public class ContinuousTestGeneration {
 		}
 
 		File target = new File(basedir.getAbsolutePath()+File.separator+exportFolder);
-		FileUtils.copyDirectory(evoFolder, target);
+		//FileUtils.copyDirectory(evoFolder, target); //This did not overwrite old files!
+		FileSystemUtils.copyDirectoryAndOverwriteFilesIfNeeded(evoFolder,target);
 		return true;
 	}
 
