@@ -694,6 +694,9 @@ public class Properties {
 	@Parameter(key = "ctg_generation_dir_prefix", group = "Continuous Test Generation", description = "")
 	public static String CTG_GENERATION_DIR_PREFIX = null;
 
+	@Parameter(key = "ctg_delete_old_tmp_folders", group = "Continuous Test Generation", description = "If true, delete all the tmp folders before starting a new CTG run")
+	public static boolean CTG_DELETE_OLD_TMP_FOLDERS = true;
+
 	@Parameter(key = "ctg_tmp_logs_dir_name", group = "Continuous Test Generation", description = "")
 	public static String CTG_TMP_LOGS_DIR_NAME = "logs";
 
