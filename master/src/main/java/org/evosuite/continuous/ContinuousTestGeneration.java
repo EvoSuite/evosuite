@@ -123,6 +123,10 @@ public class ContinuousTestGeneration {
 			return "Failed to initialize local storage system";
 		}
 
+		if(Properties.CTG_DELETE_OLD_TMP_FOLDERS){
+			storage.deleteAllOldTmpFolders();
+		}
+
 		if (!storage.createNewTmpFolders()) {
 			return "Failed to create tmp folders";
 		}

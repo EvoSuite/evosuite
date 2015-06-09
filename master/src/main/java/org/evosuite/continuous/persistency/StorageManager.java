@@ -46,6 +46,8 @@ public class StorageManager {
 
 	private static Logger logger = LoggerFactory.getLogger(StorageManager.class);
 
+	private static final String TMP_PREFIX = "tmp_";
+
     private File tmpLogs = null;
 	private File tmpReports = null;
 	private File tmpTests = null;
@@ -130,11 +132,11 @@ public class StorageManager {
 		File tmp = null;
 
 		if (Properties.CTG_GENERATION_DIR_PREFIX == null)
-			tmp = new File(Properties.CTG_DIR + File.separator + "tmp_" + time);
+			tmp = new File(Properties.CTG_DIR + File.separator + TMP_PREFIX + time);
 		else
-			tmp = new File(Properties.CTG_DIR + File.separator + Properties.CTG_GENERATION_DIR_PREFIX + "_" + time);
+			tmp = new File(Properties.CTG_DIR + File.separator + TMP_PREFIX + Properties.CTG_GENERATION_DIR_PREFIX + "_" + time);
 
-		if (!tmp.mkdir())
+		if (!tmp.mkdirs())
 			return false;
 
 		// if we created the "tmp" folder or already exists, then it should be fine to create new folders in it
@@ -167,6 +169,23 @@ public class StorageManager {
 		return true;
 	}
 
+
+	public void deleteAllOldTmpFolders(){
+
+		File root = new File(Properties.CTG_DIR);
+		for(File child : root.listFiles()){
+			if(!child.isDirectory()){
+				continue;
+			}
+			if(child.getName().startsWith(TMP_PREFIX)){
+				try {
+					FileUtils.deleteDirectory(child);
+				} catch (IOException e) {
+					logger.error("Failed to delete tmp folder "+child.getAbsolutePath());
+				}
+			}
+		}
+	}
 
 	/**
 	 * Delete all CTG files 
