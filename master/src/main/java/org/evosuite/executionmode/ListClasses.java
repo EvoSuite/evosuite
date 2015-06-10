@@ -52,7 +52,7 @@ public class ListClasses {
 				if (ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isClassAnInterface(sut)) {
 					continue;
 				}
-				if (ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isClassDeprecated(sut)) {
+				if (!Properties.USE_DEPRECATED && ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isClassDeprecated(sut)) {
 					continue;
 				}
 				if (! ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isClassTestable(sut)) {

@@ -139,9 +139,9 @@ public abstract class DSEStats {
 		}
 		buff.append("]");
 
-		LoggingUtils.getEvoLogger().info("* DSE) Adaptation statistics");
+		LoggingUtils.getEvoLogger().info("* LS) Local Search Adaptation statistics");
 		LoggingUtils.getEvoLogger().info(
-				"* DSE)   Adaptations: " + buff.toString());
+				"* LS)   Adaptations: " + buff.toString());
 	}
 
 	private static void printCacheStatistics() {

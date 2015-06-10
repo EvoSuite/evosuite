@@ -111,7 +111,7 @@ public class ProjectAnalyzer {
 	private Collection<String> getCutsToAnalyze(){
 
 		if(cutsToAnalyze!=null && !validateCutsToAnalyze){
-			// this is meanly in test cases
+			// this is mainly in test cases
 			return cutsToAnalyze;
 		}
 
@@ -121,7 +121,7 @@ public class ProjectAnalyzer {
 			if(!target.contains(File.pathSeparator)){
 				suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, prefix, false);
 			} else {
-				suts = new LinkedHashSet<String>();
+				suts = new LinkedHashSet<>();
 				for(String element : target.split(File.pathSeparator)){
 					suts.addAll(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(element, prefix, false));
 				}

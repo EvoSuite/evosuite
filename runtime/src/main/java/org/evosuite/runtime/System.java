@@ -59,7 +59,7 @@ public class System {
 		try{
 			prop =  (java.util.Properties) java.lang.System.getProperties().clone();
 		} catch(Exception e){
-			//logger.error("Error while initializing System: "+e.getMessage(),e);
+			logger.error("Error while initializing System: "+e.getMessage());
 		}
 		defaultProperties = prop;
 
