@@ -122,7 +122,11 @@ public class StringHelper {
         } else {
             ConstantPoolManager.getInstance().addDynamicConstant(first);
             ConstantPoolManager.getInstance().addDynamicConstant(second);
-            return -getDistanceBasedOnLeftAlignment(first, second.toString());
+            // return -getDistanceBasedOnLeftAlignment(first, second.toString());
+            double distance = -getDistanceBasedOnLeftAlignmentCharacterDistance(first, second.toString());
+            double d2 = distance / (1.0 + Math.abs(distance));
+			
+			return (int) Math.round(BooleanHelper.K * d2);            
         }
     }
 
