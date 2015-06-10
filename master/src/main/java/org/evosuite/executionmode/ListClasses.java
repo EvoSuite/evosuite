@@ -51,7 +51,7 @@ public class ListClasses {
 				if (ResourceList.isClassAnInterface(sut)) {
 					continue;
 				}
-				if (ResourceList.isClassDeprecated(sut)) {
+				if (!Properties.USE_DEPRECATED && ResourceList.isClassDeprecated(sut)) {
 					continue;
 				}
 				if (! ResourceList.isClassTestable(sut)) {
