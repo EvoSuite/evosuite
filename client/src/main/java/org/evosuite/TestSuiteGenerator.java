@@ -150,13 +150,7 @@ import org.evosuite.testcase.factories.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testcase.localsearch.BranchCoverageMap;
-import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
-import org.evosuite.testsuite.StatementsPopulationLimit;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.testsuite.TestSuiteMinimizer;
-import org.evosuite.testsuite.TestSuiteReplacementFunction;
+import org.evosuite.testsuite.*;
 import org.evosuite.testsuite.factories.FixedSizeTestSuiteChromosomeFactory;
 import org.evosuite.testsuite.factories.SerializationSuiteChromosomeFactory;
 import org.evosuite.testsuite.factories.TestSuiteChromosomeFactory;
@@ -951,6 +945,9 @@ public class TestSuiteGenerator {
 		if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
 		    SerializationSuiteChromosomeFactory.saveTests(bestSuites);
         }
+		if(Properties.CTG_SEEDS_FILE_OUT != null){
+			TestSuiteSerialization.saveTests(bestSuites,new File(Properties.CTG_SEEDS_FILE_OUT));
+		}
 
 		if (Properties.MINIMIZE_VALUES &&
 		                Properties.CRITERION.length == 1) {

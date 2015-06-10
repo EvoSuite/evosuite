@@ -901,8 +901,10 @@ public class TestClusterGenerator {
 			return false;
 
 		if (!Properties.USE_DEPRECATED && c.isAnnotationPresent(Deprecated.class)) {
-			logger.debug("Skipping deprecated class " + c.getName());
-			return false;
+			if(Properties.hasTargetClassBeenLoaded() && !c.equals(Properties.getTargetClass())) {
+				logger.debug("Skipping deprecated class " + c.getName());
+				return false;
+			}
 		}
 
 		if (c.isAnonymousClass()) {
@@ -1256,9 +1258,11 @@ public class TestClusterGenerator {
 		if (c.getDeclaringClass().isMemberClass() && !canUse(c.getDeclaringClass()))
 			return false;
 
-		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
-			logger.debug("Skipping deprecated constructor " + c.getName());
-			return false;
+		if (!Properties.USE_DEPRECATED && c.isAnnotationPresent(Deprecated.class)) {
+			if(Properties.hasTargetClassBeenLoaded() && !c.getDeclaringClass().equals(Properties.getTargetClass())) {
+				logger.debug("Excluding deprecated constructor " + c.getName());
+				return false;
+			}
 		}
 
 		if (isForbiddenNonDeterministicCall(c)) {
