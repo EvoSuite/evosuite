@@ -59,6 +59,7 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 		int newPos = slice.sliceFor(slice.getStatement(statement).getReturnValue());
 		TestCase oldTest = test.getTestCase();
 		test.setTestCase(slice);
+		test.setChanged(true);
 		objective = ((TestSuiteLocalSearchObjective)objective).getCopyForTest(test);
 		int oldStatement = statement;
 		statement = newPos;
@@ -158,7 +159,7 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 			done = true;
 			// Try +1
 			p.increment(initialDelta);
-			logger.warn("Trying increment of " + p.getCode());
+			logger.info("Trying increment of " + p.getCode());
 			//logger.info(" -> " + p.getCode());
 			int change = objective.hasChanged(test);
 			if(change != 0)
@@ -179,11 +180,11 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 				test.setChanged(false);
 
 				p.increment(-initialDelta);
-				logger.warn("Trying decrement of " + p.getCode());
+				logger.info("Trying decrement of " + p.getCode());
 				//logger.info(" -> " + p.getCode());
 				change = objective.hasChanged(test);
 				if (change < 0) {
-					logger.warn("Iterating because of improvement");
+					logger.info("Iterating because of improvement");
 					changed = change;
 					done = false;
 					iterate(-factor * initialDelta, factor, objective, test, p, statement);
@@ -191,7 +192,7 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 					oldResult = test.getLastExecutionResult();
 
 				} else {
-					logger.warn("Not iterating because no improvement");
+					logger.info("Not iterating because no improvement");
 					p.setValue(oldValue);
 					test.setLastExecutionResult(oldResult);
 					test.setChanged(false);
@@ -209,7 +210,7 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 		boolean improvement = false;
 		T oldValue = p.getValue();
 		ExecutionResult oldResult = test.getLastExecutionResult();
-		logger.warn("Trying increment " + delta + " of " + p.getCode());
+		logger.info("Trying increment " + delta + " of " + p.getCode());
 
 		p.increment(delta);
 		while (objective.hasImproved(test)) {
@@ -220,7 +221,7 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 			delta = factor * delta;
 			//if (delta > 1)
 			//	return improvement;
-			logger.warn("Trying increment " + delta + " of " + p.getCode());
+			logger.info("Trying increment " + delta + " of " + p.getCode());
 			p.increment(delta);
 		}
 
