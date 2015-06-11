@@ -67,13 +67,21 @@ public class Z3Str2Solver extends Solver {
 
 	private static int dirCounter = 0;
 
+	public Z3Str2Solver() {
+		super();
+	}
+
+	public Z3Str2Solver(boolean addMissingVariables) {
+		super(addMissingVariables);
+	}
+
 	private static File createNewTmpDir() {
 		File dir = null;
 		String dirName = FileUtils.getTempDirectoryPath() + File.separator
 				+ "EvoSuiteZ3Str_" + (dirCounter++) + "_"
 				+ System.currentTimeMillis();
 
-		//first create a tmp folder
+		// first create a tmp folder
 		dir = new File(dirName);
 		if (!dir.mkdirs()) {
 			logger.error("Cannot create tmp dir: " + dirName);
@@ -134,8 +142,13 @@ public class Z3Str2Solver extends Solver {
 				return null;
 			}
 
-			Map<String, Object> solution = parser.parse(z3ResultStr,
+			Map<String, Object> solution;
+			if (addMissingVariables()) {
+			solution = parser.parse(z3ResultStr,
 					initialValues);
+			} else {
+				solution = parser.parse(z3ResultStr);
+			}
 
 			if (solution != null && checkSolution(constraints, solution))
 				return solution;
@@ -260,7 +273,8 @@ public class Z3Str2Solver extends Solver {
 			Set<SmtConstant> smtConstants, List<SmtExpr> smtAssertions,
 			boolean addCharToIntFunction) {
 
-		Set<SmtVariable> smtVariablesoDeclare = new HashSet<SmtVariable>(smtVariables);
+		Set<SmtVariable> smtVariablesoDeclare = new HashSet<SmtVariable>(
+				smtVariables);
 		if (addCharToIntFunction) {
 			Set<SmtStringVariable> charVariables = buildCharVariables();
 			smtVariablesoDeclare.addAll(charVariables);
@@ -291,7 +305,7 @@ public class Z3Str2Solver extends Solver {
 			String charToInt = buildCharToIntFunction();
 			buff.append(charToInt);
 		}
-		
+
 		SmtExprPrinter printer = new SmtExprPrinter();
 		for (SmtExpr smtExpr : smtAssertions) {
 			String smtExprString = smtExpr.accept(printer, null);
