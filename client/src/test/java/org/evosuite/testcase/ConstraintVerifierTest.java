@@ -13,6 +13,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.Servlet;
+import javax.servlet.http.HttpServlet;
+
 /**
  * Created by Andrea Arcuri on 06/06/15.
  */
@@ -31,6 +34,10 @@ public class ConstraintVerifierTest {
     public void tearDown(){
         Properties.PRIMITIVE_REUSE_PROBABILITY = defaultPRP;
         Properties.OBJECT_REUSE_PROBABILITY = defaultORP;
+    }
+
+    private static class FakeServlet extends HttpServlet{
+        public FakeServlet(){}
     }
 
 
@@ -73,7 +80,7 @@ public class ConstraintVerifierTest {
         TestChromosome tc = new TestChromosome();
         TestFactory factory = TestFactory.getInstance();
 
-        //this method has an "after" constraint
+        //this method has an "after" constraint on initServlet
         factory.addMethod(tc.getTestCase(),
                 new GenericMethod(EvoServletState.class.getDeclaredMethod("getRequest"), EvoServletState.class), 0, 0);
 
@@ -81,9 +88,12 @@ public class ConstraintVerifierTest {
         Assert.assertFalse(ConstraintVerifier.verifyTest(tc));
 
         VariableReference con = factory.addConstructor(tc.getTestCase(),
-                new GenericConstructor(Object.class.getConstructor(), Object.class), 0, 0);
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(EvoServletState.class.getDeclaredMethod("initServlet",Servlet.class), EvoServletState.class), 1, 0);
 
-        //TODO
+        Assert.assertEquals(3, tc.size());
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
     }
 
     @Test
@@ -91,21 +101,26 @@ public class ConstraintVerifierTest {
         TestChromosome tc = new TestChromosome();
         TestFactory factory = TestFactory.getInstance();
 
-        factory.addConstructor(tc.getTestCase(),new GenericConstructor(Object.class.getConstructor(),Object.class),0,0);
+
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(EvoServletState.class.getDeclaredMethod("initServlet", Servlet.class), EvoServletState.class), 1, 0);
+
         //2 different methods that can be used at most once
         factory.addMethod(tc.getTestCase(),
-                new GenericMethod(EvoServletState.class.getDeclaredMethod("getRequest"), EvoServletState.class), 1, 0);
+                new GenericMethod(EvoServletState.class.getDeclaredMethod("getRequest"), EvoServletState.class), 2, 0);
         factory.addMethod(tc.getTestCase(),
-                new GenericMethod(EvoServletState.class.getDeclaredMethod("getResponse"),EvoServletState.class),2,0);
+                new GenericMethod(EvoServletState.class.getDeclaredMethod("getResponse"),EvoServletState.class),3,0);
 
-        Assert.assertEquals(3, tc.size());
+        Assert.assertEquals(4, tc.size());
         Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
 
         //add an invalid new call
         factory.addMethod(tc.getTestCase(),
-                new GenericMethod(EvoServletState.class.getDeclaredMethod("getResponse"), EvoServletState.class), 3, 0);
+                new GenericMethod(EvoServletState.class.getDeclaredMethod("getResponse"), EvoServletState.class), 4, 0);
 
-        Assert.assertEquals(4, tc.size());
+        Assert.assertEquals(5, tc.size());
         Assert.assertFalse(ConstraintVerifier.verifyTest(tc)); //check should fail
     }
 
@@ -116,15 +131,20 @@ public class ConstraintVerifierTest {
         TestFactory factory = TestFactory.getInstance();
 
 
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(EvoServletState.class.getDeclaredMethod("initServlet",Servlet.class), EvoServletState.class), 1, 0);
+
         StringPrimitiveStatement foo = new StringPrimitiveStatement(tc.getTestCase(), "foo");
         tc.getTestCase().addStatement(foo);
         VariableReference con = factory.addMethod(tc.getTestCase(),
-                new GenericMethod(EvoServletState.class.getDeclaredMethod("getConfiguration"), EvoServletState.class), 1, 0);
+                new GenericMethod(EvoServletState.class.getDeclaredMethod("getConfiguration"), EvoServletState.class), 3, 0);
         factory.addMethodFor(tc.getTestCase(), con,
                 new GenericMethod(EvoServletConfig.class.getDeclaredMethod("createDispatcher", String.class),
-                        EvoServletConfig.class), 2);
+                        EvoServletConfig.class), 4);
 
-        Assert.assertEquals(3, tc.size());
+        Assert.assertEquals(5, tc.size());
         Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
     }
 
@@ -134,16 +154,22 @@ public class ConstraintVerifierTest {
         TestChromosome tc = new TestChromosome();
         TestFactory factory = TestFactory.getInstance();
 
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(EvoServletState.class.getDeclaredMethod("initServlet",Servlet.class), EvoServletState.class), 1, 0);
+
         //shouldn't be able to pass it to createDispatcher
         StringPrimitiveStatement foo = new StringPrimitiveStatement(tc.getTestCase(), null);
         tc.getTestCase().addStatement(foo);
+
         VariableReference con = factory.addMethod(tc.getTestCase(),
-                new GenericMethod(EvoServletState.class.getDeclaredMethod("getConfiguration"), EvoServletState.class), 1, 0);
+                new GenericMethod(EvoServletState.class.getDeclaredMethod("getConfiguration"), EvoServletState.class), 3, 0);
         factory.addMethodFor(tc.getTestCase(), con,
                 new GenericMethod(EvoServletConfig.class.getDeclaredMethod("createDispatcher", String.class),
-                        EvoServletConfig.class), 2);
+                        EvoServletConfig.class), 4);
 
-        Assert.assertEquals(tc.getTestCase().toCode(), 3, tc.size());
+        Assert.assertEquals(tc.getTestCase().toCode(), 5, tc.size());
         Assert.assertFalse(ConstraintVerifier.verifyTest(tc));
     }
 
@@ -153,20 +179,25 @@ public class ConstraintVerifierTest {
         TestChromosome tc = new TestChromosome();
         TestFactory factory = TestFactory.getInstance();
 
-        VariableReference req = factory.addMethod(tc.getTestCase(),
-                new GenericMethod(EvoServletState.class.getDeclaredMethod("getRequest"), EvoServletState.class), 0, 0);
-        factory.addMethodFor(tc.getTestCase(), req,
-                new GenericMethod(EvoHttpServletRequest.class.getDeclaredMethod("asGET"), EvoHttpServletRequest.class), 1);
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(EvoServletState.class.getDeclaredMethod("initServlet",Servlet.class), EvoServletState.class), 1, 0);
 
-        Assert.assertEquals(tc.getTestCase().toCode(), 2, tc.size());
+        VariableReference req = factory.addMethod(tc.getTestCase(),
+                new GenericMethod(EvoServletState.class.getDeclaredMethod("getRequest"), EvoServletState.class), 2, 0);
+        factory.addMethodFor(tc.getTestCase(), req,
+                new GenericMethod(EvoHttpServletRequest.class.getDeclaredMethod("asGET"), EvoHttpServletRequest.class), 3);
+
+        Assert.assertEquals(tc.getTestCase().toCode(), 4, tc.size());
         Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
 
 
         //once it is set as GET, we should not be able to change it to POST
         factory.addMethodFor(tc.getTestCase(), req,
-                new GenericMethod(EvoHttpServletRequest.class.getDeclaredMethod("asPOST"), EvoHttpServletRequest.class), 2);
+                new GenericMethod(EvoHttpServletRequest.class.getDeclaredMethod("asPOST"), EvoHttpServletRequest.class), 4);
 
-        Assert.assertEquals(tc.getTestCase().toCode(), 3, tc.size());
+        Assert.assertEquals(tc.getTestCase().toCode(), 5, tc.size());
         Assert.assertFalse(ConstraintVerifier.verifyTest(tc));
     }
 
