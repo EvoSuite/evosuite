@@ -139,7 +139,11 @@ public class CVC4Solver extends Solver {
 			}
 
 		} catch (IOException e) {
-			logger.error("IO Exception during launching of CVC4 command");
+			if (e.getMessage().contains("Permission denied")) {
+				logger.error("No permissions for running CVC4 binary");
+			} else {
+				logger.error("IO Exception during launching of CVC4 command");
+			}
 			return null;
 
 		}
@@ -238,7 +242,8 @@ public class CVC4Solver extends Solver {
 				smtQuery.append("\n");
 
 			} else if (var instanceof SmtStringVariable) {
-				String stringVar = SmtStringExprBuilder.mkStringFunction(varName);
+				String stringVar = SmtStringExprBuilder
+						.mkStringFunction(varName);
 				smtQuery.append(stringVar);
 				smtQuery.append("\n");
 			} else {
@@ -306,7 +311,7 @@ public class CVC4Solver extends Solver {
 		}
 	}
 
-	//	private final static int ASCII_TABLE_LENGTH = 256;
+	// private final static int ASCII_TABLE_LENGTH = 256;
 	private final static int ASCII_TABLE_LENGTH = 256;
 
 	private static String buildIntToCharFunction() {
