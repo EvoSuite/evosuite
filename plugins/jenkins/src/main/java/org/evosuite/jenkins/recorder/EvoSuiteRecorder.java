@@ -5,8 +5,13 @@ import hudson.Launcher;
 import hudson.maven.AbstractMavenProject;
 import hudson.model.Action;
 import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.plugins.git.GitSCM;
+import hudson.plugins.mercurial.MercurialSCM;
+import hudson.scm.SCM;
+import hudson.scm.SubversionSCM;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
@@ -19,6 +24,7 @@ import javax.servlet.ServletException;
 
 import org.evosuite.jenkins.actions.BuildAction;
 import org.evosuite.jenkins.actions.ProjectAction;
+import org.evosuite.jenkins.scm.Mercurial;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
@@ -53,6 +59,11 @@ public class EvoSuiteRecorder extends Recorder {
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
 
+		if (build.getResult().isWorseThan(Result.SUCCESS)) {
+			listener.getLogger().println("Build did not succeed, so no test case generation by EvoSuite will occur.");
+			return true;
+		}
+
 		AbstractMavenProject<?, ?> project = ((AbstractMavenProject<?, ?>) build.getProject());
 		ProjectAction projectAction = new ProjectAction(project);
 		if (!projectAction.perform(project, build)) {
@@ -61,6 +72,37 @@ public class EvoSuiteRecorder extends Recorder {
 
 		BuildAction build_action = new BuildAction(build, projectAction);
 		build.addAction(build_action);
+
+		// FIXME the new test cases generated improved the coverage of manual written test cases?
+		// maybe we should do this on evosuite-maven-plugin?
+
+
+		// Deliver new test cases (i.e., commit and push the new test cases generated)
+
+		SCM scm = project.getScm();
+		if (scm == null) {
+			listener.getLogger().println("Project '" + project.getName() + "' has no Source-Control-Management (SCM) defined.");
+			return true;
+		}
+
+		if (scm instanceof MercurialSCM) {
+			Mercurial m = new Mercurial((MercurialSCM) scm, project);
+			if (!m.commit(build, launcher, listener)) {
+				return false;
+			}
+			if (!m.push(build, launcher, listener)) {
+				return false;
+			}
+		}
+		else if (scm instanceof GitSCM) {
+			// empty
+		}
+		else if (scm instanceof SubversionSCM) {
+			// empty
+		}
+		else {
+			listener.getLogger().println("SCM of type " + scm.getType() + " not supported!");
+		}
 
 		return true;
 	}
