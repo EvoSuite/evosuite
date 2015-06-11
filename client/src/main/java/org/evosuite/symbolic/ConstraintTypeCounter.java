@@ -30,15 +30,15 @@ public class ConstraintTypeCounter {
 	}
 
 	public void clear() {
-		for (int k : countersByType) {
-			countersByType[k] = 0;
+		for (int i = 0; i < countersByType.length; i ++) {
+			countersByType[i] = 0;
 		}
 	}
 
 	public int getTotalNumberOfConstraints() {
 		int count = 0;
 		for (int k : countersByType) {
-			count += countersByType[k];
+			count += k;
 		}
 		return count;
 	}
