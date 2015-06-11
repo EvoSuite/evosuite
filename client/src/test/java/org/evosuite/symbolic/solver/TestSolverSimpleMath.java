@@ -155,10 +155,13 @@ public class TestSolverSimpleMath {
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
 		assertNotNull(solution);
-		Long var0 = (Long) solution.get("var0");
 		Long var1 = (Long) solution.get("var1");
 
-		assertEquals(var0.intValue(), var0.intValue() + var1.intValue());
+		if (var1.intValue() != 0) {
+			Long var0 = (Long) solution.get("var0");
+			assertEquals(var0.intValue(), var0.intValue() + var1.intValue());
+		}
+
 	}
 
 	public static void testSub(Solver solver) throws SecurityException,
@@ -189,14 +192,15 @@ public class TestSolverSimpleMath {
 		assertEquals(var0.intValue(), var1.intValue() % 2);
 	}
 
-	public static Map<String, Object> testDiv(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testDiv(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseDiv();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solver.solve(constraints);
-		
+
 		return solution;
 	}
 
@@ -215,8 +219,9 @@ public class TestSolverSimpleMath {
 		assertEquals(var1.intValue(), var0.intValue() * 2);
 	}
 
-	public static Map<String, Object> testMul2(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+	public static Map<String, Object> testMul2(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			ConstraintSolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMul2();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
@@ -371,7 +376,7 @@ public class TestSolverSimpleMath {
 		assertNotNull(solution);
 		Long var0 = (Long) solution.get("var0");
 
-		assertEquals(var0.intValue(), (int)var0.doubleValue() );
+		assertEquals(var0.intValue(), (int) var0.doubleValue());
 	}
 
 	private static DefaultTestCase buildTestCaseCastIntToReal()

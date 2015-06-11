@@ -7,53 +7,55 @@ import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.solver.SmtExprBuilder;
+import org.evosuite.symbolic.solver.smt.SmtExpr;
 
-class ConstraintToZ3Visitor implements ConstraintVisitor<String, Void> {
+class ConstraintToZ3Visitor implements ConstraintVisitor<SmtExpr, Void> {
 
 	public ConstraintToZ3Visitor() {
 	}
 
 	@Override
-	public String visit(IntegerConstraint c, Void arg) {
+	public SmtExpr visit(IntegerConstraint c, Void arg) {
 		ExprToZ3Visitor v = new ExprToZ3Visitor();
 
-		String left = c.getLeftOperand().accept(v, null);
-		String right = c.getRightOperand().accept(v, null);
+		SmtExpr left = c.getLeftOperand().accept(v, null);
+		SmtExpr right = c.getRightOperand().accept(v, null);
 
 		if (left == null || right == null) {
 			return null;
 		}
 
 		Comparator cmp = c.getComparator();
-		return mkArithmeticComparison(left, cmp, right);
+		return mkComparison(left, cmp, right);
 	}
 
-	private String mkArithmeticComparison(String left_arith_expr,
-			Comparator cmp, String right_arith_expr) {
+	private static SmtExpr mkComparison(SmtExpr left, Comparator cmp,
+			SmtExpr right) {
 		switch (cmp) {
 		case LT: {
-			String lt = Z3ExprBuilder.mkLt(left_arith_expr, right_arith_expr);
+			SmtExpr lt = SmtExprBuilder.mkLt(left, right);
 			return lt;
 		}
 		case LE: {
-			String le = Z3ExprBuilder.mkLe(left_arith_expr, right_arith_expr);
+			SmtExpr le = SmtExprBuilder.mkLe(left, right);
 			return le;
 		}
 		case GT: {
-			String gt = Z3ExprBuilder.mkGt(left_arith_expr, right_arith_expr);
+			SmtExpr gt = SmtExprBuilder.mkGt(left, right);
 			return gt;
 		}
 		case GE: {
-			String ge = Z3ExprBuilder.mkGe(left_arith_expr, right_arith_expr);
+			SmtExpr ge = SmtExprBuilder.mkGe(left, right);
 			return ge;
 		}
 		case EQ: {
-			String ge = Z3ExprBuilder.mkEq(left_arith_expr, right_arith_expr);
+			SmtExpr ge = SmtExprBuilder.mkEq(left, right);
 			return ge;
 		}
 		case NE: {
-			String ge = Z3ExprBuilder.mkEq(left_arith_expr, right_arith_expr);
-			String ne = Z3ExprBuilder.mkNot(ge);
+			SmtExpr ge = SmtExprBuilder.mkEq(left, right);
+			SmtExpr ne = SmtExprBuilder.mkNot(ge);
 			return ne;
 		}
 		default: {
@@ -64,23 +66,23 @@ class ConstraintToZ3Visitor implements ConstraintVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(RealConstraint c, Void arg) {
+	public SmtExpr visit(RealConstraint c, Void arg) {
 		ExprToZ3Visitor v = new ExprToZ3Visitor();
 
-		String left = c.getLeftOperand().accept(v, null);
-		String right = c.getRightOperand().accept(v, null);
+		SmtExpr left = c.getLeftOperand().accept(v, null);
+		SmtExpr right = c.getRightOperand().accept(v, null);
 
 		if (left == null || right == null) {
 			return null;
 		}
 
 		Comparator cmp = c.getComparator();
-		String boolExpr = mkArithmeticComparison(left, cmp, right);
+		SmtExpr boolExpr = mkComparison(left, cmp, right);
 		return boolExpr;
 	}
 
 	@Override
-	public String visit(StringConstraint c, Void arg) {
+	public SmtExpr visit(StringConstraint c, Void arg) {
 		ExprToZ3Visitor v = new ExprToZ3Visitor();
 
 		StringComparison stringComparison = (StringComparison) c
@@ -88,14 +90,14 @@ class ConstraintToZ3Visitor implements ConstraintVisitor<String, Void> {
 
 		IntegerConstant integerConstant = (IntegerConstant) c.getRightOperand();
 
-		String left = stringComparison.accept(v, null);
-		String right = integerConstant.accept(v, null);
+		SmtExpr left = stringComparison.accept(v, null);
+		SmtExpr right = integerConstant.accept(v, null);
 
 		if (left == null || right == null) {
 			return null;
 		}
 
 		Comparator cmp = c.getComparator();
-		return mkArithmeticComparison(left, cmp, right);
+		return mkComparison(left, cmp, right);
 	}
 }
