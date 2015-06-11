@@ -34,9 +34,12 @@ public class EvoSuiteRecorder extends Recorder {
 
 	@Override
 	public Action getProjectAction(AbstractProject<?, ?> project) {
-		if (project.getLastBuild() != null) {
-			ProjectAction lastProject = project.getLastBuild().getAction(BuildAction.class).getProjectAction();
-			return new ProjectAction(project, lastProject.getModules());
+		if (!project.getBuilds().isEmpty() || !project.getActions().isEmpty()) {
+			BuildAction buildAction = project.getLastBuild().getAction(BuildAction.class);
+			if (buildAction != null) {
+				ProjectAction lastProject = buildAction.getProjectAction();
+				return new ProjectAction(project, lastProject.getModules());
+			}
 		}
 
 		return new ProjectAction(project);
