@@ -57,6 +57,14 @@ public class CVC4Solver extends Solver {
 
 	static Logger logger = LoggerFactory.getLogger(CVC4Solver.class);
 
+	public CVC4Solver(boolean addMissingValues) {
+		super(addMissingValues);
+	}
+
+	public CVC4Solver() {
+		super();
+	}
+	
 	@Override
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
 			throws ConstraintSolverTimeoutException {
@@ -113,7 +121,12 @@ public class CVC4Solver extends Solver {
 
 				// parse solution
 				Map<String, Object> initialValues = getConcreteValues(variables);
-				CVC4ModelParser modelParser = new CVC4ModelParser(initialValues);
+				CVC4ModelParser modelParser;
+				if (addMissingVariables()) {
+				modelParser = new CVC4ModelParser(initialValues);
+				} else {
+					modelParser = new CVC4ModelParser();
+				}
 				Map<String, Object> solution = modelParser.parse(cvc4ResultStr);
 
 				// check solution is correct

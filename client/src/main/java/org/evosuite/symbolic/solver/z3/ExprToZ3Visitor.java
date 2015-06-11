@@ -1,10 +1,5 @@
 package org.evosuite.symbolic.solver.z3;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
@@ -38,96 +33,103 @@ import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
 import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
 import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
+import org.evosuite.symbolic.solver.SmtExprBuilder;
+import org.evosuite.symbolic.solver.smt.SmtExpr;
 
-class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
+class ExprToZ3Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 	@Override
-	public String visit(IntegerBinaryExpression e, Void v) {
-		String left = e.getLeftOperand().accept(this, null);
-		String right = e.getRightOperand().accept(this, null);
+	public SmtExpr visit(IntegerBinaryExpression e, Void v) {
+		SmtExpr left = e.getLeftOperand().accept(this, null);
+		SmtExpr right = e.getRightOperand().accept(this, null);
 
 		if (left == null || right == null) {
 			return null;
 		}
 
+		if (!left.isSymbolic() && !right.isSymbolic()) {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
+
 		switch (e.getOperator()) {
 
 		case DIV: {
-			String z3_div = Z3ExprBuilder.mkDiv(left, right);
+			SmtExpr z3_div = SmtExprBuilder.mkIntDiv(left, right);
 			return z3_div;
 		}
 		case MUL: {
-			String z3_mul = Z3ExprBuilder.mkMul(left, right);
+			SmtExpr z3_mul = SmtExprBuilder.mkMul(left, right);
 			return z3_mul;
 
 		}
 		case MINUS: {
-			String z3_sub = Z3ExprBuilder.mkSub(left, right);
+			SmtExpr z3_sub = SmtExprBuilder.mkSub(left, right);
 			return z3_sub;
 		}
 		case PLUS: {
-			String z3_add = Z3ExprBuilder.mkAdd(left, right);
+			SmtExpr z3_add = SmtExprBuilder.mkAdd(left, right);
 			return z3_add;
 		}
 		case REM: {
-			String z3_mod = Z3ExprBuilder.mkMod(left, right);
+			SmtExpr z3_mod = SmtExprBuilder.mkMod(left, right);
 			return z3_mod;
 		}
 		case IOR: {
-			String bv_left = Z3ExprBuilder.mkInt2BV(32, left);
-			String bv_right = Z3ExprBuilder.mkInt2BV(32, right);
-			String bvor = Z3ExprBuilder.mkBVOR(bv_left, bv_right);
-			String ret_val = Z3ExprBuilder.mkBV2Int(bvor);
+			SmtExpr bv_left = SmtExprBuilder.mkInt2BV(32, left);
+			SmtExpr bv_right = SmtExprBuilder.mkInt2BV(32, right);
+			SmtExpr bvor = SmtExprBuilder.mkBVOR(bv_left, bv_right);
+			SmtExpr ret_val = SmtExprBuilder.mkBV2Int(bvor);
 			return ret_val;
 		}
 		case IAND: {
-			String bv_left = Z3ExprBuilder.mkInt2BV(32, left);
-			String bv_right = Z3ExprBuilder.mkInt2BV(32, right);
-			String bv_and = Z3ExprBuilder.mkBVAND(bv_left, bv_right);
-			String ret_val = Z3ExprBuilder.mkBV2Int(bv_and);
+			SmtExpr bv_left = SmtExprBuilder.mkInt2BV(32, left);
+			SmtExpr bv_right = SmtExprBuilder.mkInt2BV(32, right);
+			SmtExpr bv_and = SmtExprBuilder.mkBVAND(bv_left, bv_right);
+			SmtExpr ret_val = SmtExprBuilder.mkBV2Int(bv_and);
 			return ret_val;
 		}
 		case IXOR: {
-			String bv_left = Z3ExprBuilder.mkInt2BV(32, left);
-			String bv_right = Z3ExprBuilder.mkInt2BV(32, right);
-			String bv_xor = Z3ExprBuilder.mkBVXOR(bv_left, bv_right);
-			String ret_val = Z3ExprBuilder.mkBV2Int(bv_xor);
+			SmtExpr bv_left = SmtExprBuilder.mkInt2BV(32, left);
+			SmtExpr bv_right = SmtExprBuilder.mkInt2BV(32, right);
+			SmtExpr bv_xor = SmtExprBuilder.mkBVXOR(bv_left, bv_right);
+			SmtExpr ret_val = SmtExprBuilder.mkBV2Int(bv_xor);
 			return ret_val;
 		}
 
 		case SHL: {
-			String bv_left = Z3ExprBuilder.mkInt2BV(32, left);
-			String bv_right = Z3ExprBuilder.mkInt2BV(32, right);
-			String bv_shl = Z3ExprBuilder.mkBVSHL(bv_left, bv_right);
-			String ret_val = Z3ExprBuilder.mkBV2Int(bv_shl);
+			SmtExpr bv_left = SmtExprBuilder.mkInt2BV(32, left);
+			SmtExpr bv_right = SmtExprBuilder.mkInt2BV(32, right);
+			SmtExpr bv_shl = SmtExprBuilder.mkBVSHL(bv_left, bv_right);
+			SmtExpr ret_val = SmtExprBuilder.mkBV2Int(bv_shl);
 			return ret_val;
 		}
 
 		case SHR: {
-			String bv_left = Z3ExprBuilder.mkInt2BV(32, left);
-			String bv_right = Z3ExprBuilder.mkInt2BV(32, right);
-			String bv_shr = Z3ExprBuilder.mkBVASHR(bv_left, bv_right);
-			String ret_val = Z3ExprBuilder.mkBV2Int(bv_shr);
+			SmtExpr bv_left = SmtExprBuilder.mkInt2BV(32, left);
+			SmtExpr bv_right = SmtExprBuilder.mkInt2BV(32, right);
+			SmtExpr bv_shr = SmtExprBuilder.mkBVASHR(bv_left, bv_right);
+			SmtExpr ret_val = SmtExprBuilder.mkBV2Int(bv_shr);
 			return ret_val;
 		}
 		case USHR: {
-			String bv_left = Z3ExprBuilder.mkInt2BV(32, left);
-			String bv_right = Z3ExprBuilder.mkInt2BV(32, right);
-			String bv_shr = Z3ExprBuilder.mkBVLSHR(bv_left, bv_right);
-			String ret_val = Z3ExprBuilder.mkBV2Int(bv_shr);
+			SmtExpr bv_left = SmtExprBuilder.mkInt2BV(32, left);
+			SmtExpr bv_right = SmtExprBuilder.mkInt2BV(32, right);
+			SmtExpr bv_shr = SmtExprBuilder.mkBVLSHR(bv_left, bv_right);
+			SmtExpr ret_val = SmtExprBuilder.mkBV2Int(bv_shr);
 			return ret_val;
 		}
 
 		case MAX: {
-			String left_gt_right = Z3ExprBuilder.mkGt(left, right);
-			String ite_expr = Z3ExprBuilder.mkITE(left_gt_right, left, right);
+			SmtExpr left_gt_right = SmtExprBuilder.mkGt(left, right);
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(left_gt_right, left, right);
 			return ite_expr;
 
 		}
 
 		case MIN: {
-			String left_gt_right = Z3ExprBuilder.mkLt(left, right);
-			String ite_expr = Z3ExprBuilder.mkITE(left_gt_right, left, right);
+			SmtExpr left_gt_right = SmtExprBuilder.mkLt(left, right);
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(left_gt_right, left, right);
 			return ite_expr;
 
 		}
@@ -140,40 +142,36 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(IntegerConstant e, Void v) {
-		Long longObject = e.getConcreteValue();
-		String intConst = createIntegerConstant(longObject);
-		return intConst;
+	public SmtExpr visit(IntegerConstant e, Void v) {
+		long concreteValue = e.getConcreteValue();
+		return SmtExprBuilder.mkIntConstant(concreteValue);
 	}
 
-	private static String createIntegerConstant(Long longObject) {
-		String int_num;
-		if (longObject.longValue() >= Integer.MIN_VALUE
-				&& longObject.longValue() <= Integer.MAX_VALUE) {
-			int intValue = longObject.intValue();
-			int_num = Z3ExprBuilder.mkIntegerConstant(intValue);
-		} else {
-			long longValue = longObject.longValue();
-			int_num = Z3ExprBuilder.mkIntegerConstant(longValue);
-		}
-		return int_num;
+	private static SmtExpr createIntegerConstant(Long longObject) {
+		long concreteValue = longObject.longValue();
+		return SmtExprBuilder.mkIntConstant(concreteValue);
 	}
 
 	@Override
-	public String visit(IntegerUnaryExpression e, Void v) {
-		String intExpr = e.getOperand().accept(this, null);
+	public SmtExpr visit(IntegerUnaryExpression e, Void v) {
+		SmtExpr intExpr = e.getOperand().accept(this, null);
 
 		if (intExpr == null) {
 			return null;
 		}
 
+		if (!intExpr.isSymbolic()) {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
+
 		switch (e.getOperator()) {
 		case ABS:
-			String zero = Z3ExprBuilder.mkIntegerConstant(0);
-			String gte_than_zero = Z3ExprBuilder.mkGe(intExpr, zero);
-			String minus_expr = Z3ExprBuilder.mkNeg(intExpr);
+			SmtExpr zero = SmtExprBuilder.mkIntConstant(0);
+			SmtExpr gte_than_zero = SmtExprBuilder.mkGe(intExpr, zero);
+			SmtExpr minus_expr = SmtExprBuilder.mkNeg(intExpr);
 
-			String ite_expr = Z3ExprBuilder.mkITE(gte_than_zero, intExpr,
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(gte_than_zero, intExpr,
 					minus_expr);
 			return ite_expr;
 		default:
@@ -182,27 +180,38 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(RealToIntegerCast e, Void v) {
-		String realExpr = e.getArgument().accept(this, null);
+	public SmtExpr visit(RealToIntegerCast e, Void v) {
+		SmtExpr realExpr = e.getArgument().accept(this, null);
 		if (realExpr == null) {
 			return null;
 		}
-		String intExpr = Z3ExprBuilder.mkReal2Int(realExpr);
+		if (!realExpr.isSymbolic()) {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
+		SmtExpr intExpr = SmtExprBuilder.mkReal2Int(realExpr);
 		return intExpr;
 	}
 
 	@Override
-	public String visit(RealUnaryToIntegerExpression e, Void v) {
-		String realExpr = e.getOperand().accept(this, null);
+	public SmtExpr visit(RealUnaryToIntegerExpression e, Void v) {
+		SmtExpr realExpr = e.getOperand().accept(this, null);
 		if (realExpr == null) {
 			return null;
 		}
-
+		if (!realExpr.isSymbolic()) {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
 		switch (e.getOperator()) {
-		case GETEXPONENT:
 		case ROUND: {
-			Long longObject = e.getConcreteValue();
-			String intConst = createIntegerConstant(longObject);
+			SmtExpr smtExpr = SmtExprBuilder.mkReal2Int(realExpr);
+			return smtExpr;
+
+		}
+		case GETEXPONENT:{
+			long longObject = e.getConcreteValue();
+			SmtExpr intConst = SmtExprBuilder.mkIntConstant(longObject);
 			return intConst;
 		}
 		default:
@@ -211,54 +220,63 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(IntegerToRealCast e, Void v) {
-		String integerExpr = e.getArgument().accept(this, null);
+	public SmtExpr visit(IntegerToRealCast e, Void v) {
+		SmtExpr integerExpr = e.getArgument().accept(this, null);
 		if (integerExpr == null) {
 			return null;
 		}
-		String realExpr = Z3ExprBuilder.mkInt2Real(integerExpr);
+		if (!integerExpr.isSymbolic()) {
+			double doubleVal = e.getConcreteValue();
+			return mkRepresentableRealConstant(doubleVal);
+		}
+		SmtExpr realExpr = SmtExprBuilder.mkInt2Real(integerExpr);
 		return realExpr;
 
 	}
 
 	@Override
-	public String visit(RealBinaryExpression e, Void v) {
-		String left = e.getLeftOperand().accept(this, null);
-		String right = e.getRightOperand().accept(this, null);
+	public SmtExpr visit(RealBinaryExpression e, Void v) {
+		SmtExpr left = e.getLeftOperand().accept(this, null);
+		SmtExpr right = e.getRightOperand().accept(this, null);
 
 		if (left == null || right == null) {
 			return null;
 		}
 
+		if (!left.isSymbolic() && !right.isSymbolic()) {
+			double doubleValue = e.getConcreteValue();
+			return mkRepresentableRealConstant(doubleValue);
+		}
+
 		switch (e.getOperator()) {
 
 		case DIV: {
-			String z3_div = Z3ExprBuilder.mkDiv(left, right);
+			SmtExpr z3_div = SmtExprBuilder.mkRealDiv(left, right);
 			return z3_div;
 		}
 		case MUL: {
-			String z3_mul = Z3ExprBuilder.mkMul(left, right);
+			SmtExpr z3_mul = SmtExprBuilder.mkMul(left, right);
 			return z3_mul;
 
 		}
 		case MINUS: {
-			String z3_sub = Z3ExprBuilder.mkSub(left, right);
+			SmtExpr z3_sub = SmtExprBuilder.mkSub(left, right);
 			return z3_sub;
 		}
 		case PLUS: {
-			String z3_add = Z3ExprBuilder.mkAdd(left, right);
+			SmtExpr z3_add = SmtExprBuilder.mkAdd(left, right);
 			return z3_add;
 		}
 		case MAX: {
-			String left_gt_right = Z3ExprBuilder.mkGt(left, right);
-			String ite_expr = Z3ExprBuilder.mkITE(left_gt_right, left, right);
+			SmtExpr left_gt_right = SmtExprBuilder.mkGt(left, right);
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(left_gt_right, left, right);
 			return ite_expr;
 
 		}
 
 		case MIN: {
-			String left_gt_right = Z3ExprBuilder.mkLt(left, right);
-			String ite_expr = Z3ExprBuilder.mkITE(left_gt_right, left, right);
+			SmtExpr left_gt_right = SmtExprBuilder.mkLt(left, right);
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(left_gt_right, left, right);
 			return ite_expr;
 		}
 		case ATAN2:
@@ -269,9 +287,8 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 		case SCALB:
 		case IEEEREMAINDER:
 		case REM: {
-			double concreteValue = e.getConcreteValue();
-			String realConstant = Z3ExprBuilder.mkRealConstant(concreteValue);
-			return realConstant;
+			double doubleValue = e.getConcreteValue();
+			return mkRepresentableRealConstant(doubleValue);
 		}
 
 		default: {
@@ -283,27 +300,31 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(RealConstant e, Void v) {
-		double doubleVal = e.getConcreteValue();
-		String realExpr = Z3ExprBuilder.mkRealConstant(doubleVal);
-		return realExpr;
+	public SmtExpr visit(RealConstant e, Void v) {
+		double doubleValue = e.getConcreteValue();
+		return mkRepresentableRealConstant(doubleValue);
 	}
 
 	@Override
-	public String visit(RealUnaryExpression e, Void v) {
-		String intExpr = e.getOperand().accept(this, null);
+	public SmtExpr visit(RealUnaryExpression e, Void v) {
+		SmtExpr intExpr = e.getOperand().accept(this, null);
 
 		if (intExpr == null) {
 			return null;
 		}
 
+
+		if (!intExpr.isSymbolic()) {
+			double doubleValue = e.getConcreteValue();
+			return mkRepresentableRealConstant(doubleValue);
+		}
+		
 		switch (e.getOperator()) {
 		case ABS: {
-			String zero_rational = Z3ExprBuilder.mkRealConstant(0);
-			String gte_than_zero = Z3ExprBuilder.mkGe(intExpr, zero_rational);
-			String minus_expr = Z3ExprBuilder.mkNeg(intExpr);
-
-			String ite_expr = Z3ExprBuilder.mkITE(gte_than_zero, intExpr,
+			SmtExpr zero_rational = SmtExprBuilder.mkRealConstant(0);
+			SmtExpr gte_than_zero = SmtExprBuilder.mkGe(intExpr, zero_rational);
+			SmtExpr minus_expr = SmtExprBuilder.mkNeg(intExpr);
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(gte_than_zero, intExpr,
 					minus_expr);
 			return ite_expr;
 		}
@@ -335,38 +356,46 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 		case TODEGREES:
 		case TORADIANS:
 		case ULP: {
-			Double doubleVal = e.getConcreteValue();
-			String concreteRatNum;
-			if (doubleVal.isNaN() || doubleVal.isInfinite()) {
-				return null;
-			} else {
-				concreteRatNum = Z3ExprBuilder.mkRealConstant(doubleVal);
-			}
-			return concreteRatNum;
+			double doubleValue = e.getConcreteValue();
+			return mkRepresentableRealConstant(doubleValue);
 		}
 		default:
 			throw new UnsupportedOperationException("Not implemented yet!");
 		}
 	}
 
-	@Override
-	public String visit(RealVariable e, Void v) {
-		return e.getName();
+	private static SmtExpr mkRepresentableRealConstant(double doubleValue) {
+		if (isRepresentable(doubleValue)) {
+			return SmtExprBuilder.mkRealConstant(doubleValue);
+		} else {
+			return null;
+		}
+	}
+
+	private static boolean isRepresentable(Double doubleVal) {
+		return !doubleVal.isNaN() && !doubleVal.isInfinite();
 	}
 
 	@Override
-	public String visit(IntegerVariable e, Void v) {
-		return e.getName();
+	public SmtExpr visit(RealVariable e, Void v) {
+		String varName = e.getName();
+		return SmtExprBuilder.mkRealVariable(varName);
 	}
 
 	@Override
-	public String visit(StringConstant e, Void v) {
+	public SmtExpr visit(IntegerVariable e, Void v) {
+		String varName = e.getName();
+		return SmtExprBuilder.mkIntVariable(varName);
+	}
+
+	@Override
+	public SmtExpr visit(StringConstant e, Void v) {
 		throw new IllegalStateException(
 				"This function should not be invoked by the translation!");
 	}
 
 	@Override
-	public String visit(StringMultipleExpression e, Void v) {
+	public SmtExpr visit(StringMultipleExpression e, Void v) {
 		Operator op = e.getOperator();
 		switch (op) {
 		case REPLACEC:
@@ -386,7 +415,7 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(StringUnaryExpression e, Void v) {
+	public SmtExpr visit(StringUnaryExpression e, Void v) {
 		Operator op = e.getOperator();
 		switch (op) {
 		case TRIM:
@@ -402,12 +431,13 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(StringVariable e, Void v) {
-		return e.getName();
+	public SmtExpr visit(StringVariable e, Void v) {
+		throw new IllegalStateException(
+				"This function should not be invoked by the translation!");
 	}
 
 	@Override
-	public String visit(StringBinaryExpression e, Void v) {
+	public SmtExpr visit(StringBinaryExpression e, Void v) {
 		Operator op = e.getOperator();
 		switch (op) {
 		case APPEND_BOOLEAN:
@@ -427,7 +457,7 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(StringBinaryComparison e, Void v) {
+	public SmtExpr visit(StringBinaryComparison e, Void v) {
 		Operator op = e.getOperator();
 
 		switch (op) {
@@ -446,7 +476,7 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 		case PATTERNMATCHES:
 		case APACHE_ORO_PATTERN_MATCHES: {
 			Long longValue = e.getConcreteValue();
-			String intConst = createIntegerConstant(longValue);
+			SmtExpr intConst = createIntegerConstant(longValue);
 			return intConst;
 		}
 		default:
@@ -456,7 +486,7 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(StringBinaryToIntegerExpression e, Void v) {
+	public SmtExpr visit(StringBinaryToIntegerExpression e, Void v) {
 		Operator op = e.getOperator();
 		switch (op) {
 		case CHARAT:
@@ -479,7 +509,7 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(StringMultipleComparison e, Void v) {
+	public SmtExpr visit(StringMultipleComparison e, Void v) {
 		Operator op = e.getOperator();
 
 		switch (op) {
@@ -495,7 +525,7 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 		case PATTERNMATCHES:
 		case APACHE_ORO_PATTERN_MATCHES: {
 			Long longValue = e.getConcreteValue();
-			String intConst = createIntegerConstant(longValue);
+			SmtExpr intConst = createIntegerConstant(longValue);
 			return intConst;
 		}
 		default:
@@ -505,7 +535,7 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(StringMultipleToIntegerExpression e, Void v) {
+	public SmtExpr visit(StringMultipleToIntegerExpression e, Void v) {
 		Operator op = e.getOperator();
 		switch (op) {
 		case INDEXOFCI:
@@ -513,7 +543,7 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 		case LASTINDEXOFCI:
 		case LASTINDEXOFSI: {
 			Long concreteValue = e.getConcreteValue();
-			String intNum = createIntegerConstant(concreteValue);
+			SmtExpr intNum = createIntegerConstant(concreteValue);
 			return intNum;
 		}
 		default: {
@@ -524,18 +554,18 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(StringToIntegerCast e, Void v) {
+	public SmtExpr visit(StringToIntegerCast e, Void v) {
 		long concreteValue = e.getConcreteValue();
 		return createIntegerConstant(concreteValue);
 	}
 
 	@Override
-	public String visit(StringUnaryToIntegerExpression e, Void v) {
+	public SmtExpr visit(StringUnaryToIntegerExpression e, Void v) {
 		Operator op = e.getOperator();
 		switch (op) {
 		case LENGTH: {
 			Long concreteValue = e.getConcreteValue();
-			String intNum = createIntegerConstant(concreteValue);
+			SmtExpr intNum = createIntegerConstant(concreteValue);
 			return intNum;
 		}
 		default:
@@ -544,51 +574,51 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(RealComparison e, Void v) {
+	public SmtExpr visit(RealComparison e, Void v) {
 		throw new IllegalStateException(
 				"RealComparison should be removed during normalization");
 	}
 
 	@Override
-	public String visit(IntegerComparison e, Void v) {
+	public SmtExpr visit(IntegerComparison e, Void v) {
 		throw new IllegalStateException(
 				"IntegerComparison should be removed during normalization");
 	}
 
 	@Override
-	public String visit(IntegerToStringCast e, Void v) {
+	public SmtExpr visit(IntegerToStringCast e, Void v) {
 		throw new IllegalStateException(
 				"This function should not be invoked by the translation!");
 	}
 
 	@Override
-	public String visit(RealToStringCast e, Void v) {
+	public SmtExpr visit(RealToStringCast e, Void v) {
 		throw new IllegalStateException(
 				"This function should not be invoked by the translation!");
 	}
 
 	@Override
-	public String visit(StringNextTokenExpr e, Void v) {
+	public SmtExpr visit(StringNextTokenExpr e, Void v) {
 		throw new IllegalStateException(
 				"This function should not be invoked by the translation!");
 	}
 
 	@Override
-	public String visit(HasMoreTokensExpr e, Void v) {
+	public SmtExpr visit(HasMoreTokensExpr e, Void v) {
 		Long longObject = e.getConcreteValue();
-		String intConst = createIntegerConstant(longObject);
+		SmtExpr intConst = createIntegerConstant(longObject);
 		return intConst;
 	}
 
 	@Override
-	public String visit(StringReaderExpr e, Void v) {
+	public SmtExpr visit(StringReaderExpr e, Void v) {
 		Long longObject = e.getConcreteValue();
-		String intConst = createIntegerConstant(longObject);
+		SmtExpr intConst = createIntegerConstant(longObject);
 		return intConst;
 	}
 
 	@Override
-	public String visit(NewTokenizerExpr e, Void v) {
+	public SmtExpr visit(NewTokenizerExpr e, Void v) {
 		// TODO
 		throw new IllegalStateException(
 				"NewTokenizerExpr is not implemented yet");
@@ -596,7 +626,7 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 	}
 
 	@Override
-	public String visit(NextTokenizerExpr e, Void v) {
+	public SmtExpr visit(NextTokenizerExpr e, Void v) {
 		// TODO
 		throw new IllegalStateException(
 				"NextTokenizerExpr is not implemented yet");

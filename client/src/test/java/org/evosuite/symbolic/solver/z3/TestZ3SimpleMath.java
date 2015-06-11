@@ -40,7 +40,7 @@ public class TestZ3SimpleMath {
 			return;
 		}
 
-		Z3Solver solver = new Z3Solver();
+		Z3Solver solver = new Z3Solver(true);
 		TestSolverSimpleMath.testAdd(solver);
 	}
 

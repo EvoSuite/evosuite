@@ -16,6 +16,10 @@ class CVC4ModelParser {
 		this.initialValues = initialValues;
 	}
 
+	public CVC4ModelParser() {
+		this.initialValues = null;
+	}
+
 	public Map<String, Object> parse(String cvc4ResultStr) {
 		Map<String, Object> solution = new HashMap<String, Object>();
 
@@ -23,29 +27,29 @@ class CVC4ModelParser {
 		StringTokenizer tokenizer = new StringTokenizer(cvc4ResultStr,
 				"() \n\t", true);
 		token = tokenizer.nextToken(); // sat
-		token = tokenizer.nextToken(); // 
+		token = tokenizer.nextToken(); //
 		token = tokenizer.nextToken(); // (
 		token = tokenizer.nextToken(); // model
 		token = tokenizer.nextToken(); // \n
 
 		while (tokenizer.hasMoreTokens()) {
-			token = tokenizer.nextToken(); //(
+			token = tokenizer.nextToken(); // (
 			if (token.equals(")")) {
 				break;
 			}
 			token = tokenizer.nextToken(); // define-fun ?
 			if (token.equals("define-fun")) {
-				token = tokenizer.nextToken(); // 
+				token = tokenizer.nextToken(); //
 				String fun_name = tokenizer.nextToken();
-				token = tokenizer.nextToken(); // 
+				token = tokenizer.nextToken(); //
 				token = tokenizer.nextToken(); // (
 				token = tokenizer.nextToken(); // )
-				token = tokenizer.nextToken(); // 
+				token = tokenizer.nextToken(); //
 
 				String typeName = tokenizer.nextToken();
 				if (typeName.equals("Int")) {
 					token = tokenizer.nextToken(); // " "
-					token = tokenizer.nextToken(); // 
+					token = tokenizer.nextToken(); //
 					boolean neg = false;
 					String integerValueStr;
 					if (token.equals("(")) {
@@ -80,7 +84,7 @@ class CVC4ModelParser {
 						token = tokenizer.nextToken();
 						if (token.equals("-")) {
 							token = tokenizer.nextToken(); // " "
-							token = tokenizer.nextToken(); //?
+							token = tokenizer.nextToken(); // ?
 							if (token.equals("(")) {
 								token = tokenizer.nextToken(); // "/"
 								token = tokenizer.nextToken(); // " "
@@ -144,8 +148,8 @@ class CVC4ModelParser {
 					token = tokenizer.nextToken(); // )
 					token = tokenizer.nextToken(); // \n
 				} else {
-					//						throw new IllegalArgumentException(
-					//								"Must implement this production");
+					// throw new IllegalArgumentException(
+					// "Must implement this production");
 				}
 			}
 		}
@@ -161,9 +165,11 @@ class CVC4ModelParser {
 			}
 		}
 
-		if (!solution.keySet().equals(initialValues.keySet())) {
-			logger.debug("Adding missing values to Solver solution");
-			addMissingValues(initialValues, solution);
+		if (initialValues != null) {
+			if (!solution.keySet().equals(initialValues.keySet())) {
+				logger.debug("Adding missing values to Solver solution");
+				addMissingValues(initialValues, solution);
+			}
 		}
 
 		return solution;

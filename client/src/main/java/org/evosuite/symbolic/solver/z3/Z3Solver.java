@@ -24,10 +24,20 @@ import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.smt.SmtExpr;
+import org.evosuite.symbolic.solver.smt.SmtExprPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Z3Solver extends Solver {
+
+	public Z3Solver() {
+		super();
+	}
+
+	public Z3Solver(boolean addMissingVariables) {
+		super(addMissingVariables);
+	}
 
 	public static final String STR_LENGTH = "str_length";
 	static Logger logger = LoggerFactory.getLogger(Z3Solver.class);
@@ -67,7 +77,13 @@ public class Z3Solver extends Solver {
 
 				// parse solution
 				Map<String, Object> initialValues = getConcreteValues(variables);
-				Z3ModelParser modelParser = new Z3ModelParser(initialValues);
+
+				Z3ModelParser modelParser;
+				if (this.addMissingVariables()) {
+					modelParser = new Z3ModelParser(initialValues);
+				} else {
+					modelParser = new Z3ModelParser();
+				}
 				Map<String, Object> solution = modelParser.parse(z3ResultStr);
 
 				// check solution is correct
@@ -95,13 +111,12 @@ public class Z3Solver extends Solver {
 
 	private static String buildSmtQuery(Collection<Constraint<?>> constraints,
 			Set<Variable<?>> variables, long timeout) {
-		Map<String, String> stringConstants = new HashMap<String, String>();
 
-		List<String> assertions = new LinkedList<String>();
+		List<SmtExpr> assertions = new LinkedList<SmtExpr>();
 		for (Constraint<?> c : constraints) {
 			ConstraintToZ3Visitor v = new ConstraintToZ3Visitor();
-			String bool_expr = c.accept(v, null);
-			if (bool_expr != null) {
+			SmtExpr bool_expr = c.accept(v, null);
+			if (bool_expr != null && bool_expr.isSymbolic()) {
 				assertions.add(bool_expr);
 			}
 		}
@@ -124,24 +139,17 @@ public class Z3Solver extends Solver {
 				smtQuery.append(realVar);
 				smtQuery.append("\n");
 			} else if (v instanceof StringVariable) {
-				String stringVar = Z3ExprBuilder.mkStringVariable(varName);
-				smtQuery.append(stringVar);
-				smtQuery.append("\n");
+				// ignore string variables
 			} else {
 				throw new RuntimeException("Unknown variable type "
 						+ v.getClass().getCanonicalName());
 			}
 		}
 
-		for (String string_constant : stringConstants.keySet()) {
-			String arrayExpr = stringConstants.get(string_constant);
-			smtQuery.append("(declare-const " + arrayExpr
-					+ " (Array (Int Int) Int))");
-			smtQuery.append("\n");
-		}
-
-		for (String formula : assertions) {
-			smtQuery.append("(assert " + formula + ")");
+		SmtExprPrinter printer = new SmtExprPrinter();
+		for (SmtExpr formula : assertions) {
+			String formulaStr = formula.accept(printer, null);
+			smtQuery.append("(assert " + formulaStr + ")");
 			smtQuery.append("\n");
 		}
 

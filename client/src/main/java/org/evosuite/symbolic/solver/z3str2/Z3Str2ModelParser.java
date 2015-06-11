@@ -68,7 +68,9 @@ class Z3Str2ModelParser {
 
 		}
 
-		addMissingValues(initialValues, solution);
+		if (initialValues != null) {
+			addMissingValues(initialValues, solution);
+		}
 		return solution;
 	}
 
@@ -83,8 +85,9 @@ class Z3Str2ModelParser {
 					char e = charArray[i + 2];
 					char f = charArray[i + 3];
 					if (d == 'x' && isHexDigit(e) && isHexDigit(f)) {
-						int intValue = Integer.parseInt(new String(new char[]{e,f}).toUpperCase(),16);
-						char charValue = (char)intValue;
+						int intValue = Integer.parseInt(new String(new char[] {
+								e, f }).toUpperCase(), 16);
+						char charValue = (char) intValue;
 						buff.append(charValue);
 						i += 3;
 						continue;
@@ -93,7 +96,7 @@ class Z3Str2ModelParser {
 			}
 			buff.append(c);
 		}
-		
+
 		return buff.toString();
 	}
 
@@ -113,6 +116,10 @@ class Z3Str2ModelParser {
 				solution.put(otherVarName, initialValues.get(otherVarName));
 			}
 		}
+	}
+
+	public Map<String, Object> parse(String z3ResultStr) {
+		return parse(z3ResultStr, null);
 	}
 
 }
