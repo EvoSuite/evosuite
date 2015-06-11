@@ -1,6 +1,7 @@
 package org.evosuite.testcase;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletConfig;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletRequest;
@@ -38,10 +39,69 @@ public class ConstraintVerifierTest {
 
     private static class FakeServlet extends HttpServlet{
         public FakeServlet(){}
+
+        public void foo(){}
+    }
+
+    public static void takeServletAsInput(FakeServlet servlet){
     }
 
 
-    //TODO test bounded variable init
+    @Test
+    public void testInitializingBoundedVariable_wrong0() throws Exception {
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+        factory.addMethodFor(tc.getTestCase(), servlet,
+                new GenericMethod(FakeServlet.class.getDeclaredMethod("foo"), FakeServlet.class), 1);
+
+        //initializing bounding variable method cannot be called here after "foo" is called on the bounded variable
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct",Object.class), Injector.class), 2, 0);
+
+        Assert.assertEquals(3, tc.size());
+        Assert.assertFalse(ConstraintVerifier.verifyTest(tc));
+    }
+
+    @Test
+    public void testInitializingBoundedVariable_wrong1() throws Exception {
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(ConstraintVerifierTest.class.getDeclaredMethod("takeServletAsInput", FakeServlet.class),
+                        ConstraintVerifierTest.class), 1, 0);
+
+        //initializing bounding variable method cannot be called here after the bounded variable has been used as input in some other method
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct",Object.class), Injector.class), 2, 0);
+
+        Assert.assertEquals(3, tc.size());
+        Assert.assertFalse(ConstraintVerifier.verifyTest(tc));
+    }
+
+    @Test
+    public void testInitializingBoundedVariable_correct() throws Exception {
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+        //initializing bounding variable method called directly after the new
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct",Object.class), Injector.class), 1, 0);
+
+        //method on servlet after the bounding variable initialization: it is ok
+        factory.addMethodFor(tc.getTestCase(), servlet,
+                new GenericMethod(FakeServlet.class.getDeclaredMethod("foo"), FakeServlet.class), 2);
+
+        Assert.assertEquals(3, tc.size());
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+    }
 
 
     @Test
