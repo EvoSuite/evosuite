@@ -92,7 +92,8 @@ public class ConstraintVerifier {
             }
 
             Object reflectionRef = null;
-            List<VariableReference> inputs =null;
+            List<VariableReference> inputs = null;
+            List<VariableReference> boundedInitializingInputs = null; //TODO check those
             Annotation[] methodAnnotations = null;
             Class<?> declaringClass = null;
 
