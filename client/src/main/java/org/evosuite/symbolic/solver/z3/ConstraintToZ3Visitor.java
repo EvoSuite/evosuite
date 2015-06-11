@@ -1,7 +1,5 @@
 package org.evosuite.symbolic.solver.z3;
 
-import java.util.Map;
-
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.ConstraintVisitor;
 import org.evosuite.symbolic.expr.IntegerConstraint;
@@ -12,15 +10,12 @@ import org.evosuite.symbolic.expr.bv.StringComparison;
 
 class ConstraintToZ3Visitor implements ConstraintVisitor<String, Void> {
 
-	private final Map<String, String> stringsToFunctionsMap;
-
-	public ConstraintToZ3Visitor(Map<String, String> stringsToFunctionsMap) {
-		this.stringsToFunctionsMap = stringsToFunctionsMap;
+	public ConstraintToZ3Visitor() {
 	}
 
 	@Override
 	public String visit(IntegerConstraint c, Void arg) {
-		ExprToZ3Visitor v = new ExprToZ3Visitor(stringsToFunctionsMap);
+		ExprToZ3Visitor v = new ExprToZ3Visitor();
 
 		String left = c.getLeftOperand().accept(v, null);
 		String right = c.getRightOperand().accept(v, null);
@@ -70,7 +65,7 @@ class ConstraintToZ3Visitor implements ConstraintVisitor<String, Void> {
 
 	@Override
 	public String visit(RealConstraint c, Void arg) {
-		ExprToZ3Visitor v = new ExprToZ3Visitor(stringsToFunctionsMap);
+		ExprToZ3Visitor v = new ExprToZ3Visitor();
 
 		String left = c.getLeftOperand().accept(v, null);
 		String right = c.getRightOperand().accept(v, null);
@@ -86,7 +81,7 @@ class ConstraintToZ3Visitor implements ConstraintVisitor<String, Void> {
 
 	@Override
 	public String visit(StringConstraint c, Void arg) {
-		ExprToZ3Visitor v = new ExprToZ3Visitor(stringsToFunctionsMap);
+		ExprToZ3Visitor v = new ExprToZ3Visitor();
 
 		StringComparison stringComparison = (StringComparison) c
 				.getLeftOperand();

@@ -3,7 +3,6 @@ package org.evosuite.symbolic.solver.z3;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
@@ -41,129 +40,6 @@ import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
 
 class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
-
-	private String buildContainsFormula(String s1, String s2) {
-
-		String length_s1 = Z3ExprBuilder.mkApp(Z3Solver.STR_LENGTH, s1);
-		String length_s2 = Z3ExprBuilder.mkApp(Z3Solver.STR_LENGTH, s2);
-
-		String enoughLength = Z3ExprBuilder.mkGe(length_s1, length_s2);
-
-		String j = "j";
-		String range_of_j = Z3ExprBuilder.mkAnd(Z3ExprBuilder.mkGe(j,
-				createIntegerConstant(0)), Z3ExprBuilder.mkLe(
-				Z3ExprBuilder.mkAdd(j, length_s2), length_s1));
-
-		String i = "i";
-		String range_of_i = Z3ExprBuilder.mkAnd(
-				Z3ExprBuilder.mkGe(i, createIntegerConstant(0)),
-				Z3ExprBuilder.mkLt(i, length_s2));
-		String equalElementAtPosition = Z3ExprBuilder.mkEq(
-				Z3ExprBuilder.mkSelect(s1, Z3ExprBuilder.mkAdd(j, i)),
-				Z3ExprBuilder.mkSelect(s2, i));
-		String sameElements = Z3ExprBuilder.mkForall(new String[] { i },
-				new String[] { "Int" },
-				Z3ExprBuilder.mkImplies(range_of_i, equalElementAtPosition));
-
-		String existsJ = Z3ExprBuilder.mkExists(new String[] { j },
-				new String[] { "Int" },
-				Z3ExprBuilder.mkAnd(range_of_j, sameElements));
-		String contains_formula = Z3ExprBuilder.mkAnd(enoughLength, existsJ);
-		return contains_formula;
-
-	}
-
-	private String createIntegerConstant(int i) {
-		return createIntegerConstant((long) i);
-	}
-
-	private String buildEndsWithFormula(String s1, String s2) {
-		String length_of_s1 = Z3ExprBuilder.mkApp(Z3Solver.STR_LENGTH, s1);
-		String length_of_s2 = Z3ExprBuilder.mkApp(Z3Solver.STR_LENGTH, s2);
-
-		String enoughLength = Z3ExprBuilder.mkGe(length_of_s1, length_of_s2);
-
-		String length_s1_minus_length_s2 = Z3ExprBuilder.mkSub(length_of_s1,
-				length_of_s2);
-
-		String i = "i";
-		String range_of_i = Z3ExprBuilder.mkAnd(
-				Z3ExprBuilder.mkGe(i, createIntegerConstant(0)),
-				Z3ExprBuilder.mkLt(i, length_of_s1));
-		String equalElementAtPosition = Z3ExprBuilder.mkEq(
-				Z3ExprBuilder.mkSelect(s1,
-						Z3ExprBuilder.mkAdd(i, length_s1_minus_length_s2)),
-				Z3ExprBuilder.mkSelect(s2, i));
-		String sameElements = Z3ExprBuilder.mkForall(new String[] { i },
-				new String[] { "Int" },
-				Z3ExprBuilder.mkImplies(range_of_i, equalElementAtPosition));
-
-		String endsWithFormula = Z3ExprBuilder
-				.mkAnd(enoughLength, sameElements);
-		return endsWithFormula;
-	}
-
-	private String buildStartsWithFormula(String s1, String s2, String indexExpr) {
-
-		String s1_length = Z3ExprBuilder.mkApp(Z3Solver.STR_LENGTH, s1);
-		String s2_length = Z3ExprBuilder.mkApp(Z3Solver.STR_LENGTH, s2);
-
-		String i = "i";
-		String range_of_i = Z3ExprBuilder.mkAnd(
-				Z3ExprBuilder.mkGe(i, createIntegerConstant(0)),
-				Z3ExprBuilder.mkLt(i, s2_length));
-
-		String enoughLength;
-		String equalElementAtPosition;
-		if (indexExpr.trim().equals("0")) {
-
-			enoughLength = Z3ExprBuilder.mkGe(s1_length, s2_length);
-
-			equalElementAtPosition = Z3ExprBuilder.mkEq(
-					Z3ExprBuilder.mkSelect(s1, i),
-					Z3ExprBuilder.mkSelect(s2, i));
-
-		} else {
-			String indexNotNegative = Z3ExprBuilder.mkGe(indexExpr,
-					createIntegerConstant(0));
-			String s1_has_room = Z3ExprBuilder.mkGe(s1_length,
-					Z3ExprBuilder.mkAdd(s2_length, indexExpr));
-
-			enoughLength = Z3ExprBuilder.mkAnd(indexNotNegative, s1_has_room);
-			equalElementAtPosition = Z3ExprBuilder.mkEq(
-					Z3ExprBuilder.mkSelect(s1,
-							Z3ExprBuilder.mkAdd(indexExpr, i)),
-					Z3ExprBuilder.mkSelect(s2, i));
-
-		}
-		String sameElements = Z3ExprBuilder.mkForall(new String[] { i },
-				new String[] { "Int" },
-				Z3ExprBuilder.mkImplies(range_of_i, equalElementAtPosition));
-
-		String startsWithFormula = Z3ExprBuilder.mkAnd(enoughLength,
-				sameElements);
-		return startsWithFormula;
-	}
-
-	private String buildEqualsFormula(String s1, String s2) {
-		String length_of_s1 = Z3ExprBuilder.mkApp(Z3Solver.STR_LENGTH, s1);
-		String length_of_s2 = Z3ExprBuilder.mkApp(Z3Solver.STR_LENGTH, s2);
-
-		String sameLength = Z3ExprBuilder.mkEq(length_of_s1, length_of_s2);
-
-		String i = "i";
-		String range_of_i = Z3ExprBuilder.mkAnd(
-				Z3ExprBuilder.mkGe(i, createIntegerConstant(0)),
-				Z3ExprBuilder.mkLt(i, length_of_s1));
-		String equalElementAtPosition = Z3ExprBuilder.mkEq(
-				Z3ExprBuilder.mkSelect(s1, i), Z3ExprBuilder.mkSelect(s2, i));
-		String sameElements = Z3ExprBuilder.mkForall(new String[] { i },
-				new String[] { "Int" },
-				Z3ExprBuilder.mkImplies(range_of_i, equalElementAtPosition));
-
-		String equals_formula = Z3ExprBuilder.mkAnd(sameLength, sameElements);
-		return equals_formula;
-	}
 
 	@Override
 	public String visit(IntegerBinaryExpression e, Void v) {
@@ -270,7 +146,7 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 		return intConst;
 	}
 
-	private String createIntegerConstant(Long longObject) {
+	private static String createIntegerConstant(Long longObject) {
 		String int_num;
 		if (longObject.longValue() >= Integer.MIN_VALUE
 				&& longObject.longValue() <= Integer.MAX_VALUE) {
@@ -483,29 +359,10 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 		return e.getName();
 	}
 
-	private final Map<String, String> stringsToFunctionsMap;
-
-	public ExprToZ3Visitor(Map<String, String> map) {
-		this.stringsToFunctionsMap = map;
-	}
-
-	private String createStringConstant(String str) {
-		if (!stringsToFunctionsMap.containsKey(str)) {
-			String constantName = getNextConstantName();
-			stringsToFunctionsMap.put(str, constantName);
-		}
-		return stringsToFunctionsMap.get(str);
-	}
-
 	@Override
 	public String visit(StringConstant e, Void v) {
-		java.lang.String str = e.getConcreteValue();
-		return createStringConstant(str);
-	}
-
-	private String getNextConstantName() {
-		String constantName = "string" + (stringsToFunctionsMap.size() + 1);
-		return constantName;
+		throw new IllegalStateException(
+				"This function should not be invoked by the translation!");
 	}
 
 	@Override
@@ -517,9 +374,9 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 		case REPLACEALL:
 		case REPLACEFIRST:
 		case SUBSTRING: {
-			String concreteValue = e.getConcreteValue();
-			String strConstant = createStringConstant(concreteValue);
-			return strConstant;
+			throw new IllegalStateException(
+					"This function should not be invoked by the translation!");
+
 		}
 		default:
 			throw new UnsupportedOperationException("Not implemented yet! "
@@ -535,8 +392,8 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 		case TRIM:
 		case TOLOWERCASE:
 		case TOUPPERCASE: {
-			String concreteValue = e.getConcreteValue();
-			return createStringConstant(concreteValue);
+			throw new IllegalStateException(
+					"This function should not be invoked by the translation!");
 		}
 		default:
 			throw new UnsupportedOperationException("Not implemented yet! "
@@ -559,9 +416,8 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 		case APPEND_REAL:
 		case APPEND_STRING:
 		case CONCAT: {
-			String concreteValue = e.getConcreteValue();
-			String strConstant = createStringConstant(concreteValue);
-			return strConstant;
+			throw new IllegalStateException(
+					"This function should not be invoked by the translation!");
 		}
 		default: {
 			throw new UnsupportedOperationException("Not implemented yet! "
@@ -572,46 +428,20 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 
 	@Override
 	public String visit(StringBinaryComparison e, Void v) {
-		Expression<String> leftOperand = e.getLeftOperand();
-		Expression<?> rightOperand = e.getRightOperand();
 		Operator op = e.getOperator();
 
-		String left = leftOperand.accept(this, null);
-		String right = rightOperand.accept(this, null);
-
-		if (left == null || right == null) {
-			return null;
-		}
-
-		String oneConstant = createIntegerConstant(1);
-		String zeroConstant = createIntegerConstant(0);
 		switch (op) {
-		case EQUALS: {
-			String equalsFormula = buildEqualsFormula(left, right);
-			String ifThenElseFormula = Z3ExprBuilder.mkITE(equalsFormula,
-					oneConstant, zeroConstant);
-			return ifThenElseFormula;
-		}
 		case EQUALSIGNORECASE: {
 			throw new UnsupportedOperationException(
 					"Must implement equalsIgnoreCase()!");
-		}
-		case ENDSWITH: {
-			String equalsFormula = buildEndsWithFormula(left, right);
-			String ifThenElseFormula = Z3ExprBuilder.mkITE(equalsFormula,
-					oneConstant, zeroConstant);
-			return ifThenElseFormula;
-		}
-		case CONTAINS: {
-			String equalsFormula = buildContainsFormula(left, right);
-			String ifThenElseFormula = Z3ExprBuilder.mkITE(equalsFormula,
-					oneConstant, zeroConstant);
-			return ifThenElseFormula;
 		}
 		case STARTSWITH: {
 			throw new IllegalArgumentException(
 					"Illegal StringBinaryComparison operator " + op);
 		}
+		case ENDSWITH:
+		case EQUALS:
+		case CONTAINS:
 		case REGIONMATCHES:
 		case PATTERNMATCHES:
 		case APACHE_ORO_PATTERN_MATCHES: {
@@ -627,22 +457,9 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 
 	@Override
 	public String visit(StringBinaryToIntegerExpression e, Void v) {
-		Expression<String> leftOperand = e.getLeftOperand();
 		Operator op = e.getOperator();
-		Expression<?> rightOperand = e.getRightOperand();
-
-		String left = leftOperand.accept(this, null);
-		String right = rightOperand.accept(this, null);
-
-		if (left == null || right == null) {
-			return null;
-		}
-
 		switch (op) {
-		case CHARAT: {
-			String charAtExpr = Z3ExprBuilder.mkSelect(left, right);
-			return charAtExpr;
-		}
+		case CHARAT:
 		case INDEXOFC:
 		case INDEXOFS:
 		case LASTINDEXOFC:
@@ -663,40 +480,9 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 
 	@Override
 	public String visit(StringMultipleComparison e, Void v) {
-		Expression<String> leftOperand = e.getLeftOperand();
-		Expression<?> rightOperand = e.getRightOperand();
 		Operator op = e.getOperator();
-		ArrayList<Expression<?>> othersOperands = e.getOther();
-
-		String left = leftOperand.accept(this, null);
-		String right = rightOperand.accept(this, null);
-		List<String> others = new LinkedList<String>();
-		for (Expression<?> otherOperand : othersOperands) {
-			String other = otherOperand.accept(this, null);
-			others.add(other);
-		}
-
-		if (left == null || right == null) {
-			return null;
-		}
-		for (String expr : others) {
-			if (expr == null) {
-				return null;
-			}
-		}
 
 		switch (op) {
-		case STARTSWITH: {
-			String indexExpr = others.get(0);
-			String oneExpr = createIntegerConstant(1);
-			String zeroExpr = createIntegerConstant(0);
-
-			String startsWithFormula = buildStartsWithFormula(left, right,
-					indexExpr);
-			String ifThenElseFormula = Z3ExprBuilder.mkITE(startsWithFormula,
-					oneExpr, zeroExpr);
-			return ifThenElseFormula;
-		}
 		case EQUALS:
 		case EQUALSIGNORECASE:
 		case ENDSWITH:
@@ -704,6 +490,7 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 			throw new IllegalArgumentException(
 					"Illegal StringMultipleComparison operator " + op);
 		}
+		case STARTSWITH:
 		case REGIONMATCHES:
 		case PATTERNMATCHES:
 		case APACHE_ORO_PATTERN_MATCHES: {
@@ -744,12 +531,12 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 
 	@Override
 	public String visit(StringUnaryToIntegerExpression e, Void v) {
-		String innerString = e.getOperand().accept(this, null);
 		Operator op = e.getOperator();
 		switch (op) {
 		case LENGTH: {
-			String app = Z3ExprBuilder.mkApp(Z3Solver.STR_LENGTH, innerString);
-			return app;
+			Long concreteValue = e.getConcreteValue();
+			String intNum = createIntegerConstant(concreteValue);
+			return intNum;
 		}
 		default:
 			throw new UnsupportedOperationException("Not implemented yet!");
@@ -770,20 +557,20 @@ class ExprToZ3Visitor implements ExpressionVisitor<String, Void> {
 
 	@Override
 	public String visit(IntegerToStringCast e, Void v) {
-		String concreteValue = e.getConcreteValue();
-		return createStringConstant(concreteValue);
+		throw new IllegalStateException(
+				"This function should not be invoked by the translation!");
 	}
 
 	@Override
 	public String visit(RealToStringCast e, Void v) {
-		String concreteValue = e.getConcreteValue();
-		return createStringConstant(concreteValue);
+		throw new IllegalStateException(
+				"This function should not be invoked by the translation!");
 	}
 
 	@Override
 	public String visit(StringNextTokenExpr e, Void v) {
-		String concreteValue = e.getConcreteValue();
-		return createStringConstant(concreteValue);
+		throw new IllegalStateException(
+				"This function should not be invoked by the translation!");
 	}
 
 	@Override

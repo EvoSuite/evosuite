@@ -99,30 +99,10 @@ public class Z3Solver extends Solver {
 
 		List<String> assertions = new LinkedList<String>();
 		for (Constraint<?> c : constraints) {
-			ConstraintToZ3Visitor v = new ConstraintToZ3Visitor(stringConstants);
+			ConstraintToZ3Visitor v = new ConstraintToZ3Visitor();
 			String bool_expr = c.accept(v, null);
 			if (bool_expr != null) {
 				assertions.add(bool_expr);
-			}
-		}
-
-		// add string axioms
-		for (String string_constant : stringConstants.keySet()) {
-			String arrayExpr = stringConstants.get(string_constant);
-
-			String strLen = Z3ExprBuilder.mkApp(STR_LENGTH, arrayExpr);
-			String str_len_axiom = Z3ExprBuilder.mkEq(strLen,
-					Z3ExprBuilder.mkIntegerConstant(string_constant.length()));
-
-			assertions.add(str_len_axiom);
-
-			for (int i = 0; i < string_constant.length(); i++) {
-				int charV = (int) string_constant.charAt(i);
-				String string_i = Z3ExprBuilder.mkEq(
-						Z3ExprBuilder.mkSelect(arrayExpr,
-								Z3ExprBuilder.mkIntegerConstant(i)),
-						Z3ExprBuilder.mkIntegerConstant(charV));
-				assertions.add(string_i);
 			}
 		}
 
@@ -160,15 +140,6 @@ public class Z3Solver extends Solver {
 			smtQuery.append("\n");
 		}
 
-		Z3Function strLength = createStringLength();
-		smtQuery.append(strLength.getFunctionDeclaration());
-		smtQuery.append("\n");
-
-		for (String axiom : strLength.getAxioms()) {
-			smtQuery.append("(assert " + axiom + ")");
-			smtQuery.append("\n");
-		}
-
 		for (String formula : assertions) {
 			smtQuery.append("(assert " + formula + ")");
 			smtQuery.append("\n");
@@ -185,26 +156,6 @@ public class Z3Solver extends Solver {
 		return smtQuery.toString();
 	}
 
-	private static Z3Function createStringLength() {
-		//function declaration
-		String arraySort = "(Array (Int) (Int))";
-		String arrayLengthSort = "Int";
-		String str_length = Z3ExprBuilder.mkFuncDecl(STR_LENGTH, arraySort,
-				arrayLengthSort);
-
-		//axioms
-		String s = "s";// arraySort
-		String length_of_s = Z3ExprBuilder.mkApp(STR_LENGTH, s);
-		String body = Z3ExprBuilder.mkGe(length_of_s,
-				Z3ExprBuilder.mkIntegerConstant(0));
-		String axiom = Z3ExprBuilder.mkForall(new String[] { s },
-				new String[] { arraySort }, body);
-
-		Z3Function z3Function = new Z3Function(str_length);
-		z3Function.addAxiom(axiom);
-		return z3Function;
-	}
-
 	private static final class TimeoutTask extends TimerTask {
 		private final Process process;
 
@@ -216,27 +167,6 @@ public class Z3Solver extends Solver {
 		public void run() {
 			process.destroy();
 		}
-	}
-
-	private static class Z3Function {
-		public Z3Function(String fd) {
-			this.functionDeclaration = fd;
-		}
-
-		public List<String> getAxioms() {
-			return axioms;
-		}
-
-		public String getFunctionDeclaration() {
-			return functionDeclaration;
-		}
-
-		public void addAxiom(String axiom) {
-			axioms.add(axiom);
-		}
-
-		private final String functionDeclaration;
-		private final List<String> axioms = new LinkedList<String>();
 	}
 
 	private static int launchNewProcess(String z3Cmd, String smtQuery,
