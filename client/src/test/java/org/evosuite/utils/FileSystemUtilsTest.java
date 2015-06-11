@@ -57,9 +57,11 @@ public class FileSystemUtilsTest {
         Assert.assertEquals(b.lastModified(), destB.lastModified());
         Assert.assertEquals(c.lastModified(), destC.lastModified());
 
-        Thread.sleep(50); // be sure time stamps ll be different
+        Thread.sleep(1000); // be sure time stamps ll be different
 
-        c.delete();
+        boolean deleted = c.delete();
+        Assert.assertTrue(deleted);
+
         c.createNewFile();
         c.deleteOnExit();
 
