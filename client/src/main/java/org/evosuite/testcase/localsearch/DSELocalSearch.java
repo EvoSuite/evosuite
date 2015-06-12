@@ -18,6 +18,7 @@ import org.evosuite.symbolic.solver.ConstraintCache;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverFactory;
 import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -105,6 +106,7 @@ public class DSELocalSearch extends StatementLocalSearch {
 				logger.info("Found solution");
 				DSEStats.reportNewSAT();
 				TestCase oldTest = test.getTestCase();
+				ExecutionResult oldResult = test.getLastExecutionResult().clone();
 				TestCase newTest = updateTest(oldTest, values);
 				logger.info("New test: " + newTest.toCode());
 				test.setTestCase(newTest);
@@ -125,9 +127,8 @@ public class DSELocalSearch extends StatementLocalSearch {
 
 					test.setTestCase(oldTest);
 					// FIXXME: How can this be null?
-					if (clone.getLastExecutionResult() != null)
-						test.setLastExecutionResult(clone
-								.getLastExecutionResult());
+					if (oldResult != null)
+						test.setLastExecutionResult(oldResult);
 					// TODO Mutation
 				}
 			} else {
