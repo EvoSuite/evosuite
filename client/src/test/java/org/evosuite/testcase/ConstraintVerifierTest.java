@@ -1,6 +1,8 @@
 package org.evosuite.testcase;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.annotation.BoundInputVariable;
+import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletConfig;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
@@ -43,12 +45,20 @@ public class ConstraintVerifierTest {
         public void foo(){}
     }
 
+    public static HttpServlet getAFakeServletInstance(){
+        return new FakeServlet();
+    }
+
     public static void takeServletAsInput(FakeServlet servlet){
+    }
+
+    @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
+    public static  void fakeInjection(@BoundInputVariable(initializer = true) Servlet servlet){
     }
 
 
     @Test
-    public void testInitializingBoundedVariable_wrong0() throws Exception {
+    public void testInitializingBoundedVariable_wrong_callingMethodsBeforeInit() throws Exception {
         TestChromosome tc = new TestChromosome();
         TestFactory factory = TestFactory.getInstance();
 
@@ -66,7 +76,7 @@ public class ConstraintVerifierTest {
     }
 
     @Test
-    public void testInitializingBoundedVariable_wrong1() throws Exception {
+    public void testInitializingBoundedVariable_wrong_inputInOtherMethodBeforeInit() throws Exception {
         TestChromosome tc = new TestChromosome();
         TestFactory factory = TestFactory.getInstance();
 
@@ -101,6 +111,74 @@ public class ConstraintVerifierTest {
 
         Assert.assertEquals(3, tc.size());
         Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+    }
+
+
+    @Test
+    public void testInitializingBoundedVariable_correct_severalCalls() throws Exception {
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+
+        //both calls on same bounding variable
+
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(
+                        ConstraintVerifierTest.class.getDeclaredMethod("fakeInjection",Servlet.class),
+                        ConstraintVerifierTest.class), 1, 0);
+
+        //this is an atMostOnce type
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct",Object.class), Injector.class), 2, 0);
+
+        Assert.assertEquals(3, tc.size());
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+    }
+
+    @Test
+    public void testInitializingBoundedVariable_wrong_atMostOnce() throws Exception {
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+
+        //initializing bounding variable method called directly after the new
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct", Object.class), Injector.class), 1, 0);
+
+
+        Assert.assertEquals(2, tc.size());
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+
+
+        // this should be invalid, as executePostConstruct can be used only once on same bounded variable
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct",Object.class), Injector.class), 2, 0);
+
+        Assert.assertEquals(3, tc.size());
+        Assert.assertFalse(ConstraintVerifier.verifyTest(tc));
+    }
+
+
+    @Test
+    public void testInitializingBoundedVariable_wrong_noConstructor() throws Exception {
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(ConstraintVerifierTest.class.getDeclaredMethod("getAFakeServletInstance"),
+                        ConstraintVerifierTest.class), 0, 0);
+
+
+        //initializing bounding variable method called on instance not generated with new
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct", Object.class), Injector.class), 1, 0);
+
+        Assert.assertEquals(2, tc.size());
+        Assert.assertFalse(ConstraintVerifier.verifyTest(tc));
     }
 
 
