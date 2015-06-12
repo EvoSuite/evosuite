@@ -98,7 +98,8 @@ public class Injector {
      * @param instance
      */
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static void executePostConstruct(@BoundInputVariable(initializer = true) Object instance) throws IllegalArgumentException{
+    public static void executePostConstruct(
+            @BoundInputVariable(initializer = true, atMostOnce = true) Object instance) throws IllegalArgumentException{
 
         if(instance == null){
             throw new IllegalArgumentException("Null input parameter");
