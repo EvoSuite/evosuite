@@ -33,10 +33,24 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Interface for SMT solvers
- 
+ * 
  * @author Gordon Fraser
  */
 public abstract class Solver {
+
+	private final boolean addMissingVariables;
+
+	protected boolean addMissingVariables() {
+		return addMissingVariables;
+	}
+
+	public Solver() {
+		addMissingVariables = false;
+	}
+
+	public Solver(boolean addMissingVariables) {
+		this.addMissingVariables = addMissingVariables;
+	}
 
 	static Logger logger = LoggerFactory.getLogger(Solver.class);
 
@@ -99,6 +113,11 @@ public abstract class Solver {
 		for (Variable<?> v : variables) {
 
 			String var_name = v.getName();
+
+			if (!concrete_values.containsKey(var_name)) {
+				continue;
+			}
+
 			Object concreteValue = concrete_values.get(var_name);
 
 			if (v instanceof StringVariable) {
@@ -119,7 +138,6 @@ public abstract class Solver {
 		}
 	}
 
-	
 	private static final double DELTA = 1e-15;
 
 	protected static boolean checkSolution(

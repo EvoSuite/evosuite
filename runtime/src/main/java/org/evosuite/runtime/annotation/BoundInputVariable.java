@@ -23,4 +23,12 @@ public @interface BoundInputVariable {
      * @return
      */
     boolean initializer() default false;
+
+
+    /**
+     * Specify that the given method can only be called once on the bounded variable
+     *
+     * @return
+     */
+    boolean atMostOnce() default false;
 }
