@@ -57,6 +57,7 @@ public class IntegerLocalSearch<T> extends StatementLocalSearch {
 		int newPos = slice.sliceFor(slice.getStatement(statement).getReturnValue());
 		TestCase oldTest = test.getTestCase();
 		test.setTestCase(slice);
+		test.setChanged(true);
 		objective = ((TestSuiteLocalSearchObjective)objective).getCopyForTest(test);
 		int oldStatement = statement;
 		statement = newPos;

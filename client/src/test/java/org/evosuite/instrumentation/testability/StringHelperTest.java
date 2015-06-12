@@ -285,4 +285,18 @@ public class StringHelperTest {
         Assert.assertTrue("Invalid distances " + first + " and " + last, first >= last
                 && first <= 0);
     }
+    
+    @Test
+	public void testCharacterDistanceUsed() {
+		String str1 = "test1";
+		String str2 = "test2";
+		String str4 = "test4";
+		int result1 = StringHelper.StringEquals("test3", str1);
+		int result2 = StringHelper.StringEquals("test3", str2);
+		int result4 = StringHelper.StringEquals("test3", str4);
+		assertTrue(result1 < result2);
+		assertTrue(result2 == result4);
+		assertTrue(result1 < result4);
+
+	}
 }

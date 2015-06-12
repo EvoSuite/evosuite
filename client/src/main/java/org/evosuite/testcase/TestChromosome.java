@@ -69,6 +69,9 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	public void setTestCase(TestCase testCase) {
 		test = testCase;
+		clearCachedResults();
+		clearCachedMutationResults();
+		setChanged(true);
 	}
 
 	/**

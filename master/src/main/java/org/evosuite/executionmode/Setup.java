@@ -25,11 +25,37 @@ public class Setup {
 		setup(line.getOptionValue("setup"), line.getArgs(), javaOpts, inheritanceTree);
 		return null;
 	}
-	
+
+	private static void addEntryToCP(String entry){
+		if (!Properties.CP.isEmpty()){
+			Properties.CP += File.pathSeparator;
+		}
+		Properties.CP += entry;
+	}
+
 	private static void setup(String target, String[] args, List<String> javaArgs,
 	        boolean doInheritance) {
 
 		Properties.CP = "";
+
+		/*
+			Important that target will be first on the CP.
+			Otherwise, if for some reasons a dependency uses a same class,
+			that would take precedence
+		 */
+		File targetFile = new File(target);
+		if (targetFile.exists()) {
+			if (targetFile.isDirectory() || target.endsWith(".jar")) {
+				addEntryToCP(target);
+			} else if (target.endsWith(".class")) {
+				String pathName = targetFile.getParent();
+				addEntryToCP(pathName);
+			} else {
+				LoggingUtils.getEvoLogger().info("Failed to set up classpath for "
+						+ target);
+				return;
+			}
+		}
 
 		if (args.length > 0) {
 			for (int i = 0; i < args.length; i++) {
@@ -37,37 +63,14 @@ public class Setup {
 				if(element.isEmpty()){
 					continue;
 				}
-				if (!Properties.CP.isEmpty()){
-					Properties.CP += File.pathSeparator;
-				}
-				Properties.CP += element;
+				addEntryToCP(element);
 			}
 		}
 
-		Properties.MIN_FREE_MEM = 0;
+		Properties.MIN_FREE_MEM = 0; //TODO why this is done???
 		File directory = new File(EvoSuite.base_dir_path + File.separator + Properties.OUTPUT_DIR);
 		if (!directory.exists()) {
 			directory.mkdir();
-		}
-
-		File targetFile = new File(target);
-		if (targetFile.exists()) {
-			if (targetFile.isDirectory() || target.endsWith(".jar")) {
-				if (!Properties.CP.isEmpty()){
-					Properties.CP += File.pathSeparator;
-				}
-				Properties.CP += target;
-			} else if (target.endsWith(".class")) {
-				String pathName = targetFile.getParent();
-				if (!Properties.CP.isEmpty()){
-					Properties.CP += File.pathSeparator;
-				}
-				Properties.CP += pathName;
-			} else {
-				LoggingUtils.getEvoLogger().info("Failed to set up classpath for "
-				                                         + target);
-				return;
-			}
 		}
 
 		if (doInheritance) {
@@ -83,18 +86,8 @@ public class Setup {
 				Properties.getInstance().setValue("inheritance_file",
 				                                  Properties.OUTPUT_DIR + "/"
 				                                          + "inheritance.xml.gz");
-			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: "
-				                                          + e.getMessage());
-			} catch (IllegalArgumentException e) {
-				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: "
-				                                          + e.getMessage());
-			} catch (NoSuchParameterException e) {
-				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: "
-				                                          + e.getMessage());
-			} catch (IllegalAccessException e) {
-				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: "
-				                                          + e.getMessage());
+			} catch (IOException | IllegalArgumentException | NoSuchParameterException | IllegalAccessException e) {
+				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: " + e.getMessage());
 			}
 		}
 
