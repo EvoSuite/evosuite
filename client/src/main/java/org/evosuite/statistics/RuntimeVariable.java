@@ -273,7 +273,27 @@ public enum RuntimeVariable {
 	CoveredAliasIntraMethodPairs,
 	CoveredAliasInterMethodPairs,
 	CoveredAliasIntraClassPairs,
-	CoveredAliasParameterPairs;
+	CoveredAliasParameterPairs,
+	/* -------------------------------------------------------------------- */
+	/** The number of constraint made of integer constraints and no other type */ 
+	IntegerOnlyConstraints,
+	/** The number of constraint made of real constraints and no other type */ 
+	RealOnlyConstraints,
+	/** The number of constraint made of real constraints and no other type */ 
+	StringOnlyConstraints,
+	/** The number of constraint made of integer and real constraints */ 
+	IntegerAndRealConstraints,
+	/** The number of constraint made of integer and string constraints */ 
+	IntegerAndStringConstraints,
+	/** The number of constraint made of real and string constraints */ 
+	RealAndStringConstraints,
+	/** Number of constraints containing all three types altogether */
+	IntegerRealAndStringConstraints,
+	/** The total number of constraints during the execution of the Genetic Algorithm*/
+	/** This total should be the sum of all the other types of constraints */
+	TotalNumberOfConstraints
+	
+	;
 	/* -------------------------------------------------- */
 
 	
