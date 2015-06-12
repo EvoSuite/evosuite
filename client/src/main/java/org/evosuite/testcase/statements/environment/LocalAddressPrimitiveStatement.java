@@ -14,7 +14,9 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  */
 public class LocalAddressPrimitiveStatement extends EnvironmentDataStatement<EvoSuiteLocalAddress> {
 
-    public LocalAddressPrimitiveStatement(TestCase tc) {
+	private static final long serialVersionUID = -6687351650507282638L;
+
+	public LocalAddressPrimitiveStatement(TestCase tc) {
         this(tc,null);
         randomize();
     }
