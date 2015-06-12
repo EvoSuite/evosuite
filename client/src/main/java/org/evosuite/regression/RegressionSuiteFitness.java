@@ -3,6 +3,7 @@
  */
 package org.evosuite.regression;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -131,7 +132,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 				ExecutionResult result = TestCaseExecutor
 						.runTest(testChromosome.getTestCase());
-				result.objectPool.addAll(observer.currentObjectMapPool);
+				//result.objectPool.addAll(observer.currentObjectMapPool);
 				switch (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE) {
 				case 3:
 				//	methodObserver.regressionFlag(true);
@@ -145,8 +146,8 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 				ExecutionResult otherResult = TestCaseExecutor
 						.runTest(otherChromosome.getTestCase());
-				otherResult.objectPool
-						.addAll(observer.currentRegressionObjectMapPool);
+				/*otherResult.objectPool
+						.addAll(observer.currentRegressionObjectMapPool);*/
 				switch (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE) {
 				case 3:
 					/*methodObserver.regressionFlag(false);
@@ -159,7 +160,14 @@ logger.warn("initialising regression Suite Fitness... ##########################
 					break;
 
 				}
-
+				
+				double objectDistance = getTestObjectDistance(
+						observer.currentObjectMapPool,
+						observer.currentRegressionObjectMapPool);
+				
+				result.regressionObjectDistance = objectDistance;
+				otherResult.regressionObjectDistance = objectDistance;
+				
 				if (result != null && otherResult != null) {
 
 					testChromosome.setLastExecutionResult(result);
@@ -172,62 +180,6 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		}
 	}
 	
-	/*
-	 * Table for name:
-	 * 
-	 * @ a: all measures
-	 * 
-	 * @ s: state difference
-	 * 
-	 * @ b: branch distance
-	 * 
-	 * @ c: coverage
-	 * 
-	 * @ o: coverage old
-	 * 
-	 * @ n: coverage new
-	 */
-	public boolean useMeasure(RegressionMeasure m) {
-		boolean flag = false;
-		switch (Properties.REGRESSION_USE_FITNESS) {
-		case 6:
-			if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.COVERAGE_OLD)
-				return true;
-			break;
-		case 5:
-			if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.BRANCH_DISTANCE || 
-					m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
-				flag = true;
-			break;
-		case 4:
-			if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.STATE_DIFFERENCE ||
-					m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
-				flag = true;
-			break;
-		case 3:
-			if (m == RegressionMeasure.BRANCH_DISTANCE)
-				flag = true;
-			break;
-		case 2:
-			if (m == RegressionMeasure.STATE_DIFFERENCE)
-				flag = true;
-			break;
-		case 1:
-			if (m == RegressionMeasure.COVERAGE || 
-					m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
-				flag = true;
-			break;
-		case 0:
-		default:
-			if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.STATE_DIFFERENCE || 
-					m == RegressionMeasure.BRANCH_DISTANCE || 
-					m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
-				flag = true;
-			break;
-
-		}
-		return flag;
-	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
@@ -293,6 +245,8 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 		RegressionTestSuiteChromosome suite = (RegressionTestSuiteChromosome)individual;
 		
+		List<Double> objectDistances = new ArrayList<Double>();
+		
 		for (RegressionTestChromosome regressionTest : suite
 				.getTestChromosomes()) {
 
@@ -336,9 +290,10 @@ logger.warn("initialising regression Suite Fitness... ##########################
 			 * .addToPools(regressionTest.getOriginalObjectPool(),regressionTest
 			 * .getRegressionObjectPool()); break; case 0: default:
 			 */
-			if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
-				observer.addToPools(result1.objectPool, result2.objectPool);
-			}
+			//if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
+				//observer.addToPools(result1.objectPool, result2.objectPool);
+			objectDistances.add(result1.regressionObjectDistance);
+			//}
 			/*
 			 * break;
 			 * 
@@ -348,7 +303,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		firstF = true;
 
 
-		startTime = System.nanoTime();
+		/*startTime = System.nanoTime();
 		double objectDfitness = 0;
 		if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
 			switch (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE) {
@@ -373,7 +328,14 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 		}
 		RegressionSearchListener.ObjectDistanceTime += System.nanoTime()
-				- startTime;
+				- startTime;*/
+		
+		double objectDfitness = 0;
+		if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
+			distance = Collections.max(objectDistances);
+			objectDfitness = (1.0 / (1.0 + distance))
+					* (max_branch_fitness_valueO + max_branch_fitness_valueR);
+		}
 
 		startTime = System.nanoTime();
 		AbstractTestSuiteChromosome<TestChromosome> testSuiteChromosome = suite
@@ -517,43 +479,12 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		if (fitness < bestFitness) {
 			bestFitness = fitness;
 
-			// String data
-			/*
-			 * individual.fitnessData = fitness + "," +
-			 * testSuiteChromosome.size() + "," +
-			 * testSuiteChromosome.totalLengthOfTestCases() + "," +
-			 * branchDfitness + "," + objectDfitness + "," + coverage + "," +
-			 * numExceptions + "," + totalExceptions;
-			 */
-			/*
-			 * try {
-			 * 
-			 * 
-			 * FileUtils.writeStringToFile(statsFile, "\r\n" + data, true); }
-			 * catch (IOException e) { // TODO Auto-generated catch block
-			 * e.printStackTrace(); }
-			 */// logger.warn("Test suite: "+testSuiteChromosome.toString());
 
-			/*
-			 * int maxAdds = 0; int totalAdds = 0; for (TestChromosome test :
-			 * testSuiteChromosome.getTestChromosomes()) {
-			 * Map<VariableReference, Integer> addsSeen = new
-			 * HashMap<VariableReference, Integer>(); for (StatementInterface
-			 * statement : test.getTestCase()) { if (statement instanceof
-			 * MethodStatement) { MethodStatement ms = (MethodStatement)
-			 * statement; if (ms.getMethod().getName().equals("withdraw")) {
-			 * VariableReference callee = ms.getCallee(); if
-			 * (!addsSeen.containsKey(callee)) { addsSeen.put(callee, 1); } else
-			 * { addsSeen.put(callee, addsSeen.get(callee) + 1); } } } } for
-			 * (Integer i : addsSeen.values()) { totalAdds += i; } if
-			 * (!addsSeen.isEmpty()) maxAdds = Math.max(maxAdds,
-			 * Collections.max(addsSeen.values())); }
-			 */
 			logger.warn("OBJ distance: " + distance + " - fitness:" + fitness
 					+ " - branchDistance:" + totalBranchDistanceFitness
 					+ " - coverage:" + coverage + " - ex: " + exceptionDistance
 					+ " - tex: " + totalExceptions);
-			logger.warn("Timings so far: Test Execution - "
+			logger.debug("Timings so far: Test Execution - "
 					+ (RegressionSearchListener.testExecutionTime + 1)
 					/ 1000000 + " | Assertion - "
 					+ (RegressionSearchListener.assertionTime + 1) / 1000000
@@ -829,6 +760,181 @@ logger.warn("initialising regression Suite Fitness... ##########################
 						: observer.objectMapPool.size());
 
 	}
+
+	
+	private double getTestObjectDistance(
+			List<Map<Integer, Map<String, Map<String, Object>>>> originalMap,
+			List<Map<Integer, Map<String, Map<String, Object>>>> regressionMap) {
+
+		ObjectDistanceCalculator.different_variables = 0;
+
+		double distance = 0.0;
+
+		// logger.warn("" + topmap1 + topmap2);
+
+		Map<String, Double> maxClassDistance = new HashMap<String, Double>();
+
+		for (int j = 0; j < originalMap.size(); j++) {
+			Map<Integer, Map<String, Map<String, Object>>> map1 = originalMap
+					.get(j);
+
+			if (regressionMap.size() <= j)
+				continue;
+			Map<Integer, Map<String, Map<String, Object>>> map2 = regressionMap
+					.get(j);
+
+			for (Map.Entry<Integer, Map<String, Map<String, Object>>> map1_entry : map1
+					.entrySet()) {
+				// Map.Entry<Integer, Map<String, Object>> map2_entry =
+				// (Entry<Integer, Map<String, Object>>) map2.get(
+				// map1_entry.getKey());
+
+				// logger.warn("key: " + map1_entry.getKey());
+
+				Map<String, Map<String, Object>> map1_values = map1_entry
+						.getValue();
+				Map<String, Map<String, Object>> map2_values = map2
+						.get(map1_entry.getKey());
+				// logger.warn("" + map1_values + map2_values);
+				if (map1_values == null || map2_values == null)
+					continue;
+				for (Map.Entry<String, Map<String, Object>> internal_map1_entries : map1_values
+						.entrySet()) {
+
+					Map<String, Object> map1_value = internal_map1_entries
+							.getValue();
+					Map<String, Object> map2_value = map2_values
+							.get(internal_map1_entries.getKey());
+					if (map1_value == null || map2_value == null)
+						continue;
+
+					double objectDistance = ObjectDistanceCalculator
+							.getObjectMapDistance(map1_value, map2_value);
+					/*
+					 * logger.warn("oDistance: " + objectDistance);
+					 * logger.warn("var1: " +map1_value + " | var2: " +
+					 * map2_value);
+					 */
+					/*
+					 * if(map1_value.containsKey("fake_var_java_lang_Double") &&
+					 * (
+					 * Double)map1_value.get("fake_var_java_lang_Double")==0.5){
+					 * logger.warn("Map1: {} | Map2: {} " ,
+					 * map1_value,map2_value);
+					 * 
+					 * }
+					 */
+					if (!maxClassDistance.containsKey(internal_map1_entries
+							.getKey())
+							|| (maxClassDistance.get(internal_map1_entries
+									.getKey()) < objectDistance))
+
+						maxClassDistance.put(internal_map1_entries.getKey(),
+								Double.valueOf(objectDistance));
+					/*
+					 * logger.warn(internal_map1_entries.getKey() + ": " +
+					 * map1_value + " --VS-- "+ map2_value);
+					 */
+
+				}
+			}
+
+			// logger.warn("maxClassDistance size:" +
+			// maxClassDistance.size() + " > " + entries);
+
+		}
+		// String entries = "";
+		double temp_dis = 0.0;
+		for (Map.Entry<String, Double> maxEntry : maxClassDistance.entrySet()) {
+			temp_dis += maxEntry.getValue();
+
+			/*
+			 * entries += maxEntry.getKey().toString() + " : " +
+			 * maxEntry.getValue().toString() + " | ";
+			 */
+		}
+
+		if (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE == 4) {
+			temp_dis = Collections.max(maxClassDistance.values());
+		}
+
+		if (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE == 5) {
+			if (maxClassDistance.size() > 0)
+				temp_dis = temp_dis / (maxClassDistance.size());
+		}
+
+		if (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE == 6) {
+			temp_dis = Collections.min(maxClassDistance.values());
+		}
+
+		distance += temp_dis;
+		// logger.warn(entries + " < " + observer.objectMapPool.size());
+
+		distance += ObjectDistanceCalculator.different_variables;
+		/*
+		 * if(distance>0) logger.warn("distance was {}",distance);
+		 */
+		return distance;
+
+	}
+	
+	/*
+	 * Table for name:
+	 * 
+	 * @ a: all measures
+	 * 
+	 * @ s: state difference
+	 * 
+	 * @ b: branch distance
+	 * 
+	 * @ c: coverage
+	 * 
+	 * @ o: coverage old
+	 * 
+	 * @ n: coverage new
+	 */
+	public boolean useMeasure(RegressionMeasure m) {
+		boolean flag = false;
+		switch (Properties.REGRESSION_USE_FITNESS) {
+		case 6:
+			if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.COVERAGE_OLD)
+				return true;
+			break;
+		case 5:
+			if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.BRANCH_DISTANCE || 
+					m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
+				flag = true;
+			break;
+		case 4:
+			if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.STATE_DIFFERENCE ||
+					m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
+				flag = true;
+			break;
+		case 3:
+			if (m == RegressionMeasure.BRANCH_DISTANCE)
+				flag = true;
+			break;
+		case 2:
+			if (m == RegressionMeasure.STATE_DIFFERENCE)
+				flag = true;
+			break;
+		case 1:
+			if (m == RegressionMeasure.COVERAGE || 
+					m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
+				flag = true;
+			break;
+		case 0:
+		default:
+			if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.STATE_DIFFERENCE || 
+					m == RegressionMeasure.BRANCH_DISTANCE || 
+					m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
+				flag = true;
+			break;
+
+		}
+		return flag;
+	}
+
 
 	/* This is a minimizing fitness function
 	 * @see org.evosuite.ga.FitnessFunction#isMaximizationFunction()

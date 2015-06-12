@@ -74,9 +74,10 @@ public class ExecutionResult implements Cloneable {
 	 */
 	protected boolean wasAnyPropertyWritten;
 	
-	/** Object pool for regression testing **/
-	public List<Map<Integer,Map<String, Map<String, Object>>>> objectPool = new ArrayList<Map<Integer,Map<String, Map<String, Object>>>>();
-
+	/*
+	 * Regression Object Distance
+	 */
+	public double regressionObjectDistance = 0;
 	
 	/**
 	 * @return the executedStatements
@@ -416,8 +417,7 @@ public class ExecutionResult implements Cloneable {
 		copy.trace = trace.lazyClone();
 		copy.explicitExceptions.putAll(explicitExceptions);
 		copy.executionTime = executionTime;
-		//TODO: possible memory leak here!
-		copy.objectPool.addAll(objectPool);
+		copy.regressionObjectDistance = regressionObjectDistance;
 		if(returnValues != null)
 			copy.returnValues = new HashMap<MethodStatement, Object>(returnValues);
 		for (Class<?> clazz : traces.keySet()) {
