@@ -36,6 +36,7 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.environment.FileNamePrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BytePrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.CharPrimitiveStatement;
@@ -163,8 +164,11 @@ public class SymbolicObserver extends ExecutionObserver {
 			} else if (s instanceof ClassPrimitiveStatement) {
 				before((ClassPrimitiveStatement) s, scope);
 
+			} else if (s instanceof FileNamePrimitiveStatement) {
+				before((FileNamePrimitiveStatement) s, scope);
+
 			} else {
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException("Cannot handle statement of type "+s.getClass());
 			}
 		} catch (Throwable t) {
 			throw new EvosuiteError(t);
@@ -1143,6 +1147,11 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	}
 
+	private void before(FileNamePrimitiveStatement statement, Scope scope) {
+		/* do nothing */ 
+
+	}
+
 	private void before(IntPrimitiveStatement statement, Scope scope) {
 		/* do nothing */
 	}
@@ -1210,9 +1219,12 @@ public class SymbolicObserver extends ExecutionObserver {
 				
 			} else if (s instanceof ClassPrimitiveStatement) {
 				after((ClassPrimitiveStatement) s, scope);
-			
+
+			} else if (s instanceof FileNamePrimitiveStatement) {
+				after((FileNamePrimitiveStatement) s, scope);
+
 			} else {
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException("Cannot handle statement of type "+s.getClass());
 			}
 		} catch (Throwable t) {
 			throw new EvosuiteError(t);
@@ -1615,6 +1627,25 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	private void after(StringPrimitiveStatement statement, Scope scope) {
 		String valueOf = statement.getValue();
+		VariableReference varRef = statement.getReturnValue();
+		String varRefName = varRef.getName();
+		StringVariable stringVariable = buildStringVariable(varRefName, valueOf);
+		symb_expressions.put(varRefName, stringVariable);
+
+		String string_instance;
+		try {
+			String string_interned = (String) varRef.getObject(scope);
+			string_instance =new String(string_interned);
+			scope.setObject(varRef, string_instance);
+		} catch (CodeUnderTestException e) {
+			throw new EvosuiteError(e);
+		}
+		NonNullReference stringRef = newStringReference(string_instance, stringVariable);
+		symb_references.put(varRefName, stringRef);
+	}
+
+	private void after(FileNamePrimitiveStatement statement, Scope scope) {
+		String valueOf = statement.getValue().getPath();
 		VariableReference varRef = statement.getReturnValue();
 		String varRefName = varRef.getName();
 		StringVariable stringVariable = buildStringVariable(varRefName, valueOf);
