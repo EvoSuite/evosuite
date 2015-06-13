@@ -14,7 +14,6 @@ import java.util.Map.Entry;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.GraphPool;
@@ -25,6 +24,7 @@ import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -163,7 +163,7 @@ public class ClassStatisticsPrinter {
 				return ;
 			}
 
-			List<TestFitnessFactory<?>> factories = TestSuiteGenerator.getFitnessFactory();
+			List<TestFitnessFactory<?>> factories = TestGenerationStrategy.getFitnessFactories();
 
 			int numGoals = 0;
 			for (TestFitnessFactory<?> factory : factories) {
