@@ -7,6 +7,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
+import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.ga.FitnessFunction;
@@ -31,9 +32,8 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
 		GeneticAlgorithm<TestSuiteChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
 		
-		// TODO - Gordon, need to reactivate after refactoring
-		//if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
-		//	TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(ga);
+		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
+			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
 
 		long start_time = System.currentTimeMillis() / 1000;
 
