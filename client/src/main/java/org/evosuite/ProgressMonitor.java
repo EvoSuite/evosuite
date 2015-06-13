@@ -83,9 +83,13 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm<?> algorithm) {
-		stoppingCondition = algorithm.getStoppingConditions().iterator().next();
-		// TODO: Used to be TestSuiteGenerator.getStoppingCondition()
-		max = stoppingCondition.getLimit();
+		for(StoppingCondition cond : algorithm.getStoppingConditions()) {
+			if(cond.getLimit() == 0) // No ZeroStoppingCondition
+				continue;
+			stoppingCondition = cond;
+			max = stoppingCondition.getLimit();
+			break;
+		}
 	}
 
 	/* (non-Javadoc)
