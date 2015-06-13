@@ -39,6 +39,25 @@ public class TestSuiteSerialization {
 
         return true;
     }
+    
+    public static boolean saveTests(TestSuiteChromosome ts, File target) throws IllegalArgumentException{
+        File parent = target.getParentFile();
+        if(!parent.exists()){
+            parent.mkdirs();
+        }
+
+        try(ObjectOutputStream out = new DebuggingObjectOutputStream(new FileOutputStream(target));){
+        	for (TestChromosome tc : ts.getTestChromosomes()) {
+        		out.writeObject(tc);
+            }
+        }catch (IOException e){
+            logger.error("Failed to open/handle "+target.getAbsolutePath()+" for writing: "+e.getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
 
     public static boolean saveTests(List<TestSuiteChromosome> ts, File folder, String fileName) throws IllegalArgumentException{
         Inputs.checkNull(ts,folder,fileName);

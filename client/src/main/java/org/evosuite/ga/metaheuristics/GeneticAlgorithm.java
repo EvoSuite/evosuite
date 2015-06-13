@@ -852,6 +852,10 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		stoppingConditions.add(condition);
 		addListener(condition);
 	}
+	
+	public Set<StoppingCondition> getStoppingConditions() {
+		return stoppingConditions;
+	}
 
 	// TODO: Override equals method in StoppingCondition
 	/**
