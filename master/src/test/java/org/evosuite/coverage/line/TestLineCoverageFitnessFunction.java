@@ -51,6 +51,7 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 	private Properties.StoppingCondition oldStoppingCondition = Properties.STOPPING_CONDITION; 
 	private double oldPrimitivePool = Properties.PRIMITIVE_POOL;
 	private boolean oldResetStaticFields = Properties.RESET_STATIC_FIELDS;
+	private int oldChromosomeLength = Properties.CHROMOSOME_LENGTH;
 	
 	@Before
 	public void beforeTest() {
@@ -68,6 +69,7 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		Properties.STOPPING_CONDITION = oldStoppingCondition;
 		Properties.PRIMITIVE_POOL = oldPrimitivePool;
 		Properties.RESET_STATIC_FIELDS = oldResetStaticFields;
+		Properties.CHROMOSOME_LENGTH = oldChromosomeLength;
 	}
 
 	@Test
@@ -305,6 +307,9 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		// seeding, but need to increase the budget
 		Properties.PRIMITIVE_POOL = 0.0;
 		Properties.SEARCH_BUDGET = 50000;
+		
+		// Seems we need to shorten tests to get to target in time?
+		Properties.CHROMOSOME_LENGTH = 20;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
