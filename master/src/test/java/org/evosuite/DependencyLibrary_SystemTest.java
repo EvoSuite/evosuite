@@ -1,6 +1,7 @@
 package org.evosuite;
 
 import com.examples.with.different.packagename.DependencyLibrary;
+
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
@@ -27,7 +28,6 @@ public class DependencyLibrary_SystemTest extends SystemTest{
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 
-        int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size();
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
 }
