@@ -38,6 +38,12 @@ import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.utils.ArrayUtil;
 
+/**
+ * Factory for GA for tests
+ * 
+ * @author gordon
+ *
+ */
 public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<TestChromosome> {
 
 	protected ChromosomeFactory<TestChromosome> getChromosomeFactory() {
