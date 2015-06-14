@@ -21,14 +21,30 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
+/**
+ * This is the abstract superclass of all techniques to generate a set of tests
+ * for a target class, which does not neccessarily require the use of a GA.
+ * 
+ * Postprocessing is not done as part of the test generation strategy.
+ * 
+ * @author gordon
+ *
+ */
 public abstract class TestGenerationStrategy {
 
+	/**
+	 * Generate a set of tests; assume that all analyses are already completed
+	 * @return
+	 */
 	public abstract TestSuiteChromosome generateTests();
 	
+	/** There should only be one */
 	protected final ProgressMonitor progressMonitor = new ProgressMonitor();
 
+	/** There should only be one */
 	protected ZeroFitnessStoppingCondition zeroFitness = new ZeroFitnessStoppingCondition();
 	
+	/** There should only be one */
 	protected StoppingCondition globalTime = new GlobalTimeStoppingCondition();
 
     protected void sendExecutionStatistics() {
@@ -36,6 +52,10 @@ public abstract class TestGenerationStrategy {
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, MaxTestsStoppingCondition.getNumExecutedTests());
     }
     
+    /**
+     * Convert criterion names to test suite fitness functions
+     * @return
+     */
 	protected List<TestSuiteFitnessFunction> getFitnessFunctions() {
 	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
 	    for (int i = 0; i < Properties.CRITERION.length; i++) {
@@ -45,6 +65,10 @@ public abstract class TestGenerationStrategy {
 		return ffs;
 	}
 	
+	/**
+	 * Convert criterion names to factories for test case fitness functions
+	 * @return
+	 */
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactories() {
 	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
 	    for (int i = 0; i < Properties.CRITERION.length; i++) {
@@ -54,6 +78,14 @@ public abstract class TestGenerationStrategy {
 		return goalsFactory;
 	}
 	
+	/**
+	 * Check if the budget has been used up. The GA will do this check
+	 * on its own, but other strategies (e.g. random) may depend on this function.
+	 * 
+	 * @param chromosome
+	 * @param stoppingCondition
+	 * @return
+	 */
 	protected boolean isFinished(TestSuiteChromosome chromosome, StoppingCondition stoppingCondition) {
 		if (stoppingCondition.isFinished())
 			return true;
@@ -71,6 +103,10 @@ public abstract class TestGenerationStrategy {
 		return false;
 	}
 	
+	/**
+	 * Convert property to actual stopping condition
+	 * @return
+	 */
 	protected StoppingCondition getStoppingCondition() {
 		switch (Properties.STOPPING_CONDITION) {
 		case MAXGENERATIONS:

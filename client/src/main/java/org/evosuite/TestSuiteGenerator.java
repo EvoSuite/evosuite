@@ -86,7 +86,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Main entry point
+ * Main entry point.
+ * Does all the static analysis, invokes a test generation strategy,
+ * and then applies postprocessing.
  * 
  * @author Gordon Fraser
  */
@@ -163,7 +165,12 @@ public class TestSuiteGenerator {
 		return result;
 	}
 
-	
+	/**
+	 * Apply any readability optimizations and other techniques
+	 * that should use or modify the generated tests
+	 *  
+	 * @param testSuite
+	 */
 	protected void postProcessTests(TestSuiteChromosome testSuite) {
 		
         if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
@@ -194,22 +201,20 @@ public class TestSuiteGenerator {
 			//Map<FitnessFunction<? extends TestSuite<?>>, Double> fitnesses = testSuite.getFitnesses();
 
 			inliner.inline(testSuite);
-			//for (FitnessFunction<? extends TestSuite<?>> fitness : fitnesses.keySet())
-			//	assert (fitnesses.get(fitness) >= testSuite.getFitness(fitness));
 		}
 
 		if (Properties.MINIMIZE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactories());
-			if (Properties.CRITERION.length == 1) {
+			//if (Properties.CRITERION.length == 1) {
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 			    minimizer.minimize(testSuite, true);
-			}
-			else {
-				LoggingUtils.getEvoLogger().info("* Minimizing test suites");
-				minimizer.minimize(testSuite, false);
-			}
+			//}
+//			else {
+//				LoggingUtils.getEvoLogger().info("* Minimizing test suites");
+//				minimizer.minimize(testSuite, false);
+//			}
 		} else {
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, testSuite.size());
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, testSuite.size());
@@ -218,8 +223,10 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.COVERAGE) {
-		    for (Properties.Criterion pc : Properties.CRITERION)
+		    for (Properties.Criterion pc : Properties.CRITERION) {
+		    	LoggingUtils.getEvoLogger().info("* Coverage analysis for criterion " + pc);
 		        CoverageAnalysis.analyzeCoverage(testSuite, pc);
+		    }
 		}
 
         double coverage = testSuite.getCoverage();
