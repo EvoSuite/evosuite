@@ -25,7 +25,7 @@ import org.junit.Test;
 import com.examples.with.different.packagename.TrivialInt;
 import com.examples.with.different.packagename.coverage.IntExampleWithNoElse;
 
-public class TestMutation extends SystemTest {
+public class TestChangeMutation extends SystemTest {
 
 	private double oldPInsert = Properties.P_TEST_INSERT;
 	private double oldPDelete = Properties.P_TEST_DELETE;
