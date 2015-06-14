@@ -6,13 +6,11 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.execution.ExecutionTracer;
@@ -35,7 +33,7 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
 			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
 
-		long start_time = System.currentTimeMillis() / 1000;
+		long startTime = System.currentTimeMillis() / 1000;
 
 		// What's the search target
 		List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
@@ -45,26 +43,12 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 //		for(TestSuiteFitnessFunction f : fitnessFunctions) 
 //			algorithm.addFitnessFunction(f);
 
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
-			for (FitnessFunction<?> fitnessFunction : fitnessFunctions) {
-				if(fitnessFunction instanceof StrongMutationSuiteFitness) {
-					algorithm.addListener((SearchListener) fitnessFunction);
-					break;
-				}
-			}
-		}
-
-		//ga.setChromosomeFactory(getChromosomeFactory(fitness_function));
-		//ga.setChromosomeFactory(getChromosomeFactory(fitness_functions.get(0))); // FIXME: just one fitness function?
 		// if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
 		algorithm.addListener(progressMonitor); // FIXME progressMonitor may cause
 		// client hang if EvoSuite is
 		// executed with -prefix!
 
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
-				//				        || ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
-				//				        || ArrayUtil.contains(Properties.CRITERION, Criterion.ARCHIVEIBRANCH)  
-				//				        || ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH) 
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT)
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.RHO)
@@ -75,22 +59,7 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		// if (analyzing)
 		algorithm.resetStoppingConditions();
 
-		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-		if(goalFactories.size() == 1) {
-			TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
-			LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
-			goals.addAll(factory.getCoverageGoals());
-		} else {
-			LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
-			for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-				goals.addAll(goalFactory.getCoverageGoals());
-				LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
-						+ " " + goalFactory.getCoverageGoals().size());
-			}
-		}
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
-				goals.size());
+		List<TestFitnessFunction> goals = getGoals(true);
 		
 		/*
 		 * Proceed with search if CRITERION=EXCEPTION, even if goals is empty
@@ -115,14 +84,18 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 
 		}
 
-		long end_time = System.currentTimeMillis() / 1000;
+		long endTime = System.currentTimeMillis() / 1000;
 
+		goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
+        
 		// Newline after progress bar
 		if (Properties.SHOW_PROGRESS)
 			LoggingUtils.getEvoLogger().info("");
+		
 		String text = " statements, best individual has fitness: ";
 		LoggingUtils.getEvoLogger().info("* Search finished after "
-				+ (end_time - start_time)
+				+ (endTime - startTime)
 				+ "s and "
 				+ algorithm.getAge()
 				+ " generations, "
@@ -134,4 +107,32 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 
 		return testSuite;
 	}
+	
+    private List<TestFitnessFunction> getGoals(boolean verbose) {
+        List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
+        List<TestFitnessFunction> goals = new ArrayList<>();
+
+        if(goalFactories.size() == 1) {
+                TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
+                goals.addAll(factory.getCoverageGoals());
+
+                if(verbose) {
+                        LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
+                }
+        } else {
+                if(verbose) {
+                        LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
+                }
+
+                for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+                        goals.addAll(goalFactory.getCoverageGoals());
+
+                        if(verbose) {
+                                LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
+                                                + " " + goalFactory.getCoverageGoals().size());
+                        }
+                }
+        }
+        return goals;
+}
 }

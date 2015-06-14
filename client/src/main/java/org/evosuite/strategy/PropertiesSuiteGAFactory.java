@@ -6,6 +6,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TheReplacementFunction;
 import org.evosuite.coverage.archive.ArchiveTestChromosomeFactory;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
@@ -15,6 +16,7 @@ import org.evosuite.ga.MinimizeSizeSecondaryObjective;
 import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.RandomSearch;
 import org.evosuite.ga.metaheuristics.SteadyStateGA;
 import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.OnePlusOneEA;
@@ -95,11 +97,20 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		switch (Properties.ALGORITHM) {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");
-			return new OnePlusOneEA<TestSuiteChromosome>(factory);
+			{
+				OnePlusOneEA<TestSuiteChromosome> ga = new OnePlusOneEA<TestSuiteChromosome>(factory);
+				if (Properties.TEST_ARCHIVE)
+					ga.setArchive(TestsArchive.instance);
+
+				return ga;
+			}
 		case MONOTONICGA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
 				MonotonicGA<TestSuiteChromosome> ga = new MonotonicGA<TestSuiteChromosome>(factory);
+	            if (Properties.TEST_ARCHIVE)
+	            	ga.setArchive(TestsArchive.instance);
+
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -113,6 +124,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 			{
 				SteadyStateGA<TestSuiteChromosome> ga = new SteadyStateGA<>(factory);
+	            if (Properties.TEST_ARCHIVE)
+	            	ga.setArchive(TestsArchive.instance);
+
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -124,13 +138,24 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			}
 		case RANDOM:
 			logger.info("Chosen search algorithm: Random");
-			return new org.evosuite.ga.metaheuristics.RandomSearch<TestSuiteChromosome>(factory);
+			{
+                RandomSearch<TestSuiteChromosome> ga = new RandomSearch<TestSuiteChromosome>(factory);
+                if (Properties.TEST_ARCHIVE)
+                        ga.setArchive(TestsArchive.instance);
+
+                return ga;
+			}
         case NSGAII:
             logger.info("Chosen search algorithm: NSGAII");
             return new NSGAII<TestSuiteChromosome>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
-			return new StandardGA<TestSuiteChromosome>(factory);
+            {
+                StandardGA<TestSuiteChromosome> ga = new StandardGA<TestSuiteChromosome>(factory);
+                if (Properties.TEST_ARCHIVE)
+                        ga.setArchive(TestsArchive.instance);
+                return ga;
+            }
 		}
 	}
 	
@@ -220,9 +245,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			ga.addListener(new StatisticsListener());
 
 		// How to select candidates for reproduction
-		SelectionFunction<TestSuiteChromosome> selection_function = getSelectionFunction();
-		selection_function.setMaximize(false);
-		ga.setSelectionFunction(selection_function);
+		SelectionFunction<TestSuiteChromosome> selectionFunction = getSelectionFunction();
+		selectionFunction.setMaximize(false);
+		ga.setSelectionFunction(selectionFunction);
 
 		// When to stop the search
 		StoppingCondition stopping_condition = getStoppingCondition();

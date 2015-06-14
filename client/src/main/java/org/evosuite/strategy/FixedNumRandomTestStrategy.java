@@ -12,6 +12,13 @@ import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This strategy consists of generating random tests.
+ * The property NUM_RANDOM_TESTS is set on the command line
+ * 
+ * @author gordon
+ *
+ */
 public class FixedNumRandomTestStrategy extends TestGenerationStrategy {
 
 	private final static Logger logger = LoggerFactory.getLogger(FixedNumRandomTestStrategy.class);
@@ -21,12 +28,6 @@ public class FixedNumRandomTestStrategy extends TestGenerationStrategy {
 		LoggingUtils.getEvoLogger().info("* Generating fixed number of random tests");
 		RandomLengthTestFactory factory = new org.evosuite.testcase.factories.RandomLengthTestFactory();
 		TestSuiteChromosome suite = new TestSuiteChromosome();
-		// The GA is not actually used, except to provide the same statistics as
-		// during search
-		//GeneticAlgorithm<TestSuiteChromosome> suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
-		// GeneticAlgorithm suiteGA = setup();
-		//stopping_condition = getStoppingCondition();
-		//statistics.searchStarted(suiteGA);
 
 		for (int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
 			logger.info("Current test: " + i + "/" + Properties.NUM_RANDOM_TESTS);
@@ -37,9 +38,10 @@ public class FixedNumRandomTestStrategy extends TestGenerationStrategy {
 				if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException
 				        || result.getExceptionThrownAtPosition(pos) instanceof UncompilableCodeException
 				        || result.getExceptionThrownAtPosition(pos) instanceof TestCaseExecutor.TimeoutExceeded) {
+					// Filter invalid tests 
 					continue;
-					// test.getTestCase().chop(pos);
 				} else {
+					// Remove anything that follows an exception
 					test.getTestCase().chop(pos + 1);
 				}
 				test.setChanged(true);

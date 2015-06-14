@@ -30,6 +30,16 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This strategy selects one coverage goal at a time
+ * and generates a test that satisfies it.
+ * 
+ * The order of goals is randomized. Coincidental coverage is 
+ * checked.
+ * 
+ * @author gordon
+ *
+ */
 public class IndividualTestStrategy extends TestGenerationStrategy {
 
 	private static final Logger logger = LoggerFactory.getLogger(IndividualTestStrategy.class);
