@@ -25,6 +25,13 @@ import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Iteratively generate random tests. If adding the random test
+ * leads to improved fitness, keep it, otherwise drop it again.
+ * 
+ * @author gordon
+ *
+ */
 public class RandomTestStrategy extends TestGenerationStrategy {
 
 	private static final Logger logger = LoggerFactory.getLogger(RandomTestStrategy.class);

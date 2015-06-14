@@ -21,6 +21,12 @@ import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 
+/**
+ * Regular whole test suite generation
+ * 
+ * @author gordon
+ *
+ */
 public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 
 	@Override

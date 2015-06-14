@@ -16,7 +16,13 @@ import org.evosuite.testsuite.StatementsPopulationLimit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * Factory class for GAs
+ * 
+ * @author gordon
+ *
+ * @param <T>
+ */
 public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome>  {
 
 	protected static final Logger logger = LoggerFactory.getLogger(PropertiesSearchAlgorithmFactory.class);
