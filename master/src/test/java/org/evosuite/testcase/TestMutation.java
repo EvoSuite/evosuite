@@ -10,6 +10,7 @@ import org.evosuite.SystemTest;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
+import org.evosuite.coverage.mutation.WeakMutationSuiteFitness;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
@@ -200,6 +201,57 @@ public class TestMutation extends SystemTest {
 		
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		LineCoverageSuiteFitness fitness = new LineCoverageSuiteFitness();
+		suite.addTest(test1);
+		suite.addTest(test2);
+		
+		Properties.P_TEST_CHANGE  = 1.0;
+		Properties.P_TEST_DELETE  = 0.0;
+		Properties.P_TEST_INSERT  = 0.0;
+		Properties.PRIMITIVE_POOL = 0.0;
+		double oldFitness = fitness.getFitness(suite);
+		int notChanged = 0;
+		for(int i = 0; i < 10000; i++) {
+			TestChromosome testNew = (TestChromosome) test1.clone();
+			testNew.mutate();
+			if(testNew.isChanged()) {
+				suite.deleteTest(test1);
+				suite.addTest(testNew);
+				double newFitness = fitness.getFitness(suite);
+				if(newFitness < oldFitness) {
+					test1 = testNew;
+					oldFitness = newFitness;
+					System.out.println(""+i+":"+((IntPrimitiveStatement)test1.getTestCase().getStatement(1)).getValue());
+					System.out.println("    "+((IntPrimitiveStatement)test1.getTestCase().getStatement(2)).getValue());
+					if(newFitness == 0.0) {
+						System.out.println("Iterations: "+i);
+						System.out.println("Not changed: "+notChanged);
+						break;
+					}
+				} else {
+					suite.deleteTest(testNew);
+					suite.addTest(test1);
+					fitness.getFitness(suite);
+				}
+			} else {
+				notChanged++;
+			}
+		}
+		
+		System.out.println("Fitness: "+fitness.getFitness(suite));
+		System.out.println("Test suite: "+suite);
+		assertEquals(0.0, fitness.getFitness(suite), 0.1F);
+	}
+	
+	@Test
+	public void testTwoIntsWeakMutation() throws NoSuchMethodException, SecurityException, ClassNotFoundException, ConstructionFailedException {
+		Properties.TARGET_CLASS = IntExampleWithNoElse.class.getCanonicalName();
+		TestChromosome test1 = new TestChromosome();
+		test1.setTestCase(getTwoIntTest(1, 1000));
+		TestChromosome test2 = new TestChromosome();
+		test2.setTestCase(getTwoIntTest(0, 0));
+		
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		WeakMutationSuiteFitness fitness = new WeakMutationSuiteFitness();
 		suite.addTest(test1);
 		suite.addTest(test2);
 		
