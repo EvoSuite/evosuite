@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Exception fitness is different from the others, as we do not know a priori how
- * many exceptions could de thrown in the SUT. In other words, we cannot really
+ * many exceptions could be thrown in the SUT. In other words, we cannot really
  * speak about coverage percentage here
  */
 public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
