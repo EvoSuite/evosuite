@@ -1,13 +1,13 @@
 package org.evosuite.testcase;
 
 import org.evosuite.runtime.annotation.*;
+import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testcase.variable.VariableReferenceImpl;
+import org.evosuite.utils.GenericAccessibleObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +15,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -85,17 +86,24 @@ public class ConstraintVerifier {
 
         Set<Object> seenAtMostOnce = new LinkedHashSet<>();
 
+        //look at each statement in the test case, one at a time
         for(int i=0; i<tc.size(); i++){
             Statement st = tc.getStatement(i);
+
+            //constraints are defined only on methods and constructors (eg, no primitive variable field declarations)
             if(! (st instanceof MethodStatement) && ! (st instanceof ConstructorStatement)){
                 continue;
             }
 
+            //data we need for calculations
             Object reflectionRef = null;
-            List<VariableReference> inputs =null;
+            List<VariableReference> inputs = null;
+            List<VariableReference> boundedInitializingInputs = null;
             Annotation[] methodAnnotations = null;
+            Annotation[][] parameterAnnotations = null;
             Class<?> declaringClass = null;
 
+            //init data based on whether current statement is a constructor or regular method
             if(st instanceof MethodStatement) {
                 MethodStatement ms = (MethodStatement) st;
                 inputs = ms.getParameterReferences();
@@ -104,6 +112,13 @@ public class ConstraintVerifier {
                 reflectionRef = m;
                 methodAnnotations = m.getDeclaredAnnotations();
                 declaringClass = m.getDeclaringClass();
+                parameterAnnotations = m.getParameterAnnotations();
+
+                boundedInitializingInputs = getBoundedInitializingVariables(inputs, parameterAnnotations);
+
+                if(! checkBoundedVariableAtMostOnce(tc,i,ms)){
+                    return false;
+                }
 
             } else if(st instanceof ConstructorStatement){
                 ConstructorStatement cs = (ConstructorStatement) st;
@@ -113,10 +128,14 @@ public class ConstraintVerifier {
                 reflectionRef = c;
                 methodAnnotations = c.getDeclaredAnnotations();
                 declaringClass = c.getDeclaringClass();
+                parameterAnnotations = c.getParameterAnnotations();
+
+                boundedInitializingInputs = getBoundedInitializingVariables(inputs, parameterAnnotations);
             }
 
-            boolean declaringClassExcluded = isDeclaringExcluded(declaringClass);
 
+            //should the method had been directly excluded from the tests?
+            boolean declaringClassExcluded = isDeclaringExcluded(declaringClass);
             if(declaringClassExcluded){
                 if(! hasIncludeAnnotation(methodAnnotations)){
                     logger.error("'excludeClass' constraint violated at position "+i+" in test case:\n"+tc.toCode());
@@ -124,6 +143,16 @@ public class ConstraintVerifier {
                 }
             }
 
+            //the method is an initializer for some bounded variable
+            if(! boundedInitializingInputs.isEmpty()){
+                for(VariableReference vr : boundedInitializingInputs){
+                    if(!checkInitializingBoundedVariable(tc,i,vr)){
+                        return false;
+                    }
+                }
+            }
+
+            //look at each annotation on the method
             for(Annotation annotation : methodAnnotations){
                 if(annotation instanceof EvoSuiteExclude  && declaringClassExcluded){
                     logger.error("Wrong constraints: class "+declaringClass.getName()+" is a " +
@@ -143,6 +172,7 @@ public class ConstraintVerifier {
                     return false;
                 }
 
+                //found an annotation defining one or more constraints
                 if(annotation instanceof Constraints){
                     Constraints c = (Constraints) annotation;
 
@@ -172,12 +202,14 @@ public class ConstraintVerifier {
                         }
                     }
 
+                    //'excludeOthers' constraint check
                     if(c.excludeOthers() != null && c.excludeOthers().length > 0){
                         if (! checkExcludeOthers(tc, i, declaringClass, c)){
                             return false;
                         }
                     }
 
+                    //'after' constraint check
                     if(c.after() != null && !c.after().trim().isEmpty()){
                         if (! checkAfter(tc, i, declaringClass, c)){
                             return false;
@@ -190,6 +222,146 @@ public class ConstraintVerifier {
         }
 
         return true; //everything was OK
+    }
+
+    private static boolean checkBoundedVariableAtMostOnce(TestCase tc, int i, MethodStatement ms) {
+
+        Annotation[][] annotations = ms.getMethod().getMethod().getParameterAnnotations();
+        List<VariableReference> inputs = ms.getParameterReferences();
+        List<VariableReference> atMostOnce = new ArrayList<>();
+
+        //check if input method has any bounded variable declared as atMostOnce
+        outer : for(int j=0; j<annotations.length; j++){
+            Annotation[] array = annotations[j];
+            for(Annotation annotation : array){
+                if(annotation instanceof BoundInputVariable){
+                    BoundInputVariable biv = (BoundInputVariable) annotation;
+                    if(biv.atMostOnce()){
+                        atMostOnce.add(inputs.get(j));
+                        continue outer;
+                    }
+                }
+            }
+        }
+
+        if(atMostOnce.isEmpty()){
+            return true;
+        }
+
+        for(int j=i-1; j>=0; j--){
+            Statement st = tc.getStatement(j);
+            if(! (st instanceof MethodStatement)){
+                continue;
+            }
+            MethodStatement other = (MethodStatement) st;
+
+            if(! other.getMethod().getMethod().equals( ms.getMethod().getMethod())){
+                continue;
+            }
+
+            //ok, same method. but is called with the same bounded variables?
+            for(VariableReference ref : other.getParameterReferences()){
+                for(VariableReference bounded : atMostOnce){
+                    if(ref.same(bounded)){
+                        logger.error("Bounded variable declared in "+ref.getStPosition()+" can only be used once as input for the" +
+                                "method "+other.getMethod().getName()+" : it is wrongly used both at position "+j+" and "+i);
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+
+    private static boolean checkInitializingBoundedVariable(TestCase tc, int i, VariableReference vr) {
+
+        for(int j = i-1; j>vr.getStPosition() ; j--){
+            Statement st = tc.getStatement(j);
+
+            MethodStatement ms = null;
+            ConstructorStatement cs = null;
+            Annotation[][] annotations = null;
+            List<VariableReference> inputs = null;
+
+            if(st instanceof MethodStatement){
+                ms = (MethodStatement) st;
+                annotations = ms.getMethod().getMethod().getParameterAnnotations();
+                inputs = ms.getParameterReferences();
+
+                //is any other method of the bounded variable been called?
+                VariableReference callee = ms.getCallee();
+                if(vr.same(callee)){
+                    logger.error("Invalid method call at position "+j+" on bounded variable created in "+vr.getStPosition()+" " +
+                            "and initialized in "+i);
+                    return false;
+                }
+            }
+
+            if(st instanceof ConstructorStatement){
+                cs = (ConstructorStatement) st;
+                annotations = cs.getConstructor().getConstructor().getParameterAnnotations();
+                inputs = cs.getParameterReferences();
+            }
+
+            if(inputs==null || inputs.isEmpty()){
+                continue;
+            }
+
+            //is the bounded variable used as input in another method?
+            outer : for(int k=0; k<inputs.size(); k++){
+
+                VariableReference input = inputs.get(k);
+                Annotation[] varAnns = annotations[k];
+                for(Annotation ann : varAnns){
+                    if(ann instanceof BoundInputVariable){
+                        continue outer;  // it is fine if bounded variable is used several methods (eg injectors for each field)
+                    }
+                }
+
+                if(vr.same(input)){
+                    logger.error("Bounded variable created at position "+vr.getStPosition()+" is used as input in "+
+                        j + " before its bounding initializer at position "+i);
+                    return false;
+                }
+            }
+        }
+
+        Statement declaration = tc.getStatement(vr.getStPosition());
+        if(! (declaration instanceof ConstructorStatement)){
+            logger.error("Bounded variable is declared in "+vr.getStPosition()+" but not with a 'new' constructor");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * This method assumes the two data structures are aligned
+     *
+     * @param inputs
+     * @param annotations
+     * @return
+     */
+    private static List<VariableReference> getBoundedInitializingVariables(List<VariableReference> inputs, Annotation[][] annotations) {
+
+        List<VariableReference> bounded = new ArrayList<>();
+
+        outer : for(int i=0; i<inputs.size(); i++){
+            Annotation[] array = annotations[i];
+            for(Annotation annotation : array){
+                if(annotation instanceof BoundInputVariable){
+                    BoundInputVariable biv = (BoundInputVariable) annotation;
+                    if(biv.initializer()){
+                        bounded.add(inputs.get(i));
+                        continue  outer;
+                    }
+                }
+            }
+        }
+
+        return bounded;
     }
 
     private static boolean checkAfter(TestCase tc, int i, Class<?> declaringClass, Constraints c) {

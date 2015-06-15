@@ -1,11 +1,7 @@
 package org.evosuite.executionmode;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +13,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
@@ -280,6 +275,7 @@ public class TestGeneration {
 			cmdLine.add("-Dcom.sun.management.jmxremote.authenticate=false");
 			cmdLine.add("-Dcom.sun.management.jmxremote.ssl=false");
 		}
+		cmdLine.add("-XX:MaxJavaStackTraceDepth=1000000");
 
 		for (String arg : args) {
 			if (!arg.startsWith("-DCP=")) {

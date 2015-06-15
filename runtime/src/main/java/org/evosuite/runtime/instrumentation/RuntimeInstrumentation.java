@@ -1,5 +1,7 @@
 package org.evosuite.runtime.instrumentation;
 
+import java.util.List;
+
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.util.ComputeClassWriter;
 import org.objectweb.asm.ClassReader;
@@ -132,10 +134,25 @@ public class RuntimeInstrumentation {
 
         int readFlags = ClassReader.SKIP_FRAMES;
         reader.accept(cn, readFlags);
+        
+        // Check if the class was already instrumented by a different 
+        // EvoSuite classloader
+        List<ClassNode> interfaces = cn.interfaces;
+        boolean isInstrumented = false;
+        for(ClassNode iface : interfaces) {
+        	if(iface.name.equals(InstrumentedClass.class.getCanonicalName())) {
+        		isInstrumented = true;
+        		break;
+        	}
+        		
+        }
         cv = new JSRInlinerClassVisitor(cv);
 
         try {
-            cn.accept(cv);
+        	if(!isInstrumented)
+        		cn.accept(cv);
+        	else
+        		cn.accept(writer); // Apply no transformation if this is already instrumented by EvoSuite
         } catch (Throwable ex) {
            logger.error("Error while instrumenting class "+className+": "+ex.getMessage(),ex);
         }

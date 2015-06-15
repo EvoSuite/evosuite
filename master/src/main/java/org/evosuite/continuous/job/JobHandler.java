@@ -159,7 +159,7 @@ public class JobHandler extends Thread {
 
 	private List<String> getCommandString(JobDefinition job) {
 
-		List<String> commands = new ArrayList<String>();
+		List<String> commands = new ArrayList<>();
 		commands.add("java");		
 		String classpath = System.getProperty("java.class.path");
 		commands.add("-cp");
@@ -177,13 +177,11 @@ public class JobHandler extends Thread {
 		 *  it is important to set it before calling EvoSuite, as it has to be read by Master before loading properties.
 		 *  Note: the Client will get it automatically from Master
 		 */
-		commands.add("-D" + LoggingUtils.USE_DIFFERENT_LOGGING_XML_PARAMETER
-				+ "=logback-ctg.xml");
+		commands.add("-D" + LoggingUtils.USE_DIFFERENT_LOGGING_XML_PARAMETER + "=logback-ctg.xml");
 
 		StorageManager storage = executor.getStorage();
 		File logs = storage.getTmpLogs();
-		//cmd += " -Devosuite.log.folder=" + logs.getAbsolutePath() + "/job" + job.jobID;
-		commands.add("-Devosuite.log.folder=" + logs.getAbsolutePath() + "/" + job.cut);
+		commands.add("-Devosuite.log.folder=" + logs.getAbsolutePath() + File.separator + job.cut);
 
 		if (Properties.LOG_LEVEL != null && !Properties.LOG_LEVEL.isEmpty()) {
 			commands.add("-Dlog.level=" + Properties.LOG_LEVEL);
@@ -241,14 +239,15 @@ public class JobHandler extends Thread {
 
 		File reports = storage.getTmpReports();
 		File tests = storage.getTmpTests();
+		File seedOut = storage.getTmpSeeds();
+		File seedIn = storage.getSeedInFolder();
 
-		//TODO check if it works on Windows... likely not	
 		commands.add("-Dreport_dir=" + reports.getAbsolutePath() + File.separator + job.cut);
 		commands.add("-Dtest_dir=" + tests.getAbsolutePath());
 
-		commands.add("-Dtest_factory=" + Properties.TEST_FACTORY);
-		commands.add("-Dseed_clone=" + Properties.SEED_CLONE);
-		commands.add("-Dseed_dir=" + storage.getTmpSeeds().getAbsolutePath());
+		String seedsFileName = job.cut + "." + Properties.CTG_SEEDS_EXT;
+		commands.add("-Dctg_seeds_file_out=" + seedOut.getAbsolutePath() + File.separator +seedsFileName);
+		commands.add("-Dctg_seeds_file_in=" + seedIn.getAbsolutePath() + File.separator +seedsFileName);
 
 		commands.addAll(getOutputVariables());
 		if (Properties.ANALYSIS_CRITERIA.isEmpty()) {
@@ -389,12 +388,12 @@ public class JobHandler extends Thread {
 			commands.add("-Dctg_time_per_class=" + Properties.CTG_TIME_PER_CLASS);
 		}
 
+		commands.add("-startedByCtg");
 		/*
 		 * Master/Client will not use these variables.
 		 * But here we include them just to be sure that they will end
 		 * up in the generated CSV files
 		 */
-		commands.add("-startedByCtg");
 		commands.add("-Dctg_schedule=" + Properties.CTG_SCHEDULE);
 		commands.add("-Dctg_min_time_per_job=" + Properties.CTG_MIN_TIME_PER_JOB);
 
@@ -431,26 +430,29 @@ public class JobHandler extends Thread {
 		 * For now we just do something very basic
 		 */
 
-		final int PHASES = 7;
-		
-		int initialization = seconds / PHASES;
-		int minimization = seconds / PHASES;
-		int assertions = seconds / PHASES;
-		int extra = seconds / PHASES;
-        int junit = seconds / PHASES;
-		int write = seconds / PHASES;
+		final int PHASES = 6; //not including "search"
+
+		//the main phase is "search", which should take at least 50% of the budget
+		int halfTime = seconds / 2;
+
+		int initialization = halfTime / PHASES;
+		int minimization = halfTime / PHASES;
+		int assertions = halfTime / PHASES;
+		int extra = halfTime / PHASES;
+        int junit = halfTime / PHASES;
+		int write = halfTime / PHASES;
 
 		final int MAJOR_DELTA = 120;
 		final int MINOR_DELTA = 60;
 		
-		if (seconds > PHASES * MAJOR_DELTA) {
+		if (halfTime > PHASES * MAJOR_DELTA) {
 			initialization = MAJOR_DELTA;
 			minimization = MAJOR_DELTA;
 			assertions = MAJOR_DELTA;
 			extra = MAJOR_DELTA;
             junit = MAJOR_DELTA;
 			write = MAJOR_DELTA;
-		} else if (seconds > PHASES * MINOR_DELTA) {
+		} else if (halfTime > PHASES * MINOR_DELTA) {
 			initialization = MINOR_DELTA;
 			minimization = MINOR_DELTA;
 			assertions = MINOR_DELTA;
@@ -461,7 +463,7 @@ public class JobHandler extends Thread {
 
 		int search = seconds - (initialization + minimization + assertions + extra + junit + write);
 
-		List<String> commands = new ArrayList<String>();
+		List<String> commands = new ArrayList<>();
 		commands.add("-Dsearch_budget=" + search);
 		commands.add("-Dglobal_timeout=" + search);
 		commands.add("-Dstopping_condition=" + StoppingCondition.MAXTIME);
