@@ -1,5 +1,7 @@
 package org.evosuite.intellij.util;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
@@ -113,23 +115,30 @@ public class EvoSuiteExecutor {
                         return;
                     }
 
-                    Module module = Utils.getModule(project,modulePath);
+                    final Module module = Utils.getModule(project,modulePath);
                     if(module == null){
                         notifier.failed("Failed to determine IntelliJ module for "+modulePath);
                         return;
                     } else {
                         final AtomicBoolean ok = new AtomicBoolean(true);
                         final CountDownLatch latch = new CountDownLatch(1);
+
+
                         //TODO: maybe this is not really needed if using Maven plugin?
-                        CompilerManager.getInstance(project).make(module,new CompileStatusNotification(){
-                            @Override
-                            public void finished(boolean aborted, int errors, int warnings, CompileContext compileContext) {
-                                if(errors > 0){
-                                    ok.set(false);
-                                }
-                                latch.countDown();
+                        ApplicationManager.getApplication().invokeAndWait(new Runnable() {
+                            public void run() {
+                                CompilerManager.getInstance(project).make(module, new CompileStatusNotification() {
+                                    @Override
+                                    public void finished(boolean aborted, int errors, int warnings, CompileContext compileContext) {
+                                        if (errors > 0) {
+                                            ok.set(false);
+                                        }
+                                        latch.countDown();
+                                    }
+                                });
                             }
-                        });
+                        }, ModalityState.defaultModalityState());
+
                         try {
                             latch.await();
                         } catch (InterruptedException e) {
