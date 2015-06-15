@@ -430,26 +430,29 @@ public class JobHandler extends Thread {
 		 * For now we just do something very basic
 		 */
 
-		final int PHASES = 7;
-		
-		int initialization = seconds / PHASES;
-		int minimization = seconds / PHASES;
-		int assertions = seconds / PHASES;
-		int extra = seconds / PHASES;
-        int junit = seconds / PHASES;
-		int write = seconds / PHASES;
+		final int PHASES = 6; //not including "search"
+
+		//the main phase is "search", which should take at least 50% of the budget
+		int halfTime = seconds / 2;
+
+		int initialization = halfTime / PHASES;
+		int minimization = halfTime / PHASES;
+		int assertions = halfTime / PHASES;
+		int extra = halfTime / PHASES;
+        int junit = halfTime / PHASES;
+		int write = halfTime / PHASES;
 
 		final int MAJOR_DELTA = 120;
 		final int MINOR_DELTA = 60;
 		
-		if (seconds > PHASES * MAJOR_DELTA) {
+		if (halfTime > PHASES * MAJOR_DELTA) {
 			initialization = MAJOR_DELTA;
 			minimization = MAJOR_DELTA;
 			assertions = MAJOR_DELTA;
 			extra = MAJOR_DELTA;
             junit = MAJOR_DELTA;
 			write = MAJOR_DELTA;
-		} else if (seconds > PHASES * MINOR_DELTA) {
+		} else if (halfTime > PHASES * MINOR_DELTA) {
 			initialization = MINOR_DELTA;
 			minimization = MINOR_DELTA;
 			assertions = MINOR_DELTA;
@@ -460,7 +463,7 @@ public class JobHandler extends Thread {
 
 		int search = seconds - (initialization + minimization + assertions + extra + junit + write);
 
-		List<String> commands = new ArrayList<String>();
+		List<String> commands = new ArrayList<>();
 		commands.add("-Dsearch_budget=" + search);
 		commands.add("-Dglobal_timeout=" + search);
 		commands.add("-Dstopping_condition=" + StoppingCondition.MAXTIME);
