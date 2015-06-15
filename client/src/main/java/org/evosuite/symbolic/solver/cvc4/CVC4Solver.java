@@ -86,7 +86,7 @@ public class CVC4Solver extends Solver {
 		String smtQuery = buildSmtQuery(constraints);
 
 		if (smtQuery == null) {
-			logger.warn("No variables found during constraint solving. Returning NULL as solution");
+			logger.debug("No variables found during constraint solving. Returning NULL as solution");
 			return null;
 		}
 
