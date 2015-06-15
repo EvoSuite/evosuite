@@ -24,6 +24,8 @@ import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.testcase.mutation.LegacyInsertion;
+import org.evosuite.testcase.mutation.RandomInsertion;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentStatements;
 import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
@@ -752,14 +754,17 @@ public class TestFactory {
 		                                                          objects);
 
 		GenericAccessibleObject<?> ao = statement.getAccessibleObject();
-		if (ao != null)
+		if (ao != null && ao.getNumParameters() > 0) {
 			calls.remove(ao);
+		}
 
 		logger.debug("Got " + calls.size() + " possible calls for " + objects.size()
 		        + " objects");
-		calls.clear();
-		if (calls.isEmpty())
+		//calls.clear();
+		if (calls.isEmpty()) {
+			logger.debug("No replacement calls");
 			return false;
+		}
 		GenericAccessibleObject<?> call = Randomness.choice(calls);
 		try {
 			changeCall(test, statement, call);
@@ -768,7 +773,7 @@ public class TestFactory {
 			return true;
 		} catch (ConstructionFailedException e) {
 			// Ignore
-			logger.info("Change failed for statement " + statement.getCode() + " -> "
+			logger.warn("Change failed for statement " + statement.getCode() + " -> "
 			        + call + ": " + e.getMessage() + " " + test.toCode());
 		}
 		return false;
@@ -1612,55 +1617,8 @@ public class TestFactory {
 	 * @see de.unisb.cs.st.evosuite.testcase.AbstractTestFactory#insertRandomStatement(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
 	public int insertRandomStatement(TestCase test, int lastPosition) {
-		final double P = Properties.INSERTION_SCORE_UUT
-		        + Properties.INSERTION_SCORE_OBJECT
-		        + Properties.INSERTION_SCORE_PARAMETER;
-		final double P_UUT = Properties.INSERTION_SCORE_UUT / P;
-		final double P_OBJECT = P_UUT + Properties.INSERTION_SCORE_OBJECT / P;
-
-		int oldSize = test.size();
-		double r = Randomness.nextDouble();
-		//		int position = Randomness.nextInt(test.size() + 1);
-		int max = lastPosition;
-		if (max == test.size())
-			max += 1;
-
-		if (max <= 0)
-			max = 1;
-
-		int position = Randomness.nextInt(max);
-
-		if (logger.isDebugEnabled()) {
-			//for (int i = 0; i < test.size(); i++) {
-			//	logger.debug(test.getStatement(i).getCode() + ": Distance = "
-			//	        + test.getStatement(i).getReturnValue().getDistance());
-			//}
-			logger.debug(test.toCode());
-		}
-
-		//		if (r <= P_UUT) {
-		boolean success = false;
-		if (r <= Properties.INSERTION_UUT && TestCluster.getInstance().getNumTestCalls() > 0) {
-			// add new call of the UUT - only declared in UUT!
-			logger.debug("Adding new call on UUT");
-			success = insertRandomCall(test, position);
-			if (test.size() - oldSize > 1) {
-				position += (test.size() - oldSize - 1);
-			}
-		} else { // if (r <= P_OBJECT) {
-			logger.debug("Adding new call on existing object");
-			success = insertRandomCallOnObject(test, position);
-			if (test.size() - oldSize > 1) {
-				position += (test.size() - oldSize - 1);
-			}
-			//		} else {
-			//			logger.debug("Adding new call with existing object as parameter");
-			// insertRandomCallWithObject(test, position);
-		}
-		if (success)
-			return position;
-		else
-			return -1;
+		RandomInsertion rs = new RandomInsertion();
+		return rs.insertStatement(test, lastPosition);
 	}
 
 	/**
