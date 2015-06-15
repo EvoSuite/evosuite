@@ -21,9 +21,14 @@ public class ApplicationRegistration implements ApplicationComponent {
         //DefaultActionGroup editorM = (DefaultActionGroup) am.getAction("EditorPopupMenu");
 
         ActionManager am = ActionManager.getInstance();
+
         DefaultActionGroup pvM = (DefaultActionGroup) am.getAction("ProjectViewPopupMenu");
         pvM.addSeparator();
         pvM.add(evo);
+
+        DefaultActionGroup epM = (DefaultActionGroup) am.getAction("EditorPopupMenu");
+        epM.addSeparator();
+        epM.add(evo);
     }
 
     @Override
