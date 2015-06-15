@@ -1,7 +1,10 @@
 package org.evosuite.intellij;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.ui.Messages;
+import org.evosuite.intellij.util.EvoVersion;
 import org.evosuite.intellij.util.Utils;
 
 import javax.swing.*;
@@ -43,9 +46,6 @@ public class EvoStartDialog extends JDialog {
         mavenField.setText(params.getMvnLocation());
         evosuiteLocationTesxField.setText(params.getEvosuiteJarLocation());
         javaHomeField.setText(params.getJavaHome());
-
-        //TODO sounds useful
-        //ProjectJdkTable.getInstance().getAllJdks();
 
         if(! Utils.isMavenProject(project)){
             //disable Maven options
@@ -105,6 +105,8 @@ public class EvoStartDialog extends JDialog {
                 onSelectJavaHome();
             }
         });
+        selectJavaHomeButton.setToolTipText("Choose a valid JDK home for Java " + EvoVersion.JAVA_VERSION);
+
         mavenRadioButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -185,12 +187,16 @@ public class EvoStartDialog extends JDialog {
     }
 
     private void onSelectJavaHome(){
-        JFileChooser fc = new JFileChooser();
+
+        String jdkStartLocation = getJDKStartLocation();
+
+        JFileChooser fc = new JFileChooser(jdkStartLocation);
         fc.setAcceptAllFileFilterUsed(false);
         fc.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File file) {
-                return checkIfValidJavaHome(file);
+                //return checkIfValidJavaHome(file);
+                return true; //otherwise all folders will be greyed out
             }
 
             @Override
@@ -212,6 +218,43 @@ public class EvoStartDialog extends JDialog {
 
             params.setJavaHome(path);
             javaHomeField.setText(path);
+        }
+    }
+
+    private String getJDKStartLocation() {
+        String start = params.getJavaHome(); //TODO check for null
+        if(start==null || start.isEmpty() && ProjectJdkTable.getInstance().getAllJdks().length > 0){
+            //try to check the JDK used by the project
+
+            for(Sdk sdk : ProjectJdkTable.getInstance().getAllJdks()){
+                if(sdk.getVersionString().contains(""+EvoVersion.JAVA_VERSION)){
+                    start = sdk.getHomePath();
+                    break;
+                }
+            }
+            if(start==null){
+                //just take something as starting point
+                start = ProjectJdkTable.getInstance().getAllJdks()[0].getHomePath();
+            }
+        }
+
+        if(start==null || start.isEmpty()){
+            return ""; //if still empty, return default ""
+        }
+
+        File file = new File(start);
+        while(file != null){
+            if(file.getName().toLowerCase().contains("jdk")){
+                file = file.getParentFile(); //go to the parent, which might have several JDKs
+                break;
+            }
+            file = file.getParentFile();
+        }
+
+        if(file!=null){
+            return file.getAbsolutePath();
+        } else {
+            return "";
         }
     }
 

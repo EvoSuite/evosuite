@@ -66,7 +66,7 @@ public class Issre13SystemTest extends SystemTest {
 		Properties.SEARCH_BUDGET = DEFAULT_SEARCH_BUDGET;
 	}
 
-	@Test
+//	@Test
 	public void testLocalSearch() {
 
 		// it should be trivial for LS
@@ -154,6 +154,8 @@ public class Issre13SystemTest extends SystemTest {
 		String targetClass = DseBar.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
+		Properties.MINIMIZE = false;
+		
 		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
 
 		// Properties.DSE_SOLVER = SolverType.Z3_STR_SOLVER;
@@ -178,6 +180,8 @@ public class Issre13SystemTest extends SystemTest {
 
 		// should it be trivial for DSE ?
 		Properties.SEARCH_BUDGET = 20;
+		Properties.TIMEOUT = Integer.MAX_VALUE;
+		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		Properties.LOCAL_SEARCH_RATE = 1;
 		Properties.DSE_PROBABILITY = 1.0;
 //		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TIME;
