@@ -163,6 +163,7 @@ public class ValueMinimizer extends TestVisitor {
 	 */
 	public void minimize(TestSuiteChromosome suite, TestSuiteFitnessFunction objective) {
 		int i = 0;
+		objective.getFitness(suite); // Ensure all tests have an execution result cached
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			this.objective = new SuiteMinimization(objective, suite, i);
 			test.test.accept(this);

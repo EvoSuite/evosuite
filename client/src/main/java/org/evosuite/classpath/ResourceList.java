@@ -430,7 +430,9 @@ public class ResourceList {
 			@SuppressWarnings("unchecked")
 			List<MethodNode> l = cn.methods; 
 			for (MethodNode m : l) {
-				if ((m.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
+				if ((m.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC ||
+					(m.access & Opcodes.ACC_PROTECTED) == Opcodes.ACC_PROTECTED ||
+					(m.access & Opcodes.ACC_PRIVATE) == 0 /* default */ ) {
 					return true;
 		        }
 			}

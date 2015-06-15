@@ -7,14 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -45,6 +38,8 @@ import org.slf4j.LoggerFactory;
 public class StorageManager {
 
 	private static Logger logger = LoggerFactory.getLogger(StorageManager.class);
+
+	private static final String TMP_PREFIX = "tmp_";
 
     private File tmpLogs = null;
 	private File tmpReports = null;
@@ -101,9 +96,20 @@ public class StorageManager {
 			}
 		}
 
+		File seedFolder = getSeedInFolder();
+		if(!seedFolder.exists()){
+			if(!seedFolder.mkdirs()){
+				logger.error("Failed to mkdir "+seedFolder.getAbsolutePath());
+			}
+		}
+
 		return true;		
 	}
-	
+
+	public File getSeedInFolder(){
+		return new File(new File(Properties.CTG_DIR),"evosuite-"+Properties.CTG_SEEDS_DIR_NAME);
+	}
+
 	/**
 	 * Create a new tmp folder for this CTG session
 	 * 
@@ -119,37 +125,36 @@ public class StorageManager {
 		File tmp = null;
 
 		if (Properties.CTG_GENERATION_DIR_PREFIX == null)
-			tmp = new File(Properties.CTG_DIR + File.separator + "tmp_" + time);
+			tmp = new File(Properties.CTG_DIR + File.separator + TMP_PREFIX + time);
 		else
-			tmp = new File(Properties.CTG_DIR + File.separator + Properties.CTG_GENERATION_DIR_PREFIX + "_" + time);
+			tmp = new File(Properties.CTG_DIR + File.separator + TMP_PREFIX + Properties.CTG_GENERATION_DIR_PREFIX + "_" + time);
 
-		if (!tmp.mkdir())
+		if (!tmp.mkdirs())
 			return false;
 
 		// if we created the "tmp" folder or already exists, then it should be fine to create new folders in it
 
-		this.tmpLogs = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_LOGS_DIR);
+		this.tmpLogs = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_TMP_LOGS_DIR_NAME);
 		if (!this.tmpLogs.exists() && !this.tmpLogs.mkdirs()) {
 			return false;
 		}
 
-		this.tmpReports = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_REPORTS_DIR);
+		this.tmpReports = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_TMP_REPORTS_DIR_NAME);
 		if (!this.tmpReports.exists() && !this.tmpReports.mkdirs()) {
 			return false;
 		}
 
-		this.tmpTests = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_TESTS_DIR);
+		this.tmpTests = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_TMP_TESTS_DIR_NAME);
 		if (!this.tmpTests.exists() && !this.tmpTests.mkdirs()) {
 			return false;
 		}
 
-		this.tmpPools = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_POOLS_DIR);
+		this.tmpPools = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_TMP_POOLS_DIR_NAME);
 		if (!this.tmpPools.exists() && !this.tmpPools.mkdirs()) {
 			return false;
 		}
 
-		//TODO why is this one not created under TMP folder?
-		this.tmpSeeds = new File(Properties.CTG_SEEDS_DIR);
+		this.tmpSeeds = new File(tmp.getAbsolutePath() + File.separator + Properties.CTG_SEEDS_DIR_NAME);
 		if (!this.tmpSeeds.exists() && !this.tmpSeeds.mkdirs()) {
 			return false;
 		}
@@ -157,6 +162,23 @@ public class StorageManager {
 		return true;
 	}
 
+
+	public void deleteAllOldTmpFolders(){
+
+		File root = new File(Properties.CTG_DIR);
+		for(File child : root.listFiles()){
+			if(!child.isDirectory()){
+				continue;
+			}
+			if(child.getName().startsWith(TMP_PREFIX)){
+				try {
+					FileUtils.deleteDirectory(child);
+				} catch (IOException e) {
+					logger.error("Failed to delete tmp folder "+child.getAbsolutePath());
+				}
+			}
+		}
+	}
 
 	/**
 	 * Delete all CTG files 
@@ -176,27 +198,23 @@ public class StorageManager {
 		public final File testSuite;
 		public final String cut;
 		public final CsvJUnitData csvData;
+		public final File serializedSuite;
 		
-		
-		public TestsOnDisk(File testSuite, CsvJUnitData csvData) {
+		public TestsOnDisk(File testSuite, CsvJUnitData csvData, File serializedSuite) {
 			super();
 			this.testSuite = testSuite;
 			this.csvData = csvData;
 			this.cut = csvData.getTargetClass();
+			this.serializedSuite = serializedSuite; //this might be null
 		}
-		
-		public TestsOnDisk(File testSuite, File csvFile, String cut) {
-			super();
-			this.testSuite = testSuite;
-			this.cut = cut;
-			csvData = CsvJUnitData.openFile(csvFile);
-		}
-		
+
 		public boolean isValid(){
 			return testSuite!=null && testSuite.exists() &&
 					cut!=null && !cut.isEmpty() &&
 					csvData!=null && 
-					cut.equals(csvData.getTargetClass());
+					cut.equals(csvData.getTargetClass()) &&
+					(serializedSuite==null || serializedSuite.getName().endsWith(Properties.CTG_SEEDS_EXT))
+					;
 		}
 	}
 	
@@ -207,32 +225,68 @@ public class StorageManager {
 	 * @param data
 	 * @return
 	 */
-	public String mergeAndCommitChanges(ProjectStaticData current) throws NullPointerException{
+	public String mergeAndCommitChanges(ProjectStaticData current, String[] cuts) throws NullPointerException{
 
 		if(current == null){
 			throw new NullPointerException("ProjectStaticData 'current' cannot be null");
 		}
 		
 		ProjectInfo db = StorageManager.getDatabaseProjectInfo();
-		String info = removeNoMoreExistentData(db,current);
+		String info = removeNoMoreExistentData(db, current);
 
 		info += "\n\n=== CTG run results ===";
 		
 		/*
-		 * Check what test cases have been actually generated
+		 * Check what test cases have been actually generating
 		 * in this CTG run
 		 */
 		List<TestsOnDisk> suites = gatherGeneratedTestsOnDisk();
 		info += "\nNew test suites: "+suites.size();
-		
-		int better = 0;
-		for(TestsOnDisk suite : suites){
-			if(isBetterThanOldOne(suite,db)){
-				updateDatabase(suite,db);
-				better++;
+
+		//identify for which CUTs we failed to generate tests
+		if(cuts != null && cuts.length != suites.size()){
+			//this can happen if crash for some CUTs
+			Set<String> presents = new LinkedHashSet<>();
+			for(TestsOnDisk ts : suites){
+				String name = ts.cut;
+				presents.add(name);
+			}
+
+			Set<String> expected = new LinkedHashSet<>();
+			Collections.addAll(expected,cuts);
+			List<String> missing = new ArrayList<>();
+			for(String exp : expected){
+				if(!presents.contains(exp)){
+					missing.add(exp);
+				}
+			}
+
+			if(! missing.isEmpty()){
+				if(missing.size()==1){
+					info += "\n\nWARN: failed to generate tests for "+missing.get(0);
+				} else {
+					info += "\n\nMissing classes:";
+
+					Collections.sort(missing);
+					for(String m : missing){
+						info += "\n" + m;
+					}
+
+					String summary = "\n\nWARN: failed to generate tests for "+missing.size()+" classes out of "+expected.size();
+					info += summary;
+				}
 			}
 		}
-		info += "\nBetter test suites: "+better;
+
+		int better = 0;
+		for(TestsOnDisk suite : suites){
+			//Removed, as it was wrongly implemented, and anyway we always do seeding from previous CTG runs
+			//if(isBetterThanOldOne(suite,db)){
+			updateDatabase(suite,db);
+			better++;
+			//}
+		}
+		//info += "\nBetter test suites: "+better;
 		
 		updateProjectStatistics(db,current);
 		commitDatabase(db);
@@ -253,7 +307,8 @@ public class StorageManager {
 		List<TestsOnDisk> list = new LinkedList<TestsOnDisk>();
 		List<File> generatedTests = Utils.getAllFilesInSubFolder(tmpTests.getAbsolutePath(), ".java");
 		List<File> generatedReports = Utils.getAllFilesInSubFolder(tmpReports.getAbsolutePath(), ".csv");
-		
+		List<File> generatedSerialized = Utils.getAllFilesInSubFolder(tmpSeeds.getAbsolutePath(), Properties.CTG_SEEDS_EXT);
+
 		/*
 		 * Key -> name of CUT
 		 * Value -> data extracted from CSV file 
@@ -261,7 +316,7 @@ public class StorageManager {
 		 * We use a map, otherwise we could have 2 inner loops going potentially on thousands
 		 * of classes, ie, O(n^2) complexity
 		 */
-		Map<String,CsvJUnitData> reports = new LinkedHashMap<String,CsvJUnitData>();
+		Map<String,CsvJUnitData> reports = new LinkedHashMap<>();
 		for(File file : generatedReports){
 			CsvJUnitData data = CsvJUnitData.openFile(file);
 			if(data==null){
@@ -270,7 +325,18 @@ public class StorageManager {
 				reports.put(data.getTargetClass(), data);
 			}
 		}
-		
+
+		/*
+		 * Key -> class name of CUT
+		 * Value -> file location of serialized test suite
+		 */
+		Map<String,File> seeds = new LinkedHashMap<>();
+		for(File file : generatedSerialized){
+			//this assumes that seed files are in the form cutName.seed
+			String cut = file.getName().substring(0 , file.getName().length() - (Properties.CTG_SEEDS_EXT.length() + 1));
+			seeds.put(cut,file);
+		}
+
 		/*
 		 * Try to extract info for each generated JUnit test suite
 		 */
@@ -297,14 +363,19 @@ public class StorageManager {
 			}
 			//String cut = testName.substring(0, testName.indexOf(junitSuffix)); //This does not work, eg cases like _N_suffix
 						
-			CsvJUnitData data = reports.get(cut); 
-			
+			CsvJUnitData data = reports.get(cut);
 			if(data==null){
 				logger.warn("No CSV file for CUT "+cut+" with test suite at "+test.getAbsolutePath());
 				continue;
 			}
-			
-			TestsOnDisk info = new TestsOnDisk(test, data);
+
+			File seed = seeds.get(cut);
+			if(seed == null){
+				logger.warn("No '"+Properties.CTG_SEEDS_EXT+"' file was generated for CUT "+cut);
+				//do not skip, as this might happen if custom factory (ie no archive) was used for some experiments
+			}
+
+			TestsOnDisk info = new TestsOnDisk(test, data, seed);
 			if(info.isValid()){
 				list.add(info);
 			} else {
@@ -468,6 +539,16 @@ public class StorageManager {
 		if (scaffolding != null) {
 			addTestSuite(scaffolding);
 		}
+
+		if(ondisk.serializedSuite != null){
+			File target = new File(getSeedInFolder(), ondisk.serializedSuite.getName());
+			target.delete();
+			try {
+				FileUtils.copyFile(ondisk.serializedSuite, target);
+			} catch (IOException e) {
+				logger.error("Failed to copy over a new generated serialized test suite: "+e.getMessage(),e);
+			}
+		}
 	}
 
 	private File getScaffoldingIfExists(File testSuite) throws IllegalArgumentException{
@@ -502,6 +583,7 @@ public class StorageManager {
 		
 		String path = testName.replace(".", File.separator) + ".java";
 		File file = new File(Properties.CTG_BESTS_DIR + File.separator + path);
+		file.delete(); //the following copy does not overwrite
 
 		try {
 			FileUtils.copyFile(newlyGeneratedTestSuite, file);
@@ -510,6 +592,11 @@ public class StorageManager {
 		}
 	}
 
+	/*
+		this not really reliable, as CUT could have changed. tracking compilation would be cumbersome (many edge
+		cases), and not even so useful, as we would lose info each time of a "mvn clean"
+	 */
+	@Deprecated
 	private boolean isBetterThanOldOne(TestsOnDisk suite, ProjectInfo db) {
 
 		if(suite.csvData == null) {
@@ -535,7 +622,7 @@ public class StorageManager {
 			//this could happen if file was manually removed
 			return true;
 		}
-		
+
 		// first, check if the coverage of at least one criterion is better
 		TestSuiteCoverage previousCoverage = old.getCoverageTestSuites().get( old.getCoverageTestSuites().size() - 1 );
 		for (CriterionCoverage criterion : previousCoverage.getCoverage()) {
@@ -685,7 +772,7 @@ public class StorageManager {
 	}
 
 	public File getTmpSeeds() {
-		return this.tmpSeeds;
+		return tmpSeeds;
 	}
 
 	public boolean isStorageOk() {

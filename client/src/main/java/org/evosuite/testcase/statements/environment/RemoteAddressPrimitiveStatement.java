@@ -16,7 +16,9 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  */
 public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<EvoSuiteRemoteAddress>{
 
-    public RemoteAddressPrimitiveStatement(TestCase tc) {
+	private static final long serialVersionUID = -4863601663573415059L;
+
+	public RemoteAddressPrimitiveStatement(TestCase tc) {
         this(tc, null);
         randomize();
     }

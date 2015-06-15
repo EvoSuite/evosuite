@@ -20,19 +20,12 @@
  */
 package org.evosuite.instrumentation.testability;
 
-import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
-import org.evosuite.instrumentation.RegexDistance;
 import org.evosuite.seeding.ConstantPoolManager;
-import org.evosuite.setup.TestCluster;
-import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 
 /**

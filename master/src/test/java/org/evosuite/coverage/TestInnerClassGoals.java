@@ -3,8 +3,8 @@ package org.evosuite.coverage;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class TestInnerClassGoals extends SystemTest {
 		 TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		 System.out.println(best);
-		 int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+		 int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		 Assert.assertEquals(6, goals );
 		 Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	 }
@@ -54,7 +54,7 @@ public class TestInnerClassGoals extends SystemTest {
 		 TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		 System.out.println(best);
-		 int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+		 int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		 Assert.assertEquals(8, goals );
 		 Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	 }
@@ -76,7 +76,7 @@ public class TestInnerClassGoals extends SystemTest {
 		 TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		 System.out.println(best);
-		 int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+		 int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		 // TODO: Should constructors of private inner classes be tested?
 		 Assert.assertEquals(5, goals );
 		 Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -99,7 +99,7 @@ public class TestInnerClassGoals extends SystemTest {
 		 TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		 System.out.println(best);
-		 int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+		 int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		 Assert.assertEquals(8, goals );
 		 Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	 }
@@ -121,7 +121,7 @@ public class TestInnerClassGoals extends SystemTest {
 		 TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		 System.out.println(best);
-		 int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+		 int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		 
 		 // TODO: Should constructors of private inner classes be tested?
 		 Assert.assertEquals(5, goals );
@@ -145,7 +145,7 @@ public class TestInnerClassGoals extends SystemTest {
 		 TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		 System.out.println(best);
-		 int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+		 int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		 Assert.assertEquals(8, goals );
 		 Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	 }

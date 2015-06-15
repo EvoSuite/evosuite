@@ -17,11 +17,11 @@ public class SolverFactory {
 	public Solver buildNewSolver() {
 		switch (Properties.DSE_SOLVER) {
 		case Z3_SOLVER:
-			return new Z3Solver();
+			return new Z3Solver(true);
 		case Z3_STR2_SOLVER:
-			return new Z3Str2Solver();
+			return new Z3Str2Solver(true);
 		case CVC4_SOLVER:
-			return new CVC4Solver();
+			return new CVC4Solver(true);
 		case EVOSUITE_SOLVER:
 		default:
 			return new EvoSuiteSolver();

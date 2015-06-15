@@ -13,7 +13,9 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  */
 public class UrlPrimitiveStatement extends EnvironmentDataStatement<EvoSuiteURL> {
 
-    public UrlPrimitiveStatement(TestCase tc) {
+	private static final long serialVersionUID = 2062390100066807026L;
+
+	public UrlPrimitiveStatement(TestCase tc) {
         this(tc, null);
         randomize();
     }

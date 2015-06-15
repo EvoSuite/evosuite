@@ -88,52 +88,52 @@ public class SerializationSuiteChromosomeFactory
         }
     }
 
+    public static void saveTests(List<TestSuiteChromosome> bestSuites)
+    {
+    	try
+    	{
+    		ObjectOutputStream out =
+    				new DebuggingObjectOutputStream(new FileOutputStream(Properties.SEED_DIR + File.separator
+    						+ Properties.TARGET_CLASS));
+
+        	for(TestSuiteChromosome suite : bestSuites)
+        		saveTests(suite, out);
+        	
+    		out.flush();
+    		out.close();
+    	}
+    	catch (IOException e)
+    	{
+    		logger.error(e.getMessage());
+    	}
+
+    }
+
+    public static void saveTests(TestSuiteChromosome testSuite, ObjectOutputStream out) throws IOException {
+    	for (TestChromosome tc : testSuite.getTestChromosomes()) {
+    		tc.getTestCase().removeAssertions();
+    		out.writeObject(tc);
+    	}
+    }
     /**
      * Serialize tests
      */
-    public static void saveTests(List<TestSuiteChromosome> bestSuites)
+    public static void saveTests(TestSuiteChromosome testSuite)
     {
-        if (bestSuites.size() > 0/* || previousSuite.getTestChromosomes().size() > 0*/)
-        {
-            try
-            {
-                ObjectOutputStream out =
-                    new DebuggingObjectOutputStream(new FileOutputStream(Properties.SEED_DIR + "/"
-                        + Properties.TARGET_CLASS));
+    	try
+    	{
+    		ObjectOutputStream out =
+    				new DebuggingObjectOutputStream(new FileOutputStream(Properties.SEED_DIR + File.separator
+    						+ Properties.TARGET_CLASS));
 
-                // keep the previous suite
-                /*for (TestChromosome tc : previousTests)
-                    out.writeObject(tc);*/
-
-                for (TestSuiteChromosome best : bestSuites)
-                {
-                    /*if (best instanceof TestChromosome)
-                    {
-                        ((TestChromosome) best).getTestCase().removeAssertions();
-                        out.writeObject(best);
-                    }
-                    else if (best instanceof TestSuiteChromosome)*/
-                    {
-                        for (TestChromosome tc : ((TestSuiteChromosome) best).getTestChromosomes())
-                        {
-                            tc.getTestCase().removeAssertions();
-                            out.writeObject(tc);
-                        }
-                    }
-                }
-
-                out.flush();
-                out.close();
-            }
-            catch (IOException e)
-            {
-                logger.error(e.getMessage());
-            }
-        }
-        else
-        {
-            logger.error("nothing to serialize");
-        }
+    		saveTests(testSuite, out);
+    		out.flush();
+    		out.close();
+    	}
+    	catch (IOException e)
+    	{
+    		logger.error(e.getMessage());
+    	}
     }
 
     /**

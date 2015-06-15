@@ -252,10 +252,9 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public int sliceFor(VariableReference var) {
 		
-		Set<VariableReference> dependencies = new LinkedHashSet<VariableReference>();
-
 		Set<Statement> dependentStatements = new LinkedHashSet<Statement>();
 		dependentStatements.add(statements.get(var.getStPosition()));
+		
 		int lastPosition = var.getStPosition();
 		// Add all statements that use this var
 		for(VariableReference ref : getReferences(var)) {
@@ -267,9 +266,9 @@ public class DefaultTestCase implements TestCase, Serializable {
 		for (int i = lastPosition; i >= 0; i--) {
 			Set<Statement> newStatements = new LinkedHashSet<Statement>();
 			for (Statement s : dependentStatements) {
-				if (s.references(statements.get(i).getReturnValue())) {
+				if (s.references(statements.get(i).getReturnValue()) ||
+						s.references(statements.get(i).getReturnValue().getAdditionalVariableReference())) {
 					newStatements.add(statements.get(i));
-					dependencies.add(statements.get(i).getReturnValue());
 					break;
 				}
 			}
@@ -715,8 +714,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 			Set<VariableReference> temp = new LinkedHashSet<VariableReference>();
 			if (statements.get(i).references(var))
 				temp.add(statements.get(i).getReturnValue());
+			else if (statements.get(i).references(var.getAdditionalVariableReference()))
+				temp.add(statements.get(i).getReturnValue());
 			for (VariableReference v : references) {
 				if (statements.get(i).references(v))
+					temp.add(statements.get(i).getReturnValue());
+				else if (statements.get(i).references(v.getAdditionalVariableReference()))
 					temp.add(statements.get(i).getReturnValue());
 			}
 			references.addAll(temp);

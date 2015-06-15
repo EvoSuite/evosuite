@@ -1,35 +1,16 @@
 package org.evosuite.localsearch;
 
-import static org.junit.Assert.*;
-
-import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.LocalSearchBudgetType;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.localsearch.DefaultLocalSearchObjective;
-import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.TestFactory;
-import org.evosuite.testcase.localsearch.BranchCoverageMap;
-import org.evosuite.testcase.statements.numeric.FloatPrimitiveStatement;
-import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericMethod;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.localsearch.ArrayLocalSearchExample;
@@ -55,7 +36,7 @@ public class LocalSearchSystemTest extends SystemTest {
 		Properties.PRIMITIVE_POOL = oldPrimitivePool;
 	}
 	
-	
+	@Ignore // This seems to be trivial now?
 	@Test
 	public void testIntegerGlobalSearch() {
 		EvoSuite evosuite = new EvoSuite();
@@ -108,46 +89,7 @@ public class LocalSearchSystemTest extends SystemTest {
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
-	@Test
-	public void testIntLocalSearchOnTest() throws ClassNotFoundException, ConstructionFailedException, NoSuchMethodException, SecurityException {
-		Properties.TARGET_CLASS = IntegerLocalSearchExample.class.getCanonicalName();
-		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-		GenericClass clazz = new GenericClass(sut);
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_REFERENCES = false;
-		Properties.LOCAL_SEARCH_ARRAYS = false;
-		Properties.PRINT_TO_SYSTEM = true;
-
-		DefaultTestCase test = new DefaultTestCase();
-		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
-
-		TestFactory testFactory = TestFactory.getInstance();
-		VariableReference callee = testFactory.addConstructor(test, gc, 0, 0);
-		VariableReference intVar1 = test.addStatement(new IntPrimitiveStatement(test, 1));
-		VariableReference intVar0 = test.addStatement(new IntPrimitiveStatement(test, 1));
-
-		Method m = clazz.getRawClass().getMethod("testMe", new Class<?>[] { int.class, int.class });
-		GenericMethod method = new GenericMethod(m, sut);
-		MethodStatement ms = new MethodStatement(test, method, callee, Arrays.asList(new VariableReference[] {intVar0, intVar1}));
-		test.addStatement(ms);
-		System.out.println(test);
-		
-		TestSuiteChromosome suite = new TestSuiteChromosome();
-		BranchCoverageSuiteFitness fitness = new BranchCoverageSuiteFitness();
-
-		BranchCoverageMap.getInstance().searchStarted(null);
-		assertEquals(4.0, fitness.getFitness(suite), 0.1F);
-		suite.addTest(test);
-		assertEquals(1.0, fitness.getFitness(suite), 0.1F);
-		
-		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>(fitness);
-		localSearch.doSearch(suite, localObjective);
-		System.out.println("Fitness: "+fitness.getFitness(suite));
-		System.out.println("Test suite: "+suite);
-		assertEquals(0.0, fitness.getFitness(suite), 0.1F);
-		BranchCoverageMap.getInstance().searchFinished(null);
-	}
+	
 	
 	@Test
 	public void testFloatGlobalSearch() {
@@ -170,47 +112,6 @@ public class LocalSearchSystemTest extends SystemTest {
 		Assert.assertTrue("Did not expect optimal coverage", best.getCoverage() < 1.0);
 	}
 	
-	@Test
-	public void testFloatLocalSearchOnTest() throws ClassNotFoundException, ConstructionFailedException, NoSuchMethodException, SecurityException {
-		Properties.TARGET_CLASS = FloatLocalSearchExample.class.getCanonicalName();
-		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-		GenericClass clazz = new GenericClass(sut);
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_REFERENCES = false;
-		Properties.LOCAL_SEARCH_ARRAYS = false;
-
-		DefaultTestCase test = new DefaultTestCase();
-		GenericConstructor gc = new GenericConstructor(clazz.getRawClass().getConstructors()[0], clazz);
-
-		TestFactory testFactory = TestFactory.getInstance();
-		VariableReference callee = testFactory.addConstructor(test, gc, 0, 0);
-		VariableReference floatVar0 = test.addStatement(new FloatPrimitiveStatement(test, 1F));
-		VariableReference floatVar1 = test.addStatement(new FloatPrimitiveStatement(test, 1F));
-
-		Method m = clazz.getRawClass().getMethod("testMe", new Class<?>[] { float.class, float.class });
-		GenericMethod method = new GenericMethod(m, sut);
-		MethodStatement ms = new MethodStatement(test, method, callee, Arrays.asList(new VariableReference[] {floatVar0, floatVar1}));
-		test.addStatement(ms);
-		System.out.println(test);
-		
-		TestSuiteChromosome suite = new TestSuiteChromosome();
-		BranchCoverageSuiteFitness fitness = new BranchCoverageSuiteFitness();
-
-		BranchCoverageMap.getInstance().searchStarted(null);
-		assertEquals(4.0, fitness.getFitness(suite), 0.1F);
-		suite.addTest(test);
-		assertEquals(1.0, fitness.getFitness(suite), 0.1F);
-
-		System.out.println("Test suite: "+suite);
-		
-		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>(fitness);
-		localSearch.doSearch(suite, localObjective);
-		System.out.println("Fitness: "+fitness.getFitness(suite));
-		System.out.println("Test suite: "+suite);
-		assertEquals(0.0, fitness.getFitness(suite), 0.1F);
-		BranchCoverageMap.getInstance().searchFinished(null);
-	}
 	
 	@Test
 	public void testFloatLocalSearch() {

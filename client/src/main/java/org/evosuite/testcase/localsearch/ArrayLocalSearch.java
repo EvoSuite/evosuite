@@ -20,6 +20,7 @@
  */
 package org.evosuite.testcase.localsearch;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.variable.ArrayReference;
@@ -83,10 +84,12 @@ public class ArrayLocalSearch extends StatementLocalSearch {
 		expander.visitArrayStatement(test.getTestCase(), p);
 		int assignmentLength = test.size() - lengthWithoutAssignments;
 		for (int position = statement + 1; position < statement + assignmentLength; position++) {
+			logger.debug("Local search on statement "+position);
 			StatementLocalSearch search = StatementLocalSearch.getLocalSearchFor(test.getTestCase().getStatement(position));
 			if (search != null) {
-				if (search.doSearch(test, position, objective))
+				if (search.doSearch(test, position, objective)) {
 					hasImproved = true;
+				}
 			}
 		}
 
@@ -179,13 +182,17 @@ public class ArrayLocalSearch extends StatementLocalSearch {
 				test.setLastExecutionResult(oldResult);
 				test.setChanged(false);
 
-			} else if (oldLength > 0) {
-				// Restore original, try -1
-				p.setSize(oldLength);
-				test.setLastExecutionResult(oldResult);
-				test.setChanged(false);
+			} else {
+				if (oldLength > 0) {
+					// Restore original, try -1
+					p.setSize(oldLength);
+					test.setLastExecutionResult(oldResult);
+					test.setChanged(false);
 
-				p.setSize(oldLength - 1);
+					p.setSize(oldLength - 1);
+				} else {
+					p.setSize(Properties.MAX_ARRAY);
+				}
 				logger.debug("Trying decrement of {}", p.getCode());
 				if (objective.hasImproved(test)) {
 					done = false;

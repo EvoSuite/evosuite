@@ -57,6 +57,14 @@ public class CVC4Solver extends Solver {
 
 	static Logger logger = LoggerFactory.getLogger(CVC4Solver.class);
 
+	public CVC4Solver(boolean addMissingValues) {
+		super(addMissingValues);
+	}
+
+	public CVC4Solver() {
+		super();
+	}
+	
 	@Override
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
 			throws ConstraintSolverTimeoutException {
@@ -113,7 +121,12 @@ public class CVC4Solver extends Solver {
 
 				// parse solution
 				Map<String, Object> initialValues = getConcreteValues(variables);
-				CVC4ModelParser modelParser = new CVC4ModelParser(initialValues);
+				CVC4ModelParser modelParser;
+				if (addMissingVariables()) {
+				modelParser = new CVC4ModelParser(initialValues);
+				} else {
+					modelParser = new CVC4ModelParser();
+				}
 				Map<String, Object> solution = modelParser.parse(cvc4ResultStr);
 
 				// check solution is correct
@@ -139,7 +152,11 @@ public class CVC4Solver extends Solver {
 			}
 
 		} catch (IOException e) {
-			logger.error("IO Exception during launching of CVC4 command");
+			if (e.getMessage().contains("Permission denied")) {
+				logger.error("No permissions for running CVC4 binary");
+			} else {
+				logger.error("IO Exception during launching of CVC4 command");
+			}
 			return null;
 
 		}
@@ -238,7 +255,8 @@ public class CVC4Solver extends Solver {
 				smtQuery.append("\n");
 
 			} else if (var instanceof SmtStringVariable) {
-				String stringVar = SmtStringExprBuilder.mkStringFunction(varName);
+				String stringVar = SmtStringExprBuilder
+						.mkStringFunction(varName);
 				smtQuery.append(stringVar);
 				smtQuery.append("\n");
 			} else {
@@ -306,7 +324,7 @@ public class CVC4Solver extends Solver {
 		}
 	}
 
-	//	private final static int ASCII_TABLE_LENGTH = 256;
+	// private final static int ASCII_TABLE_LENGTH = 256;
 	private final static int ASCII_TABLE_LENGTH = 256;
 
 	private static String buildIntToCharFunction() {

@@ -94,7 +94,7 @@ public abstract class StatementLocalSearch {
             Class<?> type = statement.getReturnValue().getVariableClass();
             if (type.equals(String.class)) {
                 if (Properties.LOCAL_SEARCH_STRINGS)
-                    search = new StringLocalSearch();
+                    search = new StringAVMLocalSearch();
             } else {
                 if (Properties.LOCAL_SEARCH_PRIMITIVES == false)
                     return null;
