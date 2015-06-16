@@ -4,9 +4,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.UserTransaction;
 
 import static org.junit.Assert.*;
 
@@ -81,9 +83,38 @@ public class InjectorTest {
     }
 
 
+    @Test
+    public void testInjection_Event(){
+        Foo foo = new Foo();
+        Assert.assertNull(foo.getEvent());
+
+        Assert.assertTrue(Injector.hasEvent(Foo.class));
+        Injector.injectEvent(foo, Foo.class);
+
+        Assert.assertNotNull(foo.getEvent());
+    }
+
+    @Test
+    public void testInjection_UserTransaction(){
+        Foo foo = new Foo();
+        Assert.assertNull(foo.getUserTransaction());
+
+        Assert.assertTrue(Injector.hasUserTransaction(Foo.class));
+        Injector.injectUserTransaction(foo, Foo.class);
+
+        Assert.assertNotNull(foo.getUserTransaction());
+    }
+
+
     private class Foo {
 
         private Object noTag;
+
+        @Inject
+        private Event event;
+
+        @Inject
+        private UserTransaction userTransaction;
 
         @Inject
         private Object injectField;
@@ -119,6 +150,14 @@ public class InjectorTest {
 
         public EntityManager getEM(){
             return em;
+        }
+
+        public UserTransaction getUserTransaction() {
+            return userTransaction;
+        }
+
+        public Event getEvent() {
+            return event;
         }
     }
 }

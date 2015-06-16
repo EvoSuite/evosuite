@@ -1,4 +1,4 @@
-package org.evosuite.utils;
+package org.evosuite.runtime.util;
 
 /**
  * Created by Andrea Arcuri on 09/06/15.
