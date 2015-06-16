@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -155,7 +154,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 			throw new IllegalArgumentException(
 					"node not contained in this graph");
 		// TODO hash set? can't be sure E implements hash correctly
-		return new HashSet<E>(graph.outgoingEdgesOf(node));
+		return new LinkedHashSet<E>(graph.outgoingEdgesOf(node));
 	}
 
 	/**
@@ -169,7 +168,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 			throw new IllegalArgumentException(
 					"node not contained in this graph ");
 		// TODO hash set? can't be sure E implements hash correctly
-		return new HashSet<E>(graph.incomingEdgesOf(node));
+		return new LinkedHashSet<E>(graph.incomingEdgesOf(node));
 	}
 
 	/**
@@ -210,7 +209,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 			throw new IllegalArgumentException(
 					"node not contained in this graph");
 		// TODO hash set? can't be sure V implements hash correctly
-		Set<V> r = new HashSet<V>();
+		Set<V> r = new LinkedHashSet<V>();
 		for (E e : incomingEdgesOf(node))
 			r.add(getEdgeSource(e));
 
@@ -572,7 +571,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return Set containing all nodes with in degree 0
 	 */
 	public Set<V> determineEntryPoints() {
-		Set<V> r = new HashSet<V>();
+		Set<V> r = new LinkedHashSet<V>();
 
 		for (V instruction : vertexSet())
 			if (inDegreeOf(instruction) == 0) {
@@ -588,7 +587,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return Set containing all nodes with out degree 0
 	 */
 	public Set<V> determineExitPoints() {
-		Set<V> r = new HashSet<V>();
+		Set<V> r = new LinkedHashSet<V>();
 
 		for (V instruction : vertexSet())
 			if (outDegreeOf(instruction) == 0)
@@ -606,7 +605,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 */
 	public Set<V> determineConnectedVertices(V v) {
 
-		Set<V> visited = new HashSet<V>();
+		Set<V> visited = new LinkedHashSet<V>();
 		Queue<V> queue = new LinkedList<V>();
 
 		queue.add(v);
@@ -646,7 +645,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<V> getIsolatedNodes() {
-		Set<V> r = new HashSet<V>();
+		Set<V> r = new LinkedHashSet<V>();
 		for (V node : graph.vertexSet())
 			if (inDegreeOf(node) == 0 && outDegreeOf(node) == 0)
 				r.add(node);
@@ -660,7 +659,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<V> getNodesWithoutChildren() {
-		Set<V> r = new HashSet<V>();
+		Set<V> r = new LinkedHashSet<V>();
 		for (V node : graph.vertexSet())
 			if (outDegreeOf(node) == 0)
 				r.add(node);
@@ -715,7 +714,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<V> determineBranches() {
-		Set<V> r = new HashSet<V>();
+		Set<V> r = new LinkedHashSet<V>();
 
 		for (V instruction : graph.vertexSet())
 			if (outDegreeOf(instruction) > 1)
@@ -730,7 +729,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<V> determineJoins() {
-		Set<V> r = new HashSet<V>();
+		Set<V> r = new LinkedHashSet<V>();
 
 		for (V instruction : vertexSet())
 			if (inDegreeOf(instruction) > 1)
