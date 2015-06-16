@@ -4,6 +4,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,11 +58,21 @@ public class ToolsJarLocator {
 		}
 
 		String javaHome = System.getProperty("java.home");
-		String[] locations = new String[]{
-				javaHome+"/../lib/tools.jar",
-				javaHome+"/lib/tools.jar",
-				javaHome+"/../Classes/classes.jar" /* this for example happens in Mac */
-		}; 
+		List<String> locations = new ArrayList<String>(Arrays.asList(
+				javaHome + "/../lib/tools.jar", 
+				javaHome + "/lib/tools.jar", 
+				javaHome + "/../Classes/classes.jar" /* this for example happens in Mac */
+		));
+		
+		// Fix for Windows JAVA_HOME Environment variable
+		String javaHomeEnv = System.getenv("JAVA_HOME");
+		if(!javaHomeEnv.equals(javaHome)){
+			locations.addAll(Arrays.asList(
+					javaHomeEnv+"/../lib/tools.jar",
+					javaHomeEnv+"/lib/tools.jar",
+					javaHomeEnv+"/../Classes/classes.jar"
+			));
+		}
 
 		for(String location : locations){
 			File file = new File(location);
@@ -72,7 +85,7 @@ public class ToolsJarLocator {
 	}
 
 	private  ClassLoader considerPathInProperties() {
-		if(manuallySpecifiedToolLocation.endsWith(".jar")){
+		if(! manuallySpecifiedToolLocation.endsWith(".jar")){
 			throw new RuntimeException("Property tools_jar_location does not point to a jar file: "+manuallySpecifiedToolLocation);
 		}
 

@@ -296,6 +296,12 @@
 				<version>1</version>
 			</dependency>
 			<dependency>
+				<!-- Apache 2 -->
+				<groupId>javax.enterprise</groupId>
+				<artifactId>cdi-api</artifactId>
+				<version>1.2</version>
+			</dependency>
+			<dependency>
 				<!-- HSQLDB License	http://hsqldb.org/web/hsqlLicense.html, based on BSD -->
 				<groupId>org.hsqldb</groupId>
 				<artifactId>hsqldb</artifactId>

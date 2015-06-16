@@ -23,16 +23,20 @@ public class TestSameAssertion extends SystemTest {
 	
 	private double nullProbability = Properties.NULL_PROBABILITY;
 	
+	private double primitiveReuseProbability = Properties.PRIMITIVE_REUSE_PROBABILITY;
+	
 	@Before
 	public void storeAssertionStrategy() {
 		strategy = Properties.ASSERTION_STRATEGY;
 		nullProbability = Properties.NULL_PROBABILITY;
+		primitiveReuseProbability = Properties.PRIMITIVE_REUSE_PROBABILITY;
 	}
 	
 	@After
 	public void restoreAssertionStrategy() {
 		Properties.ASSERTION_STRATEGY = strategy;
 		Properties.NULL_PROBABILITY = nullProbability;
+		Properties.PRIMITIVE_REUSE_PROBABILITY = primitiveReuseProbability;
 	}
 	
 	/*
@@ -110,6 +114,11 @@ public class TestSameAssertion extends SystemTest {
 		// to cover the branch without assertions but with
 		// exception
 		Properties.NULL_PROBABILITY = 0.0;
+		
+		// Ensure that a new Integer object is created rather than 
+		// just using an int, because there's no assertSame between
+		// an int and an Integer
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -143,6 +152,11 @@ public class TestSameAssertion extends SystemTest {
 		// to cover the branch without assertions but with
 		// exception
 		Properties.NULL_PROBABILITY = 0.0;
+		
+		// Ensure that a new Integer object is created rather than 
+		// just using an int, because there's no assertSame between
+		// an int and an Integer
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

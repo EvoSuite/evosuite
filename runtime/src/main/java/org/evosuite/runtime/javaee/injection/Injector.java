@@ -5,13 +5,19 @@ import org.evosuite.runtime.annotation.BoundInputVariable;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.javaee.db.DBManager;
+import org.evosuite.runtime.javaee.javax.enterprise.event.EvoEvent;
+import org.evosuite.runtime.javaee.javax.transaction.EvoUserTransaction;
+import org.evosuite.runtime.util.Inputs;
 import org.junit.internal.AssumptionViolatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.UserTransaction;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -28,17 +34,29 @@ public class Injector {
 
     private static final Logger logger = LoggerFactory.getLogger(Injector.class);
 
+    /*
+        Note: these fields are static because we call the static methods of this class
+        directly in the JUnit tests.
+        At any rate, they are just caches.
+     */
+
     /**
      * Key -> class name,
      * Value -> @PostConstruct method, or null if none
      */
     private static final Map<String, Method> postConstructCache = new LinkedHashMap<>();
 
-    /**
-     * Key -> class name,
-     * Value -> name of EntityManager field tagged with @PersistenceContext
-     */
-    private static final Map<String, String> entityManagerCache = new LinkedHashMap<>();
+
+    private static final InjectionCache entityManagerCache =
+            new InjectionCache(EntityManager.class, Inject.class, PersistenceContext.class);
+
+
+    private static final InjectionCache userTransactionCache =
+            new InjectionCache(UserTransaction.class, Inject.class);
+
+    private static final InjectionCache eventCache =
+            new InjectionCache(Event.class, Inject.class);
+
 
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
@@ -52,16 +70,12 @@ public class Injector {
     //TODO do the same for EntityManagerFactory
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectEntityManager(@BoundInputVariable(initializer = true) T instance, Class<T> clazz){
-        if(instance == null || clazz == null){
-            throw new IllegalArgumentException("Null input parameter");
-        }
+    public static <T> void injectEntityManager(@BoundInputVariable(initializer = true) T instance, Class<T> clazz)
+        throws IllegalArgumentException{
 
-        if(!hasEntityManager(clazz)){
-            throw new IllegalArgumentException("The class "+clazz.getName()+" does not have a valid @PersistenceContext");
-        }
+        Inputs.checkNull(instance,clazz);
 
-        String field = entityManagerCache.get(clazz.getName());
+        String field = entityManagerCache.getFieldName(clazz);
         assert field != null;
 
         inject(instance, clazz, field, DBManager.getInstance().getCurrentEntityManager());
@@ -69,28 +83,51 @@ public class Injector {
 
 
     @EvoSuiteExclude
-    public static boolean hasEntityManager( Class<?> klass){
-
-        String className = klass.getName();
-        if(! entityManagerCache.containsKey(className)){
-            String fieldName = null;
-            outer : for(Field field : klass.getDeclaredFields()){
-                if(! EntityManager.class.isAssignableFrom(field.getType()) ){
-                    continue;
-                }
-                for(Annotation annotation : field.getDeclaredAnnotations()){
-                    if(annotation instanceof PersistenceContext){
-                        fieldName = field.getName();
-                        break outer;
-                    }
-                }
-            }
-            entityManagerCache.put(className,fieldName); //can be null
-        }
-
-        String f = entityManagerCache.get(className);
-        return f != null;
+    public static boolean hasEntityManager( Class<?> klass) throws IllegalArgumentException{
+        Inputs.checkNull(klass);
+        return entityManagerCache.hasField(klass);
     }
+
+
+    @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
+    public static <T> void injectUserTransaction(@BoundInputVariable(initializer = true) T instance, Class<T> clazz)
+        throws IllegalArgumentException{
+
+        Inputs.checkNull(instance,clazz);
+
+        String field = userTransactionCache.getFieldName(clazz);
+        assert field != null;
+
+        inject(instance, clazz, field, new EvoUserTransaction()); //TODO this will likely need to change in the future
+    }
+
+
+    @EvoSuiteExclude
+    public static boolean hasUserTransaction( Class<?> klass) throws IllegalArgumentException{
+        Inputs.checkNull(klass);
+        return userTransactionCache.hasField(klass);
+    }
+
+    @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
+    public static <T> void injectEvent(@BoundInputVariable(initializer = true) T instance, Class<T> clazz)
+            throws IllegalArgumentException{
+
+        Inputs.checkNull(instance, clazz);
+
+        String field = eventCache.getFieldName(clazz);
+        assert field != null;
+
+        inject(instance, clazz, field, new EvoEvent()); //TODO this will likely need to change in the future
+    }
+
+
+    @EvoSuiteExclude
+    public static boolean hasEvent( Class<?> klass) throws IllegalArgumentException{
+        Inputs.checkNull(klass);
+        return eventCache.hasField(klass);
+    }
+
+
 
     /**
      * Executed the method annotated with @PostConstruct

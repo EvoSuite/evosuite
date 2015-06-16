@@ -536,32 +536,52 @@ public class ConstructorStatement extends AbstractStatement {
 
 		if (Randomness.nextDouble() >= Properties.P_CHANGE_PARAMETER)
 			return false;
-
 		List<VariableReference> parameters = getParameterReferences();
 		if (parameters.isEmpty())
 			return false;
-
-		int numParameter = Randomness.nextInt(parameters.size());
+		double pParam = 1.0/parameters.size();
+		boolean changed = false;
+		for(int numParameter = 0; numParameter < parameters.size(); numParameter++) {
+			if(Randomness.nextDouble() < pParam) {
+				if(mutateParameter(test, numParameter))
+					changed = true;
+			}
+		}
+		return changed;
+	}
+	
+	private int getNumParametersOfType(Class<?> clazz) {
+		int num = 0;
+		for(VariableReference var : parameters) {
+			if(var.getVariableClass().equals(clazz))
+				num++;
+		}
+		return num;
+	}
+	
+	private boolean mutateParameter(TestCase test, int numParameter) {
+		// replace a parameter
 		VariableReference parameter = parameters.get(numParameter);
-
 		List<VariableReference> objects = test.getObjects(parameter.getType(),
-		                                                  getPosition());
+				getPosition());
 		objects.remove(parameter);
 		objects.remove(getReturnValue());
-
 		NullStatement nullStatement = new NullStatement(test, parameter.getType());
-		Statement primitiveCopy = null;
+		Statement copy = null;
 
+		// If it's not a primitive, then changing to null is also an option
 		if (!parameter.isPrimitive())
 			objects.add(nullStatement.getReturnValue());
-		else {
+		
+		// If there are fewer objects than parameters of that type,
+		// we consider adding an instance
+		if(getNumParametersOfType(parameter.getVariableClass()) + 1 < objects.size()) {
 			Statement originalStatement = test.getStatement(parameter.getStPosition());
+			copy = originalStatement.clone(test);
 			if (originalStatement instanceof PrimitiveStatement<?>) {
-				PrimitiveStatement<?> copy = (PrimitiveStatement<?>) originalStatement.clone(test);
-				copy.delta();
-				objects.add(copy.getReturnValue());
-				primitiveCopy = copy;
+				((PrimitiveStatement<?>)copy).delta();
 			}
+			objects.add(copy.getReturnValue());
 		}
 
 		if (objects.isEmpty())
@@ -570,12 +590,10 @@ public class ConstructorStatement extends AbstractStatement {
 		VariableReference replacement = Randomness.choice(objects);
 		if (replacement == nullStatement.getReturnValue()) {
 			test.addStatement(nullStatement, getPosition());
-		} else if (primitiveCopy != null && replacement == primitiveCopy.getReturnValue()) {
-			test.addStatement(primitiveCopy, getPosition());
+		} else if (copy != null && replacement == copy.getReturnValue()) {
+			test.addStatement(copy, getPosition());
 		}
-
 		replaceParameterReference(replacement, numParameter);
-
 		return true;
 	}
 

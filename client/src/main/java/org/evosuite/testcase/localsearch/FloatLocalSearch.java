@@ -74,9 +74,9 @@ public class FloatLocalSearch<T extends Number> extends StatementLocalSearch {
 		logger.info("Applying search to: " + p.getCode());
 
 		int change = doSearch(test, statement, objective, 1.0, 2, p);
-		if(change < 0)
+		if(change != 0)
 			improved = true;
-		else if(change == 0) {
+		else { // if(change == 0) {
 			// Only apply search after the comma if the fitness was affected by the first part of the search
 			logger.info("Stopping search as variable doesn't influence fitness");
 			test.setTestCase(oldTest);
