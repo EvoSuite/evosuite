@@ -2,7 +2,7 @@ package org.evosuite.testsuite;
 
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.utils.DebuggingObjectOutputStream;
-import org.evosuite.utils.Inputs;
+import org.evosuite.runtime.util.Inputs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
