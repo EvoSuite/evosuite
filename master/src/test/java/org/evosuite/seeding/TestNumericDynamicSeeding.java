@@ -23,6 +23,7 @@ import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.seeding.NumericDynamicDoubleSeeding;
@@ -63,7 +64,7 @@ public class TestNumericDynamicSeeding extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		System.out.println("ConstantPool:\n" + ConstantPoolManager.getInstance().getDynamicConstantPool().toString());
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
 	@Test
@@ -78,8 +79,7 @@ public class TestNumericDynamicSeeding extends SystemTest {
 		Properties.DYNAMIC_SEEDING = false;
 
 		//Properties.ALGORITHM = Properties.Algorithm.ONEPLUSONEEA;
-		
-		Properties.DYNAMIC_POOL = 0.5d; // Probability of picking value from constants pool
+
 		ConstantPoolManager.getInstance().reset();
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Dprint_to_system=true" };
@@ -89,7 +89,7 @@ public class TestNumericDynamicSeeding extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		System.out.println("ConstantPool:\n" + ConstantPoolManager.getInstance().getDynamicConstantPool().toString());
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);
 	}
 	
 	// FLOATS
@@ -117,7 +117,7 @@ public class TestNumericDynamicSeeding extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		System.out.println("ConstantPool:\n" + ConstantPoolManager.getInstance().getDynamicConstantPool().toString());
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
 	@Test
@@ -143,7 +143,7 @@ public class TestNumericDynamicSeeding extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		System.out.println("ConstantPool:\n" + ConstantPoolManager.getInstance().getDynamicConstantPool().toString());
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);
 	}
 
 	// LONGS
@@ -161,7 +161,7 @@ public class TestNumericDynamicSeeding extends SystemTest {
 
 		//Properties.ALGORITHM = Properties.Algorithm.ONEPLUSONEEA;
 		
-		Properties.DYNAMIC_POOL = 0.5; // Probability of picking value from constants pool
+		Properties.DYNAMIC_POOL = 0.8; // Probability of picking value from constants pool
 		ConstantPoolManager.getInstance().reset();
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Dprint_to_system=true" };
@@ -171,7 +171,7 @@ public class TestNumericDynamicSeeding extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		System.out.println("ConstantPool:\n" + ConstantPoolManager.getInstance().getDynamicConstantPool().toString());
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
 	@Test
@@ -186,8 +186,7 @@ public class TestNumericDynamicSeeding extends SystemTest {
 		Properties.DYNAMIC_SEEDING = false;
 
 		//Properties.ALGORITHM = Properties.Algorithm.ONEPLUSONEEA;
-		
-		Properties.DYNAMIC_POOL = 0.5; // Probability of picking value from constants pool
+
 		ConstantPoolManager.getInstance().reset();
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Dprint_to_system=true" };
@@ -197,7 +196,7 @@ public class TestNumericDynamicSeeding extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		System.out.println("ConstantPool:\n" + ConstantPoolManager.getInstance().getDynamicConstantPool().toString());
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);
 	}
 	
 	// INTS
@@ -216,7 +215,7 @@ public class TestNumericDynamicSeeding extends SystemTest {
 
 		//Properties.ALGORITHM = Properties.Algorithm.ONEPLUSONEEA;
 
-		Properties.DYNAMIC_POOL = 1d / 3d; // Probability of picking value from constants pool
+		Properties.DYNAMIC_POOL = 0.8; // Probability of picking value from constants pool
 		ConstantPoolManager.getInstance().reset();
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Dprint_to_system=true" };
@@ -226,7 +225,7 @@ public class TestNumericDynamicSeeding extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		System.out.println("ConstantPool:\n" + ConstantPoolManager.getInstance().getDynamicConstantPool().toString());
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
 	@Test
@@ -242,7 +241,6 @@ public class TestNumericDynamicSeeding extends SystemTest {
 
 		//Properties.ALGORITHM = Properties.Algorithm.ONEPLUSONEEA;
 
-		Properties.DYNAMIC_POOL = 1d / 3d; // Probability of picking value from constants pool
 		ConstantPoolManager.getInstance().reset();
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Dprint_to_system=true" };
@@ -252,6 +250,6 @@ public class TestNumericDynamicSeeding extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		System.out.println("ConstantPool:\n" + ConstantPoolManager.getInstance().getDynamicConstantPool().toString());
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);
 	}
 }
