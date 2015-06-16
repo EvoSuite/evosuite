@@ -16,7 +16,9 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceUnit;
 import javax.transaction.UserTransaction;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -50,12 +52,16 @@ public class Injector {
     private static final InjectionCache entityManagerCache =
             new InjectionCache(EntityManager.class, Inject.class, PersistenceContext.class);
 
+    private static final InjectionCache entityManagerFactoryCache =
+            new InjectionCache(EntityManagerFactory.class, Inject.class, PersistenceUnit.class);
+
 
     private static final InjectionCache userTransactionCache =
             new InjectionCache(UserTransaction.class, Inject.class);
 
     private static final InjectionCache eventCache =
             new InjectionCache(Event.class, Inject.class);
+
 
 
 
@@ -67,11 +73,10 @@ public class Injector {
         PrivateAccess.setVariable(klass,instance,fieldName,value,InjectionList.getList());
     }
 
-    //TODO do the same for EntityManagerFactory
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
     public static <T> void injectEntityManager(@BoundInputVariable(initializer = true) T instance, Class<T> clazz)
-        throws IllegalArgumentException{
+            throws IllegalArgumentException{
 
         Inputs.checkNull(instance,clazz);
 
@@ -86,6 +91,26 @@ public class Injector {
     public static boolean hasEntityManager( Class<?> klass) throws IllegalArgumentException{
         Inputs.checkNull(klass);
         return entityManagerCache.hasField(klass);
+    }
+
+
+    @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
+    public static <T> void injectEntityManagerFactory(@BoundInputVariable(initializer = true) T instance, Class<T> clazz)
+            throws IllegalArgumentException{
+
+        Inputs.checkNull(instance,clazz);
+
+        String field = entityManagerFactoryCache.getFieldName(clazz);
+        assert field != null;
+
+        inject(instance, clazz, field, DBManager.getInstance().getDefaultFactory());
+    }
+
+
+    @EvoSuiteExclude
+    public static boolean hasEntityManagerFactory( Class<?> klass) throws IllegalArgumentException{
+        Inputs.checkNull(klass);
+        return entityManagerFactoryCache.hasField(klass);
     }
 
 
