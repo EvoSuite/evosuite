@@ -60,6 +60,16 @@ public class ToolsJarLocator {
 				javaHome+"/lib/tools.jar",
 				javaHome+"/../Classes/classes.jar" /* this for example happens in Mac */
 		}; 
+		
+		// Fix for Windows JAVA_HOME Environment variable
+		String javaHomeEnv = System.getenv("JAVA_HOME");
+		if(!javaHomeEnv.equals(javaHome)){
+			String[] locations = new String[]{
+					javaHomeEnv+"/../lib/tools.jar",
+					javaHomeEnv+"/lib/tools.jar",
+					javaHomeEnv+"/../Classes/classes.jar" /* this for example happens in Mac */
+			}; 
+		}
 
 		for(String location : locations){
 			File file = new File(location);
