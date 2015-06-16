@@ -1357,8 +1357,7 @@ public class TestSuiteGenerator {
 				 * suite.getFitness(), clone.getFitness());
 				 */
 				executedStatemets+= test.size();
-				numAssertions = RegressionAssertionCounter.getNumAssertions(
-						clone, false);
+				numAssertions = RegressionAssertionCounter.getNumAssertions(clone);
 				logger.warn("Generated test with {} assertions.", numAssertions);
 				totalTestCount++;
 				if (numAssertions > 0) {
@@ -1372,6 +1371,8 @@ public class TestSuiteGenerator {
 							
 							for(TestCase t: testCases){
 								RegressionTestChromosome rtc = new RegressionTestChromosome();
+								if(t.isUnstable())
+									continue;
 								TestChromosome tc = new TestChromosome();
 								tc.setTestCase(t);
 								rtc.setTest(tc);
