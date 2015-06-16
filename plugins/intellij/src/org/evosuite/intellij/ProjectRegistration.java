@@ -28,6 +28,7 @@ public class ProjectRegistration implements ProjectComponent { //implements Appl
 
     private final Project project;
 
+    private ConsoleViewImpl console;
 
     public ProjectRegistration(Project project){
         this.project = project;
@@ -67,7 +68,7 @@ public class ProjectRegistration implements ProjectComponent { //implements Appl
 
 
         //create a console panel
-        ConsoleViewImpl console = (ConsoleViewImpl) TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
+        console = (ConsoleViewImpl) TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         JComponent consolePanel = console.getComponent();
 
@@ -96,6 +97,9 @@ public class ProjectRegistration implements ProjectComponent { //implements Appl
     @Override
     public void projectClosed() {
         EvoParameters.getInstance().save(project);
+        if(console!=null){
+            console.dispose();
+        }
     }
 
 }

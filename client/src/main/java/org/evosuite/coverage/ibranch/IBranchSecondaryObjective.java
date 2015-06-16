@@ -18,8 +18,7 @@
 package org.evosuite.coverage.ibranch;
 
 import org.evosuite.ga.SecondaryObjective;
-import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * <p>
@@ -28,8 +27,7 @@ import org.evosuite.testsuite.AbstractTestSuiteChromosome;
  *
  * @author mattia
  */
-public class IBranchSecondaryObjective extends
-		SecondaryObjective<AbstractTestSuiteChromosome<? extends ExecutableChromosome>> {
+public class IBranchSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
 
 	//Ibranch fitness
 	private IBranchSuiteFitness ff;
@@ -41,8 +39,8 @@ public class IBranchSecondaryObjective extends
 	 
 	@Override
 	public int compareChromosomes(
-			AbstractTestSuiteChromosome<? extends ExecutableChromosome> chromosome1,
-			AbstractTestSuiteChromosome<? extends ExecutableChromosome> chromosome2) {
+			TestSuiteChromosome chromosome1,
+			TestSuiteChromosome chromosome2) {
 				
 		double fitness1 = ff.getFitness(chromosome1, false);
 		double fitness2 = ff.getFitness(chromosome2, false);
@@ -57,10 +55,10 @@ public class IBranchSecondaryObjective extends
 
 	@Override
 	public int compareGenerations(
-			AbstractTestSuiteChromosome<? extends ExecutableChromosome> parent1,
-			AbstractTestSuiteChromosome<? extends ExecutableChromosome> parent2,
-			AbstractTestSuiteChromosome<? extends ExecutableChromosome> child1,
-			AbstractTestSuiteChromosome<? extends ExecutableChromosome> child2) {
+			TestSuiteChromosome parent1,
+			TestSuiteChromosome parent2,
+			TestSuiteChromosome child1,
+			TestSuiteChromosome child2) {
 		logger.debug("Comparing sizes: " + parent1.size() + ", " + parent1.size() + " vs "
 				+ child1.size() + ", " + child2.size());
 		if (!parent1.hasExecutedFitness(ff) ||parent1.isChanged())

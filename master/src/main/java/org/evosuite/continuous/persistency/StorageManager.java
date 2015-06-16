@@ -722,24 +722,47 @@ public class StorageManager {
 		File current = new File(Properties.CTG_PROJECT_INFO);
 		InputStream stream = null;
 		if(!current.exists()){
-			/*
-			 * this will happen the first time CTG is run
-			 */
-			String empty = "/xsd/ctg_project_report_empty.xml";
-			try {
-				stream = StorageManager.class.getResourceAsStream(empty);
-			} catch (Exception e) {
-				throw new RuntimeException("Failed to read resource "+empty+" , "+e.getMessage());
-			}
+			stream = getDefaultXmlStream();
+			return getProjectInfo(current, stream);
 		} else {
 			try {
-				stream = new FileInputStream(current);
-			} catch (FileNotFoundException e) {
-				assert false; // this should never happen
-				throw new RuntimeException("Bug in EvoSuite framework: "+e.getMessage());
+				stream = getCurrentXmlStream(current);
+				return getProjectInfo(current, stream);
+			} catch(Exception e){
+				//this could happen if it was an old file, and EvoSuite did not have a proper backward compatibility
+				stream = getDefaultXmlStream();
+				return getProjectInfo(current, stream);
 			}
 		}
 
+
+	}
+
+	private static InputStream getCurrentXmlStream(File current) {
+		InputStream stream;
+		try {
+            stream = new FileInputStream(current);
+        } catch (FileNotFoundException e) {
+            assert false; // this should never happen
+            throw new RuntimeException("Bug in EvoSuite framework: "+e.getMessage());
+        }
+		return stream;
+	}
+
+	private static InputStream getDefaultXmlStream() {
+		InputStream stream;/*
+         * this will happen the first time CTG is run
+         */
+		String empty = "/xsd/ctg_project_report_empty.xml";
+		try {
+            stream = StorageManager.class.getResourceAsStream(empty);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read resource "+empty+" , "+e.getMessage());
+        }
+		return stream;
+	}
+
+	private static ProjectInfo getProjectInfo(File current, InputStream stream) {
 		try{
 			JAXBContext jaxbContext = JAXBContext.newInstance(ProjectInfo.class);
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);

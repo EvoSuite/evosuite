@@ -1184,7 +1184,11 @@ public class SymbolicObserver extends ExecutionObserver {
 				after((FieldStatement) s, scope);
 
 			} else if (s instanceof ConstructorStatement) {
+				try {
 				after((ConstructorStatement) s, scope);
+				} catch (ClassCastException ex) {
+					throw ex;
+				}
 			}
 			/* primitive statements */
 			else if (s instanceof BooleanPrimitiveStatement) {

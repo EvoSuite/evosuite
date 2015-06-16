@@ -53,6 +53,7 @@
             </constraints>
             <properties>
               <text value="Number of cores:"/>
+              <toolTipText value="How many cores will be used by EvoSuite in parallel. Note: this is used only when more than one class is selected at the same time"/>
             </properties>
           </component>
           <component id="c947a" class="javax.swing.JFormattedTextField" binding="coreField" custom-create="true">
@@ -71,6 +72,7 @@
             </constraints>
             <properties>
               <text value="Total memory (MB):"/>
+              <toolTipText value="Total amount of max memory used by EvoSuite. We recommend at least 1GB per core, where 2GB per core should be more than enough"/>
             </properties>
           </component>
           <component id="2ed63" class="javax.swing.JFormattedTextField" binding="memoryField" custom-create="true">
@@ -89,6 +91,7 @@
             </constraints>
             <properties>
               <text value="Time per class (minutes):"/>
+              <toolTipText value="Max time used by EvoSuite to generate test cases on each class. At least half of this time will be used to generate test data. The rest is used for other optimizations like assertion generation and minimizing the test suites. The more time, the better results you will get. However, more than 10 minutes per class will unlikely bring any major benefit. "/>
             </properties>
           </component>
           <component id="b93b3" class="javax.swing.JFormattedTextField" binding="timeField" custom-create="true">
@@ -107,6 +110,7 @@
             </constraints>
             <properties>
               <text value="Export folder:"/>
+              <toolTipText value="Folder where the generated tests will be copied to.  To run the generated tests, such folder needs to be on the classpath."/>
             </properties>
           </component>
           <component id="4e8ef" class="javax.swing.JTextField" binding="folderField">
@@ -125,6 +129,7 @@
             </constraints>
             <properties>
               <text value="Maven location:"/>
+              <toolTipText value="Location of the executable file for Maven"/>
             </properties>
           </component>
           <component id="210ac" class="javax.swing.JLabel">
@@ -134,6 +139,7 @@
             </constraints>
             <properties>
               <text value="JAVA_HOME:"/>
+              <toolTipText value="The JDK with which EvoSuite will be run. Note: this might have a different version (e.g., 7) from the one the project is compiled to (e.g., 6). It can be an higher version, but not lower.  "/>
             </properties>
           </component>
           <component id="4cf36" class="javax.swing.JTextField" binding="mavenField">
@@ -185,6 +191,7 @@
             </constraints>
             <properties>
               <text value="EvoSuite location:"/>
+              <toolTipText value="Location of the standalone jar file of EvoSuite"/>
             </properties>
           </component>
           <component id="a321f" class="javax.swing.JTextField" binding="evosuiteLocationTesxField">

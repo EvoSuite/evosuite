@@ -22,6 +22,7 @@ package org.evosuite.testsuite;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -213,6 +214,14 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 			logger.debug("Adding new test case");
 			changed = true;
 		}
+		
+		Iterator<T> testIterator = tests.iterator();
+		while(testIterator.hasNext()) {
+			T test = testIterator.next();
+			if(test.size() == 0)
+				testIterator.remove();
+		}
+		
 
 		if (changed) {
 			this.setChanged(true);

@@ -39,7 +39,6 @@ public class Z3Solver extends Solver {
 		super(addMissingVariables);
 	}
 
-	public static final String STR_LENGTH = "str_length";
 	static Logger logger = LoggerFactory.getLogger(Z3Solver.class);
 
 	@Override
@@ -56,6 +55,12 @@ public class Z3Solver extends Solver {
 
 		String smtQuery = buildSmtQuery(constraints, variables, timeout);
 
+		if (smtQuery==null) {
+			logger.debug("Empty SMT query to Z3");
+			logger.debug("Returning NULL as solution");
+			return null;
+		}
+		
 		logger.debug("Z3 Query:");
 		logger.debug(smtQuery);
 
@@ -121,6 +126,11 @@ public class Z3Solver extends Solver {
 			}
 		}
 
+		if (assertions.isEmpty()) {
+			logger.debug("Translation to Z3 model has no variables");
+			return null;
+		}
+		
 		logger.debug("Creating new Z3 Solver");
 		logger.debug("Setting Z3 soft_timeout to " + timeout + " ms");
 
