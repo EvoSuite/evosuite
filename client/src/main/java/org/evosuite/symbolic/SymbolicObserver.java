@@ -1134,7 +1134,7 @@ public class SymbolicObserver extends ExecutionObserver {
 						// a dummy
 						// value to prevent the DSE VM from crashing
 						pushDummyValue(argType);
-						return;
+
 					} else if (symb_ref instanceof NonNullReference) {
 						// auto unboxing reference
 						NonNullReference non_null_symb_ref = (NonNullReference) symb_ref;
@@ -1144,7 +1144,7 @@ public class SymbolicObserver extends ExecutionObserver {
 						pushValue(argType, unboxed_expr);
 
 					} else {
-						throw new EvosuiteError("unhandled reference type "
+						throw new EvosuiteError("automatic unbox is not handled for  "
 								+ symb_ref.getClass().getName());
 					}
 				}
