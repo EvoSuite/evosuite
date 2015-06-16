@@ -51,7 +51,8 @@ public class RandomInsertion implements InsertionStrategy {
 					if(usage.getStPosition() > lastUsage)
 						lastUsage = usage.getStPosition();
 				}
-				position = Randomness.nextInt(var.getStPosition(), lastUsage);
+				if(lastUsage > 0)
+					position = Randomness.nextInt(var.getStPosition(), lastUsage);
 				logger.debug("Inserting call at position " + position + ", chosen var: "
 						+ var.getName() + ", distance: " + var.getDistance() + ", class: "
 						+ var.getClassName());
