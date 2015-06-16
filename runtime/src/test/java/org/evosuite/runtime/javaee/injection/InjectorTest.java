@@ -7,7 +7,9 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceUnit;
 import javax.transaction.UserTransaction;
 
 import static org.junit.Assert.*;
@@ -105,10 +107,23 @@ public class InjectorTest {
         Assert.assertNotNull(foo.getUserTransaction());
     }
 
+    @Test
+    public void testInjection_EMFactory(){
+        Foo foo = new Foo();
+        Assert.assertNull(foo.getFactory());
+
+        Assert.assertTrue(Injector.hasEntityManagerFactory(Foo.class));
+        Injector.injectEntityManagerFactory(foo, Foo.class);
+
+        Assert.assertNotNull(foo.getFactory());
+    }
 
     private class Foo {
 
         private Object noTag;
+
+        @PersistenceUnit
+        private EntityManagerFactory factory;
 
         @Inject
         private Event event;
@@ -158,6 +173,10 @@ public class InjectorTest {
 
         public Event getEvent() {
             return event;
+        }
+
+        public EntityManagerFactory getFactory() {
+            return factory;
         }
     }
 }
