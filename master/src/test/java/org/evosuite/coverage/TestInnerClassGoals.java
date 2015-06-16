@@ -55,7 +55,9 @@ public class TestInnerClassGoals extends SystemTest {
 
 		 System.out.println(best);
 		 int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		 Assert.assertEquals(8, goals );
+		 // Lines 6, 7, 8 in foo, plus line 10 for the (implicit) return statement at the end of the method
+		 // Lines 14, 15, 17 in inner class foo
+		 Assert.assertEquals(7, goals );
 		 Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	 }
 	 
@@ -100,7 +102,7 @@ public class TestInnerClassGoals extends SystemTest {
 
 		 System.out.println(best);
 		 int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		 Assert.assertEquals(8, goals );
+		 Assert.assertEquals(7, goals );
 		 Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	 }
 	 
@@ -146,7 +148,7 @@ public class TestInnerClassGoals extends SystemTest {
 
 		 System.out.println(best);
 		 int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		 Assert.assertEquals(8, goals );
+		 Assert.assertEquals(7, goals );
 		 Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	 }
 }
