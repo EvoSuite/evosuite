@@ -13,12 +13,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.strings.L4_Collections;
+import com.examples.with.different.packagename.sette.L4_Collections;
 
 /**
  * Created by Andrea Arcuri on 19/03/15.
  */
-public class SetteSystemTest extends SystemTest {
+public class L4CollectionsSystemTest extends SystemTest {
 
 	private static final double DEFAULT_LS_PROBABILITY = Properties.LOCAL_SEARCH_PROBABILITY;
 	private static final int DEFAULT_LS_RATE = Properties.LOCAL_SEARCH_RATE;
@@ -83,9 +83,6 @@ public class SetteSystemTest extends SystemTest {
 		
 		Properties.MINIMIZE = false;
 		Properties.ASSERTIONS = false;
-		
-		Properties.TIMEOUT = Integer.MAX_VALUE;
-		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		
 		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
 
