@@ -1,4 +1,4 @@
-package com.examples.with.different.packagename.strings;
+package com.examples.with.different.packagename.sette;
 
 /*
  * SETTE - Symbolic Execution based Test Tool Evaluator
