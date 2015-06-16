@@ -172,5 +172,13 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 			timeout = (int) value;
 		}
 	}
+	
+	public static void resetStatic() {
+		timeouts.clear();
+		exceptions.clear();
+		disabled.clear();
+		timeout = 0;
+		hasException = false;
+	}
 
 }
