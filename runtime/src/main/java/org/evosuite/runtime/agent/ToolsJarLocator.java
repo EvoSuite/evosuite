@@ -72,7 +72,7 @@ public class ToolsJarLocator {
 	}
 
 	private  ClassLoader considerPathInProperties() {
-		if(manuallySpecifiedToolLocation.endsWith(".jar")){
+		if(! manuallySpecifiedToolLocation.endsWith(".jar")){
 			throw new RuntimeException("Property tools_jar_location does not point to a jar file: "+manuallySpecifiedToolLocation);
 		}
 
