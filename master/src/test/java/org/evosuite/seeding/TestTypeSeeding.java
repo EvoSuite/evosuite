@@ -106,7 +106,7 @@ public class TestTypeSeeding extends SystemTest {
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size();
+		int goals = TestSuiteGenerator.getFitnessFactories().get(0).getCoverageGoals().size();
 		Assert.assertEquals("Wrong number of goals: ", 4, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
@@ -130,7 +130,7 @@ public class TestTypeSeeding extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size();
+		int goals = TestSuiteGenerator.getFitnessFactories().get(0).getCoverageGoals().size();
 		Assert.assertEquals("Wrong number of goals: ", 4, goals);
 		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);
 	}
