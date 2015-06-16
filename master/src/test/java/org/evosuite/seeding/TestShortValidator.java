@@ -56,7 +56,7 @@ public class TestShortValidator extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		//Assert.assertEquals("Wrong number of goals: ", 22, goals);
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	@Test
 	public void testShortValidatorTypeSeedingOff() {
@@ -80,7 +80,7 @@ public class TestShortValidator extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		//Assert.assertEquals("Wrong number of goals: ", 22, goals);
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
 	@Test
@@ -103,7 +103,7 @@ public class TestShortValidator extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		//Assert.assertEquals("Wrong number of goals: ", 22, goals);
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	@Test
 	public void testShortValidatorMinTypeSOff() {
@@ -126,7 +126,7 @@ public class TestShortValidator extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		//Assert.assertEquals("Wrong number of goals: ", 22, goals);
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
 	@Test
@@ -151,7 +151,7 @@ public class TestShortValidator extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		//Assert.assertEquals("Wrong number of goals: ", 22, goals);
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	@Test
 	public void testAbstractNumberValidatorTypeSeedingOff() {
@@ -175,7 +175,7 @@ public class TestShortValidator extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		//Assert.assertEquals("Wrong number of goals: ", 22, goals);
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
 	@Test
@@ -200,7 +200,7 @@ public class TestShortValidator extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		//Assert.assertEquals("Wrong number of goals: ", 22, goals);
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	@Test
 	public void testAbstractFormatValidatorTypeSeedingOff() {
@@ -224,6 +224,6 @@ public class TestShortValidator extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
 		//Assert.assertEquals("Wrong number of goals: ", 22, goals);
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 }
