@@ -58,7 +58,7 @@ public class TestDivisionByZeroInstrumentation extends SystemTest {
 		// 6: 2 regular branches, 2 for overflow, 2 for division by zero
 		// one of the overflow branches is infeasible
 		Assert.assertTrue("Wrong number of goals: " + goals, goals > 4);
-		Assert.assertEquals("Non-optimal coverage: ", 5d/6d, best.getCoverage(), 0.001);
+		Assert.assertTrue("Non-optimal coverage: ", best.getCoverage() >= 5d/6d);
 	}
 	
 	@Test
