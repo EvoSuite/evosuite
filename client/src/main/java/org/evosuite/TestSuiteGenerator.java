@@ -406,7 +406,6 @@ public class TestSuiteGenerator {
 			                                         + Properties.TARGET_CLASS);
 			return new TestSuiteChromosome();
 		}
-		getBytecodeStatistics();
 
 		ContractChecker checker = null;
 		if (Properties.CHECK_CONTRACTS) {
@@ -422,7 +421,8 @@ public class TestSuiteGenerator {
 		}
 		
 		StatisticsSender.executedAndThenSendIndividualToMaster(testSuite);
-		
+		getBytecodeStatistics();
+
         ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 
         if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
