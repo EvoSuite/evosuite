@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class CVC4ModelParser {
+final class CVC4ModelParser {
 
 	private final Map<String, Object> initialValues;
 	static Logger logger = LoggerFactory.getLogger(CVC4ModelParser.class);
