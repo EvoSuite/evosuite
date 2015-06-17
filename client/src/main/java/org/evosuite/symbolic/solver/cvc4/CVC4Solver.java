@@ -31,6 +31,7 @@ import org.evosuite.symbolic.solver.smt.SmtStringVariable;
 import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.evosuite.symbolic.solver.smt.SmtVariable;
 import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
+import org.evosuite.testcase.execution.EvosuiteError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,7 @@ public class CVC4Solver extends Solver {
 	public CVC4Solver() {
 		super();
 	}
-	
+
 	@Override
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
 			throws ConstraintSolverTimeoutException {
@@ -123,7 +124,7 @@ public class CVC4Solver extends Solver {
 				Map<String, Object> initialValues = getConcreteValues(variables);
 				CVC4ModelParser modelParser;
 				if (addMissingVariables()) {
-				modelParser = new CVC4ModelParser(initialValues);
+					modelParser = new CVC4ModelParser(initialValues);
 				} else {
 					modelParser = new CVC4ModelParser();
 				}
@@ -144,11 +145,14 @@ public class CVC4Solver extends Solver {
 				logger.debug("CVC4 outcome was UNKNOWN (probably due to timeout)");
 				return null;
 			} else if (cvc4ResultStr.startsWith("(error")) {
-				logger.error("An error (probably parsing error) occurred while executing CVC4");
-				return null;
+				logger.debug("CVC4 output was the following " + cvc4ResultStr);
+				throw new EvosuiteError(
+						"An error (probably an invalid input) occurred while executing CVC4");
 			} else {
-				logger.error("CVC4 output is unknown. We are unable to parse it to a proper solution!");
-				return null;
+				logger.debug("The following CVC4 output could not be parsed "
+						+ cvc4ResultStr);
+				throw new EvosuiteError(
+						"CVC4 output is unknown. We are unable to parse it to a proper solution!");
 			}
 
 		} catch (IOException e) {
