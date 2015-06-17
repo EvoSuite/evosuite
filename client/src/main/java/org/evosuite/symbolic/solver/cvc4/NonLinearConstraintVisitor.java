@@ -5,7 +5,7 @@ import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.StringConstraint;
 
-class NonLinearConstraintVisitor implements ConstraintVisitor<Boolean, Void> {
+final class NonLinearConstraintVisitor implements ConstraintVisitor<Boolean, Void> {
 
 	private final NonLinearExpressionVisitor exprVisitor = new NonLinearExpressionVisitor();
 
