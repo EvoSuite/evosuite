@@ -886,7 +886,7 @@ public class Properties {
 
 	/** Constant <code>INLINE=false</code> */
 	@Parameter(key = "inline", group = "Output", description = "Inline all constants")
-	public static boolean INLINE = false;
+	public static boolean INLINE = true;
 
 	/** Constant <code>WRITE_POOL=false</code> */
 	@Parameter(key = "write_pool", group = "Output", description = "Keep sequences for object pool")
