@@ -31,10 +31,23 @@ import org.evosuite.symbolic.solver.smt.SmtStringVariable;
 import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.evosuite.symbolic.solver.smt.SmtVariable;
 import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
+import org.evosuite.testcase.execution.EvosuiteError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CVC4Solver extends Solver {
+public final class CVC4Solver extends Solver {
+
+	private boolean reWriteNonLinearConstraints = false;
+
+	/**
+	 * If enabled the translation will approximate non-linear constraints with
+	 * concrete values
+	 * 
+	 * @param rewrite
+	 */
+	public void setRewriteNonLinearConstraints(boolean rewrite) {
+		reWriteNonLinearConstraints = rewrite;
+	}
 
 	private static final class TimeoutTask extends TimerTask {
 		private final Process process;
@@ -64,12 +77,22 @@ public class CVC4Solver extends Solver {
 	public CVC4Solver() {
 		super();
 	}
-	
+
 	@Override
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
 			throws ConstraintSolverTimeoutException {
 
-		if (hasNonLinearConstraints(constraints)) {
+		if (Properties.CVC4_PATH == null) {
+			String errMsg = "Property CVC4_PATH should be setted in order to use the CVC4 Solver!";
+			logger.error(errMsg);
+			throw new IllegalStateException(errMsg);
+		}
+
+		// CVC4 has very little support for non-linear arithemtics
+		// In fact, it cannot even produce models for non-linear theories
+		if (!reWriteNonLinearConstraints
+				&& hasNonLinearConstraints(constraints)) {
+			logger.debug("Skipping query due to (unsupported) non-linear constraints");
 			return null;
 		}
 
@@ -83,7 +106,16 @@ public class CVC4Solver extends Solver {
 			variables.addAll(c_variables);
 		}
 
-		String smtQuery = buildSmtQuery(constraints);
+		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor();
+		List<SmtExpr> smtExpressions = new LinkedList<SmtExpr>();
+		for (Constraint<?> c : constraints) {
+			SmtExpr smtExpr = c.accept(v, null);
+			if (smtExpr != null) {
+				smtExpressions.add(smtExpr);
+			}
+		}
+
+		String smtQuery = buildSmtQuery(smtExpressions);
 
 		if (smtQuery == null) {
 			logger.debug("No variables found during constraint solving. Returning NULL as solution");
@@ -93,13 +125,7 @@ public class CVC4Solver extends Solver {
 		logger.debug("CVC4 Query:");
 		logger.debug(smtQuery);
 
-		if (Properties.CVC4_PATH == null) {
-			String errMsg = "Property CVC4_PATH should be setted in order to use the CVC4 Solver!";
-			logger.error(errMsg);
-			throw new IllegalStateException(errMsg);
-		}
-		String cvc4Cmd = Properties.CVC4_PATH + "  --lang smt " + " --tlimit="
-				+ cvcTimeout;
+		String cvc4Cmd = buildCVC4cmd(cvcTimeout);
 
 		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 		ByteArrayOutputStream stderr = new ByteArrayOutputStream();
@@ -123,16 +149,24 @@ public class CVC4Solver extends Solver {
 				Map<String, Object> initialValues = getConcreteValues(variables);
 				CVC4ModelParser modelParser;
 				if (addMissingVariables()) {
-				modelParser = new CVC4ModelParser(initialValues);
+					modelParser = new CVC4ModelParser(initialValues);
 				} else {
 					modelParser = new CVC4ModelParser();
 				}
 				Map<String, Object> solution = modelParser.parse(cvc4ResultStr);
 
 				// check solution is correct
+				boolean checkSolutionSmt = checkSolution(smtExpressions,
+						solution);
+				if (!checkSolutionSmt) {
+					throw new EvosuiteError(
+							"CVC4 solution does not solve the SMT query");
+				}
+
+				// check solution is correct
 				boolean check = checkSolution(constraints, solution);
 				if (!check) {
-					logger.warn("CVC4 solution does not solve the constraint system!");
+					logger.debug("CVC4 solution does not solve the original constraint system. ");
 					return null;
 				}
 
@@ -144,11 +178,14 @@ public class CVC4Solver extends Solver {
 				logger.debug("CVC4 outcome was UNKNOWN (probably due to timeout)");
 				return null;
 			} else if (cvc4ResultStr.startsWith("(error")) {
-				logger.error("An error (probably parsing error) occurred while executing CVC4");
-				return null;
+				logger.debug("CVC4 output was the following " + cvc4ResultStr);
+				throw new EvosuiteError(
+						"An error (probably an invalid input) occurred while executing CVC4");
 			} else {
-				logger.error("CVC4 output is unknown. We are unable to parse it to a proper solution!");
-				return null;
+				logger.debug("The following CVC4 output could not be parsed "
+						+ cvc4ResultStr);
+				throw new EvosuiteError(
+						"CVC4 output is unknown. We are unable to parse it to a proper solution!");
 			}
 
 		} catch (IOException e) {
@@ -163,6 +200,15 @@ public class CVC4Solver extends Solver {
 
 	}
 
+	private static String buildCVC4cmd(long cvcTimeout) {
+		String cmd = Properties.CVC4_PATH;
+		cmd += "  --rewrite-divk"; // rewrite-divk rewrites division (or
+									// modulus) by a constant value
+		cmd += " --lang smt"; // query language is SMT-LIB
+		cmd += " --tlimit=" + cvcTimeout; // set timeout to cvcTimeout
+		return cmd;
+	}
+
 	private static boolean hasNonLinearConstraints(
 			Collection<Constraint<?>> constraints) {
 		NonLinearConstraintVisitor v = new NonLinearConstraintVisitor();
@@ -175,16 +221,7 @@ public class CVC4Solver extends Solver {
 		return false;
 	}
 
-	private static String buildSmtQuery(Collection<Constraint<?>> constraints) {
-
-		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor();
-		List<SmtExpr> smtExpressions = new LinkedList<SmtExpr>();
-		for (Constraint<?> c : constraints) {
-			SmtExpr smtExpr = c.accept(v, null);
-			if (smtExpr != null) {
-				smtExpressions.add(smtExpr);
-			}
-		}
+	private static String buildSmtQuery(Collection<SmtExpr> smtExpressions) {
 
 		SmtExprPrinter printer = new SmtExprPrinter();
 		List<String> cvc4StrAssertions = new LinkedList<String>();

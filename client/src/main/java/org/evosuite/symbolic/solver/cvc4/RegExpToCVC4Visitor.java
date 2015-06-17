@@ -8,7 +8,10 @@ import org.evosuite.symbolic.solver.smt.SmtStringConstant;
 import dk.brics.automaton.RegExp;
 import dk.brics.automaton.RegExpVisitor;
 
-public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
+public final class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
+
+	public RegExpToCVC4Visitor() {
+	}
 
 	@Override
 	public SmtExpr visitUnion(RegExp left, RegExp right) {
@@ -48,8 +51,7 @@ public class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 			return null;
 		}
 		if (min == 1) {
-			SmtExpr kleeneCrossExpr = SmtExprBuilder
-					.mkRegExpKleeCross(regExpr);
+			SmtExpr kleeneCrossExpr = SmtExprBuilder.mkRegExpKleeCross(regExpr);
 			return kleeneCrossExpr;
 		} else {
 			SmtIntConstant minExpr = SmtExprBuilder.mkIntConstant(min);
