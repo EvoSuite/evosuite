@@ -20,8 +20,11 @@ public class SolverFactory {
 			return new Z3Solver(true);
 		case Z3_STR2_SOLVER:
 			return new Z3Str2Solver(true);
-		case CVC4_SOLVER:
-			return new CVC4Solver(true);
+		case CVC4_SOLVER: {
+			CVC4Solver solver = new CVC4Solver(true);
+			solver.setRewriteNonLinearConstraints(true);
+			return solver;
+		}
 		case EVOSUITE_SOLVER:
 		default:
 			return new EvoSuiteSolver();
