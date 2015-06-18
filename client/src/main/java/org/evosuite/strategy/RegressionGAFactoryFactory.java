@@ -11,6 +11,8 @@ import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
+import org.evosuite.ga.Archive;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.MinimizeSizeSecondaryObjective;
@@ -66,61 +68,37 @@ import sun.misc.Signal;
  *
  */
 @SuppressWarnings("restriction")
-public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<TestSuiteChromosome> {
+public class RegressionGAFactoryFactory extends PropertiesSearchAlgorithmFactory<TestSuiteChromosome> {
 
 	
-	protected ChromosomeFactory<TestSuiteChromosome> getChromosomeFactory() {
+	protected ChromosomeFactory<?> getChromosomeFactory() {
 		switch (Properties.STRATEGY) {
-		case EVOSUITE:
-			switch (Properties.TEST_FACTORY) {
-			case ALLMETHODS:
-				logger.info("Using all methods chromosome factory");
-				return new TestSuiteChromosomeFactory(
-				        new AllMethodsTestChromosomeFactory());
-			case RANDOM:
-				logger.info("Using random chromosome factory");
-				return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
-			case ARCHIVE:
-				logger.info("Using archive chromosome factory");
-				return new TestSuiteChromosomeFactory(new ArchiveTestChromosomeFactory());
-			case JUNIT:
-				logger.info("Using seeding chromosome factory");
-				JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
-				        new RandomLengthTestFactory());
-				return new TestSuiteChromosomeFactory(factory);
-            case SERIALIZATION:
-                logger.info("Using serialization seeding chromosome factory");
-                return new SerializationSuiteChromosomeFactory(
-                        new RandomLengthTestFactory());
-			default:
-				throw new RuntimeException("Unsupported test factory: "
-				        + Properties.TEST_FACTORY);
-			}
-		/*case REGRESSION:
-			return new RegressionTestSuiteChromosomeFactory();*/
+		case REGRESSION:
+			return new RegressionTestSuiteChromosomeFactory();
+		case REGRESSIONTESTS:
+			return new RegressionTestChromosomeFactory();	
 		default:
-			throw new RuntimeException("Unsupported test factory: "
-					+ Properties.TEST_FACTORY);
+			return new RandomLengthTestFactory();
 		}
 	}
 	
-	private GeneticAlgorithm<TestSuiteChromosome> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
+	private <T extends Chromosome> GeneticAlgorithm<T> getGeneticAlgorithm(ChromosomeFactory<T> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");
 			{
-				OnePlusOneEA<TestSuiteChromosome> ga = new OnePlusOneEA<TestSuiteChromosome>(factory);
+				OnePlusOneEA<T> ga = new OnePlusOneEA<T>(factory);
 				if (Properties.TEST_ARCHIVE)
-					ga.setArchive(TestsArchive.instance);
+					ga.setArchive((Archive<T>) TestsArchive.instance);
 
 				return ga;
 			}
 		case MONOTONICGA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
-				MonotonicGA<TestSuiteChromosome> ga = new MonotonicGA<TestSuiteChromosome>(factory);
+				MonotonicGA<T> ga = new MonotonicGA<T>(factory);
 	            if (Properties.TEST_ARCHIVE)
-	            	ga.setArchive(TestsArchive.instance);
+	            	ga.setArchive((Archive<T>) TestsArchive.instance);
 
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
@@ -134,9 +112,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		case STEADYSTATEGA:
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 			{
-				SteadyStateGA<TestSuiteChromosome> ga = new SteadyStateGA<>(factory);
+				SteadyStateGA<T> ga = new SteadyStateGA<>(factory);
 	            if (Properties.TEST_ARCHIVE)
-	            	ga.setArchive(TestsArchive.instance);
+	            	ga.setArchive((Archive<T>) TestsArchive.instance);
 
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
@@ -150,21 +128,21 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		case RANDOM:
 			logger.info("Chosen search algorithm: Random");
 			{
-                RandomSearch<TestSuiteChromosome> ga = new RandomSearch<TestSuiteChromosome>(factory);
+                RandomSearch<T> ga = new RandomSearch<T>(factory);
                 if (Properties.TEST_ARCHIVE)
-                        ga.setArchive(TestsArchive.instance);
+                        ga.setArchive((Archive<T>) TestsArchive.instance);
 
                 return ga;
 			}
         case NSGAII:
             logger.info("Chosen search algorithm: NSGAII");
-            return new NSGAII<TestSuiteChromosome>(factory);
+            return new NSGAII<T>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
             {
-                StandardGA<TestSuiteChromosome> ga = new StandardGA<TestSuiteChromosome>(factory);
+                StandardGA<T> ga = new StandardGA<T>(factory);
                 if (Properties.TEST_ARCHIVE)
-                        ga.setArchive(TestsArchive.instance);
+                        ga.setArchive((Archive<T>) TestsArchive.instance);
                 return ga;
             }
 		}
@@ -232,7 +210,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			        + name + "\"");
 	}
 
-	private void getSecondaryObjectives(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
+	private void getSecondaryObjectives(GeneticAlgorithm<?> algorithm) {
 		String objectives = Properties.SECONDARY_OBJECTIVE;
 
 		// check if there are no secondary objectives to optimize
@@ -246,17 +224,17 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 	}
 	
 	@Override
-	public GeneticAlgorithm<TestSuiteChromosome> getSearchAlgorithm() {
-		ChromosomeFactory<TestSuiteChromosome> factory = getChromosomeFactory();
+	public GeneticAlgorithm<?> getSearchAlgorithm() {
+		ChromosomeFactory<?> factory = getChromosomeFactory();
 		
 		// FIXXME
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGeneticAlgorithm(factory);
+		GeneticAlgorithm<?> ga = getGeneticAlgorithm(factory);
 
 		if (Properties.NEW_STATISTICS)
 			ga.addListener(new StatisticsListener());
 
 		// How to select candidates for reproduction
-		SelectionFunction<TestSuiteChromosome> selectionFunction = getSelectionFunction();
+		SelectionFunction selectionFunction = getSelectionFunction();
 		selectionFunction.setMaximize(false);
 		ga.setSelectionFunction(selectionFunction);
 

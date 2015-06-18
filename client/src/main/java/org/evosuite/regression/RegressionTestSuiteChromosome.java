@@ -14,13 +14,14 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.factories.TestSuiteChromosomeFactory;
 
 /**
  * @author Gordon Fraser
  * 
  */
 public class RegressionTestSuiteChromosome extends
-        AbstractTestSuiteChromosome<RegressionTestChromosome> {
+       TestSuiteChromosome {
 
 	private static final long serialVersionUID = 2279207996777829420L;
 	
@@ -29,34 +30,35 @@ public class RegressionTestSuiteChromosome extends
 	public double objDistance = 0.0;
 
 	public int diffExceptions = 0;
+	
+	//protected List<RegressionTestChromosome> regressionTests = new ArrayList<RegressionTestChromosome>();
 
 	public RegressionTestSuiteChromosome() {
 		super();
 	}
 
-	/**
-	 * <p>
-	 * Constructor for RegressionTestSuiteChromosome.
-	 * </p>
-	 * 
-	 * @param testChromosomeFactory
-	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public RegressionTestSuiteChromosome(
-	        ChromosomeFactory<RegressionTestChromosome> testChromosomeFactory) {
-		super(testChromosomeFactory);
+	public RegressionTestSuiteChromosome(ChromosomeFactory<TestChromosome> testChromosomeFactory) {
+		this.testChromosomeFactory = testChromosomeFactory;
 	}
 
-	/**
-	 * <p>
-	 * Constructor for TestSuiteChromosome.
-	 * </p>
-	 * 
-	 * @param source
-	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
-	 */
 	protected RegressionTestSuiteChromosome(RegressionTestSuiteChromosome source) {
 		super(source);
+		for (TestChromosome test : source.tests) {
+			RegressionTestChromosome rtc = (RegressionTestChromosome) test;
+			addTest((TestChromosome) rtc.clone());
+		}
+	}
+	
+	@Override
+	public void addTest(TestChromosome test) {
+		if(test instanceof RegressionTestChromosome){
+			tests.add(test);
+		} else {
+			RegressionTestChromosome rtc = new RegressionTestChromosome();
+			rtc.setTest(test);
+			tests.add(rtc);
+		}
+		this.setChanged(true);
 	}
 
 	/* (non-Javadoc)
@@ -72,10 +74,11 @@ public class RegressionTestSuiteChromosome extends
 	 * @see org.evosuite.testsuite.AbstractTestSuiteChromosome#clone()
 	 */
 	@Override
-	public Chromosome clone() {
+	public TestSuiteChromosome clone() {
 		RegressionTestSuiteChromosome c = new RegressionTestSuiteChromosome(
 				this);
 		c.fitnessData = fitnessData;
+		//assert (c.testChromosomeFactory != null): "Chromosome Factory was null";
 		return c;
 	}
 
@@ -85,29 +88,31 @@ public class RegressionTestSuiteChromosome extends
 	@Override
 	public int compareSecondaryObjective(Chromosome o) {
 		// TODO Auto-generated method stub
-		return 0;
+		return super.compareSecondaryObjective(o);
 	}
 	
 	public List<TestCase> getTests() {
 		List<TestCase> tests = new ArrayList<TestCase>();
-		for (RegressionTestChromosome test : this.tests) {
-			tests.add(test.getTheTest().getTestCase());
+		for (TestChromosome test : this.tests) {
+			tests.add(test.getTestCase());
 		}
 		return tests;
 	}
 
 	public AbstractTestSuiteChromosome<TestChromosome> getTestSuite() {
 		AbstractTestSuiteChromosome<TestChromosome> suite = new TestSuiteChromosome();
-		for (RegressionTestChromosome regressionTest : tests) {
-			suite.addTest(regressionTest.getTheTest());
+		for (TestChromosome regressionTest : tests) {
+			RegressionTestChromosome rtc = (RegressionTestChromosome)regressionTest;
+			suite.addTest(rtc.getTheTest());
 		}
 		return suite;
 	}
 
 	public AbstractTestSuiteChromosome<TestChromosome> getTestSuiteForTheOtherClassLoader() {
 		AbstractTestSuiteChromosome<TestChromosome> suite = new TestSuiteChromosome();
-		for (RegressionTestChromosome regressionTest : tests) {
-			suite.addTest(regressionTest.getTheSameTestForTheOtherClassLoader());
+		for (TestChromosome regressionTest : tests) {
+			RegressionTestChromosome rtc = (RegressionTestChromosome)regressionTest;
+			suite.addTest(rtc.getTheSameTestForTheOtherClassLoader());
 		}
 		return suite;
 	}
@@ -115,15 +120,16 @@ public class RegressionTestSuiteChromosome extends
 	@Override
 	public String toString() {
 		String testSuiteString = "";
-		for (RegressionTestChromosome test : tests) {
-			testSuiteString += test.getTheTest().getTestCase().toCode();
+		for (TestChromosome test : tests) {
+			testSuiteString += test.getTestCase().toCode();
 			testSuiteString += "\n";
 		}
 		return testSuiteString;
 	}
 	
-	public List<RegressionTestChromosome> getTestChromosomes() {
+	public List<TestChromosome> getTestChromosomes() {
 		return tests;
 	}
+	
 
 }

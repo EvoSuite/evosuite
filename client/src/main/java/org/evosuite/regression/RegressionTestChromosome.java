@@ -18,7 +18,7 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
  * @author Gordon Fraser
  * 
  */
-public class RegressionTestChromosome extends ExecutableChromosome {
+public class RegressionTestChromosome extends TestChromosome {
 
 	private static final long serialVersionUID = -6345178117840330196L;
 
@@ -44,7 +44,7 @@ public class RegressionTestChromosome extends ExecutableChromosome {
 	 * @see org.evosuite.testcase.ExecutableChromosome#copyCachedResults(org.evosuite.testcase.ExecutableChromosome)
 	 */
 	@Override
-	protected void copyCachedResults(ExecutableChromosome other) {
+	public void copyCachedResults(ExecutableChromosome other) {
 		RegressionTestChromosome otherChromosome = (RegressionTestChromosome) other;
 		theTest.copyCachedResults(otherChromosome.theTest);
 		theSameTestForTheOtherClassLoader.copyCachedResults(otherChromosome.theSameTestForTheOtherClassLoader);
@@ -58,7 +58,7 @@ public class RegressionTestChromosome extends ExecutableChromosome {
 	public ExecutionResult executeForFitnessFunction(
 	        TestSuiteFitnessFunction testSuiteFitnessFunction) {
 		// TODO Hmmmm...
-		//assert false: "execute for fitness function";
+		assert false: "execute for fitness function";
 		return null;
 	}
 
