@@ -12,12 +12,19 @@ import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 
-class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> {
+final class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> {
 
 	private final Set<String> stringConstants = new HashSet<String>();
-
-	private final ExprToCVC4Visitor exprVisitor = new ExprToCVC4Visitor();
-
+	private final ExprToCVC4Visitor exprVisitor;
+	
+	public ConstraintToCVC4Visitor() {
+		this(false);
+	}
+	
+	public ConstraintToCVC4Visitor(boolean rewriteNonLinearConstraints) {
+		this.exprVisitor = new ExprToCVC4Visitor(rewriteNonLinearConstraints);
+	}
+	
 	@Override
 	public SmtExpr visit(IntegerConstraint c, Void arg) {
 		Expression<?> leftOperand = c.getLeftOperand();

@@ -74,7 +74,7 @@ public class LocalSearchSystemTest extends SystemTest {
 		Properties.SEARCH_BUDGET = 50000;
 		
 		// Make sure that local search will have effect
-		Properties.CHROMOSOME_LENGTH = 5;
+		Properties.CHROMOSOME_LENGTH = 4;
 		Properties.MAX_INITIAL_TESTS = 2;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };

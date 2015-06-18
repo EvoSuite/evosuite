@@ -149,13 +149,13 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	/** {@inheritDoc} */
 	@Override
 	public void delta() {
-		logger.error("Method delta not implemented: What is the delta for null?");
+		logger.info("Method delta not implemented: What is the delta for null?");
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void zero() {
-		logger.error("Method zero not implemented: How to zero null?");
+		logger.info("Method zero not implemented: How to zero null?");
 	}
 
 	/** {@inheritDoc} */
@@ -167,7 +167,7 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
-		logger.error("Method randomize not implemented: How to randomize null?");
+		logger.info("Method randomize not implemented: How to randomize null?");
 	}
 
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,

@@ -8,6 +8,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.testcarver.ArrayConverterTestCase;
@@ -21,6 +22,11 @@ public class TestObjectPool extends SystemTest {
 	private boolean CARVE_POOL = Properties.CARVE_OBJECT_POOL;
 	private String SELECTED_JUNIT = Properties.SELECTED_JUNIT;
 	private TestFactory FACTORY = Properties.TEST_FACTORY;
+	
+	@Before
+	public void initProperties() {
+		Properties.SEARCH_BUDGET = 10000;		
+	}
 	
 	@After
 	public void restoreProperties() {
