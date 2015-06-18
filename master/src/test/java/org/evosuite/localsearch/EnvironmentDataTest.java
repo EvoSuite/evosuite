@@ -5,18 +5,15 @@ import static org.junit.Assert.assertEquals;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.LocalSearchBudgetType;
-import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.SystemTest;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.DefaultLocalSearchObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.testdata.EvoSuiteFile;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.localsearch.BranchCoverageMap;
@@ -30,18 +27,13 @@ import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericMethod;
-import org.evosuite.utils.Randomness;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.localsearch.DseBar;
 import com.examples.with.different.packagename.localsearch.DseFoo;
 
-/**
- * Created by Andrea Arcuri on 19/03/15.
- */
 public class EnvironmentDataTest extends SystemTest {
 
 	private static final double DEFAULT_LS_PROBABILITY = Properties.LOCAL_SEARCH_PROBABILITY;
@@ -50,6 +42,7 @@ public class EnvironmentDataTest extends SystemTest {
 	private static final long DEFAULT_LS_BUDGET = Properties.LOCAL_SEARCH_BUDGET;
 	private static final long DEFAULT_SEARCH_BUDGET = Properties.SEARCH_BUDGET;
 	private static final int DEFAULT_CONCOLIC_TIMEOUT = Properties.CONCOLIC_TIMEOUT;
+	private static final boolean DEFAULT_RT_VFS = RuntimeSettings.useVFS;
 
 	@Before
 	public void init() {
@@ -58,6 +51,7 @@ public class EnvironmentDataTest extends SystemTest {
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_BUDGET = 100;
 		Properties.SEARCH_BUDGET = 50000;
+		RuntimeSettings.useVFS = true;
 	}
 
 	@After
@@ -68,6 +62,7 @@ public class EnvironmentDataTest extends SystemTest {
 		Properties.LOCAL_SEARCH_BUDGET = DEFAULT_LS_BUDGET;
 		Properties.SEARCH_BUDGET = DEFAULT_SEARCH_BUDGET;
 		Properties.CONCOLIC_TIMEOUT = DEFAULT_CONCOLIC_TIMEOUT;
+		RuntimeSettings.useVFS = DEFAULT_RT_VFS;
 	}
 
 	
