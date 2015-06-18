@@ -161,7 +161,7 @@ public class Issre13SystemTest extends SystemTest {
 		Properties.MINIMIZE = false;
 		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
-
+		Properties.TEST_ARCHIVE = true;
 		// Properties.DSE_SOLVER = SolverType.Z3_STR_SOLVER;
 		// Properties.Z3_STR_PATH = "/home/galeotti/Z3-str/str";
 
