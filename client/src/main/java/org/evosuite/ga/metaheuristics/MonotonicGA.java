@@ -177,15 +177,8 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 		population = newGeneration;
 		//archive
-		updateFitnessFunctions();
-		for (T t : population) {
-			if (t.isToBeUpdated()) {
-				for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-					fitnessFunction.getFitness(t);
-				}
-				t.isToBeUpdated(false);
-			}
-		}
+		updateFitnessFunctionsAndValues();
+
 		currentIteration++;
 	}
 

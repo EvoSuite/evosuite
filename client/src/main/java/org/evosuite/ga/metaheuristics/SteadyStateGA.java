@@ -114,15 +114,7 @@ public class SteadyStateGA<T extends Chromosome> extends MonotonicGA<T> {
 			logger.debug("Keeping parents");
 		}
 		
-		updateFitnessFunctions();
-		for (T t : population) {
-			if (t.isToBeUpdated()) {
-				for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-					fitnessFunction.getFitness(t);
-				}
-				t.isToBeUpdated(false);
-			}
-		}
+		updateFitnessFunctionsAndValues();
 	}
 
 }
