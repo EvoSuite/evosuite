@@ -45,6 +45,7 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
+import org.evosuite.regression.RegressionSearchListener;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
@@ -62,6 +63,7 @@ import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.strategy.FixedNumRandomTestStrategy;
 import org.evosuite.strategy.IndividualTestStrategy;
 import org.evosuite.strategy.RandomTestStrategy;
+import org.evosuite.strategy.RegressionSuiteStrategy;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.strategy.WholeTestSuiteStrategy;
 import org.evosuite.symbolic.DSEStats;
@@ -282,7 +284,7 @@ public class TestSuiteGenerator {
 		    }
 		}
 		
-		if (Properties.ASSERTIONS) {
+		if (Properties.ASSERTIONS && !Properties.isRegression()) {
 			LoggingUtils.getEvoLogger().info("* Generating assertions");
 			// progressMonitor.setCurrentPhase("Generating assertions");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
@@ -397,6 +399,8 @@ public class TestSuiteGenerator {
 			return new FixedNumRandomTestStrategy();
 		case ONEBRANCH:
 			return new IndividualTestStrategy();
+		case REGRESSION:
+			return new RegressionSuiteStrategy();
 		default:
 			throw new RuntimeException("Unsupported strategy: "+Properties.STRATEGY);
 		}
@@ -435,6 +439,24 @@ public class TestSuiteGenerator {
 
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
 			suite.writeTestSuite(name + suffix, testDir);
+			
+			// If in regression mode, create a separate copy of the tests 
+			if (!RegressionSearchListener.statsID.equals("")) {
+				File evosuiterTestDir = new File("evosuiter-stats");
+
+				if (!evosuiterTestDir.exists() || !evosuiterTestDir.isDirectory()) {
+					evosuiterTestDir.mkdirs();
+				}
+
+				String regressionTestName = RegressionSearchListener.statsID + "Test";
+				
+				LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
+				// TODO: Unfortunate Hack to avoid makeDirectory() making nested dirs from the classpath.
+				String tmpClass = Properties.CLASS_PREFIX;
+				Properties.CLASS_PREFIX = "";
+				suite.writeTestSuite(regressionTestName, evosuiterTestDir.getName());
+				Properties.CLASS_PREFIX = tmpClass;
+			}
 		}
 		return TestGenerationResultBuilder.buildSuccessResult();
 	}

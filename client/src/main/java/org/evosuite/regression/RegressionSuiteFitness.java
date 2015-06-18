@@ -114,15 +114,14 @@ logger.warn("initialising regression Suite Fitness... ##########################
 			AbstractTestSuiteChromosome<? extends ExecutableChromosome> s) {
 		observer.clearPools();
 		RegressionTestSuiteChromosome suite = (RegressionTestSuiteChromosome)s;
-		for (RegressionTestChromosome chromosome : suite.getTestChromosomes()) {
-
+		for (TestChromosome chromosome : suite.getTestChromosomes()) {
+			RegressionTestChromosome c = (RegressionTestChromosome) chromosome;
 			observer.off = false;
 			observer.requestNewPools();
 			observer.regressionFlag(false);
 
-			TestChromosome testChromosome = chromosome.getTheTest();
-			TestChromosome otherChromosome = chromosome
-					.getTheSameTestForTheOtherClassLoader();
+			TestChromosome testChromosome = c.getTheTest();
+			TestChromosome otherChromosome = c.getTheSameTestForTheOtherClassLoader();
 			ClassLoader a = testChromosome.getClass().getClassLoader();
 			ClassLoader b = otherChromosome.getClass().getClassLoader();
 
@@ -247,14 +246,15 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		
 		List<Double> objectDistances = new ArrayList<Double>();
 		
-		for (RegressionTestChromosome regressionTest : suite
+		for (TestChromosome regressionTest : suite
 				.getTestChromosomes()) {
+			
+			RegressionTestChromosome rtc = (RegressionTestChromosome) regressionTest;
 
-			ExecutionResult result1 = regressionTest.getTheTest()
+			ExecutionResult result1 = rtc.getTheTest()
 					.getLastExecutionResult();
 
-			ExecutionResult result2 = regressionTest
-					.getTheSameTestForTheOtherClassLoader()
+			ExecutionResult result2 = rtc.getTheSameTestForTheOtherClassLoader()
 					.getLastExecutionResult();
 
 			int numExceptionOrig = result1.getNumberOfThrownExceptions();

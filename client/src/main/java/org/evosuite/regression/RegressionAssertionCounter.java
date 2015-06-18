@@ -152,11 +152,12 @@ public class RegressionAssertionCounter {
 		} else {
 			// assert false;
 			RegressionTestSuiteChromosome ind = (RegressionTestSuiteChromosome) individual;
-			for (RegressionTestChromosome regressionTest : ind
+			for (TestChromosome regressionTest : ind
 					.getTestChromosomes()) {
+				
+				RegressionTestChromosome rtc = (RegressionTestChromosome) regressionTest;
 
-				totalCount += checkForAssertions(removeAssertions, noExecution,
-						rgen, regressionTest);
+				totalCount += checkForAssertions(removeAssertions, noExecution, rgen, rtc);
 			}
 		}
 
