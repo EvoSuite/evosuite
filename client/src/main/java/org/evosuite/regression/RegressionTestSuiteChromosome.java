@@ -121,7 +121,7 @@ public class RegressionTestSuiteChromosome extends
 	public String toString() {
 		String testSuiteString = "";
 		for (TestChromosome test : tests) {
-			testSuiteString += test.getTestCase().toCode();
+			testSuiteString += ((RegressionTestChromosome)test).getTheTest().getTestCase().toCode();
 			testSuiteString += "\n";
 		}
 		return testSuiteString;
