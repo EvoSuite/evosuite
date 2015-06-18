@@ -157,6 +157,7 @@ public class InspectorAssertion extends Assertion {
 	
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
+		super.changeClassLoader(loader);
 		inspector.changeClassLoader(loader);
 	}
 }

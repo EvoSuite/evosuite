@@ -57,7 +57,7 @@ public class TestSUTHighConstant extends SystemTest{
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
-
+		System.out.println(best.toString());
 		/*
 		 * there are 2 branches and one method, so 3 targets, of which we cover only 2
 		 */
@@ -69,7 +69,10 @@ public class TestSUTHighConstant extends SystemTest{
 		 * - variable init
 		 * - method call
 		 */
-		Assert.assertEquals("Wrong number of statements: ",3,best.getTestChromosome(0).getTestCase().size());
+		if(Properties.INLINE)
+			Assert.assertEquals("Wrong number of statements: ",2,best.getTestChromosome(0).getTestCase().size());
+		else
+			Assert.assertEquals("Wrong number of statements: ",3,best.getTestChromosome(0).getTestCase().size());
 	}
 	
 	@Test

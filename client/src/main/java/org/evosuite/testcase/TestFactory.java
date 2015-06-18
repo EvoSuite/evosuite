@@ -773,7 +773,7 @@ public class TestFactory {
 			return true;
 		} catch (ConstructionFailedException e) {
 			// Ignore
-			logger.warn("Change failed for statement " + statement.getCode() + " -> "
+			logger.info("Change failed for statement " + statement.getCode() + " -> "
 			        + call + ": " + e.getMessage() + " " + test.toCode());
 		}
 		return false;

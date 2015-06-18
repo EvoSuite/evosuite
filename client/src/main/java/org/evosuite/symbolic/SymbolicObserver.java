@@ -36,7 +36,11 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.PrimitiveExpression;
 import org.evosuite.testcase.statements.environment.FileNamePrimitiveStatement;
+import org.evosuite.testcase.statements.environment.LocalAddressPrimitiveStatement;
+import org.evosuite.testcase.statements.environment.RemoteAddressPrimitiveStatement;
+import org.evosuite.testcase.statements.environment.UrlPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BytePrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.CharPrimitiveStatement;
@@ -131,14 +135,14 @@ public class SymbolicObserver extends ExecutionObserver {
 			} else if (s instanceof ConstructorStatement) {
 				before((ConstructorStatement) s, scope);
 
+			} else if (s instanceof MethodStatement) {
+				before((MethodStatement) s, scope);
+
 			}
 
 			/* primitive statements */
 			else if (s instanceof BooleanPrimitiveStatement) {
 				before((BooleanPrimitiveStatement) s, scope);
-
-			} else if (s instanceof MethodStatement) {
-				before((MethodStatement) s, scope);
 
 			} else if (s instanceof BytePrimitiveStatement) {
 				before((BytePrimitiveStatement) s, scope);
@@ -166,9 +170,21 @@ public class SymbolicObserver extends ExecutionObserver {
 
 			} else if (s instanceof ClassPrimitiveStatement) {
 				before((ClassPrimitiveStatement) s, scope);
-
+				
 			} else if (s instanceof FileNamePrimitiveStatement) {
 				before((FileNamePrimitiveStatement) s, scope);
+
+			} else if (s instanceof LocalAddressPrimitiveStatement) {
+				before((LocalAddressPrimitiveStatement) s, scope);
+
+			} else if (s instanceof RemoteAddressPrimitiveStatement) {
+				before((RemoteAddressPrimitiveStatement) s, scope);
+
+			} else if (s instanceof UrlPrimitiveStatement) {
+				before((UrlPrimitiveStatement) s, scope);
+
+			} else if (s instanceof PrimitiveExpression) {
+				before((PrimitiveExpression) s, scope);
 
 			} else {
 				throw new UnsupportedOperationException(
@@ -178,6 +194,12 @@ public class SymbolicObserver extends ExecutionObserver {
 			throw new EvosuiteError(t);
 		}
 
+	}
+
+	private void before(PrimitiveExpression s, Scope scope) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException(
+				"This method should be implemented!");
 	}
 
 	private void before(ClassPrimitiveStatement s, Scope scope) {
@@ -1293,6 +1315,19 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	}
 
+	private void before(LocalAddressPrimitiveStatement statement, Scope scope) {
+		/* do nothing */
+	}
+
+	private void before(RemoteAddressPrimitiveStatement statement, Scope scope) {
+		/* do nothing */
+	}
+
+	private void before(UrlPrimitiveStatement statement, Scope scope) {
+		/* do nothing */
+	}
+
+	
 	private void before(IntPrimitiveStatement statement, Scope scope) {
 		/* do nothing */
 	}
@@ -1325,11 +1360,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				after((FieldStatement) s, scope);
 
 			} else if (s instanceof ConstructorStatement) {
-				try {
 					after((ConstructorStatement) s, scope);
-				} catch (ClassCastException ex) {
-					throw ex;
-				}
 			}
 			/* primitive statements */
 			else if (s instanceof BooleanPrimitiveStatement) {
@@ -1368,6 +1399,18 @@ public class SymbolicObserver extends ExecutionObserver {
 			} else if (s instanceof FileNamePrimitiveStatement) {
 				after((FileNamePrimitiveStatement) s, scope);
 
+			} else if (s instanceof LocalAddressPrimitiveStatement) {
+				after((LocalAddressPrimitiveStatement) s, scope);
+
+			} else if (s instanceof RemoteAddressPrimitiveStatement) {
+				after((RemoteAddressPrimitiveStatement) s, scope);
+
+			} else if (s instanceof UrlPrimitiveStatement) {
+				after((UrlPrimitiveStatement) s, scope);
+
+			} else if (s instanceof PrimitiveExpression) {
+				after((PrimitiveExpression) s, scope);
+
 			} else {
 				throw new UnsupportedOperationException(
 						"Cannot handle statement of type " + s.getClass());
@@ -1375,6 +1418,27 @@ public class SymbolicObserver extends ExecutionObserver {
 		} catch (Throwable t) {
 			throw new EvosuiteError(t);
 		}
+	}
+
+	private void after(UrlPrimitiveStatement s, Scope scope) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void after(RemoteAddressPrimitiveStatement s, Scope scope) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void after(LocalAddressPrimitiveStatement s, Scope scope) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void after(PrimitiveExpression s, Scope scope) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException(
+				"This method should be implemented!");
 	}
 
 	private void after(ClassPrimitiveStatement s, Scope scope) {
