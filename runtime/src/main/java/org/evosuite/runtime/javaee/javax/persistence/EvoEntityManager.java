@@ -20,6 +20,13 @@ import java.util.Map;
  */
 public class EvoEntityManager implements EntityManager{
 
+    /*
+     *  TODO intercept SQL queries, and create data accordingly as
+     *  part of the search. However, it is very likely that already
+     *  the SUT has methods to create such data
+     */
+
+
     private final EntityManager em;
 
     private final EntityManagerFactory factory;
