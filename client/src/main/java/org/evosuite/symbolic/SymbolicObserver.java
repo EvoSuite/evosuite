@@ -1878,23 +1878,7 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private void after(FileNamePrimitiveStatement statement, Scope scope) {
-		String valueOf = statement.getValue().getPath();
-		VariableReference varRef = statement.getReturnValue();
-		String varRefName = varRef.getName();
-		StringVariable stringVariable = buildStringVariable(varRefName, valueOf);
-		symb_expressions.put(varRefName, stringVariable);
-
-		String string_instance;
-		try {
-			String string_interned = (String) varRef.getObject(scope);
-			string_instance = new String(string_interned);
-			scope.setObject(varRef, string_instance);
-		} catch (CodeUnderTestException e) {
-			throw new EvosuiteError(e);
-		}
-		NonNullReference stringRef = newStringReference(string_instance,
-				stringVariable);
-		symb_references.put(varRefName, stringRef);
+		// No-op?
 	}
 
 	private NonNullReference newStringReference(String conc_string,
