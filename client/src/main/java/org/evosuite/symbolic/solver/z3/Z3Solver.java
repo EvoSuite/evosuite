@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,7 +53,16 @@ public class Z3Solver extends Solver {
 			variables.addAll(c_variables);
 		}
 
-		String smtQuery = buildSmtQuery(constraints, variables, timeout);
+		List<SmtExpr> assertions = new LinkedList<SmtExpr>();
+		for (Constraint<?> c : constraints) {
+			ConstraintToZ3Visitor v = new ConstraintToZ3Visitor();
+			SmtExpr bool_expr = c.accept(v, null);
+			if (bool_expr != null && bool_expr.isSymbolic()) {
+				assertions.add(bool_expr);
+			}
+		}
+
+		String smtQuery = buildSmtQuery(assertions, variables, timeout);
 
 		if (smtQuery == null) {
 			logger.debug("Empty SMT query to Z3");
@@ -92,10 +100,16 @@ public class Z3Solver extends Solver {
 				}
 				Map<String, Object> solution = modelParser.parse(z3ResultStr);
 
+				boolean checkSmt = checkSolution(assertions, solution);
+				if (!checkSmt) {
+					throw new EvosuiteError(
+							"The returned solution does not solve the SMT query!");
+				}
+
 				// check solution is correct
 				boolean check = checkSolution(constraints, solution);
 				if (!check) {
-					logger.warn("Z3 solution does not solve the constraint system!");
+					logger.debug("Z3 solution does not solve the constraint system!");
 					return null;
 				}
 
@@ -116,17 +130,8 @@ public class Z3Solver extends Solver {
 		}
 	}
 
-	private static String buildSmtQuery(Collection<Constraint<?>> constraints,
+	private static String buildSmtQuery(Collection<SmtExpr> assertions,
 			Set<Variable<?>> variables, long timeout) {
-
-		List<SmtExpr> assertions = new LinkedList<SmtExpr>();
-		for (Constraint<?> c : constraints) {
-			ConstraintToZ3Visitor v = new ConstraintToZ3Visitor();
-			SmtExpr bool_expr = c.accept(v, null);
-			if (bool_expr != null && bool_expr.isSymbolic()) {
-				assertions.add(bool_expr);
-			}
-		}
 
 		if (assertions.isEmpty()) {
 			logger.debug("Translation to Z3 model has no variables");
