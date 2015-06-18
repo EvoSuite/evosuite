@@ -147,18 +147,18 @@ public abstract class Solver {
 	protected static boolean checkSolution(List<SmtExpr> smtExpressions,
 			Map<String, Object> solution) {
 		
-//		SmtExprEvaluator evaluator = new SmtExprEvaluator(solution);
-//		for (SmtExpr smtExpr : smtExpressions) {
-//			Boolean ret_val = (Boolean) smtExpr.accept(evaluator, null);
-//			if (ret_val.booleanValue() == false) {
-//				logger.debug("The following SMT expression was not satisfied by the given solution");
-//				String smtExprStr = smtExpr.accept(new SmtExprPrinter(), null);
-//				logger.debug(smtExprStr);
-//				return false;
-//			}
-//		}
-//
-//		logger.debug("All SMT expressions were satisfied with the given solution");
+		SmtExprEvaluator evaluator = new SmtExprEvaluator(solution);
+		for (SmtExpr smtExpr : smtExpressions) {
+			Boolean ret_val = (Boolean) smtExpr.accept(evaluator, null);
+			if (ret_val.booleanValue() == false) {
+				logger.debug("The following SMT expression was not satisfied by the given solution");
+				String smtExprStr = smtExpr.accept(new SmtExprPrinter(), null);
+				logger.debug(smtExprStr);
+				return false;
+			}
+		}
+
+		logger.debug("All SMT expressions were satisfied with the given solution");
 		return true;
 	}
 
