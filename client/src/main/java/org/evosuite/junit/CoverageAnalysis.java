@@ -37,6 +37,7 @@ import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
@@ -107,15 +108,22 @@ public class CoverageAnalysis {
 
 		Class<?>[] classes =junitTests.toArray(new Class<?>[junitTests.size()]);
 		LoggingUtils.getEvoLogger().info("* Executing tests");
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
-		                || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
-			junitMutationAnalysis(classes);
+
+		try {
+			EvoRunner.useAgent = false; //avoid double instrumentation 
+
+			if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
+					|| ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
+				junitMutationAnalysis(classes);
+			} else {
+				long startTime = System.currentTimeMillis();
+				List<JUnitResult> results = executeTests(classes);
+				printReport(results, junitTests, startTime);
+			}
+		} finally {
+			EvoRunner.useAgent = true;
 		}
-		else {
-			long startTime = System.currentTimeMillis();
-			List<JUnitResult> results = executeTests(classes);
-			printReport(results, junitTests, startTime);
-		}
+
 	}
 
 	public static void junitMutationAnalysis(Class<?>[] classes) {

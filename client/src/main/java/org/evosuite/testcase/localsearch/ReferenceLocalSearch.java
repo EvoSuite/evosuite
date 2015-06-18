@@ -165,16 +165,19 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 				NullStatement nullStatement = new NullStatement(test.getTestCase(),
 				        var.getType());
 				replacement = test.getTestCase().addStatement(nullStatement, statement);
-			} else {
+			} else if(!var.isPrimitive()) {
+				// Test cluster does not keep track of generators for primitives
 				replacement = factory.createObject(test.getTestCase(), var.getType(),
 				                                   statement, 0);
 			}
-			int oldStatement = statement + (test.size() - oldLength);
-			for (int i = oldStatement + 1; i < test.size(); i++) {
-				test.getTestCase().getStatement(i).replace(var, replacement);
+			if(replacement != null) {
+				int oldStatement = statement + (test.size() - oldLength);
+				for (int i = oldStatement + 1; i < test.size(); i++) {
+					test.getTestCase().getStatement(i).replace(var, replacement);
+				}
+				factory.deleteStatement(test.getTestCase(), oldStatement);
+				test.setChanged(true);
 			}
-			factory.deleteStatement(test.getTestCase(), oldStatement);
-			test.setChanged(true);
 
 		} catch (ConstructionFailedException e) {
 			if (test.size() < oldLength) {
