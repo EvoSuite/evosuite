@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,6 +25,7 @@ import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 import org.evosuite.symbolic.solver.smt.SmtExprPrinter;
+import org.evosuite.testcase.execution.EvosuiteError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,14 +53,23 @@ public class Z3Solver extends Solver {
 			variables.addAll(c_variables);
 		}
 
-		String smtQuery = buildSmtQuery(constraints, variables, timeout);
+		List<SmtExpr> assertions = new LinkedList<SmtExpr>();
+		for (Constraint<?> c : constraints) {
+			ConstraintToZ3Visitor v = new ConstraintToZ3Visitor();
+			SmtExpr bool_expr = c.accept(v, null);
+			if (bool_expr != null && bool_expr.isSymbolic()) {
+				assertions.add(bool_expr);
+			}
+		}
 
-		if (smtQuery==null) {
+		String smtQuery = buildSmtQuery(assertions, variables, timeout);
+
+		if (smtQuery == null) {
 			logger.debug("Empty SMT query to Z3");
 			logger.debug("Returning NULL as solution");
 			return null;
 		}
-		
+
 		logger.debug("Z3 Query:");
 		logger.debug(smtQuery);
 
@@ -91,10 +100,16 @@ public class Z3Solver extends Solver {
 				}
 				Map<String, Object> solution = modelParser.parse(z3ResultStr);
 
+				boolean checkSmt = checkSolution(assertions, solution);
+				if (!checkSmt) {
+					throw new EvosuiteError(
+							"The returned solution does not solve the SMT query!");
+				}
+
 				// check solution is correct
 				boolean check = checkSolution(constraints, solution);
 				if (!check) {
-					logger.warn("Z3 solution does not solve the constraint system!");
+					logger.debug("Z3 solution does not solve the constraint system!");
 					return null;
 				}
 
@@ -103,8 +118,9 @@ public class Z3Solver extends Solver {
 				logger.debug("Z3 outcome was UNSAT");
 				return null;
 			} else {
-				logger.error("Z3 output is unknown. We are unable to parse it to a proper solution!");
-				return null;
+				logger.debug("Z3 output was " + z3ResultStr);
+				throw new EvosuiteError(
+						"Z3 output is unknown. We are unable to parse it to a proper solution!");
 			}
 
 		} catch (IOException e) {
@@ -114,23 +130,14 @@ public class Z3Solver extends Solver {
 		}
 	}
 
-	private static String buildSmtQuery(Collection<Constraint<?>> constraints,
+	private static String buildSmtQuery(Collection<SmtExpr> assertions,
 			Set<Variable<?>> variables, long timeout) {
-
-		List<SmtExpr> assertions = new LinkedList<SmtExpr>();
-		for (Constraint<?> c : constraints) {
-			ConstraintToZ3Visitor v = new ConstraintToZ3Visitor();
-			SmtExpr bool_expr = c.accept(v, null);
-			if (bool_expr != null && bool_expr.isSymbolic()) {
-				assertions.add(bool_expr);
-			}
-		}
 
 		if (assertions.isEmpty()) {
 			logger.debug("Translation to Z3 model has no variables");
 			return null;
 		}
-		
+
 		logger.debug("Creating new Z3 Solver");
 		logger.debug("Setting Z3 soft_timeout to " + timeout + " ms");
 

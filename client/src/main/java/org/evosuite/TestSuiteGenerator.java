@@ -23,6 +23,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -300,48 +301,97 @@ public class TestSuiteGenerator {
 		}
 	}
 	
-	private void checkAndCompileTests(TestSuiteChromosome testSuite) {
-		LoggingUtils.getEvoLogger().info("* Compiling and checking tests");
-		int i = 0;
-		//List<TestCase> testCases = tests.getTests();
-		List<TestCase> testCases = testSuite.getTests();
+	 /**
+     * Compile and run the given tests. Remove from input list all tests that do not compile, and handle the
+     * cases of instability (either remove tests or comment out failing assertions)
+     *
+     * @param chromosomeList
+     */
+    private void compileAndCheckTests(TestSuiteChromosome chromosome) {
+        LoggingUtils.getEvoLogger().info("* Compiling and checking tests");
 
-		if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
-			if (JUnitAnalyzer.isJavaCompilerAvailable()) {
-				if(testSuite.size() > 1)
-					LoggingUtils.getEvoLogger().info("  - Compiling and checking test " + i);
+        if(!JUnitAnalyzer.isJavaCompilerAvailable()) {
+            String msg = "No Java compiler is available. Are you running with the JDK?";
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
 
-				JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
+        ClientServices.getInstance().getClientNode().changeState(ClientState.JUNIT_CHECK);
 
-				boolean unstable = false;
-				int numUnstable = 0;
-				numUnstable = JUnitAnalyzer.handleTestsThatAreUnstable(testCases); 
-				unstable = numUnstable > 0;
+        // Store this value; if this option is true then the JUnit check
+        // would not succeed, as the JUnit classloader wouldn't find the class
+        boolean junitSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
+        Properties.USE_SEPARATE_CLASSLOADER = false;
 
-				//second passage on reverse order, this is to spot dependencies among tests
-				if (testCases.size() > 1) {
-					Collections.reverse(testCases);
-					numUnstable += JUnitAnalyzer.handleTestsThatAreUnstable(testCases); 
-					unstable = (numUnstable > 0) || unstable;
-				}
+        int numUnstable = 0;
 
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.HadUnstableTests,unstable);
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.NumUnstableTests,numUnstable);
-			}
-			else {
-				logger.error("No Java compiler is available. Are you running with the JDK?");
-			}			
-		}
+        //note: compiling and running JUnit tests can be very time consuming
+        if(!TimeController.getInstance().isThereStillTimeInThisPhase()) {
+        	return;
+        }
 
-		testSuite.clearTests();
-		for (TestCase testCase : testCases)
-			testSuite.addTest(testCase);
+        List<TestCase> testCases = chromosome.getTests(); // make copy of current tests
 
-		i++;
+        //first, let's just get rid of all the tests that do not compile
+        JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
 
+        //compile and run each test one at a time. and keep track of total time
+        long start = java.lang.System.currentTimeMillis();
+        Iterator<TestCase> iter = testCases.iterator();
+        while(iter.hasNext()){
+        	if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+        		break;
+        	}
+        	TestCase tc = iter.next();
+        	List<TestCase> list = new ArrayList<>();
+        	list.add(tc);
+        	numUnstable += JUnitAnalyzer.handleTestsThatAreUnstable(list);
+        	if(list.isEmpty()){
+        		//if the test was unstable and deleted, need to remove it from final testSuite
+        		iter.remove();
+        	}
+        }
+        /*
+                compiling and running each single test individually will take more than
+                compiling/running everything in on single suite. so it can be used as an
+                upper bound
+         */
+        long delta = java.lang.System.currentTimeMillis() - start;
 
-		assert !Properties.JUNIT_TESTS || JUnitAnalyzer.verifyCompilationAndExecution(testSuite.getTests()); // check still on original
-	}
+        numUnstable += checkAllTestsIfTime(testCases, delta);
+
+        //second passage on reverse order, this is to spot dependencies among tests
+        if (testCases.size() > 1) {
+        	Collections.reverse(testCases);
+        	numUnstable += checkAllTestsIfTime(testCases, delta);
+        }
+
+        chromosome.clearTests(); //remove all tests
+        for (TestCase testCase : testCases) {
+        	chromosome.addTest(testCase); //add back the filtered tests
+        }
+
+        boolean unstable = (numUnstable > 0);
+
+        if(!TimeController.getInstance().isThereStillTimeInThisPhase()){
+        	logger.warn("JUnit checking timed out");
+        }
+
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.HadUnstableTests, unstable);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.NumUnstableTests, numUnstable);
+        Properties.USE_SEPARATE_CLASSLOADER = junitSeparateClassLoader;
+
+    }
+
+    private int checkAllTestsIfTime(List<TestCase> testCases, long delta) {
+    	if(TimeController.getInstance().hasTimeToExecuteATestCase() &&
+    			TimeController.getInstance().isThereStillTimeInThisPhase(delta)) {
+    		return JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
+    	}
+        return 0;
+    }
+    
+	
 	
 	
 	private int getBytecodeCount(RuntimeVariable v, Map<RuntimeVariable,Set<Integer>> m){
@@ -358,7 +408,6 @@ public class TestSuiteGenerator {
 			                                         + Properties.TARGET_CLASS);
 			return new TestSuiteChromosome();
 		}
-		getBytecodeStatistics();
 
 		ContractChecker checker = null;
 		if (Properties.CHECK_CONTRACTS) {
@@ -374,11 +423,15 @@ public class TestSuiteGenerator {
 		}
 		
 		StatisticsSender.executedAndThenSendIndividualToMaster(testSuite);
-		
+		getBytecodeStatistics();
+
         ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 
-		checkAndCompileTests(testSuite);
-		writeObjectPool(testSuite);
+        if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
+            compileAndCheckTests(testSuite);
+        }
+        
+        writeObjectPool(testSuite);
 
 		/*
 		 * PUTGeneralizer generalizer = new PUTGeneralizer(); for (TestCase test

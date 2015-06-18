@@ -25,6 +25,7 @@ import org.evosuite.symbolic.expr.fp.IntegerToRealCast;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
@@ -49,7 +50,17 @@ import org.evosuite.utils.RegexDistanceUtils;
 
 import dk.brics.automaton.RegExp;
 
-class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
+final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
+
+	private final boolean rewriteNonLinearExpressions;
+
+	public ExprToCVC4Visitor() {
+		this(false);
+	}
+
+	public ExprToCVC4Visitor(boolean rewriteNonLinearExpressions) {
+		this.rewriteNonLinearExpressions = rewriteNonLinearExpressions;
+	}
 
 	@Override
 	public SmtExpr visit(IntegerBinaryExpression e, Void v) {
@@ -68,10 +79,34 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		switch (e.getOperator()) {
 
 		case DIV: {
+
+			if (rewriteNonLinearExpressions) {
+				if (left.isSymbolic() && right.isSymbolic()) {
+					long rightValue = e.getRightOperand().getConcreteValue();
+					SmtExpr conc_right = SmtExprBuilder
+							.mkIntConstant(rightValue);
+					SmtExpr rewrite_expr = SmtExprBuilder.mkIntDiv(left,
+							conc_right);
+					return rewrite_expr;
+				}
+			}
+
 			SmtExpr expr = SmtExprBuilder.mkIntDiv(left, right);
 			return expr;
 		}
 		case MUL: {
+
+			if (rewriteNonLinearExpressions) {
+				if (left.isSymbolic() && right.isSymbolic()) {
+					long rightValue = e.getRightOperand().getConcreteValue();
+					SmtExpr conc_right = SmtExprBuilder
+							.mkIntConstant(rightValue);
+					SmtExpr rewrite_expr = SmtExprBuilder.mkMul(left,
+							conc_right);
+					return rewrite_expr;
+				}
+			}
+
 			SmtExpr expr = SmtExprBuilder.mkMul(left, right);
 			return expr;
 		}
@@ -84,6 +119,18 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return expr;
 		}
 		case REM: {
+
+			if (rewriteNonLinearExpressions) {
+				if (left.isSymbolic() && right.isSymbolic()) {
+					long rightValue = e.getRightOperand().getConcreteValue();
+					SmtExpr conc_right = SmtExprBuilder
+							.mkIntConstant(rightValue);
+					SmtExpr rewrite_expr = SmtExprBuilder.mkMod(left,
+							conc_right);
+					return rewrite_expr;
+				}
+			}
+
 			SmtExpr mod = SmtExprBuilder.mkMod(left, right);
 			return mod;
 		}
@@ -134,16 +181,14 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 		case MAX: {
 			SmtExpr left_gt_right = SmtExprBuilder.mkGt(left, right);
-			SmtExpr ite_expr = SmtExprBuilder
-					.mkITE(left_gt_right, left, right);
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(left_gt_right, left, right);
 			return ite_expr;
 
 		}
 
 		case MIN: {
 			SmtExpr left_gt_right = SmtExprBuilder.mkLt(left, right);
-			SmtExpr ite_expr = SmtExprBuilder
-					.mkITE(left_gt_right, left, right);
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(left_gt_right, left, right);
 			return ite_expr;
 
 		}
@@ -288,10 +333,34 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		switch (e.getOperator()) {
 
 		case DIV: {
+			if (rewriteNonLinearExpressions) {
+				if (left.isSymbolic() && right.isSymbolic()) {
+					RealValue r = (RealValue) e.getRightOperand();
+					double rightValue = r.getConcreteValue();
+					SmtExpr conc_right = SmtExprBuilder
+							.mkRealConstant(rightValue);
+					SmtExpr rewrite_expr = SmtExprBuilder.mkRealDiv(left,
+							conc_right);
+					return rewrite_expr;
+				}
+			}
+
 			SmtExpr expr = SmtExprBuilder.mkRealDiv(left, right);
 			return expr;
 		}
 		case MUL: {
+			if (rewriteNonLinearExpressions) {
+				if (left.isSymbolic() && right.isSymbolic()) {
+					RealValue r = (RealValue) e.getRightOperand();
+					double rightValue = r.getConcreteValue();
+					SmtExpr conc_right = SmtExprBuilder
+							.mkRealConstant(rightValue);
+					SmtExpr rewrite_expr = SmtExprBuilder.mkMul(left,
+							conc_right);
+					return rewrite_expr;
+				}
+			}
+
 			SmtExpr expr = SmtExprBuilder.mkMul(left, right);
 			return expr;
 		}
@@ -305,15 +374,13 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 		case MAX: {
 			SmtExpr left_gt_right = SmtExprBuilder.mkGt(left, right);
-			SmtExpr ite_expr = SmtExprBuilder
-					.mkITE(left_gt_right, left, right);
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(left_gt_right, left, right);
 			return ite_expr;
 
 		}
 		case MIN: {
 			SmtExpr left_gt_right = SmtExprBuilder.mkLt(left, right);
-			SmtExpr ite_expr = SmtExprBuilder
-					.mkITE(left_gt_right, left, right);
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(left_gt_right, left, right);
 			return ite_expr;
 		}
 		case ATAN2:
@@ -360,8 +427,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		switch (e.getOperator()) {
 		case ABS: {
 			SmtRealConstant zero_rational = SmtExprBuilder.ZERO_REAL;
-			SmtExpr gte_than_zero = SmtExprBuilder
-					.mkGe(operand, zero_rational);
+			SmtExpr gte_than_zero = SmtExprBuilder.mkGe(operand, zero_rational);
 			SmtExpr minus_expr = SmtExprBuilder.mkNeg(operand);
 
 			SmtExpr ite_expr = SmtExprBuilder.mkITE(gte_than_zero, operand,
@@ -469,8 +535,8 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr startIndex = right;
 			SmtExpr endIndex = others.get(0);
 			SmtExpr offset = SmtExprBuilder.mkSub(endIndex, startIndex);
-			SmtExpr substring = SmtExprBuilder.mkStrSubstring(left,
-					startIndex, offset);
+			SmtExpr substring = SmtExprBuilder.mkStrSubstring(left, startIndex,
+					offset);
 			return substring;
 		}
 		case REPLACEC: {
@@ -513,7 +579,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 	}
 
 	/**
-	 * Returns true if any of the arguments is null 
+	 * Returns true if any of the arguments is null
 	 * 
 	 * @param left
 	 * @param right
@@ -788,8 +854,8 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			if (indexExpr.equals(SmtExprBuilder.ZERO_INT)) {
 				SmtIntConstant oneExpr = SmtExprBuilder.ONE_INT;
 				SmtIntConstant zeroExpr = SmtExprBuilder.ZERO_INT;
-				SmtExpr startsWithFormula = SmtExprBuilder.mkStrPrefixOf(
-						right, left);
+				SmtExpr startsWithFormula = SmtExprBuilder.mkStrPrefixOf(right,
+						left);
 				SmtExpr ifThenElseFormula = SmtExprBuilder.mkITE(
 						startsWithFormula, oneExpr, zeroExpr);
 				return ifThenElseFormula;
@@ -850,8 +916,7 @@ class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		case INDEXOFCI: {
 			SmtExpr int2Str = SmtExprBuilder.mkIntToChar(right);
 			SmtExpr other = e.getOther().get(0).accept(this, null);
-			SmtExpr indexOf = SmtExprBuilder
-					.mkStrIndexOf(left, int2Str, other);
+			SmtExpr indexOf = SmtExprBuilder.mkStrIndexOf(left, int2Str, other);
 
 			return indexOf;
 		}

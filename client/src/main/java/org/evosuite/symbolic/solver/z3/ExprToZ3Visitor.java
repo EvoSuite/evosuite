@@ -166,6 +166,16 @@ class ExprToZ3Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 
 		switch (e.getOperator()) {
+		case NEG: {
+			SmtExpr minus_expr = SmtExprBuilder.mkNeg(intExpr);
+			return minus_expr;
+		}
+		case GETNUMERICVALUE:
+		case ISDIGIT:
+		case ISLETTER: {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
 		case ABS:
 			SmtExpr zero = SmtExprBuilder.mkIntConstant(0);
 			SmtExpr gte_than_zero = SmtExprBuilder.mkGe(intExpr, zero);
@@ -175,7 +185,7 @@ class ExprToZ3Visitor implements ExpressionVisitor<SmtExpr, Void> {
 					minus_expr);
 			return ite_expr;
 		default:
-			throw new UnsupportedOperationException("Not implemented yet!");
+			throw new UnsupportedOperationException("Not implemented yet!" + e.getOperator());
 		}
 	}
 
