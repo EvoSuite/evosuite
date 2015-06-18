@@ -143,6 +143,7 @@ public class TestIBranch extends SystemTest {
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = EntryPointsClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.SEARCH_BUDGET = 80000; // Sometimes seems a bit more difficult?
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);

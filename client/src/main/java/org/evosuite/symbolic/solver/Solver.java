@@ -20,6 +20,7 @@ package org.evosuite.symbolic.solver;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,6 +29,9 @@ import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.symbolic.solver.smt.SmtExpr;
+import org.evosuite.symbolic.solver.smt.SmtExprEvaluator;
+import org.evosuite.symbolic.solver.smt.SmtExprPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,6 +143,24 @@ public abstract class Solver {
 	}
 
 	private static final double DELTA = 1e-15;
+
+	protected static boolean checkSolution(List<SmtExpr> smtExpressions,
+			Map<String, Object> solution) {
+		
+		SmtExprEvaluator evaluator = new SmtExprEvaluator(solution);
+		for (SmtExpr smtExpr : smtExpressions) {
+			Boolean ret_val = (Boolean) smtExpr.accept(evaluator, null);
+			if (ret_val.booleanValue() == false) {
+				logger.debug("The following SMT expression was not satisfied by the given solution");
+				String smtExprStr = smtExpr.accept(new SmtExprPrinter(), null);
+				logger.debug(smtExprStr);
+				return false;
+			}
+		}
+
+		logger.debug("All SMT expressions were satisfied with the given solution");
+		return true;
+	}
 
 	protected static boolean checkSolution(
 			Collection<Constraint<?>> constraints, Map<String, Object> solution) {

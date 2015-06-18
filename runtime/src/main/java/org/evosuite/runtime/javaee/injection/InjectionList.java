@@ -15,7 +15,8 @@ public class InjectionList {
     private static final List<Class<? extends Annotation>> list =
             Collections.unmodifiableList(Arrays.<Class<? extends Annotation>>asList(
         javax.inject.Inject.class,
-        javax.persistence.PersistenceContext.class
+        javax.persistence.PersistenceContext.class,
+        javax.persistence.PersistenceUnit.class
     ));
 
     public static List<Class<? extends Annotation>> getList(){

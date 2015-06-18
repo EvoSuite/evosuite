@@ -682,7 +682,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 				coveredMethods.put(id, coveredMethods.get(id) + 1);
 			}
             // Set<String> bms = BranchPool.getBranchlessMethods();
-            if (BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isBranchlessMethod(className, methodName)) {
+            if (BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).isBranchlessMethod(className, id)) {
                 if (!coveredBranchlessMethods.containsKey(id)) {
                     coveredBranchlessMethods.put(id, 1);
                 } else {
