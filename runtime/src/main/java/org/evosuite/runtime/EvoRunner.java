@@ -1,6 +1,7 @@
 package org.evosuite.runtime;
 
 import org.evosuite.runtime.instrumentation.InstrumentingClassLoader;
+import org.evosuite.runtime.mock.MockFramework;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.slf4j.Logger;
@@ -19,7 +20,17 @@ public class EvoRunner extends BlockJUnit4ClassRunner {
 	 */
 	
 	private static final Logger logger = LoggerFactory.getLogger(EvoRunner.class);
-	
+
+	/**
+	 * Dirty hack, to use with care.
+	 * In some very special cases, we want to skip agent instrumentation.
+	 * Still, we would need to use a classloader that will do such instrumentation.
+	 * This is for example done in -measureCoverage, as we need a more details instrumentation,
+	 * and, at the same time, we want to avoid a double instrumentation from agent
+	 */
+	public static boolean useAgent = true;
+
+
 	public EvoRunner(Class<?> klass)
 			throws InitializationError {
 		/*
@@ -55,7 +66,10 @@ public class EvoRunner extends BlockJUnit4ClassRunner {
 			return getFromEvoSuiteClassloader(klass);
 		}
 
-		org.evosuite.runtime.agent.InstrumentingAgent.initialize(); 
+		if(useAgent) {
+			org.evosuite.runtime.agent.InstrumentingAgent.initialize();
+		}
+
 		org.evosuite.runtime.agent.InstrumentingAgent.activate();
 		
 		try {
