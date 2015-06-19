@@ -59,8 +59,8 @@ public class TestNameGenerator {
 		return testName;
 	}
 	
-	public static String generateTestName(TestCase tc, ExecutionResult result) {
-		String testName = "test";
+	public static String generateTestName(int number, TestCase tc, ExecutionResult result) {
+		String testName = "readableTest_" + number;
 		// GENERATE NAME HERE
 		return testName;
 	}

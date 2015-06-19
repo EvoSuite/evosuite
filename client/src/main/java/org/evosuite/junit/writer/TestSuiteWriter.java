@@ -521,13 +521,19 @@ public class TestSuiteWriter implements Opcodes {
             }
             if (Properties.ID_NAMING) {
                 TestCase tc = testCases.get(id);
-                methodName = TestNameGenerator.generateTestName(tc, result);
+                methodName = TestNameGenerator.generateTestName(number, tc, result);
             } else {
                 methodName = "test" + targetMethod + num;
             }
             builder.append(adapter.getMethodDefinition(methodName));
         } else {
-            methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
+            if (Properties.ID_NAMING) {
+                TestCase tc = testCases.get(id);
+                methodName = TestNameGenerator.generateTestName(number, tc, result);
+            } else {
+                methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
+            }
+
             builder.append(adapter.getMethodDefinition(methodName));
         }
 
