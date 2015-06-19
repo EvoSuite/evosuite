@@ -86,7 +86,8 @@ public class RegressionTestSuiteChromosome extends
 	public List<TestCase> getTests() {
 		List<TestCase> tests = new ArrayList<TestCase>();
 		for (TestChromosome test : this.tests) {
-			tests.add(test.getTestCase());
+			RegressionTestChromosome rtc = (RegressionTestChromosome)test;
+			tests.add(rtc.getTheTest().getTestCase());
 		}
 		return tests;
 	}
