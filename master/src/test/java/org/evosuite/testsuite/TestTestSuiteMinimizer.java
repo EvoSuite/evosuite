@@ -6,38 +6,28 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.coverage.MethodReturnsPrimitive;
 
-public class TestTestSuiteMinimizer extends SystemTest
-{
+public class TestTestSuiteMinimizer extends SystemTest {
+	
+	private boolean oldMinimizeValues = Properties.MINIMIZE_VALUES;
+	
+	@After
+	public void restoreProperties() {
+		Properties.MINIMIZE_VALUES = oldMinimizeValues;
+	}
+	
 	@Test
     public void testWithOne()
 	{
 		Properties.CRITERION = new Criterion[1];
         Properties.CRITERION[0] = Criterion.ONLYBRANCH;
 
-        Properties.MINIMIZE = true;
         Properties.MINIMIZE_VALUES = true;
-        Properties.INLINE = true;
-
-        Properties.RESET_STATIC_FIELDS = false;
-        Properties.SHOW_PROGRESS = false;
-        Properties.ENABLE_ASSERTS_FOR_EVOSUITE = false;
-        Properties.SANDBOX = true;
-
-        Properties.HTML = false;
-        Properties.PLOT = false;
-        Properties.NEW_STATISTICS = false;
-        Properties.SAVE_ALL_DATA = false;
-        Properties.COVERAGE = false;
-
-        Properties.ASSERTIONS = false;
-        Properties.TEST_COMMENTS = false;
-        Properties.JUNIT_TESTS = false;
-        Properties.JUNIT_CHECK = false;
 
 	    EvoSuite evosuite = new EvoSuite();
 
@@ -69,25 +59,7 @@ public class TestTestSuiteMinimizer extends SystemTest
         Properties.CRITERION[0] = Criterion.ONLYBRANCH;
         Properties.CRITERION[1] = Criterion.LINE;
 
-        Properties.MINIMIZE = true;
         Properties.MINIMIZE_VALUES = true;
-        Properties.INLINE = true;
-
-        Properties.RESET_STATIC_FIELDS = false;
-        Properties.SHOW_PROGRESS = false;
-        Properties.ENABLE_ASSERTS_FOR_EVOSUITE = false;
-        Properties.SANDBOX = true;
-
-        Properties.HTML = false;
-        Properties.PLOT = false;
-        Properties.NEW_STATISTICS = false;
-        Properties.SAVE_ALL_DATA = false;
-        Properties.COVERAGE = false;
-
-        Properties.ASSERTIONS = false;
-        Properties.TEST_COMMENTS = false;
-        Properties.JUNIT_TESTS = false;
-        Properties.JUNIT_CHECK = false;
 
 	    EvoSuite evosuite = new EvoSuite();
 
@@ -117,7 +89,5 @@ public class TestTestSuiteMinimizer extends SystemTest
 
         Assert.assertEquals(6.0, c.getNumOfCoveredGoals(onlybranch), 0.0);
         Assert.assertEquals(9.0, c.getNumOfCoveredGoals(line), 0.0);
-
-        Assert.assertEquals(8, c.size());
 	}
 }

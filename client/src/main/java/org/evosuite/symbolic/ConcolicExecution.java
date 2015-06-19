@@ -128,6 +128,7 @@ public abstract class ConcolicExecution {
 
 		} catch (Exception e) {
 			logger.error("Exception during concolic execution {}", e);
+			TestCaseExecutor.getInstance().removeObserver(symbolicExecObserver);
 			return new ArrayList<BranchCondition>();
 		}
 		VM.vm.cleanupConcolicExecution(); // ignore all callbacks from now on

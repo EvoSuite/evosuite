@@ -47,6 +47,7 @@ public class Issre13SystemTest extends SystemTest {
 	private static final LocalSearchBudgetType DEFAULT_LS_BUDGET_TYPE = Properties.LOCAL_SEARCH_BUDGET_TYPE;
 	private static final long DEFAULT_LS_BUDGET = Properties.LOCAL_SEARCH_BUDGET;
 	private static final long DEFAULT_SEARCH_BUDGET = Properties.SEARCH_BUDGET;
+	private static final int DEFAULT_CONCOLIC_TIMEOUT = Properties.CONCOLIC_TIMEOUT;
 
 	@Before
 	public void init() {
@@ -64,9 +65,10 @@ public class Issre13SystemTest extends SystemTest {
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = DEFAULT_LS_BUDGET_TYPE;
 		Properties.LOCAL_SEARCH_BUDGET = DEFAULT_LS_BUDGET;
 		Properties.SEARCH_BUDGET = DEFAULT_SEARCH_BUDGET;
+		Properties.CONCOLIC_TIMEOUT = DEFAULT_CONCOLIC_TIMEOUT;
 	}
 
-	@Test
+//	@Test
 	public void testLocalSearch() {
 
 		// it should be trivial for LS
@@ -136,6 +138,8 @@ public class Issre13SystemTest extends SystemTest {
 
 		System.out.println("Test suite: "+suite);
 		
+		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
+		
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
 		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>(fitness);
 		localSearch.doSearch(suite, localObjective);
@@ -154,8 +158,10 @@ public class Issre13SystemTest extends SystemTest {
 		String targetClass = DseBar.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
+		Properties.MINIMIZE = false;
+		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
-
+		Properties.TEST_ARCHIVE = true;
 		// Properties.DSE_SOLVER = SolverType.Z3_STR_SOLVER;
 		// Properties.Z3_STR_PATH = "/home/galeotti/Z3-str/str";
 
@@ -178,6 +184,8 @@ public class Issre13SystemTest extends SystemTest {
 
 		// should it be trivial for DSE ?
 		Properties.SEARCH_BUDGET = 20;
+		Properties.TIMEOUT = Integer.MAX_VALUE;
+		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		Properties.LOCAL_SEARCH_RATE = 1;
 		Properties.DSE_PROBABILITY = 1.0;
 //		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TIME;

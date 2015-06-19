@@ -1,30 +1,23 @@
 package org.evosuite.mock.java.net;
 
-import com.examples.with.different.packagename.InfiniteWhile;
-import com.examples.with.different.packagename.agent.GetURL;
 import com.examples.with.different.packagename.mock.java.net.ReadFromInputURL;
 import com.examples.with.different.packagename.mock.java.net.ReadFromURL;
-import com.examples.with.different.packagename.mock.java.net.ReceiveTcp;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.instrumentation.InstrumentingClassLoader;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.evosuite.runtime.testdata.EvoSuiteURL;
 import org.evosuite.runtime.testdata.NetworkHandling;
+import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import static org.junit.Assert.fail;
 
 /**
  * Created by arcuri on 12/19/14.
@@ -75,7 +68,7 @@ public class MockUrlSystemTest extends SystemTest{
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 
-        int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
         Assert.assertEquals("Wrong number of goals: ", 3, goals);
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
@@ -99,7 +92,7 @@ public class MockUrlSystemTest extends SystemTest{
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 
-        int goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals().size(); // assuming single fitness function
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
         Assert.assertEquals("Wrong number of goals: ", 5, goals);
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }

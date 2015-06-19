@@ -31,17 +31,18 @@ import junit.framework.TestSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -107,15 +108,22 @@ public class CoverageAnalysis {
 
 		Class<?>[] classes =junitTests.toArray(new Class<?>[junitTests.size()]);
 		LoggingUtils.getEvoLogger().info("* Executing tests");
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
-		                || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
-			junitMutationAnalysis(classes);
+
+		try {
+			EvoRunner.useAgent = false; //avoid double instrumentation 
+
+			if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
+					|| ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
+				junitMutationAnalysis(classes);
+			} else {
+				long startTime = System.currentTimeMillis();
+				List<JUnitResult> results = executeTests(classes);
+				printReport(results, junitTests, startTime);
+			}
+		} finally {
+			EvoRunner.useAgent = true;
 		}
-		else {
-			long startTime = System.currentTimeMillis();
-			List<JUnitResult> results = executeTests(classes);
-			printReport(results, junitTests, startTime);
-		}
+
 	}
 
 	public static void junitMutationAnalysis(Class<?>[] classes) {
@@ -179,7 +187,7 @@ public class CoverageAnalysis {
         dummy.setChanged(false);
 
         int covered = 0;
-        List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals(); // FIXME: can we assume that CoverageAnalysis class is only called with one fitness function?
+        List<? extends TestFitnessFunction> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals(); // FIXME: can we assume that CoverageAnalysis class is only called with one fitness function?
 
         for (JUnitResult testResult : results) {
             executionResult.setTrace(testResult.getExecutionTrace());
@@ -465,7 +473,7 @@ public class CoverageAnalysis {
 		LoggingUtils.getEvoLogger().info("* Executed " + results.size() + " tests");
 
 		// Goals
-		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().get(0).getCoverageGoals(); // FIXME: can we assume that CoverageAnalysis class is only called with one fitness function?
+		List<? extends TestFitnessFunction> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals(); // FIXME: can we assume that CoverageAnalysis class is only called with one fitness function?
 
         // A dummy Chromosome
         TestChromosome dummy = new TestChromosome();

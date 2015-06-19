@@ -9,6 +9,7 @@ import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
+import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.graphs.GraphPool;
@@ -135,6 +136,7 @@ public class TestGenerationContext {
 
 		MaxStatementsStoppingCondition.setNumExecutedStatements(0);
 		GlobalTimeStoppingCondition.forceReset();
+		MutationTimeoutStoppingCondition.resetStatic();
 
 		// Forget the old SUT
 		Properties.resetTargetClass();

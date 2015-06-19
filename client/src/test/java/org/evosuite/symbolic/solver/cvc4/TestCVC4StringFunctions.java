@@ -1,5 +1,13 @@
 package org.evosuite.symbolic.solver.cvc4;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Map;
+
 import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverStringFunctions;
@@ -35,7 +43,13 @@ public class TestCVC4StringFunctions {
 		}
 
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testStringLength(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringLength(solver);
+		assertNotNull(solution);
+		String var0 = (String) solution.get("var0");
+
+		assertNotNull(var0);
+		assertEquals(5, var0.length());
+
 	}
 
 	@Test
@@ -49,7 +63,9 @@ public class TestCVC4StringFunctions {
 		}
 
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testNegativeLength(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testNegativeLength(solver);
+		assertNull(solution);
+
 	}
 
 	@Test
@@ -63,7 +79,13 @@ public class TestCVC4StringFunctions {
 		}
 
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testStringEquals(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringEquals(solver);
+		assertNotNull(solution);
+		String var0 = (String) solution.get("var0");
+
+		assertNotNull(var0);
+		assertEquals("Hello World", var0);
+
 	}
 
 	@Test
@@ -105,7 +127,13 @@ public class TestCVC4StringFunctions {
 		}
 
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testStringNotEquals(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringNotEquals(solver);
+		assertNotNull(solution);
+		String var0 = (String) solution.get("var0");
+
+		assertNotNull(var0);
+		assertNotEquals("Hello World", var0);
+
 	}
 
 	@Test
@@ -119,7 +147,16 @@ public class TestCVC4StringFunctions {
 		}
 
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testStringStartsWith(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringStartsWith(solver);
+		
+		assertNotNull(solution);
+		String var0 = (String) solution.get("var0");
+
+		assertNotNull(var0);
+		assertTrue(var0.startsWith("Hello"));
+		assertNotEquals("Hello", var0);
+		assertNotEquals("Hello".length(), var0.length());
+
 	}
 
 	@Test
@@ -149,7 +186,15 @@ public class TestCVC4StringFunctions {
 		}
 
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testStringEndsWith(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringEndsWith(solver);
+		
+		assertNotNull(solution);
+		String var0 = (String) solution.get("var0");
+
+		assertNotNull(var0);
+		assertTrue(var0.endsWith("World"));
+		assertNotEquals("World", var0);
+
 	}
 
 	@Test
@@ -163,7 +208,14 @@ public class TestCVC4StringFunctions {
 		}
 
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testStringCharAt(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringCharAt(solver);
+		assertNotNull(solution);
+		String var0 = (String) solution.get("var0");
+
+		assertNotNull(var0);
+		assertTrue(var0.length() > 0);
+		assertEquals('X', var0.charAt(0));
+
 	}
 
 	@Test
@@ -177,7 +229,14 @@ public class TestCVC4StringFunctions {
 		}
 
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testStringContains(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringContains(solver);
+		assertNotNull(solution);
+		String var0 = (String) solution.get("var0");
+
+		assertNotNull(var0);
+		assertTrue(!var0.equals("Hello"));
+		assertTrue(var0.contains("Hello"));
+
 	}
 
 	@Test

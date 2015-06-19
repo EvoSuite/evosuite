@@ -40,8 +40,6 @@ import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
-import org.evosuite.symbolic.solver.smt.SmtStringConstant;
-import org.evosuite.symbolic.solver.smt.SmtStringVariable;
 
 class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
@@ -186,6 +184,16 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 
 		switch (e.getOperator()) {
+		case NEG: {
+			SmtExpr minus_expr = SmtExprBuilder.mkNeg(intExpr);
+			return minus_expr;
+		}
+		case GETNUMERICVALUE:
+		case ISDIGIT:
+		case ISLETTER: {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
 		case ABS:
 			SmtExpr zero = SmtExprBuilder.mkIntConstant(0);
 			SmtExpr gte_than_zero = SmtExprBuilder.mkGe(intExpr, zero);
@@ -195,7 +203,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 					minus_expr);
 			return ite_expr;
 		default:
-			throw new UnsupportedOperationException("Not implemented yet!");
+			throw new UnsupportedOperationException("Not implemented yet!" + e.getOperator());
 		}
 	}
 
@@ -231,8 +239,12 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 
 		switch (e.getOperator()) {
-		case GETEXPONENT:
 		case ROUND: {
+			SmtExpr smtExpr = SmtExprBuilder.mkReal2Int(realExpr);
+			return smtExpr;
+
+		}
+		case GETEXPONENT: {
 			long longObject = e.getConcreteValue();
 			SmtExpr intConst = SmtExprBuilder.mkIntConstant(longObject);
 			return intConst;
@@ -457,7 +469,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		for (int i = 0; i < charArray.length; i++) {
 			char c = charArray[i];
 			if (c >= 0 && c <= 255) {
-				if (Integer.toHexString(c).length()==1) {
+				if (Integer.toHexString(c).length() == 1) {
 					// padding
 					ret_val += "_x0" + Integer.toHexString(c);
 				} else {
@@ -816,7 +828,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 	@Override
 	public SmtExpr visit(NewTokenizerExpr n, Void arg) {
-		// TODO Auto-generated method stub
+		// TODO
 		throw new UnsupportedOperationException("Implement this method");
 	}
 

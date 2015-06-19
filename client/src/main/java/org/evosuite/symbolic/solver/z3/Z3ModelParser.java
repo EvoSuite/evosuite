@@ -16,10 +16,14 @@ class Z3ModelParser {
 		this.initialValues = initialValues;
 	}
 
+	public Z3ModelParser() {
+		this.initialValues = null;
+	}
+
 	public Map<String, Object> parse(String z3ResultStr) {
 		Map<String, Object> solution = new HashMap<String, Object>();
 
-		Map<String, String> arraysToFuncMap = new HashMap<String,String>();
+		Map<String, String> arraysToFuncMap = new HashMap<String, String>();
 
 		StringTokenizer tokenizer = new StringTokenizer(z3ResultStr, "() \n\t");
 		tokenizer.nextToken(); // sat
@@ -29,81 +33,67 @@ class Z3ModelParser {
 			String token = tokenizer.nextToken();
 			if (token.equals("define-fun")) {
 				String funcName = tokenizer.nextToken();
-				if (funcName.equals(Z3Solver.STR_LENGTH)) {
-
-					tokenizer.nextToken(); // x!1
-					tokenizer.nextToken(); // Array
-					tokenizer.nextToken(); // Int
-					tokenizer.nextToken(); // Int
-					tokenizer.nextToken(); // Int
-
-					tokenizer.nextToken(); // value
-				} else {
-					String typeName = tokenizer.nextToken();
-					if (typeName.equals("Int")) {
-						String integerValueStr = tokenizer.nextToken();
-						Long value;
-						if (integerValueStr.equals("-")) {
-							String absoluteIntegerValue = tokenizer.nextToken();
-							value = Long.parseLong("-" + absoluteIntegerValue);
-						} else {
-							value = Long.parseLong(integerValueStr);
-						}
-						solution.put(funcName, value);
-					} else if (typeName.equals("Real")) {
-						String realValueStr = tokenizer.nextToken();
-						Double value;
-						if (realValueStr.equals("-")) {
-							String absoluteValueStr = tokenizer.nextToken();
-							if (absoluteValueStr.equals("/")) {
-								String numeratorStr = tokenizer.nextToken();
-								String denominatorStr = tokenizer.nextToken();
-
-								double numerator = Double
-										.parseDouble(numeratorStr);
-								double denominator = Double
-										.parseDouble(denominatorStr);
-
-								value = -(numerator / denominator);
-							} else {
-								value = Double.parseDouble("-"
-										+ absoluteValueStr);
-							}
-						} else {
-
-							if (realValueStr.equals("/")) {
-								String numeratorStr = tokenizer.nextToken();
-								String denominatorStr = tokenizer.nextToken();
-
-								double numerator = Double
-										.parseDouble(numeratorStr);
-								double denominator = Double
-										.parseDouble(denominatorStr);
-
-								value = (numerator / denominator);
-							} else {
-
-								value = Double.parseDouble(realValueStr);
-							}
-						}
-						solution.put(funcName, value);
-					} else if (typeName.equals("Array")) {
-						tokenizer.nextToken(); //Int
-						tokenizer.nextToken(); //Int
-						tokenizer.nextToken(); //_
-						tokenizer.nextToken(); //as_array
-						String arrayFuncName = tokenizer.nextToken();
-						arraysToFuncMap .put(arrayFuncName, funcName);
-					} else if (typeName.equals("x!1")) {
-						
+				String typeName = tokenizer.nextToken();
+				if (typeName.equals("Int")) {
+					String integerValueStr = tokenizer.nextToken();
+					Long value;
+					if (integerValueStr.equals("-")) {
+						String absoluteIntegerValue = tokenizer.nextToken();
+						value = Long.parseLong("-" + absoluteIntegerValue);
 					} else {
-//						throw new IllegalArgumentException(
-//								"Must implement this production");
+						value = Long.parseLong(integerValueStr);
 					}
+					solution.put(funcName, value);
+				} else if (typeName.equals("Real")) {
+					String realValueStr = tokenizer.nextToken();
+					Double value;
+					if (realValueStr.equals("-")) {
+						String absoluteValueStr = tokenizer.nextToken();
+						if (absoluteValueStr.equals("/")) {
+							String numeratorStr = tokenizer.nextToken();
+							String denominatorStr = tokenizer.nextToken();
+
+							double numerator = Double.parseDouble(numeratorStr);
+							double denominator = Double
+									.parseDouble(denominatorStr);
+
+							value = -(numerator / denominator);
+						} else {
+							value = Double.parseDouble("-" + absoluteValueStr);
+						}
+					} else {
+
+						if (realValueStr.equals("/")) {
+							String numeratorStr = tokenizer.nextToken();
+							String denominatorStr = tokenizer.nextToken();
+
+							double numerator = Double.parseDouble(numeratorStr);
+							double denominator = Double
+									.parseDouble(denominatorStr);
+
+							value = (numerator / denominator);
+						} else {
+
+							value = Double.parseDouble(realValueStr);
+						}
+					}
+					solution.put(funcName, value);
+				} else if (typeName.equals("Array")) {
+					tokenizer.nextToken(); // Int
+					tokenizer.nextToken(); // Int
+					tokenizer.nextToken(); // _
+					tokenizer.nextToken(); // as_array
+					String arrayFuncName = tokenizer.nextToken();
+					arraysToFuncMap.put(arrayFuncName, funcName);
+				} else if (typeName.equals("x!1")) {
+
+				} else {
+					// throw new IllegalArgumentException(
+					// "Must implement this production");
 				}
 			} else {
-//				throw new IllegalArgumentException(
-//						"Must implement this production");
+				// throw new IllegalArgumentException(
+				// "Must implement this production");
 			}
 		}
 
@@ -117,9 +107,10 @@ class Z3ModelParser {
 			}
 		}
 
-		logger.debug("Adding missing values to Solver solution");
-		addMissingValues(initialValues, solution);
-
+		if (initialValues != null) {
+			logger.debug("Adding missing values to Solver solution");
+			addMissingValues(initialValues, solution);
+		}
 		return solution;
 	}
 

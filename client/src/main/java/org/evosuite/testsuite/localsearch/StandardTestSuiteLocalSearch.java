@@ -37,14 +37,13 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		if(Properties.LOCAL_SEARCH_EXPAND_TESTS)
 			expandTestSuite(individual);
 
-		double fitnessBefore = individual.getFitness();
+		double fitnessBefore = ((TestSuiteFitnessFunction)objective.getFitnessFunction()).getFitness(individual);
 		if (Properties.LOCAL_SEARCH_DSE == DSEType.SUITE &&
 				Randomness.nextDouble() < Properties.DSE_PROBABILITY){
 			doDSESearch(individual, objective);
 		} else {
 			doRegularSearch(individual, objective);
 		}
-
 		LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
 
 		// Fitness value may actually get worse if we are dealing with static state.
@@ -61,6 +60,9 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 	private void doRegularSearch(TestSuiteChromosome individual,
 	        LocalSearchObjective<TestSuiteChromosome> objective) {
 		List<TestChromosome> tests = individual.getTestChromosomes();
+		double fit = individual.getFitness();
+		double oldFitness = ((TestSuiteFitnessFunction)objective.getFitnessFunction()).getFitness(individual);
+		assert(fit == oldFitness) : fit +" vs. "+oldFitness;
 		for (int i = 0; i < tests.size(); i++) {
 			TestChromosome test = tests.get(i);
 			

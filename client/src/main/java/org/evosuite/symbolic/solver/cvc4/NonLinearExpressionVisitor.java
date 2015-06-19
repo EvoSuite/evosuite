@@ -36,7 +36,7 @@ import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
 import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
 
-class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Void> {
+final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Void> {
 
 	@Override
 	public Boolean visit(IntegerBinaryExpression n, Void arg) {

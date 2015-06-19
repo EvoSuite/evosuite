@@ -42,6 +42,7 @@ import org.evosuite.symbolic.solver.smt.SmtStringVariable;
 import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.evosuite.symbolic.solver.smt.SmtVariable;
 import org.evosuite.symbolic.solver.z3.Z3Solver;
+import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,13 +68,21 @@ public class Z3Str2Solver extends Solver {
 
 	private static int dirCounter = 0;
 
+	public Z3Str2Solver() {
+		super();
+	}
+
+	public Z3Str2Solver(boolean addMissingVariables) {
+		super(addMissingVariables);
+	}
+
 	private static File createNewTmpDir() {
 		File dir = null;
 		String dirName = FileUtils.getTempDirectoryPath() + File.separator
 				+ "EvoSuiteZ3Str_" + (dirCounter++) + "_"
 				+ System.currentTimeMillis();
 
-		//first create a tmp folder
+		// first create a tmp folder
 		dir = new File(dirName);
 		if (!dir.mkdirs()) {
 			logger.error("Cannot create tmp dir: " + dirName);
@@ -124,18 +133,42 @@ public class Z3Str2Solver extends Solver {
 			launchNewProcess(z3Cmd, smtQuery, timeout, stdout);
 
 			String z3ResultStr = stdout.toString("UTF-8");
-			Z3Str2ModelParser parser = new Z3Str2ModelParser();
-			Map<String, Object> initialValues = getConcreteValues(variables);
 
-			if (z3ResultStr.contains("unknown sort")
-					|| z3ResultStr.contains("unknown constant")
-					|| z3ResultStr.contains("invalid expression")
-					|| z3ResultStr.contains("unexpected input")) {
-				return null;
+			if (z3ResultStr.contains("unknown sort")) {
+				logger.debug("Z3_str2 output was " + z3ResultStr);
+				throw new EvosuiteError(
+						"Z3_str2 found an unknown sort for query: " + smtQuery);
 			}
 
-			Map<String, Object> solution = parser.parse(z3ResultStr,
-					initialValues);
+			if (z3ResultStr.contains("unknown constant")) {
+				logger.debug("Z3_str2 output was " + z3ResultStr);
+				throw new EvosuiteError(
+						"Z3_str2 found an unknown constant for query: "
+								+ smtQuery);
+			}
+
+			if (z3ResultStr.contains("invalid expression")) {
+				logger.debug("Z3_str2 output was " + z3ResultStr);
+				throw new EvosuiteError(
+						"Z3_str2 found an invalid expression for query: "
+								+ smtQuery);
+			}
+
+			if (z3ResultStr.contains("unexpected input")) {
+				logger.debug("Z3_str2 output was " + z3ResultStr);
+				throw new EvosuiteError(
+						"Z3_str2 found an unexpected input for query: "
+								+ smtQuery);
+			}
+
+			Z3Str2ModelParser parser = new Z3Str2ModelParser();
+			Map<String, Object> initialValues = getConcreteValues(variables);
+			Map<String, Object> solution;
+			if (addMissingVariables()) {
+				solution = parser.parse(z3ResultStr, initialValues);
+			} else {
+				solution = parser.parse(z3ResultStr);
+			}
 
 			if (solution != null && checkSolution(constraints, solution))
 				return solution;
@@ -143,8 +176,7 @@ public class Z3Str2Solver extends Solver {
 				return null;
 
 		} catch (UnsupportedEncodingException e) {
-			logger.error("UTF-8 should not cause this exception!");
-			return null;
+			throw new EvosuiteError("UTF-8 should not cause this exception!");
 		} catch (IOException e) {
 			logger.error("IO exception during Z3 invocation!");
 			return null;
@@ -260,7 +292,8 @@ public class Z3Str2Solver extends Solver {
 			Set<SmtConstant> smtConstants, List<SmtExpr> smtAssertions,
 			boolean addCharToIntFunction) {
 
-		Set<SmtVariable> smtVariablesoDeclare = new HashSet<SmtVariable>(smtVariables);
+		Set<SmtVariable> smtVariablesoDeclare = new HashSet<SmtVariable>(
+				smtVariables);
 		if (addCharToIntFunction) {
 			Set<SmtStringVariable> charVariables = buildCharVariables();
 			smtVariablesoDeclare.addAll(charVariables);
@@ -291,7 +324,7 @@ public class Z3Str2Solver extends Solver {
 			String charToInt = buildCharToIntFunction();
 			buff.append(charToInt);
 		}
-		
+
 		SmtExprPrinter printer = new SmtExprPrinter();
 		for (SmtExpr smtExpr : smtAssertions) {
 			String smtExprString = smtExpr.accept(printer, null);

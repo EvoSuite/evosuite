@@ -210,7 +210,29 @@ public abstract class Assertion implements Serializable {
 	}
 
 	public void changeClassLoader(ClassLoader loader) {
-		// No-op by default?
+		// Need to replace the classloader for enums
+		if(value != null) {
+			if(value.getClass().isEnum()) {
+				Object[] constants = value.getClass().getEnumConstants();
+				int pos = 0;
+				for (pos = 0; pos < constants.length; pos++) {
+					if (constants[pos].equals(value)) {
+						break;
+					}
+				}
+
+				try {
+					Class<?> enumClass = loader.loadClass(value.getClass().getName());
+					constants = enumClass.getEnumConstants();
+					if(constants.length > 0)
+						value = constants[pos];
+					else
+						logger.warn("Error changing classloader for enum constant "+value);
+				} catch (ClassNotFoundException e) {
+					logger.warn("Error changing classloader for enum constant "+value);
+				}
+			}
+		}
 	}
 	
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
