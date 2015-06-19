@@ -26,6 +26,7 @@ import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.idNaming.TestNameGenerator;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.EvoRunner;
@@ -518,7 +519,12 @@ public class TestSuiteWriter implements Opcodes {
             } else {
                 testMethodNumber.put(targetMethod, 1);
             }
-            methodName = "test" + targetMethod + num;
+            if (Properties.ID_NAMING) {
+                TestCase tc = testCases.get(id);
+                methodName = TestNameGenerator.generateTestName(tc, result);
+            } else {
+                methodName = "test" + targetMethod + num;
+            }
             builder.append(adapter.getMethodDefinition(methodName));
         } else {
             methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);

@@ -10,6 +10,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 public class TestNameGenerator {
@@ -58,5 +59,9 @@ public class TestNameGenerator {
 		return testName;
 	}
 	
-
+	public static String generateTestName(TestCase tc, ExecutionResult result) {
+		String testName = "test";
+		// GENERATE NAME HERE
+		return testName;
+	}
 }
