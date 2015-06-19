@@ -1,9 +1,12 @@
 package org.evosuite.strategy;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.CoverageAnalysis;
@@ -11,15 +14,22 @@ import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
+import org.evosuite.junit.JUnitAnalyzer;
+import org.evosuite.regression.RegressionAssertionCounter;
 import org.evosuite.regression.RegressionSearchListener;
 import org.evosuite.regression.RegressionSuiteFitness;
+import org.evosuite.regression.RegressionTestChromosome;
+import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosome;
+import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -39,7 +49,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 		if (Properties.REGRESSION_USE_FITNESS == 10) {
 			Properties.REGRESSION_USE_FITNESS = 1;
 			Properties.REGRESSION_DIFFERENT_BRANCHES = false;
-			// return generateRandomRegressionTests();
+			 return generateRandomRegressionTests();
 		}
 
 		LoggingUtils.getEvoLogger().info(
@@ -193,6 +203,201 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
 		// System.exit(0);
 
+		return bestSuites;
+	}
+
+	private TestSuiteChromosome generateRandomRegressionTests() {
+		LoggingUtils.getEvoLogger().info(
+				"* Using random regression test generation");
+
+		RegressionTestSuiteChromosome suite = new RegressionTestSuiteChromosome();
+		
+		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
+		GeneticAlgorithm<?> suiteGA = algorithmFactory.getSearchAlgorithm();
+		
+		//statistics.searchStarted(suiteGA);
+
+
+		regressionMonitor.searchStarted(suiteGA);
+		RegressionTestChromosomeFactory factory = new RegressionTestChromosomeFactory();
+		LoggingUtils.getEvoLogger().warn("*** generating random regression tests");
+		// TODO: Shutdown hook?
+		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
+				goals.size());
+		
+		StoppingCondition stoppingCondition = getStoppingCondition();
+		// fitnessFunction.getFitness(suite);
+		int totalTestCount = 0;
+		int usefulTestCount = 0;
+
+		int simulatedAge = 0;
+		int numAssertions = 0;
+		
+		int executedStatemets = 0;
+
+		boolean firstTry = true;
+		// Properties.REGRESSION_RANDOM_STRATEGY:
+		// 0: skip evaluation after first find, dont keep tests 
+		// 1: dont skip evaluation after first find, dont keep tests
+		// 2: dont skip evaluation after first find, keep tests
+		// 3: skip evaluation after first find, keep tests [default]
+
+		long startTime = System.currentTimeMillis();
+		while (!stoppingCondition.isFinished() || (numAssertions != 0)) {
+
+			if (numAssertions == 0 || Properties.REGRESSION_RANDOM_STRATEGY==1 || Properties.REGRESSION_RANDOM_STRATEGY==2 ) {
+
+				RegressionTestChromosome test = factory.getChromosome();
+				RegressionTestSuiteChromosome clone = new RegressionTestSuiteChromosome();
+				clone.addTest((TestChromosome) test.clone());
+				
+				List<TestCase> testCases = clone.getTests();
+				// fitnessFunction.getFitness(clone);
+				/*
+				 * logger.debug("Old fitness: {}, new fitness: {}",
+				 * suite.getFitness(), clone.getFitness());
+				 */
+				executedStatemets+= test.size();
+				numAssertions = RegressionAssertionCounter.getNumAssertions(clone);
+				LoggingUtils.getEvoLogger().warn("Generated test with {} assertions.", numAssertions);
+				totalTestCount++;
+				if (numAssertions > 0) {
+					numAssertions = 0;
+					//boolean compilable = JUnitAnalyzer.verifyCompilationAndExecution(testCases);
+					if(true){
+						JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
+						JUnitAnalyzer.handleTestsThatAreUnstable(testCases);	
+						if(testCases.size()>0){
+							clone = new RegressionTestSuiteChromosome();
+							
+							for(TestCase t: testCases){
+								RegressionTestChromosome rtc = new RegressionTestChromosome();
+								if(t.isUnstable())
+									continue;
+								TestChromosome tc = new TestChromosome();
+								tc.setTestCase(t);
+								rtc.setTest(tc);
+								clone.addTest(rtc);
+							}
+							//test.set
+							//clone.addTest(testCases);
+							 
+							numAssertions = RegressionAssertionCounter.getNumAssertions(
+									clone, false ,false);
+							LoggingUtils.getEvoLogger().warn("Keeping {} assertions.", numAssertions);
+							if (numAssertions > 0) {
+								usefulTestCount++;
+								suite.addTest(test);
+							}
+						} else {
+							LoggingUtils.getEvoLogger().warn("ignored assertions. tests were removed.");
+						}
+					} else {
+						LoggingUtils.getEvoLogger().warn("ignored assertions. not compilable.");
+					}
+				}
+			} else {
+				
+				if(numAssertions > 0)
+					break;
+				/*
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				*/
+			}
+
+			// regressionMonitor.fitnessEvaluation(suite);
+			// regressionMonitor.iteration(suiteGA);
+			if (firstTry
+					|| (System.currentTimeMillis() - startTime) >= 4000) {
+				try {
+
+					startTime = System.currentTimeMillis();
+					simulatedAge++;
+					FileUtils
+							.writeStringToFile(
+									RegressionSearchListener.statsFile,
+									"\r\n"
+											+ "0,"
+											+ totalTestCount
+											+ ","
+											+ suite.totalLengthOfTestCases()
+											+ ",0,0,0,0,"
+											+ RegressionSearchListener.exceptionDiff
+											+",0,0," + executedStatemets
+											+ ","
+											+ simulatedAge
+											+ ","
+											+ (System.currentTimeMillis() - RegressionSearchListener.startTime)
+											+ "," + numAssertions + ","
+											+ (firstTry ? "F" : "P") + ",,,,,,",
+									true);
+					firstTry = false;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		try {
+			FileUtils
+					.writeStringToFile(
+							RegressionSearchListener.statsFile,
+							"\r\n"
+									+ "0,"
+									+ totalTestCount //suite.size()
+									+ ","
+									+ suite.totalLengthOfTestCases()
+									+ ",0,0,0,0,0,0,0," + executedStatemets
+									+ ","
+									+ (++simulatedAge)
+									+ ","
+									+ (System.currentTimeMillis() - RegressionSearchListener.startTime)
+									+ "," + numAssertions + "," + "L"
+									+ ",0,0,0,0,0,0", true);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		// regressionMonitor.searchFinished(suiteGA);
+		LoggingUtils.getEvoLogger().warn("*** Random test generation finished.");
+		LoggingUtils.getEvoLogger().warn("*=*=*=* Total tests: {} | Tests with assertion: {}",
+				totalTestCount, usefulTestCount);
+
+		//statistics.searchFinished(suiteGA);
+		zero_fitness.setFinished();
+
+		LoggingUtils.getEvoLogger().info(
+				"* Generated " + suite.size() + " tests with total length "
+						+ suite.totalLengthOfTestCases());
+		try {
+			File file = new File("results.txt");
+			System.out.println("\n\r" + numAssertions + ", "
+					+ suite.totalLengthOfTestCases());
+			FileUtils.writeStringToFile(file, "\r\n" + executedStatemets + ", "
+					+ suite.totalLengthOfTestCases(), true);
+		} catch (IOException e) {
+			assert false;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		suiteGA.printBudget();
+
+		if (!(Properties.REGRESSION_RANDOM_STRATEGY == 2 || Properties.REGRESSION_RANDOM_STRATEGY == 3))
+			suite = new RegressionTestSuiteChromosome();
+
+		TestSuiteChromosome bestSuites = new TestSuiteChromosome();
+		
+
+		for(TestCase t:suite.getTests())
+			bestSuites.addTest(t);
+		
 		return bestSuites;
 	}
 
