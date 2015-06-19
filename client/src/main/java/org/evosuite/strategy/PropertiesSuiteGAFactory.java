@@ -96,15 +96,15 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
 			}
-		/*case REGRESSION:
-			return new RegressionTestSuiteChromosomeFactory();*/
+		case REGRESSION:
+			return new RegressionTestSuiteChromosomeFactory();
 		default:
 			throw new RuntimeException("Unsupported test factory: "
 					+ Properties.TEST_FACTORY);
 		}
 	}
 	
-	private GeneticAlgorithm<TestSuiteChromosome> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
+	protected GeneticAlgorithm<TestSuiteChromosome> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");
@@ -170,7 +170,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		}
 	}
 	
-	private SelectionFunction<TestSuiteChromosome> getSelectionFunction() {
+	protected SelectionFunction<TestSuiteChromosome> getSelectionFunction() {
 		switch (Properties.SELECTION_FUNCTION) {
 		case ROULETTEWHEEL:
 			return new FitnessProportionateSelection<>();
@@ -183,7 +183,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		}
 	}
 	
-	private CrossOverFunction getCrossoverFunction() {
+	protected CrossOverFunction getCrossoverFunction() {
 		switch (Properties.CROSSOVER_FUNCTION) {
 		case SINGLEPOINTFIXED:
 			return new SinglePointFixedCrossOver();
@@ -212,7 +212,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.search.ga.SecondaryObjective} object.
 	 */
-	private SecondaryObjective<TestSuiteChromosome> getSecondarySuiteObjective(String name) {
+	protected SecondaryObjective<TestSuiteChromosome> getSecondarySuiteObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective<>();
 		else if (name.equalsIgnoreCase("ibranch"))
@@ -232,7 +232,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			        + name + "\"");
 	}
 
-	private void getSecondaryObjectives(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
+	protected void getSecondaryObjectives(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 		String objectives = Properties.SECONDARY_OBJECTIVE;
 
 		// check if there are no secondary objectives to optimize

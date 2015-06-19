@@ -43,10 +43,11 @@ public class RegressionTestSuiteChromosome extends
 
 	protected RegressionTestSuiteChromosome(RegressionTestSuiteChromosome source) {
 		super(source);
-		for (TestChromosome test : source.tests) {
+		/*for (TestChromosome test : source.tests) {
 			RegressionTestChromosome rtc = (RegressionTestChromosome) test;
-			addTest((TestChromosome) rtc.clone());
-		}
+			//addTest((TestChromosome) rtc.clone());
+			tests.add((RegressionTestChromosome) rtc.clone());
+		}*/
 	}
 	
 	@Override
@@ -80,15 +81,6 @@ public class RegressionTestSuiteChromosome extends
 		c.fitnessData = fitnessData;
 		//assert (c.testChromosomeFactory != null): "Chromosome Factory was null";
 		return c;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.Chromosome#compareSecondaryObjective(org.evosuite.ga.Chromosome)
-	 */
-	@Override
-	public int compareSecondaryObjective(Chromosome o) {
-		// TODO Auto-generated method stub
-		return super.compareSecondaryObjective(o);
 	}
 	
 	public List<TestCase> getTests() {
