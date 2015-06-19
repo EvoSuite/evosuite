@@ -58,7 +58,7 @@ public class RegressionTestChromosome extends TestChromosome {
 	public ExecutionResult executeForFitnessFunction(
 	        TestSuiteFitnessFunction testSuiteFitnessFunction) {
 		// TODO Hmmmm...
-		assert false: "execute for fitness function";
+		//assert false: "execute for fitness function";
 		return null;
 	}
 

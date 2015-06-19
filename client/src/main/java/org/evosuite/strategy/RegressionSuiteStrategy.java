@@ -44,9 +44,8 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
 		LoggingUtils.getEvoLogger().info(
 				"* Setting up search algorithm for whole suite generation");
-		RegressionGAFactoryFactory algorithmFactory = new RegressionGAFactoryFactory();
-		GeneticAlgorithm<?> algorithm = algorithmFactory
-				.getSearchAlgorithm();
+		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
+		GeneticAlgorithm<?> algorithm = algorithmFactory.getSearchAlgorithm();
 
 		if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
 			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(
