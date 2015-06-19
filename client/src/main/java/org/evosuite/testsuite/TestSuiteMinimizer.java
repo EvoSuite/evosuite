@@ -30,7 +30,6 @@ import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.junit.writer.TestSuiteWriter;
@@ -45,7 +44,6 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
-import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +61,7 @@ public class TestSuiteMinimizer {
      */
     private final static Logger logger = LoggerFactory.getLogger(TestSuiteMinimizer.class);
 
-    private final List<TestFitnessFactory<?>> testFitnessFactory = new ArrayList<TestFitnessFactory<?>>();
+    private final List<TestFitnessFactory<?>> testFitnessFactories = new ArrayList<TestFitnessFactory<?>>();
 
     /**
      * Assume the search has not started until startTime != 0
@@ -78,11 +76,11 @@ public class TestSuiteMinimizer {
      * @param factory a {@link org.evosuite.coverage.TestFitnessFactory} object.
      */
     public TestSuiteMinimizer(TestFitnessFactory<?> factory) {
-        this.testFitnessFactory.add(factory);
+        this.testFitnessFactories.add(factory);
     }
 
     public TestSuiteMinimizer(List<TestFitnessFactory<? extends TestFitnessFunction>> factories) {
-        this.testFitnessFactory.addAll(factories);
+        this.testFitnessFactories.addAll(factories);
     }
 
     /**
@@ -91,9 +89,9 @@ public class TestSuiteMinimizer {
      * </p>
      *
      * @param suite             a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
-     * @param isToMinimizeTests true is to minimize tests, false is to minimize suites.
+     * @param minimizePerTest true is to minimize tests, false is to minimize suites.
      */
-    public void minimize(TestSuiteChromosome suite, boolean isToMinimizeTests) {
+    public void minimize(TestSuiteChromosome suite, boolean minimizePerTest) {
         startTime = System.currentTimeMillis();
 
         String strategy = Properties.SECONDARY_OBJECTIVE;
@@ -108,7 +106,7 @@ public class TestSuiteMinimizer {
         logger.info("Minimization Strategy: " + strategy + ", " + suite.size() + " tests");
         suite.clearMutationHistory();
 
-        if (isToMinimizeTests)
+        if (minimizePerTest)
             minimizeTests(suite);
         else
             minimizeSuite(suite);
@@ -159,24 +157,12 @@ public class TestSuiteMinimizer {
         }
 
         List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-        for (TestFitnessFactory<?> ff : testFitnessFactory)
+        for (TestFitnessFactory<?> ff : testFitnessFactories)
             goals.addAll(ff.getCoverageGoals());
         filterJUnitCoveredGoals(goals);
 
-        List<TestFitnessFunction> branchGoals = new ArrayList<TestFitnessFunction>();
-        int numCovered = 0;
         int currentGoal = 0;
-
-        if (!ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.BRANCH)
-                && !ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
-            BranchCoverageFactory branchFactory = new BranchCoverageFactory();
-            branchGoals.addAll(branchFactory.getCoverageGoals());
-            filterJUnitCoveredGoals(branchGoals);
-            goals.addAll(branchGoals);
-        }
-
-
-        int numGoals = goals.size() - branchGoals.size();
+        int numGoals = goals.size();
 
         if (Properties.MINIMIZE_SORT)
             Collections.sort(goals);
@@ -211,8 +197,6 @@ public class TestSuiteMinimizer {
                                         + structuredTest.getTargetMethods() + ": " + goal
                                         + " ");
                                 covered.add(goal);
-                                if (!branchGoals.contains(goal))
-                                    numCovered++;
                                 structuredTest.addPrimaryGoal(goal);
                                 break;
                             }
@@ -220,8 +204,6 @@ public class TestSuiteMinimizer {
                         } else {
                             logger.info("Covered by minimized test: " + goal);
                             covered.add(goal);
-                            if (!branchGoals.contains(goal))
-                                numCovered++;
                             test.getTestCase().addCoveredGoal(goal);
                             break;
                         }
@@ -266,8 +248,6 @@ public class TestSuiteMinimizer {
                 minimizedTests.add(copy);
                 minimizedSuite.insertTest(copy.getTestCase());
                 covered.add(goal);
-                if (!branchGoals.contains(goal))
-                    numCovered++;
 
                 logger.info("After new test the suite covers " + covered.size() + "/"
                         + goals.size() + " goals");
@@ -283,11 +263,6 @@ public class TestSuiteMinimizer {
         for (TestCase test : minimizedSuite.getTestCases()) {
             suite.addTest(test);
         }
-        // TODO: revise!
-//		if (numGoals == 0)
-//			suite.setCoverage(1.0);
-//		else
-//			suite.setCoverage((double) numCovered / (double) numGoals);
 
         if (Properties.MINIMIZE_SECOND_PASS) {
             removeRedundantTestCases(suite);
@@ -355,7 +330,7 @@ public class TestSuiteMinimizer {
         }
 
         List<Double> fitness = new ArrayList<Double>();
-        for (TestFitnessFactory<?> ff : testFitnessFactory)
+        for (TestFitnessFactory<?> ff : testFitnessFactories)
             fitness.add(ff.getFitness(suite));
 
         boolean changed = true;
@@ -391,7 +366,7 @@ public class TestSuiteMinimizer {
                     }
 
                     List<Double> modifiedVerFitness = new ArrayList<Double>();
-                    for (TestFitnessFactory<?> ff : testFitnessFactory)
+                    for (TestFitnessFactory<?> ff : testFitnessFactories)
                         modifiedVerFitness.add(ff.getFitness(suite));
 
                     int compare_ff = 0;
@@ -461,7 +436,7 @@ public class TestSuiteMinimizer {
         Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
         List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
-        for (TestFitnessFactory<?> tf : testFitnessFactory) {
+        for (TestFitnessFactory<?> tf : testFitnessFactories) {
             goals.addAll((List<TestFitnessFunction>) tf.getCoverageGoals());
         }
 

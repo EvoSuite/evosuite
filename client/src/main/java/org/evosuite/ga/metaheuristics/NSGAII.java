@@ -149,7 +149,7 @@ public class NSGAII<T extends Chromosome>
             remain = 0;
         }
         //archive
-        updateFitnessFunctions();
+        updateFitnessFunctionsAndValues();
 		for (T t : population) {
 			if(t.isToBeUpdated()){
 			    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
