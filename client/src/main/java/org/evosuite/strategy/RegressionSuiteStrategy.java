@@ -250,7 +250,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
 				RegressionTestChromosome test = factory.getChromosome();
 				RegressionTestSuiteChromosome clone = new RegressionTestSuiteChromosome();
-				clone.addTest((TestChromosome) test.clone());
+				clone.addTest(test);
 				
 				List<TestCase> testCases = clone.getTests();
 				// fitnessFunction.getFitness(clone);
