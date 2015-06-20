@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
 
+import com.examples.with.different.packagename.CalculatorTest;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -15,7 +16,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.Calculator;
 
-public class CoverageAnalysisTest extends SystemTest {
+public class CoverageAnalysisSystemTest extends SystemTest {
 
 	@Test
 	public void testOneCriterion() {

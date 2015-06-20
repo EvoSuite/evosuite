@@ -175,5 +175,6 @@ public class MeasureCoverage {
 			}
 			logUtils.closeLogServer();
 		}
+
 	}
 }
