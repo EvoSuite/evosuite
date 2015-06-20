@@ -84,13 +84,13 @@ public class CoverageAnalysisSystemTest extends SystemTest {
         assertEquals(0.80, (Double) outputVariables.get("BranchCoverage").getValue(), 0.0);
         assertEquals(1.00, (Double) outputVariables.get("LineCoverage").getValue(), 0.0);
         assertEquals(1.00, (Double) outputVariables.get("ExceptionCoverage").getValue(), 0.0);
-        assertEquals(0.00, (Double) outputVariables.get("WeakMutationScore").getValue(), 0.0); // FIXME
+        assertEquals(1.00, (Double) outputVariables.get("WeakMutationScore").getValue(), 0.05);
         assertEquals(0.00, (Double) outputVariables.get("OutputCoverage").getValue(), 0.0);
         assertEquals(0.00, (Double) outputVariables.get("MethodCoverage").getValue(), 0.0);
         assertEquals(0.00, (Double) outputVariables.get("MethodNoExceptionCoverage").getValue(), 0.0);
         assertEquals(0.00, (Double) outputVariables.get("CBranchCoverage").getValue(), 0.0);
 
-        assertEquals(0.00, (Double) outputVariables.get("Coverage").getValue(), 0.01); // FIXME
+        assertEquals(0.65, (Double) outputVariables.get("Coverage").getValue(), 0.01);
         assertEquals(4, (Integer) outputVariables.get("Tests_Executed").getValue(), 0);
         assertEquals(84, (Integer) outputVariables.get("Total_Goals").getValue(), 0);
 	}
