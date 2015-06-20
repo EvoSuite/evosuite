@@ -49,11 +49,12 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 		if (Properties.REGRESSION_USE_FITNESS == 10) {
 			Properties.REGRESSION_USE_FITNESS = 1;
 			Properties.REGRESSION_DIFFERENT_BRANCHES = false;
+
 			 return generateRandomRegressionTests();
 		}
 
 		LoggingUtils.getEvoLogger().info(
-				"* Setting up search algorithm for whole suite generation");
+				"* Setting up search algorithm for REGRESSION suite generation");
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
 		GeneticAlgorithm<?> algorithm = algorithmFactory.getSearchAlgorithm();
 
@@ -208,7 +209,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
 	private TestSuiteChromosome generateRandomRegressionTests() {
 		LoggingUtils.getEvoLogger().info(
-				"* Using random regression test generation");
+				"* Using RANDOM regression test generation");
 
 		RegressionTestSuiteChromosome suite = new RegressionTestSuiteChromosome();
 		
@@ -220,7 +221,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
 		regressionMonitor.searchStarted(suiteGA);
 		RegressionTestChromosomeFactory factory = new RegressionTestChromosomeFactory();
-		LoggingUtils.getEvoLogger().warn("*** generating random regression tests");
+		LoggingUtils.getEvoLogger().warn("*** generating RANDOM regression tests");
 		// TODO: Shutdown hook?
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
