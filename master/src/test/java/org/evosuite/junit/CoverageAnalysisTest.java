@@ -42,10 +42,10 @@ public class CoverageAnalysisTest extends SystemTest {
 
         Map<String, OutputVariable<?>> outputVariables = statistics.getOutputVariables();
 
-        assertEquals(0.80, outputVariables.get("BranchCoverage").getValue());
-        assertEquals(0.80, outputVariables.get("Coverage").getValue());
-        assertEquals(4, outputVariables.get("Tests_Executed").getValue());
-        assertEquals(5, outputVariables.get("Total_Goals").getValue());
+        assertEquals(0.80, (Double) outputVariables.get("BranchCoverage").getValue(), 0.0);
+        assertEquals(0.80, (Double) outputVariables.get("Coverage").getValue(), 0.0);
+        assertEquals(4, (Integer) outputVariables.get("Tests_Executed").getValue(), 0);
+        assertEquals(5, (Integer) outputVariables.get("Total_Goals").getValue(), 0);
 	}
 
 	@Test
@@ -80,18 +80,18 @@ public class CoverageAnalysisTest extends SystemTest {
 
         Map<String, OutputVariable<?>> outputVariables = statistics.getOutputVariables();
 
-        assertEquals(0.80, (double)outputVariables.get("BranchCoverage").getValue(), 0.0);
-        assertEquals(1.00, (double)outputVariables.get("LineCoverage").getValue(), 0.0);
-        assertEquals(1.00, (double)outputVariables.get("ExceptionCoverage").getValue(), 0.0);
-        assertEquals(0.00, (double)outputVariables.get("WeakMutationScore").getValue(), 0.0); // FIXME
-        assertEquals(0.00, (double)outputVariables.get("OutputCoverage").getValue(), 0.0);
-        assertEquals(0.00, (double)outputVariables.get("MethodCoverage").getValue(), 0.0);
-        assertEquals(0.00, (double)outputVariables.get("MethodNoExceptionCoverage").getValue(), 0.0);
-        assertEquals(0.00, (double)outputVariables.get("CBranchCoverage").getValue(), 0.0);
+        assertEquals(0.80, (Double) outputVariables.get("BranchCoverage").getValue(), 0.0);
+        assertEquals(1.00, (Double) outputVariables.get("LineCoverage").getValue(), 0.0);
+        assertEquals(1.00, (Double) outputVariables.get("ExceptionCoverage").getValue(), 0.0);
+        assertEquals(0.00, (Double) outputVariables.get("WeakMutationScore").getValue(), 0.0); // FIXME
+        assertEquals(0.00, (Double) outputVariables.get("OutputCoverage").getValue(), 0.0);
+        assertEquals(0.00, (Double) outputVariables.get("MethodCoverage").getValue(), 0.0);
+        assertEquals(0.00, (Double) outputVariables.get("MethodNoExceptionCoverage").getValue(), 0.0);
+        assertEquals(0.00, (Double) outputVariables.get("CBranchCoverage").getValue(), 0.0);
 
-        assertEquals(0.00, (double)outputVariables.get("Coverage").getValue(), 0.01); // FIXME
-        assertEquals(4, (int) outputVariables.get("Tests_Executed").getValue(), 0);
-        assertEquals(84, (int) outputVariables.get("Total_Goals").getValue(), 0);
+        assertEquals(0.00, (Double) outputVariables.get("Coverage").getValue(), 0.01); // FIXME
+        assertEquals(4, (Integer) outputVariables.get("Tests_Executed").getValue(), 0);
+        assertEquals(84, (Integer) outputVariables.get("Total_Goals").getValue(), 0);
 	}
 
 }
