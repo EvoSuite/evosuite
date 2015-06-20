@@ -1,4 +1,4 @@
-package org.evosuite.junit;
+package com.examples.with.different.packagename;
 
 import static org.junit.Assert.assertTrue;
 
