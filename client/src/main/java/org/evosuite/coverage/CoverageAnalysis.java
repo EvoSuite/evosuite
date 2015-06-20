@@ -146,7 +146,7 @@ public class CoverageAnalysis {
 		}
 	}
 
-	private static RuntimeVariable getCoverageVariable(Properties.Criterion criterion) {
+	public static RuntimeVariable getCoverageVariable(Properties.Criterion criterion) {
 		switch (criterion) {
 		case ALLDEFS:
 			return RuntimeVariable.AllDefCoverage;
