@@ -9,7 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +26,6 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -51,7 +50,8 @@ import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
 import org.junit.Test;
-import org.junit.runners.Suite;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.TestClass;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -663,36 +663,44 @@ public class CoverageAnalysis {
 	    return killed;
 	}
 
-
 	/**
-	 * Determine if this class contains JUnit tests
+	 * Determine if a class contains JUnit tests
 	 * 
-	 * @param exceptionClassName
+	 * @param class
 	 * @return
 	 */
-	public static boolean isTest(Class<?> clazz) {
-		Class<?> superClazz = clazz.getSuperclass();
-		while (superClazz != null && !superClazz.equals(Object.class)
-		        && !superClazz.equals(clazz)) {
-		    if (superClazz.equals(Suite.class))
-                return true;
-            if (superClazz.equals(TestSuite.class))
-                return true;
-            if (superClazz.equals(Test.class))
-                return true;
-            if (superClazz.equals(TestCase.class))
-                return true;
-
-			if (superClazz.equals(clazz.getSuperclass()))
-				break;
-
-			superClazz = clazz.getSuperclass();
+	public static boolean isTest(Class<?> cls) {
+		if (Modifier.isAbstract(cls.getModifiers())) {
+			return false;
 		}
-		for (Method method : clazz.getDeclaredMethods()) {
-			if (method.isAnnotationPresent(Test.class)) {
+
+		// JUnit 4
+		try {
+			List<FrameworkMethod> methods = new TestClass(cls).getAnnotatedMethods(Test.class);
+			for (FrameworkMethod method : methods) {
+		        List<Throwable> errors = new ArrayList<Throwable>();
+		        method.validatePublicVoidNoArg(false, errors);
+		        if (errors.isEmpty()) {
+		        	return true;
+		        }
+			}
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+
+		// JUnit 3
+		Class<?> superClass = cls; 
+		while ((superClass = superClass.getSuperclass()) != null) {
+			if (superClass.getCanonicalName().equals(Object.class.getCanonicalName())) {
+				break ;
+			}
+			else if (superClass.getCanonicalName().equals(TestCase.class.getCanonicalName())) {
 				return true;
 			}
 		}
+
+		// FIXME add support for other frameworks, e.g., TestNG ?
+
 		return false;
 	}
 
