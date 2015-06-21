@@ -131,7 +131,14 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		if(isNewCoveredGoal || better){
 			ExecutionResult copy = result.clone();
 			testMap.put(goal, copy);
-			//FIXME seems it gives a lot of problems :( need to investigate
+			/*
+				FIXME seems it gives a lot of problems :( need to investigate.
+				Trying to debug with:
+				 -class com.accenture.lab.carfast.test.tp1m.TP0   -mem 2500  -seed 0
+
+				 it is weird, as seems lot of side effect on the execution results, but those are cloned?
+				 furthermore, WM get completely screwed up
+			 */
 			//handleCollateralCoverage(copy); //check for collateral only when there is improvement over current goal
 		}
 	}
@@ -166,9 +173,9 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 			for (Entry<TestFitnessFunction, ExecutionResult> entry : testMap.entrySet()) {
 				if (!entry.getKey().isCoveredBy(best)) {
 					TestChromosome chromosome = new TestChromosome();
-					chromosome.setTestCase(entry.getValue().test);
-					chromosome.setLastExecutionResult(entry.getValue());
-					//best.addTest(entry.getValue().test.clone());
+					ExecutionResult copy = entry.getValue().clone();
+					chromosome.setTestCase(copy.test);
+					chromosome.setLastExecutionResult(copy);
 					best.addTest(chromosome); //should avoid re-execute the tests
 				}
 			}
@@ -226,6 +233,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 
 
 	private void handleCollateralCoverage(ExecutionResult copy) {
+
 
 		//check if this improves upon already covered targets
 		for(Entry<FitnessFunction<?>, Set<TestFitnessFunction>> entry : coveredGoals.entrySet()){
