@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.TestFactory;
 import org.evosuite.rmi.service.ClientState;
+import org.evosuite.runtime.util.Inputs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,13 +108,18 @@ public class TimeController {
 	}
 
 
-	public synchronized void updateState(ClientState newState) throws NullPointerException{
+	public synchronized void updateState(ClientState newState) throws IllegalArgumentException{
+		Inputs.checkNull(newState);
 
 		if(state.equals(newState)){
 			//no change of state. do nothing
 			return;
 		}
-		
+
+		if(newState.getNumPhase() < state.getNumPhase()){
+			throw new IllegalArgumentException("Phase '"+newState+"' cannot be executed after phase '"+state+"'");
+		}
+
 		//first log the current state before changing it
 		if(!state.equals(ClientState.NOT_STARTED)){
 			long elapsed = System.currentTimeMillis() - currentPhaseStartTime;
