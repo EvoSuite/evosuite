@@ -16,6 +16,7 @@ import org.evosuite.ga.Archive;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -64,7 +65,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 	private final Map<FitnessFunction<?>, Set<TestFitnessFunction>> goalMap;
     private final Map<String, Set<TestFitnessFunction>> methodMap;
 
-	private final Map<TestFitnessFunction, TestCase> testMap;
+	private final Map<TestFitnessFunction, ExecutionResult> testMap;
 	
 	// To avoid duplicate tests there's a set of all tests
 	// but is this redundant wrt testMap.values()?
@@ -118,19 +119,25 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 
 
     public void putTest(FitnessFunction<?> ff, TestFitnessFunction goal, ExecutionResult result) {
+
+		if (! goalMap.containsKey(ff)) {
+			return;
+		}
+
+		//TODO make clone and check for collateral coverage
+
+		/*
     	TestCase testClone = result.test.clone();
     	if(!result.noThrownExceptions()) {
     		testClone.chop(result.getFirstPositionOfThrownException());
     	}
-		putTest(ff, goal, result.test); //Why were we making a clone and then ignore it???
-    }
+    	*/
+		//putTest(ff, goal, result.test); //Why were we making a clone and then ignore it???
+    	//}
+    	// This method will keep the test, so it needs to be a clone if it is used again outside
+    	//public void putTest(FitnessFunction<?> ff, TestFitnessFunction goal, TestCase test) {
 
-
-    // This method will keep the test, so it needs to be a clone if it is used again outside
-    public void putTest(FitnessFunction<?> ff, TestFitnessFunction goal, TestCase test) {
-		if (! goalMap.containsKey(ff)) {
-			return;
-		}
+		TestCase test = result.test;
 
         if (!coveredGoals.containsKey(ff)) {
             coveredGoals.put(ff,new HashSet<TestFitnessFunction>());
@@ -141,17 +148,16 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 			coveredGoals.get(ff).add(goal);
 			// TestSuiteChromosome contains a list, but we don't need duplicate tests
 			testCases.add(test);
-			testMap.put(goal, test);
+			testMap.put(goal, result);
 			updateMaps(ff, goal);
             setCoverage(ff, goal);
             if (isMethodFullyCovered(getGoalKey(goal))) {
 				removeTestCall(goal.getTargetClass(), goal.getTargetMethod());
 			}
 		} else {
-			handleSecondaryObjectives(goal, test);
+			handleSecondaryObjectives(goal, result);
 		}
 	}
-
 
 
 	/*
@@ -159,9 +165,9 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 	 */
 	public TestSuiteChromosome getReducedChromosome() {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
-		for(Entry<TestFitnessFunction, TestCase> entry : testMap.entrySet()) {
+		for(Entry<TestFitnessFunction, ExecutionResult> entry : testMap.entrySet()) {
 			if(!entry.getKey().isCoveredBy(suite)) {
-				suite.addTest(entry.getValue());
+				suite.addTest(entry.getValue().test);
 			}
 		}
         for (FitnessFunction<?> ff : coverageMap.keySet()) {
@@ -172,12 +178,6 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		return suite;
 	}
 
-	/*
-		TODO: this seems like a major bottleneck.
-		As we store TestCase and not TestChromosome, it means each
-		single test in the archive will be re-executed.
-		Why not storing TestChromosome?
-	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public TestSuiteChromosome createMergedSolution(TestSuiteChromosome suite) {
@@ -186,9 +186,13 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		TestSuiteChromosome best = null;
 		try {
 			best = suite.clone();
-			for (Entry<TestFitnessFunction, TestCase> entry : testMap.entrySet()) {
+			for (Entry<TestFitnessFunction, ExecutionResult> entry : testMap.entrySet()) {
 				if (!entry.getKey().isCoveredBy(best)) {
-					best.addTest(entry.getValue().clone());
+					TestChromosome chromosome = new TestChromosome();
+					chromosome.setTestCase(entry.getValue().test);
+					chromosome.setLastExecutionResult(entry.getValue());
+					//best.addTest(entry.getValue().test.clone());
+					best.addTest(chromosome); //should avoid re-execute the tests
 				}
 			}
 			for (FitnessFunction ff : coveredGoals.keySet()) {
@@ -225,13 +229,13 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 
 	// ---------  private/protected methods -------------------
 
-	private void handleSecondaryObjectives(TestFitnessFunction goal, TestCase test) {
+	private void handleSecondaryObjectives(TestFitnessFunction goal, ExecutionResult result) {
 		// If we try to add a test for a goal we've already covered
 		// and the new test is shorter, keep the shorter one
-		if(test.size() < testMap.get(goal).size()) {
-			testCases.remove(testMap.get(goal));
-			testCases.add(test);
-			testMap.put(goal, test);
+		if(result.test.size() < testMap.get(goal).test.size()) {
+			testCases.remove(testMap.get(goal).test);
+			testCases.add(result.test);
+			testMap.put(goal, result);
 		}
 
 		/*

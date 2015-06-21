@@ -376,7 +376,14 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	public boolean isEmpty();
 
 	public boolean isFailing();
-	
+
+	/**
+	 * Check if the current test case does cover the given goal.
+	 * @param goal
+	 * @return
+	 */
+	public boolean isGoalCovered(TestFitnessFunction goal);
+
 	/**
 	 * Check if this test case is a prefix of t
 	 *
