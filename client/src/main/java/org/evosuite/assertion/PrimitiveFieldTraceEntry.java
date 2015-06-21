@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
 
 
@@ -98,6 +99,9 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 					continue;
 				
 				if (!otherEntry.fieldMap.get(field).equals(fieldMap.get(field))) {
+					double distance = ObjectDistanceCalculator.getObjectDistance(fieldMap.get(field), otherEntry.fieldMap.get(field));
+					if(distance==0)
+						continue;
 					PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
 					assertion.value = fieldMap.get(field);
 					assertion.field = field;

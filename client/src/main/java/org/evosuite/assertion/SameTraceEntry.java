@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +87,9 @@ public class SameTraceEntry implements OutputTraceEntry {
 					continue;
 
 				if (!otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)).equals(equalityMap.get(equalityMapIntVar.get(otherVar)))) {
-					//logger.warn("not the same : " + equalityMap.get(equalityMapIntVar.get(otherVar)));
+					double distance = ObjectDistanceCalculator.getObjectDistance(equalityMap.get(equalityMapIntVar.get(otherVar)), otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
+					if(distance==0)
+						return assertions;
 					SameAssertion assertion = new SameAssertion();
 					assertion.source = var;
 					assertion.dest = equalityMapIntVar.get(otherVar);

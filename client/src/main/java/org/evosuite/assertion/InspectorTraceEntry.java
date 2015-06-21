@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,6 +123,9 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 					continue;
 				
 				if (!otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)).equals(inspectorMap.get(methodInspectorMap.get(inspector)))) {
+					double distance = ObjectDistanceCalculator.getObjectDistance(inspectorMap.get(methodInspectorMap.get(inspector)), otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)));
+					if(distance==0)
+						continue;
 					InspectorAssertion assertion = new InspectorAssertion();
 					assertion.value = inspectorMap.get(methodInspectorMap.get(inspector));
 					assertion.inspector = methodInspectorMap.get(inspector);
