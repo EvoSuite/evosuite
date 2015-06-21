@@ -5,7 +5,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -66,11 +65,6 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
     private final Map<String, Set<TestFitnessFunction>> methodMap;
 
 	private final Map<TestFitnessFunction, ExecutionResult> testMap;
-	
-	// To avoid duplicate tests there's a set of all tests
-	// but is this redundant wrt testMap.values()?
-	private final Set<TestCase> testCases;
-
 
 	private TestsArchive() {
 		coveredGoals = new HashMap<>();
@@ -80,14 +74,12 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		goalMap = new HashMap<>();
 		methodMap = new HashMap<>();
 		testMap = new HashMap<>();
-		testCases = new LinkedHashSet<>();
 	}
 
 
 	// ------- public methods ------------
 
 	public void reset() {
-		testCases.clear();
 		coveredGoals.clear();
 		goalMap.clear();
 		goalsCountMap.clear();
@@ -124,41 +116,25 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 			return;
 		}
 
-		//TODO make clone and check for collateral coverage
+		if (!coveredGoals.containsKey(ff)) {
+			coveredGoals.put(ff,new HashSet<TestFitnessFunction>());
+		}
 
-		/*
-    	TestCase testClone = result.test.clone();
-    	if(!result.noThrownExceptions()) {
-    		testClone.chop(result.getFirstPositionOfThrownException());
-    	}
-    	*/
-		//putTest(ff, goal, result.test); //Why were we making a clone and then ignore it???
-    	//}
-    	// This method will keep the test, so it needs to be a clone if it is used again outside
-    	//public void putTest(FitnessFunction<?> ff, TestFitnessFunction goal, TestCase test) {
+		boolean isNewCoveredGoal = !coveredGoals.get(ff).contains(goal);
 
-		TestCase test = result.test;
+		if (isNewCoveredGoal) {
+			coveredNewGoal(ff, goal);
+		}
 
-        if (!coveredGoals.containsKey(ff)) {
-            coveredGoals.put(ff,new HashSet<TestFitnessFunction>());
-        }
+		boolean better = isBetterThanCurrent(goal, result);
 
-		if (!coveredGoals.get(ff).contains(goal)) {
-			logger.debug("Adding covered goal to archive: "+goal);
-			coveredGoals.get(ff).add(goal);
-			// TestSuiteChromosome contains a list, but we don't need duplicate tests
-			testCases.add(test);
-			testMap.put(goal, result);
-			updateMaps(ff, goal);
-            setCoverage(ff, goal);
-            if (isMethodFullyCovered(getGoalKey(goal))) {
-				removeTestCall(goal.getTargetClass(), goal.getTargetMethod());
-			}
-		} else {
-			handleSecondaryObjectives(goal, result);
+		if(isNewCoveredGoal || better){
+			ExecutionResult copy = result.clone();
+			testMap.put(goal, copy);
+			//FIXME seems it gives a lot of problems :( need to investigate
+			//handleCollateralCoverage(copy); //check for collateral only when there is improvement over current goal
 		}
 	}
-
 
 	/*
 		TODO: does not seem it is really used for anything
@@ -174,7 +150,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
         	suite.setCoverage(ff, coverageMap.get(ff));
         	suite.setNumOfCoveredGoals(ff, coveredGoalsCountMap.get(ff));
         }
-		logger.info("Reduced test suite from archive: " + suite.size() + " from " + testCases.size());
+		logger.info("Final test suite size from archive: " + suite.size());
 		return suite;
 	}
 
@@ -186,6 +162,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		TestSuiteChromosome best = null;
 		try {
 			best = suite.clone();
+
 			for (Entry<TestFitnessFunction, ExecutionResult> entry : testMap.entrySet()) {
 				if (!entry.getKey().isCoveredBy(best)) {
 					TestChromosome chromosome = new TestChromosome();
@@ -202,18 +179,22 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 			Properties.TEST_ARCHIVE = true;
 		}
 
-		logger.info("Reduced test suite from archive: " + best.size() + " from " + testCases.size());
+		logger.info("Final test suite size from archive: " + best.size());
 
 		return best;
 	}
-	
-	public int getNumberOfTestsInArchive() {
-		return testCases.size();
+
+	public boolean isArchiveEmpty(){
+		return testMap.isEmpty();
 	}
-	
 
 	public TestCase getCloneAtRandom(){
-		return Randomness.choice(testCases).clone();
+		/*
+			Note: this gives higher probability to tests that cover more targets.
+			Maybe it is not the best way, but likely the quickest to compute
+		 */
+		ExecutionResult res = Randomness.choice(testMap.values());
+		return res.test.clone();
 	}
 	
 	@Override
@@ -222,26 +203,79 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		for (FitnessFunction<?> ff : coveredGoals.keySet()) {
             sum += coveredGoals.get(ff).size();
         }
-        return "Goals covered: " + sum + ", tests: " + testCases.size();
+        return "Goals covered: " + sum;
 	}
 
 
 
 	// ---------  private/protected methods -------------------
 
-	private void handleSecondaryObjectives(TestFitnessFunction goal, ExecutionResult result) {
+	private void coveredNewGoal(FitnessFunction<?> ff, TestFitnessFunction goal) {
+		if (!coveredGoals.containsKey(ff)) {
+			coveredGoals.put(ff,new HashSet<TestFitnessFunction>());
+		}
+
+		logger.debug("Adding covered goal to archive: " + goal);
+		coveredGoals.get(ff).add(goal);
+		updateMaps(ff, goal);
+		setCoverage(ff, goal);
+		if (isMethodFullyCovered(getGoalKey(goal))) {
+			removeTestCall(goal.getTargetClass(), goal.getTargetMethod());
+		}
+	}
+
+
+	private void handleCollateralCoverage(ExecutionResult copy) {
+
+		//check if this improves upon already covered targets
+		for(Entry<FitnessFunction<?>, Set<TestFitnessFunction>> entry : coveredGoals.entrySet()){
+			for(TestFitnessFunction goal : entry.getValue()){
+				if(isBetterThanCurrent(goal,copy)){
+					testMap.put(goal, copy);
+				}
+			}
+		}
+
+
+		Map<FitnessFunction<?>, Set<TestFitnessFunction>> toUpdate = new HashMap<>();
+
+		//does it cover new targets?
+		for(Entry<FitnessFunction<?>, Set<TestFitnessFunction>> entry : goalMap.entrySet()){
+			Set<TestFitnessFunction> set = new HashSet<>();
+			toUpdate.put(entry.getKey(),set);
+
+			for(TestFitnessFunction goal : entry.getValue()){
+				if(goal.isCovered(copy)){
+					set.add(goal); //keep track, as cannot modify goalMap while looping over it
+					testMap.put(goal, copy);
+				}
+			}
+		}
+
+		for(Entry<FitnessFunction<?>, Set<TestFitnessFunction>> entry : toUpdate.entrySet()) {
+			for (TestFitnessFunction goal : entry.getValue()) {
+				coveredNewGoal(entry.getKey(),goal);
+			}
+		}
+
+	}
+
+	private boolean isBetterThanCurrent(TestFitnessFunction goal, ExecutionResult result) {
+		if(testMap.get(goal)==null){
+			return true;
+		}
+
 		// If we try to add a test for a goal we've already covered
 		// and the new test is shorter, keep the shorter one
 		if(result.test.size() < testMap.get(goal).test.size()) {
-			testCases.remove(testMap.get(goal).test);
-			testCases.add(result.test);
-			testMap.put(goal, result);
+			return true;
 		}
 
 		/*
 			TODO: in the future, here we should handle also PrivateAccess
 			and functional mocking
 		 */
+		return false;
 	}
 
 	private void setCoverage(FitnessFunction<?> ff, TestFitnessFunction goal) {

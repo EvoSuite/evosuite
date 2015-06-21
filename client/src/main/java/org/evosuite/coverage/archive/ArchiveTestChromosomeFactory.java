@@ -48,7 +48,7 @@ public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChrom
 		}
 
 		TestChromosome test = null;
-		if(TestsArchive.instance.getNumberOfTestsInArchive() > 0 && Randomness.nextDouble() < Properties.SEED_CLONE) {
+		if(!TestsArchive.instance.isArchiveEmpty() && Randomness.nextDouble() < Properties.SEED_CLONE) {
 			logger.info("Creating test based on archive");
 			test = new TestChromosome();
 			test.setTestCase(TestsArchive.instance.getCloneAtRandom());
