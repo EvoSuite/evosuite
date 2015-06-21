@@ -521,7 +521,7 @@ public class TestSuiteWriter implements Opcodes {
             }
             if (Properties.ID_NAMING) {
                 TestCase tc = testCases.get(id);
-                methodName = TestNameGenerator.generateTestName(number, tc, result);
+                methodName = TestNameGenerator.generateTestName(targetMethod, tc, result);
             } else {
                 methodName = "test" + targetMethod + num;
             }
@@ -529,7 +529,7 @@ public class TestSuiteWriter implements Opcodes {
         } else {
             if (Properties.ID_NAMING) {
                 TestCase tc = testCases.get(id);
-                methodName = TestNameGenerator.generateTestName(number, tc, result);
+                methodName = TestNameGenerator.generateTestName("test", tc, result);
             } else {
                 methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
             }

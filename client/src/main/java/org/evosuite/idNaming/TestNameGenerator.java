@@ -19,18 +19,17 @@ public class TestNameGenerator {
 	private String testName;
 	private List<String> nameList;
 	private List<String> testList;
-	private ExceptionExtraction hasExceptions;	
+	private static ExceptionExtraction hasExceptions;	
 	private CheckTestNameUniqueness checkName;
 	
 	public TestNameGenerator(){
 		methodName = "";
 		testName = "";
-		
-		hasExceptions = new ExceptionExtraction();
+	
 		checkName = new CheckTestNameUniqueness();
 	}	
 	
-	public void testSuiteNaming(TestSuiteChromosome testSuite){
+/*public void testSuiteNaming(TestSuiteChromosome testSuite){
 		
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			setTestName(test.getTestCase().toCode());
@@ -38,30 +37,27 @@ public class TestNameGenerator {
 			testList.add(test.getTestCase().toCode());
 		}
 		checkName.check_name_uniqueness(nameList.toArray(new String[0]),testList.toArray(new String[0]));
-	}
+	}*/
 	
-	public void setTestName(String testCase){
-		hasExceptions.set_extractions(testCase);
+	
+	
+	
+	public  static String generateTestName(String targetMethod, TestCase tc, ExecutionResult result) {
+		String testName = "";
+		System.out.println(testName);
+		String code =tc.toCode().toString();
+		hasExceptions= new ExceptionExtraction(code);
 		if (hasExceptions.get_exceptions()>0){
 			//get method under test name
 			//List<? extends TestFitnessFunction> goals=FitnessFunctions.getFitnessFactory(Properties.Criterion.BRANCH).getCoverageGoals();
-			testName=methodName+"_throwsException ";
+			testName=targetMethod+"_throwsException ";
 		} else{
 			//get method under test name
-			testName=methodName;
+			testName=targetMethod;
 			//List<? extends TestFitnessFunction> goals=FitnessFunctions.getFitnessFactory(Properties.Criterion.BRANCH).getCoverageGoals();					                                    
 			
-		}		
-	}
-	
-	public String getTestName(){
-		//call function that returns method under test
-		return testName;
-	}
-	
-	public static String generateTestName(int number, TestCase tc, ExecutionResult result) {
-		String testName = "readableTest_" + number;
-		// GENERATE NAME HERE
+		}	
+		
 		return testName;
 	}
 }

@@ -14,8 +14,9 @@ public class ExceptionExtraction
 {
     private int total_exceptions;
     
-    public ExceptionExtraction(){
+    public ExceptionExtraction(String source){
     	total_exceptions=0;
+    	set_extractions(source);
     }
     public void set_extractions(String source) {
     	
