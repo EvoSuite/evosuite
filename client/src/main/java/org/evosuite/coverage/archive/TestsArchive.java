@@ -22,6 +22,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,11 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestsArchive.class);
 
+	/*
+		TODO: looks like here we keep track of only covered goals, and not their branch
+		distance. In the future, if we want to get rid of the GA population, we ll
+		need to keep track of branch distances as well
+	 */
 
 	/**
 	 * necessary to avoid having a billion of redundant test cases
@@ -57,6 +63,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
     
 	private final Map<FitnessFunction<?>, Set<TestFitnessFunction>> goalMap;
     private final Map<String, Set<TestFitnessFunction>> methodMap;
+
 	private final Map<TestFitnessFunction, TestCase> testMap;
 	
 	// To avoid duplicate tests there's a set of all tests
@@ -128,6 +135,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
         if (!coveredGoals.containsKey(ff)) {
             coveredGoals.put(ff,new HashSet<TestFitnessFunction>());
         }
+
 		if (!coveredGoals.get(ff).contains(goal)) {
 			logger.debug("Adding covered goal to archive: "+goal);
 			coveredGoals.get(ff).add(goal);
@@ -140,16 +148,15 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 				removeTestCall(goal.getTargetClass(), goal.getTargetMethod());
 			}
 		} else {
-			// If we try to add a test for a goal we've already covered
-			// and the new test is shorter, keep the shorter one
-			if(test.size() < testMap.get(goal).size()) {
-				testCases.remove(testMap.get(goal));
-				testCases.add(test);
-				testMap.put(goal, test);
-			}
+			handleSecondaryObjectives(goal, test);
 		}
 	}
 
+
+
+	/*
+		TODO: does not seem it is really used for anything
+	 */
 	public TestSuiteChromosome getReducedChromosome() {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		for(Entry<TestFitnessFunction, TestCase> entry : testMap.entrySet()) {
@@ -161,15 +168,21 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
         	suite.setCoverage(ff, coverageMap.get(ff));
         	suite.setNumOfCoveredGoals(ff, coveredGoalsCountMap.get(ff));
         }
-		logger.info("Reduced test suite from archive: "+suite.size() +" from "+testCases.size());
+		logger.info("Reduced test suite from archive: " + suite.size() + " from " + testCases.size());
 		return suite;
 	}
-	
+
+	/*
+		TODO: this seems like a major bottleneck.
+		As we store TestCase and not TestChromosome, it means each
+		single test in the archive will be re-executed.
+		Why not storing TestChromosome?
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public TestSuiteChromosome createMergedSolution(TestSuiteChromosome suite) {
 
-		Properties.TEST_ARCHIVE = false;
+		Properties.TEST_ARCHIVE = false; //TODO: why?
 		TestSuiteChromosome best = null;
 		try {
 			best = suite.clone();
@@ -194,8 +207,9 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		return testCases.size();
 	}
 	
-	public Set<TestCase> getTests() {
-		return testCases;
+
+	public TestCase getCloneAtRandom(){
+		return Randomness.choice(testCases).clone();
 	}
 	
 	@Override
@@ -210,6 +224,21 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 
 
 	// ---------  private/protected methods -------------------
+
+	private void handleSecondaryObjectives(TestFitnessFunction goal, TestCase test) {
+		// If we try to add a test for a goal we've already covered
+		// and the new test is shorter, keep the shorter one
+		if(test.size() < testMap.get(goal).size()) {
+			testCases.remove(testMap.get(goal));
+			testCases.add(test);
+			testMap.put(goal, test);
+		}
+
+		/*
+			TODO: in the future, here we should handle also PrivateAccess
+			and functional mocking
+		 */
+	}
 
 	private void setCoverage(FitnessFunction<?> ff, TestFitnessFunction goal) {
 		assert(goalsCountMap != null);
