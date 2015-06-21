@@ -22,8 +22,8 @@ public enum ClientState {
 	MINIMIZATION("Minimizing", "Minimizing test cases", 7),
 	ASSERTION_GENERATION("Generating assertions", "Adding assertions to the test cases", 8),
 	JUNIT_CHECK("Check JUnit", "Validate and fix the generated tests",9),
-    WRITING_STATISTICS("Statistics", "Writing statistics to disk", 10),
-	WRITING_TESTS("JUnit", "Writing JUnit tests to disk", 11),
+	WRITING_TESTS("JUnit", "Writing JUnit tests to disk", 10),
+    WRITING_STATISTICS("Statistics", "Writing statistics to disk", 11),
 	DONE("Done", "Test case generation is finished", 12),
 	FINISHED("Finished", "Client process is fully finished", 13);
 

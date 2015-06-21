@@ -63,7 +63,12 @@ public class CoverageAnalysis {
 			oldCriteria.add(Properties.Criterion.IBRANCH);
 			ExecutionTracer.enableContext();
 		}
-	    	    
+
+		//TODO why was this not check before invalidating the cache of the test suite?
+		if (oldCriteria.contains(criterion)) {
+			return;
+		}
+
 		if (!ExecutionTracer.isTraceCallsEnabled()) {
 			ExecutionTracer.enableTraceCalls();
 		}
@@ -75,9 +80,10 @@ public class CoverageAnalysis {
 		}
 
 		
-		if (oldCriteria.contains(criterion))
-			return; 
+		//if (oldCriteria.contains(criterion))
+		//	return;
 
+		//TODO: why we repeat this code here???
 		testSuite.setChanged(true);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			test.setChanged(true);
