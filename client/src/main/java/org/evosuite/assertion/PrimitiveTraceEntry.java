@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
 
 
@@ -75,6 +76,9 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 			if (otherEntry != null && otherEntry.value != null && value != null
 					&& var.getStPosition() == otherEntry.var.getStPosition())
 				if (!value.equals(otherEntry.value)) {
+					double distance = ObjectDistanceCalculator.getObjectDistance(value, otherEntry.value);
+					if(distance==0)
+						return assertions;
 					PrimitiveAssertion assertion = new PrimitiveAssertion();
 					assertion.value = value;
 					assertion.source = var;
