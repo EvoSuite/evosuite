@@ -3,10 +3,13 @@
  */
 package org.evosuite.regression;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
@@ -51,6 +54,7 @@ public class RegressionSearchListener implements SearchListener {
 	public static int exceptionDiff = 0;
 
 	public static File statsFile;
+	public static BufferedWriter statsFileWriter;
 	public static double lastOD = 0.0;
 	public static int lastAssertions = -1;
 	public static boolean lastIterationSuccessful = false;
@@ -87,9 +91,13 @@ public class RegressionSearchListener implements SearchListener {
 
 		statsID = statsFile.getName().replaceFirst("[.][^.]+$", "");
 
+		
+
 		try {
 			String data = "fitness,test_count,test_size,branch_distance,object_distance,coverage,exception_diff,total_exceptions,coverage_old,coverage_new,executed_statements,age,time,assertions,state,exec_time,assert_time,cover_time,state_diff_time,branch_time,obj_time";
-			FileUtils.writeStringToFile(statsFile, data, false);
+			statsFileWriter = new BufferedWriter(new FileWriter(statsFile));
+			//FileUtils.writeStringToFile(statsFile, data, false);
+			statsFileWriter.write(data);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -174,9 +182,7 @@ public class RegressionSearchListener implements SearchListener {
 	private void writeIterationLog(GeneticAlgorithm<?> algorithm,
 			char runState, RegressionTestSuiteChromosome ind,
 			int curAssertions, double curOD) throws IOException {
-		FileUtils
-				.writeStringToFile(
-						statsFile,
+		statsFileWriter.write(
 						"\r\n"
 								+ (ind).fitnessData
 								+ ","
@@ -195,7 +201,7 @@ public class RegressionSearchListener implements SearchListener {
 										+ (ObjectDistanceTime + 1) / 1000000
 										+ "," + (branchDistanceTime + 1)
 										/ 1000000 + "," + (odCollectionTime + 1) / 1000000)
-										: ",,,,,,"), true);
+										: ",,,,,,"));
 
 		if (!isFirstRun) {
 			if (lastAssertions < curAssertions && lastAssertions == 0
@@ -315,7 +321,12 @@ public class RegressionSearchListener implements SearchListener {
 				e.printStackTrace();
 			}
 		}
-
+		try {
+			statsFileWriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
