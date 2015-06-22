@@ -22,7 +22,6 @@ package org.evosuite.setup;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.*;
 
 import org.evosuite.Properties;
@@ -34,13 +33,12 @@ import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
+import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.setup.callgraph.CallGraphGenerator;
 import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
-import org.junit.Test;
-import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
@@ -136,39 +134,6 @@ public class DependencyAnalysis {
 	}
 
 	/**
-	 * Determine if this class contains JUnit tests
-	 * 
-	 * @param className
-	 * @return
-	 */
-	private static boolean isTest(String className) {
-		// TODO-JRO Identifying tests should be done differently:
-		// If the class either contains methods
-		// annotated with @Test (> JUnit 4.0)
-		// or contains Test or Suite in it's inheritance structure
-		try {
-			Class<?> clazz = Class.forName(className);
-			Class<?> superClazz = clazz.getSuperclass();
-			while (!superClazz.equals(Object.class)) {
-				if (superClazz.equals(Suite.class))
-					return true;
-				if (superClazz.equals(Test.class))
-					return true;
-
-				superClazz = clazz.getSuperclass();
-			}
-			for (Method method : clazz.getMethods()) {
-				if (method.isAnnotationPresent(Test.class)) {
-					return true;
-				}
-			}
-		} catch (ClassNotFoundException e) {
-			// TODO
-		}
-		return false;
-	}
-
-	/**
 	 * Determine if the given class is the target class
 	 * 
 	 * @param className
@@ -178,7 +143,12 @@ public class DependencyAnalysis {
 		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
 				&& className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
 			// exclude existing tests from the target project
-			return !isTest(className);
+			try {
+				Class<?> clazz = Class.forName(className);
+				return !CoverageAnalysis.isTest(clazz);
+			} catch (ClassNotFoundException e) {
+				logger.info("Could not find class " + className);
+			}
 		}
 		if (className.equals(Properties.TARGET_CLASS)
 				|| className.startsWith(Properties.TARGET_CLASS + "$")) {
