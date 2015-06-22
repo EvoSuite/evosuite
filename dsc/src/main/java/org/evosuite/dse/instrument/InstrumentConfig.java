@@ -1,5 +1,7 @@
 package org.evosuite.dse.instrument;
 
+import org.evosuite.dse.VM;
+
 /*
     This class is taken and adapted from the DSC tool developed by Christoph Csallner.
     Link at :
@@ -26,9 +28,7 @@ public final class InstrumentConfig
 	 * Class whose methods the instrumentation code will call 
 	 */
 
-  public static final String VM_FQ    	= "edu/uta/cse/dsc/VM"; //$NON-NLS-1$
-  public static final String TAINT_CLASS 				= "edu/uta/cse/util/Taint"; //$NON-NLS-1$
-  public static final String TREAT_AS_VARIABLE	= "treatAsVariable"; //$NON-NLS-1$
+  public static final String VM_FQ    	= VM.class.getName().replace(".", "/"); //$NON-NLS-1$
 
   public static final String VOID     = "V"; //$NON-NLS-1$
   public static final String INT      = "I"; //$NON-NLS-1$

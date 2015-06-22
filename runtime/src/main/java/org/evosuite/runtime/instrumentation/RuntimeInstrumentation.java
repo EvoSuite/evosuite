@@ -69,7 +69,7 @@ public class RuntimeInstrumentation {
                 "org.netbeans.lib.profiler", // VisualVM profiler
                 // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
                 "apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
-                "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc", "org.mozilla.javascript.gen.c",
+                "org.apache.xerces.dom3", "de.unisl.cs.st.bugex",  "org.mozilla.javascript.gen.c",
                 "corina.cross.Single",  // I really don't know what is wrong with this class, but we need to exclude it
                 "org.slf4j",
                 "dk.brics.automaton", //used in DSE, and we have a class with that package inside EvoSutie
