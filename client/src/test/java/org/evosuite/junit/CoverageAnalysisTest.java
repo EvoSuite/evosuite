@@ -10,6 +10,7 @@ import org.evosuite.junit.examples.JUnit4Categories;
 import org.evosuite.junit.examples.JUnit4Suite;
 import org.evosuite.junit.examples.JUnit4Test;
 import org.evosuite.junit.examples.Not_A_Test;
+import org.evosuite.junit.examples.JUnit4ParameterizedTest;
 import org.junit.Test;
 
 public class CoverageAnalysisTest {
@@ -25,5 +26,6 @@ public class CoverageAnalysisTest {
 		assertTrue(CoverageAnalysis.isTest(JUnit4Test.class));
 		assertFalse(CoverageAnalysis.isTest(JUnit4Suite.class));
 		assertFalse(CoverageAnalysis.isTest(JUnit4Categories.class));
+		assertTrue(CoverageAnalysis.isTest(JUnit4ParameterizedTest.class));
 	}
 }
