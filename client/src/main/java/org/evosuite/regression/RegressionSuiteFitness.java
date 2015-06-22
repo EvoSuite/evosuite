@@ -408,8 +408,8 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 		}
 
-		double exceptionDistance = (1.0 / (1.0 + numDifferentExceptions));
 		// * (max_branch_fitness_valueO + max_branch_fitness_valueR);
+		double exceptionDistance = (1.0 / (1.0 + numDifferentExceptions));
 
 		fitness += exceptionDistance;
 		
@@ -482,7 +482,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 			logger.warn("OBJ distance: " + distance + " - fitness:" + fitness
 					+ " - branchDistance:" + totalBranchDistanceFitness
-					+ " - coverage:" + coverage + " - ex: " + exceptionDistance
+					+ " - coverage:" + coverage + " - ex: " + numDifferentExceptions
 					+ " - tex: " + totalExceptions);
 			logger.debug("Timings so far: Test Execution - "
 					+ (RegressionSearchListener.testExecutionTime + 1)

@@ -138,7 +138,7 @@ public class RegressionAssertionCounter {
 		
 		//(Hack) temporarily changing timeout to allow the assertions to run
 		int oldTimeout = Properties.TIMEOUT;
-		Properties.TIMEOUT *= 20;
+		Properties.TIMEOUT *= 2;
 		int totalCount = 0;
 		RegressionSearchListener.exceptionDiff = 0;
 
@@ -239,14 +239,17 @@ public class RegressionAssertionCounter {
 						}
 						
 						// If they start differing from @objectID skip this one
-						String origExceptionMessage = origException.getValue().getMessage();
-						String regExceptionMessage = regressionExceptionMapping
-								.get(origException.getKey())
-								.getMessage();
-						int diffIndex = StringUtils.indexOfDifference(origExceptionMessage, regExceptionMessage);
-						if(diffIndex>0){
-							if(origExceptionMessage.charAt(diffIndex-1) == '@')
-								skip = true;
+						if(!skip && regressionExceptionMapping
+								.get(origException.getKey())!=null){
+							String origExceptionMessage = origException.getValue().getMessage();
+							String regExceptionMessage = regressionExceptionMapping
+									.get(origException.getKey())
+									.getMessage();
+							int diffIndex = StringUtils.indexOfDifference(origExceptionMessage, regExceptionMessage);
+							if(diffIndex>0){
+								if(origExceptionMessage.charAt(diffIndex-1) == '@')
+									skip = true;
+							}
 						}
 						
 						if (skip)

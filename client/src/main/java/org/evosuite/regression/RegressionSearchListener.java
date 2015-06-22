@@ -98,6 +98,7 @@ public class RegressionSearchListener implements SearchListener {
 
 	@Override
 	public void iteration(GeneticAlgorithm<?> algorithm) {
+		logger.warn("iterating ...");
 		// runState: First, Processing, Last
 		char runState = (isFirst) ? 'F' : ((isLastRun) ? 'L' : 'P');
 		if (isFirst)
@@ -124,6 +125,7 @@ public class RegressionSearchListener implements SearchListener {
 		boolean fitnessNotChanged = false;
 		if(ind.getFitness() >= lastFitnessObserved){
 			fitnessNotChanged = true;
+			logger.warn("Fitness not changed {} vs {}", ind.getFitness(), lastFitnessObserved);
 		}
 		lastFitnessObserved = ind.getFitness();
 
