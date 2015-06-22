@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.Chromosome;
@@ -236,6 +237,18 @@ public class RegressionAssertionCounter {
 									.getKey());
 							skip = true;
 						}
+						
+						// If they start differing from @objectID skip this one
+						String origExceptionMessage = origException.getValue().getMessage();
+						String regExceptionMessage = regressionExceptionMapping
+								.get(origException.getKey())
+								.getMessage();
+						int diffIndex = StringUtils.indexOfDifference(origExceptionMessage, regExceptionMessage);
+						if(diffIndex>0){
+							if(origExceptionMessage.charAt(diffIndex-1) == '@')
+								skip = true;
+						}
+						
 						if (skip)
 							continue;
 						if (!regressionExceptionMapping
@@ -342,6 +355,7 @@ public class RegressionAssertionCounter {
 							.addComment(
 									"EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    "
 											+ origException.getValue()
+											.getClass().getName() + " : " + origException.getValue()
 													.getMessage()
 											+ "\n");
 					// regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    "
@@ -368,11 +382,15 @@ public class RegressionAssertionCounter {
 								.getStatement(origException.getKey())
 								.addComment(
 										"EXCEPTION DIFF:\nDifferent Exceptions were thrown:\nOriginal Version:\n    "
-												+ origException
+												+ origException.getValue()
+												.getClass().getName() + " : " + origException
 														.getValue()
 														.getMessage()
 												+ "\nModified Version:\n    "
 												+ regressionExceptionMapping
+												.get(origException
+														.getKey())
+												.getClass().getName() + " : " + regressionExceptionMapping
 														.get(origException
 																.getKey())
 														.getMessage()
@@ -403,6 +421,7 @@ public class RegressionAssertionCounter {
 						.addComment(
 								"EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    "
 										+ regException.getValue()
+										.getClass().getName() + " : " + regException.getValue()
 												.getMessage() + "\n\n");
 				regressionTest
 						.getTheSameTestForTheOtherClassLoader()
@@ -411,6 +430,7 @@ public class RegressionAssertionCounter {
 						.addComment(
 								"EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    "
 										+ regException.getValue()
+										.getClass().getName() + " : " + regException.getValue()
 												.getMessage() + "\n\n");
 			}
 		}
