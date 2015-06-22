@@ -14,6 +14,7 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
@@ -36,26 +37,48 @@ public class MeasureCoverage {
 	public static Object execute(Options options, List<String> javaOpts,
 			CommandLine line) {
 		if (line.hasOption("class")){
-			measureCoverage(line.getOptionValue("class"), line.getOptionValue("junit"), javaOpts);
+			measureCoverageClass(line.getOptionValue("class"), line.getOptionValue("junit"), javaOpts);
+		} else if (line.hasOption("target")) {
+			measureCoverageTarget(line.getOptionValue("target"), line.getOptionValue("junit"), javaOpts);
 		} else {
 			LoggingUtils.getEvoLogger().error("Please specify target class ('-class' option)");
 			Help.execute(options);
 		}
 		return SearchStatistics.getInstance();
 	}
-	
-	private static void measureCoverage(String targetClass, String junitPrefix,
-	        List<String> args) {
+
+	private static void measureCoverageClass(String targetClass, String junitPrefix, List<String> args) {
+
+		if (!ResourceList.hasClass(targetClass)) {
+			LoggingUtils.getEvoLogger().error("* Unknown class: " + targetClass
+							+ ". Be sure its full qualifying name is correct and the classpath is properly set with '-projectCP'");
+		}
+
 		if (!BytecodeInstrumentation.checkIfCanInstrument(targetClass)) {
 			throw new IllegalArgumentException(
 			        "Cannot consider "
 			                + targetClass
 			                + " because it belongs to one of the packages EvoSuite cannot currently handle");
 		}
+
+		measureCoverage(targetClass, junitPrefix, args);
+	}
+
+	private static void measureCoverageTarget(String target, String junitPrefix, List<String> args) {
+
+		Set<String> classes = ResourceList.getAllClasses(target, false);
+		LoggingUtils.getEvoLogger().info("* Found " + classes.size() + " matching classes in target " + target);
+
+		measureCoverage(target, junitPrefix, args);
+	}
+
+	private static void measureCoverage(String targetClass, String junitPrefix, List<String> args) {
+
 		String classPath = ClassPathHandler.getInstance().getEvoSuiteClassPath();
 		String projectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
-		classPath += File.pathSeparator + projectCP;
-		
+
+		classPath += !classPath.isEmpty() ? File.pathSeparator + projectCP : projectCP;
+
 		ExternalProcessHandler handler = new ExternalProcessHandler();
 		int port = handler.openServer();
 		List<String> cmdLine = new ArrayList<String>();
@@ -68,8 +91,7 @@ public class MeasureCoverage {
 		}
 		cmdLine.add("-Dlogback.configurationFile="+LoggingUtils.getLogbackFileName());
 		cmdLine.add("-Djava.library.path=lib");
-		cmdLine.add("-DCP=" + projectCP);
-		// cmdLine.add("-Dminimize_values=true");
+		cmdLine.add(projectCP.isEmpty() ? "-DCP=" + classPath : "-DCP=" + projectCP);
 
 		for (String arg : args) {
 			if (!arg.startsWith("-DCP=")) {
