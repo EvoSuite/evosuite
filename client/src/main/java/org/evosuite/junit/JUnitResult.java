@@ -56,11 +56,27 @@ public class JUnitResult {
     /**
      * 
      */
+    private Class<?> junitClass;
+
+    /**
+     * 
+     */
     public JUnitResult(String name) {
         this.successful = true;
         this.name = name;
         this.failureCount = 0;
         this.runCount = 0;
+    }
+
+    /**
+     * 
+     */
+    public JUnitResult(String name, Class<?> junitClass) {
+        this.successful = true;
+        this.name = name;
+        this.failureCount = 0;
+        this.runCount = 0;
+        this.junitClass = junitClass;
     }
 
     /**
@@ -193,6 +209,10 @@ public class JUnitResult {
      */
     public void addFailure(JUnitFailure junitFailure) {
         junitFailures.add(junitFailure);
+    }
+
+    public Class<?> getJUnitClass() {
+    	return this.junitClass;
     }
 
     /**

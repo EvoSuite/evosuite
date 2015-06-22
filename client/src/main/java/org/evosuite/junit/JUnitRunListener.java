@@ -70,7 +70,7 @@ public class JUnitRunListener extends RunListener {
 
 		this.start = System.nanoTime();
 
-		this.testResult = new JUnitResult(description.getClassName() + "#" + description.getMethodName());
+		this.testResult = new JUnitResult(description.getClassName() + "#" + description.getMethodName(), this.junitRunner.getJUnitClass());
 
 		ExecutionTracer.enable();
 		ExecutionTracer.enableTraceCalls();
