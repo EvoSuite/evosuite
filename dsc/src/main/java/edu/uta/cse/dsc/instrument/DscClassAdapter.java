@@ -5,6 +5,13 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 
+/*
+    This class is taken and adapted from the DSC tool developed by Christoph Csallner.
+    Link at :
+    http://ranger.uta.edu/~csallner/dsc/index.html
+ */
+
+
 /**
  * The main instrumentation class is {@link DscMethodAdapter}
  * 

@@ -1,5 +1,11 @@
 package edu.uta.cse.dsc.util;
 
+/*
+    This class is taken and adapted from the DSC tool developed by Christoph Csallner.
+    Link at :
+    http://ranger.uta.edu/~csallner/dsc/index.html
+ */
+
 /**
  * Makes assertion checking more elegant than explicit if statements. Avoids the
  * -disableassertions problem of Java's assert statements.

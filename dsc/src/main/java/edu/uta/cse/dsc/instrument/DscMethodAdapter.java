@@ -120,6 +120,12 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
+/*
+    This class is taken and adapted from the DSC tool developed by Christoph Csallner.
+    Link at :
+    http://ranger.uta.edu/~csallner/dsc/index.html
+ */
+
 /**
  * Main instrumentation class
  * 

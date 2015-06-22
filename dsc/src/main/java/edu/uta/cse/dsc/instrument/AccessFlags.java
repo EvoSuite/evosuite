@@ -2,6 +2,12 @@ package edu.uta.cse.dsc.instrument;
 
 import org.objectweb.asm.Opcodes;
 
+/*
+    This class is taken and adapted from the DSC tool developed by Christoph Csallner.
+    Link at :
+    http://ranger.uta.edu/~csallner/dsc/index.html
+ */
+
 /**
  * TODO: Does Asm has this already somewhere?
  * 

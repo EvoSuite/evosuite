@@ -1,5 +1,11 @@
 package edu.uta.cse.dsc;
 
+/*
+    This class is taken and adapted from the DSC tool developed by Christoph Csallner.
+    Link at :
+    http://ranger.uta.edu/~csallner/dsc/index.html
+ */
+
 /**
  * Constant values
  * 
