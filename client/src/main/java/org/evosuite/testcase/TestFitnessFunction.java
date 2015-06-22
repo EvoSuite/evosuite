@@ -167,9 +167,6 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * @return a boolean.
 	 */
 	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
-		if(individual.test.isGoalCovered(this)){
-			return true;
-		}
 		boolean covered = getFitness(individual, result) == 0.0;
 		if (covered) {
 			individual.test.addCoveredGoal(this);
