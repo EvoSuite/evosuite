@@ -299,6 +299,10 @@ public class TestSuiteGenerator {
 		    }
 			FailingTestSet.sendStatistics();
 		}
+
+		if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
+			compileAndCheckTests(testSuite);
+		}
 	}
 	
 	 /**
@@ -427,10 +431,6 @@ public class TestSuiteGenerator {
 
         ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 
-        if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
-            compileAndCheckTests(testSuite);
-        }
-        
         writeObjectPool(testSuite);
 
 		/*

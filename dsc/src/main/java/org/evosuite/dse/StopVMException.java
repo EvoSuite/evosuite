@@ -1,4 +1,4 @@
-package edu.uta.cse.dsc;
+package org.evosuite.dse;
 
 public abstract class StopVMException extends RuntimeException {
 

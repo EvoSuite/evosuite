@@ -1,43 +1,43 @@
-package edu.uta.cse.dsc.instrument;
+package org.evosuite.dse.instrument;
 
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.BII_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.BYTECODE_NAME;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.CII_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.DGGG_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.DII_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.D_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.FGGG_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.FII_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.F_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.GGGII_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.GGG_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.GI_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.G_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.IGGG_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.IG_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.III_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.II_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.INT;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.INT_ARR;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.I_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.JGGG_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.JII_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.J_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.LGGG_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.LG_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.LII_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.LI_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.L_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.REF;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.SII_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.STR;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.VM_FQ;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.VOID;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.V_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.ZGGG_V;
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.ZII_V;
-import static edu.uta.cse.dsc.util.Assertions.check;
-import static edu.uta.cse.dsc.util.Assertions.notNull;
+import static org.evosuite.dse.instrument.InstrumentConfig.BII_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.BYTECODE_NAME;
+import static org.evosuite.dse.instrument.InstrumentConfig.CII_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.DGGG_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.DII_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.D_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.FGGG_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.FII_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.F_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.GGGII_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.GGG_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.GI_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.G_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.IGGG_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.IG_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.III_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.II_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.INT;
+import static org.evosuite.dse.instrument.InstrumentConfig.INT_ARR;
+import static org.evosuite.dse.instrument.InstrumentConfig.I_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.JGGG_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.JII_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.J_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.LGGG_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.LG_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.LII_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.LI_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.L_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.REF;
+import static org.evosuite.dse.instrument.InstrumentConfig.SII_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.STR;
+import static org.evosuite.dse.instrument.InstrumentConfig.VM_FQ;
+import static org.evosuite.dse.instrument.InstrumentConfig.VOID;
+import static org.evosuite.dse.instrument.InstrumentConfig.V_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.ZGGG_V;
+import static org.evosuite.dse.instrument.InstrumentConfig.ZII_V;
+import static org.evosuite.dse.util.Assertions.check;
+import static org.evosuite.dse.util.Assertions.notNull;
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -119,6 +119,12 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
+
+/*
+    This class is taken and adapted from the DSC tool developed by Christoph Csallner.
+    Link at :
+    http://ranger.uta.edu/~csallner/dsc/index.html
+ */
 
 /**
  * Main instrumentation class

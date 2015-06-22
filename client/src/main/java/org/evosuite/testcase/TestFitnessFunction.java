@@ -145,6 +145,10 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * @return a boolean.
 	 */
 	public boolean isCovered(TestChromosome tc) {
+		if(tc.getTestCase().isGoalCovered(this)){
+			return true;
+		}
+
 		ExecutionResult result = tc.getLastExecutionResult();
 		if (result == null || tc.isChanged()) {
 			result = runTest(tc.test);

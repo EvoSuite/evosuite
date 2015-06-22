@@ -13,9 +13,9 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.objectweb.asm.Type;
 
-import edu.uta.cse.dsc.AbstractVM;
-import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
-import edu.uta.cse.dsc.instrument.DscMethodAdapter;
+import org.evosuite.dse.AbstractVM;
+import org.evosuite.dse.instrument.DscInstrumentingClassLoader;
+import org.evosuite.dse.instrument.DscMethodAdapter;
 
 /**
  * Explicit inter-procedural control transfer: InvokeXXX, Return, etc.

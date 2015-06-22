@@ -13,6 +13,10 @@ import org.junit.Test;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,7 +33,26 @@ public class UdpTest {
 	public void tearDownMock() {
 		MockFramework.disable();
 	}
-	
+
+
+    @Test
+    public void multiOpenings() throws Exception{
+        //be sure that no real UDP socket is opened. if it happens, then exception is thrown due to too many opened
+
+        int n = 10_000;
+        List<MockDatagramSocket> list = new ArrayList<>(n); //to avoid GC
+        for(int i=0; i<n; i++){
+            byte[] data = "Hello".getBytes();
+            //send the message
+            DatagramPacket packet = new DatagramPacket(data,data.length,
+                    MockInetAddress.getByName("255.255.255.255"),12345);
+            MockDatagramSocket socket = new MockDatagramSocket();
+            socket.send(packet);
+
+            list.add(socket);
+        }
+    }
+
     @Test
     public void testReceivePacket() throws Exception {
         int port = 12345;

@@ -41,7 +41,7 @@ public class MeasureCoverage {
 			LoggingUtils.getEvoLogger().error("Please specify target class ('-class' option)");
 			Help.execute(options);
 		}
-		return null;
+		return SearchStatistics.getInstance();
 	}
 	
 	private static void measureCoverage(String targetClass, String junitPrefix,
@@ -175,5 +175,6 @@ public class MeasureCoverage {
 			}
 			logUtils.closeLogServer();
 		}
+
 	}
 }

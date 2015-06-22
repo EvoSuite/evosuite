@@ -1,7 +1,13 @@
-package edu.uta.cse.dsc;
+package org.evosuite.dse;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
+
+/*
+    This class is taken and adapted from the DSC tool developed by Christoph Csallner.
+    Link at :
+    http://ranger.uta.edu/~csallner/dsc/index.html
+ */
 
 /**
  * Linked list of Strings

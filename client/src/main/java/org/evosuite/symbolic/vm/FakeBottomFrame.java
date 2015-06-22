@@ -1,6 +1,6 @@
  package org.evosuite.symbolic.vm;
 
-import static edu.uta.cse.dsc.util.Assertions.check;
+import static org.evosuite.dse.util.Assertions.check;
 
 import java.lang.reflect.Member;
 
