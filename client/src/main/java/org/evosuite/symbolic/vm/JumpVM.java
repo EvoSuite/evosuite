@@ -6,7 +6,7 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 
-import edu.uta.cse.dsc.AbstractVM;
+import org.evosuite.dse.AbstractVM;
 
 /**
  * Java byte codes we group together as "jump-related"

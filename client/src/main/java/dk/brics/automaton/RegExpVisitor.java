@@ -1,5 +1,12 @@
 package dk.brics.automaton;
 
+/*
+ * This class is not in the org.evosuite package,
+ * as it has to access package level variables and classes in the
+ * dk.brics.automaton package
+ *
+ */
+
 public abstract class RegExpVisitor<K> {
 
 	public final K visitRegExp(RegExp e) {

@@ -1,8 +1,15 @@
-package edu.uta.cse.dsc;
+package org.evosuite.dse;
 
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+
+
+/*
+    This class is taken and adapted from the DSC tool developed by Christoph Csallner.
+    Link at :
+    http://ranger.uta.edu/~csallner/dsc/index.html
+ */
 
 /**
  * Entry-point

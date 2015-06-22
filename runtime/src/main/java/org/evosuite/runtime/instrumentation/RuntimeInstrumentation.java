@@ -72,6 +72,7 @@ public class RuntimeInstrumentation {
                 "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc", "org.mozilla.javascript.gen.c",
                 "corina.cross.Single",  // I really don't know what is wrong with this class, but we need to exclude it
                 "org.slf4j",
+                "dk.brics.automaton", //used in DSE, and we have a class with that package inside EvoSutie
                 /**
                  * FIXME:
                  * JavaEE libraries should be shaded, and not being here in blacklist, as many side-effects.

@@ -1,7 +1,7 @@
-package edu.uta.cse.dsc.instrument;
+package org.evosuite.dse.instrument;
 
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.VM_FQ;
-import static edu.uta.cse.dsc.util.Assertions.check;
+import static org.evosuite.dse.instrument.InstrumentConfig.VM_FQ;
+import static org.evosuite.dse.util.Assertions.check;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP2;
@@ -26,6 +26,12 @@ import static org.objectweb.asm.Type.VOID_TYPE;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+/*
+    This class is taken and adapted from the DSC tool developed by Christoph Csallner.
+    Link at :
+    http://ranger.uta.edu/~csallner/dsc/index.html
+ */
 
 /**
  * Helper class

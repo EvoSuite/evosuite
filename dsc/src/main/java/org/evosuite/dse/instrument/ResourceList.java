@@ -18,7 +18,7 @@
 /**
  * 
  */
-package edu.uta.cse.dsc.instrument;
+package org.evosuite.dse.instrument;
 
 /**
  * @author fraser
@@ -28,7 +28,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import edu.uta.cse.dsc.MainConfig;
+import org.evosuite.dse.MainConfig;
+import org.evosuite.dse.MainConfig;
 
 
 /**
