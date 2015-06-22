@@ -58,7 +58,7 @@ import org.evosuite.testcase.statements.numeric.ShortPrimitiveStatement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.objectweb.asm.Type;
 
-import edu.uta.cse.dsc.VM;
+import org.evosuite.dse.VM;
 
 public class SymbolicObserver extends ExecutionObserver {
 

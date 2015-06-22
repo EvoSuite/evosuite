@@ -136,6 +136,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 		// TODO: somehow adds the same goal more than once (fitnessfunction.equals()?)
 	}
 
+	@Override
+	public boolean isGoalCovered(TestFitnessFunction goal){
+		return coveredGoals.contains(goal);
+	}
+
+
 	private void addFields(List<VariableReference> variables, VariableReference var,
 	        Type type) {
 

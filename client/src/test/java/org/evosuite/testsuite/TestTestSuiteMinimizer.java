@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
@@ -38,6 +39,8 @@ public class TestTestSuiteMinimizer
     @Before
     public void setUp()
     {
+        ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+
         Properties.getInstance().resetToDefaults();
 
         Randomness.setSeed(42);

@@ -203,6 +203,10 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		return results;
 	}
 
+	public Map<String, OutputVariable<?>> getOutputVariables() {
+		return this.outputVariables;
+	}
+
 	/**
 	 * Retrieve list of possible variables
 	 *  

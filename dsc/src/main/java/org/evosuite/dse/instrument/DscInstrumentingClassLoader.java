@@ -1,8 +1,8 @@
-package edu.uta.cse.dsc.instrument;
+package org.evosuite.dse.instrument;
 
 
-import static edu.uta.cse.dsc.util.Assertions.check;
-import static edu.uta.cse.dsc.util.Assertions.notNull;
+import static org.evosuite.dse.util.Assertions.check;
+import static org.evosuite.dse.util.Assertions.notNull;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,10 +12,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.dse.MainConfig;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
 
-import edu.uta.cse.dsc.MainConfig;
+import org.evosuite.dse.MainConfig;
 
 /**
  * A ClassLoader very similar to the <code>org.evosuite.javaagent.InstrumentingClassLoader</code>

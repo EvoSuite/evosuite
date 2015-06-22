@@ -5,7 +5,7 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealValue;
 
-import edu.uta.cse.dsc.AbstractVM;
+import org.evosuite.dse.AbstractVM;
 
 /**
  * 
