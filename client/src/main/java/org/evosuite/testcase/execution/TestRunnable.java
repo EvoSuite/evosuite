@@ -40,7 +40,7 @@ import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.uta.cse.dsc.VMError;
+import org.evosuite.dse.VMError;
 
 /**
  * <p>

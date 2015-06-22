@@ -40,10 +40,10 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.uta.cse.dsc.IVM;
-import edu.uta.cse.dsc.MainConfig;
-import edu.uta.cse.dsc.VM;
-import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
+import org.evosuite.dse.IVM;
+import org.evosuite.dse.MainConfig;
+import org.evosuite.dse.VM;
+import org.evosuite.dse.instrument.DscInstrumentingClassLoader;
 
 /**
  * <p>

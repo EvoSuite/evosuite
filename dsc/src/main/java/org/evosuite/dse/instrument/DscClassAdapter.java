@@ -1,4 +1,4 @@
-package edu.uta.cse.dsc.instrument;
+package org.evosuite.dse.instrument;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;

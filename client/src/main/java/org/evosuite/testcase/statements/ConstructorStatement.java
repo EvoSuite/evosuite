@@ -49,7 +49,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 
-import edu.uta.cse.dsc.VM;
+import org.evosuite.dse.VM;
 
 /**
  * This statement represents a constructor call

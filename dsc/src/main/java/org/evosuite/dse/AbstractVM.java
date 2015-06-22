@@ -1,6 +1,8 @@
-package edu.uta.cse.dsc;
+package org.evosuite.dse;
 
-import static edu.uta.cse.dsc.util.Assertions.check;
+import org.evosuite.dse.util.Assertions;
+
+import static org.evosuite.dse.util.Assertions.check;
 
 /*
     This class is taken and adapted from the DSC tool developed by Christoph Csallner.
@@ -843,102 +845,102 @@ public abstract class AbstractVM implements IVM {
 	 */
 	@Override
 	final public void ILOAD_0() {
-		check(false);
+		Assertions.check(false);
 	} // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html#iload_n
 
 	@Override
 	final public void ILOAD_1() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void ILOAD_2() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void ILOAD_3() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void LLOAD_0() {
-		check(false);
+		Assertions.check(false);
 	} // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc8.html#lload_n
 
 	@Override
 	final public void LLOAD_1() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void LLOAD_2() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void LLOAD_3() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void FLOAD_0() {
-		check(false);
+		Assertions.check(false);
 	} // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc4.html#fload_n
 
 	@Override
 	final public void FLOAD_1() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void FLOAD_2() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void FLOAD_3() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void DLOAD_0() {
-		check(false);
+		Assertions.check(false);
 	} // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc3.html#dload_n
 
 	@Override
 	final public void DLOAD_1() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void DLOAD_2() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void DLOAD_3() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void ALOAD_0() {
-		check(false);
+		Assertions.check(false);
 	} // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc.html#aload_n
 
 	@Override
 	final public void ALOAD_1() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void ALOAD_2() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void ALOAD_3() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	/**
@@ -946,107 +948,107 @@ public abstract class AbstractVM implements IVM {
 	 */
 	@Override
 	final public void ISTORE_0() {
-		check(false);
+		Assertions.check(false);
 	} // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html#istore_n
 
 	@Override
 	final public void ISTORE_1() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void ISTORE_2() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void ISTORE_3() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void LSTORE_0() {
-		check(false);
+		Assertions.check(false);
 	} // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc8.html#lstore_n
 
 	@Override
 	final public void LSTORE_1() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void LSTORE_2() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void LSTORE_3() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void FSTORE_0() {
-		check(false);
+		Assertions.check(false);
 	} // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc4.html#fstore_n
 
 	@Override
 	final public void FSTORE_1() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void FSTORE_2() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void FSTORE_3() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void DSTORE_0() {
-		check(false);
+		Assertions.check(false);
 	} // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc3.html#dstore_n
 
 	@Override
 	final public void DSTORE_1() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void DSTORE_2() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void DSTORE_3() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void ASTORE_0() {
-		check(false);
+		Assertions.check(false);
 	} // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc.html#astore_n
 
 	@Override
 	final public void ASTORE_1() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void ASTORE_2() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void ASTORE_3() {
-		check(false);
+		Assertions.check(false);
 	}
 
 	@Override
 	final public void LDC_W() {
-		check(false,
+		Assertions.check(false,
 				"Should never be called, as ASM redirects all LDC_W calls to LDC.");
 	}
 
