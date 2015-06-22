@@ -2,6 +2,12 @@ package edu.uta.cse.dsc;
 
 import static edu.uta.cse.dsc.util.Assertions.check;
 
+/*
+    This class is taken and adapted from the DSC tool developed by Christoph Csallner.
+    Link at :
+    http://ranger.uta.edu/~csallner/dsc/index.html
+ */
+
 /**
  * VM ByteCode instruction listener that does not have access to any shared
  * state of the VM. Still useful for implementing a ByteCode instruction logger.

@@ -27,6 +27,12 @@ import static org.objectweb.asm.Type.VOID_TYPE;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+/*
+    This class is taken and adapted from the DSC tool developed by Christoph Csallner.
+    Link at :
+    http://ranger.uta.edu/~csallner/dsc/index.html
+ */
+
 /**
  * Helper class
  * 
