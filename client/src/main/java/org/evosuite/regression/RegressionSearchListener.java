@@ -156,12 +156,13 @@ public class RegressionSearchListener implements SearchListener {
 				 * .getBestIndividual()).clone()).getTests() );
 				 */
 			}
-
-			RegressionSearchListener.lastOD = curOD;
-			lastAssertions = curAssertions;
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		RegressionSearchListener.lastOD = curOD;
+		lastAssertions = curAssertions;
 	}
 
 	private void writeIterationLog(GeneticAlgorithm<?> algorithm,
