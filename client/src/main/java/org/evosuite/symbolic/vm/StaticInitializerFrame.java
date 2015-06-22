@@ -2,7 +2,7 @@ package org.evosuite.symbolic.vm;
 
 import java.lang.reflect.Member;
 
-import edu.uta.cse.dsc.MainConfig;
+import org.evosuite.dse.MainConfig;
 
 /**
  * Frame for a <clinit>() invocation

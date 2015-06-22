@@ -1,4 +1,4 @@
-package edu.uta.cse.dsc;
+package org.evosuite.dse;
 
 /**
  * This error can be used to signal an throwable from VM code, below the

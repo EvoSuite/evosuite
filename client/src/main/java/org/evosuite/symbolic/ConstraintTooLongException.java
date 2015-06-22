@@ -19,7 +19,7 @@
  */
 package org.evosuite.symbolic;
 
-import edu.uta.cse.dsc.StopVMException;
+import org.evosuite.dse.StopVMException;
 
 public class ConstraintTooLongException extends StopVMException {
 
