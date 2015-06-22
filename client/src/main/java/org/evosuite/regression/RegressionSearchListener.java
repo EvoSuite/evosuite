@@ -122,11 +122,15 @@ public class RegressionSearchListener implements SearchListener {
 				+ exceptionDiff);
 		
 		boolean fitnessNotChanged = false;
-		if(ind.getFitness() >= lastFitnessObserved || lastIterationSuccessful){
+		if(ind.getFitness() >= lastFitnessObserved){
 			fitnessNotChanged = true;
 		}
 		lastFitnessObserved = ind.getFitness();
 
+		if(lastIterationSuccessful && lastAssertions>0){
+			fitnessNotChanged = true;
+		}
+		
 		int curAssertions = fitnessNotChanged ? lastAssertions : RegressionAssertionCounter.getNumAssertions(ind);
 		// curAssertions += ind.diffExceptions;
 
