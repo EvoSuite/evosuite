@@ -22,9 +22,12 @@ import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.smt.SmtAssertion;
+import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
+import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
-import org.evosuite.symbolic.solver.smt.SmtExprPrinter;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,25 +56,20 @@ public class Z3Solver extends Solver {
 			variables.addAll(c_variables);
 		}
 
-		List<SmtExpr> assertions = new LinkedList<SmtExpr>();
-		for (Constraint<?> c : constraints) {
-			ConstraintToZ3Visitor v = new ConstraintToZ3Visitor();
-			SmtExpr bool_expr = c.accept(v, null);
-			if (bool_expr != null && bool_expr.isSymbolic()) {
-				assertions.add(bool_expr);
-			}
-		}
+		SmtCheckSatQuery smtCheckSatQuery = buildSmtQuery(constraints,
+				variables);
 
-		String smtQuery = buildSmtQuery(assertions, variables, timeout);
-
-		if (smtQuery == null) {
-			logger.debug("Empty SMT query to Z3");
+		if (smtCheckSatQuery.getConstantDeclarations().isEmpty()) {
+			logger.debug("Z3 SMT query has no variables");
 			logger.debug("Returning NULL as solution");
 			return null;
 		}
+		
+		Z3QueryPrinter printer = new Z3QueryPrinter();
+		String smtQueryStr = printer.print(smtCheckSatQuery, timeout);
 
 		logger.debug("Z3 Query:");
-		logger.debug(smtQuery);
+		logger.debug(smtQueryStr);
 
 		if (Properties.Z3_PATH == null) {
 			String errMsg = "Property Z3_PATH should be setted in order to use the Z3 Solver!";
@@ -83,7 +81,7 @@ public class Z3Solver extends Solver {
 		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 
 		try {
-			launchNewProcess(z3Cmd, smtQuery.toString(), (int) timeout, stdout);
+			launchNewProcess(z3Cmd, smtQueryStr, (int) timeout, stdout);
 
 			String z3ResultStr = stdout.toString("UTF-8");
 			if (z3ResultStr.startsWith("sat")) {
@@ -100,13 +98,7 @@ public class Z3Solver extends Solver {
 				}
 				Map<String, Object> solution = modelParser.parse(z3ResultStr);
 
-				boolean checkSmt = checkSolution(assertions, solution);
-				if (!checkSmt) {
-					throw new EvosuiteError(
-							"The returned solution does not solve the SMT query!");
-				}
-
-				// check solution is correct
+				// check if the found solution is useful
 				boolean check = checkSolution(constraints, solution);
 				if (!check) {
 					logger.debug("Z3 solution does not solve the constraint system!");
@@ -130,31 +122,20 @@ public class Z3Solver extends Solver {
 		}
 	}
 
-	private static String buildSmtQuery(Collection<SmtExpr> assertions,
-			Set<Variable<?>> variables, long timeout) {
-
-		if (assertions.isEmpty()) {
-			logger.debug("Translation to Z3 model has no variables");
-			return null;
-		}
-
-		logger.debug("Creating new Z3 Solver");
-		logger.debug("Setting Z3 soft_timeout to " + timeout + " ms");
-
-		StringBuffer smtQuery = new StringBuffer();
-		smtQuery.append("(set-option :timeout " + timeout + ")");
-		smtQuery.append("\n");
-
+	private static SmtCheckSatQuery buildSmtQuery(
+			Collection<Constraint<?>> constraints, Set<Variable<?>> variables) {
+		List<SmtConstantDeclaration> constantDeclarations = new LinkedList<SmtConstantDeclaration>();
 		for (Variable<?> v : variables) {
 			String varName = v.getName();
 			if (v instanceof IntegerVariable) {
-				String intVar = Z3ExprBuilder.mkIntVariable(varName);
-				smtQuery.append(intVar);
-				smtQuery.append("\n");
+				SmtConstantDeclaration intVar = SmtExprBuilder
+						.mkIntConstantDeclaration(varName);
+				constantDeclarations.add(intVar);
 			} else if (v instanceof RealVariable) {
-				String realVar = Z3ExprBuilder.mkRealVariable(varName);
-				smtQuery.append(realVar);
-				smtQuery.append("\n");
+				SmtConstantDeclaration realVar = SmtExprBuilder
+						.mkRealConstantDeclaration(varName);
+				constantDeclarations.add(realVar);
+
 			} else if (v instanceof StringVariable) {
 				// ignore string variables
 			} else {
@@ -163,22 +144,19 @@ public class Z3Solver extends Solver {
 			}
 		}
 
-		SmtExprPrinter printer = new SmtExprPrinter();
-		for (SmtExpr formula : assertions) {
-			String formulaStr = formula.accept(printer, null);
-			smtQuery.append("(assert " + formulaStr + ")");
-			smtQuery.append("\n");
+		List<SmtAssertion> assertions = new LinkedList<SmtAssertion>();
+		for (Constraint<?> c : constraints) {
+			ConstraintToZ3Visitor v = new ConstraintToZ3Visitor();
+			SmtExpr bool_expr = c.accept(v, null);
+			if (bool_expr != null && bool_expr.isSymbolic()) {
+				SmtAssertion newAssertion = new SmtAssertion(bool_expr);
+				assertions.add(newAssertion);
+			}
 		}
 
-		smtQuery.append("(check-sat)");
-		smtQuery.append("\n");
-
-		smtQuery.append("(get-model)");
-		smtQuery.append("\n");
-
-		smtQuery.append("(exit)");
-		smtQuery.append("\n");
-		return smtQuery.toString();
+		SmtCheckSatQuery smtCheckSatQuery = new SmtCheckSatQuery(
+				constantDeclarations, assertions);
+		return smtCheckSatQuery;
 	}
 
 	private static final class TimeoutTask extends TimerTask {
