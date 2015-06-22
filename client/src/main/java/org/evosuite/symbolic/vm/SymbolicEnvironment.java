@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.vm;
 
-import edu.uta.cse.dsc.MainConfig;
-import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
+import org.evosuite.dse.MainConfig;
+import org.evosuite.dse.instrument.DscInstrumentingClassLoader;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;

@@ -1,7 +1,7 @@
-package edu.uta.cse.dsc.instrument;
+package org.evosuite.dse.instrument;
 
-import static edu.uta.cse.dsc.instrument.InstrumentConfig.VM_FQ;
-import static edu.uta.cse.dsc.util.Assertions.check;
+import static org.evosuite.dse.instrument.InstrumentConfig.VM_FQ;
+import static org.evosuite.dse.util.Assertions.check;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP2;

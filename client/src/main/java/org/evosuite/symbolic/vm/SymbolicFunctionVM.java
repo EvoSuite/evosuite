@@ -123,7 +123,7 @@ import org.evosuite.symbolic.vm.wrappers.Z_Init;
 import org.evosuite.symbolic.vm.wrappers.Z_ValueOf;
 import org.objectweb.asm.Type;
 
-import edu.uta.cse.dsc.AbstractVM;
+import org.evosuite.dse.AbstractVM;
 
 /**
  * 

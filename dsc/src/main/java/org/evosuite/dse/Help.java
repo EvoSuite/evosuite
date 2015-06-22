@@ -1,4 +1,4 @@
-package edu.uta.cse.dsc;
+package org.evosuite.dse;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

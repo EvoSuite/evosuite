@@ -1,4 +1,4 @@
-package edu.uta.cse.dsc;
+package org.evosuite.dse;
 
 import java.lang.reflect.Method;
 import java.util.LinkedList;

@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm;
 
-import static edu.uta.cse.dsc.util.Assertions.notNull;
+import static org.evosuite.dse.util.Assertions.notNull;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -14,8 +14,8 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.uta.cse.dsc.AbstractVM;
-import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
+import org.evosuite.dse.AbstractVM;
+import org.evosuite.dse.instrument.DscInstrumentingClassLoader;
 
 /**
  * Static area (static fields) and heap (instance fields)

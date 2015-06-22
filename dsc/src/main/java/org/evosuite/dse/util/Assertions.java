@@ -1,4 +1,4 @@
-package edu.uta.cse.dsc.util;
+package org.evosuite.dse.util;
 
 /*
     This class is taken and adapted from the DSC tool developed by Christoph Csallner.

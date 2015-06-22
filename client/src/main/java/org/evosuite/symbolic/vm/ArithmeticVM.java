@@ -14,7 +14,7 @@ import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.RealComparison;
 import org.evosuite.symbolic.expr.bv.RealToIntegerCast;
 
-import edu.uta.cse.dsc.AbstractVM;
+import org.evosuite.dse.AbstractVM;
 
 /**
  * ByteCode instructions that pop operands off the stack, perform some
