@@ -19,18 +19,22 @@ import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
-import org.evosuite.symbolic.solver.SmtStringExprBuilder;
+import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.smt.SmtAssertion;
+import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
+import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
-import org.evosuite.symbolic.solver.smt.SmtExprPrinter;
-import org.evosuite.symbolic.solver.smt.SmtOperatorCollector;
+import org.evosuite.symbolic.solver.smt.SmtFunctionDeclaration;
+import org.evosuite.symbolic.solver.smt.SmtFunctionDefinition;
 import org.evosuite.symbolic.solver.smt.SmtIntVariable;
 import org.evosuite.symbolic.solver.smt.SmtOperation;
+import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
+import org.evosuite.symbolic.solver.smt.SmtOperatorCollector;
 import org.evosuite.symbolic.solver.smt.SmtRealVariable;
 import org.evosuite.symbolic.solver.smt.SmtStringVariable;
-import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.evosuite.symbolic.solver.smt.SmtVariable;
-import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
+import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +69,6 @@ public final class CVC4Solver extends Solver {
 			process.destroy();
 		}
 	}
-
-	private static final String CVC4_LOGIC = "QF_SLIRA";
 
 	static Logger logger = LoggerFactory.getLogger(CVC4Solver.class);
 
@@ -106,24 +108,18 @@ public final class CVC4Solver extends Solver {
 			variables.addAll(c_variables);
 		}
 
-		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor();
-		List<SmtExpr> smtExpressions = new LinkedList<SmtExpr>();
-		for (Constraint<?> c : constraints) {
-			SmtExpr smtExpr = c.accept(v, null);
-			if (smtExpr != null) {
-				smtExpressions.add(smtExpr);
-			}
-		}
+		SmtCheckSatQuery smtQuery = buildSmtCheckSatQuery(constraints);
 
-		String smtQuery = buildSmtQuery(smtExpressions);
+		CVC4QueryPrinter printer = new CVC4QueryPrinter();
+		String smtQueryStr = printer.print(smtQuery);
 
-		if (smtQuery == null) {
+		if (smtQueryStr == null) {
 			logger.debug("No variables found during constraint solving. Returning NULL as solution");
 			return null;
 		}
 
 		logger.debug("CVC4 Query:");
-		logger.debug(smtQuery);
+		logger.debug(smtQueryStr);
 
 		String cvc4Cmd = buildCVC4cmd(cvcTimeout);
 
@@ -131,8 +127,8 @@ public final class CVC4Solver extends Solver {
 		ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
 		try {
-			launchNewProcess(cvc4Cmd, smtQuery, (int) processTimeout, stdout,
-					stderr);
+			launchNewProcess(cvc4Cmd, smtQueryStr, (int) processTimeout,
+					stdout, stderr);
 
 			String cvc4ResultStr = stdout.toString("UTF-8");
 			String errorStr = stderr.toString("UTF-8");
@@ -155,15 +151,7 @@ public final class CVC4Solver extends Solver {
 				}
 				Map<String, Object> solution = modelParser.parse(cvc4ResultStr);
 
-				// check solution is correct
-				boolean checkSolutionSmt = checkSolution(smtExpressions,
-						solution);
-				if (!checkSolutionSmt) {
-					throw new EvosuiteError(
-							"CVC4 solution does not solve the SMT query");
-				}
-
-				// check solution is correct
+				// check if the found solution is useful
 				boolean check = checkSolution(constraints, solution);
 				if (!check) {
 					logger.debug("CVC4 solution does not solve the original constraint system. ");
@@ -200,6 +188,81 @@ public final class CVC4Solver extends Solver {
 
 	}
 
+	private static SmtCheckSatQuery buildSmtCheckSatQuery(
+			Collection<Constraint<?>> constraints) {
+
+		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor();
+		SmtVariableCollector varCollector = new SmtVariableCollector();
+		SmtOperatorCollector funCollector = new SmtOperatorCollector();
+
+		List<SmtAssertion> smtAssertions = new LinkedList<SmtAssertion>();
+		for (Constraint<?> c : constraints) {
+			SmtExpr smtExpr = c.accept(v, null);
+			if (smtExpr != null) {
+				SmtAssertion smtAssertion = new SmtAssertion(smtExpr);
+				smtAssertions.add(smtAssertion);
+				smtExpr.accept(varCollector, null);
+				smtExpr.accept(funCollector, null);
+			}
+		}
+
+		Set<SmtVariable> variables = varCollector.getSmtVariables();
+
+		if (variables.isEmpty()) {
+			return null; // no variables, constraint system is trivial
+		}
+
+		List<SmtFunctionDefinition> functionDefinitions = new LinkedList<SmtFunctionDefinition>();
+
+		final boolean addCharToInt = funCollector.getOperators().contains(
+				Operator.CHAR_TO_INT);
+		if (addCharToInt) {
+			String charToIntFunction = buildCharToIntFunction();
+			SmtFunctionDefinition funcDefinition = new SmtFunctionDefinition(
+					charToIntFunction);
+			functionDefinitions.add(funcDefinition);
+		}
+
+		final boolean addIntToChar = funCollector.getOperators().contains(
+				Operator.INT_TO_CHAR);
+		if (addIntToChar) {
+			String intToCharFunction = buildIntToCharFunction();
+			SmtFunctionDefinition funcDefinition = new SmtFunctionDefinition(
+					intToCharFunction);
+			functionDefinitions.add(funcDefinition);
+		}
+
+		List<SmtFunctionDeclaration> functionDeclarations = new LinkedList<SmtFunctionDeclaration>();
+		for (SmtVariable var : variables) {
+			String varName = var.getName();
+			if (var instanceof SmtIntVariable) {
+				SmtFunctionDeclaration intVar = SmtExprBuilder
+						.mkIntFunctionDeclaration(varName);
+				functionDeclarations.add(intVar);
+
+			} else if (var instanceof SmtRealVariable) {
+				SmtFunctionDeclaration realVar = SmtExprBuilder
+						.mkRealFunctionDeclaration(varName);
+				functionDeclarations.add(realVar);
+
+			} else if (var instanceof SmtStringVariable) {
+				SmtFunctionDeclaration stringVar = SmtExprBuilder
+						.mkStringFunctionDeclaration(varName);
+				functionDeclarations.add(stringVar);
+			} else {
+				throw new RuntimeException("Unknown variable type "
+						+ var.getClass().getCanonicalName());
+			}
+		}
+
+		SmtCheckSatQuery smtQuery = new SmtCheckSatQuery(
+				new LinkedList<SmtConstantDeclaration>(), functionDeclarations,
+				functionDefinitions, smtAssertions);
+
+		return smtQuery;
+
+	}
+
 	private static String buildCVC4cmd(long cvcTimeout) {
 		String cmd = Properties.CVC4_PATH;
 		cmd += "  --rewrite-divk"; // rewrite-divk rewrites division (or
@@ -219,103 +282,6 @@ public final class CVC4Solver extends Solver {
 			}
 		}
 		return false;
-	}
-
-	private static String buildSmtQuery(Collection<SmtExpr> smtExpressions) {
-
-		SmtExprPrinter printer = new SmtExprPrinter();
-		List<String> cvc4StrAssertions = new LinkedList<String>();
-		for (SmtExpr smtExpr : smtExpressions) {
-			String smtExprStr = smtExpr.accept(printer, null);
-			String assertionStr = SmtStringExprBuilder.mkAssert(smtExprStr);
-			cvc4StrAssertions.add(assertionStr);
-		}
-
-		SmtVariableCollector varCollector = new SmtVariableCollector();
-		for (SmtExpr smtExpr : smtExpressions) {
-			smtExpr.accept(varCollector, null);
-		}
-		Set<SmtVariable> variables = varCollector.getSmtVariables();
-
-		if (variables.isEmpty()) {
-			return null; // no variables, constraint system is trivial
-		}
-
-		SmtOperatorCollector funCollector = new SmtOperatorCollector();
-		for (SmtExpr smtExpr : smtExpressions) {
-			smtExpr.accept(funCollector, null);
-		}
-
-		boolean addCharToInt = funCollector.getOperators().contains(
-				Operator.CHAR_TO_INT);
-		boolean addIntToChar = funCollector.getOperators().contains(
-				Operator.INT_TO_CHAR);
-
-		return createSmtString(cvc4StrAssertions, variables, addCharToInt,
-				addIntToChar);
-
-	}
-
-	private static String createSmtString(List<String> cvc4StrAssertions,
-			Set<SmtVariable> variables, boolean addCharToInt,
-			boolean addIntToChar) {
-		StringBuffer smtQuery = new StringBuffer();
-		smtQuery.append("\n");
-		smtQuery.append("(set-logic " + CVC4_LOGIC + ")");
-		smtQuery.append("\n");
-		smtQuery.append("(set-option :produce-models true)");
-		smtQuery.append("\n");
-		smtQuery.append("(set-option :strings-exp true)");
-		smtQuery.append("\n");
-
-		if (addCharToInt) {
-			String charToIntFunction = buildCharToIntFunction();
-			smtQuery.append(charToIntFunction);
-			smtQuery.append("\n");
-		}
-
-		if (addIntToChar) {
-			String intToCharFunction = buildIntToCharFunction();
-			smtQuery.append(intToCharFunction);
-			smtQuery.append("\n");
-		}
-		for (SmtVariable var : variables) {
-			String varName = var.getName();
-			if (var instanceof SmtIntVariable) {
-				String intVar = SmtStringExprBuilder.mkIntFunction(varName);
-				smtQuery.append(intVar);
-				smtQuery.append("\n");
-
-			} else if (var instanceof SmtRealVariable) {
-				String realVar = SmtStringExprBuilder.mkRealFunction(varName);
-				smtQuery.append(realVar);
-				smtQuery.append("\n");
-
-			} else if (var instanceof SmtStringVariable) {
-				String stringVar = SmtStringExprBuilder
-						.mkStringFunction(varName);
-				smtQuery.append(stringVar);
-				smtQuery.append("\n");
-			} else {
-				throw new RuntimeException("Unknown variable type "
-						+ var.getClass().getCanonicalName());
-			}
-		}
-
-		for (String cvc4assert : cvc4StrAssertions) {
-			smtQuery.append(cvc4assert);
-			smtQuery.append("\n");
-		}
-
-		smtQuery.append("(check-sat)");
-		smtQuery.append("\n");
-
-		smtQuery.append("(get-model)");
-		smtQuery.append("\n");
-
-		smtQuery.append("(exit)");
-		smtQuery.append("\n");
-		return smtQuery.toString();
 	}
 
 	private static int launchNewProcess(String cvc4Cmd, String smtQuery,
@@ -366,8 +332,7 @@ public final class CVC4Solver extends Solver {
 
 	private static String buildIntToCharFunction() {
 		StringBuffer buff = new StringBuffer();
-		buff.append("(define-fun " + SmtOperation.Operator.INT_TO_CHAR
-				+ "((!x Int)) String");
+		buff.append(SmtOperation.Operator.INT_TO_CHAR + "((!x Int)) String");
 		buff.append("\n");
 		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
 			String hexStr;
@@ -389,15 +354,12 @@ public final class CVC4Solver extends Solver {
 		for (int i = 0; i < ASCII_TABLE_LENGTH - 1; i++) {
 			buff.append(")");
 		}
-		buff.append(")");
-		buff.append("\n");
 		return buff.toString();
 	}
 
 	private static String buildCharToIntFunction() {
 		StringBuffer buff = new StringBuffer();
-		buff.append("(define-fun " + SmtOperation.Operator.CHAR_TO_INT
-				+ "((!x String)) Int");
+		buff.append(SmtOperation.Operator.CHAR_TO_INT + "((!x String)) Int");
 		buff.append("\n");
 		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
 			String hexStr;
@@ -419,8 +381,6 @@ public final class CVC4Solver extends Solver {
 		for (int i = 0; i < ASCII_TABLE_LENGTH - 1; i++) {
 			buff.append(")");
 		}
-		buff.append(")");
-		buff.append("\n");
 		return buff.toString();
 	}
 

@@ -1,7 +1,9 @@
 package org.evosuite.symbolic.solver;
 
 import org.evosuite.symbolic.solver.smt.SmtBooleanConstant;
+import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
+import org.evosuite.symbolic.solver.smt.SmtFunctionDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtIntConstant;
 import org.evosuite.symbolic.solver.smt.SmtIntVariable;
 import org.evosuite.symbolic.solver.smt.SmtOperation;
@@ -323,6 +325,36 @@ public abstract class SmtExprBuilder {
 	public static SmtExpr mkLength(SmtExpr stringExpr) {
 		return new SmtOperation(SmtOperation.Operator.LENGTH, stringExpr);
 
+	}
+
+	public static SmtConstantDeclaration mkIntConstantDeclaration(
+			String constName) {
+		return new SmtConstantDeclaration(constName, "Int");
+	}
+
+	public static SmtConstantDeclaration mkRealConstantDeclaration(
+			String constName) {
+		return new SmtConstantDeclaration(constName, "Real");
+	}
+
+	public static SmtConstantDeclaration mkStringConstantDeclaration(
+			String constName) {
+		return new SmtConstantDeclaration(constName, "String");
+	}
+
+	public static SmtFunctionDeclaration mkIntFunctionDeclaration(
+			String funcName) {
+		return new SmtFunctionDeclaration(funcName, "Int");
+	}
+
+	public static SmtFunctionDeclaration mkRealFunctionDeclaration(
+			String funcName) {
+		return new SmtFunctionDeclaration(funcName, "Real");
+	}
+
+	public static SmtFunctionDeclaration mkStringFunctionDeclaration(
+			String funcName) {
+		return new SmtFunctionDeclaration(funcName, "String");
 	}
 
 }
