@@ -53,6 +53,7 @@ public class RegressionSearchListener implements SearchListener {
 	public static File statsFile;
 	public static double lastOD = 0.0;
 	public static int lastAssertions = -1;
+	public static boolean lastIterationSuccessful = false;
 	
 	public double lastFitnessObserved = Double.MAX_VALUE;
 
@@ -121,17 +122,18 @@ public class RegressionSearchListener implements SearchListener {
 				+ exceptionDiff);
 		
 		boolean fitnessNotChanged = false;
-		if(ind.getFitness() >= lastFitnessObserved){
+		if(ind.getFitness() >= lastFitnessObserved || lastIterationSuccessful){
 			fitnessNotChanged = true;
 		}
 		lastFitnessObserved = ind.getFitness();
 
-		int curAssertions = fitnessNotChanged ? lastAssertions:RegressionAssertionCounter.getNumAssertions(ind);
+		int curAssertions = fitnessNotChanged ? lastAssertions : RegressionAssertionCounter.getNumAssertions(ind);
 		// curAssertions += ind.diffExceptions;
 
 		if (curAssertions > 0) {
 			individual.setFitness(algorithm.getFitnessFunction(), 0);
 			algorithm.setStoppingConditionLimit(0);
+			lastIterationSuccessful = true;
 			// RegressionSearchListener.killTheSearch = false;
 		}
 
