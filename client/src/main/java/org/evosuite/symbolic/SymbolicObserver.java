@@ -1,5 +1,6 @@
 package org.evosuite.symbolic;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.runtime.testdata.EvoSuiteFile;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
@@ -57,7 +59,6 @@ import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.numeric.ShortPrimitiveStatement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.objectweb.asm.Type;
-
 import org.evosuite.dse.VM;
 
 public class SymbolicObserver extends ExecutionObserver {
@@ -170,7 +171,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 			} else if (s instanceof ClassPrimitiveStatement) {
 				before((ClassPrimitiveStatement) s, scope);
-				
+
 			} else if (s instanceof FileNamePrimitiveStatement) {
 				before((FileNamePrimitiveStatement) s, scope);
 
@@ -1166,8 +1167,9 @@ public class SymbolicObserver extends ExecutionObserver {
 						pushValue(argType, unboxed_expr);
 
 					} else {
-						throw new EvosuiteError("automatic unbox is not handled for  "
-								+ symb_ref.getClass().getName());
+						throw new EvosuiteError(
+								"automatic unbox is not handled for  "
+										+ symb_ref.getClass().getName());
 					}
 				}
 			} else {
@@ -1327,7 +1329,6 @@ public class SymbolicObserver extends ExecutionObserver {
 		/* do nothing */
 	}
 
-	
 	private void before(IntPrimitiveStatement statement, Scope scope) {
 		/* do nothing */
 	}
@@ -1360,7 +1361,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				after((FieldStatement) s, scope);
 
 			} else if (s instanceof ConstructorStatement) {
-					after((ConstructorStatement) s, scope);
+				after((ConstructorStatement) s, scope);
 			}
 			/* primitive statements */
 			else if (s instanceof BooleanPrimitiveStatement) {
@@ -1422,17 +1423,17 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	private void after(UrlPrimitiveStatement s, Scope scope) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void after(RemoteAddressPrimitiveStatement s, Scope scope) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void after(LocalAddressPrimitiveStatement s, Scope scope) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void after(PrimitiveExpression s, Scope scope) {
@@ -1878,7 +1879,20 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private void after(FileNamePrimitiveStatement statement, Scope scope) {
-		// No-op?
+
+		EvoSuiteFile conc_evosuite_file = statement.getValue();
+		VariableReference varRef = statement.getReturnValue();
+		String varRefName = varRef.getName();
+
+		Reference fileRef;
+		if (conc_evosuite_file == null) {
+			fileRef = (NullReference) env.heap.getReference(null);
+		} else {
+			fileRef = (NonNullReference) env.heap
+					.getReference(conc_evosuite_file);
+		}
+
+		symb_references.put(varRefName, fileRef);
 	}
 
 	private NonNullReference newStringReference(String conc_string,
