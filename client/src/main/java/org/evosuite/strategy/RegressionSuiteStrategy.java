@@ -367,7 +367,13 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 		LoggingUtils.getEvoLogger().warn("*** Random test generation finished.");
 		LoggingUtils.getEvoLogger().warn("*=*=*=* Total tests: {} | Tests with assertion: {}",
 				totalTestCount, usefulTestCount);
-
+		try {
+			RegressionSearchListener
+			.statsFileWriter.close();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		//statistics.searchFinished(suiteGA);
 		zero_fitness.setFinished();
 
