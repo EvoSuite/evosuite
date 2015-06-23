@@ -77,7 +77,7 @@ public class MainConfig {
 
 	        // "spoon.", //$NON-NLS-1$
 
-	        "org.evosuite.dse.", //$NON-NLS-1$
+	        "org.evosuite.", //$NON-NLS-1$
 	        "edu.uta.cse.dbtest.", //$NON-NLS-1$
 	        "edu.uta.cse.tada.", //$NON-NLS-1$
 	        "edu.uta.cse.z3.", //$NON-NLS-1$
