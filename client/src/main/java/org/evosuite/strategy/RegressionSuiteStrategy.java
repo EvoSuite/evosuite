@@ -261,7 +261,8 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 				 */
 				executedStatemets+= test.size();
 				numAssertions = RegressionAssertionCounter.getNumAssertions(clone);
-				LoggingUtils.getEvoLogger().warn("Generated test with {} assertions.", numAssertions);
+				if(numAssertions>0)
+					LoggingUtils.getEvoLogger().warn("Generated test with {} assertions.", numAssertions);
 				totalTestCount++;
 				if (numAssertions > 0) {
 					numAssertions = 0;
@@ -320,9 +321,8 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
 					startTime = System.currentTimeMillis();
 					simulatedAge++;
-					FileUtils
-							.writeStringToFile(
-									RegressionSearchListener.statsFile,
+					RegressionSearchListener
+							.statsFileWriter.write(
 									"\r\n"
 											+ "0,"
 											+ totalTestCount
@@ -336,8 +336,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 											+ ","
 											+ (System.currentTimeMillis() - RegressionSearchListener.startTime)
 											+ "," + numAssertions + ","
-											+ (firstTry ? "F" : "P") + ",,,,,,",
-									true);
+											+ (firstTry ? "F" : "P") + ",,,,,,");
 					firstTry = false;
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -346,9 +345,8 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 		}
 
 		try {
-			FileUtils
-					.writeStringToFile(
-							RegressionSearchListener.statsFile,
+			RegressionSearchListener
+			.statsFileWriter.write(
 							"\r\n"
 									+ "0,"
 									+ totalTestCount //suite.size()
@@ -360,7 +358,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 									+ ","
 									+ (System.currentTimeMillis() - RegressionSearchListener.startTime)
 									+ "," + numAssertions + "," + "L"
-									+ ",0,0,0,0,0,0", true);
+									+ ",0,0,0,0,0,0");
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
