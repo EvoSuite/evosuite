@@ -10,11 +10,9 @@ import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.dse.DseWithFile;
 import com.examples.with.different.packagename.dse.DseWithURL;
 
 /**
