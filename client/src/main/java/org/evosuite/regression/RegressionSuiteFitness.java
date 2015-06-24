@@ -144,7 +144,11 @@ logger.warn("initialising regression Suite Fitness... ##########################
 					Statement x = testChromosome.getTestCase().getStatement(i);
 					if(x instanceof MethodStatement){
 						MethodStatement methodCall = (MethodStatement) x;
+						if(methodCall==null)
+							continue;
 						VariableReference callee = methodCall.getCallee();
+						if(callee==null)
+							continue;
 						int calleePosition = callee.getStPosition();
 						String calleeClass = callee.getClassName();
 						String methodCallName = methodCall.getMethod().getName();
