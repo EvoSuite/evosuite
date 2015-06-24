@@ -26,7 +26,7 @@ public class DependencyAnalysisTestComplex {
 		ClassPathHandler.getInstance().addElementToTargetProjectClassPath(cp);
 		try {
 			DependencyAnalysis
-					.analyze(
+					.analyzeClass(
 							"com.examples.with.different.packagename.context.EntryPointsClass",
 							classpath);
 		} catch (ClassNotFoundException | RuntimeException e) {

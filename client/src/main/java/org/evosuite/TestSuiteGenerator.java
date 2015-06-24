@@ -114,7 +114,7 @@ public class TestSuiteGenerator {
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
 			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+			DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
 			                           Arrays.asList(cp.split(File.pathSeparator)));
 			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
 		} catch (Throwable e) {
