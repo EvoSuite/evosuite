@@ -26,12 +26,18 @@ public class JUnitRunner {
 	/**
 	 * 
 	 */
-	public JUnitRunner() {
+	private final Class<?> junitClass;
+
+	/**
+	 * 
+	 */
+	public JUnitRunner(Class<?> junitClass) {
 		this.testResults = new ArrayList<JUnitResult>();
+		this.junitClass = junitClass;
 	}
 
-	public void run(Class<?> junitClass) {
-		Request request = Request.aClass(junitClass);
+	public void run() {
+		Request request = Request.aClass(this.junitClass);
 
 		JUnitCore junit = new JUnitCore();
 		junit.addListener(new JUnitRunListener(this));
@@ -52,5 +58,13 @@ public class JUnitRunner {
 	 */
 	public List<JUnitResult> getTestResults() {
 		return this.testResults;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Class<?> getJUnitClass() {
+		return this.junitClass;
 	}
 }

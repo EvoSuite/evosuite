@@ -7,6 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.dse.VM;
+import org.evosuite.runtime.testdata.EvoSuiteFile;
+import org.evosuite.runtime.testdata.EvoSuiteLocalAddress;
+import org.evosuite.runtime.testdata.EvoSuiteRemoteAddress;
+import org.evosuite.runtime.testdata.EvoSuiteURL;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
@@ -24,11 +29,6 @@ import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 import org.evosuite.symbolic.vm.wrappers.Types;
-import org.evosuite.testcase.variable.ArrayIndex;
-import org.evosuite.testcase.variable.ArrayReference;
-import org.evosuite.testcase.variable.FieldReference;
-import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionObserver;
@@ -36,7 +36,15 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.ClassPrimitiveStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.EnumPrimitiveStatement;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveExpression;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.statements.environment.FileNamePrimitiveStatement;
 import org.evosuite.testcase.statements.environment.LocalAddressPrimitiveStatement;
 import org.evosuite.testcase.statements.environment.RemoteAddressPrimitiveStatement;
@@ -44,21 +52,16 @@ import org.evosuite.testcase.statements.environment.UrlPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BytePrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.CharPrimitiveStatement;
-import org.evosuite.testcase.statements.ClassPrimitiveStatement;
-import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.numeric.DoublePrimitiveStatement;
-import org.evosuite.testcase.statements.EnumPrimitiveStatement;
-import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.numeric.FloatPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.LongPrimitiveStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.numeric.ShortPrimitiveStatement;
-import org.evosuite.testcase.statements.StringPrimitiveStatement;
+import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ArrayReference;
+import org.evosuite.testcase.variable.FieldReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.objectweb.asm.Type;
-
-import org.evosuite.dse.VM;
 
 public class SymbolicObserver extends ExecutionObserver {
 
@@ -170,7 +173,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 			} else if (s instanceof ClassPrimitiveStatement) {
 				before((ClassPrimitiveStatement) s, scope);
-				
+
 			} else if (s instanceof FileNamePrimitiveStatement) {
 				before((FileNamePrimitiveStatement) s, scope);
 
@@ -1166,8 +1169,9 @@ public class SymbolicObserver extends ExecutionObserver {
 						pushValue(argType, unboxed_expr);
 
 					} else {
-						throw new EvosuiteError("automatic unbox is not handled for  "
-								+ symb_ref.getClass().getName());
+						throw new EvosuiteError(
+								"automatic unbox is not handled for  "
+										+ symb_ref.getClass().getName());
 					}
 				}
 			} else {
@@ -1327,7 +1331,6 @@ public class SymbolicObserver extends ExecutionObserver {
 		/* do nothing */
 	}
 
-	
 	private void before(IntPrimitiveStatement statement, Scope scope) {
 		/* do nothing */
 	}
@@ -1360,7 +1363,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				after((FieldStatement) s, scope);
 
 			} else if (s instanceof ConstructorStatement) {
-					after((ConstructorStatement) s, scope);
+				after((ConstructorStatement) s, scope);
 			}
 			/* primitive statements */
 			else if (s instanceof BooleanPrimitiveStatement) {
@@ -1421,18 +1424,52 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private void after(UrlPrimitiveStatement s, Scope scope) {
-		// TODO Auto-generated method stub
-		
+		EvoSuiteURL conc_url = s.getValue();
+		VariableReference varRef = s.getReturnValue();
+		String varRefName = varRef.getName();
+
+		Reference urlRef;
+		if (conc_url == null) {
+			urlRef = (NullReference) env.heap.getReference(null);
+		} else {
+			urlRef = (NonNullReference) env.heap.getReference(conc_url);
+		}
+
+		symb_references.put(varRefName, urlRef);
+
 	}
 
 	private void after(RemoteAddressPrimitiveStatement s, Scope scope) {
-		// TODO Auto-generated method stub
-		
+		EvoSuiteRemoteAddress conc_remote_address = s.getValue();
+
+		VariableReference varRef = s.getReturnValue();
+		String varRefName = varRef.getName();
+
+		Reference addressRef;
+		if (conc_remote_address == null) {
+			addressRef = (NullReference) env.heap.getReference(null);
+		} else {
+			addressRef = (NonNullReference) env.heap.getReference(conc_remote_address);
+		}
+
+		symb_references.put(varRefName, addressRef);
+
 	}
 
 	private void after(LocalAddressPrimitiveStatement s, Scope scope) {
-		// TODO Auto-generated method stub
-		
+		EvoSuiteLocalAddress conc_local_address = s.getValue();
+		VariableReference varRef = s.getReturnValue();
+		String varRefName = varRef.getName();
+
+		Reference addressRef;
+		if (conc_local_address == null) {
+			addressRef = (NullReference) env.heap.getReference(null);
+		} else {
+			addressRef = (NonNullReference) env.heap.getReference(conc_local_address);
+		}
+
+		symb_references.put(varRefName, addressRef);
+
 	}
 
 	private void after(PrimitiveExpression s, Scope scope) {
@@ -1878,7 +1915,20 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private void after(FileNamePrimitiveStatement statement, Scope scope) {
-		// No-op?
+
+		EvoSuiteFile conc_evosuite_file = statement.getValue();
+		VariableReference varRef = statement.getReturnValue();
+		String varRefName = varRef.getName();
+
+		Reference fileRef;
+		if (conc_evosuite_file == null) {
+			fileRef = (NullReference) env.heap.getReference(null);
+		} else {
+			fileRef = (NonNullReference) env.heap
+					.getReference(conc_evosuite_file);
+		}
+
+		symb_references.put(varRefName, fileRef);
 	}
 
 	private NonNullReference newStringReference(String conc_string,
