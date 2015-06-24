@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
+import org.evosuite.runtime.testdata.EvoSuiteFile;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.DefaultTestCase;
@@ -14,6 +15,7 @@ import org.evosuite.testcase.variable.FieldReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.environment.FileNamePrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BytePrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.CharPrimitiveStatement;
@@ -229,6 +231,12 @@ public class TestCaseBuilder {
 
 	public VariableReference appendClassPrimitive(Class<?> value) {
 		ClassPrimitiveStatement stmt = new ClassPrimitiveStatement(tc, value);
+		tc.addStatement(stmt);
+		return stmt.getReturnValue();
+	}
+
+	public VariableReference appendFileNamePrimitive(EvoSuiteFile evosuiteFile) {
+		FileNamePrimitiveStatement stmt = new FileNamePrimitiveStatement(tc, evosuiteFile);
 		tc.addStatement(stmt);
 		return stmt.getReturnValue();
 	}

@@ -1,4 +1,4 @@
-package org.evosuite.dse.instrument;
+package org.evosuite.symbolic.instrument;
 
 import org.objectweb.asm.Opcodes;
 

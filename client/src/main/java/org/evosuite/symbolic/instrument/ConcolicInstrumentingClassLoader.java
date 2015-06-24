@@ -1,4 +1,4 @@
-package org.evosuite.dse.instrument;
+package org.evosuite.symbolic.instrument;
 
 
 import static org.evosuite.dse.util.Assertions.check;
@@ -25,18 +25,18 @@ import org.evosuite.dse.MainConfig;
  * @author galeotti
  *
  */
-public class DscInstrumentingClassLoader extends ClassLoader {
+public class ConcolicInstrumentingClassLoader extends ClassLoader {
 	
 	//private final static Logger logger = LoggerFactory.getLogger(DscInstrumentingClassLoader.class);
 
 	private final ClassLoader classLoader;
-	private final DscBytecodeInstrumentation instrumentation;
+	private final ConcolicBytecodeInstrumentation instrumentation;
 	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 	
-	public DscInstrumentingClassLoader() {
-		super(DscInstrumentingClassLoader.class.getClassLoader());
-		this.instrumentation = new DscBytecodeInstrumentation();
-		classLoader = DscInstrumentingClassLoader.class.getClassLoader();
+	public ConcolicInstrumentingClassLoader() {
+		super(ConcolicInstrumentingClassLoader.class.getClassLoader());
+		this.instrumentation = new ConcolicBytecodeInstrumentation();
+		classLoader = ConcolicInstrumentingClassLoader.class.getClassLoader();
 	}
 
 

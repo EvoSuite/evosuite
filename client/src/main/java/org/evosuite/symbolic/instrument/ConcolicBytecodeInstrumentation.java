@@ -1,5 +1,7 @@
-package org.evosuite.dse.instrument;
+package org.evosuite.symbolic.instrument;
 
+import org.evosuite.junit.writer.TestSuiteWriterUtils;
+import org.evosuite.runtime.instrumentation.MethodCallReplacementClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -13,7 +15,7 @@ import org.objectweb.asm.ClassWriter;
  * @author galeotti
  * 
  */
-public class DscBytecodeInstrumentation {
+public class ConcolicBytecodeInstrumentation {
 
 	//private static Logger logger = LoggerFactory.getLogger(DscBytecodeInstrumentation.class);
 
@@ -31,8 +33,13 @@ public class DscBytecodeInstrumentation {
 		// Apply transformations to class under test and its owned
 		// classes
 		// cv = new TraceClassVisitor(cv, new PrintWriter(System.err));
-		cv = new DscClassAdapter(cv, className);
+		cv = new ConcolicClassAdapter(cv, className);
 
+        // Mock instrumentation (eg File and TCP).
+        if (TestSuiteWriterUtils.needToUseAgent()) {
+            cv = new MethodCallReplacementClassAdapter(cv, className);
+        }
+		
 		reader.accept(cv, readFlags);
 
 		return writer.toByteArray();
