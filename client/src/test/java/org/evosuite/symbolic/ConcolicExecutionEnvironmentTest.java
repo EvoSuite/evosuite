@@ -1,6 +1,7 @@
 package org.evosuite.symbolic;
 
 import static org.evosuite.symbolic.SymbolicObserverTest.printConstraints;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -29,20 +30,23 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.concolic.TestCaseWithFile;
+import com.examples.with.different.packagename.concolic.TestCaseWithReset;
 import com.examples.with.different.packagename.concolic.TestCaseWithURL;
 
 public class ConcolicExecutionEnvironmentTest {
 
-	private static final boolean VFS = Properties.VIRTUAL_FS;
+	private static final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
+	private static final boolean DEFAULT_CLIENT_ON_THREAD = Properties.CLIENT_ON_THREAD;
+	private static final boolean DEFAULT_PRINT_TO_SYSTEM = Properties.PRINT_TO_SYSTEM;
+	private static final int DEFAULT_TIMEOUT = Properties.TIMEOUT;
+	private static final int DEFAULT_CONCOLIC_TIMEOUT = Properties.CONCOLIC_TIMEOUT;
+	private static final boolean DEFAULT_VFS = Properties.VIRTUAL_FS;
+	private static final boolean DEFAULT_VNET = Properties.VIRTUAL_NET;
 	private static final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
 	private static final boolean DEFAULT_MOCK_FRAMEWORK_ENABLED = MockFramework
 			.isEnabled();
 
 	private List<BranchCondition> executeTest(DefaultTestCase tc) {
-		Properties.CLIENT_ON_THREAD = true;
-		Properties.PRINT_TO_SYSTEM = true;
-		Properties.TIMEOUT = 5000;
-		Properties.CONCOLIC_TIMEOUT = 5000000;
 
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
@@ -71,16 +75,63 @@ public class ConcolicExecutionEnvironmentTest {
 		assertTrue(branch_conditions.size() > 0);
 	}
 
+	@Test
+	public void testDseWithReset1() throws SecurityException,
+			NoSuchMethodException {
+		DefaultTestCase tc = buildTestCaseWithReset();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
+	}
+
+	@Test
+	public void testDseWithReset2() throws SecurityException,
+			NoSuchMethodException {
+		DefaultTestCase tc = buildTestCaseWithReset();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
+	}
+
 	@After
 	public void restore() {
 		TestGenerationContext.getInstance().resetContext();
-		RuntimeSettings.useVFS = VFS;
+		RuntimeSettings.useVFS = DEFAULT_VFS;
+		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
 		Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
+		Properties.VIRTUAL_NET = DEFAULT_VNET;
+		Properties.CLIENT_ON_THREAD = DEFAULT_CLIENT_ON_THREAD;
+		Properties.PRINT_TO_SYSTEM = DEFAULT_PRINT_TO_SYSTEM;
+		Properties.TIMEOUT = DEFAULT_TIMEOUT;
+		Properties.CONCOLIC_TIMEOUT = DEFAULT_CONCOLIC_TIMEOUT;
+
 		if (DEFAULT_MOCK_FRAMEWORK_ENABLED) {
 			MockFramework.enable();
 		} else {
 			MockFramework.disable();
 		}
+	}
+
+	private static DefaultTestCase buildTestCaseWithReset()
+			throws SecurityException, NoSuchMethodException {
+
+		Method isZeroMethod = TestCaseWithReset.class.getMethod("isZero",
+				int.class);
+		Method incMethod = TestCaseWithReset.class.getMethod("inc");
+
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		// int int0 = 0;
+		VariableReference int0 = tc.appendIntPrimitive(0);
+
+		// TestCaseWithReset.isZero(int0)
+		tc.appendMethod(null, isZeroMethod, int0);
+
+		// TestCaseWithReset.inc()
+		tc.appendMethod(null, incMethod);
+
+		// TestCaseWithReset.inc()
+		tc.appendMethod(null, incMethod);
+
+		return tc.getDefaultTestCase();
 	}
 
 	private static DefaultTestCase buildTestCaseWithURL()
@@ -135,7 +186,14 @@ public class ConcolicExecutionEnvironmentTest {
 
 	@Before
 	public void init() {
+		Properties.VIRTUAL_NET = true;
 		Properties.REPLACE_CALLS = true;
+		Properties.RESET_STATIC_FIELDS = true;
+		Properties.CLIENT_ON_THREAD = true;
+		Properties.PRINT_TO_SYSTEM = true;
+		Properties.TIMEOUT = 5000;
+		Properties.CONCOLIC_TIMEOUT = 5000000;
+
 		RuntimeSettings.useVFS = true;
 
 		Runtime.getInstance().resetRuntime();

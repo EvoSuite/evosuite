@@ -44,8 +44,10 @@ public class DSELocalSearch extends StatementLocalSearch {
 
 		// List<BranchCondition> conditions =
 		// ConcolicExecution.getSymbolicPath(test);
+		DefaultTestCase clone_test_case = (DefaultTestCase) test.getTestCase()
+				.clone();
 		List<BranchCondition> conditions = ConcolicExecution
-				.executeConcolic((DefaultTestCase) test.getTestCase().clone());
+				.executeConcolic(clone_test_case);
 		logger.info("Done symbolic execution");
 		for (BranchCondition c : conditions) {
 			logger.info(" -> " + c.getLocalConstraint());
@@ -106,7 +108,8 @@ public class DSELocalSearch extends StatementLocalSearch {
 				logger.info("Found solution");
 				DSEStats.reportNewSAT();
 				TestCase oldTest = test.getTestCase();
-				ExecutionResult oldResult = test.getLastExecutionResult().clone();
+				ExecutionResult oldResult = test.getLastExecutionResult()
+						.clone();
 				TestCase newTest = updateTest(oldTest, values);
 				logger.info("New test: " + newTest.toCode());
 				test.setTestCase(newTest);

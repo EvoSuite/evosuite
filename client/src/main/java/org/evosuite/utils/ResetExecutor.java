@@ -36,9 +36,14 @@ public class ResetExecutor {
 	}
 
 	public void resetClasses(List<String> classesToReset) {
+		ClassLoader loader = TestGenerationContext.getInstance().getClassLoaderForSUT();
+		resetClasses(classesToReset, loader);
+	}
+	
+	public void resetClasses(List<String> classesToReset, ClassLoader loader) {
 		//try to reset each collected class
 
-		ClassResetter.getInstance().setClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
+		ClassResetter.getInstance().setClassLoader(loader);
 
 		long start = System.currentTimeMillis();
 
