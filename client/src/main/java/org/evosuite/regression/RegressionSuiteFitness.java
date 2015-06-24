@@ -545,7 +545,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 					+ " - branchDistance:" + totalBranchDistanceFitness
 					+ " - coverage:" + coverage + " - ex: " + numDifferentExceptions
 					+ " - tex: " + totalExceptions);
-			logger.warn("Timings so far: Test Execution - "
+			logger.debug("Timings so far: Test Execution - "
 					+ (RegressionSearchListener.testExecutionTime + 1)
 					/ 1000000 + " | Assertion - "
 					+ (RegressionSearchListener.assertionTime + 1) / 1000000
