@@ -13,12 +13,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.dse.DseWithFile;
+import com.examples.with.different.packagename.dse.DseWithSocket;
 
 /**
  * Created by Andrea Arcuri on 19/03/15.
  */
-public class DseWithFileSystemTest extends SystemTest {
+public class DseWithSocketSystemTest extends SystemTest {
 
 	private static final double DEFAULT_LS_PROBABILITY = Properties.LOCAL_SEARCH_PROBABILITY;
 	private static final int DEFAULT_LS_RATE = Properties.LOCAL_SEARCH_RATE;
@@ -30,18 +30,17 @@ public class DseWithFileSystemTest extends SystemTest {
 	private static final SolverType DEFAULT_DSE_SOLVER = Properties.DSE_SOLVER;
 	private static final Criterion[] DEFAULT_CRITERION = Properties.CRITERION;
 	private static final int DEFAULT_CONCOLIC_TIMEOUT = Properties.CONCOLIC_TIMEOUT;
-	
-	
+
 	@Before
 	public void init() {
 		Properties.VIRTUAL_FS = true;
-		Properties.VIRTUAL_NET= true;
+		Properties.VIRTUAL_NET = true;
 		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
 		Properties.LOCAL_SEARCH_RATE = 1;
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_BUDGET = 100;
 		Properties.SEARCH_BUDGET = 50000;
-//		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
+//		 Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 	}
 
 	@After
@@ -62,21 +61,22 @@ public class DseWithFileSystemTest extends SystemTest {
 	public void testDSE() {
 
 		Properties.DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
-		
+
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
 		Properties.SEARCH_BUDGET = 120;
-		
+
 		// should it be trivial for DSE ?
 
 		EvoSuite evosuite = new EvoSuite();
-		String targetClass = DseWithFile.class.getCanonicalName();
+		String targetClass = DseWithSocket.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		Properties.CRITERION = new Criterion[] {Criterion.BRANCH, Criterion.EXCEPTION};
-		
+		Properties.CRITERION = new Criterion[] { Criterion.BRANCH,
+				Criterion.EXCEPTION };
+
 		Properties.MINIMIZE = true;
 		Properties.ASSERTIONS = true;
-		
+
 		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
 
 		String[] command = new String[] { "-generateSuite", "-class",
@@ -86,7 +86,6 @@ public class DseWithFileSystemTest extends SystemTest {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
-
 
 	}
 }
