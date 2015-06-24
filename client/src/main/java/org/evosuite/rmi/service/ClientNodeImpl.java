@@ -401,7 +401,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 				try {
 					LoggingUtils.getEvoLogger().info("* Analyzing classpath (dependency analysis)");
-					DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+					DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
 							Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
 					StringBuffer fileNames = new StringBuffer();
 					for(Class<?> clazz : TestCluster.getInstance().getAnalyzedClasses()) {

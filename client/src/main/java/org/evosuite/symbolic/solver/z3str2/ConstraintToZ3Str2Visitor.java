@@ -1,8 +1,5 @@
 package org.evosuite.symbolic.solver.z3str2;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.ConstraintVisitor;
 import org.evosuite.symbolic.expr.IntegerConstraint;
