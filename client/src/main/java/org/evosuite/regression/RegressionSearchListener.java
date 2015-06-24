@@ -39,6 +39,7 @@ public class RegressionSearchListener implements SearchListener {
 	public static long coverageTime = 0;
 	public static long assertionTime = 0;
 	public static long testExecutionTime = 0;
+	public static long diversityCalculationTime = 0;
 
 	public static boolean killTheSearch = false;
 

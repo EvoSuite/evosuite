@@ -3,6 +3,11 @@
  */
 package org.evosuite.regression;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
@@ -31,9 +36,11 @@ public class RegressionTestChromosome extends TestChromosome {
 	public double objDistance = 0.0;
 	
 	public int diffExceptions = 0;
-
+	
 	// TODO: This doesn't really belong here
 	private transient ClassLoader theClassLoader = null;
+
+	public Map<String, Map<Integer, String>> diversityMap = new HashMap<String, Map<Integer,String>>();
 	
 	public RegressionTestChromosome() {
 		// TODO Auto-generated constructor stub
@@ -74,6 +81,7 @@ public class RegressionTestChromosome extends TestChromosome {
 		copy.setFitnessValues(getFitnessValues());
 		copy.fitnessData = fitnessData;
 		copy.objDistance = objDistance;
+		copy.diversityMap.putAll(diversityMap);
 		return copy;
 	}
 
