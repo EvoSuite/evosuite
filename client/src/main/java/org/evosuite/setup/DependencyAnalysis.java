@@ -139,7 +139,7 @@ public class DependencyAnalysis {
 
 		initInheritanceTree(classPath);
 
-		targetClasses = ResourceList.getAllClasses(target, false);
+		targetClasses = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, false);
 		for (String className : targetClasses) {
 			Properties.TARGET_CLASS = className;
 			analyze(className, classPath);
