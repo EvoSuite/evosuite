@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.evosuite.dse.MainConfig;
-import org.evosuite.dse.MainConfig;
 
 
 /**
