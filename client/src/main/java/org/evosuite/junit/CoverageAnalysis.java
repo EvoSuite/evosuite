@@ -67,6 +67,7 @@ public class CoverageAnalysis {
 
 	private static int totalGoals = 0;
 	private static int totalCoveredGoals = 0;
+	private static Set<String> targetClasses = new LinkedHashSet<String>();
 
 	/**
 	 * Identify all JUnit tests starting with the given name prefix, instrument
@@ -78,8 +79,18 @@ public class CoverageAnalysis {
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
 			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
-			                           Arrays.asList(cp.split(File.pathSeparator)));
+
+			if (Properties.TARGET_CLASS.endsWith(".jar")
+					|| Properties.TARGET_CLASS.contains(File.separator)) {
+				targetClasses = DependencyAnalysis.analyzeTarget(Properties.TARGET_CLASS,
+                        Arrays.asList(cp.split(File.pathSeparator)));
+			}
+			else {
+				targetClasses.add(Properties.TARGET_CLASS);
+				DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
+                        Arrays.asList(cp.split(File.pathSeparator)));
+			}
+
 			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
@@ -484,8 +495,13 @@ public class CoverageAnalysis {
 		totalGoals = 0;
 		totalCoveredGoals = 0;
 
-		for (Properties.Criterion criterion : Properties.CRITERION) {
-			analyzeCoverageCriterion(results, criterion);
+		for (String targetClass : targetClasses) {
+			Properties.TARGET_CLASS = targetClass;
+
+			LoggingUtils.getEvoLogger().info("* Target class " + Properties.TARGET_CLASS);
+			for (Properties.Criterion criterion : Properties.CRITERION) {
+				analyzeCoverageCriterion(results, criterion);
+			}
 		}
 
 		LoggingUtils.getEvoLogger().info("* Total number of covered goals: " + totalCoveredGoals + " / " + totalGoals);

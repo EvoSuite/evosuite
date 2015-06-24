@@ -52,7 +52,7 @@ public class ClassStatisticsPrinter {
 			// specific cases. and if the dependencies are not analysed,
 			// could be that for example inner classes are not loaded,
 			// and therefore their goals will not be considered
-			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+			DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
 					Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
 		} catch (ClassNotFoundException | RuntimeException e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
@@ -77,7 +77,7 @@ public class ClassStatisticsPrinter {
 		TestGenerationContext.getInstance().goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
-			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+			DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
 					Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
 
 			// Load SUT without initialising it
