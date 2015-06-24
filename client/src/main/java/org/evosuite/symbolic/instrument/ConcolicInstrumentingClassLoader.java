@@ -16,8 +16,6 @@ import org.evosuite.dse.MainConfig;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
 
-import org.evosuite.dse.MainConfig;
-
 /**
  * A ClassLoader very similar to the <code>org.evosuite.javaagent.InstrumentingClassLoader</code>
  * It must instrument java bytecode to allow recording constraints on the program.
