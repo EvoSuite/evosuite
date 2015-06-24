@@ -84,6 +84,7 @@ public class DependencyAnalysis {
 
 		logger.debug("Calculate call tree");
 		CallGraph callGraph = CallGraphGenerator.analyze(className);
+		callGraphs.put(className, callGraph);
 		loadCallTreeClasses(callGraph);
 
 		// include all the project classes in the inheritance tree and in the
@@ -113,7 +114,6 @@ public class DependencyAnalysis {
 		TestClusterGenerator clusterGenerator = new TestClusterGenerator();
 		clusterGenerator.generateCluster(className, inheritanceTree, callGraph);
 
-		callGraphs.put(className, callGraph);
 		gatherStatistics();
 	}
 
@@ -276,7 +276,7 @@ public class DependencyAnalysis {
 		// context
 		if (Properties.INSTRUMENT_CONTEXT
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
-			CallGraph callGraph = callGraphs.get(className);
+			CallGraph callGraph = callGraphs.get(Properties.TARGET_CLASS);
 			if (callGraph != null && callGraph.isCalledClass(className)) {
 				return true;
 			}
@@ -307,7 +307,7 @@ public class DependencyAnalysis {
 		// context
 		if (Properties.INSTRUMENT_CONTEXT) {
 			
-			CallGraph callGraph = callGraphs.get(className);
+			CallGraph callGraph = callGraphs.get(Properties.TARGET_CLASS);
 			if (callGraph != null && callGraph.isCalledMethod(className, methodName)){
 				if(Properties.INSTRUMENT_LIBRARIES || DependencyAnalysis.isTargetProject(className))
 				return true;
