@@ -261,6 +261,7 @@ public class RegressionSearchListener implements SearchListener {
 			}
 
 		}
+		statsFileWriter.flush();
 	}
 
 	@Override
