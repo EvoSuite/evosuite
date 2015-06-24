@@ -4,10 +4,12 @@
 package org.evosuite.regression;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -20,6 +22,9 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.MethodCall;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -110,9 +115,14 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 	}
 	
+	Map<String, Map<Integer, String>> diversityMap = new HashMap<String, Map<Integer,String>>();
+
+	private int uniqueCalls;
+	
 	protected void executeChangedTestsAndUpdateResults(
 			AbstractTestSuiteChromosome<? extends ExecutableChromosome> s) {
 		observer.clearPools();
+		diversityMap.clear();
 		RegressionTestSuiteChromosome suite = (RegressionTestSuiteChromosome)s;
 		for (TestChromosome chromosome : suite.getTestChromosomes()) {
 			RegressionTestChromosome c = (RegressionTestChromosome) chromosome;
@@ -128,6 +138,33 @@ logger.warn("initialising regression Suite Fitness... ##########################
 			// Only execute test if it hasn't been changed
 			if (testChromosome.isChanged()
 					|| testChromosome.getLastExecutionResult() == null) {
+				
+				Map<String, Map<Integer, String>> testDiversityMap = new HashMap<String, Map<Integer,String>>();
+				for(int i = 0; i< testChromosome.getTestCase().size(); i++){
+					Statement x = testChromosome.getTestCase().getStatement(i);
+					if(x instanceof MethodStatement){
+						MethodStatement methodCall = (MethodStatement) x;
+						VariableReference callee = methodCall.getCallee();
+						int calleePosition = callee.getStPosition();
+						String calleeClass = callee.getClassName();
+						String methodCallName = methodCall.getMethod().getName();
+						
+						Map<Integer,String> calleeMap = testDiversityMap.get(calleeClass);
+						if(calleeMap==null)
+							calleeMap = new HashMap<Integer, String>();
+						
+						String calledMethods = calleeMap.get(calleePosition);
+						if(calledMethods==null)
+							calledMethods = "";
+						
+						calledMethods += methodCallName;
+						
+						calleeMap.put(calleePosition, calledMethods);
+						testDiversityMap.put(calleeClass, calleeMap);
+					}
+				}
+				
+				c.diversityMap = testDiversityMap;
 
 				ExecutionResult result = TestCaseExecutor
 						.runTest(testChromosome.getTestCase());
@@ -176,7 +213,26 @@ logger.warn("initialising regression Suite Fitness... ##########################
 					otherChromosome.setChanged(false);
 				}
 			}
+			long startTime = System.nanoTime();
+			for(Entry<String, Map<Integer, String>> dEntry:c.diversityMap.entrySet()){
+				Map<Integer, String> divInstance = diversityMap.get(dEntry.getKey());
+				if(divInstance == null)
+					diversityMap.put(dEntry.getKey(), dEntry.getValue());
+				else{
+					Map<Integer, String> testMethodCalls = dEntry.getValue();
+					for(Entry<Integer, String> mc:testMethodCalls.entrySet()){
+						String calls = divInstance.get(mc.getKey());
+						if(calls==null || calls.length()<mc.getValue().length())
+							calls = mc.getValue();
+						divInstance.put(mc.getKey(), calls);
+					}
+				}
+			}
+			RegressionSearchListener.diversityCalculationTime  += System.nanoTime()
+					- startTime;
 		}
+		
+		
 	}
 	
 
@@ -413,6 +469,11 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 		fitness += exceptionDistance;
 		
+		
+		calculateDiversity();
+		
+		double diversityFitness = (1.0 / (1.0 + uniqueCalls));
+		fitness += diversityFitness;
 		//fitness += (1.0 / (1.0 + diffTime));
 
 		// double totalExDistance = normalize(totalExceptions) *
@@ -484,7 +545,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 					+ " - branchDistance:" + totalBranchDistanceFitness
 					+ " - coverage:" + coverage + " - ex: " + numDifferentExceptions
 					+ " - tex: " + totalExceptions);
-			logger.debug("Timings so far: Test Execution - "
+			logger.warn("Timings so far: Test Execution - "
 					+ (RegressionSearchListener.testExecutionTime + 1)
 					/ 1000000 + " | Assertion - "
 					+ (RegressionSearchListener.assertionTime + 1) / 1000000
@@ -495,7 +556,10 @@ logger.warn("initialising regression Suite Fitness... ##########################
 					/ 1000000 + " | Branch Distance - "
 					+ (RegressionSearchListener.branchDistanceTime + 1)
 					/ 1000000 + " | Obj Collection - "
-					+ (RegressionSearchListener.odCollectionTime + 1) / 1000000);
+					+ (RegressionSearchListener.odCollectionTime + 1) / 1000000
+					+ " | Diversity Calculation - "
+					+ (RegressionSearchListener.diversityCalculationTime + 1)
+					/ 1000000);
 			logger.warn("Best Fitness " + fitness + ", number of tests: "
 					+ testSuiteChromosome.size() + ", total length: "
 					+ testSuiteChromosome.totalLengthOfTestCases() /*
@@ -511,6 +575,40 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 
 		return fitness;
+	}
+
+	/**
+	 * Calculate diversity among objects
+	 */
+	private void calculateDiversity() {
+		long divStartTime = System.nanoTime();
+		
+		LRS lrs = new LRS();
+		// Calculate fitness
+		uniqueCalls = 0;
+		for(Entry<String, Map<Integer, String>> dEntry:diversityMap.entrySet()){
+			Map<Integer, String> calleeObjects = diversityMap.get(dEntry.getKey());
+			for(Entry<Integer, String> mCall:calleeObjects.entrySet()){
+				boolean alreadyPresent = false;
+				for(int position: calleeObjects.keySet()){
+					if(position!=mCall.getKey() && calleeObjects.get(position).contains(mCall.getValue())){
+						alreadyPresent = true;
+						break;
+					}
+				}
+				if(!alreadyPresent){
+					//
+					String longestRepetition = lrs.lrs(mCall.getValue());
+					if(longestRepetition.length()==0)
+						uniqueCalls++;
+				}
+					
+			}
+		}
+/*		if(uniqueCalls>0)
+		System.out.println(uniqueCalls);*/
+		RegressionSearchListener.diversityCalculationTime  += System.nanoTime()
+				- divStartTime;
 	}
 	
 	public void getBranchDistance(List<MethodCall> methodCallsOrig,
@@ -943,6 +1041,52 @@ logger.warn("initialising regression Suite Fitness... ##########################
 	public boolean isMaximizationFunction() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	/*
+	 * Longest Repeated Substring
+	 * Uses suffix sorting, but not very efficient
+	 */
+	private class LRS {
+
+	    // return the longest common prefix of s and t
+	    public String lcp(String s, String t) {
+	        int n = Math.min(s.length(), t.length());
+	        for (int i = 0; i < n; i++) {
+	            if (s.charAt(i) != t.charAt(i))
+	                return s.substring(0, i);
+	        }
+	        return s.substring(0, n);
+	    }
+
+
+	    // return the longest repeated string in s
+	    public String lrs(String s) {
+
+	        // form the N suffixes
+	        int N  = s.length();
+	        String[] suffixes = new String[N];
+	        for (int i = 0; i < N; i++) {
+	            suffixes[i] = s.substring(i, N);
+	        }
+
+	        // sort them
+	        Arrays.sort(suffixes);
+
+	        // find longest repeated substring by comparing adjacent sorted suffixes
+	        String lrs = "";
+	        for (int i = 0; i < N - 1; i++) {
+	            String x = lcp(suffixes[i], suffixes[i+1]);
+	            if (x.length() > lrs.length()){
+	                lrs = x;
+	                //SINA: The optimization below is to just return as soon as found
+	                break;
+	            }
+	        }
+	        return lrs;
+	    }
+
+
 	}
 
 }
