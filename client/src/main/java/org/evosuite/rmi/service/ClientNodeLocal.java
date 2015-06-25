@@ -22,5 +22,9 @@ public interface ClientNodeLocal {
 
 	public void updateStatistics(Chromosome individual);
 
+	public void flushStatisticsForClassChange();
+
+	public void updateProperty(String propertyName, Object value);
+
 	public void waitUntilDone();
 }

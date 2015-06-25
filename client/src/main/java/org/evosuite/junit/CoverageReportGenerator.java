@@ -17,7 +17,7 @@ import org.evosuite.utils.Utils;
  */
 public class CoverageReportGenerator {
 
-	public static void writeCoverage(boolean[][] coverage) {
+	public static void writeCoverage(boolean[][] coverage, Properties.Criterion criterion) {
 
 		StringBuilder suite = new StringBuilder();
 		for (int i = 0; i < coverage.length; i++) {
@@ -43,7 +43,7 @@ public class CoverageReportGenerator {
 
 		Utils.writeFile(suite.toString(), new File(getReportDir().getAbsolutePath() +
 				File.separator + "data" + File.separator +
-				Properties.TARGET_CLASS + ".matrix"));
+				Properties.TARGET_CLASS + "." + criterion.toString() + ".matrix"));
 	}
 
 	/**
