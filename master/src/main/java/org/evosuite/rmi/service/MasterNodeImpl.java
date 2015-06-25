@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.evosuite.Properties;
+import org.evosuite.Properties.NoSuchParameterException;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.statistics.SearchStatistics;
@@ -158,7 +160,19 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 		SearchStatistics.getInstance().addTestGenerationResult(results);
 		
 	}
-	
+
+	@Override
+	public void evosuite_flushStatisticsForClassChange(String clientRmiIdentifier)
+			throws RemoteException {
+		SearchStatistics.getInstance().writeStatisticsForAnalysis();
+	}
+
+	@Override
+	public void evosuite_updateProperty(String clientRmiIdentifier, String propertyName, Object value)
+			throws RemoteException, IllegalArgumentException, IllegalAccessException, NoSuchParameterException {
+		Properties.getInstance().setValue(propertyName, value);
+	}
+
 	@Override
 	public void addListener(Listener<ClientStateInformation> listener) {
 		listeners.add(listener);

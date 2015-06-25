@@ -128,7 +128,8 @@ public enum RuntimeVariable {
 	ExceptionCoverage,
     ExceptionFitnessTimeline,
     ExceptionCoverageTimeline,
-	/** A bit string (0/1) representing whether branches (in order) are covered */
+	/** A bit string (0/1) representing whether goals (in order) are covered */
+    CoverageBitString,
 	CoveredBranchesBitString,
     CoveredLinesBitString,
     CoveredWeakMutationBitString,

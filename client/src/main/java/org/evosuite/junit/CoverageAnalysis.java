@@ -13,9 +13,11 @@ import java.lang.reflect.Modifier;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -122,9 +124,8 @@ public class CoverageAnalysis {
 		try {
 			EvoRunner.useAgent = false; //avoid double instrumentation 
 
-			long startTime = System.currentTimeMillis();
 			List<JUnitResult> results = executeTests(tests);
-			printReport(results, startTime);
+			printReport(results);
 		} finally {
 			EvoRunner.useAgent = true;
 		}
@@ -424,7 +425,7 @@ public class CoverageAnalysis {
         // and each column represents the coverage of each component (e.g., line)
         // this coverage matrix is useful for Rho fitness
     	boolean[][] coverage_matrix = new boolean[results.size()][goals.size() + 1]; // +1 because we also want to include the test result
-        Set<Integer> covered = new LinkedHashSet<Integer>();
+    	BitSet covered = new BitSet(goals.size());
 
         for (int index_test = 0; index_test < results.size(); index_test++) {
         	JUnitResult tR = results.get(index_test);
@@ -446,7 +447,9 @@ public class CoverageAnalysis {
             			for (JUnitResult mR : mutationResults) {
             				if (mR.getFailureCount() != tR.getFailureCount()) {
             					logger.info("Mutation killed: " + mutationID);
-                                covered.add(mutation.getId());
+            					covered.set(mutation.getId());
+                                coverage_matrix[index_test][mutationID.intValue()] = true;
+                                break;
             				}
             			}
             		}
@@ -456,69 +459,89 @@ public class CoverageAnalysis {
 	            	TestFitnessFunction goal = (TestFitnessFunction) goals.get(index_component);
 
 	                if (goal.isCovered(dummy)) {
-	                	covered.add(index_component);
+	                	covered.set(index_component);
 	                	coverage_matrix[index_test][index_component] = true;
 	                }
 	                else {
 	                	coverage_matrix[index_test][index_component] = false;
 	                }
 	            }
-
-	            coverage_matrix[index_test][goals.size()] = tR.wasSuccessful();
             }
+
+            coverage_matrix[index_test][goals.size()] = tR.wasSuccessful();
         }
-        totalCoveredGoals += covered.size();
+        totalCoveredGoals += covered.cardinality();
 
         if (Properties.COVERAGE_MATRIX) {
-		    CoverageReportGenerator.writeCoverage(coverage_matrix);
+		    CoverageReportGenerator.writeCoverage(coverage_matrix, criterion);
         }
+
+        StringBuilder str = new StringBuilder();
+        for (int index_component = 0; index_component < goals.size(); index_component++) {
+        	str.append(covered.get(index_component) ? "1" : "0");
+        }
+        logger.info("* CoverageBitString " + str.toString());
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.CoverageBitString, str);
 
         if (goals.isEmpty()) {
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion + ": 100% (no goals)");
 			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getCoverageVariable(criterion), 1.0);
 		} 
         else {
-        	double coverage = ((double) covered.size()) / ((double) goals.size());
+        	double coverage = ((double) covered.cardinality()) / ((double) goals.size());
         	LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion + ": " + NumberFormat.getPercentInstance().format(coverage));
-			LoggingUtils.getEvoLogger().info("* Number of covered goals: " + covered.size() + " / " + goals.size());
+			LoggingUtils.getEvoLogger().info("* Number of covered goals: " + covered.cardinality() + " / " + goals.size());
 
 			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getCoverageVariable(criterion), coverage);
         }
 	}
 
-	private static void printReport(List<JUnitResult> results, long startTime) {
+	private static void printReport(List<JUnitResult> results) {
 
 		LoggingUtils.getEvoLogger().info("* Executed " + results.size() + " test(s)");
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, results.size());
 
-		// restart variables
-		totalGoals = 0;
-		totalCoveredGoals = 0;
+		Iterator<String> it = targetClasses.iterator();
+		Criterion[] criterion = Properties.CRITERION;
 
-		for (String targetClass : targetClasses) {
+		while (it.hasNext()) {
+			String targetClass = it.next();
+
 			Properties.TARGET_CLASS = targetClass;
-
 			LoggingUtils.getEvoLogger().info("* Target class " + Properties.TARGET_CLASS);
-			for (Properties.Criterion criterion : Properties.CRITERION) {
-				analyzeCoverageCriterion(results, criterion);
+			ClientServices.getInstance().getClientNode().updateProperty("TARGET_CLASS", Properties.TARGET_CLASS);
+
+			for (int criterion_index = 0; criterion_index < criterion.length; criterion_index++) {
+				Properties.Criterion c = criterion[criterion_index];
+				Properties.CRITERION = new Criterion[] { c };
+				ClientServices.getInstance().getClientNode().updateProperty("criterion", Properties.CRITERION);
+
+				// restart variables
+				totalGoals = 0;
+				totalCoveredGoals = 0;
+
+				analyzeCoverageCriterion(results, c);
+
+				LoggingUtils.getEvoLogger().info("* Total number of covered goals: " + totalCoveredGoals + " / " + totalGoals);
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, totalGoals);
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, totalCoveredGoals);
+
+				double coverage = totalGoals == 0 ? 1.0 : ((double) totalCoveredGoals) / ((double) totalGoals);
+				LoggingUtils.getEvoLogger().info("* Total coverage: " + NumberFormat.getPercentInstance().format(coverage));
+				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage, coverage);
+
+				// need to give some time for transmission before client is killed
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				// last element will be flush by master process
+				if (it.hasNext() || criterion_index < criterion.length - 1) {
+					ClientServices.getInstance().getClientNode().flushStatisticsForClassChange();
+				}
 			}
-		}
-
-		LoggingUtils.getEvoLogger().info("* Total number of covered goals: " + totalCoveredGoals + " / " + totalGoals);
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, totalGoals);
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, totalCoveredGoals);
-
-		double coverage = totalGoals == 0 ? 1.0 : ((double) totalCoveredGoals) / ((double) totalGoals);
-		LoggingUtils.getEvoLogger().info("* Total coverage: " + NumberFormat.getPercentInstance().format(coverage));
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage, coverage);
-
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Time, System.currentTimeMillis() - startTime);
-
-		// Need to give some time for transmission before client is killed
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
 	}
 
