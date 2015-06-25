@@ -424,8 +424,12 @@ public class ObjectDistanceCalculator {
 				continue;
 			Object value1 = map1.get(fieldName);
 			Object value2 = map2.get(fieldName);
-
-			double tmpDistance = getObjectDistanceImpl(value1, value2);
+			double tmpDistance = 0;
+			try{
+				tmpDistance = getObjectDistanceImpl(value1, value2);
+			}catch(OutOfMemoryError e){
+				e.printStackTrace();
+			}
 			/*if(tmpDistance !=0)
 			//if(fieldName.equals("fake_var_java_lang_Double"))
 			 System.out.println("field: " + fieldName + ", d: " +

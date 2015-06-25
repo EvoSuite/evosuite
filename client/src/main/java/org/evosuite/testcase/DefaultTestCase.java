@@ -470,7 +470,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 			return dependencies;
 
 		Set<Statement> dependentStatements = new LinkedHashSet<Statement>();
-		dependentStatements.add(statements.get(var.getStPosition()));
+		if(statements.size()>var.getStPosition())
+			dependentStatements.add(statements.get(var.getStPosition()));
 
 		for (int i = var.getStPosition(); i >= 0; i--) {
 			Set<Statement> newStatements = new LinkedHashSet<Statement>();

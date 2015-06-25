@@ -99,6 +99,7 @@ public class RegressionSearchListener implements SearchListener {
 			statsFileWriter = new BufferedWriter(new FileWriter(statsFile));
 			//FileUtils.writeStringToFile(statsFile, data, false);
 			statsFileWriter.write(data);
+			statsFileWriter.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

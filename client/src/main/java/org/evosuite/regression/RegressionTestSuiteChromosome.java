@@ -10,6 +10,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -25,7 +26,7 @@ public class RegressionTestSuiteChromosome extends
 
 	private static final long serialVersionUID = 2279207996777829420L;
 	
-	public String fitnessData = "";
+	public String fitnessData = "0,0,0,0,0,0,0,0,0,0,0";
 
 	public double objDistance = 0.0;
 
