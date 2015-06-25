@@ -1,43 +1,43 @@
-package org.evosuite.dse.instrument;
+package org.evosuite.symbolic.instrument;
 
-import static org.evosuite.dse.instrument.InstrumentConfig.BII_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.BYTECODE_NAME;
-import static org.evosuite.dse.instrument.InstrumentConfig.CII_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.DGGG_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.DII_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.D_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.FGGG_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.FII_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.F_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.GGGII_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.GGG_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.GI_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.G_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.IGGG_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.IG_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.III_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.II_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.INT;
-import static org.evosuite.dse.instrument.InstrumentConfig.INT_ARR;
-import static org.evosuite.dse.instrument.InstrumentConfig.I_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.JGGG_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.JII_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.J_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.LGGG_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.LG_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.LII_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.LI_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.L_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.REF;
-import static org.evosuite.dse.instrument.InstrumentConfig.SII_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.STR;
-import static org.evosuite.dse.instrument.InstrumentConfig.VM_FQ;
-import static org.evosuite.dse.instrument.InstrumentConfig.VOID;
-import static org.evosuite.dse.instrument.InstrumentConfig.V_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.ZGGG_V;
-import static org.evosuite.dse.instrument.InstrumentConfig.ZII_V;
 import static org.evosuite.dse.util.Assertions.check;
 import static org.evosuite.dse.util.Assertions.notNull;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.BII_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.BYTECODE_NAME;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.CII_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.DGGG_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.DII_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.D_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.FGGG_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.FII_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.F_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.GGGII_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.GGG_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.GI_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.G_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.IGGG_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.IG_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.III_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.II_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.INT;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.INT_ARR;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.I_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.JGGG_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.JII_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.J_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.LGGG_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.LG_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.LII_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.LI_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.L_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.REF;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.SII_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.STR;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.VM_FQ;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.VOID;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.V_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.ZGGG_V;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.ZII_V;
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -136,7 +136,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * 
  * @author csallner@uta.edu (Christoph Csallner)
  */
-public final class DscMethodAdapter extends GeneratorAdapter {
+public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	private static final String THIS$0 = "this$0";
 	private static final String INIT = "<init>"; //$NON-NLS-1$
 	private static final String CLINIT = "<clinit>"; //$NON-NLS-1$
@@ -157,7 +157,7 @@ public final class DscMethodAdapter extends GeneratorAdapter {
 	/**
 	 * Constructor
 	 */
-	DscMethodAdapter(MethodVisitor mv, int access, String className, String methName,
+	ConcolicMethodAdapter(MethodVisitor mv, int access, String className, String methName,
 	        String desc) {
 		super(Opcodes.ASM4, mv, access, methName, desc);
 

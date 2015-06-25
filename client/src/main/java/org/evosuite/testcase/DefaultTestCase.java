@@ -239,11 +239,18 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 *            a {@link java.lang.ClassLoader} object.
 	 */
 	public void changeClassLoader(ClassLoader loader) {
+		changedClassLoader  = loader;
 		for (Statement s : statements) {
 			s.changeClassLoader(loader);
 		}
 	}
+	
+	private ClassLoader changedClassLoader = null;
 
+	public ClassLoader getChangedClassLoader() {
+		return changedClassLoader;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#chop(int)
 	 */

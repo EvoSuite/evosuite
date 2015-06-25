@@ -1,4 +1,4 @@
-package org.evosuite.dse.instrument;
+package org.evosuite.symbolic.instrument;
 
 import org.evosuite.dse.VM;
 
@@ -16,7 +16,7 @@ import org.evosuite.dse.VM;
  *
  * @author csallner@uta.edu (Christoph Csallner)
  */
-public final class InstrumentConfig 
+public final class ConcolicConfig 
 {
 
   /**

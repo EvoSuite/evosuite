@@ -1,4 +1,4 @@
-package org.evosuite.dse.instrument;
+package org.evosuite.symbolic.instrument;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -13,15 +13,15 @@ import org.objectweb.asm.commons.JSRInlinerAdapter;
 
 
 /**
- * The main instrumentation class is {@link DscMethodAdapter}
+ * The main instrumentation class is {@link ConcolicMethodAdapter}
  * 
  * @author csallner@uta.edu (Christoph Csallner)
  */
-final class DscClassAdapter extends ClassVisitor {
+final class ConcolicClassAdapter extends ClassVisitor {
 
   private final String className;
   
-  DscClassAdapter(ClassVisitor cv, String className) {
+  ConcolicClassAdapter(ClassVisitor cv, String className) {
     super(Opcodes.ASM4, cv);
     this.className = className;
   }
@@ -39,7 +39,7 @@ final class DscClassAdapter extends ClassVisitor {
     // Added to handle Java 7
     mv = new JSRInlinerAdapter(mv, access, methName, methDesc, methSignGeneric, exceptions);
     if (mv != null) {
-      mv = new DscMethodAdapter(mv, access, className, methName, methDesc);
+      mv = new ConcolicMethodAdapter(mv, access, className, methName, methDesc);
     }
     return mv;
   }

@@ -24,6 +24,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.ExpressionExecutor;
+import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
 import org.evosuite.symbolic.vm.ArithmeticVM;
 import org.evosuite.symbolic.vm.CallVM;
 import org.evosuite.symbolic.vm.HeapVM;
@@ -39,11 +40,9 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.evosuite.dse.IVM;
 import org.evosuite.dse.MainConfig;
 import org.evosuite.dse.VM;
-import org.evosuite.dse.instrument.DscInstrumentingClassLoader;
 
 /**
  * <p>
@@ -58,7 +57,7 @@ public abstract class ConcolicExecution {
 			.getLogger(ConcolicExecution.class);
 
 	/** Instrumenting class loader */
-	private static final DscInstrumentingClassLoader classLoader = new DscInstrumentingClassLoader();
+	private static final ConcolicInstrumentingClassLoader classLoader = new ConcolicInstrumentingClassLoader();
 
 	/**
 	 * Retrieve the path condition for a given test case
