@@ -1160,7 +1160,7 @@ public class TestCodeVisitor extends TestVisitor {
 		Class<?> ex = getExceptionClassToUse(exception);
 
 		// preparing the catch block
-		result += " catch(" + getClassName(ex) + " e) {\n";
+		result += " catch(Throwable e) {\n";
 
 		// adding the message of the exception
 		String exceptionMessage = "";
@@ -1169,12 +1169,19 @@ public class TestCodeVisitor extends TestVisitor {
 		} else {
 			exceptionMessage = "no message in exception (getMessage() returned null)";
 		}
-
+		
 		result += "   //\n";
 		for (String msg : exceptionMessage.split("\n")) {
 			result += "   // " + StringEscapeUtils.escapeJava(msg) + "\n";
 		}
 		result += "   //\n";
+		
+		// Validate the state
+		if(exception.getClass()!= null && exception.getClass().getName() != null)
+			result += "   \n assertTrue(e.getClass().getName().equals(\"" + exception.getClass().getName() + "\");";
+		if (exception.getMessage() != null)
+			result += "\n assertTrue(e.getMessage().equals(\"" + StringEscapeUtils.escapeJava(exceptionMessage) + "\");";
+		result += "   \n";
 
 		result += "}\n";// closing the catch block
 		return result;
