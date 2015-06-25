@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.dse.instrument;
+package org.evosuite.symbolic.instrument;
 
 /**
  * @author fraser
@@ -28,7 +28,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.evosuite.dse.MainConfig;
 import org.evosuite.dse.MainConfig;
 
 

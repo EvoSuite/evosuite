@@ -11,11 +11,10 @@ import java.util.LinkedList;
 
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.fp.RealConstant;
+import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
+import org.evosuite.symbolic.instrument.ConcolicMethodAdapter;
 import org.objectweb.asm.Type;
-
 import org.evosuite.dse.AbstractVM;
-import org.evosuite.dse.instrument.DscInstrumentingClassLoader;
-import org.evosuite.dse.instrument.DscMethodAdapter;
 
 /**
  * Explicit inter-procedural control transfer: InvokeXXX, Return, etc.
@@ -35,7 +34,7 @@ public final class CallVM extends AbstractVM {
 	 * Constructor
 	 */
 	public CallVM(SymbolicEnvironment env,
-			DscInstrumentingClassLoader classLoader) {
+			ConcolicInstrumentingClassLoader classLoader) {
 		this.env = env;
 		this.classLoader = classLoader;
 	}
@@ -148,7 +147,7 @@ public final class CallVM extends AbstractVM {
 	}
 
 	private final HashMap<Member, MemberInfo> memberInfos = new HashMap<Member, MemberInfo>();
-	private final DscInstrumentingClassLoader classLoader;
+	private final ConcolicInstrumentingClassLoader classLoader;
 
 	/**
 	 * Cache max values for this method, except for static initializers.
@@ -560,7 +559,7 @@ public final class CallVM extends AbstractVM {
 	/**
 	 * We get this callback right before the user code makes the corresponding
 	 * virtual call to method className.methName(methDesc). See:
-	 * {@link DscMethodAdapter#visitMethodInsn}
+	 * {@link ConcolicMethodAdapter#visitMethodInsn}
 	 * 
 	 * <p>
 	 * The current instrumentation system only calls this version of
@@ -601,7 +600,7 @@ public final class CallVM extends AbstractVM {
 	/**
 	 * We get this callback right before the user code makes the corresponding
 	 * call to interface method className.methName(methDesc). See:
-	 * {@link DscMethodAdapter#visitMethodInsn}
+	 * {@link ConcolicMethodAdapter#visitMethodInsn}
 	 * 
 	 * <p>
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.

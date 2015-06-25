@@ -1,7 +1,7 @@
-package org.evosuite.dse.instrument;
+package org.evosuite.symbolic.instrument;
 
-import static org.evosuite.dse.instrument.InstrumentConfig.VM_FQ;
 import static org.evosuite.dse.util.Assertions.check;
+import static org.evosuite.symbolic.instrument.ConcolicConfig.VM_FQ;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP2;

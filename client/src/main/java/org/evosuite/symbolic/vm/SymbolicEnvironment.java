@@ -1,7 +1,6 @@
 package org.evosuite.symbolic.vm;
 
 import org.evosuite.dse.MainConfig;
-import org.evosuite.dse.instrument.DscInstrumentingClassLoader;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -11,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.objectweb.asm.Type;
 
@@ -37,9 +37,9 @@ public final class SymbolicEnvironment {
 	 */
 	private final Set<Class<?>> preparedClasses = new HashSet<Class<?>>();
 
-	private final DscInstrumentingClassLoader classLoader;
+	private final ConcolicInstrumentingClassLoader classLoader;
 
-	public SymbolicEnvironment(DscInstrumentingClassLoader classLoader) {
+	public SymbolicEnvironment(ConcolicInstrumentingClassLoader classLoader) {
 		this.classLoader = classLoader;
 	}
 
