@@ -759,7 +759,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public boolean hasStatement(int position) {
-		return (statements.size() >= position || position < 0);
+		return (statements.size() > position || position < 0);
 	}
 
 	/* (non-Javadoc)
