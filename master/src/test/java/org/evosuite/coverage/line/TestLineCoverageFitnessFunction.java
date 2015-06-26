@@ -307,9 +307,6 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		// seeding, but need to increase the budget
 		Properties.PRIMITIVE_POOL = 0.0;
 		Properties.SEARCH_BUDGET = 50000;
-		
-		// Seems we need to shorten tests to get to target in time?
-		Properties.CHROMOSOME_LENGTH = 20;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
