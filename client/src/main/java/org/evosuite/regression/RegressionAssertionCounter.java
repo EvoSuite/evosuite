@@ -213,8 +213,11 @@ public class RegressionAssertionCounter {
 				Map<Integer, Throwable> regressionExceptionMapping = result2
 						.getCopyOfExceptionMapping();
 
-				double exDiff = Math.abs((double) (originalExceptionMapping
-						.size() - regressionExceptionMapping.size()));
+				/*double exDiff = Math.abs((double) (originalExceptionMapping
+						.size() - regressionExceptionMapping.size()));*/
+				int exDiff = regressionExceptionMapping.size() - originalExceptionMapping
+						.size();
+				
 
 				if (exDiff == 0) {
 					for (Entry<Integer, Throwable> origException : originalExceptionMapping
@@ -284,7 +287,8 @@ public class RegressionAssertionCounter {
 				RegressionSearchListener.exceptionDiff += exDiff;
 
 				// The following ugly code adds exception diff comments
-				addExceptionAssertions(regressionTest,
+				if(exDiff>0)
+					addExceptionAssertions(regressionTest,
 						originalExceptionMapping, regressionExceptionMapping);
 
 				// if(result1.hasTestException() || result2.hasTestException()
@@ -405,6 +409,7 @@ public class RegressionAssertionCounter {
 						.getKey());
 			}
 		}
+		if(false)
 		for (Entry<Integer, Throwable> regException : regressionExceptionMapping
 				.entrySet()) {
 			if (regressionTest.getTheTest().getTestCase()

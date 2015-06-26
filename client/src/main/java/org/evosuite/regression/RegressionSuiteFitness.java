@@ -328,12 +328,11 @@ logger.warn("initialising regression Suite Fitness... ##########################
 			if(execTimeDiff>0.003)
 				diffTime += execTimeDiff;
 
-			double exDiff = Math
-					.abs((double) (numExceptionOrig - numExceptionReg));
+			double exDiff = numExceptionReg - numExceptionOrig;
 
 			totalExceptions += numExceptionOrig + numExceptionReg;
 
-			numDifferentExceptions += exDiff;
+			numDifferentExceptions += (exDiff > 0) ? exDiff : 0;
 
 			startTime = System.nanoTime();
 
