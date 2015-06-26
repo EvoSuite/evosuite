@@ -328,11 +328,12 @@ logger.warn("initialising regression Suite Fitness... ##########################
 			if(execTimeDiff>0.003)
 				diffTime += execTimeDiff;
 
-			double exDiff = numExceptionReg - numExceptionOrig;
+			double exDiff = Math
+					.abs((double) (numExceptionOrig - numExceptionReg));
 
 			totalExceptions += numExceptionOrig + numExceptionReg;
 
-			numDifferentExceptions += (exDiff > 0) ? exDiff : 0;
+			numDifferentExceptions += exDiff;
 
 			startTime = System.nanoTime();
 
@@ -391,7 +392,8 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		
 		double objectDfitness = 0;
 		if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
-			distance = Collections.max(objectDistances);
+			if(!objectDistances.isEmpty())
+				distance = Collections.max(objectDistances);
 			objectDfitness = (1.0 / (1.0 + distance))
 					* (max_branch_fitness_valueO + max_branch_fitness_valueR);
 		}

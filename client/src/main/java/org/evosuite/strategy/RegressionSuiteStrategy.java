@@ -338,6 +338,8 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 											+ "," + numAssertions + ","
 											+ (firstTry ? "F" : "P") + ",,,,,,");
 					firstTry = false;
+					RegressionSearchListener
+					.statsFileWriter.flush();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -359,6 +361,8 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 									+ (System.currentTimeMillis() - RegressionSearchListener.startTime)
 									+ "," + numAssertions + "," + "L"
 									+ ",0,0,0,0,0,0");
+			RegressionSearchListener
+			.statsFileWriter.flush();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
