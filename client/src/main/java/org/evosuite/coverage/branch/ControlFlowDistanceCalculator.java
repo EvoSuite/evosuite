@@ -162,7 +162,6 @@ public class ControlFlowDistanceCalculator {
 
 		Integer exceptionPosition = result.getFirstPositionOfThrownException();
 		if(!result.test.hasStatement(exceptionPosition)){
-			logger.warn("doesn't have statement at {}", exceptionPosition);
 			return false;
 		}
 		Statement statement = result.test.getStatement(exceptionPosition);
