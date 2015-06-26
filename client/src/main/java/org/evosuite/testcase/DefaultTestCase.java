@@ -245,7 +245,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 	}
 	
-	private ClassLoader changedClassLoader = null;
+	private transient ClassLoader changedClassLoader = null;
 
 	public ClassLoader getChangedClassLoader() {
 		return changedClassLoader;
