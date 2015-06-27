@@ -217,23 +217,25 @@ logger.warn("initialising regression Suite Fitness... ##########################
 					otherChromosome.setChanged(false);
 				}
 			}
-			long startTime = System.nanoTime();
-			for(Entry<String, Map<Integer, String>> dEntry:c.diversityMap.entrySet()){
-				Map<Integer, String> divInstance = diversityMap.get(dEntry.getKey());
-				if(divInstance == null)
-					diversityMap.put(dEntry.getKey(), dEntry.getValue());
-				else{
-					Map<Integer, String> testMethodCalls = dEntry.getValue();
-					for(Entry<Integer, String> mc:testMethodCalls.entrySet()){
-						String calls = divInstance.get(mc.getKey());
-						if(calls==null || calls.length()<mc.getValue().length())
-							calls = mc.getValue();
-						divInstance.put(mc.getKey(), calls);
+			if(Properties.REGRESSION_DIVERSITY){
+				long startTime = System.nanoTime();
+				for(Entry<String, Map<Integer, String>> dEntry:c.diversityMap.entrySet()){
+					Map<Integer, String> divInstance = diversityMap.get(dEntry.getKey());
+					if(divInstance == null)
+						diversityMap.put(dEntry.getKey(), dEntry.getValue());
+					else{
+						Map<Integer, String> testMethodCalls = dEntry.getValue();
+						for(Entry<Integer, String> mc:testMethodCalls.entrySet()){
+							String calls = divInstance.get(mc.getKey());
+							if(calls==null || calls.length()<mc.getValue().length())
+								calls = mc.getValue();
+							divInstance.put(mc.getKey(), calls);
+						}
 					}
 				}
+				RegressionSearchListener.diversityCalculationTime  += System.nanoTime()
+						- startTime;
 			}
-			RegressionSearchListener.diversityCalculationTime  += System.nanoTime()
-					- startTime;
 		}
 		
 		
@@ -474,11 +476,12 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 		fitness += exceptionDistance;
 		
-		
-		calculateDiversity();
-		
-		double diversityFitness = (1.0 / (1.0 + uniqueCalls));
-		fitness += diversityFitness;
+		if(Properties.REGRESSION_DIVERSITY){
+			calculateDiversity();
+			
+			double diversityFitness = (1.0 / (1.0 + uniqueCalls));
+			fitness += diversityFitness;
+		}
 		//fitness += (1.0 / (1.0 + diffTime));
 
 		// double totalExDistance = normalize(totalExceptions) *
