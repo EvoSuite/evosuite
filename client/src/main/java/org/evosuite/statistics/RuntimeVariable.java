@@ -197,6 +197,19 @@ public enum RuntimeVariable {
 	AudioPermission,
 	OtherPermission,
 	/* -------------------------------------------------------------------- */
+	/** Regression-related Variables */
+	Generated_Assertions,
+	Coverage_Old,
+	Coverage_New,
+	Exception_Difference,
+	State_Distance,
+	Testsuite_Diversity,
+	/** Timings */
+	Time_Assertion,
+	Time_Coverage,
+	Time_StateDistance,
+	Time_Diversity,
+	/* -------------------------------------------------------------------- */
 	/** Count of branch comparison types in bytecode (static) */
 	Cmp_IntZero,
 	Cmp_IntInt,

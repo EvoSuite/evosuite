@@ -1407,6 +1407,10 @@ public class Properties {
 	/** Constant <code>REGRESSION_DISABLE_SPECIAL_ASSERTIONS</code> */
 	@Parameter(key = "regression_disable_special_assertions", group = "Runtime", description = "disable undesirable assertions")
 	public static boolean REGRESSION_DISABLE_SPECIAL_ASSERTIONS = false;
+	
+	/** Constant <code>REGRESSION_DIVERSITY</code> */
+	@Parameter(key = "regression_diversity", group = "Runtime", description = "Include diversity fitness measurement")
+	public static boolean REGRESSION_DIVERSITY = false;
 
 	/** Constant <code>STRATEGY</code> */
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
