@@ -62,6 +62,12 @@
             <artifactId>javax.inject</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
 
 
     </dependencies>

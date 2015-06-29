@@ -20,10 +20,12 @@ import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.testcase.jee.InjectionSupport;
 import org.evosuite.testcase.mutation.LegacyInsertion;
 import org.evosuite.testcase.mutation.RandomInsertion;
 import org.evosuite.testcase.statements.*;
@@ -149,6 +151,7 @@ public class TestFactory {
 		int length = test.size();
 
 		try {
+			//first be sure if parameters can be satisfied
 			List<VariableReference> parameters = satisfyParameters(test,
 			                                                       null,
 			                                                       Arrays.asList(constructor.getParameterTypes()),
@@ -157,9 +160,24 @@ public class TestFactory {
 			int newLength = test.size();
 			position += (newLength - length);
 
-			Statement st = new ConstructorStatement(test, constructor,
-			        parameters);
-			return test.addStatement(st, position);
+			//create a statement for the constructor
+			Statement st = new ConstructorStatement(test, constructor, parameters);
+			VariableReference ref =  test.addStatement(st, position);
+
+			//check if this object needs any dependency injection
+			Class<?> klass = constructor.getRawGeneratedType();
+			VariableReference classConstant = new ConstantValue(test,new GenericClass(Class.class),klass);
+			int injectPosition = position + 1;
+
+			if(Injector.hasEntityManager(klass)){
+				Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEntityManager(), null,
+						Arrays.asList(ref,classConstant));
+				test.addStatement(ms, injectPosition++);
+			}
+			//TODO all others injections
+
+
+			return ref;
 		} catch (Exception e) {
 			throw new ConstructionFailedException(e.getMessage());
 		}
