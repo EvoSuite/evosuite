@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Utility methods used to do JEE dependency injection.
+ *
  * Created by Andrea Arcuri on 29/06/15.
  */
 public class InjectionSupport {
