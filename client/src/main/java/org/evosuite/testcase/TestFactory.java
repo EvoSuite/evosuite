@@ -21,11 +21,14 @@ import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.javaee.injection.Injector;
+import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.jee.InjectionSupport;
+import org.evosuite.testcase.jee.InstanceOnlyOnce;
+import org.evosuite.testcase.jee.ServletSupport;
 import org.evosuite.testcase.mutation.LegacyInsertion;
 import org.evosuite.testcase.mutation.RandomInsertion;
 import org.evosuite.testcase.statements.*;
@@ -45,6 +48,8 @@ import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
+
+import javax.servlet.http.HttpServlet;
 
 /**
  * @author Gordon Fraser
@@ -143,10 +148,18 @@ public class TestFactory {
 	public VariableReference addConstructor(TestCase test,
 	        GenericConstructor constructor, Type exactType, int position,
 	        int recursionDepth) throws ConstructionFailedException {
+
 		if (recursionDepth > Properties.MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException("Max recursion depth reached");
 		}
+
+		Class<?> klass = constructor.getRawGeneratedType();
+
+		if(Properties.JEE && InstanceOnlyOnce.canInstantiateOnlyOnce(klass) && ConstraintHelper.countNumberOfNewInstances(test,klass) != 0){
+			throw new ConstructionFailedException("Class "+klass.getName()+" can only be instantiated once");
+		}
+
 
 		int length = test.size();
 
@@ -164,18 +177,28 @@ public class TestFactory {
 			Statement st = new ConstructorStatement(test, constructor, parameters);
 			VariableReference ref =  test.addStatement(st, position);
 
-			//check if this object needs any dependency injection
-			Class<?> klass = constructor.getRawGeneratedType();
-			VariableReference classConstant = new ConstantValue(test,new GenericClass(Class.class),klass);
-			int injectPosition = position + 1;
+			if(Properties.JEE) {
+				//check if this object needs any dependency injection
+				VariableReference classConstant = new ConstantValue(test, new GenericClass(Class.class), klass);
+				int injectPosition = position + 1;
 
-			if(Injector.hasEntityManager(klass)){
-				Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEntityManager(), null,
-						Arrays.asList(ref,classConstant));
-				test.addStatement(ms, injectPosition++);
+				if (Injector.hasEntityManager(klass)) {
+					Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEntityManager(), null,
+							Arrays.asList(ref, classConstant));
+					test.addStatement(ms, injectPosition++);
+				}
+				//TODO all others injections
+
+
+				if (HttpServlet.class.isAssignableFrom(klass)) {
+					//Servlets are treated specially, as part of JEE
+					if (ConstraintHelper.countNumberOfMethodCalls(test, EvoServletState.class, "initServlet") == 0) {
+						Statement ms = new MethodStatement(test, ServletSupport.getServletInit(), null,
+								Arrays.asList(ref));
+						test.addStatement(ms, injectPosition++);
+					}
+				}
 			}
-			//TODO all others injections
-
 
 			return ref;
 		} catch (Exception e) {
@@ -606,8 +629,7 @@ public class TestFactory {
 			if (Randomness.nextDouble() <= Properties.P_OBJECT_POOL
 			        && objectPool.hasSequence(clazz)) {
 				TestCase sequence = objectPool.getRandomSequence(clazz);
-				logger.debug("Using a sequence from the object pool to satisfy the type: "
-				        + type);
+				logger.debug("Using a sequence from the object pool to satisfy the type: " + type);
 				VariableReference targetObject = sequence.getLastObject(type);
 				int returnPos = position + targetObject.getStPosition();
 				for (int i = 0; i < sequence.size(); i++) {
@@ -776,8 +798,7 @@ public class TestFactory {
 			calls.remove(ao);
 		}
 
-		logger.debug("Got " + calls.size() + " possible calls for " + objects.size()
-		        + " objects");
+		logger.debug("Got " + calls.size() + " possible calls for " + objects.size() + " objects");
 		//calls.clear();
 		if (calls.isEmpty()) {
 			logger.debug("No replacement calls");
