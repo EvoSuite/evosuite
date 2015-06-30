@@ -36,6 +36,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.GenericAccessibleObject;
@@ -116,7 +117,12 @@ public class TestCluster {
 		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
 		        && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
 			// exclude existing tests from the target project
-			return !TestClusterUtils.isTest(className);
+			try {
+				Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
+				return !CoverageAnalysis.isTest(clazz);
+			} catch (ClassNotFoundException e) {
+				logger.info("Could not load class: ", className);
+			}
 		}
 		if (className.equals(Properties.TARGET_CLASS)
 		        || className.startsWith(Properties.TARGET_CLASS + "$")) {
