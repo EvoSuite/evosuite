@@ -116,7 +116,7 @@ public class TestCluster {
 		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
 		        && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
 			// exclude existing tests from the target project
-			return !isTest(className);
+			return !TestClusterUtils.isTest(className);
 		}
 		if (className.equals(Properties.TARGET_CLASS)
 		        || className.startsWith(Properties.TARGET_CLASS + "$")) {
@@ -129,39 +129,6 @@ public class TestCluster {
 
 		return false;
 
-	}
-
-	/**
-	 * Determine if this class contains JUnit tests
-	 *
-	 * @param className
-	 * @return
-	 */
-	private static boolean isTest(String className) {
-		// TODO-JRO Identifying tests should be done differently:
-		// If the class either contains methods
-		// annotated with @Test (> JUnit 4.0)
-		// or contains Test or Suite in it's inheritance structure
-		try {
-			Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
-			Class<?> superClazz = clazz.getSuperclass();
-			while (!superClazz.equals(Object.class)) {
-				if (superClazz.equals(Suite.class))
-					return true;
-				if (superClazz.equals(Test.class))
-					return true;
-
-				superClazz = clazz.getSuperclass();
-			}
-			for (Method method : clazz.getMethods()) {
-				if (method.isAnnotationPresent(Test.class)) {
-					return true;
-				}
-			}
-		} catch (ClassNotFoundException e) {
-			logger.info("Could not load class: ", className);
-		}
-		return false;
 	}
 
 	public static void reset() {
