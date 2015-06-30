@@ -3,19 +3,32 @@ package org.evosuite.setup;
 import org.evosuite.Properties;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.System;
+import org.evosuite.runtime.annotation.EvoSuiteAssertionOnly;
+import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
+import org.evosuite.runtime.annotation.EvoSuiteExclude;
+import org.evosuite.runtime.annotation.EvoSuiteInclude;
+import org.evosuite.runtime.javaee.TestDataJavaEE;
+import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.testdata.*;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.evosuite.runtime.vnet.EndPointInfo;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  *
@@ -38,10 +51,18 @@ public class EnvironmentTestClusterAugmenter {
     private volatile boolean hasAddedTcpListeningSupport;
     private volatile boolean hasAddedTcpRemoteSupport;
 
+    private volatile boolean hasAddedServlet;
+
     private final TestCluster cluster;
+
+    /**
+     * Keep track of all EvoSuite classes that have been already fully handled (via recursion)
+     */
+    private final Set<String> handledClasses;
 
     public EnvironmentTestClusterAugmenter(TestCluster cluster) {
         this.cluster = cluster;
+        this.handledClasses = new LinkedHashSet<>();
     }
 
     /**
@@ -78,6 +99,78 @@ public class EnvironmentTestClusterAugmenter {
         if(Properties.VIRTUAL_NET){
             handleNetwork(test);
         }
+        
+        if(Properties.JEE){
+            handleJEE(test);
+        }
+    }
+
+    private void handleJEE(TestCase test) {
+
+        if(!hasAddedServlet && TestDataJavaEE.getInstance().isWasAServletInitialized()){
+            hasAddedServlet = true;
+            addEvoClassToCluster(EvoServletState.class);
+        }
+
+        //TODO TestDataJavaEE data 
+    }
+
+    /**
+     * Not only add the given klass, but also all the other EvoSuite classes for
+     * which the given class is a generator
+     *
+     * @param klass
+     */
+    private void addEvoClassToCluster(Class<?> klass) {
+        if(handledClasses.contains(klass.getCanonicalName()) || !TestClusterUtils.isEvoSuiteClass(klass)){
+            return; //already handled, or not valid
+        }
+        handledClasses.add(klass.getCanonicalName());
+
+        boolean excludeClass = klass.getAnnotation(EvoSuiteClassExclude.class) != null;
+
+        //only consider public constructors/methods
+
+        for(Constructor c : klass.getConstructors()){
+            //first check if it should be skipped
+            if (shouldSkip(excludeClass, c)){
+                continue;
+            }
+
+            GenericAccessibleObject gc = new GenericConstructor(c,klass);
+            TestCluster.getInstance().addTestCall(gc);
+            TestCluster.getInstance().addGenerator(new GenericClass(klass),gc);
+        }
+
+        for(Method m : klass.getMethods()){
+            if (shouldSkip(excludeClass, m)){
+                continue;
+            }
+
+            GenericAccessibleObject gm = new GenericMethod(m,klass);
+            TestCluster.getInstance().addTestCall(gm);
+            Class<?> returnType = m.getReturnType();
+            if(! returnType.equals(Void.TYPE)){
+                TestCluster.getInstance().addGenerator(new GenericClass(returnType),gm);
+                addEvoClassToCluster(returnType);
+            }
+        }
+    }
+
+    private boolean shouldSkip(boolean excludeClass, AccessibleObject c) {
+        if(excludeClass){
+            boolean include = c.getAnnotation(EvoSuiteInclude.class) != null;
+            if(!include){
+                return true;
+            }
+        } else {
+            boolean exclude = c.getAnnotation(EvoSuiteExclude.class) != null ||
+                    c.getAnnotation(EvoSuiteAssertionOnly.class) != null;
+            if(exclude){
+                return true;
+            }
+        }
+        return false;
     }
 
     private void handleNetwork(TestCase test){

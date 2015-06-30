@@ -83,4 +83,9 @@ public class TestClusterUtils {
 			constructor.setAccessible(true);
 		}
 	}
+
+	public static boolean isEvoSuiteClass(Class<?> c) {
+        return c.getName().startsWith("org.evosuite");
+                //|| c.getName().equals("java.lang.String");    // This is now handled in addDependencyClass
+    }
 }

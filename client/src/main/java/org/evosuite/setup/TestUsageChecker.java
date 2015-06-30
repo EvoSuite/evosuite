@@ -126,7 +126,7 @@ public class TestUsageChecker {
         if (c.getName().startsWith("junit"))
             return false;
 
-        if (isEvoSuiteClass(c) && !MockList.isAMockClass(c.getCanonicalName())) {
+        if (TestClusterUtils.isEvoSuiteClass(c) && !MockList.isAMockClass(c.getCanonicalName())) {
             return false;
         }
 
@@ -365,14 +365,8 @@ public class TestUsageChecker {
         return false;
     }
 
-    public static boolean isEvoSuiteClass(Class<?> c) {
-		return c.getName().startsWith("org.evosuite");
-		        //|| c.getName().equals("java.lang.String");    // This is now handled in addDependencyClass
-	}
 
-
-
-	/**
+    /**
 	 * If we try to get deterministic tests, we must not include these methods
 	 *
 	 * @param m
