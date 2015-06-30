@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,6 +20,7 @@ package org.evosuite.coverage.method;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -35,12 +36,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static org.evosuite.setup.TestClusterGenerator.canUse;
+
 
 
 /**
  * Fitness function for a whole test suite for all methods considering only normal behaviour (no exceptions)
- * 
+ *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
 public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
@@ -56,7 +57,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
     // Some stuff for debug output
     protected int maxCoveredMethods = 0;
     protected double bestFitness = Double.MAX_VALUE;
-    
+
     protected Set<String> toRemoveMethods = new LinkedHashSet<>();
     protected Set<String> removedMethods  = new LinkedHashSet<>();
 
@@ -87,7 +88,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
         if (clazz != null) {
             Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
             for (Constructor<?> c : allConstructors) {
-                if (canUse(c)) {
+                if (TestUsageChecker.canUse(c)) {
                     String descriptor = Type.getConstructorDescriptor(c);
                     logger.info("Adding goal for constructor " + className + ".<init>" + descriptor);
                     methods.add(c.getDeclaringClass().getName() + ".<init>" + descriptor);
@@ -95,7 +96,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
             }
             Method[] allMethods = clazz.getDeclaredMethods();
             for (Method m : allMethods) {
-                if (canUse(m)) {
+                if (TestUsageChecker.canUse(m)) {
                     String descriptor = Type.getMethodDescriptor(m);
                     logger.info("Adding goal for method " + className + "." + m.getName() + descriptor);
                     methods.add(m.getDeclaringClass().getName() + "." + m.getName() + descriptor);
@@ -119,7 +120,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	/**
 	 * If there is an exception in a super-constructor, then the corresponding
 	 * constructor might not be included in the execution trace
-	 * 
+	 *
 	 * @param results
 	 * @param calledMethods
 	 */
@@ -157,12 +158,12 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	/**
 	 * Iterate over all execution results and summarize statistics
-	 * 
+	 *
 	 * @param results
 	 * @param calledMethods
 	 * @return
 	 */
-	protected boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, 
+	protected boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
 			List<ExecutionResult> results,
 	        Set<String> calledMethods) {
 		boolean hasTimeoutOrTestException = false;
@@ -222,7 +223,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Execute all tests and count covered branches
 	 */
 	@Override
@@ -234,7 +235,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		List<ExecutionResult> results = runTestSuite(suite);
 		Set<String> calledMethods = new HashSet<String>();
 
-		// Collect stats in the traces 
+		// Collect stats in the traces
 		boolean hasTimeoutOrTestException = analyzeTraces(suite, results, calledMethods);
 
 		// In case there were exceptions in a constructor
@@ -309,10 +310,10 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	@Override
 	public boolean updateCoveredGoals() {
-		
+
 		if(!Properties.TEST_ARCHIVE)
 			return false;
-		
+
 		for (String method : toRemoveMethods) {
 			boolean removed = methods.remove(method);
 			TestFitnessFunction f = methodCoverageMap.remove(method);
@@ -326,7 +327,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			}
 		}
 		toRemoveMethods.clear();
-		
+
 		return true;
 	}
 }

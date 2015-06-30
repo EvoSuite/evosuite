@@ -1,22 +1,22 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.setup;
 
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
- * 
+ *
  */
 public class TestCluster {
 
@@ -62,19 +62,19 @@ public class TestCluster {
 
 	/** Set of all classes already analyzed */
 	@Deprecated
-	private final static Set<Class<?>> analyzedClasses = new LinkedHashSet<Class<?>>();
+	private final static Set<Class<?>> analyzedClasses = new LinkedHashSet<>();
 
 	/** Methods we want to cover when testing */
-	private final static Set<GenericAccessibleObject<?>> testMethods = new LinkedHashSet<GenericAccessibleObject<?>>();
+	private final static Set<GenericAccessibleObject<?>> testMethods = new LinkedHashSet<>();
 
 	/** Static information about how to generate types */
-	private final static Map<GenericClass, Set<GenericAccessibleObject<?>>> generators = new LinkedHashMap<GenericClass, Set<GenericAccessibleObject<?>>>();
+	private final static Map<GenericClass, Set<GenericAccessibleObject<?>>> generators = new LinkedHashMap<>();
 
 	/** Cached information about how to generate types */
-	private final static Map<GenericClass, Set<GenericAccessibleObject<?>>> generatorCache = new LinkedHashMap<GenericClass, Set<GenericAccessibleObject<?>>>();
+	private final static Map<GenericClass, Set<GenericAccessibleObject<?>>> generatorCache = new LinkedHashMap<>();
 
 	/** Static information about how to modify types */
-	private final static Map<GenericClass, Set<GenericAccessibleObject<?>>> modifiers = new LinkedHashMap<GenericClass, Set<GenericAccessibleObject<?>>>();
+	private final static Map<GenericClass, Set<GenericAccessibleObject<?>>> modifiers = new LinkedHashMap<>();
 
 	private static InheritanceTree inheritanceTree = null;
 
@@ -99,7 +99,7 @@ public class TestCluster {
 
 	/**
 	 * Instance accessor
-	 * 
+	 *
 	 * @return
 	 */
 	public static synchronized TestCluster getInstance() {
@@ -133,7 +133,7 @@ public class TestCluster {
 
 	/**
 	 * Determine if this class contains JUnit tests
-	 * 
+	 *
 	 * @param className
 	 * @return
 	 */
@@ -185,7 +185,7 @@ public class TestCluster {
 
 	/**
 	 * Add a generator reflection object
-	 * 
+	 *
 	 * @param target
 	 *            is assumed to have wildcard types
 	 * @param call
@@ -200,7 +200,7 @@ public class TestCluster {
 
 	/**
 	 * Add a modifier reflection object
-	 * 
+	 *
 	 * @param target
 	 *            is assumed to have wildcard types
 	 * @param call
@@ -214,24 +214,24 @@ public class TestCluster {
 
 	/**
 	 * Add a test call
-	 * 
+	 *
 	 * @return
 	 */
 	public void addTestCall(GenericAccessibleObject<?> call) {
 		testMethods.add(call);
 	}
-	
+
 	public void removeTestCall(GenericAccessibleObject<?> call) {
 		testMethods.remove(call);
 	}
-	
+
 	/**
 	 * Add a new class observed at runtime for container methods
-	 * 
+	 *
 	 * @param clazz
 	 */
 	public void addCastClassForContainer(Class<?> clazz) {
-		if (TestClusterGenerator.canUse(clazz)) {
+		if (TestUsageChecker.canUse(clazz)) {
 			CastClassManager.getInstance().addCastClass(clazz, 1);
 			clearGeneratorCache(new GenericClass(clazz));
 		}
@@ -240,7 +240,7 @@ public class TestCluster {
 	/**
 	 * Calculate and cache all generators for a particular type. All generic
 	 * types on the generator are instantiated according to the produced type
-	 * 
+	 *
 	 * @param clazz
 	 * @throws ConstructionFailedException
 	 */
@@ -292,12 +292,12 @@ public class TestCluster {
 								 * TODO:
 								 * public class Foo<X> {
 								 *   public <X> Foo<X> getFoo() {
-								 *     // ... 
+								 *     // ...
 								 *   }
 								 * }
-								 * 
+								 *
 								 * Here X and X are two different type variables, and these need to be matched here!
-								 * 
+								 *
 								 */
 								newGenerator = newGenerator.getGenericInstantiationFromReturnValue(clazz);
 								hadTypeParameters = true;
@@ -350,7 +350,7 @@ public class TestCluster {
 
 	/**
 	 * Forget everything we have cached
-	 * 
+	 *
 	 * @param target
 	 */
 	public void clearGeneratorCache(GenericClass target) {
@@ -359,7 +359,7 @@ public class TestCluster {
 
 	/**
 	 * Get modifiers for instantiation of a generic type
-	 * 
+	 *
 	 * @param clazz
 	 * @return
 	 * @throws ConstructionFailedException
@@ -372,7 +372,7 @@ public class TestCluster {
 			for (Entry<GenericClass, Set<GenericAccessibleObject<?>>> entry : modifiers.entrySet()) {
 				logger.debug("Considering " + entry.getKey());
 				//if (entry.getKey().canBeInstantiatedTo(clazz)) {
-				
+
 				if (entry.getKey().getWithWildcardTypes().isGenericSuperTypeOf(clazz)) {
 					logger.debug(entry.getKey() + " can be instantiated to " + clazz);
 					for (GenericAccessibleObject<?> modifier : entry.getValue()) {
@@ -468,7 +468,7 @@ public class TestCluster {
 
 	/**
 	 * Return all calls that have a parameter with given type
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 * @throws ConstructionFailedException
@@ -512,7 +512,7 @@ public class TestCluster {
 
 	/**
 	 * Get modifiers for special cases
-	 * 
+	 *
 	 * @param clazz
 	 * @return
 	 * @throws ConstructionFailedException
@@ -577,7 +577,7 @@ public class TestCluster {
 
 	/**
 	 * Find a class that matches the given name
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 * @throws ClassNotFoundException
@@ -614,7 +614,7 @@ public class TestCluster {
 
 	/**
 	 * Retrieve all generators
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<GenericAccessibleObject<?>> getGenerators() {
@@ -627,7 +627,7 @@ public class TestCluster {
 
 	/**
 	 * Get a list of all generator objects for the type
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 * @throws ConstructionFailedException
@@ -654,7 +654,7 @@ public class TestCluster {
 
 	/**
 	 * Predetermined generators for special cases
-	 * 
+	 *
 	 * @param clazz
 	 * @return
 	 * @throws ConstructionFailedException
@@ -672,7 +672,7 @@ public class TestCluster {
 			if(!hasGenerator(clazz)) {
 				throw new ConstructionFailedException("No generators of type " + clazz);
 			}
-				
+
 			all.addAll(generatorCache.get(clazz));
 
 			for (GenericAccessibleObject<?> call : all) {
@@ -736,7 +736,7 @@ public class TestCluster {
 	/**
 	 * FIXME: This is a workaround for a bug where Integer is not contained in
 	 * the generatorCache, but there is a key. No idea how it comes to place
-	 * 
+	 *
 	 * @param clazz
 	 */
 	private void addNumericConstructor(GenericClass clazz) {
@@ -765,7 +765,7 @@ public class TestCluster {
 
 	/**
 	 * Retrieve all classes that match the given postfix
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -780,7 +780,7 @@ public class TestCluster {
 
 	/**
 	 * Retrieve all modifiers
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<GenericAccessibleObject<?>> getModifiers() {
@@ -793,7 +793,7 @@ public class TestCluster {
 
 	/**
 	 * Determine the set of generators for an Object.class instance
-	 * 
+	 *
 	 * @param target
 	 * @return a collection of all cast classes stored in {@link CastClassManager}; cannot be <code>null</code>>.
 	 */
@@ -819,7 +819,7 @@ public class TestCluster {
 
 	/**
 	 * Randomly select one generator
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 * @throws ConstructionFailedException
@@ -851,7 +851,7 @@ public class TestCluster {
 
 		if (generator == null)
 			throw new ConstructionFailedException("No generators of type " + clazz);
-		
+
 		if (generator.hasTypeParameters()) {
 			generator = generator.getGenericInstantiation(clazz);
 		}
@@ -860,7 +860,7 @@ public class TestCluster {
 
 	/**
 	 * Randomly select one generator
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 * @throws ConstructionFailedException
@@ -925,7 +925,7 @@ public class TestCluster {
 
 	/**
 	 * Randomly select a generator for an Object.class instance
-	 * 
+	 *
 	 * @return a generator of type GenericAccessibleObject<?> or <code>null</code>
 	 * @throws ConstructionFailedException
 	 */
@@ -938,7 +938,7 @@ public class TestCluster {
 			logger.warn("Random object generator is null");
 			throw new ConstructionFailedException("Random object generator is null");
 		}
-		
+
 		if (generator.getOwnerClass().hasWildcardOrTypeVariables()) {
 			logger.debug("Generator has wildcard or type: " + generator);
 			GenericClass concreteClass = generator.getOwnerClass().getGenericInstantiation();
@@ -955,7 +955,7 @@ public class TestCluster {
 
 	/**
 	 * Get random method or constructor of unit under test
-	 * 
+	 *
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
@@ -964,7 +964,7 @@ public class TestCluster {
 		if(testMethods.isEmpty()) {
 			logger.debug("No more calls");
 			// TODO: return null, or throw ConstructionFailedException?
-			return null;			
+			return null;
 		}
 		GenericAccessibleObject<?> choice = Randomness.choice(testMethods);
 		logger.debug("Chosen call: " + choice);
@@ -992,7 +992,7 @@ public class TestCluster {
 
 	/**
 	 * Get a list of all test calls (i.e., constructors and methods)
-	 * 
+	 *
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
@@ -1017,7 +1017,7 @@ public class TestCluster {
 
 	/**
 	 * Determine if there are generators
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 */
@@ -1035,7 +1035,7 @@ public class TestCluster {
 
 	/**
 	 * Determine if there are generators
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 */
@@ -1045,7 +1045,7 @@ public class TestCluster {
 
 	/**
 	 * Integrate a new class into the test cluster
-	 * 
+	 *
 	 * @param name
 	 * @throws ClassNotFoundException
 	 */
@@ -1056,7 +1056,7 @@ public class TestCluster {
 	/**
 	 * Some standard classes need to be treated specially to increase
 	 * performance
-	 * 
+	 *
 	 * @param clazz
 	 * @return
 	 */
@@ -1076,7 +1076,7 @@ public class TestCluster {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

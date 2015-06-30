@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.evosuite.utils;
 
@@ -14,12 +14,13 @@ import java.lang.reflect.Type;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestUsageChecker;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
 /**
  * @author Gordon Fraser
- * 
+ *
  */
 public class GenericField extends GenericAccessibleObject<GenericField> {
 
@@ -130,9 +131,9 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 
 	@Override
 	public boolean isAccessible() {
-		return TestClusterGenerator.canUse(field);
+		return TestUsageChecker.canUse(field);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.GenericAccessibleObject#isField()
 	 */
@@ -185,10 +186,10 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 			field = methodClass.getDeclaredField(fieldName);
 			field.setAccessible(true);
 		} catch (SecurityException e) {
-		    throw new IllegalStateException("Unknown field for " + fieldName 
+		    throw new IllegalStateException("Unknown field for " + fieldName
 		                                    + " in class " + methodClass.getCanonicalName());
 		} catch (NoSuchFieldException e) {
-            throw new IllegalStateException("Unknown field for " + fieldName 
+            throw new IllegalStateException("Unknown field for " + fieldName
                                             + " in class " + methodClass.getCanonicalName());
 		}
 	}
@@ -239,6 +240,6 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 			return false;
 		return true;
 	}
-	
-	
+
+
 }

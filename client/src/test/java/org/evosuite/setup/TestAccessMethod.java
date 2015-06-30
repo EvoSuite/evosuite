@@ -31,7 +31,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "some.package.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
 		                     "publicMethod");
-		boolean result = TestClusterGenerator.canUse(f);
+		boolean result = TestUsageChecker.canUse(f);
 		Assert.assertTrue(result);
 	}
 
@@ -41,7 +41,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "some.package.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
 		                     "defaultMethod");
-		boolean result = TestClusterGenerator.canUse(f);
+		boolean result = TestUsageChecker.canUse(f);
 		Assert.assertFalse(result);
 	}
 
@@ -51,7 +51,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "some.package.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
 		                     "protectedMethod");
-		boolean result = TestClusterGenerator.canUse(f);
+		boolean result = TestUsageChecker.canUse(f);
 		Assert.assertFalse(result);
 	}
 
@@ -61,7 +61,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "some.package.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
 		                     "privateMethod");
-		boolean result = TestClusterGenerator.canUse(f);
+		boolean result = TestUsageChecker.canUse(f);
 		Assert.assertFalse(result);
 	}
 
@@ -71,7 +71,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
 		                     "publicMethod");
-		boolean result = TestClusterGenerator.canUse(f);
+		boolean result = TestUsageChecker.canUse(f);
 		Assert.assertTrue(result);
 	}
 
@@ -81,7 +81,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
 		                     "defaultMethod");
-		boolean result = TestClusterGenerator.canUse(f);
+		boolean result = TestUsageChecker.canUse(f);
 		Assert.assertTrue(result);
 	}
 
@@ -91,7 +91,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
 		                     "defaultMethodInSuperClass");
-		boolean result = TestClusterGenerator.canUse(f);
+		boolean result = TestUsageChecker.canUse(f);
 		Assert.assertFalse(result);
 	}
 
@@ -101,7 +101,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
 		                     "protectedMethod");
-		boolean result = TestClusterGenerator.canUse(f);
+		boolean result = TestUsageChecker.canUse(f);
 		Assert.assertTrue(result);
 	}
 
@@ -111,7 +111,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
 		                     "privateMethod");
-		boolean result = TestClusterGenerator.canUse(f);
+		boolean result = TestUsageChecker.canUse(f);
 		Assert.assertFalse(result);
 	}
 
@@ -121,7 +121,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.subpackage.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
 		                     "publicMethod");
-		boolean result = TestClusterGenerator.canUse(f,
+		boolean result = TestUsageChecker.canUse(f,
 		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
 		Assert.assertTrue(result);
 	}
@@ -132,7 +132,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.subpackage.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
 		                     "protectedMethod");
-		boolean result = TestClusterGenerator.canUse(f,
+		boolean result = TestUsageChecker.canUse(f,
 		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
 		Assert.assertFalse(result);
 	}
@@ -143,7 +143,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.subpackage.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
 		                     "defaultMethod");
-		boolean result = TestClusterGenerator.canUse(f,
+		boolean result = TestUsageChecker.canUse(f,
 		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
 		Assert.assertFalse(result);
 	}
@@ -154,7 +154,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.subpackage.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
 		                     "privateMethod");
-		boolean result = TestClusterGenerator.canUse(f,
+		boolean result = TestUsageChecker.canUse(f,
 		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
 		Assert.assertFalse(result);
 	}
@@ -165,7 +165,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
 		                     "publicMethod");
-		boolean result = TestClusterGenerator.canUse(f,
+		boolean result = TestUsageChecker.canUse(f,
 		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
 		Assert.assertTrue(result);
 	}
@@ -176,7 +176,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
 		                     "protectedMethod");
-		boolean result = TestClusterGenerator.canUse(f,
+		boolean result = TestUsageChecker.canUse(f,
 		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
 		Assert.assertFalse(result);
 	}
@@ -187,7 +187,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
 		                     "defaultMethod");
-		boolean result = TestClusterGenerator.canUse(f,
+		boolean result = TestUsageChecker.canUse(f,
 		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
 		Assert.assertFalse(result);
 	}
@@ -198,7 +198,7 @@ public class TestAccessMethod {
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
 		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
 		                     "privateMethod");
-		boolean result = TestClusterGenerator.canUse(f,
+		boolean result = TestUsageChecker.canUse(f,
 		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
 		Assert.assertFalse(result);
 	}
@@ -209,7 +209,7 @@ public class TestAccessMethod {
 		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
 		try {
 			Method m = getMethod(java.util.ArrayList.class, "elementData");
-			boolean result = TestClusterGenerator.canUse(m,
+			boolean result = TestUsageChecker.canUse(m,
 			                                             com.examples.with.different.packagename.ArrayStack.class);
 			Assert.assertFalse(result);
 		} catch (Throwable e) {

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.evosuite.utils;
 
@@ -15,13 +15,14 @@ import java.util.List;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.variable.VariableReference;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
 /**
  * @author Gordon Fraser
- * 
+ *
  */
 public class GenericConstructor extends GenericAccessibleObject<GenericConstructor> {
 
@@ -208,9 +209,9 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 
 	@Override
 	public boolean isAccessible() {
-		return TestClusterGenerator.canUse(constructor);
+		return TestUsageChecker.canUse(constructor);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.GenericAccessibleObject#isConstructor()
 	 */
@@ -308,5 +309,5 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 		return true;
 	}
 
-	
+
 }
