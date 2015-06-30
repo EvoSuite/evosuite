@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.evosuite.utils;
 
@@ -18,13 +18,14 @@ import java.util.List;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.variable.VariableReference;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
 /**
  * @author Gordon Fraser
- * 
+ *
  */
 public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 
@@ -62,7 +63,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		copyTypeVariables(copy);
 		return copy;
 	}
-	
+
 	@Override
 	public GenericMethod copy() {
 		GenericMethod copy = new GenericMethod(method, new GenericClass(owner));
@@ -199,9 +200,9 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 
 	@Override
 	public boolean isAccessible() {
-		return TestClusterGenerator.canUse(method);
+		return TestUsageChecker.canUse(method);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.GenericAccessibleObject#isMethod()
 	 */
@@ -230,9 +231,9 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 			if (!parameterClasses[num].equals(parameterTypes[num])) {
 				isExact = false;
 			}
-			
+
 		}
-		
+
 		if (isExact) {
 			return false;
 		}
@@ -303,9 +304,9 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 				}
 			}
 		}
-		
+
 		if (this.method==null) {
-			throw new IllegalStateException("Unknown method for " + methodName 
+			throw new IllegalStateException("Unknown method for " + methodName
 					+ " in class " + methodClass.getCanonicalName());
 		}
 	}
@@ -323,10 +324,10 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 					Class<?>[] newParameters = newMethod.getParameterTypes();
 					if (oldParameters.length != newParameters.length)
 						continue;
-					
+
 					if(!newMethod.getDeclaringClass().getName().equals(method.getDeclaringClass().getName()))
 						continue;
-					
+
 					if(!newMethod.getReturnType().getName().equals(method.getReturnType().getName()))
 						continue;
 
@@ -379,5 +380,5 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return true;
 	}
 
-	
+
 }

@@ -1,22 +1,22 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.instrumentation.mutation;
 
@@ -34,6 +34,7 @@ import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestUsageChecker;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -55,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * ReplaceVariable class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class ReplaceVariable implements MutationOperator {
@@ -91,7 +92,7 @@ public class ReplaceVariable implements MutationOperator {
 					break;
 				}
 
-				// insert mutation into pool			
+				// insert mutation into pool
 				Mutation mutationObject = MutationPool.addMutation(className,
 				                                                   methodName,
 				                                                   "ReplaceVariable "
@@ -152,7 +153,7 @@ public class ReplaceVariable implements MutationOperator {
 	 * <p>
 	 * copy
 	 * </p>
-	 * 
+	 *
 	 * @param orig
 	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
@@ -185,7 +186,7 @@ public class ReplaceVariable implements MutationOperator {
 	 * <p>
 	 * addPrimitiveDistanceCheck
 	 * </p>
-	 * 
+	 *
 	 * @param distance
 	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 * @param type
@@ -207,7 +208,7 @@ public class ReplaceVariable implements MutationOperator {
 	 * <p>
 	 * addReferenceDistanceCheck
 	 * </p>
-	 * 
+	 *
 	 * @param distance
 	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 * @param type
@@ -227,7 +228,7 @@ public class ReplaceVariable implements MutationOperator {
 	 * <p>
 	 * getInfectionDistance
 	 * </p>
-	 * 
+	 *
 	 * @param type
 	 *            a {@link org.objectweb.asm.Type} object.
 	 * @param original
@@ -274,7 +275,7 @@ public class ReplaceVariable implements MutationOperator {
 	 * <p>
 	 * getDistance
 	 * </p>
-	 * 
+	 *
 	 * @param val1
 	 *            a double.
 	 * @param val2
@@ -289,7 +290,7 @@ public class ReplaceVariable implements MutationOperator {
 	 * <p>
 	 * getDistance
 	 * </p>
-	 * 
+	 *
 	 * @param obj1
 	 *            a {@link java.lang.Object} object.
 	 * @param obj2
@@ -305,7 +306,7 @@ public class ReplaceVariable implements MutationOperator {
 
 	/**
 	 * Retrieve the set of variables that have the same type and are in scope
-	 * 
+	 *
 	 * @param node
 	 * @return
 	 */
@@ -500,7 +501,7 @@ public class ReplaceVariable implements MutationOperator {
 			                               ReplaceVariable.class.getClassLoader());
 
 			for (Field field : TestClusterGenerator.getFields(clazz)) {
-				if (!TestClusterGenerator.canUse(field))
+				if (!TestUsageChecker.canUse(field))
 					continue;
 
 				Type type = Type.getType(field.getType());
@@ -547,7 +548,7 @@ public class ReplaceVariable implements MutationOperator {
 	/**
 	 * Generates the instructions to cast a numerical value from one type to
 	 * another.
-	 * 
+	 *
 	 * @param from
 	 *            the type of the top stack value
 	 * @param to
