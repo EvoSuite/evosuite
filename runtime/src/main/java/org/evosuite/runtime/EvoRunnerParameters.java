@@ -23,5 +23,6 @@ public @interface EvoRunnerParameters {
     boolean resetStaticState() default false;
     
     boolean separateClassLoader() default false;
-   
+
+    boolean useJEE() default false;
 }
