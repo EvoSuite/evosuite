@@ -112,11 +112,11 @@ public class EnvironmentTestClusterAugmenter {
             addEvoClassToCluster(EvoServletState.class);
         }
 
-        //TODO TestDataJavaEE data 
+        //TODO TestDataJavaEE data
     }
 
     /**
-     * Not only add the given klass, but also all the other EvoSuite classes for
+     * Not only add the given klass, but also recursively all the other EvoSuite classes for
      * which the given class is a generator
      *
      * @param klass
