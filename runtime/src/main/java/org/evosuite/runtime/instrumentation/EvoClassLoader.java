@@ -17,13 +17,9 @@
  */
 package org.evosuite.runtime.instrumentation;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileInputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.ClassReader;
@@ -31,25 +27,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <em>Note:</em> Do not inadvertently use multiple instances of this class in
- * the application! This may lead to hard to detect and debug errors. Yet this
- * class cannot be an singleton as it might be necessary to do so...
- * 
- * @author roessler
- * @author Gordon Fraser
+ * An instrumenting class loader used in special cases in the generated JUnit tests
+ * when Java Agent is not used
  */
-public class InstrumentingClassLoader extends ClassLoader {
-	private final static Logger logger = LoggerFactory.getLogger(InstrumentingClassLoader.class);
+public class EvoClassLoader extends ClassLoader {
+	private final static Logger logger = LoggerFactory.getLogger(EvoClassLoader.class);
 	private final RuntimeInstrumentation instrumentation;
 	private final ClassLoader classLoader;
-	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
+	private final Map<String, Class<?>> classes = new HashMap<>();
 
-	/**
-	 * <p>
-	 * Constructor for InstrumentingClassLoader.
-	 * </p>
-	 */
-	public InstrumentingClassLoader() {
+
+	public EvoClassLoader() {
 		this(new RuntimeInstrumentation());
 	}
 
@@ -62,81 +50,42 @@ public class InstrumentingClassLoader extends ClassLoader {
 	 *            a {@link org.evosuite.instrumentation.BytecodeInstrumentation}
 	 *            object.
 	 */
-	public InstrumentingClassLoader(RuntimeInstrumentation instrumentation) {
-		super(InstrumentingClassLoader.class.getClassLoader());
-		classLoader = InstrumentingClassLoader.class.getClassLoader();
+	public EvoClassLoader(RuntimeInstrumentation instrumentation) {
+		super(EvoClassLoader.class.getClassLoader());
+		classLoader = EvoClassLoader.class.getClassLoader();
 		this.instrumentation = instrumentation;
 	}
 
-	public List<String> getViewOfInstrumentedClasses(){
-		List<String> list = new ArrayList<>();
-		list.addAll(classes.keySet());
-		return list;
-	}
-	
-	public Class<?> loadClassFromFile(String fullyQualifiedTargetClass, String fileName) throws ClassNotFoundException {
 
-		String className = fullyQualifiedTargetClass.replace('.', '/');
-		InputStream is = null;
-		try {
-			is = new FileInputStream(new File(fileName));
-			byte[] byteBuffer = instrumentation.transformBytes(this, className,
-			                                                   new ClassReader(is));
-			createPackageDefinition(fullyQualifiedTargetClass);
-			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
-			                              byteBuffer.length);
-			classes.put(fullyQualifiedTargetClass, result);
-			logger.info("Keeping class: " + fullyQualifiedTargetClass);
-			return result;
-		} catch (Throwable t) {
-			logger.info("Error while loading class: "+t);
-			throw new ClassNotFoundException(t.getMessage(), t);
-		} finally {
-			if(is != null)
-				try {
-					is.close();
-				} catch (IOException e) {
-					throw new Error(e);
-				}
-		}	
-	}
-	
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		if("<evosuite>".equals(name))
+		if ("<evosuite>".equals(name))
 			throw new ClassNotFoundException();
+
+		//first check if already loaded
+		Class<?> result = findLoadedClass(name);
+		if (result != null) {
+			return result;
+		}
+
 		if (!RuntimeInstrumentation.checkIfCanInstrument(name)) {
-			Class<?> result = findLoadedClass(name);
-			if (result != null) {
-				return result;
-			}
 			result = classLoader.loadClass(name);
 			return result;
-
 		} else {
-			Class<?> result = findLoadedClass(name);
+			result = classes.get(name);
 			if (result != null) {
 				return result;
 			} else {
-
-				result = classes.get(name);
-				if (result != null) {
-					return result;
-				} else {
-					logger.info("Seeing class for first time: " + name);
-					Class<?> instrumentedClass = null;
-					//LoggingUtils.muteCurrentOutAndErrStream();
-					try {
-						instrumentedClass = instrumentClass(name);
-					} finally {
-						//LoggingUtils.restorePreviousOutAndErrStream();
-					}
-					return instrumentedClass;
-				}
+				logger.info("Seeing class for first time: " + name);
+				Class<?> instrumentedClass = instrumentClass(name);
+				return instrumentedClass;
 			}
 		}
 	}
+
 
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
 	        throws ClassNotFoundException {
@@ -173,9 +122,6 @@ public class InstrumentingClassLoader extends ClassLoader {
 		}
 	}
 
-	public boolean hasInstrumentedClass(String className) {
-		return classes.containsKey(className);
-	}
 
 	/**
 	 * Before a new class is defined, we need to create a package definition for it

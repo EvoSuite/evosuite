@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
+import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 
 	private final BytecodeInstrumentation instrumentation;
 	private final ClassLoader classLoader;
-	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
+	private final Map<String, Class<?>> classes = new HashMap<>();
 
 	/**
 	 * <p>
@@ -108,7 +109,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 			throw new ClassNotFoundException();
 		}
 
-		if (!BytecodeInstrumentation.checkIfCanInstrument(name)) {
+		if (!RuntimeInstrumentation.checkIfCanInstrument(name)) {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {
 				return result;
