@@ -2,7 +2,7 @@ package com.examples.with.different.packagename.concolic;
 
 import java.util.regex.PatternSyntaxException;
 
-import static org.evosuite.symbolic.Assertions.checkEquals;
+import static com.examples.with.different.packagename.concolic.Assertions.checkEquals;
 
 public class TestCase66 {
 

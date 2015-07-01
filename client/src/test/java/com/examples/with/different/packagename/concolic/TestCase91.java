@@ -2,8 +2,6 @@ package com.examples.with.different.packagename.concolic;
 
 import java.math.BigInteger;
 
-import org.evosuite.symbolic.Assertions;
-
 public class TestCase91 extends TestCase90 {
 
 	/**

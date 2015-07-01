@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.solver.search;
+package com.examples.with.different.packagename.concolic;
 
 public class TestInput2 {
 

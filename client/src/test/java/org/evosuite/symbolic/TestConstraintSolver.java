@@ -14,11 +14,12 @@ import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
-import org.evosuite.symbolic.solver.search.TestInput1;
-import org.evosuite.symbolic.solver.search.TestInput2;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
+
+import com.examples.with.different.packagename.concolic.TestInput1;
+import com.examples.with.different.packagename.concolic.TestInput2;
 
 public class TestConstraintSolver {
 

@@ -1,6 +1,5 @@
-package org.evosuite.symbolic.solver.search;
+package com.examples.with.different.packagename.concolic;
 
-import org.evosuite.symbolic.Assertions;
 
 public class TestInput1 {
 

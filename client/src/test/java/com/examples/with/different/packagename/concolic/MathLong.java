@@ -1,4 +1,4 @@
-package org.evosuite.symbolic;
+package com.examples.with.different.packagename.concolic;
 
 public class MathLong {
 
