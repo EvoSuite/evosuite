@@ -21,101 +21,30 @@ import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.concolic.StringSearch2;
+
 public class TestStringSearch2 {
-
-	private static int getFragmentLocation(String s) {
-		int fragmentLocation = s.indexOf('#');
-		if (fragmentLocation == -1)
-			return s.length();
-
-		return fragmentLocation;
-	}
-
-	public static void checkPathURN(String nuri) {
-
-		// URI code
-		String uri = nuri;
-		int colonLocation = nuri.indexOf(':');
-
-		int fragmentLocation = getFragmentLocation(nuri);
-
-		if (colonLocation == -1 || colonLocation > fragmentLocation
-				|| colonLocation == 0)
-			throw new RuntimeException("No scheme in URI \"" + uri + "\"");
-
-		// URN code
-		String nurn = nuri;
-		int secondColonLocation = nurn.indexOf(':', colonLocation + 1);
-
-		if (secondColonLocation == -1 || secondColonLocation > fragmentLocation
-				|| secondColonLocation == colonLocation + 1)
-			throw new RuntimeException("No protocol part in URN \"" + nurn
-					+ "\".");
-
-		if (!nurn.regionMatches(0, "urn", 0, colonLocation))
-			throw new RuntimeException("The identifier was no URN \"" + nurn
-					+ "\".");
-
-		// PathURN code
-		if (uri.length() == secondColonLocation + 1)
-			throw new RuntimeException("Empty Path URN");
-
-		if (uri.charAt(secondColonLocation + 1) != '/')
-			throw new RuntimeException("Path URN has no '/': \"" + uri + "\"");
-
-		if (!uri.regionMatches(colonLocation + 1, "path", 0,
-				secondColonLocation - colonLocation - 1))
-			throw new RuntimeException("The identifier was no Path URN \""
-					+ uri + "\".");
-	}
 
 	@Test
 	public void testValidPathURN() {
 		String pathURN = "urn:path:/A/B/C/doc.html#gilada";
-		checkPathURN(pathURN);
+		StringSearch2.checkPathURN(pathURN);
 	}
 
 	@Test
 	public void testValidPathURN2() {
 		String pathURN = "u:path:/";
-		checkPathURN(pathURN);
+		StringSearch2.checkPathURN(pathURN);
 	}
 
 	@Test
 	public void testInvalidPathURN() {
 		try {
 			String pathURN = "urn:paxth:/A/B/C/doc.html#gilada";
-			checkPathURN(pathURN);
+			StringSearch2.checkPathURN(pathURN);
 			fail();
 		} catch (RuntimeException ex) {
 		}
-	}
-
-	private DefaultTestCase buildTestCase(String stringVal)
-			throws SecurityException, NoSuchMethodException {
-		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc.appendStringPrimitive(stringVal);
-		Method method = TestStringSearch2.class.getMethod("checkPathURN",
-				String.class);
-		tc.appendMethod(null, method, string0);
-		return tc.getDefaultTestCase();
-	}
-
-	private List<BranchCondition> executeTest(DefaultTestCase tc) {
-		Properties.CLIENT_ON_THREAD = true;
-		Properties.PRINT_TO_SYSTEM = true;
-		Properties.TIMEOUT = 5000;
-		Properties.CONCOLIC_TIMEOUT = 5000000;
-
-		System.out.println("TestCase=");
-		System.out.println(tc.toCode());
-
-		// ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = ConcolicExecution
-				.executeConcolic(tc);
-
-		printConstraints(branch_conditions);
-		return branch_conditions;
 	}
 
 	@Test
@@ -175,4 +104,32 @@ public class TestStringSearch2 {
 		}
 
 	}
+
+	private DefaultTestCase buildTestCase(String stringVal)
+			throws SecurityException, NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc.appendStringPrimitive(stringVal);
+		Method method = StringSearch2.class.getMethod("checkPathURN",
+				String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
+	private List<BranchCondition> executeTest(DefaultTestCase tc) {
+		Properties.CLIENT_ON_THREAD = true;
+		Properties.PRINT_TO_SYSTEM = true;
+		Properties.TIMEOUT = 5000;
+		Properties.CONCOLIC_TIMEOUT = 5000000;
+
+		System.out.println("TestCase=");
+		System.out.println(tc.toCode());
+
+		// ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = ConcolicExecution
+				.executeConcolic(tc);
+
+		printConstraints(branch_conditions);
+		return branch_conditions;
+	}
+
 }

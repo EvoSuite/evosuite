@@ -1,7 +1,7 @@
 package com.examples.with.different.packagename.concolic;
 
-import static org.evosuite.symbolic.Assertions.checkEquals;
-import static org.evosuite.symbolic.Assertions.checkObjectEquals;
+import static com.examples.with.different.packagename.concolic.Assertions.checkEquals;
+import static com.examples.with.different.packagename.concolic.Assertions.checkObjectEquals;
 
 public class TestCase45 {
 
