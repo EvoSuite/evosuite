@@ -8,7 +8,7 @@ import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.RuntimeSettings;
-import org.evosuite.runtime.instrumentation.InstrumentingClassLoader;
+import org.evosuite.runtime.instrumentation.EvoClassLoader;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.evosuite.runtime.testdata.EvoSuiteURL;
 import org.evosuite.runtime.testdata.NetworkHandling;
@@ -33,7 +33,7 @@ public class MockUrlSystemTest extends SystemTest{
         MethodCallReplacementCache.resetSingleton();
         org.evosuite.runtime.Runtime.getInstance().resetRuntime();
 
-        InstrumentingClassLoader loader = new InstrumentingClassLoader();
+        EvoClassLoader loader = new EvoClassLoader();
         Class<?> clazz = loader.loadClass(ReadFromURL.class.getCanonicalName());
 
 
