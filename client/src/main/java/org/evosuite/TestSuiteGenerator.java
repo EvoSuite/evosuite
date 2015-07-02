@@ -47,6 +47,7 @@ import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.regression.RegressionSearchListener;
+import org.evosuite.regression.RegressionSuiteMinimizer;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
@@ -209,15 +210,15 @@ public class TestSuiteGenerator {
 		if (Properties.MINIMIZE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
-			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactories());
-			//if (Properties.CRITERION.length == 1) {
+			if(Properties.isRegression()){
+				RegressionSuiteMinimizer minimizer = new RegressionSuiteMinimizer();
+				minimizer.minimize(testSuite);
+			} else {
+				TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactories());
+	
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 			    minimizer.minimize(testSuite, true);
-			//}
-//			else {
-//				LoggingUtils.getEvoLogger().info("* Minimizing test suites");
-//				minimizer.minimize(testSuite, false);
-//			}
+			}
 		} else {
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, testSuite.size());
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, testSuite.size());

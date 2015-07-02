@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.OutputTrace;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.testcase.TestCase;
@@ -465,6 +466,12 @@ public class ExecutionResult implements Cloneable {
 
 	public void setReturnValues(Map<MethodStatement, Object> returnValues) {
 		this.returnValues = returnValues;		
+	}
+	
+	public void getFailingAssertions(){
+		for(Assertion a:this.test.getAssertions()){
+			a.isValid();
+		}
 	}
 	
 }

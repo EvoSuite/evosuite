@@ -301,6 +301,8 @@ public class RegressionSearchListener implements SearchListener {
 				logger.warn("Failed GA! First Gen: " + firstAssertionCount
 						+ " | Last Gen: " + totalCount);
 			}
+			if(totalCount>lastAssertions)
+				lastAssertions = totalCount;
 		}
 
 		if (Properties.REGRESSION_ANALYZE) {

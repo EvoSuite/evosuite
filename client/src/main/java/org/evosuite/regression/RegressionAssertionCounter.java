@@ -208,70 +208,11 @@ public class RegressionAssertionCounter {
 				// assert false;
 			} else {
 
-				Map<Integer, Throwable> originalExceptionMapping = result1
-						.getCopyOfExceptionMapping();
-				Map<Integer, Throwable> regressionExceptionMapping = result2
-						.getCopyOfExceptionMapping();
-
-				double exDiff = Math.abs((double) (originalExceptionMapping
-						.size() - regressionExceptionMapping.size()));
-
-				if (exDiff == 0) {
-					for (Entry<Integer, Throwable> origException : originalExceptionMapping
-							.entrySet()) {
-						boolean skip = false;
-
-						if (origException.getValue() == null
-								|| origException.getValue().getMessage() == null) {
-							originalExceptionMapping.remove(origException
-									.getKey());
-							skip = true;
-						}
-						if (regressionExceptionMapping
-								.containsKey(origException.getKey())
-								&& (regressionExceptionMapping
-										.get(origException.getKey()) == null || regressionExceptionMapping
-										.get(origException.getKey())
-										.getMessage() == null)) {
-							regressionExceptionMapping.remove(origException
-									.getKey());
-							skip = true;
-						}
-						
-						// If they start differing from @objectID skip this one
-						if(!skip && regressionExceptionMapping
-								.get(origException.getKey())!=null){
-							String origExceptionMessage = origException.getValue().getMessage();
-							String regExceptionMessage = regressionExceptionMapping
-									.get(origException.getKey())
-									.getMessage();
-							int diffIndex = StringUtils.indexOfDifference(origExceptionMessage, regExceptionMessage);
-							if(diffIndex>0){
-								if(origExceptionMessage.charAt(diffIndex-1) == '@')
-									skip = true;
-							}
-						}
-						
-						if (skip)
-							continue;
-						if (!regressionExceptionMapping
-								.containsKey(origException.getKey())
-								|| (!regressionExceptionMapping
-										.get(origException.getKey())
-										.getMessage()
-										.equals(origException.getValue()
-												.getMessage()))) {
-							exDiff++;
-						}
-					}
-					for (Entry<Integer, Throwable> regException : regressionExceptionMapping
-							.entrySet()) {
-						if (!originalExceptionMapping.containsKey(regException
-								.getKey()))
-							exDiff++;
-					}
-				}
-
+				logger.warn("getting exdiff..");
+				double exDiff = compareExceptionDiffs(
+						result1.getCopyOfExceptionMapping(), 
+						result2.getCopyOfExceptionMapping());
+				
 				if (exDiff > 0) {
 					logger.warn("Had {} different exceptions! ({})", exDiff,
 							totalCount);
@@ -284,8 +225,10 @@ public class RegressionAssertionCounter {
 				RegressionSearchListener.exceptionDiff += exDiff;
 
 				// The following ugly code adds exception diff comments
-				addExceptionAssertions(regressionTest,
-						originalExceptionMapping, regressionExceptionMapping);
+				if (!removeAssertions)
+					addExceptionAssertionComments(regressionTest,
+							result1.getCopyOfExceptionMapping(), 
+							result2.getCopyOfExceptionMapping());
 
 				// if(result1.hasTestException() || result2.hasTestException()
 				// || result1.hasUndeclaredException() ||
@@ -332,7 +275,81 @@ public class RegressionAssertionCounter {
 		return totalCount;
 	}
 
-	private static void addExceptionAssertions(
+	/**
+	 * @param totalCount
+	 * @param result1
+	 * @param result2
+	 * @param originalExceptionMapping
+	 * @param regressionExceptionMapping
+	 * @return
+	 */
+	public static double compareExceptionDiffs(
+			Map<Integer, Throwable> originalExceptionMapping, 
+			Map<Integer, Throwable> regressionExceptionMapping) {
+				
+		double exDiff = Math.abs((double) (originalExceptionMapping
+				.size() - regressionExceptionMapping.size()));
+		
+		if (exDiff == 0) {
+			for (Entry<Integer, Throwable> origException : originalExceptionMapping
+					.entrySet()) {
+				boolean skip = false;
+
+				if (origException.getValue() == null
+						|| origException.getValue().getMessage() == null) {
+					originalExceptionMapping.remove(origException
+							.getKey());
+					skip = true;
+				}
+				if (regressionExceptionMapping
+						.containsKey(origException.getKey())
+						&& (regressionExceptionMapping
+								.get(origException.getKey()) == null || regressionExceptionMapping
+								.get(origException.getKey())
+								.getMessage() == null)) {
+					regressionExceptionMapping.remove(origException
+							.getKey());
+					skip = true;
+				}
+				
+				// If they start differing from @objectID skip this one
+				if(!skip && regressionExceptionMapping
+						.get(origException.getKey())!=null){
+					String origExceptionMessage = origException.getValue().getMessage();
+					String regExceptionMessage = regressionExceptionMapping
+							.get(origException.getKey())
+							.getMessage();
+					int diffIndex = StringUtils.indexOfDifference(origExceptionMessage, regExceptionMessage);
+					if(diffIndex>0){
+						if(origExceptionMessage.charAt(diffIndex-1) == '@')
+							skip = true;
+					}
+				}
+				
+				if (skip)
+					continue;
+				if (!regressionExceptionMapping
+						.containsKey(origException.getKey())
+						|| (!regressionExceptionMapping
+								.get(origException.getKey())
+								.getMessage()
+								.equals(origException.getValue()
+										.getMessage()))) {
+					exDiff++;
+				}
+			}
+			for (Entry<Integer, Throwable> regException : regressionExceptionMapping
+					.entrySet()) {
+				if (!originalExceptionMapping.containsKey(regException
+						.getKey()))
+					exDiff++;
+			}
+		}
+
+		return exDiff;
+	}
+
+	private static void addExceptionAssertionComments(
 			RegressionTestChromosome regressionTest,
 			Map<Integer, Throwable> originalExceptionMapping,
 			Map<Integer, Throwable> regressionExceptionMapping) {
@@ -365,6 +382,7 @@ public class RegressionAssertionCounter {
 					// + origException.getValue().getMessage() + "\n");
 				}
 			} else {
+				if(origException != null && origException.getValue()!=null && origException.getValue().getMessage()!=null)
 				if (!origException
 						.getValue()
 						.getMessage()

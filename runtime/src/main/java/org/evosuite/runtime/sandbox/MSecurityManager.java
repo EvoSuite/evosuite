@@ -429,12 +429,14 @@ public class MSecurityManager extends SecurityManager {
 
 		// check access
 		if (!allowPermission(perm)) {
+			String stack = "\n";
 			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
 				if (e.toString().contains(
 						"org.evosuite.regression.ObjectFields")) {
 					statistics.permissionAllowed(perm);
 					return;
 				}
+				stack += e + "\n";
 			}
 			if (executingTestCase) {
 				/*
@@ -442,10 +444,6 @@ public class MSecurityManager extends SecurityManager {
 				 * privileged to mess up with the statistics on the SUT
 				 */
 				statistics.permissionDenied(perm);
-			}
-			String stack = "\n";
-			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
-				stack += e + "\n";
 			}
 			logger.debug("Security manager blocks permission " + perm + stack);
 			throw new SecurityException("Security manager blocks " + perm + stack);

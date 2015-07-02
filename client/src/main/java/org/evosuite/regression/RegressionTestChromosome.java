@@ -41,6 +41,8 @@ public class RegressionTestChromosome extends TestChromosome {
 	private transient ClassLoader theClassLoader = null;
 
 	public Map<String, Map<Integer, String>> diversityMap = new HashMap<String, Map<Integer,String>>();
+
+	public int assertionCount = 0;
 	
 	public RegressionTestChromosome() {
 		// TODO Auto-generated constructor stub
@@ -156,7 +158,7 @@ public class RegressionTestChromosome extends TestChromosome {
 	/**
      * 
      */
-	private void updateClassloader() {
+	protected void updateClassloader() {
 		if (theTest.isChanged()) {
 			theSameTestForTheOtherClassLoader = (TestChromosome) theTest.clone();
 			((DefaultTestCase) theSameTestForTheOtherClassLoader.getTestCase()).changeClassLoader(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());

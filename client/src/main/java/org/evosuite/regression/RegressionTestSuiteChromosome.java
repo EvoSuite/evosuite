@@ -4,6 +4,7 @@
 package org.evosuite.regression;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.evosuite.ga.Chromosome;
@@ -61,6 +62,14 @@ public class RegressionTestSuiteChromosome extends
 			tests.add(rtc);
 		}
 		this.setChanged(true);
+	}
+	
+	@Override
+	public void addTests(Collection<TestChromosome> tests) {
+		for (TestChromosome test : tests) {
+			test.setChanged(true);
+			addTest(test);
+		}
 	}
 
 	/* (non-Javadoc)
