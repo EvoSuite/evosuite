@@ -52,6 +52,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Exception_Difference, 0);
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.State_Distance, 0);
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Testsuite_Diversity, 0);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
 		
 		
 		if (Properties.REGRESSION_USE_FITNESS == 10) {

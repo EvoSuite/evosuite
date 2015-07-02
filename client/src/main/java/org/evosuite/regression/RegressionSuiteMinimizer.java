@@ -54,6 +54,8 @@ public class RegressionSuiteMinimizer {
 		removePassingTests(regressionSuite);
 
 		minimizeSuite(regressionSuite);
+		
+		sendStats(regressionSuite);
 
 		// Adding tests back to the original test suite
 		suite.clearTests();
@@ -61,6 +63,16 @@ public class RegressionSuiteMinimizer {
 			RegressionTestChromosome rtc = (RegressionTestChromosome) t;
 			suite.addTest(rtc.getTheTest());
 		}
+	}
+
+	private void sendStats(RegressionTestSuiteChromosome regressionSuite) {
+		int assCount = 0;
+		for (TestChromosome chromosome : regressionSuite.getTestChromosomes()) {
+			RegressionTestChromosome c = (RegressionTestChromosome) chromosome;
+			assCount += c.getTheTest().getTestCase().getAssertions().size();
+		}
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generated_Assertions, assCount);
+		
 	}
 
 	private void executeSuite(RegressionTestSuiteChromosome regressionSuite) {
