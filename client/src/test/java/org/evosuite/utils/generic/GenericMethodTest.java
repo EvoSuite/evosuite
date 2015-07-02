@@ -27,6 +27,12 @@ public class GenericMethodTest {
         public T bar(T t){ return t;}
     }
 
+    public static class D <T extends A> {
+        public <T extends B> T bar(T t){ return t;}
+    }
+
+
+
     @Test
     public void testGetExactReturnType() throws Exception {
 
@@ -54,6 +60,24 @@ public class GenericMethodTest {
         Type res =  gm.getExactReturnType(m, C.class);
         Assert.assertEquals(A.class, res);
     }
+
+    @Test
+    public void testGetExactReturnType_extend2() throws Exception {
+
+        try {
+            Method m = D.class.getDeclaredMethod("bar", A.class);
+            Assert.fail();
+        } catch (Exception e){
+            //expected
+        }
+
+        Method m = D.class.getDeclaredMethod("bar", B.class);
+
+        GenericMethod gm = new GenericMethod(m,D.class);
+        Type res =  gm.getExactReturnType(m, D.class);
+        Assert.assertEquals(B.class, res);
+    }
+
 
     @Test
     public void testGetExactReturnType_staticMethod() throws Exception {
