@@ -46,6 +46,14 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
 	@Override
 	public TestSuiteChromosome generateTests() {
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generated_Assertions, 0);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage_Old, 0);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage_New, 0);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Exception_Difference, 0);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.State_Distance, 0);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Testsuite_Diversity, 0);
+		
+		
 		if (Properties.REGRESSION_USE_FITNESS == 10) {
 			Properties.REGRESSION_USE_FITNESS = 1;
 			Properties.REGRESSION_DIFFERENT_BRANCHES = false;
@@ -129,6 +137,8 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 		
 		goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
+        
+              
 
 		// Newline after progress bar
 		if (Properties.SHOW_PROGRESS)
