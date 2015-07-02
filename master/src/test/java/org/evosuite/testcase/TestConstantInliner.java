@@ -14,8 +14,8 @@ import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.ObjectParameter;

@@ -2,43 +2,19 @@ package org.evosuite.localsearch;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.SolverType;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.Properties.DSEType;
 import org.evosuite.Properties.LocalSearchBudgetType;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.SystemTest;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.coverage.mutation.MutationFactory;
-import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.localsearch.DefaultLocalSearchObjective;
-import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.localsearch.BranchCoverageMap;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.StringPrimitiveStatement;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericMethod;
-import org.evosuite.utils.Randomness;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.localsearch.DseBar;
-import com.examples.with.different.packagename.localsearch.DseFoo;
 import com.examples.with.different.packagename.strings.Cookie;
 
 /**

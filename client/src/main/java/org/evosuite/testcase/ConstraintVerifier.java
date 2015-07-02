@@ -1,13 +1,11 @@
 package org.evosuite.testcase;
 
 import org.evosuite.runtime.annotation.*;
-import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.GenericAccessibleObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

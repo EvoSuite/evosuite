@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.evosuite.utils;
+package org.evosuite.utils.generic;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -19,6 +19,7 @@ import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.variable.VariableReference;
 
 import com.googlecode.gentyref.GenericTypeReflector;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * @author Gordon Fraser

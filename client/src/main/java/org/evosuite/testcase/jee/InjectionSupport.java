@@ -1,7 +1,7 @@
 package org.evosuite.testcase.jee;
 
 import org.evosuite.runtime.javaee.injection.Injector;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

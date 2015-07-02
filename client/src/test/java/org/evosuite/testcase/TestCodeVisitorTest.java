@@ -1,11 +1,10 @@
 package org.evosuite.testcase;
 
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericMethod;
-import org.evosuite.utils.WildcardTypeImpl;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.WildcardTypeImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,7 +13,6 @@ import javax.servlet.http.HttpServlet;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
 
 /**
  * Created by Andrea Arcuri on 02/07/15.

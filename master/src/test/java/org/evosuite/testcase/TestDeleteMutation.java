@@ -15,9 +15,9 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
 import org.junit.Test;
 

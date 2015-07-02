@@ -1,4 +1,4 @@
-package org.evosuite.utils;
+package org.evosuite.utils.generic;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;

@@ -16,7 +16,7 @@ import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.generic.GenericClass;
 
 public class TestCaseExpander {
 
