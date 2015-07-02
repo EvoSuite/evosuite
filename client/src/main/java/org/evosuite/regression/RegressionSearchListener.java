@@ -15,6 +15,8 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,6 +152,7 @@ public class RegressionSearchListener implements SearchListener {
 			individual.setFitness(algorithm.getFitnessFunction(), 0);
 			algorithm.setStoppingConditionLimit(0);
 			lastIterationSuccessful = true;
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generated_Assertions, curAssertions);
 			// RegressionSearchListener.killTheSearch = false;
 		}
 
@@ -303,6 +306,7 @@ public class RegressionSearchListener implements SearchListener {
 			}
 			if(totalCount>lastAssertions)
 				lastAssertions = totalCount;
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generated_Assertions, totalCount);
 		}
 
 		if (Properties.REGRESSION_ANALYZE) {
