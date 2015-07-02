@@ -33,7 +33,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericMethod;
 
 /**
  * o1.equals(o2) => o1.hashCode() == o2.hashCode()

@@ -58,6 +58,10 @@ import org.evosuite.utils.*;
 
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericField;
+import org.evosuite.utils.generic.GenericMethod;
 
 /**
  * The TestCodeVisitor is a visitor that produces a String representation of a

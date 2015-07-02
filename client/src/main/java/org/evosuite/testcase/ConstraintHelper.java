@@ -4,8 +4,7 @@ import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.utils.GenericMethod;
-import org.junit.Test;
+import org.evosuite.utils.generic.GenericMethod;
 
 /**
  * Class used to help the verification and proper use of constraints

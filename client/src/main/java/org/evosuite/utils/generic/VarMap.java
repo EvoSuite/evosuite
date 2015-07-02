@@ -1,7 +1,9 @@
 /**
  * 
  */
-package org.evosuite.utils;
+package org.evosuite.utils.generic;
+
+import org.evosuite.utils.ParameterizedTypeImpl;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;

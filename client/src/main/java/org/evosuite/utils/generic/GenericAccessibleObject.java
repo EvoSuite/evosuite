@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.evosuite.utils;
+package org.evosuite.utils.generic;
 
 import java.io.Serializable;
 import java.lang.reflect.AccessibleObject;
@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

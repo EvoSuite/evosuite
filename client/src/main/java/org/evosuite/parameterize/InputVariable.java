@@ -23,13 +23,12 @@ package org.evosuite.parameterize;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.generic.GenericClass;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**

@@ -15,18 +15,16 @@ import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.evosuite.runtime.vnet.EndPointInfo;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.utils.GenericAccessibleObject;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
