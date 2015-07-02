@@ -35,6 +35,11 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	private static final long serialVersionUID = 7069749492563662621L;
 
+	protected GenericClass owner;
+
+	protected List<GenericClass> typeVariables = new ArrayList<>();
+
+
 	protected static Type getTypeFromExactReturnType(GenericArrayType returnType,
 	        GenericArrayType type) {
 		return GenericArrayTypeImpl.createArrayType(getTypeFromExactReturnType(returnType.getGenericComponentType(),
@@ -135,10 +140,6 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 			throw new AssertionError("Unexpected type " + type.getClass());
 		}
 	}
-
-	protected GenericClass owner;
-
-	protected List<GenericClass> typeVariables = new ArrayList<GenericClass>();
 
 	public GenericAccessibleObject(GenericClass owner) {
 		this.owner = owner;
@@ -424,7 +425,6 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		typeVariables.clear();
 		for(GenericClass parameter : parameterTypes)
 			typeVariables.add(new GenericClass(parameter));
-		// typeVariables.addAll(parameterTypes);
 	}
 
 	@Override
