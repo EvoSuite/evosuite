@@ -292,7 +292,19 @@ public enum RuntimeVariable {
 	IntegerRealAndStringConstraints,
 	/** The total number of constraints during the execution of the Genetic Algorithm*/
 	/** This total should be the sum of all the other types of constraints */
-	TotalNumberOfConstraints
+	TotalNumberOfConstraints,
+	
+	/* -------------------------------------------------------------------- */
+	/** The number of SAT answers to Solver queries */ 
+	NumberOfSATQueries,
+	/** The number of UNSAT answers to Solver queries */ 
+	NumberOfUNSATQueries,
+	/** The number of TIMEOUT for Solver queries */ 
+	NumberOfTimeoutQueries,
+	/** The number of Useful new tests*/ 
+	NumberOfUsefulNewTests,
+	/** The number of unuseful new tests*/ 
+	NumberOfUnusefulNewTests
 	
 	;
 	/* -------------------------------------------------- */
