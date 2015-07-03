@@ -128,7 +128,8 @@ public enum RuntimeVariable {
 	ExceptionCoverage,
     ExceptionFitnessTimeline,
     ExceptionCoverageTimeline,
-	/** A bit string (0/1) representing whether branches (in order) are covered */
+	/** A bit string (0/1) representing whether goals (in order) are covered */
+    CoverageBitString,
 	CoveredBranchesBitString,
     CoveredLinesBitString,
     CoveredWeakMutationBitString,
@@ -305,7 +306,19 @@ public enum RuntimeVariable {
 	IntegerRealAndStringConstraints,
 	/** The total number of constraints during the execution of the Genetic Algorithm*/
 	/** This total should be the sum of all the other types of constraints */
-	TotalNumberOfConstraints
+	TotalNumberOfConstraints,
+	
+	/* -------------------------------------------------------------------- */
+	/** The number of SAT answers to Solver queries */ 
+	NumberOfSATQueries,
+	/** The number of UNSAT answers to Solver queries */ 
+	NumberOfUNSATQueries,
+	/** The number of TIMEOUTs when solving queries */ 
+	NumberOfTimeoutQueries,
+	/** How many SAT queries led to Useful (i.e. better fitness) new tests*/ 
+	NumberOfUsefulNewTests,
+	/** How many SAT queries led to Unuseful (i.e. no better fitness) new tests*/ 
+	NumberOfUnusefulNewTests
 	
 	;
 	/* -------------------------------------------------- */

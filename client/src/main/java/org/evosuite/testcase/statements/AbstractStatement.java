@@ -34,7 +34,7 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
-import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.generic.GenericClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

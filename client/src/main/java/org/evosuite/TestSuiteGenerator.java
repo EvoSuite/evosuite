@@ -264,6 +264,8 @@ public class TestSuiteGenerator {
 
         DSEStats.trackConstraintTypes();
 
+        DSEStats.trackSolverStatistics();
+        
         if (Properties.DSE_PROBABILITY > 0.0 && Properties.LOCAL_SEARCH_RATE > 0 && Properties.LOCAL_SEARCH_PROBABILITY > 0.0) {
                 DSEStats.logStatistics();
         }

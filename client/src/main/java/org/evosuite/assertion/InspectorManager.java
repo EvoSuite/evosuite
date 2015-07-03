@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * @author Gordon Fraser
  */
 package org.evosuite.assertion;
@@ -31,6 +31,7 @@ import java.util.Map;
 import org.evosuite.Properties;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.utils.JdkPureMethodsList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,12 +60,12 @@ public class InspectorManager {
 				Arrays.asList(new String[] { "getPath", "getAbsolutePath",
 						"getCanonicalPath" }));
 		blackList.put("java.io.DataOutputStream", Arrays.asList(new String[] { "size"}));
-		
-		// These methods will contain locale specific strings 
+
+		// These methods will contain locale specific strings
 		blackList.put("java.util.Date",
 				Arrays.asList(new String[] { "getLocaleString" }));
 
-		// These methods will include data differing in every run 
+		// These methods will include data differing in every run
 		blackList.put(
 				"java.lang.Thread",
 				Arrays.asList(new String[] { "activeCount", "getId", "getName",
@@ -112,7 +113,7 @@ public class InspectorManager {
 	 * <p>
 	 * Getter for the field <code>instance</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link org.evosuite.assertion.InspectorManager} object.
 	 */
 	public static InspectorManager getInstance() {
@@ -158,7 +159,7 @@ public class InspectorManager {
 
 		if (isImpureJDKMethod(method))
 			return false;
-		
+
 		if(isAWTToString(method))
 			return false;
 
@@ -188,7 +189,7 @@ public class InspectorManager {
 		}
 		return false;
 	}
-	
+
 	private boolean isBlackListed(Method method) {
 		String className = method.getDeclaringClass().getCanonicalName();
 		if(MockList.isAMockClass(className)) {
@@ -201,7 +202,7 @@ public class InspectorManager {
 	}
 
 	private void determineInspectors(Class<?> clazz) {
-		if (!TestClusterGenerator.canUse(clazz))
+		if (!TestUsageChecker.canUse(clazz))
 			return;
 		List<Inspector> inspectorList = new ArrayList<Inspector>();
 		for (Method method : clazz.getMethods()) {
@@ -222,7 +223,7 @@ public class InspectorManager {
 	 * <p>
 	 * Getter for the field <code>inspectors</code>.
 	 * </p>
-	 * 
+	 *
 	 * @param clazz
 	 *            a {@link java.lang.Class} object.
 	 * @return a {@link java.util.List} object.
@@ -237,7 +238,7 @@ public class InspectorManager {
 	 * <p>
 	 * removeInspector
 	 * </p>
-	 * 
+	 *
 	 * @param clazz
 	 *            a {@link java.lang.Class} object.
 	 * @param inspector

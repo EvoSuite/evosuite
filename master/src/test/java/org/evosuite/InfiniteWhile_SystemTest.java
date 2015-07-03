@@ -3,7 +3,7 @@ package org.evosuite;
 import com.examples.with.different.packagename.InfiniteWhile;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.TooManyResourcesException;
-import org.evosuite.runtime.instrumentation.InstrumentingClassLoader;
+import org.evosuite.runtime.instrumentation.EvoClassLoader;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class InfiniteWhile_SystemTest  extends SystemTest{
 
     @Test(timeout = 5000)
     public void testLoading() throws Exception{
-        InstrumentingClassLoader loader = new InstrumentingClassLoader();
+        EvoClassLoader loader = new EvoClassLoader();
         Class<?> clazz = loader.loadClass(InfiniteWhile.class.getCanonicalName());
 
         Method m = clazz.getMethod("infiniteLoop");

@@ -41,8 +41,8 @@ import org.evosuite.testcase.statements.environment.AccessedEnvironment;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.variable.*;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericField;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.ListenableList;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.Randomness;
@@ -239,11 +239,18 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 *            a {@link java.lang.ClassLoader} object.
 	 */
 	public void changeClassLoader(ClassLoader loader) {
+		changedClassLoader  = loader;
 		for (Statement s : statements) {
 			s.changeClassLoader(loader);
 		}
 	}
+	
+	private transient ClassLoader changedClassLoader = null;
 
+	public ClassLoader getChangedClassLoader() {
+		return changedClassLoader;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#chop(int)
 	 */

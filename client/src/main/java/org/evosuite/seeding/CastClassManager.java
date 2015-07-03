@@ -22,7 +22,8 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.utils.GenericClass;
+import org.evosuite.setup.TestUsageChecker;
+import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,11 +112,11 @@ public class CastClassManager {
 			for (Class<?> concreteClass : TestClusterGenerator.getConcreteClasses(clazz.getRawClass(),
 			                                                                      TestCluster.getInheritanceTree())) {
 				GenericClass c = new GenericClass(concreteClass);
-				if(TestClusterGenerator.canUse(c.getRawClass()))
+				if(TestUsageChecker.canUse(c.getRawClass()))
 					classMap.put(c, depth);
 			}
 		} else {
-			if(TestClusterGenerator.canUse(clazz.getRawClass()))
+			if(TestUsageChecker.canUse(clazz.getRawClass()))
 				classMap.put(clazz, depth);
 		}
 	}
@@ -141,7 +142,7 @@ public class CastClassManager {
 
 	/**
 	 * True if this type variable is one of the java.* special cases
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean isSpecialCase(TypeVariable<?> typeVariable) {
@@ -155,7 +156,7 @@ public class CastClassManager {
 
 	/**
 	 * True if this wildcard type is one of the java.* special cases
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean isSpecialCase(WildcardType wildcardType) {
@@ -169,7 +170,7 @@ public class CastClassManager {
 		Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
 
 		for (Class<?> clazz : classes) {
-			if (!TestClusterGenerator.canUse(clazz))
+			if (!TestUsageChecker.canUse(clazz))
 				continue;
 
 			GenericClass genericClass = new GenericClass(clazz).getWithWildcardTypes();
@@ -185,7 +186,7 @@ public class CastClassManager {
 				continue; // TODO: For now.
 
 			Class<?> clazz = GenericTypeReflector.erase(t);
-			if (!TestClusterGenerator.canUse(GenericTypeReflector.erase(clazz)))
+			if (!TestUsageChecker.canUse(GenericTypeReflector.erase(clazz)))
 				continue;
 
 			GenericClass genericClass = new GenericClass(clazz).getWithWildcardTypes();
@@ -203,7 +204,7 @@ public class CastClassManager {
 			Class<?> clazz = GenericTypeReflector.erase(t);
 			logger.debug("Checking bound: " + t);
 
-			if (!TestClusterGenerator.canUse(clazz))
+			if (!TestUsageChecker.canUse(clazz))
 				continue;
 
 			GenericClass genericClass = new GenericClass(t);
@@ -241,11 +242,11 @@ public class CastClassManager {
 		Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
 
 		for (Class<?> clazz : classes) {
-			if (!TestClusterGenerator.canUse(clazz))
+			if (!TestUsageChecker.canUse(clazz))
 				continue;
 
 			GenericClass genericClass = new GenericClass(clazz).getWithWildcardTypes();
-			
+
 			if (!genericClass.satisfiesBoundaries(typeVariable, typeMap)) {
 				logger.debug("Not assignable: " + clazz);
 			} else {
@@ -258,7 +259,7 @@ public class CastClassManager {
 				continue; // TODO: For now.
 
 			Class<?> clazz = GenericTypeReflector.erase(t);
-			if (!TestClusterGenerator.canUse(GenericTypeReflector.erase(clazz)))
+			if (!TestUsageChecker.canUse(GenericTypeReflector.erase(clazz)))
 				continue;
 
 			GenericClass genericClass = new GenericClass(clazz).getWithWildcardTypes();
@@ -317,7 +318,7 @@ public class CastClassManager {
 				                                                               inheritanceTree));
 			}
 			for (Class<?> clazz : boundCandidates) {
-				if (!TestClusterGenerator.canUse(clazz))
+				if (!TestUsageChecker.canUse(clazz))
 					continue;
 
 				boolean isAssignable = true;
@@ -350,7 +351,7 @@ public class CastClassManager {
 //				for(Class<?> clazz : assignableClasses) {
 //					GenericClass castClass = new GenericClass(clazz);
 //					logger.debug("Adding cast class " + castClass);
-//					classMap.put(castClass, 10);					
+//					classMap.put(castClass, 10);
 //				}
 				Class<?> clazz = Randomness.choice(assignableClasses);
 				GenericClass castClass = new GenericClass(clazz);
@@ -437,7 +438,7 @@ public class CastClassManager {
                     allowRecursion,
                     ownerVariableMap);
 		}
-		
+
 		//special case
 		if (assignableClasses.isEmpty()) {
 			logger.debug("Trying to add new cast class");
@@ -478,7 +479,7 @@ public class CastClassManager {
                     ownerVariableMap));
 			}
 		}
-		
+
 		if (assignableClasses.isEmpty()) {
 
 			logger.debug("Trying to add new cast class");

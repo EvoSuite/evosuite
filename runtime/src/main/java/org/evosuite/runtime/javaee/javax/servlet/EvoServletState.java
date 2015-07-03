@@ -2,6 +2,7 @@ package org.evosuite.runtime.javaee.javax.servlet;
 
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
+import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletRequest;
 import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletResponse;
 
@@ -56,6 +57,7 @@ public class EvoServletState {
         }
         EvoServletState.servlet = servlet;
         servlet.init(getConfiguration());
+        TestDataJavaEE.getInstance().setWasAServletInitialized(true);
         return servlet;
     }
 

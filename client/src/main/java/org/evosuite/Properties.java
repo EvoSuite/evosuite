@@ -1035,6 +1035,10 @@ public class Properties {
     // ---------------------------------------------------------------
 	// Experimental
 
+
+	@Parameter(key = "jee" , description = "Support for JEE")
+	public static boolean JEE = false; //TODO put on by default once stable
+
 	@Parameter(key = "cluster_recursion", description = "The maximum level of recursion when calculating the dependencies in the test cluster")
 	public static int CLUSTER_RECURSION = 10;
 

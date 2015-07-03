@@ -3,7 +3,6 @@ package com.examples.with.different.packagename.concolic;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.evosuite.symbolic.Assertions;
 import org.junit.Test;
 
 public class TestCase88 {

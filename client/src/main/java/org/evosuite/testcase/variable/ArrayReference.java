@@ -27,7 +27,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
-import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.generic.GenericClass;
 
 /**
  * @author Gordon Fraser
@@ -67,7 +67,7 @@ public class ArrayReference extends VariableReferenceImpl {
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param clazz
-	 *            a {@link org.evosuite.utils.GenericClass} object.
+	 *            a {@link GenericClass} object.
 	 * @param lengths
 	 *            an array of int.
 	 */
@@ -86,7 +86,7 @@ public class ArrayReference extends VariableReferenceImpl {
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param clazz
-	 *            a {@link org.evosuite.utils.GenericClass} object.
+	 *            a {@link GenericClass} object.
 	 * @param array_length
 	 *            a int.
 	 */

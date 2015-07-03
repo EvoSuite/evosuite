@@ -40,10 +40,17 @@ public class RuntimeSettings {
      */
     public static boolean useVNET = false;
 
+
+    /**
+     * Shall we have support for Java Enterprise Edition?
+     */
+    public static boolean useJEE = false;
+
     /**
      * Should the static state be reset after each test execution?
      */
     public static boolean resetStaticState = false;
+
 
     /**
      * How is the sandbox configured?

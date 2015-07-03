@@ -7,8 +7,8 @@ import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericMethod;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

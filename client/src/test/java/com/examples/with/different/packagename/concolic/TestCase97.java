@@ -3,8 +3,6 @@ package com.examples.with.different.packagename.concolic;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.evosuite.symbolic.Assertions;
-
 public class TestCase97 {
 
 	public static void test(String string0) {

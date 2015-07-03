@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.evosuite.testcase;
 
@@ -20,11 +20,15 @@ import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.runtime.javaee.injection.Injector;
+import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
-import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.testcase.mutation.LegacyInsertion;
+import org.evosuite.setup.TestUsageChecker;
+import org.evosuite.testcase.jee.InjectionSupport;
+import org.evosuite.testcase.jee.InstanceOnlyOnce;
+import org.evosuite.testcase.jee.ServletSupport;
 import org.evosuite.testcase.mutation.RandomInsertion;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentStatements;
@@ -32,11 +36,11 @@ import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
 import org.evosuite.testcase.statements.reflection.ReflectionFactory;
 import org.evosuite.testcase.variable.*;
-import org.evosuite.utils.GenericAccessibleObject;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericField;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericField;
+import org.evosuite.utils.generic.GenericMethod;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +48,11 @@ import org.slf4j.LoggerFactory;
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
 
+import javax.servlet.http.HttpServlet;
+
 /**
  * @author Gordon Fraser
- * 
+ *
  */
 public class TestFactory {
 
@@ -82,7 +88,7 @@ public class TestFactory {
 
 	/**
 	 * Append given call to the test case at given position
-	 * 
+	 *
 	 * @param test
 	 * @param call
 	 * @param position
@@ -112,7 +118,7 @@ public class TestFactory {
 			// System.out.println("TG: Failed");
 			// TODO: Doesn't work if position != test.size()
 			int lengthDifference = test.size() - previousLength;
-			for (int i = lengthDifference - 1; i >= 0; i--) { //we need to remove them in order, so that the testcase is at all time consistent 
+			for (int i = lengthDifference - 1; i >= 0; i--) { //we need to remove them in order, so that the testcase is at all time consistent
 				logger.debug("  Removing statement: "
 				        + test.getStatement(position + i).getCode());
 				test.remove(position + i);
@@ -131,7 +137,7 @@ public class TestFactory {
 	/**
 	 * Add constructor at given position if max recursion depth has not been
 	 * reached
-	 * 
+	 *
 	 * @param constructor
 	 * @param position
 	 * @param recursionDepth
@@ -141,14 +147,23 @@ public class TestFactory {
 	public VariableReference addConstructor(TestCase test,
 	        GenericConstructor constructor, Type exactType, int position,
 	        int recursionDepth) throws ConstructionFailedException {
+
 		if (recursionDepth > Properties.MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException("Max recursion depth reached");
 		}
 
+		Class<?> klass = constructor.getRawGeneratedType();
+
+		if(Properties.JEE && InstanceOnlyOnce.canInstantiateOnlyOnce(klass) && ConstraintHelper.countNumberOfNewInstances(test,klass) != 0){
+			throw new ConstructionFailedException("Class "+klass.getName()+" can only be instantiated once");
+		}
+
+
 		int length = test.size();
 
 		try {
+			//first be sure if parameters can be satisfied
 			List<VariableReference> parameters = satisfyParameters(test,
 			                                                       null,
 			                                                       Arrays.asList(constructor.getParameterTypes()),
@@ -157,9 +172,34 @@ public class TestFactory {
 			int newLength = test.size();
 			position += (newLength - length);
 
-			Statement st = new ConstructorStatement(test, constructor,
-			        parameters);
-			return test.addStatement(st, position);
+			//create a statement for the constructor
+			Statement st = new ConstructorStatement(test, constructor, parameters);
+			VariableReference ref =  test.addStatement(st, position);
+
+			if(Properties.JEE) {
+				//check if this object needs any dependency injection
+				VariableReference classConstant = new ConstantValue(test, new GenericClass(Class.class), klass);
+				int injectPosition = position + 1;
+
+				if (Injector.hasEntityManager(klass)) {
+					Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEntityManager(), null,
+							Arrays.asList(ref, classConstant));
+					test.addStatement(ms, injectPosition++);
+				}
+				//TODO all others injections
+
+
+				if (HttpServlet.class.isAssignableFrom(klass)) {
+					//Servlets are treated specially, as part of JEE
+					if (ConstraintHelper.countNumberOfMethodCalls(test, EvoServletState.class, "initServlet") == 0) {
+						Statement ms = new MethodStatement(test, ServletSupport.getServletInit(), null,
+								Arrays.asList(ref));
+						test.addStatement(ms, injectPosition++);
+					}
+				}
+			}
+
+			return ref;
 		} catch (Exception e) {
 			throw new ConstructionFailedException(e.getMessage());
 		}
@@ -167,7 +207,7 @@ public class TestFactory {
 
 	/**
 	 * Add a field to the test case
-	 * 
+	 *
 	 * @param test
 	 * @param field
 	 * @param position
@@ -191,7 +231,7 @@ public class TestFactory {
 			position += test.size() - length;
 			length = test.size();
 
-			if (!TestClusterGenerator.canUse(field.getField(),
+			if (!TestUsageChecker.canUse(field.getField(),
 					callee.getVariableClass())) {
 				logger.debug("Cannot call field " + field + " with callee of type "
 						+ callee.getClassName());
@@ -202,7 +242,7 @@ public class TestFactory {
 			// TODO: Check if field is still accessible in subclass
 			if(!field.getOwnerClass().equals(callee.getGenericClass())) {
 				try {
-					if(!TestClusterGenerator.canUse(callee.getVariableClass().getField(field.getName()))) {
+					if(!TestUsageChecker.canUse(callee.getVariableClass().getField(field.getName()))) {
 						throw new ConstructionFailedException("Cannot access field in subclass");
 					}
 				} catch(NoSuchFieldException fe) {
@@ -218,7 +258,7 @@ public class TestFactory {
 
 	/**
 	 * Add method at given position if max recursion depth has not been reached
-	 * 
+	 *
 	 * @param test
 	 * @param method
 	 * @param position
@@ -237,12 +277,12 @@ public class TestFactory {
 
 		int length = test.size();
 		VariableReference callee = null;
-		if (!field.isStatic()) { 
+		if (!field.isStatic()) {
 			callee = createOrReuseVariable(test, field.getOwnerType(), position,
 					recursionDepth, null, false);
 			position += test.size() - length;
 			length = test.size();
-			if (!TestClusterGenerator.canUse(field.getField(), callee.getVariableClass())) {
+			if (!TestUsageChecker.canUse(field.getField(), callee.getVariableClass())) {
 				logger.debug("Cannot call field " + field + " with callee of type "
 				        + callee.getClassName());
 				throw new ConstructionFailedException("Cannot apply field to this callee");
@@ -268,7 +308,7 @@ public class TestFactory {
 
 	/**
 	 * Add reference to a field of variable "callee"
-	 * 
+	 *
 	 * @param test
 	 * @param callee
 	 * @param field
@@ -303,7 +343,7 @@ public class TestFactory {
 
 	/**
 	 * Add method at given position if max recursion depth has not been reached
-	 * 
+	 *
 	 * @param test
 	 * @param method
 	 * @param position
@@ -332,7 +372,7 @@ public class TestFactory {
 
 				logger.debug("Found callee of type " + method.getOwnerType() + ": "
 						+ callee.getName());
-				if (!TestClusterGenerator.canUse(method.getMethod(),
+				if (!TestUsageChecker.canUse(method.getMethod(),
 						callee.getVariableClass())) {
 					logger.debug("Cannot call method " + method
 							+ " with callee of type " + callee.getClassName());
@@ -363,7 +403,7 @@ public class TestFactory {
 
 	/**
 	 * Add a call on the method for the given callee at position
-	 * 
+	 *
 	 * @param test
 	 * @param callee
 	 * @param method
@@ -376,7 +416,7 @@ public class TestFactory {
 		logger.debug("Adding method " + method + " for " + callee + "(Generating "+method.getGeneratedClass()+")");
 		if(position <= callee.getStPosition())
 			throw new ConstructionFailedException("Cannot insert call on object before the object is defined");
-		
+
 		currentRecursion.clear();
 		int length = test.size();
 		List<VariableReference> parameters = null;
@@ -396,7 +436,7 @@ public class TestFactory {
 
 	/**
 	 * Add primitive statement at position
-	 * 
+	 *
 	 * @param test
 	 * @param old
 	 * @param position
@@ -412,9 +452,9 @@ public class TestFactory {
 
 	/**
 	 * Append statement s, trying to satisfy parameters
-	 * 
+	 *
 	 * Called from TestChromosome when doing crossover
-	 * 
+	 *
 	 * @param test
 	 * @param s
 	 */
@@ -438,7 +478,7 @@ public class TestFactory {
 
 	/**
 	 * Assign a value to an array index
-	 * 
+	 *
 	 * @param test
 	 * @param array
 	 * @param arrayIndex
@@ -477,7 +517,7 @@ public class TestFactory {
 
 	/**
 	 * Assign a value to an array index for a given set of objects
-	 * 
+	 *
 	 * @param test
 	 * @param array
 	 * @param arrayIndex
@@ -530,7 +570,7 @@ public class TestFactory {
 
 	/**
 	 * Attempt to generate a non-null object; initialize recursion level to 0
-	 * 
+	 *
 	 */
 	public VariableReference attemptGeneration(TestCase test, Type type, int position)
 	        throws ConstructionFailedException {
@@ -548,7 +588,7 @@ public class TestFactory {
 
 	/**
 	 * Try to generate an object of a given type
-	 * 
+	 *
 	 * @param test
 	 * @param type
 	 * @param position
@@ -562,7 +602,7 @@ public class TestFactory {
 		GenericClass clazz = new GenericClass(type);
 
 		if (clazz.isEnum()) {
-			if (!TestClusterGenerator.canUse(clazz.getRawClass()))
+			if (!TestUsageChecker.canUse(clazz.getRawClass()))
 				throw new ConstructionFailedException(
 				        "Cannot generate unaccessible enum " + clazz);
 			return createPrimitive(test, clazz, position, recursionDepth);
@@ -588,8 +628,7 @@ public class TestFactory {
 			if (Randomness.nextDouble() <= Properties.P_OBJECT_POOL
 			        && objectPool.hasSequence(clazz)) {
 				TestCase sequence = objectPool.getRandomSequence(clazz);
-				logger.debug("Using a sequence from the object pool to satisfy the type: "
-				        + type);
+				logger.debug("Using a sequence from the object pool to satisfy the type: " + type);
 				VariableReference targetObject = sequence.getLastObject(type);
 				int returnPos = position + targetObject.getStPosition();
 				for (int i = 0; i < sequence.size(); i++) {
@@ -607,7 +646,7 @@ public class TestFactory {
 
 	/**
 	 * Try to generate an object suitable for Object.class
-	 * 
+	 *
 	 * @param test
 	 * @param type
 	 * @param position
@@ -623,7 +662,7 @@ public class TestFactory {
 			logger.debug("Using a null reference to satisfy the type: " + Object.class);
 			return createNull(test, Object.class, position, recursionDepth);
 		}
-		
+
 		List<GenericClass> classes = new ArrayList<GenericClass>(
 		        CastClassManager.getInstance().getCastClasses());
 		classes.add(new GenericClass(Object.class));
@@ -631,7 +670,7 @@ public class TestFactory {
 		logger.debug("Chosen class for Object: "+choice);
 		if(choice.isString()) {
 			return createOrReuseVariable(test, String.class, position,
-                    recursionDepth, null, true);			
+                    recursionDepth, null, true);
 		}
 		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(choice);
 		// LoggingUtils.getEvoLogger().info("Generator for Object: " + o);
@@ -675,7 +714,7 @@ public class TestFactory {
 
 	/**
 	 * Replace the statement with a new statement using given call
-	 * 
+	 *
 	 * @param test
 	 * @param statement
 	 * @param call
@@ -758,8 +797,7 @@ public class TestFactory {
 			calls.remove(ao);
 		}
 
-		logger.debug("Got " + calls.size() + " possible calls for " + objects.size()
-		        + " objects");
+		logger.debug("Got " + calls.size() + " possible calls for " + objects.size() + " objects");
 		//calls.clear();
 		if (calls.isEmpty()) {
 			logger.debug("No replacement calls");
@@ -781,7 +819,7 @@ public class TestFactory {
 
 	/**
 	 * Create a new array in a test case and return the reference
-	 * 
+	 *
 	 * @param test
 	 * @param type
 	 * @param position
@@ -845,7 +883,7 @@ public class TestFactory {
 
 	/**
 	 * Create and return a new primitive variable
-	 * 
+	 *
 	 * @param test
 	 * @param type
 	 * @param position
@@ -877,7 +915,7 @@ public class TestFactory {
 
 	/**
 	 * Create and return a new null variable
-	 * 
+	 *
 	 * @param test
 	 * @param type
 	 * @param position
@@ -890,8 +928,8 @@ public class TestFactory {
 		GenericClass genericType = new GenericClass(type);
 
 		// For example, HashBasedTable.Factory in Guava is private but used as a parameter
-		// in a public method. This would lead to compile errors 
-		if (!TestClusterGenerator.canUse(genericType.getRawClass())) {
+		// in a public method. This would lead to compile errors
+		if (!TestUsageChecker.canUse(genericType.getRawClass())) {
 			throw new ConstructionFailedException("Cannot use class " + type);
 		}
 		if (genericType.hasWildcardOrTypeVariables()) {
@@ -906,7 +944,7 @@ public class TestFactory {
 
 	/**
 	 * Create a new non-null, non-primitive object and return reference
-	 * 
+	 *
 	 * @param test
 	 * @param type
 	 * @param position
@@ -964,7 +1002,7 @@ public class TestFactory {
 
 	/**
 	 * Create a new variable or reuse and existing one
-	 * 
+	 *
 	 * @param test
 	 * @param parameterType
 	 * @param position
@@ -997,7 +1035,7 @@ public class TestFactory {
 		}
 
 		GenericClass clazz = new GenericClass(parameterType);
-		boolean isPrimitiveOrSimilar = clazz.isPrimitive() || clazz.isWrapperType() || clazz.isEnum() || clazz.isClass() || clazz.isString(); 
+		boolean isPrimitiveOrSimilar = clazz.isPrimitive() || clazz.isWrapperType() || clazz.isEnum() || clazz.isClass() || clazz.isString();
 		if (isPrimitiveOrSimilar && !objects.isEmpty() && reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
 			logger.debug(" Looking for existing object of type " + parameterType);
 			VariableReference reference = Randomness.choice(objects);
@@ -1021,7 +1059,7 @@ public class TestFactory {
 				parameterType = clazz.getType();
 			}
 
-			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isWrapperType() || clazz.isObject() || 
+			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isWrapperType() || clazz.isObject() ||
 					clazz.isClass() || EnvironmentStatements.isEnvironmentData(clazz.getRawClass()) ||
 					clazz.isString() || clazz.isArray() || TestCluster.getInstance().hasGenerator(parameterType)) {
 				logger.debug(" Generating new object of type " + parameterType);
@@ -1046,7 +1084,7 @@ public class TestFactory {
 
 	/**
 	 * Create or reuse a variable that can be assigned to Object.class
-	 * 
+	 *
 	 * @param test
 	 * @param position
 	 * @param recursionDepth
@@ -1077,7 +1115,7 @@ public class TestFactory {
 	/**
 	 * Delete the statement at position from the test case and remove all
 	 * references to it
-	 * 
+	 *
 	 * @param test
 	 * @param position
 	 * @throws ConstructionFailedException
@@ -1129,7 +1167,7 @@ public class TestFactory {
 		}
 	}
 
-	
+
 	private static void filterVariablesByClass(Collection<VariableReference> variables,
 	        Class<?> clazz) {
 		// Remove invalid classes if this is an Object.class reference
@@ -1257,7 +1295,7 @@ public class TestFactory {
 	/**
 	 * Determine if the set of objects is sufficient to satisfy the set of
 	 * dependencies
-	 * 
+	 *
 	 * @param dependencies
 	 * @param objects
 	 * @return
@@ -1280,7 +1318,7 @@ public class TestFactory {
 
 	/**
 	 * Retrieve the dependencies for a constructor
-	 * 
+	 *
 	 * @param constructor
 	 * @return
 	 */
@@ -1295,7 +1333,7 @@ public class TestFactory {
 
 	/**
 	 * Retrieve the dependencies for a field
-	 * 
+	 *
 	 * @param field
 	 * @return
 	 */
@@ -1310,7 +1348,7 @@ public class TestFactory {
 
 	/**
 	 * Retrieve the dependencies for a method
-	 * 
+	 *
 	 * @param method
 	 * @return
 	 */
@@ -1329,7 +1367,7 @@ public class TestFactory {
 	/**
 	 * Retrieve all the replacement calls that can be inserted at this position
 	 * without changing the length
-	 * 
+	 *
 	 * @param returnType
 	 * @param objects
 	 * @return
@@ -1435,7 +1473,7 @@ public class TestFactory {
 
 	/**
 	 * Insert a random call at given position
-	 * 
+	 *
 	 * @param test
 	 * @param position
 	 */
@@ -1492,7 +1530,7 @@ public class TestFactory {
 						//}
 					}
 					logger.debug("Got callee of type " + callee.getGenericClass().getTypeName());
-					if (!TestClusterGenerator.canUse(m.getMethod(), callee.getVariableClass())) {
+					if (!TestUsageChecker.canUse(m.getMethod(), callee.getVariableClass())) {
 						logger.debug("Cannot call method " + m + " with callee of type " + callee.getClassName());
 						throw new ConstructionFailedException("Cannot apply method to this callee");
 					}
@@ -1526,7 +1564,7 @@ public class TestFactory {
 			// System.out.println("TG: Failed");
 			// TODO: Doesn't work if position != test.size()
 			int lengthDifference = test.size() - previousLength;
-			for (int i = lengthDifference - 1; i >= 0; i--) { //we need to remove them in order, so that the testcase is at all time consistent 
+			for (int i = lengthDifference - 1; i >= 0; i--) { //we need to remove them in order, so that the testcase is at all time consistent
 				logger.debug("  Removing statement: "
 				        + test.getStatement(position + i).getCode());
 				test.remove(position + i);
@@ -1538,7 +1576,7 @@ public class TestFactory {
 	/**
 	 * Insert a random call at given position for an object defined before this
 	 * position
-	 * 
+	 *
 	 * @param test
 	 * @param position
 	 */
@@ -1548,15 +1586,15 @@ public class TestFactory {
 //		VariableReference var = selectRandomVariableForCall(test, position);
 
 		boolean success = false;
-		
+
 		// Add call for this variable at random position
 		if (var != null) {
 			logger.debug("Inserting call at position " + position + ", chosen var: "
 			        + var.getName() + ", distance: " + var.getDistance() + ", class: "
 			        + var.getClassName());
 			success = insertRandomCallOnObjectAt(test, var, position);
-		} 
-		
+		}
+
 		if(!success && TestCluster.getInstance().getNumTestCalls() > 0) {
 			logger.debug("Adding new call on UUT because var was null");
 			success = insertRandomCall(test, position);
@@ -1623,7 +1661,7 @@ public class TestFactory {
 
 	/**
 	 * Satisfy a list of parameters by reusing or creating variables
-	 * 
+	 *
 	 * @param test
 	 * @param parameterTypes
 	 * @param position
@@ -1652,7 +1690,7 @@ public class TestFactory {
 
 			VariableReference var = createOrReuseVariable(test, parameterType, position,
 			                                              recursionDepth, callee, true);
-			
+
 			// Generics instantiation may lead to invalid types, so better double check
 			if(!var.isAssignableTo(parameterType)) {
 				throw new ConstructionFailedException("Error");
@@ -1669,7 +1707,7 @@ public class TestFactory {
 	/**
 	 * Randomly select one of the variables in the test defined up to position
 	 * to insert a call for
-	 * 
+	 *
 	 * @param test
 	 * @param position
 	 * @return
