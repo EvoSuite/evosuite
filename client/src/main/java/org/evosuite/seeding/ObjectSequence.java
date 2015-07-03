@@ -3,7 +3,7 @@ package org.evosuite.seeding;
 import java.io.Serializable;
 
 import org.evosuite.testcase.TestCase;
-import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.generic.GenericClass;
 
 class ObjectSequence implements Serializable {
 

@@ -31,7 +31,7 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericMethod;
 
 /**
  * <p>

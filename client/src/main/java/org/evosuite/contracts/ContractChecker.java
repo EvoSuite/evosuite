@@ -33,7 +33,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericMethod;
 import org.junit.experimental.theories.Theory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

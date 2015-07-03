@@ -2,8 +2,7 @@ package org.evosuite.runtime.classhandling;
 
 import org.junit.Assert;
 import org.evosuite.runtime.RuntimeSettings;
-import org.evosuite.runtime.classhandling.ClassStateSupport;
-import org.evosuite.runtime.instrumentation.InstrumentingClassLoader;
+import org.evosuite.runtime.instrumentation.EvoClassLoader;
 import org.junit.Test;
 
 /**
@@ -15,7 +14,7 @@ public class ClassStateSupportTest {
     public void testInitializeClasses(){
 
 
-        InstrumentingClassLoader loader = new InstrumentingClassLoader();
+        EvoClassLoader loader = new EvoClassLoader();
         String className = "com.examples.with.different.packagename.classhandling.TimeA";
         //no mocking
         RuntimeSettings.deactivateAllMocking();

@@ -39,6 +39,13 @@ public class TestDataJavaEE {
      */
     private volatile Set<String> partNames;
 
+    /**
+     * Check if there was any servlet that was initialized.
+     * Note: servlet initialization is automatically added every time
+     * a new servlet is instantiated with "new"
+     *
+     */
+    private volatile boolean wasAServletInitialized;
 
     private TestDataJavaEE(){
         httpRequestParameters = new CopyOnWriteArraySet<>();
@@ -56,6 +63,15 @@ public class TestDataJavaEE {
         dispatchers.clear();
         readContentType = false;
         partNames = null;
+        wasAServletInitialized = false;
+    }
+
+    public boolean isWasAServletInitialized() {
+        return wasAServletInitialized;
+    }
+
+    public void setWasAServletInitialized(boolean wasAServletInitialized) {
+        this.wasAServletInitialized = wasAServletInitialized;
     }
 
     public Set<String> getViewOfHttpRequestParameters(){

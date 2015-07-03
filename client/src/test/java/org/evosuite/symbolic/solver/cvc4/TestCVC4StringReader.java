@@ -14,6 +14,13 @@ public class TestCVC4StringReader {
 	@Test
 	public void testStringReader() throws SecurityException,
 			NoSuchMethodException, ConstraintSolverTimeoutException {
+		
+		if (Properties.CVC4_PATH == null) {
+			System.out
+					.println("Warning: cvc4_path should be configured to execute this test case");
+			return;
+		}
+		
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverReader.testStringReader(solver);
 	}

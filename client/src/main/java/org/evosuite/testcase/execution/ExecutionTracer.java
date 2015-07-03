@@ -61,7 +61,7 @@ public class ExecutionTracer {
 	 * If a thread of a test case survives for some reason (e.g. long call to
 	 * external library), then we don't want its data in the current trace
 	 */
-	private static Thread currentThread = null;
+	private static volatile Thread currentThread = null;
 
 	/**
 	 * <p>
@@ -209,7 +209,7 @@ public class ExecutionTracer {
 			return false;
 		}
 		if (currentThread == null) {
-			logger.info("CurrentThread has not been set!");
+			logger.error("CurrentThread has not been set!");
 			Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
 			for (Thread t : map.keySet()) {
 				String msg = "Thread: " + t+"\n";

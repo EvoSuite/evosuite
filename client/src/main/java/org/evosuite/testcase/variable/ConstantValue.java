@@ -24,7 +24,7 @@ import java.lang.reflect.Type;
 
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.NumberFormatter;
 
 
@@ -41,7 +41,7 @@ public class ConstantValue extends VariableReferenceImpl {
 	 * <p>Constructor for ConstantValue.</p>
 	 *
 	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type a {@link org.evosuite.utils.GenericClass} object.
+	 * @param type a {@link GenericClass} object.
 	 */
     public ConstantValue(TestCase testCase, GenericClass type) {
         super(testCase, type);

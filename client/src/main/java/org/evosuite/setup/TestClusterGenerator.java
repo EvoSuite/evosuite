@@ -1,38 +1,33 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.setup;
 
-import java.io.FileDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,28 +35,22 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
-import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
-import org.evosuite.graphs.GraphPool;
 import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.mock.MockList;
-import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -69,12 +58,11 @@ import org.evosuite.setup.PutStaticMethodCollector.MethodIdentifier;
 import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.GenericAccessibleObject;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericField;
-import org.evosuite.utils.GenericMethod;
-import org.junit.Test;
+import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericField;
+import org.evosuite.utils.generic.GenericMethod;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
@@ -83,7 +71,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
- * 
+ *
  */
 public class TestClusterGenerator {
 
@@ -94,7 +82,7 @@ public class TestClusterGenerator {
 
 	/**
 	 * Check if we can use the given class
-	 * 
+	 *
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 * @return a boolean.
@@ -116,7 +104,7 @@ public class TestClusterGenerator {
 	private final Set<GenericAccessibleObject<?>> dependencyCache = new LinkedHashSet<GenericAccessibleObject<?>>();
 
 	private final static Map<Class<?>, Set<Method>> methodCache = new LinkedHashMap<Class<?>, Set<Method>>();
-	
+
 	private final static Map<Class<?>, Set<Field>> accessibleFieldCache = new LinkedHashMap<Class<?>, Set<Field>>();
 
 	private final Set<GenericClass> genericCastClasses = new LinkedHashSet<GenericClass>();
@@ -124,17 +112,17 @@ public class TestClusterGenerator {
 	private final Set<Class<?>> concreteCastClasses = new LinkedHashSet<Class<?>>();
 
 	private final Set<Class<?>> containerClasses = new LinkedHashSet<Class<?>>();
-	
+
 
 	private final Set<Pair> dependencies = new LinkedHashSet<Pair>();
-	
+
 	private final Set<GenericClass> analyzedAbstractClasses = new LinkedHashSet<GenericClass>();
 
-	//XXX refactor and move these as paramethers in all methods. 
+	//XXX refactor and move these as paramethers in all methods.
 	private InheritanceTree inheritanceTree;
 	private CallGraph callGraph;
-	
-	
+
+
 	public void generateCluster(String targetClass, InheritanceTree inheritanceTree, CallGraph callGraph) throws RuntimeException, ClassNotFoundException {
 		this.inheritanceTree = inheritanceTree;
 		this.callGraph = callGraph;
@@ -263,11 +251,11 @@ public class TestClusterGenerator {
 		}
 		try {
 			Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
-			if (!canUse(clazz)) {
+			if (!TestUsageChecker.canUse(clazz)) {
 				logger.debug("Cannot use cast class: " + className);
 				return false;
 			}
-			// boolean added = 
+			// boolean added =
 			addDependency(new GenericClass(clazz), 1);
 			genericCastClasses.add(new GenericClass(clazz));
 			concreteCastClasses.add(clazz);
@@ -285,7 +273,7 @@ public class TestClusterGenerator {
 
 	/**
 	 * Update
-	 * 
+	 *
 	 * @param clazz
 	 */
 	public void addCastClassForContainer(Class<?> clazz) {
@@ -394,9 +382,9 @@ public class TestClusterGenerator {
 
 	/**
 	 * All public methods defined directly in the SUT should be covered
-	 * 
+	 *
 	 * TODO: What if we use instrument_parent?
-	 * 
+	 *
 	 * @param targetClass
 	 */
 	@SuppressWarnings("unchecked")
@@ -421,7 +409,7 @@ public class TestClusterGenerator {
 			targetClasses.addAll(subclasses);
 		}
 
-// load all the interesting classes from the callgraph, 
+// load all the interesting classes from the callgraph,
 // need more testing, seems to slow down the search
 //		if(Properties.INSTRUMENT_CONTEXT){
 //			Set<String> toLoad;
@@ -435,7 +423,7 @@ public class TestClusterGenerator {
 //						continue;
 //					toLoad.add(className);
 //				}
-//				
+//
 //			}
 //			targetClasses.addAll(loadClasses(toLoad));
 //
@@ -475,7 +463,7 @@ public class TestClusterGenerator {
 		for (Class<?> clazz : targetClasses) {
 			logger.info("Current SUT class: " + clazz);
 
-			if (!canUse(clazz)) {
+			if (!TestUsageChecker.canUse(clazz)) {
 				logger.info("Cannot access SUT class: " + clazz);
 				continue;
 			}
@@ -496,7 +484,7 @@ public class TestClusterGenerator {
 
 				}
 
-				if (canUse(constructor)) {
+				if (TestUsageChecker.canUse(constructor)) {
 					GenericConstructor genericConstructor = new GenericConstructor(
 					        constructor, clazz);
 					cluster.addTestCall(genericConstructor);
@@ -530,7 +518,7 @@ public class TestClusterGenerator {
 						logger.info("TT name: " + orig + " -> " + name);
 				}
 
-				if (canUse(method, clazz)) {
+				if (TestUsageChecker.canUse(method, clazz)) {
 					logger.debug("Adding method " + clazz.getName() + "."
 					        + method.getName()
 					        + org.objectweb.asm.Type.getMethodDescriptor(method));
@@ -560,7 +548,7 @@ public class TestClusterGenerator {
 			for (Field field : getFields(clazz)) {
 				logger.info("Checking target field " + field);
 
-				if (canUse(field, clazz)) {
+				if (TestUsageChecker.canUse(field, clazz)) {
 					GenericField genericField = new GenericField(field, clazz);
 
 					addDependencies(genericField, 1);
@@ -577,9 +565,9 @@ public class TestClusterGenerator {
 						if (Modifier.isStatic(field.getModifiers())
 						        && !field.getType().isPrimitive()) {
 							logger.debug("Is static non-primitive");
-							/* 
+							/*
 							 * With this we are trying to cover such cases:
-							 * 
+							 *
 							public static final DurationField INSTANCE = new MillisDurationField();
 
 							private MillisDurationField() {
@@ -649,12 +637,12 @@ public class TestClusterGenerator {
 					continue;
 				}
 
-				if (!canUse(clazz))
+				if (!TestUsageChecker.canUse(clazz))
 					continue;
 
 				Set<String> fields = staticFields.get(className);
 				for (Field field : getFields(clazz)) {
-					if (!canUse(field, clazz))
+					if (!TestUsageChecker.canUse(field, clazz))
 						continue;
 
 					if (fields.contains(field.getName())) {
@@ -677,7 +665,7 @@ public class TestClusterGenerator {
 				if (clazz == null)
 					continue;
 
-				if (!canUse(clazz))
+				if (!TestUsageChecker.canUse(clazz))
 					continue;
 
 				Method method = getMethod(clazz, methodId.getMethodName(),
@@ -721,7 +709,7 @@ public class TestClusterGenerator {
 
 	/**
 	 * Get the set of constructors defined in this class and its superclasses
-	 * 
+	 *
 	 * @param clazz
 	 * @return
 	 */
@@ -744,12 +732,12 @@ public class TestClusterGenerator {
 
 	/**
 	 * Get the set of methods defined in this class and its superclasses
-	 * 
+	 *
 	 * @param clazz
 	 * @return
 	 */
 	public static Set<Method> getMethods(Class<?> clazz) {
-		
+
 		// As this is expensive, doing some caching here
 		// Note that with the change of a class loader the cached values could
 		// be thrown away
@@ -787,7 +775,7 @@ public class TestClusterGenerator {
 
 	/**
 	 * Get the set of fields defined in this class and its superclasses
-	 * 
+	 *
 	 * @param clazz
 	 * @return
 	 */
@@ -824,7 +812,7 @@ public class TestClusterGenerator {
 
 	/**
 	 * Get the set of fields defined in this class and its superclasses
-	 * 
+	 *
 	 * @param clazz
 	 * @return
 	 */
@@ -836,7 +824,7 @@ public class TestClusterGenerator {
 		Set<Field> fields = new LinkedHashSet<Field>();
 		try {
 			for (Field f : clazz.getFields()) {
-				if (canUse(f) && !Modifier.isFinal(f.getModifiers())) {
+				if (TestUsageChecker.canUse(f) && !Modifier.isFinal(f.getModifiers())) {
 					fields.add(f);
 				}
 			}
@@ -844,313 +832,12 @@ public class TestClusterGenerator {
 			logger.info("Error while accessing fields of class " + clazz.getName()
 			        + " - check allowed permissions: " + t);
 		}
-		
+
 		accessibleFieldCache.put(clazz, fields);
 		return fields;
 	}
 
-	private static boolean isEvoSuiteClass(Class<?> c) {
-		return c.getName().startsWith("org.evosuite");
-		        //|| c.getName().equals("java.lang.String");    // This is now handled in addDependencyClass
-	}
 
-	protected static void makeAccessible(Field field) {
-		if (!Modifier.isPublic(field.getModifiers())
-		        || !Modifier.isPublic(field.getDeclaringClass().getModifiers())) {
-			field.setAccessible(true);
-		}
-	}
-
-	protected static void makeAccessible(Method method) {
-		if (!Modifier.isPublic(method.getModifiers())
-		        || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-			method.setAccessible(true);
-		}
-	}
-
-	protected static void makeAccessible(Constructor<?> constructor) {
-		if (!Modifier.isPublic(constructor.getModifiers())
-		        || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) {
-			constructor.setAccessible(true);
-		}
-	}
-
-	public static boolean canUse(java.lang.reflect.Type t) {
-		if(t instanceof Class<?>) {
-			return canUse((Class<?>) t);
-		}
-		else if(t instanceof ParameterizedType) {
-			ParameterizedType pt = (ParameterizedType)t;
-			for(java.lang.reflect.Type parameterType : pt.getActualTypeArguments()) {
-				if(!canUse(parameterType))
-					return false;
-			}
-			if(!canUse(pt.getOwnerType())) {
-				return false;
-			}
-		}
-		// If it's not declared, let's assume it's ok
-		return true;
-	}
-	
-	public static boolean canUse(Class<?> c) {
-		//if (Throwable.class.isAssignableFrom(c))
-		//	return false;
-		if (Modifier.isPrivate(c.getModifiers()))
-			return false;
-
-		if (!Properties.USE_DEPRECATED && c.isAnnotationPresent(Deprecated.class)) {
-			if(Properties.hasTargetClassBeenLoaded() && !c.equals(Properties.getTargetClass())) {
-				logger.debug("Skipping deprecated class " + c.getName());
-				return false;
-			}
-		}
-
-		if (c.isAnonymousClass()) {
-			return false;
-		}
-
-		if (c.getName().startsWith("junit"))
-			return false;
-
-		if (isEvoSuiteClass(c) && !MockList.isAMockClass(c.getCanonicalName())) {
-			return false;
-		}
-
-		if (c.getEnclosingClass() != null) {
-			if (!canUse(c.getEnclosingClass()))
-				return false;
-		}
-
-		if (c.getDeclaringClass() != null) {
-			if (!canUse(c.getDeclaringClass()))
-				return false;
-		}
-
-		// If the SUT is not in the default package, then
-		// we cannot import classes that are in the default
-		// package
-		if (!c.isArray() && !c.isPrimitive() && !Properties.CLASS_PREFIX.isEmpty()
-		        && !c.getName().contains(".")) {
-			return false;
-		}
-		
-		// TODO: This should be unnecessary if Java reflection works...
-		// This is inefficient 
-		if(isAnonymousClass(c.getName())) {
-			logger.warn(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+") "+c.getSimpleName());
-			return false;
-		}
-
-		if (Modifier.isPublic(c.getModifiers())) {
-			return true;
-		}
-
-		// If default access rights, then check if this class is in the same package as the target class
-		if (!Modifier.isPrivate(c.getModifiers())) {
-			//		        && !Modifier.isProtected(c.getModifiers())) {
-			String packageName = ClassUtils.getPackageName(c);
-			if (packageName.equals(Properties.CLASS_PREFIX)) {
-				return true;
-			}
-		}
-
-		logger.debug("Not public");
-		return false;
-	}
-
-	public static boolean canUse(Field f) {
-		return canUse(f, f.getDeclaringClass());
-	}
-
-	public static boolean canUse(Field f, Class<?> ownerClass) {
-
-		// TODO we could enable some methods from Object, like getClass
-		if (f.getDeclaringClass().equals(java.lang.Object.class))
-			return false;// handled here to avoid printing reasons
-
-		if (f.getDeclaringClass().equals(java.lang.Thread.class))
-			return false;// handled here to avoid printing reasons
-
-		if (!Properties.USE_DEPRECATED && f.isAnnotationPresent(Deprecated.class)) {
-			if(Properties.hasTargetClassBeenLoaded() && !f.getDeclaringClass().equals(Properties.getTargetClass())) {
-				logger.debug("Skipping deprecated field " + f.getName());
-				return false;
-			}
-		}
-
-		if (f.isSynthetic()) {
-			logger.debug("Skipping synthetic field " + f.getName());
-			return false;
-		}
-
-		if (f.getName().startsWith("ajc$")) {
-			logger.debug("Skipping AspectJ field " + f.getName());
-			return false;
-		}
-
-		if (!f.getType().equals(String.class) && !canUse(f.getType())) {
-			return false;
-		}
-		
-		// in, out, err
-		if(f.getDeclaringClass().equals(FileDescriptor.class)) {
-			return false;
-		}
-
-		if (Modifier.isPublic(f.getModifiers())) {
-			// It may still be the case that the field is defined in a non-visible superclass of the class
-			// we already know we can use. In that case, the compiler would be fine with accessing the 
-			// field, but reflection would start complaining about IllegalAccess!
-			// Therefore, we set the field accessible to be on the safe side
-			makeAccessible(f);
-			return true;
-		}
-
-		// If default access rights, then check if this class is in the same package as the target class
-		if (!Modifier.isPrivate(f.getModifiers())) {
-			//		        && !Modifier.isProtected(f.getModifiers())) {
-			String packageName = ClassUtils.getPackageName(ownerClass);
-
-			String declaredPackageName = ClassUtils.getPackageName(f.getDeclaringClass());
-
-			if (packageName.equals(Properties.CLASS_PREFIX)
-			        && packageName.equals(declaredPackageName)) {
-				makeAccessible(f);
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	public static boolean canUse(Method m) {
-		return canUse(m, m.getDeclaringClass());
-	}
-
-	public static boolean canUse(Method m, Class<?> ownerClass) {
-
-		if (m.isBridge()) {
-			logger.debug("Excluding bridge method: " + m.toString());
-			return false;
-		}
-
-		if (m.isSynthetic()) {
-			logger.debug("Excluding synthetic method: " + m.toString());
-			return false;
-		}
-
-		if (!Properties.USE_DEPRECATED && m.isAnnotationPresent(Deprecated.class)) {
-			if(Properties.hasTargetClassBeenLoaded() && !m.getDeclaringClass().equals(Properties.getTargetClass())) {
-				logger.debug("Excluding deprecated method " + m.getName());
-				return false;
-			}
-		}
-
-		if (m.isAnnotationPresent(Test.class)) {
-			logger.debug("Excluding test method " + m.getName());
-			return false;
-		}
-
-		if (m.isAnnotationPresent(EvoSuiteExclude.class)) {
-			logger.debug("Excluding method with exclusion annotation " + m.getName());
-			return false;
-		}
-
-		if (m.getDeclaringClass().equals(java.lang.Object.class)) {
-			return false;
-		}
-		
-		if (!m.getReturnType().equals(String.class) && !canUse(m.getGenericReturnType())) {
-			return false;
-		}
-
-		if (m.getDeclaringClass().equals(Enum.class)) {
-			return false;
-			/*
-			if (m.getName().equals("valueOf") || m.getName().equals("values")
-			        || m.getName().equals("ordinal")) {
-				logger.debug("Excluding valueOf for Enum " + m.toString());
-				return false;
-			}
-			// Skip compareTo on enums (like Randoop)
-			if (m.getName().equals("compareTo") && m.getParameterTypes().length == 1
-			        && m.getParameterTypes()[0].equals(Enum.class))
-				return false;
-				*/
-		}
-
-		if (m.getDeclaringClass().equals(java.lang.Thread.class))
-			return false;
-
-		// Hashcode only if we need to cover it
-		if (m.getName().equals("hashCode")) {
-		        if(!m.getDeclaringClass().equals(Properties.getTargetClass()))
-		        	return false;
-		        else {
-		        	if(GraphPool.getInstance(ownerClass.getClassLoader()).getActualCFG(Properties.TARGET_CLASS, m.getName() + Type.getMethodDescriptor(m)) == null) {
-		        		// Don't cover generated hashCode
-		        		// TODO: This should work via annotations
-		        		return false;
-		        	}
-		        }
-		}
-
-		// Randoop special case: just clumps together a bunch of hashCodes, so skip it
-		if (m.getName().equals("deepHashCode")
-		        && m.getDeclaringClass().equals(Arrays.class))
-			return false;
-
-		// Randoop special case: differs too much between JDK installations
-		if (m.getName().equals("getAvailableLocales"))
-			return false;
-
-		if (m.getName().equals(ClassResetter.STATIC_RESET)) {
-			logger.debug("Ignoring static reset method");
-			return false;
-		}
-
-		if (isForbiddenNonDeterministicCall(m)) {
-			return false;
-		}
-
-		if (!Properties.CONSIDER_MAIN_METHODS && m.getName().equals("main")
-		        && Modifier.isStatic(m.getModifiers())
-		        && Modifier.isPublic(m.getModifiers())) {
-			logger.debug("Ignoring static main method ");
-			return false;
-		}
-
-		/*
-		if(m.getTypeParameters().length > 0) {
-			logger.debug("Cannot handle generic methods at this point");
-			if(m.getDeclaringClass().equals(Properties.getTargetClass())) {
-				LoggingUtils.getEvoLogger().info("* Skipping method "+m.getName()+": generic methods are not handled yet");
-			}
-			return false;
-		}
-		*/
-
-		// If default or
-		if (Modifier.isPublic(m.getModifiers())) {
-			makeAccessible(m);
-			return true;
-		}
-
-		// If default access rights, then check if this class is in the same package as the target class
-		if (!Modifier.isPrivate(m.getModifiers())) {
-			//		        && !Modifier.isProtected(m.getModifiers())) {
-			String packageName = ClassUtils.getPackageName(ownerClass);
-			String declaredPackageName = ClassUtils.getPackageName(m.getDeclaringClass());
-			if (packageName.equals(Properties.CLASS_PREFIX)
-			        && packageName.equals(declaredPackageName)) {
-				makeAccessible(m);
-				return true;
-			}
-		}
-
-		return false;
-	}
 
 	private static boolean hasStaticGenerator(Class<?> clazz) {
 		for(Method m : clazz.getMethods()) {
@@ -1162,129 +849,10 @@ public class TestClusterGenerator {
 		}
 		return false;
 	}
-	
-	/**
-	 * If we try to get deterministic tests, we must not include these methods
-	 * 
-	 * @param m
-	 * @return
-	 */
-	private static boolean isForbiddenNonDeterministicCall(Method m) {
-		if (!Properties.REPLACE_CALLS)
-			return false;
 
-		Class<?> declaringClass = m.getDeclaringClass();
 
-		// Calendar is initialized with current time
-		if (declaringClass.equals(Calendar.class)) {
-			if (m.getName().equals("getInstance"))
-				return true;
-		}
 
-		// Locale will return system specific information
-		if (declaringClass.equals(Locale.class)) {
-			if (m.getName().equals("getDefault"))
-				return true;
-			if (m.getName().equals("getAvailableLocales"))
-				return true;
-		}
 
-		// MessageFormat will return system specific information
-		if (declaringClass.equals(MessageFormat.class)) {
-			if (m.getName().equals("getLocale"))
-				return true;
-		}
-
-		if (m.getDeclaringClass().equals(Date.class)) {
-			if (m.getName().equals("toLocaleString"))
-				return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * If we try to get deterministic tests, we must not include these
-	 * constructors
-	 * 
-	 * @param c
-	 * @return
-	 */
-	private static boolean isForbiddenNonDeterministicCall(Constructor<?> c) {
-		if (!Properties.REPLACE_CALLS)
-			return false;
-
-		// Date default constructor uses current time
-		if (c.getDeclaringClass().equals(Date.class)) {
-			if (c.getParameterTypes().length == 0)
-				return true;
-		}
-
-		// Random without seed parameter is...random
-		if (c.getDeclaringClass().equals(Random.class)) {
-			if (c.getParameterTypes().length == 0)
-				return true;
-		}
-
-		return false;
-	}
-
-	public static boolean canUse(Constructor<?> c) {
-
-		if (c.isSynthetic()) {
-			return false;
-		}
-
-		// synthetic constructors are OK
-		if (Modifier.isAbstract(c.getDeclaringClass().getModifiers()))
-			return false;
-
-		// TODO we could enable some methods from Object, like getClass
-		//if (c.getDeclaringClass().equals(java.lang.Object.class))
-		//	return false;// handled here to avoid printing reasons
-
-		if (c.getDeclaringClass().equals(java.lang.Thread.class))
-			return false;// handled here to avoid printing reasons
-
-		if (c.getDeclaringClass().isAnonymousClass())
-			return false;
-
-		if (c.getDeclaringClass().isLocalClass()) {
-			logger.debug("Skipping constructor of local class " + c.getName());
-			return false;
-		}
-
-		if (c.getDeclaringClass().isMemberClass() && !canUse(c.getDeclaringClass()))
-			return false;
-
-		if (!Properties.USE_DEPRECATED && c.isAnnotationPresent(Deprecated.class)) {
-			if(Properties.hasTargetClassBeenLoaded() && !c.getDeclaringClass().equals(Properties.getTargetClass())) {
-				logger.debug("Excluding deprecated constructor " + c.getName());
-				return false;
-			}
-		}
-
-		if (isForbiddenNonDeterministicCall(c)) {
-			return false;
-		}
-
-		if (Modifier.isPublic(c.getModifiers())) {
-			makeAccessible(c);
-			return true;
-		}
-
-		// If default access rights, then check if this class is in the same package as the target class
-		if (!Modifier.isPrivate(c.getModifiers())) {
-			//		        && !Modifier.isProtected(c.getModifiers())) {
-			String packageName = ClassUtils.getPackageName(c.getDeclaringClass());
-			if (packageName.equals(Properties.CLASS_PREFIX)) {
-				makeAccessible(c);
-				return true;
-			}
-		}
-
-		return false;
-	}
 
 	private final Set<Class<?>> analyzedClasses = new LinkedHashSet<Class<?>>();
 
@@ -1424,7 +992,7 @@ public class TestClusterGenerator {
 			return;
 		}
 
-		if (!canUse(clazz.getRawClass()))
+		if (!TestUsageChecker.canUse(clazz.getRawClass()))
 			return;
 
 		Class<?> mock = MockList.getMockClass(clazz.getRawClass().getCanonicalName());
@@ -1466,7 +1034,7 @@ public class TestClusterGenerator {
 			dependencies.add(new Pair(recursionLevel, targetClass));
 			//if(++num >= Properties.NUM_CONCRETE_SUBTYPES)
 			//	break;
-		}		
+		}
 	}
 
 	private boolean addDependencyClass(GenericClass clazz, int recursionLevel) {
@@ -1489,7 +1057,7 @@ public class TestClusterGenerator {
 				containerClasses.add(clazz.getRawClass());
 			}
 		}
-		
+
 		if(clazz.isString()) {
 			return false;
 		}
@@ -1500,7 +1068,7 @@ public class TestClusterGenerator {
 
 			// TODO: Should we include declared classes as well?
 
-			if (!canUse(clazz.getRawClass())) {
+			if (!TestUsageChecker.canUse(clazz.getRawClass())) {
 				logger.info("*** Cannot use class: " + clazz.getClassName());
 				return false;
 			}
@@ -1520,7 +1088,7 @@ public class TestClusterGenerator {
 
 				}
 
-				if (canUse(constructor)) {
+				if (TestUsageChecker.canUse(constructor)) {
 					GenericConstructor genericConstructor = new GenericConstructor(
 					        constructor, clazz);
 					try {
@@ -1557,7 +1125,7 @@ public class TestClusterGenerator {
 						logger.info("TT name: " + orig + " -> " + name);
 				}
 
-				if (canUse(method, clazz.getRawClass())
+				if (TestUsageChecker.canUse(method, clazz.getRawClass())
 				        && !method.getName().equals("hashCode")) {
 					logger.debug("Adding method " + clazz.getClassName() + "."
 					        + method.getName()
@@ -1577,7 +1145,7 @@ public class TestClusterGenerator {
 						} else {
 							if(!CheapPurityAnalyzer.getInstance().isPure(method)) {
 								cluster.addModifier(new GenericClass(clazz),
-										genericMethod);							
+										genericMethod);
 							}
 						}
 
@@ -1600,7 +1168,7 @@ public class TestClusterGenerator {
 			// Add all fields
 			for (Field field : getFields(clazz.getRawClass())) {
 				logger.debug("Checking field " + field);
-				if (canUse(field, clazz.getRawClass())) {
+				if (TestUsageChecker.canUse(field, clazz.getRawClass())) {
 					logger.debug("Adding field " + field + " for class " + clazz);
 					try {
 						GenericField genericField = new GenericField(field, clazz);
@@ -1637,7 +1205,7 @@ public class TestClusterGenerator {
 		}
 		return true;
 	}
-	
+
 	public static Set<Class<?>> loadClasses(Collection<String> classNames){
 		Set<Class<?>> loadedClasses = new HashSet<>();
 		for (String subClass : classNames) {
@@ -1645,7 +1213,7 @@ public class TestClusterGenerator {
 					Class<?> subClazz = Class.forName(subClass,
 					                                  false,
 					                                  TestGenerationContext.getInstance().getClassLoaderForSUT());
-					if (!canUse(subClazz))
+					if (!TestUsageChecker.canUse(subClazz))
 						continue;
 					if (subClazz.isInterface())
 						continue;
@@ -1680,7 +1248,7 @@ public class TestClusterGenerator {
 		return loadedClasses;
 	}
 
-	
+
 	public static Set<Class<?>> getConcreteClasses(Class<?> clazz,
 	        InheritanceTree inheritanceTree) {
 
@@ -1734,7 +1302,7 @@ public class TestClusterGenerator {
 			while (actualClasses.isEmpty() && distance <= maxDistance) {
 				logger.debug(" Current distance: " + distance);
 				for (String subClass : subClasses) {
-					if (isAnonymousClass(subClass)) {
+					if (TestClusterUtils.isAnonymousClass(subClass)) {
 						continue;
 					}
 
@@ -1743,7 +1311,7 @@ public class TestClusterGenerator {
 							Class<?> subClazz = Class.forName(subClass,
 							                                  false,
 							                                  TestGenerationContext.getInstance().getClassLoaderForSUT());
-							if (!canUse(subClazz))
+							if (!TestUsageChecker.canUse(subClazz))
 								continue;
 							if (subClazz.isInterface())
 								continue;
@@ -1823,7 +1391,7 @@ public class TestClusterGenerator {
 		}
 		return mapClasses;
 	}
-	
+
 	private static Set<Class<?>> getConcreteClassesSet() {
 		Set<Class<?>> mapClasses = new LinkedHashSet<Class<?>>();
 		Class<?> setClazz;
@@ -1865,13 +1433,13 @@ public class TestClusterGenerator {
 
 	/**
 	 * Calculate package distance between two classnames
-	 * 
+	 *
 	 * @param className1
 	 * @param className2
 	 * @return
 	 */
 	private static int getPackageDistance(String className1, String className2) {
-		
+
 		String[] package1 = StringUtils.split(className1, '.');
 		String[] package2 = StringUtils.split(className2, '.');
 
@@ -1892,16 +1460,7 @@ public class TestClusterGenerator {
 
 		return distance;
 	}
-	
-	public static boolean isAnonymousClass(String className) {
-		int pos = className.lastIndexOf('$');
-		if(pos < 0)
-			return false;
-		char firstLetter = className.charAt(pos + 1);
-		if(firstLetter >= '0' && firstLetter <= '9')
-			return true;
-		
-		return false;	
-	}
+
+
 
 }

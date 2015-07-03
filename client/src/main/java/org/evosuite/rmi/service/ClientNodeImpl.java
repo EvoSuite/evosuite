@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.NoSuchParameterException;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.TimeController;
@@ -218,6 +219,28 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		try {
 			masterNode.evosuite_collectStatistics(clientRmiIdentifier, individual);
 		} catch (RemoteException e) {
+			logger.error("Cannot inform master of change of state", e);
+		}
+	}
+
+	@Override
+	public void flushStatisticsForClassChange() {
+		logger.info("Flushing output variables to master process");
+
+		try {
+			masterNode.evosuite_flushStatisticsForClassChange(clientRmiIdentifier);
+		} catch (RemoteException e) {
+			logger.error("Cannot inform master of change of state", e);
+		}
+	}
+
+	@Override
+	public void updateProperty(String propertyName, Object value) {
+		logger.info("Updating property '" + propertyName + "' with value '" + value + "' on master process");
+
+		try {
+			masterNode.evosuite_updateProperty(clientRmiIdentifier, propertyName, value);
+		} catch (RemoteException | IllegalArgumentException | IllegalAccessException | NoSuchParameterException e) {
 			logger.error("Cannot inform master of change of state", e);
 		}
 	}

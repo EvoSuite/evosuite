@@ -358,6 +358,7 @@ public class TestSuiteMinimizer {
                         TestFactory testFactory = TestFactory.getInstance();
                         testFactory.deleteStatementGracefully(testChromosome.getTestCase(), i);
                         testChromosome.setChanged(true);
+                        testChromosome.getTestCase().clearCoveredGoals();
                     } catch (ConstructionFailedException e) {
                         testChromosome.setChanged(false);
                         testChromosome.setTestCase(originalTestChromosome.getTestCase());

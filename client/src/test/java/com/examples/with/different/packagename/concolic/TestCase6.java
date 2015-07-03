@@ -1,6 +1,5 @@
 package com.examples.with.different.packagename.concolic;
 
-import org.evosuite.symbolic.MathFloat;
 
 public class TestCase6 {
 
