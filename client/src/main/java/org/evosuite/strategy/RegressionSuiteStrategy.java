@@ -46,6 +46,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
 	@Override
 	public TestSuiteChromosome generateTests() {
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, 0);
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generated_Assertions, 0);
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage_Old, 0);
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage_New, 0);
@@ -214,6 +215,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 		algorithm.printBudget();
 
 		// System.exit(0);
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
 
 		return bestSuites;
 	}
@@ -417,6 +419,8 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
 		for(TestCase t:suite.getTests())
 			bestSuites.addTest(t);
+		
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
 		
 		return bestSuites;
 	}

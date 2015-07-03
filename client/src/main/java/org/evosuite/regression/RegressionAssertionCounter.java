@@ -208,7 +208,7 @@ public class RegressionAssertionCounter {
 				// assert false;
 			} else {
 
-				logger.warn("getting exdiff..");
+				//logger.warn("getting exdiff..");
 				double exDiff = compareExceptionDiffs(
 						result1.getCopyOfExceptionMapping(), 
 						result2.getCopyOfExceptionMapping());
@@ -216,9 +216,9 @@ public class RegressionAssertionCounter {
 				if (exDiff > 0) {
 					logger.warn("Had {} different exceptions! ({})", exDiff,
 							totalCount);
-					logger.warn("mapping1: {} | mapping 2: {}",
+					/*logger.warn("mapping1: {} | mapping 2: {}",
 							result1.getCopyOfExceptionMapping(),
-							result2.getCopyOfExceptionMapping());
+							result2.getCopyOfExceptionMapping());*/
 				}
 
 				totalCount += exDiff;
