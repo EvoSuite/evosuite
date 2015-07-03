@@ -255,7 +255,7 @@ public class RegressionSuiteMinimizer {
 				if (isTimeoutReached())
 					break;
 
-				logger.warn("Current size: " + suite.size() + "/"
+				logger.debug("Current size: " + suite.size() + "/"
 						+ suite.totalLengthOfTestCases());
 				logger.debug("Deleting statement "
 						+ test.getTheTest().getTestCase().getStatement(i)

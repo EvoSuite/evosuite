@@ -606,8 +606,8 @@ logger.warn("initialising regression Suite Fitness... ##########################
 				}
 				if(!alreadyPresent){
 					//
-					String longestRepetition = lrs.lrs(mCall.getValue());
-					if(longestRepetition.length()==0)
+					//String longestRepetition = lrs.lrs(mCall.getValue());
+					//if(longestRepetition.length()==0)
 						uniqueCalls++;
 				}
 					
@@ -1088,7 +1088,7 @@ logger.warn("initialising regression Suite Fitness... ##########################
 	            if (x.length() > lrs.length()){
 	                lrs = x;
 	                //SINA: The optimization below is to just return as soon as found
-	                break;
+	                //break;
 	            }
 	        }
 	        return lrs;

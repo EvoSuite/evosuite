@@ -14,9 +14,9 @@ import java.util.Map;
 import javax.management.RuntimeErrorException;
 
 import org.apache.commons.lang3.ClassUtils;
-import org.evosuite.utils.GenericClass;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.generic.GenericClass;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
