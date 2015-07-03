@@ -299,11 +299,11 @@ public enum RuntimeVariable {
 	NumberOfSATQueries,
 	/** The number of UNSAT answers to Solver queries */ 
 	NumberOfUNSATQueries,
-	/** The number of TIMEOUT for Solver queries */ 
+	/** The number of TIMEOUTs when solving queries */ 
 	NumberOfTimeoutQueries,
-	/** The number of Useful new tests*/ 
+	/** How many SAT queries led to Useful (i.e. better fitness) new tests*/ 
 	NumberOfUsefulNewTests,
-	/** The number of unuseful new tests*/ 
+	/** How many SAT queries led to Unuseful (i.e. no better fitness) new tests*/ 
 	NumberOfUnusefulNewTests
 	
 	;
