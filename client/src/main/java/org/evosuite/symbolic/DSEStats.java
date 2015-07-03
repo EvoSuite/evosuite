@@ -66,7 +66,7 @@ public abstract class DSEStats {
 	/**
 	 * Invoke this method when no instance was found by a Constraint Solver
 	 */
-	public static long getUNSAT() {
+	private static long getUNSAT() {
 		return nrOfUNSATs;
 	}
 
@@ -76,7 +76,7 @@ public abstract class DSEStats {
 	 * 
 	 * @return
 	 */
-	public static long getSAT() {
+	private static long getSAT() {
 		return nrOfSATs;
 	}
 
@@ -86,7 +86,7 @@ public abstract class DSEStats {
 	 * 
 	 * @return
 	 */
-	public static long getUnusefulTests() {
+	private static long getUnusefulTests() {
 		return nrOfSolutionWithNoImprovement;
 	}
 
@@ -103,7 +103,7 @@ public abstract class DSEStats {
 	 * 
 	 * @return
 	 */
-	public static long getUsefulTests() {
+	private static long getUsefulTests() {
 		return nrOfNewTestFound;
 	}
 
@@ -111,32 +111,32 @@ public abstract class DSEStats {
 
 		logger.info("* DSE Statistics");
 
-		printSolvingStatistics();
+		logSolverStatistics();
 
 		logger.info("");
-		printConstraintSizeStatistics();
+		logConstraintSizeStatistics();
 
 		logger.info("");
-		printPathConditionLengthStatistics();
+		logPathConditionLengthStatistics();
 
 		logger.info("");
-		printTimeStatistics();
+		logTimeStatistics();
 
 		logger.info("");
-		printCacheStatistics();
-		logger.info("");
-
-		logger.info("");
-		printAdaptationStatistics();
+		logCacheStatistics();
 		logger.info("");
 
 		logger.info("");
-		printConstraintTypeStatistics();
+		logAdaptationStatistics();
+		logger.info("");
+
+		logger.info("");
+		logConstraintTypeStatistics();
 		logger.info("");
 
 	}
 
-	private static void printAdaptationStatistics() {
+	private static void logAdaptationStatistics() {
 		StringBuffer buff = new StringBuffer();
 		buff.append("[");
 		for (Boolean change : changes) {
@@ -152,7 +152,7 @@ public abstract class DSEStats {
 		logger.info("* LS)   Adaptations: " + buff.toString());
 	}
 
-	private static void printCacheStatistics() {
+	private static void logCacheStatistics() {
 		logger.info("* DSE) Constraint Cache Statistics");
 		final int numberOfSATs = ConstraintCache.getInstance()
 				.getNumberOfSATs();
@@ -179,7 +179,7 @@ public abstract class DSEStats {
 		}
 	}
 
-	private static void printTimeStatistics() {
+	private static void logTimeStatistics() {
 		logger.info("* DSE) Time Statistics");
 		logger.info(String.format(
 				"* DSE)   Time spent solving constraints: %sms",
@@ -189,7 +189,7 @@ public abstract class DSEStats {
 				totalConcolicExecutionTimeMillis));
 	}
 
-	private static void printSolvingStatistics() {
+	private static void logSolverStatistics() {
 		long total_constraint_solvings = DSEStats.getSAT()
 				+ DSEStats.getUNSAT() + DSEStats.getTimeouts();
 
@@ -240,7 +240,7 @@ public abstract class DSEStats {
 
 	}
 
-	private static void printConstraintTypeStatistics() {
+	private static void logConstraintTypeStatistics() {
 		int total = constraintTypeCounter.getTotalNumberOfConstraints();
 
 		int integerOnly = constraintTypeCounter.getIntegerOnlyConstraints();
@@ -294,7 +294,7 @@ public abstract class DSEStats {
 		}
 	}
 
-	private static void printConstraintSizeStatistics() {
+	private static void logConstraintSizeStatistics() {
 		logger.info("* DSE) Constraint size:");
 		logger.info(String.format("* DSE)   max constraint size: %s",
 				max_constraint_size));
@@ -308,7 +308,7 @@ public abstract class DSEStats {
 				Properties.DSE_CONSTRAINT_LENGTH));
 	}
 
-	private static void printPathConditionLengthStatistics() {
+	private static void logPathConditionLengthStatistics() {
 		logger.info("* DSE) Path condition length:");
 		logger.info(String.format("* DSE)   max path condition length: %s",
 				max_path_condition_length));
@@ -443,7 +443,7 @@ public abstract class DSEStats {
 		nrOfTimeouts++;
 	}
 
-	public static long getTimeouts() {
+	private static long getTimeouts() {
 		return nrOfTimeouts;
 	}
 
@@ -474,51 +474,49 @@ public abstract class DSEStats {
 		int integerRealStringConstraints = constraintTypeCounter
 				.getIntegerRealAndStringConstraints();
 
-		ClientServices
-				.getInstance()
-				.getClientNode()
-				.trackOutputVariable(RuntimeVariable.IntegerOnlyConstraints,
-						integerOnly);
-		ClientServices
-				.getInstance()
-				.getClientNode()
-				.trackOutputVariable(RuntimeVariable.RealOnlyConstraints,
-						realOnly);
-		ClientServices
-				.getInstance()
-				.getClientNode()
-				.trackOutputVariable(RuntimeVariable.StringOnlyConstraints,
-						stringOnly);
-		ClientServices
-				.getInstance()
-				.getClientNode()
-				.trackOutputVariable(RuntimeVariable.IntegerAndRealConstraints,
-						integerRealOnly);
-		ClientServices
-				.getInstance()
-				.getClientNode()
-				.trackOutputVariable(
-						RuntimeVariable.IntegerAndStringConstraints,
-						integerStringOnly);
-		ClientServices
-				.getInstance()
-				.getClientNode()
-				.trackOutputVariable(RuntimeVariable.RealAndStringConstraints,
-						realStringOnly);
+		trackOutputVariable(RuntimeVariable.IntegerOnlyConstraints, integerOnly);
 
-		ClientServices
-				.getInstance()
-				.getClientNode()
-				.trackOutputVariable(
-						RuntimeVariable.IntegerRealAndStringConstraints,
-						integerRealStringConstraints);
+		trackOutputVariable(RuntimeVariable.RealOnlyConstraints, realOnly);
 
-		ClientServices
-				.getInstance()
-				.getClientNode()
-				.trackOutputVariable(RuntimeVariable.TotalNumberOfConstraints,
-						total);
-		
+		trackOutputVariable(RuntimeVariable.StringOnlyConstraints, stringOnly);
+
+		trackOutputVariable(RuntimeVariable.IntegerAndRealConstraints,
+				integerRealOnly);
+
+		trackOutputVariable(RuntimeVariable.IntegerAndStringConstraints,
+				integerStringOnly);
+
+		trackOutputVariable(RuntimeVariable.RealAndStringConstraints,
+				realStringOnly);
+
+		trackOutputVariable(RuntimeVariable.IntegerRealAndStringConstraints,
+				integerRealStringConstraints);
+
+		trackOutputVariable(RuntimeVariable.TotalNumberOfConstraints, total);
+
 	}
 
+	public static void trackSolverStatistics() {
+		trackOutputVariable(RuntimeVariable.NumberOfSATQueries,
+				DSEStats.getSAT());
+
+		trackOutputVariable(RuntimeVariable.NumberOfUNSATQueries,
+				DSEStats.getUNSAT());
+
+		trackOutputVariable(RuntimeVariable.NumberOfTimeoutQueries,
+				DSEStats.getTimeouts());
+
+		trackOutputVariable(RuntimeVariable.NumberOfUsefulNewTests,
+				DSEStats.getUsefulTests());
+
+		trackOutputVariable(RuntimeVariable.NumberOfUnusefulNewTests,
+				DSEStats.getUnusefulTests());
+
+	}
+
+	private static void trackOutputVariable(RuntimeVariable var, Object value) {
+		ClientServices.getInstance().getClientNode()
+				.trackOutputVariable(var, value);
+
+	}
 }
