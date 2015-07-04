@@ -84,12 +84,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		VM.DUP();
 		String desc = Type.getConstructorDescriptor(stmt.getConstructor()
 				.getConstructor());
-		pushParameterList(stmt.parameters, scope, desc);
+		pushParameterList(stmt.getParameterReferences(), scope, desc);
 		String owner = className.replace(".", "/");
 		/* indicates if the following code is instrumented or not */
 		VM.INVOKESPECIAL(owner, INIT, desc);
 		boolean needThis = true;
-		call_vm_caller_stack_params(needThis, stmt.parameters, scope, desc);
+		call_vm_caller_stack_params(needThis, stmt.getParameterReferences(), scope, desc);
 	}
 
 	private void after(ConstructorStatement stmt, Scope scope) {
