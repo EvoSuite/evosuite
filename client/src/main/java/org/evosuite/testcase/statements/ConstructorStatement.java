@@ -56,13 +56,11 @@ import org.evosuite.dse.VM;
  * 
  * @author Gordon Fraser
  */
-public class ConstructorStatement extends AbstractStatement {
+public class ConstructorStatement extends EntityWithParametersStatement {
 
 	private static final long serialVersionUID = -3035570485633271957L;
 
 	private GenericConstructor constructor;
-
-	public List<VariableReference> parameters;
 
 	private static final List<String> primitiveClasses = Arrays.asList("char", "int", "short",
 	                                                             "long", "boolean",
@@ -85,10 +83,8 @@ public class ConstructorStatement extends AbstractStatement {
 	 */
 	public ConstructorStatement(TestCase tc, GenericConstructor constructor,
 	        List<VariableReference> parameters) {
-		super(tc, new VariableReferenceImpl(tc, constructor.getOwnerClass()));
+		super(tc, new VariableReferenceImpl(tc, constructor.getOwnerClass()),parameters);
 		this.constructor = constructor;
-		// this.return_type = constructor.getDeclaringClass();
-		this.parameters = parameters;
 	}
 
 	/**
@@ -108,11 +104,9 @@ public class ConstructorStatement extends AbstractStatement {
 	 */
 	public ConstructorStatement(TestCase tc, GenericConstructor constructor,
 	        VariableReference retvar, List<VariableReference> parameters) {
-		super(tc, retvar);
+		super(tc, retvar, parameters);
 		assert (tc.size() > retvar.getStPosition()); //as an old statement should be replaced by this statement
 		this.constructor = constructor;
-		// this.return_type = constructor.getDeclaringClass();
-		this.parameters = parameters;
 	}
 
 	/**
@@ -133,10 +127,9 @@ public class ConstructorStatement extends AbstractStatement {
 	 */
 	protected ConstructorStatement(TestCase tc, GenericConstructor constructor,
 	        VariableReference retvar, List<VariableReference> parameters, boolean check) {
-		super(tc, retvar);
+		super(tc, retvar, parameters);
 		assert check == false;
 		this.constructor = constructor;
-		this.parameters = parameters;
 	}
 
 	/**
@@ -347,21 +340,7 @@ public class ConstructorStatement extends AbstractStatement {
 		return parameters.size();
 	}
 
-	/**
-	 * <p>
-	 * replaceParameterReference
-	 * </p>
-	 * 
-	 * @param var
-	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
-	 * @param numParameter
-	 *            a int.
-	 */
-	public void replaceParameterReference(VariableReference var, int numParameter) {
-		assert (numParameter >= 0);
-		assert (numParameter < parameters.size());
-		parameters.set(numParameter, var);
-	}
+
 
 	/** {@inheritDoc} */
 	@Override
@@ -549,53 +528,7 @@ public class ConstructorStatement extends AbstractStatement {
 		}
 		return changed;
 	}
-	
-	private int getNumParametersOfType(Class<?> clazz) {
-		int num = 0;
-		for(VariableReference var : parameters) {
-			if(var.getVariableClass().equals(clazz))
-				num++;
-		}
-		return num;
-	}
-	
-	private boolean mutateParameter(TestCase test, int numParameter) {
-		// replace a parameter
-		VariableReference parameter = parameters.get(numParameter);
-		List<VariableReference> objects = test.getObjects(parameter.getType(),
-				getPosition());
-		objects.remove(parameter);
-		objects.remove(getReturnValue());
-		NullStatement nullStatement = new NullStatement(test, parameter.getType());
-		Statement copy = null;
 
-		// If it's not a primitive, then changing to null is also an option
-		if (!parameter.isPrimitive())
-			objects.add(nullStatement.getReturnValue());
-		
-		// If there are fewer objects than parameters of that type,
-		// we consider adding an instance
-		if(getNumParametersOfType(parameter.getVariableClass()) + 1 < objects.size()) {
-			Statement originalStatement = test.getStatement(parameter.getStPosition());
-			copy = originalStatement.clone(test);
-			if (originalStatement instanceof PrimitiveStatement<?>) {
-				((PrimitiveStatement<?>)copy).delta();
-			}
-			objects.add(copy.getReturnValue());
-		}
-
-		if (objects.isEmpty())
-			return false;
-
-		VariableReference replacement = Randomness.choice(objects);
-		if (replacement == nullStatement.getReturnValue()) {
-			test.addStatement(nullStatement, getPosition());
-		} else if (copy != null && replacement == copy.getReturnValue()) {
-			test.addStatement(copy, getPosition());
-		}
-		replaceParameterReference(replacement, numParameter);
-		return true;
-	}
 
 	@Override
 	public boolean isAccessible() {
