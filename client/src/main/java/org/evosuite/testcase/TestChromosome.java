@@ -460,11 +460,11 @@ public class TestChromosome extends ExecutableChromosome {
 		
 		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
+
 			count++;
-			// Insert at position as during initialization (i.e., using helper
-			// sequences)
-			int position = testFactory.insertRandomStatement(test,
-			                                                 getLastMutatableStatement());
+			// Insert at position as during initialization (i.e., using helper sequences)
+			int position = testFactory.insertRandomStatement(test, getLastMutatableStatement());
+
 			if (position >= 0 && position < test.size()) {
 				changed = true;
 				mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
