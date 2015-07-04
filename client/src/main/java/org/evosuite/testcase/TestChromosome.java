@@ -412,19 +412,23 @@ public class TestChromosome extends ExecutableChromosome {
 		if (!changed) {
 			for (int position = 0; position <= lastMutatableStatement; position++) {
 				Statement statement = test.getStatement(position);
-				//for (StatementInterface statement : test) {
+
 				if(statement.isReflectionStatement())
 					continue;
 				
 				if (Randomness.nextDouble() <= pl) {
 					assert (test.isValid());
+
 					int oldDistance = statement.getReturnValue().getDistance();
+
 					if (statement.mutate(test, testFactory)) {
 						changed = true;
 						mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
 						        TestMutationHistoryEntry.TestMutation.CHANGE, statement));
 						assert (test.isValid());
+
 					} else if (!statement.isAssignmentStatement()) {
+
 						int pos = statement.getPosition();
 						if (testFactory.changeRandomCall(test, statement)) {
 							changed = true;
@@ -434,6 +438,7 @@ public class TestChromosome extends ExecutableChromosome {
 						}
 						assert (test.isValid());
 					}
+
 					statement.getReturnValue().setDistance(oldDistance);
 					position = statement.getPosition(); // Might have changed due to mutation
 				}
