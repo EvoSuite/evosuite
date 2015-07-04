@@ -77,11 +77,11 @@ public class ConstraintVerifierTest {
         Assert.assertTrue(ConstraintVerifier.canDelete(tc.getTestCase(), 0)); //bounded variable can be deleted
         Assert.assertFalse(ConstraintVerifier.canDelete(tc.getTestCase(), 1)); // method using bounded variable should not be deleted
 
-        boolean mutated = tc.mutateStatement(factory,1);
+        boolean mutated = tc.deleteStatement(factory, 1);
         Assert.assertFalse(mutated); //should fail
         Assert.assertEquals(2, tc.size());
 
-        mutated = tc.mutateStatement(factory,0);
+        mutated = tc.deleteStatement(factory, 0);
         Assert.assertTrue(mutated);
         Assert.assertEquals(0, tc.size());// deleting first statement should have had effect of removing the second as well
     }

@@ -18,6 +18,7 @@
 package org.evosuite.testcase.statements;
 
 import java.io.PrintStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import java.util.Set;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
+import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
@@ -83,7 +85,8 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	 */
 	public ConstructorStatement(TestCase tc, GenericConstructor constructor,
 	        List<VariableReference> parameters) {
-		super(tc, new VariableReferenceImpl(tc, constructor.getOwnerClass()),parameters);
+		super(tc, new VariableReferenceImpl(tc, constructor.getOwnerClass()),parameters,
+			constructor.getConstructor().getAnnotations(), constructor.getConstructor().getParameterAnnotations());
 		this.constructor = constructor;
 	}
 
@@ -104,7 +107,8 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	 */
 	public ConstructorStatement(TestCase tc, GenericConstructor constructor,
 	        VariableReference retvar, List<VariableReference> parameters) {
-		super(tc, retvar, parameters);
+		super(tc, retvar, parameters,
+				constructor.getConstructor().getAnnotations(), constructor.getConstructor().getParameterAnnotations());
 		assert (tc.size() > retvar.getStPosition()); //as an old statement should be replaced by this statement
 		this.constructor = constructor;
 	}
@@ -127,7 +131,8 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	 */
 	protected ConstructorStatement(TestCase tc, GenericConstructor constructor,
 	        VariableReference retvar, List<VariableReference> parameters, boolean check) {
-		super(tc, retvar, parameters);
+		super(tc, retvar, parameters,
+				constructor.getConstructor().getAnnotations(), constructor.getConstructor().getParameterAnnotations());
 		assert check == false;
 		this.constructor = constructor;
 	}
@@ -515,6 +520,12 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 
 		if (Randomness.nextDouble() >= Properties.P_CHANGE_PARAMETER)
 			return false;
+
+		Constraints constraint = constructor.getConstructor().getAnnotation(Constraints.class);
+		if(constraint!=null && constraint.notMutable()){
+			return false;
+		}
+
 		List<VariableReference> parameters = getParameterReferences();
 		if (parameters.isEmpty())
 			return false;

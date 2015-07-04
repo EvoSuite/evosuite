@@ -33,7 +33,6 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.ConcolicMutation;
-import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testcase.statements.PrimitiveStatement;
@@ -355,16 +354,14 @@ public class TestChromosome extends ExecutableChromosome {
 
 			// Each statement is deleted with probability 1/l
 			if (Randomness.nextDouble() <= pl) {
-
-				changed |= mutateStatement(testFactory, num);
-
+				changed |= deleteStatement(testFactory, num);
 			}
 		}
 
 		return changed;
 	}
 
-	protected boolean mutateStatement(TestFactory testFactory, int num) {
+	protected boolean deleteStatement(TestFactory testFactory, int num) {
 		if(! ConstraintVerifier.canDelete(test, num)){
 			return false;
         }
@@ -373,9 +370,8 @@ public class TestChromosome extends ExecutableChromosome {
 
             TestCase copy = test.clone();
 
-
             mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
-                    TestMutationHistoryEntry.TestMutation.DELETION));
+					TestMutationHistoryEntry.TestMutation.DELETION));
             testFactory.deleteStatementGracefully(copy, num);
 
             test = copy;
@@ -411,23 +407,26 @@ public class TestChromosome extends ExecutableChromosome {
 
 		if (!changed) {
 			for (int position = 0; position <= lastMutatableStatement; position++) {
-				Statement statement = test.getStatement(position);
-
-				if(statement.isReflectionStatement())
-					continue;
-				
 				if (Randomness.nextDouble() <= pl) {
 					assert (test.isValid());
 
+					Statement statement = test.getStatement(position);
+
+					if(statement.isReflectionStatement())
+						continue;
+
 					int oldDistance = statement.getReturnValue().getDistance();
 
+					//constraints are handled directly in the statement mutations
 					if (statement.mutate(test, testFactory)) {
 						changed = true;
 						mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
 						        TestMutationHistoryEntry.TestMutation.CHANGE, statement));
 						assert (test.isValid());
 
-					} else if (!statement.isAssignmentStatement()) {
+					} else if (!statement.isAssignmentStatement() &&
+							!ConstraintVerifier.canDelete(test,position)) {
+						//if a statement should not be deleted, then it cannot be either replaced by another one
 
 						int pos = statement.getPosition();
 						if (testFactory.changeRandomCall(test, statement)) {
