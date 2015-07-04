@@ -1,11 +1,16 @@
 package org.evosuite.testcase.statements;
 
+import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.util.Inputs;
+import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -14,17 +19,37 @@ import java.util.List;
 public abstract class EntityWithParametersStatement extends AbstractStatement{
 
     protected final List<VariableReference> parameters;
+    protected final Annotation[][] parameterAnnotations;
+    protected final Annotation[] annotations;
 
-    protected EntityWithParametersStatement(TestCase tc, Type type, List<VariableReference> parameters){
+    protected EntityWithParametersStatement(TestCase tc, Type type, List<VariableReference> parameters,
+                                            Annotation[] annotations, Annotation[][] parameterAnnotations) throws IllegalArgumentException{
         super(tc,type);
         this.parameters = parameters;
-        Inputs.checkNull(parameters);
+        this.annotations = annotations;
+        this.parameterAnnotations = parameterAnnotations;
+        validateInputs();
     }
 
-    protected EntityWithParametersStatement(TestCase tc, VariableReference retval, List<VariableReference> parameters){
+    protected EntityWithParametersStatement(TestCase tc, VariableReference retval, List<VariableReference> parameters,
+                                            Annotation[] annotations, Annotation[][] parameterAnnotations) throws IllegalArgumentException{
         super(tc,retval);
         this.parameters = parameters;
+        this.annotations = annotations;
+        this.parameterAnnotations = parameterAnnotations;
+        validateInputs();
+    }
+
+    private void validateInputs() throws IllegalArgumentException{
         Inputs.checkNull(parameters);
+        for(VariableReference ref : parameters){
+            Inputs.checkNull(ref);
+        }
+        if(parameterAnnotations!=null){
+            if(parameterAnnotations.length != parameters.size()){
+                throw new IllegalArgumentException("Size mismatched");
+            }
+        }
     }
 
     public List<VariableReference> getParameterReferences() {
@@ -65,19 +90,48 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         return num;
     }
 
+    protected Constraints getConstraints(){
+        for(Annotation annotation : annotations){
+            if(annotation instanceof Constraints){
+                return (Constraints)annotation;
+            }
+        }
+        return null;
+    }
+
     protected boolean mutateParameter(TestCase test, int numParameter) {
+
         // replace a parameter
         VariableReference parameter = parameters.get(numParameter);
-        List<VariableReference> objects = test.getObjects(parameter.getType(),
-                getPosition());
+
+        List<VariableReference> objects = test.getObjects(parameter.getType(),getPosition());
         objects.remove(parameter);
         objects.remove(getReturnValue());
+
         NullStatement nullStatement = new NullStatement(test, parameter.getType());
         Statement copy = null;
 
-        // If it's not a primitive, then changing to null is also an option
-        if (!parameter.isPrimitive())
-            objects.add(nullStatement.getReturnValue());
+        //check if NULL is a valid option
+        Constraints constraint = getConstraints();
+        boolean avoidNull =  constraint!=null && constraint.noNullInputs();
+
+        if(avoidNull){
+            //be sure to remove all references pointing to NULL
+            Iterator<VariableReference> iter = objects.iterator();
+            while(iter.hasNext()){
+                VariableReference ref = iter.next();
+                if(ref instanceof NullReference){
+                    iter.remove();
+                }
+            }
+
+        } else {
+            // If it's not a primitive, then changing to null is also an option
+            if (!parameter.isPrimitive()) {
+                objects.add(nullStatement.getReturnValue());
+            }
+        }
+
 
         // If there are fewer objects than parameters of that type,
         // we consider adding an instance

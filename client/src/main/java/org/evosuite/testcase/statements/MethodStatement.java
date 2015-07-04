@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
+import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.TestCase;
@@ -73,7 +74,8 @@ public class MethodStatement extends EntityWithParametersStatement {
 	 */
 	public MethodStatement(TestCase tc, GenericMethod method, VariableReference callee,
 	        List<VariableReference> parameters) throws IllegalArgumentException {
-		super(tc, method.getReturnType(), parameters);
+		super(tc, method.getReturnType(), parameters,
+				method.getMethod().getAnnotations(),method.getMethod().getParameterAnnotations());
 
 		init(method, callee);
 	}
@@ -104,7 +106,8 @@ public class MethodStatement extends EntityWithParametersStatement {
 	 */
 	public MethodStatement(TestCase tc, GenericMethod method, VariableReference callee,
 	        VariableReference retvar, List<VariableReference> parameters) {
-		super(tc, retvar, parameters);
+		super(tc, retvar, parameters,
+				method.getMethod().getAnnotations(),method.getMethod().getParameterAnnotations());
 
 		if (retvar.getStPosition() >= tc.size()) {
 			//as an old statement should be replaced by this statement
@@ -677,6 +680,11 @@ public class MethodStatement extends EntityWithParametersStatement {
 		if (Randomness.nextDouble() >= Properties.P_CHANGE_PARAMETER)
 			return false;
 
+		Constraints constraint = method.getMethod().getAnnotation(Constraints.class);
+		if(constraint!=null && constraint.notMutable()){
+			return false;
+		}
+
 		List<VariableReference> parameters = getParameterReferences();
 
 		boolean changed = false;
@@ -701,7 +709,7 @@ public class MethodStatement extends EntityWithParametersStatement {
 				changed = true;
 			}
 		}
-		
+
 		for(int numParameter = 0; numParameter < parameters.size(); numParameter++) {
 			if(Randomness.nextDouble() < pParam) {
 				if(mutateParameter(test, numParameter))

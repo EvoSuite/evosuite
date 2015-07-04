@@ -780,17 +780,14 @@ public class TestFactory {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.AbstractTestFactory#changeRandomCall(de.unisb.cs.st.evosuite.testcase.TestCase, de.unisb.cs.st.evosuite.testcase.StatementInterface)
-	 */
+
 	public boolean changeRandomCall(TestCase test, Statement statement) {
 		logger.debug("Changing statement ", statement.getCode());
-		//+ " in test "
+
 		List<VariableReference> objects = test.getObjects(statement.getReturnValue().getStPosition());
 		objects.remove(statement.getReturnValue());
 		// TODO: replacing void calls with other void calls might not be the best idea
-		List<GenericAccessibleObject<?>> calls = getPossibleCalls(statement.getReturnType(),
-		                                                          objects);
+		List<GenericAccessibleObject<?>> calls = getPossibleCalls(statement.getReturnType(), objects);
 
 		GenericAccessibleObject<?> ao = statement.getAccessibleObject();
 		if (ao != null && ao.getNumParameters() > 0) {
@@ -803,11 +800,10 @@ public class TestFactory {
 			logger.debug("No replacement calls");
 			return false;
 		}
+
 		GenericAccessibleObject<?> call = Randomness.choice(calls);
 		try {
 			changeCall(test, statement, call);
-			//logger.debug("Changed to: " + test.toCode());
-
 			return true;
 		} catch (ConstructionFailedException e) {
 			// Ignore
