@@ -4,6 +4,7 @@ import org.evosuite.runtime.annotation.*;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
@@ -221,7 +222,13 @@ public class ConstraintVerifier {
                             if(vr instanceof NullReference){
                                 invalid = true;
                             }
-                            //FIXME check if VariableReferenceImpl
+
+                            if(st instanceof PrimitiveStatement){ //eg for String
+                                Object obj = ((PrimitiveStatement)st).getValue();
+                                if(obj==null){
+                                    invalid = true;
+                                }
+                            }
 
                             if(invalid){
                                 logger.error("'noNullInputs' constraint violated at position "+i+" in test case:\n"+tc.toCode());
