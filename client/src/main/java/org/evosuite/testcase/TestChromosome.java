@@ -33,6 +33,7 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.ConcolicMutation;
+import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testcase.statements.PrimitiveStatement;
@@ -317,6 +318,11 @@ public class TestChromosome extends ExecutableChromosome {
 		for (Statement s : test) {
 			s.isValid();
 		}
+
+		// be sure that mutation did not break any constraint.
+		// if it happens, it means a bug in EvoSuite
+		assert ConstraintVerifier.verifyTest(test);
+		assert ! ConstraintVerifier.hasAnyOnlyForAssertionMethod(test);
 	}
 
 	private int getLastMutatableStatement() {
@@ -339,37 +345,47 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @return
 	 */
 	private boolean mutationDelete() {
+
 		boolean changed = false;
-		int lastMutatableStatement = getLastMutatableStatement();
-		double pl = 1d / (lastMutatableStatement + 1);
+		int lastMutableStatement = getLastMutatableStatement();
+		double pl = 1d / (lastMutableStatement + 1);
 		TestFactory testFactory = TestFactory.getInstance();
 
-		//		for (int num = test.size() - 1; num >= 0; num--) {
-		for (int num = lastMutatableStatement; num >= 0; num--) {
+		for (int num = lastMutableStatement; num >= 0; num--) {
 
 			// Each statement is deleted with probability 1/l
 			if (Randomness.nextDouble() <= pl) {
-				// if(!test.hasReferences(test.getStatement(num).getReturnValue()))
-				// {
-				try {
-					TestCase copy = test.clone();
-					// test_factory.deleteStatement(test, num);
-					changed = true;
-					mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
-					        TestMutationHistoryEntry.TestMutation.DELETION));
-					testFactory.deleteStatementGracefully(copy, num);
-					test = copy;
 
-				} catch (ConstructionFailedException e) {
-					logger.warn("Deletion of statement failed: "
-					        + test.getStatement(num).getCode());
-					logger.warn(test.toCode());
-				}
-				// }
+				changed |= mutateStatement(testFactory, num);
+
 			}
 		}
 
 		return changed;
+	}
+
+	protected boolean mutateStatement(TestFactory testFactory, int num) {
+		if(! ConstraintVerifier.canDelete(test, num)){
+			return false;
+        }
+
+		try {
+
+            TestCase copy = test.clone();
+
+
+            mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
+                    TestMutationHistoryEntry.TestMutation.DELETION));
+            testFactory.deleteStatementGracefully(copy, num);
+
+            test = copy;
+           	return true;
+
+        } catch (ConstructionFailedException e) {
+            logger.warn("Deletion of statement failed: " + test.getStatement(num).getCode());
+            logger.warn(test.toCode());
+			return false; //modifications were on copy
+        }
 	}
 
 	/**
