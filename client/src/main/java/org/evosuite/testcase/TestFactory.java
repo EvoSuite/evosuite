@@ -1139,7 +1139,7 @@ public class TestFactory {
 			}
 			references.addAll(temp);
 		}
-		List<Integer> pos = new ArrayList<Integer>(positions);
+		List<Integer> pos = new ArrayList<>(positions);
 		Collections.sort(pos, Collections.reverseOrder());
 		for (Integer i : pos) {
 			logger.debug("Deleting statement: " + i);

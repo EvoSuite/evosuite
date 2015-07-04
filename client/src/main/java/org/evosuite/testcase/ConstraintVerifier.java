@@ -1,6 +1,7 @@
 package org.evosuite.testcase;
 
 import org.evosuite.runtime.annotation.*;
+import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
@@ -47,7 +48,8 @@ public class ConstraintVerifier {
 
         for(int i=0; i<tc.size(); i++) {
             Statement st = tc.getStatement(i);
-            if (!(st instanceof MethodStatement) && !(st instanceof ConstructorStatement)) {
+
+            if (! canStatementHaveConstraints(st)){
                 continue;
             }
 
@@ -70,6 +72,34 @@ public class ConstraintVerifier {
         return false;
     }
 
+    /**
+     * Can the statement at the given position be deleted?
+     * A case in which it is not possible is for example if it is
+     * using an existing bounded variable
+     *
+     * @param tc
+     * @param pos
+     * @return
+     */
+    public static boolean canDelete(TestCase tc, int pos) throws IllegalArgumentException{
+        Inputs.checkNull(tc);
+
+        Statement st = tc.getStatement(pos);
+
+        if(! canStatementHaveConstraints(st)){
+            return true;
+        }
+
+        for(Annotation[] array : getParameterAnnotations(st)){
+            for(Annotation an : array){
+                if(an instanceof BoundInputVariable){
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 
     public static boolean verifyTest(TestChromosome tc){
         return verifyTest(tc.getTestCase());
@@ -80,7 +110,8 @@ public class ConstraintVerifier {
      * @param tc
      * @return true if the test case does satisfy all the constraints
      */
-    public static boolean verifyTest(TestCase tc){
+    public static boolean verifyTest(TestCase tc) throws IllegalArgumentException{
+        Inputs.checkNull(tc);
 
         Set<Object> seenAtMostOnce = new LinkedHashSet<>();
 
@@ -88,8 +119,7 @@ public class ConstraintVerifier {
         for(int i=0; i<tc.size(); i++){
             Statement st = tc.getStatement(i);
 
-            //constraints are defined only on methods and constructors (eg, no primitive variable field declarations)
-            if(! (st instanceof MethodStatement) && ! (st instanceof ConstructorStatement)){
+            if (! canStatementHaveConstraints(st)){
                 continue;
             }
 
@@ -220,6 +250,35 @@ public class ConstraintVerifier {
         }
 
         return true; //everything was OK
+    }
+
+    private static Annotation[][] getParameterAnnotations(Statement st){
+        if(st instanceof MethodStatement){
+            return ((MethodStatement) st).getMethod().getMethod().getParameterAnnotations();
+        } else if(st instanceof ConstructorStatement){
+            return ((ConstructorStatement)st).getConstructor().getConstructor().getParameterAnnotations();
+        } else {
+            return null;
+        }
+    }
+
+
+    private static AccessibleObject getAccessibleObject(Statement st){
+        if(st instanceof MethodStatement){
+            return ((MethodStatement) st).getMethod().getMethod();
+        } else if(st instanceof ConstructorStatement){
+            return ((ConstructorStatement)st).getConstructor().getConstructor();
+        } else {
+            return null;
+        }
+    }
+
+    private static boolean canStatementHaveConstraints(Statement st) {
+        //constraints are defined only on methods and constructors (eg, no primitive variable field declarations)
+        if(! (st instanceof MethodStatement) && ! (st instanceof ConstructorStatement)){
+            return false;
+        }
+        return true;
     }
 
     private static boolean checkBoundedVariableAtMostOnce(TestCase tc, int i, MethodStatement ms) {

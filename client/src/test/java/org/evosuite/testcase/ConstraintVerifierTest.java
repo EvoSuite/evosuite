@@ -58,6 +58,32 @@ public class ConstraintVerifierTest {
 
 
     @Test
+    public void testCanDelete() throws Exception {
+
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+
+        //initializing bounding variable method called directly after the new
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct", Object.class), Injector.class), 1, 0);
+
+
+        Assert.assertEquals(2, tc.size());
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+
+        Assert.assertTrue(ConstraintVerifier.canDelete(tc.getTestCase(), 0)); //bounded variable can be deleted
+        Assert.assertFalse(ConstraintVerifier.canDelete(tc.getTestCase(), 1)); // method using bounded variable should be deleted
+
+        boolean mutated = tc.mutateStatement(factory,0);
+        Assert.assertTrue(mutated);
+        Assert.assertEquals(0, tc.size());// deleting first statement should have had effect of removing the second as well
+    }
+
+
+    @Test
     public void testInitializingBoundedVariable_wrong_callingMethodsBeforeInit() throws Exception {
         TestChromosome tc = new TestChromosome();
         TestFactory factory = TestFactory.getInstance();
