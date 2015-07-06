@@ -303,8 +303,9 @@ public class ConstraintVerifier {
                                 invalid = true;
                             }
 
-                            if(st instanceof PrimitiveStatement){ //eg for String
-                                Object obj = ((PrimitiveStatement)st).getValue();
+                            Statement varSource = tc.getStatement(vr.getStPosition());
+                            if(varSource instanceof PrimitiveStatement){ //eg for String
+                                Object obj = ((PrimitiveStatement)varSource).getValue();
                                 if(obj==null){
                                     invalid = true;
                                 }
@@ -586,7 +587,7 @@ public class ConstraintVerifier {
             //look at all the other statements
             for(int j=0; j<tc.size(); j++) {
                 Statement other = tc.getStatement(j);
-                if (j==i || !(st instanceof MethodStatement)) {
+                if (j==i || !(other instanceof MethodStatement)) {
                     continue;
                 }
                 MethodStatement oms = (MethodStatement) other;
