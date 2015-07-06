@@ -114,7 +114,7 @@ public class ConstraintVerifier {
      */
     public static int getAValidPositionForInsertion(GenericAccessibleObject<?> obj, TestCase tc, int lastValid) throws IllegalArgumentException{
         Inputs.checkNull(obj,tc);
-        
+
         Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
         if(constraints == null){
             return Randomness.nextInt(0,lastValid);
