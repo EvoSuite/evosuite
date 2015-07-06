@@ -327,7 +327,7 @@ public class TestFactory {
 		FieldReference fieldVar = new FieldReference(test, field, callee);
 		int length = test.size();
 		VariableReference value = createOrReuseVariable(test, fieldVar.getType(),
-		                                                position, 0, callee, true);
+				position, 0, callee, true);
 
 		int newLength = test.size();
 		position += (newLength - length);
@@ -844,7 +844,7 @@ public class TestFactory {
 
 		// For each value of array, call attemptGeneration
 		List<VariableReference> objects = test.getObjects(reference.getComponentType(),
-		                                                  position);
+				position);
 
 		// Don't assign values to other values in the same array initially
 		Iterator<VariableReference> iterator = objects.iterator();
@@ -952,7 +952,7 @@ public class TestFactory {
 	        int recursionDepth) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz,
-		                                                                            currentRecursion);
+				currentRecursion);
 
 		currentRecursion.add(o);
 		if (o == null) {
@@ -1468,7 +1468,71 @@ public class TestFactory {
     }
 
 	/**
-	 * Insert a random call at given position
+	 *
+	 * @param test
+	 * @param lastValidPosition
+	 * @return the position where the insertion happened, or a negative value otherwise
+	 */
+	public int insertRandomCallOnEnvironment(TestCase test, int lastValidPosition){
+
+		int previousLength = test.size();
+		currentRecursion.clear();
+
+		List<GenericAccessibleObject<?>> shuffledOptions = TestCluster.getInstance().getRandomizedCallsToEnvironment();
+		if(shuffledOptions==null || shuffledOptions.isEmpty()){
+			return -1;
+		}
+
+		//iterate (in random order) over all possible environment methods till we find one that can be inserted
+		for(GenericAccessibleObject<?> o : shuffledOptions) {
+			try {
+				int position = ConstraintVerifier.getAValidPositionForInsertion(o,test,lastValidPosition);
+
+				if (o.isConstructor()) {
+					GenericConstructor c = (GenericConstructor) o;
+					addConstructor(test, c, position, 0);
+					return position;
+				} else if (o.isMethod()) {
+					GenericMethod m = (GenericMethod) o;
+					if (!m.isStatic()) {
+
+						VariableReference callee = null;
+						Type target = m.getOwnerType();
+
+						if (!test.hasObject(target, position)) {
+							callee = createObject(test, target, position, 0);
+							position += test.size() - previousLength;
+							previousLength = test.size();
+						} else {
+							callee = test.getRandomNonNullObject(target, position);
+						}
+						if (!TestUsageChecker.canUse(m.getMethod(), callee.getVariableClass())) {
+							logger.error("Cannot call method " + m + " with callee of type " + callee.getClassName());
+						}
+
+						addMethodFor(test, callee, m.copyWithNewOwner(callee.getGenericClass()), position);
+						return position;
+					} else {
+						addMethod(test, m, position, 0);
+						return position;
+					}
+				} else {
+					throw new RuntimeException("Unrecognized type for environment: " + o);
+				}
+			} catch (ConstructionFailedException e){
+				//TODO what to do here?
+				logger.error("Failed environment insertion: "+e, e);
+			}
+		}
+
+		//note: due to the constraints, it could well be that no environment method could be added
+
+		return -1;
+	}
+
+
+	/**
+	 * Insert a random call for the UUT at the given position
 	 *
 	 * @param test
 	 * @param position

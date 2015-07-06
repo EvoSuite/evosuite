@@ -8,6 +8,8 @@ import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,6 +102,84 @@ public class ConstraintVerifier {
         }
 
         return true;
+    }
+
+    /**
+     *
+     * @param obj
+     * @param tc
+     * @param lastValid
+     * @return position where the object can be inserted, otherwise a negative value if no insertion is possible
+     * @throws IllegalArgumentException
+     */
+    public static int getAValidPositionForInsertion(GenericAccessibleObject<?> obj, TestCase tc, int lastValid) throws IllegalArgumentException{
+        Inputs.checkNull(obj,tc);
+        
+        Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
+        if(constraints == null){
+            return Randomness.nextInt(0,lastValid);
+        }
+
+        Class<?> declaringClass = obj.getDeclaringClass();
+        String declaringClassName = declaringClass.getCanonicalName();
+        String name = obj.getName();
+
+        //check atMostOnce
+        if(constraints.atMostOnce()){
+            int counter = ConstraintHelper.countNumberOfMethodCalls(tc,declaringClass,name);
+            if(counter == 1){
+                //cannot insert it again
+                return -1;
+            } else if(counter > 1){
+                throw new RuntimeException("Violated 'atMostOnce' constraint for "+obj.getName());
+            }
+        }
+
+        //excludeOthers
+        List<String[]> othersExcluded = ConstraintHelper.getExcludedMethods(tc);
+        if(othersExcluded != null && othersExcluded.size() > 0){
+            for(String[] pair : othersExcluded){
+                if(pair[0].equals(declaringClassName) && pair[1].equals(name)){
+                    //this method/constructor cannot be added
+                    return -1;
+                }
+            }
+        }
+
+        //dependOnProperties
+        String[] properties = constraints.dependOnProperties();
+        if(properties!=null && properties.length>0){
+            for(String property : properties){
+                if(! tc.getAccessedEnvironment().hasProperty(property)){
+                    return -1;
+                }
+            }
+        }
+
+        //after
+        int minPos = 0;
+        String after = constraints.after();
+        if(after!=null && !after.isEmpty()){
+            String[] pair = ConstraintHelper.getClassAndMethod(after,declaringClass);
+
+            int afterPos = ConstraintHelper.getLastPositionOfMethodCall(tc,pair[0],pair[1],lastValid);
+            if(afterPos < 0){
+                /*
+                    The current method cannot be inserted, because it has to be 'after' X, but X is not in the test
+                 */
+                return -1;
+            }
+            minPos = afterPos+1;
+        }
+
+        //TODO
+        //bounded
+
+        if(minPos > 0) {
+            return minPos; //try to add immediately 'after' the constraining method
+        } else {
+            return Randomness.nextInt(0,lastValid);
+        }
     }
 
     public static boolean verifyTest(TestChromosome tc){
@@ -431,7 +511,7 @@ public class ConstraintVerifier {
     private static boolean checkAfter(TestCase tc, int i, Class<?> declaringClass, Constraints c) {
         String after = c.after();
 
-        String[] klassAndMethod = getClassAndMethod(after,declaringClass);
+        String[] klassAndMethod = ConstraintHelper.getClassAndMethod(after, declaringClass);
         String afterKlassName = klassAndMethod[0];
         String afterMethodName = klassAndMethod[1];
 
@@ -471,26 +551,12 @@ public class ConstraintVerifier {
     }
 
 
-    private static String[] getClassAndMethod(String s, Class<?> c){
-        String klassName = null;
-        String methodName = null;
-        if(s.contains("#")){
-            int pos = s.indexOf('#');
-            klassName = s.substring(0,pos);
-            methodName = s.substring(pos+1,s.length());
-        } else {
-            klassName = c.getCanonicalName();
-            methodName = s;
-        }
-        return new String[]{klassName,methodName};
-    }
-
     private static boolean checkExcludeOthers(TestCase tc, int i, Class<?> declaringClass, Constraints c) {
 
         Statement st = tc.getStatement(i);
 
         for(String excluded : c.excludeOthers()){
-            String[] klassAndMethod = getClassAndMethod(excluded,declaringClass);
+            String[] klassAndMethod = ConstraintHelper.getClassAndMethod(excluded, declaringClass);
             String klassName = klassAndMethod[0];
             String excludedName = klassAndMethod[1];
 
