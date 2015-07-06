@@ -63,10 +63,12 @@ public class VarMap {
 			// assert map.containsKey(type);
 			if (map.containsKey(type))
 				return map.get(type);
-			else
+			else {
+				//FIXME: (wrong) tmp workaround, as WildcardTypeImpl does crash EvoSuite
+				return Object.class;
 				// TODO: Bounds should be mapped, but might be recursive so we just use unbounded for now
-				return new WildcardTypeImpl(new Type[] { Object.class }, new Type[] {});
-
+				//return new WildcardTypeImpl(new Type[]{Object.class}, new Type[]{});
+			}
 		} else if (type instanceof ParameterizedType) {
 			ParameterizedType pType = (ParameterizedType) type;
 			return new ParameterizedTypeImpl((Class<?>) pType.getRawType(),
