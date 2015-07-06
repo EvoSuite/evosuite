@@ -3,10 +3,7 @@ package org.evosuite.setup;
 import org.evosuite.Properties;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.System;
-import org.evosuite.runtime.annotation.EvoSuiteAssertionOnly;
-import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
-import org.evosuite.runtime.annotation.EvoSuiteExclude;
-import org.evosuite.runtime.annotation.EvoSuiteInclude;
+import org.evosuite.runtime.annotation.*;
 import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.testdata.*;
@@ -107,19 +104,20 @@ public class EnvironmentTestClusterAugmenter {
 
         if(!hasAddedServlet && TestDataJavaEE.getInstance().isWasAServletInitialized()){
             hasAddedServlet = true;
-            addEvoClassToCluster(EvoServletState.class);
+            addEnvironmentClassToCluster(EvoServletState.class);
         }
 
         //TODO TestDataJavaEE data
     }
 
     /**
-     * Not only add the given klass, but also recursively all the other EvoSuite classes for
+     * Add the given klass to the test cluster.
+     * Also recursively add (as modifiers) all the other EvoSuite classes for
      * which the given class is a generator
      *
      * @param klass
      */
-    private void addEvoClassToCluster(Class<?> klass) {
+    private void addEnvironmentClassToCluster(Class<?> klass) {
         if(handledClasses.contains(klass.getCanonicalName()) || !TestClusterUtils.isEvoSuiteClass(klass)){
             return; //already handled, or not valid
         }
@@ -136,7 +134,7 @@ public class EnvironmentTestClusterAugmenter {
             }
 
             GenericAccessibleObject gc = new GenericConstructor(c,klass);
-            TestCluster.getInstance().addTestCall(gc);
+            TestCluster.getInstance().addEnvironmentTestCall(gc);
             TestCluster.getInstance().addGenerator(new GenericClass(klass),gc);
         }
 
@@ -146,11 +144,38 @@ public class EnvironmentTestClusterAugmenter {
             }
 
             GenericAccessibleObject gm = new GenericMethod(m,klass);
-            TestCluster.getInstance().addTestCall(gm);
+            TestCluster.getInstance().addEnvironmentTestCall(gm);
             Class<?> returnType = m.getReturnType();
             if(! returnType.equals(Void.TYPE)){
                 TestCluster.getInstance().addGenerator(new GenericClass(returnType),gm);
-                addEvoClassToCluster(returnType);
+                addEnvironmentDependency(returnType);
+            }
+        }
+    }
+
+    private void addEnvironmentDependency(Class<?> klass){
+        if(handledClasses.contains(klass.getCanonicalName()) || !TestClusterUtils.isEvoSuiteClass(klass)){
+            return; //already handled, or not valid
+        }
+
+        handledClasses.add(klass.getCanonicalName());
+        boolean excludeClass = klass.getAnnotation(EvoSuiteClassExclude.class) != null;
+        //do not consider constructors
+
+        for(Method m : klass.getMethods()){
+            if (shouldSkip(excludeClass, m)){
+                continue;
+            }
+
+            GenericAccessibleObject gm = new GenericMethod(m,klass);
+            GenericClass gc = new GenericClass(klass);
+            TestCluster.getInstance().addModifier(gc,gm);
+
+            Class<?> returnType = m.getReturnType();
+
+            if(! returnType.equals(Void.TYPE)){
+                TestCluster.getInstance().addGenerator(new GenericClass(returnType),gm);
+                addEnvironmentDependency(returnType);
             }
         }
     }
@@ -168,6 +193,12 @@ public class EnvironmentTestClusterAugmenter {
                 return true;
             }
         }
+
+        Constraints constraints = c.getAnnotation(Constraints.class);
+        if(constraints!=null && constraints.noDirectInsertion()){
+            return true;
+        }
+
         return false;
     }
 

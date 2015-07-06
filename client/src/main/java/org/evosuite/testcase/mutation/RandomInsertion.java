@@ -33,25 +33,44 @@ public class RandomInsertion implements InsertionStrategy {
 
 		int position = 0;
 
+		assert Properties.INSERTION_UUT + Properties.INSERTION_ENVIRONMENT + Properties.INSERTION_PARAMETER == 1.0;
+
+		boolean insertUUT = Properties.INSERTION_UUT > 0 &&
+				r <= Properties.INSERTION_UUT && TestCluster.getInstance().getNumTestCalls() > 0 ;
+
+		boolean insertEnv = !insertUUT && Properties.INSERTION_ENVIRONMENT > 0 &&
+				r > Properties.INSERTION_UUT && r <= Properties.INSERTION_UUT+Properties.INSERTION_ENVIRONMENT &&
+				TestCluster.getInstance().getNumOfEnvironmentCalls() > 0;
+
+		boolean insertParam = !insertUUT && !insertEnv;
+
+
 		boolean success = false;
-		if (r <= Properties.INSERTION_UUT && TestCluster.getInstance().getNumTestCalls() > 0) {
+		if (insertUUT) {
 			// Insert a call to the UUT at the end
 			position = test.size();
 			success = TestFactory.getInstance().insertRandomCall(test, position);
 			if (test.size() - oldSize > 1) {
 				position += (test.size() - oldSize - 1);
 			}
-		} else {
+		} else if (insertEnv) {
+			/*
+				Insert a call to the environment. As such call is likely to depend on many constraints,
+				we do not specify here the position of where it ll happen.
+			 */
+			position = TestFactory.getInstance().insertRandomCallOnEnvironment(test,lastPosition);
+			success = (position >= 0);
+		} else if (insertParam){
 			// Insert a call to a parameter
 
 			VariableReference var = selectRandomVariableForCall(test, lastPosition);
 			if (var != null) {
 				int lastUsage = var.getStPosition();
-				for(VariableReference usage : test.getReferences(var)) {
-					if(usage.getStPosition() > lastUsage)
+				for (VariableReference usage : test.getReferences(var)) {
+					if (usage.getStPosition() > lastUsage)
 						lastUsage = usage.getStPosition();
 				}
-				if(lastUsage != var.getStPosition())
+				if (lastUsage != var.getStPosition())
 					position = Randomness.nextInt(var.getStPosition(), lastUsage);
 				else
 					position = lastUsage;
@@ -59,9 +78,9 @@ public class RandomInsertion implements InsertionStrategy {
 						+ var.getName() + ", distance: " + var.getDistance() + ", class: "
 						+ var.getClassName());
 				success = TestFactory.getInstance().insertRandomCallOnObjectAt(test, var, position);
-			} 
+			}
 
-			if(!success && TestCluster.getInstance().getNumTestCalls() > 0) {
+			if (!success && TestCluster.getInstance().getNumTestCalls() > 0) {
 				logger.debug("Adding new call on UUT because var was null");
 				position = Randomness.nextInt(max);
 				success = TestFactory.getInstance().insertRandomCall(test, position);
@@ -69,7 +88,6 @@ public class RandomInsertion implements InsertionStrategy {
 			if (test.size() - oldSize > 1) {
 				position += (test.size() - oldSize - 1);
 			}
-
 		}
 
 		if (success)
