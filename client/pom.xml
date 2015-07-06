@@ -112,6 +112,16 @@
             <artifactId>jboss-servlet-api_3.1_spec</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>core</artifactId>
+            <version>3.2.0.658</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>core</artifactId>
+            <version>3.2.0.658</version>
+        </dependency>
 
 
     </dependencies>
