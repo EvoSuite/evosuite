@@ -115,7 +115,6 @@ public class TestFactory {
 		} catch (ConstructionFailedException e) {
 			// TODO: Check this!
 			logger.debug("Inserting call " + call + " has failed. Removing statements");
-			// System.out.println("TG: Failed");
 			// TODO: Doesn't work if position != test.size()
 			int lengthDifference = test.size() - previousLength;
 			for (int i = lengthDifference - 1; i >= 0; i--) { //we need to remove them in order, so that the testcase is at all time consistent
@@ -359,10 +358,12 @@ public class TestFactory {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException("Max recursion depth reached");
 		}
+
 		logger.debug("Adding method " + method);
 		int length = test.size();
 		VariableReference callee = null;
 		List<VariableReference> parameters = null;
+
 		try {
 			if (!method.isStatic()) {
 				callee = createOrReuseVariable(test, method.getOwnerType(), position,
@@ -1164,8 +1165,7 @@ public class TestFactory {
 	}
 
 
-	private static void filterVariablesByClass(Collection<VariableReference> variables,
-	        Class<?> clazz) {
+	private static void filterVariablesByClass(Collection<VariableReference> variables, Class<?> clazz) {
 		// Remove invalid classes if this is an Object.class reference
 		Iterator<VariableReference> replacement = variables.iterator();
 		while (replacement.hasNext()) {
@@ -1175,9 +1175,6 @@ public class TestFactory {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.AbstractTestFactory#deleteStatementGracefully(de.unisb.cs.st.evosuite.testcase.TestCase, int)
-	 */
 	public void deleteStatementGracefully(TestCase test, int position)
 	        throws ConstructionFailedException {
 		VariableReference var = test.getReturnValue(position);
@@ -1228,8 +1225,7 @@ public class TestFactory {
 		}
 
 		if (!alternatives.isEmpty()) {
-			// Change all references to return value at position to something
-			// else
+			// Change all references to return value at position to something else
 			for (int i = position + 1; i < test.size(); i++) {
 				Statement s = test.getStatement(i);
 				if (s.references(var)) {
@@ -1268,8 +1264,7 @@ public class TestFactory {
 				}
 			}
 			if (!alternatives.isEmpty()) {
-				// Change all references to return value at position to something
-				// else
+				// Change all references to return value at position to something else
 				for (int i = position; i < test.size(); i++) {
 					Statement s = test.getStatement(i);
 					for (VariableReference var2 : s.getVariableReferences()) {
@@ -1711,9 +1706,7 @@ public class TestFactory {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.AbstractTestFactory#insertRandomStatement(de.unisb.cs.st.evosuite.testcase.TestCase)
-	 */
+
 	public int insertRandomStatement(TestCase test, int lastPosition) {
 		RandomInsertion rs = new RandomInsertion();
 		return rs.insertStatement(test, lastPosition);
@@ -1733,7 +1726,8 @@ public class TestFactory {
 	private List<VariableReference> satisfyParameters(TestCase test,
 	        VariableReference callee, List<Type> parameterTypes, int position,
 	        int recursionDepth) throws ConstructionFailedException {
-		List<VariableReference> parameters = new ArrayList<VariableReference>();
+
+		List<VariableReference> parameters = new ArrayList<>();
 		logger.debug("Trying to satisfy " + parameterTypes.size() + " parameters");
 		for (Type parameterType : parameterTypes) {
 			logger.debug("Current parameter type: " + parameterType);
