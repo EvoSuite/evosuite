@@ -1,6 +1,7 @@
 package org.evosuite.idNaming;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -8,6 +9,7 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
+
 
 
 public class ExceptionExtraction 

@@ -73,4 +73,5 @@ public class TestIDNaming extends SystemTest {
 		Assert.assertEquals("Wrong number of goals: ", 7, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
+
 }

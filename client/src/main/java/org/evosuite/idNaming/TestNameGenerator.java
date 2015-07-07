@@ -2,11 +2,13 @@ package org.evosuite.idNaming;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -42,18 +44,64 @@ public class TestNameGenerator {
 	
 	
 	
-	public  static String generateTestName(String targetMethod, TestCase tc, ExecutionResult result) {
+	public  static String generateTestName(String targetMethod, TestCase tc, ExecutionResult result, Integer num) {
 		String testName = "";
 		System.out.println(testName);
 		String code =tc.toCode().toString();
 		hasExceptions= new ExceptionExtraction(code);
 		if (hasExceptions.get_exceptions()>0){
 			//get method under test name
-			//List<? extends TestFitnessFunction> goals=FitnessFunctions.getFitnessFactory(Properties.Criterion.BRANCH).getCoverageGoals();
-			testName=targetMethod+"_throwsException ";
+			List<? extends TestFitnessFunction> goals=TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
+			testName =goals.toString();
+			String goalNames[]=testName.split(", ");
+			//goalNames=goals.toArray(goalNames);
+			int i=0;
+			testName="test";
+			for(String goal: goalNames){
+				
+				testName+="_"+goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("("));
+				if(goal.contains("root-Branch")){
+					
+				}
+				if(goal.contains("Branch") && goal.contains(" - true")){
+					testName+="(true)";
+				}
+				if(goal.contains("Branch") && goal.contains(" - false")){
+					testName+="(false)";
+				}
+				i++;		
+			}
+			testName+="_throwsException";
 		} else{
 			//get method under test name
 			testName=targetMethod;
+			//List<? extends TestFitnessFunction> goals=TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
+			Set<? extends TestFitnessFunction> goals = tc.getCoveredGoals();
+			testName =goals.toString();
+			String goalNames[]=testName.split(", ");
+			//goalNames=goals.toArray(goalNames);
+			int i=0;
+			testName="test";
+			for(String goal: goalNames){
+				
+				testName+="_"+goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("("));
+				if(goal.contains("root-Branch")){
+					
+				}
+				if(goal.contains("Branch") && goal.contains(" - true")){
+					testName+="(true)";
+				}
+				if(goal.contains("Branch") && goal.contains(" - false")){
+					testName+="(false)";
+				}
+				i++;				
+			}
+
+			testName = testName.replace("<","").replace(">","").replace("(","_").replace(")","_");
+			//testName = testName + num;
+			System.out.println(testName);
+		//	testName=goals.toString();
+			
 			//List<? extends TestFitnessFunction> goals=FitnessFunctions.getFitnessFactory(Properties.Criterion.BRANCH).getCoverageGoals();					                                    
 			
 		}	
