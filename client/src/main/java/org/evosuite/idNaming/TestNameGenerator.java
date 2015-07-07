@@ -2,6 +2,7 @@ package org.evosuite.idNaming;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
@@ -74,7 +75,8 @@ public class TestNameGenerator {
 		} else{
 			//get method under test name
 			testName=targetMethod;
-			List<? extends TestFitnessFunction> goals=TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
+			//List<? extends TestFitnessFunction> goals=TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
+			Set<? extends TestFitnessFunction> goals = tc.getCoveredGoals();
 			testName =goals.toString();
 			String goalNames[]=testName.split(", ");
 			//goalNames=goals.toArray(goalNames);
@@ -94,6 +96,9 @@ public class TestNameGenerator {
 				}
 				i++;				
 			}
+
+			testName = testName.replace("<","").replace(">","").replace("(","_").replace(")","_");
+			//testName = testName + num;
 			System.out.println(testName);
 		//	testName=goals.toString();
 			
