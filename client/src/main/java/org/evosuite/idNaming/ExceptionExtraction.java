@@ -1,7 +1,7 @@
 package org.evosuite.idNaming;
 
 import org.apache.commons.lang3.StringUtils;
-/*
+
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -9,7 +9,7 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
-*/
+
 
 
 public class ExceptionExtraction 
@@ -20,7 +20,7 @@ public class ExceptionExtraction
     	total_exceptions=0;
     	//set_extractions(source);
     }
-    /*public void set_extractions(String source) {
+    public void set_extractions(String source) {
     	
     	ASTParser metparse = ASTParser.newParser(AST.JLS3);
     	metparse.setSource(source.toCharArray());
@@ -38,7 +38,7 @@ public class ExceptionExtraction
     	   });
     	
     }
-    */
+
 	public int get_exceptions(){
     	return total_exceptions;
     }

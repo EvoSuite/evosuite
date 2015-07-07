@@ -1,12 +1,12 @@
 package org.evosuite.idNaming;
 
-/*
+
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-*/
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +28,7 @@ public class MethodInvExtraction
         
     }
 
-/*    public void setMethods(String str) {
+    public void setMethods(String str) {
         String source="";
 		String[] lines=str.split("\n");
 		
@@ -59,7 +59,7 @@ public class MethodInvExtraction
             }
         });
 		
-    }*/
+    }
     public String[] get_method_names(){
     	return method_names;
     }
