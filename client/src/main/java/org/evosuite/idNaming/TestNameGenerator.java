@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -49,11 +50,53 @@ public class TestNameGenerator {
 		hasExceptions= new ExceptionExtraction(code);
 		if (hasExceptions.get_exceptions()>0){
 			//get method under test name
-			//List<? extends TestFitnessFunction> goals=FitnessFunctions.getFitnessFactory(Properties.Criterion.BRANCH).getCoverageGoals();
-			testName=targetMethod+"_throwsException" + num;
+			List<? extends TestFitnessFunction> goals=TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
+			testName =goals.toString();
+			String goalNames[]=testName.split(", ");
+			//goalNames=goals.toArray(goalNames);
+			int i=0;
+			testName="test";
+			for(String goal: goalNames){
+				
+				testName+="_"+goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("("));
+				if(goal.contains("root-Branch")){
+					
+				}
+				if(goal.contains("Branch") && goal.contains(" - true")){
+					testName+="(true)";
+				}
+				if(goal.contains("Branch") && goal.contains(" - false")){
+					testName+="(false)";
+				}
+				i++;		
+			}
+			testName+="_throwsException";
 		} else{
 			//get method under test name
-			testName=targetMethod + num;
+			testName=targetMethod;
+			List<? extends TestFitnessFunction> goals=TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
+			testName =goals.toString();
+			String goalNames[]=testName.split(", ");
+			//goalNames=goals.toArray(goalNames);
+			int i=0;
+			testName="test";
+			for(String goal: goalNames){
+				
+				testName+="_"+goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("("));
+				if(goal.contains("root-Branch")){
+					
+				}
+				if(goal.contains("Branch") && goal.contains(" - true")){
+					testName+="(true)";
+				}
+				if(goal.contains("Branch") && goal.contains(" - false")){
+					testName+="(false)";
+				}
+				i++;				
+			}
+			System.out.println(testName);
+		//	testName=goals.toString();
+			
 			//List<? extends TestFitnessFunction> goals=FitnessFunctions.getFitnessFactory(Properties.Criterion.BRANCH).getCoverageGoals();					                                    
 			
 		}	
