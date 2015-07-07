@@ -21,11 +21,6 @@
 			<artifactId>evosuite-runtime</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-        <dependency>
-            <groupId>org.evosuite</groupId>
-            <artifactId>evosuite-dsc</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
 
         <!-- Third-party modules -->
@@ -110,7 +105,7 @@
         <dependency>
             <groupId>org.jboss.spec.javax.servlet</groupId>
             <artifactId>jboss-servlet-api_3.1_spec</artifactId>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
 
 

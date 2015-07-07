@@ -40,10 +40,17 @@ public class RuntimeSettings {
      */
     public static boolean useVNET = false;
 
+
+    /**
+     * Shall we have support for Java Enterprise Edition?
+     */
+    public static boolean useJEE = false;
+
     /**
      * Should the static state be reset after each test execution?
      */
     public static boolean resetStaticState = false;
+
 
     /**
      * How is the sandbox configured?
@@ -59,7 +66,7 @@ public class RuntimeSettings {
     /**
      * How many iterations is each loop allowed to take?
      */
-    public static long maxNumberOfIterationsPerLoop = 100_000;
+    public static long maxNumberOfIterationsPerLoop = 10_000;
 
     /**
      * Should tests be executed in a separate instrumenting class loader

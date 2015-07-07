@@ -21,26 +21,22 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.expr.bv.IntegerVariable;
-import org.evosuite.symbolic.expr.fp.RealVariable;
-import org.evosuite.symbolic.expr.str.StringConstant;
-import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
-import org.evosuite.symbolic.solver.smt.SmtConstant;
-import org.evosuite.symbolic.solver.smt.SmtConstantCollector;
+import org.evosuite.symbolic.solver.smt.SmtAssertion;
+import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
+import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
-import org.evosuite.symbolic.solver.smt.SmtExprPrinter;
+import org.evosuite.symbolic.solver.smt.SmtFunctionDefinition;
 import org.evosuite.symbolic.solver.smt.SmtIntVariable;
 import org.evosuite.symbolic.solver.smt.SmtOperation;
 import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
 import org.evosuite.symbolic.solver.smt.SmtOperatorCollector;
 import org.evosuite.symbolic.solver.smt.SmtRealVariable;
-import org.evosuite.symbolic.solver.smt.SmtStringConstant;
 import org.evosuite.symbolic.solver.smt.SmtStringVariable;
-import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.evosuite.symbolic.solver.smt.SmtVariable;
+import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.utils.Utils;
@@ -98,21 +94,96 @@ public class Z3Str2Solver extends Solver {
 		return dir;
 	}
 
+	private static SmtCheckSatQuery buildSmtQuerty(
+			Collection<Constraint<?>> constraints) {
+
+		ConstraintToZ3Str2Visitor v = new ConstraintToZ3Str2Visitor();
+		List<SmtAssertion> assertions = new LinkedList<SmtAssertion>();
+
+		SmtVariableCollector varCollector = new SmtVariableCollector();
+		SmtOperatorCollector opCollector = new SmtOperatorCollector();
+
+		for (Constraint<?> c : constraints) {
+			SmtExpr smtExpr = c.accept(v, null);
+			if (smtExpr != null) {
+				SmtAssertion newAssertion = new SmtAssertion(smtExpr);
+				assertions.add(newAssertion);
+				smtExpr.accept(varCollector, null);
+				smtExpr.accept(opCollector, null);
+			}
+		}
+
+		Set<SmtVariable> smtVariables = varCollector.getSmtVariables();
+		Set<Operator> smtOperators = opCollector.getOperators();
+
+		boolean addCharToIntFunction;
+		if (smtOperators.contains(SmtOperation.Operator.CHAR_TO_INT)) {
+			addCharToIntFunction = true;
+		} else {
+			addCharToIntFunction = false;
+		}
+
+		Set<SmtVariable> smtVariablesToDeclare = new HashSet<SmtVariable>(
+				smtVariables);
+		if (addCharToIntFunction) {
+			Set<SmtStringVariable> charVariables = buildCharVariables();
+			smtVariablesToDeclare.addAll(charVariables);
+		}
+
+		List<SmtConstantDeclaration> constantDeclarations = new LinkedList<SmtConstantDeclaration>();
+
+		for (SmtVariable v1 : smtVariablesToDeclare) {
+			String varName = v1.getName();
+			if (v1 instanceof SmtIntVariable) {
+				SmtConstantDeclaration constantDecl = SmtExprBuilder
+						.mkIntConstantDeclaration(varName);
+				constantDeclarations.add(constantDecl);
+			} else if (v1 instanceof SmtRealVariable) {
+				SmtConstantDeclaration constantDecl = SmtExprBuilder
+						.mkRealConstantDeclaration(varName);
+				constantDeclarations.add(constantDecl);
+			} else if (v1 instanceof SmtStringVariable) {
+				SmtConstantDeclaration constantDecl = SmtExprBuilder
+						.mkStringConstantDeclaration(varName);
+				constantDeclarations.add(constantDecl);
+			} else {
+				throw new RuntimeException("Unknown variable type "
+						+ v1.getClass().getCanonicalName());
+			}
+		}
+
+		List<SmtFunctionDefinition> functionDefinitions = new LinkedList<SmtFunctionDefinition>();
+		if (addCharToIntFunction) {
+			String charToInt = buildCharToIntFunction();
+			SmtFunctionDefinition newFunctionDef = new SmtFunctionDefinition(
+					charToInt);
+			functionDefinitions.add(newFunctionDef);
+		}
+
+		SmtCheckSatQuery smtCheckSatQuery = new SmtCheckSatQuery(
+				constantDeclarations, functionDefinitions, assertions);
+
+		return smtCheckSatQuery;
+
+	}
+
 	@Override
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
 			throws ConstraintSolverTimeoutException {
 
-		Set<Variable<?>> variables = getVariables(constraints);
+		SmtCheckSatQuery smtCheckSatQuery = buildSmtQuerty(constraints);
 
-		String smtQuery = buildSmtQuery(constraints);
-
-		if (smtQuery == null) {
-			logger.warn("No variables found during constraint solving. Returning NULL as solution");
+		if (smtCheckSatQuery.getConstantDeclarations().isEmpty()) {
+			logger.debug("Z3-str2 input has no variables");
+			logger.debug("returning NULL as default value");
 			return null;
 		}
+		
+		Z3Str2QueryPrinter printer = new Z3Str2QueryPrinter();
+		String smtQueryStr = printer.print(smtCheckSatQuery);
 
-		System.out.println("Z3 input:");
-		System.out.println(smtQuery);
+		System.out.println("Z3-str2 input:");
+		System.out.println(smtQueryStr);
 
 		int timeout = (int) Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
 
@@ -127,41 +198,43 @@ public class Z3Str2Solver extends Solver {
 		}
 
 		try {
-			Utils.writeFile(smtQuery, z3TempFileName);
+			Utils.writeFile(smtQueryStr, z3TempFileName);
 			String z3Cmd = Properties.Z3_STR2_PATH + " -f " + z3TempFileName;
 			ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-			launchNewProcess(z3Cmd, smtQuery, timeout, stdout);
+			launchNewProcess(z3Cmd, smtQueryStr, timeout, stdout);
 
 			String z3ResultStr = stdout.toString("UTF-8");
 
 			if (z3ResultStr.contains("unknown sort")) {
 				logger.debug("Z3_str2 output was " + z3ResultStr);
 				throw new EvosuiteError(
-						"Z3_str2 found an unknown sort for query: " + smtQuery);
+						"Z3_str2 found an unknown sort for query: "
+								+ smtQueryStr);
 			}
 
 			if (z3ResultStr.contains("unknown constant")) {
 				logger.debug("Z3_str2 output was " + z3ResultStr);
 				throw new EvosuiteError(
 						"Z3_str2 found an unknown constant for query: "
-								+ smtQuery);
+								+ smtQueryStr);
 			}
 
 			if (z3ResultStr.contains("invalid expression")) {
 				logger.debug("Z3_str2 output was " + z3ResultStr);
 				throw new EvosuiteError(
 						"Z3_str2 found an invalid expression for query: "
-								+ smtQuery);
+								+ smtQueryStr);
 			}
 
 			if (z3ResultStr.contains("unexpected input")) {
 				logger.debug("Z3_str2 output was " + z3ResultStr);
 				throw new EvosuiteError(
 						"Z3_str2 found an unexpected input for query: "
-								+ smtQuery);
+								+ smtQueryStr);
 			}
 
 			Z3Str2ModelParser parser = new Z3Str2ModelParser();
+			Set<Variable<?>> variables = getVariables(constraints);
 			Map<String, Object> initialValues = getConcreteValues(variables);
 			Map<String, Object> solution;
 			if (addMissingVariables()) {
@@ -170,10 +243,14 @@ public class Z3Str2Solver extends Solver {
 				solution = parser.parse(z3ResultStr);
 			}
 
-			if (solution != null && checkSolution(constraints, solution))
-				return solution;
-			else
+			// check solution is correct
+			boolean check = checkSolution(constraints, solution);
+			if (!check) {
+				logger.debug("Z3-str2 solution does not solve the constraint system!");
 				return null;
+			}
+
+			return solution;
 
 		} catch (UnsupportedEncodingException e) {
 			throw new EvosuiteError("UTF-8 should not cause this exception!");
@@ -186,65 +263,6 @@ public class Z3Str2Solver extends Solver {
 				tempFile.delete();
 			}
 		}
-	}
-
-	private static String mkAssert(String constraintStr) {
-		return "(assert " + constraintStr + ")";
-	}
-
-	private static String declareStringConst(String varName) {
-		return "(declare-const " + varName + " String)";
-	}
-
-	private static String declareRealConst(String varName) {
-		return "(declare-const " + varName + " Real)";
-	}
-
-	private static String declareIntConst(String varName) {
-		return "(declare-const " + varName + " Int)";
-	}
-
-	private static String buildSmtQuery(Collection<Constraint<?>> constraints) {
-
-		ConstraintToZ3Str2Visitor v = new ConstraintToZ3Str2Visitor();
-		List<SmtExpr> assertions = new LinkedList<SmtExpr>();
-		for (Constraint<?> c : constraints) {
-			SmtExpr smtExpr = c.accept(v, null);
-			if (smtExpr != null) {
-				assertions.add(smtExpr);
-			}
-		}
-
-		SmtVariableCollector varCollector = new SmtVariableCollector();
-		for (SmtExpr smtExpr : assertions) {
-			smtExpr.accept(varCollector, null);
-		}
-		Set<SmtVariable> smtVariables = varCollector.getSmtVariables();
-
-		if (smtVariables.isEmpty()) {
-			return null; // no variables, constraint system is trivial
-		}
-
-		SmtConstantCollector constantCollector = new SmtConstantCollector();
-		for (SmtExpr smtExpr : assertions) {
-			smtExpr.accept(varCollector, null);
-		}
-		Set<SmtConstant> smtConstants = constantCollector.getSmtConstants();
-
-		SmtOperatorCollector opCollector = new SmtOperatorCollector();
-		for (SmtExpr smtExpr : assertions) {
-			smtExpr.accept(opCollector, null);
-		}
-		Set<Operator> smtOperators = opCollector.getOperators();
-		boolean addCharToIntFunction;
-		if (smtOperators.contains(SmtOperation.Operator.CHAR_TO_INT)) {
-			addCharToIntFunction = true;
-		} else {
-			addCharToIntFunction = false;
-		}
-
-		return createSmtQuery(smtVariables, smtConstants, assertions,
-				addCharToIntFunction);
 	}
 
 	private final static int ASCII_TABLE_LENGTH = 90;
@@ -264,8 +282,7 @@ public class Z3Str2Solver extends Solver {
 
 	private static String buildCharToIntFunction() {
 		StringBuffer buff = new StringBuffer();
-		buff.append("(define-fun " + SmtOperation.Operator.CHAR_TO_INT
-				+ "((x!1 String)) Int");
+		buff.append(SmtOperation.Operator.CHAR_TO_INT + "((x!1 String)) Int");
 		buff.append("\n");
 		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
 			char c = (char) i;
@@ -283,59 +300,7 @@ public class Z3Str2Solver extends Solver {
 		for (int i = 0; i < ASCII_TABLE_LENGTH - 1; i++) {
 			buff.append(")");
 		}
-		buff.append(")");
 		buff.append("\n");
-		return buff.toString();
-	}
-
-	private static String createSmtQuery(Set<SmtVariable> smtVariables,
-			Set<SmtConstant> smtConstants, List<SmtExpr> smtAssertions,
-			boolean addCharToIntFunction) {
-
-		Set<SmtVariable> smtVariablesoDeclare = new HashSet<SmtVariable>(
-				smtVariables);
-		if (addCharToIntFunction) {
-			Set<SmtStringVariable> charVariables = buildCharVariables();
-			smtVariablesoDeclare.addAll(charVariables);
-		}
-
-		StringBuffer buff = new StringBuffer();
-		for (SmtVariable v1 : smtVariablesoDeclare) {
-			String varName = v1.getName();
-			if (v1 instanceof SmtIntVariable) {
-				String intConst = declareIntConst(varName);
-				buff.append(intConst);
-				buff.append("\n");
-			} else if (v1 instanceof SmtRealVariable) {
-				String realConst = declareRealConst(varName);
-				buff.append(realConst);
-				buff.append("\n");
-			} else if (v1 instanceof SmtStringVariable) {
-				String stringConst = declareStringConst(varName);
-				buff.append(stringConst);
-				buff.append("\n");
-			} else {
-				throw new RuntimeException("Unknown variable type "
-						+ v1.getClass().getCanonicalName());
-			}
-		}
-
-		if (addCharToIntFunction) {
-			String charToInt = buildCharToIntFunction();
-			buff.append(charToInt);
-		}
-
-		SmtExprPrinter printer = new SmtExprPrinter();
-		for (SmtExpr smtExpr : smtAssertions) {
-			String smtExprString = smtExpr.accept(printer, null);
-			String assertion = mkAssert(smtExprString);
-			buff.append(assertion);
-			buff.append("\n");
-		}
-
-		buff.append("(check-sat)");
-		buff.append("\n");
-
 		return buff.toString();
 	}
 

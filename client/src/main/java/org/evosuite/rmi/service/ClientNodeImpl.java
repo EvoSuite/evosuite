@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.NoSuchParameterException;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.TimeController;
@@ -223,6 +224,28 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 
 	@Override
+	public void flushStatisticsForClassChange() {
+		logger.info("Flushing output variables to master process");
+
+		try {
+			masterNode.evosuite_flushStatisticsForClassChange(clientRmiIdentifier);
+		} catch (RemoteException e) {
+			logger.error("Cannot inform master of change of state", e);
+		}
+	}
+
+	@Override
+	public void updateProperty(String propertyName, Object value) {
+		logger.info("Updating property '" + propertyName + "' with value '" + value + "' on master process");
+
+		try {
+			masterNode.evosuite_updateProperty(clientRmiIdentifier, propertyName, value);
+		} catch (RemoteException | IllegalArgumentException | IllegalAccessException | NoSuchParameterException e) {
+			logger.error("Cannot inform master of change of state", e);
+		}
+	}
+
+	@Override
 	public void trackOutputVariable(RuntimeVariable variable, Object value) {
 		logger.info("Sending output variable to master process: "+variable+" = "+value);
 
@@ -401,7 +424,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 				try {
 					LoggingUtils.getEvoLogger().info("* Analyzing classpath (dependency analysis)");
-					DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+					DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
 							Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
 					StringBuffer fileNames = new StringBuffer();
 					for(Class<?> clazz : TestCluster.getInstance().getAnalyzedClasses()) {

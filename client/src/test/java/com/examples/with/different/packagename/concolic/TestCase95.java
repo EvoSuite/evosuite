@@ -2,8 +2,6 @@ package com.examples.with.different.packagename.concolic;
 
 import java.util.StringTokenizer;
 
-import org.evosuite.symbolic.Assertions;
-
 public class TestCase95 {
 
 	public static void test(String string, String delim) {

@@ -15,6 +15,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
@@ -29,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CarvingRunListener extends RunListener {
-	
+
 	private final Map<Class<?>, List<TestCase>> carvedTests = new LinkedHashMap<Class<?>, List<TestCase>>();
 
 	private final static Logger logger = LoggerFactory.getLogger(CarvingRunListener.class);
@@ -38,7 +39,7 @@ public class CarvingRunListener extends RunListener {
 		return carvedTests;
 	}
 
-	
+
 	@Override
 	public void testStarted(Description description) throws Exception {
 		if (TimeController.getInstance().isThereStillTimeInThisPhase()) {
@@ -59,7 +60,7 @@ public class CarvingRunListener extends RunListener {
 		}
 		Capturer.clear();
 	}
-	
+
 	private List<Class<?>> getObservedClasses(final CaptureLog log) {
 		List<Class<?>> targetClasses = new ArrayList<Class<?>>();
 		targetClasses.add(Properties.getTargetClass());
@@ -86,7 +87,7 @@ public class CarvingRunListener extends RunListener {
 					logger.info("Instrumentable: "+className);
 					try {
 						Class<?> clazz = Class.forName(className, true, TestGenerationContext.getInstance().getClassLoaderForSUT());
-						if(TestClusterGenerator.canUse(clazz) && !clazz.isArray()) {
+						if(TestUsageChecker.canUse(clazz) && !clazz.isArray()) {
 							if(!targetClasses.contains(clazz))
 								targetClasses.add(clazz);
 						}
@@ -103,11 +104,11 @@ public class CarvingRunListener extends RunListener {
 		}
 		return targetClasses;
 	}
-	
+
 
 	/**
 	 * Creates TestCase out of the captured log
-	 * 
+	 *
 	 * @param log
 	 *            log captured from test execution
 	 */
@@ -122,7 +123,7 @@ public class CarvingRunListener extends RunListener {
 			targetClasses[0] = targetClass;
 			if(!carvedTests.containsKey(targetClass))
 				carvedTests.put(targetClass, new ArrayList<TestCase>());
-		
+
 			analyzer.analyze(log, codeGen, targetClasses);
 
 			DefaultTestCase test = (DefaultTestCase) codeGen.getCode();

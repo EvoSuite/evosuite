@@ -17,13 +17,13 @@ public enum ClientState {
 	INITIALIZATION("Initializing", "Analyzing classpath and dependencies", 2),
 	CARVING("Carving", "Carving JUnit tests", 3),
 	SEARCH("Search", "Generating test cases", 4),
-	INLINING("Inlining", "Inlining constants", 5),
-	MINIMIZING_VALUES("Minimizing values", "Mininizing primitive values in the tests", 6),
+	MINIMIZING_VALUES("Minimizing values", "Mininizing primitive values in the tests", 5),
+	INLINING("Inlining", "Inlining constants", 6),
 	MINIMIZATION("Minimizing", "Minimizing test cases", 7),
 	ASSERTION_GENERATION("Generating assertions", "Adding assertions to the test cases", 8),
 	JUNIT_CHECK("Check JUnit", "Validate and fix the generated tests",9),
-    WRITING_STATISTICS("Statistics", "Writing statistics to disk", 10),
-	WRITING_TESTS("JUnit", "Writing JUnit tests to disk", 11),
+	WRITING_TESTS("JUnit", "Writing JUnit tests to disk", 10),
+    WRITING_STATISTICS("Statistics", "Writing statistics to disk", 11),
 	DONE("Done", "Test case generation is finished", 12),
 	FINISHED("Finished", "Client process is fully finished", 13);
 

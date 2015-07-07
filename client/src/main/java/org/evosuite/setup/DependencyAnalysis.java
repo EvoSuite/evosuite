@@ -22,7 +22,6 @@ package org.evosuite.setup;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.*;
 
 import org.evosuite.Properties;
@@ -34,13 +33,12 @@ import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
+import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.setup.callgraph.CallGraphGenerator;
 import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
-import org.junit.Test;
-import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
@@ -58,9 +56,11 @@ public class DependencyAnalysis {
 
 	private static Map<String, ClassNode> classCache = new LinkedHashMap<String, ClassNode>();
 
-	private static CallGraph callGraph = null;
+	private static Map<String, CallGraph> callGraphs = new LinkedHashMap<String, CallGraph>();
 
 	private static InheritanceTree inheritanceTree = null;
+
+	private static Set<String> targetClasses = null;
 
 	/**
 	 * @return the inheritanceTree
@@ -69,24 +69,23 @@ public class DependencyAnalysis {
 		return inheritanceTree;
 	}
 
-	/**
-	 * Start analysis from target class
-	 * 
-	 * @param className
-	 */
-	public static void analyze(String className, List<String> classPath) throws RuntimeException,
-			ClassNotFoundException {
+	private static void initInheritanceTree(List<String> classPath) {
 		logger.debug("Calculate inheritance hierarchy");
 		inheritanceTree = InheritanceTreeGenerator.createFromClassPath(classPath);
 		InheritanceTreeGenerator.gatherStatistics(inheritanceTree);
+	}
+
+	private static void analyze(String className, List<String> classPath) throws RuntimeException,
+			ClassNotFoundException {
 
 		if (!inheritanceTree.hasClass(Properties.TARGET_CLASS)) {
 			throw new ClassNotFoundException("Target class not found in inheritance tree");
 		}
 
 		logger.debug("Calculate call tree");
-		callGraph = CallGraphGenerator.analyze(className);
-		loadCallTreeClasses();
+		CallGraph callGraph = CallGraphGenerator.analyze(className);
+		callGraphs.put(className, callGraph);
+		loadCallTreeClasses(callGraph);
 
 		// include all the project classes in the inheritance tree and in the
 		// callgraph.
@@ -118,7 +117,38 @@ public class DependencyAnalysis {
 		gatherStatistics();
 	}
 
-	private static void loadCallTreeClasses() {
+	/**
+	 * Start analysis from target class
+	 * 
+	 * @param className
+	 */
+	public static void analyzeClass(String className, List<String> classPath) throws RuntimeException,
+			ClassNotFoundException {
+
+		initInheritanceTree(classPath);
+		analyze(className, classPath);
+	}
+
+	/**
+	 * Start analysis from target
+	 * 
+	 * @param target (e.g., directory, or jar file)
+	 */
+	public static Set<String> analyzeTarget(String target, List<String> classPath) throws RuntimeException,
+			ClassNotFoundException {
+
+		initInheritanceTree(classPath);
+
+		targetClasses = ResourceList.getAllClasses(target, false);
+		for (String className : targetClasses) {
+			Properties.TARGET_CLASS = className;
+			analyze(className, classPath);
+		}
+
+		return targetClasses;
+	}
+
+	private static void loadCallTreeClasses(CallGraph callGraph) {
 		for (String className : callGraph.getClasses()) {
 			if (className.startsWith(Properties.TARGET_CLASS + "$")) {
 				try {
@@ -131,41 +161,21 @@ public class DependencyAnalysis {
 		}
 	}
 
-	public static CallGraph getCallGraph() {
-		return callGraph;
+	/**
+	 * 
+	 * @param className
+	 * @return the CallGraph of className
+	 */
+	public static CallGraph getCallGraph(String className) {
+		return callGraphs.get(className);
 	}
 
 	/**
-	 * Determine if this class contains JUnit tests
 	 * 
-	 * @param className
-	 * @return
+	 * @return the CallGraph of Properties.TARGET_CLASS
 	 */
-	private static boolean isTest(String className) {
-		// TODO-JRO Identifying tests should be done differently:
-		// If the class either contains methods
-		// annotated with @Test (> JUnit 4.0)
-		// or contains Test or Suite in it's inheritance structure
-		try {
-			Class<?> clazz = Class.forName(className);
-			Class<?> superClazz = clazz.getSuperclass();
-			while (!superClazz.equals(Object.class)) {
-				if (superClazz.equals(Suite.class))
-					return true;
-				if (superClazz.equals(Test.class))
-					return true;
-
-				superClazz = clazz.getSuperclass();
-			}
-			for (Method method : clazz.getMethods()) {
-				if (method.isAnnotationPresent(Test.class)) {
-					return true;
-				}
-			}
-		} catch (ClassNotFoundException e) {
-			// TODO
-		}
-		return false;
+	public static CallGraph getCallGraph() {
+		return callGraphs.get(Properties.TARGET_CLASS);
 	}
 
 	/**
@@ -178,10 +188,18 @@ public class DependencyAnalysis {
 		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
 				&& className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
 			// exclude existing tests from the target project
-			return !isTest(className);
+			try {
+				Class<?> clazz = Class.forName(className);
+				return !CoverageAnalysis.isTest(clazz);
+			} catch (ClassNotFoundException e) {
+				logger.info("Could not find class " + className);
+			}
 		}
 		if (className.equals(Properties.TARGET_CLASS)
 				|| className.startsWith(Properties.TARGET_CLASS + "$")) {
+			return true;
+		}
+		if (targetClasses != null && targetClasses.contains(className)) {
 			return true;
 		}
 		return false;
@@ -258,7 +276,8 @@ public class DependencyAnalysis {
 		// context
 		if (Properties.INSTRUMENT_CONTEXT
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
-			if (callGraph.isCalledClass(className)) {
+			CallGraph callGraph = callGraphs.get(Properties.TARGET_CLASS);
+			if (callGraph != null && callGraph.isCalledClass(className)) {
 				return true;
 			}
 		}
@@ -288,7 +307,8 @@ public class DependencyAnalysis {
 		// context
 		if (Properties.INSTRUMENT_CONTEXT) {
 			
-			if (callGraph.isCalledMethod(className, methodName)){
+			CallGraph callGraph = callGraphs.get(Properties.TARGET_CLASS);
+			if (callGraph != null && callGraph.isCalledMethod(className, methodName)){
 				if(Properties.INSTRUMENT_LIBRARIES || DependencyAnalysis.isTargetProject(className))
 				return true;
 			}

@@ -136,6 +136,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 		// TODO: somehow adds the same goal more than once (fitnessfunction.equals()?)
 	}
 
+	@Override
+	public boolean isGoalCovered(TestFitnessFunction goal){
+		return coveredGoals.contains(goal);
+	}
+
+
 	private void addFields(List<VariableReference> variables, VariableReference var,
 	        Type type) {
 
@@ -233,11 +239,18 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 *            a {@link java.lang.ClassLoader} object.
 	 */
 	public void changeClassLoader(ClassLoader loader) {
+		changedClassLoader  = loader;
 		for (Statement s : statements) {
 			s.changeClassLoader(loader);
 		}
 	}
+	
+	private transient ClassLoader changedClassLoader = null;
 
+	public ClassLoader getChangedClassLoader() {
+		return changedClassLoader;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#chop(int)
 	 */

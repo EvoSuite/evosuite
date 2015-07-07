@@ -1,6 +1,5 @@
 package com.examples.with.different.packagename.concolic;
 
-import org.evosuite.symbolic.MathInt;
 
 public class TestCase11 {
 

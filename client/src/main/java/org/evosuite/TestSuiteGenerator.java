@@ -114,7 +114,7 @@ public class TestSuiteGenerator {
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
 			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+			DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
 			                           Arrays.asList(cp.split(File.pathSeparator)));
 			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
 		} catch (Throwable e) {
@@ -297,6 +297,10 @@ public class TestSuiteGenerator {
 		    }
 			FailingTestSet.sendStatistics();
 		}
+
+		if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
+			compileAndCheckTests(testSuite);
+		}
 	}
 	
 	 /**
@@ -425,10 +429,6 @@ public class TestSuiteGenerator {
 
         ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 
-        if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
-            compileAndCheckTests(testSuite);
-        }
-        
         writeObjectPool(testSuite);
 
 		/*

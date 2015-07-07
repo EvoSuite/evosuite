@@ -14,6 +14,15 @@ import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.concolic.Assertions;
+import com.examples.with.different.packagename.concolic.Boxer;
+import com.examples.with.different.packagename.concolic.Calculator;
+import com.examples.with.different.packagename.concolic.Fraction;
+import com.examples.with.different.packagename.concolic.IntHolder;
+import com.examples.with.different.packagename.concolic.MemoryCell;
+import com.examples.with.different.packagename.concolic.MyEnum;
+import com.examples.with.different.packagename.concolic.StaticFields;
+import com.examples.with.different.packagename.concolic.StringHandler;
 import com.examples.with.different.packagename.concolic.TestCase86;
 
 public class SymbolicObserverTest {
@@ -31,88 +40,12 @@ public class SymbolicObserverTest {
 		}
 	}
 
-	public static class MemoryCell {
-
-		private final int intVal;
-
-		public MemoryCell(int int0) {
-			intVal = int0;
-		}
-
-		public MemoryCell anotherCell;
-
-		public int getValue() {
-			return intVal;
-		}
-	}
-
-	public static class Calculator {
-
-		private final String operation;
-
-		private static final String ADD = "add";
-		private static final String SUB = "sub";
-		private static final String DIV = "add";
-		private static final String REM = "add";
-		private static final String MUL = "add";
-
-		public Calculator(String op) {
-			this.operation = op;
-		}
-
-		public double compute(double l, double r) {
-
-			if (operation.equals(ADD))
-				return l + r;
-			else if (operation.equals(SUB))
-				return l - r;
-			else if (operation.equals(DIV))
-				return l / r;
-			else if (operation.equals(REM))
-				return l % r;
-			else if (operation.equals(MUL))
-				return l * r;
-
-			return 0.0;
-		}
-
-	}
-
-	public static class StringHandler {
-
-		private String str;
-
-		public StringHandler(String str) {
-			this.str = str;
-		}
-
-		public boolean equals(String otherString) {
-			return this.str.equals(otherString);
-		}
-
-		public void toUpperCase() {
-			str = str.toUpperCase();
-		}
-
-		public static boolean stringMatches(String string, String regex) {
-			return string.matches(regex);
-		}
-
-		public static void checkEquals(boolean l, boolean r) {
-			if (l != r) {
-				throw new RuntimeException();
-			}
-
-		}
-	}
-
 	private static void test_input1() {
 		String string0 = "aaaaaaaaaaab";
 		String string1 = "a*b";
-		boolean boolean0 = SymbolicObserverTest.StringHandler.stringMatches(
-				string0, string1);
+		boolean boolean0 = StringHandler.stringMatches(string0, string1);
 		boolean boolean1 = true;
-		SymbolicObserverTest.StringHandler.checkEquals(boolean0, boolean1);
+		StringHandler.checkEquals(boolean0, boolean1);
 	}
 
 	private static DefaultTestCase build_test_input_1()
@@ -338,18 +271,6 @@ public class SymbolicObserverTest {
 		assertEquals(1, branch_conditions.size());
 	}
 
-	public static class IntHolder {
-		public int intValue;
-
-		public IntHolder(int myInt) {
-			this.intValue = myInt;
-		}
-
-		public int getValue() {
-			return intValue;
-		}
-	}
-
 	private static void test_input5() {
 		// IntPrimitiveStmt
 		int int0 = Integer.MAX_VALUE;
@@ -428,17 +349,6 @@ public class SymbolicObserverTest {
 		assertEquals(1, branch_conditions.size());
 	}
 
-	public static abstract class StaticFields {
-
-		public static String string_field;
-
-		public static Object object_field;
-
-		public static boolean equals(String left, String right) {
-			return left.equals(right);
-		}
-	}
-
 	private static void test_input6() {
 
 		String string0 = "Togliere sta roba";
@@ -509,10 +419,6 @@ public class SymbolicObserverTest {
 		String string1 = string0;
 	}
 
-	public enum MyEnum {
-		VALUE1, VALUE2
-	}
-
 	private static void test_input8() {
 		// EnumPrimitiveStmt
 		MyEnum myEnum0 = MyEnum.VALUE1;
@@ -528,7 +434,7 @@ public class SymbolicObserverTest {
 
 		TestCaseBuilder tc = new TestCaseBuilder();
 
-		VariableReference string0 = tc.appendNull(String.class);
+		tc.appendNull(String.class);
 
 		return tc.getDefaultTestCase();
 	}
@@ -560,9 +466,9 @@ public class SymbolicObserverTest {
 
 		TestCaseBuilder tc = new TestCaseBuilder();
 
-		VariableReference myEnum0 = tc.appendEnumPrimitive(MyEnum.VALUE1);
-		VariableReference myEnum1 = tc.appendEnumPrimitive(MyEnum.VALUE1);
-		VariableReference myEnum2 = tc.appendEnumPrimitive(MyEnum.VALUE2);
+		tc.appendEnumPrimitive(MyEnum.VALUE1);
+		tc.appendEnumPrimitive(MyEnum.VALUE1);
+		tc.appendEnumPrimitive(MyEnum.VALUE2);
 
 		return tc.getDefaultTestCase();
 	}
@@ -619,9 +525,9 @@ public class SymbolicObserverTest {
 		TestCaseBuilder tc = new TestCaseBuilder();
 
 		ArrayReference intArray0 = tc.appendArrayStmt(int[].class, 10);
-		ArrayReference doubleArray0 = tc.appendArrayStmt(double[].class, 11);
-		ArrayReference stringArray0 = tc.appendArrayStmt(String[].class, 12);
-		ArrayReference intMatrix0 = tc.appendArrayStmt(int[].class, 3, 3);
+		tc.appendArrayStmt(double[].class, 11);
+		tc.appendArrayStmt(String[].class, 12);
+		tc.appendArrayStmt(int[].class, 3, 3);
 		VariableReference int0 = tc.appendIntPrimitive(Integer.MAX_VALUE);
 		tc.appendAssignment(intArray0, 1, int0);
 		VariableReference int1 = tc.appendIntPrimitive(Integer.MIN_VALUE);
@@ -884,17 +790,6 @@ public class SymbolicObserverTest {
 		assertEquals(1, branch_conditions.size());
 	}
 
-	public static abstract class Boxer {
-
-		public static Integer boxInteger(Integer i) {
-			return i;
-		}
-
-		public static int unboxInteger(int i) {
-			return i;
-		}
-	}
-
 	@Test
 	public void test_input_14() {
 		int int0 = Integer.MAX_VALUE;
@@ -952,7 +847,7 @@ public class SymbolicObserverTest {
 
 		TestCaseBuilder tc = new TestCaseBuilder();
 
-		VariableReference fraction0 = tc.appendStaticFieldStmt(one_fifth);
+		tc.appendStaticFieldStmt(one_fifth);
 		return tc.getDefaultTestCase();
 	}
 
@@ -986,7 +881,7 @@ public class SymbolicObserverTest {
 		TestCaseBuilder tc = new TestCaseBuilder();
 
 		VariableReference double0 = tc.appendNull(Double.class);
-		VariableReference double1 = tc.appendMethod(null, valueOf, double0);
+		tc.appendMethod(null, valueOf, double0);
 		return tc.getDefaultTestCase();
 	}
 

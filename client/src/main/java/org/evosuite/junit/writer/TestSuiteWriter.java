@@ -462,6 +462,10 @@ public class TestSuiteWriter implements Opcodes {
             list.add("separateClassLoader = true");
         }
 
+        if(Properties.JEE){
+            list.add("useJEE = true");
+        }
+
         if (!list.isEmpty()) {
             s += list.get(0);
 
@@ -521,7 +525,7 @@ public class TestSuiteWriter implements Opcodes {
             }
             if (Properties.ID_NAMING) {
                 TestCase tc = testCases.get(id);
-                methodName = TestNameGenerator.generateTestName(targetMethod, tc, result);
+                methodName = TestNameGenerator.generateTestName(targetMethod, tc, result, num);
             } else {
                 methodName = "test" + targetMethod + num;
             }
@@ -529,7 +533,7 @@ public class TestSuiteWriter implements Opcodes {
         } else {
             if (Properties.ID_NAMING) {
                 TestCase tc = testCases.get(id);
-                methodName = TestNameGenerator.generateTestName("test", tc, result);
+                methodName = TestNameGenerator.generateTestName("test", tc, result, number);
             } else {
                 methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
             }

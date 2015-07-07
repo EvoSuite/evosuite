@@ -5,8 +5,13 @@ import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.mock.java.io.MockIOException;
 import org.evosuite.runtime.mock.java.lang.MockError;
 import org.evosuite.runtime.mock.java.lang.MockIllegalArgumentException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.*;
 import java.nio.channels.DatagramChannel;
 import java.security.AccessController;
@@ -19,9 +24,38 @@ import java.security.PrivilegedExceptionAction;
  */
 public class MockDatagramSocket extends DatagramSocket implements OverrideMock{
 
+    private static Logger logger = LoggerFactory.getLogger(MockDatagramSocket.class);
+
     private static final int ST_NOT_CONNECTED = 0;
     private static final int ST_CONNECTED = 1;
     private static final int ST_CONNECTED_NO_IMPL = 2;
+
+    private static final Method CREATE_IMPL;
+    private static final Field IMPL;
+
+    static{
+        Method m = null;
+        try {
+            m = DatagramSocket.class.getDeclaredMethod("createImpl");
+            m.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            //should never happen
+            logger.error("Failed reflection on DatagramSocket: "+e.getMessage());
+        }
+
+        Field f = null;
+        try {
+            f = DatagramSocket.class.getDeclaredField("impl");
+            f.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            //should never happen
+            logger.error("Failed reflection on DatagramSocket: "+e.getMessage());
+        }
+
+        CREATE_IMPL = m;
+        IMPL = f;
+    }
+
 
     /*
         following fields are the same as in superclass.
@@ -69,12 +103,19 @@ public class MockDatagramSocket extends DatagramSocket implements OverrideMock{
     }
 
     public MockDatagramSocket() throws SocketException {
-        super(MockFramework.isEnabled() ?
-                null :
-                new InetSocketAddress(0)
-            );
+        super(new EvoDatagramSocketImpl());
 
         if(!MockFramework.isEnabled()){
+            try {
+                IMPL.set(this, null);
+                CREATE_IMPL.invoke(this);
+            } catch (InvocationTargetException e) {
+                throw new SocketException(""+e.getCause().getMessage());
+            } catch (IllegalAccessException e) {
+                //should never happen
+                logger.error("Failed reflection");
+            }
+            super.bind(new InetSocketAddress(0));
             return;
         }
 
@@ -91,14 +132,23 @@ public class MockDatagramSocket extends DatagramSocket implements OverrideMock{
 
 
     public MockDatagramSocket(SocketAddress bindaddr) throws SocketException {
-        super(MockFramework.isEnabled() ?
-                null :  //super will do nothing
-                bindaddr);
+        super(new EvoDatagramSocketImpl());
 
         if(!MockFramework.isEnabled()){
+            try {
+                IMPL.set(this, null);
+                CREATE_IMPL.invoke(this);
+            } catch (InvocationTargetException e) {
+                throw new SocketException(""+e.getCause().getMessage());
+            } catch (IllegalAccessException e) {
+                //should never happen
+                logger.error("Failed reflection");
+            }
+            if(bindaddr!=null) {
+                super.bind(bindaddr);
+            }
             return;
         }
-
         // create a datagram socket.
         createImpl();
         if (bindaddr != null) {
@@ -113,8 +163,8 @@ public class MockDatagramSocket extends DatagramSocket implements OverrideMock{
 
     public MockDatagramSocket(int port, InetAddress laddr) throws SocketException {
         this(MockFramework.isEnabled() ?
-                new MockInetSocketAddress(laddr, port) :
-                new InetSocketAddress(laddr, port)
+                        new MockInetSocketAddress(laddr, port) :
+                        new InetSocketAddress(laddr, port)
         );
     }
 

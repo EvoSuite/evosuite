@@ -42,7 +42,7 @@ public class TestNameGenerator {
 	
 	
 	
-	public  static String generateTestName(String targetMethod, TestCase tc, ExecutionResult result) {
+	public  static String generateTestName(String targetMethod, TestCase tc, ExecutionResult result, Integer num) {
 		String testName = "";
 		System.out.println(testName);
 		String code =tc.toCode().toString();
@@ -50,10 +50,10 @@ public class TestNameGenerator {
 		if (hasExceptions.get_exceptions()>0){
 			//get method under test name
 			//List<? extends TestFitnessFunction> goals=FitnessFunctions.getFitnessFactory(Properties.Criterion.BRANCH).getCoverageGoals();
-			testName=targetMethod+"_throwsException ";
+			testName=targetMethod+"_throwsException" + num;
 		} else{
 			//get method under test name
-			testName=targetMethod;
+			testName=targetMethod + num;
 			//List<? extends TestFitnessFunction> goals=FitnessFunctions.getFitnessFactory(Properties.Criterion.BRANCH).getCoverageGoals();					                                    
 			
 		}	

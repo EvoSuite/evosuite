@@ -69,18 +69,10 @@ public class RuntimeInstrumentation {
                 "org.netbeans.lib.profiler", // VisualVM profiler
                 // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
                 "apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
-                "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc", "org.mozilla.javascript.gen.c",
+                "org.apache.xerces.dom3", "de.unisl.cs.st.bugex",  "org.mozilla.javascript.gen.c",
                 "corina.cross.Single",  // I really don't know what is wrong with this class, but we need to exclude it
                 "org.slf4j",
-                /**
-                 * FIXME:
-                 * JavaEE libraries should be shaded, and not being here in blacklist, as many side-effects.
-                 * If there is need of having any blacklisted library which is also an EvoSuite
-                 * dependency, then we MUST modify classloader to always load the version of the SUT
-                 * (currently it seems we delegate to parent classloader, which gives EvoSuite's version?)
-                 *
-                 * */
-                //"org.hibernate","org.hsqldb","org.jboss", // used in the generated JUnit files to test JavaEE applications relying on database
+                "dk.brics.automaton", //used in DSE, and we have a class with that package inside EvoSutie
                 "org.apache.commons.discovery.tools.DiscoverSingleton",
                 "org.apache.commons.discovery.resource.ClassLoaders",
                 "org.apache.commons.discovery.resource.classes.DiscoverClasses",
@@ -91,7 +83,18 @@ public class RuntimeInstrumentation {
                 "javafx.", // JavaFX crashes when instrumented
                 "ch.qos.logback", // Instrumentation makes logger events sent to the master un-serialisable
                 "org.apache.lucene.util.SPIClassIterator", "org.apache.lucene.analysis.util.AnalysisSPILoader", "org.apache.lucene.analysis.util.CharFilterFactory",
-                "org.apache.struts.util.MessageResources", "org.dom4j.DefaultDocumentFactory" // These classes all cause problems with re-instrumentation
+                "org.apache.struts.util.MessageResources", "org.dom4j.DefaultDocumentFactory", // These classes all cause problems with re-instrumentation
+                /**
+                 * FIXME:
+                 * JavaEE libraries should be shaded, as many side-effects.
+                 * We still want them in the blacklist, as to avoid problems when running tests before shading.
+                 * If there is need of having any blacklisted library which is also an EvoSuite
+                 * dependency, then we MUST modify classloader to always load the version of the SUT
+                 * (currently it seems we delegate to parent classloader, which gives EvoSuite's version?)
+                 *
+                 * */
+                "org.hibernate","org.hsqldb","org.jboss" // used in the generated JUnit files to test JavaEE applications relying on database
+
         };
     }
 

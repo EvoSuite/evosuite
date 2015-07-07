@@ -109,7 +109,7 @@ public class DBManager {
              */
             factory = new EvoEntityManagerFactory();
         }
-        clearDatabase();
         createNewEntityManager();
+        clearDatabase();
     }
 }

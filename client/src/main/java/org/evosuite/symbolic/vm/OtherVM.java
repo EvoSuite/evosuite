@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm;
 
-import edu.uta.cse.dsc.AbstractVM;
+import org.evosuite.dse.AbstractVM;
 
 /**
  * 
