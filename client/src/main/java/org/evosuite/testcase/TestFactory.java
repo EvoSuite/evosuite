@@ -1496,6 +1496,11 @@ public class TestFactory {
 			try {
 				int position = ConstraintVerifier.getAValidPositionForInsertion(o,test,lastValidPosition);
 
+				if(position < 0){
+					//the given method/constructor cannot be added
+					continue;
+				}
+
 				if (o.isConstructor()) {
 					GenericConstructor c = (GenericConstructor) o;
 					addConstructor(test, c, position, 0);
