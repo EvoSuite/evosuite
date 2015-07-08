@@ -24,6 +24,7 @@ public class InjectionSystemTest extends SystemTest{
 
         Properties.TARGET_CLASS = targetClass;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.LINE};
+        Properties.JEE = true;
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

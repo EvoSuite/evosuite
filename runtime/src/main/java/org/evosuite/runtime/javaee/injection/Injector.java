@@ -75,7 +75,7 @@ public class Injector {
 
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectEntityManager(@BoundInputVariable(initializer = true) T instance, Class<T> clazz)
+    public static <T> void injectEntityManager(@BoundInputVariable(initializer = true, atMostOnce = true) T instance, Class<T> clazz)
             throws IllegalArgumentException{
 
         Inputs.checkNull(instance,clazz);
@@ -95,7 +95,7 @@ public class Injector {
 
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectEntityManagerFactory(@BoundInputVariable(initializer = true) T instance, Class<T> clazz)
+    public static <T> void injectEntityManagerFactory(@BoundInputVariable(initializer = true, atMostOnce = true) T instance, Class<T> clazz)
             throws IllegalArgumentException{
 
         Inputs.checkNull(instance,clazz);
@@ -115,7 +115,7 @@ public class Injector {
 
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectUserTransaction(@BoundInputVariable(initializer = true) T instance, Class<T> clazz)
+    public static <T> void injectUserTransaction(@BoundInputVariable(initializer = true, atMostOnce = true) T instance, Class<T> clazz)
         throws IllegalArgumentException{
 
         Inputs.checkNull(instance,clazz);
@@ -134,7 +134,7 @@ public class Injector {
     }
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectEvent(@BoundInputVariable(initializer = true) T instance, Class<T> clazz)
+    public static <T> void injectEvent(@BoundInputVariable(initializer = true, atMostOnce = true) T instance, Class<T> clazz)
             throws IllegalArgumentException{
 
         Inputs.checkNull(instance, clazz);

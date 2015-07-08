@@ -1,5 +1,6 @@
 package org.evosuite.testcase.statements;
 
+import org.evosuite.runtime.annotation.BoundInputVariable;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.symbolic.expr.Constraint;
@@ -79,6 +80,30 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         }
 
         parameters.set(numParameter, var);
+    }
+
+    /**
+     * Check if the given var is bounded in this method/constructor as input parameter
+     * @param var
+     * @return
+     */
+    public boolean isBounded(VariableReference var) throws IllegalArgumentException{
+        Inputs.checkNull(var);
+
+        for(int i=0; i<parameters.size(); i++){
+            if(parameters.get(i).equals(var)){
+
+                for(int j=0; j<parameterAnnotations[i].length; j++){
+                    if(parameterAnnotations[i][j] instanceof BoundInputVariable){
+                        return true;
+                    }
+                }
+
+                break;
+            }
+        }
+
+        return false;
     }
 
     protected int getNumParametersOfType(Class<?> clazz) {

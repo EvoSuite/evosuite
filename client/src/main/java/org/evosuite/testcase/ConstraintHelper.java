@@ -5,6 +5,7 @@ import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
+import org.evosuite.utils.Randomness;
 import org.evosuite.utils.generic.GenericMethod;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
  * Created by Andrea Arcuri on 29/06/15.
  */
 public class ConstraintHelper {
+
 
     public static int countNumberOfNewInstances(TestCase test, Class<?> klass) throws IllegalArgumentException{
         Inputs.checkNull(test,klass);

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.statements.PrimitiveStatement;
@@ -24,6 +25,10 @@ public class RandomInsertion implements InsertionStrategy {
 		double r = Randomness.nextDouble();
 		int oldSize = test.size();
 
+		/*
+			TODO: if allow inserting a UUT method in the middle of a test,
+			 we need to handle case of not breaking any initialzing bounded variable
+		 */
 		int max = lastPosition;
 		if (max == test.size())
 			max += 1;
@@ -50,9 +55,6 @@ public class RandomInsertion implements InsertionStrategy {
 			// Insert a call to the UUT at the end
 			position = test.size();
 			success = TestFactory.getInstance().insertRandomCall(test, position);
-			if (test.size() - oldSize > 1) {
-				position += (test.size() - oldSize - 1);
-			}
 		} else if (insertEnv) {
 			/*
 				Insert a call to the environment. As such call is likely to depend on many constraints,
@@ -66,34 +68,48 @@ public class RandomInsertion implements InsertionStrategy {
 			VariableReference var = selectRandomVariableForCall(test, lastPosition);
 			if (var != null) {
 				int lastUsage = var.getStPosition();
+
 				for (VariableReference usage : test.getReferences(var)) {
 					if (usage.getStPosition() > lastUsage)
 						lastUsage = usage.getStPosition();
 				}
-				if (lastUsage != var.getStPosition())
+
+				if (lastUsage != var.getStPosition()) {
 					position = Randomness.nextInt(var.getStPosition(), lastUsage);
-				else
+				} else {
 					position = lastUsage;
+				}
+
 				logger.debug("Inserting call at position " + position + ", chosen var: "
 						+ var.getName() + ", distance: " + var.getDistance() + ", class: "
 						+ var.getClassName());
+
 				success = TestFactory.getInstance().insertRandomCallOnObjectAt(test, var, position);
 			}
 
 			if (!success && TestCluster.getInstance().getNumTestCalls() > 0) {
 				logger.debug("Adding new call on UUT because var was null");
-				position = Randomness.nextInt(max);
+				//Why was it different fron UUT insertion? ie, in random position instead of last
+				//position = Randomness.nextInt(max);
+				position = test.size();
 				success = TestFactory.getInstance().insertRandomCall(test, position);
-			}
-			if (test.size() - oldSize > 1) {
-				position += (test.size() - oldSize - 1);
 			}
 		}
 
-		if (success)
+		//this can happen if insertion had side effect of adding further previous statements in the test,
+		//eg to handle input parameters
+		if (test.size() - oldSize > 1) {
+			position += (test.size() - oldSize - 1);
+		}
+
+		if (success) {
+			assert ConstraintVerifier.verifyTest(test);
+			assert ! ConstraintVerifier.hasAnyOnlyForAssertionMethod(test);
+
 			return position;
-		else
+		} else {
 			return -1;
+		}
 	}
 	
 	private VariableReference selectRandomVariableForCall(TestCase test, int position) {
@@ -107,8 +123,14 @@ public class RandomInsertion implements InsertionStrategy {
 					!var.isVoid() &&
 					!(test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) &&
 					!var.isPrimitive() &&
-					test.hasReferences(var))
+					test.hasReferences(var) &&
+					/* Note: this check has been added only recently,
+						to avoid having added calls to UUT in the middle of the test
+					 */
+					!var.getVariableClass().equals(Properties.getTargetClass())) {
+
 				candidateVariables.add(var);
+			}
 		}
 		if(candidateVariables.isEmpty()) {
 			return null;

@@ -7,6 +7,7 @@ import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletConfig;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletRequest;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericConstructor;
@@ -85,6 +86,49 @@ public class ConstraintVerifierTest {
         Assert.assertTrue(mutated);
         Assert.assertEquals(0, tc.size());// deleting first statement should have had effect of removing the second as well
     }
+
+    @Test
+    public void testDelete_multipleVarsThatCouldBeReused() throws Exception {
+
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+
+        //initializing bounding variable method called directly after the new
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct", Object.class), Injector.class), 1, 0);
+
+        //now do it again
+        VariableReference secondServlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 2, 0);
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct", Object.class), Injector.class), 3, 0);
+        MethodStatement mt = (MethodStatement) tc.getTestCase().getStatement(3);
+        //be sure it is using the second servlet
+        mt.replace(servlet,secondServlet);
+
+
+        Assert.assertEquals(4, tc.size());
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+
+        Assert.assertTrue(ConstraintVerifier.canDelete(tc.getTestCase(), 0)); //bounded variable can be deleted
+        Assert.assertFalse(ConstraintVerifier.canDelete(tc.getTestCase(), 1)); // method using bounded variable should not be deleted
+        Assert.assertTrue(ConstraintVerifier.canDelete(tc.getTestCase(), 2)); //bounded variable can be deleted
+        Assert.assertFalse(ConstraintVerifier.canDelete(tc.getTestCase(), 3)); // method using bounded variable should not be deleted
+
+
+        boolean mutated = tc.deleteStatement(factory, 2);
+        Assert.assertTrue(mutated);
+        /*
+            deleting the bounded variable in position 2 should lead to also delete the initializing variable in 3,
+            and not end up with 3 re-using 0
+         */
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+        Assert.assertEquals(2, tc.size());
+    }
+
 
 
     @Test

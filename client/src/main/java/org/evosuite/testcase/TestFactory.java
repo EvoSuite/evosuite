@@ -965,7 +965,7 @@ public class TestFactory {
 			logger.debug("Attempting generating of " + type + " via field of type "
 			        + type);
 			VariableReference ret = addField(test, (GenericField) o, position,
-			                                 recursionDepth + 1);
+					recursionDepth + 1);
 			ret.setDistance(recursionDepth + 1);
 			logger.debug("Success in generating type " + type);
 			return ret;
@@ -1243,7 +1243,20 @@ public class TestFactory {
 							}
 						}
 					} else {
-						s.replace(var, Randomness.choice(alternatives));
+						/*
+							if 'var' is a bounded variable used in 's', then it should not be
+							replaced with another one. should be left as it is, as to make it
+							deletable
+						 */
+						boolean bounded = false;
+						if(s instanceof EntityWithParametersStatement){
+							EntityWithParametersStatement es = (EntityWithParametersStatement) s;
+							bounded = es.isBounded(var);
+						}
+
+						if(!bounded) {
+							s.replace(var, Randomness.choice(alternatives));
+						}
 					}
 				}
 			}
