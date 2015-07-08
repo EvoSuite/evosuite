@@ -18,6 +18,21 @@ public class InjectionSupport {
     private static volatile GenericMethod entityManagerFactory;
     private static volatile GenericMethod userTransaction;
     private static volatile GenericMethod event;
+    private static volatile GenericMethod postConstruct;
+
+    public static GenericMethod getPostConstruct(){
+        if(postConstruct == null){
+            try {
+                postConstruct = new GenericMethod(
+                        Injector.class.getDeclaredMethod("executePostConstruct",Object.class)
+                        , Injector.class);
+            } catch (NoSuchMethodException e) {
+                logger.error("Reflection failed in InjectionSupport: "+e.getMessage());
+                return null;
+            }
+        }
+        return postConstruct;
+    }
 
     public static GenericMethod getInjectorForEntityManager(){
         if(entityManager == null){

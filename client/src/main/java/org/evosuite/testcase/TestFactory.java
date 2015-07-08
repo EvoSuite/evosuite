@@ -203,6 +203,12 @@ public class TestFactory {
 
 				//TODO all others injections
 
+				if(Injector.hasPostConstruct(klass)){
+					Statement ms = new MethodStatement(test, InjectionSupport.getPostConstruct(), null,
+							Arrays.asList(ref));
+					test.addStatement(ms, injectPosition++);
+				}
+
 
 				if (HttpServlet.class.isAssignableFrom(klass)) {
 					//Servlets are treated specially, as part of JEE
