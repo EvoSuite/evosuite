@@ -117,6 +117,9 @@ public class ConstraintVerifier {
 
         Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
         if(constraints == null){
+            if(lastValid==0){
+                return 0;
+            }
             return Randomness.nextInt(0,lastValid);
         }
 
@@ -178,6 +181,9 @@ public class ConstraintVerifier {
         if(minPos > 0) {
             return minPos; //try to add immediately 'after' the constraining method
         } else {
+            if(lastValid==0){
+                return 0;
+            }
             return Randomness.nextInt(0,lastValid);
         }
     }
@@ -404,11 +410,11 @@ public class ConstraintVerifier {
                 continue;
             }
 
-            //ok, same method. but is called with the same bounded variables?
+            //ok, same method. but is it called with the same bounded variables?
             for(VariableReference ref : other.getParameterReferences()){
                 for(VariableReference bounded : atMostOnce){
                     if(ref.same(bounded)){
-                        logger.error("Bounded variable declared in "+ref.getStPosition()+" can only be used once as input for the" +
+                        logger.error("Bounded variable declared in "+ref.getStPosition()+" can only be used once as input for the " +
                                 "method "+other.getMethod().getName()+" : it is wrongly used both at position "+j+" and "+i);
                         return false;
                     }
