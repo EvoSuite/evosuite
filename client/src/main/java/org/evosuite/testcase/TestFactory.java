@@ -185,6 +185,22 @@ public class TestFactory {
 							Arrays.asList(ref, classConstant));
 					test.addStatement(ms, injectPosition++);
 				}
+				if (Injector.hasEntityManagerFactory(klass)) {
+					Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEntityManagerFactory(), null,
+							Arrays.asList(ref, classConstant));
+					test.addStatement(ms, injectPosition++);
+				}
+				if (Injector.hasUserTransaction(klass)) {
+					Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForUserTransaction(), null,
+							Arrays.asList(ref, classConstant));
+					test.addStatement(ms, injectPosition++);
+				}
+				if (Injector.hasEvent(klass)) {
+					Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEvent(), null,
+							Arrays.asList(ref, classConstant));
+					test.addStatement(ms, injectPosition++);
+				}
+
 				//TODO all others injections
 
 
