@@ -28,7 +28,7 @@ public class ConstraintHelper {
             Statement st = test.getStatement(i);
             if(st instanceof ConstructorStatement){
                 ConstructorStatement cs = (ConstructorStatement) st;
-                if(cs.getConstructor().getDeclaringClass().equals(klass)){
+                if(klass.isAssignableFrom(cs.getConstructor().getDeclaringClass())){
                     counter++;
                 }
             }

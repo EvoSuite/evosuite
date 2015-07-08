@@ -14,18 +14,19 @@ import java.util.*;
  */
 public class InstanceOnlyOnce {
 
-    private static final Set<String> classes = Collections.unmodifiableSet(
-            new HashSet<String>(){{
-                add(HttpServlet.class.getCanonicalName());
+    private static final Set<Class<?>> classes = Collections.unmodifiableSet(
+            new HashSet<Class<?>>(){{
+                add(HttpServlet.class);
             }}
     );
 
     public static boolean canInstantiateOnlyOnce(Class<?> klass) throws IllegalArgumentException{
         Inputs.checkNull(klass);
-        return canInstantiateOnlyOnce(klass.getCanonicalName());
-    }
-
-    public static boolean canInstantiateOnlyOnce(String className){
-        return classes.contains(className);
+        for(Class<?> c : classes) {
+            if(c.isAssignableFrom(klass)){
+                return true;
+            }
+        }
+        return false;
     }
 }
