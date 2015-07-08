@@ -27,17 +27,20 @@ public class ConstraintVerifierTest {
 
     private static final double defaultPRP = Properties.PRIMITIVE_REUSE_PROBABILITY;
     private static final double defaultORP = Properties.OBJECT_REUSE_PROBABILITY;
+    private static final boolean defaultJEE = Properties.JEE;
 
     @Before
     public void init(){
         Properties.PRIMITIVE_REUSE_PROBABILITY = 1; //be sure now new statements are automatically generated
         Properties.OBJECT_REUSE_PROBABILITY = 1;
+        Properties.JEE = false; // be sure it is false, as to avoid possible side-effects (eg automated insertion with Injector)
     }
 
     @After
     public void tearDown(){
         Properties.PRIMITIVE_REUSE_PROBABILITY = defaultPRP;
         Properties.OBJECT_REUSE_PROBABILITY = defaultORP;
+        Properties.JEE = defaultJEE;
     }
 
     private static class FakeServlet extends HttpServlet{
@@ -55,6 +58,72 @@ public class ConstraintVerifierTest {
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
     public static  void fakeInjection(@BoundInputVariable(initializer = true) Servlet servlet){
+    }
+
+    public static EvoHttpServletRequest getNullEvoHttpServletRequest(){
+        return null;
+    }
+
+
+    @Test
+    public void testUniqueConstructors() throws Exception{
+
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        Properties.JEE = true;
+        factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+
+        //doing it a second time should fail
+        try {
+            factory.addConstructor(tc.getTestCase(),
+                    new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+            Assert.fail();
+        } catch (Exception e){
+            //expected
+        }
+
+    }
+
+    @Test
+    public void testDeleteAfter()  throws Exception{
+
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        //get a var for EvoHttpServletRequest
+        VariableReference req = factory.addMethod(tc.getTestCase(),
+                new GenericMethod(ConstraintVerifierTest.class.getDeclaredMethod("getNullEvoHttpServletRequest"),
+                        ConstraintVerifierTest.class), 0, 0);
+
+        //make it a POST
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(EvoHttpServletRequest.class.getDeclaredMethod("asPOST"),EvoHttpServletRequest.class),
+                1, 0);
+
+        //now add a call to 'asMultipartFormData' which does depend on POST
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(EvoHttpServletRequest.class.getDeclaredMethod("asMultipartFormData"),
+                        EvoHttpServletRequest.class), 2, 0);
+
+        Assert.assertEquals(3, tc.size());
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+
+        //deleting the last one should be fine, but not the POST, as asMultipartFormData has an 'after' dependency on it
+        Assert.assertTrue(ConstraintVerifier.canDelete(tc.getTestCase(), 2));
+        Assert.assertFalse(ConstraintVerifier.canDelete(tc.getTestCase(), 1)); // should not be able to delete POST directly
+
+        //what about the first statement where the var is obtained? that should be valid to delete
+        Assert.assertTrue(ConstraintVerifier.canDelete(tc.getTestCase(), 0));
+
+        boolean mutated = tc.deleteStatement(factory, 1);
+        Assert.assertFalse(mutated); //should fail to delete POST
+        Assert.assertEquals(3, tc.size());
+
+        mutated = tc.deleteStatement(factory, 0);
+        Assert.assertTrue(mutated);
+        Assert.assertEquals(0, tc.size()); //should end up deleting everything
     }
 
 

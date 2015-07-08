@@ -2,10 +2,7 @@ package org.evosuite.testcase;
 
 import org.evosuite.runtime.annotation.*;
 import org.evosuite.runtime.util.Inputs;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
@@ -93,6 +90,7 @@ public class ConstraintVerifier {
             return true;
         }
 
+        //first look at bounded variables
         for(Annotation[] array : getParameterAnnotations(st)){
             for(Annotation an : array){
                 if(an instanceof BoundInputVariable){
@@ -101,6 +99,33 @@ public class ConstraintVerifier {
             }
         }
 
+        //check if there is an 'after' constraint
+        if(st instanceof MethodStatement) {
+            MethodStatement current = (MethodStatement) st;
+            String currentKlassName = current.getMethod().getDeclaringClass().getCanonicalName();
+            String currentMethodName = current.getMethod().getName();
+
+            for (int i = pos + 1; i < tc.size(); i++) {
+                Statement toCheck = tc.getStatement(i);
+                Constraints constraints = ConstraintHelper.getConstraints(toCheck);
+                if (constraints == null) {
+                    continue;
+                }
+                String after = constraints.after();
+                if (after == null || after.trim().isEmpty()) {
+                    continue;
+                }
+
+                MethodStatement ms = (MethodStatement) toCheck;
+                String[] klassAndMethod = ConstraintHelper.getClassAndMethod(after, ms.getMethod().getDeclaringClass());
+                String afterKlassName = klassAndMethod[0];
+                String afterMethodName = klassAndMethod[1];
+
+                if(afterKlassName.equals(currentKlassName) && afterMethodName.equals(currentMethodName)){
+                    return false;
+                }
+            }
+        }
         return true;
     }
 
