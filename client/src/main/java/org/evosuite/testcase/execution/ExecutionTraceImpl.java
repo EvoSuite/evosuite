@@ -852,7 +852,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Set<Integer> getCoveredLines(String className) {
 		Set<Integer> coveredLines = new HashSet<Integer>();
 		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : coverage.entrySet()) {
-			if (entry.getKey().startsWith(className)) {
+			if (entry.getKey().equals(className)) {
 				for (Map<Integer, Integer> methodentry : entry.getValue().values()) {
 					coveredLines.addAll(methodentry.keySet());
 				}
@@ -863,6 +863,11 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	@Override
 	public Set<Integer> getCoveredLines() {
+		return this.getCoveredLines(Properties.TARGET_CLASS);
+	}
+
+	@Override
+	public Set<Integer> getAllCoveredLines() {
 		Set<Integer> coveredLines = new HashSet<Integer>();
 		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : coverage.entrySet()) {
 			for (Map<Integer, Integer> methodentry : entry.getValue().values()) {
