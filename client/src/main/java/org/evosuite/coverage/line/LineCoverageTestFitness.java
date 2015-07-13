@@ -152,13 +152,9 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double fitness = 1.0;
-		for ( Integer coveredLine : result.getTrace().getCoveredLines()) {
-			if (coveredLine.intValue() == this.line.intValue()) {
-				fitness = 0.0;
-				break;
-			}
-		}
-		if(fitness != 0.0) {
+		if (result.getTrace().getCoveredLines().contains(this.line)) {
+			fitness = 0.0;
+		} else {
 			double r = Double.MAX_VALUE;
 
 			// Find minimum distance to satisfying any of the control dependencies
