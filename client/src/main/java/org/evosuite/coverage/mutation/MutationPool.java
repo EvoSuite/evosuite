@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.Properties;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -41,7 +42,7 @@ public class MutationPool {
 	private static Map<String, Map<String, List<Mutation>>> mutationMap = new HashMap<String, Map<String, List<Mutation>>>();
 
 	// maps the mutationIDs assigned by this pool to their respective Mutations
-	private static Map<Integer, Mutation> mutationIdMap = new HashMap<Integer, Mutation>();
+	private static Map<String, Map<Integer, Mutation>> mutationIdMap = new HashMap<String, Map<Integer, Mutation>>();
 
 	private static int numMutations = 0;
 
@@ -69,7 +70,14 @@ public class MutationPool {
 		Mutation mutationObject = new Mutation(className, methodName, mutationName,
 		        numMutations++, instruction, mutation, distance);
 		mutationMap.get(className).get(methodName).add(mutationObject);
-		mutationIdMap.put(mutationObject.getId(), mutationObject);
+
+		if (mutationIdMap.containsKey(className)) {
+			mutationIdMap.get(className).put(mutationObject.getId(), mutationObject);
+		} else {
+			Map<Integer, Mutation> values = new HashMap<Integer, Mutation>();
+			values.put(mutationObject.getId(), mutationObject);
+			mutationIdMap.put(className, values);
+		}
 
 		return mutationObject;
 	}
@@ -98,7 +106,14 @@ public class MutationPool {
 		Mutation mutationObject = new Mutation(className, methodName, mutationName,
 		        numMutations++, instruction, mutation, distance);
 		mutationMap.get(className).get(methodName).add(mutationObject);
-		mutationIdMap.put(mutationObject.getId(), mutationObject);
+
+		if (mutationIdMap.containsKey(className)) {
+			mutationIdMap.get(className).put(mutationObject.getId(), mutationObject);
+		} else {
+			Map<Integer, Mutation> values = new HashMap<Integer, Mutation>();
+			values.put(mutationObject.getId(), mutationObject);
+			mutationIdMap.put(className, values);
+		}
 
 		return mutationObject;
 	}
@@ -130,12 +145,12 @@ public class MutationPool {
 	 */
 	public static List<Mutation> getMutants() {
 		List<Mutation> mutants = new ArrayList<Mutation>();
-		mutants.addAll(mutationIdMap.values());
+		mutants.addAll(mutationIdMap.get(Properties.TARGET_CLASS).values());
 		return mutants;
 	}
 	
 	public static Mutation getMutant(int id) {
-		return mutationIdMap.get(id);
+		return mutationIdMap.get(Properties.TARGET_CLASS).get(id);
 	}
 
 	/**
