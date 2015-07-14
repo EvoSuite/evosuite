@@ -19,6 +19,23 @@ public class InjectionSupport {
     private static volatile GenericMethod userTransaction;
     private static volatile GenericMethod event;
     private static volatile GenericMethod postConstruct;
+    private static volatile GenericMethod generalField;
+
+    public static GenericMethod getInjectorForGeneralField(){
+        if(generalField == null){
+            try {
+                generalField = new GenericMethod(
+                        Injector.class.getDeclaredMethod("inject",
+                                Object.class,Class.class, String.class, Object.class)
+                        , Injector.class);
+            } catch (NoSuchMethodException e) {
+                logger.error("Reflection failed in InjectionSupport: "+e.getMessage());
+                return null;
+            }
+        }
+        return generalField;
+    }
+
 
     public static GenericMethod getPostConstruct(){
         if(postConstruct == null){
