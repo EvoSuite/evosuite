@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -62,7 +63,10 @@ public class Injector {
     private static final InjectionCache eventCache =
             new InjectionCache(Event.class, Inject.class);
 
-
+    //this should be initialized with all the caches declared above
+    private static final GeneralInjection generalInjection =
+            new GeneralInjection(entityManagerCache, entityManagerFactoryCache,
+                    userTransactionCache, eventCache);
 
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
@@ -73,6 +77,10 @@ public class Injector {
         PrivateAccess.setVariable(klass,instance,fieldName,value,InjectionList.getList());
     }
 
+    @EvoSuiteExclude
+    public static List<Field> getGeneralFieldsToInject(Class<?> klass){
+        return generalInjection.getFieldsToInject(klass);
+    }
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
     public static <T> void injectEntityManager(@BoundInputVariable(initializer = true, atMostOnce = true) T instance, Class<T> clazz)
