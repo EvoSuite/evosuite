@@ -81,5 +81,7 @@ public class InjectionCache {
         return f != null;
     }
 
-
+    public Class<?> getFieldClass() {
+        return fieldClass;
+    }
 }

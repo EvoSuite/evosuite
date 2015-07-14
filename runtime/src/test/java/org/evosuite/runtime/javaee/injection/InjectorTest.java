@@ -12,6 +12,11 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
 import javax.transaction.UserTransaction;
 
+import java.lang.reflect.Field;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import static org.junit.Assert.*;
 
 /**
@@ -118,6 +123,19 @@ public class InjectorTest {
         Assert.assertNotNull(foo.getFactory());
     }
 
+    @Test
+    public void test_getGeneralFieldsToInject(){
+        List<Field> list = Injector.getGeneralFieldsToInject(Foo.class);
+        Assert.assertEquals(3 , list.size());
+        Set<String> names = new LinkedHashSet<>();
+        for(Field f : list){
+            names.add(f.getName());
+        }
+        Assert.assertTrue(names.contains("aString"));
+        Assert.assertTrue(names.contains("injectField"));
+        Assert.assertTrue(names.contains("persistence"));
+    }
+
     private class Foo {
 
         private Object noTag;
@@ -130,6 +148,9 @@ public class InjectorTest {
 
         @Inject
         private UserTransaction userTransaction;
+
+        @Inject
+        private String aString;
 
         @Inject
         private Object injectField;
