@@ -145,11 +145,21 @@ public class MutationPool {
 	 */
 	public static List<Mutation> getMutants() {
 		List<Mutation> mutants = new ArrayList<Mutation>();
+		if (!mutationIdMap.containsKey(Properties.TARGET_CLASS)) {
+			assert(mutationIdMap.size() == 0);
+			return mutants; 
+		}
+
 		mutants.addAll(mutationIdMap.get(Properties.TARGET_CLASS).values());
 		return mutants;
 	}
 	
 	public static Mutation getMutant(int id) {
+		if (!mutationIdMap.containsKey(Properties.TARGET_CLASS)) {
+			assert(mutationIdMap.size() == 0);
+			return null;
+		}
+
 		return mutationIdMap.get(Properties.TARGET_CLASS).get(id);
 	}
 

@@ -251,7 +251,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	// active calls
 	Deque<MethodCall> stack = new LinkedList<MethodCall>();
 
-	public Map<String, Set<Integer>> touchedMutants = Collections.synchronizedMap(new HashMap<String, Set<Integer>>());
+	public Set<Integer> touchedMutants = Collections.synchronizedSet(new HashSet<Integer>());
 
 	public Map<Integer, Double> trueDistances = Collections.synchronizedMap(new HashMap<Integer, Double>());
 
@@ -540,7 +540,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		trueDistances = new HashMap<Integer, Double>();
 		falseDistances = new HashMap<Integer, Double>();
 		mutantDistances = new HashMap<Integer, Double>();
-		touchedMutants = new HashMap<String, Set<Integer>>();
+		touchedMutants = new HashSet<Integer>();
 		coveredMethods = new HashMap<String, Integer>();
         coveredBranchlessMethods = new HashMap<String, Integer>();
 		coveredPredicates = new HashMap<Integer, Integer>();
@@ -590,7 +590,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		copy.coveredTrue.putAll(coveredTrue);
 		copy.coveredFalse.putAll(coveredFalse);
 		copy.coveredDefs.putAll(coveredDefs);
-		copy.touchedMutants.putAll(touchedMutants);
+		copy.touchedMutants.addAll(touchedMutants);
 		copy.mutantDistances.putAll(mutantDistances);
 		copy.passedDefinitions.putAll(passedDefinitions);
 		copy.passedUses.putAll(passedUses);
@@ -1058,7 +1058,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	/** {@inheritDoc} */
 	@Override
 	public Set<Integer> getTouchedMutants() {
-		return touchedMutants.get(Properties.TARGET_CLASS);
+		return touchedMutants;
 	}
 	
 	@Override
@@ -1340,14 +1340,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public void mutationPassed(int mutationId, double distance) {
 
-		if (touchedMutants.containsKey(Properties.TARGET_CLASS)) {
-			touchedMutants.get(Properties.TARGET_CLASS).add(mutationId);
-		} else {
-			Set<Integer> ids = new LinkedHashSet<Integer>();
-			ids.add(mutationId);
-			touchedMutants.put(Properties.TARGET_CLASS, ids);
-		}
-
+		touchedMutants.add(mutationId);
 		if (!mutantDistances.containsKey(mutationId)) {
 			mutantDistances.put(mutationId, distance);
 		} else {
@@ -1599,11 +1592,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	/** {@inheritDoc} */
 	@Override
 	public boolean wasMutationTouched(int mutationId) {
-		if (!touchedMutants.containsKey(Properties.TARGET_CLASS)) {
-			return false;
-		}
-
-		return touchedMutants.get(Properties.TARGET_CLASS).contains(mutationId);
+		return touchedMutants.contains(mutationId);
 	}
 
 	/** {@inheritDoc} */
