@@ -49,6 +49,12 @@ public class CoverageMojo extends AbstractMojo {
 	@Parameter( property = "criterion", defaultValue = "LINE:BRANCH:CBRANCH:WEAKMUTATION:METHODTRACE" )
 	private String criterion;
 
+	/**
+	 * 
+	 */
+	@Parameter( property = "output_variables", defaultValue = "TARGET_CLASS,criterion,Coverage,Total_Goals,Covered_Goals,CoverageBitString" )
+	private String output_variables;
+
 	@Override
 	public void execute() throws MojoExecutionException,MojoFailureException {
 
@@ -137,8 +143,7 @@ public class CoverageMojo extends AbstractMojo {
 		params.add(target);
 		params.add("-DCP=" + cp + File.pathSeparator + junit);
 		params.add("-Dcriterion="+criterion);
-
-		getLog().info("Params: " + params.toString());
+		params.add("-Doutput_variables="+output_variables);
 
 		EvoSuiteRunner runner = new EvoSuiteRunner(getLog(), this.artifacts, this.projectBuilder, this.repoSession);
 		runner.registerShutDownHook();
