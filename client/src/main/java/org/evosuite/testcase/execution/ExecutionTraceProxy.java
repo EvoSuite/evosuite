@@ -149,6 +149,11 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 		return trace.getCoveredLines();
 	}
 
+	@Override
+	public Set<Integer> getAllCoveredLines() {
+		return trace.getAllCoveredLines();
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionTrace#getCoveredMethods()
 	 */
