@@ -237,7 +237,10 @@ public class TestSuiteGenerator {
 		    //SearchStatistics.getInstance().mutationScore(coverage);
 		}
 
-		StatisticsSender.executedAndThenSendIndividualToMaster(testSuite);
+		// FIXME why are we sending *again* the best individual?
+		// 'generateTests' is already executing and sending the best individual. and in theory,
+		// 'postProcess' should not change the coverage, mutation rate, etc.
+		//StatisticsSender.executedAndThenSendIndividualToMaster(testSuite);
 		LoggingUtils.getEvoLogger().info("* Generated " + testSuite.size()
 		                                         + " tests with total length "
 		                                         + testSuite.totalLengthOfTestCases());
