@@ -29,6 +29,8 @@ public class CoverageAnalysis {
 
 	private static final Logger logger = LoggerFactory.getLogger(CoverageAnalysis.class);
 
+	private static Map<String, StringBuffer> coverageBitString = new TreeMap<String, StringBuffer>();
+
 	private static boolean isMutationCriterion(Set<Criterion> criteria) {
 	    for (Properties.Criterion pc : criteria) {
 	        if (isMutationCriterion(pc))
@@ -209,10 +211,11 @@ public class CoverageAnalysis {
 			test.getTestCase().clearCoveredGoals();
 		}
 
-        StringBuffer buffer = new StringBuffer(1024);
-		int covered = 0;
 		List<TestFitnessFunction> goals = factory.getCoverageGoals();
         Collections.sort(goals);
+
+		StringBuffer buffer = new StringBuffer(goals.size());
+		int covered = 0;
 
 		for (TestFitnessFunction goal : goals) {
 			if (goal.isCoveredBy(testSuite)) {
@@ -224,6 +227,10 @@ public class CoverageAnalysis {
                 buffer.append("0");
 			}
 		}
+
+		coverageBitString.put(criterion.name(), buffer);
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.CoverageBitString,
+				coverageBitString.size() == 0 ? "0" : coverageBitString.values().toString().replace("[", "").replace("]", "").replace(", ", ""));
 
         RuntimeVariable bitStringVariable = getBitStringVariable(criterion);
         if(bitStringVariable != null){
