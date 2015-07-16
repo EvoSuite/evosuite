@@ -36,10 +36,10 @@ public class MeasureCoverage {
 	
 	public static Object execute(Options options, List<String> javaOpts,
 			CommandLine line) {
-		if (line.hasOption("class")){
-			measureCoverageClass(line.getOptionValue("class"), line.getOptionValue("junit"), javaOpts);
+		if (line.hasOption("class")) {
+			measureCoverageClass(line.getOptionValue("class"), javaOpts);
 		} else if (line.hasOption("target")) {
-			measureCoverageTarget(line.getOptionValue("target"), line.getOptionValue("junit"), javaOpts);
+			measureCoverageTarget(line.getOptionValue("target"), javaOpts);
 		} else {
 			LoggingUtils.getEvoLogger().error("Please specify target class ('-class' option)");
 			Help.execute(options);
@@ -47,7 +47,7 @@ public class MeasureCoverage {
 		return SearchStatistics.getInstance();
 	}
 
-	private static void measureCoverageClass(String targetClass, String junitPrefix, List<String> args) {
+	private static void measureCoverageClass(String targetClass, List<String> args) {
 
 		if (!ResourceList.hasClass(targetClass)) {
 			LoggingUtils.getEvoLogger().error("* Unknown class: " + targetClass
@@ -61,18 +61,18 @@ public class MeasureCoverage {
 			                + " because it belongs to one of the packages EvoSuite cannot currently handle");
 		}
 
-		measureCoverage(targetClass, junitPrefix, args);
+		measureCoverage(targetClass, args);
 	}
 
-	private static void measureCoverageTarget(String target, String junitPrefix, List<String> args) {
+	private static void measureCoverageTarget(String target, List<String> args) {
 
 		Set<String> classes = ResourceList.getAllClasses(target, false);
 		LoggingUtils.getEvoLogger().info("* Found " + classes.size() + " matching classes in target " + target);
 
-		measureCoverage(target, junitPrefix, args);
+		measureCoverage(target, args);
 	}
 
-	private static void measureCoverage(String targetClass, String junitPrefix, List<String> args) {
+	private static void measureCoverage(String targetClass, List<String> args) {
 
 		String classPath = ClassPathHandler.getInstance().getEvoSuiteClassPath();
 		String projectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
@@ -100,7 +100,7 @@ public class MeasureCoverage {
 		}
 
 		cmdLine.add("-DTARGET_CLASS=" + targetClass);
-		cmdLine.add("-Djunit_prefix=" + junitPrefix);
+		cmdLine.add("-Djunit_prefix=" + Properties.JUNIT_PREFIX);
 		if (Properties.PROJECT_PREFIX != null) {
 			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
 		}

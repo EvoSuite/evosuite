@@ -167,7 +167,8 @@ public class TestFactory {
 			                                                       null,
 			                                                       Arrays.asList(constructor.getParameterTypes()),
 			                                                       position,
-			                                                       recursionDepth + 1);
+			                                                       recursionDepth + 1,
+					                                               true);
 			int newLength = test.size();
 			position += (newLength - length);
 
@@ -180,6 +181,11 @@ public class TestFactory {
 				VariableReference classConstant = new ConstantValue(test, new GenericClass(Class.class), klass);
 				int injectPosition = position + 1;
 
+				/*
+        		TODO should handle superclasses
+				    */
+
+				//first check all special fields
 				if (Injector.hasEntityManager(klass)) {
 					Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEntityManager(), null,
 							Arrays.asList(ref, classConstant));
@@ -201,8 +207,29 @@ public class TestFactory {
 					test.addStatement(ms, injectPosition++);
 				}
 
-				//TODO all others injections
+				    /*
+        				TODO should handle superclasses
+				     */
 
+				//then do the non-special fields that need injection
+				for(Field f : Injector.getGeneralFieldsToInject(klass)){
+					VariableReference fieldName = new ConstantValue(test, new GenericClass(String.class), f.getName());
+
+					int beforeLength = test.size();
+					VariableReference valueToInject = satisfyParameters(test,
+							null,
+							Arrays.asList((Type)f.getType()),
+							injectPosition,
+							0, false).get(0);
+					int afterLength = test.size();
+					injectPosition += (afterLength - beforeLength);
+
+					Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForGeneralField(), null,
+							Arrays.asList(ref, classConstant, fieldName, valueToInject));
+					test.addStatement(ms, injectPosition++);
+				}
+
+				//finally, call the the postConstruct (if any)
 				if(Injector.hasPostConstruct(klass)){
 					Statement ms = new MethodStatement(test, InjectionSupport.getPostConstruct(), null,
 							Arrays.asList(ref));
@@ -406,7 +433,7 @@ public class TestFactory {
 
 			parameters = satisfyParameters(test, callee,
 			                               Arrays.asList(method.getParameterTypes()),
-			                               position, recursionDepth + 1);
+			                               position, recursionDepth + 1, true);
 
 		} catch (ConstructionFailedException e) {
 			// TODO: Re-insert in new test cluster
@@ -445,7 +472,7 @@ public class TestFactory {
 		List<VariableReference> parameters = null;
 		parameters = satisfyParameters(test, callee,
 		                               Arrays.asList(method.getParameterTypes()),
-		                               position, 1);
+		                               position, 1, true);
 
 		int newLength = test.size();
 		position += (newLength - length);
@@ -1462,7 +1489,7 @@ public class TestFactory {
             parameters = satisfyParameters(test, null,
                     //we need a reference to the SUT, and one to a variable of same type of chosen field
                     Arrays.asList((Type)reflectionFactory.getReflectedClass() , (Type)field.getType()),
-                    position, recursionDepth + 1);
+                    position, recursionDepth + 1, true);
 
             try {
                 st = new PrivateFieldStatement(test,reflectionFactory.getReflectedClass(),field.getName(),
@@ -1478,7 +1505,7 @@ public class TestFactory {
             list.add(reflectionFactory.getReflectedClass());
             list.addAll(Arrays.asList(method.getParameterTypes()));
 
-            parameters = satisfyParameters(test, null,list,position, recursionDepth + 1);
+            parameters = satisfyParameters(test, null,list,position, recursionDepth + 1, true);
             VariableReference callee = parameters.remove(0);
 
             try {
@@ -1765,7 +1792,7 @@ public class TestFactory {
 	 */
 	private List<VariableReference> satisfyParameters(TestCase test,
 	        VariableReference callee, List<Type> parameterTypes, int position,
-	        int recursionDepth) throws ConstructionFailedException {
+	        int recursionDepth, boolean allowNull) throws ConstructionFailedException {
 
 		List<VariableReference> parameters = new ArrayList<>();
 		logger.debug("Trying to satisfy " + parameterTypes.size() + " parameters");
@@ -1783,7 +1810,7 @@ public class TestFactory {
 			int previousLength = test.size();
 
 			VariableReference var = createOrReuseVariable(test, parameterType, position,
-			                                              recursionDepth, callee, true);
+			                                              recursionDepth, callee, allowNull);
 
 			// Generics instantiation may lead to invalid types, so better double check
 			if(!var.isAssignableTo(parameterType)) {

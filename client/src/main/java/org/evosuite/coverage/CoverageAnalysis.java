@@ -29,6 +29,8 @@ public class CoverageAnalysis {
 
 	private static final Logger logger = LoggerFactory.getLogger(CoverageAnalysis.class);
 
+	private static Map<String, StringBuffer> coverageBitString = new TreeMap<String, StringBuffer>();
+
 	private static boolean isMutationCriterion(Set<Criterion> criteria) {
 	    for (Properties.Criterion pc : criteria) {
 	        if (isMutationCriterion(pc))
@@ -202,20 +204,23 @@ public class CoverageAnalysis {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void analyzeCoverage(TestSuiteChromosome testSuite, Properties.Criterion criterion) {
 
-        reinstrument(testSuite, criterion);
+		TestSuiteChromosome testSuiteCopy = testSuite.clone();
+
+		reinstrument(testSuiteCopy, criterion);
 		TestFitnessFactory factory = FitnessFunctions.getFitnessFactory(criterion);
 
-		for(TestChromosome test : testSuite.getTestChromosomes()) {
+		for(TestChromosome test : testSuiteCopy.getTestChromosomes()) {
 			test.getTestCase().clearCoveredGoals();
 		}
 
-        StringBuffer buffer = new StringBuffer(1024);
-		int covered = 0;
 		List<TestFitnessFunction> goals = factory.getCoverageGoals();
         Collections.sort(goals);
 
+		StringBuffer buffer = new StringBuffer(goals.size());
+		int covered = 0;
+
 		for (TestFitnessFunction goal : goals) {
-			if (goal.isCoveredBy(testSuite)) {
+			if (goal.isCoveredBy(testSuiteCopy)) {
 				logger.debug("Goal {} is covered", goal);
 				covered++;
                 buffer.append("1");
@@ -224,6 +229,10 @@ public class CoverageAnalysis {
                 buffer.append("0");
 			}
 		}
+
+		coverageBitString.put(criterion.name(), buffer);
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.CoverageBitString,
+				coverageBitString.size() == 0 ? "0" : coverageBitString.values().toString().replace("[", "").replace("]", "").replace(", ", ""));
 
         RuntimeVariable bitStringVariable = getBitStringVariable(criterion);
         if(bitStringVariable != null){
