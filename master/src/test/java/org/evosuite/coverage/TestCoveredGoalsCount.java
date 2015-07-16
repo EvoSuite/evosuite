@@ -102,14 +102,6 @@ public class TestCoveredGoalsCount extends SystemTest {
         assertEquals("1.0", rows.get(1)[2]); // Coverage
         assertEquals("48", rows.get(1)[3]); // Covered_Goals
         assertEquals("48", rows.get(1)[4]); // Total_Goals
-
-        /**
-         * FIXME
-         *  
-         * Why the list of covered goals also include Branch goals ?
-         * 
-         * Note: this test case is failing for MUTATION, STRONGMUTATION, or WEAKMUTATION
-         */
     }
 
     @Test
