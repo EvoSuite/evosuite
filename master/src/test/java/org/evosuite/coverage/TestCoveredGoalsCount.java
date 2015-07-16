@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
@@ -15,6 +16,7 @@ import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.Calculator;
@@ -24,8 +26,19 @@ import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Created by jrojas
+ * Edited by José Campos
+ * 
  */
 public class TestCoveredGoalsCount extends SystemTest {
+
+	@Before
+	public void prepare() {
+		try {
+			FileUtils.deleteDirectory(new File("evosuite-report"));
+		} catch (IOException e) {
+			Assert.fail(e.getMessage());
+		}
+	}
 
     @Test
     public void testCoveredGoalsCount() {
