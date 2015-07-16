@@ -204,7 +204,7 @@ public class TestSuiteMinimizer {
                         } else {
                             logger.info("Covered by minimized test: " + goal);
                             covered.add(goal);
-                            test.getTestCase().addCoveredGoal(goal);
+                            //test.getTestCase().addCoveredGoal(goal); // FIXME why? goal.isCovered(test) is already adding the goal
                             break;
                         }
                     }
@@ -438,7 +438,7 @@ public class TestSuiteMinimizer {
         List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
         for (TestFitnessFactory<?> tf : testFitnessFactories) {
-            goals.addAll((List<TestFitnessFunction>) tf.getCoverageGoals());
+            goals.addAll(tf.getCoverageGoals());
         }
 
         for (TestChromosome test : tests) {

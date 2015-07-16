@@ -204,10 +204,12 @@ public class CoverageAnalysis {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void analyzeCoverage(TestSuiteChromosome testSuite, Properties.Criterion criterion) {
 
-        reinstrument(testSuite, criterion);
+		TestSuiteChromosome testSuiteCopy = testSuite.clone();
+
+		reinstrument(testSuiteCopy, criterion);
 		TestFitnessFactory factory = FitnessFunctions.getFitnessFactory(criterion);
 
-		for(TestChromosome test : testSuite.getTestChromosomes()) {
+		for(TestChromosome test : testSuiteCopy.getTestChromosomes()) {
 			test.getTestCase().clearCoveredGoals();
 		}
 
@@ -218,7 +220,7 @@ public class CoverageAnalysis {
 		int covered = 0;
 
 		for (TestFitnessFunction goal : goals) {
-			if (goal.isCoveredBy(testSuite)) {
+			if (goal.isCoveredBy(testSuiteCopy)) {
 				logger.debug("Goal {} is covered", goal);
 				covered++;
                 buffer.append("1");
