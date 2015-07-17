@@ -324,6 +324,11 @@ public class TestChromosome extends ExecutableChromosome {
 		for (Statement s : test) {
 			s.isValid();
 		}
+
+		// be sure that mutation did not break any constraint.
+		// if it happens, it means a bug in EvoSuite
+		assert ConstraintVerifier.verifyTest(test);
+		assert ! ConstraintVerifier.hasAnyOnlyForAssertionMethod(test);
 	}
 
 	private int getLastMutatableStatement() {
@@ -346,37 +351,44 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @return
 	 */
 	private boolean mutationDelete() {
+
 		boolean changed = false;
-		int lastMutatableStatement = getLastMutatableStatement();
-		double pl = 1d / (lastMutatableStatement + 1);
+		int lastMutableStatement = getLastMutatableStatement();
+		double pl = 1d / (lastMutableStatement + 1);
 		TestFactory testFactory = TestFactory.getInstance();
 
-		//		for (int num = test.size() - 1; num >= 0; num--) {
-		for (int num = lastMutatableStatement; num >= 0; num--) {
+		for (int num = lastMutableStatement; num >= 0; num--) {
 
 			// Each statement is deleted with probability 1/l
 			if (Randomness.nextDouble() <= pl) {
-				// if(!test.hasReferences(test.getStatement(num).getReturnValue()))
-				// {
-				try {
-					TestCase copy = test.clone();
-					// test_factory.deleteStatement(test, num);
-					changed = true;
-					mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
-					        TestMutationHistoryEntry.TestMutation.DELETION));
-					testFactory.deleteStatementGracefully(copy, num);
-					test = copy;
-
-				} catch (ConstructionFailedException e) {
-					logger.warn("Deletion of statement failed: "
-					        + test.getStatement(num).getCode());
-					logger.warn(test.toCode());
-				}
-				// }
+				changed |= deleteStatement(testFactory, num);
 			}
 		}
 
 		return changed;
+	}
+
+	protected boolean deleteStatement(TestFactory testFactory, int num) {
+		if(! ConstraintVerifier.canDelete(test, num)){
+			return false;
+        }
+
+		try {
+
+            TestCase copy = test.clone();
+
+            mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
+					TestMutationHistoryEntry.TestMutation.DELETION));
+            testFactory.deleteStatementGracefully(copy, num);
+
+            test = copy;
+           	return true;
+
+        } catch (ConstructionFailedException e) {
+            logger.warn("Deletion of statement failed: " + test.getStatement(num).getCode());
+            logger.warn(test.toCode());
+			return false; //modifications were on copy
+        }
 	}
 
 	/**
@@ -402,20 +414,27 @@ public class TestChromosome extends ExecutableChromosome {
 
 		if (!changed) {
 			for (int position = 0; position <= lastMutatableStatement; position++) {
-				Statement statement = test.getStatement(position);
-				//for (StatementInterface statement : test) {
-				if(statement.isReflectionStatement())
-					continue;
-				
 				if (Randomness.nextDouble() <= pl) {
 					assert (test.isValid());
+
+					Statement statement = test.getStatement(position);
+
+					if(statement.isReflectionStatement())
+						continue;
+
 					int oldDistance = statement.getReturnValue().getDistance();
+
+					//constraints are handled directly in the statement mutations
 					if (statement.mutate(test, testFactory)) {
 						changed = true;
 						mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
 						        TestMutationHistoryEntry.TestMutation.CHANGE, statement));
 						assert (test.isValid());
-					} else if (!statement.isAssignmentStatement()) {
+
+					} else if (!statement.isAssignmentStatement() &&
+							!ConstraintVerifier.canDelete(test,position)) {
+						//if a statement should not be deleted, then it cannot be either replaced by another one
+
 						int pos = statement.getPosition();
 						if (testFactory.changeRandomCall(test, statement)) {
 							changed = true;
@@ -425,6 +444,7 @@ public class TestChromosome extends ExecutableChromosome {
 						}
 						assert (test.isValid());
 					}
+
 					statement.getReturnValue().setDistance(oldDistance);
 					position = statement.getPosition(); // Might have changed due to mutation
 				}
@@ -447,11 +467,11 @@ public class TestChromosome extends ExecutableChromosome {
 		
 		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
+
 			count++;
-			// Insert at position as during initialization (i.e., using helper
-			// sequences)
-			int position = testFactory.insertRandomStatement(test,
-			                                                 getLastMutatableStatement());
+			// Insert at position as during initialization (i.e., using helper sequences)
+			int position = testFactory.insertRandomStatement(test, getLastMutatableStatement());
+
 			if (position >= 0 && position < test.size()) {
 				changed = true;
 				mutationHistory.addMutationEntry(new TestMutationHistoryEntry(

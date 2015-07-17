@@ -65,6 +65,17 @@ import org.slf4j.LoggerFactory;
  */
 public class CoverageAnalysis {
 
+	/**
+	 * FIXME
+	 * 
+	 * OUTPUT
+	 * METHOD
+	 * METHODNOEXCEPTION
+	 * 
+	 * relies on Observers. to have coverage of these criteria, JUnit test cases
+	 * must have to be converted to some format that EvoSuite can understand
+	 */
+
 	private final static Logger logger = LoggerFactory.getLogger(CoverageAnalysis.class);
 
 	private static int totalGoals = 0;
@@ -108,7 +119,7 @@ public class CoverageAnalysis {
 		// TestCluster.getInstance();
 
 		List<Class<?>> testClasses = getTestClasses();
-		LoggingUtils.getEvoLogger().info("* Found " + testClasses.size() + " unit test class(es)");
+		LoggingUtils.getEvoLogger().info("* Found " + testClasses.size() + " test class(es)");
 		if (testClasses.isEmpty())
 			return;
 
@@ -170,9 +181,13 @@ public class CoverageAnalysis {
 			Set<String> suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
 					ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 			
-			LoggingUtils.getEvoLogger().info("* Found " + suts.size() + " classes with prefix " + prefix);
+			LoggingUtils.getEvoLogger().info("* Found " + suts.size() + " classes with prefix '" + prefix + "'");
 			if (!suts.isEmpty()) {
 				for (String sut : suts) {
+					if (targetClasses.contains(sut)) {
+						continue ;
+					}
+
 					try {
 						Class<?> clazz = Class.forName(
 								sut,true,TestGenerationContext.getInstance().getClassLoaderForSUT());
@@ -498,9 +513,6 @@ public class CoverageAnalysis {
 
 	private static void printReport(List<JUnitResult> results) {
 
-		LoggingUtils.getEvoLogger().info("* Executed " + results.size() + " test(s)");
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, results.size());
-
 		Iterator<String> it = targetClasses.iterator();
 		Criterion[] criterion = Properties.CRITERION;
 
@@ -549,11 +561,14 @@ public class CoverageAnalysis {
 
 		List<JUnitResult> results = new ArrayList<JUnitResult>();
         for (Class<?> testClass : testClasses) {
-            logger.info("Running test " + testClass.getSimpleName());
+        	LoggingUtils.getEvoLogger().info("  Executing " + testClass.getSimpleName());
             JUnitRunner jR = new JUnitRunner(testClass);
             jR.run();
             results.addAll(jR.getTestResults());
         }
+
+        LoggingUtils.getEvoLogger().info("* Executed " + results.size() + " unit test(s)");
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, results.size());
 
         return results;
 	}
