@@ -22,20 +22,14 @@ package org.evosuite.setup;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.CoverageAnalysis;
+import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.generic.GenericAccessibleObject;
@@ -62,8 +56,13 @@ public class TestCluster {
 	@Deprecated
 	private final static Set<Class<?>> analyzedClasses = new LinkedHashSet<>();
 
-	/** Methods we want to cover when testing */
+	/** UUT methods we want to cover when testing */
 	private final static Set<GenericAccessibleObject<?>> testMethods = new LinkedHashSet<>();
+
+	/**
+	 * Methods used to modify and set the environment of the UUT
+	 */
+	private final Set<GenericAccessibleObject<?>> environmentMethods;
 
 	/** Static information about how to generate types */
 	private final static Map<GenericClass, Set<GenericAccessibleObject<?>>> generators = new LinkedHashMap<>();
@@ -82,18 +81,8 @@ public class TestCluster {
 
     protected TestCluster(){
         environmentAugmenter = new EnvironmentTestClusterAugmenter(this);
+		environmentMethods = new LinkedHashSet<>();
     }
-
-    public void handleRuntimeAccesses(TestCase test) {
-        environmentAugmenter.handleRuntimeAccesses(test);
-    }
-
-	/**
-	 * @return the inheritancetree
-	 */
-	public static InheritanceTree getInheritanceTree() {
-		return inheritanceTree;
-	}
 
 	/**
 	 * Instance accessor
@@ -110,30 +99,6 @@ public class TestCluster {
 		return instance;
 	}
 
-	public static boolean isTargetClassName(String className) {
-		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
-		        && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
-			// exclude existing tests from the target project
-			try {
-				Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
-				return !CoverageAnalysis.isTest(clazz);
-			} catch (ClassNotFoundException e) {
-				logger.info("Could not load class: ", className);
-			}
-		}
-		if (className.equals(Properties.TARGET_CLASS)
-		        || className.startsWith(Properties.TARGET_CLASS + "$")) {
-			return true;
-		}
-
-		if (Properties.INSTRUMENT_PARENT) {
-			return inheritanceTree.getSubclasses(Properties.TARGET_CLASS).contains(className);
-		}
-
-		return false;
-
-	}
-
 	public static void reset() {
 		analyzedClasses.clear();
 		testMethods.clear();
@@ -145,6 +110,18 @@ public class TestCluster {
 		instance = null;
 	}
 
+	public void handleRuntimeAccesses(TestCase test) {
+		environmentAugmenter.handleRuntimeAccesses(test);
+	}
+
+	/**
+	 * @return the inheritancetree
+	 */
+	public static InheritanceTree getInheritanceTree() {
+		return inheritanceTree;
+	}
+
+
 	/**
 	 * @param inheritancetree
 	 *            the inheritancetree to set
@@ -152,6 +129,31 @@ public class TestCluster {
 	protected static void setInheritanceTree(InheritanceTree inheritancetree) {
 		inheritanceTree = inheritancetree;
 	}
+
+	public static boolean isTargetClassName(String className) {
+		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
+				&& className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
+			// exclude existing tests from the target project
+			try {
+				Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
+				return !CoverageAnalysis.isTest(clazz);
+			} catch (ClassNotFoundException e) {
+				logger.info("Could not load class: ", className);
+			}
+		}
+		if (className.equals(Properties.TARGET_CLASS)
+				|| className.startsWith(Properties.TARGET_CLASS + "$")) {
+			return true;
+		}
+
+		if (Properties.INSTRUMENT_PARENT) {
+			return inheritanceTree.getSubclasses(Properties.TARGET_CLASS).contains(className);
+		}
+
+		return false;
+
+	}
+
 
 	/**
 	 * Add a generator reflection object
@@ -187,12 +189,19 @@ public class TestCluster {
 	 *
 	 * @return
 	 */
-	public void addTestCall(GenericAccessibleObject<?> call) {
+	public void addTestCall(GenericAccessibleObject<?> call) throws IllegalArgumentException{
+		Inputs.checkNull(call);
 		testMethods.add(call);
 	}
 
 	public void removeTestCall(GenericAccessibleObject<?> call) {
 		testMethods.remove(call);
+	}
+
+
+	public void addEnvironmentTestCall(GenericAccessibleObject<?> call) throws IllegalArgumentException{
+		Inputs.checkNull(call);
+		environmentMethods.add(call);
 	}
 
 	/**
@@ -431,7 +440,9 @@ public class TestCluster {
 
 	/**
 	 * @return the analyzedClasses
+	 *
 	 */
+	@Deprecated
 	public Set<Class<?>> getAnalyzedClasses() {
 		return analyzedClasses;
 	}
@@ -588,7 +599,7 @@ public class TestCluster {
 	 * @return
 	 */
 	public Set<GenericAccessibleObject<?>> getGenerators() {
-		Set<GenericAccessibleObject<?>> calls = new LinkedHashSet<GenericAccessibleObject<?>>();
+		Set<GenericAccessibleObject<?>> calls = new LinkedHashSet<>();
 		for (Set<GenericAccessibleObject<?>> generatorCalls : generators.values())
 			calls.addAll(generatorCalls);
 
@@ -635,7 +646,7 @@ public class TestCluster {
 		Set<GenericAccessibleObject<?>> calls = new LinkedHashSet<GenericAccessibleObject<?>>();
 
 		if (clazz.isAssignableTo(Collection.class) || clazz.isAssignableTo(Map.class)) {
-			Set<GenericAccessibleObject<?>> all = new LinkedHashSet<GenericAccessibleObject<?>>();
+			Set<GenericAccessibleObject<?>> all = new LinkedHashSet<>();
 			if (!generatorCache.containsKey(clazz)) {
 				cacheGenerators(clazz);
 			}
@@ -769,8 +780,8 @@ public class TestCluster {
 	 */
 	public Set<GenericAccessibleObject<?>> getObjectGenerators() {
 		// TODO: Use probabilities based on distance to SUT
-		Set<GenericAccessibleObject<?>> result = new LinkedHashSet<GenericAccessibleObject<?>>();
-		List<GenericClass> classes = new ArrayList<GenericClass>(
+		Set<GenericAccessibleObject<?>> result = new LinkedHashSet<>();
+		List<GenericClass> classes = new ArrayList<>(
 		        CastClassManager.getInstance().getCastClasses());
 		for (GenericClass clazz : classes) {
 			try {
@@ -923,6 +934,40 @@ public class TestCluster {
 
 	}
 
+	public List<GenericAccessibleObject<?>> getRandomizedCallsToEnvironment(){
+
+		if(environmentMethods.isEmpty()){
+			return null;
+		}
+
+		List<GenericAccessibleObject<?>> list = new ArrayList<>();
+
+		for(GenericAccessibleObject<?>  obj : environmentMethods) {
+
+			try {
+				if (obj.getOwnerClass().hasWildcardOrTypeVariables()) {
+					GenericClass concreteClass = obj.getOwnerClass().getGenericInstantiation();
+					obj = obj.copyWithNewOwner(concreteClass);
+				}
+				if (obj.hasTypeParameters()) {
+					obj = obj.getGenericInstantiation();
+				}
+			} catch (ConstructionFailedException e) {
+				logger.error("Failed generic instantiation in "+obj);
+				continue;
+			}
+
+			list.add(obj);
+		}
+
+		Collections.shuffle(list);
+		return list;
+	}
+
+	public int getNumOfEnvironmentCalls(){
+		return environmentMethods.size();
+	}
+
 	/**
 	 * Get random method or constructor of unit under test
 	 *
@@ -956,6 +1001,8 @@ public class TestCluster {
 		return choice;
 	}
 
+
+
 	public int getNumTestCalls() {
 		return testMethods.size();
 	}
@@ -968,8 +1015,8 @@ public class TestCluster {
 	 */
 	public List<GenericAccessibleObject<?>> getTestCalls() {
 		// TODO: Check for generic methods
-		List<GenericAccessibleObject<?>> result = new ArrayList<GenericAccessibleObject<?>>();
-		//testMethods);
+		List<GenericAccessibleObject<?>> result = new ArrayList<>();
+
 		for (GenericAccessibleObject<?> ao : testMethods) {
 			if (ao.getOwnerClass().hasWildcardOrTypeVariables()) {
 				try {
@@ -995,7 +1042,7 @@ public class TestCluster {
 		try {
 			cacheGenerators(clazz);
 		} catch (ConstructionFailedException e) {
-			// TODO
+			logger.error("Failed to check cache for "+clazz+" : "+e.getMessage());
 		}
 		if (!generatorCache.containsKey(clazz))
 			return false;
@@ -1069,12 +1116,16 @@ public class TestCluster {
 		for (GenericClass clazz : modifiers.keySet()) {
 			result.append(" Modifiers for " + clazz.getSimpleName() + ": "
 			        + modifiers.get(clazz).size() + "\n");
-			for (GenericAccessibleObject<?> o : modifiers.get(clazz)) { //getCallsFor(clazz, true)) {
+			for (GenericAccessibleObject<?> o : modifiers.get(clazz)) {
 				result.append(" " + clazz.getSimpleName() + " <- " + o + "\n");
 			}
 		}
 		result.append("Test calls\n");
 		for (GenericAccessibleObject<?> testCall : testMethods) {
+			result.append(" " + testCall + "\n");
+		}
+		result.append("Environment calls\n");
+		for (GenericAccessibleObject<?> testCall : environmentMethods) {
 			result.append(" " + testCall + "\n");
 		}
 		return result.toString();

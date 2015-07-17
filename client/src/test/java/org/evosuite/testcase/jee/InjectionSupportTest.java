@@ -14,4 +14,19 @@ public class InjectionSupportTest {
     public void testGetInjectorForEntityManager() throws Exception {
         Assert.assertNotNull(InjectionSupport.getInjectorForEntityManager());
     }
+
+    @Test
+    public void testGetInjectorForEntityManagerFactory() throws Exception {
+        Assert.assertNotNull(InjectionSupport.getInjectorForEntityManagerFactory());
+    }
+
+    @Test
+    public void testGetInjectorForUserTransaction() throws Exception {
+        Assert.assertNotNull(InjectionSupport.getInjectorForUserTransaction());
+    }
+
+    @Test
+    public void testGetInjectorForEvent() throws Exception {
+        Assert.assertNotNull(InjectionSupport.getInjectorForEvent());
+    }
 }

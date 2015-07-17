@@ -1,11 +1,12 @@
 package org.evosuite.testcase;
 
 import org.evosuite.runtime.annotation.*;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.Statement;
+import org.evosuite.runtime.util.Inputs;
+import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +48,8 @@ public class ConstraintVerifier {
 
         for(int i=0; i<tc.size(); i++) {
             Statement st = tc.getStatement(i);
-            if (!(st instanceof MethodStatement) && !(st instanceof ConstructorStatement)) {
+
+            if (! canStatementHaveConstraints(st)){
                 continue;
             }
 
@@ -70,6 +72,146 @@ public class ConstraintVerifier {
         return false;
     }
 
+    /**
+     * Can the statement at the given position be deleted?
+     * A case in which it is not possible is for example if it is
+     * using an existing bounded variable
+     *
+     * @param tc
+     * @param pos
+     * @return
+     */
+    public static boolean canDelete(TestCase tc, int pos) throws IllegalArgumentException{
+        Inputs.checkNull(tc);
+
+        Statement st = tc.getStatement(pos);
+
+        if(! canStatementHaveConstraints(st)){
+            return true;
+        }
+
+        //first look at bounded variables
+        for(Annotation[] array : getParameterAnnotations(st)){
+            for(Annotation an : array){
+                if(an instanceof BoundInputVariable){
+                    return false;
+                }
+            }
+        }
+
+        //check if there is an 'after' constraint
+        if(st instanceof MethodStatement) {
+            MethodStatement current = (MethodStatement) st;
+            String currentKlassName = current.getMethod().getDeclaringClass().getCanonicalName();
+            String currentMethodName = current.getMethod().getName();
+
+            for (int i = pos + 1; i < tc.size(); i++) {
+                Statement toCheck = tc.getStatement(i);
+                Constraints constraints = ConstraintHelper.getConstraints(toCheck);
+                if (constraints == null) {
+                    continue;
+                }
+                String after = constraints.after();
+                if (after == null || after.trim().isEmpty()) {
+                    continue;
+                }
+
+                MethodStatement ms = (MethodStatement) toCheck;
+                String[] klassAndMethod = ConstraintHelper.getClassAndMethod(after, ms.getMethod().getDeclaringClass());
+                String afterKlassName = klassAndMethod[0];
+                String afterMethodName = klassAndMethod[1];
+
+                if(afterKlassName.equals(currentKlassName) && afterMethodName.equals(currentMethodName)){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     *
+     * @param obj
+     * @param tc
+     * @param lastValid
+     * @return position where the object can be inserted, otherwise a negative value if no insertion is possible
+     * @throws IllegalArgumentException
+     */
+    public static int getAValidPositionForInsertion(GenericAccessibleObject<?> obj, TestCase tc, int lastValid) throws IllegalArgumentException{
+        Inputs.checkNull(obj,tc);
+
+        Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
+        if(constraints == null){
+            if(lastValid==0){
+                return 0;
+            }
+            return Randomness.nextInt(0,lastValid);
+        }
+
+        Class<?> declaringClass = obj.getDeclaringClass();
+        String declaringClassName = declaringClass.getCanonicalName();
+        String name = obj.getName();
+
+        //check atMostOnce
+        if(constraints.atMostOnce()){
+            int counter = ConstraintHelper.countNumberOfMethodCalls(tc,declaringClass,name);
+            if(counter == 1){
+                //cannot insert it again
+                return -1;
+            } else if(counter > 1){
+                throw new RuntimeException("Violated 'atMostOnce' constraint for "+obj.getName());
+            }
+        }
+
+        //excludeOthers
+        List<String[]> othersExcluded = ConstraintHelper.getExcludedMethods(tc);
+        if(othersExcluded != null && othersExcluded.size() > 0){
+            for(String[] pair : othersExcluded){
+                if(pair[0].equals(declaringClassName) && pair[1].equals(name)){
+                    //this method/constructor cannot be added
+                    return -1;
+                }
+            }
+        }
+
+        //dependOnProperties
+        String[] properties = constraints.dependOnProperties();
+        if(properties!=null && properties.length>0){
+            for(String property : properties){
+                if(! tc.getAccessedEnvironment().hasProperty(property)){
+                    return -1;
+                }
+            }
+        }
+
+        //after
+        int minPos = 0;
+        String after = constraints.after();
+        if(after!=null && !after.isEmpty()){
+            String[] pair = ConstraintHelper.getClassAndMethod(after,declaringClass);
+
+            int afterPos = ConstraintHelper.getLastPositionOfMethodCall(tc,pair[0],pair[1],lastValid);
+            if(afterPos < 0){
+                /*
+                    The current method cannot be inserted, because it has to be 'after' X, but X is not in the test
+                 */
+                return -1;
+            }
+            minPos = afterPos+1;
+        }
+
+        //TODO
+        //bounded
+
+        if(minPos > 0) {
+            return minPos; //try to add immediately 'after' the constraining method
+        } else {
+            if(lastValid==0){
+                return 0;
+            }
+            return Randomness.nextInt(0,lastValid);
+        }
+    }
 
     public static boolean verifyTest(TestChromosome tc){
         return verifyTest(tc.getTestCase());
@@ -80,7 +222,8 @@ public class ConstraintVerifier {
      * @param tc
      * @return true if the test case does satisfy all the constraints
      */
-    public static boolean verifyTest(TestCase tc){
+    public static boolean verifyTest(TestCase tc) throws IllegalArgumentException{
+        Inputs.checkNull(tc);
 
         Set<Object> seenAtMostOnce = new LinkedHashSet<>();
 
@@ -88,8 +231,7 @@ public class ConstraintVerifier {
         for(int i=0; i<tc.size(); i++){
             Statement st = tc.getStatement(i);
 
-            //constraints are defined only on methods and constructors (eg, no primitive variable field declarations)
-            if(! (st instanceof MethodStatement) && ! (st instanceof ConstructorStatement)){
+            if (! canStatementHaveConstraints(st)){
                 continue;
             }
 
@@ -191,7 +333,14 @@ public class ConstraintVerifier {
                             if(vr instanceof NullReference){
                                 invalid = true;
                             }
-                            //FIXME check if VariableReferenceImpl
+
+                            Statement varSource = tc.getStatement(vr.getStPosition());
+                            if(varSource instanceof PrimitiveStatement){ //eg for String
+                                Object obj = ((PrimitiveStatement)varSource).getValue();
+                                if(obj==null){
+                                    invalid = true;
+                                }
+                            }
 
                             if(invalid){
                                 logger.error("'noNullInputs' constraint violated at position "+i+" in test case:\n"+tc.toCode());
@@ -220,6 +369,35 @@ public class ConstraintVerifier {
         }
 
         return true; //everything was OK
+    }
+
+    private static Annotation[][] getParameterAnnotations(Statement st){
+        if(st instanceof MethodStatement){
+            return ((MethodStatement) st).getMethod().getMethod().getParameterAnnotations();
+        } else if(st instanceof ConstructorStatement){
+            return ((ConstructorStatement)st).getConstructor().getConstructor().getParameterAnnotations();
+        } else {
+            return null;
+        }
+    }
+
+
+    private static AccessibleObject getAccessibleObject(Statement st){
+        if(st instanceof MethodStatement){
+            return ((MethodStatement) st).getMethod().getMethod();
+        } else if(st instanceof ConstructorStatement){
+            return ((ConstructorStatement)st).getConstructor().getConstructor();
+        } else {
+            return null;
+        }
+    }
+
+    private static boolean canStatementHaveConstraints(Statement st) {
+        //constraints are defined only on methods and constructors (eg, no primitive variable field declarations)
+        if(! (st instanceof MethodStatement) && ! (st instanceof ConstructorStatement)){
+            return false;
+        }
+        return true;
     }
 
     private static boolean checkBoundedVariableAtMostOnce(TestCase tc, int i, MethodStatement ms) {
@@ -257,11 +435,11 @@ public class ConstraintVerifier {
                 continue;
             }
 
-            //ok, same method. but is called with the same bounded variables?
+            //ok, same method. but is it called with the same bounded variables?
             for(VariableReference ref : other.getParameterReferences()){
                 for(VariableReference bounded : atMostOnce){
                     if(ref.same(bounded)){
-                        logger.error("Bounded variable declared in "+ref.getStPosition()+" can only be used once as input for the" +
+                        logger.error("Bounded variable declared in "+ref.getStPosition()+" can only be used once as input for the " +
                                 "method "+other.getMethod().getName()+" : it is wrongly used both at position "+j+" and "+i);
                         return false;
                     }
@@ -365,7 +543,7 @@ public class ConstraintVerifier {
     private static boolean checkAfter(TestCase tc, int i, Class<?> declaringClass, Constraints c) {
         String after = c.after();
 
-        String[] klassAndMethod = getClassAndMethod(after,declaringClass);
+        String[] klassAndMethod = ConstraintHelper.getClassAndMethod(after, declaringClass);
         String afterKlassName = klassAndMethod[0];
         String afterMethodName = klassAndMethod[1];
 
@@ -405,26 +583,12 @@ public class ConstraintVerifier {
     }
 
 
-    private static String[] getClassAndMethod(String s, Class<?> c){
-        String klassName = null;
-        String methodName = null;
-        if(s.contains("#")){
-            int pos = s.indexOf('#');
-            klassName = s.substring(0,pos);
-            methodName = s.substring(pos+1,s.length());
-        } else {
-            klassName = c.getCanonicalName();
-            methodName = s;
-        }
-        return new String[]{klassName,methodName};
-    }
-
     private static boolean checkExcludeOthers(TestCase tc, int i, Class<?> declaringClass, Constraints c) {
 
         Statement st = tc.getStatement(i);
 
         for(String excluded : c.excludeOthers()){
-            String[] klassAndMethod = getClassAndMethod(excluded,declaringClass);
+            String[] klassAndMethod = ConstraintHelper.getClassAndMethod(excluded, declaringClass);
             String klassName = klassAndMethod[0];
             String excludedName = klassAndMethod[1];
 
@@ -454,7 +618,7 @@ public class ConstraintVerifier {
             //look at all the other statements
             for(int j=0; j<tc.size(); j++) {
                 Statement other = tc.getStatement(j);
-                if (j==i || !(st instanceof MethodStatement)) {
+                if (j==i || !(other instanceof MethodStatement)) {
                     continue;
                 }
                 MethodStatement oms = (MethodStatement) other;

@@ -2,6 +2,7 @@ package org.evosuite.coverage.archive;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testsuite.TestSuiteSerialization;
@@ -56,7 +57,11 @@ public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChrom
 			logger.info("Creating random test");
 			test = defaultFactory.getChromosome();
 		}
-		
+
+		//be sure that the factory returned a valid test
+		assert ConstraintVerifier.verifyTest(test);
+		assert ! ConstraintVerifier.hasAnyOnlyForAssertionMethod(test.getTestCase());
+
 		int mutations = Randomness.nextInt(Properties.SEED_MUTATIONS);
 		for(int i = 0; i < mutations; i++) {
 			test.mutate();

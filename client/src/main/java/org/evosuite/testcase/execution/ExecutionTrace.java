@@ -169,10 +169,18 @@ public interface ExecutionTrace {
 
 	/**
 	 * Retrieve the set of line numbers covered
+	 * of {@link org.evosuite.Properties.TARGET_CLASS} class
 	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Integer> getCoveredLines();
+
+	/**
+	 * Retrieve the set of all line numbers covered
+	 * 
+	 * @return
+	 */
+	public Set<Integer> getAllCoveredLines();
 
 	/**
 	 * Retrieve detailed line coverage count

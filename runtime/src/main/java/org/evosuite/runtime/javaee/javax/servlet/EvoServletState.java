@@ -1,5 +1,6 @@
 package org.evosuite.runtime.javaee.javax.servlet;
 
+import org.evosuite.runtime.annotation.BoundInputVariable;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.javaee.TestDataJavaEE;
@@ -48,7 +49,10 @@ public class EvoServletState {
      */
 
     @Constraints(atMostOnce = true, noNullInputs = true)
-    public static <T extends Servlet> T initServlet(T servlet) throws IllegalStateException, IllegalArgumentException, ServletException {
+    public static <T extends Servlet> T initServlet(
+            @BoundInputVariable(initializer = true, atMostOnce = true) T servlet)
+            throws IllegalStateException, IllegalArgumentException, ServletException {
+
         if(servlet == null){
             throw new IllegalArgumentException("Null servlet");
         }

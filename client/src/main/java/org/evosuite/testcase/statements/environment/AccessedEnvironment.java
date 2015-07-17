@@ -1,5 +1,6 @@
 package org.evosuite.testcase.statements.environment;
 
+import org.evosuite.runtime.util.Inputs;
 import org.evosuite.runtime.vnet.EndPointInfo;
 
 import java.io.Serializable;
@@ -59,6 +60,12 @@ public class AccessedEnvironment implements Serializable {
         remoteURLs.clear();
         localListeningPorts.clear();
         remoteContactedPorts.clear();
+    }
+
+    public boolean hasProperty(String property) throws IllegalArgumentException{
+        Inputs.checkNull(property);
+
+        return false; //TODO
     }
 
     public void addRemoteContactedPorts(Collection<EndPointInfo> ports){
