@@ -65,6 +65,17 @@ import org.slf4j.LoggerFactory;
  */
 public class CoverageAnalysis {
 
+	/**
+	 * FIXME
+	 * 
+	 * OUTPUT
+	 * METHOD
+	 * METHODNOEXCEPTION
+	 * 
+	 * relies on Observers. to have coverage of these criteria, JUnit test cases
+	 * must have to be converted to some format that EvoSuite can understand
+	 */
+
 	private final static Logger logger = LoggerFactory.getLogger(CoverageAnalysis.class);
 
 	private static int totalGoals = 0;

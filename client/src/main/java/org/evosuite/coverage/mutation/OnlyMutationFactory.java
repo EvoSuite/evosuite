@@ -9,18 +9,24 @@ import org.evosuite.testsuite.AbstractFitnessFactory;
 
 public class OnlyMutationFactory extends AbstractFitnessFactory<OnlyMutationTestFitness> {
 
+	private List<OnlyMutationTestFitness> goals = null;
+
 	@Override
 	public List<OnlyMutationTestFitness> getCoverageGoals() {
-		List<OnlyMutationTestFitness> goals = new ArrayList<OnlyMutationTestFitness>();
+		if (this.goals != null) {
+			return this.goals;
+		}
+
+		this.goals = new ArrayList<OnlyMutationTestFitness>();
 
 		for (Mutation m : MutationPool.getMutants()) {
 			//if (MutationTimeoutStoppingCondition.isDisabled(m))
 			//	continue;
-			goals.add(new OnlyMutationTestFitness(m));
+			this.goals.add(new OnlyMutationTestFitness(m));
 		}
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, goals.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, this.goals.size());
 
-		return goals;
+		return this.goals;
 	}
 
 }
