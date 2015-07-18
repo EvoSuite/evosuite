@@ -159,7 +159,7 @@ public class ClassStateSupport {
 			return;
 		}
 
-		List<Class<?>> classToReInstument = new ArrayList<>();
+		List<Class<?>> classToReInstrument = new ArrayList<>();
 
 		/*
 		InstrumentingAgent.activate();
@@ -183,18 +183,18 @@ public class ClassStateSupport {
 
 		for(Class<?> cl : classes){
 			if(! InstrumentingAgent.getTransformer().isClassAlreadyTransformed(cl.getName())){
-				classToReInstument.add(cl);
+				classToReInstrument.add(cl);
 			}
 		}
 
-		if(classToReInstument.isEmpty()){
+		if(classToReInstrument.isEmpty()){
 			return;
 		}
 
 		InstrumentingAgent.setRetransformingMode(true);
 		try {
-			if(!classToReInstument.isEmpty()){
-				InstrumentingAgent.getInstumentation().retransformClasses(classToReInstument.toArray(new Class<?>[0]));
+			if(!classToReInstrument.isEmpty()){
+				InstrumentingAgent.getInstrumentation().retransformClasses(classToReInstrument.toArray(new Class<?>[0]));
 			}
 		} catch (UnmodifiableClassException e) {
 			//this shouldn't really happen, as already checked in previous loop
