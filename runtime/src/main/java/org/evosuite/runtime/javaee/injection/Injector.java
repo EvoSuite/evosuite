@@ -160,7 +160,13 @@ public class Injector {
         return eventCache.hasField(klass);
     }
 
+    @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
+    public static void executePostConstruct(
+            @BoundInputVariable(initializer = true, atMostOnce = true) Object instance) throws IllegalArgumentException {
 
+        Inputs.checkNull(instance);
+        executePostConstruct(instance, instance.getClass());
+    }
 
     /**
      * Executed the method annotated with @PostConstruct
