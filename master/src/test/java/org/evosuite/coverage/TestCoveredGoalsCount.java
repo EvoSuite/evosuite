@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.Calculator;
 import com.examples.with.different.packagename.SingleMethod;
+import com.examples.with.different.packagename.mutation.MutationPropagation;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -102,14 +103,6 @@ public class TestCoveredGoalsCount extends SystemTest {
         assertEquals("1.0", rows.get(1)[2]); // Coverage
         assertEquals("48", rows.get(1)[3]); // Covered_Goals
         assertEquals("48", rows.get(1)[4]); // Total_Goals
-
-        /**
-         * FIXME
-         *  
-         * Why the list of covered goals also include Branch goals ?
-         * 
-         * Note: this test case is failing for MUTATION, STRONGMUTATION, or WEAKMUTATION
-         */
     }
 
     @Test
@@ -149,5 +142,44 @@ public class TestCoveredGoalsCount extends SystemTest {
         assertEquals("1.0", rows.get(1)[2]); // Coverage
         assertEquals("57", rows.get(1)[3]); // Covered_Goals
         assertEquals("57", rows.get(1)[4]); // Total_Goals
+    }
+
+    @Test
+    public void testCoveredGoalsCountCSV_WithMinimizationTimeout() throws IOException {
+
+    	EvoSuite evosuite = new EvoSuite();
+
+    	String targetClass = MutationPropagation.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+
+        Properties.CRITERION = new Properties.Criterion[] {
+        	Properties.Criterion.STRONGMUTATION
+        };
+        Properties.OUTPUT_VARIABLES="TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals";
+        Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
+
+        String[] command = new String[] {
+    		"-class", targetClass,
+    		"-Dsearch_budget=40000",
+    		"-Dminimization_timeout=0",
+    		"-generateSuite"
+        };
+
+        Object result = evosuite.parseCommandLine(command);
+        Assert.assertNotNull(result);
+
+        String statistics_file = System.getProperty("user.dir") + File.separator + Properties.REPORT_DIR + File.separator + "statistics.csv";
+        System.out.println("Statistics file " + statistics_file);
+
+        CSVReader reader = new CSVReader(new FileReader(statistics_file));
+        List<String[]> rows = reader.readAll();
+        assertTrue(rows.size() == 2);
+        reader.close();
+
+        assertEquals(targetClass, rows.get(1)[0]); // TARGET_CLASS
+        assertEquals("STRONGMUTATION", rows.get(1)[1]); // criterion
+        assertEquals("1.0", rows.get(1)[2]); // Coverage
+        assertEquals("24", rows.get(1)[3]); // Covered_Goals
+        assertEquals("24", rows.get(1)[4]); // Total_Goals
     }
 }
