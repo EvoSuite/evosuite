@@ -64,7 +64,7 @@ public class InjectorTest {
         Foo foo = new Foo();
         Assert.assertFalse(foo.isInit());
 
-        Injector.executePostConstruct(foo);
+        Injector.executePostConstruct(foo, Foo.class);
 
         Assert.assertTrue(foo.isInit());
     }
@@ -136,7 +136,7 @@ public class InjectorTest {
         Assert.assertTrue(names.contains("persistence"));
     }
 
-    private class Foo {
+    private static class Foo {
 
         private Object noTag;
 

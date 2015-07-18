@@ -31,4 +31,15 @@ public @interface BoundInputVariable {
      * @return
      */
     boolean atMostOnce() default false;
+
+    /**
+     * Specify that the given method can only be called once with same
+     * parameters on the bounded variable.
+     * In other words, the method can be called more than once, but then
+     * there should be at least on parameter which is different
+     *
+     * @return
+     */
+    boolean atMostOnceWithSameParameters() default false;
+
 }
