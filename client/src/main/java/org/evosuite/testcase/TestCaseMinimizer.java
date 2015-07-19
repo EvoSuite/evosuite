@@ -147,8 +147,11 @@ public class TestCaseMinimizer {
 
 		Map<TestFitnessFunction, Double> fitness = getFitnessValues(c);
 
+
 		logger.debug("Start fitness values: " + fitness);
+		assert ConstraintVerifier.verifyTest(c);
 		boolean changed = true;
+
 		while (changed) {
 			changed = false;
 
@@ -196,8 +199,9 @@ public class TestCaseMinimizer {
 					c.setChanged(false);
 				}
 			}
-
 		}
+
+		assert ConstraintVerifier.verifyTest(c);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Minimized test case: ");

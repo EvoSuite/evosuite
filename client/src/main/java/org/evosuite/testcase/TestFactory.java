@@ -158,7 +158,6 @@ public class TestFactory {
 			throw new ConstructionFailedException("Class "+klass.getName()+" can only be instantiated once");
 		}
 
-
 		int length = test.size();
 
 		try {
@@ -1636,6 +1635,12 @@ public class TestFactory {
 				logger.warn("Have no target methods to test");
 				return false;
 			} else if (o.isConstructor()) {
+
+				if(InstanceOnlyOnce.canInstantiateOnlyOnce(o.getDeclaringClass()) &&
+						ConstraintHelper.countNumberOfNewInstances(test,o.getDeclaringClass()) != 0){
+					return false;
+				}
+
 				GenericConstructor c = (GenericConstructor) o;
 				logger.debug("Adding constructor call " + c.getName());
 				name = c.getName();
