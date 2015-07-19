@@ -72,6 +72,7 @@ public class Injector {
     @EvoSuiteExclude
     public static void reset(){
         generalInjection.reset();
+        postConstructCache.clear();
     }
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
