@@ -66,24 +66,24 @@ public class EvoClassLoader extends ClassLoader {
 			throw new ClassNotFoundException();
 
 		//first check if already loaded
-		Class<?> result = findLoadedClass(name);
-		if (result != null) {
-			return result;
-		}
-
 		if (!RuntimeInstrumentation.checkIfCanInstrument(name)) {
-			result = classLoader.loadClass(name);
-			return result;
-		} else {
-			result = classes.get(name);
+			Class<?> result = findLoadedClass(name);
 			if (result != null) {
 				return result;
-			} else {
-				logger.info("Seeing class for first time: " + name);
-				Class<?> instrumentedClass = instrumentClass(name);
-				return instrumentedClass;
 			}
+			result = classLoader.loadClass(name);
+			return result;
 		}
+		
+		Class<?> result = classes.get(name);
+		if (result != null) {
+			return result;
+		} else {
+			logger.info("Seeing class for first time: " + name);
+			Class<?> instrumentedClass = instrumentClass(name);
+			return instrumentedClass;
+		}
+
 	}
 
 

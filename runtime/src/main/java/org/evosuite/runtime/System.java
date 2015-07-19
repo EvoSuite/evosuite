@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.PropertyPermission;
 import java.util.Set;
 
-import org.evosuite.runtime.sandbox.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
