@@ -65,6 +65,44 @@ public class ConstraintVerifierTest {
     }
 
 
+
+    @Test
+    public void testPostConstructIssue() throws Exception{
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+
+
+        //this will also add a statement for the Class
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct", Object.class, Class.class),
+                        Injector.class), 1, 0);
+
+        Assert.assertEquals(3, tc.size());
+
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+
+        boolean mutated = tc.deleteStatement(factory, 2);
+        Assert.assertFalse(mutated); //should fail to delete the post construct
+        Assert.assertEquals(3, tc.size());
+
+        Assert.assertFalse(ConstraintVerifier.canDelete(tc.getTestCase(), 1));
+
+        mutated = tc.deleteStatement(factory, 1);
+        Assert.assertFalse(mutated); //eliminating the Class.class var should fail as well, as post construct accepts no null
+        Assert.assertEquals(3, tc.size());
+
+        mutated = tc.deleteStatement(factory, 0);
+        Assert.assertTrue(mutated); //eliminating the servlet is fine
+        Assert.assertEquals(1, tc.size()); // tricky, as Class.class is not bounded to the servlet
+
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+    }
+
+
     @Test
     public void testUniqueConstructors() throws Exception{
 

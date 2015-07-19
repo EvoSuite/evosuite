@@ -126,7 +126,7 @@ public class InjectorTest {
     @Test
     public void test_getGeneralFieldsToInject(){
         List<Field> list = Injector.getGeneralFieldsToInject(Foo.class);
-        Assert.assertEquals(3 , list.size());
+        Assert.assertEquals(3, list.size());
         Set<String> names = new LinkedHashSet<>();
         for(Field f : list){
             names.add(f.getName());
@@ -135,6 +135,32 @@ public class InjectorTest {
         Assert.assertTrue(names.contains("injectField"));
         Assert.assertTrue(names.contains("persistence"));
     }
+
+    @Test
+    public void test_getGeneralFieldsToInject_subclass_differentField(){
+        List<Field> list = Injector.getGeneralFieldsToInject(SubclassDifferentField.class);
+        Assert.assertEquals(1, list.size());
+        Assert.assertEquals("aDifferentString", list.get(0).getName());
+    }
+
+    @Test
+    public void test_getGeneralFieldsToInject_subclass_sameField(){
+        List<Field> list = Injector.getGeneralFieldsToInject(SubclassSameField.class);
+        Assert.assertEquals(1 , list.size());
+        Assert.assertEquals("aString", list.get(0).getName());
+    }
+
+    private static class SubclassDifferentField extends Foo{
+        @Inject
+        private String aDifferentString;
+    }
+
+    private static class SubclassSameField extends Foo{
+        @Inject
+        private String aString;
+    }
+
+
 
     private static class Foo {
 
