@@ -12,6 +12,7 @@ import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.ga.stoppingconditions.TimeDeltaStoppingCondition;
 import org.evosuite.testsuite.StatementsPopulationLimit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,8 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome>  {
 			return new MaxTestsStoppingCondition();
 		case MAXSTATEMENTS:
 			return new MaxStatementsStoppingCondition();
+		case TIMEDELTA:
+			return new TimeDeltaStoppingCondition();
 		default:
 			logger.warn("Unknown stopping condition: " + Properties.STOPPING_CONDITION);
 			return new MaxGenerationStoppingCondition();
