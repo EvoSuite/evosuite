@@ -69,6 +69,11 @@ public class Injector {
                     userTransactionCache, eventCache);
 
 
+    @EvoSuiteExclude
+    public static void reset(){
+        generalInjection.reset();
+    }
+
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
     public  static <T> void inject(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance,
                                    Class<T> klass, String fieldName, Object value)

@@ -2,6 +2,7 @@ package org.evosuite.testcase;
 
 import org.evosuite.runtime.annotation.*;
 import org.evosuite.runtime.util.Inputs;
+import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
@@ -87,6 +88,31 @@ public class ConstraintVerifier {
         Statement st = tc.getStatement(pos);
 
         if(! canStatementHaveConstraints(st)){
+            /*
+                the statement itself has no constraints.
+                however, others might have dependencies on it.
+                An example is methods with "noNullInput" using it
+             */
+            VariableReference ret = st.getReturnValue();
+
+            for (int i = pos + 1; i < tc.size(); i++) {
+                Statement toCheck = tc.getStatement(i);
+                Constraints constraint = ConstraintHelper.getConstraints(toCheck);
+                if(constraint==null || !constraint.noNullInputs()){
+                    continue;
+                }
+                if(! (toCheck instanceof EntityWithParametersStatement)){
+                    continue;
+                }
+                EntityWithParametersStatement entity = (EntityWithParametersStatement) toCheck;
+                for(VariableReference input : entity.getParameterReferences()){
+                    if(input.same(ret)){
+                        //var is used as input in a method that accepts no null input, so cannot be deleted
+                        return false;
+                    }
+                }
+            }
+
             return true;
         }
 
