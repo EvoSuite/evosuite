@@ -153,6 +153,11 @@ public class TestCaseMinimizer {
 			changed = false;
 
 			for (int i = c.test.size() - 1; i >= 0; i--) {
+
+				if(! ConstraintVerifier.canDelete(c.test, i)){
+					continue;
+				}
+
 				logger.debug("Deleting statement {}", c.test.getStatement(i).getCode());
 				TestChromosome copy = (TestChromosome) c.clone();
 				try {
