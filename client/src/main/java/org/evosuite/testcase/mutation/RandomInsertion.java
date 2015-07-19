@@ -103,7 +103,7 @@ public class RandomInsertion implements InsertionStrategy {
 		}
 
 		if (success) {
-			assert ConstraintVerifier.verifyTest(test);
+			assert ConstraintVerifier.verifyTest(test);;
 			assert ! ConstraintVerifier.hasAnyOnlyForAssertionMethod(test);
 
 			return position;

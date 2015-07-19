@@ -1,8 +1,6 @@
 package org.evosuite.runtime.javaee.javax.servlet;
 
-import org.evosuite.runtime.annotation.BoundInputVariable;
-import org.evosuite.runtime.annotation.Constraints;
-import org.evosuite.runtime.annotation.EvoSuiteExclude;
+import org.evosuite.runtime.annotation.*;
 import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletRequest;
 import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletResponse;
@@ -16,6 +14,7 @@ import javax.servlet.ServletException;
  *
  * Created by Andrea Arcuri on 21/05/15.
  */
+@EvoSuiteClassExclude
 public class EvoServletState {
 
     /*
@@ -48,6 +47,7 @@ public class EvoServletState {
         Note: the constraints here imply that at most one servlet can be tested in  single test case
      */
 
+    @EvoSuiteInclude
     @Constraints(atMostOnce = true, noNullInputs = true)
     public static <T extends Servlet> T initServlet(
             @BoundInputVariable(initializer = true, atMostOnce = true) T servlet)
@@ -65,6 +65,7 @@ public class EvoServletState {
         return servlet;
     }
 
+    @EvoSuiteInclude
     @Constraints(atMostOnce = true, after = "initServlet")
     public static EvoServletConfig getConfiguration() throws IllegalStateException{
         checkInit();
@@ -74,6 +75,7 @@ public class EvoServletState {
         return config;
     }
 
+    @EvoSuiteInclude
     @Constraints(atMostOnce = true, after = "initServlet")
     public static EvoHttpServletRequest getRequest() throws IllegalStateException{
         checkInit();
@@ -83,6 +85,7 @@ public class EvoServletState {
         return req;
     }
 
+    @EvoSuiteInclude
     @Constraints(atMostOnce = true, after = "initServlet")
     public static EvoHttpServletResponse getResponse() throws IllegalStateException{
         checkInit();
@@ -92,6 +95,7 @@ public class EvoServletState {
         return resp;
     }
 
+    @EvoSuiteInclude
     @Constraints(atMostOnce = true, after = "initServlet")
     public static AsyncContext getAsyncContext() throws IllegalStateException{
         checkInit();
