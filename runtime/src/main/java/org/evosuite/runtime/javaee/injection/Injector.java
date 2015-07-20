@@ -69,8 +69,14 @@ public class Injector {
                     userTransactionCache, eventCache);
 
 
+    @EvoSuiteExclude
+    public static void reset(){
+        generalInjection.reset();
+        postConstructCache.clear();
+    }
+
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public  static <T> void inject(@BoundInputVariable(initializer = true) T instance,
+    public  static <T> void inject(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance,
                                    Class<T> klass, String fieldName, Object value)
             throws IllegalArgumentException, AssumptionViolatedException {
 
@@ -83,7 +89,7 @@ public class Injector {
     }
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectEntityManager(@BoundInputVariable(initializer = true, atMostOnce = true) T instance, Class<T> clazz)
+    public static <T> void injectEntityManager(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<T> clazz)
             throws IllegalArgumentException{
 
         Inputs.checkNull(instance,clazz);
@@ -103,7 +109,7 @@ public class Injector {
 
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectEntityManagerFactory(@BoundInputVariable(initializer = true, atMostOnce = true) T instance, Class<T> clazz)
+    public static <T> void injectEntityManagerFactory(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<T> clazz)
             throws IllegalArgumentException{
 
         Inputs.checkNull(instance,clazz);
@@ -123,7 +129,7 @@ public class Injector {
 
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectUserTransaction(@BoundInputVariable(initializer = true, atMostOnce = true) T instance, Class<T> clazz)
+    public static <T> void injectUserTransaction(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<T> clazz)
         throws IllegalArgumentException{
 
         Inputs.checkNull(instance,clazz);
@@ -142,7 +148,7 @@ public class Injector {
     }
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectEvent(@BoundInputVariable(initializer = true, atMostOnce = true) T instance, Class<T> clazz)
+    public static <T> void injectEvent(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<T> clazz)
             throws IllegalArgumentException{
 
         Inputs.checkNull(instance, clazz);
@@ -160,7 +166,13 @@ public class Injector {
         return eventCache.hasField(klass);
     }
 
+    @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
+    public static void executePostConstruct(
+            @BoundInputVariable(initializer = true, atMostOnce = true) Object instance) throws IllegalArgumentException {
 
+        Inputs.checkNull(instance);
+        executePostConstruct(instance, instance.getClass());
+    }
 
     /**
      * Executed the method annotated with @PostConstruct
@@ -169,13 +181,12 @@ public class Injector {
      */
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
     public static void executePostConstruct(
-            @BoundInputVariable(initializer = true, atMostOnce = true) Object instance) throws IllegalArgumentException{
+            @BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) Object instance, Class<?> clazz) throws IllegalArgumentException{
 
-        if(instance == null){
-            throw new IllegalArgumentException("Null input parameter");
+        Inputs.checkNull(instance, clazz);
+        if(!clazz.isAssignableFrom(instance.getClass())){
+            throw new IllegalArgumentException("Class "+clazz+" is not assignable from "+instance.getClass());
         }
-
-        Class<?> clazz = instance.getClass();
         if(!hasPostConstruct(clazz)){
             throw new IllegalArgumentException("The class "+clazz.getName()+" does not have a @PostConstruct");
         }

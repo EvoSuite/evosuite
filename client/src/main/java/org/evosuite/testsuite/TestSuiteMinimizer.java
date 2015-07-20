@@ -154,7 +154,6 @@ public class TestSuiteMinimizer {
         for (TestChromosome test : suite.getTestChromosomes()) {
             test.setChanged(true);
             test.clearCachedResults();
-            test.getTestCase().clearCoveredGoals();
         }
 
         List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();

@@ -41,6 +41,10 @@ public class GeneralInjection {
         }
     }
 
+    public void reset(){
+        cache.clear();
+    }
+
     public List<Field> getFieldsToInject(Class<?> klass) throws IllegalArgumentException{
         Inputs.checkNull(klass);
 

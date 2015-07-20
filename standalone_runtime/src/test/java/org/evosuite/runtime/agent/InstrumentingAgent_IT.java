@@ -65,7 +65,7 @@ public class InstrumentingAgent_IT {
 		try{
 			InstrumentingAgent.activate();
 			//even if re-instrument, they should be fine
-			InstrumentingAgent.getInstumentation().retransformClasses(AbstractTime.class,ConcreteTime.class);
+			InstrumentingAgent.getInstrumentation().retransformClasses(AbstractTime.class,ConcreteTime.class);
 			ConcreteTime time = new ConcreteTime();
 			/*
 			 * Using abstract class here would fail without retransformClasses, as it would be loaded 
@@ -81,7 +81,7 @@ public class InstrumentingAgent_IT {
 
 	@Test
 	public void checkRetransformIsSupported(){
-		Assert.assertTrue(InstrumentingAgent.getInstumentation().isRetransformClassesSupported());
+		Assert.assertTrue(InstrumentingAgent.getInstrumentation().isRetransformClassesSupported());
 	}
 	
 	@Test
@@ -91,7 +91,7 @@ public class InstrumentingAgent_IT {
 
 		try{
 			InstrumentingAgent.activate();			
-			InstrumentingAgent.getInstumentation().retransformClasses(SecondAbstractTime.class,SecondConcreteTime.class);
+			InstrumentingAgent.getInstrumentation().retransformClasses(SecondAbstractTime.class,SecondConcreteTime.class);
 			Assert.fail(); 
 		} catch(UnsupportedOperationException e){ 
 			/*
@@ -217,7 +217,7 @@ public class InstrumentingAgent_IT {
 		try{
 			InstrumentingAgent.activate();
 			
-			Instrumentation inst = InstrumentingAgent.getInstumentation();
+			Instrumentation inst = InstrumentingAgent.getInstrumentation();
 			Assert.assertNotNull(inst);
 			ClassLoader loader = this.getClass().getClassLoader();
 			Assert.assertTrue(inst.isModifiableClass(loader.loadClass(TimeA.class.getName())));

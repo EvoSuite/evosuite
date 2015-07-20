@@ -31,14 +31,6 @@ public class CoverageAnalysis {
 
 	private static Map<String, StringBuffer> coverageBitString = new TreeMap<String, StringBuffer>();
 
-	private static boolean isMutationCriterion(Set<Criterion> criteria) {
-	    for (Properties.Criterion pc : criteria) {
-	        if (isMutationCriterion(pc))
-	            return true;
-	    }
-	    return false;
-	}
-
 	private static boolean isMutationCriterion(Properties.Criterion criterion) {
 		switch (criterion) {
 		case MUTATION:
@@ -53,56 +45,33 @@ public class CoverageAnalysis {
 
 	private static void reinstrument(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
-		Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 
-		//XXX this is horrible, need refactoring
-		Set<Criterion> oldCriteria = new HashSet<>();
-		for (Criterion c : Properties.CRITERION) {
-			oldCriteria.add(c);
+		// do not reinstrument a testSuite for criterion that we have
+		// been optimizing (because we already have coverage for that)
+		if (ArrayUtil.contains(Properties.CRITERION, criterion)) {
+			return ;
 		}
+
 		if (Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("ibranch")
 				|| Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("archiveibranch")) {
-			oldCriteria.add(Properties.Criterion.IBRANCH);
 			ExecutionTracer.enableContext();
 		}
-
-		//TODO why was this not check before invalidating the cache of the test suite?
-		if (oldCriteria.contains(criterion)) {
-			return;
-		}
-
 		if (!ExecutionTracer.isTraceCallsEnabled()) {
 			ExecutionTracer.enableTraceCalls();
 		}
+
 		testSuite.setChanged(true);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			test.setChanged(true);
-			test.clearCachedResults();
-			test.clearCachedMutationResults();
+			test.clearCachedResults(); // clears last execution result and last mutation result
 		}
 
-		
-		//if (oldCriteria.contains(criterion))
-		//	return;
+        Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
+		Properties.CRITERION = new Properties.Criterion[] { criterion };
 
-		//TODO: why we repeat this code here???
-		testSuite.setChanged(true);
-		for (TestChromosome test : testSuite.getTestChromosomes()) {
-			test.setChanged(true);
-			test.clearCachedResults();
-			test.clearCachedMutationResults();
-		}
-
-        if (isMutationCriterion(criterion) && isMutationCriterion(oldCriteria))
-            return;
-
-		Properties.CRITERION = new Properties.Criterion[1];
-		Properties.CRITERION[0] = criterion;
-		
-		logger.info("Re-instrumenting for criterion: "
-		                                         + criterion);
+		logger.info("Re-instrumenting for criterion: " + criterion);
 		TestGenerationContext.getInstance().resetContext();
-		
+
 		// Need to load class explicitly in case there are no test cases.
 		// If there are tests, then this is redundant
 		Properties.getTargetClass();
@@ -212,6 +181,13 @@ public class CoverageAnalysis {
 
 		for(TestChromosome test : testSuiteCopy.getTestChromosomes()) {
 			test.getTestCase().clearCoveredGoals();
+
+			// independently of mutation being a main or secondary criteria,
+			// test cases have to be 'changed'. with this, isCovered() will
+			// re-execute test cases and it will be able to find the covered goals
+			if (isMutationCriterion(criterion)) {
+				test.setChanged(true);
+			}
 		}
 
 		List<TestFitnessFunction> goals = factory.getCoverageGoals();

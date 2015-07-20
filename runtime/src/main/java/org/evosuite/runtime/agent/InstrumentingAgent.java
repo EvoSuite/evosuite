@@ -86,7 +86,7 @@ public class  InstrumentingAgent {
 		return transformer;
 	}
 
-	public static Instrumentation getInstumentation(){
+	public static Instrumentation getInstrumentation(){
 		return instrumentation;
 	}
 	
