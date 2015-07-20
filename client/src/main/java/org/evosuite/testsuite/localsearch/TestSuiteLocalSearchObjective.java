@@ -20,9 +20,16 @@
  */
 package org.evosuite.testsuite.localsearch;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.NotImplementedException;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
@@ -42,7 +49,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 
 	private static final Logger logger = LoggerFactory.getLogger(TestSuiteLocalSearchObjective.class);
 
-	private final TestSuiteFitnessFunction fitness;
+	private final List<TestSuiteFitnessFunction> fitnessFunctions = new ArrayList<>();
 
 	private final TestSuiteChromosome suite;
 	
@@ -50,9 +57,14 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 
 	private final int testIndex;
 
-	private double lastFitness;
+	// TODO: This assumes we are not doing NSGA-II
+	private boolean isMaximization = false;
+	
+	private double lastFitnessSum = 0.0;
+	
+	private Map<FitnessFunction<?>, Double> lastFitness = new HashMap<>();
 
-	private double lastCoverage;
+	private Map<FitnessFunction<?>, Double> lastCoverage = new HashMap<>();
 
 	/**
 	 * <p>
@@ -67,36 +79,62 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 * @param index
 	 *            a int.
 	 */
-	public TestSuiteLocalSearchObjective(TestSuiteFitnessFunction fitness,
+	public TestSuiteLocalSearchObjective(List<TestSuiteFitnessFunction> fitness,
 	        TestSuiteChromosome suite, int index) {
-		this.fitness = fitness;
+		this.fitnessFunctions.addAll(fitness);
 		this.suite = suite;
 		this.testIndex = index;
-		this.lastFitness = fitness.getFitness(suite);
-		this.lastCoverage = suite.getCoverage(fitness);
+		for(TestSuiteFitnessFunction ff : fitness) {
+			if(ff.isMaximizationFunction())
+				isMaximization = true;
+			else
+				isMaximization = false;
+			break;
+		}
+		updateLastFitness();
+		updateLastCoverage();
 	}
 	
+	public static TestSuiteLocalSearchObjective getTestSuiteLocalSearchObjective(List<FitnessFunction<? extends Chromosome>> fitness,
+	        TestSuiteChromosome suite, int index) {
+		List<TestSuiteFitnessFunction> ffs = new ArrayList<>();
+		for(FitnessFunction<? extends Chromosome> ff : fitness) {
+			TestSuiteFitnessFunction tff = (TestSuiteFitnessFunction)ff;
+			ffs.add(tff);
+		}
+		return new TestSuiteLocalSearchObjective(ffs, suite, index);
+	}
+	
+	private void updateLastFitness() {
+		lastFitnessSum = 0.0;
+		for(TestSuiteFitnessFunction fitness : fitnessFunctions) {
+			double newFitness = fitness.getFitness(suite);
+			lastFitnessSum += newFitness;
+			lastFitness.put(fitness, newFitness);
+		}
+	}
+
+	private void updateLastCoverage() {
+		for(TestSuiteFitnessFunction fitness : fitnessFunctions) {
+			lastCoverage.put(fitness, suite.getCoverage(fitness));
+		}
+	}
+
 	public TestSuiteLocalSearchObjective getCopyForTest(TestChromosome test) {
 		TestSuiteChromosome s = new TestSuiteChromosome();
 		s.addTest(test);
 		s.addTest((TestChromosome) test.clone());
-		return new TestSuiteLocalSearchObjective(fitness, s, 0);
+		return new TestSuiteLocalSearchObjective(fitnessFunctions, s, 0);
 	}
 
-	public void verifyFitnessValue() {
-		assert(lastFitness == suite.getFitness(this.fitness));
-		double currentFitness1 = fitness.getFitness(suite);
-		for(TestChromosome test : suite.getTestChromosomes()) {
-			test.setChanged(true);
-		}
-		double currentFitness2 = fitness.getFitness(suite);
-		assert(lastFitness == currentFitness1) : "Fitness values; "+lastFitness+", "+currentFitness1+", "+currentFitness2;
-		assert(currentFitness1 == currentFitness2) : "Fitness values; "+lastFitness+", "+currentFitness1+", "+currentFitness2;
-	}
-	
 	@Override
 	public boolean isDone() {
-		return !fitness.isMaximizationFunction() && fitness.getFitness(suite) == 0.0;
+		
+		for(TestSuiteFitnessFunction fitness : fitnessFunctions) {
+			if(fitness.isMaximizationFunction() || fitness.getFitness(suite) != 0.0)
+				return false;
+		}
+		return true;
 	}
 	
 	/* (non-Javadoc)
@@ -118,7 +156,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	}
 
 	private boolean isFitnessBetter(double newFitness, double oldFitness) {
-		if(fitness.isMaximizationFunction()) {
+		if(isMaximization) {
 			return newFitness > oldFitness;
 		} else {
 			return newFitness < oldFitness;
@@ -126,7 +164,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	}
 	
 	private boolean isFitnessWorse(double newFitness, double oldFitness) {
-		if(fitness.isMaximizationFunction()) {
+		if(isMaximization) {
 			return newFitness < oldFitness;
 		} else {
 			return newFitness > oldFitness;
@@ -142,25 +180,26 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		individual.setChanged(true);
 		suite.setTestChromosome(testIndex, individual);
 		LocalSearchBudget.getInstance().countFitnessEvaluation();
-		double newFitness = fitness.getFitness(suite);
+		for(TestSuiteFitnessFunction fitnessFunction : fitnessFunctions)
+			fitnessFunction.getFitness(suite);
+		double newFitness = suite.getFitness();
 		
-		if (isFitnessBetter(newFitness, lastFitness)) {
-			logger.info("Local search improved fitness from " + lastFitness + " to "
+		if (isFitnessBetter(newFitness, lastFitnessSum)) {
+			logger.info("Local search improved fitness from " + lastFitnessSum + " to "
 			        + newFitness);
-			lastFitness = newFitness;
-			lastCoverage = suite.getCoverage(fitness);
-			suite.setFitness(fitness, lastFitness);
+			updateLastFitness();
+			updateLastCoverage();
 			return -1;
-		} else if (isFitnessWorse(newFitness, lastFitness)) {
-			logger.info("Local search worsened fitness from " + lastFitness + " to "
+		} else if (isFitnessWorse(newFitness, lastFitnessSum)) {
+			logger.info("Local search worsened fitness from " + lastFitnessSum + " to "
 			        + newFitness);
-			suite.setFitness(fitness, lastFitness);
-			suite.setCoverage(fitness, lastCoverage);
+			suite.setFitnessValues(lastFitness);
+			suite.setCoverageValues(lastCoverage);
 			return 1;
 		} else {
-			logger.info("Local search did not change fitness of " + lastFitness);
+			logger.info("Local search did not change fitness of " + lastFitnessSum);
 
-			lastCoverage = suite.getCoverage(fitness);
+			updateLastCoverage();
 			return 0;
 		}
 	}
@@ -170,8 +209,10 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public TestSuiteFitnessFunction getFitnessFunction() {
-		return fitness;
+	public List<FitnessFunction<? extends Chromosome>> getFitnessFunctions() {
+		throw new NotImplementedException("This should not be called");
+
+		// return (List<FitnessFunction<? extends Chromosome>>) fitnessFunctions;
 	}
 
 	public Set<TestChromosome> getPartialSolutions() {
@@ -183,4 +224,13 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		partialSolutions.add(individual);
 	}
 
+	@Override
+	public void addFitnessFunction(FitnessFunction<? extends Chromosome> fitness) {
+		throw new NotImplementedException("This should not be called");		
+	}
+
+	@Override
+	public boolean isMaximizationObjective() {
+		return isMaximization;
+	}
 }

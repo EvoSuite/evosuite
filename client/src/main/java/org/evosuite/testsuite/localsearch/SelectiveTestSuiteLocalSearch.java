@@ -36,9 +36,9 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			return false;
 		logger.info("Applying DSE to test suite");
 
-		TestSuiteDSE dse = new TestSuiteDSE();
+		TestSuiteDSE dse = new TestSuiteDSE(objective);
 		// TestSuiteDSE will report attempt to LocalSearchBudget
-		return dse.applyDSE(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
+		return dse.applyDSE(individual);
 	}
 
 	private List<TestChromosome> getCandidateTests(TestSuiteChromosome individual) {
@@ -82,7 +82,8 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 
 	private boolean applyLocalSearchToTest(TestChromosome clone, TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
 		individual.addTest(clone);
-		TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective((TestSuiteFitnessFunction) objective.getFitnessFunction(), individual, individual.size() - 1);
+		TestSuiteLocalSearchObjective testObjective = TestSuiteLocalSearchObjective.getTestSuiteLocalSearchObjective(objective.getFitnessFunctions(),
+				individual, individual.size() - 1);
 		logger.info("Applying local search to test: " + clone.getTestCase().toCode());
 		SelectiveTestCaseLocalSearch localSearch = new SelectiveTestCaseLocalSearch();
 		boolean result = localSearch.doSearch(clone, testObjective);
@@ -104,10 +105,10 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 				+ individual.getFitness());
 
 		if(Properties.LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION)
-			ensureDoubleExecution(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
+			ensureDoubleExecution(individual, (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0));
 
 		if(Properties.LOCAL_SEARCH_RESTORE_COVERAGE)
-			restoreBranchCoverage(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
+			restoreBranchCoverage(individual, (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0));
 
 		if(Properties.LOCAL_SEARCH_DSE == DSEType.SUITE) {
 			// Apply standard DSE on entire suite if it has relevant mutations
@@ -126,7 +127,7 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		}
 
 		// Return true if fitness has improved
-		return objective.getFitnessFunction().isMaximizationFunction() ? fitnessBefore < individual.getFitness()
+		return objective.isMaximizationObjective() ? fitnessBefore < individual.getFitness()
 				: fitnessBefore > individual.getFitness();
 
 	}

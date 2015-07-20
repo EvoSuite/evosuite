@@ -20,6 +20,8 @@
  */
 package org.evosuite.ga.localsearch;
 
+import java.util.List;
+
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 
@@ -32,6 +34,8 @@ import org.evosuite.ga.FitnessFunction;
 public interface LocalSearchObjective<T extends Chromosome> {
 
 	public boolean isDone();
+	
+	public boolean isMaximizationObjective();
 	
 	/**
 	 * <p>hasImproved</p>
@@ -65,11 +69,13 @@ public interface LocalSearchObjective<T extends Chromosome> {
 	 */
 	public void retainPartialSolution(T individual);
 	
+	public void addFitnessFunction(FitnessFunction<? extends Chromosome> fitness);
+	
 	/**
 	 * <p>getFitnessFunction</p>
 	 *
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
-	public FitnessFunction<? extends Chromosome> getFitnessFunction();
+	public List<FitnessFunction<? extends Chromosome>> getFitnessFunctions();
 
 }

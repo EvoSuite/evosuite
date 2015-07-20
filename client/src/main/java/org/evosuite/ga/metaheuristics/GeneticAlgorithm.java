@@ -89,7 +89,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected Set<BloatControlFunction> bloatControl = new HashSet<BloatControlFunction>();
 
 	/** Local search might need a different local objective */
-	protected LocalSearchObjective<T> localObjective = null;
+	protected LocalSearchObjective<T> localObjective = new DefaultLocalSearchObjective<>();
 
 	/** The population limit decides when an iteration is done */
 	protected PopulationLimit populationLimit = new IndividualPopulationLimit();
@@ -388,20 +388,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 */
 	public void addFitnessFunction(FitnessFunction<T> function) {
 		fitnessFunctions.add(function);
-		if (localObjective == null)
-			localObjective = new DefaultLocalSearchObjective<T>(function); // FIXME:
-																			// there
-																			// is
-																			// a
-																			// localObjective
-																			// for
-																			// each
-																			// FitnessFunction
-																			// or
-																			// just
-																			// a
-																			// global
-																			// localObjective?
+		localObjective.addFitnessFunction(function);
 	}
 
 	public void addFitnessFunctions(List<FitnessFunction<T>> functions) {

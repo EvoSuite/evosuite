@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.DSEType;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
@@ -27,17 +29,17 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		 * others skipped, then we shuffle the test cases, so each time the order is different 
 		 */
 		Randomness.shuffle(tests);
-
+		
 		if(Properties.LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION)
-			ensureDoubleExecution(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
+			ensureDoubleExecution(individual, (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0));
 	
 		if(Properties.LOCAL_SEARCH_RESTORE_COVERAGE)
-			restoreBranchCoverage(individual, (TestSuiteFitnessFunction) objective.getFitnessFunction());
+			restoreBranchCoverage(individual, (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0));
 		
 		if(Properties.LOCAL_SEARCH_EXPAND_TESTS)
 			expandTestSuite(individual);
 
-		double fitnessBefore = ((TestSuiteFitnessFunction)objective.getFitnessFunction()).getFitness(individual);
+		double fitnessBefore = individual.getFitness();
 		if (Properties.LOCAL_SEARCH_DSE == DSEType.SUITE &&
 				Randomness.nextDouble() < Properties.DSE_PROBABILITY){
 			doDSESearch(individual, objective);
@@ -53,7 +55,7 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		//		        + fitnessBefore + " and now is " + individual.getFitness();
 
 		// Return true if fitness has improved
-		return objective.getFitnessFunction().isMaximizationFunction() ? fitnessBefore > individual.getFitness()
+		return objective.isMaximizationObjective() ? fitnessBefore > individual.getFitness()
 		        : fitnessBefore < individual.getFitness();
 	}
 
@@ -61,8 +63,6 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 	        LocalSearchObjective<TestSuiteChromosome> objective) {
 		List<TestChromosome> tests = individual.getTestChromosomes();
 		double fit = individual.getFitness();
-		double oldFitness = ((TestSuiteFitnessFunction)objective.getFitnessFunction()).getFitness(individual);
-		assert(fit == oldFitness) : fit +" vs. "+oldFitness;
 		for (int i = 0; i < tests.size(); i++) {
 			TestChromosome test = tests.get(i);
 			
@@ -70,14 +70,15 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			// without success, we reset all primitive values before trying again 
 			if(test.hasLocalSearchBeenApplied()) {
 				TestCaseLocalSearch.randomizePrimitives(test.getTestCase());
-				((TestSuiteFitnessFunction) objective.getFitnessFunction()).getFitness(individual);
+				for(FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
+					((TestSuiteFitnessFunction) ff).getFitness(individual);
+				}
 			}
 
 			logger.debug("Local search on test " + i + ", current fitness: "
 			        + individual.getFitness());
-			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
-			        (TestSuiteFitnessFunction) objective.getFitnessFunction(),
-			        individual, i);
+			TestSuiteLocalSearchObjective testObjective = TestSuiteLocalSearchObjective.getTestSuiteLocalSearchObjective(objective.getFitnessFunctions(),
+					individual, i);
 
 			if (LocalSearchBudget.getInstance().isFinished()) {
 				logger.debug("Local search budget used up: "
@@ -94,8 +95,7 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 
 	protected void doDSESearch(TestSuiteChromosome individual,
 	        LocalSearchObjective<TestSuiteChromosome> objective) {
-		TestSuiteDSE dse = new TestSuiteDSE();
-		dse.applyDSE(individual,
-		             (TestSuiteFitnessFunction) objective.getFitnessFunction());
+		TestSuiteDSE dse = new TestSuiteDSE(objective);
+		dse.applyDSE(individual);
 	}
 }

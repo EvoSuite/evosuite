@@ -86,7 +86,7 @@ public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 
 		assert individual.getFitness() <= oldFitness;
 		// Return true if fitness has improved
-		return objective.getFitnessFunction().isMaximizationFunction() ? oldFitness < individual.getFitness(): oldFitness > individual.getFitness();
+		return objective.isMaximizationObjective() ? oldFitness < individual.getFitness(): oldFitness > individual.getFitness();
 
 		//logger.info("Test after local search: " + test.toCode());
 
