@@ -496,11 +496,11 @@ public class CoverageAnalysis {
         	str.append(covered.get(index_component) ? "1" : "0");
         }
         logger.info("* CoverageBitString " + str.toString());
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.CoverageBitString, str);
 
         if (goals.isEmpty()) {
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion + ": 100% (no goals)");
 			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getCoverageVariable(criterion), 1.0);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getBitStringVariable(criterion), "1");
 		} 
         else {
         	double coverage = ((double) covered.cardinality()) / ((double) goals.size());
@@ -508,6 +508,7 @@ public class CoverageAnalysis {
 			LoggingUtils.getEvoLogger().info("* Number of covered goals: " + covered.cardinality() + " / " + goals.size());
 
 			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getCoverageVariable(criterion), coverage);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getBitStringVariable(criterion), str.toString());
         }
 	}
 
@@ -519,6 +520,10 @@ public class CoverageAnalysis {
 		while (it.hasNext()) {
 			String targetClass = it.next();
 
+			// restart variables
+			totalGoals = 0;
+			totalCoveredGoals = 0;
+
 			Properties.TARGET_CLASS = targetClass;
 			LoggingUtils.getEvoLogger().info("* Target class " + Properties.TARGET_CLASS);
 			ClientServices.getInstance().getClientNode().updateProperty("TARGET_CLASS", Properties.TARGET_CLASS);
@@ -526,33 +531,31 @@ public class CoverageAnalysis {
 			for (int criterion_index = 0; criterion_index < criterion.length; criterion_index++) {
 				Properties.Criterion c = criterion[criterion_index];
 				Properties.CRITERION = new Criterion[] { c };
-				ClientServices.getInstance().getClientNode().updateProperty("criterion", Properties.CRITERION);
-
-				// restart variables
-				totalGoals = 0;
-				totalCoveredGoals = 0;
 
 				analyzeCoverageCriterion(results, c);
+			}
 
-				LoggingUtils.getEvoLogger().info("* Total number of covered goals: " + totalCoveredGoals + " / " + totalGoals);
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, totalGoals);
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, totalCoveredGoals);
+			// restore
+			Properties.CRITERION = criterion;
 
-				double coverage = totalGoals == 0 ? 1.0 : ((double) totalCoveredGoals) / ((double) totalGoals);
-				LoggingUtils.getEvoLogger().info("* Total coverage: " + NumberFormat.getPercentInstance().format(coverage));
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage, coverage);
+			LoggingUtils.getEvoLogger().info("* Total number of covered goals: " + totalCoveredGoals + " / " + totalGoals);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, totalGoals);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, totalCoveredGoals);
 
-				// need to give some time for transmission before client is killed
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+			double coverage = totalGoals == 0 ? 1.0 : ((double) totalCoveredGoals) / ((double) totalGoals);
+			LoggingUtils.getEvoLogger().info("* Total coverage: " + NumberFormat.getPercentInstance().format(coverage));
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage, coverage);
 
-				// last element will be flush by master process
-				if (it.hasNext() || criterion_index < criterion.length - 1) {
-					ClientServices.getInstance().getClientNode().flushStatisticsForClassChange();
-				}
+			// need to give some time for transmission before client is killed
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			// last element will be flush by master process
+			if (it.hasNext()) {
+				ClientServices.getInstance().getClientNode().flushStatisticsForClassChange();
 			}
 		}
 	}

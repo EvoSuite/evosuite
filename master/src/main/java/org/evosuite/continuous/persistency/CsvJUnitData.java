@@ -5,9 +5,9 @@ import java.io.FileReader;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +30,7 @@ public class CsvJUnitData {
 
 	private String targetClass;	
 	private Map<String, Double> coverageValues = new LinkedHashMap<String, Double>();
+	private Map<String, String> coverageBitString = new LinkedHashMap<String, String>();
 	private int totalNumberOfStatements;	
 	private int numberOfTests;	
 	private int totalNumberOfFailures;
@@ -72,42 +73,25 @@ public class CsvJUnitData {
 
 		CsvJUnitData data = new CsvJUnitData();
 		try{
-			data.targetClass = getValue(rows,"TARGET_CLASS").trim();		
+			data.targetClass = getValue(rows, "TARGET_CLASS").trim();		
 			data.configurationId = 0; //TODO. note: it has nothing to do with configuration_id, need refactoring			
 
-			// is there a better of doing this? probably yes...
-			if (hasCriterion(rows, RuntimeVariable.LineCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.LineCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.LineCoverage.toString())));
-			if (hasCriterion(rows, RuntimeVariable.StatementCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.StatementCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.StatementCoverage.toString())));
-			if (hasCriterion(rows, RuntimeVariable.BranchCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.BranchCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.BranchCoverage.toString())));
-			if (hasCriterion(rows, RuntimeVariable.OnlyBranchCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.OnlyBranchCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.OnlyBranchCoverage.toString())));
-			if (hasCriterion(rows, RuntimeVariable.CBranchCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.CBranchCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.CBranchCoverage.toString())));
-			if (hasCriterion(rows, RuntimeVariable.IBranchCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.IBranchCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.IBranchCoverage.toString())));
-			if (hasCriterion(rows, RuntimeVariable.ExceptionCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.ExceptionCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.ExceptionCoverage.toString())));
-			if (hasCriterion(rows, RuntimeVariable.WeakMutationScore.toString()))
-				data.coverageValues.put(RuntimeVariable.WeakMutationScore.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.WeakMutationScore.toString())));
-			if (hasCriterion(rows, RuntimeVariable.OnlyMutationScore.toString()))
-				data.coverageValues.put(RuntimeVariable.OnlyMutationScore.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.OnlyMutationScore.toString())));
-			if (hasCriterion(rows, RuntimeVariable.MutationScore.toString()))
-				data.coverageValues.put(RuntimeVariable.MutationScore.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.MutationScore.toString())));
-			if (hasCriterion(rows, RuntimeVariable.OutputCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.OutputCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.OutputCoverage.toString())));
-			if (hasCriterion(rows, RuntimeVariable.MethodCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.MethodCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.MethodCoverage.toString())));
-			if (hasCriterion(rows, RuntimeVariable.MethodTraceCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.MethodTraceCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.MethodTraceCoverage.toString())));
-			if (hasCriterion(rows, RuntimeVariable.MethodNoExceptionCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.MethodNoExceptionCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.MethodNoExceptionCoverage.toString())));
-			if (hasCriterion(rows, RuntimeVariable.AllDefCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.AllDefCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.AllDefCoverage.toString())));
-			if (hasCriterion(rows, RuntimeVariable.DefUseCoverage.toString()))
-				data.coverageValues.put(RuntimeVariable.DefUseCoverage.toString(), Double.parseDouble(getValue(rows,RuntimeVariable.DefUseCoverage.toString())));
+			// get coverage (value and bitstring)
+			for (String columnName : rows.get(0)) {
+				// this is assuming that all coverage/score runtime variables
+				// end with "Coverage" or "Score", e.g., BranchCoverage, WeakMutationScore, etc
+				if (!columnName.equals(RuntimeVariable.Coverage.name()) &&
+						(columnName.endsWith("Coverage") || columnName.endsWith("Score")) ) {
+					data.coverageValues.put(columnName, Double.parseDouble(getValue(rows, columnName)));
+				}
+
+				// this is assuming that all coverage/score runtime variables
+				// end with "CoverageBitString", e.g., BranchCoverageBitString, WeakMutationCoverageBitString, etc
+				if (!columnName.equals(RuntimeVariable.CoverageBitString.name()) &&
+						columnName.endsWith("CoverageBitString") ) {
+					data.coverageBitString.put(columnName, getValue(rows, columnName));
+				}
+			}
 
 			data.totalNumberOfStatements = Integer.parseInt(getValue(rows,RuntimeVariable.Length.toString()));
 			data.durationInSeconds = Integer.parseInt(getValue(rows,RuntimeVariable.Total_Time.toString())) / 1000;
@@ -122,7 +106,7 @@ public class CsvJUnitData {
 		return data; 
 	}
 
-	private static String getValue(List<String[]> rows, String columnName){
+	public static String getValue(List<String[]> rows, String columnName){
 		String[] names = rows.get(0);
 		String[] values = rows.get(1);
 
@@ -134,28 +118,32 @@ public class CsvJUnitData {
 		return null;
 	}
 
-	private static boolean hasCriterion(List<String[]> rows, String criterion) {
-		return ArrayUtil.contains(rows.get(0), criterion);
-	}
-
 	public String getTargetClass(){
 		return targetClass; 
 	}
 
-	public Map<String, Double> getCoverageValues() {
-		return this.coverageValues; 
+	public Set<String> getCoverageVariables() {
+		return this.coverageValues.keySet(); 
 	}
 
-	public double getCoverage(String criterion) {
-		return this.coverageValues.get(criterion);
+	public double getCoverage(String coverageVariable) {
+		return this.coverageValues.get(coverageVariable);
 	}
 
-	public boolean hasCriterion(String criterion) {
-		return this.coverageValues.containsKey(criterion);
+	public boolean hasCoverage(String coverageVariable) {
+		return this.coverageValues.containsKey(coverageVariable);
 	}
 
-	public int getNumberOfCriterion() {
+	public int getNumberOfCoverageValues() {
 		return this.coverageValues.size();
+	}
+
+	public Set<String> getCoverageBitStringVariables() {
+		return this.coverageBitString.keySet();
+	}
+
+	public String getCoverageBitString(String coverageVariable) {
+		return this.coverageBitString.get(coverageVariable);
 	}
 
 	public int getTotalNumberOfStatements(){
