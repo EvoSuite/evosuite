@@ -158,7 +158,6 @@ public class TestFactory {
 			throw new ConstructionFailedException("Class "+klass.getName()+" can only be instantiated once");
 		}
 
-
 		int length = test.size();
 
 		try {
@@ -177,65 +176,7 @@ public class TestFactory {
 			VariableReference ref =  test.addStatement(st, position);
 
 			if(Properties.JEE) {
-				//check if this object needs any dependency injection
-				VariableReference classConstant = new ConstantValue(test, new GenericClass(Class.class), klass);
-				int injectPosition = position + 1;
-
-				/*
-        		TODO should handle superclasses
-				    */
-
-				//first check all special fields
-				if (Injector.hasEntityManager(klass)) {
-					Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEntityManager(), null,
-							Arrays.asList(ref, classConstant));
-					test.addStatement(ms, injectPosition++);
-				}
-				if (Injector.hasEntityManagerFactory(klass)) {
-					Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEntityManagerFactory(), null,
-							Arrays.asList(ref, classConstant));
-					test.addStatement(ms, injectPosition++);
-				}
-				if (Injector.hasUserTransaction(klass)) {
-					Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForUserTransaction(), null,
-							Arrays.asList(ref, classConstant));
-					test.addStatement(ms, injectPosition++);
-				}
-				if (Injector.hasEvent(klass)) {
-					Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEvent(), null,
-							Arrays.asList(ref, classConstant));
-					test.addStatement(ms, injectPosition++);
-				}
-
-				    /*
-        				TODO should handle superclasses
-				     */
-
-				//then do the non-special fields that need injection
-				for(Field f : Injector.getGeneralFieldsToInject(klass)){
-					VariableReference fieldName = new ConstantValue(test, new GenericClass(String.class), f.getName());
-
-					int beforeLength = test.size();
-					VariableReference valueToInject = satisfyParameters(test,
-							null,
-							Arrays.asList((Type)f.getType()),
-							injectPosition,
-							0, false).get(0);
-					int afterLength = test.size();
-					injectPosition += (afterLength - beforeLength);
-
-					Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForGeneralField(), null,
-							Arrays.asList(ref, classConstant, fieldName, valueToInject));
-					test.addStatement(ms, injectPosition++);
-				}
-
-				//finally, call the the postConstruct (if any)
-				if(Injector.hasPostConstruct(klass)){
-					Statement ms = new MethodStatement(test, InjectionSupport.getPostConstruct(), null,
-							Arrays.asList(ref));
-					test.addStatement(ms, injectPosition++);
-				}
-
+				int injectPosition = doInjection(test, position, klass, ref);
 
 				if (HttpServlet.class.isAssignableFrom(klass)) {
 					//Servlets are treated specially, as part of JEE
@@ -251,6 +192,80 @@ public class TestFactory {
 		} catch (Exception e) {
 			throw new ConstructionFailedException(e.getMessage());
 		}
+	}
+
+	private int doInjection(TestCase test, int position, Class<?> klass, VariableReference ref) throws ConstructionFailedException {
+
+		int injectPosition = position + 1;
+
+		//check if this object needs any dependency injection
+
+		Class<?> target = klass;
+
+		while(target != null) {
+			VariableReference classConstant = new ConstantValue(test, new GenericClass(Class.class), target);
+
+			//first check all special fields
+			if (Injector.hasEntityManager(target)) {
+				Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEntityManager(), null,
+						Arrays.asList(ref, classConstant));
+				test.addStatement(ms, injectPosition++);
+			}
+			if (Injector.hasEntityManagerFactory(target)) {
+				Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEntityManagerFactory(), null,
+						Arrays.asList(ref, classConstant));
+				test.addStatement(ms, injectPosition++);
+			}
+			if (Injector.hasUserTransaction(target)) {
+				Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForUserTransaction(), null,
+						Arrays.asList(ref, classConstant));
+				test.addStatement(ms, injectPosition++);
+			}
+			if (Injector.hasEvent(target)) {
+				Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForEvent(), null,
+						Arrays.asList(ref, classConstant));
+				test.addStatement(ms, injectPosition++);
+			}
+
+			//then do the non-special fields that need injection
+			for (Field f : Injector.getGeneralFieldsToInject(target)) {
+				VariableReference fieldName = new ConstantValue(test, new GenericClass(String.class), f.getName());
+
+				int beforeLength = test.size();
+				VariableReference valueToInject = satisfyParameters(test,
+						null,
+						Arrays.asList((Type) f.getType()),
+						injectPosition,
+						0, false).get(0);
+				int afterLength = test.size();
+				injectPosition += (afterLength - beforeLength);
+
+				Statement ms = new MethodStatement(test, InjectionSupport.getInjectorForGeneralField(), null,
+						Arrays.asList(ref, classConstant, fieldName, valueToInject));
+				test.addStatement(ms, injectPosition++);
+			}
+
+			target = target.getSuperclass();
+		}
+
+		/*
+			finally, call the the postConstruct (if any), but be sure the ones in
+			 superclass(es) are called first
+		 */
+		int pos = injectPosition;
+		target = klass;
+
+		while(target != null) {
+			if (Injector.hasPostConstruct(target)) {
+				VariableReference classConstant = new ConstantValue(test, new GenericClass(Class.class), target);
+				Statement ms = new MethodStatement(test, InjectionSupport.getPostConstruct(), null,
+						Arrays.asList(ref,classConstant));
+				test.addStatement(ms, pos);
+				injectPosition++;
+			}
+			target = target.getSuperclass();
+		}
+		return injectPosition;
 	}
 
 	/**
@@ -1620,6 +1635,12 @@ public class TestFactory {
 				logger.warn("Have no target methods to test");
 				return false;
 			} else if (o.isConstructor()) {
+
+				if(InstanceOnlyOnce.canInstantiateOnlyOnce(o.getDeclaringClass()) &&
+						ConstraintHelper.countNumberOfNewInstances(test,o.getDeclaringClass()) != 0){
+					return false;
+				}
+
 				GenericConstructor c = (GenericConstructor) o;
 				logger.debug("Adding constructor call " + c.getName());
 				name = c.getName();

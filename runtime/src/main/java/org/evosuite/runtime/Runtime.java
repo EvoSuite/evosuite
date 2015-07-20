@@ -23,6 +23,7 @@ package org.evosuite.runtime;
 
 import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.javaee.db.DBManager;
+import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.lang.MockThread;
@@ -96,6 +97,7 @@ public class Runtime {
 		if(RuntimeSettings.useJEE){
 			TestDataJavaEE.getInstance().reset();
 			EvoServletState.reset();
+
 			/*
 			 * NOTE: this is expensive (some seconds), but only the first time, so should not be a major bottleneck.
 			 * TODO: could maybe run only if DB was actually accessed

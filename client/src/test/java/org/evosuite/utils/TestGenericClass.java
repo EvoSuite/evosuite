@@ -29,6 +29,8 @@ import com.examples.with.different.packagename.generic.GuavaExample5;
 import com.googlecode.gentyref.GenericTypeReflector;
 import com.googlecode.gentyref.TypeToken;
 
+import java.lang.reflect.AnnotatedType;
+
 public class TestGenericClass {
 
 	@Test
@@ -619,9 +621,9 @@ public class TestGenericClass {
 
 		TypeVariable<?> var = new TypeVariable() {
 
-			//public AnnotatedType[] getAnnotatedBounds() {
-			//	return null;
-			//}
+			public AnnotatedType[] getAnnotatedBounds() {
+				return null;
+			}
 			
 			@Override
 			public Type[] getBounds() {
@@ -662,6 +664,10 @@ public class TestGenericClass {
 				// TODO Auto-generated method stub
 				return null;
 			}
+			
+			//public void getAnnotatedBounds() {
+				// TODO Auto-generated method stub
+			//}
 
 		};
 

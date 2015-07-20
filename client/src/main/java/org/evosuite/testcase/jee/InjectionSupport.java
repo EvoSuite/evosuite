@@ -41,7 +41,7 @@ public class InjectionSupport {
         if(postConstruct == null){
             try {
                 postConstruct = new GenericMethod(
-                        Injector.class.getDeclaredMethod("executePostConstruct",Object.class)
+                        Injector.class.getDeclaredMethod("executePostConstruct",Object.class, Class.class)
                         , Injector.class);
             } catch (NoSuchMethodException e) {
                 logger.error("Reflection failed in InjectionSupport: "+e.getMessage());
