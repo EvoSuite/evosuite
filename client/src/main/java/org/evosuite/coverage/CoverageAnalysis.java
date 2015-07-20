@@ -246,18 +246,44 @@ public class CoverageAnalysis {
 		}
 	}
 
-    private static RuntimeVariable getBitStringVariable(Properties.Criterion criterion){
+    public static RuntimeVariable getBitStringVariable(Properties.Criterion criterion){
         switch (criterion){
-            case BRANCH:
-                return RuntimeVariable.CoveredBranchesBitString;
-            case LINE:
-            case ONLYLINE:
-                return RuntimeVariable.CoveredLinesBitString;
-            case MUTATION:
-            case WEAKMUTATION:
-                return RuntimeVariable.CoveredWeakMutationBitString;
+        	case EXCEPTION:
+        		return RuntimeVariable.ExceptionCoverageBitString;
+        	case DEFUSE:
+        		return RuntimeVariable.DefUseCoverageBitString;
+        	case ALLDEFS:
+        		return RuntimeVariable.AllDefCoverageBitString;
+        	case BRANCH:
+                return RuntimeVariable.BranchCoverageBitString;
+        	case CBRANCH:
+        		return RuntimeVariable.CBranchCoverageBitString;
+        	case IBRANCH:
+        		return RuntimeVariable.IBranchCoverageBitString;
+        	case ONLYBRANCH:
+        		return RuntimeVariable.OnlyBranchCoverageBitString;
+        	case MUTATION:
+        	case STRONGMUTATION:
+        		return RuntimeVariable.MutationCoverageBitString;
+        	case WEAKMUTATION:
+        		return RuntimeVariable.WeakMutationCoverageBitString;
+        	case ONLYMUTATION:
+        		return RuntimeVariable.OnlyMutationCoverageBitString;
+        	case METHODTRACE:
+        		return RuntimeVariable.MethodTraceCoverageBitString;
+        	case METHOD:
+        		return RuntimeVariable.MethodCoverageBitString;
+        	case METHODNOEXCEPTION:
+        		return RuntimeVariable.MethodNoExceptionCoverageBitString;
+        	case OUTPUT:
+        		return RuntimeVariable.OutputCoverageBitString;
+        	case STATEMENT:
+        		return RuntimeVariable.StatementCoverageBitString;
+        	case LINE:
+        	case ONLYLINE:
+        		return RuntimeVariable.LineCoverageBitString;
             default:
-                return null;
+            	throw new RuntimeException("Criterion not supported: " + criterion);
         }
     }
 }
