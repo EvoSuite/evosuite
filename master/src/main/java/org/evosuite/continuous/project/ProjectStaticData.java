@@ -172,7 +172,16 @@ public class ProjectStaticData {
 		 */
 		public final boolean hasCode;
 
+		/**
+		 * has the last commit added/modified the CUT?
+		 */
 		private boolean hasChanged = true;
+
+		/**
+		 * a class should be tested if we still don't have
+		 * 100% coverage or if the coverage has improved
+		 * in the last N generations
+		 */
         private boolean isToTest = true;
 
 		public ClassInfo(Class<?> theClass, int numberOfBranches, boolean hasCode) {

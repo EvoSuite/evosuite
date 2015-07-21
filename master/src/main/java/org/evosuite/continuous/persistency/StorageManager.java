@@ -19,7 +19,6 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.evosuite.Properties;
 import org.evosuite.continuous.project.ProjectStaticData;
@@ -283,16 +282,12 @@ public class StorageManager {
 			}
 		}
 
-		int better = 0;
-		for(TestsOnDisk suite : suites){
-			//Removed, as it was wrongly implemented, and anyway we always do seeding from previous CTG runs
-			//if(isBetterThanOldOne(suite,db)){
-			updateDatabase(suite,db);
-			better++;
-			//}
+		for (TestsOnDisk suite : suites) {
+			if (isBetterThanExistingTestCases(current, suite)) {
+				updateDatabase(suite,db);
+			}
 		}
-		//info += "\nBetter test suites: "+better;
-		
+
 		updateProjectStatistics(db,current);
 		commitDatabase(db);
 
@@ -597,7 +592,7 @@ public class StorageManager {
 		}
 	}
 
-	private boolean isBetterThanExistingTestCases(TestsOnDisk suite) throws IOException {
+	private boolean isBetterThanExistingTestCases(ProjectStaticData current, TestsOnDisk suite) {
 
 		if (suite.csvData == null) {
 			// no data available
@@ -607,8 +602,9 @@ public class StorageManager {
 		// first check if the class under test has been changed or if
 		// is a new class. if yes, accept the generated TestSuite
 		// (even if the coverage has decreased)
-
-		// TODO
+		if (current.hasChanged(suite.cut)) {
+			return true;
+		}
 
 		// load evosuite-report/statistics.csv which contains
 		// the coverage of each existing test suite
@@ -621,20 +617,27 @@ public class StorageManager {
 			return true;
 		}
 
-		CSVReader reader = new CSVReader(new FileReader(statistics_file));
-        List<String[]> rows = reader.readAll();
-        reader.close();
+		List<String[]> rows = null;
+		try {
+			CSVReader reader = new CSVReader(new FileReader(statistics_file));
+			rows = reader.readAll();
+			reader.close();
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+			return true;
+		}
 
         // select the row of the Class Under Test
-        String[] rowCUT = null;
+        List<String[]> rowCUT = new ArrayList<String[]>();
+        rowCUT.add(rows.get(0)); // add header (i.e., column names)
         for (String[] row : rows) {
         	if (ArrayUtil.contains(row, suite.cut)) {
-        		rowCUT = row;
+        		rowCUT.add(row);
         		break ;
         	}
         }
 
-        if (rowCUT == null) {
+        if (rowCUT.size() == 1) {
         	// this could happen if the data of the Class Under
         	// Test was manually removed, or if during the execution
         	// of measureCoverage option something wrong happened
@@ -643,39 +646,42 @@ public class StorageManager {
 
         // if at least the coverage of one criterion was
         // improved accept the generated TestSuite
+        boolean worseCoverage = false;
         for (String variable : suite.csvData.getCoverageVariables()) {
-        	String coverageVariable = CsvJUnitData.getValue(rows, variable);
+        	String coverageVariable = CsvJUnitData.getValue(rowCUT, variable);
         	if (coverageVariable == null) {
         		continue ;
         	}
 
         	double generatedCoverage = suite.csvData.getCoverage(variable);
         	double existingCoverage = Double.valueOf(coverageVariable);
-        	double covDif = existingCoverage - generatedCoverage; 
+        	double covDif = generatedCoverage - existingCoverage; 
 
         	// this check is to avoid issues with double truncation
         	if (covDif > 0.0001) {
 				return true;
+			} else if (covDif < -0.0001) {
+				worseCoverage = true;
 			}
+        }
+
+        if (worseCoverage) {
+        	// means that there isn't a coverage improvement
+        	return false;
         }
 
         // coverage seems the same, does the generated test suite cover
         // different goals? if at least the coverage of one criterion has
         // changed, accept the generated TestSuite
         for (String variable : suite.csvData.getCoverageBitStringVariables()) {
-        	String existingCoverage = CsvJUnitData.getValue(rows, variable);
+        	String existingCoverage = CsvJUnitData.getValue(rowCUT, variable);
         	if (existingCoverage == null) {
         		continue ;
         	}
 
         	String generatedCoverage = suite.csvData.getCoverageBitString(variable);
-
-        	// both strings must have the same length and the same number
-        	// of touched components, otherwise is not possible to have
-        	// the same coverage/score
+        	// both strings must have the same length
         	assert(generatedCoverage.length() == existingCoverage.length());
-        	assert(StringUtils.countMatches(generatedCoverage, "1") ==
-        			StringUtils.countMatches(existingCoverage, "1"));
 
         	if (!existingCoverage.equals(generatedCoverage)) {
         		return true;
