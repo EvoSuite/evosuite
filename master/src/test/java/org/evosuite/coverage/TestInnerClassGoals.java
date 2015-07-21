@@ -153,6 +153,7 @@ public class TestInnerClassGoals extends SystemTest {
 		Properties.CRITERION = new Properties.Criterion[]{
 				Properties.Criterion.LINE,
 		};
+		Properties.SEARCH_BUDGET = 100000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
