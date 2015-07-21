@@ -52,7 +52,12 @@ public class CoverageMojo extends AbstractMojo {
 	/**
 	 * 
 	 */
-	@Parameter( property = "output_variables", defaultValue = "TARGET_CLASS,criterion,Coverage,Total_Goals,Covered_Goals,CoverageBitString" )
+	@Parameter( property = "output_variables", defaultValue = "TARGET_CLASS,criterion,Coverage,Total_Goals,Covered_Goals"
+															+ ",LineCoverage,LineCoverageBitString"
+															+ ",BranchCoverage,BranchCoverageBitString"
+															+ ",CBranchCoverage,CBranchCoverageBitString"
+															+ ",WeakMutationScore,WeakMutationCoverageBitString"
+															+ ",MethodTraceCoverage,MethodTraceCoverageBitString" )
 	private String output_variables;
 
 	@Override
@@ -92,7 +97,7 @@ public class CoverageMojo extends AbstractMojo {
 				if (element.endsWith(".jar")) {  // we only target what has been compiled to a folder
 					continue;
 				}
-				if (target.contains(element)) { // we don't want to also consider classes from /src/main/java
+				if (target != null && target.contains(element)) { // we don't want to also consider classes from /src/main/java
 					continue;
 				}
 
