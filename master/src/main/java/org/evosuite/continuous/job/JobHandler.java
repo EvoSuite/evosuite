@@ -357,29 +357,36 @@ public class JobHandler extends Thread {
 
 		if (Properties.OUTPUT_VARIABLES == null) {
 			// add some default output variables
-			String cmd = "";
-			cmd += "TARGET_CLASS,configuration_id,criterion,";
-			cmd += "ctg_min_time_per_job,ctg_schedule,search_budget,p_object_pool,";
-			//cmd += RuntimeVariable.NumberOfInputPoolObjects + ",";
-			cmd += RuntimeVariable.Size + ",";
-			cmd += RuntimeVariable.Length + ",";
-			cmd += RuntimeVariable.Statements_Executed + ",";
-			cmd += RuntimeVariable.Total_Time + ",";
-			cmd += RuntimeVariable.Random_Seed + ",";
-			cmd += RuntimeVariable.Explicit_MethodExceptions + "," +  RuntimeVariable.Explicit_TypeExceptions + ",";
-			cmd += RuntimeVariable.Implicit_MethodExceptions + "," +  RuntimeVariable.Implicit_TypeExceptions + ",";
+			StringBuilder cmd = new StringBuilder();
+			cmd.append("TARGET_CLASS,configuration_id,criterion");
+			cmd.append("," + "ctg_min_time_per_job,ctg_schedule,search_budget,p_object_pool");
+			if (Properties.CTG_TIME_PER_CLASS != null) {
+				cmd.append(",ctg_time_per_class");
+			}
+			//cmd.append("," + RuntimeVariable.NumberOfInputPoolObjects);
+			cmd.append("," + RuntimeVariable.Size);
+			cmd.append("," + RuntimeVariable.Length);
+			cmd.append("," + RuntimeVariable.Statements_Executed);
+			cmd.append("," + RuntimeVariable.Total_Time);
+			cmd.append("," + RuntimeVariable.Random_Seed);
+			cmd.append("," + RuntimeVariable.Explicit_MethodExceptions + "," +  RuntimeVariable.Explicit_TypeExceptions);
+			cmd.append("," + RuntimeVariable.Implicit_MethodExceptions + "," +  RuntimeVariable.Implicit_TypeExceptions);
 
-			cmd += RuntimeVariable.LineCoverage + "," + RuntimeVariable.StatementCoverage + "," +
+			// coverage/score
+			cmd.append("," + RuntimeVariable.LineCoverage + "," + RuntimeVariable.StatementCoverage + "," +
 					RuntimeVariable.BranchCoverage + "," + RuntimeVariable.OnlyBranchCoverage + "," + RuntimeVariable.CBranchCoverage + "," + RuntimeVariable.IBranchCoverage + "," +
 					RuntimeVariable.ExceptionCoverage + "," + RuntimeVariable.WeakMutationScore + "," + RuntimeVariable.OnlyMutationScore + "," + RuntimeVariable.MutationScore + "," +
 					RuntimeVariable.OutputCoverage + "," +
-					RuntimeVariable.MethodCoverage + "," + RuntimeVariable.MethodTraceCoverage + "," + RuntimeVariable.MethodNoExceptionCoverage;
+					RuntimeVariable.MethodCoverage + "," + RuntimeVariable.MethodTraceCoverage + "," + RuntimeVariable.MethodNoExceptionCoverage);
 
-			if (Properties.CTG_TIME_PER_CLASS != null) {
-				cmd += ",ctg_time_per_class";
-			}
+			// coverage bit string
+			cmd.append("," + RuntimeVariable.LineCoverageBitString + "," + RuntimeVariable.StatementCoverageBitString + "," +
+					RuntimeVariable.BranchCoverageBitString + "," + RuntimeVariable.OnlyBranchCoverageBitString + "," + RuntimeVariable.CBranchCoverageBitString + "," + RuntimeVariable.IBranchCoverageBitString + "," +
+					RuntimeVariable.ExceptionCoverageBitString + "," + RuntimeVariable.WeakMutationCoverageBitString + "," + RuntimeVariable.OnlyMutationCoverageBitString + "," + RuntimeVariable.MutationCoverageBitString + "," +
+					RuntimeVariable.OutputCoverageBitString + "," +
+					RuntimeVariable.MethodCoverageBitString + "," + RuntimeVariable.MethodTraceCoverageBitString + "," + RuntimeVariable.MethodNoExceptionCoverageBitString);
 
-			commands.add("-Doutput_variables=" + cmd);
+			commands.add("-Doutput_variables=" + cmd.toString());
 		} else {
 			commands.add("-Doutput_variables=" + Properties.OUTPUT_VARIABLES);
 		}
