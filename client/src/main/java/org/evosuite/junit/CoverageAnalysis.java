@@ -46,6 +46,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
 import org.junit.Test;
@@ -90,6 +91,7 @@ public class CoverageAnalysis {
 		Sandbox.goingToExecuteSUTCode();
         TestGenerationContext.getInstance().goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+		ExecutionTracer.setCheckCallerThread(false);
 		try {
 			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 
