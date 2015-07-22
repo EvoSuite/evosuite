@@ -50,6 +50,12 @@ public class CoverageMojo extends AbstractMojo {
 	private String criterion;
 
 	/**
+	 * Maximum seconds allowed
+	 */
+	@Parameter( property = "global_timeout", defaultValue = "120" )
+	private int global_timeout;
+
+	/**
 	 * 
 	 */
 	@Parameter( property = "output_variables", defaultValue = "TARGET_CLASS,criterion,Coverage,Total_Goals,Covered_Goals"
@@ -147,8 +153,9 @@ public class CoverageMojo extends AbstractMojo {
 		params.add("-target");
 		params.add(target);
 		params.add("-DCP=" + cp + File.pathSeparator + junit);
-		params.add("-Dcriterion="+criterion);
-		params.add("-Doutput_variables="+output_variables);
+		params.add("-Dcriterion="+this.criterion);
+		params.add("-Doutput_variables="+this.output_variables);
+		params.add("-Dglobal_timeout="+this.global_timeout);
 
 		EvoSuiteRunner runner = new EvoSuiteRunner(getLog(), this.artifacts, this.projectBuilder, this.repoSession);
 		runner.registerShutDownHook();
