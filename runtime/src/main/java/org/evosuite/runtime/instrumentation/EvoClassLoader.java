@@ -94,7 +94,7 @@ public class EvoClassLoader extends ClassLoader {
 		InputStream is = null;
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
-			is = ClassLoader.getSystemResourceAsStream(className + ".class");
+			is = classLoader.getResourceAsStream(className + ".class");
 			
 			if (is == null) {
 				throw new ClassNotFoundException("Class '" + className + ".class"
