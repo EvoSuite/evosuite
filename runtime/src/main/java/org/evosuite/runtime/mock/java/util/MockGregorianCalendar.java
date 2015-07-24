@@ -41,5 +41,15 @@ public class MockGregorianCalendar extends GregorianCalendar  implements Overrid
 		this.setTimeInMillis(org.evosuite.runtime.System.currentTimeMillis());
 	}
 	
-	
+	// TODO: This code in Calendar seems to cause access to time
+	//       but I don't understand how.
+	//    public long getTimeInMillis() {
+	//        if (!isTimeSet) {
+	//            updateTime();
+	//        }
+	//        return time;
+	//    }
+    public long getTimeInMillis() {
+        return time;
+    }
 }
