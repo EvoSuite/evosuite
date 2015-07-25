@@ -1016,28 +1016,23 @@ public class TestFactory {
 	public VariableReference createObject(TestCase test, Type type, int position,
 	        int recursionDepth) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
-		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz,
-				currentRecursion);
-
+		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz, currentRecursion);
 		currentRecursion.add(o);
+
 		if (o == null) {
 			if (!TestCluster.getInstance().hasGenerator(clazz)) {
 				logger.debug("We have no generator for class " + type);
 			}
 			throw new ConstructionFailedException("Generator is null");
 		} else if (o.isField()) {
-			logger.debug("Attempting generating of " + type + " via field of type "
-			        + type);
-			VariableReference ret = addField(test, (GenericField) o, position,
-					recursionDepth + 1);
+			logger.debug("Attempting generating of " + type + " via field of type " + type);
+			VariableReference ret = addField(test, (GenericField) o, position, recursionDepth + 1);
 			ret.setDistance(recursionDepth + 1);
 			logger.debug("Success in generating type " + type);
 			return ret;
 		} else if (o.isMethod()) {
-			logger.debug("Attempting generating of " + type + " via method " + (o)
-			        + " of type " + type);
-			VariableReference ret = addMethod(test, (GenericMethod) o, position,
-			                                  recursionDepth + 1);
+			logger.debug("Attempting generating of " + type + " via method " + (o) + " of type " + type);
+			VariableReference ret = addMethod(test, (GenericMethod) o, position, recursionDepth + 1);
 
 			// TODO: Why are we doing this??
 			//if (o.isStatic()) {
@@ -1049,8 +1044,10 @@ public class TestFactory {
 		} else if (o.isConstructor()) {
 			logger.debug("Attempting generating of " + type + " via constructor " + (o)
 			        + " of type " + type + ", with constructor type " + o.getOwnerType());
+
 			VariableReference ret = addConstructor(test, (GenericConstructor) o, type,
 			                                       position, recursionDepth + 1);
+
 			logger.debug("Success in generating type " + type);
 			ret.setDistance(recursionDepth + 1);
 
