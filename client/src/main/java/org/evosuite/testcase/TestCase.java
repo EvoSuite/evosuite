@@ -470,6 +470,13 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	public int size();
 
 	/**
+	 * Get number of statements plus the number of assertions
+	 *
+	 * @return Number of statements plus number of assertions
+	 */
+	public int sizeWithAssertions();
+
+	/**
 	 * Get Java code representation of the test case
 	 *
 	 * @return Code as string
