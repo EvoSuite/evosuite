@@ -31,7 +31,9 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
+import org.evosuite.testcase.ConstraintHelper;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.jee.InstanceOnlyOnce;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
@@ -840,20 +842,6 @@ public class TestCluster {
 	}
 
 
-
-	/**
-	 * Randomly select one generator
-	 *
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
-	public GenericAccessibleObject<?> getRandomGenerator(GenericClass clazz,
-														 Set<GenericAccessibleObject<?>> excluded) throws ConstructionFailedException {
-
-		return getRandomGenerator(clazz,excluded,true);
-	}
-
 	/**
 	 * Randomly select one generator
          *
@@ -862,7 +850,7 @@ public class TestCluster {
          * @throws ConstructionFailedException
          */
 	public GenericAccessibleObject<?> getRandomGenerator(GenericClass clazz,
-	        Set<GenericAccessibleObject<?>> excluded, boolean allowConstructors) throws ConstructionFailedException {
+	        Set<GenericAccessibleObject<?>> excluded, TestCase test) throws ConstructionFailedException {
 
 		logger.debug("Getting random generator for " + clazz);
 
@@ -873,7 +861,7 @@ public class TestCluster {
 			if (!concreteClass.equals(clazz)) {
 				logger.debug("Target class is generic: " + clazz
 				        + ", getting instantiation " + concreteClass);
-				return getRandomGenerator(concreteClass, excluded, allowConstructors);
+				return getRandomGenerator(concreteClass, excluded, test);
 			}
 		}
 
@@ -893,16 +881,19 @@ public class TestCluster {
 			Set<GenericAccessibleObject<?>> candidates = new LinkedHashSet<>(generatorCache.get(clazz));
 			int before = candidates.size();
 			candidates.removeAll(excluded);
-			if(!allowConstructors) {
+
+			if(Properties.JEE) {
 				Iterator<GenericAccessibleObject<?>> iter = candidates.iterator();
 				while (iter.hasNext()) {
 					GenericAccessibleObject<?> gao = iter.next();
 					if (gao instanceof GenericConstructor) {
-						iter.remove();
+						Class<?> klass = gao.getDeclaringClass();
+						if(InstanceOnlyOnce.canInstantiateOnlyOnce(klass) && ConstraintHelper.countNumberOfNewInstances(test, klass) != 0){
+							iter.remove();
+						}
 					}
 				}
 			}
-
 			logger.debug("Candidate generators for " + clazz + ": " + candidates.size());
 
 			if (candidates.isEmpty())
