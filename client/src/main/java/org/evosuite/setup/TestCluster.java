@@ -32,6 +32,7 @@ import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.testcase.ConstraintHelper;
+import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.jee.InstanceOnlyOnce;
 import org.evosuite.utils.generic.GenericAccessibleObject;
@@ -479,12 +480,23 @@ public class TestCluster {
 		return modifiers.get(clazz);
 	}
 
-	public GenericAccessibleObject<?> getRandomCallFor(GenericClass clazz)
+	public GenericAccessibleObject<?> getRandomCallFor(GenericClass clazz, TestCase test, int position)
 	        throws ConstructionFailedException {
+
 		Set<GenericAccessibleObject<?>> calls = getCallsFor(clazz, true);
-		if (calls.isEmpty())
+		Iterator<GenericAccessibleObject<?>> iter = calls.iterator();
+		while(iter.hasNext()) {
+			GenericAccessibleObject<?> gao = iter.next();
+			if (! ConstraintVerifier.isValidPositionForInsertion(gao,test,position)){
+				iter.remove();
+			}
+		}
+
+		if (calls.isEmpty()) {
 			throw new ConstructionFailedException("No modifiers for " + clazz);
+		}
 		logger.debug("Possible modifiers for " + clazz + ": " + calls);
+
 		GenericAccessibleObject<?> call = Randomness.choice(calls);
 		if (call.hasTypeParameters()) {
 			logger.debug("Modifier has type parameters");
@@ -502,7 +514,7 @@ public class TestCluster {
 	 */
 	private Set<GenericAccessibleObject<?>> getCallsForSpecialCase(GenericClass clazz)
 	        throws ConstructionFailedException {
-		Set<GenericAccessibleObject<?>> all = new LinkedHashSet<GenericAccessibleObject<?>>();
+		Set<GenericAccessibleObject<?>> all = new LinkedHashSet<>();
 		if (!modifiers.containsKey(clazz)) {
 			logger.debug("Don't have that specific class, so have to check generic modifiers");
 			all.addAll(determineGenericModifiersFor(clazz));
