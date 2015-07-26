@@ -100,9 +100,10 @@ public class Runtime {
 
 			/*
 			 * NOTE: this is expensive (some seconds), but only the first time, so should not be a major bottleneck.
-			 * TODO: could maybe run only if DB was actually accessed
 			 */
-			DBManager.getInstance().initDB();
+			if(DBManager.getInstance().isWasAccessed()) {
+				DBManager.getInstance().initDB();
+			}
 		}
 
         LoopCounter.getInstance().reset();
