@@ -1017,15 +1017,7 @@ public class TestFactory {
 	        int recursionDepth) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
-		boolean allowConstructor = true;
-		if(Properties.JEE && type instanceof Class){
-			Class<?> klass = (Class<?>) type;
-			if(InstanceOnlyOnce.canInstantiateOnlyOnce(klass) && ConstraintHelper.countNumberOfNewInstances(test,klass) != 0){
-				allowConstructor = false;
-			}
-		}
-
-		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz, currentRecursion, allowConstructor);
+		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz, currentRecursion, test);
 		currentRecursion.add(o);
 
 		if (o == null) {
