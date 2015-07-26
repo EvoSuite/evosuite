@@ -456,7 +456,7 @@ public class TestCluster {
 	 */
 	public Set<GenericAccessibleObject<?>> getCallsFor(GenericClass clazz, boolean resolve)
 	        throws ConstructionFailedException {
-		logger.debug("Getting calls for "+clazz);
+		logger.debug("Getting calls for " + clazz);
 		if (clazz.hasWildcardOrTypeVariables()) {
 			logger.debug("Resolving generic type before getting modifiers");
 			GenericClass concreteClass = clazz.getGenericInstantiation();
@@ -839,6 +839,8 @@ public class TestCluster {
 		return generator;
 	}
 
+
+
 	/**
 	 * Randomly select one generator
 	 *
@@ -847,7 +849,20 @@ public class TestCluster {
 	 * @throws ConstructionFailedException
 	 */
 	public GenericAccessibleObject<?> getRandomGenerator(GenericClass clazz,
-	        Set<GenericAccessibleObject<?>> excluded) throws ConstructionFailedException {
+														 Set<GenericAccessibleObject<?>> excluded) throws ConstructionFailedException {
+
+		return getRandomGenerator(clazz,excluded,true);
+	}
+
+	/**
+	 * Randomly select one generator
+         *
+         * @param type
+         * @return
+         * @throws ConstructionFailedException
+         */
+	public GenericAccessibleObject<?> getRandomGenerator(GenericClass clazz,
+	        Set<GenericAccessibleObject<?>> excluded, boolean allowConstructors) throws ConstructionFailedException {
 
 		logger.debug("Getting random generator for " + clazz);
 
@@ -858,7 +873,7 @@ public class TestCluster {
 			if (!concreteClass.equals(clazz)) {
 				logger.debug("Target class is generic: " + clazz
 				        + ", getting instantiation " + concreteClass);
-				return getRandomGenerator(concreteClass, excluded);
+				return getRandomGenerator(concreteClass, excluded, allowConstructors);
 			}
 		}
 
@@ -875,10 +890,19 @@ public class TestCluster {
 		} else {
 			cacheGenerators(clazz);
 
-			Set<GenericAccessibleObject<?>> candidates = new LinkedHashSet<GenericAccessibleObject<?>>(
-			        generatorCache.get(clazz));
+			Set<GenericAccessibleObject<?>> candidates = new LinkedHashSet<>(generatorCache.get(clazz));
 			int before = candidates.size();
 			candidates.removeAll(excluded);
+			if(!allowConstructors) {
+				Iterator<GenericAccessibleObject<?>> iter = candidates.iterator();
+				while (iter.hasNext()) {
+					GenericAccessibleObject<?> gao = iter.next();
+					if (gao instanceof GenericConstructor) {
+						iter.remove();
+					}
+				}
+			}
+
 			logger.debug("Candidate generators for " + clazz + ": " + candidates.size());
 
 			if (candidates.isEmpty())
