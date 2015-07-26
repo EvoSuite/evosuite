@@ -166,16 +166,16 @@ public class ConstraintVerifier {
     public static int getAValidPositionForInsertion(GenericAccessibleObject<?> obj, TestCase tc, int lastValid) throws IllegalArgumentException{
         Inputs.checkNull(obj,tc);
 
-        if(lastValid < 0 || tc.size()==0) {
-            return 0;
-        }
-
         Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
         if(constraints == null){
-            if(lastValid==0){
+            if(lastValid <= 0){
                 return 0;
             }
             return Randomness.nextInt(0,lastValid);
+        }
+
+        if(constraints.noDirectInsertion()){
+            return -1;
         }
 
         Class<?> declaringClass = obj.getDeclaringClass();
@@ -236,7 +236,7 @@ public class ConstraintVerifier {
         if(minPos > 0) {
             return minPos; //try to add immediately 'after' the constraining method
         } else {
-            if(lastValid==0){
+            if(lastValid<=0){
                 return 0;
             }
             return Randomness.nextInt(0,lastValid);
