@@ -155,6 +155,28 @@ public class ConstraintVerifier {
         return true;
     }
 
+    public static boolean isValidPositionForInsertion(GenericAccessibleObject<?> obj, TestCase tc, int pos)
+        throws IllegalArgumentException{
+
+        Inputs.checkNull(obj,tc);
+
+        Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
+        if(constraints == null){
+            return true;
+        }
+
+        if(! canBeInsertedRegardlessOfPosition(obj, tc)){
+            return false;
+        }
+
+        int minPos = getMinPosForAfter(obj,tc,tc.size());
+        if(minPos < 0 || pos < minPos){
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      *
      * @param obj
@@ -174,45 +196,32 @@ public class ConstraintVerifier {
             return Randomness.nextInt(0,lastValid);
         }
 
-        if(constraints.noDirectInsertion()){
+        if(! canBeInsertedRegardlessOfPosition(obj, tc)){
             return -1;
         }
 
+        //TODO
+        //bounded
+
+        int minPos = getMinPosForAfter(obj,tc,lastValid);
+
+        if(minPos < 0){
+            return -1;
+        } else if(minPos > 0) {
+            return minPos; //try to add immediately 'after' the constraining method
+        } else {
+            assert minPos==0;
+            if(lastValid<=0){
+                return 0;
+            }
+            return Randomness.nextInt(0,lastValid);
+        }
+    }
+
+    private static int getMinPosForAfter(GenericAccessibleObject<?> obj, TestCase tc, int lastValid){
+
+        Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
         Class<?> declaringClass = obj.getDeclaringClass();
-        String declaringClassName = declaringClass.getCanonicalName();
-        String name = obj.getName();
-
-        //check atMostOnce
-        if(constraints.atMostOnce()){
-            int counter = ConstraintHelper.countNumberOfMethodCalls(tc,declaringClass,name);
-            if(counter == 1){
-                //cannot insert it again
-                return -1;
-            } else if(counter > 1){
-                throw new RuntimeException("Violated 'atMostOnce' constraint for "+obj.getName());
-            }
-        }
-
-        //excludeOthers
-        List<String[]> othersExcluded = ConstraintHelper.getExcludedMethods(tc);
-        if(othersExcluded != null && othersExcluded.size() > 0){
-            for(String[] pair : othersExcluded){
-                if(pair[0].equals(declaringClassName) && pair[1].equals(name)){
-                    //this method/constructor cannot be added
-                    return -1;
-                }
-            }
-        }
-
-        //dependOnProperties
-        String[] properties = constraints.dependOnProperties();
-        if(properties!=null && properties.length>0){
-            for(String property : properties){
-                if(! tc.getAccessedEnvironment().hasProperty(property)){
-                    return -1;
-                }
-            }
-        }
 
         //after
         int minPos = 0;
@@ -230,17 +239,57 @@ public class ConstraintVerifier {
             minPos = afterPos+1;
         }
 
-        //TODO
-        //bounded
+        return minPos;
+    }
 
-        if(minPos > 0) {
-            return minPos; //try to add immediately 'after' the constraining method
-        } else {
-            if(lastValid<=0){
-                return 0;
-            }
-            return Randomness.nextInt(0,lastValid);
+    private static boolean canBeInsertedRegardlessOfPosition(GenericAccessibleObject<?> obj, TestCase tc){
+
+        Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
+        if(constraints == null){
+            return true;
         }
+
+        if(constraints.noDirectInsertion()){
+            return false;
+        }
+
+        Class<?> declaringClass = obj.getDeclaringClass();
+        String declaringClassName = declaringClass.getCanonicalName();
+        String name = obj.getName();
+
+        //check atMostOnce
+        if(constraints.atMostOnce()){
+            int counter = ConstraintHelper.countNumberOfMethodCalls(tc,declaringClass,name);
+            if(counter == 1){
+                //cannot insert it again
+                return false;
+            } else if(counter > 1){
+                throw new RuntimeException("Violated 'atMostOnce' constraint for "+obj.getName());
+            }
+        }
+
+        //excludeOthers
+        List<String[]> othersExcluded = ConstraintHelper.getExcludedMethods(tc);
+        if(othersExcluded != null && othersExcluded.size() > 0){
+            for(String[] pair : othersExcluded){
+                if(pair[0].equals(declaringClassName) && pair[1].equals(name)){
+                    //this method/constructor cannot be added
+                    return false;
+                }
+            }
+        }
+
+        //dependOnProperties
+        String[] properties = constraints.dependOnProperties();
+        if(properties!=null && properties.length>0){
+            for(String property : properties){
+                if(! tc.getAccessedEnvironment().hasProperty(property)){
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     public static boolean verifyTest(TestChromosome tc){
