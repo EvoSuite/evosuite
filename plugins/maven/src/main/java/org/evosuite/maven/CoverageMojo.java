@@ -156,7 +156,13 @@ public class CoverageMojo extends AbstractMojo {
 		params.add("-Dcriterion="+this.criterion);
 		params.add("-Doutput_variables="+this.output_variables);
 		params.add("-Dglobal_timeout="+this.global_timeout);
-		params.add("-Dreplace_calls=false"); // in theory should be safe to execute source-code 
+		// in theory should be safe to execute source-code
+		params.add("-Dsandbox=false");
+		params.add("-Dvirtual_fs=false");
+		params.add("-Dvirtual_net=false");
+		params.add("-Dreplace_calls=false");
+		params.add("-Dreplace_system_in=false");
+		params.add("-Dmax_loop_iterations=-1");
 
 		EvoSuiteRunner runner = new EvoSuiteRunner(getLog(), this.artifacts, this.projectBuilder, this.repoSession);
 		runner.registerShutDownHook();

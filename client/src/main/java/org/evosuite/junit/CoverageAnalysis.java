@@ -564,6 +564,10 @@ public class CoverageAnalysis {
 
 	private static List<JUnitResult> executeTests(Class<?>... testClasses) {
 
+		ExecutionTracer.enable();
+		ExecutionTracer.enableTraceCalls();
+		ExecutionTracer.setCheckCallerThread(false);
+
 		List<JUnitResult> results = new ArrayList<JUnitResult>();
         for (Class<?> testClass : testClasses) {
         	LoggingUtils.getEvoLogger().info("  Executing " + testClass.getSimpleName());
@@ -571,6 +575,8 @@ public class CoverageAnalysis {
             jR.run();
             results.addAll(jR.getTestResults());
         }
+
+		ExecutionTracer.disable();
 
         LoggingUtils.getEvoLogger().info("* Executed " + results.size() + " unit test(s)");
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, results.size());
