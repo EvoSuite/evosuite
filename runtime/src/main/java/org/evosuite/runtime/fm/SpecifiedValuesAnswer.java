@@ -10,6 +10,7 @@ import org.mockito.stubbing.Answer;
  *
  * Created by Andrea Arcuri on 27/07/15.
  */
+@Deprecated // there is easier way to do it in Mockito, ie "Stubbing consecutive calls (iterator-style stubbing)"
 public class SpecifiedValuesAnswer<T> implements Answer<T>{
 
     private final T[] values;
