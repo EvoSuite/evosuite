@@ -68,10 +68,6 @@ public class JUnitRunListener extends RunListener {
 		this.start = System.nanoTime();
 
 		this.testResult = new JUnitResult(description.getClassName() + "#" + description.getMethodName(), this.junitRunner.getJUnitClass());
-
-		ExecutionTracer.enable();
-		ExecutionTracer.enableTraceCalls();
-		ExecutionTracer.setCheckCallerThread(false);
 	}
 
 	/**
@@ -80,8 +76,6 @@ public class JUnitRunListener extends RunListener {
 	@Override
 	public void testFinished(Description description) {
 		LoggingUtils.getEvoLogger().info("* Finished: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
-
-		ExecutionTracer.disable();
 
 		this.testResult.setRuntime(System.nanoTime() - this.start);
 		this.testResult.setExecutionTrace(ExecutionTracer.getExecutionTracer().getTrace());
@@ -97,6 +91,9 @@ public class JUnitRunListener extends RunListener {
 	@Override
 	public void testFailure(Failure failure) {
 		LoggingUtils.getEvoLogger().info("* Failure: " + failure.getMessage());
+		for (StackTraceElement s : failure.getException().getStackTrace()) {
+			LoggingUtils.getEvoLogger().info("   " + s.toString());
+		}
 
 		this.testResult.setSuccessful(false);
 		this.testResult.setTrace(failure.getTrace());
