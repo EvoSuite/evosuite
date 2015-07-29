@@ -4,6 +4,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.WildcardTypeImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -62,7 +63,7 @@ public class TestCodeVisitorTest {
 
         //Finally, visit the test
         TestCodeVisitor visitor = new TestCodeVisitor();
-        tc.accept(visitor); //should not throw exception
+        tc.accept(visitor); //should not throw exception        
     }
 
     @Test
@@ -84,8 +85,13 @@ public class TestCodeVisitorTest {
         Assert.assertEquals(1, types.length); //only 1 input
         Type type = types[0];
         Assert.assertNotNull(type);
-        Assert.assertEquals(Object.class, type);
-
+        WildcardTypeImpl wt = (WildcardTypeImpl) type;        
+        Assert.assertEquals(0,wt.getLowerBounds().length);
+        Assert.assertEquals(1,wt.getUpperBounds().length);
+        
+        Class<?> upper = (Class<?>) wt.getUpperBounds()[0];
+        Assert.assertEquals(Object.class,upper);
+        
         //Finally, visit the test
         TestCodeVisitor visitor = new TestCodeVisitor();
         tc.accept(visitor); //should not throw exception
@@ -110,7 +116,12 @@ public class TestCodeVisitorTest {
         Assert.assertEquals(1, types.length); //only 1 input
         Type type = types[0];
         Assert.assertNotNull(type);
-        Assert.assertEquals(Object.class, type);
+        WildcardTypeImpl wt = (WildcardTypeImpl) type;        
+        Assert.assertEquals(0,wt.getLowerBounds().length);
+        Assert.assertEquals(1,wt.getUpperBounds().length);
+        
+        Class<?> upper = (Class<?>) wt.getUpperBounds()[0];
+        Assert.assertEquals(Object.class,upper);
 
         //Finally, visit the test
         TestCodeVisitor visitor = new TestCodeVisitor();
