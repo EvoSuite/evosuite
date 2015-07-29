@@ -1,5 +1,8 @@
 package org.evosuite.assertion.stable;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.evosuite.EvoSuite;
@@ -9,7 +12,14 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,6 +56,49 @@ public class TestOverload extends SystemTest {
 		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
 	}
 
+	@Test
+	public void testIsOverloaded() throws NoSuchMethodException, SecurityException {
+		Method m1 = Overload.class.getMethod("execute", Overload.class, Overload.class);
+		Method m2 = Overload.class.getMethod("execute", Overload.class, Object.class);
+		
+		GenericMethod gm1 = new GenericMethod(m1, Overload.class);
+		GenericMethod gm2 = new GenericMethod(m2, Overload.class);
+		
+		Assert.assertTrue(gm1.isOverloaded());
+		Assert.assertTrue(gm2.isOverloaded());
+	}
+	
+	@Test
+	public void testIsOverloadedInstance() throws NoSuchMethodException, SecurityException {
+		Method m1 = Overload.class.getMethod("execute", Overload.class, Overload.class);
+		Method m2 = Overload.class.getMethod("execute", Overload.class, Object.class);
+		
+		GenericMethod gm1 = new GenericMethod(m1, Overload.class);
+		GenericMethod gm2 = new GenericMethod(m2, Overload.class);
+		
+		TestCase test = new DefaultTestCase();
+		
+		GenericConstructor gc = new GenericConstructor(Overload.class.getConstructors()[0], Overload.class);
+		ConstructorStatement cs = new ConstructorStatement(test, gc, new ArrayList<VariableReference>());
+		VariableReference overloadInstance = test.addStatement(cs);
+
+		ConstructorStatement ocs = new ConstructorStatement(test, new GenericConstructor(Object.class.getConstructors()[0], Object.class), new ArrayList<VariableReference>());
+		VariableReference objectInstance = test.addStatement(ocs);
+
+		List<VariableReference> vars1 = new ArrayList<VariableReference>();
+		vars1.add(overloadInstance);
+		vars1.add(overloadInstance);
+
+		List<VariableReference> vars2 = new ArrayList<VariableReference>();
+		vars2.add(overloadInstance);
+		vars2.add(objectInstance);
+
+		Assert.assertTrue(gm1.isOverloaded(vars1));
+		Assert.assertTrue(gm2.isOverloaded(vars1));
+		Assert.assertTrue(gm1.isOverloaded(vars2));
+		Assert.assertTrue(gm2.isOverloaded(vars2));
+	}
+	
 	@Test
 	public void testOverload() {
 		EvoSuite evosuite = new EvoSuite();
