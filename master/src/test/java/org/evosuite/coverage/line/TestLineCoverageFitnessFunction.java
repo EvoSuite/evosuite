@@ -252,7 +252,7 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		// To see whether there is any guidance we turn off
 		// seeding, but need to increase the budget
 		Properties.PRIMITIVE_POOL = 0.0;
-		Properties.SEARCH_BUDGET = 50000;
+		Properties.SEARCH_BUDGET = 150000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
@@ -264,7 +264,8 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(5, goals );
-		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		// Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1);
 	}
 	
 	@Test
@@ -279,7 +280,7 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		// To see whether there is any guidance we turn off
 		// seeding, but need to increase the budget
 		Properties.PRIMITIVE_POOL = 0.0;
-		Properties.SEARCH_BUDGET = 80000;
+		Properties.SEARCH_BUDGET = 150000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
@@ -306,7 +307,7 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		// To see whether there is any guidance we turn off
 		// seeding, but need to increase the budget
 		Properties.PRIMITIVE_POOL = 0.0;
-		Properties.SEARCH_BUDGET = 50000;
+		Properties.SEARCH_BUDGET = 150000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
