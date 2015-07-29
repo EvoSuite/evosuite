@@ -131,6 +131,12 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		if(isNewCoveredGoal || better){
 			ExecutionResult copy = result.clone();
 			copy.test = copy.test.clone(); //result.clone() does not clone the test
+
+			// Remove all statements after an exception
+			if(!copy.noThrownExceptions()) {
+				copy.test.chop(copy.getFirstPositionOfThrownException() + 1);
+			}
+			
 			testMap.put(goal, copy);
 			handleCollateralCoverage(copy); //check for collateral only when there is improvement over current goal
 		}
@@ -188,6 +194,20 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 	public boolean isArchiveEmpty(){
 		return testMap.isEmpty();
 	}
+	
+	public int getTotalNumberOfGoals() {
+		int total = 0;
+		for(Integer numGoals : goalsCountMap.values())
+			total += numGoals;
+		return total;
+	}
+
+	public int getNumberOfCoveredGoals() {
+		int covered = 0;
+		for(Integer numGoals : coveredGoalsCountMap.values())
+			covered += numGoals;
+		return covered;
+	}
 
 	public TestCase getCloneAtRandom(){
 		/*
@@ -195,6 +215,13 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 			Maybe it is not the best way, but likely the quickest to compute
 		 */
 		ExecutionResult res = Randomness.choice(testMap.values());
+		if(!res.noThrownExceptions()) {
+			// If the test ends with an exception, remove the statement 
+			// that throws the exception
+			TestCase copy = res.test.clone();
+			copy.chop(res.getFirstPositionOfThrownException());
+			return copy;
+		}
 		return res.test.clone();
 	}
 	

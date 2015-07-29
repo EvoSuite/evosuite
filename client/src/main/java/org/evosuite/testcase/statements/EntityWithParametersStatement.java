@@ -3,7 +3,6 @@ package org.evosuite.testcase.statements;
 import org.evosuite.runtime.annotation.BoundInputVariable;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.util.Inputs;
-import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
@@ -19,7 +18,8 @@ import java.util.List;
  */
 public abstract class EntityWithParametersStatement extends AbstractStatement{
 
-    protected final List<VariableReference> parameters;
+	private static final long serialVersionUID = 2971944785047056480L;
+	protected final List<VariableReference> parameters;
     protected final Annotation[][] parameterAnnotations;
     protected final Annotation[] annotations;
 
