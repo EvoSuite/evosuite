@@ -8,6 +8,8 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 
+import javax.servlet.Servlet;
+
 import static org.junit.Assert.*;
 
 /**
@@ -87,7 +89,14 @@ public class GenericMethodTest {
         GenericMethod gm = new GenericMethod(m,A.class);
         Type res =  gm.getExactReturnType(m, A.class);
 
-        Assert.assertEquals(Object.class, res);
+        //Check if generic types were correctly analyzed/inferred
+        Assert.assertNotNull(res);
+        WildcardTypeImpl wt = (WildcardTypeImpl) res;        
+        Assert.assertEquals(0,wt.getLowerBounds().length);
+        Assert.assertEquals(1,wt.getUpperBounds().length);
+        
+        Class<?> upper = (Class<?>) wt.getUpperBounds()[0];
+        Assert.assertEquals(Object.class,upper);
     }
 
     @Test
@@ -97,7 +106,13 @@ public class GenericMethodTest {
         GenericMethod gm = new GenericMethod(m,A.class);
         Type res =  gm.getExactParameterTypes(m, A.class)[0];
 
-
-        Assert.assertEquals(Object.class, res);
+        //Check if generic types were correctly analyzed/inferred
+        Assert.assertNotNull(res);
+        WildcardTypeImpl wt = (WildcardTypeImpl) res;        
+        Assert.assertEquals(0,wt.getLowerBounds().length);
+        Assert.assertEquals(1,wt.getUpperBounds().length);
+        
+        Class<?> upper = (Class<?>) wt.getUpperBounds()[0];
+        Assert.assertEquals(Object.class,upper);
     }
 }
