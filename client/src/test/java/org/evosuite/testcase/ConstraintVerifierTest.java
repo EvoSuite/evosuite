@@ -64,7 +64,23 @@ public class ConstraintVerifierTest {
         return null;
     }
 
+    @Constraints(noDirectInsertion = true)
+    public static void noDirect(){
 
+    }
+
+    @Test
+    public void testNoDirectInsertion() throws Exception{
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        GenericMethod gm = new GenericMethod(ConstraintVerifierTest.class.getDeclaredMethod("noDirect", null),
+                ConstraintVerifierTest.class);
+
+        //should not be possible to insert it
+        int pos = ConstraintVerifier.getAValidPositionForInsertion(gm, tc.getTestCase(), 0);
+        Assert.assertTrue(pos < 0);
+    }
 
     @Test
     public void testPostConstructIssue() throws Exception{
