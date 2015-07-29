@@ -58,6 +58,10 @@ import org.evosuite.utils.*;
 
 import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericField;
+import org.evosuite.utils.generic.GenericMethod;
 
 /**
  * The TestCodeVisitor is a visitor that produces a String representation of a
@@ -979,10 +983,10 @@ public class TestCodeVisitor extends TestVisitor {
 			Type declaredParamType = parameterTypes[i];
 			Type actualParamType = parameters.get(i).getType();
 			String name = getVariableName(parameters.get(i));
-			Class<?> rawParamClass = GenericTypeReflector.erase(declaredParamType);
+			Class<?> rawParamClass = declaredParamType instanceof WildcardType ? Object.class : GenericTypeReflector.erase(declaredParamType);
 			if (rawParamClass.isPrimitive() && name.equals("null")) {
 				parameterString += getPrimitiveNullCast(rawParamClass);
-			} else if (isGenericMethod) {
+			} else if (isGenericMethod && !(declaredParamType instanceof WildcardType )) {
 				if (!declaredParamType.equals(actualParamType) || name.equals("null")) {
 					parameterString += "(" + getTypeName(declaredParamType) + ") ";
 					if (name.contains("(short"))

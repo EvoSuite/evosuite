@@ -23,7 +23,7 @@ import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.setup.TestUsageChecker;
-import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

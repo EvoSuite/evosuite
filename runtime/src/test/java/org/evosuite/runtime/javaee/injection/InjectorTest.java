@@ -12,6 +12,11 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
 import javax.transaction.UserTransaction;
 
+import java.lang.reflect.Field;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import static org.junit.Assert.*;
 
 /**
@@ -59,7 +64,7 @@ public class InjectorTest {
         Foo foo = new Foo();
         Assert.assertFalse(foo.isInit());
 
-        Injector.executePostConstruct(foo);
+        Injector.executePostConstruct(foo, Foo.class);
 
         Assert.assertTrue(foo.isInit());
     }
@@ -118,7 +123,46 @@ public class InjectorTest {
         Assert.assertNotNull(foo.getFactory());
     }
 
-    private class Foo {
+    @Test
+    public void test_getGeneralFieldsToInject(){
+        List<Field> list = Injector.getGeneralFieldsToInject(Foo.class);
+        Assert.assertEquals(3, list.size());
+        Set<String> names = new LinkedHashSet<>();
+        for(Field f : list){
+            names.add(f.getName());
+        }
+        Assert.assertTrue(names.contains("aString"));
+        Assert.assertTrue(names.contains("injectField"));
+        Assert.assertTrue(names.contains("persistence"));
+    }
+
+    @Test
+    public void test_getGeneralFieldsToInject_subclass_differentField(){
+        List<Field> list = Injector.getGeneralFieldsToInject(SubclassDifferentField.class);
+        Assert.assertEquals(1, list.size());
+        Assert.assertEquals("aDifferentString", list.get(0).getName());
+    }
+
+    @Test
+    public void test_getGeneralFieldsToInject_subclass_sameField(){
+        List<Field> list = Injector.getGeneralFieldsToInject(SubclassSameField.class);
+        Assert.assertEquals(1 , list.size());
+        Assert.assertEquals("aString", list.get(0).getName());
+    }
+
+    private static class SubclassDifferentField extends Foo{
+        @Inject
+        private String aDifferentString;
+    }
+
+    private static class SubclassSameField extends Foo{
+        @Inject
+        private String aString;
+    }
+
+
+
+    private static class Foo {
 
         private Object noTag;
 
@@ -130,6 +174,9 @@ public class InjectorTest {
 
         @Inject
         private UserTransaction userTransaction;
+
+        @Inject
+        private String aString;
 
         @Inject
         private Object injectField;

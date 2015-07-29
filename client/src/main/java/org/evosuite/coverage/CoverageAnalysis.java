@@ -29,13 +29,7 @@ public class CoverageAnalysis {
 
 	private static final Logger logger = LoggerFactory.getLogger(CoverageAnalysis.class);
 
-	private static boolean isMutationCriterion(Set<Criterion> criteria) {
-	    for (Properties.Criterion pc : criteria) {
-	        if (isMutationCriterion(pc))
-	            return true;
-	    }
-	    return false;
-	}
+	private static Map<String, StringBuffer> coverageBitString = new TreeMap<String, StringBuffer>();
 
 	private static boolean isMutationCriterion(Properties.Criterion criterion) {
 		switch (criterion) {
@@ -51,56 +45,33 @@ public class CoverageAnalysis {
 
 	private static void reinstrument(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
-		Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 
-		//XXX this is horrible, need refactoring
-		Set<Criterion> oldCriteria = new HashSet<>();
-		for (Criterion c : Properties.CRITERION) {
-			oldCriteria.add(c);
+		// do not reinstrument a testSuite for criterion that we have
+		// been optimizing (because we already have coverage for that)
+		if (ArrayUtil.contains(Properties.CRITERION, criterion)) {
+			return ;
 		}
+
 		if (Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("ibranch")
 				|| Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("archiveibranch")) {
-			oldCriteria.add(Properties.Criterion.IBRANCH);
 			ExecutionTracer.enableContext();
 		}
-
-		//TODO why was this not check before invalidating the cache of the test suite?
-		if (oldCriteria.contains(criterion)) {
-			return;
-		}
-
 		if (!ExecutionTracer.isTraceCallsEnabled()) {
 			ExecutionTracer.enableTraceCalls();
 		}
+
 		testSuite.setChanged(true);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			test.setChanged(true);
-			test.clearCachedResults();
-			test.clearCachedMutationResults();
+			test.clearCachedResults(); // clears last execution result and last mutation result
 		}
 
-		
-		//if (oldCriteria.contains(criterion))
-		//	return;
+        Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
+		Properties.CRITERION = new Properties.Criterion[] { criterion };
 
-		//TODO: why we repeat this code here???
-		testSuite.setChanged(true);
-		for (TestChromosome test : testSuite.getTestChromosomes()) {
-			test.setChanged(true);
-			test.clearCachedResults();
-			test.clearCachedMutationResults();
-		}
-
-        if (isMutationCriterion(criterion) && isMutationCriterion(oldCriteria))
-            return;
-
-		Properties.CRITERION = new Properties.Criterion[1];
-		Properties.CRITERION[0] = criterion;
-		
-		logger.info("Re-instrumenting for criterion: "
-		                                         + criterion);
+		logger.info("Re-instrumenting for criterion: " + criterion);
 		TestGenerationContext.getInstance().resetContext();
-		
+
 		// Need to load class explicitly in case there are no test cases.
 		// If there are tests, then this is redundant
 		Properties.getTargetClass();
@@ -202,20 +173,30 @@ public class CoverageAnalysis {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void analyzeCoverage(TestSuiteChromosome testSuite, Properties.Criterion criterion) {
 
-        reinstrument(testSuite, criterion);
+		TestSuiteChromosome testSuiteCopy = testSuite.clone();
+
+		reinstrument(testSuiteCopy, criterion);
 		TestFitnessFactory factory = FitnessFunctions.getFitnessFactory(criterion);
 
-		for(TestChromosome test : testSuite.getTestChromosomes()) {
+		for(TestChromosome test : testSuiteCopy.getTestChromosomes()) {
 			test.getTestCase().clearCoveredGoals();
+
+			// independently of mutation being a main or secondary criteria,
+			// test cases have to be 'changed'. with this, isCovered() will
+			// re-execute test cases and it will be able to find the covered goals
+			if (isMutationCriterion(criterion)) {
+				test.setChanged(true);
+			}
 		}
 
-        StringBuffer buffer = new StringBuffer(1024);
-		int covered = 0;
 		List<TestFitnessFunction> goals = factory.getCoverageGoals();
         Collections.sort(goals);
 
+		StringBuffer buffer = new StringBuffer(goals.size());
+		int covered = 0;
+
 		for (TestFitnessFunction goal : goals) {
-			if (goal.isCoveredBy(testSuite)) {
+			if (goal.isCoveredBy(testSuiteCopy)) {
 				logger.debug("Goal {} is covered", goal);
 				covered++;
                 buffer.append("1");
@@ -224,6 +205,10 @@ public class CoverageAnalysis {
                 buffer.append("0");
 			}
 		}
+
+		coverageBitString.put(criterion.name(), buffer);
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.CoverageBitString,
+				coverageBitString.size() == 0 ? "0" : coverageBitString.values().toString().replace("[", "").replace("]", "").replace(", ", ""));
 
         RuntimeVariable bitStringVariable = getBitStringVariable(criterion);
         if(bitStringVariable != null){
@@ -261,18 +246,44 @@ public class CoverageAnalysis {
 		}
 	}
 
-    private static RuntimeVariable getBitStringVariable(Properties.Criterion criterion){
+    public static RuntimeVariable getBitStringVariable(Properties.Criterion criterion){
         switch (criterion){
-            case BRANCH:
-                return RuntimeVariable.CoveredBranchesBitString;
-            case LINE:
-            case ONLYLINE:
-                return RuntimeVariable.CoveredLinesBitString;
-            case MUTATION:
-            case WEAKMUTATION:
-                return RuntimeVariable.CoveredWeakMutationBitString;
+        	case EXCEPTION:
+        		return RuntimeVariable.ExceptionCoverageBitString;
+        	case DEFUSE:
+        		return RuntimeVariable.DefUseCoverageBitString;
+        	case ALLDEFS:
+        		return RuntimeVariable.AllDefCoverageBitString;
+        	case BRANCH:
+                return RuntimeVariable.BranchCoverageBitString;
+        	case CBRANCH:
+        		return RuntimeVariable.CBranchCoverageBitString;
+        	case IBRANCH:
+        		return RuntimeVariable.IBranchCoverageBitString;
+        	case ONLYBRANCH:
+        		return RuntimeVariable.OnlyBranchCoverageBitString;
+        	case MUTATION:
+        	case STRONGMUTATION:
+        		return RuntimeVariable.MutationCoverageBitString;
+        	case WEAKMUTATION:
+        		return RuntimeVariable.WeakMutationCoverageBitString;
+        	case ONLYMUTATION:
+        		return RuntimeVariable.OnlyMutationCoverageBitString;
+        	case METHODTRACE:
+        		return RuntimeVariable.MethodTraceCoverageBitString;
+        	case METHOD:
+        		return RuntimeVariable.MethodCoverageBitString;
+        	case METHODNOEXCEPTION:
+        		return RuntimeVariable.MethodNoExceptionCoverageBitString;
+        	case OUTPUT:
+        		return RuntimeVariable.OutputCoverageBitString;
+        	case STATEMENT:
+        		return RuntimeVariable.StatementCoverageBitString;
+        	case LINE:
+        	case ONLYLINE:
+        		return RuntimeVariable.LineCoverageBitString;
             default:
-                return null;
+            	throw new RuntimeException("Criterion not supported: " + criterion);
         }
     }
 }

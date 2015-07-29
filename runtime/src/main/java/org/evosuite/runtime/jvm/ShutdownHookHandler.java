@@ -71,8 +71,11 @@ public class ShutdownHookHandler {
 		}
 		
 		if(existingHooks != null){
-			logger.warn("Previous hooks were not executed. Going to remove them");
-			removeNewHooks();
+			List<Thread> list = removeNewHooks();
+			if(list!=null && !list.isEmpty()) {
+				//only log if there were SUT hooks not executed
+				logger.warn("Previous hooks were not executed. Going to remove them");
+			}
 		}
 		
 		existingHooks = new IdentityHashMap<>();

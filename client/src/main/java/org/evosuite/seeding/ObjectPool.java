@@ -40,7 +40,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.DebuggingObjectOutputStream;
-import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.Randomness;
 import org.junit.runner.JUnitCore;
 import org.slf4j.Logger;

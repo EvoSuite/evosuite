@@ -25,9 +25,9 @@ import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.evosuite.utils.Randomness;
 import org.junit.After;
 import org.junit.Assert;
@@ -141,7 +141,8 @@ public class Issre13SystemTest extends SystemTest {
 		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>(fitness);
+		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
+		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);
 		System.out.println("Fitness: "+fitness.getFitness(suite));
 		System.out.println("Test suite: "+suite);

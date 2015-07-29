@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
+import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.TestCase;
@@ -39,23 +40,21 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericMethod;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-public class MethodStatement extends AbstractStatement {
+public class MethodStatement extends EntityWithParametersStatement {
 
 	private static final long serialVersionUID = 6134126797102983073L;
 
 	protected GenericMethod method;
 
 	protected VariableReference callee;
-
-	protected List<VariableReference> parameters;
 
 	/**
 	 * <p>
@@ -75,9 +74,10 @@ public class MethodStatement extends AbstractStatement {
 	 */
 	public MethodStatement(TestCase tc, GenericMethod method, VariableReference callee,
 	        List<VariableReference> parameters) throws IllegalArgumentException {
-		super(tc, method.getReturnType());
+		super(tc, method.getReturnType(), parameters,
+				method.getMethod().getAnnotations(),method.getMethod().getParameterAnnotations());
 
-		init(method, callee, parameters);
+		init(method, callee);
 	}
 
 	public MethodStatement(TestCase tc, GenericMethod method, VariableReference callee,
@@ -106,7 +106,8 @@ public class MethodStatement extends AbstractStatement {
 	 */
 	public MethodStatement(TestCase tc, GenericMethod method, VariableReference callee,
 	        VariableReference retvar, List<VariableReference> parameters) {
-		super(tc, retvar);
+		super(tc, retvar, parameters,
+				method.getMethod().getAnnotations(),method.getMethod().getParameterAnnotations());
 
 		if (retvar.getStPosition() >= tc.size()) {
 			//as an old statement should be replaced by this statement
@@ -115,11 +116,10 @@ public class MethodStatement extends AbstractStatement {
 			        + tc.size() + " elements");
 		}
 
-		init(method, callee, parameters);
+		init(method, callee);
 	}
 
-	private void init(GenericMethod method, VariableReference callee,
-	        List<VariableReference> parameters) throws IllegalArgumentException {
+	private void init(GenericMethod method, VariableReference callee) throws IllegalArgumentException {
 		if (callee == null && !method.isStatic()) {
 			throw new IllegalArgumentException(
 			        "A null callee cannot call a non-static method");
@@ -146,7 +146,6 @@ public class MethodStatement extends AbstractStatement {
 			this.callee = null;
 		else
 			this.callee = callee;
-		this.parameters = parameters;
 	}
 
 	/**
@@ -349,7 +348,7 @@ public class MethodStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> references = new LinkedHashSet<>();
 		references.add(retval);
 		if (isInstanceMethod()) {
 			references.add(callee);
@@ -389,16 +388,6 @@ public class MethodStatement extends AbstractStatement {
 		}
 	}
 
-	/**
-	 * <p>
-	 * getParameterReferences
-	 * </p>
-	 * 
-	 * @return a {@link java.util.List} object.
-	 */
-	public List<VariableReference> getParameterReferences() {
-		return parameters;
-	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#getNumParameters()
@@ -408,21 +397,7 @@ public class MethodStatement extends AbstractStatement {
 		return parameters.size() + (isStatic() ? 0 : 1);
 	}
 
-	/**
-	 * <p>
-	 * replaceParameterReference
-	 * </p>
-	 * 
-	 * @param var
-	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
-	 * @param numParameter
-	 *            a int.
-	 */
-	public void replaceParameterReference(VariableReference var, int numParameter) {
-		assert (numParameter >= 0);
-		assert (numParameter < parameters.size());
-		parameters.set(numParameter, var);
-	}
+
 
 	/** {@inheritDoc} */
 	@Override
@@ -705,6 +680,11 @@ public class MethodStatement extends AbstractStatement {
 		if (Randomness.nextDouble() >= Properties.P_CHANGE_PARAMETER)
 			return false;
 
+		Constraints constraint = method.getMethod().getAnnotation(Constraints.class);
+		if(constraint!=null && constraint.notMutable()){
+			return false;
+		}
+
 		List<VariableReference> parameters = getParameterReferences();
 
 		boolean changed = false;
@@ -729,7 +709,7 @@ public class MethodStatement extends AbstractStatement {
 				changed = true;
 			}
 		}
-		
+
 		for(int numParameter = 0; numParameter < parameters.size(); numParameter++) {
 			if(Randomness.nextDouble() < pParam) {
 				if(mutateParameter(test, numParameter))
@@ -739,52 +719,7 @@ public class MethodStatement extends AbstractStatement {
 		return changed;
 	}
 	
-	private int getNumParametersOfType(Class<?> clazz) {
-		int num = 0;
-		for(VariableReference var : parameters) {
-			if(var.getVariableClass().equals(clazz))
-				num++;
-		}
-		return num;
-	}
-	
-	private boolean mutateParameter(TestCase test, int numParameter) {
-		// replace a parameter
-		VariableReference parameter = parameters.get(numParameter);
-		List<VariableReference> objects = test.getObjects(parameter.getType(),
-				getPosition());
-		objects.remove(parameter);
-		objects.remove(getReturnValue());
-		NullStatement nullStatement = new NullStatement(test, parameter.getType());
-		Statement copy = null;
 
-		// If it's not a primitive, then changing to null is also an option
-		if (!parameter.isPrimitive())
-			objects.add(nullStatement.getReturnValue());
-		
-		// If there are fewer objects than parameters of that type,
-		// we consider adding an instance
-		if(getNumParametersOfType(parameter.getVariableClass()) + 1 < objects.size()) {
-			Statement originalStatement = test.getStatement(parameter.getStPosition());
-			copy = originalStatement.clone(test);
-			if (originalStatement instanceof PrimitiveStatement<?>) {
-				((PrimitiveStatement<?>)copy).delta();
-			}
-			objects.add(copy.getReturnValue());
-		}
-
-		if (objects.isEmpty())
-			return false;
-
-		VariableReference replacement = Randomness.choice(objects);
-		if (replacement == nullStatement.getReturnValue()) {
-			test.addStatement(nullStatement, getPosition());
-		} else if (copy != null && replacement == copy.getReturnValue()) {
-			test.addStatement(copy, getPosition());
-		}
-		replaceParameterReference(replacement, numParameter);
-		return true;
-	}
 
 	/** {@inheritDoc} */
 	@Override

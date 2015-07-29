@@ -293,7 +293,7 @@ public class TestNSGAII extends SystemTest
             "-Dinline=false",
             "-Dminimize=true",
             "-Dstop_zero=false",
-            "-Dcoverage=true",
+            "-Dcoverage=false",
             "-Djunit_tests=true",
             "-Dassertions=true",
             "-Dsandbox=true",

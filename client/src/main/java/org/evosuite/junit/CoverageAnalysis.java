@@ -46,6 +46,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
 import org.junit.Test;
@@ -65,6 +66,17 @@ import org.slf4j.LoggerFactory;
  */
 public class CoverageAnalysis {
 
+	/**
+	 * FIXME
+	 * 
+	 * OUTPUT
+	 * METHOD
+	 * METHODNOEXCEPTION
+	 * 
+	 * relies on Observers. to have coverage of these criteria, JUnit test cases
+	 * must have to be converted to some format that EvoSuite can understand
+	 */
+
 	private final static Logger logger = LoggerFactory.getLogger(CoverageAnalysis.class);
 
 	private static int totalGoals = 0;
@@ -79,6 +91,7 @@ public class CoverageAnalysis {
 		Sandbox.goingToExecuteSUTCode();
         TestGenerationContext.getInstance().goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+		ExecutionTracer.setCheckCallerThread(false);
 		try {
 			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 
@@ -108,7 +121,7 @@ public class CoverageAnalysis {
 		// TestCluster.getInstance();
 
 		List<Class<?>> testClasses = getTestClasses();
-		LoggingUtils.getEvoLogger().info("* Found " + testClasses.size() + " unit test class(es)");
+		LoggingUtils.getEvoLogger().info("* Found " + testClasses.size() + " test class(es)");
 		if (testClasses.isEmpty())
 			return;
 
@@ -163,16 +176,20 @@ public class CoverageAnalysis {
 		return coveredGoals;
 	}
 
-	private static List<Class<?>> getClassesFromClasspath() {
+	private static List<Class<?>> getTestClassesFromClasspath() {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
-		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
+		for(String prefix : Properties.JUNIT.split(":")) {
 			
 			Set<String> suts = ResourceList.getAllClasses(
 					ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 			
-			LoggingUtils.getEvoLogger().info("* Found " + suts.size() + " classes with prefix " + prefix);
+			LoggingUtils.getEvoLogger().info("* Found " + suts.size() + " classes with prefix '" + prefix + "'");
 			if (!suts.isEmpty()) {
 				for (String sut : suts) {
+					if (targetClasses.contains(sut)) {
+						continue ;
+					}
+
 					try {
 						Class<?> clazz = Class.forName(
 								sut,true,TestGenerationContext.getInstance().getClassLoaderForSUT());
@@ -195,16 +212,16 @@ public class CoverageAnalysis {
 	private static List<Class<?>> getTestClasses() {
 		List<Class<?>> testClasses = new ArrayList<Class<?>>();
 		
-		logger.debug("JUNIT_PREFIX: "+Properties.JUNIT_PREFIX);
+		logger.debug("JUNIT: "+Properties.JUNIT);
 		
-		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
+		for(String prefix : Properties.JUNIT.split(":")) {
 			
 			LoggingUtils.getEvoLogger().info("* Analyzing entry: "+prefix);
 			
 			// If the target name is a path analyze it
 			File path = new File(prefix);
 			if (path.exists()) {
-				if (Properties.JUNIT_PREFIX.endsWith(".jar"))
+				if (Properties.JUNIT.endsWith(".jar"))
 					testClasses.addAll(getTestClassesJar(path));
 				else
 					testClasses.addAll(getTestClasses(path));
@@ -217,7 +234,7 @@ public class CoverageAnalysis {
 					testClasses.add(clazz);
 				} catch (ClassNotFoundException e) {
 					// Second, try if the target name is a package name
-					testClasses.addAll(getClassesFromClasspath());
+					testClasses.addAll(getTestClassesFromClasspath());
 				}
 			}
 		}
@@ -481,11 +498,11 @@ public class CoverageAnalysis {
         	str.append(covered.get(index_component) ? "1" : "0");
         }
         logger.info("* CoverageBitString " + str.toString());
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.CoverageBitString, str);
 
         if (goals.isEmpty()) {
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion + ": 100% (no goals)");
 			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getCoverageVariable(criterion), 1.0);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getBitStringVariable(criterion), "1");
 		} 
         else {
         	double coverage = ((double) covered.cardinality()) / ((double) goals.size());
@@ -493,19 +510,21 @@ public class CoverageAnalysis {
 			LoggingUtils.getEvoLogger().info("* Number of covered goals: " + covered.cardinality() + " / " + goals.size());
 
 			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getCoverageVariable(criterion), coverage);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getBitStringVariable(criterion), str.toString());
         }
 	}
 
 	private static void printReport(List<JUnitResult> results) {
-
-		LoggingUtils.getEvoLogger().info("* Executed " + results.size() + " test(s)");
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, results.size());
 
 		Iterator<String> it = targetClasses.iterator();
 		Criterion[] criterion = Properties.CRITERION;
 
 		while (it.hasNext()) {
 			String targetClass = it.next();
+
+			// restart variables
+			totalGoals = 0;
+			totalCoveredGoals = 0;
 
 			Properties.TARGET_CLASS = targetClass;
 			LoggingUtils.getEvoLogger().info("* Target class " + Properties.TARGET_CLASS);
@@ -514,46 +533,53 @@ public class CoverageAnalysis {
 			for (int criterion_index = 0; criterion_index < criterion.length; criterion_index++) {
 				Properties.Criterion c = criterion[criterion_index];
 				Properties.CRITERION = new Criterion[] { c };
-				ClientServices.getInstance().getClientNode().updateProperty("criterion", Properties.CRITERION);
-
-				// restart variables
-				totalGoals = 0;
-				totalCoveredGoals = 0;
 
 				analyzeCoverageCriterion(results, c);
+			}
 
-				LoggingUtils.getEvoLogger().info("* Total number of covered goals: " + totalCoveredGoals + " / " + totalGoals);
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, totalGoals);
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, totalCoveredGoals);
+			// restore
+			Properties.CRITERION = criterion;
 
-				double coverage = totalGoals == 0 ? 1.0 : ((double) totalCoveredGoals) / ((double) totalGoals);
-				LoggingUtils.getEvoLogger().info("* Total coverage: " + NumberFormat.getPercentInstance().format(coverage));
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage, coverage);
+			LoggingUtils.getEvoLogger().info("* Total number of covered goals: " + totalCoveredGoals + " / " + totalGoals);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, totalGoals);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, totalCoveredGoals);
 
-				// need to give some time for transmission before client is killed
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+			double coverage = totalGoals == 0 ? 1.0 : ((double) totalCoveredGoals) / ((double) totalGoals);
+			LoggingUtils.getEvoLogger().info("* Total coverage: " + NumberFormat.getPercentInstance().format(coverage));
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage, coverage);
 
-				// last element will be flush by master process
-				if (it.hasNext() || criterion_index < criterion.length - 1) {
-					ClientServices.getInstance().getClientNode().flushStatisticsForClassChange();
-				}
+			// need to give some time for transmission before client is killed
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			// last element will be flush by master process
+			if (it.hasNext()) {
+				ClientServices.getInstance().getClientNode().flushStatisticsForClassChange();
 			}
 		}
 	}
 
 	private static List<JUnitResult> executeTests(Class<?>... testClasses) {
 
+		ExecutionTracer.enable();
+		ExecutionTracer.enableTraceCalls();
+		ExecutionTracer.setCheckCallerThread(false);
+
 		List<JUnitResult> results = new ArrayList<JUnitResult>();
         for (Class<?> testClass : testClasses) {
-            logger.info("Running test " + testClass.getSimpleName());
+        	LoggingUtils.getEvoLogger().info("  Executing " + testClass.getSimpleName());
             JUnitRunner jR = new JUnitRunner(testClass);
             jR.run();
             results.addAll(jR.getTestResults());
         }
+
+		ExecutionTracer.disable();
+
+        LoggingUtils.getEvoLogger().info("* Executed " + results.size() + " unit test(s)");
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, results.size());
 
         return results;
 	}

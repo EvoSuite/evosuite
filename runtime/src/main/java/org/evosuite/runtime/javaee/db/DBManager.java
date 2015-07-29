@@ -37,33 +37,50 @@ public class DBManager {
     private EvoEntityManagerFactory factory;
     private EntityManager em;
 
+    private boolean wasAccessed;
+
     private DBManager(){
         //TODO inside any DB call should be not instrumentation. although partially handled in
         //     getPackagesShouldNotBeInstrumented, should still disable/enable in method wrappers.
         //     Maybe not needed during test generation, but likely in runtime when JUnit are run in isolation,
         //     unless we do full shading
 
-        factory = new EvoEntityManagerFactory();
-        em = factory.createEntityManager();
+        wasAccessed = false;
     }
 
     public static DBManager getInstance(){
         return singleton;
     }
 
+    public boolean isWasAccessed() {
+        return wasAccessed;
+    }
+
     public EntityManagerFactory getDefaultFactory(){
+        if(!wasAccessed){
+            initDB();
+            wasAccessed = true;
+        }
         return factory;
     }
 
     public EntityManager getCurrentEntityManager(){
+        if(!wasAccessed){
+            initDB();
+            wasAccessed = true;
+        }
         return em;
     }
 
-    public void createNewEntityManager(){
+    private void createNewEntityManager(){
         em = factory.createEntityManager();
     }
 
     public boolean clearDatabase() {
+        if(!wasAccessed){
+            return false;
+        }
+
         try {
             //code adapted from https://objectpartners.com/2010/11/09/unit-testing-your-persistence-tier-code/
 
@@ -99,17 +116,24 @@ public class DBManager {
      * This means for example rolling back any activate transaction and delete all tables
      */
     public void initDB(){
-        factory.clearAllEntityManagers();
-        if(!factory.isOpen()){
+        wasAccessed = true;
+
+        if(factory==null){
+            factory = new EvoEntityManagerFactory();
+            createNewEntityManager();
+        } else {
+            factory.clearAllEntityManagers();
+            if(!factory.isOpen()){
             /*
                 this maybe could happen if "close" is called in the SUT.
                 note: initializing a factory seems quite expensive, and this is the
                 reason why we try here to reuse it instead of creating a new one
                 at each new test case run
              */
-            factory = new EvoEntityManagerFactory();
+                factory = new EvoEntityManagerFactory();
+            }
+            createNewEntityManager();
+            clearDatabase();
         }
-        createNewEntityManager();
-        clearDatabase();
     }
 }

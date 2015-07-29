@@ -24,9 +24,9 @@ import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -139,7 +139,8 @@ public class LocalSearchNumericTest extends SystemTest {
 		assertEquals(1.0, fitness.getFitness(suite), 0.1F);
 		
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>(fitness);
+		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
+		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);
 		System.out.println("Fitness: "+fitness.getFitness(suite));
 		System.out.println("Test suite: "+suite);
@@ -196,7 +197,8 @@ public class LocalSearchNumericTest extends SystemTest {
 		assertEquals(1.0, fitness.getFitness(suite), 0.1F);
 		
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>(fitness);
+		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
+		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);
 		System.out.println("Fitness: "+fitness.getFitness(suite));
 		System.out.println("Test suite: "+suite);
@@ -252,7 +254,8 @@ public class LocalSearchNumericTest extends SystemTest {
 		assertEquals(1.0, fitness.getFitness(suite), 0.1F);
 		
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>(fitness);
+		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
+		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);
 		System.out.println("Fitness: "+fitness.getFitness(suite));
 		System.out.println("Test suite: "+suite);

@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.evosuite.utils;
+package org.evosuite.utils.generic;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -22,6 +22,7 @@ import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.variable.VariableReference;
 
 import com.googlecode.gentyref.GenericTypeReflector;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * @author Gordon Fraser
@@ -240,8 +241,9 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		try {
 			java.lang.reflect.Method otherMethod = declaringClass.getMethod(methodName,
 			                                                                parameterTypes);
-			if (otherMethod != null)
+			if (otherMethod != null && !otherMethod.equals(method)) {
 				return true;
+			}
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
 		}

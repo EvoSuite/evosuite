@@ -108,6 +108,7 @@ public class DBManagerTest {
         boolean cleared = false;
 
         //cleaning up should work
+        DBManager.getInstance().initDB();
         cleared = DBManager.getInstance().clearDatabase();
         Assert.assertTrue(cleared);
 

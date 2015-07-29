@@ -32,7 +32,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**

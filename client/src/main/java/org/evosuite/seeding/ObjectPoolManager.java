@@ -7,7 +7,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.testcarver.extraction.CarvingManager;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.LoggingUtils;
 
 public class ObjectPoolManager extends ObjectPool {

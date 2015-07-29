@@ -35,7 +35,7 @@ import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.utils.GenericField;
+import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;

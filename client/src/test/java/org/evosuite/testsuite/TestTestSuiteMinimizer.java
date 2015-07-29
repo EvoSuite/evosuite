@@ -3,8 +3,10 @@ package org.evosuite.testsuite;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -21,9 +23,9 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.GenericClass;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.evosuite.utils.Randomness;
 import org.junit.After;
 import org.junit.Before;
@@ -125,7 +127,6 @@ public class TestTestSuiteMinimizer
         for (int i = 0; i < 10; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, 28234 + i);
             VariableReference vr = test.addStatement(ips, i + 1);
-            parameters.add(vr);
         }
 
         ConstructorStatement ct = new ConstructorStatement(test, gc, parameters);
@@ -169,7 +170,6 @@ public class TestTestSuiteMinimizer
         for (int i = 0; i < 10; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, 28234 + i);
             VariableReference vr = test.addStatement(ips, i + 1);
-            parameters.add(vr);
         }
 
         ConstructorStatement ct = new ConstructorStatement(test, gc, parameters);
@@ -226,7 +226,6 @@ public class TestTestSuiteMinimizer
         for (int i = 0; i < 10; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, 28234 + i);
             VariableReference vr = test.addStatement(ips, i + 1);
-            parameters.add(vr);
         }
 
         ConstructorStatement ct = new ConstructorStatement(test, gc, parameters);
@@ -239,7 +238,6 @@ public class TestTestSuiteMinimizer
         for (int i = 12; i < 15; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, i);
             VariableReference vr = test.addStatement(ips, i);
-            parameters.add(vr);
         }
         ct = new ConstructorStatement(test, gc, parameters);
         testFactory.addMethod(test, method, 15, 0);
@@ -279,7 +277,6 @@ public class TestTestSuiteMinimizer
         for (int i = 0; i < 10; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, 28234 + i);
             VariableReference vr = test.addStatement(ips, i + 1);
-            parameters.add(vr);
         }
 
         ConstructorStatement ct = new ConstructorStatement(test, gc, parameters);
@@ -292,7 +289,6 @@ public class TestTestSuiteMinimizer
         for (int i = 12; i < 15; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, i);
             VariableReference vr = test.addStatement(ips, i);
-            parameters.add(vr);
         }
         ct = new ConstructorStatement(test, gc, parameters);
         testFactory.addMethod(test, method, 15, 0);
@@ -345,7 +341,6 @@ public class TestTestSuiteMinimizer
         for (int i = 0; i < 10; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, 28234 + i);
             VariableReference vr = test.addStatement(ips, i + 1);
-            parameters.add(vr);
         }
 
         ConstructorStatement ct = new ConstructorStatement(test, gc, parameters);
@@ -358,7 +353,6 @@ public class TestTestSuiteMinimizer
         for (int i = 12; i < 15; i++) {
             IntPrimitiveStatement ips = new IntPrimitiveStatement(test, i);
             VariableReference vr = test.addStatement(ips, i);
-            parameters.add(vr);
         }
         ct = new ConstructorStatement(test, gc, parameters);
         testFactory.addMethod(test, method, 15, 0);

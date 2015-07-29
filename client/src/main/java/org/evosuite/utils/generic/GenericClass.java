@@ -17,7 +17,7 @@
  * 
  * @author Gordon Fraser
  */
-package org.evosuite.utils;
+package org.evosuite.utils.generic;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -46,6 +46,8 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.seeding.CastClassManager;
+import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.ParameterizedTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1283,7 +1285,7 @@ public class GenericClass implements Serializable {
 	 * </p>
 	 * 
 	 * @param rhsType
-	 *            a {@link org.evosuite.utils.GenericClass} object.
+	 *            a {@link GenericClass} object.
 	 * @return a boolean.
 	 */
 	public boolean isAssignableFrom(GenericClass rhsType) {
@@ -1309,7 +1311,7 @@ public class GenericClass implements Serializable {
 	 * </p>
 	 * 
 	 * @param lhsType
-	 *            a {@link org.evosuite.utils.GenericClass} object.
+	 *            a {@link GenericClass} object.
 	 * @return a boolean.
 	 */
 	public boolean isAssignableTo(GenericClass lhsType) {

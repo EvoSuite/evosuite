@@ -125,7 +125,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				continue;
 			}
 
-			for (Integer line : result.getTrace().getCoveredLines()) {
+			for (Integer line : result.getTrace().getAllCoveredLines()) {
 				if (linesCoverageMap.containsKey(line)) {
 					if(!lines.contains(line) || removedLines.contains(line)) 
 						continue;

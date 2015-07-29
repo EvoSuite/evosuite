@@ -19,6 +19,8 @@ import java.util.Stack;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.WildcardTypeImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,6 +28,8 @@ import com.examples.with.different.packagename.generic.AbstractGuavaExample;
 import com.examples.with.different.packagename.generic.GuavaExample5;
 import com.googlecode.gentyref.GenericTypeReflector;
 import com.googlecode.gentyref.TypeToken;
+
+import java.lang.reflect.AnnotatedType;
 
 public class TestGenericClass {
 
@@ -617,9 +621,9 @@ public class TestGenericClass {
 
 		TypeVariable<?> var = new TypeVariable() {
 
-			//public AnnotatedType[] getAnnotatedBounds() {
-			//	return null;
-			//}
+			public AnnotatedType[] getAnnotatedBounds() {
+				return null;
+			}
 			
 			@Override
 			public Type[] getBounds() {
@@ -661,10 +665,9 @@ public class TestGenericClass {
 				return null;
 			}
 			
-			public void getAnnotatedBounds() {
+			//public void getAnnotatedBounds() {
 				// TODO Auto-generated method stub
-
-			}
+			//}
 
 		};
 

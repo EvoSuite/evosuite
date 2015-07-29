@@ -7,10 +7,11 @@ import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletConfig;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.javaee.javax.servlet.http.EvoHttpServletRequest;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.GenericConstructor;
-import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,17 +27,20 @@ public class ConstraintVerifierTest {
 
     private static final double defaultPRP = Properties.PRIMITIVE_REUSE_PROBABILITY;
     private static final double defaultORP = Properties.OBJECT_REUSE_PROBABILITY;
+    private static final boolean defaultJEE = Properties.JEE;
 
     @Before
     public void init(){
         Properties.PRIMITIVE_REUSE_PROBABILITY = 1; //be sure now new statements are automatically generated
         Properties.OBJECT_REUSE_PROBABILITY = 1;
+        Properties.JEE = false; // be sure it is false, as to avoid possible side-effects (eg automated insertion with Injector)
     }
 
     @After
     public void tearDown(){
         Properties.PRIMITIVE_REUSE_PROBABILITY = defaultPRP;
         Properties.OBJECT_REUSE_PROBABILITY = defaultORP;
+        Properties.JEE = defaultJEE;
     }
 
     private static class FakeServlet extends HttpServlet{
@@ -55,6 +59,199 @@ public class ConstraintVerifierTest {
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
     public static  void fakeInjection(@BoundInputVariable(initializer = true) Servlet servlet){
     }
+
+    public static EvoHttpServletRequest getNullEvoHttpServletRequest(){
+        return null;
+    }
+
+    @Constraints(noDirectInsertion = true)
+    public static void noDirect(){
+
+    }
+
+    @Test
+    public void testNoDirectInsertion() throws Exception{
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        GenericMethod gm = new GenericMethod(ConstraintVerifierTest.class.getDeclaredMethod("noDirect", null),
+                ConstraintVerifierTest.class);
+
+        //should not be possible to insert it
+        int pos = ConstraintVerifier.getAValidPositionForInsertion(gm, tc.getTestCase(), 0);
+        Assert.assertTrue(pos < 0);
+    }
+
+    @Test
+    public void testPostConstructIssue() throws Exception{
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+
+
+        //this will also add a statement for the Class
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct", Object.class, Class.class),
+                        Injector.class), 1, 0);
+
+        Assert.assertEquals(3, tc.size());
+
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+
+        boolean mutated = tc.deleteStatement(factory, 2);
+        Assert.assertFalse(mutated); //should fail to delete the post construct
+        Assert.assertEquals(3, tc.size());
+
+        Assert.assertFalse(ConstraintVerifier.canDelete(tc.getTestCase(), 1));
+
+        mutated = tc.deleteStatement(factory, 1);
+        Assert.assertFalse(mutated); //eliminating the Class.class var should fail as well, as post construct accepts no null
+        Assert.assertEquals(3, tc.size());
+
+        mutated = tc.deleteStatement(factory, 0);
+        Assert.assertTrue(mutated); //eliminating the servlet is fine
+        Assert.assertEquals(1, tc.size()); // tricky, as Class.class is not bounded to the servlet
+
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+    }
+
+
+    @Test
+    public void testUniqueConstructors() throws Exception{
+
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        Properties.JEE = true;
+        factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+
+        //doing it a second time should fail
+        try {
+            factory.addConstructor(tc.getTestCase(),
+                    new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+            Assert.fail();
+        } catch (Exception e){
+            //expected
+        }
+
+    }
+
+    @Test
+    public void testDeleteAfter()  throws Exception{
+
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        //get a var for EvoHttpServletRequest
+        VariableReference req = factory.addMethod(tc.getTestCase(),
+                new GenericMethod(ConstraintVerifierTest.class.getDeclaredMethod("getNullEvoHttpServletRequest"),
+                        ConstraintVerifierTest.class), 0, 0);
+
+        //make it a POST
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(EvoHttpServletRequest.class.getDeclaredMethod("asPOST"),EvoHttpServletRequest.class),
+                1, 0);
+
+        //now add a call to 'asMultipartFormData' which does depend on POST
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(EvoHttpServletRequest.class.getDeclaredMethod("asMultipartFormData"),
+                        EvoHttpServletRequest.class), 2, 0);
+
+        Assert.assertEquals(3, tc.size());
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+
+        //deleting the last one should be fine, but not the POST, as asMultipartFormData has an 'after' dependency on it
+        Assert.assertTrue(ConstraintVerifier.canDelete(tc.getTestCase(), 2));
+        Assert.assertFalse(ConstraintVerifier.canDelete(tc.getTestCase(), 1)); // should not be able to delete POST directly
+
+        //what about the first statement where the var is obtained? that should be valid to delete
+        Assert.assertTrue(ConstraintVerifier.canDelete(tc.getTestCase(), 0));
+
+        boolean mutated = tc.deleteStatement(factory, 1);
+        Assert.assertFalse(mutated); //should fail to delete POST
+        Assert.assertEquals(3, tc.size());
+
+        mutated = tc.deleteStatement(factory, 0);
+        Assert.assertTrue(mutated);
+        Assert.assertEquals(0, tc.size()); //should end up deleting everything
+    }
+
+
+    @Test
+    public void testCanDelete() throws Exception {
+
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+
+        //initializing bounding variable method called directly after the new
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct", Object.class), Injector.class), 1, 0);
+
+
+        Assert.assertEquals(2, tc.size());
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+
+        Assert.assertTrue(ConstraintVerifier.canDelete(tc.getTestCase(), 0)); //bounded variable can be deleted
+        Assert.assertFalse(ConstraintVerifier.canDelete(tc.getTestCase(), 1)); // method using bounded variable should not be deleted
+
+        boolean mutated = tc.deleteStatement(factory, 1);
+        Assert.assertFalse(mutated); //should fail
+        Assert.assertEquals(2, tc.size());
+
+        mutated = tc.deleteStatement(factory, 0);
+        Assert.assertTrue(mutated);
+        Assert.assertEquals(0, tc.size());// deleting first statement should have had effect of removing the second as well
+    }
+
+    @Test
+    public void testDelete_multipleVarsThatCouldBeReused() throws Exception {
+
+        TestChromosome tc = new TestChromosome();
+        TestFactory factory = TestFactory.getInstance();
+
+        VariableReference servlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
+
+        //initializing bounding variable method called directly after the new
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct", Object.class), Injector.class), 1, 0);
+
+        //now do it again
+        VariableReference secondServlet = factory.addConstructor(tc.getTestCase(),
+                new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 2, 0);
+        factory.addMethod(tc.getTestCase(),
+                new GenericMethod(Injector.class.getDeclaredMethod("executePostConstruct", Object.class), Injector.class), 3, 0);
+        MethodStatement mt = (MethodStatement) tc.getTestCase().getStatement(3);
+        //be sure it is using the second servlet
+        mt.replace(servlet,secondServlet);
+
+
+        Assert.assertEquals(4, tc.size());
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+
+        Assert.assertTrue(ConstraintVerifier.canDelete(tc.getTestCase(), 0)); //bounded variable can be deleted
+        Assert.assertFalse(ConstraintVerifier.canDelete(tc.getTestCase(), 1)); // method using bounded variable should not be deleted
+        Assert.assertTrue(ConstraintVerifier.canDelete(tc.getTestCase(), 2)); //bounded variable can be deleted
+        Assert.assertFalse(ConstraintVerifier.canDelete(tc.getTestCase(), 3)); // method using bounded variable should not be deleted
+
+
+        boolean mutated = tc.deleteStatement(factory, 2);
+        Assert.assertTrue(mutated);
+        /*
+            deleting the bounded variable in position 2 should lead to also delete the initializing variable in 3,
+            and not end up with 3 re-using 0
+         */
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
+        Assert.assertEquals(2, tc.size());
+    }
+
 
 
     @Test

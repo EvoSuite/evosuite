@@ -74,6 +74,8 @@ public enum RuntimeVariable {
 	Generations,
 	/** Obtained coverage of the chosen testing criterion */
 	Coverage,            
+	/** A bit string (0/1) representing whether goals (in order) are covered */
+    CoverageBitString,
 	/** Fitness value of the best individual */
 	Fitness,            
 	/** Obtained coverage (of the chosen testing criterion) at different points in time  */
@@ -86,6 +88,8 @@ public enum RuntimeVariable {
 	LengthTimeline,
 	/** The obtained statement coverage */
 	StatementCoverage,
+	/** A bit string (0/1) representing whether statements (in order) are covered */
+	StatementCoverageBitString,
 	/** The obtained rho coverage */
 	RhoCoverage,
     RhoCoverageTimeline,
@@ -93,54 +97,63 @@ public enum RuntimeVariable {
 	AmbiguityCoverage,
 	/** Not only the covered branches ratio, but also including the branchless methods. FIXME: this will need to be changed */
 	BranchCoverage,
+	/** A bit string (0/1) representing whether branches (in order) are covered */
+	BranchCoverageBitString,
 	/** Only the covered branches ratio. */
 	OnlyBranchCoverage,
     OnlyBranchFitnessTimeline,
     OnlyBranchCoverageTimeline,
+    OnlyBranchCoverageBitString,
 	CBranchCoverage,
     CBranchFitnessTimeline,
     CBranchCoverageTimeline,
+    CBranchCoverageBitString,
     IBranchCoverage,
     IBranchInitialGoals,
     IBranchInitialGoalsInTargetClass,
     IBranchGoalsTimeline,
+    IBranchCoverageBitString,
 	/** The obtained method coverage (method calls anywhere in trace) */
 	MethodTraceCoverage,
     MethodTraceFitnessTimeline,
     MethodTraceCoverageTimeline,
+    MethodTraceCoverageBitString,
 	/** The obtained method coverage */
 	MethodCoverage,
     MethodFitnessTimeline,
     MethodCoverageTimeline,
+    MethodCoverageBitString,
 	/** The obtained method coverage (only normal behaviour) */
 	MethodNoExceptionCoverage,
     MethodNoExceptionFitnessTimeline,
     MethodNoExceptionCoverageTimeline,
+    MethodNoExceptionCoverageBitString,
 	/** The obtained line coverage */
 	LineCoverage,
     LineFitnessTimeline,
     LineCoverageTimeline,
+    LineCoverageBitString,
 	/** The obtained output value coverage */
 	OutputCoverage,
     OutputFitnessTimeline,
     OutputCoverageTimeline,
+    OutputCoverageBitString,
 	/** The obtained exception coverage */
 	ExceptionCoverage,
     ExceptionFitnessTimeline,
     ExceptionCoverageTimeline,
-	/** A bit string (0/1) representing whether goals (in order) are covered */
-    CoverageBitString,
-	CoveredBranchesBitString,
-    CoveredLinesBitString,
-    CoveredWeakMutationBitString,
+    ExceptionCoverageBitString,
 	/** The obtained score for weak mutation testing */
 	WeakMutationScore,
+	WeakMutationCoverageBitString,
     /** Only mutation = only infection distance */
 	OnlyMutationScore,
 	OnlyMutationFitnessTimeline,
 	OnlyMutationCoverageTimeline,
+	OnlyMutationCoverageBitString,
     /** The obtained score for (strong) mutation testing*/
 	MutationScore,
+	MutationCoverageBitString,
 	/** The total time EvoSuite spent generating the test cases */
 	Total_Time,
 	/** Number of tests in resulting test suite */
@@ -254,7 +267,9 @@ public enum RuntimeVariable {
 	Data_File,
 	/* --- Dataflow stuff. FIXME: Is this stuff still valid? --- */
 	AllDefCoverage,
+	AllDefCoverageBitString,
 	DefUseCoverage,	
+	DefUseCoverageBitString,
 	Definitions,
 	Uses,
 	DefUsePairs,
@@ -292,7 +307,19 @@ public enum RuntimeVariable {
 	IntegerRealAndStringConstraints,
 	/** The total number of constraints during the execution of the Genetic Algorithm*/
 	/** This total should be the sum of all the other types of constraints */
-	TotalNumberOfConstraints
+	TotalNumberOfConstraints,
+	
+	/* -------------------------------------------------------------------- */
+	/** The number of SAT answers to Solver queries */ 
+	NumberOfSATQueries,
+	/** The number of UNSAT answers to Solver queries */ 
+	NumberOfUNSATQueries,
+	/** The number of TIMEOUTs when solving queries */ 
+	NumberOfTimeoutQueries,
+	/** How many SAT queries led to Useful (i.e. better fitness) new tests*/ 
+	NumberOfUsefulNewTests,
+	/** How many SAT queries led to Unuseful (i.e. no better fitness) new tests*/ 
+	NumberOfUnusefulNewTests
 	
 	;
 	/* -------------------------------------------------- */

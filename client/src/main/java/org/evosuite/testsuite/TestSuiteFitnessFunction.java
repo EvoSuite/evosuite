@@ -105,6 +105,7 @@ public abstract class TestSuiteFitnessFunction extends
 				results.add(chromosome.getLastExecutionResult());
 			}
 		}
+		suite.setChanged(false);
 
 		return results;
 	}
