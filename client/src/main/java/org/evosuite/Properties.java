@@ -1150,7 +1150,7 @@ public class Properties {
 
 	/** Constant <code>SEED_MUTATIONS=2</code> */
 	@Parameter(key = "seed_mutations", description = "Number of mutations applied to a cloned individual")
-	public static int SEED_MUTATIONS = 2;
+	public static int SEED_MUTATIONS = 3;
 
 	/** Constant <code>SEED_DIR=""</code> */
 	@Parameter(key = "seed_dir", group = "Output", description = "Directory name where the best chromosomes are saved")
