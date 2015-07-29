@@ -176,9 +176,9 @@ public class CoverageAnalysis {
 		return coveredGoals;
 	}
 
-	private static List<Class<?>> getClassesFromClasspath() {
+	private static List<Class<?>> getTestClassesFromClasspath() {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
-		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
+		for(String prefix : Properties.JUNIT.split(":")) {
 			
 			Set<String> suts = ResourceList.getAllClasses(
 					ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
@@ -212,16 +212,16 @@ public class CoverageAnalysis {
 	private static List<Class<?>> getTestClasses() {
 		List<Class<?>> testClasses = new ArrayList<Class<?>>();
 		
-		logger.debug("JUNIT_PREFIX: "+Properties.JUNIT_PREFIX);
+		logger.debug("JUNIT: "+Properties.JUNIT);
 		
-		for(String prefix : Properties.JUNIT_PREFIX.split(":")) {
+		for(String prefix : Properties.JUNIT.split(":")) {
 			
 			LoggingUtils.getEvoLogger().info("* Analyzing entry: "+prefix);
 			
 			// If the target name is a path analyze it
 			File path = new File(prefix);
 			if (path.exists()) {
-				if (Properties.JUNIT_PREFIX.endsWith(".jar"))
+				if (Properties.JUNIT.endsWith(".jar"))
 					testClasses.addAll(getTestClassesJar(path));
 				else
 					testClasses.addAll(getTestClasses(path));
@@ -234,7 +234,7 @@ public class CoverageAnalysis {
 					testClasses.add(clazz);
 				} catch (ClassNotFoundException e) {
 					// Second, try if the target name is a package name
-					testClasses.addAll(getClassesFromClasspath());
+					testClasses.addAll(getTestClassesFromClasspath());
 				}
 			}
 		}

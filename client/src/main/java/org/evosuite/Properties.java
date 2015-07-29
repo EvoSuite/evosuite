@@ -851,9 +851,9 @@ public class Properties {
 	@Parameter(key = "junit_extend", group = "Output", description = "Extend existing JUnit test suite")
 	public static String JUNIT_EXTEND = "";
 
-	/** Constant <code>JUNIT_PREFIX=""</code> */
-	@Parameter(key = "junit_prefix", group = "Experimental", description = "Prefix of JUnit tests to execute")
-	public static String JUNIT_PREFIX = "";
+	/** Constant <code>JUNIT=""</code> */
+	@Parameter(key = "junit", group = "Experimental", description = "A colon(:) separated list of JUnit suites to execute. Can be a prefix (i.e., package name), a directory, a jar file, or the full name of a JUnit suite.")
+	public static String JUNIT = "";
 
 	/** Constant <code>LOG_GOALS=false</code> */
 	@Parameter(key = "log_goals", group = "Output", description = "Create a CSV file for each individual evolution")
