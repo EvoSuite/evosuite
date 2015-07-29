@@ -2,6 +2,8 @@ package org.evosuite.testcase;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
@@ -10,7 +12,14 @@ import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.seeding.ObjectPool;
 import org.evosuite.seeding.ObjectPoolManager;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -172,7 +181,7 @@ public class TestPool extends SystemTest {
 	}
 	
 	@Test
-	public void testPoolWithException() throws IOException {
+	public void testPoolWithException() throws IOException, NoSuchMethodException, SecurityException {
 		File f = File.createTempFile("EvoSuiteTestPool",null, FileUtils.getTempDirectory());
 		String filename = f.getAbsolutePath();
 		f.delete();
@@ -183,11 +192,22 @@ public class TestPool extends SystemTest {
 		String targetClass = DependencyClassWithException.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
+		Properties.getTargetClass();
+		TestCase test = new DefaultTestCase();
+		VariableReference instance = test.addStatement(new ConstructorStatement(test, new GenericConstructor(DependencyClassWithException.class.getConstructors()[0], DependencyClassWithException.class),
+				new ArrayList<VariableReference>()));
+		VariableReference int42 = test.addStatement(new IntPrimitiveStatement(test, 42));
+		GenericMethod foo = new GenericMethod(DependencyClassWithException.class.getMethod("foo", int.class), DependencyClassWithException.class);
+		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(new VariableReference[] {int42})));
+		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(new VariableReference[] {int42})));
+		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(new VariableReference[] {int42})));
+		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(new VariableReference[] {int42})));
+		test.addStatement(new MethodStatement(test, foo, instance, Arrays.asList(new VariableReference[] {int42})));
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		ObjectPool pool = ObjectPool.getPoolFromTestSuite(best);
+		TestSuiteChromosome best = new TestSuiteChromosome();
+		best.addTest(test);
+		ObjectPool pool = new ObjectPool();
+		pool.addSequence(new GenericClass(DependencyClassWithException.class), test);
 		pool.writePool(filename);
 		System.out.println("EvolvedTestSuite:\n" + best);
 		
@@ -196,16 +216,16 @@ public class TestPool extends SystemTest {
 		
 		targetClass = ClassDependingOnExceptionClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		Properties.P_OBJECT_POOL = 1.0;
+		Properties.P_OBJECT_POOL = 0.8;
 		Properties.OBJECT_POOLS = filename;
 		ObjectPoolManager.getInstance().initialisePool();
 		//Properties.SEARCH_BUDGET = 50000;
 
-		command = new String[] { "-generateSuite", "-class", targetClass, "-Dobject_pools=" + filename };
+		command = new String[] { "-generateSuite", "-class", targetClass};
 
-		result = evosuite.parseCommandLine(command);
+		Object result = evosuite.parseCommandLine(command);
 
-		ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
