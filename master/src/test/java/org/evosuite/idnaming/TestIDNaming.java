@@ -17,7 +17,24 @@
  */
 package org.evosuite.idnaming;
 
+import com.examples.with.different.packagename.ClassWithPrivateNonStaticInnerClass;
+import com.examples.with.different.packagename.InfiniteLoops;
+import com.examples.with.different.packagename.TT_technique3_from_JSS09;
+import com.examples.with.different.packagename.XMLElement2;
+import com.examples.with.different.packagename.assertion.ArrayObjects;
+import com.examples.with.different.packagename.assertion.WrapperExample;
+import com.examples.with.different.packagename.continuous.BaseForSeeding;
+import com.examples.with.different.packagename.continuous.SomeBranches;
+import com.examples.with.different.packagename.gui.FontCUT;
 import com.examples.with.different.packagename.idnaming.SimpleIdNaming;
+import com.examples.with.different.packagename.purity.ImpureRandomness;
+import com.examples.with.different.packagename.sette.AnonymousClass;
+import com.examples.with.different.packagename.sette.L4_Collections;
+import com.examples.with.different.packagename.sette.SnippetInput;
+import com.examples.with.different.packagename.sette.SnippetInputContainer;
+import com.examples.with.different.packagename.stable.Base64;
+import com.examples.with.different.packagename.stable.DoubleArrayDefault;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
@@ -34,11 +51,16 @@ public class TestIDNaming extends SystemTest {
 	public void testIDNamingOn() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = SimpleIdNaming.class.getCanonicalName();
+		String targetClass = SnippetInputContainer.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ID_NAMING = true;
 		Properties.JUNIT_TESTS = true;
+		StringBuilder analysisCriteria = new StringBuilder();
+        analysisCriteria.append(Properties.Criterion.METHODTRACE); analysisCriteria.append(",");
+      //  analysisCriteria.append(Properties.Criterion.METHOD); analysisCriteria.append(",");
+    //    analysisCriteria.append(Properties.Criterion.OUTPUT); analysisCriteria.append(",");
+        Properties.ANALYSIS_CRITERIA = analysisCriteria.toString();
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -48,7 +70,7 @@ public class TestIDNaming extends SystemTest {
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 7, goals);
+		Assert.assertEquals("Wrong number of goals: ", 15, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
