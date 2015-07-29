@@ -159,7 +159,7 @@ public class FailingTestSet {
 		writeJUnitTestSuite(writer);
 		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 		String testDir = Properties.TEST_DIR;
-		writer.writeTestSuite("Failures" + name, testDir);
+		writer.writeTestSuite("Failures" + name, testDir, false);
 	}
 
 	/**

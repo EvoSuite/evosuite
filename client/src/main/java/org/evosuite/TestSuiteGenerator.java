@@ -44,6 +44,7 @@ import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import org.evosuite.idNaming.TestNameGenerator;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.result.TestGenerationResult;
@@ -301,6 +302,8 @@ public class TestSuiteGenerator {
 		if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
 			compileAndCheckTests(testSuite);
 		}
+		
+		
 	}
 	
 	 /**
@@ -487,8 +490,9 @@ public class TestSuiteGenerator {
 			String testDir = Properties.TEST_DIR;
 
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
-			suite.writeTestSuite(name + suffix, testDir);
+			suite.writeTestSuite(name + suffix, testDir, true);
 		}
+	
 		return TestGenerationResultBuilder.buildSuccessResult();
 	}
 
