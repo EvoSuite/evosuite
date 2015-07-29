@@ -43,8 +43,7 @@ public class CoverageAnalysisSystemTest extends SystemTest {
 
         String[] command = new String[] {
             "-class", targetClass,
-            "-junit", testClass,
-            "-Djunit_prefix=" + testClass,
+            "-Djunit=" + testClass,
             "-measureCoverage"
         };
 
@@ -83,8 +82,7 @@ public class CoverageAnalysisSystemTest extends SystemTest {
 
         String[] command = new String[] {
             "-class", targetClass,
-            "-junit", testClass,
-            "-Djunit_prefix=" + testClass,
+            "-Djunit=" + testClass,
             "-measureCoverage"
         };
 

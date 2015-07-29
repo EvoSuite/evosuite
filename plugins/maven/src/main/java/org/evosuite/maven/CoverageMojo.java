@@ -67,6 +67,13 @@ public class CoverageMojo extends AbstractMojo {
 															+ ",MethodTraceCoverage,MethodTraceCoverageBitString" )
 	private String output_variables;
 
+	/**
+	 * A colon(:) separated list of JUnit suites to execute. Can be a prefix (i.e., package name),
+	 * a directory, a jar file, or the full name of a JUnit suite.
+	 */
+	@Parameter( property = "junit" )
+	private String junit;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -98,6 +105,9 @@ public class CoverageMojo extends AbstractMojo {
 		params.add("-target");
 		params.add(ProjectUtils.toClasspathString(target));
 		params.add("-DCP=" + ProjectUtils.toClasspathString(cp));
+		if (this.junit != null) {
+			params.add("-Djunit="+this.junit);
+		}
 
 		params.add("-Dcriterion="+this.criterion);
 		params.add("-Doutput_variables="+this.output_variables);
@@ -108,7 +118,6 @@ public class CoverageMojo extends AbstractMojo {
 		params.add("-Dvirtual_net=false");
 		params.add("-Dreplace_calls=false");
 		params.add("-Dreplace_system_in=false");
-		params.add("-Dmax_loop_iterations=-1");
 
 		getLog().info("Params:");
 		for (String s : params) {
