@@ -264,7 +264,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 					continue;
 				
 				if(otherMethod.getName().equals(methodName)) {
-					if(Arrays.equals(otherMethod.getParameterTypes(), parameterTypes)) {
+					if(!Arrays.equals(otherMethod.getParameterTypes(), parameterTypes)) {
 						return true;
 					}
 				}
