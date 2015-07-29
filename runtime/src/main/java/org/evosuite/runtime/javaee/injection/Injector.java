@@ -77,7 +77,7 @@ public class Injector {
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
     public  static <T> void inject(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance,
-                                   Class<T> klass, String fieldName, Object value)
+                                   Class<?> klass, String fieldName, Object value)
             throws IllegalArgumentException, AssumptionViolatedException {
 
         PrivateAccess.setVariable(klass,instance,fieldName,value,InjectionList.getList());
@@ -148,7 +148,7 @@ public class Injector {
     }
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectEvent(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<T> clazz)
+    public static <T> void injectEvent(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<?> clazz)
             throws IllegalArgumentException{
 
         Inputs.checkNull(instance, clazz);

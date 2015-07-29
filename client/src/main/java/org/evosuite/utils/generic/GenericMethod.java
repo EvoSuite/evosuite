@@ -241,8 +241,9 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		try {
 			java.lang.reflect.Method otherMethod = declaringClass.getMethod(methodName,
 			                                                                parameterTypes);
-			if (otherMethod != null)
+			if (otherMethod != null && !otherMethod.equals(method)) {
 				return true;
+			}
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
 		}

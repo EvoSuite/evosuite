@@ -983,10 +983,10 @@ public class TestCodeVisitor extends TestVisitor {
 			Type declaredParamType = parameterTypes[i];
 			Type actualParamType = parameters.get(i).getType();
 			String name = getVariableName(parameters.get(i));
-			Class<?> rawParamClass = GenericTypeReflector.erase(declaredParamType);
+			Class<?> rawParamClass = declaredParamType instanceof WildcardType ? Object.class : GenericTypeReflector.erase(declaredParamType);
 			if (rawParamClass.isPrimitive() && name.equals("null")) {
 				parameterString += getPrimitiveNullCast(rawParamClass);
-			} else if (isGenericMethod) {
+			} else if (isGenericMethod && !(declaredParamType instanceof WildcardType )) {
 				if (!declaredParamType.equals(actualParamType) || name.equals("null")) {
 					parameterString += "(" + getTypeName(declaredParamType) + ") ";
 					if (name.contains("(short"))

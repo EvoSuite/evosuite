@@ -57,7 +57,7 @@ public class PrivateAccess {
      * @throws IllegalArgumentException if klass or fieldName are null
      * @throws AssumptionViolatedException  if the the field does not exist anymore (eg due to refactoring)
      */
-    public  static <T> void setVariable(Class<T> klass, T instance, String fieldName, Object value,
+    public  static <T> void setVariable(Class<?> klass, T instance, String fieldName, Object value,
                                         List<Class<? extends Annotation>> tagsToCheck)
             throws IllegalArgumentException, AssumptionViolatedException {
 

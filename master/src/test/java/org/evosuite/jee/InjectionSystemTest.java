@@ -1,6 +1,5 @@
 package org.evosuite.jee;
 
-import com.examples.with.different.packagename.DependencyLibrary;
 import com.examples.with.different.packagename.jee.*;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
