@@ -20,12 +20,16 @@
  */
 package org.evosuite.junit.writer;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.idNaming.CheckTestNameUniqueness;
+import org.evosuite.idNaming.OptimizeTestName;
+import org.evosuite.idNaming.TestNameGenerator;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.EvoRunner;
@@ -47,6 +51,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
 
@@ -81,6 +86,8 @@ public class TestSuiteWriter implements Opcodes {
             : new TestCodeVisitor();
 
     private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
+    
+    private static List<Integer> methodPosition = new ArrayList<Integer>();
 
 
     /**
@@ -159,6 +166,7 @@ public class TestSuiteWriter implements Opcodes {
      * @param tests a {@link java.util.List} object.
      */
     public void insertAllTests(List<TestCase> tests) {
+
         testCases.addAll(tests);
     }
 
@@ -178,7 +186,7 @@ public class TestSuiteWriter implements Opcodes {
      * @param name      Name of the class
      * @param directory Output directory
      */
-    public List<File> writeTestSuite(String name, String directory) throws IllegalArgumentException {
+    public List<File> writeTestSuite(String name, String directory, boolean flag) throws IllegalArgumentException {
 
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Empty test class name");
@@ -199,7 +207,7 @@ public class TestSuiteWriter implements Opcodes {
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
             executor.newObservers();
-            content = getUnitTestsAllInSameFile(name, results);
+            content = getUnitTestsAllInSameFile(name, results, flag);
             Utils.writeFile(content, file);
             generated.add(file);
         } else {
@@ -208,6 +216,9 @@ public class TestSuiteWriter implements Opcodes {
                 File file = new File(dir + "/" + testSuiteName + ".java");
                 executor.newObservers();
                 String testCode = getOneUnitTestInAFile(name, i, results);
+              
+                
+                
                 Utils.writeFile(testCode, file);
                 content += testCode;
                 generated.add(file);
@@ -223,10 +234,13 @@ public class TestSuiteWriter implements Opcodes {
             generated.add(file);
             content += scaffoldingContent;
         }
-
+        
         TestGenerationResultBuilder.getInstance().setTestSuiteCode(content);
+
         return generated;
     }
+    
+    
 
     /**
      * Create JUnit file for given class name
@@ -234,7 +248,7 @@ public class TestSuiteWriter implements Opcodes {
      * @param name Name of the class file
      * @return String representation of JUnit test file
      */
-    private String getUnitTestsAllInSameFile(String name, List<ExecutionResult> results) {
+    private String getUnitTestsAllInSameFile(String name, List<ExecutionResult> results, boolean flag) {
 
         for (int i = 0; i < testCases.size(); i++) {
             ExecutionResult result = runTest(testCases.get(i));
@@ -254,12 +268,13 @@ public class TestSuiteWriter implements Opcodes {
         if (!Properties.TEST_SCAFFOLDING) {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
         }
-
+        
         for (int i = 0; i < testCases.size(); i++) {
-            builder.append(testToString(i, i, results.get(i)));
+            builder.append(testToString(i, i, results.get(i), flag));
         }
         builder.append(getFooter());
-
+        
+      
         return builder.toString();
     }
 
@@ -283,7 +298,7 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
         }
 
-        builder.append(testToString(testId, testId, results.get(0)));
+        builder.append(testToString(testId, testId, results.get(0), false));
         builder.append(getFooter());
 
         return builder.toString();
@@ -495,7 +510,7 @@ public class TestSuiteWriter implements Opcodes {
      * @param result a {@link org.evosuite.testcase.execution.ExecutionResult} object.
      * @return String representation of test case
      */
-    protected String testToString(int number, int id, ExecutionResult result) {
+    protected String testToString(int number, int id, ExecutionResult result, boolean flag) {
 
         boolean wasSecurityException = result.hasSecurityException();
 
@@ -508,6 +523,7 @@ public class TestSuiteWriter implements Opcodes {
             builder.append("\n");
         }
         String methodName;
+       
         if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
             StructuredTestCase structuredTest = (StructuredTestCase) testCases.get(id);
             String targetMethod = structuredTest.getTargetMethods().iterator().next();
@@ -522,10 +538,34 @@ public class TestSuiteWriter implements Opcodes {
             } else {
                 testMethodNumber.put(targetMethod, 1);
             }
-            methodName = "test" + targetMethod + num;
+            if (Properties.ID_NAMING) {
+                TestCase tc = testCases.get(id);
+                methodName = TestNameGenerator.generateTestName(targetMethod, tc, result, num);
+            
+                
+            } else {
+                methodName = "test" + targetMethod + num;
+            }
+            
             builder.append(adapter.getMethodDefinition(methodName));
         } else {
-            methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
+            if (Properties.ID_NAMING) {
+                TestCase tc = testCases.get(id);
+                methodName = TestNameGenerator.generateTestName1("test", tc, result, number);           
+                if(flag == true){              	
+                	int pos = TestNameGenerator.getPos(methodName, methodPosition, tc.toCode());
+                	methodPosition.add(pos);
+                	String[] names= TestNameGenerator.optimizeNames();
+                //	String [] names=TestNameGenerator.methodNames.toArray(new String[0]);
+                //	List<TestCase> testCase = TestNameGenerator.testCase1;
+                	//names= CheckTestNameUniqueness.checkNames(names, testCase);
+                	methodName = names[pos];    
+                } else{
+                	 methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
+                }
+            } else {
+                methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
+            }           
             builder.append(adapter.getMethodDefinition(methodName));
         }
 
@@ -565,7 +605,7 @@ public class TestSuiteWriter implements Opcodes {
             if (!exceptions.isEmpty()) {
                 builder.append(INNER_INNER_BLOCK_SPACE);
                 builder.append("try {\n");
-            }
+              }
             CODE_SPACE = INNER_INNER_INNER_BLOCK_SPACE;
         }
 
@@ -579,6 +619,7 @@ public class TestSuiteWriter implements Opcodes {
         if (wasSecurityException) {
             Set<Class<?>> exceptions = test.getDeclaredExceptions();
             if (!exceptions.isEmpty()) {
+            	
                 builder.append(INNER_INNER_BLOCK_SPACE);
                 builder.append("} catch(Throwable t) {\n");
                 builder.append(INNER_INNER_INNER_BLOCK_SPACE);
@@ -601,8 +642,27 @@ public class TestSuiteWriter implements Opcodes {
 
         builder.append(METHOD_SPACE);
         builder.append("}\n");
-
+        
         String testCode = builder.toString();
+        
+        String newMethodName=TestNameGenerator.checkExeptionInTest(testCode,methodName);
+        String []tokens=newMethodName.split("_");
+        newMethodName=tokens[0];
+        for(int i=1; i<tokens.length; i++){
+        	if(i==tokens.length-1){
+        		if(tokens[i].contains("Exception")){
+        			newMethodName+="_"+WordUtils.capitalize(tokens[i]);
+        		} else {
+        			newMethodName+=WordUtils.capitalize(tokens[i]);
+        		}
+        	}else{
+        		newMethodName+=WordUtils.capitalize(tokens[i]);
+        	}
+        }
+      //  int i=builder.indexOf(methodName);
+       // int j=builder.indexOf("()  throws Throwable  {")+1;
+        builder.replace(builder.indexOf(methodName), builder.indexOf("()  throws Throwable  {"), newMethodName);
+        testCode = builder.toString();
         TestGenerationResultBuilder.getInstance().setTestCase(methodName, testCode, test,
                 getInformation(id), result);
         return testCode;

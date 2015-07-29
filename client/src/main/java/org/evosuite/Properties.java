@@ -1324,6 +1324,8 @@ public class Properties {
             //these are basic criteria that should be always on by default
             Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
 
+	/** ID Naming */
+	public static Boolean ID_NAMING = true;
 
     /** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
