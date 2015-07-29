@@ -48,7 +48,7 @@ public class EvoServletState {
      */
 
     @EvoSuiteInclude
-    @Constraints(atMostOnce = true, noNullInputs = true)
+    @Constraints(atMostOnce = true, noNullInputs = true, noDirectInsertion = true)
     public static <T extends Servlet> T initServlet(
             @BoundInputVariable(initializer = true, atMostOnce = true) T servlet)
             throws IllegalStateException, IllegalArgumentException, ServletException {

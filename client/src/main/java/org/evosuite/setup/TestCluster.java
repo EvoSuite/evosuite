@@ -31,7 +31,10 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
+import org.evosuite.testcase.ConstraintHelper;
+import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.jee.InstanceOnlyOnce;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
@@ -456,7 +459,7 @@ public class TestCluster {
 	 */
 	public Set<GenericAccessibleObject<?>> getCallsFor(GenericClass clazz, boolean resolve)
 	        throws ConstructionFailedException {
-		logger.debug("Getting calls for "+clazz);
+		logger.debug("Getting calls for " + clazz);
 		if (clazz.hasWildcardOrTypeVariables()) {
 			logger.debug("Resolving generic type before getting modifiers");
 			GenericClass concreteClass = clazz.getGenericInstantiation();
@@ -477,12 +480,23 @@ public class TestCluster {
 		return modifiers.get(clazz);
 	}
 
-	public GenericAccessibleObject<?> getRandomCallFor(GenericClass clazz)
+	public GenericAccessibleObject<?> getRandomCallFor(GenericClass clazz, TestCase test, int position)
 	        throws ConstructionFailedException {
+
 		Set<GenericAccessibleObject<?>> calls = getCallsFor(clazz, true);
-		if (calls.isEmpty())
+		Iterator<GenericAccessibleObject<?>> iter = calls.iterator();
+		while(iter.hasNext()) {
+			GenericAccessibleObject<?> gao = iter.next();
+			if (! ConstraintVerifier.isValidPositionForInsertion(gao,test,position)){
+				iter.remove();
+			}
+		}
+
+		if (calls.isEmpty()) {
 			throw new ConstructionFailedException("No modifiers for " + clazz);
+		}
 		logger.debug("Possible modifiers for " + clazz + ": " + calls);
+
 		GenericAccessibleObject<?> call = Randomness.choice(calls);
 		if (call.hasTypeParameters()) {
 			logger.debug("Modifier has type parameters");
@@ -500,7 +514,7 @@ public class TestCluster {
 	 */
 	private Set<GenericAccessibleObject<?>> getCallsForSpecialCase(GenericClass clazz)
 	        throws ConstructionFailedException {
-		Set<GenericAccessibleObject<?>> all = new LinkedHashSet<GenericAccessibleObject<?>>();
+		Set<GenericAccessibleObject<?>> all = new LinkedHashSet<>();
 		if (!modifiers.containsKey(clazz)) {
 			logger.debug("Don't have that specific class, so have to check generic modifiers");
 			all.addAll(determineGenericModifiersFor(clazz));
@@ -839,15 +853,16 @@ public class TestCluster {
 		return generator;
 	}
 
+
 	/**
 	 * Randomly select one generator
-	 *
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
+         *
+         * @param type
+         * @return
+         * @throws ConstructionFailedException
+         */
 	public GenericAccessibleObject<?> getRandomGenerator(GenericClass clazz,
-	        Set<GenericAccessibleObject<?>> excluded) throws ConstructionFailedException {
+	        Set<GenericAccessibleObject<?>> excluded, TestCase test) throws ConstructionFailedException {
 
 		logger.debug("Getting random generator for " + clazz);
 
@@ -858,7 +873,7 @@ public class TestCluster {
 			if (!concreteClass.equals(clazz)) {
 				logger.debug("Target class is generic: " + clazz
 				        + ", getting instantiation " + concreteClass);
-				return getRandomGenerator(concreteClass, excluded);
+				return getRandomGenerator(concreteClass, excluded, test);
 			}
 		}
 
@@ -875,10 +890,22 @@ public class TestCluster {
 		} else {
 			cacheGenerators(clazz);
 
-			Set<GenericAccessibleObject<?>> candidates = new LinkedHashSet<GenericAccessibleObject<?>>(
-			        generatorCache.get(clazz));
+			Set<GenericAccessibleObject<?>> candidates = new LinkedHashSet<>(generatorCache.get(clazz));
 			int before = candidates.size();
 			candidates.removeAll(excluded);
+
+			if(Properties.JEE) {
+				Iterator<GenericAccessibleObject<?>> iter = candidates.iterator();
+				while (iter.hasNext()) {
+					GenericAccessibleObject<?> gao = iter.next();
+					if (gao instanceof GenericConstructor) {
+						Class<?> klass = gao.getDeclaringClass();
+						if(InstanceOnlyOnce.canInstantiateOnlyOnce(klass) && ConstraintHelper.countNumberOfNewInstances(test, klass) != 0){
+							iter.remove();
+						}
+					}
+				}
+			}
 			logger.debug("Candidate generators for " + clazz + ": " + candidates.size());
 
 			if (candidates.isEmpty())

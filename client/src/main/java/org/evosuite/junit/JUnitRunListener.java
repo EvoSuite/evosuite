@@ -4,12 +4,11 @@
 package org.evosuite.junit;
 
 import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.utils.LoggingUtils;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -19,8 +18,6 @@ import org.slf4j.LoggerFactory;
  * @author José Campos
  */
 public class JUnitRunListener extends RunListener {
-
-	private final static Logger logger = LoggerFactory.getLogger(CoverageAnalysis.class);
 
 	/**
 	 * 
@@ -50,7 +47,7 @@ public class JUnitRunListener extends RunListener {
 	 */
 	@Override
 	public void testRunStarted(Description description) {
-		logger.debug("Number of test cases to execute: " + description.testCount());
+		LoggingUtils.getEvoLogger().info("* Number of test cases to execute: " + description.testCount());
 	}
 
 	/**
@@ -58,7 +55,7 @@ public class JUnitRunListener extends RunListener {
 	 */
 	@Override
 	public void testRunFinished(Result result) {
-		logger.debug("Number of test cases to executed: " + result.getRunCount());
+		LoggingUtils.getEvoLogger().info("* Number of test cases to executed: " + result.getRunCount());
 	}
 
 	/**
@@ -66,25 +63,19 @@ public class JUnitRunListener extends RunListener {
 	 */
 	@Override
 	public void testStarted(Description description) {
-		logger.debug("* Started: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
+		LoggingUtils.getEvoLogger().info("* Started: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
 
 		this.start = System.nanoTime();
 
 		this.testResult = new JUnitResult(description.getClassName() + "#" + description.getMethodName(), this.junitRunner.getJUnitClass());
-
-		ExecutionTracer.enable();
-		ExecutionTracer.enableTraceCalls();
-		ExecutionTracer.setCheckCallerThread(false);
 	}
 
 	/**
-	 * Called when an atomic test has finished. whether the test successds or fails
+	 * Called when an atomic test has finished. whether the test successes or fails
 	 */
 	@Override
 	public void testFinished(Description description) {
-		logger.debug("* Finished: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
-
-		ExecutionTracer.disable();
+		LoggingUtils.getEvoLogger().info("* Finished: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
 
 		this.testResult.setRuntime(System.nanoTime() - this.start);
 		this.testResult.setExecutionTrace(ExecutionTracer.getExecutionTracer().getTrace());
@@ -99,7 +90,10 @@ public class JUnitRunListener extends RunListener {
 	 */
 	@Override
 	public void testFailure(Failure failure) {
-		logger.debug("* Failure: " + failure.getMessage());
+		LoggingUtils.getEvoLogger().info("* Failure: " + failure.getMessage());
+		for (StackTraceElement s : failure.getException().getStackTrace()) {
+			LoggingUtils.getEvoLogger().info("   " + s.toString());
+		}
 
 		this.testResult.setSuccessful(false);
 		this.testResult.setTrace(failure.getTrace());
@@ -111,6 +105,6 @@ public class JUnitRunListener extends RunListener {
 	 */
 	@Override
 	public void testIgnored(Description description) throws java.lang.Exception {
-		logger.debug("Execution of test case ignored: " + description.getMethodName());
+		LoggingUtils.getEvoLogger().info("* Ignored: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
 	}
 }

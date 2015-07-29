@@ -16,6 +16,7 @@ import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.classhandling.ClassStateSupport;
+import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.classhandling.ResetManager;
@@ -631,6 +632,11 @@ public class Scaffolding {
             //it is done inside Runtime, but, if that is not called, we need an explicit call here
             bd.append(BLOCK_SPACE);
             bd.append(LoopCounter.class.getName() + ".getInstance().reset(); \n");
+        }
+        if(DBManager.getInstance().isWasAccessed()) {
+            //be sure it is called before any test is run, as to avoid timeout if init during a test case run
+            bd.append(BLOCK_SPACE);
+            bd.append(DBManager.class.getName() + ".getInstance().initDB(); \n");
         }
 
 
