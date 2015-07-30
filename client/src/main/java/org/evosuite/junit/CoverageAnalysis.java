@@ -449,6 +449,7 @@ public class CoverageAnalysis {
 
         	ExecutionTrace trace = tR.getExecutionTrace();
             executionResult.setTrace(trace);
+            dummy.getTestCase().clearCoveredGoals();
             dummy.setLastExecutionResult(executionResult);
 
             if (criterion == Criterion.MUTATION
@@ -662,5 +663,12 @@ public class CoverageAnalysis {
 		 */
 
 		util.informSearchIsFinished(null);
+	}
+
+	// just for testing
+	protected static void reset() {
+		totalGoals = 0;
+		totalCoveredGoals = 0;
+		targetClasses.clear();
 	}
 }
