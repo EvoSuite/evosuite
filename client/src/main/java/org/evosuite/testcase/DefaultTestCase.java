@@ -1000,6 +1000,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 		return statements.size();
 	}
 
+	/** {@inheritDoc} */
+	@Override
+	public int sizeWithAssertions() {
+		return this.size() + this.getAssertions().size();
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#toCode()
 	 */

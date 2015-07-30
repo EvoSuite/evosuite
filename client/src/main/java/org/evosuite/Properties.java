@@ -798,6 +798,10 @@ public class Properties {
 	@Parameter(key = "test_scaffolding", group = "Output", description = "Generate all the scaffolding needed to run EvoSuite JUnit tests in a separate file")
 	public static boolean TEST_SCAFFOLDING = true;
 
+	/** Constant <code>MAX_LENGTH_TEST_CASE=0</code> */
+	@Parameter(key = "max_length_test_case", group = "Output", description = "Maximum number of statements (normal statements and assertions)")
+	public static int MAX_LENGTH_TEST_CASE = 2500;
+
 	@Parameter(key = "no_runtime_dependency", group = "Output", description = "Avoid runtime dependencies in JUnit test")
 	public static boolean NO_RUNTIME_DEPENDENCY = false;
 
