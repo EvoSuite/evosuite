@@ -40,7 +40,7 @@ public class TestNameGenerator {
 			return methodName;
 		}	
 	}	
-	public  static String generateTestName(String targetMethod, TestCase tc, ExecutionResult result, Integer num) {
+	/*public  static String generateTestName(String targetMethod, TestCase tc, ExecutionResult result, Integer num) {
 			String testName = "";
 			//goal set 
 			Set<? extends TestFitnessFunction> goals = tc.getCoveredGoals();
@@ -78,7 +78,7 @@ public class TestNameGenerator {
 			methodNames.add(testName);
 		}		
 		return testName;
-	}
+	}*/
 	
 	public  static String generateTestName1(String targetMethod, TestCase tc, ExecutionResult result, Integer num) {
 		String testName = "";
@@ -157,7 +157,7 @@ public class TestNameGenerator {
 		return pos;
 	}
 
-	public static String translateBranch(String option){
+/*	public static String translateBranch(String option){
 		String translate="";
 		if(option.contains("IFGE")){
 			translate = "BranchGE";
@@ -207,7 +207,7 @@ public class TestNameGenerator {
 			}
 		}
 		return translate;
-	}
+	}*/
 	
 	
 }
