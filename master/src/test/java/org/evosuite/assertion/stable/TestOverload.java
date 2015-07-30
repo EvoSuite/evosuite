@@ -14,7 +14,6 @@ import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -93,10 +92,10 @@ public class TestOverload extends SystemTest {
 		vars2.add(overloadInstance);
 		vars2.add(objectInstance);
 
-		Assert.assertTrue(gm1.isOverloaded(vars1));
+		Assert.assertFalse(gm1.isOverloaded(vars1));
 		Assert.assertTrue(gm2.isOverloaded(vars1));
 		Assert.assertTrue(gm1.isOverloaded(vars2));
-		Assert.assertTrue(gm2.isOverloaded(vars2));
+		Assert.assertFalse(gm2.isOverloaded(vars2));
 	}
 	
 	@Test
@@ -117,7 +116,7 @@ public class TestOverload extends SystemTest {
 
 		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
 		Assert.assertNotNull(map);
-		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+		OutputVariable<?> unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
 		Assert.assertNotNull(unstable);
 		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 	}
