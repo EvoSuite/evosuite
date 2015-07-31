@@ -375,7 +375,7 @@ public class InheritanceTreeGenerator {
 	private static List<String> classExceptions = Arrays.asList(new String[] {
 	        "java/lang/Class", "java/lang/Object", "java/lang/String",
 	        "java/lang/Comparable", "java/io/Serializable", "com/apple", "apple/",
-	        "sun/", "com/sun", "com/oracle", "sun/awt",
+	        "sun/", "com/sun", "com/oracle", "sun/awt", "jdk/internal",
 	        "java/util/prefs/MacOSXPreferences" });
 
 	/**

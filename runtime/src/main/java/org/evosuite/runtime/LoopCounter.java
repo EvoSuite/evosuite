@@ -79,6 +79,7 @@ public class LoopCounter {
         counters.set(index , value);
 
         if(value >= RuntimeSettings.maxNumberOfIterationsPerLoop){
+            this.reset();
             throw new TooManyResourcesException("Loop has been executed more times than the allowed " +
                     RuntimeSettings.maxNumberOfIterationsPerLoop);
         }

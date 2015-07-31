@@ -49,10 +49,15 @@ public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChrom
 		}
 
 		TestChromosome test = null;
+		// double P = (double)TestsArchive.instance.getNumberOfCoveredGoals() / (double)TestsArchive.instance.getTotalNumberOfGoals();
 		if(!TestsArchive.instance.isArchiveEmpty() && Randomness.nextDouble() < Properties.SEED_CLONE) {
 			logger.info("Creating test based on archive");
 			test = new TestChromosome();
 			test.setTestCase(TestsArchive.instance.getCloneAtRandom());
+			int mutations = Randomness.nextInt(Properties.SEED_MUTATIONS);
+			for(int i = 0; i < mutations; i++) {
+				test.mutate();
+			}
 		} else {
 			logger.info("Creating random test");
 			test = defaultFactory.getChromosome();
@@ -62,10 +67,6 @@ public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChrom
 		assert ConstraintVerifier.verifyTest(test);
 		assert ! ConstraintVerifier.hasAnyOnlyForAssertionMethod(test.getTestCase());
 
-		int mutations = Randomness.nextInt(Properties.SEED_MUTATIONS);
-		for(int i = 0; i < mutations; i++) {
-			test.mutate();
-		}
 		return test;
 	}
 

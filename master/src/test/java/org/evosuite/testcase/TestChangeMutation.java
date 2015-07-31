@@ -136,7 +136,7 @@ public class TestChangeMutation extends SystemTest {
 	public void testTwoInts() throws NoSuchMethodException, SecurityException, ClassNotFoundException, ConstructionFailedException {
 		Properties.TARGET_CLASS = IntExampleWithNoElse.class.getCanonicalName();
 		TestChromosome test1 = new TestChromosome();
-		test1.setTestCase(getTwoIntTest(1, 1000));
+		test1.setTestCase(getTwoIntTest(1000, 100));
 		TestChromosome test2 = new TestChromosome();
 		test2.setTestCase(getTwoIntTest(-23423423, 234234234));
 		TestChromosome test3 = new TestChromosome();
@@ -195,7 +195,7 @@ public class TestChangeMutation extends SystemTest {
 	public void testTwoIntsLineCoverage() throws NoSuchMethodException, SecurityException, ClassNotFoundException, ConstructionFailedException {
 		Properties.TARGET_CLASS = IntExampleWithNoElse.class.getCanonicalName();
 		TestChromosome test1 = new TestChromosome();
-		test1.setTestCase(getTwoIntTest(1, 1000));
+		test1.setTestCase(getTwoIntTest(1000, 100));
 		TestChromosome test2 = new TestChromosome();
 		test2.setTestCase(getTwoIntTest(0, 0));
 		

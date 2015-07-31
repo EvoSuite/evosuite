@@ -83,6 +83,7 @@ public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		// Only one parent
 		generateRandomPopulation(1);
 		getFitnessFunction().getFitness(population.get(0));
+		updateFitnessFunctionsAndValues();
 		this.notifyIteration();
 		logger.info("Initial fitness: " + population.get(0).getFitness());
 	}
@@ -104,6 +105,8 @@ public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			evolve();
 
 			applyLocalSearch();
+
+			updateFitnessFunctionsAndValues();
 
 			this.notifyIteration();
 		}

@@ -7,25 +7,50 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.SystemTest;
+import org.evosuite.continuous.persistency.CsvJUnitData;
 import org.evosuite.statistics.OutputVariable;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.SearchStatistics;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.Calculator;
 import com.examples.with.different.packagename.CalculatorTest;
+import com.examples.with.different.packagename.ClassHierarchyIncludingInterfaces;
+import com.examples.with.different.packagename.ClassHierarchyIncludingInterfacesTest;
+import com.examples.with.different.packagename.ClassWithPrivateInterfaces;
+import com.examples.with.different.packagename.ClassWithPrivateInterfacesTest;
 
 import au.com.bytecode.opencsv.CSVReader;
 
 public class CoverageAnalysisSystemTest extends SystemTest {
+
+	@Before
+	public void prepare() {
+		try {
+			FileUtils.deleteDirectory(new File("evosuite-report"));
+		} catch (IOException e) {
+			Assert.fail(e.getMessage());
+		}
+
+		Properties.TARGET_CLASS = "";
+		Properties.OUTPUT_VARIABLES = null;
+        Properties.STATISTICS_BACKEND = StatisticsBackend.DEBUG;
+        Properties.COVERAGE_MATRIX = false;
+
+        CoverageAnalysis.reset();
+	}
 
 	@Test
 	public void testOneClassOneCriterion() {
@@ -42,8 +67,7 @@ public class CoverageAnalysisSystemTest extends SystemTest {
 
         String[] command = new String[] {
             "-class", targetClass,
-            "-junit", testClass,
-            "-Djunit_prefix=" + testClass,
+            "-Djunit=" + testClass,
             "-measureCoverage"
         };
 
@@ -57,7 +81,7 @@ public class CoverageAnalysisSystemTest extends SystemTest {
         assertEquals(4, (Integer) outputVariables.get("Tests_Executed").getValue(), 0);
         assertEquals(4, (Integer) outputVariables.get("Covered_Goals").getValue(), 0);
         assertEquals(5, (Integer) outputVariables.get("Total_Goals").getValue(), 0);
-        assertEquals("01111", outputVariables.get("CoverageBitString").getValue().toString());
+        assertEquals("10111", outputVariables.get("BranchCoverageBitString").getValue());
 	}
 
 	@Test
@@ -74,13 +98,15 @@ public class CoverageAnalysisSystemTest extends SystemTest {
         	Properties.Criterion.LINE
         };
 
-        Properties.OUTPUT_VARIABLES="TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals,CoverageBitString";
+        Properties.OUTPUT_VARIABLES = "TARGET_CLASS,criterion," +
+        		RuntimeVariable.Coverage.name() + "," + RuntimeVariable.Covered_Goals + "," + RuntimeVariable.Total_Goals + "," +
+        		RuntimeVariable.BranchCoverage + "," + RuntimeVariable.BranchCoverageBitString + "," +
+        		RuntimeVariable.LineCoverage + "," + RuntimeVariable.LineCoverageBitString;
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
 
         String[] command = new String[] {
             "-class", targetClass,
-            "-junit", testClass,
-            "-Djunit_prefix=" + testClass,
+            "-Djunit=" + testClass,
             "-measureCoverage"
         };
 
@@ -92,32 +118,21 @@ public class CoverageAnalysisSystemTest extends SystemTest {
 
         CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 3);
+        assertTrue(rows.size() == 2);
         reader.close();
 
-        List<String> values = this.getValues(rows, "TARGET_CLASS");
-        assertTrue(values.get(0).equals("com.examples.with.different.packagename.Calculator"));
-        assertTrue(values.get(1).equals("com.examples.with.different.packagename.Calculator"));
+        assertTrue(CsvJUnitData.getValue(rows, "TARGET_CLASS").equals(Calculator.class.getCanonicalName()));
+        assertTrue(CsvJUnitData.getValue(rows, "criterion").equals(Properties.Criterion.BRANCH.toString() + ";" + Properties.Criterion.LINE.toString()));
 
-        values = this.getValues(rows, "criterion");
-        assertTrue(values.get(0).equals(Properties.Criterion.BRANCH.toString()));
-        assertTrue(values.get(1).equals(Properties.Criterion.LINE.toString()));
+        assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, "Coverage")), 0.88, 0.01);
+        assertEquals(Integer.valueOf(CsvJUnitData.getValue(rows, "Covered_Goals")), 8, 0);
+        assertEquals(Integer.valueOf(CsvJUnitData.getValue(rows, "Total_Goals")), 9, 0);
 
-        values = this.getValues(rows, "Coverage");
-        assertEquals(Double.valueOf(values.get(0)), 0.8, 0.0);
-        assertEquals(Double.valueOf(values.get(1)), 1.0, 0.0);
+        assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, "BranchCoverage")), 0.8, 0.0);
+        assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, "LineCoverage")), 1.0, 0.0);
 
-        values = this.getValues(rows, "Covered_Goals");
-        assertEquals(Integer.valueOf(values.get(0)), 4, 0);
-        assertEquals(Integer.valueOf(values.get(1)), 4, 0);
-
-        values = this.getValues(rows, "Total_Goals");
-        assertEquals(Integer.valueOf(values.get(0)), 5, 0);
-        assertEquals(Integer.valueOf(values.get(1)), 4, 0);
-
-        values = this.getValues(rows, "CoverageBitString");
-        assertTrue(values.get(0).equals("01111"));
-        assertTrue(values.get(1).equals("1111"));
+        assertTrue(CsvJUnitData.getValue(rows, "BranchCoverageBitString").equals("10111"));
+        assertTrue(CsvJUnitData.getValue(rows, "LineCoverageBitString").equals("1111"));
 	}
 
 	@Test
@@ -130,25 +145,114 @@ public class CoverageAnalysisSystemTest extends SystemTest {
 		fail("Implementation missing...");
 	}
 
-	/**
-	 * 
-	 */
-	private List<String> getValues(List<String[]> rows, String columnName) {
-		String[] header = rows.get(0);
+	@Test
+	public void testGetAllInterfaces() throws IOException {
 
-		int column;
-		for (column = 0; column < header.length; column++) {
-			if (header[column].trim().equalsIgnoreCase(columnName.trim())) {
-				break;
-			}
-		}
+		EvoSuite evosuite = new EvoSuite();
 
-		List<String> values = new ArrayList<String>();
-		for (int row_i = 1; row_i < rows.size(); row_i++) {
-			String[] row = rows.get(row_i);
-			values.add(row[column]);
-		}
+        String targetClass = ClassWithPrivateInterfaces.class.getCanonicalName();
+        String testClass = ClassWithPrivateInterfacesTest.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
 
-		return values;
+        Properties.CRITERION = new Properties.Criterion[] {
+        	Properties.Criterion.LINE
+        };
+
+        Properties.OUTPUT_VARIABLES = RuntimeVariable.Total_Goals + "," + RuntimeVariable.LineCoverage;
+        Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
+        Properties.COVERAGE_MATRIX = true;
+
+        String[] command = new String[] {
+            "-class", targetClass,
+            "-Djunit=" + testClass,
+            "-measureCoverage"
+        };
+
+        Object statistics = evosuite.parseCommandLine(command);
+        Assert.assertNotNull(statistics);
+
+        // Assert coverage
+
+        String statistics_file = System.getProperty("user.dir") + File.separator + 
+        		Properties.REPORT_DIR + File.separator + 
+        		"statistics.csv";
+        System.out.println("statistics_file: " + statistics_file);
+
+        CSVReader reader = new CSVReader(new FileReader(statistics_file));
+        List<String[]> rows = reader.readAll();
+        assertTrue(rows.size() == 2);
+        reader.close();
+
+        assertEquals("13", CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()));
+        assertEquals("1.0", CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverage.name()));
+
+        // Assert that all test cases have passed
+
+        String matrix_file = System.getProperty("user.dir") + File.separator + 
+        		Properties.REPORT_DIR + File.separator + 
+        		"data" + File.separator +
+        		targetClass + "." + Properties.Criterion.LINE.name() + ".matrix";
+        System.out.println("matrix_file: " + matrix_file);
+
+        List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
+        assertTrue(lines.size() == 1);
+
+        assertEquals(13 + 1, lines.get(0).replace(" ", "").length()); // number of goals + test result ('+' pass, '-' fail)
+        assertTrue(lines.get(0).replace(" ", "").endsWith("+"));
+	}
+
+	@Test
+	public void testHierarchyIncludingInterfaces() throws IOException {
+
+		EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = ClassHierarchyIncludingInterfaces.class.getCanonicalName();
+        String testClass = ClassHierarchyIncludingInterfacesTest.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+
+        Properties.CRITERION = new Properties.Criterion[] {
+        	Properties.Criterion.LINE
+        };
+
+        Properties.OUTPUT_VARIABLES = RuntimeVariable.Total_Goals + "," + RuntimeVariable.LineCoverage;
+        Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
+        Properties.COVERAGE_MATRIX = true;
+
+        String[] command = new String[] {
+            "-class", targetClass,
+            "-Djunit=" + testClass,
+            "-measureCoverage"
+        };
+
+        Object statistics = evosuite.parseCommandLine(command);
+        Assert.assertNotNull(statistics);
+
+        // Assert coverage
+
+        String statistics_file = System.getProperty("user.dir") + File.separator + 
+        		Properties.REPORT_DIR + File.separator + 
+        		"statistics.csv";
+        System.out.println("statistics_file: " + statistics_file);
+
+        CSVReader reader = new CSVReader(new FileReader(statistics_file));
+        List<String[]> rows = reader.readAll();
+        assertTrue(rows.size() == 2);
+        reader.close();
+
+        assertEquals("32", CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()));
+
+        // Assert that all test cases have passed
+
+        String matrix_file = System.getProperty("user.dir") + File.separator + 
+        		Properties.REPORT_DIR + File.separator + 
+        		"data" + File.separator +
+        		targetClass + "." + Properties.Criterion.LINE.name() + ".matrix";
+        System.out.println("matrix_file: " + matrix_file);
+
+        List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
+        assertTrue(lines.size() == 1);
+
+        assertEquals(32 + 1, lines.get(0).replace(" ", "").length()); // number of goals + test result ('+' pass, '-' fail)
+        assertTrue(lines.get(0).replace(" ", "").endsWith("+"));
 	}
 }

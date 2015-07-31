@@ -21,6 +21,8 @@
 package org.evosuite.ga.localsearch;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
@@ -34,17 +36,11 @@ public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalS
 
 	private static final long serialVersionUID = -8640106627078837108L;
 
-	private final FitnessFunction<? extends Chromosome> fitness;
+	private final List<FitnessFunction<? extends Chromosome>> fitnessFunctions = new ArrayList<>();
 
-	/**
-	 * <p>Constructor for DefaultLocalSearchObjective.</p>
-	 *
-	 * @param fitness a {@link org.evosuite.ga.FitnessFunction} object.
-	 */
-	public DefaultLocalSearchObjective(FitnessFunction<? extends Chromosome> fitness) {
-		this.fitness = fitness;
-	}
-
+	// TODO: This assumes we are not doing NSGA-II
+	private boolean isMaximization = false;
+	
 	@Override
 	public boolean isDone() {
 		return false;
@@ -58,14 +54,34 @@ public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalS
 	public boolean hasImproved(T individual) {
 		throw new UnsupportedOperationException("Not implemented for default objective");
 	}
+	
+	@Override
+	public void addFitnessFunction(FitnessFunction<? extends Chromosome> fitness) {
+		for(FitnessFunction<? extends Chromosome> ff : fitnessFunctions) {
+			if(ff.isMaximizationFunction() != fitness.isMaximizationFunction()) {
+				throw new RuntimeException("Local search only supports composition of multiple criteria");
+			}
+		}
+		if(fitness.isMaximizationFunction())
+			isMaximization = true;
+		else
+			isMaximization = false;
+
+		fitnessFunctions.add(fitness);
+	}
+	
+	@Override
+	public boolean isMaximizationObjective() {
+		return isMaximization;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#getFitnessFunction()
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public FitnessFunction<? extends Chromosome> getFitnessFunction() {
-		return fitness;
+	public List<FitnessFunction<? extends Chromosome>> getFitnessFunctions() {
+		return fitnessFunctions;
 	}
 
 	/* (non-Javadoc)
