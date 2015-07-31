@@ -290,9 +290,14 @@ public class Properties {
     @DoubleValue(min = 0.0, max = 1.0)
     public static double REFLECTION_START_PERCENT = 0.5;
 
+	@Parameter(key = "use_functional_mocking", group = "Test Creation", description = "Use functional mocking (eg Mockito) when fail to generate concrete class instance inputs")
+	public static boolean USE_FUNCTIONAL_MOCKING = false; // TODO to put on once finalized
 
+	@Parameter(key = "functional_mocking_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which functional mocking can be activated. Mocking of missing concrete classes will be activated immediately regardless of this parameter")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double FUNCTIONAL_MOCKING_PERCENT = 0.5;
 
-    // ---------------------------------------------------------------
+	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
 		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, STEADYSTATEGA, RANDOM, NSGAII
@@ -846,9 +851,9 @@ public class Properties {
 	@Parameter(key = "junit_extend", group = "Output", description = "Extend existing JUnit test suite")
 	public static String JUNIT_EXTEND = "";
 
-	/** Constant <code>JUNIT_PREFIX=""</code> */
-	@Parameter(key = "junit_prefix", group = "Experimental", description = "Prefix of JUnit tests to execute")
-	public static String JUNIT_PREFIX = "";
+	/** Constant <code>JUNIT=""</code> */
+	@Parameter(key = "junit", group = "Experimental", description = "A colon(:) separated list of JUnit suites to execute. Can be a prefix (i.e., package name), a directory, a jar file, or the full name of a JUnit suite.")
+	public static String JUNIT = "";
 
 	/** Constant <code>LOG_GOALS=false</code> */
 	@Parameter(key = "log_goals", group = "Output", description = "Create a CSV file for each individual evolution")
@@ -1145,7 +1150,7 @@ public class Properties {
 
 	/** Constant <code>SEED_MUTATIONS=2</code> */
 	@Parameter(key = "seed_mutations", description = "Number of mutations applied to a cloned individual")
-	public static int SEED_MUTATIONS = 2;
+	public static int SEED_MUTATIONS = 3;
 
 	/** Constant <code>SEED_DIR=""</code> */
 	@Parameter(key = "seed_dir", group = "Output", description = "Directory name where the best chromosomes are saved")

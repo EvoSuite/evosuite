@@ -101,7 +101,7 @@ public class MeasureCoverage {
 		}
 
 		cmdLine.add("-DTARGET_CLASS=" + targetClass);
-		cmdLine.add("-Djunit_prefix=" + Properties.JUNIT_PREFIX);
+		cmdLine.add("-Djunit=" + Properties.JUNIT);
 		if (Properties.PROJECT_PREFIX != null) {
 			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
 		}

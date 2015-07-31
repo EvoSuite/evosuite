@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.evosuite.ProgressMonitor;
 import org.evosuite.Properties;
+import org.evosuite.Properties.Algorithm;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
@@ -20,6 +22,7 @@ import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * This is the abstract superclass of all techniques to generate a set of tests
@@ -59,7 +62,34 @@ public abstract class TestGenerationStrategy {
 	protected List<TestSuiteFitnessFunction> getFitnessFunctions() {
 	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
 	    for (int i = 0; i < Properties.CRITERION.length; i++) {
-	        ffs.add(FitnessFunctions.getFitnessFunction(Properties.CRITERION[i]));
+	    	TestSuiteFitnessFunction newFunction = FitnessFunctions.getFitnessFunction(Properties.CRITERION[i]);
+	    	
+	    	// If this is compositional fitness, we need to make sure
+	    	// that all functions are consistently minimization or 
+	    	// maximization functions
+	    	if(Properties.ALGORITHM != Algorithm.NSGAII) {
+	    		for(TestSuiteFitnessFunction oldFunction : ffs) {			
+	    			if(oldFunction.isMaximizationFunction() != newFunction.isMaximizationFunction()) {
+	    				StringBuffer sb = new StringBuffer();
+	    				sb.append("* Invalid combination of fitness functions: ");
+	    				sb.append(oldFunction.toString());
+	    				if(oldFunction.isMaximizationFunction())
+	    					sb.append(" is a maximization function ");
+	    				else
+	    					sb.append(" is a minimization function ");
+	    				sb.append(" but ");
+	    				sb.append(newFunction.toString());
+	    				if(newFunction.isMaximizationFunction())
+	    					sb.append(" is a maximization function ");
+	    				else
+	    					sb.append(" is a minimization function ");
+	    				LoggingUtils.getEvoLogger().info(sb.toString());
+	    				throw new RuntimeException("Invalid combination of fitness functions");
+	    			}
+	    		}
+	    	}
+	        ffs.add(newFunction);
+
 	    }
 
 		return ffs;

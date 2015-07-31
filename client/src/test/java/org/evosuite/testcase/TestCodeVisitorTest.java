@@ -28,7 +28,9 @@ public class TestCodeVisitorTest {
     }
 
     public static class FakeServlet extends HttpServlet {
-        public FakeServlet(){}
+		private static final long serialVersionUID = 1L;
+
+		public FakeServlet(){}
     }
 
     @Test
@@ -36,7 +38,7 @@ public class TestCodeVisitorTest {
 
         //first construct a test case for the Generic method
         TestCase tc = new DefaultTestCase();
-        VariableReference servlet = TestFactory.getInstance().addConstructor(tc,
+        TestFactory.getInstance().addConstructor(tc,
                 new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
         VariableReference genericClass = TestFactory.getInstance().addConstructor(tc,
                 new GenericConstructor(ClassWithGeneric.class.getDeclaredConstructor(), ClassWithGeneric.class), 1, 0);
@@ -61,7 +63,7 @@ public class TestCodeVisitorTest {
 
         //Finally, visit the test
         TestCodeVisitor visitor = new TestCodeVisitor();
-        tc.accept(visitor); //should not throw exception
+        tc.accept(visitor); //should not throw exception        
     }
 
     @Test
@@ -79,20 +81,21 @@ public class TestCodeVisitorTest {
 
         //Check if generic types were correctly analyzed/inferred
         Type[] types = gm.getParameterTypes();
+        
         Assert.assertEquals(1, types.length); //only 1 input
         Type type = types[0];
         Assert.assertNotNull(type);
-        WildcardTypeImpl wt = (WildcardTypeImpl) type;
+        WildcardTypeImpl wt = (WildcardTypeImpl) type;        
         Assert.assertEquals(0,wt.getLowerBounds().length);
         Assert.assertEquals(1,wt.getUpperBounds().length);
-
+        
         Class<?> upper = (Class<?>) wt.getUpperBounds()[0];
         Assert.assertEquals(Object.class,upper);
-
-
+        
         //Finally, visit the test
         TestCodeVisitor visitor = new TestCodeVisitor();
         tc.accept(visitor); //should not throw exception
+        System.out.println(visitor.getCode());
     }
 
     @Test
@@ -100,7 +103,7 @@ public class TestCodeVisitorTest {
 
         //first construct a test case for the Generic method
         TestCase tc = new DefaultTestCase();
-        VariableReference servlet = TestFactory.getInstance().addConstructor(tc,
+        TestFactory.getInstance().addConstructor(tc,
                 new GenericConstructor(FakeServlet.class.getDeclaredConstructor(), FakeServlet.class), 0, 0);
 
         Method m = TestCodeVisitorTest.class.getDeclaredMethod("foo", Servlet.class);
@@ -113,13 +116,12 @@ public class TestCodeVisitorTest {
         Assert.assertEquals(1, types.length); //only 1 input
         Type type = types[0];
         Assert.assertNotNull(type);
-        WildcardTypeImpl wt = (WildcardTypeImpl) type;
+        WildcardTypeImpl wt = (WildcardTypeImpl) type;        
         Assert.assertEquals(0,wt.getLowerBounds().length);
         Assert.assertEquals(1,wt.getUpperBounds().length);
-
+        
         Class<?> upper = (Class<?>) wt.getUpperBounds()[0];
-        Assert.assertEquals(Servlet.class,upper);
-
+        Assert.assertEquals(Object.class,upper);
 
         //Finally, visit the test
         TestCodeVisitor visitor = new TestCodeVisitor();

@@ -122,7 +122,8 @@ public class EnvironmentDataTest extends SystemTest {
 		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
-		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>(fitness);
+		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
+		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);
 		System.out.println("Fitness: "+fitness.getFitness(suite));
 		System.out.println("Test suite: "+suite);

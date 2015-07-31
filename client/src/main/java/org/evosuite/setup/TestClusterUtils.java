@@ -21,6 +21,7 @@ public class TestClusterUtils {
 
 	/**
 	 * Determine if this class contains JUnit tests
+	 * @deprecated use {@code org.evosuite.junit.CoverageAnalysis.isTest(Class<?> cls)}
 	 *
 	 * @param className
 	 * @return

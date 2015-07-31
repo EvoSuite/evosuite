@@ -31,6 +31,8 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.symbolic.BranchCondition;
@@ -60,7 +62,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class TestSuiteDSE extends TestSuiteLocalSearch {
+public class TestSuiteDSE  {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(TestSuiteDSE.class);
@@ -76,6 +78,8 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 	public static int success = 0;
 	/** Constant <code>failed=0</code> */
 	public static int failed = 0;
+	
+	private LocalSearchObjective<TestSuiteChromosome> objective;
 
 	// private final TestSuiteFitnessFunction fitness;
 
@@ -129,7 +133,8 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 	 *            a {@link org.evosuite.testsuite.TestSuiteFitnessFunction}
 	 *            object.
 	 */
-	public TestSuiteDSE() {
+	public TestSuiteDSE(LocalSearchObjective<TestSuiteChromosome> objective) {
+		this.objective = objective;
 		if (Properties.DSE_RANK_BRANCH_CONDITIONS) {
 			this.unsolvedBranchConditions = new PriorityQueue<TestBranchPair>();
 		} else {
@@ -491,29 +496,31 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 		variables.addAll(expr.getVariables());
 	}
 
-	@Override
-	public boolean doSearch(TestSuiteChromosome individual,
-			LocalSearchObjective<TestSuiteChromosome> objective) {
-		return applyDSE(individual,
-				(TestSuiteFitnessFunction) objective.getFitnessFunction());
+	private double getFitness(TestSuiteChromosome suite) {
+		for(FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
+			TestSuiteFitnessFunction tff = (TestSuiteFitnessFunction)ff;
+			tff.getFitness(suite);
+		}
+		return suite.getFitness();
 	}
-
+	
 	/**
 	 * Attempt to negate individual branches until budget is used up, or there
 	 * are no further branches to negate
 	 * 
 	 * @param individual
 	 */
-	public boolean applyDSE(TestSuiteChromosome individual,
-			TestSuiteFitnessFunction fitness) {
+	public boolean applyDSE(TestSuiteChromosome individual) {
 		logger.info("[DSE] Current test suite: " + individual.toString());
 
 		boolean wasSuccess = false;
-		TestSuiteChromosome expandedTests = expandTestSuite(individual);
+		// expansion already happens as part of LS
+		//TestSuiteChromosome expandedTests = expandTestSuite(individual);
+		TestSuiteChromosome expandedTests = individual.clone();
 		createPathConstraints(expandedTests);
-		fitness.getFitness(expandedTests);
+		//fitness.getFitness(expandedTests);
 
-		double originalFitness = individual.getFitness(fitness);
+		double originalFitness = getFitness(individual);
 
 		while (hasNextBranchCondition()
 				&& !LocalSearchBudget.getInstance().isFinished()) {
@@ -539,9 +546,8 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 					wasSuccess = true;
 				} else {
 
-					if (fitness.getFitness(expandedTests) < originalFitness) {
-						logger.info("New test improves fitness to {}",
-								expandedTests.getFitness(fitness));
+					if (getFitness(expandedTests) < originalFitness) {
+						logger.info("New test improves fitness to {}", getFitness(expandedTests));
 						DSEStats.reportNewTestUseful();
 						wasSuccess = true;
 
@@ -549,7 +555,7 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 						updatePathConstraints(newTestChromosome);
 						calculateUncoveredBranches(newTestChromosome);
 						individual.addTest(newTest);
-						originalFitness = expandedTests.getFitness(fitness);
+						originalFitness = getFitness(expandedTests);
 						// TODO: Cancel on fitness 0 - would need to know if
 						// ZeroFitness is a stopping condition
 					} else {
@@ -566,7 +572,7 @@ public class TestSuiteDSE extends TestSuiteLocalSearch {
 			}
 		}
 		logger.info("Finished DSE");
-		fitness.getFitness(individual);
+		getFitness(individual); // Ensure fitness values are up to date.
 		LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
 
 		return wasSuccess;

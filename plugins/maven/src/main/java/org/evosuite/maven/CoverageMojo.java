@@ -1,11 +1,11 @@
 package org.evosuite.maven;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -17,6 +17,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.eclipse.aether.RepositorySystemSession;
 import org.evosuite.maven.util.EvoSuiteRunner;
+import org.evosuite.maven.util.ProjectUtils;
 
 /**
  * Execute the manually written test suites (usually located under src/test/java)
@@ -50,89 +51,51 @@ public class CoverageMojo extends AbstractMojo {
 	private String criterion;
 
 	/**
+	 * Maximum seconds allowed
+	 */
+	@Parameter( property = "global_timeout", defaultValue = "120" )
+	private int global_timeout;
+
+	/**
 	 * 
 	 */
-	@Parameter( property = "output_variables", defaultValue = "TARGET_CLASS,criterion,Coverage,Total_Goals,Covered_Goals,CoverageBitString" )
+	@Parameter( property = "output_variables", defaultValue = "TARGET_CLASS,criterion,Coverage,Total_Goals,Covered_Goals"
+															+ ",LineCoverage,LineCoverageBitString"
+															+ ",BranchCoverage,BranchCoverageBitString"
+															+ ",CBranchCoverage,CBranchCoverageBitString"
+															+ ",WeakMutationScore,WeakMutationCoverageBitString"
+															+ ",MethodTraceCoverage,MethodTraceCoverageBitString" )
 	private String output_variables;
 
+	/**
+	 * A colon(:) separated list of JUnit suites to execute. Can be a prefix (i.e., package name),
+	 * a directory, a jar file, or the full name of a JUnit suite.
+	 */
+	@Parameter( property = "junit" )
+	private String junit;
+
 	@Override
-	public void execute() throws MojoExecutionException,MojoFailureException {
+	public void execute() throws MojoExecutionException, MojoFailureException {
 
 		getLog().info("Going to measure the coverage of manually written test cases with EvoSuite");
 
-		String junit = null;
-		String target = null;
-		String cp = null;
+		List<String> target = new ArrayList<String>();
+		Set<String> cp = new LinkedHashSet<String>();
 
-		try {
-			// Compile elements (i.e., classes under /src/main/java)
-			for (String element : this.project.getCompileClasspathElements()) {
+		// Get compile elements (i.e., classes under /target/classes)
+		target.addAll(ProjectUtils.getCompileClasspathElements(this.project));
 
-				if (element.endsWith(".jar")) { // we only target what has been compiled to a folder
-					continue;
-				}
+		// Get JUnit elements (i.e., classes under /target/test-classes) and compiled
+		// elements (i.e., classes under /target/classes)
+		cp.addAll(ProjectUtils.getTestClasspathElements(this.project));
 
-				File file = new File(element);
-				if (!file.exists()) {
-					/*
-					 * don't add to target an element that does not exist
-					 */
-					continue;
-				}
+		// Get project's dependencies
+		cp.addAll(ProjectUtils.getDependencyPathElements(this.project));
 
-				if (target == null) {
-					target = element;
-				} else {
-					target = target + File.pathSeparator + element;
-				}
-			}
-			// JUnit elements (i.e., classes under /src/test/java)
-			for (String element : this.project.getTestClasspathElements()) {
+		// Get runtime elements
+		cp.addAll(ProjectUtils.getRuntimeClasspathElements(this.project));
 
-				if (element.endsWith(".jar")) {  // we only target what has been compiled to a folder
-					continue;
-				}
-				if (target.contains(element)) { // we don't want to also consider classes from /src/main/java
-					continue;
-				}
-
-				File file = new File(element);
-				if (!file.exists()) {
-					/*
-					 * don't add to target an element that does not exist
-					 */
-					continue;
-				}
-
-				if (junit == null) {
-					junit = element;
-				} else {
-					junit = junit + File.pathSeparator + element;
-				}
-			}
-			// Runtime elements
-			for (String element : this.project.getRuntimeClasspathElements()) {
-
-				File file = new File(element);
-				if (!file.exists()) {
-					/*
-					 * don't add to CP an element that does not exist
-					 */
-					continue;
-				}
-
-				if (cp == null) {
-					cp = element;
-				} else {
-					cp = cp + File.pathSeparator + element;
-				}
-			}
-		} catch (DependencyResolutionRequiredException e) {
-			getLog().error("Error: " + e.getMessage(), e);
-			return ;
-		}
-
-		if (junit == null || target == null || cp == null){
+		if (target.isEmpty() || cp.isEmpty()) {
 			getLog().info("Nothing to measure coverage!");
 			return ;
 		}
@@ -140,10 +103,26 @@ public class CoverageMojo extends AbstractMojo {
 		List<String> params = new ArrayList<>();
 		params.add("-measureCoverage");
 		params.add("-target");
-		params.add(target);
-		params.add("-DCP=" + cp + File.pathSeparator + junit);
-		params.add("-Dcriterion="+criterion);
-		params.add("-Doutput_variables="+output_variables);
+		params.add(ProjectUtils.toClasspathString(target));
+		params.add("-DCP=" + ProjectUtils.toClasspathString(cp));
+		if (this.junit != null) {
+			params.add("-Djunit="+this.junit);
+		}
+
+		params.add("-Dcriterion="+this.criterion);
+		params.add("-Doutput_variables="+this.output_variables);
+		params.add("-Dglobal_timeout="+this.global_timeout);
+		// in theory should be safe to execute source-code
+		params.add("-Dsandbox=false");
+		params.add("-Dvirtual_fs=false");
+		params.add("-Dvirtual_net=false");
+		params.add("-Dreplace_calls=false");
+		params.add("-Dreplace_system_in=false");
+
+		getLog().info("Params:");
+		for (String s : params) {
+			getLog().info("  " + s);
+		}
 
 		EvoSuiteRunner runner = new EvoSuiteRunner(getLog(), this.artifacts, this.projectBuilder, this.repoSession);
 		runner.registerShutDownHook();

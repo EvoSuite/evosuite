@@ -219,6 +219,26 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	public boolean isStatic() {
 		return Modifier.isStatic(method.getModifiers());
 	}
+	
+	public boolean isOverloaded() {
+		String methodName = getName();
+		Class<?> declaringClass = method.getDeclaringClass();
+		try {
+			for(java.lang.reflect.Method otherMethod : declaringClass.getMethods()) {
+				if(otherMethod.equals(method))
+					continue;
+				
+				if(otherMethod.getName().equals(methodName)) {
+					return true;
+				}
+			}
+		} catch (SecurityException e) {
+		//} catch (NoSuchMethodException e) {
+		}
+
+		return false;
+	}
+
 
 	public boolean isOverloaded(List<VariableReference> parameters) {
 		String methodName = getName();
@@ -239,12 +259,23 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 			return false;
 		}
 		try {
-			java.lang.reflect.Method otherMethod = declaringClass.getMethod(methodName,
-			                                                                parameterTypes);
-			if (otherMethod != null)
-				return true;
+			for(java.lang.reflect.Method otherMethod : declaringClass.getMethods()) {
+				if(otherMethod.equals(method))
+					continue;
+				
+				if(otherMethod.getName().equals(methodName)) {
+					if(!Arrays.equals(otherMethod.getParameterTypes(), parameterTypes)) {
+						return true;
+					}
+				}
+			}
+//			java.lang.reflect.Method otherMethod = declaringClass.getMethod(methodName,
+//			                                                                parameterTypes);
+//			if (otherMethod != null && !otherMethod.equals(method)) {
+//				return true;
+//			}
 		} catch (SecurityException e) {
-		} catch (NoSuchMethodException e) {
+		//} catch (NoSuchMethodException e) {
 		}
 
 		return false;
