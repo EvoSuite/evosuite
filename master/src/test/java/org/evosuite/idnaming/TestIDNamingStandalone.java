@@ -7,6 +7,8 @@ import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.coverage.output.OutputCoverageGoal;
+import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.idNaming.TestNameGenerator;
@@ -48,11 +50,15 @@ public class TestIDNamingStandalone {
         TestFitnessFunction goal6 = new BranchCoverageTestFitness(new BranchCoverageGoal(br2, true, "com.examples.with.different.packagename.idnaming.SimpleIdNaming", "foo(I)V", 16));
         TestFitnessFunction goal7 = new BranchCoverageTestFitness(new BranchCoverageGoal(br2, false, "com.examples.with.different.packagename.idnaming.SimpleIdNaming", "foo(I)V", 16));
 
+        TestFitnessFunction goal8 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.SimpleIdNaming", "isPositive(I)Z","Z","true"));
+        TestFitnessFunction goal9 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.SimpleIdNaming", "isPositive(I)Z","Z","false"));
+
         DefaultTestCase test1 = new DefaultTestCase();
         test1.addCoveredGoal(goal1);
         test1.addCoveredGoal(goal2);
         test1.addCoveredGoal(goal4);
         test1.addCoveredGoal(goal6);
+        test1.addCoveredGoal(goal8);
 
         DefaultTestCase test2 = new DefaultTestCase();
         test2.addCoveredGoal(goal1);
@@ -60,6 +66,7 @@ public class TestIDNamingStandalone {
         test2.addCoveredGoal(goal3);
         test2.addCoveredGoal(goal5);
         test2.addCoveredGoal(goal7);
+        test2.addCoveredGoal(goal9);
 
         ArrayList<TestCase> testCases = new ArrayList<TestCase>();
         testCases.add(test1);
