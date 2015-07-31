@@ -1,9 +1,11 @@
 package org.evosuite.regression;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
@@ -224,8 +226,8 @@ public class RegressionAssertionCounter {
 				totalCount += exDiff;
 				RegressionSearchListener.exceptionDiff += exDiff;
 
-				// The following ugly code adds exception diff comments
-				if (!removeAssertions)
+				// add exception diff comments
+				if (false && !removeAssertions)
 					addExceptionAssertionComments(regressionTest,
 							result1.getCopyOfExceptionMapping(), 
 							result2.getCopyOfExceptionMapping());
@@ -321,8 +323,13 @@ public class RegressionAssertionCounter {
 							.getMessage();
 					int diffIndex = StringUtils.indexOfDifference(origExceptionMessage, regExceptionMessage);
 					if(diffIndex>0){
-						if(origExceptionMessage.charAt(diffIndex-1) == '@')
+						if(origExceptionMessage.charAt(diffIndex-1) == '@'){
+							originalExceptionMapping.remove(origException
+									.getKey());
+							regressionExceptionMapping.remove(origException
+									.getKey());
 							skip = true;
+						}
 					}
 				}
 				
@@ -349,7 +356,8 @@ public class RegressionAssertionCounter {
 		return exDiff;
 	}
 
-	private static void addExceptionAssertionComments(
+
+	public static void addExceptionAssertionComments(
 			RegressionTestChromosome regressionTest,
 			Map<Integer, Throwable> originalExceptionMapping,
 			Map<Integer, Throwable> regressionExceptionMapping) {
@@ -357,11 +365,11 @@ public class RegressionAssertionCounter {
 				.entrySet()) {
 			if (!regressionExceptionMapping.containsKey(origException
 					.getKey())) {
-				logger.warn(
+				/*logger.warn(
 						"Test with exception \"{}\" was: \n{}\n---------\nException:\n{}",
 						origException.getValue().getMessage(),
 						regressionTest.getTheTest().getTestCase(),
-						origException.getValue().toString());
+						origException.getValue().toString());*/
 				if (regressionTest.getTheTest().getTestCase()
 						.hasStatement(origException.getKey())
 						&& !regressionTest.getTheTest().getTestCase()
@@ -430,11 +438,11 @@ public class RegressionAssertionCounter {
 					&& !regressionTest.getTheTest().getTestCase()
 							.getStatement(regException.getKey())
 							.getComment().contains("original version")) {
-				logger.warn(
+				/*logger.warn(
 						"Regression Test with exception \"{}\" was: \n{}\n---------\nException:\n{}",
 						regException.getValue().getMessage(),
 						regressionTest.getTheTest().getTestCase(),
-						regException.getValue().toString());
+						regException.getValue().toString());*/
 				regressionTest
 						.getTheTest()
 						.getTestCase()

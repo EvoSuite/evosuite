@@ -183,30 +183,52 @@ public class RegressionSearchListener implements SearchListener {
 		RegressionSearchListener.lastOD = curOD;
 		lastAssertions = curAssertions;
 	}
+	
+	public static String lastLine = ""; 
+	
+	public static void flushLastLine(int assertions, int testCount, int testSize){
+		if (lastLine == "")
+			return;
+		
+		lastLine = lastLine.replace("ASSERTIONS", "" + assertions);
+		lastLine = lastLine.replaceFirst("^\r\n([\\d\\.]*),\\d*,\\d*", "\r\n$1," + testCount + "," + testSize);
+		try {
+			statsFileWriter.write(lastLine);
+			statsFileWriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	private void writeIterationLog(GeneticAlgorithm<?> algorithm,
 			char runState, RegressionTestSuiteChromosome ind,
 			int curAssertions, double curOD) throws IOException {
-		statsFileWriter.write(
-						"\r\n"
-								+ (ind).fitnessData
-								+ ","
-								+ ((isLastRun) ? (algorithm.getAge() + 1)
-										: algorithm.getAge())
-								+ ","
-								+ (System.currentTimeMillis() - startTime)
-								+ ","
-								+ curAssertions
-								+ ","
-								+ runState
-								+ ((isLastRun) ? ("," + (testExecutionTime + 1)
-										/ 1000000 + "," + (assertionTime + 1)
-										/ 1000000 + "," + (coverageTime + 1)
-										/ 1000000 + ","
-										+ (ObjectDistanceTime + 1) / 1000000
-										+ "," + (branchDistanceTime + 1)
-										/ 1000000 + "," + (odCollectionTime + 1) / 1000000)
-										: ",,,,,,"));
+		
+		lastLine = "\r\n"
+				+ (ind).fitnessData
+				+ ","
+				+ ((isLastRun) ? (algorithm.getAge() + 1)
+						: algorithm.getAge())
+				+ ","
+				+ (System.currentTimeMillis() - startTime)
+				+ ","
+				+ ((isLastRun && Properties.MINIMIZE)?"ASSERTIONS":curAssertions)
+				+ ","
+				+ runState
+				+ ((isLastRun) ? ("," + (testExecutionTime + 1)
+						/ 1000000 + "," + (assertionTime + 1)
+						/ 1000000 + "," + (coverageTime + 1)
+						/ 1000000 + ","
+						+ (ObjectDistanceTime + 1) / 1000000
+						+ "," + (branchDistanceTime + 1)
+						/ 1000000 + "," + (odCollectionTime + 1) / 1000000)
+						: ",,,,,,");
+		
+		if(!Properties.MINIMIZE || !isLastRun){
+			statsFileWriter.write(lastLine);
+			lastLine = "";
+		}
 
 		if (!isFirstRun) {
 			if (lastAssertions < curAssertions && lastAssertions == 0
@@ -330,8 +352,10 @@ public class RegressionSearchListener implements SearchListener {
 				e.printStackTrace();
 			}
 		}
+		
 		try {
-			statsFileWriter.close();
+			if(!Properties.MINIMIZE)
+				statsFileWriter.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

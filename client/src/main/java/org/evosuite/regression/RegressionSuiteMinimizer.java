@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.TimeController;
@@ -41,6 +42,8 @@ public class RegressionSuiteMinimizer {
 				.trackOutputVariable(RuntimeVariable.Result_Length,
 						suite.totalLengthOfTestCases());
 
+		logger.warn("Going to minimize test suite. Length: {} ", suite.totalLengthOfTestCases());
+		
 		RegressionTestSuiteChromosome regressionSuite = new RegressionTestSuiteChromosome();
 		regressionSuite.addTests(suite.getTestChromosomes());
 
@@ -50,11 +53,17 @@ public class RegressionSuiteMinimizer {
 		executeSuite(regressionSuite);
 
 		removeDuplicateAssertions(regressionSuite);
+		
+		removeDuplicateExceptions(regressionSuite);
 
 		removePassingTests(regressionSuite);
 
 		minimizeSuite(regressionSuite);
 		
+		executeSuite(regressionSuite);
+		
+		removePassingTests(regressionSuite);
+				
 		sendStats(regressionSuite);
 
 		// Adding tests back to the original test suite
@@ -63,16 +72,30 @@ public class RegressionSuiteMinimizer {
 			RegressionTestChromosome rtc = (RegressionTestChromosome) t;
 			suite.addTest(rtc.getTheTest());
 		}
+		
+		logger.warn("Minimized Length: {} ", suite.totalLengthOfTestCases());
 	}
 
 	private void sendStats(RegressionTestSuiteChromosome regressionSuite) {
 		int assCount = 0;
-		for (TestChromosome chromosome : regressionSuite.getTestChromosomes()) {
-			RegressionTestChromosome c = (RegressionTestChromosome) chromosome;
-			assCount += c.getTheTest().getTestCase().getAssertions().size();
-		}
+		/*int i=0;
+		for (TestChromosome c : regressionSuite.getTestChromosomes()) {
+			RegressionTestChromosome test = (RegressionTestChromosome) c;
+			assCount += test.assertionCount;
+			if(test.exAssertionCount==0)
+				continue;
+			logger.warn("adding exception comment for test{}:\n{}",i,test.getTheTest());
+			//logger.wran("test{}")
+			ExecutionResult resultA = test.getLastExecutionResult();
+			ExecutionResult resultB = test.getLastRegressionExecutionResult();
+			logger.warn("map1:\n{}map2:{}\n",resultA.getCopyOfExceptionMapping(), resultB.getCopyOfExceptionMapping());
+			RegressionAssertionCounter.addExceptionAssertionComments(test, resultA.getCopyOfExceptionMapping(), resultB.getCopyOfExceptionMapping());
+			i++;
+		}*/
+		assCount = numFailingAssertions(regressionSuite); 
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generated_Assertions, assCount);
 		
+		RegressionSearchListener.flushLastLine(assCount, regressionSuite.size(), regressionSuite.totalLengthOfTestCases());
 	}
 
 	private void executeSuite(RegressionTestSuiteChromosome regressionSuite) {
@@ -106,12 +129,16 @@ public class RegressionSuiteMinimizer {
 	private void removeDuplicateAssertions(RegressionTestSuiteChromosome suite) {
 		Iterator<TestChromosome> it = suite.getTestChromosomes().iterator();
 		Map<String, List<String>> uniqueAssertions = new HashMap<String, List<String>>();
+		//int i = -1;
 		while (it.hasNext()) {
+			//i++;
 			RegressionTestChromosome test = (RegressionTestChromosome) it
 					.next();
 			boolean changed = false;
+			boolean hadAssertion = false;
 			Iterator<Assertion> assertions = test.getTheTest().getTestCase()
 					.getAssertions().iterator();
+			// keep track of new unique assertions, and if not unique, remove the assertion
 			while (assertions.hasNext()) {
 				Assertion a = assertions.next();
 				String aClass = a.getClass().getSimpleName();
@@ -141,31 +168,172 @@ public class RegressionSuiteMinimizer {
 				}
 				aTypes.add(aType);
 				uniqueAssertions.put(aClass, aTypes);
+				hadAssertion = true;
 			}
 			
-			//TODO: unique exceptions
-			/*ExecutionResult resultA = test.getLastExecutionResult();
-			ExecutionResult resultB = test.getLastRegressionExecutionResult();
-
-			double exDiff = RegressionAssertionCounter.compareExceptionDiffs(
-					resultA.getCopyOfExceptionMapping(),
-					resultB.getCopyOfExceptionMapping());
-			
-			if(exDiff>0){
-				Iterator<Throwable> throwables =resultA.getCopyOfExceptionMapping().values().iterator();
-				while(throwables.hasNext()){
-					Throwable t = throwables.next();
-					
-				}
-			}*/
 			
 			if (changed) {
 				test.updateClassloader();
-				executeTest(test);
 			}
 		}
 		if (uniqueAssertions.size() > 0)
 			logger.warn("unique assertions: {}", uniqueAssertions);
+	}
+	
+	
+	
+	
+	private void removeDuplicateExceptions(RegressionTestSuiteChromosome suite) {
+		
+		Set<String> uniqueExceptions = new HashSet<String>();
+		Map<String, Integer> exceptionStatementMapping = new HashMap<String, Integer>(); 
+		List<TestChromosome> chromosomes = suite.getTestChromosomes();
+		
+		for(int i=0; i<chromosomes.size();i++){
+			
+			RegressionTestChromosome test = (RegressionTestChromosome) chromosomes.get(i);
+			
+			boolean changed = false;
+			boolean hadAssertion = test.getTheTest().getTestCase()
+					.getAssertions().size()>0;
+
+					
+			ExecutionResult resultA = test.getLastExecutionResult();
+			ExecutionResult resultB = test.getLastRegressionExecutionResult();
+			
+			if(resultA==null || resultB==null){
+				executeTest(test);
+				if(resultA==null || resultB==null)
+					continue;
+			}
+			
+			Map<Integer, Throwable> exceptionMapA = resultA.getCopyOfExceptionMapping();
+			Map<Integer, Throwable> exceptionMapB = resultB.getCopyOfExceptionMapping();
+			
+			//logger.warn("Test{} - had exceptions? {} {} - {} {}",i, resultA.noThrownExceptions(), resultB.noThrownExceptions(), exceptionMapA.size(), exceptionMapB.size());
+			if (!resultA.noThrownExceptions() || !resultB.noThrownExceptions()) {
+				double exDiff = RegressionAssertionCounter.compareExceptionDiffs(
+						exceptionMapA,
+						exceptionMapB);
+				logger.warn("Test{} - Exdiff: {}",i, exDiff);
+				if(exDiff>0){
+					/*
+					 * Three scenarios:
+					 *  1. Same exception, different messages
+					 *  2. Different exception in A	
+					 *  3. Different exception in B
+					 */
+					for (Entry<Integer, Throwable> ex : exceptionMapA
+							.entrySet()) {
+						String exception = simpleExceptionName(test, ex.getKey(), ex.getValue());
+						
+						Throwable exB = exceptionMapB.get(ex.getKey());
+						if(exB != null){
+							String exceptionB = simpleExceptionName(test, ex.getKey(), exB);
+						
+							if(exception.equals(exceptionB))
+								exceptionMapB.remove(ex.getKey());
+						}
+						logger.warn("Test{}, uniqueExceptions: {}", i, uniqueExceptions);
+						logger.warn("checking exception: {} at {}", exception, ex.getKey());
+						
+						
+						if (uniqueExceptions.contains(exception) && exceptionStatementMapping.get(exception)!=ex.getKey() && !hadAssertion) {
+							TestChromosome originalTestChromosome = (TestChromosome) test
+									.getTheTest().clone();
+							try {
+								TestFactory testFactory = TestFactory
+										.getInstance();
+								testFactory.deleteStatementGracefully(test
+										.getTheTest().getTestCase(), ex
+										.getKey());
+								test.getTheTest().setChanged(true);
+								logger.warn("removed exception throwing line {}", ex.getKey());
+							} catch (ConstructionFailedException e) {
+								test.getTheTest().setChanged(false);
+								test.getTheTest().setTestCase(
+										originalTestChromosome.getTestCase());
+								logger.error("Deleting failed");
+								continue;
+							}
+							changed = true;
+						} else {
+							uniqueExceptions.add(exception);
+							exceptionStatementMapping.put(exception,ex.getKey());
+						}
+					}
+					
+					for (Entry<Integer, Throwable> ex : exceptionMapB
+							.entrySet()) {
+						String exception = simpleExceptionName(test, ex.getKey(), ex.getValue());
+						
+						logger.warn("Test{}, uniqueExceptions: {}", i,  uniqueExceptions);
+						logger.warn("checking exceptionB: {} at {}", exception, ex.getKey());
+						if (uniqueExceptions.contains(exception)  && 
+								exceptionStatementMapping.get(exception)!=ex.getKey() && !hadAssertion && 
+								test.getTheTest().getTestCase().hasStatement(ex.getKey())) {
+							TestChromosome originalTestChromosome = (TestChromosome) test
+									.getTheTest().clone();
+							try {
+								TestFactory testFactory = TestFactory
+										.getInstance();
+								logger.warn("removing statementB: {}", test.getTheTest().getTestCase().getStatement(ex.getKey()));
+								testFactory.deleteStatementGracefully(test
+										.getTheTest().getTestCase(), ex
+										.getKey());
+								test.getTheTest().setChanged(true);
+								logger.warn("removed exceptionB throwing line {}", ex.getKey());
+							} catch (ConstructionFailedException e) {
+								test.getTheTest().setChanged(false);
+								test.getTheTest().setTestCase(
+										originalTestChromosome.getTestCase());
+								logger.error("Deleting failed");
+								continue;
+							}
+							changed = true;
+						} else {
+							uniqueExceptions.add(exception);
+							exceptionStatementMapping.put(exception,ex.getKey());
+						}
+					}
+				}
+			}
+			
+			
+			if (changed) {
+				test.updateClassloader();
+				executeTest(test);
+				i--;
+			}
+		}
+
+		if(uniqueExceptions.size()>0)
+			logger.warn("unique exceptions: {}", uniqueExceptions);
+	}
+
+	
+	
+	
+	
+	
+
+	/**
+	 * Get a simple (and unique looking) exception name
+	 */
+	public static String simpleExceptionName(RegressionTestChromosome test,
+			Integer statementPos,
+			Throwable ex) {
+		if (ex == null)
+			return "";
+		String exception = ex.getClass().getSimpleName();
+		if(test.getTheTest().getTestCase().hasStatement(statementPos)){			
+			Statement exThrowingStatement = test.getTheTest().getTestCase().getStatement(statementPos);
+			if(exThrowingStatement instanceof MethodStatement){
+				String exMethodcall = ((MethodStatement) exThrowingStatement).getMethod().getName();
+				exception = exMethodcall + ":" + exception;
+			}
+		}
+		return exception;
 	}
 
 	private int numFailingAssertions(RegressionTestSuiteChromosome suite) {
@@ -218,12 +386,30 @@ public class RegressionSuiteMinimizer {
 			}
 		}
 		
-		test.assertionCount = count;
+		int exDiffCount = 0;
 
-		count += (int) RegressionAssertionCounter.compareExceptionDiffs(
-				resultA.getCopyOfExceptionMapping(),
-				resultB.getCopyOfExceptionMapping());
+		if(resultA!=null && resultB!=null){
+			exDiffCount = (int) RegressionAssertionCounter.compareExceptionDiffs(
+					resultA.getCopyOfExceptionMapping(),
+					resultB.getCopyOfExceptionMapping());
+			//logger.warn("exDiffCount: {}: \nmap1:{}\nmap2:{}\n",exDiffCount,resultA.getCopyOfExceptionMapping(), resultB.getCopyOfExceptionMapping());
+			count += exDiffCount;
+			//logger.warn("adding exception comment for test:\n{}",test.getTheTest());
+			//logger.wran("test{}")
+			
+			if(exDiffCount>0 && !test.exCommentsAdded){
+				//logger.warn("Adding Exception Comments for test: \nmap1:{}\nmap2:{}\n",resultA.getCopyOfExceptionMapping(), resultB.getCopyOfExceptionMapping());
+				RegressionAssertionCounter.addExceptionAssertionComments(test, resultA.getCopyOfExceptionMapping(), resultB.getCopyOfExceptionMapping());
+				test.exCommentsAdded = true;
+			}
+		}
+		else
+			logger.error("resultA: {} | resultB: {}", resultA, resultB);
 		// logger.warn("{} assertions", count);
+		
+		//test.assertionCount = count;
+		//test.exAssertionCount = exDiffCount;
+		
 		return count;
 	}
 
@@ -236,18 +422,20 @@ public class RegressionSuiteMinimizer {
 					.next();
 
 			if (numFailingAssertions(test) == 0) {
-				logger.warn("Removing test {}: no assertions", i);
+				logger.debug("Removing test {}: no assertions", (i-1));
 				it.remove();
 			}
 		}
 	}
 
 	private void minimizeSuite(RegressionTestSuiteChromosome suite) {
+		//logger.warn("minimizeSuite:\n{}", suite);
 		Iterator<TestChromosome> it = suite.getTestChromosomes().iterator();
+		int testCount = 0;
 		while (it.hasNext()) {
 			if (isTimeoutReached())
 				break;
-
+			//logger.warn("##########################   TEST{}   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%", testCount);
 			RegressionTestChromosome test = (RegressionTestChromosome) it
 					.next();
 
@@ -257,13 +445,21 @@ public class RegressionSuiteMinimizer {
 
 				logger.debug("Current size: " + suite.size() + "/"
 						+ suite.totalLengthOfTestCases());
-				logger.debug("Deleting statement "
+				logger.debug("Deleting statement {} "
 						+ test.getTheTest().getTestCase().getStatement(i)
-								.getCode() + " from test");
+								.getCode() + " from test",i);
 				TestChromosome originalTestChromosome = (TestChromosome) test
 						.getTheTest().clone();
+				
 
 				executeTest(test);
+				/*if(test.getLastExecutionResult()==null || test.getLastRegressionExecutionResult()==null){
+					logger.error("test execution result was null");
+					//continue;
+				}*/
+				//originalTestChromosome.setLastExecutionResult(test.getLastExecutionResult());
+				
+				
 				int preRemovalAssertions = numFailingAssertions(test);
 
 				try {
@@ -280,14 +476,15 @@ public class RegressionSuiteMinimizer {
 				}
 
 				RegressionTestChromosome rtc = new RegressionTestChromosome();
-				rtc.setTest(test.getTheTest());
-				rtc.updateClassloader();
+				rtc.setTest((TestChromosome) test.getTheTest().clone());
+				//rtc.updateClassloader();
 
 				executeTest(rtc);
 
 				int postRemovalAssertions = numFailingAssertions(rtc);
-
+				//logger.warn("Pre-Removal Assertions: {} | Post-Removal Assertions: {}", preRemovalAssertions, postRemovalAssertions);
 				if (postRemovalAssertions == preRemovalAssertions) {
+					test.updateClassloader();
 					continue; // the change had no effect
 				} else if (postRemovalAssertions != preRemovalAssertions) {
 					// Restore previous state
@@ -303,7 +500,10 @@ public class RegressionSuiteMinimizer {
 			}
 
 			test.updateClassloader();
-
+			if(test.getTheTest().isChanged()){
+				executeTest(test);
+			}
+			testCount++;
 		}
 	}
 
