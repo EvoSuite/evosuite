@@ -1,8 +1,6 @@
 package org.evosuite.idNaming;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +21,9 @@ public class TestNameGenerator {
 	public static List<String> testCase = new ArrayList<String>();
 	public static List<TestCase> testCase1 = new ArrayList<TestCase>();
 
+	// this could be a mapping from test case to *list* of candidate names
+	public static Map<TestCase,String> testNames = new HashMap<TestCase,String>();
+
 	public static String checkExeptionInTest(String tc, String testName){		
 		String methodName=testName;
 		String typeOfException="";
@@ -40,7 +41,8 @@ public class TestNameGenerator {
 			return methodName;
 		}	
 	}	
-	public  static String generateTestName(String targetMethod, TestCase tc, ExecutionResult result, Integer num) {
+
+	/*public  static String generateTestName(String targetMethod, TestCase tc, ExecutionResult result, Integer num) {
 			String testName = "";
 			//goal set 
 			Set<? extends TestFitnessFunction> goals = tc.getCoveredGoals();
@@ -78,18 +80,18 @@ public class TestNameGenerator {
 			methodNames.add(testName);
 		}		
 		return testName;
-	}
+	}*/
 	
-	public  static String generateTestName1(String targetMethod, TestCase tc, ExecutionResult result, Integer num) {
-		String testName = "";
-		//goal set 
-		Set<? extends TestFitnessFunction> goals = tc.getCoveredGoals();
-		
-		testName =goals.toString();
+    public  static String generateTestName1(String targetMethod, TestCase tc, ExecutionResult result, Integer num) {
+        String testName = "";
+        //goal set
+        Set<? extends TestFitnessFunction> goals = tc.getCoveredGoals();
+
+        testName =goals.toString();
 		String goalNames[]=testName.split(", ");
-		
+
 		testName="test";
-	
+
 		for(String goal: goalNames){				
 		/*	if(goal.contains("root-Branch")){
 				testName+="_"+goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("("));					
@@ -101,31 +103,31 @@ public class TestNameGenerator {
 				testName+="_With"+WordUtils.capitalize(goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("(")))+"(False)";
 			}*/
 			if(!goalNames[0].equals("[]")){
-				testName+="_"+goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("("));		
+				testName+="_"+goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("("));
 			}
 		}
-		
-		
+
+
 		testName = testName.replace("<","").replace(">","").replace("(","").replace(")","");
-	//	testName = testName + num;
+		//	testName = testName + num;
 		System.out.println(testName);
 		System.out.println(tc.toCode());
-	//check if the same name and test case is already traversed 
-	int tempCount=-1;
-	for(String test : testCase){
-		if(test.equals(tc.toCode())){
-			tempCount=200;
-			break;
+		//check if the same name and test case is already traversed
+		int tempCount=-1;
+		for(String test : testCase){
+			if(test.equals(tc.toCode())){
+				tempCount=200;
+				break;
+			}
 		}
-	}		
-	if(tempCount==-1){
-		testCase.add(tc.toCode());
-		testCase1.add(tc);
-		methodNames.add(testName);
-	}	
-	
-	return testName;
-}
+		if(tempCount==-1){
+			testCase.add(tc.toCode());
+			testCase1.add(tc);
+			methodNames.add(testName);
+		}
+
+		return testName;
+	}
 	public static String[] optimizeNames(){
 		String[] testNames=new String[methodNames.size()];
 		int i=0;		
@@ -157,7 +159,7 @@ public class TestNameGenerator {
 		return pos;
 	}
 
-	public static String translateBranch(String option){
+/*	public static String translateBranch(String option){
 		String translate="";
 		if(option.contains("IFGE")){
 			translate = "BranchGE";
@@ -207,7 +209,35 @@ public class TestNameGenerator {
 			}
 		}
 		return translate;
+	}*/
+
+
+	/**
+	 * Generates test names for all the test cases in the list
+	 *
+	 * @param testCases list of test cases
+	 * @param results list of execution results
+	 */
+	public static void generateAllTestNames(List<TestCase> testCases, List<ExecutionResult> results) {
+		for (int id = 0; id < testCases.size(); id++) {
+			TestCase tc = testCases.get(id);
+			ExecutionResult res = null; // results.get(id);
+			// find out target method
+			String targetMethod = getTargetMethod(tc,res);
+			// add test case name to mapping
+			testNames.put(tc,generateTestName1("targetM", tc, res, id)); // add new entry mapping tc to its name
+
+		}
 	}
-	
-	
+
+	/**
+	 * Infers the target Method Under Test
+	 *
+	 * @param tc test case
+	 * @param res execution result
+	 */
+	private static String getTargetMethod(TestCase tc, ExecutionResult res) {
+		// TODO
+		return "";
+	}
 }

@@ -17,28 +17,11 @@
  */
 package org.evosuite.idnaming;
 
-import com.examples.with.different.packagename.ClassWithPrivateNonStaticInnerClass;
-import com.examples.with.different.packagename.InfiniteLoops;
-import com.examples.with.different.packagename.TT_technique3_from_JSS09;
-import com.examples.with.different.packagename.XMLElement2;
-import com.examples.with.different.packagename.assertion.ArrayObjects;
-import com.examples.with.different.packagename.assertion.WrapperExample;
-import com.examples.with.different.packagename.continuous.BaseForSeeding;
-import com.examples.with.different.packagename.continuous.SomeBranches;
-import com.examples.with.different.packagename.gui.FontCUT;
 import com.examples.with.different.packagename.idnaming.SimpleIdNaming;
-import com.examples.with.different.packagename.purity.ImpureRandomness;
-import com.examples.with.different.packagename.sette.AnonymousClass;
-import com.examples.with.different.packagename.sette.L4_Collections;
-import com.examples.with.different.packagename.sette.SnippetInput;
 import com.examples.with.different.packagename.sette.SnippetInputContainer;
-import com.examples.with.different.packagename.stable.Base64;
-import com.examples.with.different.packagename.stable.DoubleArrayDefault;
-
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;

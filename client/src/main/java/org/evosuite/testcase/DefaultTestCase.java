@@ -136,6 +136,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 		// TODO: somehow adds the same goal more than once (fitnessfunction.equals()?)
 	}
 
+	public void addCoveredGoals(List<TestFitnessFunction> goals) {
+        coveredGoals.addAll(goals);
+	}
+
 	@Override
 	public boolean isGoalCovered(TestFitnessFunction goal){
 		return coveredGoals.contains(goal);

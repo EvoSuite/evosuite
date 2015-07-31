@@ -540,7 +540,7 @@ public class TestSuiteWriter implements Opcodes {
             }
             if (Properties.ID_NAMING) {
                 TestCase tc = testCases.get(id);
-                methodName = TestNameGenerator.generateTestName(targetMethod, tc, result, num);
+                methodName = TestNameGenerator.generateTestName1(targetMethod, tc, result, num);
             
                 
             } else {
