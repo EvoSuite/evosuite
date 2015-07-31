@@ -283,6 +283,9 @@ public class CoverageAnalysis {
         	case LINE:
         	case ONLYLINE:
         		return RuntimeVariable.LineCoverageBitString;
+        	case REGRESSION:
+        	case REGRESSIONTESTS:
+        		return null;
             default:
             	throw new RuntimeException("Criterion not supported: " + criterion);
         }
