@@ -359,38 +359,27 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 			}
 		}
 
-		try {
-			RegressionSearchListener
-			.statsFileWriter.write(
-							"\r\n"
-									+ "0,"
-									+ totalTestCount //suite.size()
-									+ ","
-									+ suite.totalLengthOfTestCases()
-									+ ",0,0,0,0,0,0,0," + executedStatemets
-									+ ","
-									+ (++simulatedAge)
-									+ ","
-									+ (System.currentTimeMillis() - RegressionSearchListener.startTime)
-									+ "," + numAssertions + "," + "L"
-									+ ",0,0,0,0,0,0");
-			RegressionSearchListener
-			.statsFileWriter.flush();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		RegressionSearchListener.lastLine = "\r\n"
+				+ "0,"
+				+ totalTestCount //suite.size()
+				+ ","
+				+ suite.totalLengthOfTestCases()
+				+ ",0,0,0,0,0,0,0," + executedStatemets
+				+ ","
+				+ (++simulatedAge)
+				+ ","
+				+ (System.currentTimeMillis() - RegressionSearchListener.startTime)
+				+ "," + "ASSERTIONS" + "," + "L"
+				+ ",0,0,0,0,0,0";
+		
+		if(!Properties.MINIMIZE)
+			RegressionSearchListener.flushLastLine(numAssertions,totalTestCount,suite.totalLengthOfTestCases());
+
 		// regressionMonitor.searchFinished(suiteGA);
 		LoggingUtils.getEvoLogger().warn("*** Random test generation finished.");
 		LoggingUtils.getEvoLogger().warn("*=*=*=* Total tests: {} | Tests with assertion: {}",
 				totalTestCount, usefulTestCount);
-		try {
-			RegressionSearchListener
-			.statsFileWriter.close();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		
 		//statistics.searchFinished(suiteGA);
 		zero_fitness.setFinished();
 

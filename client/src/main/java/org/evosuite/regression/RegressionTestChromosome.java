@@ -42,7 +42,10 @@ public class RegressionTestChromosome extends TestChromosome {
 
 	public Map<String, Map<Integer, String>> diversityMap = new HashMap<String, Map<Integer,String>>();
 
-	public int assertionCount = 0;
+	//public int assertionCount = 0;
+	//public int exAssertionCount = 0;
+
+	public boolean exCommentsAdded = false;
 	
 	public RegressionTestChromosome() {
 		// TODO Auto-generated constructor stub
@@ -84,6 +87,7 @@ public class RegressionTestChromosome extends TestChromosome {
 		copy.fitnessData = fitnessData;
 		copy.objDistance = objDistance;
 		copy.diversityMap.putAll(diversityMap);
+		copy.exCommentsAdded = exCommentsAdded;
 		return copy;
 	}
 
