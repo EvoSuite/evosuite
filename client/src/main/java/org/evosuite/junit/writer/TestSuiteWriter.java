@@ -539,8 +539,19 @@ public class TestSuiteWriter implements Opcodes {
                 testMethodNumber.put(targetMethod, 1);
             }
             if (Properties.ID_NAMING) {
-                TestCase tc = testCases.get(id);
-                methodName = TestNameGenerator.generateTestName1(targetMethod, tc, result, num);
+            	TestCase tc = testCases.get(id);
+                methodName = TestNameGenerator.generateTestName1("test", tc, result, number);           
+                if(flag == true){              	
+                	int pos = TestNameGenerator.getPos(methodName, methodPosition, tc.toCode());
+                	methodPosition.add(pos);
+                	String[] names= TestNameGenerator.optimizeNames();
+                //	String [] names=TestNameGenerator.methodNames.toArray(new String[0]);
+                //	List<TestCase> testCase = TestNameGenerator.testCase1;
+                	//names= CheckTestNameUniqueness.checkNames(names, testCase);
+                	methodName = names[pos];    
+                } else{
+                	 methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
+                }
             
                 
             } else {
