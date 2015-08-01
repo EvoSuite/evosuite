@@ -504,7 +504,7 @@ public class TestSuiteGenerator {
 					evosuiterTestDir.mkdirs();
 				}
 
-				String regressionTestName = RegressionSearchListener.statsID + "Test";
+				String regressionTestName = "T" + RegressionSearchListener.statsID + "Test";
 				
 				LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
 				// TODO: Unfortunate Hack to avoid makeDirectory() making nested dirs from the classpath.

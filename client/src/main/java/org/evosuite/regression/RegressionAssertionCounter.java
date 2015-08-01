@@ -333,6 +333,15 @@ public class RegressionAssertionCounter {
 					}
 				}
 				
+				// ignore security manager exceptions
+				if(!skip && origException.getValue().getMessage().contains("Security manager blocks")){
+					originalExceptionMapping.remove(origException
+							.getKey());
+					regressionExceptionMapping.remove(origException
+							.getKey());
+					skip = true;
+				}
+				
 				if (skip)
 					continue;
 				if (!regressionExceptionMapping
