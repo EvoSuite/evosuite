@@ -19,7 +19,17 @@ import java.util.stream.Collectors;
  */
 public class EvoInvocationListener implements InvocationListener {
 
-    private Map<String, MethodDescriptor> map = new LinkedHashMap<>();
+    private final Map<String, MethodDescriptor> map = new LinkedHashMap<>();
+
+    /**
+     * By default, we should not log events, otherwise we would end up
+     * logging also cases like "when(...)" which are set before a mock is used
+     */
+    private volatile boolean active = false;
+
+    public void activate(){
+        active = true;
+    }
 
     public List<MethodDescriptor> getViewOfMethodDescriptors(){
         return map.values().stream().collect(Collectors.toList());
@@ -27,6 +37,10 @@ public class EvoInvocationListener implements InvocationListener {
 
     @Override
     public void reportInvocation(MethodInvocationReport methodInvocationReport) {
+
+        if(! active){
+            return;
+        }
 
         DescribedInvocation di = methodInvocationReport.getInvocation();
         /*
