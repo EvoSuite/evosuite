@@ -36,6 +36,10 @@ public class EvoInvocationListenerTest {
         when(foo.parseString(any(), any(Object.class))).thenReturn(3);
         when(foo.parseString(any(), any(Foo.class))).thenReturn(4);
 
+        List<MethodDescriptor> list = listener.getViewOfMethodDescriptors();
+        Assert.assertEquals(0, list.size()); //not active yet
+        listener.activate();
+
         int res = foo.parseString("foo");
         Assert.assertEquals(1, res);
 
@@ -51,7 +55,7 @@ public class EvoInvocationListenerTest {
         res = foo.parseString("bar", (Foo) null);
         Assert.assertEquals(4, res);
 
-        List<MethodDescriptor> list = listener.getViewOfMethodDescriptors();
+        list = listener.getViewOfMethodDescriptors();
         //TODO: as it is now, in Mockito we cannot distinguish between overloaded methods with same cardinality
         Assert.assertEquals(2, list.size());
     }
