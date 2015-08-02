@@ -507,11 +507,8 @@ public class TestSuiteGenerator {
 				String regressionTestName = "T" + RegressionSearchListener.statsID + "Test";
 				
 				LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
-				// TODO: Unfortunate Hack to avoid makeDirectory() making nested dirs from the classpath.
-				String tmpClass = Properties.CLASS_PREFIX;
-				Properties.CLASS_PREFIX = "";
+
 				suite.writeTestSuite(regressionTestName, evosuiterTestDir.getName());
-				Properties.CLASS_PREFIX = tmpClass;
 			}
 		}
 		return TestGenerationResultBuilder.buildSuccessResult();
