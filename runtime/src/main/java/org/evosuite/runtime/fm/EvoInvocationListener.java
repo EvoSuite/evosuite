@@ -1,9 +1,11 @@
 package org.evosuite.runtime.fm;
 
+import org.mockito.internal.invocation.InvocationImpl;
 import org.mockito.invocation.DescribedInvocation;
 import org.mockito.listeners.InvocationListener;
 import org.mockito.listeners.MethodInvocationReport;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,7 +33,7 @@ public class EvoInvocationListener implements InvocationListener {
         active = true;
     }
 
-    public List<MethodDescriptor> getViewOfMethodDescriptors(){
+    public List<MethodDescriptor> getCopyOfMethodDescriptors(){
         return map.values().stream().collect(Collectors.toList());
     }
 
@@ -43,20 +45,44 @@ public class EvoInvocationListener implements InvocationListener {
         }
 
         DescribedInvocation di = methodInvocationReport.getInvocation();
-        /*
-            Current Mockito API seems quite limited. Here, to know what
-            was called, it looks like the only way is to parse the results
-            of toString.
-            We can identify primitive types and String, but likely not the
-            exact type of input objects. This is a problem if methods are overloaded
-            and having same number of input parameters :(
-         */
+        MethodDescriptor md = null;
+
+        if(di instanceof InvocationImpl){
+            InvocationImpl impl = (InvocationImpl) di;
+            Method method = impl.getMethod();
+            md = new MethodDescriptor(method);
+        } else {
+            //hopefully it should never happen
+            md = getMethodDescriptor_old(di);
+        }
+
+        synchronized (map){
+            MethodDescriptor current = map.get(md.getID());
+            if(current == null){
+                current = md;
+            }
+            current.increaseCounter();
+            map.put(md.getID(),current);
+        }
+    }
+
+    @Deprecated
+    private MethodDescriptor getMethodDescriptor_old(DescribedInvocation di) {
+    /*
+        Current Mockito API seems quite limited. Here, to know what
+        was called, it looks like the only way is to parse the results
+        of toString.
+        We can identify primitive types and String, but likely not the
+        exact type of input objects. This is a problem if methods are overloaded
+        and having same number of input parameters :(
+     */
         String description = di.toString();
 
         int openingP = description.indexOf('(');
         assert openingP >= 0;
 
         String[] leftTokens = description.substring(0,openingP).split("\\.");
+        String className = ""; //TODO
         String methodName = leftTokens[leftTokens.length-1];
 
         int closingP = description.lastIndexOf(')');
@@ -74,14 +100,7 @@ public class EvoInvocationListener implements InvocationListener {
             }
         }
 
-        MethodDescriptor md = new MethodDescriptor(methodName,mockitoMatchers);
-        synchronized (map){
-            MethodDescriptor current = map.get(md.getID());
-            if(current == null){
-                current = md;
-            }
-            current.increaseCounter();
-            map.put(md.getID(),current);
-        }
+
+        return new MethodDescriptor(className,methodName,mockitoMatchers);
     }
 }
