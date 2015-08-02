@@ -385,7 +385,6 @@ public class TestClusterGenerator {
 	 *
 	 * TODO: What if we use instrument_parent?
 	 *
-	 * @param targetClass
 	 */
 	@SuppressWarnings("unchecked")
 	private void initializeTargetMethods() throws RuntimeException,
