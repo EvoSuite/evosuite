@@ -309,7 +309,7 @@ public class TestSuiteGenerator {
      * Compile and run the given tests. Remove from input list all tests that do not compile, and handle the
      * cases of instability (either remove tests or comment out failing assertions)
      *
-     * @param chromosomeList
+     * @param chromosome
      */
     private void compileAndCheckTests(TestSuiteChromosome chromosome) {
         LoggingUtils.getEvoLogger().info("* Compiling and checking tests");
@@ -496,7 +496,7 @@ public class TestSuiteGenerator {
 
 	/**
 	 * 
-	 * @param tests
+	 * @param testSuite
 	 *            the test cases which should be written to file
 	 */
 	public static TestGenerationResult writeJUnitTestsAndCreateResult(TestSuiteChromosome testSuite) {
