@@ -1429,7 +1429,7 @@ public class Properties {
 	// Eclipse Plug-in flag
 
 	/** Constant <code>ECLIPSE_PLUGIN=false</code> */
-	@Parameter(key = "eclipse_plugin", group = "Plugin", description = "Running plugin")
+	@Parameter(key = "eclipse_plugin", group = "Plugin", description = "Running plugin for experiments. Use EvoSuiteTest annotation and decorate generated tests with (checked = false).")
 	public static boolean ECLIPSE_PLUGIN = false;
 
 	/**

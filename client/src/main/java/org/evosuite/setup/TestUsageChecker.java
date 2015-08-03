@@ -2,6 +2,7 @@ package org.evosuite.setup;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
+import org.evosuite.annotations.EvoSuiteTest;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.classhandling.ClassResetter;
@@ -262,6 +263,11 @@ public class TestUsageChecker {
 
         if (m.isAnnotationPresent(Test.class)) {
             logger.debug("Excluding test method " + m.getName());
+            return false;
+        }
+        
+        if (m.isAnnotationPresent(EvoSuiteTest.class)) {
+            logger.debug("Excluding EvoSuite test method " + m.getName());
             return false;
         }
 
