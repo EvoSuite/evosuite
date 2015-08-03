@@ -137,7 +137,7 @@ public class Activator extends AbstractUIPlugin implements
 	@Override
 	public boolean visit(IResourceDelta delta) throws CoreException {
 		boolean isAutomatic = getPreferenceStore().getBoolean(EvoSuitePreferencePage.AUTOMATIC_TEST_ON_SAVE);
-		if (isAutomatic && markersEnabled() 
+		if (isAutomatic // && markersEnabled() 
 				&& delta.getKind() == IResourceDelta.CHANGED 
 				&& delta.getFlags() != IResourceDelta.MARKERS 
 				&& delta.getResource() != null) {
@@ -160,6 +160,10 @@ public class Activator extends AbstractUIPlugin implements
 		return Activator.getDefault().getPreferenceStore().getBoolean(EvoSuitePreferencePage.MARKERS_ENABLED);
 	}
 
+	public static boolean organizeImports(){
+		return Activator.getDefault().getPreferenceStore().getBoolean(EvoSuitePreferencePage.ORGANIZE_IMPORTS);
+	}
+	
 	public void resetRoamingJob(IResource res) {
 		roamingJob.cancel();
 		int time = getPreferenceStore().getInt(EvoSuitePreferencePage.ROAMTIME) * 1000;

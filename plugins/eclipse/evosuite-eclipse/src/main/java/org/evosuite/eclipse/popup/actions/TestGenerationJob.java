@@ -171,10 +171,11 @@ public class TestGenerationJob extends Job {
 
 				String fileContents = readFileToString(suiteFileName);
 
-				ASTParser parser = ASTParser.newParser(AST.JLS4);
+				ASTParser parser = ASTParser.newParser(AST.JLS8);
 				parser.setKind(ASTParser.K_COMPILATION_UNIT);
 				parser.setStatementsRecovery(true);
 
+				@SuppressWarnings("unchecked")
 				Map<String, String> COMPILER_OPTIONS = new HashMap<String, String>(JavaCore.getOptions());
 				COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
 				COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
@@ -254,20 +255,17 @@ public class TestGenerationJob extends Job {
 						IWorkbenchWindow iw = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow();
 						IWorkbenchPage page = iw.getActivePage();
 						IEditorPart part = IDE.openEditor(page, generatedSuite, true);
-						// Remove unused imports
-						// TODO: not sure if this is the right place to do this though
-						Boolean removeUnused = System.getProperty("evosuite.organize.imports") != null;
-						if ( removeUnused ) {
+						if ( Activator.organizeImports() ) {
 							OrganizeImportsAction a=new OrganizeImportsAction(part.getSite());
 							a.run(cu);
 							cu.commitWorkingCopy(true, null);
 							cu.save(null, true);
 						}
 					} catch (PartInitException e1) {
-						System.out.println("Could not open test suite");
+						System.out.println("Could not open test suite to organize imports");
 						e1.printStackTrace();
 					} catch (JavaModelException e) {
-						System.out.println("Something went wrong while saving test suite after removing unused imports");
+						System.out.println("Something went wrong while saving test suite after organizing imports");
 						e.printStackTrace();
 					};
 				}});
@@ -559,11 +557,14 @@ public class TestGenerationJob extends Job {
 				"-Dsearch_budget=" + time, 
 				"-Dassertion_timeout=" + time, 
 				"-Dpure_inspectors=true", 
-				"-Dnew_statistics=false",
-				"-Declipse_plugin=true"
+				"-Dnew_statistics=false"
 				// "-Dsandbox_mode=IO",
 				// "-Djava.rmi.server.codebase=file:///Remote/evosuite-0.1-SNAPSHOT-jar-minimal.jar"
 				}));
+		
+		if ( System.getProperty("evosuite.experiment") != null ) {
+			commands.add("-Declipse_plugin=true");
+		}
 		
 		String budget = target.getProject().getPersistentProperty(
 				EvoSuitePropertyPage.TIME_PROP_KEY);
@@ -858,10 +859,11 @@ public class TestGenerationJob extends Job {
 				return;
 			}
 
-			ASTParser parser = ASTParser.newParser(AST.JLS4);
+			ASTParser parser = ASTParser.newParser(AST.JLS8);
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
 			parser.setStatementsRecovery(true);
 
+			@SuppressWarnings("unchecked")
 			Map<String, String> COMPILER_OPTIONS = new HashMap<String, String>(JavaCore.getOptions());
 			COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
 			COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);

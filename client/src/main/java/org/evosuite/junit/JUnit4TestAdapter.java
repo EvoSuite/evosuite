@@ -37,10 +37,20 @@ import org.evosuite.testcase.TestCodeVisitor;
 public class JUnit4TestAdapter implements UnitTestAdapter {
 
 	private String getJUnitTestShortName() {
-		if(Properties.TARGET_CLASS.equals("Test"))
-			return "org.junit.Test";
-		else
-			return "Test";
+		if (Properties.ECLIPSE_PLUGIN) {
+			String res = "";
+			if(Properties.TARGET_CLASS.equals("EvoSuiteTest"))
+				res = "org.evosuite.annotations.EvoSuiteTest";
+			else
+				res = "EvoSuiteTest";
+			res += " (checked = false)";
+			return res;
+		} else {
+			if(Properties.TARGET_CLASS.equals("Test"))
+				return "org.junit.Test";
+			else
+				return "Test";
+		}
 	}
 
 	/* (non-Javadoc)
@@ -50,7 +60,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	@Override
 	public String getImports() {
 		String imports = "import static org.junit.Assert.*;\n";
-		if (Properties.ECLIPSE_PLUGIN)
+		if ((Properties.ECLIPSE_PLUGIN) && (!Properties.TARGET_CLASS.equals("EvoSuiteTest")))
 			imports += "import org.evosuite.annotations.EvoSuiteTest;\n";
 		if(!Properties.TARGET_CLASS.equals("Test"))
 			imports += "import org.junit.Test;\n";
@@ -74,8 +84,6 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	@Override
 	public String getMethodDefinition(String testName) {
 		StringBuilder builder = new StringBuilder();
-		if (Properties.ECLIPSE_PLUGIN)
-			builder.append("  @EvoSuiteTest\n");
 		builder.append("  @" + getJUnitTestShortName() + "\n");
 		builder.append("  public void " + testName + "() ");
 		return builder.toString();
