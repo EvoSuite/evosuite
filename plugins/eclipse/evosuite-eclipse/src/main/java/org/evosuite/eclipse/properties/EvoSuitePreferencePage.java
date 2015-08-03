@@ -26,7 +26,6 @@ import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.evosuite.Properties;
 
 public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
@@ -41,7 +40,7 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 	public static final String ORGANIZE_IMPORTS = "organizeImports";
 	
 	static {
-		PREFERENCE_STORE = new PreferenceStore("evosuite-quickfixes-properties");	
+		PREFERENCE_STORE = new PreferenceStore("evosuite-properties");	
 	}
 	
 	public EvoSuitePreferencePage(){
