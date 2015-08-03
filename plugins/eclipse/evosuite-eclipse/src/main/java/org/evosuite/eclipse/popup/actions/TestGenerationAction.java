@@ -139,6 +139,7 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 										suiteClassName.replace('.', File.separatorChar) + ".java";
 		System.out.println("Checking for " + suiteFileName);
 		File suiteFile = new File(suiteFileName);
+		Job job = null;
 		if (suiteFile.exists()) {
 
 			MessageDialog dialog = new MessageDialog(
@@ -148,20 +149,27 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 			        "A test suite for class \""
 			                + targetClass
 			                + "\" already exists. EvoSuite will overwrite this test suite. Do you really want to proceed?",
-			        MessageDialog.QUESTION_WITH_CANCEL, new String[] { "Overwrite",
+			        MessageDialog.QUESTION_WITH_CANCEL, new String[] { "Overwrite", "Extend",
 			                "Rename Original", "Cancel" }, 0);
 
 			int returnCode = dialog.open();
-			if (returnCode == 1) {
-				// Rename
+			// 0 == overwrite
+			// 1 == extend
+			if(returnCode == 1) {
+				job = new TestExtensionJob(shell, target, targetClass, suiteClassName);
+			}
+			else if (returnCode == 2) {
+				// 2 == Rename
 				renameSuite(target, packageName, targetClassWithoutPackage + Properties.JUNIT_SUFFIX + ".java");
-			} else if (returnCode > 1) {
+			} else if (returnCode > 2) {
 				// Cancel
 				return;
 			}
 		}
 
-		Job job = new TestGenerationJob(shell, target, targetClass, suiteClassName);
+		if(job == null)
+			job = new TestGenerationJob(shell, target, targetClass, suiteClassName);
+		
 		job.setPriority(Job.SHORT);
 		IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
 		ISchedulingRule rule = ruleFactory.createRule(target.getProject());
