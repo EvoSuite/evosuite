@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Evosuite Eclipse plugin - Core
 Bundle-SymbolicName: org.evosuite.plugins.eclipse.core
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 0.2.0.qualifier
 Bundle-ClassPath: evosuite.jar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.evosuite,

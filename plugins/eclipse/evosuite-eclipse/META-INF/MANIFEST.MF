@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EvoSuite
 Bundle-SymbolicName: org.evosuite.plugins.eclipse;singleton:=true
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 0.2.0.qualifier
 Bundle-Activator:  org.evosuite.eclipse.Activator
 Bundle-Vendor: Gordon Fraser, Jose Miguel Rojas and Thomas White - University of Sheffield
 Require-Bundle: org.eclipse.ui,
@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors;bundle-version="3.7.0",
  org.eclipse.ltk.core.refactoring;bundle-version="3.5.0",
  org.eclipse.jdt.core.manipulation;bundle-version="1.4.0",
- org.evosuite.plugins.eclipse.core;bundle-version="0.1.0"
+ org.evosuite.plugins.eclipse.core;bundle-version="0.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6,JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,./bin,
