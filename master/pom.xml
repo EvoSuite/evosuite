@@ -127,6 +127,12 @@
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
+                            <artifactSet>
+                                <excludes>
+                                    <!-- the eclipse plugin needs this -->
+                                    <exclude>*:xml-apis</exclude>
+                                </excludes>
+                            </artifactSet>
                         </configuration>
                     </execution>
                 </executions>
