@@ -6,7 +6,7 @@
      <relativePath>../pom.xml</relativePath>
     <groupId>org.evosuite.plugins</groupId>
     <artifactId>evosuite-eclipse-plugin</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>org.evosuite.plugins.eclipse.core</artifactId>
@@ -18,7 +18,7 @@
       <groupId>org.evosuite</groupId>
       <artifactId>evosuite-master</artifactId>
 <!--      <version>${project.version}</version> -->
-      <version>0.1.0-SNAPSHOT</version>
+      <version>0.2.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
@@ -42,7 +42,7 @@
             <Import-Package></Import-Package>
             
             <_exportcontents>
-              org.evosuite.*;version="0.1.0"
+              org.evosuite.*;version="0.2.0"
             </_exportcontents>
             <Bundle-ClassPath>{maven-dependencies}</Bundle-ClassPath>
             <Embed-Transitive>true</Embed-Transitive>
