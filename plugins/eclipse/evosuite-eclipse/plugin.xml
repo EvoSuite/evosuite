@@ -33,7 +33,7 @@
                      <adapt type="org.eclipse.jdt.core.IJavaElement"> 
                         <test property="org.eclipse.jdt.core.isInJavaProject"/>
                         <test property="org.eclipse.jdt.core.hasTypeOnClasspath" value="junit.framework.Test"/>
-                        <test property="org.eclipse.jdt.junit.canLaunchAsJUnit" forcePluginActivation="true"/> 
+                        <test property="org.eclipse.jdt.junit.canLaunchAsJUnit" forcePluginActivation="true"/>
                       </adapt>
                   </iterate>
                </with>
@@ -49,6 +49,7 @@
                enablesFor="1"
                id="org.evosuite.EvoSuiteAction">
          </action>
+         <!--
          <action
                label="Clear EvoSuite Markers"
                class="org.evosuite.eclipse.popup.actions.ClearMarkersAction"
@@ -59,6 +60,7 @@
                enablesFor="1"
                id="org.evosuite.ClearEvoSuiteMarkers">
          </action>
+         -->
       </objectContribution>
             <objectContribution
             id="org.evosuite.EditorContribution"
