@@ -547,7 +547,6 @@ public class TestGenerationJob extends Job {
 		commands.addAll(Arrays.asList(new String[] {
 				"-generateSuite",
 				"-class", targetClass,
-				"-Dtest_dir=" + target.getProject().getLocation() + "/evosuite-tests", 
 				"-evosuiteCP", TestGenerationAction.getEvoSuiteJar(), 
 				"-projectCP", classPath, 
 				"-base_dir", baseDir, 
@@ -942,6 +941,8 @@ public class TestGenerationJob extends Job {
 	}
 
 	public List<String> getAdditionalParameters() {
-		return new ArrayList<String>();
+		List<String> parameters = new ArrayList<String>();
+		parameters.add("-Dtest_dir=" + target.getProject().getLocation() + "/evosuite-tests");
+		return parameters;
 	}
 }
