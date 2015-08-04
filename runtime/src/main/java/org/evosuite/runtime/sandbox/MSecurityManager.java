@@ -18,11 +18,8 @@
 package org.evosuite.runtime.sandbox;
 
 import java.awt.AWTPermission;
-import java.awt.print.Printable;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilePermission;
-import java.io.PrintStream;
 import java.io.SerializablePermission;
 import java.lang.management.ManagementPermission;
 import java.lang.reflect.Method;
@@ -409,6 +406,7 @@ public class MSecurityManager extends SecurityManager {
 	@Override
 	public void checkPermission(Permission perm, Object context)
 			throws SecurityException, NullPointerException {
+
 		/*
 		 * Note: this code is copy and paste from "super", with only one difference
 		 */
@@ -426,7 +424,6 @@ public class MSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPermission(Permission perm) throws SecurityException {
-
 		// check access
 		if (!allowPermission(perm)) {
 			if (executingTestCase) {
@@ -441,6 +438,7 @@ public class MSecurityManager extends SecurityManager {
 				stack += e + "\n";
 			}
 			logger.debug("Security manager blocks permission " + perm + stack);
+
 			throw new SecurityException("Security manager blocks " + perm + stack);
 		} else {
 			if (executingTestCase) {
@@ -493,7 +491,7 @@ public class MSecurityManager extends SecurityManager {
 				"getStackTrace".equals(perm.getName().trim())) {
 			return true;
 		}
-
+		
 		if(checkIfEvoSuiteRMI(perm) || checkIfRMIDuringTests(perm)){
 			return true;
 		}
@@ -521,7 +519,8 @@ public class MSecurityManager extends SecurityManager {
 
 
 		if (RuntimeSettings.sandboxMode.equals(Sandbox.SandboxMode.IO)) {
-			PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
+			// TODO: This makes JVM8 on MacOS crash
+			// PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
 
 			if (perm instanceof FilePermission) {
 				return checkFilePermission((FilePermission) perm);
@@ -530,7 +529,6 @@ public class MSecurityManager extends SecurityManager {
 			return true;
 		}
 		 
-		
 		/*
 		 * Note: we had to remove this check, as some EvoSuite-RMI threads would be blocked by it 
 		 * 
@@ -552,7 +550,8 @@ public class MSecurityManager extends SecurityManager {
 		 * by the SUT during test case execution without the need to do any bytecode
 		 * instrumentation. 
 		 */
-		PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
+		// TODO: This makes JVM8 on MacOS crash
+		//PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
 
 		if (perm instanceof FilePermission) {
 			return checkFilePermission((FilePermission) perm);
