@@ -72,14 +72,14 @@ public class TestExtensionJob extends TestGenerationJob {
 	protected CompilationUnit parseJavaFile(String unitName, String fileName)
 	        throws IOException {
 		String fileContents = Utils.readFileToString(fileName);
-		ASTParser parser = ASTParser.newParser(AST.JLS4);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setStatementsRecovery(true);
 		
 		Map<String, String> COMPILER_OPTIONS = new HashMap<String, String>(JavaCore.getOptions());
-		COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_6);
-		COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_6);
-		COMPILER_OPTIONS.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
+		COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+		COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+		COMPILER_OPTIONS.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
 		
 		//parser.setResolveBindings(true);
 		//parser.setBindingsRecovery(true);
