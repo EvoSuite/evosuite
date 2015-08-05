@@ -339,12 +339,12 @@
  	<command
       description="Generate JUnit test suite with EvoSuite"
       id="org.evosuite.EvoSuiteAction"
-      name="Generate tests">
+      name="Generate tests with EvoSuite">
   	</command>
  	<command
       description="Extend JUnit test suite with EvoSuite"
       id="org.evosuite.EvoSuiteExtendAction"
-      name="Extend test suite">
+      name="Extend test suite with EvoSuite">
   	</command>
  </extension>
  <extension
