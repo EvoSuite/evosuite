@@ -225,20 +225,20 @@ public class TestGenerationJob extends Job {
 		} else {
 			System.out.println("File " + suiteFileName + " does not exist");
 			// TODO: Dialog
-			Display.getDefault().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageDialog dialog = new MessageDialog(
-							shell,
-							"Error during test generation",
-							null, // image
-							"EvoSuite failed to generate tests for class"
-							+ suiteClass,
-							MessageDialog.OK, new String[] { "Ok" }, 0);
-					dialog.open();
-				}					
-			});
-			return Status.CANCEL_STATUS;
+//			Display.getDefault().syncExec(new Runnable() {
+//				@Override
+//				public void run() {
+//					MessageDialog dialog = new MessageDialog(
+//							shell,
+//							"Error during test generation",
+//							null, // image
+//							"EvoSuite failed to generate tests for class"
+//							+ suiteClass,
+//							MessageDialog.OK, new String[] { "Ok" }, 0);
+//					dialog.open();
+//				}					
+//			});
+//			return Status.CANCEL_STATUS;
 		}
 		
 		setThread(new Thread());
@@ -584,14 +584,14 @@ public class TestGenerationJob extends Job {
 		String budget = target.getProject().getPersistentProperty(
 				EvoSuitePropertyPage.TIME_PROP_KEY);
 		if (budget == null) {
-			commands.add("-Dsearch_budget=10");
+			commands.add("-Dsearch_budget=20");
 		} else {
 			commands.add("-Dsearch_budget=" + budget);
 		}
 		
 		String globalBudget = target.getProject().getPersistentProperty(
 				EvoSuitePropertyPage.GLOBAL_TIME_PROP_KEY);
-		if (budget == null) {
+		if (globalBudget == null) {
 			commands.add("-Dglobal_timeout=60");
 		} else {
 			commands.add("-Dglobal_timeout=" + globalBudget);
