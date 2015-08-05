@@ -378,6 +378,10 @@
         			<iterate ifEmpty="false" operator="and">
 						<and>
 							<instanceof value="org.eclipse.jdt.core.IJavaElement"/>
+       						<adapt type="org.eclipse.core.resources.IResource">
+          						<test property="org.eclipse.core.resources.name" 
+                					value="*.java"/>
+       						</adapt>
 							<not>
 								<test property="org.eclipse.jdt.junit.isTest"/>
 							</not>
@@ -394,6 +398,10 @@
         			<iterate ifEmpty="false" operator="and">
 						<and>
 							<instanceof value="org.eclipse.jdt.core.IJavaElement"/>
+       						<adapt type="org.eclipse.core.resources.IResource">
+          						<test property="org.eclipse.core.resources.name" 
+                					value="*.java"/>
+       						</adapt>
 							<test property="org.eclipse.jdt.junit.isTest"/>
 						</and>
         			</iterate>
