@@ -375,6 +375,8 @@
     	<command commandId="org.evosuite.EvoSuiteAction">
 		    <visibleWhen>
       			<with variable="activeMenuSelection">
+      			  <and>
+      				<count value="1"></count>
         			<iterate ifEmpty="false" operator="and">
 						<and>
 							<instanceof value="org.eclipse.jdt.core.IJavaElement"/>
@@ -387,6 +389,7 @@
 							</not>
 						</and>
         			</iterate>
+        		  </and>
       			</with>
     		</visibleWhen>
 		</command>
@@ -395,6 +398,8 @@
     	<command commandId="org.evosuite.EvoSuiteExtendAction">
 		    <visibleWhen>
       			<with variable="activeMenuSelection">
+      			  <and>
+      				<count value="1"></count>
         			<iterate ifEmpty="false" operator="and">
 						<and>
 							<instanceof value="org.eclipse.jdt.core.IJavaElement"/>
@@ -405,6 +410,7 @@
 							<test property="org.eclipse.jdt.junit.isTest"/>
 						</and>
         			</iterate>
+        		  </and>
       			</with>
     		</visibleWhen>
 		</command>
