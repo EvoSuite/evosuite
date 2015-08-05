@@ -26,8 +26,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -40,7 +38,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
 
 public class EvoSuitePropertyPage extends PropertyPage {
 
@@ -54,9 +51,9 @@ public class EvoSuitePropertyPage extends PropertyPage {
 
 	private Button minimizeValuesButton;
 
-	private Button reportButton;
+//	private Button reportButton;
 
-	private Button plotButton;
+//	private Button plotButton;
 
 	private Button sandboxButton;
 
@@ -102,8 +99,8 @@ public class EvoSuitePropertyPage extends PropertyPage {
 
 	public static QualifiedName PLOT_PROP_KEY = new QualifiedName("EvoSuite", "PlotData");
 
-	public static QualifiedName REPORT_PROP_KEY = new QualifiedName("EvoSuite",
-	        "ShowReport");
+//	public static QualifiedName REPORT_PROP_KEY = new QualifiedName("EvoSuite",
+//	        "ShowReport");
 
 	public static QualifiedName SANDBOX_PROP_KEY = new QualifiedName("EvoSuite",
 	        "Sandbox");
@@ -221,7 +218,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 
 		Label timelabel = new Label(myComposite, SWT.NONE);
 		timelabel.setLayoutData(new GridData());
-		timelabel.setText("Test generation time");
+		timelabel.setText("Test generation time (s)");
 		time = new Spinner(myComposite, SWT.BORDER);
 		time.setMinimum(0);
 		time.setMaximum(600);
@@ -248,34 +245,34 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		//seed.setMaximum(60000);
 		//seed.setSelection(getSeed());
 		
-		Label mylabel2 = new Label(myComposite, SWT.NONE);
-		mylabel2.setLayoutData(new GridData());
-		mylabel2.setText("Show report after test generation");
-		reportButton = new Button(myComposite, SWT.CHECK);
-		reportButton.setSelection(getReportEnabled());
-		reportButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		reportButton.addSelectionListener(new SelectionListener() {
-			/* (non-Javadoc)
-			 * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.events.SelectionEvent)
-			 */
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				plotButton.setEnabled(((Button) arg0.getSource()).getSelection());
-			}
+//		Label mylabel2 = new Label(myComposite, SWT.NONE);
+//		mylabel2.setLayoutData(new GridData());
+//		mylabel2.setText("Show report after test generation");
+//		reportButton = new Button(myComposite, SWT.CHECK);
+//		reportButton.setSelection(getReportEnabled());
+//		reportButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+//		reportButton.addSelectionListener(new SelectionListener() {
+//			/* (non-Javadoc)
+//			 * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.events.SelectionEvent)
+//			 */
+//			@Override
+//			public void widgetSelected(SelectionEvent arg0) {
+//				plotButton.setEnabled(((Button) arg0.getSource()).getSelection());
+//			}
+//
+//			@Override
+//			public void widgetDefaultSelected(SelectionEvent arg0) {
+//				plotButton.setEnabled(((Button) arg0.getSource()).getSelection());
+//			}
+//		});
 
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-				plotButton.setEnabled(((Button) arg0.getSource()).getSelection());
-			}
-		});
-
-		Label mylabel2a = new Label(myComposite, SWT.NONE);
-		mylabel2a.setLayoutData(new GridData());
-		mylabel2a.setText("Include plots in report (requires GNUPlot)");
-		plotButton = new Button(myComposite, SWT.CHECK);
-		plotButton.setSelection(getPlotEnabled());
-		plotButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		plotButton.setEnabled(getReportEnabled());
+//		Label mylabel2a = new Label(myComposite, SWT.NONE);
+//		mylabel2a.setLayoutData(new GridData());
+//		mylabel2a.setText("Include plots in report (requires GNUPlot)");
+//		plotButton = new Button(myComposite, SWT.CHECK);
+//		plotButton.setSelection(getPlotEnabled());
+//		plotButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+//		plotButton.setEnabled(getReportEnabled());
 
 		Label mylabel3 = new Label(myComposite, SWT.NONE);
 		mylabel3.setLayoutData(new GridData());
@@ -687,66 +684,66 @@ public class EvoSuitePropertyPage extends PropertyPage {
 	}
 
 
-	protected boolean getReportEnabled() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(REPORT_PROP_KEY);
-			if (value == null)
-				return false;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return false;
-		}
-	}
+//	protected boolean getReportEnabled() {
+//		IResource resource = ((IJavaProject) getElement()).getResource();
+//		try {
+//			String value = resource.getPersistentProperty(REPORT_PROP_KEY);
+//			if (value == null)
+//				return false;
+//			return Boolean.parseBoolean(value);
+//		} catch (CoreException e) {
+//			return false;
+//		}
+//	}
+//
+//	protected void setReportEnabled(boolean enabled) {
+//
+//		IResource resource = ((IJavaProject) getElement()).getResource();
+//		String value = Boolean.toString(enabled);
+//		if (value.equals(""))
+//			value = "false";
+//		if (value.equals("true"))
+//			plotButton.setEnabled(true);
+//		else
+//			plotButton.setEnabled(false);
+//		try {
+//
+//			resource.setPersistentProperty(REPORT_PROP_KEY, value);
+//		} catch (CoreException e) {
+//		}
+//	}
 
-	protected void setReportEnabled(boolean enabled) {
-
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "false";
-		if (value.equals("true"))
-			plotButton.setEnabled(true);
-		else
-			plotButton.setEnabled(false);
-		try {
-
-			resource.setPersistentProperty(REPORT_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
-
-	protected boolean getPlotEnabled() {
-		if (!getReportEnabled())
-			return false;
-
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(PLOT_PROP_KEY);
-			if (value == null)
-				return false;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return false;
-		}
-	}
-
-	protected void setPlotEnabled(boolean enabled) {
-
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "false";
-		//if (value.equals("true"))
-		//	deterministicButton.setEnabled(true);
-		//else
-		//	deterministicButton.setEnabled(false);
-
-		try {
-			resource.setPersistentProperty(PLOT_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
+//	protected boolean getPlotEnabled() {
+//		if (!getReportEnabled())
+//			return false;
+//
+//		IResource resource = ((IJavaProject) getElement()).getResource();
+//		try {
+//			String value = resource.getPersistentProperty(PLOT_PROP_KEY);
+//			if (value == null)
+//				return false;
+//			return Boolean.parseBoolean(value);
+//		} catch (CoreException e) {
+//			return false;
+//		}
+//	}
+//
+//	protected void setPlotEnabled(boolean enabled) {
+//
+//		IResource resource = ((IJavaProject) getElement()).getResource();
+//		String value = Boolean.toString(enabled);
+//		if (value.equals(""))
+//			value = "false";
+//		//if (value.equals("true"))
+//		//	deterministicButton.setEnabled(true);
+//		//else
+//		//	deterministicButton.setEnabled(false);
+//
+//		try {
+//			resource.setPersistentProperty(PLOT_PROP_KEY, value);
+//		} catch (CoreException e) {
+//		}
+//	}
 
 	//	protected boolean getEvoSuiteRunnerEnabled() {
 	//		IResource resource = ((IJavaProject) getElement()).getResource();
@@ -911,8 +908,8 @@ public class EvoSuitePropertyPage extends PropertyPage {
 	 */
 	@Override
 	public boolean performOk() {
-		setReportEnabled(reportButton.getSelection());
-		setPlotEnabled(plotButton.getSelection());
+//		setReportEnabled(reportButton.getSelection());
+//		setPlotEnabled(plotButton.getSelection());
 		setAssertionsEnabled(assertionButton.getSelection());
 		setMinimizeTestsEnabled(minimizeTestsButton.getSelection());
 		setMinimizeValuesEnabled(minimizeValuesButton.getSelection());
@@ -950,8 +947,8 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		setAssertionsEnabled(true);
 		setMinimizeTestsEnabled(true);
 		setMinimizeValuesEnabled(false);
-		setReportEnabled(false);
-		setPlotEnabled(false);
+//		setReportEnabled(false);
+//		setPlotEnabled(false);
 		setSandboxEnabled(true);
 		setScaffoldingEnabled(true);
 		setDeterministicEnabled(false);
