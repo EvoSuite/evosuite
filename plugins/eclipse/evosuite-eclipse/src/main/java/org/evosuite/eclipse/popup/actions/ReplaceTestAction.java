@@ -245,7 +245,7 @@ public class ReplaceTestAction implements IObjectActionDelegate {
 					Properties.resetTargetClass();
 					Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
 					try {
-						Properties.SEARCH_BUDGET = Integer.parseInt(jProject.getProject().getPersistentProperty(EvoSuitePropertyPage.REPLACEMENT_TIME_PROP_KEY));
+						Properties.SEARCH_BUDGET = Integer.parseInt(jProject.getProject().getPersistentProperty(EvoSuitePropertyPage.GLOBAL_TIME_PROP_KEY));
 					} catch (Throwable e) {
 						Properties.SEARCH_BUDGET = 20;
 					}

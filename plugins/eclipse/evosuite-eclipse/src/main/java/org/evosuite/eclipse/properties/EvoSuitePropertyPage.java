@@ -94,7 +94,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 	public static QualifiedName TIME_PROP_KEY = new QualifiedName("EvoSuite",
 	        "TestGenTime");
 
-	public static QualifiedName REPLACEMENT_TIME_PROP_KEY = new QualifiedName("EvoSuite",
+	public static QualifiedName GLOBAL_TIME_PROP_KEY = new QualifiedName("EvoSuite",
 	        "ReplacementGenTime");
 
 	public static QualifiedName PLOT_PROP_KEY = new QualifiedName("EvoSuite", "PlotData");
@@ -218,7 +218,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 
 		Label timelabel = new Label(myComposite, SWT.NONE);
 		timelabel.setLayoutData(new GridData());
-		timelabel.setText("Test generation time (s)");
+		timelabel.setText("Search convergence time (s)");
 		time = new Spinner(myComposite, SWT.BORDER);
 		time.setMinimum(0);
 		time.setMaximum(600);
@@ -226,16 +226,16 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		time.setSelection(getTime());
 		//time.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		/*
+		
 		Label timelabel2 = new Label(myComposite, SWT.NONE);
 		timelabel2.setLayoutData(new GridData());
-		timelabel2.setText("Test replacement time (s)");
+		timelabel2.setText("Maximum test generation time (s)");
 		time2 = new Spinner(myComposite, SWT.BORDER);
 		time2.setMinimum(0);
 		time2.setMaximum(600);
 		//time.setDigits(3);
-		time2.setSelection(getReplacementTime());
-		 */
+		time2.setSelection(getGlobalTime());
+		
 
 		//Label seedLabel= new Label(myComposite, SWT.NONE);
 		//seedLabel.setLayoutData(new GridData());
@@ -774,10 +774,10 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		try {
 			String value = resource.getPersistentProperty(TIME_PROP_KEY);
 			if (value == null)
-				return 60;
+				return 10;
 			return Integer.parseInt(value);
 		} catch (CoreException e) {
-			return 60;
+			return 10;
 		}
 	}
 
@@ -785,7 +785,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		IResource resource = ((IJavaProject) getElement()).getResource();
 		String value = Integer.toString(time);
 		if (value.equals(""))
-			value = "60";
+			value = "10";
 		try {
 			resource.setPersistentProperty(TIME_PROP_KEY, value);
 		} catch (CoreException e) {
@@ -854,25 +854,25 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		}
 	}
 
-	protected int getReplacementTime() {
+	protected int getGlobalTime() {
 		IResource resource = ((IJavaProject) getElement()).getResource();
 		try {
-			String value = resource.getPersistentProperty(REPLACEMENT_TIME_PROP_KEY);
+			String value = resource.getPersistentProperty(GLOBAL_TIME_PROP_KEY);
 			if (value == null)
-				return 10;
+				return 60;
 			return Integer.parseInt(value);
 		} catch (CoreException e) {
-			return 10;
+			return 60;
 		}
 	}
 
-	protected void setReplacementTime(int time) {
+	protected void setGlobalTime(int time) {
 		IResource resource = ((IJavaProject) getElement()).getResource();
 		String value = Integer.toString(time);
 		if (value.equals(""))
-			value = "10";
+			value = "^0";
 		try {
-			resource.setPersistentProperty(REPLACEMENT_TIME_PROP_KEY, value);
+			resource.setPersistentProperty(GLOBAL_TIME_PROP_KEY, value);
 		} catch (CoreException e) {
 		}
 	}
@@ -935,15 +935,15 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		setLSEnabled(lsButton.getSelection());
 		setTestSuffix(testSuffix.getText());
 		// setEvoSuiteRunnerEnabled(evosuiteRunnerButton.getSelection());
-		// setReplacementTime(time2.getSelection());
+		setGlobalTime(time2.getSelection());
 		return super.performOk();
 	}
 
 	@Override
 	protected void performDefaults() {
 		super.performDefaults();
-		setTime(60);
-		//setReplacementTime(10);
+		setTime(10);
+		setGlobalTime(60);
 		setAssertionsEnabled(true);
 		setMinimizeTestsEnabled(true);
 		setMinimizeValuesEnabled(false);

@@ -567,7 +567,7 @@ public class TestGenerationJob extends Job {
 				"-projectCP", classPath, 
 				"-base_dir", baseDir, 
 				"-Dshow_progress=false", 
-				"-Dstopping_condition=MaxTime", 
+				"-Dstopping_condition=TimeDelta", 
 				"-Dtest_comments=false", // "true"
 				"-Dsearch_budget=" + time, 
 				"-Dassertion_timeout=" + time, 
@@ -584,10 +584,19 @@ public class TestGenerationJob extends Job {
 		String budget = target.getProject().getPersistentProperty(
 				EvoSuitePropertyPage.TIME_PROP_KEY);
 		if (budget == null) {
-			commands.add("-Dsearch_budget=120");
+			commands.add("-Dsearch_budget=10");
 		} else {
 			commands.add("-Dsearch_budget=" + budget);
 		}
+		
+		String globalBudget = target.getProject().getPersistentProperty(
+				EvoSuitePropertyPage.GLOBAL_TIME_PROP_KEY);
+		if (budget == null) {
+			commands.add("-Dglobal_timeout=60");
+		} else {
+			commands.add("-Dglobal_timeout=" + globalBudget);
+		}
+
 		;
 		if ("false".equals(target.getProject().getPersistentProperty(
 				EvoSuitePropertyPage.ASSERTION_PROP_KEY))) {
