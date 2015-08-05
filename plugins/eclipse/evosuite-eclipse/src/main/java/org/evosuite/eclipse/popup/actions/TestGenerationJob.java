@@ -222,8 +222,24 @@ public class TestGenerationJob extends Job {
 				}
 			} else
 				System.out.println("Not checking markers.");
-		} else 
+		} else {
 			System.out.println("File " + suiteFileName + " does not exist");
+			// TODO: Dialog
+			Display.getDefault().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog dialog = new MessageDialog(
+							shell,
+							"Error during test generation",
+							null, // image
+							"EvoSuite failed to generate tests for class"
+							+ suiteClass,
+							MessageDialog.OK, new String[] { "Ok" }, 0);
+					dialog.open();
+				}					
+			});
+			return Status.CANCEL_STATUS;
+		}
 		
 		setThread(new Thread());
 		running = true;
@@ -241,10 +257,10 @@ public class TestGenerationJob extends Job {
 		
 		try {
 			target.getProject().refreshLocal(IProject.DEPTH_INFINITE, null);
-			if ("true".equals(target.getProject().getPersistentProperty(
-					EvoSuitePropertyPage.REPORT_PROP_KEY))) {
-				syncWithUi(target);
-			};
+//			if ("true".equals(target.getProject().getPersistentProperty(
+//					EvoSuitePropertyPage.REPORT_PROP_KEY))) {
+//				syncWithUi(target);
+//			};
 			
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
@@ -611,16 +627,16 @@ public class TestGenerationJob extends Job {
 		}
 		//	}
 
-		if (!"true".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.REPORT_PROP_KEY))) {
-			commands.add("-Dhtml=false");
-			//commands.add("-Dstatistics_backend=none");
-		} else {
-			if ("true".equals(target.getProject().getPersistentProperty(
-					EvoSuitePropertyPage.PLOT_PROP_KEY))) {
-				commands.add("-Dplot=true");
-			}
-		}
+//		if (!"true".equals(target.getProject().getPersistentProperty(
+//				EvoSuitePropertyPage.REPORT_PROP_KEY))) {
+//			commands.add("-Dhtml=false");
+//			//commands.add("-Dstatistics_backend=none");
+//		} else {
+//			if ("true".equals(target.getProject().getPersistentProperty(
+//					EvoSuitePropertyPage.PLOT_PROP_KEY))) {
+//				commands.add("-Dplot=true");
+//			}
+//		}
 		if ("false".equals(target.getProject().getPersistentProperty(
 				EvoSuitePropertyPage.SANDBOX_PROP_KEY))) {
 			commands.add("-Dsandbox=false");
