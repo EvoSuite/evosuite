@@ -75,7 +75,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 
 	private Spinner time;
 
-	private Spinner seed;
+	// private Spinner seed;
 
 	private Spinner time2;
 
@@ -95,7 +95,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 	        "TestGenTime");
 
 	public static QualifiedName GLOBAL_TIME_PROP_KEY = new QualifiedName("EvoSuite",
-	        "ReplacementGenTime");
+	        "GlobalGenTime");
 
 	public static QualifiedName PLOT_PROP_KEY = new QualifiedName("EvoSuite", "PlotData");
 
@@ -774,10 +774,10 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		try {
 			String value = resource.getPersistentProperty(TIME_PROP_KEY);
 			if (value == null)
-				return 10;
+				return 20;
 			return Integer.parseInt(value);
 		} catch (CoreException e) {
-			return 10;
+			return 20;
 		}
 	}
 
@@ -785,7 +785,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		IResource resource = ((IJavaProject) getElement()).getResource();
 		String value = Integer.toString(time);
 		if (value.equals(""))
-			value = "10";
+			value = "20";
 		try {
 			resource.setPersistentProperty(TIME_PROP_KEY, value);
 		} catch (CoreException e) {
@@ -818,7 +818,10 @@ public class EvoSuitePropertyPage extends PropertyPage {
 	
 	protected String[] getCriteria() {
 		IResource resource = ((IJavaProject) getElement()).getResource();
-		String[] defaultCriteria = new String[] {"Line", "Branch", "Exception", "WeakMutation", "Output", "Method", "MethodNoException", "CBranch"};
+		String[] defaultCriteria = new String[] {"Line", "Branch", "Exception", "WeakMutation"};
+		// The following criteria are not activated by default because "extend" doesn't work properly with them
+		// until the carver is fixed properly
+		//"Output", "Method", "MethodNoException", "CBranch"
 		try {
 			String value = resource.getPersistentProperty(CRITERIA_PROP_KEY);
 			if (value == null)
@@ -957,7 +960,8 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		setDSEEnabled(false);
 		setLSEnabled(false);
 		// setEvoSuiteRunnerEnabled(false);
-		setCriteria("Line:Branch:Exception:WeakMutation:Output:Method:MethodNoException:CBranch");
+		// setCriteria("Line:Branch:Exception:WeakMutation:Output:Method:MethodNoException:CBranch");
+		setCriteria("Line:Branch:Exception:WeakMutation"); // Output:Method:MethodNoException:CBranch
 		setTestSuffix(Properties.JUNIT_SUFFIX);
 	}
 }
