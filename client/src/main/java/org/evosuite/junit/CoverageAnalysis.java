@@ -17,6 +17,7 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -152,7 +153,7 @@ public class CoverageAnalysis {
 	 * @param allGoals
 	 * @return
 	 */
-	public static List<TestFitnessFunction> getCoveredGoals(Class<?> testClass, List<TestFitnessFunction> allGoals) {
+	public static Set<TestFitnessFunction> getCoveredGoals(Class<?> testClass, List<TestFitnessFunction> allGoals) {
 
 	    // A dummy Chromosome
 	    TestChromosome dummy = new TestChromosome();
@@ -161,7 +162,7 @@ public class CoverageAnalysis {
         // Execution result of a dummy Test Case
         ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
 
-		List<TestFitnessFunction> coveredGoals = new ArrayList<TestFitnessFunction>();
+		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
 		List<JUnitResult> results = executeTests(testClass);
 		for (JUnitResult testResult : results) {
@@ -169,7 +170,9 @@ public class CoverageAnalysis {
             dummy.setLastExecutionResult(executionResult);
 
             for(TestFitnessFunction goal : allGoals) {
-                if (goal.isCovered(dummy))
+            	if(coveredGoals.contains(goal))
+            		continue;
+            	else if (goal.isCovered(dummy))
                     coveredGoals.add(goal);
             }
 		}
