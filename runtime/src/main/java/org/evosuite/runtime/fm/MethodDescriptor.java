@@ -154,7 +154,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>{
     }
 
     public String getID(){
-        return getMethodName() + " : " + getInputParameterMatchers();
+        return className +"."+ getMethodName() + "#" + getInputParameterMatchers();
     }
 
     public int getCounter() {

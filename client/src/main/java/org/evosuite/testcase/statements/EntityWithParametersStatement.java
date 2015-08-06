@@ -49,7 +49,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
      * @param retval
      */
     protected EntityWithParametersStatement(TestCase tc, VariableReference retval){
-        super(tc,retval);
+        super(tc, retval);
         this.parameters = new ArrayList<>();
         this.annotations=null;
         this.parameterAnnotations=null;
@@ -103,6 +103,11 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
      */
     public boolean isBounded(VariableReference var) throws IllegalArgumentException{
         Inputs.checkNull(var);
+
+        if(parameterAnnotations==null){
+            assert this instanceof FunctionalMockStatement; //for now this should be the only valid case
+            return false;
+        }
 
         for(int i=0; i<parameters.size(); i++){
             if(parameters.get(i).equals(var)){

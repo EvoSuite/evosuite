@@ -62,6 +62,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
      */
     private final List<MethodDescriptor> mockedMethods;
 
+    /**
+     * key -> MethodDescriptor id
+     */
+    private final Map<String, List<VariableReference>> methodParameters;
+
     private final Class<?> targetClass;
 
     private volatile EvoInvocationListener listener;
@@ -73,6 +78,117 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
         Inputs.checkNull(targetClass);
         this.targetClass = targetClass;
         mockedMethods = new ArrayList<>();
+        methodParameters = new LinkedHashMap<>();
+    }
+
+
+    /**
+     * Check if the last execution of the test case has led a change in the usage of the mock.
+     * This will result in adding/removing variable references
+     *
+     * @return
+     */
+    public boolean doesNeedToUpdateInputs(){
+        if(listener==null){
+            assert mockedMethods.isEmpty();
+            return false; //no execution yet, so default is empty
+        }
+
+        List<MethodDescriptor> executed = listener.getCopyOfMethodDescriptors();
+        if(executed.size() != mockedMethods.size()){
+            return true;
+        }
+
+        for(int i=0; i<executed.size(); i++){
+            MethodDescriptor previous = mockedMethods.get(i);
+            MethodDescriptor now = executed.get(i);
+
+            if(previous.compareTo(now) != 0){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Based on most recent test execution, update the mocking configuration.
+     * After calling this method, it is <b>necessary</b> to provide the missing
+     * VariableReferences, if any, using addMissingInputs.
+     *
+     * @return a ordered, non-null list of types of missing new inputs that will need to be provided
+     *
+     */
+    public List<Type> updateMockedMethods(){
+
+        List<Type> list = new ArrayList<>();
+
+        super.parameters.clear();
+        mockedMethods.clear(); //important to remove all the no longer used calls
+
+        List<MethodDescriptor> executed = listener.getCopyOfMethodDescriptors();
+
+        for(MethodDescriptor md : executed){
+            List<VariableReference> vars = methodParameters.get(md.getID());
+            if(vars==null){
+                vars = new ArrayList<>();
+                methodParameters.put(md.getID(),vars);
+            }
+
+            //check if less calls
+            while(vars.size() > md.getCounter()){
+                //now the method has been called less times,
+                //so remove the last calls
+                vars.remove(vars.size()-1);
+            }
+
+            for(int i=0; i<vars.size(); i++){
+                //align super class data structure
+                super.parameters.add(vars.get(i));
+            }
+
+            //check if rather more calls
+            if(vars.size() < md.getCounter()){
+                Class<?> returnType = md.getMethod().getReturnType();
+                if(! returnType.equals(Void.TYPE)) {
+                    for (int i = vars.size(); i < md.getCounter(); i++) {
+                        list.add(returnType);
+
+                        super.parameters.add(null); //important place holder for following update
+                    }
+                }
+            }
+
+            mockedMethods.add(md);
+        }
+
+        return list;
+    }
+
+    public void addMissingInputs(List<VariableReference> inputs) throws IllegalArgumentException{
+        Inputs.checkNull(inputs);
+
+        if(inputs.isEmpty()){
+            return; //nothing to add
+        }
+
+        if(inputs.size() > parameters.size()){
+            //first quick check
+            throw new IllegalArgumentException("Not enough parameter place holders");
+        }
+
+        int index = 0;
+        for(VariableReference ref : inputs){
+            while(parameters.get(index) != null){
+                index++;
+                if(index >= parameters.size()){
+                    throw new IllegalArgumentException("Not enough parameter place holders");
+                }
+            }
+
+            parameters.set(index, ref);
+        }
     }
 
 
@@ -128,17 +244,20 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
                         OngoingStubbing<Object> retForThen = Mockito.when(targetMethodResult);
 
                         //thenReturn(...)
-                        Object[] thenReturnInputs = new Object[parameterTypes.length];
-                        for(int i = index; i<md.getCounter(); i++){
+                        Object[] thenReturnInputs = new Object[md.getCounter()];
+                        for(int i = index; i<thenReturnInputs.length; i++){
+
                             VariableReference parameterVar = parameters.get(i);
                             thenReturnInputs[i] = parameterVar.getObject(scope);
-                            if(thenReturnInputs[i] == null && method.getParameterTypes()[i].isPrimitive()) {
+
+                            if(thenReturnInputs[i] == null && method.getReturnType().isPrimitive()) {
                                 throw new CodeUnderTestException(new NullPointerException());
                             }
-                            if (thenReturnInputs[i] != null && !TypeUtils.isAssignable(thenReturnInputs[i].getClass(), parameterTypes[i])) {
+
+                            if (thenReturnInputs[i] != null && !TypeUtils.isAssignable(thenReturnInputs[i].getClass(), method.getReturnType())) {
                                 throw new CodeUnderTestException(
                                         new UncompilableCodeException("Cannot assign "+parameterVar.getVariableClass().getName()
-                                                +" to "+parameterTypes[i]));
+                                                +" to "+method.getReturnType()));
                             }
                         }
 
