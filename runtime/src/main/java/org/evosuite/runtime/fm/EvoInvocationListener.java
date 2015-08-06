@@ -6,7 +6,6 @@ import org.mockito.listeners.InvocationListener;
 import org.mockito.listeners.MethodInvocationReport;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +32,12 @@ public class EvoInvocationListener implements InvocationListener {
         active = true;
     }
 
+    /**
+     *
+     * @return a sorted list
+     */
     public List<MethodDescriptor> getCopyOfMethodDescriptors(){
-        return map.values().stream().collect(Collectors.toList());
+        return map.values().stream().sorted().collect(Collectors.toList());
     }
 
     @Override

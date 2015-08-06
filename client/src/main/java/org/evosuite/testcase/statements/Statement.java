@@ -180,6 +180,7 @@ public interface Statement {
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */
+	@Deprecated //not really used any more
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception);
 
