@@ -1,7 +1,15 @@
 package org.evosuite.runtime;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.evosuite.annotations.EvoSuiteTest;
+import org.junit.Test;
 import org.evosuite.runtime.instrumentation.EvoClassLoader;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,4 +120,32 @@ public class EvoRunner extends BlockJUnit4ClassRunner {
 	        throw new InitializationError(e);
 	    }
 	}
+
+	/**
+	 * Returns the methods that run tests. Default implementation returns all
+	 * methods annotated with {@code @Test} on this class and superclasses that
+	 * are not overridden.
+	 */
+	@Override
+	protected List<FrameworkMethod> computeTestMethods() {
+		Set<FrameworkMethod> testMethods = new HashSet<FrameworkMethod>();
+		testMethods.addAll(getTestClass().getAnnotatedMethods(EvoSuiteTest.class));
+		testMethods.addAll(getTestClass().getAnnotatedMethods(Test.class));
+		return new ArrayList<FrameworkMethod>(testMethods);
+	}
+
+	/**
+	 * Adds to {@code errors} for each method annotated with {@code @Test}that
+	 * is not a public, void instance method with no arguments.
+	 */
+	@Override
+	protected void validateTestMethods(List<Throwable> errors) {
+		Set<FrameworkMethod> testMethods = new HashSet<FrameworkMethod>();
+		testMethods.addAll(getTestClass().getAnnotatedMethods(EvoSuiteTest.class));
+		testMethods.addAll(getTestClass().getAnnotatedMethods(Test.class));
+		for (FrameworkMethod eachTestMethod : testMethods) {
+			eachTestMethod.validatePublicVoidNoArg(false, errors);
+		}
+	}
+
 }

@@ -26,7 +26,6 @@ import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.evosuite.Properties;
 
 public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
@@ -38,8 +37,10 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 	public static final String UNCOVERED_MARKER = "uncovered";
 	public static final String REMOVED_MARKER = "removed";
 	public static final String AUTOMATIC_TEST_ON_SAVE = "automatic";
+	public static final String ORGANIZE_IMPORTS = "organizeImports";
+	
 	static {
-		PREFERENCE_STORE = new PreferenceStore("evosuite-quickfixes-properties");	
+		PREFERENCE_STORE = new PreferenceStore("evosuite-properties");	
 	}
 	
 	public EvoSuitePreferencePage(){
@@ -74,6 +75,9 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		
 		BooleanFieldEditor auto = new BooleanFieldEditor(AUTOMATIC_TEST_ON_SAVE, "Automatic test on save", getFieldEditorParent());
 		addField(auto);
+		
+		BooleanFieldEditor cleanupImports = new BooleanFieldEditor(ORGANIZE_IMPORTS, "Organize imports", getFieldEditorParent());
+		addField(cleanupImports);
 	}
 	
 	
@@ -85,6 +89,8 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		getPreferenceStore().setToDefault(ROAMTIME);
 		getPreferenceStore().setToDefault(UNCOVERED_MARKER);
 		getPreferenceStore().setToDefault(REMOVED_MARKER);
+		getPreferenceStore().setToDefault(AUTOMATIC_TEST_ON_SAVE);
+		getPreferenceStore().setToDefault(ORGANIZE_IMPORTS);
 		
 		super.performDefaults();
 	}
@@ -98,11 +104,12 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 			e.printStackTrace();
 		}
 		getPreferenceStore().setDefault(MARKERS_ENABLED, false);
-		getPreferenceStore().setDefault("runtime", 30);
-		getPreferenceStore().setDefault("roamtime", 240);
-		getPreferenceStore().setDefault("uncovered", false);
-		getPreferenceStore().setDefault("removed", false);
-		getPreferenceStore().setDefault("automatic", false);
+		getPreferenceStore().setDefault(RUNTIME, 30);
+		getPreferenceStore().setDefault(ROAMTIME, 240);
+		getPreferenceStore().setDefault(UNCOVERED_MARKER, false);
+		getPreferenceStore().setDefault(REMOVED_MARKER, false);
+		getPreferenceStore().setDefault(AUTOMATIC_TEST_ON_SAVE, false);
+		getPreferenceStore().setDefault(ORGANIZE_IMPORTS, true);
 		
 		storeDefaults();
 		//getPreferenceStore().
@@ -132,6 +139,11 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		if (!getPreferenceStore().contains(AUTOMATIC_TEST_ON_SAVE)){
 			getPreferenceStore().setValue(AUTOMATIC_TEST_ON_SAVE, false);
 		}
+		
+		if (!getPreferenceStore().contains(ORGANIZE_IMPORTS)){
+			getPreferenceStore().setValue(ORGANIZE_IMPORTS, true);
+		}
+
 		try {
 			getPreferenceStore().save();
 		} catch (IOException e) {

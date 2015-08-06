@@ -217,7 +217,7 @@ public class DetermineSUT {
 			List<AnnotationNode> annotations = mn.visibleAnnotations;
 			if (annotations != null) {
 				for (AnnotationNode an : annotations) {
-					if (an.desc.equals("Lorg/junit/Test;"))
+				    if (an.desc.equals("Lorg/junit/Test;") || an.desc.equals("Lorg/evosuite/annotations/EvoSuiteTest;"))
 						return true;
 				}
 			}
