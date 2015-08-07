@@ -17,51 +17,30 @@
  */
 package org.evosuite.testcase;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.googlecode.gentyref.CaptureType;
+import com.googlecode.gentyref.GenericTypeReflector;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
-import org.evosuite.assertion.ArrayEqualsAssertion;
-import org.evosuite.assertion.Assertion;
-import org.evosuite.assertion.CompareAssertion;
-import org.evosuite.assertion.EqualsAssertion;
-import org.evosuite.assertion.Inspector;
-import org.evosuite.assertion.InspectorAssertion;
-import org.evosuite.assertion.NullAssertion;
-import org.evosuite.assertion.PrimitiveAssertion;
-import org.evosuite.assertion.PrimitiveFieldAssertion;
-import org.evosuite.assertion.SameAssertion;
+import org.evosuite.assertion.*;
 import org.evosuite.classpath.ResourceList;
+import org.evosuite.idNaming.VariableNamesGenerator;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentDataStatement;
 import org.evosuite.testcase.variable.*;
-import org.evosuite.utils.*;
-
-import com.googlecode.gentyref.CaptureType;
-import com.googlecode.gentyref.GenericTypeReflector;
+import org.evosuite.utils.NumberFormatter;
+import org.evosuite.utils.StringUtil;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.generic.GenericMethod;
+
+import java.lang.reflect.*;
+import java.util.*;
 
 /**
  * The TestCodeVisitor is a visitor that produces a String representation of a
@@ -334,6 +313,13 @@ public class TestCodeVisitor extends TestVisitor {
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getVariableName(VariableReference var) {
+
+        if (Properties.ID_NAMING) {
+            String name = VariableNamesGenerator.getVariableName(this.test,var);
+            if (name != null)
+                return name;
+        }
+
 		if (var instanceof ConstantValue) {
 			return var.getName();
 		} else if (var instanceof InputVariable) {
