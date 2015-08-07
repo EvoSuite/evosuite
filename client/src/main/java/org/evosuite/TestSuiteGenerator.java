@@ -18,16 +18,6 @@
 package org.evosuite;
 
  
-import java.io.File;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.TestFactory;
@@ -44,7 +34,8 @@ import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
-import org.evosuite.idNaming.TestNameGenerator;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.result.TestGenerationResult;
@@ -53,28 +44,18 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.runtime.sandbox.Sandbox;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.seeding.ObjectPool;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
-import org.evosuite.strategy.FixedNumRandomTestStrategy;
-import org.evosuite.strategy.IndividualTestStrategy;
-import org.evosuite.strategy.RandomTestStrategy;
-import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.strategy.WholeTestSuiteStrategy;
+import org.evosuite.strategy.*;
 import org.evosuite.symbolic.DSEStats;
-import org.evosuite.testcase.ConstantInliner;
+import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.TestSuiteMinimizer;
@@ -85,6 +66,10 @@ import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.text.NumberFormat;
+import java.util.*;
 
 
 /**
