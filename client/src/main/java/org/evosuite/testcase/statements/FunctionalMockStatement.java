@@ -1,8 +1,8 @@
 package org.evosuite.testcase.statements;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
-import org.evosuite.runtime.fm.EvoInvocationListener;
-import org.evosuite.runtime.fm.MethodDescriptor;
+import org.evosuite.testcase.fm.EvoInvocationListener;
+import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -10,6 +10,7 @@ import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
@@ -53,6 +54,10 @@ import static org.mockito.Mockito.withSettings;
  * throughout the lifespan of a test during the search (can both increase and decrease).
  *
  * <p>
+ * TODO: need to handle Generics, eg <br>
+ * Foo&lt;Bar&gt; foo = (Foo&lt;Bar&gt;) mock(Foo.class);
+ *
+ * <p>
  * Created by Andrea Arcuri on 01/08/15.
  */
 public class FunctionalMockStatement extends EntityWithParametersStatement{
@@ -70,7 +75,6 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
     private final Class<?> targetClass;
 
     private volatile EvoInvocationListener listener;
-
 
 
     public FunctionalMockStatement(TestCase tc, VariableReference retval, Class<?> targetClass) throws IllegalArgumentException{
@@ -196,7 +200,31 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
 
     @Override
     public Statement copy(TestCase newTestCase, int offset) {
-        return null; //TODO
+
+
+        FunctionalMockStatement copy = new FunctionalMockStatement(
+                //TODO: handle generics in the type of VarRef
+                newTestCase,new VariableReferenceImpl(newTestCase,targetClass),targetClass);
+
+        for (VariableReference r : this.parameters) {
+            copy.parameters.add(r.copy(newTestCase, offset));
+        }
+
+        copy.listener = this.listener; //no need to clone, as only read, and created new instance at each new execution
+
+        for(MethodDescriptor md : this.mockedMethods){
+            copy.mockedMethods.add(md.getCopy());
+        }
+
+        for(Map.Entry<String,List<VariableReference>> entry : methodParameters.entrySet()){
+            List<VariableReference> list = new ArrayList<>();
+            for(VariableReference var : entry.getValue()){
+                list.add(var.copy(newTestCase,offset));
+            }
+            copy.methodParameters.put(entry.getKey() , list);
+        }
+
+        return copy;
     }
 
     @Override
@@ -300,36 +328,85 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
 
     @Override
     public GenericAccessibleObject<?> getAccessibleObject() {
-        return null; //TODO
+        return null; //not defined for FM
     }
 
     @Override
     public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
-        //TODO
+        //deprecated
     }
 
     @Override
     public List<VariableReference> getUniqueVariableReferences() {
-        return null; //TODO
+        return null; //TODO in EntityWithParametersStatement as others
     }
 
     @Override
     public Set<VariableReference> getVariableReferences() {
-        return null; //TODO
+        Set<VariableReference> references = new LinkedHashSet<>();
+        references.add(retval);
+        references.addAll(parameters);
+        for (VariableReference param : parameters) {
+            if (param.getAdditionalVariableReference() != null)
+                references.add(param.getAdditionalVariableReference());
+        }
+        return references;
     }
 
     @Override
     public boolean isAssignmentStatement() {
-        return false; //TODO
+        return false;
     }
 
     @Override
     public void replace(VariableReference var1, VariableReference var2) {
-        //TODO
+        if (retval.equals(var1))
+            retval = var2;
+
+        for (int i = 0; i < parameters.size(); i++) {
+            if (parameters.get(i).equals(var1))
+                parameters.set(i, var2);
+            else
+                parameters.get(i).replaceAdditionalVariableReference(var1, var2);
+        }
     }
 
     @Override
     public boolean same(Statement s) {
-        return false; //TODO
+        if (this == s)
+            return true;
+        if (s == null)
+            return false;
+        if (getClass() != s.getClass())
+            return false;
+
+        FunctionalMockStatement fms = (FunctionalMockStatement) s;
+
+        if (fms.parameters.size() != parameters.size())
+            return false;
+
+        for (int i = 0; i < parameters.size(); i++) {
+            if (!parameters.get(i).same(fms.parameters.get(i)))
+                return false;
+        }
+
+        if (!retval.same(fms.retval))
+            return false;
+
+        if(!targetClass.equals(fms.targetClass)){
+            return false;
+        }
+
+        if(fms.mockedMethods.size() != mockedMethods.size()){
+            return false;
+        }
+
+        for(int i=0; i<mockedMethods.size(); i++){
+            if(! mockedMethods.get(i).getID().equals(fms.mockedMethods.get(i).getID())){
+                return false;
+            }
+        }
+
+        return true;
     }
 }

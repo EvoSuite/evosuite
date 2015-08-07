@@ -1,9 +1,8 @@
-package org.evosuite.runtime.fm;
+package org.evosuite.testcase.fm;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

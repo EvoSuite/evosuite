@@ -55,6 +55,19 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         this.parameterAnnotations=null;
     }
 
+    /**
+     * Constructor needed for Functional Mocks where the number of input parameters
+     * might vary during the search, ie not constant, and starts with 0
+     * @param tc
+     * @param retval
+     */
+    protected EntityWithParametersStatement(TestCase tc, Type type){
+        super(tc, type);
+        this.parameters = new ArrayList<>();
+        this.annotations=null;
+        this.parameterAnnotations=null;
+    }
+
     private void validateInputs() throws IllegalArgumentException{
         Inputs.checkNull(parameters);
         for(VariableReference ref : parameters){
