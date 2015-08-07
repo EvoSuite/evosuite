@@ -4,15 +4,14 @@ import org.evosuite.runtime.annotation.BoundInputVariable;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Andrea Arcuri on 04/07/15.
@@ -82,6 +81,53 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
 
     public List<VariableReference> getParameterReferences() {
         return parameters;
+    }
+
+    /* (non-Javadoc)
+	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
+	 */
+    /** {@inheritDoc} */
+    @Override
+    public void replace(VariableReference var1, VariableReference var2) {
+
+        if (retval.equals(var1))
+            retval = var2;
+
+        for (int i = 0; i < parameters.size(); i++) {
+
+            if (parameters.get(i).equals(var1))
+                parameters.set(i, var2);
+            else
+                parameters.get(i).replaceAdditionalVariableReference(var1, var2);
+        }
+    }
+
+
+    @Override
+    public List<VariableReference> getUniqueVariableReferences() {
+        List<VariableReference> references = new ArrayList<>();
+        references.add(retval);
+        references.addAll(parameters);
+        for (VariableReference param : parameters) {
+            if (param instanceof ArrayIndex)
+                references.add(((ArrayIndex) param).getArray());
+        }
+        return references;
+
+    }
+
+    @Override
+    public Set<VariableReference> getVariableReferences() {
+        Set<VariableReference> references = new LinkedHashSet<VariableReference>();
+        references.add(retval);
+        references.addAll(parameters);
+        for (VariableReference param : parameters) {
+            if (param.getAdditionalVariableReference() != null)
+                references.add(param.getAdditionalVariableReference());
+        }
+        references.addAll(getAssertionReferences());
+
+        return references;
     }
 
 

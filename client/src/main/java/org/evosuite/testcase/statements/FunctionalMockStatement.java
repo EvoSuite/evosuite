@@ -337,38 +337,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
     }
 
     @Override
-    public List<VariableReference> getUniqueVariableReferences() {
-        return null; //TODO in EntityWithParametersStatement as others
-    }
-
-    @Override
-    public Set<VariableReference> getVariableReferences() {
-        Set<VariableReference> references = new LinkedHashSet<>();
-        references.add(retval);
-        references.addAll(parameters);
-        for (VariableReference param : parameters) {
-            if (param.getAdditionalVariableReference() != null)
-                references.add(param.getAdditionalVariableReference());
-        }
-        return references;
-    }
-
-    @Override
     public boolean isAssignmentStatement() {
         return false;
-    }
-
-    @Override
-    public void replace(VariableReference var1, VariableReference var2) {
-        if (retval.equals(var1))
-            retval = var2;
-
-        for (int i = 0; i < parameters.size(); i++) {
-            if (parameters.get(i).equals(var1))
-                parameters.set(i, var2);
-            else
-                parameters.get(i).replaceAdditionalVariableReference(var1, var2);
-        }
     }
 
     @Override
