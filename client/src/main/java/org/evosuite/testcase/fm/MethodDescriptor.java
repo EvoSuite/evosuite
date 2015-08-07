@@ -1,21 +1,23 @@
-package org.evosuite.runtime.fm;
+package org.evosuite.testcase.fm;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.util.Inputs;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
  * Created by Andrea Arcuri on 27/07/15.
  */
-public class MethodDescriptor implements Comparable<MethodDescriptor>{
+public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializable{
 
     private static final Logger logger = LoggerFactory.getLogger(MethodDescriptor.class);
 
@@ -28,6 +30,8 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>{
     private int counter;
 
     private transient volatile Method method;
+
+    private transient volatile String id; //derived field
 
 
     public MethodDescriptor(Method method){
@@ -63,6 +67,12 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>{
         }
 
         inputParameterMatchers = matchers;
+    }
+
+    public MethodDescriptor getCopy(){
+        MethodDescriptor copy = new MethodDescriptor(method);
+        copy.counter = this.counter;
+        return copy;
     }
 
     public int getNumberOfInputParameters(){
@@ -105,10 +115,12 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>{
     }
 
     public Method getMethod(){
-        if(method == null){
-            /*
-                Deprecated code
-             */
+        /*
+         Deprecated code
+
+         if(method == null){
+
+
             int nParams = inputParameterMatchers.trim().isEmpty() ? 0 :
                     (inputParameterMatchers.length() - inputParameterMatchers.replace(",", "").length()) + 1;//# of "," + 1
 
@@ -119,11 +131,11 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>{
                 throw new RuntimeException("Failed reflection: "+e.getMessage(),e);
             }
 
-            /*
-                TODO: as now, we cannot get the correct method: we just return the first one
-                matching at least the number of parameters.
-                However, at least we force it to be deterministic
-             */
+
+            //    TODO: as now, we cannot get the correct method: we just return the first one
+            //    matching at least the number of parameters.
+            //    However, at least we force it to be deterministic
+
 
             List<Method> list = Arrays.asList(klass.getDeclaredMethods()).stream()
                     .filter(m -> m.getName().equals(methodName) && m.getParameterTypes().length==nParams)
@@ -140,8 +152,11 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>{
             }
 
             method = list.get(0);
-        }
 
+        }
+        */
+
+        assert method != null;
         return method;
     }
 
@@ -154,7 +169,10 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>{
     }
 
     public String getID(){
-        return className +"."+ getMethodName() + "#" + getInputParameterMatchers();
+        if(id == null){
+            id = className +"."+ getMethodName() + "#" + getInputParameterMatchers();
+        }
+        return id;
     }
 
     public int getCounter() {
@@ -181,5 +199,41 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>{
             return com;
         }
         return this.counter - o.counter;
+    }
+
+
+    //for Serialization
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+        // Write/save additional fields
+        oos.writeObject(method.getDeclaringClass().getName());
+        oos.writeObject(method.getName());
+        oos.writeObject(org.objectweb.asm.Type.getMethodDescriptor(method));
+    }
+
+
+    //for Serialization
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+
+        // Read/initialize additional fields
+        Class<?> methodClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass((String) ois.readObject());
+
+        String methodName = (String) ois.readObject();
+        String methodDesc = (String) ois.readObject();
+
+        for (Method method : methodClass.getDeclaredMethods()) {
+            if (method.getName().equals(methodName)) {
+                if (org.objectweb.asm.Type.getMethodDescriptor(method).equals(methodDesc)) {
+                    this.method = method;
+                    return;
+                }
+            }
+        }
+
+        if (this.method==null) {
+            throw new IllegalStateException("Unknown method for " + methodName
+                    + " in class " + methodClass.getCanonicalName());
+        }
     }
 }
