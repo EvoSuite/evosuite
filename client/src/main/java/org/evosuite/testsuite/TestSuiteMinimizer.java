@@ -128,11 +128,12 @@ public class TestSuiteMinimizer {
         if (!Properties.JUNIT_EXTEND.isEmpty()) {
 
             try {
-                Class<?> junitClass = Class.forName(Properties.JUNIT_EXTEND, true, TestGenerationContext.getClassLoader());
-                List<TestFitnessFunction> coveredGoals = CoverageAnalysis.getCoveredGoals(junitClass, goals);
+                Class<?> junitClass = Class.forName(Properties.JUNIT_EXTEND, true, TestGenerationContext.getInstance().getClassLoaderForSUT());
+                Set<TestFitnessFunction> coveredGoals = CoverageAnalysis.getCoveredGoals(junitClass, goals);
                 logger.warn("Removing " + coveredGoals.size() + " goals already covered by JUnit (total: " + goals.size() + ")");
-                logger.warn("Removing " + coveredGoals + " goals already covered by JUnit (total: " + goals + ")");
+                //logger.warn("Removing " + coveredGoals + " goals already covered by JUnit (total: " + goals + ")");
                 goals.removeAll(coveredGoals);
+                logger.warn("Remaining goals: "+goals.size()+": "+goals);
             } catch (ClassNotFoundException e) {
                 logger.warn("Failed to find JUnit test suite: " + Properties.JUNIT_EXTEND);
             }

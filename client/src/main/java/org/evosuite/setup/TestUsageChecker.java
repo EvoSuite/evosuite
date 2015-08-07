@@ -2,10 +2,15 @@ package org.evosuite.setup;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
+import org.evosuite.annotations.EvoSuiteTest;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.mock.MockList;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -260,8 +265,14 @@ public class TestUsageChecker {
             }
         }
 
-        if (m.isAnnotationPresent(Test.class)) {
+        if (m.isAnnotationPresent(Test.class) || m.isAnnotationPresent(Before.class) || m.isAnnotationPresent(BeforeClass.class)
+        		 || m.isAnnotationPresent(After.class)  || m.isAnnotationPresent(AfterClass.class)) {
             logger.debug("Excluding test method " + m.getName());
+            return false;
+        }
+        
+        if (m.isAnnotationPresent(EvoSuiteTest.class)) {
+            logger.debug("Excluding EvoSuite test method " + m.getName());
             return false;
         }
 

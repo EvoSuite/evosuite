@@ -452,8 +452,9 @@ public class TestCluster {
 
 	/**
 	 * Return all calls that have a parameter with given type
-	 *
-	 * @param type
+	 * 
+	 * @param clazz
+	 * @param resolve
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
@@ -623,7 +624,8 @@ public class TestCluster {
 	/**
 	 * Get a list of all generator objects for the type
 	 *
-	 * @param type
+	 * @param clazz
+	 * @param resolve
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
@@ -789,7 +791,6 @@ public class TestCluster {
 	/**
 	 * Determine the set of generators for an Object.class instance
 	 *
-	 * @param target
 	 * @return a collection of all cast classes stored in {@link CastClassManager}; cannot be <code>null</code>>.
 	 */
 	public Set<GenericAccessibleObject<?>> getObjectGenerators() {
@@ -815,7 +816,7 @@ public class TestCluster {
 	/**
 	 * Randomly select one generator
 	 *
-	 * @param type
+	 * @param clazz
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
@@ -856,11 +857,13 @@ public class TestCluster {
 
 	/**
 	 * Randomly select one generator
-         *
-         * @param type
-         * @return
-         * @throws ConstructionFailedException
-         */
+	 *
+	 * @param clazz
+	 * @param excluded
+	 * @param test
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
 	public GenericAccessibleObject<?> getRandomGenerator(GenericClass clazz,
 	        Set<GenericAccessibleObject<?>> excluded, TestCase test) throws ConstructionFailedException {
 
@@ -1062,7 +1065,7 @@ public class TestCluster {
 	/**
 	 * Determine if there are generators
 	 *
-	 * @param type
+	 * @param clazz
 	 * @return
 	 */
 	public boolean hasGenerator(GenericClass clazz) {

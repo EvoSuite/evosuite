@@ -14,7 +14,8 @@ public class EvoSuiteThread implements Runnable {
 	@Override
 	public void run() {
 		testAction = new TestGenerationTrigger(res);
-		testAction.run(null);
+		// TODO
+		// testAction.run(null);
 	}
 
 	public void stop(){

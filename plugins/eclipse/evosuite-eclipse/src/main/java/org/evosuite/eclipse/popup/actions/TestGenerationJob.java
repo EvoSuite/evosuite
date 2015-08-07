@@ -171,10 +171,11 @@ public class TestGenerationJob extends Job {
 
 				String fileContents = readFileToString(suiteFileName);
 
-				ASTParser parser = ASTParser.newParser(AST.JLS4);
+				ASTParser parser = ASTParser.newParser(AST.JLS8);
 				parser.setKind(ASTParser.K_COMPILATION_UNIT);
 				parser.setStatementsRecovery(true);
 
+				@SuppressWarnings("unchecked")
 				Map<String, String> COMPILER_OPTIONS = new HashMap<String, String>(JavaCore.getOptions());
 				COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
 				COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
@@ -221,8 +222,24 @@ public class TestGenerationJob extends Job {
 				}
 			} else
 				System.out.println("Not checking markers.");
-		} else 
+		} else {
 			System.out.println("File " + suiteFileName + " does not exist");
+			// TODO: Dialog
+//			Display.getDefault().syncExec(new Runnable() {
+//				@Override
+//				public void run() {
+//					MessageDialog dialog = new MessageDialog(
+//							shell,
+//							"Error during test generation",
+//							null, // image
+//							"EvoSuite failed to generate tests for class"
+//							+ suiteClass,
+//							MessageDialog.OK, new String[] { "Ok" }, 0);
+//					dialog.open();
+//				}					
+//			});
+//			return Status.CANCEL_STATUS;
+		}
 		
 		setThread(new Thread());
 		running = true;
@@ -240,10 +257,10 @@ public class TestGenerationJob extends Job {
 		
 		try {
 			target.getProject().refreshLocal(IProject.DEPTH_INFINITE, null);
-			if ("true".equals(target.getProject().getPersistentProperty(
-					EvoSuitePropertyPage.REPORT_PROP_KEY))) {
-				syncWithUi(target);
-			};
+//			if ("true".equals(target.getProject().getPersistentProperty(
+//					EvoSuitePropertyPage.REPORT_PROP_KEY))) {
+//				syncWithUi(target);
+//			};
 			
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
@@ -254,20 +271,17 @@ public class TestGenerationJob extends Job {
 						IWorkbenchWindow iw = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow();
 						IWorkbenchPage page = iw.getActivePage();
 						IEditorPart part = IDE.openEditor(page, generatedSuite, true);
-						// Remove unused imports
-						// TODO: not sure if this is the right place to do this though
-						Boolean removeUnused = System.getProperty("evosuite.organize.imports") != null;
-						if ( removeUnused ) {
+						if ( Activator.organizeImports() ) {
 							OrganizeImportsAction a=new OrganizeImportsAction(part.getSite());
 							a.run(cu);
 							cu.commitWorkingCopy(true, null);
 							cu.save(null, true);
 						}
 					} catch (PartInitException e1) {
-						System.out.println("Could not open test suite");
+						System.out.println("Could not open test suite to organize imports");
 						e1.printStackTrace();
 					} catch (JavaModelException e) {
-						System.out.println("Something went wrong while saving test suite after removing unused imports");
+						System.out.println("Something went wrong while saving test suite after organizing imports");
 						e.printStackTrace();
 					};
 				}});
@@ -549,29 +563,40 @@ public class TestGenerationJob extends Job {
 		commands.addAll(Arrays.asList(new String[] {
 				"-generateSuite",
 				"-class", targetClass,
-				"-Dtest_dir=" + target.getProject().getLocation() + "/evosuite-tests", 
 				"-evosuiteCP", TestGenerationAction.getEvoSuiteJar(), 
 				"-projectCP", classPath, 
 				"-base_dir", baseDir, 
 				"-Dshow_progress=false", 
-				"-Dstopping_condition=MaxTime", 
+				"-Dstopping_condition=TimeDelta", 
 				"-Dtest_comments=false", // "true"
 				"-Dsearch_budget=" + time, 
 				"-Dassertion_timeout=" + time, 
 				"-Dpure_inspectors=true", 
-				"-Dnew_statistics=false",
-				"-Declipse_plugin=true"
+				"-Dnew_statistics=false"
 				// "-Dsandbox_mode=IO",
 				// "-Djava.rmi.server.codebase=file:///Remote/evosuite-0.1-SNAPSHOT-jar-minimal.jar"
 				}));
 		
+		if ( System.getProperty("evosuite.experiment") != null ) {
+			commands.add("-Declipse_plugin=true");
+		}
+		
 		String budget = target.getProject().getPersistentProperty(
 				EvoSuitePropertyPage.TIME_PROP_KEY);
 		if (budget == null) {
-			commands.add("-Dsearch_budget=120");
+			commands.add("-Dsearch_budget=20");
 		} else {
 			commands.add("-Dsearch_budget=" + budget);
 		}
+		
+		String globalBudget = target.getProject().getPersistentProperty(
+				EvoSuitePropertyPage.GLOBAL_TIME_PROP_KEY);
+		if (globalBudget == null) {
+			commands.add("-Dglobal_timeout=60");
+		} else {
+			commands.add("-Dglobal_timeout=" + globalBudget);
+		}
+
 		;
 		if ("false".equals(target.getProject().getPersistentProperty(
 				EvoSuitePropertyPage.ASSERTION_PROP_KEY))) {
@@ -611,16 +636,16 @@ public class TestGenerationJob extends Job {
 		}
 		//	}
 
-		if (!"true".equals(target.getProject().getPersistentProperty(
-				EvoSuitePropertyPage.REPORT_PROP_KEY))) {
-			commands.add("-Dhtml=false");
-			//commands.add("-Dstatistics_backend=none");
-		} else {
-			if ("true".equals(target.getProject().getPersistentProperty(
-					EvoSuitePropertyPage.PLOT_PROP_KEY))) {
-				commands.add("-Dplot=true");
-			}
-		}
+//		if (!"true".equals(target.getProject().getPersistentProperty(
+//				EvoSuitePropertyPage.REPORT_PROP_KEY))) {
+//			commands.add("-Dhtml=false");
+//			//commands.add("-Dstatistics_backend=none");
+//		} else {
+//			if ("true".equals(target.getProject().getPersistentProperty(
+//					EvoSuitePropertyPage.PLOT_PROP_KEY))) {
+//				commands.add("-Dplot=true");
+//			}
+//		}
 		if ("false".equals(target.getProject().getPersistentProperty(
 				EvoSuitePropertyPage.SANDBOX_PROP_KEY))) {
 			commands.add("-Dsandbox=false");
@@ -858,10 +883,11 @@ public class TestGenerationJob extends Job {
 				return;
 			}
 
-			ASTParser parser = ASTParser.newParser(AST.JLS4);
+			ASTParser parser = ASTParser.newParser(AST.JLS8);
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
 			parser.setStatementsRecovery(true);
 
+			@SuppressWarnings("unchecked")
 			Map<String, String> COMPILER_OPTIONS = new HashMap<String, String>(JavaCore.getOptions());
 			COMPILER_OPTIONS.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
 			COMPILER_OPTIONS.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
@@ -940,6 +966,8 @@ public class TestGenerationJob extends Job {
 	}
 
 	public List<String> getAdditionalParameters() {
-		return new ArrayList<String>();
+		List<String> parameters = new ArrayList<String>();
+		parameters.add("-Dtest_dir=" + target.getProject().getLocation() + "/evosuite-tests");
+		return parameters;
 	}
 }

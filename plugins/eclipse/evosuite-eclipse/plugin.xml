@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-
+<!--
    <extension
          point="org.eclipse.ui.popupMenus">
       <objectContribution
@@ -15,8 +15,9 @@
             <separator
                   name="group1">
             </separator>
-         </menu>
-         <!-- action commented out in White's version --> 
+         </menu> -->
+         <!-- action commented out in White's version -->
+         <!-- 
          <action
                label="Extend JUnit Test Suite"
                class="org.evosuite.eclipse.popup.actions.ExtendSuiteAction"
@@ -33,7 +34,7 @@
                      <adapt type="org.eclipse.jdt.core.IJavaElement"> 
                         <test property="org.eclipse.jdt.core.isInJavaProject"/>
                         <test property="org.eclipse.jdt.core.hasTypeOnClasspath" value="junit.framework.Test"/>
-                        <test property="org.eclipse.jdt.junit.canLaunchAsJUnit" forcePluginActivation="true"/> 
+                        <test property="org.eclipse.jdt.junit.canLaunchAsJUnit" forcePluginActivation="true"/>
                       </adapt>
                   </iterate>
                </with>
@@ -48,7 +49,8 @@
                tooltip="Make EvoSuite generate JUnit test classes"
                enablesFor="1"
                id="org.evosuite.EvoSuiteAction">
-         </action>
+         </action> -->
+         <!--
          <action
                label="Clear EvoSuite Markers"
                class="org.evosuite.eclipse.popup.actions.ClearMarkersAction"
@@ -59,6 +61,7 @@
                enablesFor="1"
                id="org.evosuite.ClearEvoSuiteMarkers">
          </action>
+         --><!--
       </objectContribution>
             <objectContribution
             id="org.evosuite.EditorContribution"
@@ -72,8 +75,8 @@
                 <separator
                     name="group">
                 </separator>
-            </menu>
-            <!-- action commented out in White's version -->
+            </menu> -->
+            <!-- action commented out in White's version --> <!--
             <action
                 label="Extend JUnit Test Suite"
                 class="org.evosuite.eclipse.popup.actions.ExtendSuiteEditorAction"
@@ -90,7 +93,7 @@
             </action>
             
         </objectContribution>
-      
+      -->
       <!--
       <objectContribution
             id="org.evosuite.EditorContribution"
@@ -114,7 +117,8 @@
             </action>
         </objectContribution>
         --> 
-   </extension>
+        <!--
+   </extension> -->
    <extension point="org.eclipse.ui.propertyPages">
       <page
             adaptable="true"
@@ -330,6 +334,89 @@
 			class="org.evosuite.eclipse.properties.EvoSuitePreferencePage" >
 		</page>
 	</extension>
+	
+ <extension point="org.eclipse.ui.commands">
+ 	<command
+      description="Generate JUnit test suite with EvoSuite"
+      id="org.evosuite.EvoSuiteAction"
+      name="Generate tests with EvoSuite">
+  	</command>
+ 	<command
+      description="Extend JUnit test suite with EvoSuite"
+      id="org.evosuite.EvoSuiteExtendAction"
+      name="Extend test suite with EvoSuite">
+  	</command>
+ </extension>
+ <extension
+    point="org.eclipse.ui.commandImages">
+  <image
+      commandId="org.evosuite.EvoSuiteAction"
+      icon="icons/evosuite.gif">
+  </image>
+  <image
+      commandId="org.evosuite.EvoSuiteExtendAction"
+      icon="icons/evosuite.gif">
+  </image>
+</extension>
+<extension
+    point="org.eclipse.ui.handlers">
+  <handler
+      class="org.evosuite.eclipse.popup.actions.GenerateTestsEditorAction"
+      commandId="org.evosuite.EvoSuiteAction">    
+  </handler>
+  <handler
+      class="org.evosuite.eclipse.popup.actions.ExtendSuiteEditorAction"
+      commandId="org.evosuite.EvoSuiteExtendAction">    
+  </handler>
+</extension>
+
+<extension point="org.eclipse.ui.menus">
+  	<menuContribution locationURI="popup:org.eclipse.ui.popup.any">
+    	<command commandId="org.evosuite.EvoSuiteAction">
+		    <visibleWhen>
+      			<with variable="activeMenuSelection">
+      			  <and>
+      				<count value="1"></count>
+        			<iterate ifEmpty="false" operator="and">
+						<and>
+							<instanceof value="org.eclipse.jdt.core.IJavaElement"/>
+       						<adapt type="org.eclipse.core.resources.IResource">
+          						<test property="org.eclipse.core.resources.name" 
+                					value="*.java"/>
+       						</adapt>
+							<not>
+								<test property="org.eclipse.jdt.junit.isTest"/>
+							</not>
+						</and>
+        			</iterate>
+        		  </and>
+      			</with>
+    		</visibleWhen>
+		</command>
+	</menuContribution>
+  	<menuContribution locationURI="popup:org.eclipse.ui.popup.any">
+    	<command commandId="org.evosuite.EvoSuiteExtendAction">
+		    <visibleWhen>
+      			<with variable="activeMenuSelection">
+      			  <and>
+      				<count value="1"></count>
+        			<iterate ifEmpty="false" operator="and">
+						<and>
+							<instanceof value="org.eclipse.jdt.core.IJavaElement"/>
+       						<adapt type="org.eclipse.core.resources.IResource">
+          						<test property="org.eclipse.core.resources.name" 
+                					value="*.java"/>
+       						</adapt>
+							<test property="org.eclipse.jdt.junit.isTest"/>
+						</and>
+        			</iterate>
+        		  </and>
+      			</with>
+    		</visibleWhen>
+		</command>
+	</menuContribution>
+	
+</extension>
 
 	<!--<extension
 	       id="CATSGeneration"

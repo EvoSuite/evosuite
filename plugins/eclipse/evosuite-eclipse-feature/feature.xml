@@ -2,7 +2,7 @@
 <feature
       id="org.evosuite.plugins.eclipse.feature"
       label="EvoSuite JUnit Test Generation"
-      version="0.1.0.qualifier">
+      version="0.2.0.qualifier">
 
    <description url="http://www.evosuite.org">
       This is an experimental plugin for the EvoSuite test generation tool, and is likely very unstable.

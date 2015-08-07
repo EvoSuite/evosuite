@@ -5,10 +5,8 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -36,6 +34,10 @@ public class EvoInvocationListenerTest {
         when(foo.parseString(any(), any(Object.class))).thenReturn(3);
         when(foo.parseString(any(), any(Foo.class))).thenReturn(4);
 
+        List<MethodDescriptor> list = listener.getCopyOfMethodDescriptors();
+        Assert.assertEquals(0, list.size()); //not active yet
+        listener.activate();
+
         int res = foo.parseString("foo");
         Assert.assertEquals(1, res);
 
@@ -51,8 +53,7 @@ public class EvoInvocationListenerTest {
         res = foo.parseString("bar", (Foo) null);
         Assert.assertEquals(4, res);
 
-        List<MethodDescriptor> list = listener.getViewOfMethodDescriptors();
-        //TODO: as it is now, in Mockito we cannot distinguish between overloaded methods with same cardinality
-        Assert.assertEquals(2, list.size());
+        list = listener.getCopyOfMethodDescriptors();
+        Assert.assertEquals(4, list.size());
     }
 }

@@ -10,6 +10,7 @@ import org.evosuite.utils.Randomness;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,6 +40,19 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         this.annotations = annotations;
         this.parameterAnnotations = parameterAnnotations;
         validateInputs();
+    }
+
+    /**
+     * Constructor needed for Functional Mocks where the number of input parameters
+     * might vary during the search, ie not constant, and starts with 0
+     * @param tc
+     * @param retval
+     */
+    protected EntityWithParametersStatement(TestCase tc, VariableReference retval){
+        super(tc, retval);
+        this.parameters = new ArrayList<>();
+        this.annotations=null;
+        this.parameterAnnotations=null;
     }
 
     private void validateInputs() throws IllegalArgumentException{
@@ -89,6 +103,11 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
      */
     public boolean isBounded(VariableReference var) throws IllegalArgumentException{
         Inputs.checkNull(var);
+
+        if(parameterAnnotations==null){
+            assert this instanceof FunctionalMockStatement; //for now this should be the only valid case
+            return false;
+        }
 
         for(int i=0; i<parameters.size(); i++){
             if(parameters.get(i).equals(var)){
