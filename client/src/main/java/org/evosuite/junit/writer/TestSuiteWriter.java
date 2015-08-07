@@ -27,8 +27,6 @@ import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
-import org.evosuite.idNaming.CheckTestNameUniqueness;
-import org.evosuite.idNaming.OptimizeTestName;
 import org.evosuite.idNaming.TestNameGenerator;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -47,11 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-
 import java.io.File;
 import java.io.PrintStream;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
 
@@ -87,8 +83,6 @@ public class TestSuiteWriter implements Opcodes {
 
     private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
     
-    private static List<Integer> methodPosition = new ArrayList<Integer>();
-
     private final static String NEWLINE = System.getProperty("line.separator");
 
     /**
@@ -186,8 +180,11 @@ public class TestSuiteWriter implements Opcodes {
      *
      * @param name      Name of the class
      * @param directory Output directory
+     * @param optimizeIDNaming Optimize identifier names or not
      */
-    public List<File> writeTestSuite(String name, String directory, boolean flag) throws IllegalArgumentException {
+    public List<File> writeTestSuite(String name, String directory, boolean optimizeIDNaming) throws IllegalArgumentException {
+        // Argument optimizeIDNaming needed to ensure optimized names are only generated
+        // in the last call to this method
 
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Empty test class name");
@@ -205,10 +202,14 @@ public class TestSuiteWriter implements Opcodes {
         String dir = TestSuiteWriterUtils.makeDirectory(directory);
         String content = "";
 
+        if (Properties.ID_NAMING && optimizeIDNaming) {
+            TestNameGenerator.getInstance().execute(testCases,results);
+        }
+
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
             executor.newObservers();
-            content = getUnitTestsAllInSameFile(name, results, flag);
+            content = getUnitTestsAllInSameFile(name, results);
             Utils.writeFile(content, file);
             generated.add(file);
         } else {
@@ -249,7 +250,7 @@ public class TestSuiteWriter implements Opcodes {
      * @param name Name of the class file
      * @return String representation of JUnit test file
      */
-    private String getUnitTestsAllInSameFile(String name, List<ExecutionResult> results, boolean flag) {
+    private String getUnitTestsAllInSameFile(String name, List<ExecutionResult> results) {
 
         for (int i = 0; i < testCases.size(); i++) {
             ExecutionResult result = runTest(testCases.get(i));
@@ -269,9 +270,9 @@ public class TestSuiteWriter implements Opcodes {
         if (!Properties.TEST_SCAFFOLDING) {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
         }
-        
+
         for (int i = 0; i < testCases.size(); i++) {
-            builder.append(testToString(i, i, results.get(i), flag));
+            builder.append(testToString(i, i, results.get(i)));
         }
         builder.append(getFooter());
         
@@ -299,7 +300,7 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
         }
 
-        builder.append(testToString(testId, testId, results.get(0), false));
+        builder.append(testToString(testId, testId, results.get(0)));
         builder.append(getFooter());
 
         return builder.toString();
@@ -512,193 +513,6 @@ public class TestSuiteWriter implements Opcodes {
     }
 
 
-    /**
-     * Convert one test case to a Java method
-     *
-     * @param id     Index of the test case
-     * @param result a {@link org.evosuite.testcase.execution.ExecutionResult} object.
-     * @return String representation of test case
-     */
-    protected String testToString(int number, int id, ExecutionResult result, boolean flag) {
-
-        boolean wasSecurityException = result.hasSecurityException();
-
-        StringBuilder builder = new StringBuilder();
-        builder.append(NEWLINE);
-        if (Properties.TEST_COMMENTS || testComment.containsKey(id)) {
-            builder.append(METHOD_SPACE);
-            builder.append("//");
-            builder.append(getInformation(id));
-            builder.append(NEWLINE);
-        }
-        String methodName;
-       
-        if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
-            StructuredTestCase structuredTest = (StructuredTestCase) testCases.get(id);
-            String targetMethod = structuredTest.getTargetMethods().iterator().next();
-            targetMethod = targetMethod.replace("<init>", "Constructor");
-            if (targetMethod.indexOf('(') != -1)
-                targetMethod = targetMethod.substring(0, targetMethod.indexOf('('));
-            targetMethod = StringUtils.capitalize(targetMethod);
-            int num = 0;
-            if (testMethodNumber.containsKey(targetMethod)) {
-                num = testMethodNumber.get(targetMethod);
-                testMethodNumber.put(targetMethod, num + 1);
-            } else {
-                testMethodNumber.put(targetMethod, 1);
-            }
-            if (Properties.ID_NAMING) {
-            	TestCase tc = testCases.get(id);
-                methodName = TestNameGenerator.generateTestName1("test", tc, result, number);           
-                if(flag == true){              	
-                	int pos = TestNameGenerator.getPos(methodName, methodPosition, tc.toCode());
-                	methodPosition.add(pos);
-                	String[] names= TestNameGenerator.optimizeNames();
-                //	String [] names=TestNameGenerator.methodNames.toArray(new String[0]);
-                //	List<TestCase> testCase = TestNameGenerator.testCase1;
-                	//names= CheckTestNameUniqueness.checkNames(names, testCase);
-                	methodName = names[pos];    
-                } else{
-                	 methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
-                }
-            
-                
-            } else {
-                methodName = "test" + targetMethod + num;
-            }
-            
-            builder.append(adapter.getMethodDefinition(methodName));
-        } else {
-            if (Properties.ID_NAMING) {
-                TestCase tc = testCases.get(id);
-                methodName = TestNameGenerator.generateTestName1("test", tc, result, number);           
-                if(flag == true){              	
-                	int pos = TestNameGenerator.getPos(methodName, methodPosition, tc.toCode());
-                	methodPosition.add(pos);
-                	String[] names= TestNameGenerator.optimizeNames();
-                //	String [] names=TestNameGenerator.methodNames.toArray(new String[0]);
-                //	List<TestCase> testCase = TestNameGenerator.testCase1;
-                	//names= CheckTestNameUniqueness.checkNames(names, testCase);
-                	methodName = names[pos];    
-                } else{
-                	 methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
-                }
-            } else {
-                methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
-            }           
-            builder.append(adapter.getMethodDefinition(methodName));
-        }
-
-		/*
-		 * A test case might throw a lot of different kinds of exceptions. 
-		 * These might come from SUT, and might also come from the framework itself (eg, see ExecutorService.submit).
-		 * Regardless of whether they are declared or not, an exception that propagates to the JUnit framework will
-		 * result in a failure for the test case. However, there might be some checked exceptions, and for those 
-		 * we need to declare them in the signature with "throws". So, the easiest (but still correct) option
-		 * is to just declare once to throw any generic Exception, and be done with it once and for all
-		 */
-        builder.append(" throws Throwable ");
-        builder.append(" {");
-        builder.append(NEWLINE);
-
-        // ---------   start with the body -------------------------
-        String CODE_SPACE = INNER_BLOCK_SPACE;
-
-        // No code after an exception should be printed as it would break compilability
-        TestCase test = testCases.get(id);
-        Integer pos = result.getFirstPositionOfThrownException();
-        if (pos != null) {
-            if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException) {
-                test.chop(pos);
-            } else {
-                test.chop(pos + 1);
-            }
-        }
-
-        if (wasSecurityException) {
-            builder.append(BLOCK_SPACE);
-            builder.append("Future<?> future = " + Scaffolding.EXECUTOR_SERVICE
-                    + ".submit(new Runnable(){ ");
-            builder.append(NEWLINE);
-            builder.append(INNER_BLOCK_SPACE);
-            builder.append(INNER_BLOCK_SPACE);
-            builder.append("@Override public void run() { ");
-            builder.append(NEWLINE);
-            Set<Class<?>> exceptions = test.getDeclaredExceptions();
-            if (!exceptions.isEmpty()) {
-                builder.append(INNER_INNER_BLOCK_SPACE);
-
-                builder.append("try {");
-                builder.append(NEWLINE);
-            }
-            CODE_SPACE = INNER_INNER_INNER_BLOCK_SPACE;
-        }
-
-        for (String line : adapter.getTestString(id, test,
-                result.exposeExceptionMapping(), visitor).split("\\r?\\n")) {
-            builder.append(CODE_SPACE);
-            builder.append(line);
-            builder.append(NEWLINE);
-        }
-
-        if (wasSecurityException) {
-            Set<Class<?>> exceptions = test.getDeclaredExceptions();
-            if (!exceptions.isEmpty()) {
-            	
-                builder.append(INNER_INNER_BLOCK_SPACE);
-                builder.append("} catch(Throwable t) {");
-                builder.append(NEWLINE);
-                builder.append(INNER_INNER_INNER_BLOCK_SPACE);
-                builder.append("  // Need to catch declared exceptions");
-                builder.append(NEWLINE);
-                builder.append(INNER_INNER_BLOCK_SPACE);
-                builder.append("}");
-                builder.append(NEWLINE);
-            }
-
-            builder.append(INNER_BLOCK_SPACE);
-            builder.append("} "); //closing run(){
-            builder.append(NEWLINE);
-            builder.append(BLOCK_SPACE);
-            builder.append("});"); //closing submit
-            builder.append(NEWLINE);
-
-            long time = Properties.TIMEOUT + 1000; // we add one second just to be sure, that to avoid issues with test cases taking exactly TIMEOUT ms
-            builder.append(BLOCK_SPACE);
-            builder.append("future.get(" + time + ", TimeUnit.MILLISECONDS);");
-            builder.append(NEWLINE);
-        }
-
-        // ---------   end of the body ----------------------------
-
-        builder.append(METHOD_SPACE);
-        builder.append("}");
-        builder.append(NEWLINE);
-
-        String testCode = builder.toString();
-        
-        String newMethodName=TestNameGenerator.checkExeptionInTest(testCode,methodName);
-        String []tokens=newMethodName.split("_");
-        newMethodName=tokens[0];
-        for(int i=1; i<tokens.length; i++){
-        	if(i==tokens.length-1){
-        		if(tokens[i].contains("Exception")){
-        			newMethodName+="_"+WordUtils.capitalize(tokens[i]);
-        		} else {
-        			newMethodName+=WordUtils.capitalize(tokens[i]);
-        		}
-        	}else{
-        		newMethodName+=WordUtils.capitalize(tokens[i]);
-        	}
-        }
-      //  int i=builder.indexOf(methodName);
-       // int j=builder.indexOf("()  throws Throwable  {")+1;
-        builder.replace(builder.indexOf(methodName), builder.indexOf("()  throws Throwable  {"), newMethodName);
-        testCode = builder.toString();
-        TestGenerationResultBuilder.getInstance().setTestCase(methodName, testCode, test,
-                getInformation(id), result);
-        return testCode;
-    }
 
     /**
      * When writing out the JUnit test file, each test can have a text comment
@@ -755,6 +569,168 @@ public class TestSuiteWriter implements Opcodes {
         }
 
         return builder.toString();
+    }
+
+    /**
+     * Convert one test case to a Java method
+     *
+     * @param id     Index of the test case
+     * @param result a {@link org.evosuite.testcase.execution.ExecutionResult} object.
+     * @return String representation of test case
+     */
+    protected String testToString(int number, int id, ExecutionResult result) {
+
+        boolean wasSecurityException = result.hasSecurityException();
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(NEWLINE);
+        if (Properties.TEST_COMMENTS || testComment.containsKey(id)) {
+            builder.append(METHOD_SPACE);
+            builder.append("//");
+            builder.append(getInformation(id));
+            builder.append(NEWLINE);
+        }
+
+        // Get the test method name generated in TestNameGenerator
+        String testMethodName = TestNameGenerator.getInstance().getNameGeneratedFor(testCases.get(id));
+
+        if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
+            StructuredTestCase structuredTest = (StructuredTestCase) testCases.get(id);
+            String targetMethod = structuredTest.getTargetMethods().iterator().next();
+            targetMethod = targetMethod.replace("<init>", "Constructor");
+            if (targetMethod.indexOf('(') != -1)
+                targetMethod = targetMethod.substring(0, targetMethod.indexOf('('));
+            targetMethod = StringUtils.capitalize(targetMethod);
+            int num = 0;
+            if (testMethodNumber.containsKey(targetMethod)) {
+                num = testMethodNumber.get(targetMethod);
+                testMethodNumber.put(targetMethod, num + 1);
+            } else {
+                testMethodNumber.put(targetMethod, 1);
+            }
+
+            if (testMethodName == null) {
+                // if TestNameGenerator did not generate a name, fall back to original naming
+                testMethodName = "test" + targetMethod + num;
+            }
+            builder.append(adapter.getMethodDefinition(testMethodName));
+        } else {
+            if (testMethodName == null) {
+                // if TestNameGenerator did not generate a name, fall back to original naming
+                testMethodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
+            }
+            builder.append(adapter.getMethodDefinition(testMethodName));
+        }
+
+		/*
+		 * A test case might throw a lot of different kinds of exceptions.
+		 * These might come from SUT, and might also come from the framework itself (eg, see ExecutorService.submit).
+		 * Regardless of whether they are declared or not, an exception that propagates to the JUnit framework will
+		 * result in a failure for the test case. However, there might be some checked exceptions, and for those
+		 * we need to declare them in the signature with "throws". So, the easiest (but still correct) option
+		 * is to just declare once to throw any generic Exception, and be done with it once and for all
+		 */
+        builder.append(" throws Throwable ");
+        builder.append(" {");
+        builder.append(NEWLINE);
+
+        // ---------   start with the body -------------------------
+        String CODE_SPACE = INNER_BLOCK_SPACE;
+
+        // No code after an exception should be printed as it would break compilability
+        TestCase test = testCases.get(id);
+        Integer pos = result.getFirstPositionOfThrownException();
+        if (pos != null) {
+            if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException) {
+                test.chop(pos);
+            } else {
+                test.chop(pos + 1);
+            }
+        }
+
+        if (wasSecurityException) {
+            builder.append(BLOCK_SPACE);
+            builder.append("Future<?> future = " + Scaffolding.EXECUTOR_SERVICE
+                    + ".submit(new Runnable(){ ");
+            builder.append(NEWLINE);
+            builder.append(INNER_BLOCK_SPACE);
+            builder.append(INNER_BLOCK_SPACE);
+            builder.append("@Override public void run() { ");
+            builder.append(NEWLINE);
+            Set<Class<?>> exceptions = test.getDeclaredExceptions();
+            if (!exceptions.isEmpty()) {
+                builder.append(INNER_INNER_BLOCK_SPACE);
+
+                builder.append("try {");
+                builder.append(NEWLINE);
+            }
+            CODE_SPACE = INNER_INNER_INNER_BLOCK_SPACE;
+        }
+
+        for (String line : adapter.getTestString(id, test,
+                result.exposeExceptionMapping(), visitor).split("\\r?\\n")) {
+            builder.append(CODE_SPACE);
+            builder.append(line);
+            builder.append(NEWLINE);
+        }
+
+        if (wasSecurityException) {
+            Set<Class<?>> exceptions = test.getDeclaredExceptions();
+            if (!exceptions.isEmpty()) {
+
+                builder.append(INNER_INNER_BLOCK_SPACE);
+                builder.append("} catch(Throwable t) {");
+                builder.append(NEWLINE);
+                builder.append(INNER_INNER_INNER_BLOCK_SPACE);
+                builder.append("  // Need to catch declared exceptions");
+                builder.append(NEWLINE);
+                builder.append(INNER_INNER_BLOCK_SPACE);
+                builder.append("}");
+                builder.append(NEWLINE);
+            }
+
+            builder.append(INNER_BLOCK_SPACE);
+            builder.append("} "); //closing run(){
+            builder.append(NEWLINE);
+            builder.append(BLOCK_SPACE);
+            builder.append("});"); //closing submit
+            builder.append(NEWLINE);
+
+            long time = Properties.TIMEOUT + 1000; // we add one second just to be sure, that to avoid issues with test cases taking exactly TIMEOUT ms
+            builder.append(BLOCK_SPACE);
+            builder.append("future.get(" + time + ", TimeUnit.MILLISECONDS);");
+            builder.append(NEWLINE);
+        }
+
+        // ---------   end of the body ----------------------------
+
+        builder.append(METHOD_SPACE);
+        builder.append("}");
+        builder.append(NEWLINE);
+
+        String testCode = builder.toString();
+
+        String newMethodName=TestNameGenerator.getInstance().checkExeptionInTest(testCode,testMethodName);
+        String []tokens=newMethodName.split("_");
+        newMethodName=tokens[0];
+        for(int i=1; i<tokens.length; i++){
+            if(i==tokens.length-1){
+                if(tokens[i].contains("Exception")){
+                    newMethodName+="_"+WordUtils.capitalize(tokens[i]);
+                } else {
+                    newMethodName+=WordUtils.capitalize(tokens[i]);
+                }
+            }else{
+                newMethodName+=WordUtils.capitalize(tokens[i]);
+            }
+        }
+        //  int i=builder.indexOf(methodName);
+        // int j=builder.indexOf("()  throws Throwable  {")+1;
+        builder.replace(builder.indexOf(testMethodName), builder.indexOf("()  throws Throwable  {"), newMethodName);
+        testCode = builder.toString();
+        TestGenerationResultBuilder.getInstance().setTestCase(testMethodName, testCode, test,
+                getInformation(id), result);
+        return testCode;
     }
 
 }
