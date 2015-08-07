@@ -57,8 +57,6 @@ public abstract class AbstractStatement implements Statement, Serializable {
 		 * the responsibility of the execute method. Execute SHOULD NOT catch
 		 * any exceptions. Exception handling SHOULD be done by
 		 * AbstractStatement.executer()/1.
-		 * 
-		 * @param throwableExceptions
 		 */
 		public abstract void execute() throws InvocationTargetException,
 		        IllegalArgumentException, IllegalAccessException, InstantiationException,
