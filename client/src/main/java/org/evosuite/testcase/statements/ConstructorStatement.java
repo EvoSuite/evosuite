@@ -292,39 +292,6 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 		return copy;
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new LinkedHashSet<VariableReference>();
-		references.add(retval);
-		references.addAll(parameters);
-		for (VariableReference param : parameters) {
-			if (param.getAdditionalVariableReference() != null)
-				references.add(param.getAdditionalVariableReference());
-		}
-		references.addAll(getAssertionReferences());
-
-		return references;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void replace(VariableReference var1, VariableReference var2) {
-
-		if (retval.equals(var1))
-			retval = var2;
-
-		for (int i = 0; i < parameters.size(); i++) {
-
-			if (parameters.get(i).equals(var1))
-				parameters.set(i, var2);
-			else
-				parameters.get(i).replaceAdditionalVariableReference(var1, var2);
-		}
-	}
 
 	/**
 	 * <p>
@@ -485,25 +452,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 		return ex;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public List<VariableReference> getUniqueVariableReferences() {
-		List<VariableReference> references = new ArrayList<VariableReference>();
-		references.add(retval);
-		references.addAll(parameters);
-		for (VariableReference param : parameters) {
-			if (param instanceof ArrayIndex)
-				references.add(((ArrayIndex) param).getArray());
-		}
-		return references;
 
-	}
 
 	/**
 	 * Go through parameters of constructor call and apply local search
