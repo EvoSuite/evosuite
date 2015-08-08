@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
@@ -117,6 +118,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         sequenceOutputVariableFactories.put(RuntimeVariable.MethodCoverageTimeline.name(), new MethodCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.MethodNoExceptionFitnessTimeline.name(), new MethodNoExceptionFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.MethodNoExceptionCoverageTimeline.name(), new MethodNoExceptionCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.RhoScoreTimeline.name(), new RhoFitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.AmbiguityScoreTimeline.name(), new AmbiguityFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.LineFitnessTimeline.name(), new LineFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.LineCoverageTimeline.name(), new LineCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OutputFitnessTimeline.name(), new OutputFitnessSequenceOutputVariableFactory());
@@ -650,12 +653,24 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
     private static class RhoFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
         public RhoFitnessSequenceOutputVariableFactory() {
-            super(RuntimeVariable.RhoCoverageTimeline);
+            super(RuntimeVariable.RhoScoreTimeline);
         }
 
         @Override
         public Double getValue(TestSuiteChromosome individual) {
             return individual.getFitnessInstanceOf(RhoCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class AmbiguityFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public AmbiguityFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.AmbiguityScoreTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(AmbiguityCoverageSuiteFitness.class);
         }
     }
 
