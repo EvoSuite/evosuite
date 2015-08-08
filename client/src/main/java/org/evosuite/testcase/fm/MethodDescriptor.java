@@ -111,7 +111,6 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         }else if(type.equals(String.class)){
             return Mockito.anyString();
         }else{
-            //TODO test if it works for arrays
             return Mockito.any(type.getClass());
         }
     }

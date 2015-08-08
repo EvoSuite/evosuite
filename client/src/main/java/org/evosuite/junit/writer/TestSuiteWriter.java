@@ -35,9 +35,12 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.statements.FunctionalMockStatement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.Utils;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -394,9 +397,27 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(";");
             builder.append(NEWLINE);
         }
+
+        if(doesUseMocks(results)){
+            String mockito = Mockito.class.getCanonicalName();
+            builder.append("import static "+mockito+".mock();"+NEWLINE);
+            builder.append("import static "+mockito+".when();"+NEWLINE);
+        }
+
         builder.append(NEWLINE);
 
         return builder.toString();
+    }
+
+    private boolean doesUseMocks(List<ExecutionResult> results) {
+        for(ExecutionResult er : results){
+            for(Statement st : er.test){
+                if(st instanceof FunctionalMockStatement){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 

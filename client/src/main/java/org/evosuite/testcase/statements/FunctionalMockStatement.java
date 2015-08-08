@@ -96,6 +96,28 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
         methodParameters = new LinkedHashMap<>();
     }
 
+    public Class<?> getTargetClass() {
+        return targetClass;
+    }
+
+    public List<MethodDescriptor> getMockedMethods() {
+        return mockedMethods;
+    }
+
+    public List<VariableReference> getParameters(String id) throws IllegalArgumentException{
+        Inputs.checkNull(id);
+
+        int[] minMax = methodParameters.get(id);
+        if(minMax == null){
+            return null;
+        }
+
+        List<VariableReference> list = new ArrayList<>();
+        for(int i=minMax[0]; i<=minMax[1]; i++){
+            list.add(parameters.get(i));
+        }
+        return list;
+    }
 
     /**
      * Check if the last execution of the test case has led a change in the usage of the mock.
