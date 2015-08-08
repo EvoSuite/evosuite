@@ -1809,7 +1809,7 @@ public class TestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	private List<VariableReference> satisfyParameters(TestCase test,
+	public List<VariableReference> satisfyParameters(TestCase test,
 	        VariableReference callee, List<Type> parameterTypes, int position,
 	        int recursionDepth, boolean allowNull) throws ConstructionFailedException {
 
