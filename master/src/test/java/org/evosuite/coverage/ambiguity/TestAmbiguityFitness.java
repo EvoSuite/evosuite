@@ -14,6 +14,7 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.TestFactory;
 import org.evosuite.SystemTest;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -192,6 +193,7 @@ public class TestAmbiguityFitness extends SystemTest {
 		ambiguity += (2.0 / ((double) goals.size())) * (1.0 /2.0); // {19,20}
 		ambiguity += 0.0; // {22}
 		assertEquals(0.7272, ambiguity, 0.0001);
-		assertEquals(ambiguity * 1.0 / ((double) goals.size()), best.getFitnessInstanceOf(AmbiguityCoverageSuiteFitness.class), 0.001);
+		//assertEquals(ambiguity * 1.0 / ((double) goals.size()), best.getFitnessInstanceOf(AmbiguityCoverageSuiteFitness.class), 0.001);
+		assertEquals(FitnessFunction.normalize(ambiguity), best.getFitnessInstanceOf(AmbiguityCoverageSuiteFitness.class), 0.001);
 	}
 }
