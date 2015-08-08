@@ -1,6 +1,8 @@
 package org.evosuite.testcase.statements;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
+import org.evosuite.*;
+import org.evosuite.Properties;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.runtime.util.Inputs;
@@ -68,9 +70,10 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
     private final List<MethodDescriptor> mockedMethods;
 
     /**
-     * key -> MethodDescriptor id
+     * key -> MethodDescriptor id,
+     * Value -> min,max  inclusive of indices on super.parameters
      */
-    private final Map<String, List<VariableReference>> methodParameters;
+    private final Map<String, int[]> methodParameters;
 
     private final Class<?> targetClass;
 
@@ -115,7 +118,31 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
             MethodDescriptor previous = mockedMethods.get(i);
             MethodDescriptor now = executed.get(i);
 
-            if(previous.compareTo(now) != 0){
+            if(! previous.getID().equals(now.getID())){
+                return true;
+            }
+
+            if(!now.shouldBeMocked()){
+                /*
+                    Do not change in the usage of non-mockable methods, because anyway
+                    we do not have any VarRef for them
+                 */
+                continue;
+            }
+
+            /*
+                need to be a mismatch. However, even in that case, either the current should
+                not have reached the limit (and so we could not increase) OR if it is reached
+                then the needed number of mocked v has increased.
+
+                For example, if limit is 5, and previous is 10, then decreasing by 5 or
+                 increasing by any amount should have no impact
+             */
+
+            if(now.getCounter() != previous.getCounter() &&
+                    (now.getCounter() < Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT) ||
+                     previous.getCounter() < Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT
+                    ){
                 return true;
             }
         }
@@ -136,43 +163,69 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
 
         List<Type> list = new ArrayList<>();
 
+        List<VariableReference> copy = new ArrayList<>(super.parameters);
         super.parameters.clear();
         mockedMethods.clear(); //important to remove all the no longer used calls
 
         List<MethodDescriptor> executed = listener.getCopyOfMethodDescriptors();
 
+        int mdIndex = 0;
+
         for(MethodDescriptor md : executed){
-            List<VariableReference> vars = methodParameters.get(md.getID());
-            if(vars==null){
-                vars = new ArrayList<>();
-                methodParameters.put(md.getID(),vars);
+            mockedMethods.add(md);
+
+            if(!md.shouldBeMocked()){
+                continue;
             }
+
+
+            int added = 0;
+
+            int[] minMax = methodParameters.get(md.getID());
+            int inputs;
+            if(minMax==null){
+                minMax = new int[2];
+                inputs = 0;
+            } else {
+                inputs = 1 + (minMax[1] - minMax[0]);
+            }
+
+            assert inputs  <= Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT;
 
             //check if less calls
-            while(vars.size() > md.getCounter()){
+            if(inputs > md.getCounter()){
                 //now the method has been called less times,
-                //so remove the last calls
-                vars.remove(vars.size()-1);
+                //so remove the last calls, ie decrease counter
+                minMax[1] -= (inputs - md.getCounter());
             }
 
-            for(int i=0; i<vars.size(); i++){
-                //align super class data structure
-                super.parameters.add(vars.get(i));
-            }
-
-            //check if rather more calls
-            if(vars.size() < md.getCounter()){
-                Class<?> returnType = md.getMethod().getReturnType();
-                if(! returnType.equals(Void.TYPE)) {
-                    for (int i = vars.size(); i < md.getCounter(); i++) {
-                        list.add(returnType);
-
-                        super.parameters.add(null); //important place holder for following update
-                    }
+            if(inputs > 0) {
+                for (int i = minMax[0]; i <= minMax[1]; i++) {
+                    //align super class data structure
+                    super.parameters.add(copy.get(i));
+                    added++;
                 }
             }
 
-            mockedMethods.add(md);
+            //check if rather more calls
+            if(inputs < md.getCounter()){
+                Class<?> returnType = md.getMethod().getReturnType();
+                assert ! returnType.equals(Void.TYPE);
+
+                for (int i = inputs; i < md.getCounter() && i < Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT; i++) {
+                    list.add(returnType);
+
+                    super.parameters.add(null); //important place holder for following updates
+                    added++;
+                }
+            }
+
+            //update the values on new parameters
+            minMax[0] = mdIndex;
+            minMax[1] = (mdIndex + added -1); //max is inclusive
+            assert minMax[1] >= minMax[0]; //max >= min
+            methodParameters.put(md.getID(), minMax);
+            mdIndex += added;
         }
 
         return list;
@@ -224,12 +277,9 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
             copy.mockedMethods.add(md.getCopy());
         }
 
-        for(Map.Entry<String,List<VariableReference>> entry : methodParameters.entrySet()){
-            List<VariableReference> list = new ArrayList<>();
-            for(VariableReference var : entry.getValue()){
-                list.add(var.copy(newTestCase,offset));
-            }
-            copy.methodParameters.put(entry.getKey() , list);
+        for(Map.Entry<String,int[]> entry : methodParameters.entrySet()){
+            int[] array = entry.getValue();
+            copy.methodParameters.put(entry.getKey() , new int[]{array[0],array[1]});
         }
 
         return copy;
@@ -259,13 +309,12 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
                     int index = 0;
                     for(MethodDescriptor md : mockedMethods){
 
-                        Method method = md.getMethod(); //target method, eg foo.aMethod(...)
-                        if(method.getReturnType().equals(Void.TYPE)){
+                        if(! md.shouldBeMocked()){
                             //no need to mock a method that returns void
                             continue;
                         }
 
-                        Type[] parameterTypes = method.getParameterTypes();
+                        Method method = md.getMethod(); //target method, eg foo.aMethod(...)
 
                         //target inputs
                         Object[] targetInputs = new Object[md.getNumberOfInputParameters()];
@@ -280,7 +329,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
                         OngoingStubbing<Object> retForThen = Mockito.when(targetMethodResult);
 
                         //thenReturn(...)
-                        Object[] thenReturnInputs = new Object[md.getCounter()];
+                        Object[] thenReturnInputs = new Object[Math.min(md.getCounter(), Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT)];
                         for(int i = index; i<thenReturnInputs.length; i++){
 
                             VariableReference parameterVar = parameters.get(i);

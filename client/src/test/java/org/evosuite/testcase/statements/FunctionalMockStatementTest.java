@@ -1,17 +1,20 @@
 package org.evosuite.testcase.statements;
 
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.utils.generic.GenericMethod;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,6 +29,13 @@ import static org.junit.Assert.*;
  * Created by Andrea Arcuri on 06/08/15.
  */
 public class FunctionalMockStatementTest {
+
+    private static final int DEFAULT_LIMIT = Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT;
+
+    @After
+    public void tearDown(){
+        Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT = DEFAULT_LIMIT;
+    }
 
     public interface Foo{
         boolean getBoolean();
@@ -65,6 +75,100 @@ public class FunctionalMockStatementTest {
         return res[0];
     }
 
+    public static void limit(Foo foo, int x){
+        for(int i=0; i<x ; i++){
+            foo.getBoolean();
+        }
+    }
+
+    private Scope execute(TestCase tc) throws Exception{
+        Scope scope = new Scope();
+        for(Statement st : tc){
+            st.execute(scope,System.out);
+        }
+        return scope;
+    }
+
+    //----------------------------------------------------------------------------------
+
+    @Test
+    public void testLimit() throws Exception{
+
+        TestCase tc = new DefaultTestCase();
+
+        final int LIMIT_5 = 5;
+        Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT = LIMIT_5;
+        final int LOOP_3 = 3 , LOOP_5 = 5, LOOP_7 = 7;
+
+
+        IntPrimitiveStatement x = new IntPrimitiveStatement(tc, LOOP_3);
+        VariableReference loop  = tc.addStatement(x);
+        VariableReference boolRef = tc.addStatement(new BooleanPrimitiveStatement(tc,true));
+        VariableReference ref = new VariableReferenceImpl(tc, Foo.class);
+        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, Foo.class);
+        VariableReference mock = tc.addStatement(mockStmt);
+        tc.addStatement(new MethodStatement(tc,
+                new GenericMethod(this.getClass().getDeclaredMethod("limit", Foo.class, int.class), FunctionalMockStatementTest.class),
+                null, Arrays.asList(mock,loop)));
+
+        //execute first time with default mock
+        execute(tc);
+
+        Assert.assertTrue(mockStmt.doesNeedToUpdateInputs());
+        List<Type> types = mockStmt.updateMockedMethods();
+        Assert.assertEquals(LOOP_3, types.size());
+        for(Type t : types){
+            Assert.assertEquals(boolean.class , t);
+        }
+        //add the 3 missing values
+        mockStmt.addMissingInputs(Arrays.asList(boolRef, boolRef, boolRef));
+
+
+        //before re-executing, change loops to the limit
+        x.setValue(LOOP_5);
+        execute(tc);
+
+        Assert.assertTrue(mockStmt.doesNeedToUpdateInputs());
+        types = mockStmt.updateMockedMethods();
+        Assert.assertEquals(LOOP_5 - LOOP_3, types.size());
+        for(Type t : types){
+            Assert.assertEquals(boolean.class , t);
+        }
+        //add the 2 missing values
+        mockStmt.addMissingInputs(Arrays.asList(boolRef, boolRef));
+        Assert.assertEquals(LOOP_5, mockStmt.getNumParameters());
+
+
+        //before re-executing 3rd time, change loops above the limit
+        x.setValue(LOOP_7);
+        execute(tc);
+
+        Assert.assertFalse(mockStmt.doesNeedToUpdateInputs()); //no update should be required
+        types = mockStmt.updateMockedMethods();
+        Assert.assertEquals(0, types.size());
+        Assert.assertEquals(LOOP_5 , mockStmt.getNumParameters());
+
+
+        //decrease, but to the limit, so still no required change
+        x.setValue(LOOP_5);
+        execute(tc);
+
+        Assert.assertFalse(mockStmt.doesNeedToUpdateInputs()); //no update should be required
+        types = mockStmt.updateMockedMethods();
+        Assert.assertEquals(0, types.size());
+        Assert.assertEquals(LOOP_5, mockStmt.getNumParameters());
+
+        //further decrease, but now we need to remove parameters
+        x.setValue(LOOP_3);
+        execute(tc);
+
+        Assert.assertTrue(mockStmt.doesNeedToUpdateInputs()); //do update
+        types = mockStmt.updateMockedMethods();
+        Assert.assertEquals(0, types.size()); // but no new types to add
+        Assert.assertEquals(LOOP_3, mockStmt.getNumParameters());
+    }
+
+
     @Test
     public void testAll_once()  throws Exception {
         TestCase tc = new DefaultTestCase();
@@ -80,10 +184,7 @@ public class FunctionalMockStatementTest {
         Assert.assertEquals(0, mockStmt.getNumParameters());
 
         //execute first time with default mock
-        Scope scope = new Scope();
-        for(Statement st : tc){
-            st.execute(scope,System.out);
-        }
+        Scope scope = execute(tc);
 
         Assert.assertTrue(mockStmt.doesNeedToUpdateInputs());
         List<Type> types = mockStmt.updateMockedMethods();
@@ -105,10 +206,7 @@ public class FunctionalMockStatementTest {
         Assert.assertEquals(0, mockStmt.getNumParameters());
 
         //execute first time with default mock
-        Scope scope = new Scope();
-        for(Statement st : tc){
-            st.execute(scope,System.out);
-        }
+        Scope scope = execute(tc);
 
         Assert.assertTrue(mockStmt.doesNeedToUpdateInputs());
         List<Type> types = mockStmt.updateMockedMethods();
@@ -147,10 +245,7 @@ public class FunctionalMockStatementTest {
         Assert.assertEquals(0, mockStmt.getNumParameters());
 
         //execute first time with default mock
-        Scope scope = new Scope();
-        for(Statement st : tc){
-            st.execute(scope,System.out);
-        }
+        Scope scope = execute(tc);
 
         Object obj =  scope.getObject(result);
         Assert.assertNull(obj); // default mock value should be null for objects/arrays
@@ -168,10 +263,7 @@ public class FunctionalMockStatementTest {
         Assert.assertTrue(mockStmt.getParameterReferences().get(0).same(mockedArray));
 
         //re-execute with initialized mock
-        scope = new Scope();
-        for(Statement st : tc){
-            st.execute(scope,System.out);
-        }
+        scope = execute(tc);
 
         String val = (String) scope.getObject(result);
         Assert.assertEquals(MOCKED_VALUE, val);
@@ -196,10 +288,7 @@ public class FunctionalMockStatementTest {
         Assert.assertEquals(0, mockStmt.getNumParameters());
 
         //execute first time with default mock
-        Scope scope = new Scope();
-        for(Statement st : tc){
-            st.execute(scope,System.out);
-        }
+        Scope scope = execute(tc);
 
         Integer val = (Integer) scope.getObject(result);
         Assert.assertEquals(0 , val.intValue()); // default mock value should be 0

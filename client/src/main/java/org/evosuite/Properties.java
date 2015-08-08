@@ -297,6 +297,11 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double FUNCTIONAL_MOCKING_PERCENT = 0.5;
 
+	@Parameter(key = "functional_mocking_input_limit", group = "Test Creation", description = "When mocking a method, define max number of mocked return values for that method. Calls after the last will just re-use the last specified value")
+	@DoubleValue(min = 1)
+	public static int FUNCTIONAL_MOCKING_INPUT_LIMIT = 5;
+
+
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
