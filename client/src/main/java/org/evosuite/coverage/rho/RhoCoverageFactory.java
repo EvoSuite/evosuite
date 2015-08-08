@@ -1,115 +1,55 @@
-/**
- * Copyright (C) 2011,2012,2013,2014 Gordon Fraser, Andrea Arcuri, José Campos
- * and EvoSuite contributors
- * 
- * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
 package org.evosuite.coverage.rho;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.MethodNameMatcher;
-import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.graphs.cfg.BytecodeInstructionPool;
+import org.evosuite.coverage.line.LineCoverageTestFitness;
+import org.evosuite.instrumentation.LinePool;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testsuite.AbstractFitnessFactory;
+import org.evosuite.utils.LoggingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * <p>
- * RhoCoverageFactory class.
- * </p>
  * 
  * @author José Campos
  */
 public class RhoCoverageFactory extends
-		AbstractFitnessFactory<RhoCoverageTestFitness> {
+	AbstractFitnessFactory<LineCoverageTestFitness> implements Serializable {
+
+	private static final long serialVersionUID = -4124074445663735815L;
+
+	private static final Logger logger = LoggerFactory.getLogger(RhoCoverageFactory.class);
 
 	/**
 	 * 
 	 */
-	private static boolean called = false;
-
+	private static List<LineCoverageTestFitness> goals = new ArrayList<LineCoverageTestFitness>();;
+	
 	/**
-	 * 
-	 */
-	private static List<RhoCoverageTestFitness> goals = new ArrayList<RhoCoverageTestFitness>();
-
-	/**
-	 * 
+	 * Variables to calculate Rho value
 	 */
 	private static int number_of_ones = 0;
-
-	/**
-	 * 
-	 */
 	private static int number_of_test_cases = 0;
 
 	/**
 	 * 
 	 */
-	private static LinkedHashSet<Integer> lineNumbers = new LinkedHashSet<Integer>();
+	private static double rho = 1.0;
 
 	/**
 	 * 
 	 */
-	private static void computeGoals() {
-		if (called)
-			return ;
-
-		String targetClass = Properties.TARGET_CLASS;
-
-		final MethodNameMatcher matcher = new MethodNameMatcher();
-		//for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownClasses()) {
-		for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
-			if (!(targetClass.equals("") || className.endsWith(targetClass)))
-				continue ;
-			//for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownMethods(className)) {
-			for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
-				if (!matcher.methodMatches(methodName))
-					continue ;
-				/*for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstructionsIn(className,
-																																				methodName))*/
-				for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className,
-				                                                                                                                                                 methodName))
-					if (isUsable(ins))
-						goals.add(new RhoCoverageTestFitness(ins));
-			}
-		}
-		/*LoggingUtils.getEvoLogger().info("* Total number of coverage goals using Rho Fitness Function: "
-											+ goals.size());*/
-
-		called = true;
-		loadCoverage();
-	}
-
-	/**
-	 * 
-	 * @param ins
-	 * @return
-	 */
-	private static boolean isUsable(BytecodeInstruction ins) {
-		if (lineNumbers.add(ins.getLineNumber()) == false) // this line number already exists?
-			return false;
-		return ins.isLineNumber();
-	}
+	private static List<List<Integer>> matrix = new ArrayList<List<Integer>>();
 
 	/**
 	 * Read the coverage of a test suite from a file
@@ -120,25 +60,43 @@ public class RhoCoverageFactory extends
 
 		try {
 			String sCurrentLine;
-			br = new BufferedReader(new FileReader(Properties.REPORT_DIR + File.separator + "data" + File.separator + Properties.TARGET_CLASS + ".matrix"));
+			br = new BufferedReader(new FileReader("evosuite-report" + File.separator + 
+					Properties.TARGET_CLASS + ".matrix"));
 
 			String[] split;
 			while ((sCurrentLine = br.readLine()) != null) {
 				split = sCurrentLine.split(" ");
+
+				List<Integer> test = new ArrayList<Integer>();
 				for (int i = 0; i < split.length - 1; i++) { // - 1, because we do not want to consider test result
-					if (split[i].compareTo("1") == 0)
-						number_of_ones++;
+					if (split[i].compareTo("1") == 0) {
+						try {
+							test.add(goals.get(i).getLine());
+						} catch (IndexOutOfBoundsException e) {
+							// ok ...
+						}
+					}
 				}
 
+				matrix.add(test);
+				number_of_ones += test.size();
 				number_of_test_cases++;
 			}
 
-			/*double rho = ((double) number_of_ones) / ((double) number_of_test_cases) / ((double) getNumberComponents());
+			rho = ((double) number_of_ones) / ((double) number_of_test_cases) / ((double) goals.size());
+			LoggingUtils.getEvoLogger().info("RhoScore of an existing test suite: " + rho);
+
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.RhoScore_T0, rho);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Size_T0, number_of_test_cases);
+
 			rho = Math.abs(0.5 - rho);
-			LoggingUtils.getEvoLogger().info("* Original fitness (RHO): " + rho);*/
+			LoggingUtils.getEvoLogger().info("(RhoScore - 0.5) of an existing test suite: " + rho);
 		}
 		catch (IOException e) {
-			// the coverage matrix file does not exist, ok no problem... we will generate new test cases from scratch
+			// the coverage matrix file does not exist, ok no problem...
+			// we will generate new test cases from scratch
+			logger.debug("there is no " + Properties.REPORT_DIR + File.separator +
+					Properties.TARGET_CLASS + ".matrix" );
 		}
 		finally {
 			try {
@@ -150,35 +108,58 @@ public class RhoCoverageFactory extends
 			}
 		}
 	}
-
-	/**
-	 * 
-	 */
+	
 	@Override
-	public List<RhoCoverageTestFitness> getCoverageGoals() {
-		if (!called)
-			computeGoals();
-		return goals;
-	}
-
-	/**
-	 * <p>
-	 * retrieveCoverageGoals
-	 * </p>
-	 * 
-	 * @return a {@link java.util.List} object.
-	 */
-	public static List<RhoCoverageTestFitness> retrieveCoverageGoals() {
-		if (!called)
-			computeGoals();
-		return goals;
+	public List<LineCoverageTestFitness> getCoverageGoals() {
+		return getGoals();
 	}
 
 	/**
 	 * 
 	 * @return
 	 */
-	public static int getNumberOnes() {
+	public static List<LineCoverageTestFitness> getGoals() {
+
+		if (!goals.isEmpty()) {
+			return goals;
+		}
+
+		for(String className : LinePool.getKnownClasses()) {
+			Set<Integer> lines = LinePool.getLines(className);
+			for (Integer line : lines) {
+				logger.info("Adding goal for method " + className + ". Line " + line + ".");
+				goals.add(new LineCoverageTestFitness(className, Properties.TARGET_METHOD, line));
+			}
+		}
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
+
+		if (Properties.USE_EXISTING_COVERAGE) {
+			loadCoverage();
+		} else {
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.RhoScore_T0, 1.0);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Size_T0, number_of_test_cases);
+		}
+
+		return goals;
+	}
+
+	/**
+	 * 
+	 * @return
+	 * @throws Exception 
+	 */
+	public static int getNumberGoals() {
+		if (goals.isEmpty()) {
+			getGoals();
+		}
+		return goals.size();
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public static int getNumber_of_Ones() {
 		return number_of_ones;
 	}
 
@@ -186,7 +167,42 @@ public class RhoCoverageFactory extends
 	 * 
 	 * @return
 	 */
-	public static int getNumberTestCases() {
+	public static int getNumber_of_Test_Cases() {
+		assert(number_of_test_cases == matrix.size());
 		return number_of_test_cases;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public static double getRho() {
+		return rho;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public static List<List<Integer>> getMatrix() {
+		return matrix;
+	}
+
+	/**
+	 * 
+	 * @param newTest
+	 * @return
+	 */
+	public static boolean exists(List<Integer> newTest) {
+		return matrix.contains(newTest);
+	}
+
+	// only for testing
+	protected static void reset() {
+		goals.clear();
+		number_of_ones = 0;
+		number_of_test_cases = 0;
+		rho = 1.0;
+		matrix.clear();
 	}
 }

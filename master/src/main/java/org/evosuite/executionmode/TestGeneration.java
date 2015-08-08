@@ -103,7 +103,10 @@ public class TestGeneration {
 
 	private static Strategy getChosenStrategy(List<String> javaOpts, CommandLine line) {
 		Strategy strategy = null;
-		if (line.hasOption("generateTests")) {
+		if (javaOpts.contains("-Dstrategy="+Strategy.ENTBUG.name())
+				&& line.hasOption("generateTests")) {
+			strategy = Strategy.ENTBUG;
+		} else if (line.hasOption("generateTests")) {
 			strategy = Strategy.ONEBRANCH;
 		} else if (line.hasOption("generateSuite")) {
 			strategy = Strategy.EVOSUITE;
@@ -298,6 +301,9 @@ public class TestGeneration {
 			break;
 		case REGRESSION:
 			cmdLine.add("-Dstrategy=Regression");
+			break;
+		case ENTBUG:
+			cmdLine.add("-Dstrategy=EntBug");
 			break;
 		default:
 			throw new RuntimeException("Unsupported strategy: " + strategy);

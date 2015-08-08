@@ -8,6 +8,8 @@ import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
+import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
@@ -46,18 +48,18 @@ public class CoverageAnalysis {
 	private static void reinstrument(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
 
-		// do not reinstrument a testSuite for criterion that we have
-		// been optimizing (because we already have coverage for that)
-		if (ArrayUtil.contains(Properties.CRITERION, criterion)) {
-			return ;
-		}
-
 		if (Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("ibranch")
 				|| Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("archiveibranch")) {
 			ExecutionTracer.enableContext();
 		}
 		if (!ExecutionTracer.isTraceCallsEnabled()) {
 			ExecutionTracer.enableTraceCalls();
+		}
+
+		// do not reinstrument a testSuite for criterion that we have
+		// been optimizing (because we already have coverage for that)
+		if (ArrayUtil.contains(Properties.CRITERION, criterion)) {
+			return ;
 		}
 
 		testSuite.setChanged(true);
@@ -111,11 +113,8 @@ public class CoverageAnalysis {
         }
 	}
 
-	public static void analyzeCoverage(TestSuiteChromosome testSuite, String criterion) {
+	private static void analyzeCoverage(TestSuiteChromosome testSuite, String criterion) {
 		try {
-			logger.info("Measuring coverage of criterion: "
-			                                         + criterion);
-
 			Properties.Criterion crit = Properties.Criterion.valueOf(criterion.toUpperCase());
 			analyzeCoverage(testSuite, crit);
 		} catch (IllegalArgumentException e) {
@@ -180,6 +179,7 @@ public class CoverageAnalysis {
 
 		for(TestChromosome test : testSuiteCopy.getTestChromosomes()) {
 			test.getTestCase().clearCoveredGoals();
+			test.clearCachedResults();
 
 			// independently of mutation being a main or secondary criteria,
 			// test cases have to be 'changed'. with this, isCovered() will
@@ -242,7 +242,17 @@ public class CoverageAnalysis {
 
 			LoggingUtils.getEvoLogger().info("* Total number of goals: " + goals.size());
 			LoggingUtils.getEvoLogger().info("* Number of covered goals: " + covered);
+		}
 
+		// FIXME it works, but needs a better way of handling this
+		if (criterion == Properties.Criterion.RHO) {
+			RhoCoverageSuiteFitness rho = new RhoCoverageSuiteFitness();
+			ClientServices.getInstance().getClientNode().trackOutputVariable(
+					RuntimeVariable.RhoScore, Math.abs(0.5 - rho.getFitness(testSuite)));
+		} else if (criterion == Properties.Criterion.AMBIGUITY) {
+			AmbiguityCoverageSuiteFitness ag = new AmbiguityCoverageSuiteFitness();
+			ClientServices.getInstance().getClientNode().trackOutputVariable(
+					RuntimeVariable.AmbiguityScore, ag.getFitness(testSuite));
 		}
 	}
 
@@ -283,7 +293,8 @@ public class CoverageAnalysis {
         	case ONLYLINE:
         		return RuntimeVariable.LineCoverageBitString;
             default:
-            	throw new RuntimeException("Criterion not supported: " + criterion);
+            	logger.debug("Criterion not supported: " + criterion);
+            	return null;
         }
     }
 }
