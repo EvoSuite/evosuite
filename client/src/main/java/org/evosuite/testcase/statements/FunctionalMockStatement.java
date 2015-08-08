@@ -85,6 +85,14 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
         methodParameters = new LinkedHashMap<>();
     }
 
+    public FunctionalMockStatement(TestCase tc, Type retvalType, Class<?> targetClass) throws IllegalArgumentException{
+        super(tc, retvalType);
+        Inputs.checkNull(targetClass);
+        this.targetClass = targetClass;
+        mockedMethods = new ArrayList<>();
+        methodParameters = new LinkedHashMap<>();
+    }
+
 
     /**
      * Check if the last execution of the test case has led a change in the usage of the mock.
