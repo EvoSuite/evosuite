@@ -110,6 +110,11 @@ public final class CVC4Solver extends Solver {
 
 		SmtCheckSatQuery smtQuery = buildSmtCheckSatQuery(constraints);
 
+		if (smtQuery==null) {
+			logger.debug("No variables found during the creation of the SMT quer. Returning NULL as solution");
+			return null;
+		}
+		
 		CVC4QueryPrinter printer = new CVC4QueryPrinter();
 		String smtQueryStr = printer.print(smtQuery);
 

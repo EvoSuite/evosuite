@@ -31,7 +31,7 @@ public class MethodExtractingVisitor extends ASTVisitor {
 				   "setSystemProperties",
 				   "clearEvoSuiteFramework"};
 		if (! ArrayUtil.contains(specialMethods, node.getName().toString())) {
-			System.out.println("Listing method to add:\n"+node.toString());
+			// System.out.println("Listing method to add:\n"+node.toString());
 			result += node.toString();
 			methods.add(node);
 		}

@@ -3,12 +3,9 @@ package org.evosuite.eclipse.popup.actions;
 import java.io.File;
 import java.util.HashSet;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceRuleFactory;
-import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaElement;
@@ -18,70 +15,67 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.ui.IJavaElementSearchConstants;
 import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.evosuite.junit.DetermineSUT;
 import org.evosuite.junit.DetermineSUT.NoJUnitClassException;
 
 @SuppressWarnings("restriction")
-public class ExtendSuiteAction extends TestGenerationAction {
+public abstract class ExtendSuiteAction extends TestGenerationAction {
 
 	HashSet<IResource> currentSelection = new HashSet<IResource>();
 
-	@Override
-	public void selectionChanged(IAction action, ISelection selection) {
-		currentSelection.clear();
-
-		if (selection instanceof IStructuredSelection) {
-			IStructuredSelection sel = (IStructuredSelection) selection;
-
-			for (Object o : sel.toList()) {
-				if (o instanceof IJavaElement) {
-					IJavaElement jEl = (IJavaElement) o;
-					try {
-						IResource jRes = jEl.getCorrespondingResource();
-						if (jRes != null) {
-							jRes.accept(new IResourceVisitor() {
-								@Override
-								public boolean visit(IResource resource)
-								        throws CoreException {
-									if ("java".equals(resource.getFileExtension()))
-										currentSelection.add(resource);
-									return true;
-								}
-							});
-						}
-					} catch (JavaModelException e) {
-						System.err.println("Error while traversing resources!" + e);
-					} catch (CoreException e) {
-						System.err.println("Error while traversing resources!" + e);
-					}
-				}
-			}
-		}
-	}
-
-	@Override
-	public void run(IAction action) {
-		if (currentSelection.isEmpty()) {
-			MessageDialog.openError(shell, "Evosuite",
-			                        "Unable to generate test cases for selection: Cannot find .java files.");
-		} else if (currentSelection.size() > 1) {
-			MessageDialog.openError(shell, "Evosuite",
-			                        "Please only select one class at a time.");
-		} else {
-
-			for (IResource res : currentSelection) {
-				IProject proj = res.getProject();
-				fixJUnitClassPath(JavaCore.create(proj));
-				generateTests(res);
-			}
-		}
-	}
+//	@Override
+//	public void selectionChanged(IAction action, ISelection selection) {
+//		currentSelection.clear();
+//
+//		if (selection instanceof IStructuredSelection) {
+//			IStructuredSelection sel = (IStructuredSelection) selection;
+//
+//			for (Object o : sel.toList()) {
+//				if (o instanceof IJavaElement) {
+//					IJavaElement jEl = (IJavaElement) o;
+//					try {
+//						IResource jRes = jEl.getCorrespondingResource();
+//						if (jRes != null) {
+//							jRes.accept(new IResourceVisitor() {
+//								@Override
+//								public boolean visit(IResource resource)
+//								        throws CoreException {
+//									if ("java".equals(resource.getFileExtension()))
+//										currentSelection.add(resource);
+//									return true;
+//								}
+//							});
+//						}
+//					} catch (JavaModelException e) {
+//						System.err.println("Error while traversing resources!" + e);
+//					} catch (CoreException e) {
+//						System.err.println("Error while traversing resources!" + e);
+//					}
+//				}
+//			}
+//		}
+//	}
+//
+//	@Override
+//	public void run(IAction action) {
+//		if (currentSelection.isEmpty()) {
+//			MessageDialog.openError(shell, "Evosuite",
+//			                        "Unable to generate test cases for selection: Cannot find .java files.");
+//		} else if (currentSelection.size() > 1) {
+//			MessageDialog.openError(shell, "Evosuite",
+//			                        "Please only select one class at a time.");
+//		} else {
+//
+//			for (IResource res : currentSelection) {
+//				IProject proj = res.getProject();
+//				fixJUnitClassPath(JavaCore.create(proj));
+//				generateTests(res);
+//			}
+//		}
+//	}
 
 	/**
 	 * Add a new test generation job to the job queue

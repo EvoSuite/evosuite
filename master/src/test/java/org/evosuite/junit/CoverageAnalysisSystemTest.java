@@ -10,15 +10,17 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.StatisticsBackend;
-import org.evosuite.continuous.persistency.CsvJUnitData;
 import org.evosuite.SystemTest;
+import org.evosuite.continuous.persistency.CsvJUnitData;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.SearchStatistics;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.Calculator;
@@ -27,6 +29,22 @@ import com.examples.with.different.packagename.CalculatorTest;
 import au.com.bytecode.opencsv.CSVReader;
 
 public class CoverageAnalysisSystemTest extends SystemTest {
+
+	@Before
+	public void prepare() {
+		try {
+			FileUtils.deleteDirectory(new File("evosuite-report"));
+		} catch (IOException e) {
+			Assert.fail(e.getMessage());
+		}
+
+		Properties.TARGET_CLASS = "";
+		Properties.OUTPUT_VARIABLES = null;
+        Properties.STATISTICS_BACKEND = StatisticsBackend.DEBUG;
+        Properties.COVERAGE_MATRIX = false;
+
+        CoverageAnalysis.reset();
+	}
 
 	@Test
 	public void testOneClassOneCriterion() {
@@ -97,7 +115,7 @@ public class CoverageAnalysisSystemTest extends SystemTest {
         assertTrue(rows.size() == 2);
         reader.close();
 
-        assertTrue(CsvJUnitData.getValue(rows, "TARGET_CLASS").equals("com.examples.with.different.packagename.Calculator"));
+        assertTrue(CsvJUnitData.getValue(rows, "TARGET_CLASS").equals(Calculator.class.getCanonicalName()));
         assertTrue(CsvJUnitData.getValue(rows, "criterion").equals(Properties.Criterion.BRANCH.toString() + ";" + Properties.Criterion.LINE.toString()));
 
         assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, "Coverage")), 0.88, 0.01);

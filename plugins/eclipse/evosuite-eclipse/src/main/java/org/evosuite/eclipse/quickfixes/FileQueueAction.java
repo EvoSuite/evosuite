@@ -54,7 +54,8 @@ public class FileQueueAction implements IObjectActionDelegate {
 		} else {
 			System.out.println("[FileQueueAction] Markers are disabled");
 			GenerateTestsEditorAction newAction = new GenerateTestsEditorAction();
-			newAction.run(action);
+			// TODO: Fix
+			// newAction.run(action);
 		}
 	}
 
