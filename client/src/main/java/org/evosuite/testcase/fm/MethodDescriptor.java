@@ -61,7 +61,6 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
             }else if(type.equals(String.class)){
                 matchers += "anyString()";
             }else{
-                //TODO test if it works for arrays
                 matchers += "any(" + type.getTypeName()+".class)";
             }
         }
