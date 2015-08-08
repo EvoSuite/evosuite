@@ -348,19 +348,14 @@ public class MethodStatement extends EntityWithParametersStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new LinkedHashSet<>();
-		references.add(retval);
+		Set<VariableReference> references = super.getVariableReferences();
+
 		if (isInstanceMethod()) {
 			references.add(callee);
 			if (callee.getAdditionalVariableReference() != null)
 				references.add(callee.getAdditionalVariableReference());
 		}
-		references.addAll(parameters);
-		for (VariableReference param : parameters) {
-			if (param.getAdditionalVariableReference() != null)
-				references.add(param.getAdditionalVariableReference());
-		}
-		references.addAll(getAssertionReferences());
+
 		return references;
 	}
 
@@ -370,21 +365,13 @@ public class MethodStatement extends EntityWithParametersStatement {
 	/** {@inheritDoc} */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
-		if (retval.equals(var1))
-			retval = var2;
+		super.replace(var1, var2);
 
 		if (isInstanceMethod()) {
 			if (callee.equals(var1))
 				callee = var2;
 			else
 				callee.replaceAdditionalVariableReference(var1, var2);
-		}
-		for (int i = 0; i < parameters.size(); i++) {
-
-			if (parameters.get(i).equals(var1))
-				parameters.set(i, var2);
-			else
-				parameters.get(i).replaceAdditionalVariableReference(var1, var2);
 		}
 	}
 
@@ -592,18 +579,14 @@ public class MethodStatement extends EntityWithParametersStatement {
 	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
-		List<VariableReference> references = new ArrayList<VariableReference>();
-		references.add(retval);
+		List<VariableReference> references = super.getUniqueVariableReferences();
+
 		if (isInstanceMethod()) {
 			references.add(callee);
 			if (callee instanceof ArrayIndex)
 				references.add(((ArrayIndex) callee).getArray());
 		}
-		references.addAll(parameters);
-		for (VariableReference param : parameters) {
-			if (param instanceof ArrayIndex)
-				references.add(((ArrayIndex) param).getArray());
-		}
+
 		return references;
 	}
 

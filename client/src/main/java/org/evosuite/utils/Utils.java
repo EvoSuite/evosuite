@@ -237,6 +237,7 @@ public class Utils {
 	
 	public static String readFileToString(String fileName) {
 		StringBuilder content = new StringBuilder();
+		String lineSeparator = System.getProperty("line.separator");
 		try {
 			Reader reader = new InputStreamReader(
 					new FileInputStream(fileName), "utf-8");
@@ -245,6 +246,7 @@ public class Utils {
 				String str;
 				while ((str = in.readLine()) != null) {
 					content.append(str);
+					content.append(lineSeparator);
 				}
 			} finally {
 				in.close();

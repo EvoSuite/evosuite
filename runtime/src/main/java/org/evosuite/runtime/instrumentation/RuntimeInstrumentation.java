@@ -1,7 +1,5 @@
 package org.evosuite.runtime.instrumentation;
 
-import java.util.List;
-
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.util.ComputeClassWriter;
 import org.objectweb.asm.ClassReader;

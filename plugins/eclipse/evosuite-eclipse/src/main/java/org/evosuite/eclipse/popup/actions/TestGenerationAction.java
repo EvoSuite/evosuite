@@ -25,9 +25,13 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceRuleFactory;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -50,7 +54,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 import org.eclipse.jdt.core.refactoring.descriptors.RenameJavaElementDescriptor;
 import org.eclipse.jdt.junit.JUnitCore;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
@@ -58,8 +61,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringContribution;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IObjectActionDelegate;
-import org.eclipse.ui.IWorkbenchPart;
 import org.evosuite.Properties;
 import org.evosuite.eclipse.Activator;
 import org.osgi.framework.Bundle;
@@ -68,7 +69,7 @@ import org.osgi.framework.Bundle;
  * @author Gordon Fraser
  * 
  */
-public abstract class TestGenerationAction implements IObjectActionDelegate {
+public abstract class TestGenerationAction extends AbstractHandler {
 
 	private static String EVOSUITE_CP = null;
 
@@ -77,9 +78,12 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
-	@Override
-	public abstract void run(IAction action);
+	//@Override
+	//public abstract void run(IAction action);
 
+	@Override
+	public abstract Object execute(ExecutionEvent event) throws ExecutionException;
+	
 	/**
 	 * Main action: check if evosuite-tests exists, and add test generation job
 	 * 
@@ -139,6 +143,7 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 										suiteClassName.replace('.', File.separatorChar) + ".java";
 		System.out.println("Checking for " + suiteFileName);
 		File suiteFile = new File(suiteFileName);
+		Job job = null;
 		if (suiteFile.exists()) {
 
 			MessageDialog dialog = new MessageDialog(
@@ -148,20 +153,29 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 			        "A test suite for class \""
 			                + targetClass
 			                + "\" already exists. EvoSuite will overwrite this test suite. Do you really want to proceed?",
-			        MessageDialog.QUESTION_WITH_CANCEL, new String[] { "Overwrite",
+			        MessageDialog.QUESTION_WITH_CANCEL, new String[] { "Overwrite", "Extend",
 			                "Rename Original", "Cancel" }, 0);
 
 			int returnCode = dialog.open();
-			if (returnCode == 1) {
-				// Rename
+			// 0 == overwrite
+			// 1 == extend
+			if(returnCode == 1) {
+				IWorkspaceRoot wroot = target.getWorkspace().getRoot();
+				IResource suiteResource = wroot.getFileForLocation(new Path(suiteFileName));
+				job = new TestExtensionJob(shell, suiteResource, targetClass, suiteClassName);
+			}
+			else if (returnCode == 2) {
+				// 2 == Rename
 				renameSuite(target, packageName, targetClassWithoutPackage + Properties.JUNIT_SUFFIX + ".java");
-			} else if (returnCode > 1) {
+			} else if (returnCode > 2) {
 				// Cancel
 				return;
 			}
 		}
 
-		Job job = new TestGenerationJob(shell, target, targetClass, suiteClassName);
+		if(job == null)
+			job = new TestGenerationJob(shell, target, targetClass, suiteClassName);
+		
 		job.setPriority(Job.SHORT);
 		IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
 		ISchedulingRule rule = ruleFactory.createRule(target.getProject());
@@ -420,8 +434,8 @@ public abstract class TestGenerationAction implements IObjectActionDelegate {
 	/**
 	 * @see IObjectActionDelegate#setActivePart(IAction, IWorkbenchPart)
 	 */
-	@Override
-	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
-		shell = targetPart.getSite().getShell();
-	}
+//	@Override
+//	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+//		shell = targetPart.getSite().getShell();
+//	}
 }

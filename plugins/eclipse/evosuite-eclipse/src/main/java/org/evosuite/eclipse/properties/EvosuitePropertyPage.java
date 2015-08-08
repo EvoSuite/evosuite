@@ -26,8 +26,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -40,7 +38,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
 
 public class EvoSuitePropertyPage extends PropertyPage {
 
@@ -54,9 +51,9 @@ public class EvoSuitePropertyPage extends PropertyPage {
 
 	private Button minimizeValuesButton;
 
-	private Button reportButton;
+//	private Button reportButton;
 
-	private Button plotButton;
+//	private Button plotButton;
 
 	private Button sandboxButton;
 
@@ -78,7 +75,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 
 	private Spinner time;
 
-	private Spinner seed;
+	// private Spinner seed;
 
 	private Spinner time2;
 
@@ -97,13 +94,13 @@ public class EvoSuitePropertyPage extends PropertyPage {
 	public static QualifiedName TIME_PROP_KEY = new QualifiedName("EvoSuite",
 	        "TestGenTime");
 
-	public static QualifiedName REPLACEMENT_TIME_PROP_KEY = new QualifiedName("EvoSuite",
-	        "ReplacementGenTime");
+	public static QualifiedName GLOBAL_TIME_PROP_KEY = new QualifiedName("EvoSuite",
+	        "GlobalGenTime");
 
 	public static QualifiedName PLOT_PROP_KEY = new QualifiedName("EvoSuite", "PlotData");
 
-	public static QualifiedName REPORT_PROP_KEY = new QualifiedName("EvoSuite",
-	        "ShowReport");
+//	public static QualifiedName REPORT_PROP_KEY = new QualifiedName("EvoSuite",
+//	        "ShowReport");
 
 	public static QualifiedName SANDBOX_PROP_KEY = new QualifiedName("EvoSuite",
 	        "Sandbox");
@@ -221,7 +218,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 
 		Label timelabel = new Label(myComposite, SWT.NONE);
 		timelabel.setLayoutData(new GridData());
-		timelabel.setText("Test generation time");
+		timelabel.setText("Search convergence time (s)");
 		time = new Spinner(myComposite, SWT.BORDER);
 		time.setMinimum(0);
 		time.setMaximum(600);
@@ -229,16 +226,16 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		time.setSelection(getTime());
 		//time.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		/*
+		
 		Label timelabel2 = new Label(myComposite, SWT.NONE);
 		timelabel2.setLayoutData(new GridData());
-		timelabel2.setText("Test replacement time (s)");
+		timelabel2.setText("Maximum test generation time (s)");
 		time2 = new Spinner(myComposite, SWT.BORDER);
 		time2.setMinimum(0);
 		time2.setMaximum(600);
 		//time.setDigits(3);
-		time2.setSelection(getReplacementTime());
-		 */
+		time2.setSelection(getGlobalTime());
+		
 
 		//Label seedLabel= new Label(myComposite, SWT.NONE);
 		//seedLabel.setLayoutData(new GridData());
@@ -248,34 +245,34 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		//seed.setMaximum(60000);
 		//seed.setSelection(getSeed());
 		
-		Label mylabel2 = new Label(myComposite, SWT.NONE);
-		mylabel2.setLayoutData(new GridData());
-		mylabel2.setText("Show report after test generation");
-		reportButton = new Button(myComposite, SWT.CHECK);
-		reportButton.setSelection(getReportEnabled());
-		reportButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		reportButton.addSelectionListener(new SelectionListener() {
-			/* (non-Javadoc)
-			 * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.events.SelectionEvent)
-			 */
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				plotButton.setEnabled(((Button) arg0.getSource()).getSelection());
-			}
+//		Label mylabel2 = new Label(myComposite, SWT.NONE);
+//		mylabel2.setLayoutData(new GridData());
+//		mylabel2.setText("Show report after test generation");
+//		reportButton = new Button(myComposite, SWT.CHECK);
+//		reportButton.setSelection(getReportEnabled());
+//		reportButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+//		reportButton.addSelectionListener(new SelectionListener() {
+//			/* (non-Javadoc)
+//			 * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.events.SelectionEvent)
+//			 */
+//			@Override
+//			public void widgetSelected(SelectionEvent arg0) {
+//				plotButton.setEnabled(((Button) arg0.getSource()).getSelection());
+//			}
+//
+//			@Override
+//			public void widgetDefaultSelected(SelectionEvent arg0) {
+//				plotButton.setEnabled(((Button) arg0.getSource()).getSelection());
+//			}
+//		});
 
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-				plotButton.setEnabled(((Button) arg0.getSource()).getSelection());
-			}
-		});
-
-		Label mylabel2a = new Label(myComposite, SWT.NONE);
-		mylabel2a.setLayoutData(new GridData());
-		mylabel2a.setText("Include plots in report (requires GNUPlot)");
-		plotButton = new Button(myComposite, SWT.CHECK);
-		plotButton.setSelection(getPlotEnabled());
-		plotButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		plotButton.setEnabled(getReportEnabled());
+//		Label mylabel2a = new Label(myComposite, SWT.NONE);
+//		mylabel2a.setLayoutData(new GridData());
+//		mylabel2a.setText("Include plots in report (requires GNUPlot)");
+//		plotButton = new Button(myComposite, SWT.CHECK);
+//		plotButton.setSelection(getPlotEnabled());
+//		plotButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+//		plotButton.setEnabled(getReportEnabled());
 
 		Label mylabel3 = new Label(myComposite, SWT.NONE);
 		mylabel3.setLayoutData(new GridData());
@@ -687,66 +684,66 @@ public class EvoSuitePropertyPage extends PropertyPage {
 	}
 
 
-	protected boolean getReportEnabled() {
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(REPORT_PROP_KEY);
-			if (value == null)
-				return false;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return false;
-		}
-	}
+//	protected boolean getReportEnabled() {
+//		IResource resource = ((IJavaProject) getElement()).getResource();
+//		try {
+//			String value = resource.getPersistentProperty(REPORT_PROP_KEY);
+//			if (value == null)
+//				return false;
+//			return Boolean.parseBoolean(value);
+//		} catch (CoreException e) {
+//			return false;
+//		}
+//	}
+//
+//	protected void setReportEnabled(boolean enabled) {
+//
+//		IResource resource = ((IJavaProject) getElement()).getResource();
+//		String value = Boolean.toString(enabled);
+//		if (value.equals(""))
+//			value = "false";
+//		if (value.equals("true"))
+//			plotButton.setEnabled(true);
+//		else
+//			plotButton.setEnabled(false);
+//		try {
+//
+//			resource.setPersistentProperty(REPORT_PROP_KEY, value);
+//		} catch (CoreException e) {
+//		}
+//	}
 
-	protected void setReportEnabled(boolean enabled) {
-
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "false";
-		if (value.equals("true"))
-			plotButton.setEnabled(true);
-		else
-			plotButton.setEnabled(false);
-		try {
-
-			resource.setPersistentProperty(REPORT_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
-
-	protected boolean getPlotEnabled() {
-		if (!getReportEnabled())
-			return false;
-
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		try {
-			String value = resource.getPersistentProperty(PLOT_PROP_KEY);
-			if (value == null)
-				return false;
-			return Boolean.parseBoolean(value);
-		} catch (CoreException e) {
-			return false;
-		}
-	}
-
-	protected void setPlotEnabled(boolean enabled) {
-
-		IResource resource = ((IJavaProject) getElement()).getResource();
-		String value = Boolean.toString(enabled);
-		if (value.equals(""))
-			value = "false";
-		//if (value.equals("true"))
-		//	deterministicButton.setEnabled(true);
-		//else
-		//	deterministicButton.setEnabled(false);
-
-		try {
-			resource.setPersistentProperty(PLOT_PROP_KEY, value);
-		} catch (CoreException e) {
-		}
-	}
+//	protected boolean getPlotEnabled() {
+//		if (!getReportEnabled())
+//			return false;
+//
+//		IResource resource = ((IJavaProject) getElement()).getResource();
+//		try {
+//			String value = resource.getPersistentProperty(PLOT_PROP_KEY);
+//			if (value == null)
+//				return false;
+//			return Boolean.parseBoolean(value);
+//		} catch (CoreException e) {
+//			return false;
+//		}
+//	}
+//
+//	protected void setPlotEnabled(boolean enabled) {
+//
+//		IResource resource = ((IJavaProject) getElement()).getResource();
+//		String value = Boolean.toString(enabled);
+//		if (value.equals(""))
+//			value = "false";
+//		//if (value.equals("true"))
+//		//	deterministicButton.setEnabled(true);
+//		//else
+//		//	deterministicButton.setEnabled(false);
+//
+//		try {
+//			resource.setPersistentProperty(PLOT_PROP_KEY, value);
+//		} catch (CoreException e) {
+//		}
+//	}
 
 	//	protected boolean getEvoSuiteRunnerEnabled() {
 	//		IResource resource = ((IJavaProject) getElement()).getResource();
@@ -777,10 +774,10 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		try {
 			String value = resource.getPersistentProperty(TIME_PROP_KEY);
 			if (value == null)
-				return 60;
+				return 20;
 			return Integer.parseInt(value);
 		} catch (CoreException e) {
-			return 60;
+			return 20;
 		}
 	}
 
@@ -788,7 +785,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		IResource resource = ((IJavaProject) getElement()).getResource();
 		String value = Integer.toString(time);
 		if (value.equals(""))
-			value = "60";
+			value = "20";
 		try {
 			resource.setPersistentProperty(TIME_PROP_KEY, value);
 		} catch (CoreException e) {
@@ -821,7 +818,10 @@ public class EvoSuitePropertyPage extends PropertyPage {
 	
 	protected String[] getCriteria() {
 		IResource resource = ((IJavaProject) getElement()).getResource();
-		String[] defaultCriteria = new String[] {"Line", "Branch", "Exception", "WeakMutation", "Output", "Method", "MethodNoException", "CBranch"};
+		String[] defaultCriteria = new String[] {"Line", "Branch", "Exception", "WeakMutation"};
+		// The following criteria are not activated by default because "extend" doesn't work properly with them
+		// until the carver is fixed properly
+		//"Output", "Method", "MethodNoException", "CBranch"
 		try {
 			String value = resource.getPersistentProperty(CRITERIA_PROP_KEY);
 			if (value == null)
@@ -857,25 +857,25 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		}
 	}
 
-	protected int getReplacementTime() {
+	protected int getGlobalTime() {
 		IResource resource = ((IJavaProject) getElement()).getResource();
 		try {
-			String value = resource.getPersistentProperty(REPLACEMENT_TIME_PROP_KEY);
+			String value = resource.getPersistentProperty(GLOBAL_TIME_PROP_KEY);
 			if (value == null)
-				return 10;
+				return 60;
 			return Integer.parseInt(value);
 		} catch (CoreException e) {
-			return 10;
+			return 60;
 		}
 	}
 
-	protected void setReplacementTime(int time) {
+	protected void setGlobalTime(int time) {
 		IResource resource = ((IJavaProject) getElement()).getResource();
 		String value = Integer.toString(time);
 		if (value.equals(""))
-			value = "10";
+			value = "^0";
 		try {
-			resource.setPersistentProperty(REPLACEMENT_TIME_PROP_KEY, value);
+			resource.setPersistentProperty(GLOBAL_TIME_PROP_KEY, value);
 		} catch (CoreException e) {
 		}
 	}
@@ -911,8 +911,8 @@ public class EvoSuitePropertyPage extends PropertyPage {
 	 */
 	@Override
 	public boolean performOk() {
-		setReportEnabled(reportButton.getSelection());
-		setPlotEnabled(plotButton.getSelection());
+//		setReportEnabled(reportButton.getSelection());
+//		setPlotEnabled(plotButton.getSelection());
 		setAssertionsEnabled(assertionButton.getSelection());
 		setMinimizeTestsEnabled(minimizeTestsButton.getSelection());
 		setMinimizeValuesEnabled(minimizeValuesButton.getSelection());
@@ -938,20 +938,20 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		setLSEnabled(lsButton.getSelection());
 		setTestSuffix(testSuffix.getText());
 		// setEvoSuiteRunnerEnabled(evosuiteRunnerButton.getSelection());
-		// setReplacementTime(time2.getSelection());
+		setGlobalTime(time2.getSelection());
 		return super.performOk();
 	}
 
 	@Override
 	protected void performDefaults() {
 		super.performDefaults();
-		setTime(60);
-		//setReplacementTime(10);
+		setTime(10);
+		setGlobalTime(60);
 		setAssertionsEnabled(true);
 		setMinimizeTestsEnabled(true);
 		setMinimizeValuesEnabled(false);
-		setReportEnabled(false);
-		setPlotEnabled(false);
+//		setReportEnabled(false);
+//		setPlotEnabled(false);
 		setSandboxEnabled(true);
 		setScaffoldingEnabled(true);
 		setDeterministicEnabled(false);
@@ -960,7 +960,8 @@ public class EvoSuitePropertyPage extends PropertyPage {
 		setDSEEnabled(false);
 		setLSEnabled(false);
 		// setEvoSuiteRunnerEnabled(false);
-		setCriteria("Line:Branch:Exception:WeakMutation:Output:Method:MethodNoException:CBranch");
+		// setCriteria("Line:Branch:Exception:WeakMutation:Output:Method:MethodNoException:CBranch");
+		setCriteria("Line:Branch:Exception:WeakMutation"); // Output:Method:MethodNoException:CBranch
 		setTestSuffix(Properties.JUNIT_SUFFIX);
 	}
 }

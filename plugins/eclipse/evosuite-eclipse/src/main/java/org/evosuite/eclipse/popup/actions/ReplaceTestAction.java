@@ -245,14 +245,14 @@ public class ReplaceTestAction implements IObjectActionDelegate {
 					Properties.resetTargetClass();
 					Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
 					try {
-						Properties.SEARCH_BUDGET = Integer.parseInt(jProject.getProject().getPersistentProperty(EvoSuitePropertyPage.REPLACEMENT_TIME_PROP_KEY));
+						Properties.SEARCH_BUDGET = Integer.parseInt(jProject.getProject().getPersistentProperty(EvoSuitePropertyPage.GLOBAL_TIME_PROP_KEY));
 					} catch (Throwable e) {
 						Properties.SEARCH_BUDGET = 20;
 					}
 
 					try {
 
-						DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+						DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
 						                           Arrays.asList(Properties.CP.split(":")));
 					} catch (Throwable t) {
 						System.out.println("Error: " + t);
@@ -311,8 +311,10 @@ public class ReplaceTestAction implements IObjectActionDelegate {
 		// Run for 10 generations - adapt as necessary
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXGENERATIONS;
 		Properties.SEARCH_BUDGET = 100;
-
-		GeneticAlgorithm<TestChromosome> ga = TestSuiteGenerator.getGeneticAlgorithm(new RandomLengthTestFactory());
+		
+		System.err.println("Functionality missing.");
+		
+		// GeneticAlgorithm<TestChromosome> ga = TestSuiteGenerator.getGeneticAlgorithm(new RandomLengthTestFactory());
 
 		// Set up fitness function for the parsed test case
 		/*
@@ -377,7 +379,12 @@ public class ReplaceTestAction implements IObjectActionDelegate {
 		builder.append("\n");
 		builder.append("  // Replacement test");
 		builder.append("\n");
-		builder.append("  @Test\n  public void " + name + "() ");
+		if ( System.getProperty("evosuite.experiment") == null ){
+			builder.append("  @Test\n");
+		} else {
+			builder.append("  @EvoSuiteTest (checked = false)\n");
+		}
+		builder.append("  public void " + name + "() ");
 		builder.append(" {\n");
 		String testString = test.toCode();
 		for (String line : testString.split("\\r?\\n")) {

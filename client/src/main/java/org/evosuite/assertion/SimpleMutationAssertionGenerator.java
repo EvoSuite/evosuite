@@ -29,6 +29,9 @@ public class SimpleMutationAssertionGenerator extends
 
 	@Override
 	public void addAssertions(TestSuiteChromosome suite) {
+		
+		setupClassLoader(suite);
+		
 		Set<Integer> tkilled = new HashSet<Integer>();
 		int numTest = 0;
 		for (TestCase test : suite.getTests()) {
@@ -60,7 +63,7 @@ public class SimpleMutationAssertionGenerator extends
 	 * @param killed
 	 *            a {@link java.util.Set} object.
 	 */
-	public void addAssertions(TestCase test, Set<Integer> killed) {
+	private void addAssertions(TestCase test, Set<Integer> killed) {
 		addAssertions(test, killed, mutants);
 		filterRedundantNonnullAssertions(test);
 	}
@@ -75,7 +78,7 @@ public class SimpleMutationAssertionGenerator extends
 	 * @param mutants
 	 *            a {@link java.util.Map} object.
 	 */
-	public void addAssertions(TestCase test, Set<Integer> killed,
+	private void addAssertions(TestCase test, Set<Integer> killed,
 	        Map<Integer, Mutation> mutants) {
 
 		if (test.isEmpty())

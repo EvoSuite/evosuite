@@ -70,7 +70,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	/**
 	 * Keep track of an additional test failure
 	 *
-	 * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object.
+	 * @param violation a {@link org.evosuite.contracts.ContractViolation} object.
 	 */
 	public void addContractViolation(ContractViolation violation);
 

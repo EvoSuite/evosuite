@@ -17,6 +17,7 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import junit.framework.TestCase;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.annotations.EvoSuiteTest;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.FitnessFunctions;
@@ -151,7 +153,7 @@ public class CoverageAnalysis {
 	 * @param allGoals
 	 * @return
 	 */
-	public static List<TestFitnessFunction> getCoveredGoals(Class<?> testClass, List<TestFitnessFunction> allGoals) {
+	public static Set<TestFitnessFunction> getCoveredGoals(Class<?> testClass, List<TestFitnessFunction> allGoals) {
 
 	    // A dummy Chromosome
 	    TestChromosome dummy = new TestChromosome();
@@ -160,7 +162,7 @@ public class CoverageAnalysis {
         // Execution result of a dummy Test Case
         ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
 
-		List<TestFitnessFunction> coveredGoals = new ArrayList<TestFitnessFunction>();
+		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
 		List<JUnitResult> results = executeTests(testClass);
 		for (JUnitResult testResult : results) {
@@ -168,7 +170,9 @@ public class CoverageAnalysis {
             dummy.setLastExecutionResult(executionResult);
 
             for(TestFitnessFunction goal : allGoals) {
-                if (goal.isCovered(dummy))
+            	if(coveredGoals.contains(goal))
+            		continue;
+            	else if (goal.isCovered(dummy))
                     coveredGoals.add(goal);
             }
 		}
@@ -593,7 +597,7 @@ public class CoverageAnalysis {
 	/**
 	 * Determine if a class contains JUnit tests
 	 * 
-	 * @param class
+	 * @param cls
 	 * @return
 	 */
 	public static boolean isTest(Class<?> cls) {
@@ -604,12 +608,13 @@ public class CoverageAnalysis {
 		// JUnit 4
 		try {
 			List<FrameworkMethod> methods = new TestClass(cls).getAnnotatedMethods(Test.class);
+			methods.addAll(new TestClass(cls).getAnnotatedMethods(EvoSuiteTest.class));
 			for (FrameworkMethod method : methods) {
-		        List<Throwable> errors = new ArrayList<Throwable>();
-		        method.validatePublicVoidNoArg(false, errors);
-		        if (errors.isEmpty()) {
-		        	return true;
-		        }
+				List<Throwable> errors = new ArrayList<Throwable>();
+				method.validatePublicVoidNoArg(false, errors);
+				if (errors.isEmpty()) {
+					return true;
+				}
 			}
 		} catch (IllegalArgumentException e) {
 			return false;
@@ -668,5 +673,12 @@ public class CoverageAnalysis {
 		 */
 
 		util.informSearchIsFinished(null);
+	}
+
+	// just for testing
+	protected static void reset() {
+		totalGoals = 0;
+		totalCoveredGoals = 0;
+		targetClasses.clear();
 	}
 }
