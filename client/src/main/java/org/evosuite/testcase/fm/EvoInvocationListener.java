@@ -5,6 +5,7 @@ import org.mockito.invocation.DescribedInvocation;
 import org.mockito.listeners.InvocationListener;
 import org.mockito.listeners.MethodInvocationReport;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
  *
  * Created by Andrea Arcuri on 27/07/15.
  */
-public class EvoInvocationListener implements InvocationListener {
+public class EvoInvocationListener implements InvocationListener, Serializable {
 
     private final Map<String, MethodDescriptor> map = new LinkedHashMap<>();
 

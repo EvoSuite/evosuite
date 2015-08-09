@@ -861,7 +861,7 @@ public class TestCluster {
 	 * @param clazz
 	 * @param excluded
 	 * @param test
-	 * @return
+	 * @return {@code null} if there is no valid generator
 	 * @throws ConstructionFailedException
 	 */
 	public GenericAccessibleObject<?> getRandomGenerator(GenericClass clazz,
@@ -911,9 +911,9 @@ public class TestCluster {
 			}
 			logger.debug("Candidate generators for " + clazz + ": " + candidates.size());
 
-			if (candidates.isEmpty())
-				throw new ConstructionFailedException("No generators left for " + clazz
-				        + " - in total there are " + before);
+			if (candidates.isEmpty()) {
+				return null;
+			}
 
 			generator = Randomness.choice(candidates);
 			logger.debug("Chosen generator: " + generator);
