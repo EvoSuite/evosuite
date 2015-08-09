@@ -236,8 +236,17 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			evolve();
 
 			sortPopulation();
-			applyLocalSearch(); //TODO: due to static state handling, LS can worse individuals. so, need to re-sort
-			sortPopulation();
+			applyLocalSearch();
+
+			/*
+				TODO:
+				before explanation: due to static state handling, LS can worse individuals. so, need to re-sort.
+
+				now: the system tests that were failing have no static state... so re-sorting does just hide
+				the problem away, and reduce performance (likely significantly).
+				it is definitively a bug somewhere...
+			*/
+			//sortPopulation();
 
 			double newFitness = getBestIndividual().getFitness();
 
