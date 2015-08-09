@@ -3,6 +3,7 @@ package org.evosuite.testcase.statements;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.*;
 import org.evosuite.Properties;
+import org.evosuite.assertion.Assertion;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.runtime.util.Inputs;
@@ -280,6 +281,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
 
 
     //------------ override methods ---------------
+
+    @Override
+    public void addAssertion(Assertion assertion) {
+        //never add an assertion to a functional mock
+    }
 
     @Override
     public Statement copy(TestCase newTestCase, int offset) {
