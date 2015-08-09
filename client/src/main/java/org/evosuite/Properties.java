@@ -290,8 +290,9 @@ public class Properties {
     @DoubleValue(min = 0.0, max = 1.0)
     public static double REFLECTION_START_PERCENT = 0.5;
 
-	@Parameter(key = "use_functional_mocking", group = "Test Creation", description = "Use functional mocking (eg Mockito) when fail to generate concrete class instance inputs")
-	public static boolean USE_FUNCTIONAL_MOCKING = false; // TODO to put on once finalized
+	@Parameter(key = "p_functional_mocking", group = "Test Creation", description = "Probability [0,1] of using functional mocking (eg Mockito) when creating object instances")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double P_FUNCTIONAL_MOCKING = 0.0; // TODO to put on once finalized
 
 	@Parameter(key = "functional_mocking_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which functional mocking can be activated. Mocking of missing concrete classes will be activated immediately regardless of this parameter")
 	@DoubleValue(min = 0.0, max = 1.0)

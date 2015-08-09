@@ -22,6 +22,7 @@ import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
+import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
@@ -126,6 +127,27 @@ public class TestFactory {
 			return false;
 		}
 	}
+
+
+	public VariableReference addFunctionalMock(TestCase test, Type type, int position, int recursionDepth)
+			throws ConstructionFailedException, IllegalArgumentException{
+
+		Inputs.checkNull(test,type);
+
+		if (recursionDepth > Properties.MAX_RECURSION) {
+			logger.debug("Max recursion depth reached");
+			throw new ConstructionFailedException("Max recursion depth reached");
+		}
+
+		//TODO this needs to be fixed once we handle Generics in mocks
+		FunctionalMockStatement fms = new FunctionalMockStatement(test,type,new GenericClass(type).getRawClass());
+		VariableReference ref = test.addStatement(fms, position);
+
+		//note: when we add a new mock, by default it will have no parameter at the beginning
+
+		return ref;
+	}
+
 
 	public VariableReference addConstructor(TestCase test,
 	        GenericConstructor constructor, int position, int recursionDepth)
@@ -1017,47 +1039,65 @@ public class TestFactory {
 	        int recursionDepth) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
-		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz, currentRecursion, test);
-		currentRecursion.add(o);
+		VariableReference ret;
 
-		if (o == null) {
-			if (!TestCluster.getInstance().hasGenerator(clazz)) {
-				logger.debug("We have no generator for class " + type);
-			}
-			throw new ConstructionFailedException("Generator is null");
-		} else if (o.isField()) {
-			logger.debug("Attempting generating of " + type + " via field of type " + type);
-			VariableReference ret = addField(test, (GenericField) o, position, recursionDepth + 1);
-			ret.setDistance(recursionDepth + 1);
-			logger.debug("Success in generating type " + type);
-			return ret;
-		} else if (o.isMethod()) {
-			logger.debug("Attempting generating of " + type + " via method " + (o) + " of type " + type);
-			VariableReference ret = addMethod(test, (GenericMethod) o, position, recursionDepth + 1);
+		if( TimeController.getInstance().getPhasePercentage() >= Properties.FUNCTIONAL_MOCKING_PERCENT &&
+				Randomness.nextDouble() < Properties.P_FUNCTIONAL_MOCKING){
 
-			// TODO: Why are we doing this??
-			//if (o.isStatic()) {
-			//	ret.setType(type);
-			//}
-			logger.debug("Success in generating type " + type);
-			ret.setDistance(recursionDepth + 1);
-			return ret;
-		} else if (o.isConstructor()) {
-			logger.debug("Attempting generating of " + type + " via constructor " + (o)
-			        + " of type " + type + ", with constructor type " + o.getOwnerType());
+			//mock creation
 
-			VariableReference ret = addConstructor(test, (GenericConstructor) o, type,
-			                                       position, recursionDepth + 1);
+			ret = addFunctionalMock(test,type,position,recursionDepth + 1);
 
-			logger.debug("Success in generating type " + type);
-			ret.setDistance(recursionDepth + 1);
-
-			return ret;
 		} else {
-			logger.debug("No generators found for type " + type);
-			throw new ConstructionFailedException("No generator found for type " + type);
+
+			//regular creation
+
+			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz, currentRecursion, test);
+			currentRecursion.add(o);
+
+			if (o == null) {
+				if (!TestCluster.getInstance().hasGenerator(clazz)) {
+					logger.debug("We have no generator for class " + type);
+				}
+
+				if (Properties.P_FUNCTIONAL_MOCKING > 0) {
+				/*
+					Even if mocking is not active yet in this phase, if we have
+					no generator for a type, we use mocking directly
+				 */
+					ret = addFunctionalMock(test, type, position, recursionDepth + 1);
+				} else {
+					throw new ConstructionFailedException("Generator is null");
+				}
+
+			} else if (o.isField()) {
+				logger.debug("Attempting generating of " + type + " via field of type " + type);
+				ret = addField(test, (GenericField) o, position, recursionDepth + 1);
+			} else if (o.isMethod()) {
+				logger.debug("Attempting generating of " + type + " via method " + (o) + " of type " + type);
+				ret = addMethod(test, (GenericMethod) o, position, recursionDepth + 1);
+
+				// TODO: Why are we doing this??
+				//if (o.isStatic()) {
+				//	ret.setType(type);
+				//}
+				logger.debug("Success in generating type " + type);
+			} else if (o.isConstructor()) {
+				logger.debug("Attempting generating of " + type + " via constructor " + (o)
+						+ " of type " + type + ", with constructor type " + o.getOwnerType());
+
+				ret = addConstructor(test, (GenericConstructor) o, type, position, recursionDepth + 1);
+			} else {
+				logger.debug("No generators found for type " + type);
+				throw new ConstructionFailedException("No generator found for type " + type);
+			}
 		}
+
+		ret.setDistance(recursionDepth + 1);
+		logger.debug("Success in generating type " + type);
+		return ret;
 	}
+
 
 	/**
 	 * Create a new variable or reuse and existing one
@@ -1104,11 +1144,11 @@ public class TestFactory {
 
 			logger.debug(" Choosing from " + objects.size() + " existing objects");
 			VariableReference reference = Randomness.choice(objects);
-			logger.debug(" Using existing object of type " + parameterType + ": "
-			        + reference);
+			logger.debug(" Using existing object of type " + parameterType + ": " + reference);
 			return reference;
 
 		} else {
+
 			if (clazz.hasWildcardOrTypeVariables()) {
 				logger.debug("Getting generic instantiation of "+clazz);
 				if(exclude != null)
@@ -1118,24 +1158,27 @@ public class TestFactory {
 				parameterType = clazz.getType();
 			}
 
+
 			if(clazz.isEnum() || clazz.isPrimitive() || clazz.isWrapperType() || clazz.isObject() ||
 					clazz.isClass() || EnvironmentStatements.isEnvironmentData(clazz.getRawClass()) ||
-					clazz.isString() || clazz.isArray() || TestCluster.getInstance().hasGenerator(parameterType)) {
+					clazz.isString() || clazz.isArray() || TestCluster.getInstance().hasGenerator(parameterType) ||
+					Properties.P_FUNCTIONAL_MOCKING>0) {
+
 				logger.debug(" Generating new object of type " + parameterType);
 
                 VariableReference reference = attemptGeneration(test, parameterType,
 				                                                position, recursionDepth,
 				                                                allowNull);
 				return reference;
+
 			} else {
+
 				if (objects.isEmpty())
-					throw new ConstructionFailedException(
-					        "Have no objects and generators");
+					throw new ConstructionFailedException("Have no objects and generators");
 
 				logger.debug(" Choosing from " + objects.size() + " existing objects");
 				VariableReference reference = Randomness.choice(objects);
-				logger.debug(" Using existing object of type " + parameterType + ": "
-				        + reference);
+				logger.debug(" Using existing object of type " + parameterType + ": " + reference);
 				return reference;
 			}
 		}
