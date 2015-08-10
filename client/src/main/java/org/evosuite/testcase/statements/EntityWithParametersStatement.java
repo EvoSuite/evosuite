@@ -118,7 +118,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
 
     @Override
     public Set<VariableReference> getVariableReferences() {
-        Set<VariableReference> references = new LinkedHashSet<VariableReference>();
+        Set<VariableReference> references = new LinkedHashSet<>();
         references.add(retval);
         references.addAll(parameters);
         for (VariableReference param : parameters) {

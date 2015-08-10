@@ -51,6 +51,7 @@ import org.evosuite.assertion.SameAssertion;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.mock.EvoSuiteMock;
+import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentDataStatement;
 import org.evosuite.testcase.variable.*;
@@ -903,6 +904,8 @@ public class TestCodeVisitor extends TestVisitor {
 		addAssertions(statement);
 	}
 
+
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -1052,6 +1055,48 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 
 		return parameterString;
+	}
+
+
+	@Override
+	public void visitFunctionalMockStatement(FunctionalMockStatement st) {
+
+		VariableReference retval = st.getReturnValue();
+
+		boolean unused = test!=null && !test.hasReferences(retval);
+		if(unused){
+			//no point whatsoever in creating a mock that is never used
+			return;
+		}
+
+		String result = "";
+
+		//Foo foo = mock(Foo.class);
+		result += getClassName(retval) + " " + getVariableName(retval);
+		result += " = mock(" + st.getTargetClass().getName()+".class);" + NEWLINE;
+
+		//when(...).thenReturn(...)
+		for(MethodDescriptor md : st.getMockedMethods()){
+			if(!md.shouldBeMocked()){
+				continue;
+			}
+
+			result += "when("+getVariableName(retval)+"."+md.getMethodName()+"("+md.getInputParameterMatchers()+"))";
+			result += ".thenReturn( ";
+
+			List<VariableReference> params = st.getParameters(md.getID());
+
+			Type[] types = new Type[params.size()];
+			for(int i=0; i<types.length; i++){
+				types[i] = md.getMethod().getReturnType();
+			}
+
+			String parameter_string = getParameterString(types,params, false, false, 0);//TODO unsure of these parameters
+
+			result += parameter_string + " );"+NEWLINE;
+		}
+
+		testCode += result;
 	}
 
 	/*
@@ -1404,4 +1449,6 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 		super.visitStatement(statement);
 	}
+
+
 }
