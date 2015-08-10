@@ -1120,21 +1120,11 @@ public class TestFactory {
 
 		double reuse = Randomness.nextDouble();
 
-		List<VariableReference> objects = test.getObjects(parameterType, position);
-		if (exclude != null) {
-			objects.remove(exclude);
-			if (exclude.getAdditionalVariableReference() != null)
-				objects.remove(exclude.getAdditionalVariableReference());
-			Iterator<VariableReference> it = objects.iterator();
-			while (it.hasNext()) {
-				VariableReference v = it.next();
-				if (exclude.equals(v.getAdditionalVariableReference()))
-					it.remove();
-			}
-		}
+		List<VariableReference> objects = getCandidatesForReuse(test, parameterType, position, exclude);
 
 		GenericClass clazz = new GenericClass(parameterType);
 		boolean isPrimitiveOrSimilar = clazz.isPrimitive() || clazz.isWrapperType() || clazz.isEnum() || clazz.isClass() || clazz.isString();
+
 		if (isPrimitiveOrSimilar && !objects.isEmpty() && reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
 			logger.debug(" Looking for existing object of type " + parameterType);
 			VariableReference reference = Randomness.choice(objects);
@@ -1182,6 +1172,52 @@ public class TestFactory {
 				return reference;
 			}
 		}
+	}
+
+	private List<VariableReference> getCandidatesForReuse(TestCase test, Type parameterType, int position, VariableReference exclude) {
+		List<VariableReference> objects = test.getObjects(parameterType, position);
+		if (exclude != null) {
+			objects.remove(exclude);
+			if (exclude.getAdditionalVariableReference() != null)
+				objects.remove(exclude.getAdditionalVariableReference());
+			Iterator<VariableReference> it = objects.iterator();
+			while (it.hasNext()) {
+				VariableReference v = it.next();
+				if (exclude.equals(v.getAdditionalVariableReference()))
+					it.remove();
+			}
+		}
+
+		//no mock should be used more than once
+		List<VariableReference> additionalToRemove = new ArrayList<>();
+		Iterator<VariableReference> iter = objects.iterator();
+		while(iter.hasNext()){
+			VariableReference ref = iter.next();
+			if(! (test.getStatement(ref.getStPosition()) instanceof FunctionalMockStatement)){
+				continue;
+			}
+
+			for(int i=ref.getStPosition()+1; i<test.size(); i++){
+				Statement st = test.getStatement(i);
+				if(st.getVariableReferences().contains(ref)){
+					iter.remove();
+					additionalToRemove.add(ref);
+					break;
+				}
+			}
+		}
+		iter = objects.iterator();
+		while(iter.hasNext()){
+			VariableReference ref = iter.next();
+			VariableReference additional = ref.getAdditionalVariableReference();
+			if(additional==null){
+				continue;
+			}
+			if(additionalToRemove.contains(additional)){
+				iter.remove();
+			}
+		}
+		return objects;
 	}
 
 	/**
@@ -1858,12 +1894,15 @@ public class TestFactory {
 
 		List<VariableReference> parameters = new ArrayList<>();
 		logger.debug("Trying to satisfy " + parameterTypes.size() + " parameters");
+
 		for (Type parameterType : parameterTypes) {
 			logger.debug("Current parameter type: " + parameterType);
+
 			if (parameterType instanceof CaptureType) {
 				// TODO: This should not really happen in the first place
 				throw new ConstructionFailedException("Cannot satisfy capture type");
 			}
+
 			GenericClass parameterClass = new GenericClass(parameterType);
 			if (parameterClass.hasTypeVariables()) {
 				logger.debug("Parameter has type variables, replacing with wildcard");
@@ -1883,6 +1922,7 @@ public class TestFactory {
 			int currentLength = test.size();
 			position += currentLength - previousLength;
 		}
+
 		logger.debug("Satisfied " + parameterTypes.size() + " parameters");
 		return parameters;
 	}
