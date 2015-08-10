@@ -479,7 +479,7 @@ public class TestChromosome extends ExecutableChromosome {
 						assert (test.isValid());
 
 					} else if (!statement.isAssignmentStatement() &&
-							!ConstraintVerifier.canDelete(test,position)) {
+							ConstraintVerifier.canDelete(test,position)) {
 						//if a statement should not be deleted, then it cannot be either replaced by another one
 
 						int pos = statement.getPosition();
