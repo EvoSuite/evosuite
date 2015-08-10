@@ -33,6 +33,7 @@ import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 import org.junit.After;
 import org.junit.Assert;
@@ -104,6 +105,25 @@ public class SystemTest {
 		
 		MockFramework.enable();
 	}
+
+	protected void do100percentLineTest(Class<?> target){
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = target.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.LINE};
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
 
 	protected void checkUnstable() throws IllegalStateException{
 		

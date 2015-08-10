@@ -17,6 +17,7 @@
  */
 package org.evosuite.testcase;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,8 +36,10 @@ import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.ConcolicMutation;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
+import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
@@ -286,6 +289,10 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean changed = false;
 		mutationHistory.clear();
 
+		if(mockChange()){
+			changed = true;
+		}
+
 		int lastPosition = getLastMutatableStatement();
 		if(Properties.CHOP_MAX_LENGTH && size() >= Properties.CHROMOSOME_LENGTH) {
 			test.chop(lastPosition + 1);
@@ -294,7 +301,8 @@ public class TestChromosome extends ExecutableChromosome {
 		// Delete
 		if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
 			logger.debug("Mutation: delete");
-			changed = mutationDelete();
+			if(mutationDelete())
+				changed = true;
 		}
 
 		// Change
@@ -322,6 +330,52 @@ public class TestChromosome extends ExecutableChromosome {
 		// if it happens, it means a bug in EvoSuite
 		assert ConstraintVerifier.verifyTest(test);
 		assert ! ConstraintVerifier.hasAnyOnlyForAssertionMethod(test);
+	}
+
+
+	private boolean mockChange() {
+
+		/*
+			Be sure to update the mocked values if there has been any change in
+			behavior in the last execution.
+
+			Note: mock "expansion" cannot be done after a test has been mutated and executed,
+			as the expansion itself might have side effects. Therefore, it has to be done
+			before a test is evaluated.
+		 */
+
+		boolean changed = false;
+
+		for(int i=0; i<test.size(); i++){
+			Statement st = test.getStatement(i);
+			if(! (st instanceof FunctionalMockStatement)){
+				continue;
+			}
+
+			FunctionalMockStatement fms = (FunctionalMockStatement) st;
+			if(! fms.doesNeedToUpdateInputs()){
+				continue;
+			}
+
+			List<Type> missing = fms.updateMockedMethods();
+			int pos = st.getPosition();
+
+			int preLength = test.size();
+
+			try {
+				List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, missing, pos, 0, true);
+				fms.addMissingInputs(refs);
+			} catch (Exception e){
+				logger.debug(e.getMessage(),e);
+				return changed;
+			}
+			changed = true;
+
+			int increase = test.size() - preLength;
+			i += increase;
+		}
+
+		return changed;
 	}
 
 	private int getLastMutatableStatement() {

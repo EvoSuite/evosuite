@@ -122,6 +122,9 @@ public abstract class TestVisitor {
 	 */
 	public abstract void visitPrimitiveExpression(PrimitiveExpression primitiveExpression);
 
+
+	public abstract void visitFunctionalMockStatement(FunctionalMockStatement functionalMockStatement);
+
 	/**
 	 * <p>
 	 * visitStatement
@@ -148,6 +151,8 @@ public abstract class TestVisitor {
 			visitNullStatement((NullStatement) statement);
 		else if (statement instanceof PrimitiveExpression)
 			visitPrimitiveExpression((PrimitiveExpression) statement);
+		else if (statement instanceof FunctionalMockStatement)
+			visitFunctionalMockStatement((FunctionalMockStatement) statement);
 		else
 			throw new RuntimeException("Unknown statement type: " + statement);
 	}

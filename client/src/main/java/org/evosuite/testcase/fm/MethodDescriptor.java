@@ -68,6 +68,18 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         inputParameterMatchers = matchers;
     }
 
+    /**
+     * For example, do not mock methods with no return value
+     *
+     * @return
+     */
+    public boolean shouldBeMocked(){
+        if(method.getReturnType().equals(Void.TYPE)){
+            return false;
+        }
+        return true;
+    }
+
     public MethodDescriptor getCopy(){
         MethodDescriptor copy = new MethodDescriptor(method);
         copy.counter = this.counter;
@@ -99,7 +111,6 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         }else if(type.equals(String.class)){
             return Mockito.anyString();
         }else{
-            //TODO test if it works for arrays
             return Mockito.any(type.getClass());
         }
     }
