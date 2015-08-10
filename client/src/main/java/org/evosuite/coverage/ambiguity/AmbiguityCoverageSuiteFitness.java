@@ -2,7 +2,7 @@ package org.evosuite.coverage.ambiguity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +32,7 @@ public class AmbiguityCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	public AmbiguityCoverageSuiteFitness() {
 
-		this.goals = new HashSet<Integer>();
+		this.goals = new LinkedHashSet<Integer>();
 		for (LineCoverageTestFitness goal : AmbiguityCoverageFactory.getGoals()) {
 			this.goals.add(goal.getLine());
 		}
