@@ -282,10 +282,12 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
 
     //------------ override methods ---------------
 
+
     @Override
     public void addAssertion(Assertion assertion) {
         //never add an assertion to a functional mock
     }
+
 
     @Override
     public Statement copy(TestCase newTestCase, int offset) {
