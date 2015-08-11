@@ -133,7 +133,7 @@ public class TestFactory {
 	public VariableReference addFunctionalMock(TestCase test, Type type, int position, int recursionDepth)
 			throws ConstructionFailedException, IllegalArgumentException{
 
-		Inputs.checkNull(test,type);
+		Inputs.checkNull(test, type);
 
 		if (recursionDepth > Properties.MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
@@ -1302,11 +1302,58 @@ public class TestFactory {
 	public boolean deleteStatement(TestCase test, int position)
 	        throws ConstructionFailedException {
 
+		if(! ConstraintVerifier.canDelete(test, position)){
+			return false;
+		}
+
 		logger.debug("Deleting target statement - " + position);
 
+		Set<Integer> toDelete = new LinkedHashSet<>();
+		recursiveDeleteInclusion(test,toDelete,position);
+
+		List<Integer> pos = new ArrayList<>(toDelete);
+		Collections.sort(pos, Collections.reverseOrder());
+
+		for (Integer i : pos) {
+			logger.debug("Deleting statement: " + i);
+			test.remove(i);
+		}
+
+		return true;
+	}
+
+	private void recursiveDeleteInclusion(TestCase test, Set<Integer> toDelete, int position){
+
+		if(toDelete.contains(position)){
+			return; //end of recursion
+		}
+
+		toDelete.add(position);
+
+		Set<Integer> references = getReferencePositions(test, position);
+
+		/*
+			it can happen that we can delete the target statements but, when we look at
+			the other statements using it, then we could not delete them :(
+			in those cases, we have to recursively look at all their dependencies.
+		 */
+
+		for (Integer i : references) {
+
+			Set<Integer> constraintDependencies = ConstraintVerifier.dependentPositions(test, i);
+			if(constraintDependencies!=null){
+				for(Integer j : constraintDependencies){
+					recursiveDeleteInclusion(test,toDelete,j);
+				}
+			}
+
+			recursiveDeleteInclusion(test,toDelete,i);
+		}
+	}
+
+	private Set<Integer> getReferencePositions(TestCase test, int position) {
 		Set<VariableReference> references = new LinkedHashSet<>();
 		Set<Integer> positions = new LinkedHashSet<>();
-		positions.add(position);
 		references.add(test.getReturnValue(position));
 
 		for (int i = position; i < test.size(); i++) {
@@ -1319,26 +1366,7 @@ public class TestFactory {
 			}
 			references.addAll(temp);
 		}
-
-		List<Integer> pos = new ArrayList<>(positions);
-		Collections.sort(pos, Collections.reverseOrder());
-
-		for (Integer i : pos) {
-			/*
-				if there is any dependent statement (or the statement itself) that
-				cannot be deleted, then none can be deleted
-			 */
-			if(! ConstraintVerifier.canDelete(test, i)){
-				return false;
-			}
-		}
-
-		for (Integer i : pos) {
-			logger.debug("Deleting statement: " + i);
-			test.remove(i);
-		}
-
-		return true;
+		return positions;
 	}
 
 	private static void filterVariablesByCastClasses(Collection<VariableReference> variables) {
