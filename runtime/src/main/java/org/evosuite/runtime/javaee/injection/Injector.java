@@ -80,7 +80,18 @@ public class Injector {
                                    Class<?> klass, String fieldName, Object value)
             throws IllegalArgumentException, AssumptionViolatedException {
 
-        PrivateAccess.setVariable(klass,instance,fieldName,value,InjectionList.getList());
+        PrivateAccess.setVariable(klass, instance, fieldName, value, InjectionList.getList());
+    }
+
+    @EvoSuiteExclude
+    public static List<Field> getAllFieldsToInject(Class<?> klass){
+        List<Field> fields = getGeneralFieldsToInject(klass);
+        if(hasEntityManager(klass)) {fields.add(entityManagerCache.getField(klass));}
+        if(hasEntityManagerFactory(klass)) {fields.add(entityManagerFactoryCache.getField(klass));}
+        if(hasUserTransaction(klass)) {fields.add(userTransactionCache.getField(klass));}
+        if(hasEvent(klass)) {fields.add(eventCache.getField(klass));}
+
+        return fields;
     }
 
     @EvoSuiteExclude
