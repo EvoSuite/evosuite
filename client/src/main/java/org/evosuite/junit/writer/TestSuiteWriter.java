@@ -27,6 +27,7 @@ import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.idNaming.GenerateTestNames;
 import org.evosuite.idNaming.TestNameGenerator;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -202,8 +203,15 @@ public class TestSuiteWriter implements Opcodes {
         String dir = TestSuiteWriterUtils.makeDirectory(directory);
         String content = "";
 
+        // Execute all tests
+        for (int i = 0; i < testCases.size(); i++) {
+            ExecutionResult result = runTest(testCases.get(i));
+            results.add(result);
+        }
+        
         if (Properties.ID_NAMING && optimizeIDNaming) {
             TestNameGenerator.getInstance().execute(testCases,results);
+        //	TestNameGenerator.getInstance().execute(testCases);
         }
 
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
@@ -252,11 +260,6 @@ public class TestSuiteWriter implements Opcodes {
      */
     private String getUnitTestsAllInSameFile(String name, List<ExecutionResult> results) {
 
-        for (int i = 0; i < testCases.size(); i++) {
-            ExecutionResult result = runTest(testCases.get(i));
-            results.add(result);
-        }
-
 		/*
          * if there was any security exception, then we need to scaffold the
 		 * test cases with a sandbox
@@ -288,9 +291,8 @@ public class TestSuiteWriter implements Opcodes {
      * @return String representation of JUnit test file
      */
     private String getOneUnitTestInAFile(String name, int testId, List<ExecutionResult> results) {
-        ExecutionResult result = runTest(testCases.get(testId));
-        results.add(result);
-        boolean wasSecurityException = result.hasSecurityException();
+
+        boolean wasSecurityException = results.get(testId).hasSecurityException();
 
         StringBuilder builder = new StringBuilder();
 
@@ -300,7 +302,7 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
         }
 
-        builder.append(testToString(testId, testId, results.get(0)));
+        builder.append(testToString(testId, testId, results.get(testId)));
         builder.append(getFooter());
 
         return builder.toString();
@@ -593,7 +595,8 @@ public class TestSuiteWriter implements Opcodes {
 
         // Get the test method name generated in TestNameGenerator
         String testMethodName = TestNameGenerator.getInstance().getNameGeneratedFor(testCases.get(id));
-
+       
+    	
         if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
             StructuredTestCase structuredTest = (StructuredTestCase) testCases.get(id);
             String targetMethod = structuredTest.getTargetMethods().iterator().next();

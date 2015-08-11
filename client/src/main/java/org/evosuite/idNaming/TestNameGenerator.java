@@ -1,6 +1,9 @@
 package org.evosuite.idNaming;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.coverage.method.MethodCoverageTestFitness;
+import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -22,6 +25,13 @@ public class TestNameGenerator {
     private List<String> methodNames = new ArrayList<String>();
     private List<String> testCase = new ArrayList<String>();
     private List<Integer> methodPosition = new ArrayList<Integer>();
+    
+    /**
+     * Mappings from test case to method, branch and output goal name
+     */
+    private static Map<TestCase,String> testNames = new HashMap<TestCase, String>();
+    private static Map<TestCase,String> testOutputs = new HashMap<TestCase, String>();
+	private static Map<TestCase,String> testBranches = new HashMap<TestCase, String>();
 
     /**
      * Mapping from test case to test case name
@@ -53,6 +63,7 @@ public class TestNameGenerator {
      * @param results   list of execution results
      */
     public static void execute(List<TestCase> testCases, List<ExecutionResult> results) {
+  //  public static void execute(List<TestCase> testCases) {
         TestNameGenerator generator = getInstance();
 
         // First, let's try to generate names for each test case individually
@@ -61,10 +72,12 @@ public class TestNameGenerator {
             ExecutionResult res = results.get(id);
 
             // find out target method
-            String targetMethod = generator.getTargetMethod(tc, res);
+           String targetMethod = generator.getTargetMethod(tc, res);
+         //   String targetMethod = generator.getTargetMethod(tc);
 
             // generate test name
-            String testMethodName = generator.generateTestName(targetMethod, tc, res, id);
+           String testMethodName = generator.generateTestName(targetMethod, tc, res, id);
+        //    String testMethodName = generator.generateTestName(targetMethod, tc, id);
 
             // save generated test name
             generator.setNameGeneratedFor(tc, testMethodName);
@@ -75,6 +88,7 @@ public class TestNameGenerator {
         // TODO: Should names be optimized only if all tests will be written in the same file? For now, yes.
         if (Properties.OUTPUT_GRANULARITY == Properties.OutputGranularity.MERGED) {
             generator.optimize(testCases, results);
+        //	generator.optimize(testCases);
         }
     }
 
@@ -108,109 +122,103 @@ public class TestNameGenerator {
      * @param id           test case id
      */
     private String generateTestName(String targetMethod, TestCase tc, ExecutionResult result, Integer id) {
-        String testName = "";
-        //goal set
-        Set<? extends TestFitnessFunction> goals = tc.getCoveredGoals();
-
-        testName = goals.toString();
-        String goalNames[] = testName.split(", ");
-
-        testName = "test";
-
-        for (String goal : goalNames) {
-		/*	if(goal.contains("root-Branch")){
-				testName+="_"+goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("("));					
-			} 				
-			if(goal.contains("Branch") && goal.contains(" - true") && testName.split("_").length==1){
-				testName+="_With"+WordUtils.capitalize(goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("(")))+"(True)";
+   // private String generateTestName(String targetMethod, TestCase tc, Integer id) {
+    	Set<? extends TestFitnessFunction> goals = tc.getCoveredGoals();
+		String methodName="test";
+		String outputName="";
+		String branchName="";
+		for (TestFitnessFunction goal : goals) {
+		  	String goalName = goal.toString();
+		  	if (goal instanceof MethodCoverageTestFitness) {
+		  		methodName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("));		  		
+		  	}else {
+		  		if (goal instanceof BranchCoverageTestFitness){
+		  			branchName+="_Covers"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("));
+				} else {
+					if (goal instanceof OutputCoverageTestFitness) {						
+						outputName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+"Returns"+goalName.substring(goalName.lastIndexOf(":")+1);						
+					}
+				}
+		  	}
+		}	
+		methodName = methodName.replace("<","").replace(">","").replace("(","").replace(")","");
+		outputName = outputName.replace("<","").replace(">","").replace("(","").replace(")","");
+		branchName = branchName.replace("<","").replace(">","").replace("(","").replace(")","");
+		testNames.put(tc, methodName); 
+		testOutputs.put(tc, outputName);
+		testBranches.put(tc, branchName);
+		if(methodName=="test"){
+			methodName = methodName+outputName;
+			if(outputName.equals("")){
+				methodName = methodName+branchName;
 			}
-			if(goal.contains("Branch") && goal.contains(" - false") && testName.split("_").length==1){
-				testName+="_With"+WordUtils.capitalize(goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("(")))+"(False)";
-			}*/
-            if (!goalNames[0].equals("[]")) {
-                testName += "_" + goal.substring(goal.lastIndexOf(".") + 1, goal.indexOf("("));
-            }
-        }
-
-
-        testName = testName.replace("<", "").replace(">", "").replace("(", "").replace(")", "");
-        //	testName = testName + num;
-        LoggingUtils.getEvoLogger().debug("Name for test case " + id + ": " + testName);
-        LoggingUtils.getEvoLogger().debug("Code for test case " + id + ":\n" + tc.toCode());
-
-        //check if the same name and test case is already traversed
-        int tempCount = -1;
-        for (String test : testCase) {
-            if (test.equals(tc.toCode())) {
-                tempCount = 200;
-                break;
-            }
-        }
-        if (tempCount == -1) {
-            testCase.add(tc.toCode());
-            methodNames.add(testName);
-        }
-
-        return testName;
+		}
+		System.out.println(methodName);
+		return methodName;
     }
 
     /**
      * Once names have been generated for all tests, resolve conflicts and optimize names.
      */
     private void optimize(List<TestCase> testCases, List<ExecutionResult> results) {
-
-        for (TestCase tc : testCaseNames.keySet()) {
-            // to retrieve the current test name:
-            String testMethodName = testCaseNames.get(tc);
-
-            // TODO: Recover Ermira's code that uses positions?
-
-            //int pos = getPos(testMethodName, methodPosition, tc.toCode());
-            //methodPosition.add(pos);
-            //String[] names = optimizeNames();
-            //	String [] names=TestNameGenerator.methodNames.toArray(new String[0]);
-            //	List<TestCase> testCase = TestNameGenerator.testCase1;
-            //names = CheckTestNameUniqueness.checkNames(names, testCases);
-
-            //String optimizedTestName = names[pos];
-
-            String testMethodNameOptimized = testMethodName; // TODO
+ //   private void optimize(List<TestCase> testCases) {
+    	String testMethodName1 = "";
+		String testMethodName2 = "";
+		String testMethodNameOptimized1 = "";
+		String testMethodNameOptimized2 = "";
+		String compareAgain="NO";
+    	for(int i=0; i<testCases.size(); i++){
+    		for(int j=i+1; j<testCases.size(); j++){
+    			 testMethodName1 = testCaseNames.get(testCases.get(i));
+    			 testMethodName2 = testCaseNames.get(testCases.get(j));
+    			if(testMethodName1.equals(testMethodName2)){
+    				testMethodNameOptimized1 = testMethodName1 + testOutputs.get(testCases.get(i));
+    				testMethodNameOptimized2 = testMethodName2 + testOutputs.get(testCases.get(j));
+    				System.out.println(testMethodNameOptimized1+"-"+testMethodNameOptimized2);
+    				setNameGeneratedFor(testCases.get(i), testMethodNameOptimized1);
+    				setNameGeneratedFor(testCases.get(j), testMethodNameOptimized2);
+    				compareAgain="YES";
+    			}
+    		}
+    	}
+    	if(compareAgain.equals("YES")){
+	    	for(int i=0; i<testCases.size(); i++){
+	    		for(int j=i+1; j<testCases.size(); j++){
+	    			testMethodName1 = testCaseNames.get(testCases.get(i));
+	    			 testMethodName2 = testCaseNames.get(testCases.get(j));
+	    			if(testMethodName1.equals(testMethodName2)){
+	    				testMethodNameOptimized1 = testMethodName1 + testBranches.get(testCases.get(i));
+	    				testMethodNameOptimized2 = testMethodName2 + testBranches.get(testCases.get(j));
+	    				System.out.println(testMethodNameOptimized1+"-"+testMethodNameOptimized2);
+	    				setNameGeneratedFor(testCases.get(i), testMethodNameOptimized1);
+	    				setNameGeneratedFor(testCases.get(j), testMethodNameOptimized2);
+	    			}
+	    		}
+	    	}
+    	}
+    	String[] testName = new String[testCases.size()];
+    	TestCase[] testCs = new TestCase[testCases.size()];
+    	int count=0;
+    	for (TestCase tc : testCaseNames.keySet()) {
+    		testName[count] = testCaseNames.get(tc);
+    		testCs[count] = tc;
+    		count++;
+    	}
+    	
+	    	testName = SimplifyMethodNames.optimizeNames(Arrays.asList(testName));
+	    	testName = SimplifyMethodNames.minimizeNames(testName);
+			testName = SimplifyMethodNames.countSameNames(testName);
+    	
+        for (int i=0; i<testName.length; i++) {        	           
+            String testMethodNameOptimized = testName[i]; // TODO
             // to set the new, optimized test name:
-            setNameGeneratedFor(tc, testMethodNameOptimized);
+            setNameGeneratedFor(testCs[i], testMethodNameOptimized);
         }
     }
 
-    private String[] optimizeNames() {
-        String[] testNames = new String[methodNames.size()];
-        int i = 0;
-        for (String name : OptimizeTestName.optimiseNames(methodNames)) {
-            testNames[i] = name;
-            i++;
-        }
-        testNames = CheckTestNameUniqueness.renameMethods(testNames);
-        return testNames;
-    }
+    
 
-    private int getPos(String name, List<Integer> posFound, String test) {
-        int pos = -1;
-        int temp = 0;
-        for (int i = 0; i < methodNames.size(); i++) {
-            temp = 0;
-            if (name.equals(methodNames.get(i)) && test.equals(testCase.get(i))) {
-                for (int previousPos : posFound) {
-                    if (previousPos == i) {
-                        temp = -2;
-                        break;
-                    }
-                }
-                if (temp != -2) {
-                    pos = i;
-                    break;
-                }
-            }
-        }
-        return pos;
-    }
+  
     /**
      * Infers the target Method Under Test
      *
@@ -218,6 +226,7 @@ public class TestNameGenerator {
      * @param res execution result
      */
     private String getTargetMethod(TestCase tc, ExecutionResult res) {
+ //   private String getTargetMethod(TestCase tc) {
         // TODO
         return "test";
     }
@@ -239,97 +248,5 @@ public class TestNameGenerator {
             return methodName;
         }
     }
-
-	/*public  static String generateTestName(String targetMethod, TestCase tc, ExecutionResult result, Integer num) {
-            String testName = "";
-			//goal set
-			Set<? extends TestFitnessFunction> goals = tc.getCoveredGoals();
-
-			testName =goals.toString();
-			String goalNames[]=testName.split(", ");
-
-			testName="test";
-			for(String goal: goalNames){
-				if(goal.contains("root-Branch")){
-					testName+="_"+goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("("));
-				} else {
-					if(goal.contains("Branch") && goal.contains(" - true")){
-						testName+="_With"+WordUtils.capitalize(goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("(")))+"(True)";
-					}
-					if(goal.contains("Branch") && goal.contains(" - false")){
-						testName+="_With"+WordUtils.capitalize(goal.substring(goal.lastIndexOf(".")+1,goal.indexOf("(")))+"(False)";
-					}
-				}
-			}
-			testName = testName.replace("<","").replace(">","").replace("(","").replace(")","");
-		//	testName = testName + num;
-			System.out.println(testName);
-			System.out.println(tc.toCode());
-		//check if the same name and test case is already traversed
-		int tempCount=-1;
-		for(String test : testCase){
-			if(test.equals(tc.toCode())){
-				tempCount=200;
-				break;
-			}
-		}
-		if(tempCount==-1){
-			testCase.add(tc.toCode());
-			methodNames.add(testName);
-		}
-		return testName;
-	}*/
-
-/*	public static String translateBranch(String option){
-		String translate="";
-		if(option.contains("IFGE")){
-			translate = "BranchGE";
-		} else {
-			if(option.contains("IFLE")){
-				translate = "BranchLE";
-			} else {
-				if(option.contains("IFGT")){
-					translate = "BranchGT";
-				} else{
-					if(option.contains("IFLT")){
-						translate = "BranchLT";
-					} else{
-						if(option.contains("IFEQ")){
-							translate = "BranchEQ";
-						} else {
-							if(option.contains("ICMPGE")){
-								translate = "BranchCompareGE";
-							} else {
-								if(option.contains("ICMPLE")){
-									translate = "BranchCompareLE";
-								} else {
-									if(option.contains("ICMPGT")){
-										translate = "BranchCompareGT";
-									} else {
-										if(option.contains("ICMPLT")){
-											translate = "BranchCompareLT";
-										} else {
-											if(option.contains("ICMPEQ")){
-												translate = "BranchCompareEQ";
-											} else {
-												if(option.contains("IFNONNULL")){
-													translate = "BranchNoNull";
-												}else {
-													if(option.contains("IFNNULL")){
-														translate = "BranchNull";
-													}
-												}
-											}
-										}	
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return translate;
-	}*/
 
 }

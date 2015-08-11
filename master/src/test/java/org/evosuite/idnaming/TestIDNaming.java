@@ -18,6 +18,7 @@
 package org.evosuite.idnaming;
 
 import com.examples.with.different.packagename.idnaming.SimpleIdNaming;
+import com.examples.with.different.packagename.sette.L4_Collections;
 import com.examples.with.different.packagename.sette.SnippetInputContainer;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -40,10 +41,15 @@ public class TestIDNaming extends SystemTest {
 		Properties.ID_NAMING = true;
 		Properties.JUNIT_TESTS = true;
 		StringBuilder analysisCriteria = new StringBuilder();
-        analysisCriteria.append(Properties.Criterion.METHODTRACE); analysisCriteria.append(",");
-      //  analysisCriteria.append(Properties.Criterion.METHOD); analysisCriteria.append(",");
-    //    analysisCriteria.append(Properties.Criterion.OUTPUT); analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.METHOD); analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.OUTPUT); analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.BRANCH);
         Properties.ANALYSIS_CRITERIA = analysisCriteria.toString();
+        
+        Properties.CRITERION = new Properties.Criterion[3];
+        Properties.CRITERION[0] = Properties.Criterion.METHOD;
+        Properties.CRITERION[1] = Properties.Criterion.OUTPUT;
+        Properties.CRITERION[2] = Properties.Criterion.BRANCH;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
