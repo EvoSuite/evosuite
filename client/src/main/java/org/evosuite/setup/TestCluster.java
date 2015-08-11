@@ -865,7 +865,7 @@ public class TestCluster {
 	 * @throws ConstructionFailedException
 	 */
 	public GenericAccessibleObject<?> getRandomGenerator(GenericClass clazz,
-	        Set<GenericAccessibleObject<?>> excluded, TestCase test) throws ConstructionFailedException {
+	        Set<GenericAccessibleObject<?>> excluded, TestCase test, int position) throws ConstructionFailedException {
 
 		logger.debug("Getting random generator for " + clazz);
 
@@ -876,7 +876,7 @@ public class TestCluster {
 			if (!concreteClass.equals(clazz)) {
 				logger.debug("Target class is generic: " + clazz
 				        + ", getting instantiation " + concreteClass);
-				return getRandomGenerator(concreteClass, excluded, test);
+				return getRandomGenerator(concreteClass, excluded, test, position);
 			}
 		}
 
@@ -907,6 +907,10 @@ public class TestCluster {
 							iter.remove();
 						}
 					}
+
+					if(! ConstraintVerifier.isValidPositionForInsertion(gao,test,position)){
+						iter.remove();
+					}
 				}
 			}
 			logger.debug("Candidate generators for " + clazz + ": " + candidates.size());
@@ -918,10 +922,12 @@ public class TestCluster {
 			generator = Randomness.choice(candidates);
 			logger.debug("Chosen generator: " + generator);
 		}
+
 		if (generator.getOwnerClass().hasWildcardOrTypeVariables()) {
 			logger.debug("Owner class has a wildcard: " + clazz.getTypeName());
 			generator = generator.copyWithNewOwner(generator.getOwnerClass().getGenericInstantiation());
 		}
+
 		if (generator.hasTypeParameters()) {
 			logger.debug("Generator has a type parameter: " + generator);
 			generator = generator.getGenericInstantiationFromReturnValue(clazz);

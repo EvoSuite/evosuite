@@ -1,5 +1,6 @@
 package org.evosuite.runtime.javaee;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -9,7 +10,7 @@ import java.util.Set;
  *
  * Created by Andrea Arcuri on 11/08/15.
  */
-public class JeeData {
+public class JeeData implements Serializable{
 
     /**
      * Keep track of all parameters that have been checked in a http servlet
@@ -48,7 +49,7 @@ public class JeeData {
         this.httpRequestParameters = Collections.unmodifiableSet(new LinkedHashSet<>(httpRequestParameters));
         this.dispatchers = Collections.unmodifiableSet(new LinkedHashSet<>(dispatchers));
         this.readContentType = readContentType;
-        this.partNames = Collections.unmodifiableSet(new LinkedHashSet<>(partNames));
+        this.partNames = partNames==null ? null : Collections.unmodifiableSet(new LinkedHashSet<>(partNames));
         this.wasAServletInitialized = wasAServletInitialized;
     }
 }
