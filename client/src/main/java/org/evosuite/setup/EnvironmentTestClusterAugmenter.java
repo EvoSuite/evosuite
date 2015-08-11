@@ -4,6 +4,7 @@ import org.evosuite.Properties;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.System;
 import org.evosuite.runtime.annotation.*;
+import org.evosuite.runtime.javaee.JeeData;
 import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.testdata.*;
@@ -102,7 +103,10 @@ public class EnvironmentTestClusterAugmenter {
 
     private void handleJEE(TestCase test) {
 
-        if(!hasAddedServlet && TestDataJavaEE.getInstance().isWasAServletInitialized()){
+        JeeData jeeData = TestDataJavaEE.getInstance().getJeeData();
+        test.getAccessedEnvironment().setJeeData(jeeData);
+
+        if(!hasAddedServlet && jeeData.wasAServletInitialized){
             hasAddedServlet = true;
             addEnvironmentClassToCluster(EvoServletState.class);
         }

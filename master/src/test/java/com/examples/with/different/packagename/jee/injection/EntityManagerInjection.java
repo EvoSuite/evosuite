@@ -1,4 +1,4 @@
-package com.examples.with.different.packagename.jee;
+package com.examples.with.different.packagename.jee.injection;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;

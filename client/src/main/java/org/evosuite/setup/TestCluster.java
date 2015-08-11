@@ -78,7 +78,7 @@ public class TestCluster {
 
 	private static InheritanceTree inheritanceTree = null;
 
-    private final EnvironmentTestClusterAugmenter environmentAugmenter;
+    private EnvironmentTestClusterAugmenter environmentAugmenter;
 
     //-------------------------------------------------------------------
 

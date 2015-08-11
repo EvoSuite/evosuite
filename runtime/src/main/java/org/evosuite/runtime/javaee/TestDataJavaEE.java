@@ -66,6 +66,10 @@ public class TestDataJavaEE {
         wasAServletInitialized = false;
     }
 
+    public JeeData getJeeData(){
+        return new JeeData(httpRequestParameters,dispatchers,readContentType,partNames,wasAServletInitialized);
+    }
+
     public boolean isWasAServletInitialized() {
         return wasAServletInitialized;
     }

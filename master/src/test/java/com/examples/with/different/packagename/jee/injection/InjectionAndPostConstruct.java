@@ -1,4 +1,4 @@
-package com.examples.with.different.packagename.jee;
+package com.examples.with.different.packagename.jee.injection;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;

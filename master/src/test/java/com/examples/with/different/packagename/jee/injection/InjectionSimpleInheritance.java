@@ -1,4 +1,4 @@
-package com.examples.with.different.packagename.jee;
+package com.examples.with.different.packagename.jee.injection;
 
 /**
  * Created by Andrea Arcuri on 14/07/15.

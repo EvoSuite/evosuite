@@ -1,6 +1,6 @@
 package org.evosuite.jee;
 
-import com.examples.with.different.packagename.jee.SimpleHttpServlet;
+import com.examples.with.different.packagename.jee.servlet.SimpleHttpServlet;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
