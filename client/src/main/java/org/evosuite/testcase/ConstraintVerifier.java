@@ -82,8 +82,14 @@ public class ConstraintVerifier {
      * @param pos
      * @return
      */
-    public static boolean canDelete(TestCase tc, int pos) throws IllegalArgumentException{
+    public static boolean canDelete(TestCase tc, int pos) throws IllegalArgumentException {
+        return dependentPositions(tc,pos).isEmpty();
+    }
+
+    public static Set<Integer> dependentPositions(TestCase tc, int pos) throws IllegalArgumentException{
         Inputs.checkNull(tc);
+
+        Set<Integer> dep = new LinkedHashSet<>();
 
         Statement st = tc.getStatement(pos);
 
@@ -108,19 +114,23 @@ public class ConstraintVerifier {
                 for(VariableReference input : entity.getParameterReferences()){
                     if(input.same(ret)){
                         //var is used as input in a method that accepts no null input, so cannot be deleted
-                        return false;
+                        dep.add(i);
                     }
                 }
             }
 
-            return true;
+            return dep;
         }
 
         //first look at bounded variables
         for(Annotation[] array : getParameterAnnotations(st)){
-            for(Annotation an : array){
+            for(int i=0; i<array.length; i++){
+                Annotation an = array[i];
                 if(an instanceof BoundInputVariable){
-                    return false;
+
+                    EntityWithParametersStatement e = (EntityWithParametersStatement) st;
+                    int boundingVarPos = e.getParameterReferences().get(i).getStPosition();
+                    dep.add(boundingVarPos);
                 }
             }
         }
@@ -148,11 +158,11 @@ public class ConstraintVerifier {
                 String afterMethodName = klassAndMethod[1];
 
                 if(afterKlassName.equals(currentKlassName) && afterMethodName.equals(currentMethodName)){
-                    return false;
+                    dep.add(i);
                 }
             }
         }
-        return true;
+        return dep;
     }
 
     public static boolean isValidPositionForInsertion(GenericAccessibleObject<?> obj, TestCase tc, int pos)
