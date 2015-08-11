@@ -20,6 +20,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.util.Inputs;
@@ -500,16 +501,26 @@ public class TestFactory {
 	 */
 	public VariableReference addMethodFor(TestCase test, VariableReference callee,
 	        GenericMethod method, int position) throws ConstructionFailedException {
+
 		logger.debug("Adding method " + method + " for " + callee + "(Generating "+method.getGeneratedClass()+")");
-		if(position <= callee.getStPosition())
+
+		if(position <= callee.getStPosition()) {
 			throw new ConstructionFailedException("Cannot insert call on object before the object is defined");
+		}
 
 		currentRecursion.clear();
 		int length = test.size();
-		List<VariableReference> parameters = null;
-		parameters = satisfyParameters(test, callee,
-		                               Arrays.asList(method.getParameterTypes()),
-		                               position, 1, true);
+
+		boolean allowNull = true;
+		Constraints constraints = method.getMethod().getAnnotation(Constraints.class);
+		if(constraints!=null && constraints.noNullInputs()){
+			allowNull = false;
+		}
+
+		List<VariableReference> parameters = satisfyParameters(
+				test, callee,
+				Arrays.asList(method.getParameterTypes()),
+				position, 1, allowNull);
 
 		int newLength = test.size();
 		position += (newLength - length);
@@ -517,6 +528,7 @@ public class TestFactory {
 		Statement st = new MethodStatement(test, method, callee, parameters);
 		VariableReference ret = test.addStatement(st, position);
 		ret.setDistance(callee.getDistance() + 1);
+
 		logger.debug("Success: Adding method " + method);
 		return ret;
 	}
@@ -689,23 +701,31 @@ public class TestFactory {
 		GenericClass clazz = new GenericClass(type);
 
 		if (clazz.isEnum()) {
+
 			if (!TestUsageChecker.canUse(clazz.getRawClass()))
-				throw new ConstructionFailedException(
-				        "Cannot generate unaccessible enum " + clazz);
+				throw new ConstructionFailedException("Cannot generate unaccessible enum " + clazz);
 			return createPrimitive(test, clazz, position, recursionDepth);
+
 		} else if (clazz.isPrimitive() || clazz.isClass()
 		        || EnvironmentStatements.isEnvironmentData( clazz.getRawClass())) {
+
 			return createPrimitive(test, clazz, position, recursionDepth);
+
 		} else if (clazz.isString()) {
+
 			if (allowNull && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
 				logger.debug("Using a null reference to satisfy the type: " + type);
 				return createNull(test, type, position, recursionDepth);
 			} else {
 				return createPrimitive(test, clazz, position, recursionDepth);
 			}
+
 		} else if (clazz.isArray()) {
+
 			return createArray(test, clazz, position, recursionDepth);
+
 		} else {
+
 			if (allowNull && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
 				logger.debug("Using a null reference to satisfy the type: " + type);
 				return createNull(test, type, position, recursionDepth);
@@ -714,16 +734,20 @@ public class TestFactory {
 			ObjectPoolManager objectPool = ObjectPoolManager.getInstance();
 			if (Randomness.nextDouble() <= Properties.P_OBJECT_POOL
 			        && objectPool.hasSequence(clazz)) {
+
 				TestCase sequence = objectPool.getRandomSequence(clazz);
 				logger.debug("Using a sequence from the object pool to satisfy the type: " + type);
 				VariableReference targetObject = sequence.getLastObject(type);
 				int returnPos = position + targetObject.getStPosition();
+
 				for (int i = 0; i < sequence.size(); i++) {
 					Statement s = sequence.getStatement(i);
 					test.addStatement(s.copy(test, position), position + i);
 				}
+
 				logger.debug("Return type of object sequence: "
 				        + test.getStatement(returnPos).getReturnValue().getClassName());
+
 				return test.getStatement(returnPos).getReturnValue();
 			}
 
@@ -1052,12 +1076,27 @@ public class TestFactory {
 
 			//regular creation
 
-			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz, currentRecursion, test);
+			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz, currentRecursion, test, position);
 			currentRecursion.add(o);
 
 			if (o == null) {
 				if (!TestCluster.getInstance().hasGenerator(clazz)) {
 					logger.debug("We have no generator for class " + type);
+				}
+
+				/*
+					It could happen that there is no current valid generator for 'position', but valid
+					generators were usable before. This is for example the case when the only generator
+					has an "atMostOnce" constraint, and so can only be used once.
+					In such case, we should just re-use an existing variable if it exists, as long as
+					it is not a functional mock (which can be used only once)
+				 */
+				for(int i=position-1; i>=0; i--) {
+					Statement statement = test.getStatement(i);
+					VariableReference var = statement.getReturnValue();
+					if (var.isAssignableTo(type) && ! (statement instanceof FunctionalMockStatement)) {
+						return var;
+					}
 				}
 
 				if (Properties.P_FUNCTIONAL_MOCKING > 0) {
@@ -1075,6 +1114,7 @@ public class TestFactory {
 				ret = addField(test, (GenericField) o, position, recursionDepth + 1);
 			} else if (o.isMethod()) {
 				logger.debug("Attempting generating of " + type + " via method " + (o) + " of type " + type);
+
 				ret = addMethod(test, (GenericMethod) o, position, recursionDepth + 1);
 
 				// TODO: Why are we doing this??
@@ -1256,17 +1296,19 @@ public class TestFactory {
 	 *
 	 * @param test
 	 * @param position
+	 * @return false if it was not possible to delete the statement
 	 * @throws ConstructionFailedException
 	 */
-	public void deleteStatement(TestCase test, int position)
+	public boolean deleteStatement(TestCase test, int position)
 	        throws ConstructionFailedException {
-		logger.debug("Deleting target statement - " + position);
-		//logger.info(test.toCode());
 
-		Set<VariableReference> references = new LinkedHashSet<VariableReference>();
-		Set<Integer> positions = new LinkedHashSet<Integer>();
+		logger.debug("Deleting target statement - " + position);
+
+		Set<VariableReference> references = new LinkedHashSet<>();
+		Set<Integer> positions = new LinkedHashSet<>();
 		positions.add(position);
 		references.add(test.getReturnValue(position));
+
 		for (int i = position; i < test.size(); i++) {
 			Set<VariableReference> temp = new LinkedHashSet<VariableReference>();
 			for (VariableReference v : references) {
@@ -1277,12 +1319,26 @@ public class TestFactory {
 			}
 			references.addAll(temp);
 		}
+
 		List<Integer> pos = new ArrayList<>(positions);
 		Collections.sort(pos, Collections.reverseOrder());
+
+		for (Integer i : pos) {
+			/*
+				if there is any dependent statement (or the statement itself) that
+				cannot be deleted, then none can be deleted
+			 */
+			if(! ConstraintVerifier.canDelete(test, i)){
+				return false;
+			}
+		}
+
 		for (Integer i : pos) {
 			logger.debug("Deleting statement: " + i);
 			test.remove(i);
 		}
+
+		return true;
 	}
 
 	private static void filterVariablesByCastClasses(Collection<VariableReference> variables) {
@@ -1316,13 +1372,23 @@ public class TestFactory {
 		}
 	}
 
-	public void deleteStatementGracefully(TestCase test, int position)
+
+	/**
+	 *
+	 * @param test
+	 * @param position
+	 * @return true if statements was deleted or any dependency was modified
+	 * @throws ConstructionFailedException
+	 */
+	public boolean deleteStatementGracefully(TestCase test, int position)
 	        throws ConstructionFailedException {
 		VariableReference var = test.getReturnValue(position);
+
 		if (var instanceof ArrayIndex) {
-			deleteStatement(test, position);
-			return;
+			return deleteStatement(test, position);
 		}
+
+		boolean changed = false;
 
 		boolean replacingPrimitive = test.getStatement(position) instanceof PrimitiveStatement;
 
@@ -1376,11 +1442,13 @@ public class TestFactory {
 							VariableReference replacementVar = Randomness.choice(alternatives);
 							if (assignment.getReturnValue().isAssignableFrom(replacementVar)) {
 								s.replace(var, replacementVar);
+								changed = true;
 							}
 						} else if (assignment.getReturnValue() == var) {
 							VariableReference replacementVar = Randomness.choice(alternatives);
 							if (replacementVar.isAssignableFrom(assignment.getValue())) {
 								s.replace(var, replacementVar);
+								changed = true;
 							}
 						}
 					} else {
@@ -1397,6 +1465,7 @@ public class TestFactory {
 
 						if(!bounded) {
 							s.replace(var, Randomness.choice(alternatives));
+							changed = true;
 						}
 					}
 				}
@@ -1426,6 +1495,7 @@ public class TestFactory {
 							ArrayIndex ai = (ArrayIndex) var2;
 							if (ai.getArray().equals(var)) {
 								s.replace(var2, Randomness.choice(alternatives));
+								changed = true;
 							}
 						}
 					}
@@ -1434,7 +1504,8 @@ public class TestFactory {
 		}
 
 		// Remove everything else
-		deleteStatement(test, position);
+		boolean deleted = deleteStatement(test, position);
+		return  deleted || changed;
 	}
 
 	/**

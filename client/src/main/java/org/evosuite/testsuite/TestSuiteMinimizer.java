@@ -355,17 +355,23 @@ public class TestSuiteMinimizer {
                             + " from test");
                     TestChromosome originalTestChromosome = (TestChromosome) testChromosome.clone();
 
+                    boolean modified = false;
                     try {
                         TestFactory testFactory = TestFactory.getInstance();
-                        testFactory.deleteStatementGracefully(testChromosome.getTestCase(), i);
-                        testChromosome.setChanged(true);
-                        testChromosome.getTestCase().clearCoveredGoals();
+                        modified = testFactory.deleteStatementGracefully(testChromosome.getTestCase(), i);
                     } catch (ConstructionFailedException e) {
+                        modified = false;
+                    }
+
+                    if(!modified){
                         testChromosome.setChanged(false);
                         testChromosome.setTestCase(originalTestChromosome.getTestCase());
                         logger.debug("Deleting failed");
                         continue;
                     }
+
+                    testChromosome.setChanged(true);
+                    testChromosome.getTestCase().clearCoveredGoals();
 
                     List<Double> modifiedVerFitness = new ArrayList<Double>();
                     for (TestFitnessFactory<?> ff : testFitnessFactories)

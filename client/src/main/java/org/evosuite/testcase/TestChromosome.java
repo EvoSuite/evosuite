@@ -412,13 +412,14 @@ public class TestChromosome extends ExecutableChromosome {
 			}
 		}
 
+		if(changed){
+			assert ConstraintVerifier.verifyTest(test);
+		}
+
 		return changed;
 	}
 
 	protected boolean deleteStatement(TestFactory testFactory, int num) {
-		if(! ConstraintVerifier.canDelete(test, num)){
-			return false;
-        }
 
 		try {
 
@@ -426,10 +427,10 @@ public class TestChromosome extends ExecutableChromosome {
 
             mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
 					TestMutationHistoryEntry.TestMutation.DELETION));
-            testFactory.deleteStatementGracefully(copy, num);
+            boolean modified = testFactory.deleteStatementGracefully(copy, num);
 
             test = copy;
-           	return true;
+           	return modified;
 
         } catch (ConstructionFailedException e) {
             logger.warn("Deletion of statement failed: " + test.getStatement(num).getCode());
@@ -497,6 +498,11 @@ public class TestChromosome extends ExecutableChromosome {
 				}
 			}
 		}
+
+		if(changed){
+			assert ConstraintVerifier.verifyTest(test);
+		}
+
 		return changed;
 	}
 
