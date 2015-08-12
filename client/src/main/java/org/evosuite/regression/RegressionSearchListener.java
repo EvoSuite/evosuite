@@ -82,19 +82,20 @@ public class RegressionSearchListener implements SearchListener {
 			statsDir.mkdirs();
 		}
 
-		statsFile = new File(statsDirName + "/" + (filecount + 1) + ""
-				+ ((int) (Math.random() * 1000)) + "_"
+		// Format: $rand_seed_$file-count-in-current-dir_$CUT-name.csv
+		statsFile = new File(statsDirName
+				+ "/"
+				+ ((Properties.RANDOM_SEED == null) ? "0_" : Properties.RANDOM_SEED + "_") 
+				+ (filecount) + "" + "_" 
 				+ Properties.getTargetClass().getSimpleName() + ".csv");
 
+		// if file exists, append time!
 		if (statsFile.exists())
-			statsFile = new File(statsDirName + "/" + (filecount + 1) + ""
-					+ ((int) (Math.random() * 1000)) + "_"
-					+ Properties.getTargetClass().getSimpleName() + "_"
-					+ System.currentTimeMillis() + ".csv");
-
+			statsFile = new File(statsFile.getName().replace(".csv", "_" + System.currentTimeMillis() + ".csv"));
+		
+		// remove extension
 		statsID = statsFile.getName().replaceFirst("[.][^.]+$", "");
 
-		
 
 		try {
 			String data = "fitness,test_count,test_size,branch_distance,object_distance,coverage,exception_diff,total_exceptions,coverage_old,coverage_new,executed_statements,age,time,assertions,state,exec_time,assert_time,cover_time,state_diff_time,branch_time,obj_time";
