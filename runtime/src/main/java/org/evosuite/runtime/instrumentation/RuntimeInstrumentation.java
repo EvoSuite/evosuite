@@ -1,7 +1,5 @@
 package org.evosuite.runtime.instrumentation;
 
-import java.util.List;
-
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.util.ComputeClassWriter;
 import org.objectweb.asm.ClassReader;
@@ -47,6 +45,12 @@ public class RuntimeInstrumentation {
                 return false;
             }
         }
+
+        if(className.contains("EnhancerByMockito")){
+            //very special case, as Mockito will create classes on the fly
+            return false;
+        }
+
         return true;
     }
 
@@ -58,7 +62,7 @@ public class RuntimeInstrumentation {
      *
      * @return the names of class packages EvoSuite is not going to instrument
      */
-    public static String[] getPackagesShouldNotBeInstrumented() {
+    private static String[] getPackagesShouldNotBeInstrumented() {
         //explicitly blocking client projects such as specmate is only a
         //temporary solution, TODO allow the user to specify
         //packages that should not be instrumented
@@ -68,7 +72,8 @@ public class RuntimeInstrumentation {
                 "testing.generation.evosuite", "com.yourkit", "com.vladium.emma.", "daikon.",
                 "org.netbeans.lib.profiler", // VisualVM profiler
                 // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
-                "apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
+                "apple.", "com.apple.", "com.sun",
+                "org.junit", "junit.framework","org.mockito", // do not instrument test code which will be part of final JUnit
                 "org.apache.xerces.dom3", "de.unisl.cs.st.bugex",  "org.mozilla.javascript.gen.c",
                 "corina.cross.Single",  // I really don't know what is wrong with this class, but we need to exclude it
                 "org.slf4j",

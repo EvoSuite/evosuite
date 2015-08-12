@@ -156,7 +156,11 @@ public class ContractViolation {
 					continue;
 
 				try {
-					testFactory.deleteStatement(test, i);
+					boolean deleted = testFactory.deleteStatement(test, i);
+					if(!deleted){
+						continue;
+					}
+
 					if (!contract.fails(test)) {
 						test = origTest.clone();
 					} else {

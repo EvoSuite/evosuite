@@ -18,18 +18,10 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
-import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestVisitor;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testcase.statements.ArrayStatement;
-import org.evosuite.testcase.statements.AssignmentStatement;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.FieldStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.NullStatement;
-import org.evosuite.testcase.statements.PrimitiveExpression;
-import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -385,6 +377,11 @@ public class GenericTypeInference extends TestVisitor {
 	@Override
 	public void visitPrimitiveExpression(PrimitiveExpression primitiveExpression) {
 		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void visitFunctionalMockStatement(FunctionalMockStatement functionalMockStatement) {
 
 	}
 }

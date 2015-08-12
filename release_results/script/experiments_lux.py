@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
 # How to run EvoSuite
-EVOSUITE="java -Xmx400M -jar $HOME/evosuite/evosuite-master-0.1.3-SNAPSHOT.jar"
+EVOSUITE="$HOME/java8/jdk1.8.0_45/bin/java  -Xmx400M  -jar $HOME/evosuite/evosuite-master-0.2.1-SNAPSHOT.jar"
 
 # Location of SF110
 CASESTUDY_DIR="$HOME/SF110/dist"
 
-CONFIG_NAME = "0.2.0"
+CONFIG_NAME = "0.3.0"
 
 EXPERIMENT_NAME="EvoSuite"
 

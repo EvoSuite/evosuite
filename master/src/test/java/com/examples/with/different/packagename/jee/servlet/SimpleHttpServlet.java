@@ -1,4 +1,4 @@
-package com.examples.with.different.packagename.jee;
+package com.examples.with.different.packagename.jee.servlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

@@ -14,7 +14,7 @@ import java.util.Map;
  * in a "general" way: ie, instance object is created in the
  * test as any other input parameter. This is different
  * from "special" fields that need to be adhoc initialized
- * by EvoSuite, like EntityManager that needs to be conned
+ * by EvoSuite, like EntityManager that needs to be connected
  * to an actual database
  *
  * Created by Andrea Arcuri on 13/07/15.
@@ -69,6 +69,6 @@ public class GeneralInjection {
             cache.put(klass, fields);
         }
 
-        return fields;
+        return new ArrayList<>(fields);
     }
 }

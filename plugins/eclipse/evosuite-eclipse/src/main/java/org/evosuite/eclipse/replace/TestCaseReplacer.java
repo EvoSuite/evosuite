@@ -4,6 +4,7 @@
 package org.evosuite.eclipse.replace;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +15,16 @@ import org.evosuite.Properties.Strategy;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.strategy.PropertiesSuiteGAFactory;
+import org.evosuite.strategy.PropertiesTestGAFactory;
 // import org.evosuite.junit.JUnitTestReader;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseMinimizer;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * This class is the main entry point for test case replacement
@@ -45,23 +50,33 @@ public class TestCaseReplacer {
 		// Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
 		// Properties.SEARCH_BUDGET = 20;
 
-		GeneticAlgorithm ga = TestSuiteGenerator.getGeneticAlgorithm(new RandomLengthTestFactory());
+		// GeneticAlgorithm ga = TestSuiteGenerator.getGeneticAlgorithm(new RandomLengthTestFactory());
+		// TODO: JM: Needs Testing. Not sure if this is equivalent:
+		PropertiesTestGAFactory algorithmFactory = new PropertiesTestGAFactory();
+		GeneticAlgorithm<TestChromosome> ga = algorithmFactory.getSearchAlgorithm();
 
-		// Set up fitness function for the parsed test case
-		DifferenceFitnessFunction fitness = new DifferenceFitnessFunction(test,
-		        otherTests, (TestFitnessFactory) TestSuiteGenerator.getFitnessFactory());
-		//ga.setFitnessFunction(fitness);
-		ga.addFitnessFunction(fitness);
+		
+		List<TestFitnessFactory<? extends TestFitnessFunction>> factories = TestSuiteGenerator.getFitnessFactories();
+		Collection<TestFitnessFunction> fitnessFunctions = new ArrayList<TestFitnessFunction>();  
+		for (TestFitnessFactory<? extends TestFitnessFunction> factory : factories) {
+			// Set up fitness function for the parsed test case
+			DifferenceFitnessFunction fitnessFunction = new DifferenceFitnessFunction(test, otherTests, factory);
+			//ga.setFitnessFunction(fitness);
+			fitnessFunctions.add(fitnessFunction);
+			ga.addFitnessFunction(fitnessFunction);
+			
+		}
+
 		// Perform calculation
 		ga.generateSolution();
 
 		// The best individual at the end of the search contains our candidate solution
 		TestChromosome testChromosome = (TestChromosome) ga.getBestIndividual();
-		TestCaseMinimizer minimizer = new TestCaseMinimizer(fitness.getOriginalGoals());
+		TestCaseMinimizer minimizer = new TestCaseMinimizer(fitnessFunctions);
 		minimizer.minimize(testChromosome);
 
 		System.out.println("Best individual has fitness: "
-		        + fitness.getFitness(testChromosome));
+		        + testChromosome.getFitness());
 		return testChromosome.getTestCase();
 	}
 

@@ -129,10 +129,11 @@ public class TestSuiteMinimizer {
 
             try {
                 Class<?> junitClass = Class.forName(Properties.JUNIT_EXTEND, true, TestGenerationContext.getInstance().getClassLoaderForSUT());
-                List<TestFitnessFunction> coveredGoals = CoverageAnalysis.getCoveredGoals(junitClass, goals);
+                Set<TestFitnessFunction> coveredGoals = CoverageAnalysis.getCoveredGoals(junitClass, goals);
                 logger.warn("Removing " + coveredGoals.size() + " goals already covered by JUnit (total: " + goals.size() + ")");
-                logger.warn("Removing " + coveredGoals + " goals already covered by JUnit (total: " + goals + ")");
+                //logger.warn("Removing " + coveredGoals + " goals already covered by JUnit (total: " + goals + ")");
                 goals.removeAll(coveredGoals);
+                logger.warn("Remaining goals: "+goals.size()+": "+goals);
             } catch (ClassNotFoundException e) {
                 logger.warn("Failed to find JUnit test suite: " + Properties.JUNIT_EXTEND);
             }
@@ -354,17 +355,23 @@ public class TestSuiteMinimizer {
                             + " from test");
                     TestChromosome originalTestChromosome = (TestChromosome) testChromosome.clone();
 
+                    boolean modified = false;
                     try {
                         TestFactory testFactory = TestFactory.getInstance();
-                        testFactory.deleteStatementGracefully(testChromosome.getTestCase(), i);
-                        testChromosome.setChanged(true);
-                        testChromosome.getTestCase().clearCoveredGoals();
+                        modified = testFactory.deleteStatementGracefully(testChromosome.getTestCase(), i);
                     } catch (ConstructionFailedException e) {
+                        modified = false;
+                    }
+
+                    if(!modified){
                         testChromosome.setChanged(false);
                         testChromosome.setTestCase(originalTestChromosome.getTestCase());
                         logger.debug("Deleting failed");
                         continue;
                     }
+
+                    testChromosome.setChanged(true);
+                    testChromosome.getTestCase().clearCoveredGoals();
 
                     List<Double> modifiedVerFitness = new ArrayList<Double>();
                     for (TestFitnessFactory<?> ff : testFitnessFactories)

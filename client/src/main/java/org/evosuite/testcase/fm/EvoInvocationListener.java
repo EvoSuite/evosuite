@@ -1,12 +1,12 @@
-package org.evosuite.runtime.fm;
+package org.evosuite.testcase.fm;
 
 import org.mockito.internal.invocation.InvocationImpl;
 import org.mockito.invocation.DescribedInvocation;
 import org.mockito.listeners.InvocationListener;
 import org.mockito.listeners.MethodInvocationReport;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  *
  * Created by Andrea Arcuri on 27/07/15.
  */
-public class EvoInvocationListener implements InvocationListener {
+public class EvoInvocationListener implements InvocationListener, Serializable {
 
     private final Map<String, MethodDescriptor> map = new LinkedHashMap<>();
 
@@ -33,8 +33,12 @@ public class EvoInvocationListener implements InvocationListener {
         active = true;
     }
 
+    /**
+     *
+     * @return a sorted list
+     */
     public List<MethodDescriptor> getCopyOfMethodDescriptors(){
-        return map.values().stream().collect(Collectors.toList());
+        return map.values().stream().sorted().collect(Collectors.toList());
     }
 
     @Override

@@ -1,6 +1,8 @@
 package org.evosuite.testcase.statements.reflection;
 
+import org.evosuite.Properties;
 import org.evosuite.runtime.Reflection;
+import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.Randomness;
 
@@ -40,11 +42,21 @@ public class ReflectionFactory {
             }
         }
 
+        //do not use reflection on JEE injection
+        List<Field> toSkip = null;
+        if(Properties.JEE){
+            toSkip = Injector.getAllFieldsToInject(target);
+        }
+
         for(Field f : target.getDeclaredFields()){
-            if(Modifier.isPrivate(f.getModifiers())){
+            if(Modifier.isPrivate(f.getModifiers()) && (toSkip==null || ! toSkip.contains(f))){
                 fields.add(f);
             }
         }
+    }
+
+    public int getNumberOfUsableFields(){
+        return fields.size();
     }
 
     public boolean hasPrivateFieldsOrMethods(){

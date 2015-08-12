@@ -157,21 +157,23 @@ public class TestCaseMinimizer {
 
 			for (int i = c.test.size() - 1; i >= 0; i--) {
 
-				if(! ConstraintVerifier.canDelete(c.test, i)){
-					continue;
-				}
-
 				logger.debug("Deleting statement {}", c.test.getStatement(i).getCode());
 				TestChromosome copy = (TestChromosome) c.clone();
+				boolean modified = false;
 				try {
-					c.setChanged(true);
-					testFactory.deleteStatementGracefully(c.test, i);
+					modified = testFactory.deleteStatementGracefully(c.test, i);
 				} catch (ConstructionFailedException e) {
+					modified = false;
+				}
+
+				if(!modified){
 					c.setChanged(false);
 					c.test = copy.test;
 					logger.debug("Deleting failed");
 					continue;
 				}
+
+				c.setChanged(true);
 
 				Map<TestFitnessFunction, Double> newFitness = getFitnessValues(c);
 				//double new_fitness = fitnessFunction.getFitness(c);
