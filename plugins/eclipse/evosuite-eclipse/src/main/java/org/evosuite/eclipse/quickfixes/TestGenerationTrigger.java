@@ -19,6 +19,8 @@ package org.evosuite.eclipse.quickfixes;
 
 import java.io.File;
 
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.jobs.Job;
@@ -44,10 +46,11 @@ public class TestGenerationTrigger extends TestGenerationAction {
 	}
 
 	@Override
-	public void run(IAction action) {
+	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IProject proj = res.getProject();
 		fixJUnitClassPath(JavaCore.create(proj));
 		generateTests(res);
+		return null;
 	}
 
 	/**
@@ -87,9 +90,4 @@ public class TestGenerationTrigger extends TestGenerationAction {
 		}
 	}
 
-	@Override
-	public void selectionChanged(IAction action, ISelection selection) {
-		// TODO Auto-generated method stub
-		
-	}
 }

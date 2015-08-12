@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description name="EvoSuite Eclipse Plugin">
-      This is an experimental Eclipse plugin for the EvoSuite test generator
+   <description name="EvoSuite Eclipse Plugin Update Site" url="http://www.evosuite.org/update/">
+      This is an experimental Eclipse plugin for the EvoSuite JUnit Test Generation tool
    </description>
-   <feature url="features/org.evosuite.plugins.eclipse.feature_0.1.0.201412111343.jar" id="org.evosuite.plugins.eclipse.feature" version="0.1.0.201412111343">
-      <category name="EvoSuite_Category"/>
+   <feature url="features/org.evosuite.plugins.eclipse.feature_0.2.0.201508031811.jar" id="org.evosuite.plugins.eclipse.feature" version="0.2.0.201508031811">
+      <category name="junit-generation"/>
    </feature>
-   <category-def name="EvoSuite_Category" label="JUnit Test Generation"/>
+   <category-def name="junit-generation" label="JUnit Test Generation"/>
 </site>

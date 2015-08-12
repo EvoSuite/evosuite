@@ -6,8 +6,10 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericMethod;
 
+import java.lang.reflect.AccessibleObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -127,7 +129,8 @@ public class ConstraintHelper {
                 continue;
             }
 
-            Class<?> declaringClass = st.getAccessibleObject().getDeclaringClass();
+            GenericAccessibleObject ao = st.getAccessibleObject();
+            Class<?> declaringClass = ao.getDeclaringClass();
 
             for(String excluded : constraints.excludeOthers()) {
                 String[] klassAndMethod = getClassAndMethod(excluded, declaringClass);

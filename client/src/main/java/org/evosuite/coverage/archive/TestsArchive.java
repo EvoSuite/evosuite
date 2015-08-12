@@ -18,6 +18,10 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.statements.FunctionalMockStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
+import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericConstructor;
@@ -299,16 +303,61 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 			return true;
 		}
 
+		TestCase current = testMap.get(goal).test;
+		TestCase candidate = result.test;
+
+
+		int penaltyCurrent = calculatePenalty(current);
+		int penaltyCandidate = calculatePenalty(candidate);
+
+		/*
+			Check if tests are using any functional mock or private access.
+			Those will be worse than a test that do not use them
+		 */
+		if(penaltyCandidate < penaltyCurrent){
+			return true;
+		} else if(penaltyCandidate > penaltyCurrent){
+			return false;
+		}
+
+		// only look at length if penalty scores are the same
+		assert penaltyCandidate == penaltyCurrent;
+
 		// If we try to add a test for a goal we've already covered
 		// and the new test is shorter, keep the shorter one
-		if(result.test.size() < testMap.get(goal).test.size()) {
+		if(candidate.size() < current.size()) {
 			return true;
 		}
 
-		/*
-			TODO: in the future, here we should handle also PrivateAccess
-			and functional mocking
-		 */
+		return false;
+	}
+
+	private int calculatePenalty(TestCase tc){
+		int penalty = 0;
+		if(hasFunctionalMocks(tc)){
+			penalty++;
+		}
+		if(hasPrivateAccess(tc)){
+			penalty++;
+		}
+		return penalty;
+	}
+
+	private boolean hasFunctionalMocks(TestCase tc){
+		for(Statement st : tc){
+			if(st instanceof FunctionalMockStatement){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean hasPrivateAccess(TestCase tc){
+		for(Statement st : tc){
+			if(st instanceof PrivateFieldStatement || st instanceof PrivateMethodStatement){
+				return true;
+			}
+		}
 		return false;
 	}
 

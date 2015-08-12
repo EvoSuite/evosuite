@@ -31,9 +31,16 @@ else:
 REPORTS="%s/reports" % BASEDIR
 SCRIPTDIR="%s/scripts" % BASEDIR
 LOGDIR="%s/logs" % BASEDIR
+TESTDIR="%s/tests" % BASEDIR
 os.makedirs(REPORTS)
 os.makedirs(SCRIPTDIR)
 os.makedirs(LOGDIR)
+os.makedirs(TESTDIR)
+
+
+MINSEED = int(sys.argv[2])
+MAXSEED = int(sys.argv[3])
+MAX_JOBS = int(sys.argv[5])
 
 
 # Initialize DB of target classes
@@ -92,6 +99,7 @@ def getEvoSuiteCall(seed, configId, config, project, clazz, id, strategy, coreIn
   result += " -Dconfiguration_id="+configId+ " -Dgroup_id="+project
   result += " "+config+" "+FIXED
   result += " -Dreport_dir="+reportfile
+  result += " -Dtest_dir=" +TESTDIR + "/" + project +"/evosuite-tests"
   result += " 2>&1 | tee -a "+logfile
 
   if CORES != 1 :
@@ -106,18 +114,18 @@ def getEvoSuiteCall(seed, configId, config, project, clazz, id, strategy, coreIn
 
 
 # Creates the scripts for a given config and seed range
-def createJobs(minSeed, maxSeed, configId, config, strategy="-generateSuite"):
+def createJobs(minSeed, maxSeed, configId, config, startNum, strategy="-generateSuite"):
   global SCRIPTDIR
   global CASESTUDY_DIR
   global JOB_ID
   global CONFIG_ID
   global TIMEOUT
 
-  path_1 = "%s/%s_EvoSuite_%d_%s_%d.sh" %(SCRIPTDIR, USERNAME, JOB_ID, configId, minSeed)
-  script=open(path_1, "w")
+  path_1 = "%s/%s_EvoSuite_%d.sh" %(SCRIPTDIR, USERNAME, JOB_ID)
+  script=open(path_1, "a")
   script.write(getScriptHead())
 
-  num = 0
+  num = startNum
   coreIndex = 0
 
   for seed in range(minSeed, maxSeed):
@@ -137,8 +145,8 @@ def createJobs(minSeed, maxSeed, configId, config, strategy="-generateSuite"):
         JOB_ID +=1
         num = 1
 
-        path_2 = "%s/%s_EvoSuite_%d_%s_%d.sh" %(SCRIPTDIR, USERNAME, JOB_ID, configId, seed)
-        script=open(path_2, "w")
+        path_2 = "%s/%s_EvoSuite_%d.sh" %(SCRIPTDIR, USERNAME, JOB_ID)
+        script=open(path_2, "a")
         script.write(getScriptHead())
       else:
         num += 1
@@ -160,10 +168,10 @@ def createJobs(minSeed, maxSeed, configId, config, strategy="-generateSuite"):
     script.write("wait \"${pids[@]}\" \n")
   script.close()
 
-  JOB_ID += 1
+  #JOB_ID += 1
   CONFIG_ID += 1
 
-  return
+  return num
 
 
 TIMEOUT="10m"
@@ -172,6 +180,7 @@ TIMEOUT="10m"
 FIXED = " -mem 2500 \
   -Dhtml=false \
   -Dplot=false \
+  -Dtest_comments=false \
   -Dshow_progress=false \
   -Denable_asserts_for_evosuite=true \
   -Dsearch_budget=120 \
@@ -184,20 +193,17 @@ FIXED = " -mem 2500 \
   -Doutput_variables=\"configuration_id,group_id,TARGET_CLASS,search_budget,Length,Size,LineCoverage,BranchCoverage,OutputCoverage,WeakMutationScore,Implicit_MethodExceptions\" \
  "
 
-MINSEED = int(sys.argv[2])
-MAXSEED = int(sys.argv[3])
-
-MAX_JOBS = int(sys.argv[5])
 
 # How many calls to EvoSuite should go in one script
 N_CONF = 1  #(depends on number of configurations)
-ENTRIES_PER_JOB= round( (N_CONF * (NUM_CLASSES * (MAXSEED - MINSEED)) / (MAX_JOBS - N_CONF)) + 1 )
+ENTRIES_PER_JOB= math.ceil( (N_CONF * (NUM_CLASSES * (MAXSEED - MINSEED)) / float(MAX_JOBS) ) )
+
 
 # Create the actual jobs
 
-createJobs(MINSEED, MAXSEED, CONFIG_NAME , " " , "-generateSuite")
+createJobs(MINSEED, MAXSEED, CONFIG_NAME , " " , 0, "-generateSuite")
 
 print "Seeds: %d, projects: %d, configs: %d" % ((MAXSEED - MINSEED), NUM_CLASSES, CONFIG_ID)
-print "Total number of jobs created: %d" % JOB_ID
+print "Total number of jobs created: %d" % (JOB_ID+1)
 print "Total number of calls to EvoSuite: %d" % CALL_ID
 print "Calls per job: %d" % ENTRIES_PER_JOB

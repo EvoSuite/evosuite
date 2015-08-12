@@ -78,7 +78,7 @@ public class TestCluster {
 
 	private static InheritanceTree inheritanceTree = null;
 
-    private final EnvironmentTestClusterAugmenter environmentAugmenter;
+    private EnvironmentTestClusterAugmenter environmentAugmenter;
 
     //-------------------------------------------------------------------
 
@@ -452,8 +452,9 @@ public class TestCluster {
 
 	/**
 	 * Return all calls that have a parameter with given type
-	 *
-	 * @param type
+	 * 
+	 * @param clazz
+	 * @param resolve
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
@@ -623,7 +624,8 @@ public class TestCluster {
 	/**
 	 * Get a list of all generator objects for the type
 	 *
-	 * @param type
+	 * @param clazz
+	 * @param resolve
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
@@ -789,7 +791,6 @@ public class TestCluster {
 	/**
 	 * Determine the set of generators for an Object.class instance
 	 *
-	 * @param target
 	 * @return a collection of all cast classes stored in {@link CastClassManager}; cannot be <code>null</code>>.
 	 */
 	public Set<GenericAccessibleObject<?>> getObjectGenerators() {
@@ -815,7 +816,7 @@ public class TestCluster {
 	/**
 	 * Randomly select one generator
 	 *
-	 * @param type
+	 * @param clazz
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
@@ -856,13 +857,15 @@ public class TestCluster {
 
 	/**
 	 * Randomly select one generator
-         *
-         * @param type
-         * @return
-         * @throws ConstructionFailedException
-         */
+	 *
+	 * @param clazz
+	 * @param excluded
+	 * @param test
+	 * @return {@code null} if there is no valid generator
+	 * @throws ConstructionFailedException
+	 */
 	public GenericAccessibleObject<?> getRandomGenerator(GenericClass clazz,
-	        Set<GenericAccessibleObject<?>> excluded, TestCase test) throws ConstructionFailedException {
+	        Set<GenericAccessibleObject<?>> excluded, TestCase test, int position) throws ConstructionFailedException {
 
 		logger.debug("Getting random generator for " + clazz);
 
@@ -873,7 +876,7 @@ public class TestCluster {
 			if (!concreteClass.equals(clazz)) {
 				logger.debug("Target class is generic: " + clazz
 				        + ", getting instantiation " + concreteClass);
-				return getRandomGenerator(concreteClass, excluded, test);
+				return getRandomGenerator(concreteClass, excluded, test, position);
 			}
 		}
 
@@ -904,21 +907,27 @@ public class TestCluster {
 							iter.remove();
 						}
 					}
+
+					if(! ConstraintVerifier.isValidPositionForInsertion(gao,test,position)){
+						iter.remove();
+					}
 				}
 			}
 			logger.debug("Candidate generators for " + clazz + ": " + candidates.size());
 
-			if (candidates.isEmpty())
-				throw new ConstructionFailedException("No generators left for " + clazz
-				        + " - in total there are " + before);
+			if (candidates.isEmpty()) {
+				return null;
+			}
 
 			generator = Randomness.choice(candidates);
 			logger.debug("Chosen generator: " + generator);
 		}
+
 		if (generator.getOwnerClass().hasWildcardOrTypeVariables()) {
 			logger.debug("Owner class has a wildcard: " + clazz.getTypeName());
 			generator = generator.copyWithNewOwner(generator.getOwnerClass().getGenericInstantiation());
 		}
+
 		if (generator.hasTypeParameters()) {
 			logger.debug("Generator has a type parameter: " + generator);
 			generator = generator.getGenericInstantiationFromReturnValue(clazz);
@@ -1062,7 +1071,7 @@ public class TestCluster {
 	/**
 	 * Determine if there are generators
 	 *
-	 * @param type
+	 * @param clazz
 	 * @return
 	 */
 	public boolean hasGenerator(GenericClass clazz) {

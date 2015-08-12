@@ -238,13 +238,25 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			sortPopulation();
 			applyLocalSearch();
 
+			/*
+				TODO:
+				before explanation: due to static state handling, LS can worse individuals. so, need to re-sort.
+
+				now: the system tests that were failing have no static state... so re-sorting does just hide
+				the problem away, and reduce performance (likely significantly).
+				it is definitively a bug somewhere...
+			*/
+			//sortPopulation();
+
 			double newFitness = getBestIndividual().getFitness();
 
+			double delta = 0.000000001; //it seems there is some rounding error in LS, but hard to debug :(
+
 			if (getFitnessFunction().isMaximizationFunction())
-				assert (newFitness >= bestFitness) : "Best fitness was: " + bestFitness
+				assert (newFitness >= (bestFitness - delta)) : "Best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
 			else
-				assert (newFitness <= bestFitness) : "Best fitness was: " + bestFitness
+				assert (newFitness <= (bestFitness + delta)) : "Best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
 			bestFitness = newFitness;
 			

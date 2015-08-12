@@ -312,7 +312,7 @@ public class TestSuiteGenerator {
      * Compile and run the given tests. Remove from input list all tests that do not compile, and handle the
      * cases of instability (either remove tests or comment out failing assertions)
      *
-     * @param chromosomeList
+     * @param chromosome
      */
     private void compileAndCheckTests(TestSuiteChromosome chromosome) {
         LoggingUtils.getEvoLogger().info("* Compiling and checking tests");
@@ -516,7 +516,7 @@ public class TestSuiteGenerator {
 
 	/**
 	 * 
-	 * @param tests
+	 * @param testSuite
 	 *            the test cases which should be written to file
 	 */
 	public static TestGenerationResult writeJUnitTestsAndCreateResult(TestSuiteChromosome testSuite) {
@@ -732,12 +732,12 @@ public class TestSuiteGenerator {
 
 	/**
 	 * <p>
-	 * getFitnessFunction
+	 * getFitnessFunctions
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 * @return a list of {@link org.evosuite.testsuite.TestSuiteFitnessFunction} objects.
 	 */
-	public static List<TestSuiteFitnessFunction> getFitnessFunction() {
+	public static List<TestSuiteFitnessFunction> getFitnessFunctions() {
 	    List<TestSuiteFitnessFunction> ffs = new ArrayList<TestSuiteFitnessFunction>();
 	    for (int i = 0; i < Properties.CRITERION.length; i++) {
 	        ffs.add(FitnessFunctions.getFitnessFunction(Properties.CRITERION[i]));
@@ -775,10 +775,10 @@ public class TestSuiteGenerator {
 
 	/**
 	 * <p>
-	 * getFitnessFactory
+	 * getFitnessFactories
 	 * </p>
 	 * 
-	 * @return a {@link org.evosuite.coverage.TestFitnessFactory} object.
+	 * @return a list of {@link org.evosuite.coverage.TestFitnessFactory} objects.
 	 */
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactories() {
 	    List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();

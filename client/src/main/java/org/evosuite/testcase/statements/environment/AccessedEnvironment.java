@@ -1,5 +1,6 @@
 package org.evosuite.testcase.statements.environment;
 
+import org.evosuite.runtime.javaee.JeeData;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.runtime.vnet.EndPointInfo;
 
@@ -40,11 +41,15 @@ public class AccessedEnvironment implements Serializable {
     private final Set<EndPointInfo> remoteContactedPorts;
 
 
+    private JeeData jeeData;
+
+
     public AccessedEnvironment(){
         localFiles = new LinkedHashSet<>();
         remoteURLs = new LinkedHashSet<>();
         localListeningPorts = new LinkedHashSet<>();
         remoteContactedPorts = new LinkedHashSet<>();
+        jeeData = null;
     }
 
     public void copyFrom(AccessedEnvironment other){
@@ -53,6 +58,7 @@ public class AccessedEnvironment implements Serializable {
         this.remoteURLs.addAll(other.remoteURLs);
         this.localListeningPorts.addAll(other.localListeningPorts);
         this.remoteContactedPorts.addAll(other.remoteContactedPorts);
+        this.jeeData = other.jeeData; //it is an immutable object
     }
 
     public void clear(){
@@ -60,12 +66,21 @@ public class AccessedEnvironment implements Serializable {
         remoteURLs.clear();
         localListeningPorts.clear();
         remoteContactedPorts.clear();
+        jeeData = null;
     }
 
     public boolean hasProperty(String property) throws IllegalArgumentException{
         Inputs.checkNull(property);
 
         return false; //TODO
+    }
+
+    public JeeData getJeeData() {
+        return jeeData;
+    }
+
+    public void setJeeData(JeeData jeeData) {
+        this.jeeData = jeeData;
     }
 
     public void addRemoteContactedPorts(Collection<EndPointInfo> ports){

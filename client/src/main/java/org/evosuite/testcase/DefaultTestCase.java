@@ -509,7 +509,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			if (var.isAssignableTo(type))
 				return var;
 		}
-		throw new ConstructionFailedException("Foudn no variables of type " + type);
+		throw new ConstructionFailedException("Found no variables of type " + type);
 	}
 
 	/* (non-Javadoc)

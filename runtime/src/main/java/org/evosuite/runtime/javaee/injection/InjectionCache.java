@@ -53,6 +53,20 @@ public class InjectionCache {
         return field;
     }
 
+    public Field getField(Class<?> klass) throws IllegalArgumentException{
+        Inputs.checkNull(klass);
+
+        if(!hasField(klass)){
+            return null;
+        }
+
+        try {
+            return klass.getDeclaredField(cache.get(klass.getName()));
+        } catch (NoSuchFieldException e) {
+            //should never happen
+            return null;
+        }
+    }
 
     public  boolean hasField( Class<?> klass) throws IllegalArgumentException{
 

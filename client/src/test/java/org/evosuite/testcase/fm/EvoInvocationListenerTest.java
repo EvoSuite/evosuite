@@ -1,4 +1,4 @@
-package org.evosuite.runtime.fm;
+package org.evosuite.testcase.fm;
 
 import org.junit.Assert;
 import org.junit.Test;

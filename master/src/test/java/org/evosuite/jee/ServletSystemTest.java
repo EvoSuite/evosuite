@@ -1,6 +1,7 @@
 package org.evosuite.jee;
 
-import com.examples.with.different.packagename.jee.SimpleHttpServlet;
+import com.examples.with.different.packagename.jee.servlet.PostPutGetServlet;
+import com.examples.with.different.packagename.jee.servlet.SimpleHttpServlet;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
@@ -38,23 +39,14 @@ public class ServletSystemTest extends SystemTest{
 
     @Test
     public void testSimpleCase_withJEE(){
-        EvoSuite evosuite = new EvoSuite();
-
-        String targetClass = SimpleHttpServlet.class.getCanonicalName();
-
-        Properties.TARGET_CLASS = targetClass;
-        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.LINE};
         Properties.JEE = true;
-
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-        Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        System.out.println("EvolvedTestSuite:\n" + best);
-
-        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+        do100percentLineTest(SimpleHttpServlet.class);
     }
 
+    @Test
+    public void testPostPutGetServlet(){
+        Properties.JEE = true;
+        do100percentLineTest(PostPutGetServlet.class);
+    }
 
 }

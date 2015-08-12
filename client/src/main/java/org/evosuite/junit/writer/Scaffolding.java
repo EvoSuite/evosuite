@@ -15,6 +15,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.agent.InstrumentingAgent;
+import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
 import org.evosuite.runtime.classhandling.ClassStateSupport;
 import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
@@ -86,6 +87,7 @@ public class Scaffolding {
         }
         builder.append("\n");
 
+        builder.append("@EvoSuiteClassExclude\n");
         builder.append(TestSuiteWriterUtils.getAdapter().getClassDefinition(name));
         builder.append(" {\n");
 
@@ -109,6 +111,8 @@ public class Scaffolding {
     public static List<String> getScaffoldingImports(boolean wasSecurityException, List<ExecutionResult> results) {
         List<String> list = new ArrayList<String>();
 
+        list.add(EvoSuiteClassExclude.class.getCanonicalName());
+        
         if (TestSuiteWriterUtils.needToUseAgent() || wasSecurityException
                 || SystemInUtil.getInstance().hasBeenUsed() || !Properties.NO_RUNTIME_DEPENDENCY) {
             list.add(org.junit.BeforeClass.class.getCanonicalName());
