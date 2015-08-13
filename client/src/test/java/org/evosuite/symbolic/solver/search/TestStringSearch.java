@@ -412,11 +412,7 @@ public class TestStringSearch {
 
 		try {
 			result = solve(skr, constraints);
-			/*
-			 * as "aaa" should already match "a+", then the solver should return
-			 * null
-			 */
-			assertNull(result);
+			assertNotNull(result);
 		} catch (SolverTimeoutException e) {
 			fail();
 		}
