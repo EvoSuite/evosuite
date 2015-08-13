@@ -243,6 +243,11 @@ public class Z3Str2Solver extends Solver {
 				solution = parser.parse(z3ResultStr);
 			}
 
+			if (solution==null) {
+				/*UNSAT or ERROR*/
+				return null;
+			}
+			
 			// check solution is correct
 			boolean check = checkSolution(constraints, solution);
 			if (!check) {
