@@ -63,7 +63,6 @@ public class Z3Solver extends Solver {
 
 		if (smtCheckSatQuery.getConstantDeclarations().isEmpty()) {
 			logger.debug("Z3 SMT query has no variables");
-			logger.debug("Returning NULL as solution");
 			throw new SolverEmptyQueryException("Z3 SMT query has no variables");
 		}
 

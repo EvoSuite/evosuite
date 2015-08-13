@@ -22,14 +22,13 @@ public abstract class TestSolver {
 				return model;
 			}
 		} catch (SolverEmptyQueryException e) {
-			fail();
+			return null;
 		} catch (IOException e) {
-			fail();
+			return null;
 		} catch (SolverParseException e) {
-			fail();
+			return null;
 		} catch (SolverErrorException e) {
-			fail();
+			return null;
 		}
-		return null;
 	}
 }
