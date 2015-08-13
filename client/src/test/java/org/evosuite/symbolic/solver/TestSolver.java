@@ -1,7 +1,5 @@
 package org.evosuite.symbolic.solver;
 
-import static org.junit.Assert.fail;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
