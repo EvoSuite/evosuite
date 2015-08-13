@@ -1,7 +1,11 @@
 package org.evosuite.runtime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.GraphicsEnvironment;
 import java.lang.reflect.Field;
+import java.nio.file.FileSystems;
 
 /**
  * Class used to handle some particular behaviors of GUI components in the
@@ -12,6 +16,7 @@ import java.lang.reflect.Field;
  */
 public class GuiSupport {
 
+	private final static Logger logger = LoggerFactory.getLogger(GuiSupport.class);
 	
 	/**
 	 * Where the tests run in headless mode?
@@ -45,6 +50,25 @@ public class GuiSupport {
 	}
 
 	public static void initialize(){
+
+		/*
+			Since trying Java 8, started to get weird behavior on a Linux cluster.
+			Issue raises from GUI now trying to write on disk (ie due to Fonts...).
+			However, that sometimes strangely fails, even though executed before any
+			sandbox. It happens quite often on cluster experiments, but was not able
+			to reproduce it to debug :(
+			As workaround, we try here to load default file system (it would happen anyway when
+			loading fonts in Java 8), but do not crash the test suite (ie throw exception here
+			in this method, which is usually called from a @BeforeClass). Reason is that
+			maybe not all tests will access GUI.
+		 */
+		try{
+			FileSystems.getDefault();
+		} catch(Throwable t){
+			logger.error("Failed to load default file system: "+t.getMessage(), t);
+			return;
+		}
+
 		/*
 		 * Force the loading of fonts.
 		 * This is needed because font loading in the JVM can take several seconds (done only once),
