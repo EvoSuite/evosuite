@@ -417,19 +417,7 @@ public class ConstraintVerifier {
                     //check for methods that should have no null inputs
                     if(c.noNullInputs()){
                         for(VariableReference vr : inputs){
-                            boolean invalid = false;
-
-                            if(vr instanceof NullReference){
-                                invalid = true;
-                            }
-
-                            Statement varSource = tc.getStatement(vr.getStPosition());
-                            if(varSource instanceof PrimitiveStatement){ //eg for String
-                                Object obj = ((PrimitiveStatement)varSource).getValue();
-                                if(obj==null){
-                                    invalid = true;
-                                }
-                            }
+                            boolean invalid = ConstraintHelper.isNull(vr,tc);
 
                             if(invalid){
                                 logger.error("'noNullInputs' constraint violated at position "+i+" in test case:\n"+tc.toCode());

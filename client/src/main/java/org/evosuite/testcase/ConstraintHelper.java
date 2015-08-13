@@ -4,7 +4,10 @@ import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.NullReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericMethod;
@@ -149,5 +152,22 @@ public class ConstraintHelper {
         } else {
             return null;
         }
+    }
+
+    public static boolean isNull(VariableReference vr, TestCase tc){
+
+        if(vr instanceof NullReference){
+            return true;
+        }
+
+        Statement varSource = tc.getStatement(vr.getStPosition());
+        if(varSource instanceof PrimitiveStatement){ //eg for String
+            Object obj = ((PrimitiveStatement)varSource).getValue();
+            if(obj==null){
+                return true;
+            }
+        }
+
+        return false;
     }
 }

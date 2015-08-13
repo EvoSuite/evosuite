@@ -1160,7 +1160,7 @@ public class TestFactory {
 
 		double reuse = Randomness.nextDouble();
 
-		List<VariableReference> objects = getCandidatesForReuse(test, parameterType, position, exclude);
+		List<VariableReference> objects = getCandidatesForReuse(test, parameterType, position, exclude, allowNull);
 
 		GenericClass clazz = new GenericClass(parameterType);
 		boolean isPrimitiveOrSimilar = clazz.isPrimitive() || clazz.isWrapperType() || clazz.isEnum() || clazz.isClass() || clazz.isString();
@@ -1214,12 +1214,18 @@ public class TestFactory {
 		}
 	}
 
-	private List<VariableReference> getCandidatesForReuse(TestCase test, Type parameterType, int position, VariableReference exclude) {
+	private List<VariableReference> getCandidatesForReuse(TestCase test, Type parameterType, int position, VariableReference exclude,
+														  boolean allowNull) {
+
+		//look at all vars defined before pos
 		List<VariableReference> objects = test.getObjects(parameterType, position);
+
+		//if an exclude var was specified, then remove it
 		if (exclude != null) {
 			objects.remove(exclude);
 			if (exclude.getAdditionalVariableReference() != null)
 				objects.remove(exclude.getAdditionalVariableReference());
+
 			Iterator<VariableReference> it = objects.iterator();
 			while (it.hasNext()) {
 				VariableReference v = it.next();
@@ -1228,8 +1234,9 @@ public class TestFactory {
 			}
 		}
 
-		//no mock should be used more than once
 		List<VariableReference> additionalToRemove = new ArrayList<>();
+
+		//no mock should be used more than once
 		Iterator<VariableReference> iter = objects.iterator();
 		while(iter.hasNext()){
 			VariableReference ref = iter.next();
@@ -1237,6 +1244,7 @@ public class TestFactory {
 				continue;
 			}
 
+			//check if current mock var is used anywhere: if so, then we cannot choose it
 			for(int i=ref.getStPosition()+1; i<test.size(); i++){
 				Statement st = test.getStatement(i);
 				if(st.getVariableReferences().contains(ref)){
@@ -1246,6 +1254,21 @@ public class TestFactory {
 				}
 			}
 		}
+
+		//check for null
+		if(!allowNull){
+			iter = objects.iterator();
+			while(iter.hasNext()) {
+				VariableReference ref = iter.next();
+
+				if(ConstraintHelper.isNull(ref, test)){
+					iter.remove();
+					additionalToRemove.add(ref);
+				}
+			}
+		}
+
+		//further remove all other vars that have the deleted ones as additionals
 		iter = objects.iterator();
 		while(iter.hasNext()){
 			VariableReference ref = iter.next();
