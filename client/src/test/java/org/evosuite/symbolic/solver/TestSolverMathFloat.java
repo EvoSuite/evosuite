@@ -1,5 +1,6 @@
 package org.evosuite.symbolic.solver;
 
+import static org.evosuite.symbolic.solver.TestSolver.solve;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -32,12 +33,12 @@ public class TestSolverMathFloat {
 	}
 
 	public static void testAbs(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseFloatAbs();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		assertNotNull(solution);
 		Double var0 = (Double) solution.get("var0");
 
@@ -57,12 +58,12 @@ public class TestSolverMathFloat {
 
 	public static Map<String, Object> testTrigonometry(Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseFloatTrigonometry();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
@@ -91,12 +92,12 @@ public class TestSolverMathFloat {
 	}
 
 	public static void testMax(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMax();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		assertNotNull(solution);
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
@@ -106,12 +107,12 @@ public class TestSolverMathFloat {
 	}
 
 	public static void testMin(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMin();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		assertNotNull(solution);
 		Double var0 = (Double) solution.get("var0");
 		Double var1 = (Double) solution.get("var1");
@@ -136,12 +137,12 @@ public class TestSolverMathFloat {
 	}
 
 	public static void testRound(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseRound();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		assertNotNull(solution);
 		Double var0 = (Double) solution.get("var0");
 		Long var1 = (Long) solution.get("var1");

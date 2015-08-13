@@ -21,14 +21,17 @@ import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.SolverErrorException;
+import org.evosuite.symbolic.solver.SolverParseException;
+import org.evosuite.symbolic.solver.SolverResult;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
-import org.evosuite.testcase.execution.EvosuiteError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +48,8 @@ public class Z3Solver extends Solver {
 	static Logger logger = LoggerFactory.getLogger(Z3Solver.class);
 
 	@Override
-	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
-			throws ConstraintSolverTimeoutException {
+	public SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException, IOException,
+			SolverParseException, SolverEmptyQueryException, SolverErrorException {
 
 		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
 
@@ -56,15 +59,14 @@ public class Z3Solver extends Solver {
 			variables.addAll(c_variables);
 		}
 
-		SmtCheckSatQuery smtCheckSatQuery = buildSmtQuery(constraints,
-				variables);
+		SmtCheckSatQuery smtCheckSatQuery = buildSmtQuery(constraints, variables);
 
 		if (smtCheckSatQuery.getConstantDeclarations().isEmpty()) {
 			logger.debug("Z3 SMT query has no variables");
 			logger.debug("Returning NULL as solution");
-			return null;
+			throw new SolverEmptyQueryException("Z3 SMT query has no variables");
 		}
-		
+
 		Z3QueryPrinter printer = new Z3QueryPrinter();
 		String smtQueryStr = printer.print(smtCheckSatQuery, timeout);
 
@@ -80,67 +82,38 @@ public class Z3Solver extends Solver {
 
 		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 
-		try {
-			launchNewProcess(z3Cmd, smtQueryStr, (int) timeout, stdout);
+		launchNewProcess(z3Cmd, smtQueryStr, (int) timeout, stdout);
 
-			String z3ResultStr = stdout.toString("UTF-8");
-			if (z3ResultStr.startsWith("sat")) {
-				logger.debug("Z3 outcome was SAT");
+		String z3ResultStr = stdout.toString("UTF-8");
 
-				// parse solution
-				Map<String, Object> initialValues = getConcreteValues(variables);
-
-				Z3ModelParser modelParser;
-				if (this.addMissingVariables()) {
-					modelParser = new Z3ModelParser(initialValues);
-				} else {
-					modelParser = new Z3ModelParser();
-				}
-				Map<String, Object> solution = modelParser.parse(z3ResultStr);
-
-				// check if the found solution is useful
-				boolean check = checkSolution(constraints, solution);
-				if (!check) {
-					logger.debug("Z3 solution does not solve the constraint system!");
-					return null;
-				}
-
-				return solution;
-			} else if (z3ResultStr.startsWith("unsat")) {
-				logger.debug("Z3 outcome was UNSAT");
-				return null;
-			} else {
-				logger.debug("Z3 output was " + z3ResultStr);
-				throw new EvosuiteError(
-						"Z3 output is unknown. We are unable to parse it to a proper solution!");
-			}
-
-		} catch (IOException e) {
-			logger.error("IO Exception during launching of Z3 command");
-			return null;
-
+		Map<String, Object> initialValues = getConcreteValues(variables);
+		Z3ResultParser resultParser;
+		if (this.addMissingVariables()) {
+			resultParser = new Z3ResultParser(initialValues);
+		} else {
+			resultParser = new Z3ResultParser();
 		}
+
+		SolverResult result = resultParser.parseResult(z3ResultStr);
+
+		return result;
 	}
 
-	private static SmtCheckSatQuery buildSmtQuery(
-			Collection<Constraint<?>> constraints, Set<Variable<?>> variables) {
+	private static SmtCheckSatQuery buildSmtQuery(Collection<Constraint<?>> constraints, Set<Variable<?>> variables) {
 		List<SmtConstantDeclaration> constantDeclarations = new LinkedList<SmtConstantDeclaration>();
 		for (Variable<?> v : variables) {
 			String varName = v.getName();
 			if (v instanceof IntegerVariable) {
-				SmtConstantDeclaration intVar = SmtExprBuilder
-						.mkIntConstantDeclaration(varName);
+				SmtConstantDeclaration intVar = SmtExprBuilder.mkIntConstantDeclaration(varName);
 				constantDeclarations.add(intVar);
 			} else if (v instanceof RealVariable) {
-				SmtConstantDeclaration realVar = SmtExprBuilder
-						.mkRealConstantDeclaration(varName);
+				SmtConstantDeclaration realVar = SmtExprBuilder.mkRealConstantDeclaration(varName);
 				constantDeclarations.add(realVar);
 
 			} else if (v instanceof StringVariable) {
 				// ignore string variables
 			} else {
-				throw new RuntimeException("Unknown variable type "
-						+ v.getClass().getCanonicalName());
+				throw new RuntimeException("Unknown variable type " + v.getClass().getCanonicalName());
 			}
 		}
 
@@ -154,8 +127,7 @@ public class Z3Solver extends Solver {
 			}
 		}
 
-		SmtCheckSatQuery smtCheckSatQuery = new SmtCheckSatQuery(
-				constantDeclarations, assertions);
+		SmtCheckSatQuery smtCheckSatQuery = new SmtCheckSatQuery(constantDeclarations, assertions);
 		return smtCheckSatQuery;
 	}
 
@@ -172,8 +144,8 @@ public class Z3Solver extends Solver {
 		}
 	}
 
-	private static int launchNewProcess(String z3Cmd, String smtQuery,
-			int timeout, OutputStream outputStream) throws IOException {
+	private static int launchNewProcess(String z3Cmd, String smtQuery, int timeout, OutputStream outputStream)
+			throws IOException {
 
 		final Process process = Runtime.getRuntime().exec(z3Cmd);
 
@@ -199,8 +171,7 @@ public class Z3Solver extends Solver {
 		return exitValue;
 	}
 
-	private static void readInputStream(InputStream in, OutputStream out)
-			throws IOException {
+	private static void readInputStream(InputStream in, OutputStream out) throws IOException {
 		InputStreamReader is = new InputStreamReader(in);
 		BufferedReader br = new BufferedReader(is);
 		String read = br.readLine();

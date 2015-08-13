@@ -1,6 +1,7 @@
 package org.evosuite.symbolic.solver.search;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -17,7 +18,9 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverEmptyQueryException;
+import org.evosuite.symbolic.solver.SolverResult;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
@@ -37,31 +40,28 @@ public class TestConstraintSolver1 {
 
 	private static Collection<Constraint<?>> buildConstraintSystem() {
 		StringVariable var0 = new StringVariable("var0", INIT_STRING);
-		StringUnaryToIntegerExpression length = new StringUnaryToIntegerExpression(
-				var0, Operator.LENGTH, (long) INIT_STRING.length());
+		StringUnaryToIntegerExpression length = new StringUnaryToIntegerExpression(var0, Operator.LENGTH,
+				(long) INIT_STRING.length());
 		IntegerConstant const3 = new IntegerConstant(3);
-		StringBinaryToIntegerExpression charAt3 = new StringBinaryToIntegerExpression(
-				var0, Operator.CHARAT, const3, (long) INIT_STRING.charAt(3));
+		StringBinaryToIntegerExpression charAt3 = new StringBinaryToIntegerExpression(var0, Operator.CHARAT, const3,
+				(long) INIT_STRING.charAt(3));
 		IntegerConstant const4 = new IntegerConstant(4);
-		StringBinaryToIntegerExpression charAt4 = new StringBinaryToIntegerExpression(
-				var0, Operator.CHARAT, const4, (long) INIT_STRING.charAt(4));
+		StringBinaryToIntegerExpression charAt4 = new StringBinaryToIntegerExpression(var0, Operator.CHARAT, const4,
+				(long) INIT_STRING.charAt(4));
 
 		IntegerConstant const5 = new IntegerConstant(INIT_STRING.length());
 		IntegerConstant const95 = new IntegerConstant(EXPECTED_STRING.charAt(3));
 		IntegerConstant const43 = new IntegerConstant(EXPECTED_STRING.charAt(4));
 
-		IntegerConstraint constr1 = new IntegerConstraint(length,
-				Comparator.EQ, const5);
-		IntegerConstraint constr2 = new IntegerConstraint(charAt3,
-				Comparator.EQ, const95);
-		IntegerConstraint constr3 = new IntegerConstraint(charAt4,
-				Comparator.EQ, const43);
+		IntegerConstraint constr1 = new IntegerConstraint(length, Comparator.EQ, const5);
+		IntegerConstraint constr2 = new IntegerConstraint(charAt3, Comparator.EQ, const95);
+		IntegerConstraint constr3 = new IntegerConstraint(charAt4, Comparator.EQ, const43);
 
 		return Arrays.<Constraint<?>> asList(constr1, constr2, constr3);
 	}
 
 	@Test
-	public void test() {
+	public void test() throws SolverEmptyQueryException {
 		Properties.LOCAL_SEARCH_BUDGET = 100; // 5000000000000L; TODO - ??
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.FITNESS_EVALUATIONS;
 
@@ -73,9 +73,11 @@ public class TestConstraintSolver1 {
 		}
 
 		EvoSuiteSolver seeker = new EvoSuiteSolver();
-		Map<String, Object> model;
 		try {
-			model = seeker.solve(constraints);
+			SolverResult solverResult = seeker.solve(constraints);
+			assertTrue(solverResult.isSAT());
+
+			Map<String, Object> model = solverResult.getModel();
 			System.out.println(model);
 
 			Object var0 = model.get("var0");
@@ -83,7 +85,7 @@ public class TestConstraintSolver1 {
 			System.out.println("Found: " + var0);
 
 			assertEquals(EXPECTED_STRING, var0);
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}

@@ -11,9 +11,11 @@ import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.DistanceEstimator;
 import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,37 +30,35 @@ public final class EvoSuiteSolver extends Solver {
 
 	static Logger log = LoggerFactory.getLogger(EvoSuiteSolver.class);
 
-	/**
-	 * This method searches for a new model satisfying all constraints. If UNSAT
-	 * returns <code>null</code>.
-	 */
-	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
-			throws ConstraintSolverTimeoutException {
+	@Override
+	public SolverResult solve(Collection<Constraint<?>> constraints)
+			throws SolverTimeoutException, SolverEmptyQueryException {
 
 		long startTimeMillis = System.currentTimeMillis();
+
+		Set<Variable<?>> variables = getVariables(constraints);
+		Map<String, Object> initialValues = getConcreteValues(variables);
 
 		double distance = DistanceEstimator.getDistance(constraints);
 		if (distance == 0.0) {
 			log.info("Initial distance already is 0.0, skipping search");
-			return null;
+			SolverResult satResult = SolverResult.newSAT(initialValues);
+			return satResult;
 		}
 
-		Set<Variable<?>> variables = getVariables(constraints);
-		Map<String, Object> initialValues = getConcreteValues(variables);
 		for (int attempt = 0; attempt <= Properties.DSE_VARIABLE_RESETS; attempt++) {
 			for (Variable<?> v : variables) {
 				long currentTimeMillis = System.currentTimeMillis();
 				if (Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS > 0
 						&& (currentTimeMillis - startTimeMillis > Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS)) {
-					throw new ConstraintSolverTimeoutException();
+					throw new SolverTimeoutException();
 				}
 
 				log.debug("Variable: " + v + ", " + variables);
 
 				if (v instanceof IntegerVariable) {
 					IntegerVariable integerVariable = (IntegerVariable) v;
-					IntegerAVM avm = new IntegerAVM(integerVariable,
-							constraints);
+					IntegerAVM avm = new IntegerAVM(integerVariable, constraints);
 					avm.applyAVM();
 				} else if (v instanceof RealVariable) {
 					RealVariable realVariable = (RealVariable) v;
@@ -69,8 +69,7 @@ public final class EvoSuiteSolver extends Solver {
 					StringAVM avm = new StringAVM(strVariable, constraints);
 					avm.applyAVM();
 				} else {
-					throw new RuntimeException("Unknown variable type "
-							+ v.getClass().getName());
+					throw new RuntimeException("Unknown variable type " + v.getClass().getName());
 				}
 				distance = DistanceEstimator.getDistance(constraints);
 				if (distance <= 0.0) {
@@ -92,11 +91,13 @@ public final class EvoSuiteSolver extends Solver {
 			log.debug("Distance is " + distance + ", found solution");
 			Map<String, Object> new_model = getConcreteValues(variables);
 			setConcreteValues(variables, initialValues);
-			return new_model;
+			SolverResult satResult = SolverResult.newSAT(new_model);
+			return satResult;
 		} else {
 			setConcreteValues(variables, initialValues);
 			log.debug("Returning null, search was not successful");
-			return null;
+			SolverResult unsatResult = SolverResult.newUNSAT();
+			return unsatResult;
 		}
 
 		// if (DSEBudget.isFinished()) {
@@ -106,8 +107,7 @@ public final class EvoSuiteSolver extends Solver {
 
 	}
 
-	private static void randomizeValues(Set<Variable<?>> variables,
-			Set<Object> constants) {
+	private static void randomizeValues(Set<Variable<?>> variables, Set<Object> constants) {
 		Set<String> stringConstants = new HashSet<String>();
 		Set<Long> longConstants = new HashSet<Long>();
 		Set<Double> realConstants = new HashSet<Double>();
@@ -119,38 +119,30 @@ public final class EvoSuiteSolver extends Solver {
 			else if (o instanceof Long)
 				longConstants.add((Long) o);
 			else
-				assert (false) : "Unexpected constant type: " + o;
+				assert(false) : "Unexpected constant type: " + o;
 		}
 
 		for (Variable<?> v : variables) {
 			if (v instanceof StringVariable) {
 				StringVariable sv = (StringVariable) v;
-				if (!stringConstants.isEmpty()
-						&& Randomness.nextDouble() < Properties.DSE_CONSTANT_PROBABILITY) {
+				if (!stringConstants.isEmpty() && Randomness.nextDouble() < Properties.DSE_CONSTANT_PROBABILITY) {
 					sv.setConcreteValue(Randomness.choice(stringConstants));
 				} else {
-					sv.setConcreteValue(Randomness
-							.nextString(Properties.STRING_LENGTH));
+					sv.setConcreteValue(Randomness.nextString(Properties.STRING_LENGTH));
 				}
 			} else if (v instanceof IntegerVariable) {
 				IntegerVariable iv = (IntegerVariable) v;
-				if (!longConstants.isEmpty()
-						&& Randomness.nextDouble() < Properties.DSE_CONSTANT_PROBABILITY) {
+				if (!longConstants.isEmpty() && Randomness.nextDouble() < Properties.DSE_CONSTANT_PROBABILITY) {
 					iv.setConcreteValue(Randomness.choice(longConstants));
 				} else {
-					iv.setConcreteValue((long) Randomness
-							.nextInt(Properties.MAX_INT * 2)
-							- Properties.MAX_INT);
+					iv.setConcreteValue((long) Randomness.nextInt(Properties.MAX_INT * 2) - Properties.MAX_INT);
 				}
 			} else if (v instanceof RealVariable) {
 				RealVariable rv = (RealVariable) v;
-				if (!realConstants.isEmpty()
-						&& Randomness.nextDouble() < Properties.DSE_CONSTANT_PROBABILITY) {
+				if (!realConstants.isEmpty() && Randomness.nextDouble() < Properties.DSE_CONSTANT_PROBABILITY) {
 					rv.setConcreteValue(Randomness.choice(realConstants));
 				} else {
-					rv.setConcreteValue((long) Randomness
-							.nextInt(Properties.MAX_INT * 2)
-							- Properties.MAX_INT);
+					rv.setConcreteValue((long) Randomness.nextInt(Properties.MAX_INT * 2) - Properties.MAX_INT);
 				}
 			}
 		}

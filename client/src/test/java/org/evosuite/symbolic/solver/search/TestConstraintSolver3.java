@@ -15,7 +15,9 @@ import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverEmptyQueryException;
+import org.evosuite.symbolic.solver.SolverResult;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
@@ -28,19 +30,17 @@ public class TestConstraintSolver3 {
 
 		StringVariable var0 = new StringVariable("var0", INIT_STRING);
 
-		StringToIntegerCast castStr = new StringToIntegerCast(var0,
-				(long) Integer.parseInt(INIT_STRING));
+		StringToIntegerCast castStr = new StringToIntegerCast(var0, (long) Integer.parseInt(INIT_STRING));
 
 		IntegerConstant const126 = new IntegerConstant(EXPECTED_INTEGER);
 
-		IntegerConstraint constr1 = new IntegerConstraint(castStr,
-				Comparator.EQ, const126);
+		IntegerConstraint constr1 = new IntegerConstraint(castStr, Comparator.EQ, const126);
 
 		return Arrays.<Constraint<?>> asList(constr1);
 	}
 
 	@Test
-	public void test() {
+	public void test() throws SolverEmptyQueryException {
 		Properties.LOCAL_SEARCH_BUDGET = 100; // 5000000000000L; TODO - ??
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.FITNESS_EVALUATIONS;
 
@@ -54,20 +54,20 @@ public class TestConstraintSolver3 {
 		System.out.println("");
 		System.out.println("Initial: " + INIT_STRING);
 
-		EvoSuiteSolver seeker = new EvoSuiteSolver();
-		Map<String, Object> model;
+		EvoSuiteSolver solver = new EvoSuiteSolver();
 		try {
-			model = seeker.solve(constraints);
-			if (model == null) {
+			SolverResult result = solver.solve(constraints);
+			if (result.isUNSAT()) {
 				fail("search was unsuccessfull");
 			} else {
+				Map<String, Object> model = result.getModel();
 				Object var0 = model.get("var0");
 				System.out.println("Expected: " + EXPECTED_INTEGER);
 				System.out.println("Found: " + var0);
 
 				assertEquals(String.valueOf(EXPECTED_INTEGER), var0);
 			}
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 

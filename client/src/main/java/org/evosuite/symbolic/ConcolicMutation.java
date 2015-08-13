@@ -28,9 +28,10 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.ConstraintCache;
+import org.evosuite.symbolic.solver.SolverCache;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverFactory;
+import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
@@ -52,8 +53,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConcolicMutation {
 
-	protected static final Logger logger = LoggerFactory
-			.getLogger(ConcolicMutation.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ConcolicMutation.class);
 
 	/**
 	 * Generate new constraint and ask solver for solution
@@ -66,8 +66,7 @@ public class ConcolicMutation {
 	 */
 	// @SuppressWarnings({ "rawtypes", "unchecked" })
 	@SuppressWarnings("unchecked")
-	public static TestCase negateCondition(BranchCondition condition,
-			TestCase test) {
+	public static TestCase negateCondition(BranchCondition condition, TestCase test) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		constraints.addAll(condition.getReachingConstraints());
 		// constraints.addAll(condition.localConstraints);
@@ -92,22 +91,23 @@ public class ConcolicMutation {
 		}
 
 		Solver solver = SolverFactory.getInstance().buildNewSolver();
-		Map<String, Object> values = ConstraintCache.getInstance().solve(
-				solver, constraints);
+		SolverCache solverCache = SolverCache.getInstance();
+		SolverResult solverResult = solverCache.solve(solver, constraints);
 
-		if (values != null) {
+		if (solverResult != null) {
 			// logger.info(values.toString());
 			TestCase newTest = test.clone();
 
-			for (Object key : values.keySet()) {
-				Object val = values.get(key);
+			Map<String, Object> model = solverResult.getModel();
+			for (Object key : model.keySet()) {
+				Object val = model.get(key);
 				if (val != null) {
 					if (val instanceof Long) {
 						Long value = (Long) val;
 						String name = ((String) key).replace("__SYM", "");
 						logger.debug("New value for " + name + " is " + value);
 						PrimitiveStatement<?> p = getStatement(newTest, name);
-						assert (p != null);
+						assert(p != null);
 						if (p instanceof BooleanPrimitiveStatement) {
 							BooleanPrimitiveStatement bp = (BooleanPrimitiveStatement) p;
 							bp.setValue(value.intValue() > 0);
@@ -124,7 +124,7 @@ public class ConcolicMutation {
 							LongPrimitiveStatement lp = (LongPrimitiveStatement) p;
 							lp.setValue(value);
 						} else {
-							assert (p instanceof IntPrimitiveStatement);
+							assert(p instanceof IntPrimitiveStatement);
 							IntPrimitiveStatement ip = (IntPrimitiveStatement) p;
 							ip.setValue(value.intValue());
 						}
@@ -208,8 +208,7 @@ public class ConcolicMutation {
 	 * @param expr
 	 * @param variables
 	 */
-	private static void getVariables(Expression<?> expr,
-			Set<Variable<?>> variables) {
+	private static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
 		if (expr instanceof Variable<?>) {
 			variables.add((Variable<?>) expr);
 		} else if (expr instanceof BinaryExpression<?>) {

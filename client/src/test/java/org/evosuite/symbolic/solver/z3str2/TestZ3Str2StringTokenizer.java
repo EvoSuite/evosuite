@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.solver.z3str2;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverTokenizer;
 import org.evosuite.symbolic.solver.z3str2.Z3Str2Solver;
 import org.junit.AfterClass;
@@ -27,7 +27,7 @@ public class TestZ3Str2StringTokenizer {
 	
 	@Test
 	public void testStringTokenizer() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 		
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out

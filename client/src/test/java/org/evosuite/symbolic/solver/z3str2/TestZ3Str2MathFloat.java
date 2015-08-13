@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.solver.z3str2;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverMathFloat;
 import org.evosuite.symbolic.solver.z3str2.Z3Str2Solver;
 import org.junit.AfterClass;
@@ -27,7 +27,7 @@ public class TestZ3Str2MathFloat {
 
 	@Test
 	public void testFloatAbs() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
 					.println("Warning: z3_str2_path should be configured to execute this test case");
@@ -40,7 +40,7 @@ public class TestZ3Str2MathFloat {
 
 	@Test
 	public void testFloatTrigonometry() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 		
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -54,7 +54,7 @@ public class TestZ3Str2MathFloat {
 
 	@Test
 	public void testFloatMax() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -68,7 +68,7 @@ public class TestZ3Str2MathFloat {
 
 	@Test
 	public void testFloatMin() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -82,7 +82,7 @@ public class TestZ3Str2MathFloat {
 
 	@Test
 	public void testFloatRound() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 		
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out

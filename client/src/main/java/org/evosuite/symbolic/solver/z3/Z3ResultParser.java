@@ -4,23 +4,48 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.evosuite.symbolic.solver.SolverParseException;
+import org.evosuite.symbolic.solver.SolverResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class Z3ModelParser {
+class Z3ResultParser {
 
 	private final Map<String, Object> initialValues;
-	static Logger logger = LoggerFactory.getLogger(Z3ModelParser.class);
+	static Logger logger = LoggerFactory.getLogger(Z3ResultParser.class);
 
-	public Z3ModelParser(Map<String, Object> initialValues) {
+	public Z3ResultParser(Map<String, Object> initialValues) {
 		this.initialValues = initialValues;
 	}
 
-	public Z3ModelParser() {
+	public Z3ResultParser() {
 		this.initialValues = null;
 	}
 
-	public Map<String, Object> parse(String z3ResultStr) {
+	public SolverResult parseResult(String z3ResultStr) throws SolverParseException {
+
+		if (z3ResultStr.startsWith("sat")) {
+			logger.debug("Z3 outcome was SAT");
+			// parse solution
+			Map<String, Object> solution = parseModel(z3ResultStr);
+			// return a SAT
+			SolverResult satResult = SolverResult.newSAT(solution);
+			return satResult;
+		} else if (z3ResultStr.startsWith("unsat")) {
+			logger.debug("Z3 outcome was UNSAT");
+			// return an UNSAT
+			SolverResult unsatResult = SolverResult.newUNSAT();
+			return unsatResult;
+		} else {
+			logger.debug("Z3 output was " + z3ResultStr);
+			throw new SolverParseException("Z3 output is unknown. We are unable to parse it to a proper solution!",
+					z3ResultStr);
+		}
+
+	}
+
+	private Map<String, Object> parseModel(String z3ResultStr) {
+
 		Map<String, Object> solution = new HashMap<String, Object>();
 
 		Map<String, String> arraysToFuncMap = new HashMap<String, String>();
@@ -54,8 +79,7 @@ class Z3ModelParser {
 							String denominatorStr = tokenizer.nextToken();
 
 							double numerator = Double.parseDouble(numeratorStr);
-							double denominator = Double
-									.parseDouble(denominatorStr);
+							double denominator = Double.parseDouble(denominatorStr);
 
 							value = -(numerator / denominator);
 						} else {
@@ -68,8 +92,7 @@ class Z3ModelParser {
 							String denominatorStr = tokenizer.nextToken();
 
 							double numerator = Double.parseDouble(numeratorStr);
-							double denominator = Double
-									.parseDouble(denominatorStr);
+							double denominator = Double.parseDouble(denominatorStr);
 
 							value = (numerator / denominator);
 						} else {
@@ -114,8 +137,7 @@ class Z3ModelParser {
 		return solution;
 	}
 
-	private static void addMissingValues(Map<String, Object> initialValues,
-			Map<String, Object> solution) {
+	private static void addMissingValues(Map<String, Object> initialValues, Map<String, Object> solution) {
 		for (String otherVarName : initialValues.keySet()) {
 			if (!solution.containsKey(otherVarName)) {
 				solution.put(otherVarName, initialValues.get(otherVarName));

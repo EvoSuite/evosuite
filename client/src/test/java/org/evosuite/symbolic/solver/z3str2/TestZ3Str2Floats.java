@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.solver.z3str2;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverFloats;
 import org.evosuite.symbolic.solver.z3str2.Z3Str2Solver;
 import org.junit.AfterClass;
@@ -27,7 +27,7 @@ public class TestZ3Str2Floats {
 
 	@Test
 	public void testFloatEq() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -41,7 +41,7 @@ public class TestZ3Str2Floats {
 
 	@Test
 	public void testFloatNeq() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -55,7 +55,7 @@ public class TestZ3Str2Floats {
 
 	@Test
 	public void testFloatLt() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
 					.println("Warning: z3_str2_path should be configured to execute this test case");
@@ -68,7 +68,7 @@ public class TestZ3Str2Floats {
 
 	@Test
 	public void testFloatGt() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -82,7 +82,7 @@ public class TestZ3Str2Floats {
 
 	@Test
 	public void testFloatLte() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
 					.println("Warning: z3_str2_path should be configured to execute this test case");
@@ -95,7 +95,7 @@ public class TestZ3Str2Floats {
 
 	@Test
 	public void testFloatGte() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -109,7 +109,7 @@ public class TestZ3Str2Floats {
 
 	@Test
 	public void testFloatFraction() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -123,7 +123,7 @@ public class TestZ3Str2Floats {
 
 	@Test
 	public void testFloatAdd() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -137,7 +137,7 @@ public class TestZ3Str2Floats {
 
 	@Test
 	public void testFloatSub() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -151,7 +151,7 @@ public class TestZ3Str2Floats {
 
 	@Test
 	public void testFloatMul() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -165,7 +165,7 @@ public class TestZ3Str2Floats {
 
 	@Test
 	public void testFloatDiv() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -179,7 +179,7 @@ public class TestZ3Str2Floats {
 
 	@Test
 	public void testFloatMod() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out

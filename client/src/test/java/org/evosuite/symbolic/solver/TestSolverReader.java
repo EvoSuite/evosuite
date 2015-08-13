@@ -1,5 +1,7 @@
 package org.evosuite.symbolic.solver;
 
+import static org.evosuite.symbolic.solver.TestSolver.solve;
+
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
@@ -25,12 +27,12 @@ public class TestSolverReader {
 
 	public static Map<String, Object> testStringReader(Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestStringReader();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 

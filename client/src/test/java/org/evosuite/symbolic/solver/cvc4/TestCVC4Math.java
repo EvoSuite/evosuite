@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.solver.cvc4;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverMath;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,7 +26,7 @@ public class TestCVC4Math {
 
 	@Test
 	public void testAbs() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -40,7 +40,7 @@ public class TestCVC4Math {
 
 	@Test
 	public void testMax() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -54,7 +54,7 @@ public class TestCVC4Math {
 
 	@Test
 	public void testMin() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out

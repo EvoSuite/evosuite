@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.solver.cvc4;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverFloats;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,7 +26,7 @@ public class TestCVC4Floats {
 
 	@Test
 	public void testFloatEq() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -40,7 +40,7 @@ public class TestCVC4Floats {
 
 	@Test
 	public void testFloatNeq() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -54,7 +54,7 @@ public class TestCVC4Floats {
 
 	@Test
 	public void testFloatLt() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		if (Properties.CVC4_PATH == null) {
 			System.out
 					.println("Warning: cvc4_path should be configured to execute this test case");
@@ -67,7 +67,7 @@ public class TestCVC4Floats {
 
 	@Test
 	public void testFloatGt() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -81,7 +81,7 @@ public class TestCVC4Floats {
 
 	@Test
 	public void testFloatLte() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		if (Properties.CVC4_PATH == null) {
 			System.out
 					.println("Warning: cvc4_path should be configured to execute this test case");
@@ -94,7 +94,7 @@ public class TestCVC4Floats {
 
 	@Test
 	public void testFloatGte() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -108,7 +108,7 @@ public class TestCVC4Floats {
 
 	@Test
 	public void testFloatFraction() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -122,7 +122,7 @@ public class TestCVC4Floats {
 
 	@Test
 	public void testFloatAdd() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -136,7 +136,7 @@ public class TestCVC4Floats {
 
 	@Test
 	public void testFloatSub() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -150,7 +150,7 @@ public class TestCVC4Floats {
 
 	@Test
 	public void testFloatMul() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -164,7 +164,7 @@ public class TestCVC4Floats {
 
 	@Test
 	public void testFloatDiv() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -178,7 +178,7 @@ public class TestCVC4Floats {
 
 	@Test
 	public void testFloatMod() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out

@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.solver.cvc4;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverTokenizer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,7 +26,7 @@ public class TestCVC4StringTokenizer {
 
 	@Test
 	public void testStringTokenizer() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out

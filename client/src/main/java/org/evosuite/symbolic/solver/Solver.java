@@ -17,6 +17,7 @@
  */
 package org.evosuite.symbolic.solver;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,16 +56,25 @@ public abstract class Solver {
 	static Logger logger = LoggerFactory.getLogger(Solver.class);
 
 	/**
-	 * Get concrete values for the parameters used in the path conditions.
 	 * 
-	 * @return A {@link Map} where the name of the parameter is the key and the
-	 *         concrete value that the solver used is the object.
 	 * @param constraints
-	 *            a {@link java.util.Collection} object.
+	 *            a constraint system to be solved
+	 * 
+	 * @return a non-null result that is SAT or UNSAT
+	 * @throws SolverTimeoutException
+	 *             a timeout occurred while executing the solver
+	 * @throws IOException
+	 *             an IOException occurred while executing the solver
+	 * @throws SolverParseException
+	 *             the solver's result could not be parsed into a valid
+	 *             SolverResult
+	 * @throws SolverEmptyQueryException
+	 *             the solver
+	 * @throws SolverErrorException
+	 *             the solver reported an error after its execution
 	 */
-	public abstract Map<String, Object> solve(
-			Collection<Constraint<?>> constraints)
-			throws ConstraintSolverTimeoutException;
+	public abstract SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException,
+			IOException, SolverParseException, SolverEmptyQueryException, SolverErrorException;
 
 	/**
 	 * Returns a mapping from variables to their current concrete values.
@@ -72,8 +82,7 @@ public abstract class Solver {
 	 * @param variables
 	 * @return a mapping from variables to their current concrete values.
 	 */
-	protected static Map<String, Object> getConcreteValues(
-			Set<Variable<?>> variables) {
+	protected static Map<String, Object> getConcreteValues(Set<Variable<?>> variables) {
 
 		Map<String, Object> concrete_values = new HashMap<String, Object>();
 		for (Variable<?> v : variables) {
@@ -91,8 +100,7 @@ public abstract class Solver {
 	 *            the constraint system
 	 * @return the set of variables in the constraint system
 	 */
-	protected static Set<Variable<?>> getVariables(
-			Collection<Constraint<?>> constraints) {
+	protected static Set<Variable<?>> getVariables(Collection<Constraint<?>> constraints) {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		for (Constraint<?> c : constraints) {
 			variables.addAll(c.getLeftOperand().getVariables());
@@ -108,8 +116,7 @@ public abstract class Solver {
 	 * @param variables
 	 * @param concrete_values
 	 */
-	protected static void setConcreteValues(Set<Variable<?>> variables,
-			Map<String, Object> concrete_values) {
+	protected static void setConcreteValues(Set<Variable<?>> variables, Map<String, Object> concrete_values) {
 		for (Variable<?> v : variables) {
 
 			String var_name = v.getName();
@@ -140,13 +147,25 @@ public abstract class Solver {
 
 	private static final double DELTA = 1e-15;
 
-	protected static boolean checkSolution(
-			Collection<Constraint<?>> constraints, Map<String, Object> solution) {
+	protected static boolean checkSAT(Collection<Constraint<?>> constraints, SolverResult satResult) {
 
+		if (satResult == null) {
+			throw new NullPointerException("satResult should be non-null");
+		}
+
+		if (!satResult.isSAT()) {
+			throw new IllegalArgumentException("satResult should be SAT");
+		}
+
+		// back-up values
 		Set<Variable<?>> variables = getVariables(constraints);
 		Map<String, Object> initialValues = getConcreteValues(variables);
-		setConcreteValues(variables, solution);
+		// set new values
+		Map<String, Object> newValues = satResult.getModel();
+		setConcreteValues(variables, newValues);
+		// check SAT with new values
 		double distance = DistanceEstimator.getDistance(constraints);
+		// restore values
 		setConcreteValues(variables, initialValues);
 		if (distance <= DELTA) {
 			return true;

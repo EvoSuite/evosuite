@@ -1,5 +1,6 @@
 package org.evosuite.symbolic.solver.search;
 
+import static org.evosuite.symbolic.solver.TestSolver.solve;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -14,10 +15,8 @@ import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
-import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
-import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.junit.Test;
 
 public class TestStringSearch3 {
@@ -54,9 +53,9 @@ public class TestStringSearch3 {
 		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
-			solution = solver.solve(constraints);
+			solution = solve(solver,constraints);
 			assertNotNull(solution);
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
