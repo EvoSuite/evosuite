@@ -1,9 +1,9 @@
 package org.evosuite.symbolic.solver.search;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.Collections;
 import java.util.List;
-
-import junit.framework.Assert;
 
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
@@ -37,7 +37,7 @@ public class StringAVMTests {
 				
 		StringAVM avm = new StringAVM(var,constraints);
 		boolean succeded = avm.applyAVM();
-		Assert.assertTrue(succeded);
+		assertTrue(succeded);
 	}
 	
 	@Test
@@ -51,11 +51,11 @@ public class StringAVMTests {
 		
 		StringAVM avm = new StringAVM(var,constraints);
 		boolean succeded = avm.applyAVM();
-		Assert.assertTrue(succeded);
+		assertTrue(succeded);
 		
 		String result = var.getConcreteValue();
 		Integer value = Integer.parseInt(result);
-		Assert.assertTrue("Value="+result, value>=0 && value<=999);
+		assertTrue("Value="+result, value>=0 && value<=999);
 	}
 	
 	@Test
@@ -70,11 +70,11 @@ public class StringAVMTests {
 		
 		StringAVM avm = new StringAVM(var,constraints);
 		boolean succeded = avm.applyAVM();
-		Assert.assertTrue(succeded);
+		assertTrue(succeded);
 		
 		String result = var.getConcreteValue();
-		Assert.assertTrue("Length="+result.length(), result.length()==6);
-		Assert.assertTrue(result, result.endsWith(start));
+		assertTrue("Length="+result.length(), result.length()==6);
+		assertTrue(result, result.endsWith(start));
 	}
 	
 	@Test
@@ -89,11 +89,11 @@ public class StringAVMTests {
 		
 		StringAVM avm = new StringAVM(var,constraints);
 		boolean succeded = avm.applyAVM();
-		Assert.assertTrue(succeded);
+		assertTrue(succeded);
 		
 		String result = var.getConcreteValue();
-		Assert.assertTrue("Length="+result.length(), result.length()==6);
-		Assert.assertTrue(result, result.startsWith(start));
+		assertTrue("Length="+result.length(), result.length()==6);
+		assertTrue(result, result.startsWith(start));
 	}
 	
 }

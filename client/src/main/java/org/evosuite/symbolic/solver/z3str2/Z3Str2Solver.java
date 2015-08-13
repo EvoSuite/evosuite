@@ -21,9 +21,13 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.SolverErrorException;
+import org.evosuite.symbolic.solver.SolverParseException;
+import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
@@ -74,8 +78,7 @@ public class Z3Str2Solver extends Solver {
 
 	private static File createNewTmpDir() {
 		File dir = null;
-		String dirName = FileUtils.getTempDirectoryPath() + File.separator
-				+ "EvoSuiteZ3Str_" + (dirCounter++) + "_"
+		String dirName = FileUtils.getTempDirectoryPath() + File.separator + "EvoSuiteZ3Str_" + (dirCounter++) + "_"
 				+ System.currentTimeMillis();
 
 		// first create a tmp folder
@@ -86,16 +89,15 @@ public class Z3Str2Solver extends Solver {
 		}
 
 		if (!dir.exists()) {
-			logger.error("Weird behavior: we created folder, but Java cannot determine if it exists? Folder: "
-					+ dirName);
+			logger.error(
+					"Weird behavior: we created folder, but Java cannot determine if it exists? Folder: " + dirName);
 			return null;
 		}
 
 		return dir;
 	}
 
-	private static SmtCheckSatQuery buildSmtQuerty(
-			Collection<Constraint<?>> constraints) {
+	private static SmtCheckSatQuery buildSmtQuerty(Collection<Constraint<?>> constraints) {
 
 		ConstraintToZ3Str2Visitor v = new ConstraintToZ3Str2Visitor();
 		List<SmtAssertion> assertions = new LinkedList<SmtAssertion>();
@@ -123,8 +125,7 @@ public class Z3Str2Solver extends Solver {
 			addCharToIntFunction = false;
 		}
 
-		Set<SmtVariable> smtVariablesToDeclare = new HashSet<SmtVariable>(
-				smtVariables);
+		Set<SmtVariable> smtVariablesToDeclare = new HashSet<SmtVariable>(smtVariables);
 		if (addCharToIntFunction) {
 			Set<SmtStringVariable> charVariables = buildCharVariables();
 			smtVariablesToDeclare.addAll(charVariables);
@@ -135,50 +136,43 @@ public class Z3Str2Solver extends Solver {
 		for (SmtVariable v1 : smtVariablesToDeclare) {
 			String varName = v1.getName();
 			if (v1 instanceof SmtIntVariable) {
-				SmtConstantDeclaration constantDecl = SmtExprBuilder
-						.mkIntConstantDeclaration(varName);
+				SmtConstantDeclaration constantDecl = SmtExprBuilder.mkIntConstantDeclaration(varName);
 				constantDeclarations.add(constantDecl);
 			} else if (v1 instanceof SmtRealVariable) {
-				SmtConstantDeclaration constantDecl = SmtExprBuilder
-						.mkRealConstantDeclaration(varName);
+				SmtConstantDeclaration constantDecl = SmtExprBuilder.mkRealConstantDeclaration(varName);
 				constantDeclarations.add(constantDecl);
 			} else if (v1 instanceof SmtStringVariable) {
-				SmtConstantDeclaration constantDecl = SmtExprBuilder
-						.mkStringConstantDeclaration(varName);
+				SmtConstantDeclaration constantDecl = SmtExprBuilder.mkStringConstantDeclaration(varName);
 				constantDeclarations.add(constantDecl);
 			} else {
-				throw new RuntimeException("Unknown variable type "
-						+ v1.getClass().getCanonicalName());
+				throw new RuntimeException("Unknown variable type " + v1.getClass().getCanonicalName());
 			}
 		}
 
 		List<SmtFunctionDefinition> functionDefinitions = new LinkedList<SmtFunctionDefinition>();
 		if (addCharToIntFunction) {
 			String charToInt = buildCharToIntFunction();
-			SmtFunctionDefinition newFunctionDef = new SmtFunctionDefinition(
-					charToInt);
+			SmtFunctionDefinition newFunctionDef = new SmtFunctionDefinition(charToInt);
 			functionDefinitions.add(newFunctionDef);
 		}
 
-		SmtCheckSatQuery smtCheckSatQuery = new SmtCheckSatQuery(
-				constantDeclarations, functionDefinitions, assertions);
+		SmtCheckSatQuery smtCheckSatQuery = new SmtCheckSatQuery(constantDeclarations, functionDefinitions, assertions);
 
 		return smtCheckSatQuery;
 
 	}
 
 	@Override
-	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
-			throws ConstraintSolverTimeoutException {
+	public SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException, IOException,
+			SolverParseException, SolverEmptyQueryException, SolverErrorException {
 
 		SmtCheckSatQuery smtCheckSatQuery = buildSmtQuerty(constraints);
 
 		if (smtCheckSatQuery.getConstantDeclarations().isEmpty()) {
 			logger.debug("Z3-str2 input has no variables");
-			logger.debug("returning NULL as default value");
-			return null;
+			throw new SolverEmptyQueryException("Z3-str2 input has no variables");
 		}
-		
+
 		Z3Str2QueryPrinter printer = new Z3Str2QueryPrinter();
 		String smtQueryStr = printer.print(smtCheckSatQuery);
 
@@ -188,8 +182,7 @@ public class Z3Str2Solver extends Solver {
 		int timeout = (int) Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
 
 		File tempDir = createNewTmpDir();
-		String z3TempFileName = tempDir.getAbsolutePath() + File.separatorChar
-				+ EVOSUITE_Z3_STR_FILENAME;
+		String z3TempFileName = tempDir.getAbsolutePath() + File.separatorChar + EVOSUITE_Z3_STR_FILENAME;
 
 		if (Properties.Z3_STR2_PATH == null) {
 			String errMsg = "Property Z3_STR_PATH should be setted in order to use the Z3StrSolver!";
@@ -203,65 +196,32 @@ public class Z3Str2Solver extends Solver {
 			ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 			launchNewProcess(z3Cmd, smtQueryStr, timeout, stdout);
 
-			String z3ResultStr = stdout.toString("UTF-8");
+			String z3str2ResultStr = stdout.toString("UTF-8");
 
-			if (z3ResultStr.contains("unknown sort")) {
-				logger.debug("Z3_str2 output was " + z3ResultStr);
-				throw new EvosuiteError(
-						"Z3_str2 found an unknown sort for query: "
-								+ smtQueryStr);
-			}
-
-			if (z3ResultStr.contains("unknown constant")) {
-				logger.debug("Z3_str2 output was " + z3ResultStr);
-				throw new EvosuiteError(
-						"Z3_str2 found an unknown constant for query: "
-								+ smtQueryStr);
-			}
-
-			if (z3ResultStr.contains("invalid expression")) {
-				logger.debug("Z3_str2 output was " + z3ResultStr);
-				throw new EvosuiteError(
-						"Z3_str2 found an invalid expression for query: "
-								+ smtQueryStr);
-			}
-
-			if (z3ResultStr.contains("unexpected input")) {
-				logger.debug("Z3_str2 output was " + z3ResultStr);
-				throw new EvosuiteError(
-						"Z3_str2 found an unexpected input for query: "
-								+ smtQueryStr);
-			}
-
-			Z3Str2ModelParser parser = new Z3Str2ModelParser();
+			Z3Str2ResultParser parser = new Z3Str2ResultParser();
 			Set<Variable<?>> variables = getVariables(constraints);
 			Map<String, Object> initialValues = getConcreteValues(variables);
-			Map<String, Object> solution;
+			SolverResult solverResult;
 			if (addMissingVariables()) {
-				solution = parser.parse(z3ResultStr, initialValues);
+				solverResult = parser.parse(z3str2ResultStr, initialValues);
 			} else {
-				solution = parser.parse(z3ResultStr);
+				solverResult = parser.parse(z3str2ResultStr);
 			}
 
-			if (solution==null) {
-				/*UNSAT or ERROR*/
-				return null;
-			}
-			
-			// check solution is correct
-			boolean check = checkSolution(constraints, solution);
-			if (!check) {
-				logger.debug("Z3-str2 solution does not solve the constraint system!");
-				return null;
+			if (solverResult.isSAT()) {
+				// check if solution is correct, otherwise return UNSAT
+				boolean check = checkSAT(constraints, solverResult);
+				if (!check) {
+					logger.debug("Z3-str2 solution does not solve the constraint system!");
+					SolverResult unsatResult = SolverResult.newUNSAT();
+					return unsatResult;
+				}
 			}
 
-			return solution;
+			return solverResult;
 
 		} catch (UnsupportedEncodingException e) {
 			throw new EvosuiteError("UTF-8 should not cause this exception!");
-		} catch (IOException e) {
-			logger.error("IO exception during Z3 invocation!");
-			return null;
 		} finally {
 			File tempFile = new File(z3TempFileName);
 			if (tempFile.exists()) {
@@ -294,8 +254,7 @@ public class Z3Str2Solver extends Solver {
 			String str = String.valueOf(c);
 			String encodedStr = ExprToZ3Str2Visitor.encodeString(str);
 			if (i < ASCII_TABLE_LENGTH - 1) {
-				String iteStr = String.format("(ite (= x!1 %s) %s", encodedStr,
-						i);
+				String iteStr = String.format("(ite (= x!1 %s) %s", encodedStr, i);
 				buff.append(iteStr);
 				buff.append("\n");
 			} else {
@@ -309,8 +268,8 @@ public class Z3Str2Solver extends Solver {
 		return buff.toString();
 	}
 
-	private static int launchNewProcess(String z3StrCmd, String smtQuery,
-			int timeout, OutputStream outputStream) throws IOException {
+	private static int launchNewProcess(String z3StrCmd, String smtQuery, int timeout, OutputStream outputStream)
+			throws IOException {
 
 		final Process process = Runtime.getRuntime().exec(z3StrCmd);
 
@@ -331,8 +290,7 @@ public class Z3Str2Solver extends Solver {
 		return exitValue;
 	}
 
-	private static void readInputStream(InputStream in, OutputStream out)
-			throws IOException {
+	private static void readInputStream(InputStream in, OutputStream out) throws IOException {
 		InputStreamReader is = new InputStreamReader(in);
 		BufferedReader br = new BufferedReader(is);
 		String read = br.readLine();

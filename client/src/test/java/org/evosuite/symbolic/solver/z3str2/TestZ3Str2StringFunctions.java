@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverStringFunctions;
 import org.evosuite.symbolic.solver.z3str2.Z3Str2Solver;
 import org.junit.AfterClass;
@@ -35,7 +35,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringLength() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -56,7 +56,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testNegativeLength() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -73,7 +73,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringEquals() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -94,7 +94,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringAppendString() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -108,7 +108,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringConcat() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -122,7 +122,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringNotEquals() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -143,7 +143,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringStartsWith() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -167,7 +167,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringStartsWithIndex() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -183,7 +183,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringEndsWith() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -205,7 +205,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringCharAt() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -226,7 +226,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringContains() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -247,7 +247,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringIndexOfChar() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -261,7 +261,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringIndexOfCharInt() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -275,7 +275,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringIndexOfString() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -289,7 +289,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringIndexOfStringInt() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -303,7 +303,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringTrim() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -317,7 +317,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringLowerCase() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -331,7 +331,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringUpperCase() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -345,7 +345,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringLastIndexOfChar() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -359,7 +359,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringLastIndexOfCharInt() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -373,7 +373,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringLastIndexOfString() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -387,7 +387,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringLastIndexOfStringInt() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -401,7 +401,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringSubstring() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -415,7 +415,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringSubstringFromTo() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -429,7 +429,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringReplaceChar() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -443,7 +443,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringReplaceCharSequence() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -457,7 +457,7 @@ public class TestZ3Str2StringFunctions {
 
 	@Test
 	public void testStringCompareTo() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out

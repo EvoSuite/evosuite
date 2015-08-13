@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.solver.z3str2;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverMath;
 import org.evosuite.symbolic.solver.z3str2.Z3Str2Solver;
 import org.junit.AfterClass;
@@ -27,7 +27,7 @@ public class TestZ3Str2Math {
 
 	@Test
 	public void testAbs() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -41,7 +41,7 @@ public class TestZ3Str2Math {
 
 	@Test
 	public void testMax() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -55,7 +55,7 @@ public class TestZ3Str2Math {
 
 	@Test
 	public void testMin() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out

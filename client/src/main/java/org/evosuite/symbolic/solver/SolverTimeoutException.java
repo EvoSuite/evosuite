@@ -1,13 +1,13 @@
 package org.evosuite.symbolic.solver;
 
-public final class ConstraintSolverTimeoutException extends Exception {
+public final class SolverTimeoutException extends Exception {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 437518700827698182L;
 
-	public ConstraintSolverTimeoutException() {
+	public SolverTimeoutException() {
 		// TODO Auto-generated constructor stub
 	}
 

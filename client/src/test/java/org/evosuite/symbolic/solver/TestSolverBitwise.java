@@ -2,6 +2,7 @@ package org.evosuite.symbolic.solver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.evosuite.symbolic.solver.TestSolver.solve;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -71,12 +72,12 @@ public class TestSolverBitwise {
 	}
 
 	public static void testBitAnd(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseBitAnd();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		assertNotNull(solution);
 		Long var0 = (Long) solution.get("var0");
 		Long var1 = (Long) solution.get("var1");
@@ -85,22 +86,22 @@ public class TestSolverBitwise {
 	}
 
 	public static Map<String, Object>  testBitOr(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseBitOr();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
 	public static void testBitXor(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseBitXor();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		assertNotNull(solution);
 		Long var0 = (Long) solution.get("var0");
 		Long var1 = (Long) solution.get("var1");
@@ -109,33 +110,33 @@ public class TestSolverBitwise {
 	}
 
 	public static Map<String, Object>  testBitNot(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseBitNot();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
 	public static Map<String, Object> testShiftLeft(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseShiftLeft();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 
 		return solution;
 	}
 
 	public static void testShiftRight(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseShiftRight();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		assertNotNull(solution);
 		Long var0 = (Long) solution.get("var0");
 		Long var1 = (Long) solution.get("var1");
@@ -145,12 +146,12 @@ public class TestSolverBitwise {
 
 	public static void testShiftRightUnsigned(Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseShiftRightUnsigned();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		assertNotNull(solution);
 		Long var0 = (Long) solution.get("var0");
 		Long var1 = (Long) solution.get("var1");

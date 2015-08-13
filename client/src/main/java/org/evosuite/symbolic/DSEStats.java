@@ -12,7 +12,7 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.StringConstraint;
-import org.evosuite.symbolic.solver.ConstraintCache;
+import org.evosuite.symbolic.solver.SolverCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,9 +154,9 @@ public abstract class DSEStats {
 
 	private static void logCacheStatistics() {
 		logger.info("* DSE) Constraint Cache Statistics");
-		final int numberOfSATs = ConstraintCache.getInstance()
+		final int numberOfSATs = SolverCache.getInstance()
 				.getNumberOfSATs();
-		final int numberOfUNSATs = ConstraintCache.getInstance()
+		final int numberOfUNSATs = SolverCache.getInstance()
 				.getNumberOfUNSATs();
 
 		if (numberOfSATs == 0 || numberOfUNSATs == 0) {
@@ -172,7 +172,7 @@ public abstract class DSEStats {
 
 			NumberFormat percentFormat = NumberFormat.getPercentInstance();
 			percentFormat.setMaximumFractionDigits(1);
-			String hit_rate_str = percentFormat.format(ConstraintCache
+			String hit_rate_str = percentFormat.format(SolverCache
 					.getInstance().getHitRate());
 			logger.info(String.format("* DSE)   Cache hit rate: %s",
 					hit_rate_str));

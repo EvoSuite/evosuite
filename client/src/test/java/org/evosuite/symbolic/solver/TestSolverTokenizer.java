@@ -10,6 +10,7 @@ import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 
 import com.examples.with.different.packagename.solver.TestCaseTokenizer;
+import static org.evosuite.symbolic.solver.TestSolver.solve;
 
 public class TestSolverTokenizer {
 
@@ -26,12 +27,12 @@ public class TestSolverTokenizer {
 
 	public static Map<String, Object> testStringTokenizer(Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 	
 		DefaultTestCase tc = buildTestTokenizer();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 

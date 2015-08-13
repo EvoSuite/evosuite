@@ -16,7 +16,9 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverEmptyQueryException;
+import org.evosuite.symbolic.solver.SolverResult;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.junit.Test;
@@ -24,7 +26,7 @@ import org.junit.Test;
 public class TestPatternSearch {
 
 	@Test
-	public void testMatcherMatches() {
+	public void testMatcherMatches() throws SolverEmptyQueryException {
 
 		String input = "random_value";
 		String format = "(\\d+)-(\\d\\d)-(\\d)";
@@ -43,17 +45,19 @@ public class TestPatternSearch {
 		List<Constraint<?>> constraints = Collections
 				.<Constraint<?>> singletonList(constraint);
 
-		EvoSuiteSolver skr = new EvoSuiteSolver();
-		Map<String, Object> solution;
 		try {
-			solution = skr.solve(constraints);
-			assertNotNull(solution);
-			String var0_value = (String) solution.get("var0");
+			EvoSuiteSolver solver = new EvoSuiteSolver();
+			SolverResult result = solver.solve(constraints);
+			assertTrue(result.isSAT());
+			
+			Map<String,Object>model = result.getModel();
+			
+			String var0_value = (String) model.get("var0");
 
 			Pattern pattern = Pattern.compile(format);
 			Matcher matcher = pattern.matcher(var0_value);
 			assertTrue(matcher.matches());
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 

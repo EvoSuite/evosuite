@@ -1,6 +1,7 @@
 package org.evosuite.symbolic.solver;
 
 import static org.junit.Assert.assertNotNull;
+import static org.evosuite.symbolic.solver.TestSolver.solve;
 import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Method;
@@ -31,12 +32,12 @@ public class TestSolverMath {
 	}
 
 	public static void testAbs(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseAbs();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		assertNotNull(solution);
 		Long var0 = (Long) solution.get("var0");
 
@@ -68,12 +69,12 @@ public class TestSolverMath {
 	}
 
 	public static void testMax(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMax();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		assertNotNull(solution);
 		Long var0 = (Long) solution.get("var0");
 		Long var1 = (Long) solution.get("var1");
@@ -82,12 +83,12 @@ public class TestSolverMath {
 	}
 
 	public static void testMin(Solver solver) throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestCaseMin();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		assertNotNull(solution);
 		Long var0 = (Long) solution.get("var0");
 		Long var1 = (Long) solution.get("var1");

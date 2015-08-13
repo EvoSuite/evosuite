@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.solver.cvc4;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverMathFloat;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,7 +26,7 @@ public class TestCVC4MathFloat {
 
 	@Test
 	public void testFloatAbs() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		if (Properties.CVC4_PATH == null) {
 			System.out
 					.println("Warning: cvc4_path should be configured to execute this test case");
@@ -39,7 +39,7 @@ public class TestCVC4MathFloat {
 
 	@Test
 	public void testFloatTrigonometry() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 		
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -53,7 +53,7 @@ public class TestCVC4MathFloat {
 
 	@Test
 	public void testFloatMax() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -67,7 +67,7 @@ public class TestCVC4MathFloat {
 
 	@Test
 	public void testFloatMin() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -81,7 +81,7 @@ public class TestCVC4MathFloat {
 
 	@Test
 	public void testFloatRound() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 		
 		if (Properties.CVC4_PATH == null) {
 			System.out

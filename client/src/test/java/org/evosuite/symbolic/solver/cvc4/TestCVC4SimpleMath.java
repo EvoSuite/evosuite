@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverSimpleMath;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -31,7 +31,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testAdd() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -45,7 +45,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testSub() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -59,7 +59,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testMul() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -73,7 +73,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testDiv() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -94,7 +94,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testEq() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -108,7 +108,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testNeq() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -122,7 +122,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testLt() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -136,7 +136,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testGt() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -150,7 +150,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testLte() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -164,7 +164,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testGte() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -178,7 +178,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testMod() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -192,7 +192,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testMul2() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -206,7 +206,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testCastRealToInt() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -220,7 +220,7 @@ public class TestCVC4SimpleMath {
 
 	@Test
 	public void testCastIntToReal() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
