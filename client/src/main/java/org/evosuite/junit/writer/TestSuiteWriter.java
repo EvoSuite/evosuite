@@ -27,7 +27,7 @@ import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
-import org.evosuite.idNaming.GenerateTestNames;
+import org.evosuite.idNaming.SimplifyMethodNames;
 import org.evosuite.idNaming.TestNameGenerator;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -210,8 +210,8 @@ public class TestSuiteWriter implements Opcodes {
         }
         
         if (Properties.ID_NAMING && optimizeIDNaming) {
+        	TestNameGenerator.getInstance().NAMING_TYPE="method_output_branch";
             TestNameGenerator.getInstance().execute(testCases,results);
-        //	TestNameGenerator.getInstance().execute(testCases);
         }
 
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
@@ -712,9 +712,11 @@ public class TestSuiteWriter implements Opcodes {
         builder.append(NEWLINE);
 
         String testCode = builder.toString();
-
+        List<String> namesWithExceptions=new ArrayList<String>();
+        
         String newMethodName=TestNameGenerator.getInstance().checkExeptionInTest(testCode,testMethodName);
         String []tokens=newMethodName.split("_");
+       
         newMethodName=tokens[0];
         for(int i=1; i<tokens.length; i++){
             if(i==tokens.length-1){
@@ -726,9 +728,8 @@ public class TestSuiteWriter implements Opcodes {
             }else{
                 newMethodName+=WordUtils.capitalize(tokens[i]);
             }
+            
         }
-        //  int i=builder.indexOf(methodName);
-        // int j=builder.indexOf("()  throws Throwable  {")+1;
         builder.replace(builder.indexOf(testMethodName), builder.indexOf("()  throws Throwable  {"), newMethodName);
         testCode = builder.toString();
         TestGenerationResultBuilder.getInstance().setTestCase(testMethodName, testCode, test,

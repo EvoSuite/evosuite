@@ -20,6 +20,9 @@ package org.evosuite.idnaming;
 import com.examples.with.different.packagename.idnaming.SimpleIdNaming;
 import com.examples.with.different.packagename.sette.L4_Collections;
 import com.examples.with.different.packagename.sette.SnippetInputContainer;
+import com.examples.with.different.packagename.stable.Base64;
+import com.examples.with.different.packagename.staticfield.UnstableAssertion;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;

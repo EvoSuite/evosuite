@@ -4,9 +4,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SimplifyMethodNames {
+public class SimplifyMethodNames extends ShorterNames{
+	
+	private static SimplifyMethodNames instance=null;
+	
+    public static synchronized SimplifyMethodNames getInstance() {
+        if (instance == null)
+            instance = new SimplifyMethodNames();
 
-	public static String[] optimizeNames(List<String> nameList){
+        return instance;
+    }
+
+    public String[] optimizeNames(List<String> nameList){
+		SimplifyMethodNames simple= new SimplifyMethodNames();
 		String[] methodNames = nameList.toArray(new String[nameList.size()]) ;
 		for(int i=0; i<nameList.size(); i++){
 			String [] name1=methodNames[i].split("_");
@@ -15,6 +25,7 @@ public class SimplifyMethodNames {
 			List<String> optName=null;
 			List<String> intersection=null;
 			List<String> bestInter = null;
+			String secondName="";
 			int position=0;
 			for (int j=i+1; j<nameList.size(); j++){				
 				String [] name2=methodNames[j].split("_");				
@@ -22,8 +33,6 @@ public class SimplifyMethodNames {
 				List<String> union = new ArrayList<String>(list1);
 				union.addAll(list2);
 				// Prepare an intersection
-				
-				
 				if(name1.length>name2.length){
 					intersection = new ArrayList<String>(list2);	
 					intersection.retainAll(list1);
@@ -36,50 +45,23 @@ public class SimplifyMethodNames {
 					optName = list2;
 					position = j;
 					bestInter = intersection;
+					secondName = methodNames[j];
 				}				
 			}
 			if(prevInter!=0){
-				String[] optNames=simpleNames(list1, optName, bestInter);
-				methodNames[i] = optNames[0];
-				methodNames[position] = optNames[1];
+				String[] optNames=minimizePair(methodNames[i], secondName);				
+					methodNames[i] = optNames[0];
+					methodNames[position] = optNames[1];
 			}
 		}
+		methodNames = simple.minimizeNames(methodNames);
+		methodNames = simple.countSameNames(methodNames); 
 		return methodNames;
 	}
-	public static String[] simpleNames(List<String> list1, List<String> list2, List<String> intersection){	
-		String  name1=list1.get(1);
-		String  name2=list2.get(1);
-		for(String str:intersection){
-			if(list1.contains(str)){
-				list1.remove(str);
-			}
-			if(list2.contains(str)){
-				list2.remove(str);
-			}			
-		}
-		String nameFirst = "test";
-		String nameSecond = "test";
-		if(list1.size()>0){
-			for(String name: list1){
-				nameFirst+="_"+name;
-			}
-		}else{
-			nameFirst+="_"+name1;
-		}
-		if(list2.size()>0){
-			for(String name: list2){
-				nameSecond+="_"+name;
-			}
-		}else{
-			nameSecond+="_"+name2;
-		}
-		String [] result= {nameFirst, nameSecond};
-		return result;
-	}
 	
-
+  
 	
-	public static  String[] minimizeNames (String[] names){		
+    public String[] minimizeNames (String[] names){		
 		for(int i=0; i<names.length; i++){
 			String [] tokens = names[i].split("_");
 			String newName=names[i];
@@ -114,7 +96,7 @@ public class SimplifyMethodNames {
 		return names;
 	}
 	
-	public static  String[] countSameNames(String[] nameList){
+    public String[] countSameNames(String[] nameList){
 		int temp=0;
 		for (int i=0; i<nameList.length; i++){
 			temp=1;

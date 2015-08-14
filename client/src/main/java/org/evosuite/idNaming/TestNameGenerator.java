@@ -1,5 +1,6 @@
 package org.evosuite.idNaming;
 
+import org.apache.commons.lang.WordUtils;
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
@@ -8,6 +9,8 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.utils.LoggingUtils;
+
+//import com.sun.codemodel.internal.util.Surrogate.Generator;
 
 import java.util.*;
 
@@ -20,7 +23,7 @@ import java.util.*;
  * a phase of optimization.
  * Method {@code getNameGeneratedFor}: returns the name generated for a given test case.
  */
-public class TestNameGenerator {
+public class TestNameGenerator extends DistinguishNames {
 
     private List<String> methodNames = new ArrayList<String>();
     private List<String> testCase = new ArrayList<String>();
@@ -29,9 +32,10 @@ public class TestNameGenerator {
     /**
      * Mappings from test case to method, branch and output goal name
      */
-    private static Map<TestCase,String> testNames = new HashMap<TestCase, String>();
-    private static Map<TestCase,String> testOutputs = new HashMap<TestCase, String>();
-	private static Map<TestCase,String> testBranches = new HashMap<TestCase, String>();
+    private Map<TestCase,String> testNames = new HashMap<TestCase, String>();
+    private Map<TestCase,String> testOutputs = new HashMap<TestCase, String>();
+	private Map<TestCase,String> testBranches = new HashMap<TestCase, String>();
+	private Map<TestCase,String> testComparisons= new HashMap<TestCase, String>();
 
     /**
      * Mapping from test case to test case name
@@ -42,7 +46,8 @@ public class TestNameGenerator {
      * TestNameGenerator instance
      */
     private static TestNameGenerator instance = null;
-
+    
+    public String NAMING_TYPE = "";
     /**
      * Getter for the field {@code instance}
      *
@@ -112,7 +117,7 @@ public class TestNameGenerator {
     private void setNameGeneratedFor(TestCase tc, String name) {
         testCaseNames.put(tc, name);
     }
-
+    
     /**
      * Generates test name for one particular test case
      *
@@ -122,36 +127,52 @@ public class TestNameGenerator {
      * @param id           test case id
      */
     private String generateTestName(String targetMethod, TestCase tc, ExecutionResult result, Integer id) {
-   // private String generateTestName(String targetMethod, TestCase tc, Integer id) {
+
     	Set<? extends TestFitnessFunction> goals = tc.getCoveredGoals();
 		String methodName="test";
 		String outputName="";
 		String branchName="";
+		String comparisonName="";
+	
 		for (TestFitnessFunction goal : goals) {
-		  	String goalName = goal.toString();
+  		  	String goalName = goal.toString();
 		  	if (goal instanceof MethodCoverageTestFitness) {
 		  		methodName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("));		  		
 		  	}else {
-		  		if (goal instanceof BranchCoverageTestFitness){
-		  			branchName+="_Covers"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("));
+		  		if (goal instanceof BranchCoverageTestFitness && NAMING_TYPE.equals("method_output_branch")){
+		  			if(goalName.contains("root-Branch")){
+		  				branchName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+ "RootBranch";
+					} 				
+		  			else{
+		  				branchName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+
+			  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
+		  				String [] branch=goalName.substring(goalName.lastIndexOf(":")+1,goalName.indexOf(" - ")).trim().split(" ");
+		  				comparisonName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+
+			  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch"+ translateBranch(branch[3]);
+					}			  			
 				} else {
-					if (goal instanceof OutputCoverageTestFitness) {						
-						outputName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+"Returns"+goalName.substring(goalName.lastIndexOf(":")+1);						
+					if (goal instanceof OutputCoverageTestFitness && NAMING_TYPE.equals("method_output_branch")) {						
+						outputName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+"Returning"+
+								WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1));						
 					}
 				}
 		  	}
 		}	
+		
 		methodName = methodName.replace("<","").replace(">","").replace("(","").replace(")","");
 		outputName = outputName.replace("<","").replace(">","").replace("(","").replace(")","");
 		branchName = branchName.replace("<","").replace(">","").replace("(","").replace(")","");
 		testNames.put(tc, methodName); 
 		testOutputs.put(tc, outputName);
 		testBranches.put(tc, branchName);
-		if(methodName=="test"){
-			methodName = methodName+outputName;
-			if(outputName.equals("")){
-				methodName = methodName+branchName;
-			}
+		testComparisons.put(tc,comparisonName);
+		if(methodName.equals("test") && NAMING_TYPE.equals("method_output_branch")){			
+			methodName = checkAssertions(tc, methodName);
+		//	methodName ="test"+ branchName;
+		} else {
+			if(NAMING_TYPE.equals("method_assertions")){
+				methodName = checkAssertions(tc, methodName);
+			} 
 		}
 		System.out.println(methodName);
 		return methodName;
@@ -161,7 +182,6 @@ public class TestNameGenerator {
      * Once names have been generated for all tests, resolve conflicts and optimize names.
      */
     private void optimize(List<TestCase> testCases, List<ExecutionResult> results) {
- //   private void optimize(List<TestCase> testCases) {
     	String testMethodName1 = "";
 		String testMethodName2 = "";
 		String testMethodNameOptimized1 = "";
@@ -203,21 +223,36 @@ public class TestNameGenerator {
     		testName[count] = testCaseNames.get(tc);
     		testCs[count] = tc;
     		count++;
-    	}
-    	
-	    	testName = SimplifyMethodNames.optimizeNames(Arrays.asList(testName));
-	    	testName = SimplifyMethodNames.minimizeNames(testName);
-			testName = SimplifyMethodNames.countSameNames(testName);
-    	
+    	} 	
+    	SimplifyMethodNames optimize = new SimplifyMethodNames();
+    	testName = optimize.optimizeNames(Arrays.asList(testName));  
+    	int optimizeAgain = -1;
         for (int i=0; i<testName.length; i++) {        	           
             String testMethodNameOptimized = testName[i]; // TODO
             // to set the new, optimized test name:
             setNameGeneratedFor(testCs[i], testMethodNameOptimized);
+            if(!testMethodNameOptimized.split("_")[0].equals("test")){
+            	testMethodNameOptimized = "test"+testComparisons.get(testCs[i]);
+            	optimizeAgain = 1;
+            	setNameGeneratedFor(testCs[i], testMethodNameOptimized);
+            }           
         }
+        if(optimizeAgain == 1){
+        	count=0;
+	    	for (TestCase tc : testCaseNames.keySet()) {
+	    		testName[count] = testCaseNames.get(tc);
+	    		testCs[count] = tc;
+	    		count++;
+	    	} 
+	        testName = optimize.optimizeNames(Arrays.asList(testName));  
+	        for (int i=0; i<testName.length; i++) {        	           
+	            String testMethodNameOptimized = testName[i]; // TODO
+	            // to set the new, optimized test name:
+	            setNameGeneratedFor(testCs[i], testMethodNameOptimized);
+	        }
+        }
+
     }
-
-    
-
   
     /**
      * Infers the target Method Under Test
@@ -225,6 +260,22 @@ public class TestNameGenerator {
      * @param tc  test case
      * @param res execution result
      */
+ /*   public static String[] sameNamesFound(String name1, String name2){
+    	  TestNameGenerator generator = getInstance();
+    	  TestCase tc1 = null;
+    	  TestCase tc2 = null;
+    	  for (TestCase o : generator.testCaseNames.keySet()) {
+    	      if (generator.testCaseNames.get(o).equals(name1)) {
+    	        tc1=o;
+    	      } else{
+    	    	  if (generator.testCaseNames.get(o).equals(name2)) {
+    	    	        tc2=o;
+    	    	  }
+    	      }
+    	    }
+    	BranchConditions branchesWithConditions= new BranchConditions();
+    	return branchesWithConditions.extractBranchesWithCond(tc1,tc2);
+    }*/
     private String getTargetMethod(TestCase tc, ExecutionResult res) {
  //   private String getTargetMethod(TestCase tc) {
         // TODO
@@ -248,5 +299,5 @@ public class TestNameGenerator {
             return methodName;
         }
     }
-
+  
 }

@@ -18,9 +18,8 @@ public class ExceptionExtraction
     
     public ExceptionExtraction(String source){
     	total_exceptions=0;
-    	//set_extractions(source);
+    	set_extractions(source);
     }
-/*
     public void set_extractions(String source) {
     	source=source.replace("@Test", "");
     	source="public class A{"+source+"}";
@@ -40,7 +39,6 @@ public class ExceptionExtraction
     	   });
     	
     }
-*/
     public int get_exceptions(){
     	return total_exceptions;
     }

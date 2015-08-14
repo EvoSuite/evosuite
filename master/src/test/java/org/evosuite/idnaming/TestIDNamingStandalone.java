@@ -77,27 +77,13 @@ public class TestIDNamingStandalone {
         test1.addCoveredGoal(goal1);
         test1.addCoveredGoal(goal2);
         test1.addCoveredGoal(goal4);
-        test1.addCoveredGoal(goal6);
-        test1.addCoveredGoal(goal8);
-        test1.addCoveredGoal(goal10);
-        test1.addCoveredGoal(goal11);
-        test1.addCoveredGoal(goal12);
-        test1.addCoveredGoal(goal14);
 
 
         DefaultTestCase test2 = new DefaultTestCase();
         test2.addStatement(new StringPrimitiveStatement(test2,"foo")); // any statement to fool hashcode function
         test2.addCoveredGoal(goal1);
         test2.addCoveredGoal(goal2);
-        test2.addCoveredGoal(goal3);
-        test2.addCoveredGoal(goal5);
-        test2.addCoveredGoal(goal7);
-        test2.addCoveredGoal(goal9);
-        test2.addCoveredGoal(goal10);
-        test2.addCoveredGoal(goal11);
-        test2.addCoveredGoal(goal12);
-        test2.addCoveredGoal(goal13);
-        test2.addCoveredGoal(goal14);
+        test2.addCoveredGoal(goal4);
 
         ArrayList<TestCase> testCases = new ArrayList<TestCase>();
         testCases.add(test1);
@@ -107,7 +93,8 @@ public class TestIDNamingStandalone {
         results.add(null);
         results.add(null);
 
-        TestNameGenerator.execute(testCases, results);
+        TestNameGenerator.getInstance().NAMING_TYPE="method_output_branch";
+        TestNameGenerator.getInstance().execute(testCases, results);
         String nameTest1 = TestNameGenerator.getNameGeneratedFor(test1);
         String nameTest2 = TestNameGenerator.getNameGeneratedFor(test2);
 
