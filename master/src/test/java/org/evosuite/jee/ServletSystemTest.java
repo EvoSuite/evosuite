@@ -9,6 +9,8 @@ import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -16,7 +18,14 @@ import org.junit.Test;
  */
 public class ServletSystemTest extends SystemTest{
 
-
+    @Before()
+    public void init(){
+        /*
+            likely we ll not need handling of Servlets... however, too early to remove all
+             the code written so far...
+         */
+        Assume.assumeTrue(Properties.HANDLE_SERVLETS);
+    }
 
     @Test
     public void testSimpleCase_noJEE(){

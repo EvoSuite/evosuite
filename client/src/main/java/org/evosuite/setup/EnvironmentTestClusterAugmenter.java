@@ -103,6 +103,16 @@ public class EnvironmentTestClusterAugmenter {
 
     private void handleJEE(TestCase test) {
 
+        if(! Properties.HANDLE_SERVLETS){
+            /*
+                Started to prepare custom mocks for Servlets, but then realized that
+                their behavior is very basic. As such, most likely they are not needed,
+                as they could be much better replaced by functional mocks with Mockito...
+             */
+
+            return;
+        }
+
         JeeData jeeData = TestDataJavaEE.getInstance().getJeeData();
         test.getAccessedEnvironment().setJeeData(jeeData);
 
