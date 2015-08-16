@@ -47,6 +47,15 @@ public class ServletSystemTest extends SystemTest{
     }
 
     @Test
+    public void testInversedCombination() {
+        testSimpleCase_withJEE();
+        super.resetStaticVariables(); //After
+        super.setDefaultPropertiesForTestCases(); //Before
+        testSimpleCase_noJEE();
+    }
+
+
+    @Test
     public void testSimpleCase_withJEE(){
         Properties.JEE = true;
         do100percentLineTest(SimpleHttpServlet.class);
