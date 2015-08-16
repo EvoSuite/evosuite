@@ -504,8 +504,13 @@ public class ConstraintVerifierTest {
                 new GenericMethod(EvoServletConfig.class.getDeclaredMethod("createDispatcher", String.class),
                         EvoServletConfig.class), 4);
 
-        Assert.assertEquals(tc.getTestCase().toCode(), 5, tc.size());
-        Assert.assertFalse(ConstraintVerifier.verifyTest(tc));
+        /*
+            even if "foo" is null and we have the P of object reuse to 1, still "foo"
+            will not be used, as "null" constraint is always enforced
+         */
+
+        Assert.assertEquals(tc.getTestCase().toCode(), 6, tc.size());
+        Assert.assertTrue(ConstraintVerifier.verifyTest(tc));
     }
 
     @Test
