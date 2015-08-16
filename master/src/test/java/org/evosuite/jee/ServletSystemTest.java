@@ -1,5 +1,6 @@
 package org.evosuite.jee;
 
+import com.examples.with.different.packagename.jee.injection.InjectionWithInheritance;
 import com.examples.with.different.packagename.jee.servlet.PostPutGetServlet;
 import com.examples.with.different.packagename.jee.servlet.SimpleHttpServlet;
 import org.evosuite.EvoSuite;
@@ -35,6 +36,14 @@ public class ServletSystemTest extends SystemTest{
         System.out.println("EvolvedTestSuite:\n" + best);
 
         Assert.assertTrue(best.getCoverage() < 1);
+    }
+
+    @Test
+    public void testCombination() {
+        testSimpleCase_noJEE();
+        super.resetStaticVariables(); //After
+        super.setDefaultPropertiesForTestCases(); //Before
+        testSimpleCase_withJEE();
     }
 
     @Test

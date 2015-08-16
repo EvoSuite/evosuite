@@ -213,8 +213,10 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			disableFirstSecondaryCriterion();
 		}
 		
-		if (population.isEmpty())
+		if (population.isEmpty()) {
 			initializePopulation();
+			assert ! population.isEmpty();
+		}
 
 		logger.debug("Starting evolution");
 		int starvationCounter = 0;
