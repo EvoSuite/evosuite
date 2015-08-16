@@ -594,22 +594,29 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 
 
 	@EvoSuiteInclude
-	@Constraints(atMostOnce = true , excludeOthers = {"asGET","asPUT"})
+	@Constraints(atMostOnce = true , excludeOthers = {"asGET","asPUT","as"})
     public void asPOST(){
         setHttpMethod(HttpMethod.POST);
     }
 
 	@EvoSuiteInclude
-	@Constraints(atMostOnce = true , excludeOthers = {"asPOST","asPUT"})
+	@Constraints(atMostOnce = true , excludeOthers = {"asPOST","asPUT","as"})
     public void asGET(){
         setHttpMethod(HttpMethod.GET);
     }
 
 	@EvoSuiteInclude
-	@Constraints(atMostOnce = true , excludeOthers = {"asGET","asPOST"})
-    public void asPUT(){
-        setHttpMethod(HttpMethod.PUT);
-    }
+	@Constraints(atMostOnce = true , excludeOthers = {"asGET","asPOST","as"})
+	public void asPUT(){
+		setHttpMethod(HttpMethod.PUT);
+	}
+
+
+	@EvoSuiteInclude
+	@Constraints(atMostOnce = true , excludeOthers = {"asGET","asPOST","asPUT"}, noNullInputs = true)
+	public void as(HttpMethod m){
+		setHttpMethod(m);
+	}
 
 
 	@EvoSuiteInclude
