@@ -113,6 +113,17 @@ public class TestCluster {
 		instance = null;
 	}
 
+	public void invalidateGeneratorCache(GenericClass klass){
+		Iterator<Map.Entry<GenericClass,Set<GenericAccessibleObject<?>>>> iter = generatorCache.entrySet().iterator();
+		while(iter.hasNext()){
+			Map.Entry entry = iter.next();
+			GenericClass gen = (GenericClass) entry.getKey();
+			if(gen.isAssignableFrom(klass)){
+				iter.remove();
+			}
+		}
+	}
+
 	public void handleRuntimeAccesses(TestCase test) {
 		environmentAugmenter.handleRuntimeAccesses(test);
 	}

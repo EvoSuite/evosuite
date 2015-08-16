@@ -139,7 +139,9 @@ public class EnvironmentTestClusterAugmenter {
 
             GenericAccessibleObject gc = new GenericConstructor(c,klass);
             TestCluster.getInstance().addEnvironmentTestCall(gc);
-            TestCluster.getInstance().addGenerator(new GenericClass(klass),gc);
+            GenericClass genclass = new GenericClass(klass);
+            TestCluster.getInstance().invalidateGeneratorCache(genclass);
+            TestCluster.getInstance().addGenerator(genclass,gc);
         }
 
         for(Method m : klass.getMethods()){
@@ -151,7 +153,9 @@ public class EnvironmentTestClusterAugmenter {
             TestCluster.getInstance().addEnvironmentTestCall(gm);
             Class<?> returnType = m.getReturnType();
             if(! returnType.equals(Void.TYPE)){
-                TestCluster.getInstance().addGenerator(new GenericClass(returnType),gm);
+                GenericClass genclass = new GenericClass(returnType);
+                TestCluster.getInstance().invalidateGeneratorCache(genclass);
+                TestCluster.getInstance().addGenerator(genclass,gm);
                 addEnvironmentDependency(returnType);
             }
         }
@@ -178,7 +182,9 @@ public class EnvironmentTestClusterAugmenter {
             Class<?> returnType = m.getReturnType();
 
             if(! returnType.equals(Void.TYPE)){
-                TestCluster.getInstance().addGenerator(new GenericClass(returnType),gm);
+                GenericClass genclass = new GenericClass(returnType);
+                TestCluster.getInstance().invalidateGeneratorCache(genclass);
+                TestCluster.getInstance().addGenerator(genclass,gm);
                 addEnvironmentDependency(returnType);
             }
         }
