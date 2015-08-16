@@ -1203,8 +1203,13 @@ public class TestFactory {
 
 			} else {
 
-				if (objects.isEmpty())
-					throw new ConstructionFailedException("Have no objects and generators");
+				if (objects.isEmpty()){
+					if(allowNull){
+						return createNull(test, parameterType, position, recursionDepth);
+					} else {
+						throw new ConstructionFailedException("Have no objects and generators");
+					}
+				}
 
 				logger.debug(" Choosing from " + objects.size() + " existing objects");
 				VariableReference reference = Randomness.choice(objects);

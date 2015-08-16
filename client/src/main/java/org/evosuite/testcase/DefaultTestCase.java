@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
@@ -62,6 +63,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
 
+	protected static final AtomicInteger idGenerator = new AtomicInteger(0);
+
 	private final AccessedEnvironment accessedEnvironment = new AccessedEnvironment();
 
 	/** The statements */
@@ -77,12 +80,18 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private boolean unstable = false;
 
+	private int id;
+
 	/**
 	 * Constructor
 	 */
 	public DefaultTestCase() {
-		statements = new ListenableList<Statement>(
-		        new ArrayList<Statement>());
+		statements = new ListenableList<>(new ArrayList<>());
+		id = idGenerator.getAndIncrement();
+	}
+
+	public int getID(){
+		return id;
 	}
 
 	/* (non-Javadoc)
@@ -346,6 +355,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		t.coveredGoals.addAll(coveredGoals);
 		t.accessedEnvironment.copyFrom(accessedEnvironment);
 		t.isFailing = isFailing;
+		t.id = idGenerator.getAndIncrement(); //always create new ID when making a clone
 		//t.exception_statement = exception_statement;
 		//t.exceptionThrown = exceptionThrown;
 		return t;

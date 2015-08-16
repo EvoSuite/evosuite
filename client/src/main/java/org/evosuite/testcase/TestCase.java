@@ -46,6 +46,14 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
         Listenable<Void> {
 
 	/**
+	 * Get an unique id representing this test.
+	 * This is mainly useful for debugging.
+	 *
+	 * @return
+	 */
+	public int getID();
+
+	/**
 	 * Handle test visitor
 	 *
 	 * @param visitor a {@link org.evosuite.testcase.TestVisitor} object.
