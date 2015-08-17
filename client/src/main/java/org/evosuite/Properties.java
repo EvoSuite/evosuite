@@ -1166,8 +1166,9 @@ public class Properties {
 	public static String SEED_DIR = "evosuite-seeds";
 
 	/** Constant <code>CONCOLIC_MUTATION=0.0</code> */
-	@Parameter(key = "concolic_mutation", description = "Probability of using concolic mutation operator")
+	@Parameter(key = "concolic_mutation", description = "Deprcated. Probability of using concolic mutation operator")
 	@DoubleValue(min = 0.0, max = 1.0)
+	@Deprecated
 	public static double CONCOLIC_MUTATION = 0.0;
 
 	@Parameter(key = "constraint_solution_attempts", description = "Number of attempts to solve constraints related to one code branch")
