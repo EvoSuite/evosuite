@@ -23,6 +23,28 @@ public class EvoInvocationListenerTest {
         public int parseString(String s, Foo foo);
     }
 
+    public class AClassWithFinal{
+        public final boolean getFoo(){
+            return true;
+        }
+    }
+
+    @Test
+    public void testFinal(){
+        /*
+            If no special instrumentation is done, we cannot handle final methods
+         */
+        EvoInvocationListener listener = new EvoInvocationListener();
+        AClassWithFinal foo = mock(AClassWithFinal.class, withSettings().invocationListeners(listener));
+        listener.activate();
+
+        foo.getFoo(); // this is not mocked
+
+        List<MethodDescriptor> list = listener.getCopyOfMethodDescriptors();
+        Assert.assertEquals(0, list.size());
+    }
+
+
     @Test
     public void testBase(){
 
