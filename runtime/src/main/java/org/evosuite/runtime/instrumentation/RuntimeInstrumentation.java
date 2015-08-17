@@ -99,8 +99,10 @@ public class RuntimeInstrumentation {
                  * dependency, then we MUST modify classloader to always load the version of the SUT
                  * (currently it seems we delegate to parent classloader, which gives EvoSuite's version?)
                  *
+                 * Main problem due to libraries used in the generated JUnit files to test JavaEE applications relying on database
                  * */
-                "org.hibernate","org.hsqldb","org.jboss" // used in the generated JUnit files to test JavaEE applications relying on database
+                "org.hibernate","org.hsqldb","org.jboss",
+                 "org.springframework", "org.apache.commons.logging"
 
         };
     }
