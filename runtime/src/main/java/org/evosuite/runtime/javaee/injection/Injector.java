@@ -100,7 +100,7 @@ public class Injector {
     }
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectEntityManager(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<T> clazz)
+    public static <T> void injectEntityManager(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<?> clazz)
             throws IllegalArgumentException{
 
         Inputs.checkNull(instance,clazz);
@@ -119,8 +119,13 @@ public class Injector {
     }
 
 
+    /*
+        TODO: due to limitations in EvoSuite, in the injectors as input we have to use Class<?>
+        instead of Class<T>
+     */
+
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectEntityManagerFactory(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<T> clazz)
+    public static <T> void injectEntityManagerFactory(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<?> clazz)
             throws IllegalArgumentException{
 
         Inputs.checkNull(instance,clazz);
@@ -140,7 +145,7 @@ public class Injector {
 
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
-    public static <T> void injectUserTransaction(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<T> clazz)
+    public static <T> void injectUserTransaction(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<?> clazz)
         throws IllegalArgumentException{
 
         Inputs.checkNull(instance,clazz);
