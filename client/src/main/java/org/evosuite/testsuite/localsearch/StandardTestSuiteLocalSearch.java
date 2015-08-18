@@ -31,13 +31,13 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		Randomness.shuffle(tests);
 		
 		if(Properties.LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION)
-			ensureDoubleExecution(individual, (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0));
+			ensureDoubleExecution(individual, objective);
 	
 		if(Properties.LOCAL_SEARCH_RESTORE_COVERAGE)
 			restoreBranchCoverage(individual, (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0));
 		
 		if(Properties.LOCAL_SEARCH_EXPAND_TESTS)
-			expandTestSuite(individual);
+			expandTestSuite(individual, objective);
 
 		double fitnessBefore = individual.getFitness();
 		if (Properties.LOCAL_SEARCH_DSE == DSEType.SUITE &&
