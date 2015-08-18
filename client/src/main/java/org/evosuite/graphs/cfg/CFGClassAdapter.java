@@ -17,7 +17,6 @@
  */
 package org.evosuite.graphs.cfg;
 
-import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
