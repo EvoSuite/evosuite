@@ -19,7 +19,9 @@ import java.lang.reflect.Type;
  */
 public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializable{
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodDescriptor.class);
+	private static final long serialVersionUID = -6747363265640233704L;
+
+	protected static final Logger logger = LoggerFactory.getLogger(MethodDescriptor.class);
 
     private final String methodName;
     private final String inputParameterMatchers;

@@ -21,7 +21,9 @@ import java.util.stream.Collectors;
  */
 public class EvoInvocationListener implements InvocationListener, Serializable {
 
-    private final Map<String, MethodDescriptor> map = new LinkedHashMap<>();
+	private static final long serialVersionUID = 8351121388007697168L;
+
+	private final Map<String, MethodDescriptor> map = new LinkedHashMap<>();
 
     /**
      * By default, we should not log events, otherwise we would end up
