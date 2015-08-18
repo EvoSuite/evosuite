@@ -64,7 +64,8 @@ public class CFGClassAdapter extends ClassVisitor {
 	@Override
 	public void visit(int version, int access, String name, String signature,
 	        String superName, String[] interfaces) {
-		super.visit(version, access, name, signature, superName, interfaces);
+		// We are removing final access to allow mocking
+		super.visit(version, access & ~Opcodes.ACC_FINAL, name, signature, superName, interfaces);
 		if (superName.equals("java/lang/Enum"))
 			isEnum = true;
 	}
