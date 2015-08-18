@@ -68,7 +68,7 @@
 	</logger>
 
 	<logger name="org.evosuite.shaded" level="OFF" />
-	
+
 	<!-- for a specific logger, enables all the logging. this is useful when 
 		we are debugging a particular class -->
 
