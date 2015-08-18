@@ -1,7 +1,6 @@
 package org.evosuite.runtime.instrumentation;
 
 import org.evosuite.runtime.LoopCounter;
-import org.evosuite.runtime.thread.KillSwitchHandler;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

@@ -45,6 +45,12 @@ public class NonTargetClassAdapter extends ClassVisitor {
 		this.className = className;
 	}
 
+	@Override
+	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+		// We are removing final access to allow mocking
+		super.visit(version, access & ~Opcodes.ACC_FINAL, name, signature, superName, interfaces);
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc,
