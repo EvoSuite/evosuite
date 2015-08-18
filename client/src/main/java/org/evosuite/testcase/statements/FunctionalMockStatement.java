@@ -1,7 +1,6 @@
 package org.evosuite.testcase.statements;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
-import org.evosuite.*;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.testcase.fm.EvoInvocationListener;
@@ -65,7 +64,9 @@ import static org.mockito.Mockito.withSettings;
  */
 public class FunctionalMockStatement extends EntityWithParametersStatement{
 
-    /**
+	private static final long serialVersionUID = -8177814473724093381L;
+
+	/**
      * This list needs to be kept sorted
      */
     private final List<MethodDescriptor> mockedMethods;
