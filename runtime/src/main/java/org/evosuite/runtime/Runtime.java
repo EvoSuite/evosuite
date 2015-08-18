@@ -96,7 +96,9 @@ public class Runtime {
 
 		if(RuntimeSettings.useJEE){
 			TestDataJavaEE.getInstance().reset();
-			EvoServletState.reset();
+
+			//TODO Tmp removed due to not using Servlets and having to configure standalone-runtime to include its packages
+			//EvoServletState.reset();
 
 			/*
 			 * NOTE: this is expensive (some seconds), but only the first time, so should not be a major bottleneck.

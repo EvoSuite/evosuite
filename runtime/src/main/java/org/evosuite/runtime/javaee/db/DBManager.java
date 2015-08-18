@@ -39,6 +39,11 @@ public class DBManager {
 
     private boolean wasAccessed;
 
+    /**
+     * The SUT classloader used when the database was initialized
+     */
+    private ClassLoader sutClassLoader;
+
     private DBManager(){
         //TODO inside any DB call should be not instrumentation. although partially handled in
         //     getPackagesShouldNotBeInstrumented, should still disable/enable in method wrappers.
@@ -135,5 +140,13 @@ public class DBManager {
             createNewEntityManager();
             clearDatabase();
         }
+    }
+
+    public ClassLoader getSutClassLoader() {
+        return sutClassLoader;
+    }
+
+    public void setSutClassLoader(ClassLoader sutClassLoader) {
+        this.sutClassLoader = sutClassLoader;
     }
 }

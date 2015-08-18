@@ -102,7 +102,7 @@ public class RuntimeInstrumentation {
                  * Main problem due to libraries used in the generated JUnit files to test JavaEE applications relying on database
                  * */
                 "org.hibernate","org.hsqldb","org.jboss",
-                 "org.springframework", "org.apache.commons.logging"
+                 "org.springframework", "org.apache.commons.logging", "javassist.util"
 
         };
     }

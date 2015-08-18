@@ -29,6 +29,7 @@ import org.evosuite.instrumentation.NonInstrumentingClassLoader;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.junit.xml.JUnitProcessLauncher;
+import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
 import org.junit.runner.JUnitCore;
@@ -432,7 +433,7 @@ public class JUnitAnalyzer {
 		 * If we do not do that, then we will miss all the anonymous classes 
 		 */
 		getClassesFromFiles(otherClasses);
-
+		
 		return testClasses;
 	}
 
