@@ -605,7 +605,53 @@
 								<relocations>
 									<relocation>
 										<pattern>org.objectweb.asm</pattern>
-										<shadedPattern>org.evosuite.shaded.asm</shadedPattern>
+										<shadedPattern>org.evosuite.shaded.org.objectweb.asm</shadedPattern>
+									</relocation>
+									<relocation>
+										<pattern>org.hibernate</pattern>
+										<shadedPattern>org.evosuite.shaded.org.hibernate</shadedPattern>
+									</relocation>
+									<relocation>
+										<pattern>org.hsqldb</pattern>
+										<shadedPattern>org.evosuite.shaded.org.hsqldb</shadedPattern>
+									</relocation>
+									<relocation>
+										<pattern>org.jboss</pattern>
+										<shadedPattern>org.evosuite.shaded.org.jboss</shadedPattern>
+									</relocation>
+									<relocation>
+										<pattern>org.springframework</pattern>
+										<shadedPattern>org.evosuite.shaded.org.springframework</shadedPattern>
+									</relocation>
+									<relocation>
+										<pattern>org.apache.commons.logging</pattern>
+										<shadedPattern>org.evosuite.shaded.org.apache.commons.logging</shadedPattern>
+									</relocation>
+									<relocation>
+										<pattern>javassist</pattern>
+										<shadedPattern>org.evosuite.shaded.javassist</shadedPattern>
+									</relocation>
+									<relocation>
+										<pattern>antlr</pattern>
+										<shadedPattern>org.evosuite.shaded.antlr</shadedPattern>
+									</relocation>
+									<relocation>
+										<pattern>org.dom4j</pattern>
+										<shadedPattern>org.evosuite.shaded.org.dom4j</shadedPattern>
+									</relocation>
+									<!--
+									<relocation>
+										<pattern>org.xml</pattern>
+										<shadedPattern>org.evosuite.shaded.org.xml</shadedPattern>
+									</relocation>
+									<relocation>
+										<pattern>org.w3c</pattern>
+										<shadedPattern>org.evosuite.shaded.org.w3c</shadedPattern>
+									</relocation>
+									-->
+									<relocation>
+										<pattern>org.aopalliance</pattern>
+										<shadedPattern>org.evosuite.shaded.org.aopalliance</shadedPattern>
 									</relocation>
 								</relocations>
 							</configuration>

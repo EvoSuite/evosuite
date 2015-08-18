@@ -433,7 +433,7 @@ public class JUnitAnalyzer {
 		 * If we do not do that, then we will miss all the anonymous classes 
 		 */
 		getClassesFromFiles(otherClasses);
-		
+
 		return testClasses;
 	}
 
