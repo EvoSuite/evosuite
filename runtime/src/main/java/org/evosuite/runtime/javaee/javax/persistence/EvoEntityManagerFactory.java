@@ -47,6 +47,9 @@ public class EvoEntityManagerFactory implements EntityManagerFactory{
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
         properties.setProperty("hibernate.connection.shutdown", "true");
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+
+        properties.setProperty("hibernate.classloading.use_current_tccl_as_parent", "false");
+
         em.setJpaProperties(properties);
 
         em.afterPropertiesSet();

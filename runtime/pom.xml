@@ -50,17 +50,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
 
         <!--
         <dependency>
@@ -69,11 +58,25 @@
             <scope>provided</scope>
         </dependency>
         -->
+
+        <!-- Note: those have to be part of the distribution.
+               TODO check if it should be shaded, and possible side effects -->
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
-            <scope>compile</scope> <!-- Note: this has to be part of the distribution.
-                TODO check if it should be shaded, and possible side effects -->
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.hsqldb</groupId>

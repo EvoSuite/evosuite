@@ -27,11 +27,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
+import org.evosuite.runtime.javaee.db.DBManager;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.persistence.Entity;
 
 /**
  * <em>Note:</em> Do not inadvertently use multiple instances of this class in
@@ -104,6 +108,26 @@ public class InstrumentingClassLoader extends ClassLoader {
 	
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
+
+		ClassLoader dbLoader = DBManager.getInstance().getSutClassLoader();
+		if(dbLoader != null && dbLoader != this) {
+			/*
+				Check if we should rather use the class version loaded when the DB was initialized.
+				This is tricky, as JPA with Hibernate uses the classes loaded when the DB was initialized.
+				If we load those classes again, when we get all kinds of exceptions in Hibernate... :(
+
+				However, re-using already loaded (and instrumented) classes is not a big deal, as
+				re-loading is (so far) done only in 2 cases: assertion generation with mutation
+				and junit checks.
+			 */
+			Class<?> originalLoaded = dbLoader.loadClass(name);
+			if (originalLoaded.getAnnotation(Entity.class) != null) {
+			/*
+				TODO: annotations Entity might not be the only way to specify an entity class...
+			 */
+				return originalLoaded;
+			}
+		}
 
 		if("<evosuite>".equals(name)) {
 			throw new ClassNotFoundException();
