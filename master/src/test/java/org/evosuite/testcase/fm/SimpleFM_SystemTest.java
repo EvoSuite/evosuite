@@ -11,6 +11,15 @@ import org.junit.Test;
 public class SimpleFM_SystemTest extends SystemTest{
 
     @Test
+    public void testSimpleGenerics(){
+
+        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
+
+        do100percentLineTest(SimpleFM_Generics.class);
+    }
+
+    @Test
     public void testSimpleNonFinal(){
 
         Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
