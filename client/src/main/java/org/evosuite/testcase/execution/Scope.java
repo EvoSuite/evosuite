@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
@@ -92,7 +91,7 @@ public class Scope {
 		        && !reference.isPrimitive() // && !reference.getGenericClass().isClass()
 		        && !o.getClass().isArray()) { // && !(reference instanceof ArrayReference)) {
 			if (TestUsageChecker.canUse(o.getClass())) {
-				if (Proxy.isProxyClass(o.getClass())) {
+				if (Proxy.isProxyClass(o.getClass()) ||  o.getClass().getName().contains("EnhancerByMockito")) {
 					reference.setType(o.getClass().getSuperclass());
 				} else {
 					reference.setType(o.getClass());
