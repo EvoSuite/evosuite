@@ -33,6 +33,7 @@ public class MockIllegalAccessException extends IllegalAccessException  implemen
 	private MockThrowable getDelegate(){
 		if(delegate == null){
 			delegate = new MockThrowable(); //placeholder
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
 		}
 		return delegate;
 	}
@@ -42,11 +43,13 @@ public class MockIllegalAccessException extends IllegalAccessException  implemen
 	public MockIllegalAccessException() {
 		super();
 		delegate = new MockThrowable();
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 	
 	public MockIllegalAccessException(String message) {
 		super(message);
 		delegate = new MockThrowable(message);
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 
 	
@@ -119,7 +122,7 @@ public class MockIllegalAccessException extends IllegalAccessException  implemen
 		getDelegate().printStackTrace(p);
 	}
 
-
+	/*
 	@Override
 	public synchronized Throwable fillInStackTrace() {
 		if(!MockFramework.isEnabled()){
@@ -127,7 +130,7 @@ public class MockIllegalAccessException extends IllegalAccessException  implemen
 		}
 		return getDelegate().fillInStackTrace();
 	}
-
+*/
 	@Override
 	public StackTraceElement[] getStackTrace() {		
 		if(!MockFramework.isEnabled()){

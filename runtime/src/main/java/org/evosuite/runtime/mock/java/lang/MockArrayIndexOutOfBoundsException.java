@@ -33,6 +33,7 @@ public class MockArrayIndexOutOfBoundsException extends ArrayIndexOutOfBoundsExc
 	private MockThrowable getDelegate(){
 		if(delegate == null){
 			delegate = new MockThrowable(); //placeholder
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
 		}
 		return delegate;
 	}
@@ -46,11 +47,13 @@ public class MockArrayIndexOutOfBoundsException extends ArrayIndexOutOfBoundsExc
 	public MockArrayIndexOutOfBoundsException() {
 		super();
 		delegate = new MockThrowable();
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 	
 	public MockArrayIndexOutOfBoundsException(String message) {
 		super(message);
 		delegate = new MockThrowable(message);
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 
 	
@@ -123,7 +126,7 @@ public class MockArrayIndexOutOfBoundsException extends ArrayIndexOutOfBoundsExc
 		getDelegate().printStackTrace(p);
 	}
 
-
+	/**
 	@Override
 	public synchronized Throwable fillInStackTrace() {
 		if(!MockFramework.isEnabled()){
@@ -131,6 +134,7 @@ public class MockArrayIndexOutOfBoundsException extends ArrayIndexOutOfBoundsExc
 		}
 		return getDelegate().fillInStackTrace();
 	}
+	 */
 
 	@Override
 	public StackTraceElement[] getStackTrace() {		

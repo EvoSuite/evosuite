@@ -33,6 +33,7 @@ public class MockNullPointerException extends NullPointerException  implements O
 	private MockThrowable getDelegate(){
 		if(delegate == null){
 			delegate = new MockThrowable(); //placeholder
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
 		}
 		return delegate;
 	}
@@ -42,11 +43,13 @@ public class MockNullPointerException extends NullPointerException  implements O
 	public MockNullPointerException() {
 		super();
 		delegate = new MockThrowable();
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 	
 	public MockNullPointerException(String message) {
 		super(message);
 		delegate = new MockThrowable(message);
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 
 	
@@ -120,7 +123,7 @@ public class MockNullPointerException extends NullPointerException  implements O
 		getDelegate().printStackTrace(p);
 	}
 
-
+/*
 	@Override
 	public synchronized Throwable fillInStackTrace() {
 		if(!MockFramework.isEnabled()){
@@ -128,7 +131,7 @@ public class MockNullPointerException extends NullPointerException  implements O
 		}
 		return getDelegate().fillInStackTrace();
 	}
-
+*/
 	@Override
 	public StackTraceElement[] getStackTrace() {		
 		if(!MockFramework.isEnabled()){

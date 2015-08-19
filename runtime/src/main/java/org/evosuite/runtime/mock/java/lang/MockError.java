@@ -33,6 +33,7 @@ public class MockError extends Error  implements OverrideMock{
 	private MockThrowable getDelegate(){
 		if(delegate == null){
 			delegate = new MockThrowable(); //placeholder
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
 		}
 		return delegate;
 	}
@@ -42,21 +43,25 @@ public class MockError extends Error  implements OverrideMock{
 	public MockError() {
 		super();
 		delegate = new MockThrowable();
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 	
 	public MockError(String message) {
 		super(message);
 		delegate = new MockThrowable(message);
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 
 	public MockError(Throwable cause) {
 		super(cause);
 		delegate = new MockThrowable(cause);
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 
 	public MockError(String message, Throwable cause) {
 		super(message, cause);
 		delegate = new MockThrowable(message, cause);
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 	
 	protected MockError(String message, Throwable cause,
@@ -64,6 +69,7 @@ public class MockError extends Error  implements OverrideMock{
 			boolean writableStackTrace) {
 		super(message,cause,enableSuppression,writableStackTrace);
 		delegate = new MockThrowable(message, cause, enableSuppression, writableStackTrace);
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 	
 	
@@ -136,7 +142,7 @@ public class MockError extends Error  implements OverrideMock{
 		getDelegate().printStackTrace(p);
 	}
 
-
+	/**
 	@Override
 	public synchronized Throwable fillInStackTrace() {
 		if(!MockFramework.isEnabled()){
@@ -144,7 +150,7 @@ public class MockError extends Error  implements OverrideMock{
 		}
 		return getDelegate().fillInStackTrace();
 	}
-
+*/
 	@Override
 	public StackTraceElement[] getStackTrace() {		
 		if(!MockFramework.isEnabled()){
