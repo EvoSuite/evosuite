@@ -77,6 +77,7 @@ public class RuntimeInstrumentation {
                 "org.apache.xerces.dom3", "de.unisl.cs.st.bugex",  "org.mozilla.javascript.gen.c",
                 "corina.cross.Single",  // I really don't know what is wrong with this class, but we need to exclude it
                 "org.slf4j",
+                "org.apache.log4j", // Instrumenting this may lead to errors when tests are run with Ant, which uses log4j
                 "jdk.internal",
                 "dk.brics.automaton", //used in DSE, and we have a class with that package inside EvoSutie
                 "org.apache.commons.discovery.tools.DiscoverSingleton",
