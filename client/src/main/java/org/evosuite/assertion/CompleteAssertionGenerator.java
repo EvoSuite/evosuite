@@ -24,16 +24,23 @@ package org.evosuite.assertion;
 
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
- * <p>CompleteAssertionGenerator class.</p>
+ * <p>
+ * CompleteAssertionGenerator class.
+ * </p>
  *
  * @author Gordon Fraser
  */
 public class CompleteAssertionGenerator extends AssertionGenerator {
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.AssertionGenerator#addAssertions(org.evosuite.testcase.TestCase)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.evosuite.assertion.AssertionGenerator#addAssertions(org.evosuite.
+	 * testcase.TestCase)
 	 */
 	/** {@inheritDoc} */
 	@Override
@@ -43,6 +50,6 @@ public class CompleteAssertionGenerator extends AssertionGenerator {
 			trace.getAllAssertions(test);
 			trace.clear();
 		}
-		logger.debug("Test after adding assertions: "+test.toCode());
+		logger.debug("Test after adding assertions: " + test.toCode());
 	}
 }
