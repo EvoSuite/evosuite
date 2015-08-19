@@ -455,8 +455,21 @@
 	  <version>1.10.b1</version>
 	  <configuration>
 	    <header>src/etc/header.txt</header>
+	    <properties>
+              <year>2010-2015</year>
+            </properties>
 	    <excludes>
 	      <exclude>DSC_LICENSE.txt</exclude>
+	      <exclude>LICENSE.txt</exclude>
+	      <exclude>IMPORTANT_README_FOR_DEVELOPERS.txt</exclude>
+	      <exclude>release_results/script/sf110.txt</exclude>
+	      <exclude>removed/readme.txt</exclude>
+	      <exclude>**/.idea/**</exclude>
+	      <exclude>release_results/generated_files/**</exclude>
+	      <exclude>**/dk/brics/**</exclude>
+	      <exclude>**/readme.txt</exclude>
+	      <exclude>**/how_to.txt</exclude>
+	      <exclude>client/src/main/resources/report/**</exclude>
 	    </excludes>
 	  </configuration>
 	</plugin>
