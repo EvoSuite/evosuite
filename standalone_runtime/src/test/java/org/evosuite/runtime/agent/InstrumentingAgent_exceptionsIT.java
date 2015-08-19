@@ -63,7 +63,7 @@ public class InstrumentingAgent_exceptionsIT {
 			StackTraceElement[] traces = new MockThrowable().getStackTrace();
 
 			StackTraceElement[] a = eh.getTracesWhenCast();
-			Assert.assertEquals(traces[0], a[0]);
+			Assert.assertEquals(traces[1], a[1]);
 			
 		} finally{
 			MockFramework.disable();
@@ -111,7 +111,7 @@ public class InstrumentingAgent_exceptionsIT {
 			
 			ExceptionHolder eh = (ExceptionHolder) obj;
 			StackTraceElement[] b = eh.getTraces();
-			Assert.assertEquals(traces[0], b[0]);
+			Assert.assertEquals(traces[1], b[1]);
 
 		} finally{
 			MockFramework.disable();

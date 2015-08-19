@@ -28,6 +28,7 @@ import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.runtime.EvoAssertions;
 import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.EvoRunnerParameters;
 import org.evosuite.runtime.testdata.EnvironmentDataList;
@@ -403,6 +404,9 @@ public class TestSuiteWriter implements Opcodes {
             builder.append("import static "+mockito+".mock();"+NEWLINE);
             builder.append("import static "+mockito+".when();"+NEWLINE);
         }
+
+        //TODO only needed if there is any exception
+        builder.append("import static "+ EvoAssertions.class.getCanonicalName()+".*;"+NEWLINE);
 
         builder.append(NEWLINE);
 

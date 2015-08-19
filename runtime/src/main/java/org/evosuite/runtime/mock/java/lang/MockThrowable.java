@@ -13,6 +13,8 @@ public class MockThrowable extends Throwable  implements OverrideMock {
 
 	private StackTraceElement[]  stackTraceElements;
 
+	private Class<?> originClass;
+
 	// ------ constructors -------------
 
 	public MockThrowable() {
@@ -42,10 +44,20 @@ public class MockThrowable extends Throwable  implements OverrideMock {
 		init();
 	}
 
-	// ----- private just for mock --------
+
+	// ----- just for mock --------
 
 	private void init(){
 		stackTraceElements = getDefaultStackTrace();
+
+		StackTraceElement[] original = super.getStackTrace();
+		if(original.length > 0) {
+			stackTraceElements[0] = original[0]; //only copy over the first element, which points to the source
+		}
+	}
+
+	public void setOriginForDelegate(StackTraceElement origin) throws IllegalArgumentException{
+		stackTraceElements[0] = origin;
 	}
 
 	/*
@@ -164,7 +176,7 @@ public class MockThrowable extends Throwable  implements OverrideMock {
 		}		
 	}
 
-
+	/**
 	@Override
 	public synchronized Throwable fillInStackTrace() {
 		if(!MockFramework.isEnabled()){
@@ -173,6 +185,7 @@ public class MockThrowable extends Throwable  implements OverrideMock {
 
 		return this;
 	}
+	*/
 
 	@Override
 	public StackTraceElement[] getStackTrace() {		

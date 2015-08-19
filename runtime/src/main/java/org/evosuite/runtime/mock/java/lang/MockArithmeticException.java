@@ -33,6 +33,7 @@ public class MockArithmeticException extends ArithmeticException  implements Ove
 	private MockThrowable getDelegate(){
 		if(delegate == null){
 			delegate = new MockThrowable(); //placeholder
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
 		}
 		return delegate;
 	}
@@ -42,11 +43,13 @@ public class MockArithmeticException extends ArithmeticException  implements Ove
 	public MockArithmeticException() {
 		super();
 		delegate = new MockThrowable();
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 	
 	public MockArithmeticException(String message) {
 		super(message);
 		delegate = new MockThrowable(message);
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 
 	
@@ -119,7 +122,7 @@ public class MockArithmeticException extends ArithmeticException  implements Ove
 		getDelegate().printStackTrace(p);
 	}
 
-
+	/**
 	@Override
 	public synchronized Throwable fillInStackTrace() {
 		if(!MockFramework.isEnabled()){
@@ -127,6 +130,7 @@ public class MockArithmeticException extends ArithmeticException  implements Ove
 		}
 		return getDelegate().fillInStackTrace();
 	}
+	*/
 
 	@Override
 	public StackTraceElement[] getStackTrace() {		
