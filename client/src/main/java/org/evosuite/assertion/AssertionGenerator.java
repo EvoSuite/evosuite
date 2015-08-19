@@ -110,6 +110,9 @@ public abstract class AssertionGenerator {
 	 * @param suite
 	 */
 	public void addAssertions(TestSuiteChromosome suite) {
+
+		setupClassLoader(suite);
+
 		for(TestChromosome test : suite.getTestChromosomes()) {
 			addAssertions(test.getTestCase());
 		}
