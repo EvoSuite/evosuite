@@ -403,8 +403,8 @@ public class TestSuiteWriter implements Opcodes {
 
         if(doesUseMocks(results)){
             String mockito = Mockito.class.getCanonicalName();
-            builder.append("import static "+mockito+".mock();"+NEWLINE);
-            builder.append("import static "+mockito+".when();"+NEWLINE);
+            builder.append("import static "+mockito+".mock;"+NEWLINE);
+            builder.append("import static "+mockito+".when;"+NEWLINE);
         }
 
         //TODO only needed if there is any exception
