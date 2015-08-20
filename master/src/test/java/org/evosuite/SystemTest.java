@@ -30,6 +30,7 @@ import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
+import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.statistics.OutputVariable;
@@ -61,6 +62,7 @@ public class SystemTest {
 
 	@After
 	public void resetStaticVariables() {
+		RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(false);
 		TestGenerationContext.getInstance().resetContext();
 		ResetManager.getInstance().clearManager();
 		System.setProperties(currentProperties);
@@ -73,7 +75,10 @@ public class SystemTest {
 	public void setDefaultPropertiesForTestCases() {
 		
 		Properties.getInstance().resetToDefaults();
-		
+
+		Properties.IS_RUNNING_A_SYTEM_TEST = true;
+		RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(true);
+
 		Properties.HTML = false;
 		Properties.SHOW_PROGRESS = false;
 		Properties.SERIALIZE_RESULT = false;
