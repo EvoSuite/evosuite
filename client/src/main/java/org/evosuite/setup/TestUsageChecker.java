@@ -26,6 +26,7 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.mock.MockList;
+import org.evosuite.utils.LoggingUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -175,7 +176,8 @@ public class TestUsageChecker {
         // TODO: This should be unnecessary if Java reflection works...
         // This is inefficient
         if(TestClusterUtils.isAnonymousClass(c.getName())) {
-            logger.warn(c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+") "+c.getSimpleName());
+            String message = c + " looks like an anonymous class, ignoring it (although reflection says "+c.isAnonymousClass()+") "+c.getSimpleName()
+            LoggingUtils.logWarnAtMostOnce(logger, message);
             return false;
         }
 

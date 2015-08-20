@@ -27,11 +27,16 @@ import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.util.Inputs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,12 +83,32 @@ public class LoggingUtils {
 	private final ExecutorService logHandler = Executors.newCachedThreadPool();
 
 	/**
+	 * Keep tracks of messages that should be log only once.
+	 *	Note: yes, this is a static field, but has no impact on test generation, so not a big deal
+	 */
+	private static final Map<Logger, Set<String>> atMostOnceLogs = new ConcurrentHashMap();
+
+	/**
 	 * <p>
 	 * Constructor for LoggingUtils.
 	 * </p>
 	 */
 	public LoggingUtils() {
+	}
 
+	public static synchronized void logWarnAtMostOnce(Logger logger, String message){
+		Inputs.checkNull(logger,message);
+
+		Set<String> previous = atMostOnceLogs.get(logger);
+		if(previous == null){
+			previous = new LinkedHashSet<>();
+			atMostOnceLogs.put(logger, previous);
+		}
+
+		if(!previous.contains(message)){
+			previous.add(message);
+			logger.warn(message);
+		}
 	}
 
 	/**
