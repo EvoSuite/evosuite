@@ -75,6 +75,11 @@ import static org.mockito.Mockito.withSettings;
  * throughout the lifespan of a test during the search (can both increase and decrease).
  *
  * <p>
+ * This statement cannot be used to mock the SUT, as it would make no sense whatsoever.
+ * However, there might be special cases: eg SUT being an abstract class with no
+ * concrete implementation. That would need to be handled specially.
+ *
+ * <p>
  * TODO: need to handle Generics, eg <br>
  * Foo&lt;Bar&gt; foo = (Foo&lt;Bar&gt;) mock(Foo.class);
  *
@@ -107,6 +112,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
         this.targetClass = targetClass;
         mockedMethods = new ArrayList<>();
         methodParameters = new LinkedHashMap<>();
+        checkSUT();
     }
 
     public FunctionalMockStatement(TestCase tc, Type retvalType, Class<?> targetClass) throws IllegalArgumentException{
@@ -115,6 +121,13 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
         this.targetClass = targetClass;
         mockedMethods = new ArrayList<>();
         methodParameters = new LinkedHashMap<>();
+        checkSUT();
+    }
+
+    private void checkSUT(){
+        if(targetClass.equals(Properties.getTargetClass())){
+            throw new IllegalArgumentException("Cannot create a basic functional mock for the SUT");
+        }
     }
 
     public Class<?> getTargetClass() {
