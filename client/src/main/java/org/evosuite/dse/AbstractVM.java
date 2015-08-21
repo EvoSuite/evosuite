@@ -21,8 +21,6 @@ package org.evosuite.dse;
 
 import org.evosuite.dse.util.Assertions;
 
-import static org.evosuite.dse.util.Assertions.check;
-
 /*
     This class is taken and adapted from the DSC tool developed by Christoph Csallner.
     Link at :
@@ -38,14 +36,6 @@ import static org.evosuite.dse.util.Assertions.check;
 public abstract class AbstractVM implements IVM {
 
 	protected MainConfig conf = MainConfig.get();
-
-	@Override
-	public void startupConcolicExecution() { /* stub */
-	}
-
-	@Override
-	public void cleanupConcolicExecution() { /* stub */
-	}
 
 	@Override
 	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, int value) { /* stub */
