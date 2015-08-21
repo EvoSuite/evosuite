@@ -210,7 +210,6 @@ public class TestSuiteWriter implements Opcodes {
         }
         
         if (Properties.ID_NAMING && optimizeIDNaming) {
-        	TestNameGenerator.getInstance().NAMING_TYPE="method_output_branch";
             TestNameGenerator.getInstance().execute(testCases,results);
         }
 

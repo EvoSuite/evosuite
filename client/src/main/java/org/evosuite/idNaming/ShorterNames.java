@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class ShorterNames {
-	protected String[] minimizePair(String name1, String name2){		
+	protected String[] minimizePair(String name1, String name2, List<String> nameList){		
 		List<String> list1 = new ArrayList(Arrays.asList(name1.split("_")));
 		List<String> list2 = new ArrayList(Arrays.asList(name2.split("_")));
 		List<String> union = new ArrayList<String>(list1);
@@ -42,6 +42,15 @@ public abstract class ShorterNames {
 			}
 		}else{
 			nameSecond+="_"+name2.split("_")[1];
+		}
+		// in case that after minimizing a name it became equal with another name in the list, do not minimize it
+		for(String str: nameList){
+			if(str.equals(nameFirst)){
+				nameFirst = name1;
+			}
+			if(str.equals(nameSecond)){
+				nameSecond = name2;
+			}
 		}
 		String [] result= {nameFirst, nameSecond};
 		return result;    			

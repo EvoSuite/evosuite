@@ -139,7 +139,7 @@ public class TestNameGenerator extends DistinguishNames {
 		  	if (goal instanceof MethodCoverageTestFitness) {
 		  		methodName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("));		  		
 		  	}else {
-		  		if (goal instanceof BranchCoverageTestFitness && NAMING_TYPE.equals("method_output_branch")){
+		  		if (goal instanceof BranchCoverageTestFitness){
 		  			if(goalName.contains("root-Branch")){
 		  				branchName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+ "RootBranch";
 					} 				
@@ -151,7 +151,7 @@ public class TestNameGenerator extends DistinguishNames {
 			  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch"+ translateBranch(branch[3]);
 					}			  			
 				} else {
-					if (goal instanceof OutputCoverageTestFitness && NAMING_TYPE.equals("method_output_branch")) {						
+					if (goal instanceof OutputCoverageTestFitness ) {						
 						outputName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+"Returning"+
 								WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1));						
 					}
@@ -166,14 +166,20 @@ public class TestNameGenerator extends DistinguishNames {
 		testOutputs.put(tc, outputName);
 		testBranches.put(tc, branchName);
 		testComparisons.put(tc,comparisonName);
-		if(methodName.equals("test") && NAMING_TYPE.equals("method_output_branch")){			
-			methodName = checkAssertions(tc, methodName);
-		//	methodName ="test"+ branchName;
-		} else {
+		if(methodName.equals("test")){			
+		//	methodName = checkAssertions(tc, methodName);
+			if(!outputName.equals("")){
+				methodName ="test"+ outputName;
+			}else {
+				methodName ="test"+ branchName;
+			}
+		}
+		
+		/*else {
 			if(NAMING_TYPE.equals("method_assertions")){
 				methodName = checkAssertions(tc, methodName);
 			} 
-		}
+		}*/
 		System.out.println(methodName);
 		return methodName;
     }
@@ -231,13 +237,13 @@ public class TestNameGenerator extends DistinguishNames {
             String testMethodNameOptimized = testName[i]; // TODO
             // to set the new, optimized test name:
             setNameGeneratedFor(testCs[i], testMethodNameOptimized);
-            if(!testMethodNameOptimized.split("_")[0].equals("test")){
-            	testMethodNameOptimized = "test"+testComparisons.get(testCs[i]);
-            	optimizeAgain = 1;
-            	setNameGeneratedFor(testCs[i], testMethodNameOptimized);
-            }           
+         //   if(!testMethodNameOptimized.split("_")[0].equals("test")){
+          //  	testMethodNameOptimized = "test"+testComparisons.get(testCs[i]);
+           // 	optimizeAgain = 1;
+           // 	setNameGeneratedFor(testCs[i], testMethodNameOptimized);
+           // }           
         }
-        if(optimizeAgain == 1){
+    /*    if(optimizeAgain == 1){
         	count=0;
 	    	for (TestCase tc : testCaseNames.keySet()) {
 	    		testName[count] = testCaseNames.get(tc);
@@ -250,7 +256,7 @@ public class TestNameGenerator extends DistinguishNames {
 	            // to set the new, optimized test name:
 	            setNameGeneratedFor(testCs[i], testMethodNameOptimized);
 	        }
-        }
+        }*/
 
     }
   
@@ -260,22 +266,7 @@ public class TestNameGenerator extends DistinguishNames {
      * @param tc  test case
      * @param res execution result
      */
- /*   public static String[] sameNamesFound(String name1, String name2){
-    	  TestNameGenerator generator = getInstance();
-    	  TestCase tc1 = null;
-    	  TestCase tc2 = null;
-    	  for (TestCase o : generator.testCaseNames.keySet()) {
-    	      if (generator.testCaseNames.get(o).equals(name1)) {
-    	        tc1=o;
-    	      } else{
-    	    	  if (generator.testCaseNames.get(o).equals(name2)) {
-    	    	        tc2=o;
-    	    	  }
-    	      }
-    	    }
-    	BranchConditions branchesWithConditions= new BranchConditions();
-    	return branchesWithConditions.extractBranchesWithCond(tc1,tc2);
-    }*/
+
     private String getTargetMethod(TestCase tc, ExecutionResult res) {
  //   private String getTargetMethod(TestCase tc) {
         // TODO

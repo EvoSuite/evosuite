@@ -34,13 +34,12 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestIDNaming extends SystemTest {
-
+public class TestIdWithSameOutput extends SystemTest {
 	@Test
 	public void testIDNamingOn() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = SnippetInputContainer.class.getCanonicalName();
+		String targetClass = L4_Collections.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ID_NAMING = true;
@@ -64,31 +63,8 @@ public class TestIDNaming extends SystemTest {
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-//	System.out.println(best.getCoverage()+"-"+1d);
-		Assert.assertEquals("Wrong number of goals: ", 8, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.145834);
+	//	System.out.println(best.getCoverage()+"-"+1d);
+		Assert.assertEquals("Wrong number of goals: ", 11, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.443);
 	}
-
-	@Test
-	public void testIDNamingOff() {
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = SimpleIdNaming.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-		Properties.ID_NAMING = false;
-		Properties.JUNIT_TESTS = true;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 7, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-
 }

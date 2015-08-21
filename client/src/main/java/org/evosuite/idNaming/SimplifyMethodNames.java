@@ -49,7 +49,7 @@ public class SimplifyMethodNames extends ShorterNames{
 				}				
 			}
 			if(prevInter!=0){
-				String[] optNames=minimizePair(methodNames[i], secondName);				
+				String[] optNames=minimizePair(methodNames[i], secondName, nameList);				
 					methodNames[i] = optNames[0];
 					methodNames[position] = optNames[1];
 			}
