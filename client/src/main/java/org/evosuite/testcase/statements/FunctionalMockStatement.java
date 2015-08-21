@@ -101,7 +101,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
      */
     private final Map<String, int[]> methodParameters;
 
-    private final Class<?> targetClass;
+    private Class<?> targetClass;
 
     private volatile EvoInvocationListener listener;
 
@@ -122,6 +122,18 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
         mockedMethods = new ArrayList<>();
         methodParameters = new LinkedHashMap<>();
         checkSUT();
+    }
+
+    @Override
+    public void changeClassLoader(ClassLoader loader) {
+
+        try {
+            targetClass = loader.loadClass(targetClass.getCanonicalName());
+        } catch (ClassNotFoundException e) {
+            logger.error("Failed to update target class from new classloader: "+e.getMessage());
+        }
+
+        super.changeClassLoader(loader);
     }
 
     private void checkSUT(){
