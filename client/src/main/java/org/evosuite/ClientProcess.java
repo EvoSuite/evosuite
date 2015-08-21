@@ -145,7 +145,7 @@ public class ClientProcess {
 		 * might be issues with following System.exit if successive
 		 * threads change it if this thread is still running
 		 */
-		boolean onThread = Properties.CLIENT_ON_THREAD; 
+		boolean onThread = Properties.CLIENT_ON_THREAD;
 
 		try {
 			LoggingUtils.getEvoLogger().info("* Starting client");
