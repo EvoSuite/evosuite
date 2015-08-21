@@ -51,7 +51,7 @@ public class SimpleMutationAssertionGenerator extends
 		
 		setupClassLoader(suite);
 		
-		Set<Integer> tkilled = new HashSet<Integer>();
+		Set<Integer> tkilled = new HashSet<>();
 		int numTest = 0;
 		for (TestCase test : suite.getTests()) {
 			if (! TimeController.getInstance().isThereStillTimeInThisPhase()) {
@@ -62,11 +62,9 @@ public class SimpleMutationAssertionGenerator extends
 			addAssertions(test, tkilled);
 			//progressMonitor.updateStatus((100 * numTest++) / tests.size());
 			ClientState state = ClientState.ASSERTION_GENERATION;
-			ClientStateInformation information = new ClientStateInformation(
-			        state);
+			ClientStateInformation information = new ClientStateInformation(state);
 			information.setProgress((100 * numTest++) / suite.size());
-			ClientServices.getInstance().getClientNode().changeState(state,
-			                                                         information);
+			ClientServices.getInstance().getClientNode().changeState(state, information);
 		}	
 		
 		calculateMutationScore(tkilled);

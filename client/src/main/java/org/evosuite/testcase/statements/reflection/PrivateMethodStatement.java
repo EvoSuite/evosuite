@@ -48,7 +48,7 @@ public class PrivateMethodStatement extends MethodStatement {
                 null, //it is static
                 getReflectionParams(tc,klass,methodName,callee,params)
         );
-        List<GenericClass> parameterTypes = new ArrayList<GenericClass>();
+        List<GenericClass> parameterTypes = new ArrayList<>();
         parameterTypes.add(new GenericClass(klass));
         this.method.setTypeParameters(parameterTypes);
     }
