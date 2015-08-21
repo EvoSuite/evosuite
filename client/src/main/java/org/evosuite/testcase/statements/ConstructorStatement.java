@@ -556,4 +556,10 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 		constructor.changeClassLoader(loader);
 		super.changeClassLoader(loader);
 	}
+
+	@Override
+	public String toString() {
+		return constructor.getName() + Type.getConstructorDescriptor(constructor.getConstructor());
+	}
+
 }

@@ -37,6 +37,7 @@ import org.evosuite.testcase.ConstraintHelper;
 import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.jee.InstanceOnlyOnce;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
@@ -878,7 +879,7 @@ public class TestCluster {
 	 * @throws ConstructionFailedException
 	 */
 	public GenericAccessibleObject<?> getRandomGenerator(GenericClass clazz,
-	        Set<GenericAccessibleObject<?>> excluded, TestCase test, int position) throws ConstructionFailedException {
+	        Set<GenericAccessibleObject<?>> excluded, TestCase test, int position, VariableReference generatorRefToExclude) throws ConstructionFailedException {
 
 		logger.debug("Getting random generator for " + clazz);
 
@@ -889,7 +890,7 @@ public class TestCluster {
 			if (!concreteClass.equals(clazz)) {
 				logger.debug("Target class is generic: " + clazz
 				        + ", getting instantiation " + concreteClass);
-				return getRandomGenerator(concreteClass, excluded, test, position);
+				return getRandomGenerator(concreteClass, excluded, test, position, generatorRefToExclude);
 			}
 		}
 
@@ -926,6 +927,19 @@ public class TestCluster {
 					}
 				}
 			}
+
+			if(generatorRefToExclude != null){
+				Iterator<GenericAccessibleObject<?>> iter = candidates.iterator();
+				while (iter.hasNext()) {
+					GenericAccessibleObject<?> gao = iter.next();
+					//if current generator could be called from excluded ref, then we cannot use it
+					if(generatorRefToExclude.isAssignableTo(gao.getOwnerType())){
+						iter.remove();
+					}
+				}
+
+			}
+
 			logger.debug("Candidate generators for " + clazz + ": " + candidates.size());
 
 			if (candidates.isEmpty()) {
