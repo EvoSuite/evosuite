@@ -19,6 +19,8 @@
  */
 package org.evosuite.testcase.statements.reflection;
 
+import org.evosuite.TestGenerationContext;
+import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.testcase.TestFactory;
@@ -60,17 +62,17 @@ public class PrivateFieldStatement extends MethodStatement{
             throws NoSuchFieldException, IllegalArgumentException, ConstructionFailedException {
         super(
                 tc,
-                new GenericMethod(setVariable,PrivateAccess.class),
+                new GenericMethod(setVariable, PrivateAccess.class),
                 null, //it is static
                 Arrays.asList(  // setVariable(Class<T> klass, T instance, String fieldName, Object value)
-                        new ConstantValue(tc,new GenericClass(Class.class),klass),  // Class<T> klass
+                        new ConstantValue(tc, new GenericClass(Class.class), klass),  // Class<T> klass
                         //new ClassPrimitiveStatement(tc,klass).getReturnValue(),  // Class<T> klass
                         callee, // T instance
-                        new ConstantValue(tc,new GenericClass(String.class),fieldName),  // String fieldName
+                        new ConstantValue(tc, new GenericClass(String.class), fieldName),  // String fieldName
                         param // Object value
                 )
         );
-        List<GenericClass> parameterTypes = new ArrayList<GenericClass>();
+        List<GenericClass> parameterTypes = new ArrayList<>();
         parameterTypes.add(new GenericClass(klass));
         this.method.setTypeParameters(parameterTypes);
     }
@@ -86,4 +88,5 @@ public class PrivateFieldStatement extends MethodStatement{
 	public boolean isReflectionStatement() {
 		return true;
 	}
+
 }

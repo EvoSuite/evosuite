@@ -68,7 +68,7 @@ public class ReflectionFactory {
         }
 
         for(Field f : target.getDeclaredFields()){
-            if(Modifier.isPrivate(f.getModifiers()) && (toSkip==null || ! toSkip.contains(f))){
+            if(Modifier.isPrivate(f.getModifiers()) && (toSkip==null || ! toSkip.contains(f)) && !f.getName().equals("serialVersionUID")){
                 fields.add(f);
             }
         }
