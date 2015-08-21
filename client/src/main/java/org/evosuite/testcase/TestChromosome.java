@@ -48,7 +48,7 @@ import org.evosuite.utils.Randomness;
 
 /**
  * Chromosome representation of test cases
- * 
+ *
  * @author Gordon Fraser
  */
 public class TestChromosome extends ExecutableChromosome {
@@ -68,7 +68,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * <p>
 	 * setTestCase
 	 * </p>
-	 * 
+	 *
 	 * @param testCase
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
@@ -83,7 +83,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * <p>
 	 * getTestCase
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase getTestCase() {
@@ -111,7 +111,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Create a deep copy of the chromosome
 	 */
 	@Override
@@ -159,7 +159,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Single point cross over
 	 */
 	@Override
@@ -186,7 +186,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Two chromosomes are equal if their tests are equal
 	 */
 	@Override
@@ -283,7 +283,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Each statement is mutated with probability 1/l
 	 */
 	@Override
@@ -299,7 +299,7 @@ public class TestChromosome extends ExecutableChromosome {
 		if(Properties.CHOP_MAX_LENGTH && size() >= Properties.CHROMOSOME_LENGTH) {
 			test.chop(lastPosition + 1);
 		}
-		
+
 		// Delete
 		if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
 			logger.debug("Mutation: delete");
@@ -365,7 +365,7 @@ public class TestChromosome extends ExecutableChromosome {
 			int preLength = test.size();
 
 			try {
-				List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, missing, pos, 0, true);
+				List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, missing, pos, 0, true, false);
 				fms.addMissingInputs(refs);
 			} catch (Exception e){
 				logger.debug(e.getMessage(),e);
@@ -396,7 +396,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * Each statement is deleted with probability 1/length
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean mutationDelete() {
@@ -443,7 +443,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * Each statement is replaced with probability 1/length
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean mutationChange() {
@@ -511,7 +511,7 @@ public class TestChromosome extends ExecutableChromosome {
 	/**
 	 * With exponentially decreasing probability, insert statements at random
 	 * position
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean mutationInsert() {
@@ -519,7 +519,7 @@ public class TestChromosome extends ExecutableChromosome {
 		final double ALPHA = Properties.P_STATEMENT_INSERTION; //0.5;
 		int count = 0;
 		TestFactory testFactory = TestFactory.getInstance();
-		
+
 		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
 
@@ -540,7 +540,7 @@ public class TestChromosome extends ExecutableChromosome {
 	/**
 	 * Collect path constraints and negate one of them to derive new integer
 	 * inputs
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean mutationConcolic() {
@@ -591,7 +591,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * The size of a chromosome is the length of its test case
 	 */
 	@Override
@@ -607,7 +607,7 @@ public class TestChromosome extends ExecutableChromosome {
 			return result;
 		}
 		// make this deliberately not 0
-		// because then ordering of results will be random 
+		// because then ordering of results will be random
 		// among tests of equal fitness
 		if (o instanceof TestChromosome) {
 			return test.toCode().compareTo(((TestChromosome) o).test.toCode());
@@ -625,7 +625,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * <p>
 	 * hasException
 	 * </p>
-	 * 
+	 *
 	 * @return a boolean.
 	 */
 	public boolean hasException() {
@@ -659,36 +659,36 @@ public class TestChromosome extends ExecutableChromosome {
 		int c = 0;
 
 		while (c == 0 && objective < secondaryObjectives.size()) {
-			
+
 			SecondaryObjective<T> so = (SecondaryObjective<T>) secondaryObjectives.get(objective++);
 			if (so == null)
 				break;
 			c = so.compareChromosomes((T) this, o);
-		} 
+		}
 		return c;
 	}
 	/**
 	 * Add an additional secondary objective to the end of the list of
 	 * objectives
-	 * 
+	 *
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
 	public static void addSecondaryObjective(SecondaryObjective<?> objective) {
 		secondaryObjectives.add(objective);
 	}
-	
+
 	public static void ShuffleSecondaryObjective() {
 		Collections.shuffle(secondaryObjectives);
 	}
-	
+
 	public static void reverseSecondaryObjective() {
 		Collections.reverse(secondaryObjectives);
 	}
 
 	/**
 	 * Remove secondary objective from list, if it is there
-	 * 
+	 *
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
@@ -700,7 +700,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * <p>
 	 * Getter for the field <code>secondaryObjectives</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link java.util.List} object.
 	 */
 	public static List<SecondaryObjective<?>> getSecondaryObjectives() {

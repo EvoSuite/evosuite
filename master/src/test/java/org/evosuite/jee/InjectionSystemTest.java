@@ -54,6 +54,16 @@ public class InjectionSystemTest extends SystemTest{
     }
 
     @Test
+    public void testInjectionSourceForItself(){
+        doTest(InjectionSourceForItself.class);
+    }
+
+    @Test
+    public void testInjectionInInputParameter(){
+        doTest(InjectionInInputParameter.class);
+    }
+
+    @Test
     public void testInjectionSimpleInheritance(){
         doTest(InjectionSimpleInheritance.class);
     }

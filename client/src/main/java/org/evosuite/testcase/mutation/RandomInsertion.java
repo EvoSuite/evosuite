@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.testcase.ConstraintHelper;
 import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
@@ -94,10 +95,17 @@ public class RandomInsertion implements InsertionStrategy {
 						lastUsage = usage.getStPosition();
 				}
 
-				if (lastUsage != var.getStPosition()) {
-					position = Randomness.nextInt(var.getStPosition(), lastUsage);
+				int boundPosition = ConstraintHelper.getLastPositionOfBounded(var, test);
+				if(boundPosition >= 0 ){
+					// if bounded variable, cannot add methods before its initialization
+					position = boundPosition + 1;
 				} else {
-					position = lastUsage;
+
+					if (lastUsage != var.getStPosition()) {
+						position = Randomness.nextInt(var.getStPosition(), lastUsage);
+					} else {
+						position = lastUsage;
+					}
 				}
 
 				logger.debug("Inserting call at position " + position + ", chosen var: "

@@ -189,6 +189,21 @@ public class ConstraintVerifier {
 
         Inputs.checkNull(obj,tc);
 
+        /*
+            if the given 'obj' (a method/constructor) belongs to a class for which there is an instance
+            before "pos" which is bounded after "pos", then we cannot add it, as could break bounding
+            constraints if such instance is chosen as callee for "obj". Note: we could force to never
+            use such instance (ie use another one if exists, or create it), but that would complicate
+            a lot all the algorithms in the test factory :(
+         */
+        List<VariableReference> possibleCallees = tc.getObjects(obj.getOwnerType(), pos);
+        for(VariableReference ref : possibleCallees){
+            int boundPos = ConstraintHelper.getLastPositionOfBounded(ref, tc);
+            if(boundPos >= pos){
+                return false;
+            }
+        }
+
         Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
         if(constraints == null){
             return true;

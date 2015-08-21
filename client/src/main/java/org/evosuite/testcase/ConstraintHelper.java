@@ -21,10 +21,7 @@ package org.evosuite.testcase;
 
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.util.Inputs;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
@@ -188,5 +185,29 @@ public class ConstraintHelper {
         }
 
         return false;
+    }
+
+    /**
+     *
+     * @param vr
+     * @param tc
+     * @return a negative value if the variable is not bounded
+     */
+    public static int getLastPositionOfBounded(VariableReference vr, TestCase tc){
+        Inputs.checkNull(vr,tc);
+
+        int p = vr.getStPosition();
+
+        for(int i=p+1; i<tc.size(); i++){
+            Statement st = tc.getStatement(i);
+            if(st instanceof EntityWithParametersStatement){
+                EntityWithParametersStatement es = (EntityWithParametersStatement) st;
+                if(es.isBounded(vr)){
+                    return i;
+                }
+            }
+        }
+
+        return -1;
     }
 }
