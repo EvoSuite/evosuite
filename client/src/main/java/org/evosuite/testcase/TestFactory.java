@@ -1085,7 +1085,8 @@ public class TestFactory {
 		VariableReference ret;
 
 		if( TimeController.getInstance().getPhasePercentage() >= Properties.FUNCTIONAL_MOCKING_PERCENT &&
-				Randomness.nextDouble() < Properties.P_FUNCTIONAL_MOCKING){
+				Randomness.nextDouble() < Properties.P_FUNCTIONAL_MOCKING &&
+				! type.equals(Properties.getTargetClass())){
 
 			//mock creation
 
@@ -1118,7 +1119,7 @@ public class TestFactory {
 					}
 				}
 
-				if (Properties.P_FUNCTIONAL_MOCKING > 0) {
+				if (Properties.P_FUNCTIONAL_MOCKING > 0 && ! type.equals(Properties.getTargetClass())) {
 				/*
 					Even if mocking is not active yet in this phase, if we have
 					no generator for a type, we use mocking directly
