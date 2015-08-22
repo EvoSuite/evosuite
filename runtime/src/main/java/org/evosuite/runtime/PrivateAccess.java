@@ -86,6 +86,9 @@ public class PrivateAccess {
         if(fieldName == null){
             throw new IllegalArgumentException("No specified field name");
         }
+        if(fieldName.equals("serialVersionUID")){
+            throw new IllegalArgumentException("It is not allowed to set serialVersionUID by reflection");
+        }
         // note: 'instance' can be null (ie, for static variables), and of course "value"
 
         Field field = null;
