@@ -380,8 +380,8 @@ public class JUnitAnalyzer {
 			fileManager.close();
 
 			if (!compiled) {
-				logger.error("Compilation failed on compilation units: "
-				        + compilationUnits);
+				logger.error("Compilation failed on compilation units: "+ compilationUnits);
+
 				for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
 					if (diagnostic.getMessage(null).startsWith("error while writing")) {
 						logger.error("Error is due to file permissions, ignoring...");
@@ -390,14 +390,18 @@ public class JUnitAnalyzer {
 					logger.error("Diagnostic: " + diagnostic.getMessage(null) + ": "
 					        + diagnostic.getLineNumber());
 				}
+
+				StringBuffer buffer = new StringBuffer();
 				for (JavaFileObject sourceFile : compilationUnits) {
-					List<String> lines = FileUtils.readLines(new File(
-					        sourceFile.toUri().getPath()));
-					logger.error(compilationUnits.iterator().next().toString());
+					List<String> lines = FileUtils.readLines(new File(sourceFile.toUri().getPath()));
+
+					buffer.append(compilationUnits.iterator().next().toString()+"\n");
+
 					for (int i = 0; i < lines.size(); i++) {
-						logger.error((i + 1) + ": " + lines.get(i));
+						buffer.append((i + 1) + ": " + lines.get(i) +"\n");
 					}
 				}
+				logger.error(buffer.toString());
 				return null;
 			}
 

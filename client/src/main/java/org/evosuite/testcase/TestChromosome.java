@@ -44,6 +44,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 
 /**
@@ -368,7 +369,9 @@ public class TestChromosome extends ExecutableChromosome {
 				List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, missing, pos, 0, true, false);
 				fms.addMissingInputs(refs);
 			} catch (Exception e){
-				logger.debug(e.getMessage(),e);
+				//shouldn't really happen because, in the worst case, we could create mocks for missing parameters
+				LoggingUtils.logWarnAtMostOnce(logger, "Functional mock problem: " + e.getMessage());
+				fms.fillWithNullRefs();
 				return changed;
 			}
 			changed = true;
