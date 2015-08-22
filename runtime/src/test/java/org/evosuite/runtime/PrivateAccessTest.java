@@ -22,6 +22,8 @@ package org.evosuite.runtime;
 import org.junit.*;
 import org.junit.internal.AssumptionViolatedException;
 
+import java.io.Serializable;
+
 /**
  * Created by Andrea on 20/02/15.
  */
@@ -36,6 +38,18 @@ public class PrivateAccessTest {
     public void tearDown(){
         PrivateAccess.setShouldNotFailTest(true);
     }
+
+    @Test
+    public void testSetField_serialVersionUID(){
+        try {
+            //it should fail
+            PrivateAccess.setVariable(FooFields.class, null, "serialVersionUID", 42l);
+            Assert.fail();
+        } catch (IllegalArgumentException e){
+            //expected
+        }
+    }
+
 
     @Test
     public void testSetField_static(){
@@ -147,9 +161,11 @@ public class PrivateAccessTest {
 
 }
 
-class FooFields{
+class FooFields implements Serializable{
     private String s;
     private static int n;
+
+    public static final long serialVersionUID = 1L;
 
     public String getS(){return s;}
     public static int getN(){return n;}
