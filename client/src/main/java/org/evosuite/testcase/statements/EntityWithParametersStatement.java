@@ -99,7 +99,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
     }
 
     public List<VariableReference> getParameterReferences() {
-        return parameters;
+        return Collections.unmodifiableList(parameters);
     }
 
     /* (non-Javadoc)

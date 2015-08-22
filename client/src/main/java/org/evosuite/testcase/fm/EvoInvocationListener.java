@@ -81,6 +81,11 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
             md = getMethodDescriptor_old(di);
         }
 
+        if(md.getMethodName().equals("finalize")){
+            //ignore it, otherwise if we mock it, we ll end up in a lot of side effects... :(
+            return;
+        }
+
         synchronized (map){
             MethodDescriptor current = map.get(md.getID());
             if(current == null){

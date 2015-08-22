@@ -30,9 +30,12 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
+import org.evosuite.testcase.variable.ConstantValue;
+import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericClass;
 import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -113,6 +116,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
         mockedMethods = new ArrayList<>();
         methodParameters = new LinkedHashMap<>();
         checkSUT();
+        assert parameters.isEmpty();
     }
 
     public FunctionalMockStatement(TestCase tc, Type retvalType, Class<?> targetClass) throws IllegalArgumentException{
@@ -122,6 +126,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
         mockedMethods = new ArrayList<>();
         methodParameters = new LinkedHashMap<>();
         checkSUT();
+        assert parameters.isEmpty();
     }
 
     @Override
@@ -229,11 +234,20 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
      */
     public List<Type> updateMockedMethods(){
 
+        logger.debug("Executing updateMockedMethods. Parameter size: "+parameters.size());
+
         List<Type> list = new ArrayList<>();
 
+        assert ! super.parameters.contains(null);
+        assert mockedMethods.size() == methodParameters.size();
+
         List<VariableReference> copy = new ArrayList<>(super.parameters);
+        assert copy.size() == super.parameters.size();
+
         super.parameters.clear();
         mockedMethods.clear(); //important to remove all the no longer used calls
+
+        Map<String, int[]> mpCopy = new LinkedHashMap<>();
 
         List<MethodDescriptor> executed = listener.getCopyOfMethodDescriptors();
 
@@ -242,32 +256,37 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
         for(MethodDescriptor md : executed){
             mockedMethods.add(md);
 
-            if(!md.shouldBeMocked()){
+            if(!md.shouldBeMocked() || md.getCounter() == 0){
+                //void method or not called, so no parameter needed for it
+                mpCopy.put(md.getID(), null);
                 continue;
             }
 
-
             int added = 0;
 
+            //infer parameter mapping of current vars from previous execution, if any
             int[] minMax = methodParameters.get(md.getID());
-            int inputs;
+            int existingParameters; //total number of existing parameters
             if(minMax==null){
-                minMax = new int[2];
-                inputs = 0;
+                //before it was not called
+                minMax = new int[]{-1,-1};
+                existingParameters = 0;
             } else {
-                inputs = 1 + (minMax[1] - minMax[0]);
+                assert  minMax[1] >= minMax[0] && minMax[0] >= 0;
+                assert  minMax[1] < copy.size() : "Max="+minMax[1]+" but n="+copy.size();
+                existingParameters = 1 + (minMax[1] - minMax[0]);
             }
 
-            assert inputs  <= Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT;
+            assert existingParameters  <= Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT;
 
             //check if less calls
-            if(inputs > md.getCounter()){
+            if(existingParameters > md.getCounter()){
                 //now the method has been called less times,
                 //so remove the last calls, ie decrease counter
-                minMax[1] -= (inputs - md.getCounter());
+                minMax[1] -= (existingParameters - md.getCounter());
             }
 
-            if(inputs > 0) {
+            if(existingParameters > 0 ) {
                 for (int i = minMax[0]; i <= minMax[1]; i++) {
                     //align super class data structure
                     super.parameters.add(copy.get(i));
@@ -276,11 +295,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
             }
 
             //check if rather more calls
-            if(inputs < md.getCounter()){
+            if(existingParameters < md.getCounter()){
                 Class<?> returnType = md.getMethod().getReturnType();
                 assert ! returnType.equals(Void.TYPE);
 
-                for (int i = inputs; i < md.getCounter() && i < Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT; i++) {
+                for (int i = existingParameters; i < md.getCounter() && i < Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT; i++) {
                     list.add(returnType);
 
                     super.parameters.add(null); //important place holder for following updates
@@ -288,12 +307,22 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
                 }
             }
 
-            //update the values on new parameters
+
             minMax[0] = mdIndex;
-            minMax[1] = (mdIndex + added -1); //max is inclusive
-            assert minMax[1] >= minMax[0]; //max >= min
-            methodParameters.put(md.getID(), minMax);
+            minMax[1] = (mdIndex + added - 1); //max is inclusive
+            assert minMax[1] >= minMax[0] && minMax[0] >= 0; //max >= min
+            assert super.parameters.size() == minMax[1] + 1;
+
+            mpCopy.put(md.getID(), minMax);
             mdIndex += added;
+        }
+
+        methodParameters.clear();
+        methodParameters.putAll(mpCopy);
+        for(MethodDescriptor md : mockedMethods){
+            if(! methodParameters.containsKey(md.getID())){
+                methodParameters.put(md.getID(), null);
+            }
         }
 
         return list;
@@ -302,28 +331,59 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
     public void addMissingInputs(List<VariableReference> inputs) throws IllegalArgumentException{
         Inputs.checkNull(inputs);
 
-        if(inputs.isEmpty()){
-            return; //nothing to add
-        }
+        logger.debug("Adding "+inputs.size()+ " missing values");
 
-        if(inputs.size() > parameters.size()){
-            //first quick check
-            throw new IllegalArgumentException("Not enough parameter place holders");
-        }
+        if(! inputs.isEmpty()) {
 
-        int index = 0;
-        for(VariableReference ref : inputs){
-            while(parameters.get(index) != null){
-                index++;
-                if(index >= parameters.size()){
-                    throw new IllegalArgumentException("Not enough parameter place holders");
-                }
+            if (inputs.size() > parameters.size()) {
+                //first quick check
+                throw new IllegalArgumentException("Not enough parameter place holders");
             }
 
-            parameters.set(index, ref);
+            int index = 0;
+            for (VariableReference ref : inputs) {
+                while (parameters.get(index) != null) {
+                    index++;
+                    if (index >= parameters.size()) {
+                        throw new IllegalArgumentException("Not enough parameter place holders");
+                    }
+                }
+
+                assert  ref.isAssignableFrom(getExpectedParameterType(index));
+
+                parameters.set(index, ref);
+            }
+        } //else, nothing to add
+
+        //check if all "holes" have been filled
+        for(VariableReference ref : parameters){
+            if(ref == null){
+                throw new IllegalArgumentException("Functional mock not fully set with all needed missing inputs");
+            }
         }
     }
 
+    public void fillWithNullRefs(){
+        for(int i=0; i<parameters.size(); i++){
+            VariableReference ref = parameters.get(i);
+            if(ref == null){
+                parameters.set(i , new ConstantValue(tc, new GenericClass(getExpectedParameterType(i)), null));
+            }
+        }
+    }
+
+
+    private Type getExpectedParameterType(int i){
+
+        for(MethodDescriptor md : mockedMethods) {
+            int[] bounds = methodParameters.get(md.getID());
+            if(bounds!=null && i >= bounds[0] && i <= bounds[1]){
+                return md.getMethod().getReturnType();
+            }
+        }
+
+        throw new AssertionError("");
+    }
 
     //------------ override methods ---------------
 
@@ -354,7 +414,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
 
         for(Map.Entry<String,int[]> entry : methodParameters.entrySet()){
             int[] array = entry.getValue();
-            copy.methodParameters.put(entry.getKey() , new int[]{array[0],array[1]});
+            int[] copiedArray = array==null ? null : new int[]{array[0],array[1]};
+            copy.methodParameters.put(entry.getKey() , copiedArray);
         }
 
         return copy;
