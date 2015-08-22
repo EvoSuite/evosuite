@@ -103,12 +103,13 @@ public abstract class ConcolicExecution {
 		listeners.add(new ArithmeticVM(env, pc));
 		listeners.add(new OtherVM(env));
 		listeners.add(new SymbolicFunctionVM(env, pc));
-		VM.vm.setListeners(listeners);
-		VM.vm.startupConcolicExecution();
+		VM.getInstance().setListeners(listeners);
+		VM.getInstance().prepareConcolicExecution();
 
 		defaultTestCase.changeClassLoader(classLoader);
 		SymbolicObserver symbolicExecObserver = new SymbolicObserver(env);
 
+		TestCaseExecutor.getInstance().newObservers();
 		TestCaseExecutor.getInstance().addObserver(symbolicExecObserver);
 
 		logger.info("Starting concolic execution");
@@ -132,8 +133,8 @@ public abstract class ConcolicExecution {
 			TestCaseExecutor.getInstance().removeObserver(symbolicExecObserver);
 			return new ArrayList<BranchCondition>();
 		}
-		VM.vm.cleanupConcolicExecution(); // ignore all callbacks from now on
-
+		VM.setIgnoreCallBack(true);; // ignore all callbacks from now on
+		
 		List<BranchCondition> branches = pc.getBranchConditions();
 		logger.info("Concolic execution ended with " + branches.size()
 				+ " branches collected");

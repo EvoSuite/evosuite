@@ -130,7 +130,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	@Override
 	public void beforeStatement(Statement s, Scope scope) {
-		if (VM.vm.isStopped()) {
+		if (VM.getInstance().isStopped()) {
 			return;
 		}
 		VM.setIgnoreCallBack(false);
@@ -1361,7 +1361,7 @@ public class SymbolicObserver extends ExecutionObserver {
 			return;
 		}
 
-		if (VM.vm.isStopped()) {
+		if (VM.getInstance().isStopped()) {
 			return;
 		}
 
