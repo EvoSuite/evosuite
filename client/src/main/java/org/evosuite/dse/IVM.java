@@ -31,17 +31,6 @@ package org.evosuite.dse;
 public interface IVM {
 
 	/**
-	 * Dsc calls this method just before invoking the current entry method.
-	 */
-	public void startupConcolicExecution();
-
-	/**
-	 * Dsc calls this method just after execution returned from the invoked
-	 * (analyzed) user method back to Dsc.
-	 */
-	public void cleanupConcolicExecution();
-
-	/**
 	 * Pass a caller's nr-th concrete method argument value (which is sitting on
 	 * the caller's operand stack). There will be no such call for a potentially
 	 * present receiver instance ("this" parameter).

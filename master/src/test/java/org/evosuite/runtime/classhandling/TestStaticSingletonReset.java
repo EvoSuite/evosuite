@@ -23,48 +23,28 @@ import java.util.Map;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.reset.SingletonObjectReset;
 
 public class TestStaticSingletonReset extends SystemTest {
 
-	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
-	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
-	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
-	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
-	private final AssertionStrategy DEFAULT_ASSERTION_STRATEGY = Properties.ASSERTION_STRATEGY;
-
-	@Before
-	public void saveProperties() {
+	@Test
+	public void testResetWithAssertionGenerationAll() {
+		
 		Properties.RESET_STATIC_FIELDS = true;
 		Properties.JUNIT_CHECK = true;
 		Properties.JUNIT_TESTS = true;
 		Properties.SANDBOX = true;
 		Properties.ASSERTION_STRATEGY = Properties.AssertionStrategy.ALL;
-	}
-
-	@After
-	public void restoreProperties() {
-		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
-		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
-		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
-		Properties.SANDBOX = DEFAULT_SANDBOX;
-		Properties.ASSERTION_STRATEGY = DEFAULT_ASSERTION_STRATEGY;
-	}
-
-	@Test
-	public void test() {
+		
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = SingletonObjectReset.class.getCanonicalName();

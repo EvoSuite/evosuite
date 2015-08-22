@@ -36,6 +36,11 @@ import java.util.ListIterator;
 public class LinkedStringList extends LinkedList<String> {
 
   /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5757225099467215983L;
+
+/**
    * Constructor
    */
   public LinkedStringList(String... args) {

@@ -19,7 +19,6 @@
  */
 package org.evosuite.dse;
 
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,12 +38,12 @@ import java.util.List;
  * 
  * @author csallner@uta.edu (Christoph Csallner)
  */
-public class VM {
+public final class VM {
 
 	/**
 	 * Single VM instance
 	 */
-	public static final VM vm = new VM();
+	private static VM vm = new VM();
 
 	/**
 	 * Is this a recursive callback?
@@ -134,23 +133,10 @@ public class VM {
 	/**
 	 * Dsc calls this method just before invoking the current entry method.
 	 */
-	public void startupConcolicExecution() {
+	public void prepareConcolicExecution() {
 		stopped = false;
 		ignoreCallback = false;
 		zeroPathCallbacks();
-
-		for (IVM listener : vm.listeners)
-			listener.startupConcolicExecution();
-	}
-
-	/**
-	 * Dsc calls this method just after execution returned from the invoked
-	 * (analyzed) user method back to Dsc.
-	 */
-	public void cleanupConcolicExecution() {
-		ignoreCallback = true;
-		for (IVM listener : vm.listeners)
-			listener.cleanupConcolicExecution();
 	}
 
 	public static void NEW(String typeName) {
@@ -3744,4 +3730,13 @@ public class VM {
 		}
 		ignoreCallback = false;
 	}
+
+	public static VM getInstance() {
+		return vm;
+	}
+	
+	public static void clearInstance() {
+		vm = new VM();
+	}
+	
 }
