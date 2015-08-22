@@ -117,6 +117,9 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 
 		if (name.equals("serialVersionUID")) {
 			definesUid = true;
+			// We must not remove final from serialVersionUID or else the
+			// class cannot be serialised and de-serialised any more
+			return super.visitField(access, name, desc, signature, value);
 		}
 
 		if (hasStaticModifier(access)) {
