@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.evosuite.Properties;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -44,7 +43,7 @@ public class MutationPool {
 	private static Map<String, Map<String, List<Mutation>>> mutationMap = new HashMap<String, Map<String, List<Mutation>>>();
 
 	// maps the mutationIDs assigned by this pool to their respective Mutations
-	private static Map<String, Map<Integer, Mutation>> mutationIdMap = new HashMap<String, Map<Integer, Mutation>>();
+	private static Map<Integer, Mutation> mutationIdMap = new HashMap<Integer, Mutation>();
 
 	private static int numMutations = 0;
 
@@ -73,13 +72,7 @@ public class MutationPool {
 		        numMutations++, instruction, mutation, distance);
 		mutationMap.get(className).get(methodName).add(mutationObject);
 
-		if (mutationIdMap.containsKey(className)) {
-			mutationIdMap.get(className).put(mutationObject.getId(), mutationObject);
-		} else {
-			Map<Integer, Mutation> values = new HashMap<Integer, Mutation>();
-			values.put(mutationObject.getId(), mutationObject);
-			mutationIdMap.put(className, values);
-		}
+		mutationIdMap.put(mutationObject.getId(), mutationObject);
 
 		return mutationObject;
 	}
@@ -109,13 +102,7 @@ public class MutationPool {
 		        numMutations++, instruction, mutation, distance);
 		mutationMap.get(className).get(methodName).add(mutationObject);
 
-		if (mutationIdMap.containsKey(className)) {
-			mutationIdMap.get(className).put(mutationObject.getId(), mutationObject);
-		} else {
-			Map<Integer, Mutation> values = new HashMap<Integer, Mutation>();
-			values.put(mutationObject.getId(), mutationObject);
-			mutationIdMap.put(className, values);
-		}
+		mutationIdMap.put(mutationObject.getId(), mutationObject);
 
 		return mutationObject;
 	}
@@ -146,23 +133,11 @@ public class MutationPool {
 	 * @return a {@link java.util.List} object.
 	 */
 	public static List<Mutation> getMutants() {
-		List<Mutation> mutants = new ArrayList<Mutation>();
-		if (!mutationIdMap.containsKey(Properties.TARGET_CLASS)) {
-			assert(mutationIdMap.size() == 0);
-			return mutants; 
-		}
-
-		mutants.addAll(mutationIdMap.get(Properties.TARGET_CLASS).values());
-		return mutants;
+		return new ArrayList<Mutation>(mutationIdMap.values());
 	}
 	
 	public static Mutation getMutant(int id) {
-		if (!mutationIdMap.containsKey(Properties.TARGET_CLASS)) {
-			assert(mutationIdMap.size() == 0);
-			return null;
-		}
-
-		return mutationIdMap.get(Properties.TARGET_CLASS).get(id);
+		return mutationIdMap.get(id);
 	}
 
 	/**
