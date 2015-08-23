@@ -1075,7 +1075,7 @@ public class TestCodeVisitor extends TestVisitor {
 
 		//Foo foo = mock(Foo.class);
 		result += getClassName(retval) + " " + getVariableName(retval);
-		result += " = mock(" + st.getTargetClass().getName()+".class);" + NEWLINE;
+		result += " = mock(" + getClassName(retval)+".class);" + NEWLINE;
 
 		//when(...).thenReturn(...)
 		for(MethodDescriptor md : st.getMockedMethods()){
