@@ -22,6 +22,8 @@
  */
 package org.evosuite.runtime.instrumentation;
 
+import java.io.ObjectStreamClass;
+import java.io.Serializable;
 import java.util.Arrays;
 
 import org.evosuite.runtime.RuntimeSettings;
@@ -147,8 +149,10 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	@Override
 	public void visitEnd() {
 		if(canChangeSignature && !definesHashCode && !isInterface && RuntimeSettings.mockJVMNonDeterminism) {
+
 			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
-			if(superClassName.equals("java.lang.Object")) {
+
+			if(superClassName.equals("java.lang.Object")) { //TODO: why only if superclass is Object??? unclear
 				Method hashCodeMethod = Method.getMethod("int hashCode()");
 				GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, hashCodeMethod, null, null, this);
 				mg.loadThis();
@@ -156,28 +160,31 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 				mg.invokeStatic(Type.getType(org.evosuite.runtime.System.class), Method.getMethod("int identityHashCode(Object)"));
 				mg.returnValue();
 				mg.endMethod();
-				
-				/*
-				 * If the class is serializable, then adding a hashCode will change the serialVersionUID
-				 * if it is not defined in the class. Hence, if it is not defined, we have to define it to
-				 * avoid problems in serialising the class.
-				 */
-				/*
-				if(!definesUid) {
-					try {
-						Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
-						if(Serializable.class.isAssignableFrom(clazz)) {
-						ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
-						long serialID = c.getSerialVersionUID();
-						logger.info("Adding serialId to class "+className);
-						visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialID);
-						}
-					} catch(ClassNotFoundException e) {
-						logger.info("Failed to add serialId to class "+className+": "+e.getMessage());
-					}
-				*/
+			}
+
+		}
+
+		/*
+		 * If the class is serializable, then doing any change (adding hashCode, static reset, etc)
+		 * will change the serialVersionUID if it is not defined in the class.
+		 * Hence, if it is not defined, we have to define it to
+		 * avoid problems in serialising the class, as reading Master will not do instrumentation.
+		 * The serialVersionUID HAS to be the same as the un-instrumented class
+		 */
+		if(!definesUid && !isInterface) {
+			try {
+				Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
+				if(Serializable.class.isAssignableFrom(clazz)) {
+					ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
+					long serialID = c.getSerialVersionUID();
+					logger.info("Adding serialId to class "+className);
+					visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialID);
+				}
+			} catch(ClassNotFoundException e) {
+				logger.warn("Failed to add serialId to class "+className+": "+e.getMessage());
 			}
 		}
+
 		super.visitEnd();
 	}
 }
