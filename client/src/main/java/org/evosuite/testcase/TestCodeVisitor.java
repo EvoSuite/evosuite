@@ -1244,7 +1244,8 @@ public class TestCodeVisitor extends TestVisitor {
             for "readability" of tests, it shouldn't be a mock one either
           */
         Class<?> ex = exception.getClass();
-        while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex)) {
+        while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex) ||
+				ex.getCanonicalName().startsWith("com.sun")) {
             ex = ex.getSuperclass();
         }
         return ex;
