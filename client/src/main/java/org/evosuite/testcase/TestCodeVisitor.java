@@ -1245,7 +1245,7 @@ public class TestCodeVisitor extends TestVisitor {
           */
         Class<?> ex = exception.getClass();
         while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex) ||
-				ex.getCanonicalName().startsWith("com.sun")) {
+				ex.getCanonicalName().startsWith("com.sun.")) {
             ex = ex.getSuperclass();
         }
         return ex;
