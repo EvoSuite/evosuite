@@ -1,11 +1,13 @@
 package org.evosuite.mock.java.lang;
 
-import com.examples.with.different.packagename.mock.java.lang.ExtendingRuntimeException;
 import com.examples.with.different.packagename.mock.java.lang.SourceExceptions;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,9 +32,14 @@ public class SourceExceptionsSystemTest extends SystemTest{
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         Assert.assertNotNull(best);
+        TestCaseExecutor.getInstance().initExecutor();
+        for(TestChromosome test : best.getTestChromosomes()) {
+        	ExecutionResult executionResult = TestCaseExecutor.getInstance().runTest(test.getTestCase());
+        	test.setLastExecutionResult(executionResult);
+        }
 
         String code = best.toString();
-        Assert.assertTrue("Code:\n"+code, code.contains("assertThrownBy(\"SourceExceptions\","));
-        Assert.assertTrue("Code:\n"+code, code.contains("assertThrownBy(\"SourceExceptions$Foo\","));
+        Assert.assertTrue("Code:\n"+code, code.contains("assertThrownBy(\"com.examples.with.different.packagename.mock.java.lang.SourceExceptions\","));
+        Assert.assertTrue("Code:\n"+code, code.contains("assertThrownBy(\"com.examples.with.different.packagename.mock.java.lang.SourceExceptions$Foo\","));
     }
 }
