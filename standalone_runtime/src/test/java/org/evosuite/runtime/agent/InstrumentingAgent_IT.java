@@ -30,6 +30,7 @@ import java.net.URLStreamHandler;
 import com.examples.with.different.packagename.agent.*;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
+import org.evosuite.runtime.instrumentation.MethodCallReplacementClassAdapter;
 import org.evosuite.runtime.mock.java.net.EvoURLStreamHandler;
 import org.evosuite.runtime.mock.java.net.URLUtil;
 import org.junit.*;
@@ -67,6 +68,7 @@ public class InstrumentingAgent_IT {
         RuntimeSettings.useVNET = true;
         MethodCallReplacementCache.resetSingleton();
 		Runtime.getInstance().resetRuntime();
+		MethodCallReplacementClassAdapter.dirtyHack_applyUIDTransformation = false;
 	}
 
 	@After
@@ -74,6 +76,7 @@ public class InstrumentingAgent_IT {
 		RuntimeSettings.mockJVMNonDeterminism = replaceCalls;
 		RuntimeSettings.useVFS = vfs;
         RuntimeSettings.useVNET = vnet;
+		MethodCallReplacementClassAdapter.dirtyHack_applyUIDTransformation = true;
 	}
 
 

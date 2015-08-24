@@ -46,6 +46,13 @@ import org.slf4j.LoggerFactory;
  */
 public class MethodCallReplacementClassAdapter extends ClassVisitor {
 
+	/**
+	 * To be used ONLY from tests.
+	 * Complex issue arises when the SUT and EvoSuite classloaders are the same, which might
+	 * happen in some unit tests
+	 */
+	public static boolean dirtyHack_applyUIDTransformation = true;
+
 	private final String className;
 	
 	private String superClassName;
@@ -171,7 +178,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 		 * avoid problems in serialising the class, as reading Master will not do instrumentation.
 		 * The serialVersionUID HAS to be the same as the un-instrumented class
 		 */
-		if(!definesUid && !isInterface) {
+		if(!definesUid && !isInterface  && dirtyHack_applyUIDTransformation) {
 			try {
 				Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
 				if(Serializable.class.isAssignableFrom(clazz)) {
