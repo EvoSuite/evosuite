@@ -595,6 +595,8 @@ public class CoverageAnalysis {
 		List<JUnitResult> results = new ArrayList<JUnitResult>();
         for (Class<?> testClass : testClasses) {
         	LoggingUtils.getEvoLogger().info("  Executing " + testClass.getSimpleName());
+        	// Set the context classloader in case the SUT requests it
+    		Thread.currentThread().setContextClassLoader(testClass.getClassLoader());
             JUnitRunner jR = new JUnitRunner(testClass);
             jR.run();
             results.addAll(jR.getTestResults());
