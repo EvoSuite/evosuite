@@ -336,11 +336,8 @@ public class StringHelper {
      */
     public static int StringStartsWith(String value, String prefix, int start) {
         int len = Math.min(prefix.length(), value.length());
-        //System.out.println("StartsWith: " + start + ": " + value + " / " + prefix + ": "
-        //        + value.substring(start, start + len) + " / " + prefix + " = "
-        //        + StringEquals(value.substring(start, start + len), prefix));
         ConstantPoolManager.getInstance().addDynamicConstant(prefix + value);
-        return StringEquals(value.substring(start, start + len), prefix);
+        return StringEquals(value.substring(start, Math.min(start + len, value.length())), prefix);
     }
 
     /**
@@ -430,8 +427,8 @@ public class StringHelper {
             ConstantPoolManager.getInstance().addDynamicConstant(sn2);
         }
 
-        return StringEquals(s1.substring(thisStart, length + thisStart),
-                s2.substring(start, length + start));
+        return StringEquals(s1.substring(thisStart, Math.min(length + thisStart, s1.length())),
+                s2.substring(start, Math.min(length + start, s2.length())));
     }
 
     public static int StringRegionMatches(String value, int thisStart, String string,
