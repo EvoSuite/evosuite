@@ -165,29 +165,13 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		}
 	}
 
-	/*
-		TODO: does not seem it is really used for anything
-	 */
-	public TestSuiteChromosome getReducedChromosome() {
-		TestSuiteChromosome suite = new TestSuiteChromosome();
-		for(Entry<TestFitnessFunction, ExecutionResult> entry : testMap.entrySet()) {
-			if(!entry.getKey().isCoveredBy(suite)) {
-				suite.addTest(entry.getValue().test);
-			}
-		}
-        for (FitnessFunction<?> ff : coverageMap.keySet()) {
-        	suite.setCoverage(ff, coverageMap.get(ff));
-        	suite.setNumOfCoveredGoals(ff, coveredGoalsCountMap.get(ff));
-        }
-		logger.info("Final test suite size from archive: " + suite.size());
-		return suite;
-	}
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public TestSuiteChromosome createMergedSolution(TestSuiteChromosome suite) {
 
-		Properties.TEST_ARCHIVE = false; //TODO: why?
+		// Deactivate in case a test is executed and would access the archive
+		// as this might cause a concurrent access
+		Properties.TEST_ARCHIVE = false; 
 		TestSuiteChromosome best = null;
 		try {
 			best = suite.clone();
