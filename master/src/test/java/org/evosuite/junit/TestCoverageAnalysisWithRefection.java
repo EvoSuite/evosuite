@@ -21,7 +21,6 @@ package org.evosuite.junit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileReader;
@@ -29,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
@@ -36,7 +36,9 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.SystemTest;
 import org.evosuite.continuous.persistency.CsvJUnitData;
+import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.statistics.SearchStatistics;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -205,10 +207,17 @@ public class TestCoverageAnalysisWithRefection extends SystemTest {
             "-measureCoverage"
         };
 
-        Object statistics = evosuite.parseCommandLine(command);
+        SearchStatistics statistics = (SearchStatistics) evosuite.parseCommandLine(command);
         Assert.assertNotNull(statistics);
 
-        fail("* Failure: interface com.examples.with.different.packagename.ClassPublicInterfaceTest$MultipleEventListener is not visible from class loader\n"
-        		+ "   java.lang.reflect.Proxy$ProxyClassFactory.apply(Proxy.java:581)");
+        Map<String, OutputVariable<?>> outputVariables = statistics.getOutputVariables();
+
+        assertEquals(26, (int) outputVariables.get(RuntimeVariable.Total_Goals.name()).getValue());
+        assertEquals(11, (int) outputVariables.get(RuntimeVariable.Covered_Goals.name()).getValue());
+        assertEquals(11 / 26, (double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
+        assertEquals(1, (int) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue());
+        assertEquals("11110000001100000000011111", (String) outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
+
+        // TODO check test case result
 	}
 }
