@@ -35,7 +35,6 @@ import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
@@ -144,11 +143,6 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		return null;
 	}
 
-	public TestSuiteChromosome getBestStoredIndividual() {
-		return TestsArchive.instance.getReducedChromosome();
-	}
-
-	
 	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, boolean updateChromosome) {
 		double fitness = 0.0; // branchFitness.getFitness(suite);
 		List<ExecutionResult> results = runTestSuite(suite);

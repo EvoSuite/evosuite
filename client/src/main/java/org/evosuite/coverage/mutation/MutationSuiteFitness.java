@@ -37,7 +37,6 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 
@@ -134,13 +133,4 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	@Override
 	public abstract double getFitness(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual);
-	
-    public TestSuiteChromosome getBestStoredIndividual(){
-		if(!Properties.TEST_ARCHIVE) {
-			return null;
-		}
-        // TODO: There's a design problem here because
-        //       other fitness functions use the same archive
-        return TestsArchive.instance.getReducedChromosome();
-    }
 }

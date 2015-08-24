@@ -104,8 +104,10 @@ public class TestChromosome extends ExecutableChromosome {
 	@Override
 	public void setChanged(boolean changed) {
 		super.setChanged(changed);
-		if (changed)
+		if (changed) {
 			clearCachedResults();
+			test.clearCoveredGoals();
+		}
 
 		CurrentChromosomeTracker.getInstance().changed(this);
 	}

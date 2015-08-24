@@ -169,6 +169,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		        + fitness);
 
 		updateIndividual(this, individual, fitness);
+
 		return fitness;
 	}
 

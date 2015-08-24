@@ -156,14 +156,4 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 		
 		return fitness;
 	}
-
-    public TestSuiteChromosome getBestStoredIndividual(){
-		if(!Properties.TEST_ARCHIVE) {
-			return null;
-		}
-        // TODO: There's a design problem here because
-        //       other fitness functions use the same archive
-        return TestsArchive.instance.getReducedChromosome();
-        //return testArchive.getBestChromosome();
-    }
 }
