@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.evosuite.runtime.instrumentation.InstrumentedClass;
+
 /**
  * The content of arrays in reflection methods may differ between classloaders, therefore
  * we sort the output alphabetically
@@ -69,7 +71,11 @@ public class Reflection {
 	public static Constructor<?>[] getConstructors(Class<?> clazz) throws SecurityException {
 		return sortArrayInPlace(clazz.getConstructors());
 	}
-	
+
+	public static Class<?>[] getInterfaces(Class<?> clazz) throws SecurityException {
+		return sortArrayInPlace(Arrays.stream(clazz.getInterfaces()).filter(c -> !c.equals(InstrumentedClass.class)).toArray(Class[]::new));
+	}
+
 	public static Annotation[] getDeclaredAnnotations(Class<?> clazz) throws SecurityException {
 		return sortArrayInPlace(clazz.getDeclaredAnnotations());
 	}
