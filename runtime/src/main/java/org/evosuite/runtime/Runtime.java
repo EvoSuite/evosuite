@@ -25,8 +25,6 @@ package org.evosuite.runtime;
 
 import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.javaee.db.DBManager;
-import org.evosuite.runtime.javaee.injection.Injector;
-import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.lang.MockThread;
 import org.evosuite.runtime.mock.java.util.MockLocale;
@@ -34,8 +32,6 @@ import org.evosuite.runtime.mock.java.util.MockTimeZone;
 import org.evosuite.runtime.thread.ThreadCounter;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.evosuite.runtime.vnet.VirtualNetwork;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -46,8 +42,6 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Muth
  */
 public class Runtime {
-
-	private static final Logger logger = LoggerFactory.getLogger(Runtime.class);
 
 	private static final Runtime singleton = new Runtime();
 
