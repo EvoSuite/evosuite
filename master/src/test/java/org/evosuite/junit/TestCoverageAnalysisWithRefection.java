@@ -212,10 +212,10 @@ public class TestCoverageAnalysisWithRefection extends SystemTest {
 
         Map<String, OutputVariable<?>> outputVariables = statistics.getOutputVariables();
 
-        assertEquals(26, (int) outputVariables.get(RuntimeVariable.Total_Goals.name()).getValue());
-        assertEquals(11, (int) outputVariables.get(RuntimeVariable.Covered_Goals.name()).getValue());
-        assertEquals(11 / 26, (double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
-        assertEquals(1, (int) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue());
+        assertEquals(26, (Integer) outputVariables.get(RuntimeVariable.Total_Goals.name()).getValue(), 0.0);
+        assertEquals(11, (Integer) outputVariables.get(RuntimeVariable.Covered_Goals.name()).getValue(), 0.0);
+        assertEquals(11 / 26, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
+        assertEquals(1, (Integer) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue(), 0.0);
         assertEquals("11110000001100000000011111", (String) outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
 
         // TODO check test case result
