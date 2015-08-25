@@ -232,7 +232,8 @@ public class TestFactory {
 
 			return ref;
 		} catch (Exception e) {
-			throw new ConstructionFailedException(e.getMessage());
+			throw new ConstructionFailedException("Failed to add constructor for "+klass.getName()+
+					" due to "+e.getClass().getCanonicalName()+": "+e.getMessage());
 		}
 	}
 
@@ -340,8 +341,7 @@ public class TestFactory {
 					callee.getVariableClass())) {
 				logger.debug("Cannot call field " + field + " with callee of type "
 						+ callee.getClassName());
-				throw new ConstructionFailedException(
-						"Cannot apply field to this callee");
+				throw new ConstructionFailedException("Cannot apply field to this callee");
 			}
 
 			// TODO: Check if field is still accessible in subclass
@@ -483,8 +483,7 @@ public class TestFactory {
 						callee.getVariableClass())) {
 					logger.debug("Cannot call method " + method
 							+ " with callee of type " + callee.getClassName());
-					throw new ConstructionFailedException(
-							"Cannot apply method to this callee");
+					throw new ConstructionFailedException("Cannot apply method to this callee");
 				}
 			}
 

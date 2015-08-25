@@ -122,6 +122,12 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
     public FunctionalMockStatement(TestCase tc, Type retvalType, Class<?> targetClass) throws IllegalArgumentException{
         super(tc, retvalType);
         Inputs.checkNull(targetClass);
+
+        Class<?> rawType = new GenericClass(retvalType).getRawClass();
+        if(! targetClass.equals(rawType)){
+            throw new IllegalArgumentException("Mismatch between raw type "+rawType+" and target class "+targetClass);
+        }
+
         this.targetClass = targetClass;
         mockedMethods = new ArrayList<>();
         methodParameters = new LinkedHashMap<>();
@@ -349,7 +355,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
                     }
                 }
 
-                assert  ref.isAssignableFrom(getExpectedParameterType(index));
+                assert  ref.isAssignableTo(getExpectedParameterType(index));
 
                 parameters.set(index, ref);
             }
