@@ -72,10 +72,10 @@ public class TestCoverageAnalysisStringInstrumentation extends SystemTest {
 
         Map<String, OutputVariable<?>> outputVariables = statistics.getOutputVariables();
 
-        assertEquals(19, (int) outputVariables.get(RuntimeVariable.Total_Goals.name()).getValue());
-        assertEquals(19, (int) outputVariables.get(RuntimeVariable.Covered_Goals.name()).getValue());
-        assertEquals(1.0, (double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
-        assertEquals(1, (int) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue());
+        assertEquals(19, (Integer) outputVariables.get(RuntimeVariable.Total_Goals.name()).getValue(), 0.0);
+        assertEquals(19, (Integer) outputVariables.get(RuntimeVariable.Covered_Goals.name()).getValue(), 0.0);
+        assertEquals(1.0, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
+        assertEquals(1, (Integer) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue(), 0.0);
         assertEquals("1111111111111111111", (String) outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
 
         // check coverage matrix
