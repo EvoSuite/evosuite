@@ -21,7 +21,6 @@ package org.evosuite.junit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileReader;
@@ -29,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
@@ -36,7 +36,9 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.SystemTest;
 import org.evosuite.continuous.persistency.CsvJUnitData;
+import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.statistics.SearchStatistics;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -162,7 +164,9 @@ public class TestCoverageAnalysisWithRefection extends SystemTest {
         assertTrue(rows.size() == 2);
         reader.close();
 
-        assertEquals("32", CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()));
+        // TODO: The number of lines seems to be different depending on the compiler
+        assertTrue(CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("32") || 
+        		CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("33"));
 
         // Assert that all test cases have passed
 
@@ -175,7 +179,8 @@ public class TestCoverageAnalysisWithRefection extends SystemTest {
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
         assertTrue(lines.size() == 1);
 
-        assertEquals(32 + 1, lines.get(0).replace(" ", "").length()); // number of goals + test result ('+' pass, '-' fail)
+        // TODO: The number of lines seems to be different depending on the compiler
+        assertTrue(33 - lines.get(0).replace(" ", "").length() <= 1); // number of goals + test result ('+' pass, '-' fail)
         assertTrue(lines.get(0).replace(" ", "").endsWith("+"));
 	}
 
@@ -202,10 +207,17 @@ public class TestCoverageAnalysisWithRefection extends SystemTest {
             "-measureCoverage"
         };
 
-        Object statistics = evosuite.parseCommandLine(command);
+        SearchStatistics statistics = (SearchStatistics) evosuite.parseCommandLine(command);
         Assert.assertNotNull(statistics);
 
-        fail("* Failure: interface com.examples.with.different.packagename.ClassPublicInterfaceTest$MultipleEventListener is not visible from class loader\n"
-        		+ "   java.lang.reflect.Proxy$ProxyClassFactory.apply(Proxy.java:581)");
+        Map<String, OutputVariable<?>> outputVariables = statistics.getOutputVariables();
+
+        assertEquals(26, (Integer) outputVariables.get(RuntimeVariable.Total_Goals.name()).getValue(), 0.0);
+        assertEquals(11, (Integer) outputVariables.get(RuntimeVariable.Covered_Goals.name()).getValue(), 0.0);
+        assertEquals(11 / 26, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
+        assertEquals(1, (Integer) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue(), 0.0);
+        assertEquals("11110000001100000000011111", (String) outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
+
+        // TODO check test case result
 	}
 }

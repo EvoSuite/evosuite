@@ -376,6 +376,10 @@ public class MethodCallReplacementCache {
                 "getDeclaredMethods", "()[Ljava/lang/reflect/Method;", Opcodes.INVOKEVIRTUAL,
                 "org/evosuite/runtime/Reflection", "getDeclaredMethods",
                 "(Ljava/lang/Class;)[Ljava/lang/reflect/Method;", false, false));
+        addReplacementCall(new MethodCallReplacement("java/lang/Class",
+                "getInterfaces", "()[Ljava/lang/Class;", Opcodes.INVOKEVIRTUAL,
+                "org/evosuite/runtime/Reflection", "getInterfaces",
+                "(Ljava/lang/Class;)[Ljava/lang/Class;", false, false));
 
         /*
 
