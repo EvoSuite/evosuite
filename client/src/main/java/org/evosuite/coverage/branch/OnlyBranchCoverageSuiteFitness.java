@@ -32,7 +32,6 @@ import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -347,16 +346,6 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
 			        + suite.totalLengthOfTestCases());
 		}
-	}
-
-	public TestSuiteChromosome getBestStoredIndividual(){
-		if(!Properties.TEST_ARCHIVE)
-			return null;
-		
-		// TODO: There's a design problem here because
-		//       other fitness functions use the same archive
-		return TestsArchive.instance.getReducedChromosome();
-		//return bestChromoBuilder.getBestChromosome();
 	}
 
 }
