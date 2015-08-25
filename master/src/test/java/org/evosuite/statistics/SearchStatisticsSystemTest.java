@@ -51,7 +51,7 @@ public class SearchStatisticsSystemTest extends SystemTest{
 
 		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
 		Assert.assertNotNull(map);
-		OutputVariable threads = map.get(RuntimeVariable.Threads.toString());
+		OutputVariable<?> threads = map.get(RuntimeVariable.Threads.toString());
 		Assert.assertNotNull(threads);
 		Assert.assertEquals(1, threads.getValue());
 	}
@@ -72,9 +72,12 @@ public class SearchStatisticsSystemTest extends SystemTest{
 
 		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
 		Assert.assertNotNull(map);
-		OutputVariable threads = map.get(RuntimeVariable.Threads.toString());
+		OutputVariable<?> threads = map.get(RuntimeVariable.Threads.toString());
 		Assert.assertNotNull(threads);
 		Assert.assertEquals(3, threads.getValue());
+		// TODO: This test currently fails because MSecurityManager does not set the number
+		//       of threads correctly to avoid a JVM8 crash on MacOS: 
+		// PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
 	}
 
     @Test
@@ -93,8 +96,8 @@ public class SearchStatisticsSystemTest extends SystemTest{
 
         Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
         Assert.assertNotNull(map);
-        OutputVariable branchlessMethods = map.get(RuntimeVariable.Branchless_Methods.toString());
-        OutputVariable coveredBranchlessMethods = map.get(RuntimeVariable.Covered_Branchless_Methods.toString());
+        OutputVariable<?> branchlessMethods = map.get(RuntimeVariable.Branchless_Methods.toString());
+        OutputVariable<?> coveredBranchlessMethods = map.get(RuntimeVariable.Covered_Branchless_Methods.toString());
         Assert.assertNotNull(branchlessMethods);
         Assert.assertNotNull(coveredBranchlessMethods);
         Assert.assertEquals(5, branchlessMethods.getValue());
@@ -118,16 +121,17 @@ public class SearchStatisticsSystemTest extends SystemTest{
 
         Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
         Assert.assertNotNull(map);
-        OutputVariable coverage = map.get(RuntimeVariable.Coverage.toString());
+        OutputVariable<?> coverage = map.get(RuntimeVariable.Coverage.toString());
         Assert.assertNotNull(coverage);
         Assert.assertEquals(1.0, coverage.getValue());
-        OutputVariable gradientBranches = map.get(RuntimeVariable.Gradient_Branches.toString());
+        OutputVariable<?> gradientBranches = map.get(RuntimeVariable.Gradient_Branches.toString());
         Assert.assertNotNull(gradientBranches);
         Assert.assertEquals(4, gradientBranches.getValue());
     }
 
-    private OutputVariable getLastTimelineVariable(Map<String, OutputVariable<?>> map, String name) {
-        OutputVariable timelineVar = null;
+    @SuppressWarnings("unused")
+	private OutputVariable<?> getLastTimelineVariable(Map<String, OutputVariable<?>> map, String name) {
+        OutputVariable<?> timelineVar = null;
         int max = -1;
         for (Map.Entry<String, OutputVariable<?>> e : map.entrySet()) {
             if (e.getKey().startsWith(name)) {
