@@ -93,8 +93,29 @@ public class Scope {
 		        && !reference.isPrimitive() // && !reference.getGenericClass().isClass()
 		        && !o.getClass().isArray()) { // && !(reference instanceof ArrayReference)) {
 			if (TestUsageChecker.canUse(o.getClass())) {
-				if (Proxy.isProxyClass(o.getClass()) ||  o.getClass().getName().contains("EnhancerByMockito")) {
+				if( Proxy.isProxyClass(o.getClass()) ) {
 					reference.setType(o.getClass().getSuperclass());
+				} else if(o.getClass().getName().contains("EnhancerByMockito")){
+					/*
+						tricky: this is a functional mock for a class X. We do not want to set
+						scopes on mock objects, as their class definitions are created on the fly
+						and will be missing on different processes (eg communications between Master
+						and Client).
+						If X is a class, then the mock will extend it. However, if it was an interface,
+						then we need to look at all of its interface to find the correct one
+					 */
+					String mockName = o.getClass().getName();
+					Class<?> target = o.getClass().getSuperclass();
+					if(! mockName.startsWith(target.getCanonicalName()+"$")){
+						for(Class<?> inter : o.getClass().getInterfaces()){
+							if(mockName.startsWith(inter.getCanonicalName()+"$")){
+								target = inter;
+								break;
+							}
+						}
+					}
+					reference.setType(target);
+
 				} else {
 					reference.setType(o.getClass());
 				}

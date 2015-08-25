@@ -370,7 +370,8 @@ public class TestChromosome extends ExecutableChromosome {
 				fms.addMissingInputs(refs);
 			} catch (Exception e){
 				//shouldn't really happen because, in the worst case, we could create mocks for missing parameters
-				LoggingUtils.logWarnAtMostOnce(logger, "Functional mock problem: " + e.getMessage());
+				String msg = "Functional mock problem: "+e.toString();
+				LoggingUtils.logWarnAtMostOnce(logger, msg);
 				fms.fillWithNullRefs();
 				return changed;
 			}

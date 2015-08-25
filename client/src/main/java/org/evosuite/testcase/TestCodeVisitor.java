@@ -1073,9 +1073,26 @@ public class TestCodeVisitor extends TestVisitor {
 
 		String result = "";
 
+		//by construction, we should avoid cases like:
+		//  Object obj = mock(Foo.class);
+		//as it leads to problems when setting up "when(...)", and anyway it would make no sense
+		Class<?> rawClass = new GenericClass(retval.getType()).getRawClass();
+		assert rawClass.equals(st.getTargetClass()) :
+				"Mismatch between variable raw type "+rawClass+" and mocked "+st.getTargetClass();
+		String rawClassName = getClassName(rawClass);
+
 		//Foo foo = mock(Foo.class);
-		result += getClassName(retval) + " " + getVariableName(retval);
-		result += " = mock(" + getClassName(retval)+".class);" + NEWLINE;
+		String variableType = getClassName(retval);
+		result += variableType + " " + getVariableName(retval);
+
+		result += " = ";
+		if(! variableType.equals(rawClassName)){
+			//this can happen in case of generics, eg
+			//Foo<String> foo = (Foo<String>) mock(Foo.class);
+			result += "(" + variableType+") ";
+		}
+
+		result += "mock(" + rawClassName+".class);" + NEWLINE;
 
 		//when(...).thenReturn(...)
 		for(MethodDescriptor md : st.getMockedMethods()){

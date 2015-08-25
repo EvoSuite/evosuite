@@ -217,7 +217,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		
 		if (population.isEmpty()) {
 			initializePopulation();
-			assert ! population.isEmpty();
+			assert ! population.isEmpty() : "Could not create any test";
 		}
 
 		logger.debug("Starting evolution");
