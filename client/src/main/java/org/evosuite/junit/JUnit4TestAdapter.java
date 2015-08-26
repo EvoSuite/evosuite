@@ -61,11 +61,12 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public String getImports() {
-		String imports = "import static org.junit.Assert.*;\n";
+		String imports = "";
 		if ((Properties.ECLIPSE_PLUGIN) && (!Properties.TARGET_CLASS.equals("EvoSuiteTest")))
 			imports += "import org.evosuite.annotations.EvoSuiteTest;\n";
 		if(!Properties.TARGET_CLASS.equals("Test"))
 			imports += "import org.junit.Test;\n";
+		imports += "import static org.junit.Assert.*;\n";
 		
 		return imports;
 	}
