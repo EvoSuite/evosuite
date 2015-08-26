@@ -458,5 +458,10 @@ public class ExecutionResult implements Cloneable {
 	public void setReturnValues(Map<MethodStatement, Object> returnValues) {
 		this.returnValues = returnValues;		
 	}
+
+	public void setTest(TestCase tc) {
+		this.test = tc;
+	}
+
 	
 }

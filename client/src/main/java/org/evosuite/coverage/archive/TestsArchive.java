@@ -153,7 +153,8 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 
 		if(isNewCoveredGoal || better){
 			ExecutionResult copy = result.clone();
-			copy.test = copy.test.clone(); //result.clone() does not clone the test
+			TestCase copyTest = copy.test.clone(); //result.clone() does not clone the test
+			copy.setTest(copyTest);
 
 			// Remove all statements after an exception
 			if(!copy.noThrownExceptions()) {
@@ -180,7 +181,8 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 				if (!entry.getKey().isCoveredBy(best)) {
 					TestChromosome chromosome = new TestChromosome();
 					ExecutionResult copy = entry.getValue().clone();
-					copy.test = copy.test.clone();
+					TestCase copyTest = copy.test.clone();
+					copy.setTest(copyTest);
 					chromosome.setTestCase(copy.test);
 					chromosome.setLastExecutionResult(copy);
 					best.addTest(chromosome); //should avoid re-execute the tests
