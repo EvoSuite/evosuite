@@ -25,9 +25,9 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.LocalSearchBudgetType;
 import org.evosuite.SystemTest;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.Properties.LocalSearchBudgetType;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.DefaultLocalSearchObjective;
@@ -46,7 +46,6 @@ import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,13 +58,6 @@ import com.examples.with.different.packagename.localsearch.IntegerLocalSearchExa
 
 public class LocalSearchNumericTest extends SystemTest {
 
-	private final double oldPrimitivePool = Properties.PRIMITIVE_POOL;
-	private final double oldDseProbability = Properties.DSE_PROBABILITY;
-	private final boolean oldLSReferences = Properties.LOCAL_SEARCH_REFERENCES; 
-	private final boolean oldLSArrays = Properties.LOCAL_SEARCH_ARRAYS; 
-	private final Properties.LocalSearchBudgetType oldLSBudgetType = Properties.LOCAL_SEARCH_BUDGET_TYPE;
-	private final long oldLSBudget = Properties.LOCAL_SEARCH_BUDGET;
-	
 	@Before
     public void init(){
         Properties.DSE_PROBABILITY = 0.0;
@@ -75,16 +67,6 @@ public class LocalSearchNumericTest extends SystemTest {
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = false;
     }
-	
-	@After
-	public void restoreProperties() {
-		Properties.DSE_PROBABILITY = oldDseProbability;
-		Properties.PRIMITIVE_POOL = oldPrimitivePool;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = oldLSBudgetType;
-		Properties.LOCAL_SEARCH_BUDGET = oldLSBudget;
-		Properties.LOCAL_SEARCH_REFERENCES = oldLSReferences;
-		Properties.LOCAL_SEARCH_ARRAYS = oldLSArrays;
-	}
 	
 	private TestCase getIntTest(int x, int y) throws NoSuchMethodException, SecurityException, ConstructionFailedException, ClassNotFoundException {
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);

@@ -25,9 +25,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
-import org.evosuite.Properties.LocalSearchBudgetType;
 import org.evosuite.SystemTest;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.DefaultLocalSearchObjective;
@@ -46,7 +45,6 @@ import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,14 +52,6 @@ import com.examples.with.different.packagename.localsearch.DseBar;
 import com.examples.with.different.packagename.localsearch.DseFoo;
 
 public class EnvironmentDataTest extends SystemTest {
-
-	private static final double DEFAULT_LS_PROBABILITY = Properties.LOCAL_SEARCH_PROBABILITY;
-	private static final int DEFAULT_LS_RATE = Properties.LOCAL_SEARCH_RATE;
-	private static final LocalSearchBudgetType DEFAULT_LS_BUDGET_TYPE = Properties.LOCAL_SEARCH_BUDGET_TYPE;
-	private static final long DEFAULT_LS_BUDGET = Properties.LOCAL_SEARCH_BUDGET;
-	private static final long DEFAULT_SEARCH_BUDGET = Properties.SEARCH_BUDGET;
-	private static final int DEFAULT_CONCOLIC_TIMEOUT = Properties.CONCOLIC_TIMEOUT;
-	private static final boolean DEFAULT_RT_VFS = RuntimeSettings.useVFS;
 
 	@Before
 	public void init() {
@@ -73,18 +63,6 @@ public class EnvironmentDataTest extends SystemTest {
 		RuntimeSettings.useVFS = true;
 	}
 
-	@After
-	public void restoreProperties() {
-		Properties.LOCAL_SEARCH_PROBABILITY = DEFAULT_LS_PROBABILITY;
-		Properties.LOCAL_SEARCH_RATE = DEFAULT_LS_RATE;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = DEFAULT_LS_BUDGET_TYPE;
-		Properties.LOCAL_SEARCH_BUDGET = DEFAULT_LS_BUDGET;
-		Properties.SEARCH_BUDGET = DEFAULT_SEARCH_BUDGET;
-		Properties.CONCOLIC_TIMEOUT = DEFAULT_CONCOLIC_TIMEOUT;
-		RuntimeSettings.useVFS = DEFAULT_RT_VFS;
-	}
-
-	
 	@Test
 	public void testOnSpecificTest() throws ClassNotFoundException, ConstructionFailedException, NoSuchMethodException, SecurityException {
 		Properties.TARGET_CLASS = DseBar.class.getCanonicalName();
@@ -106,7 +84,7 @@ public class EnvironmentDataTest extends SystemTest {
 		String path = "/home/galeotti/README.txt";
 		EvoSuiteFile evosuiteFile = new EvoSuiteFile(path);
 		FileNamePrimitiveStatement fileNameStmt = new FileNamePrimitiveStatement(test,evosuiteFile);
-		VariableReference evosuiteFileVar = test.addStatement(fileNameStmt);
+		test.addStatement(fileNameStmt);
 		
 		Method fooIncMethod = fooClass.getMethod("inc", new Class<?>[] { });
 		GenericMethod incMethod = new GenericMethod(fooIncMethod, fooClass);

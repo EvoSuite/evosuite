@@ -19,33 +19,21 @@
  */
 package org.evosuite.localsearch;
 
-import com.examples.with.different.packagename.localsearch.DseBar;
-import com.examples.with.different.packagename.localsearch.IntegerLocalSearchExample;
-import com.examples.with.different.packagename.localsearch.IsstaFoo;
-
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.Properties.DSEType;
-import org.evosuite.Properties.LocalSearchBudgetType;
-import org.evosuite.Properties.SolverType;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.examples.with.different.packagename.localsearch.IsstaFoo;
 
 /**
  * Created by Andrea Arcuri on 19/03/15.
  */
 public class Issta14SystemTest extends SystemTest {
-
-	private static final double DEFAULT_LS_PROBABILITY = Properties.LOCAL_SEARCH_PROBABILITY;
-	private static final int DEFAULT_LS_RATE = Properties.LOCAL_SEARCH_RATE;
-	private static final LocalSearchBudgetType DEFAULT_LS_BUDGET_TYPE = Properties.LOCAL_SEARCH_BUDGET_TYPE;
-	private static final long DEFAULT_LS_BUDGET = Properties.LOCAL_SEARCH_BUDGET;
-	private static final long DEFAULT_SEARCH_BUDGET = Properties.SEARCH_BUDGET;
 
 	@Before
 	public void init() {
@@ -54,15 +42,6 @@ public class Issta14SystemTest extends SystemTest {
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_BUDGET = 100;
 		Properties.SEARCH_BUDGET = 50000;
-	}
-
-	@After
-	public void restoreProperties() {
-		Properties.LOCAL_SEARCH_PROBABILITY = DEFAULT_LS_PROBABILITY;
-		Properties.LOCAL_SEARCH_RATE = DEFAULT_LS_RATE;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = DEFAULT_LS_BUDGET_TYPE;
-		Properties.LOCAL_SEARCH_BUDGET = DEFAULT_LS_BUDGET;
-		Properties.SEARCH_BUDGET = DEFAULT_SEARCH_BUDGET;
 	}
 
 	@Test

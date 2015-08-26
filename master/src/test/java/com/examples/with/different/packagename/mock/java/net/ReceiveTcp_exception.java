@@ -22,7 +22,6 @@ package com.examples.with.different.packagename.mock.java.net;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 
 /**
  * Created by arcuri on 12/28/14.
