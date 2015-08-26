@@ -106,9 +106,9 @@ public class Scope {
 					 */
 					String mockName = o.getClass().getName();
 					Class<?> target = o.getClass().getSuperclass();
-					if(! mockName.startsWith(target.getCanonicalName()+"$")){
+					if(! mockName.startsWith(target.getName()+"$")){
 						for(Class<?> inter : o.getClass().getInterfaces()){
-							if(mockName.startsWith(inter.getCanonicalName()+"$")){
+							if(mockName.startsWith(inter.getName()+"$")){
 								target = inter;
 								break;
 							}

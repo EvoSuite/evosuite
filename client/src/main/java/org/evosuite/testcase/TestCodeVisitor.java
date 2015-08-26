@@ -1077,8 +1077,9 @@ public class TestCodeVisitor extends TestVisitor {
 		//  Object obj = mock(Foo.class);
 		//as it leads to problems when setting up "when(...)", and anyway it would make no sense
 		Class<?> rawClass = new GenericClass(retval.getType()).getRawClass();
-		assert rawClass.equals(st.getTargetClass()) :
-				"Mismatch between variable raw type "+rawClass+" and mocked "+st.getTargetClass();
+		Class<?> targetClass = st.getTargetClass();
+		assert  rawClass.getName().equals(targetClass.getName()) :
+				"Mismatch between variable raw type "+rawClass+" and mocked "+targetClass;
 		String rawClassName = getClassName(rawClass);
 
 		//Foo foo = mock(Foo.class);
