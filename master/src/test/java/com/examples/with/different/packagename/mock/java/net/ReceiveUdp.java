@@ -22,7 +22,6 @@ package com.examples.with.different.packagename.mock.java.net;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * Created by arcuri on 12/17/14.

@@ -19,7 +19,6 @@
  */
 package com.examples.with.different.packagename.mock.java.net;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 /**

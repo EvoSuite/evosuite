@@ -402,7 +402,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public Set<Class<?>> getAccessedClasses() {
-		Set<Class<?>> accessed_classes = new LinkedHashSet<Class<?>>();
+		Set<Class<?>> accessedClasses = new LinkedHashSet<Class<?>>();
 		for (Statement s : statements) {
 			for (VariableReference var : s.getVariableReferences()) {
 				if (var != null && !var.isPrimitive()) {
@@ -413,27 +413,27 @@ public class DefaultTestCase implements TestCase, Serializable {
 					}
 					while (clazz.isArray())
 						clazz = clazz.getComponentType();
-					accessed_classes.add(clazz);
+					accessedClasses.add(clazz);
 				}
 			}
 			if (s instanceof MethodStatement) {
 				MethodStatement ms = (MethodStatement) s;
-				accessed_classes.addAll(Arrays.asList(ms.getMethod().getMethod().getExceptionTypes()));
-				accessed_classes.add(ms.getMethod().getMethod().getDeclaringClass());
-				accessed_classes.add(ms.getMethod().getMethod().getReturnType());
-				accessed_classes.addAll(Arrays.asList(ms.getMethod().getMethod().getParameterTypes()));
+				accessedClasses.addAll(Arrays.asList(ms.getMethod().getMethod().getExceptionTypes()));
+				accessedClasses.add(ms.getMethod().getMethod().getDeclaringClass());
+				accessedClasses.add(ms.getMethod().getMethod().getReturnType());
+				accessedClasses.addAll(Arrays.asList(ms.getMethod().getMethod().getParameterTypes()));
 			} else if (s instanceof FieldStatement) {
 				FieldStatement fs = (FieldStatement) s;
-				accessed_classes.add(fs.getField().getField().getDeclaringClass());
-				accessed_classes.add(fs.getField().getField().getType());
+				accessedClasses.add(fs.getField().getField().getDeclaringClass());
+				accessedClasses.add(fs.getField().getField().getType());
 			} else if (s instanceof ConstructorStatement) {
 				ConstructorStatement cs = (ConstructorStatement) s;
-				accessed_classes.add(cs.getConstructor().getConstructor().getDeclaringClass());
-				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getConstructor().getExceptionTypes()));
-				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getConstructor().getParameterTypes()));
+				accessedClasses.add(cs.getConstructor().getConstructor().getDeclaringClass());
+				accessedClasses.addAll(Arrays.asList(cs.getConstructor().getConstructor().getExceptionTypes()));
+				accessedClasses.addAll(Arrays.asList(cs.getConstructor().getConstructor().getParameterTypes()));
 			}
 		}
-		return accessed_classes;
+		return accessedClasses;
 	}
 
 
