@@ -148,7 +148,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 		if (other.lastExecutionResult != null) {
 			this.lastExecutionResult = other.lastExecutionResult.clone();
-			this.lastExecutionResult.test = this.test;
+			this.lastExecutionResult.setTest(this.test);
 		}
 
 		if (other.lastMutationResult != null) {
