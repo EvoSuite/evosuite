@@ -40,7 +40,7 @@ public class LocalAddressPrimitiveStatement extends EnvironmentDataStatement<Evo
         randomize();
     }
 
-        public LocalAddressPrimitiveStatement(TestCase tc, EvoSuiteLocalAddress value) {
+    public LocalAddressPrimitiveStatement(TestCase tc, EvoSuiteLocalAddress value) {
         super(tc, EvoSuiteLocalAddress.class, value);
     }
 

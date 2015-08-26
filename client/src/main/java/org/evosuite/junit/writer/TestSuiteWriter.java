@@ -333,15 +333,33 @@ public class TestSuiteWriter implements Opcodes {
     protected String getImports(List<ExecutionResult> results) {
         StringBuilder builder = new StringBuilder();
         Set<Class<?>> imports = new HashSet<Class<?>>();
+        Set<Class<?>> accessedClasses = new HashSet<Class<?>>();
         boolean wasSecurityException = TestSuiteWriterUtils.hasAnySecurityException(results);
+        boolean hasException = false;
 
         for (ExecutionResult result : results) {
         	visitor.clearExceptions();
         	visitor.setExceptions(result.exposeExceptionMapping());
             result.test.accept(visitor);
             imports.addAll(visitor.getImports());
+            accessedClasses.addAll(result.test.getAccessedClasses());
+            if(!hasException)
+            	hasException = !result.noThrownExceptions();
         }
         visitor.clearExceptions();
+
+        if(doesUseMocks(results)){
+            /*
+                TODO: this can lead to problems if SUT defines its own static methods
+                with same name as those static imports. 
+             */
+            String mockito = Mockito.class.getCanonicalName();
+            builder.append("import static "+mockito+".*;"+NEWLINE);
+        }
+
+        if(hasException) {
+        	builder.append("import static "+ EvoAssertions.class.getCanonicalName()+".*;"+NEWLINE);
+        }
 
         if (Properties.RESET_STANDARD_STREAMS) {
             imports.add(PrintStream.class);
@@ -354,7 +372,7 @@ public class TestSuiteWriter implements Opcodes {
             imports.add(RunWith.class);
         }
 
-        Set<String> import_names = new HashSet<String>();
+        Set<String> importNames = new HashSet<String>();
         for (Class<?> imp : imports) {
             while (imp.isArray())
                 imp = imp.getComponentType();
@@ -369,49 +387,38 @@ public class TestSuiteWriter implements Opcodes {
                 continue;
             // TODO: Check for anonymous type?
             if (imp.getName().contains("$"))
-                import_names.add(imp.getName().replace("$", "."));
+                importNames.add(imp.getName().replace("$", "."));
             else
-                import_names.add(imp.getName());
+                importNames.add(imp.getName());
         }
 
         for (Class<?> klass : EnvironmentDataList.getListOfClasses()) {
             //TODO: not paramount, but best if could check if actually used in the test suite
-            import_names.add(klass.getCanonicalName());
+        	if(accessedClasses.contains(klass))
+        		importNames.add(klass.getCanonicalName());
         }
 
         if (wasSecurityException) {
             //Add import info for EvoSuite classes used in the generated test suite
-            import_names.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
-            import_names.add(java.util.concurrent.Executors.class.getCanonicalName());
-            import_names.add(java.util.concurrent.Future.class.getCanonicalName());
-            import_names.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
+            importNames.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
+            importNames.add(java.util.concurrent.Executors.class.getCanonicalName());
+            importNames.add(java.util.concurrent.Future.class.getCanonicalName());
+            importNames.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
         }
 
         if (!Properties.TEST_SCAFFOLDING) {
-            import_names.addAll(Scaffolding.getScaffoldingImports(wasSecurityException, results));
+            importNames.addAll(Scaffolding.getScaffoldingImports(wasSecurityException, results));
         }
 
-        List<String> imports_sorted = new ArrayList<String>(import_names);
+        List<String> importsSorted = new ArrayList<String>(importNames);
 
-        Collections.sort(imports_sorted);
-        for (String imp : imports_sorted) {
+        Collections.sort(importsSorted);
+        for (String imp : importsSorted) {
             builder.append("import ");
             builder.append(imp);
             builder.append(";");
             builder.append(NEWLINE);
         }
-
-        if(doesUseMocks(results)){
-            /*
-                TODO: this can lead to problems if SUT defines its own static methods
-                with same name as those static imports. 
-             */
-            String mockito = Mockito.class.getCanonicalName();
-            builder.append("import static "+mockito+".*;"+NEWLINE);
-        }
-
-        //TODO only needed if there is any exception
-        builder.append("import static "+ EvoAssertions.class.getCanonicalName()+".*;"+NEWLINE);
 
         builder.append(NEWLINE);
 
