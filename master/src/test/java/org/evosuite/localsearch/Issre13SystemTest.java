@@ -69,7 +69,7 @@ public class Issre13SystemTest extends SystemTest {
 		Properties.SEARCH_BUDGET = 50000;
 	}
 
-//	@Test
+	@Test
 	public void testLocalSearch() {
 
 		// it should be trivial for LS
