@@ -29,7 +29,9 @@ package org.evosuite.runtime;
  */
 public class TooManyResourcesException extends RuntimeException{
 
-    public TooManyResourcesException(){
+	private static final long serialVersionUID = 1L;
+
+	public TooManyResourcesException(){
         super();
     }
 
