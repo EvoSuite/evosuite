@@ -19,18 +19,14 @@
  */
 package org.evosuite.testcase.execution;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.assertion.OutputTrace;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class ExecutionResult implements Cloneable {
 
@@ -92,6 +88,9 @@ public class ExecutionResult implements Cloneable {
 
 	/** Mapping of method statements to actual return values */
 	private Map<MethodStatement, Object> returnValues;
+
+	/** Mapping of method statements to actual argument values */
+	private Map<MethodStatement, List<Object>> argumentsValues;
 
 	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
 	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
@@ -412,6 +411,8 @@ public class ExecutionResult implements Cloneable {
 		copy.executionTime = executionTime;
 		if(returnValues != null)
 			copy.returnValues = new HashMap<MethodStatement, Object>(returnValues);
+		if(argumentsValues != null)
+			copy.argumentsValues = new HashMap<MethodStatement, List<Object>>(argumentsValues);
 		for (Class<?> clazz : traces.keySet()) {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}
@@ -463,5 +464,13 @@ public class ExecutionResult implements Cloneable {
 		this.test = tc;
 	}
 
-	
+	public Map<MethodStatement, List<Object>> getArgumentsValues() {
+		if (this.argumentsValues == null)
+			this.argumentsValues = new HashMap<MethodStatement, List<Object>>();
+		return this.argumentsValues;
+	}
+
+	public void setArgumentsValues(Map<MethodStatement, List<Object>> argumentsValues) {
+		this.argumentsValues = argumentsValues;
+	}	
 }
