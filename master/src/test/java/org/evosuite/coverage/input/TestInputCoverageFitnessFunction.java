@@ -61,7 +61,12 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 		Properties.TEST_ARCHIVE = true;
 		Properties.SEARCH_BUDGET = 10;
 		Properties.MINIMIZE = false;
+		Properties.ASSERTIONS = false;
 		Properties.JUNIT_TESTS = true;
+		Properties.PRINT_GOALS = true;
+		Properties.TEST_COMMENTS = true;
+		Properties.PRINT_COVERED_GOALS = true;
+		Properties.ID_NAMING = false;
 		testInputCoverage();
 	}
 
