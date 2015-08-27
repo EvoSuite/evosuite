@@ -694,6 +694,9 @@ public class TestSuiteGenerator {
 		case OUTPUT:
 			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");
 			break;
+		case INPUT:
+			LoggingUtils.getEvoLogger().info("  - Method-Input Coverage");
+			break;
 		default:
 			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
 		}

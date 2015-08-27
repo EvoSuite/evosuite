@@ -17,11 +17,16 @@
  */
 package org.evosuite;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -33,15 +38,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.evosuite.classpath.ClassPathHandler;
-import org.evosuite.runtime.Runtime;
-import org.evosuite.runtime.RuntimeSettings;
-import org.evosuite.runtime.sandbox.Sandbox;
-import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Central property repository. All global parameters of EvoSuite should be
@@ -1315,7 +1311,7 @@ public class Properties {
 	public enum Criterion {
 		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
         MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, REGRESSION, READABILITY,
-        ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT
+        ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT, INPUT
 	}
 
     /** Constant <code>CRITERION</code> */

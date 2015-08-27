@@ -1,18 +1,10 @@
 package org.evosuite.statistics;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
+import org.evosuite.coverage.input.InputCoverageSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
@@ -25,17 +17,15 @@ import org.evosuite.result.TestGenerationResult;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
-import org.evosuite.statistics.backend.CSVStatisticsBackend;
-import org.evosuite.statistics.backend.ConsoleStatisticsBackend;
-import org.evosuite.statistics.backend.DebugStatisticsBackend;
-import org.evosuite.statistics.backend.HTMLStatisticsBackend;
-import org.evosuite.statistics.backend.StatisticsBackend;
+import org.evosuite.statistics.backend.*;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 
 /**
@@ -121,6 +111,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         sequenceOutputVariableFactories.put(RuntimeVariable.LineCoverageTimeline.name(), new LineCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OutputFitnessTimeline.name(), new OutputFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OutputCoverageTimeline.name(), new OutputCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.InputFitnessTimeline.name(), new InputFitnessSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.InputCoverageTimeline.name(), new InputCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.ExceptionFitnessTimeline.name(), new ExceptionFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.ExceptionCoverageTimeline.name(), new ExceptionCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationFitnessTimeline.name(), new OnlyMutationFitnessSequenceOutputVariableFactory());
@@ -704,6 +696,30 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         @Override
         public Double getValue(TestSuiteChromosome individual) {
             return individual.getCoverageInstanceOf(OutputCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class InputFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public InputFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.InputFitnessTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(InputCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class InputCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public InputCoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.InputCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(InputCoverageSuiteFitness.class);
         }
     }
 
