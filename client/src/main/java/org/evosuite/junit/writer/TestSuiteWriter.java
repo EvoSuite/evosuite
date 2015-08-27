@@ -197,15 +197,21 @@ public class TestSuiteWriter implements Opcodes {
             throw new IllegalArgumentException("Test classes should have name ending with 'Test'. Invalid input name: " + name);
         }
 
-        List<ExecutionResult> results = new ArrayList<ExecutionResult>();
-
         List<File> generated = new ArrayList<File>();
         String dir = TestSuiteWriterUtils.makeDirectory(directory);
         String content = "";
 
+        // Execute all tests
+        executor.newObservers();
+        List<ExecutionResult> results = new ArrayList<ExecutionResult>();
+        for (int i = 0; i < testCases.size(); i++) {
+            ExecutionResult result = runTest(testCases.get(i));
+            results.add(result);
+        }
+
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
-            executor.newObservers();
+            //executor.newObservers();
             content = getUnitTestsAllInSameFile(name, results);
             Utils.writeFile(content, file);
             generated.add(file);
@@ -213,7 +219,7 @@ public class TestSuiteWriter implements Opcodes {
             for (int i = 0; i < testCases.size(); i++) {
                 String testSuiteName = name.substring(0, name.length() - "Test".length()) + "_" + i + "_Test";
                 File file = new File(dir + "/" + testSuiteName + ".java");
-                executor.newObservers();
+                //executor.newObservers();
                 String testCode = getOneUnitTestInAFile(name, i, results);
                 Utils.writeFile(testCode, file);
                 content += testCode;
@@ -242,11 +248,6 @@ public class TestSuiteWriter implements Opcodes {
      * @return String representation of JUnit test file
      */
     private String getUnitTestsAllInSameFile(String name, List<ExecutionResult> results) {
-
-        for (int i = 0; i < testCases.size(); i++) {
-            ExecutionResult result = runTest(testCases.get(i));
-            results.add(result);
-        }
 
 		/*
          * if there was any security exception, then we need to scaffold the
@@ -278,9 +279,8 @@ public class TestSuiteWriter implements Opcodes {
      * @return String representation of JUnit test file
      */
     private String getOneUnitTestInAFile(String name, int testId, List<ExecutionResult> results) {
-        ExecutionResult result = runTest(testCases.get(testId));
-        results.add(result);
-        boolean wasSecurityException = result.hasSecurityException();
+
+        boolean wasSecurityException = results.get(testId).hasSecurityException();
 
         StringBuilder builder = new StringBuilder();
 
@@ -290,7 +290,7 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
         }
 
-        builder.append(testToString(testId, testId, results.get(0)));
+        builder.append(testToString(testId, testId, results.get(testId)));
         builder.append(getFooter());
 
         return builder.toString();
