@@ -1,19 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.testcase;
 
@@ -31,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
@@ -62,6 +65,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
 
+	protected static final AtomicInteger idGenerator = new AtomicInteger(0);
+
 	private final AccessedEnvironment accessedEnvironment = new AccessedEnvironment();
 
 	/** The statements */
@@ -77,12 +82,18 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private boolean unstable = false;
 
+	private int id;
+
 	/**
 	 * Constructor
 	 */
 	public DefaultTestCase() {
-		statements = new ListenableList<Statement>(
-		        new ArrayList<Statement>());
+		statements = new ListenableList<>(new ArrayList<>());
+		id = idGenerator.getAndIncrement();
+	}
+
+	public int getID(){
+		return id;
 	}
 
 	/* (non-Javadoc)
@@ -350,6 +361,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		t.coveredGoals.addAll(coveredGoals);
 		t.accessedEnvironment.copyFrom(accessedEnvironment);
 		t.isFailing = isFailing;
+		t.id = idGenerator.getAndIncrement(); //always create new ID when making a clone
 		//t.exception_statement = exception_statement;
 		//t.exceptionThrown = exceptionThrown;
 		return t;
@@ -394,7 +406,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public Set<Class<?>> getAccessedClasses() {
-		Set<Class<?>> accessed_classes = new LinkedHashSet<Class<?>>();
+		Set<Class<?>> accessedClasses = new LinkedHashSet<Class<?>>();
 		for (Statement s : statements) {
 			for (VariableReference var : s.getVariableReferences()) {
 				if (var != null && !var.isPrimitive()) {
@@ -405,27 +417,27 @@ public class DefaultTestCase implements TestCase, Serializable {
 					}
 					while (clazz.isArray())
 						clazz = clazz.getComponentType();
-					accessed_classes.add(clazz);
+					accessedClasses.add(clazz);
 				}
 			}
 			if (s instanceof MethodStatement) {
 				MethodStatement ms = (MethodStatement) s;
-				accessed_classes.addAll(Arrays.asList(ms.getMethod().getMethod().getExceptionTypes()));
-				accessed_classes.add(ms.getMethod().getMethod().getDeclaringClass());
-				accessed_classes.add(ms.getMethod().getMethod().getReturnType());
-				accessed_classes.addAll(Arrays.asList(ms.getMethod().getMethod().getParameterTypes()));
+				accessedClasses.addAll(Arrays.asList(ms.getMethod().getMethod().getExceptionTypes()));
+				accessedClasses.add(ms.getMethod().getMethod().getDeclaringClass());
+				accessedClasses.add(ms.getMethod().getMethod().getReturnType());
+				accessedClasses.addAll(Arrays.asList(ms.getMethod().getMethod().getParameterTypes()));
 			} else if (s instanceof FieldStatement) {
 				FieldStatement fs = (FieldStatement) s;
-				accessed_classes.add(fs.getField().getField().getDeclaringClass());
-				accessed_classes.add(fs.getField().getField().getType());
+				accessedClasses.add(fs.getField().getField().getDeclaringClass());
+				accessedClasses.add(fs.getField().getField().getType());
 			} else if (s instanceof ConstructorStatement) {
 				ConstructorStatement cs = (ConstructorStatement) s;
-				accessed_classes.add(cs.getConstructor().getConstructor().getDeclaringClass());
-				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getConstructor().getExceptionTypes()));
-				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getConstructor().getParameterTypes()));
+				accessedClasses.add(cs.getConstructor().getConstructor().getDeclaringClass());
+				accessedClasses.addAll(Arrays.asList(cs.getConstructor().getConstructor().getExceptionTypes()));
+				accessedClasses.addAll(Arrays.asList(cs.getConstructor().getConstructor().getParameterTypes()));
 			}
 		}
-		return accessed_classes;
+		return accessedClasses;
 	}
 
 
@@ -512,7 +524,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			if (var.isAssignableTo(type))
 				return var;
 		}
-		throw new ConstructionFailedException("Foudn no variables of type " + type);
+		throw new ConstructionFailedException("Found no variables of type " + type);
 	}
 
 	/* (non-Javadoc)

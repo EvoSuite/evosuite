@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.symbolic.solver.cvc4;
 
 import java.io.BufferedReader;
@@ -18,9 +37,13 @@ import java.util.TimerTask;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.SolverEmptyQueryException;
+import org.evosuite.symbolic.solver.SolverErrorException;
+import org.evosuite.symbolic.solver.SolverParseException;
+import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
@@ -64,8 +87,7 @@ public final class CVC4Solver extends Solver {
 
 		@Override
 		public void run() {
-			logger.debug("CVC4 timeout was reached after " + timeout
-					+ " milliseconds ");
+			logger.debug("CVC4 timeout was reached after " + timeout + " milliseconds ");
 			process.destroy();
 		}
 	}
@@ -81,8 +103,8 @@ public final class CVC4Solver extends Solver {
 	}
 
 	@Override
-	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
-			throws ConstraintSolverTimeoutException {
+	public SolverResult solve(Collection<Constraint<?>> constraints)
+			throws SolverTimeoutException, SolverEmptyQueryException, SolverErrorException, SolverParseException {
 
 		if (Properties.CVC4_PATH == null) {
 			String errMsg = "Property CVC4_PATH should be setted in order to use the CVC4 Solver!";
@@ -92,10 +114,9 @@ public final class CVC4Solver extends Solver {
 
 		// CVC4 has very little support for non-linear arithemtics
 		// In fact, it cannot even produce models for non-linear theories
-		if (!reWriteNonLinearConstraints
-				&& hasNonLinearConstraints(constraints)) {
+		if (!reWriteNonLinearConstraints && hasNonLinearConstraints(constraints)) {
 			logger.debug("Skipping query due to (unsupported) non-linear constraints");
-			return null;
+			throw new SolverEmptyQueryException("Skipping query due to (unsupported) non-linear constraints");
 		}
 
 		long cvcTimeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS * 10;
@@ -110,17 +131,17 @@ public final class CVC4Solver extends Solver {
 
 		SmtCheckSatQuery smtQuery = buildSmtCheckSatQuery(constraints);
 
-		if (smtQuery==null) {
-			logger.debug("No variables found during the creation of the SMT quer. Returning NULL as solution");
-			return null;
+		if (smtQuery == null) {
+			logger.debug("No variables found during the creation of the SMT query.");
+			throw new SolverEmptyQueryException("No variables found during the creation of the SMT query.");
 		}
-		
+
 		CVC4QueryPrinter printer = new CVC4QueryPrinter();
 		String smtQueryStr = printer.print(smtQuery);
 
 		if (smtQueryStr == null) {
-			logger.debug("No variables found during constraint solving. Returning NULL as solution");
-			return null;
+			logger.debug("No variables found during constraint solving.");
+			throw new SolverEmptyQueryException("No variables found during constraint solving.");
 		}
 
 		logger.debug("CVC4 Query:");
@@ -132,54 +153,38 @@ public final class CVC4Solver extends Solver {
 		ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
 		try {
-			launchNewProcess(cvc4Cmd, smtQueryStr, (int) processTimeout,
-					stdout, stderr);
+			launchNewProcess(cvc4Cmd, smtQueryStr, (int) processTimeout, stdout, stderr);
 
 			String cvc4ResultStr = stdout.toString("UTF-8");
 			String errorStr = stderr.toString("UTF-8");
 
 			if (errorStr.contains("error")) {
-				logger.error("An error occurred while executing CVC4!");
-				return null;
+				String errMsg = "An error occurred while executing CVC4!";
+				logger.error(errMsg);
+				throw new SolverErrorException(errMsg);
 			}
 
-			if (cvc4ResultStr.startsWith("sat")) {
-				logger.debug("CVC4 outcome was SAT");
+			// parse solution
+			Map<String, Object> initialValues = getConcreteValues(variables);
+			CVC4ResultParser resultParser;
+			if (addMissingVariables()) {
+				resultParser = new CVC4ResultParser(initialValues);
+			} else {
+				resultParser = new CVC4ResultParser();
+			}
+			SolverResult solverResult = resultParser.parse(cvc4ResultStr);
 
-				// parse solution
-				Map<String, Object> initialValues = getConcreteValues(variables);
-				CVC4ModelParser modelParser;
-				if (addMissingVariables()) {
-					modelParser = new CVC4ModelParser(initialValues);
-				} else {
-					modelParser = new CVC4ModelParser();
-				}
-				Map<String, Object> solution = modelParser.parse(cvc4ResultStr);
-
+			if (solverResult.isSAT()) {
 				// check if the found solution is useful
-				boolean check = checkSolution(constraints, solution);
+				boolean check = checkSAT(constraints, solverResult);
 				if (!check) {
 					logger.debug("CVC4 solution does not solve the original constraint system. ");
-					return null;
+					SolverResult unsatResult = SolverResult.newUNSAT();
+					return unsatResult;
 				}
-
-				return solution;
-			} else if (cvc4ResultStr.startsWith("unsat")) {
-				logger.debug("CVC4 outcome was UNSAT");
-				return null;
-			} else if (cvc4ResultStr.startsWith("unknown")) {
-				logger.debug("CVC4 outcome was UNKNOWN (probably due to timeout)");
-				return null;
-			} else if (cvc4ResultStr.startsWith("(error")) {
-				logger.debug("CVC4 output was the following " + cvc4ResultStr);
-				throw new EvosuiteError(
-						"An error (probably an invalid input) occurred while executing CVC4");
-			} else {
-				logger.debug("The following CVC4 output could not be parsed "
-						+ cvc4ResultStr);
-				throw new EvosuiteError(
-						"CVC4 output is unknown. We are unable to parse it to a proper solution!");
 			}
+
+			return solverResult;
 
 		} catch (IOException e) {
 			if (e.getMessage().contains("Permission denied")) {
@@ -193,8 +198,7 @@ public final class CVC4Solver extends Solver {
 
 	}
 
-	private static SmtCheckSatQuery buildSmtCheckSatQuery(
-			Collection<Constraint<?>> constraints) {
+	private static SmtCheckSatQuery buildSmtCheckSatQuery(Collection<Constraint<?>> constraints) {
 
 		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor();
 		SmtVariableCollector varCollector = new SmtVariableCollector();
@@ -219,21 +223,17 @@ public final class CVC4Solver extends Solver {
 
 		List<SmtFunctionDefinition> functionDefinitions = new LinkedList<SmtFunctionDefinition>();
 
-		final boolean addCharToInt = funCollector.getOperators().contains(
-				Operator.CHAR_TO_INT);
+		final boolean addCharToInt = funCollector.getOperators().contains(Operator.CHAR_TO_INT);
 		if (addCharToInt) {
 			String charToIntFunction = buildCharToIntFunction();
-			SmtFunctionDefinition funcDefinition = new SmtFunctionDefinition(
-					charToIntFunction);
+			SmtFunctionDefinition funcDefinition = new SmtFunctionDefinition(charToIntFunction);
 			functionDefinitions.add(funcDefinition);
 		}
 
-		final boolean addIntToChar = funCollector.getOperators().contains(
-				Operator.INT_TO_CHAR);
+		final boolean addIntToChar = funCollector.getOperators().contains(Operator.INT_TO_CHAR);
 		if (addIntToChar) {
 			String intToCharFunction = buildIntToCharFunction();
-			SmtFunctionDefinition funcDefinition = new SmtFunctionDefinition(
-					intToCharFunction);
+			SmtFunctionDefinition funcDefinition = new SmtFunctionDefinition(intToCharFunction);
 			functionDefinitions.add(funcDefinition);
 		}
 
@@ -241,27 +241,22 @@ public final class CVC4Solver extends Solver {
 		for (SmtVariable var : variables) {
 			String varName = var.getName();
 			if (var instanceof SmtIntVariable) {
-				SmtFunctionDeclaration intVar = SmtExprBuilder
-						.mkIntFunctionDeclaration(varName);
+				SmtFunctionDeclaration intVar = SmtExprBuilder.mkIntFunctionDeclaration(varName);
 				functionDeclarations.add(intVar);
 
 			} else if (var instanceof SmtRealVariable) {
-				SmtFunctionDeclaration realVar = SmtExprBuilder
-						.mkRealFunctionDeclaration(varName);
+				SmtFunctionDeclaration realVar = SmtExprBuilder.mkRealFunctionDeclaration(varName);
 				functionDeclarations.add(realVar);
 
 			} else if (var instanceof SmtStringVariable) {
-				SmtFunctionDeclaration stringVar = SmtExprBuilder
-						.mkStringFunctionDeclaration(varName);
+				SmtFunctionDeclaration stringVar = SmtExprBuilder.mkStringFunctionDeclaration(varName);
 				functionDeclarations.add(stringVar);
 			} else {
-				throw new RuntimeException("Unknown variable type "
-						+ var.getClass().getCanonicalName());
+				throw new RuntimeException("Unknown variable type " + var.getClass().getCanonicalName());
 			}
 		}
 
-		SmtCheckSatQuery smtQuery = new SmtCheckSatQuery(
-				new LinkedList<SmtConstantDeclaration>(), functionDeclarations,
+		SmtCheckSatQuery smtQuery = new SmtCheckSatQuery(new LinkedList<SmtConstantDeclaration>(), functionDeclarations,
 				functionDefinitions, smtAssertions);
 
 		return smtQuery;
@@ -277,8 +272,7 @@ public final class CVC4Solver extends Solver {
 		return cmd;
 	}
 
-	private static boolean hasNonLinearConstraints(
-			Collection<Constraint<?>> constraints) {
+	private static boolean hasNonLinearConstraints(Collection<Constraint<?>> constraints) {
 		NonLinearConstraintVisitor v = new NonLinearConstraintVisitor();
 		for (Constraint<?> constraint : constraints) {
 			Boolean ret_val = constraint.accept(v, null);
@@ -289,9 +283,8 @@ public final class CVC4Solver extends Solver {
 		return false;
 	}
 
-	private static int launchNewProcess(String cvc4Cmd, String smtQuery,
-			int timeout, OutputStream outputStream, OutputStream errorStream)
-			throws IOException {
+	private static int launchNewProcess(String cvc4Cmd, String smtQuery, int timeout, OutputStream outputStream,
+			OutputStream errorStream) throws IOException {
 
 		final Process process = Runtime.getRuntime().exec(cvc4Cmd);
 
@@ -317,8 +310,7 @@ public final class CVC4Solver extends Solver {
 		return exitValue;
 	}
 
-	private static void readInputStream(InputStream in, OutputStream out)
-			throws IOException {
+	private static void readInputStream(InputStream in, OutputStream out) throws IOException {
 		InputStreamReader is = new InputStreamReader(in);
 		BufferedReader br = new BufferedReader(is);
 		String read = br.readLine();
@@ -348,8 +340,7 @@ public final class CVC4Solver extends Solver {
 			}
 			String escapedHexStr = "\\x" + hexStr;
 			if (i < ASCII_TABLE_LENGTH - 1) {
-				String iteStr = String.format("(ite (= !x %s) \"%s\"", i,
-						escapedHexStr);
+				String iteStr = String.format("(ite (= !x %s) \"%s\"", i, escapedHexStr);
 				buff.append(iteStr);
 				buff.append("\n");
 			} else {
@@ -375,8 +366,7 @@ public final class CVC4Solver extends Solver {
 			}
 			String escapedHexStr = "\\x" + hexStr;
 			if (i < ASCII_TABLE_LENGTH - 1) {
-				String iteStr = String.format("(ite (= !x \"%s\") %s",
-						escapedHexStr, i);
+				String iteStr = String.format("(ite (= !x \"%s\") %s", escapedHexStr, i);
 				buff.append(iteStr);
 				buff.append("\n");
 			} else {

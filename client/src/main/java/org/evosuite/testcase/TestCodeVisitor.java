@@ -1,19 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.testcase;
 
@@ -29,6 +31,7 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.idNaming.VariableNamesGenerator;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.mock.EvoSuiteMock;
+import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentDataStatement;
 import org.evosuite.testcase.variable.*;
@@ -889,6 +892,8 @@ public class TestCodeVisitor extends TestVisitor {
 		addAssertions(statement);
 	}
 
+
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -1040,6 +1045,66 @@ public class TestCodeVisitor extends TestVisitor {
 		return parameterString;
 	}
 
+
+	@Override
+	public void visitFunctionalMockStatement(FunctionalMockStatement st) {
+
+		VariableReference retval = st.getReturnValue();
+
+		boolean unused = test!=null && !test.hasReferences(retval);
+		if(unused){
+			//no point whatsoever in creating a mock that is never used
+			return;
+		}
+
+		String result = "";
+
+		//by construction, we should avoid cases like:
+		//  Object obj = mock(Foo.class);
+		//as it leads to problems when setting up "when(...)", and anyway it would make no sense
+		Class<?> rawClass = new GenericClass(retval.getType()).getRawClass();
+		Class<?> targetClass = st.getTargetClass();
+		assert  rawClass.getName().equals(targetClass.getName()) :
+				"Mismatch between variable raw type "+rawClass+" and mocked "+targetClass;
+		String rawClassName = getClassName(rawClass);
+
+		//Foo foo = mock(Foo.class);
+		String variableType = getClassName(retval);
+		result += variableType + " " + getVariableName(retval);
+
+		result += " = ";
+		if(! variableType.equals(rawClassName)){
+			//this can happen in case of generics, eg
+			//Foo<String> foo = (Foo<String>) mock(Foo.class);
+			result += "(" + variableType+") ";
+		}
+
+		result += "mock(" + rawClassName+".class);" + NEWLINE;
+
+		//when(...).thenReturn(...)
+		for(MethodDescriptor md : st.getMockedMethods()){
+			if(!md.shouldBeMocked()){
+				continue;
+			}
+
+			result += "when("+getVariableName(retval)+"."+md.getMethodName()+"("+md.getInputParameterMatchers()+"))";
+			result += ".thenReturn( ";
+
+			List<VariableReference> params = st.getParameters(md.getID());
+
+			Type[] types = new Type[params.size()];
+			for(int i=0; i<types.length; i++){
+				types[i] = md.getMethod().getReturnType();
+			}
+
+			String parameter_string = getParameterString(types,params, false, false, 0);//TODO unsure of these parameters
+
+			result += parameter_string + " );"+NEWLINE;
+		}
+
+		testCode += result;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -1169,6 +1234,10 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 		result += "   //" + NEWLINE;
 
+		String sourceClass = exception.getStackTrace()[0].getClassName();
+		//from class EvoAssertions
+		result += "   assertThrownBy(\"" + sourceClass + "\", e);" + NEWLINE;
+
 		result += "}" + NEWLINE;// closing the catch block
 		return result;
 	}
@@ -1179,7 +1248,8 @@ public class TestCodeVisitor extends TestVisitor {
             for "readability" of tests, it shouldn't be a mock one either
           */
         Class<?> ex = exception.getClass();
-        while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex)) {
+        while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex) ||
+				ex.getCanonicalName().startsWith("com.sun.")) {
             ex = ex.getSuperclass();
         }
         return ex;
@@ -1390,4 +1460,6 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 		super.visitStatement(statement);
 	}
+
+
 }

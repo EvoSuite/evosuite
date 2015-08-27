@@ -1,9 +1,29 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.symbolic.solver.search;
 
 import static org.evosuite.symbolic.SymbolicObserverTest.printConstraints;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.evosuite.symbolic.solver.TestSolver.solve;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -16,7 +36,7 @@ import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
@@ -71,10 +91,10 @@ public class TestStringSearch2 {
 		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
-			solution = solver.solve(constraints);
+			solution = solve(solver,constraints);
 			assertNotNull(solution);
 			System.out.println(solution);
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 
@@ -96,10 +116,10 @@ public class TestStringSearch2 {
 		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
-			solution = solver.solve(constraints);
+			solution = solve(solver,constraints);
 			assertNotNull(solution);
 			System.out.println(solution);
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 

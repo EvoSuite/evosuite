@@ -1,30 +1,30 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.testcase.statements;
 
 import java.io.PrintStream;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +33,6 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.runtime.annotation.Constraints;
-import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.variable.VariableReference;
@@ -292,39 +291,6 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 		return copy;
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new LinkedHashSet<VariableReference>();
-		references.add(retval);
-		references.addAll(parameters);
-		for (VariableReference param : parameters) {
-			if (param.getAdditionalVariableReference() != null)
-				references.add(param.getAdditionalVariableReference());
-		}
-		references.addAll(getAssertionReferences());
-
-		return references;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void replace(VariableReference var1, VariableReference var2) {
-
-		if (retval.equals(var1))
-			retval = var2;
-
-		for (int i = 0; i < parameters.size(); i++) {
-
-			if (parameters.get(i).equals(var1))
-				parameters.set(i, var2);
-			else
-				parameters.get(i).replaceAdditionalVariableReference(var1, var2);
-		}
-	}
 
 	/**
 	 * <p>
@@ -485,25 +451,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 		return ex;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public List<VariableReference> getUniqueVariableReferences() {
-		List<VariableReference> references = new ArrayList<VariableReference>();
-		references.add(retval);
-		references.addAll(parameters);
-		for (VariableReference param : parameters) {
-			if (param instanceof ArrayIndex)
-				references.add(((ArrayIndex) param).getArray());
-		}
-		return references;
 
-	}
 
 	/**
 	 * Go through parameters of constructor call and apply local search
@@ -608,4 +556,10 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 		constructor.changeClassLoader(loader);
 		super.changeClassLoader(loader);
 	}
+
+	@Override
+	public String toString() {
+		return constructor.getName() + Type.getConstructorDescriptor(constructor.getConstructor());
+	}
+
 }

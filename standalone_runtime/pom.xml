@@ -30,30 +30,10 @@
     <build>
         <plugins>
 
-            <!-- Need to change packages of dependencies to avoid classpath conflicts with previous versions.
-                This is done mainly due to ASM that is not backward compatible-->
+            <!-- be sure classes get shaded -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.3</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <shadedArtifactAttached>false</shadedArtifactAttached>
-                            <createDependencyReducedPom>true</createDependencyReducedPom>
-                            <relocations>
-                                <relocation>
-                                    <pattern>org.objectweb.asm</pattern>
-                                    <shadedPattern>org.evosuite.shaded.asm</shadedPattern>
-                                </relocation>
-                            </relocations>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
             <!-- Need to activate the Java Agent in the manifest of the jar-->

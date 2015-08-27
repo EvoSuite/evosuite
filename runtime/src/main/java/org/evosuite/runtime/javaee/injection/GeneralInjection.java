@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.runtime.javaee.injection;
 
 import org.evosuite.runtime.util.Inputs;
@@ -14,7 +33,7 @@ import java.util.Map;
  * in a "general" way: ie, instance object is created in the
  * test as any other input parameter. This is different
  * from "special" fields that need to be adhoc initialized
- * by EvoSuite, like EntityManager that needs to be conned
+ * by EvoSuite, like EntityManager that needs to be connected
  * to an actual database
  *
  * Created by Andrea Arcuri on 13/07/15.
@@ -69,6 +88,6 @@ public class GeneralInjection {
             cache.put(klass, fields);
         }
 
-        return fields;
+        return new ArrayList<>(fields);
     }
 }

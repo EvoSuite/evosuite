@@ -1,4 +1,25 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.symbolic.solver;
+
+import static org.evosuite.symbolic.solver.TestSolver.solve;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -27,12 +48,12 @@ public abstract class TestSolverRegex {
 
 	public static Map<String, Object> testConcat(Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestConcat();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
@@ -60,32 +81,32 @@ public abstract class TestSolverRegex {
 
 	public static Map<String, Object> testUnion(Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestUnion();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
 	public static Map<String, Object> testOptional(CVC4Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		DefaultTestCase tc = buildTestOptional();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
 	public static Map<String, Object> testString(CVC4Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		DefaultTestCase tc = buildTestString();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
@@ -102,11 +123,11 @@ public abstract class TestSolverRegex {
 
 	public static Map<String, Object> testAnyChar(CVC4Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		DefaultTestCase tc = buildTestAnyChar();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
@@ -123,11 +144,11 @@ public abstract class TestSolverRegex {
 
 	public static Map<String, Object> testEmpty(CVC4Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		DefaultTestCase tc = buildTestEmpty();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
@@ -144,11 +165,11 @@ public abstract class TestSolverRegex {
 
 	public static Map<String, Object> testCross(CVC4Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		DefaultTestCase tc = buildTestCross();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
@@ -165,11 +186,11 @@ public abstract class TestSolverRegex {
 
 	public static Map<String, Object> testRepeatMin(CVC4Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		DefaultTestCase tc = buildRepeatMin();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
@@ -186,11 +207,11 @@ public abstract class TestSolverRegex {
 
 	public static Map<String, Object> testRepeatMinMax(CVC4Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		DefaultTestCase tc = buildRepeatMinMax();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
@@ -207,11 +228,11 @@ public abstract class TestSolverRegex {
 
 	public static Map<String, Object> testRepeatN(CVC4Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		DefaultTestCase tc = buildRepeatN();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
@@ -228,11 +249,11 @@ public abstract class TestSolverRegex {
 
 	public static Map<String, Object> testIntersection(CVC4Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		DefaultTestCase tc = buildIntersection();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
@@ -249,11 +270,11 @@ public abstract class TestSolverRegex {
 
 	public static Map<String, Object> testChoice(CVC4Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		DefaultTestCase tc = buildChoice();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 
@@ -270,11 +291,11 @@ public abstract class TestSolverRegex {
 	
 	public static Map<String, Object> testRange(CVC4Solver solver)
 			throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		DefaultTestCase tc = buildRange();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution = solve(solver,constraints);
 		return solution;
 	}
 

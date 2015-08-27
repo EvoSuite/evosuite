@@ -1,21 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- * 
- * @author Gordon Fraser
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.testcase.statements;
 
@@ -23,7 +23,6 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -348,19 +347,14 @@ public class MethodStatement extends EntityWithParametersStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new LinkedHashSet<>();
-		references.add(retval);
+		Set<VariableReference> references = super.getVariableReferences();
+
 		if (isInstanceMethod()) {
 			references.add(callee);
 			if (callee.getAdditionalVariableReference() != null)
 				references.add(callee.getAdditionalVariableReference());
 		}
-		references.addAll(parameters);
-		for (VariableReference param : parameters) {
-			if (param.getAdditionalVariableReference() != null)
-				references.add(param.getAdditionalVariableReference());
-		}
-		references.addAll(getAssertionReferences());
+
 		return references;
 	}
 
@@ -370,21 +364,13 @@ public class MethodStatement extends EntityWithParametersStatement {
 	/** {@inheritDoc} */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
-		if (retval.equals(var1))
-			retval = var2;
+		super.replace(var1, var2);
 
 		if (isInstanceMethod()) {
 			if (callee.equals(var1))
 				callee = var2;
 			else
 				callee.replaceAdditionalVariableReference(var1, var2);
-		}
-		for (int i = 0; i < parameters.size(); i++) {
-
-			if (parameters.get(i).equals(var1))
-				parameters.set(i, var2);
-			else
-				parameters.get(i).replaceAdditionalVariableReference(var1, var2);
 		}
 	}
 
@@ -592,18 +578,14 @@ public class MethodStatement extends EntityWithParametersStatement {
 	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
-		List<VariableReference> references = new ArrayList<VariableReference>();
-		references.add(retval);
+		List<VariableReference> references = super.getUniqueVariableReferences();
+
 		if (isInstanceMethod()) {
 			references.add(callee);
 			if (callee instanceof ArrayIndex)
 				references.add(((ArrayIndex) callee).getArray());
 		}
-		references.addAll(parameters);
-		for (VariableReference param : parameters) {
-			if (param instanceof ArrayIndex)
-				references.add(((ArrayIndex) param).getArray());
-		}
+
 		return references;
 	}
 

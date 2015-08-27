@@ -1,18 +1,36 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.testcase.statements;
 
 import org.evosuite.runtime.annotation.BoundInputVariable;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Andrea Arcuri on 04/07/15.
@@ -55,6 +73,19 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         this.parameterAnnotations=null;
     }
 
+    /**
+     * Constructor needed for Functional Mocks where the number of input parameters
+     * might vary during the search, ie not constant, and starts with 0
+     * @param tc
+     * @param retval
+     */
+    protected EntityWithParametersStatement(TestCase tc, Type type){
+        super(tc, type);
+        this.parameters = new ArrayList<>();
+        this.annotations=null;
+        this.parameterAnnotations=null;
+    }
+
     private void validateInputs() throws IllegalArgumentException{
         Inputs.checkNull(parameters);
         for(VariableReference ref : parameters){
@@ -68,7 +99,54 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
     }
 
     public List<VariableReference> getParameterReferences() {
-        return parameters;
+        return Collections.unmodifiableList(parameters);
+    }
+
+    /* (non-Javadoc)
+	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
+	 */
+    /** {@inheritDoc} */
+    @Override
+    public void replace(VariableReference var1, VariableReference var2) {
+
+        if (retval.equals(var1))
+            retval = var2;
+
+        for (int i = 0; i < parameters.size(); i++) {
+
+            if (parameters.get(i).equals(var1))
+                parameters.set(i, var2);
+            else
+                parameters.get(i).replaceAdditionalVariableReference(var1, var2);
+        }
+    }
+
+
+    @Override
+    public List<VariableReference> getUniqueVariableReferences() {
+        List<VariableReference> references = new ArrayList<>();
+        references.add(retval);
+        references.addAll(parameters);
+        for (VariableReference param : parameters) {
+            if (param instanceof ArrayIndex)
+                references.add(((ArrayIndex) param).getArray());
+        }
+        return references;
+
+    }
+
+    @Override
+    public Set<VariableReference> getVariableReferences() {
+        Set<VariableReference> references = new LinkedHashSet<>();
+        references.add(retval);
+        references.addAll(parameters);
+        for (VariableReference param : parameters) {
+            if (param.getAdditionalVariableReference() != null)
+                references.add(param.getAdditionalVariableReference());
+        }
+        references.addAll(getAssertionReferences());
+
+        return references;
     }
 
 

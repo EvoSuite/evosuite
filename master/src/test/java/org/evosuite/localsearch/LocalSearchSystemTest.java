@@ -1,13 +1,31 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.localsearch;
 
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
 import org.evosuite.Properties.LocalSearchBudgetType;
+import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -21,20 +39,11 @@ import com.examples.with.different.packagename.localsearch.StringLocalSearchExam
 
 public class LocalSearchSystemTest extends SystemTest {
 
-	private static final double oldPrimitivePool = Properties.PRIMITIVE_POOL;
-	private static final double oldDseProbability = Properties.DSE_PROBABILITY;
-	
 	@Before
     public void init(){
         Properties.DSE_PROBABILITY = 0.0;
         Properties.PRIMITIVE_POOL = 0.0;
     }
-	
-	@After
-	public void restoreProperties() {
-		Properties.DSE_PROBABILITY = oldDseProbability;
-		Properties.PRIMITIVE_POOL = oldPrimitivePool;
-	}
 	
 	@Ignore // This seems to be trivial now?
 	@Test

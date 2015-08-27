@@ -1,13 +1,34 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.testcase;
 
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.util.Inputs;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.*;
+import org.evosuite.testcase.variable.NullReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericMethod;
 
+import java.lang.reflect.AccessibleObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -127,7 +148,8 @@ public class ConstraintHelper {
                 continue;
             }
 
-            Class<?> declaringClass = st.getAccessibleObject().getDeclaringClass();
+            GenericAccessibleObject ao = st.getAccessibleObject();
+            Class<?> declaringClass = ao.getDeclaringClass();
 
             for(String excluded : constraints.excludeOthers()) {
                 String[] klassAndMethod = getClassAndMethod(excluded, declaringClass);
@@ -146,5 +168,46 @@ public class ConstraintHelper {
         } else {
             return null;
         }
+    }
+
+    public static boolean isNull(VariableReference vr, TestCase tc){
+
+        if(vr instanceof NullReference){
+            return true;
+        }
+
+        Statement varSource = tc.getStatement(vr.getStPosition());
+        if(varSource instanceof PrimitiveStatement){ //eg for String
+            Object obj = ((PrimitiveStatement)varSource).getValue();
+            if(obj==null){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @param vr
+     * @param tc
+     * @return a negative value if the variable is not bounded
+     */
+    public static int getLastPositionOfBounded(VariableReference vr, TestCase tc){
+        Inputs.checkNull(vr,tc);
+
+        int p = vr.getStPosition();
+
+        for(int i=p+1; i<tc.size(); i++){
+            Statement st = tc.getStatement(i);
+            if(st instanceof EntityWithParametersStatement){
+                EntityWithParametersStatement es = (EntityWithParametersStatement) st;
+                if(es.isBounded(vr)){
+                    return i;
+                }
+            }
+        }
+
+        return -1;
     }
 }

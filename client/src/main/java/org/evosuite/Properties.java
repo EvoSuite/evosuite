@@ -1,19 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
  *
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite;
 
@@ -286,12 +288,18 @@ public class Properties {
     @DoubleValue(min = 0.0, max = 1.0)
     public static double REFLECTION_START_PERCENT = 0.5;
 
-	@Parameter(key = "use_functional_mocking", group = "Test Creation", description = "Use functional mocking (eg Mockito) when fail to generate concrete class instance inputs")
-	public static boolean USE_FUNCTIONAL_MOCKING = false; // TODO to put on once finalized
+	@Parameter(key = "p_functional_mocking", group = "Test Creation", description = "Probability [0,1] of using functional mocking (eg Mockito) when creating object instances")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double P_FUNCTIONAL_MOCKING = 0.0; // TODO to put on once finalized
 
 	@Parameter(key = "functional_mocking_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which functional mocking can be activated. Mocking of missing concrete classes will be activated immediately regardless of this parameter")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double FUNCTIONAL_MOCKING_PERCENT = 0.5;
+
+	@Parameter(key = "functional_mocking_input_limit", group = "Test Creation", description = "When mocking a method, define max number of mocked return values for that method. Calls after the last will just re-use the last specified value")
+	@DoubleValue(min = 1)
+	public static int FUNCTIONAL_MOCKING_INPUT_LIMIT = 5;
+
 
 	// ---------------------------------------------------------------
 	// Search algorithm
@@ -1046,6 +1054,9 @@ public class Properties {
 	@Parameter(key = "jee" , description = "Support for JEE")
 	public static boolean JEE = false; //TODO put on by default once stable
 
+	@Parameter(key = "handle_servlets" , description = "Special treatment of JEE Servlets")
+	public static boolean HANDLE_SERVLETS = false; //TODO off for now, as we might not need it in the end
+
 	@Parameter(key = "cluster_recursion", description = "The maximum level of recursion when calculating the dependencies in the test cluster")
 	public static int CLUSTER_RECURSION = 10;
 
@@ -1153,8 +1164,9 @@ public class Properties {
 	public static String SEED_DIR = "evosuite-seeds";
 
 	/** Constant <code>CONCOLIC_MUTATION=0.0</code> */
-	@Parameter(key = "concolic_mutation", description = "Probability of using concolic mutation operator")
+	@Parameter(key = "concolic_mutation", description = "Deprcated. Probability of using concolic mutation operator")
 	@DoubleValue(min = 0.0, max = 1.0)
+	@Deprecated
 	public static double CONCOLIC_MUTATION = 0.0;
 
 	@Parameter(key = "constraint_solution_attempts", description = "Number of attempts to solve constraints related to one code branch")
@@ -1411,6 +1423,13 @@ public class Properties {
 	/** Constant <code>CLIENT_ON_THREAD=false</code> */
 	@Parameter(key = "client_on_thread", group = "Runtime", description = "Run client process on same JVM of master in separate thread. To be used only for debugging purposes")
 	public static volatile boolean CLIENT_ON_THREAD = false;
+
+
+	/** Constant <code>CLIENT_ON_THREAD=false</code> */
+	@Parameter(key = "is_running_a_system_test", group = "Runtime", description = "Specify that a system test is running. To be used only for debugging purposes")
+	public static volatile boolean IS_RUNNING_A_SYTEM_TEST = false;
+
+
 
 	// ---------------------------------------------------------------
 	// Seeding test cases
