@@ -22,9 +22,6 @@
  */
 package org.evosuite.coverage;
 
-import java.text.NumberFormat;
-import java.util.*;
-
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
@@ -39,6 +36,9 @@ import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.text.NumberFormat;
+import java.util.*;
 
 /**
  * @author Gordon Fraser
@@ -180,6 +180,8 @@ public class CoverageAnalysis {
 			return RuntimeVariable.LineCoverage;
 		case OUTPUT:
 			return RuntimeVariable.OutputCoverage;
+		case INPUT:
+			return RuntimeVariable.InputCoverage;
 		case IBRANCH:
 			return RuntimeVariable.IBranchCoverage;
 		case REGRESSION:
@@ -296,6 +298,8 @@ public class CoverageAnalysis {
         		return RuntimeVariable.MethodNoExceptionCoverageBitString;
         	case OUTPUT:
         		return RuntimeVariable.OutputCoverageBitString;
+        	case INPUT:
+        		return RuntimeVariable.InputCoverageBitString;
         	case STATEMENT:
         		return RuntimeVariable.StatementCoverageBitString;
         	case LINE:

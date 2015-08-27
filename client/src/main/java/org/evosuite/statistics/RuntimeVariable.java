@@ -19,12 +19,12 @@
  */
 package org.evosuite.statistics;
 
-import java.util.Map;
-
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -157,6 +157,11 @@ public enum RuntimeVariable {
     OutputFitnessTimeline,
     OutputCoverageTimeline,
     OutputCoverageBitString,
+	/** The input value coverage */
+	InputCoverage,
+	InputFitnessTimeline,
+	InputCoverageTimeline,
+	InputCoverageBitString,
 	/** The obtained exception coverage */
 	ExceptionCoverage,
     ExceptionFitnessTimeline,

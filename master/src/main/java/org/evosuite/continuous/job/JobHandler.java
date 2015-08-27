@@ -395,14 +395,14 @@ public class JobHandler extends Thread {
 			cmd.append("," + RuntimeVariable.LineCoverage + "," + RuntimeVariable.StatementCoverage + "," +
 					RuntimeVariable.BranchCoverage + "," + RuntimeVariable.OnlyBranchCoverage + "," + RuntimeVariable.CBranchCoverage + "," + RuntimeVariable.IBranchCoverage + "," +
 					RuntimeVariable.ExceptionCoverage + "," + RuntimeVariable.WeakMutationScore + "," + RuntimeVariable.OnlyMutationScore + "," + RuntimeVariable.MutationScore + "," +
-					RuntimeVariable.OutputCoverage + "," +
+					RuntimeVariable.OutputCoverage + "," + RuntimeVariable.InputCoverage + "," +
 					RuntimeVariable.MethodCoverage + "," + RuntimeVariable.MethodTraceCoverage + "," + RuntimeVariable.MethodNoExceptionCoverage);
 
 			// coverage bit string
 			cmd.append("," + RuntimeVariable.LineCoverageBitString + "," + RuntimeVariable.StatementCoverageBitString + "," +
 					RuntimeVariable.BranchCoverageBitString + "," + RuntimeVariable.OnlyBranchCoverageBitString + "," + RuntimeVariable.CBranchCoverageBitString + "," + RuntimeVariable.IBranchCoverageBitString + "," +
 					RuntimeVariable.ExceptionCoverageBitString + "," + RuntimeVariable.WeakMutationCoverageBitString + "," + RuntimeVariable.OnlyMutationCoverageBitString + "," + RuntimeVariable.MutationCoverageBitString + "," +
-					RuntimeVariable.OutputCoverageBitString + "," +
+					RuntimeVariable.OutputCoverageBitString + "," + RuntimeVariable.InputCoverageBitString + "," +
 					RuntimeVariable.MethodCoverageBitString + "," + RuntimeVariable.MethodTraceCoverageBitString + "," + RuntimeVariable.MethodNoExceptionCoverageBitString);
 
 			commands.add("-Doutput_variables=" + cmd.toString());
