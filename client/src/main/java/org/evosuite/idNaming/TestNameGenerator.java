@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.idNaming;
 
 import org.apache.commons.lang.WordUtils;
@@ -8,11 +27,10 @@ import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.utils.LoggingUtils;
-
-//import com.sun.codemodel.internal.util.Surrogate.Generator;
 
 import java.util.*;
+
+//import com.sun.codemodel.internal.util.Surrogate.Generator;
 
 /**
  * This class implements a test method name generator.
