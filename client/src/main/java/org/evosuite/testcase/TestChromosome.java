@@ -19,11 +19,6 @@
  */
 package org.evosuite.testcase;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationExecutionResult;
@@ -46,6 +41,11 @@ import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Chromosome representation of test cases
@@ -77,7 +77,7 @@ public class TestChromosome extends ExecutableChromosome {
 		test = testCase;
 		clearCachedResults();
 		clearCachedMutationResults();
-		setChanged(true);
+		super.setChanged(true); // instead of this.setChanged(true), to avoid removing goals
 	}
 
 	/**
