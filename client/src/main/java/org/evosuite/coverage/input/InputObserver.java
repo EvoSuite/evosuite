@@ -26,6 +26,7 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,9 +79,12 @@ public class InputObserver extends ExecutionObserver {
                     } catch (CodeUnderTestException e) {
                         e.printStackTrace();
                     }
+                } else if (parRef instanceof ConstantValue) {
+                    parObject = ((ConstantValue) parRef).getValue();
                 } else {
-                    parObject = scope.getObject(parRef);
+                        parObject = scope.getObject(parRef);
                 }
+
                 argObjects.add(parObject);
             }
             assert parRefs.size() == argObjects.size();

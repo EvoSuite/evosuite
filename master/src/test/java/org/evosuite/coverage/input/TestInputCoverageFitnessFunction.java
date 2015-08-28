@@ -52,25 +52,17 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 
 	@Before
 	public void beforeTest() {
+		Properties.SEARCH_BUDGET = 10; // low budget, some goals will not be covered
         Properties.CRITERION[0] = Criterion.INPUT;
 	}
 
 	@Test
 	public void testInputCoverageWithoutMinimization() {
-		Properties.SEARCH_BUDGET = 10; // low budget, some goals will not be covered
-		Properties.MINIMIZE = false; // MINIMIZE = true; makes this test fail miserably
 		Properties.ASSERTIONS = false; // ASSERTIONS = true; kills goal comments
 		Properties.JUNIT_TESTS = true;
 		testInputCoverage();
 	}
 
-	@Test
-	public void testInputCoverageWithMinimisation() {
-		Properties.SEARCH_BUDGET = 10;
-		Properties.MINIMIZE = true;
-		testInputCoverage();
-	}
-		
 	public void testInputCoverage() {
 		EvoSuite evosuite = new EvoSuite();
 		
