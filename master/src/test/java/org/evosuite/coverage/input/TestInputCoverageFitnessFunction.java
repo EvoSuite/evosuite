@@ -53,26 +53,15 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 	@Before
 	public void beforeTest() {
         Properties.CRITERION[0] = Criterion.INPUT;
-		//Properties.MINIMIZE = false;
 	}
 
 	@Test
-	public void testInputCoverageWithArchive() {
-		Properties.TEST_ARCHIVE = true;
-		Properties.SEARCH_BUDGET = 10;
-		Properties.MINIMIZE = false;
-		Properties.ASSERTIONS = false;
+	public void testInputCoverageWithoutMinimization() {
+		Properties.SEARCH_BUDGET = 10; // low budget, some goals will not be covered
+		Properties.MINIMIZE = false; // MINIMIZE = true; makes this test fail miserably
+		Properties.ASSERTIONS = false; // ASSERTIONS = true; kills goal comments
 		Properties.JUNIT_TESTS = true;
-		Properties.PRINT_GOALS = true;
-		Properties.TEST_COMMENTS = true;
-		Properties.PRINT_COVERED_GOALS = true;
-		Properties.ID_NAMING = false;
-		testInputCoverage();
-	}
-
-	@Test
-	public void testInputCoverageWithoutArchive() {
-		Properties.TEST_ARCHIVE = false;
+		Properties.ID_NAMING = false; // ID_NAMING = true; messes up with the string builder
 		testInputCoverage();
 	}
 		
@@ -89,7 +78,7 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 
 		List<?> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
 		int nGoals = goals.size(); // assuming single fitness function
-		Assert.assertEquals(13, nGoals );
+		Assert.assertEquals(13, nGoals);
 		//Assert.assertEquals("Non-optimal fitness: ", 0.0, best.getFitness(), 0.001);
 		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 		System.out.println(best.toString());
