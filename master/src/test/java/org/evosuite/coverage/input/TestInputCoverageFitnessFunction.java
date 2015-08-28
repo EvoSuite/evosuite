@@ -52,7 +52,8 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 
 	@Before
 	public void beforeTest() {
-        Properties.CRITERION[0] = Criterion.INPUT;
+		Properties.SEARCH_BUDGET = 10; // low budget, some goals will not be covered
+		Properties.CRITERION[0] = Criterion.INPUT;
 	}
 
 	@Test
@@ -64,7 +65,7 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 		Properties.ID_NAMING = false; // ID_NAMING = true; messes up with the string builder
 		testInputCoverage();
 	}
-		
+
 	public void testInputCoverage() {
 		EvoSuite evosuite = new EvoSuite();
 		
@@ -77,11 +78,9 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		List<?> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
-		int nGoals = goals.size(); // assuming single fitness function
-		Assert.assertEquals(13, nGoals);
+		Assert.assertEquals(13, goals.size());
 		//Assert.assertEquals("Non-optimal fitness: ", 0.0, best.getFitness(), 0.001);
 		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-		System.out.println(best.toString());
 	}
 
 }

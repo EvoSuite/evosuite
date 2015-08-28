@@ -202,14 +202,13 @@ public class TestSuiteWriter implements Opcodes {
             throw new IllegalArgumentException("Test classes should have name ending with 'Test'. Invalid input name: " + name);
         }
 
-        List<ExecutionResult> results = new ArrayList<ExecutionResult>();
-
         List<File> generated = new ArrayList<File>();
         String dir = TestSuiteWriterUtils.makeDirectory(directory);
         String content = "";
 
         // Execute all tests
         executor.newObservers();
+        List<ExecutionResult> results = new ArrayList<ExecutionResult>();
         for (int i = 0; i < testCases.size(); i++) {
             ExecutionResult result = runTest(testCases.get(i));
             results.add(result);
