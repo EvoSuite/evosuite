@@ -224,9 +224,8 @@ public abstract class AssertionGenerator {
 			for(TestChromosome test : suite.getTestChromosomes()) {
 				DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
 				dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
-				test.setChanged(true);
+				test.setChanged(true); // clears cached results
 				test.clearCachedMutationResults();
-				test.clearCachedResults();
 			}
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
