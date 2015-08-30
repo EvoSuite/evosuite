@@ -20,9 +20,7 @@
 package org.evosuite.utils;
 
 import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -102,7 +100,7 @@ public class ResetExecutor {
 			ClassResetter.getInstance().logWarn(className, e.getClass() + " thrown during execution of method  __STATIC_RESET() for class " + className + ", " + e.getCause());
 		}  finally {
 			Sandbox.doneWithExecutingSUTCode();
-            TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+            TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 			MutationObserver.activateMutation(mutationActive);
 		}
 	}

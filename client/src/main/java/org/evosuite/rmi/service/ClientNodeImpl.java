@@ -460,7 +460,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 				} finally {
 					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 					Sandbox.doneWithExecutingSUTCode();
-                    TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+                    TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 				}
 
 				changeState(ClientState.DONE);

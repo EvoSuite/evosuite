@@ -154,7 +154,7 @@ public class ClassStatisticsPrinter {
 		} finally {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
-			TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 		}
 
 		LoggingUtils.getEvoLogger().info("* Subclasses: "+(TestCluster.getInheritanceTree().getSubclasses(Properties.TARGET_CLASS).size() - 1));

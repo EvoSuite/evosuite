@@ -115,7 +115,7 @@ public class TestSuiteGenerator {
 		} finally {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
-            TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+            TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 		}
 		
 
