@@ -57,12 +57,6 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 	}
 
 	@Test
-	public void testInputCoverageWithoutMinimization() {
-		Properties.ASSERTIONS = false; // ASSERTIONS = true; kills goal comments
-		Properties.JUNIT_TESTS = true;
-		testInputCoverage();
-	}
-
 	public void testInputCoverage() {
 		EvoSuite evosuite = new EvoSuite();
 		
