@@ -425,7 +425,7 @@ public class TestCaseExecutor implements ThreadFactory {
 						Properties.CPU_TIMEOUT);
 			} finally {
 				Sandbox.doneWithExecutingSUTCode();
-				TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+				TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 			}
 
 			PermissionStatistics.getInstance().countThreads(

@@ -107,7 +107,7 @@ public class TestGenerationContext {
 		Thread.currentThread().setContextClassLoader(classLoader);
 	}
 	
-	public void doneWithExecuteingSUTCode(){
+	public void doneWithExecutingSUTCode(){
 		Thread.currentThread().setContextClassLoader(originalClassLoader);
 	}
 	
