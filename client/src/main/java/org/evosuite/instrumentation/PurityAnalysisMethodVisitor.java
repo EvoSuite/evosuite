@@ -52,10 +52,11 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 	/**
 	 * <p>Constructor for PutStaticMethodAdapter.</p>
 	 *
-	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
 	 * @param className a {@link java.lang.String} object.
-	 * @param purityAnalyzer 
-	 * @param finalFields a {@link java.util.List} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param descriptor a {@link java.lang.String} object.
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param purityAnalyzer a {@link CheapPurityAnalyzer} object.
 	 */
 	public PurityAnalysisMethodVisitor(String className, String methodName,
 			String descriptor, MethodVisitor mv,
