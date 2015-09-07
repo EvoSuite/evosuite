@@ -52,8 +52,8 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 
 	@Before
 	public void beforeTest() {
-		Properties.SEARCH_BUDGET = 10; // low budget, some goals will not be covered
-        Properties.CRITERION[0] = Criterion.INPUT;
+		Properties.SEARCH_BUDGET = 10;
+		Properties.CRITERION[0] = Criterion.INPUT;
 	}
 
 	@Test
