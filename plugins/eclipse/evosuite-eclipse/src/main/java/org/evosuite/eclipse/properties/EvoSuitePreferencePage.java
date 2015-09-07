@@ -41,7 +41,8 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 	public static final String REMOVED_MARKER = "removed";
 	public static final String AUTOMATIC_TEST_ON_SAVE = "automatic";
 	public static final String ORGANIZE_IMPORTS = "organizeImports";
-	
+	public static final String TEST_COMMENTS = "testComments";
+
 	static {
 		PREFERENCE_STORE = new PreferenceStore("evosuite-properties");	
 	}
@@ -81,6 +82,10 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		
 		BooleanFieldEditor cleanupImports = new BooleanFieldEditor(ORGANIZE_IMPORTS, "Organize imports", getFieldEditorParent());
 		addField(cleanupImports);
+		
+		BooleanFieldEditor printGoals = new BooleanFieldEditor(TEST_COMMENTS, "Print covered goals", getFieldEditorParent());
+		addField(printGoals);
+
 	}
 	
 	
@@ -94,7 +99,8 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		getPreferenceStore().setToDefault(REMOVED_MARKER);
 		getPreferenceStore().setToDefault(AUTOMATIC_TEST_ON_SAVE);
 		getPreferenceStore().setToDefault(ORGANIZE_IMPORTS);
-		
+		getPreferenceStore().setToDefault(TEST_COMMENTS);
+
 		super.performDefaults();
 	}
 
@@ -115,6 +121,7 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		getPreferenceStore().setDefault(REMOVED_MARKER, false);
 		getPreferenceStore().setDefault(AUTOMATIC_TEST_ON_SAVE, false);
 		getPreferenceStore().setDefault(ORGANIZE_IMPORTS, true);
+		getPreferenceStore().setDefault(TEST_COMMENTS, true);
 		
 		storeDefaults();
 		//getPreferenceStore().
@@ -149,6 +156,10 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 			getPreferenceStore().setValue(ORGANIZE_IMPORTS, true);
 		}
 
+		if (!getPreferenceStore().contains(TEST_COMMENTS)){
+			getPreferenceStore().setValue(TEST_COMMENTS, true);
+		}
+		
 		try {
 			getPreferenceStore().save();
 		} catch (IOException e) {
