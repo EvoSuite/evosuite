@@ -37,7 +37,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.ISourceRange;
@@ -49,6 +51,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.swt.widgets.Display;
@@ -67,7 +70,9 @@ public class TestExtensionJob extends TestGenerationJob {
 
 	private File tempDir;
 	private ArrayList<String> newTests;
-	
+	private List<MethodDeclaration> newMethods = null;
+	private List<ImportDeclaration> newImports = null;
+
 	public TestExtensionJob(Shell shell, final IResource target, String targetClass,
 	        String testClass) {
 		super(shell, target, targetClass, testClass);
@@ -105,7 +110,6 @@ public class TestExtensionJob extends TestGenerationJob {
 		CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
 		Set<String> problems = new HashSet<String>();
 		for (IProblem problem : compilationUnit.getProblems()) {
-			
 			problems.add(problem.getSourceLineNumber() +": "+problem.toString());
 		}
 		if (!problems.isEmpty()) {
@@ -122,20 +126,23 @@ public class TestExtensionJob extends TestGenerationJob {
 		String path = tempDir.getAbsolutePath();
 		path += File.separator;
 		path += targetClass.replace(".", "/");
-		int pos = path.lastIndexOf(File.separator);
+		// int pos = path.lastIndexOf(File.separator);
 		// path = path.substring(0, pos+1) + "Test" + path.substring(pos+1);
 		path += Properties.JUNIT_SUFFIX;
 		path += ".java";
 		return path;
 	}
 
-	protected List<MethodDeclaration> getTestContent(String fileName) throws IOException {
+	protected void loadTestSuiteContent(String fileName) throws IOException {
 		System.out.println("Trying to parse file: "+fileName);
 
 		CompilationUnit compilationUnit = parseJavaFile(suiteClass, fileName);
-		MethodExtractingVisitor visitor = new MethodExtractingVisitor();
-		compilationUnit.accept(visitor);
-		return visitor.getMethods();
+		MethodExtractingVisitor methodVisitor = new MethodExtractingVisitor();
+		ImportDeclarationVisitor importVisitor = new ImportDeclarationVisitor();
+		compilationUnit.accept(methodVisitor);
+		compilationUnit.accept(importVisitor);
+		newMethods =  methodVisitor.getMethods();
+		newImports = importVisitor.getImports();
 	}
 
 	protected File setupTempDir() throws IOException {
@@ -174,6 +181,16 @@ public class TestExtensionJob extends TestGenerationJob {
 		return false;
 	}
 
+	private boolean hasImport(ICompilationUnit compilationUnit, ImportDeclaration importDecl) throws JavaModelException {
+		IImportDeclaration[] imports = compilationUnit.getImports();
+		String importName = importDecl.getName().toString();
+		for(IImportDeclaration imp : imports) {
+			if(imp.getElementName().equals(importName))
+				return true;
+		}
+		return false;
+	}
+	
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		IStatus status = super.run(monitor);
@@ -185,14 +202,29 @@ public class TestExtensionJob extends TestGenerationJob {
 			CodeFormatter formatter = ToolFactory.createCodeFormatter(null);
 
 			try {
+				if (compilationUnit.getTypes().length == 0) {
+					System.out.println("The compilation unit is empty :|");
+					return status;
+				}
 				IType classType = compilationUnit.getTypes()[0];
 				// new tests
-				List<MethodDeclaration> newMethods = getTestContent(getTestClassName());
+				loadTestSuiteContent(getTestClassName());
+				
+				for(ImportDeclaration newImport : newImports) {
+					if(! hasImport(compilationUnit, newImport)) {
+						int flag = newImport.isStatic() ? Flags.AccStatic : Flags.AccDefault;
+						String strImport = newImport.getName().toString();
+						// Names of onDemand import declarations do not contain the '*'
+						if (newImport.isOnDemand()) strImport += ".*";
+						compilationUnit.createImport(strImport, null, flag, null);
+					}
+				}
+				
 				for(MethodDeclaration newMethod : newMethods) {
 					
 					if(hasMethod(classType, newMethod.getName().toString())) {
 						
-						System.out.println("Test suite already contains method: " + newMethod.getName());
+						System.out.println("Test suite already contains method called: " + newMethod.getName());
 						int num = 1;
 						newMethod.setName(newMethod.getAST().newSimpleName(newMethod.getName().toString()+"_"+num));
 						while(hasMethod(classType, newMethod.getName().toString())) {
@@ -234,7 +266,7 @@ public class TestExtensionJob extends TestGenerationJob {
 		String fileContents = readFileToString(testClassFileName);
 		
 		
-		ASTParser parser = ASTParser.newParser(AST.JLS4);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setStatementsRecovery(true);
 		

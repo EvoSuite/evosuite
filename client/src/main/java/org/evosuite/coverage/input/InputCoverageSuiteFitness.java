@@ -37,7 +37,7 @@ import java.util.*;
  */
 public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
-    private static final long serialVersionUID = -8345906214972153096L;
+
 
     public final int totalGoals;
 
@@ -97,7 +97,24 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             if (result.hasTimeout() || result.hasTestException()) {
                 hasTimeoutOrTestException = true;
             } else {
-                updateCoveredGoals(suite, result, setOfCoveredGoals);
+                HashSet<String> strGoals = InputCoverageTestFitness.listCoveredGoals(result.getArgumentsValues());
+                for (String strGoal : strGoals) {
+                    // do nothing if it was already removed
+                    if(removedGoals.contains(strGoal)) continue;
+                    if (inputCoverageMap.containsKey(strGoal)) {
+                        // update setOfCoveredGoals
+                        setOfCoveredGoals.add(strGoal);
+                        // add covered goal to test
+                        result.test.addCoveredGoal(inputCoverageMap.get(strGoal));
+                        if(Properties.TEST_ARCHIVE) {
+                            // add goal to archive
+                            TestsArchive.instance.putTest(this, inputCoverageMap.get(strGoal), result);
+                            // mark goal to be removed for next generation
+                            toRemoveGoals.add(strGoal);
+                        }
+                        suite.isToBeUpdated(true);
+                    }
+                }
             }
         }
 
@@ -129,23 +146,24 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         return fitness;
     }
 
-    private void updateCoveredGoals(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, HashSet<String> setOfCoveredGoals) {
-        HashSet<String> strGoals = InputCoverageTestFitness.listCoveredGoals(result.getArgumentsValues());
-        for (String strGoal : strGoals) {
-        	if(removedGoals.contains(strGoal)) continue;
-            if (inputCoverageMap.containsKey(strGoal)) {
-                setOfCoveredGoals.add(strGoal);
-                result.test.addCoveredGoal(inputCoverageMap.get(strGoal));
-                if(Properties.TEST_ARCHIVE) {
-					TestsArchive.instance.putTest(this, inputCoverageMap.get(strGoal), result);
-					toRemoveGoals.add(strGoal);
-					suite.isToBeUpdated(true);
-                }
-            }
+    @Override
+    public boolean updateCoveredGoals() {
+        if(!Properties.TEST_ARCHIVE)
+            return false;
+
+        for (String strGoal : toRemoveGoals) {
+            if (inputCoverageMap.containsKey(strGoal))
+                removedGoals.add(strGoal);
+            else
+                throw new IllegalStateException("goal to remove not found");
         }
+        toRemoveGoals.clear();
+        logger.info("Current state of archive: "+TestsArchive.instance.toString());
+        return true;
     }
 
-    public double computeDistance(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results, HashSet<String> setOfCoveredGoals) {
+    public double computeDistance(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, 
+                                  List<ExecutionResult> results, HashSet<String> setOfCoveredGoals) {
         Map<String, Double> mapDistances = new HashMap<String, Double>();
         for (ExecutionResult result : results) {
             if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions())
@@ -163,23 +181,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                 for (int i=0; i<argumentTypes.length; i++) {
                     Type argType = argumentTypes[i];
                     Object argValue = entry.getValue().get(i);
-                    String goalSuffix = "";
                     switch (argType.getSort()) {
-                        case Type.BOOLEAN:
-                            if (((boolean) argValue))
-                                goalSuffix = InputCoverageFactory.BOOL_TRUE;
-                            else
-                                goalSuffix = InputCoverageFactory.BOOL_FALSE;
-                            break;
-                        case Type.CHAR:
-                            char c = (char) argValue;
-                            if (Character.isAlphabetic(c))
-                                goalSuffix = InputCoverageFactory.CHAR_ALPHA;
-                            else if (Character.isDigit(c))
-                                goalSuffix = InputCoverageFactory.CHAR_DIGIT;
-                            else
-                                goalSuffix = InputCoverageFactory.CHAR_OTHER;
-                            break;
                         case Type.BYTE:
                         case Type.SHORT:
                         case Type.INT:
@@ -192,40 +194,10 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                             double value = ((Number) argValue).doubleValue();
                             if (Double.isNaN(value)) // EvoSuite generates Double.NaN
                                 continue;
-
-                            if (value < 0) {
-                                goalSuffix = InputCoverageFactory.NUM_NEGATIVE;
-                            } else if (value == 0) {
-                                goalSuffix = InputCoverageFactory.NUM_ZERO;
-                            } else {
-                                goalSuffix = InputCoverageFactory.NUM_POSITIVE;
-                            }
                             updateDistances(suite, mapDistances, className, methodName, i, value);
-                            break;
-                        case Type.ARRAY:
-                        case Type.OBJECT:
-                            if (argValue == null)
-                                goalSuffix = InputCoverageFactory.REF_NULL;
-                            else
-                                goalSuffix = InputCoverageFactory.REF_NONNULL;
                             break;
                         default:
                             break;
-                    }
-
-                    if (!goalSuffix.isEmpty()) {
-                        String strGoal = InputCoverageFactory.goalString(className, methodName, i, goalSuffix);
-                        if (removedGoals.contains(strGoal))
-                            continue;
-                        if (inputCoverageMap.containsKey(strGoal)) {
-                            setOfCoveredGoals.add(strGoal);
-                            result.test.addCoveredGoal(inputCoverageMap.get(strGoal));
-                            if (Properties.TEST_ARCHIVE) {
-                                TestsArchive.instance.putTest(this, inputCoverageMap.get(strGoal), result);
-                                toRemoveGoals.add(strGoal);
-                                suite.isToBeUpdated(true);
-                            }
-                        }
                     }
                 }
             }

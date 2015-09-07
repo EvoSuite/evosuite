@@ -17,20 +17,37 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.examples.with.different.packagename.coverage;
+/**
+ * 
+ */
+package org.evosuite.eclipse.popup.actions;
 
-public class MethodReturnsObject {
+import java.util.ArrayList;
+import java.util.List;
 
-	public ClassWithObserver testObject(Integer integer){
-		if(integer==null){
-			return null;
-		} else {
-			ClassWithObserver c = new ClassWithObserver();
-			if (integer > 0)
-				c.setF(true);
-			else
-				c.setF(false);
-			return c;
-		}
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+
+/**
+ * @author Jose Miguel Rojas
+ * 
+ */
+public class ImportDeclarationVisitor extends ASTVisitor {
+
+	public String result = "";
+	
+	private List<ImportDeclaration> imports = new ArrayList<ImportDeclaration>();
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.MethodDeclaration)
+	 */
+	@Override
+	public boolean visit(ImportDeclaration node) {
+		imports.add(node);
+		return super.visit(node);
+	}
+	
+	public List<ImportDeclaration> getImports() {
+		return imports;
 	}
 }

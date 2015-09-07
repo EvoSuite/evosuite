@@ -137,7 +137,7 @@ public class CoverageAnalysis {
 		} finally {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
-            TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+            TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 		}
 		// TestCluster.getInstance();
 

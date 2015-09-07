@@ -22,11 +22,6 @@
  */
 package org.evosuite.assertion;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -45,6 +40,11 @@ import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -224,9 +224,8 @@ public abstract class AssertionGenerator {
 			for(TestChromosome test : suite.getTestChromosomes()) {
 				DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
 				dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
-				test.setChanged(true);
+				test.setChanged(true); // clears cached results
 				test.clearCachedMutationResults();
-				test.clearCachedResults();
 			}
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
@@ -234,10 +233,10 @@ public abstract class AssertionGenerator {
 							: e.toString()));
 			logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
 		} finally {
-			TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
-			TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 		}
 	}
 	

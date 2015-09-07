@@ -77,7 +77,7 @@ public class TestChromosome extends ExecutableChromosome {
 		test = testCase;
 		clearCachedResults();
 		clearCachedMutationResults();
-		super.setChanged(true); // instead of this.setChanged(true), to avoid removing goals
+		setChanged(true);
 	}
 
 	/**
@@ -106,9 +106,7 @@ public class TestChromosome extends ExecutableChromosome {
 		super.setChanged(changed);
 		if (changed) {
 			clearCachedResults();
-			test.clearCoveredGoals();
 		}
-
 		CurrentChromosomeTracker.getInstance().changed(this);
 	}
 
@@ -326,6 +324,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 		if (changed) {
 			setChanged(true);
+			test.clearCoveredGoals();
 		}
 		for (Statement s : test) {
 			s.isValid();

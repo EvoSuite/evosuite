@@ -99,6 +99,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+		<configuration>
+		  <artifactSet>
+                    <excludes>
+                      <!-- the eclipse plugin needs this -->
+                      <exclude>*:xml-apis</exclude>
+                    </excludes>
+                  </artifactSet>
+		</configuration>
             </plugin>
 
             <!-- create single jar with also shaded classes, eg ASM -->

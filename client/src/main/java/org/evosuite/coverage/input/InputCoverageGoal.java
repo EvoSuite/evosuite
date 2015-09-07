@@ -23,8 +23,8 @@ package org.evosuite.coverage.input;
 import java.io.Serializable;
 
 /**
- * A single output coverage goal.
- * Evaluates the value depending on the return type of the method.
+ * A single input coverage goal.
+ * Evaluates the value depending on the type of the i-th input argument to a method.
  *
  * @author Gordon Fraser, Andre Mis, Jose Miguel Rojas
  */

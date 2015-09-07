@@ -19,6 +19,7 @@
  */
 package org.evosuite.eclipse.properties;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
@@ -102,6 +103,8 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		try {
 			PreferenceStore prefStore = getPreferenceStore();
 			prefStore.load();
+		} catch (FileNotFoundException e){
+			// ignore if there is no file
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
