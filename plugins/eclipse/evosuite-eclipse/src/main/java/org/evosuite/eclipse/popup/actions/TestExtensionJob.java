@@ -202,6 +202,10 @@ public class TestExtensionJob extends TestGenerationJob {
 			CodeFormatter formatter = ToolFactory.createCodeFormatter(null);
 
 			try {
+				if (compilationUnit.getTypes().length == 0) {
+					System.out.println("The compilation unit is empty :|");
+					return status;
+				}
 				IType classType = compilationUnit.getTypes()[0];
 				// new tests
 				loadTestSuiteContent(getTestClassName());
@@ -220,7 +224,7 @@ public class TestExtensionJob extends TestGenerationJob {
 					
 					if(hasMethod(classType, newMethod.getName().toString())) {
 						
-						System.out.println("Test suite already contains method: " + newMethod.getName());
+						System.out.println("Test suite already contains method called: " + newMethod.getName());
 						int num = 1;
 						newMethod.setName(newMethod.getAST().newSimpleName(newMethod.getName().toString()+"_"+num));
 						while(hasMethod(classType, newMethod.getName().toString())) {
