@@ -175,6 +175,7 @@ public class EvoSuitePropertyPage extends PropertyPage {
 											 "Exception",
 											 "WeakMutation",
 											 "Output",
+											 "Input",
 											 "Method",
 											 "MethodNoException",
 											 "CBranch"}) {
