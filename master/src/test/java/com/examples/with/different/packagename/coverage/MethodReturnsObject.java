@@ -19,15 +19,18 @@
  */
 package com.examples.with.different.packagename.coverage;
 
-import java.util.Calendar;
-
 public class MethodReturnsObject {
 
-	public Object testObject(Integer integer){
+	public ClassWithObserver testObject(Integer integer){
 		if(integer==null){
 			return null;
 		} else {
-			return new Object();
+			ClassWithObserver c = new ClassWithObserver();
+			if (integer > 0)
+				c.setF(true);
+			else
+				c.setF(false);
+			return c;
 		}
 	}
 }
