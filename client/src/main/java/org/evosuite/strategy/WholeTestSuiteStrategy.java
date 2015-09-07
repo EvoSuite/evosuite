@@ -19,26 +19,26 @@
  */
 package org.evosuite.strategy;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.result.TestGenerationResultBuilder;
-import org.evosuite.rmi.ClientServices;
-import org.evosuite.rmi.service.ClientState;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Regular whole test suite generation
@@ -142,8 +142,12 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
                 goals.addAll(factory.getCoverageGoals());
 
                 if(verbose) {
-                        LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
-                }
+                    LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
+					if (Properties.PRINT_GOALS) {
+						for (TestFitnessFunction goal : factory.getCoverageGoals())
+							LoggingUtils.getEvoLogger().info("" + goal.toString());
+					}
+				}
         } else {
                 if(verbose) {
                         LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
@@ -153,8 +157,12 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
                         goals.addAll(goalFactory.getCoverageGoals());
 
                         if(verbose) {
-                                LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
+                            LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
                                                 + " " + goalFactory.getCoverageGoals().size());
+							if (Properties.PRINT_GOALS) {
+								for (TestFitnessFunction goal : goalFactory.getCoverageGoals())
+									LoggingUtils.getEvoLogger().info("" + goal.toString());
+							}
                         }
                 }
         }
