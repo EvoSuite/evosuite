@@ -1248,10 +1248,11 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 		result += "   //" + NEWLINE;
 
-		String sourceClass = exception.getStackTrace()[0].getClassName();
-		//from class EvoAssertions
-		result += "   assertThrownBy(\"" + sourceClass + "\", e);" + NEWLINE;
-
+		if(exception.getStackTrace().length > 0) {
+			String sourceClass = exception.getStackTrace()[0].getClassName();
+			//from class EvoAssertions
+			result += "   assertThrownBy(\"" + sourceClass + "\", e);" + NEWLINE;
+		}
 		result += "}" + NEWLINE;// closing the catch block
 		return result;
 	}
