@@ -153,11 +153,11 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             return false;
 
         for (String strGoal : toRemoveGoals) {
-            if (outputCoverageMap.containsKey(strGoal)) {
+            TestFitnessFunction f = outputCoverageMap.remove(strGoal);
+            if (f != null)
                 removedGoals.add(strGoal);
-            } else {
+            else
                 throw new IllegalStateException("goal to remove not found");
-            }
         }
         toRemoveGoals.clear();
         logger.info("Current state of archive: "+TestsArchive.instance.toString());

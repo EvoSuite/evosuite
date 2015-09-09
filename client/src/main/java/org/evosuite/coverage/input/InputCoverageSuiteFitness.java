@@ -152,7 +152,8 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             return false;
 
         for (String strGoal : toRemoveGoals) {
-            if (inputCoverageMap.containsKey(strGoal))
+            TestFitnessFunction f = inputCoverageMap.remove(strGoal);
+            if (f != null)
                 removedGoals.add(strGoal);
             else
                 throw new IllegalStateException("goal to remove not found");

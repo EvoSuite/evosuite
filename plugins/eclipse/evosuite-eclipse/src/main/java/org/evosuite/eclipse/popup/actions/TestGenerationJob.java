@@ -82,6 +82,7 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.eclipse.Activator;
+import org.evosuite.eclipse.properties.EvoSuitePreferencePage;
 import org.evosuite.eclipse.properties.EvoSuitePropertyPage;
 import org.evosuite.eclipse.quickfixes.MarkerWriter;
 import org.evosuite.result.TestGenerationResult;
@@ -719,6 +720,10 @@ public class TestGenerationJob extends Job {
 		if (criterion != null) {
 			commands.add("-criterion");
 			commands.add(criterion);
+		}
+		
+		if (Activator.getDefault().getPreferenceStore().getBoolean(EvoSuitePreferencePage.TEST_COMMENTS)) {
+			commands.add("-Dtest_comments=true");
 		}
 		return commands;
 	}
