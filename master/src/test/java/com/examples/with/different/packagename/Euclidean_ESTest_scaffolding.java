@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 public class Euclidean_ESTest_scaffolding {
 
   @org.junit.Rule 
-  public org.junit.rules.Timeout globalTimeout = new org.junit.rules.Timeout(4000); 
+  public org.junit.rules.Timeout globalTimeout = new org.junit.rules.Timeout(400000);
 
   private org.evosuite.runtime.thread.ThreadStopper threadStopper =  new org.evosuite.runtime.thread.ThreadStopper (org.evosuite.runtime.thread.KillSwitchHandler.getInstance(), 3000);
 
