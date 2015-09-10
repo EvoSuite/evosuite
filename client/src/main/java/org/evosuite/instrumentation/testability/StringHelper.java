@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.instrumentation.testability;
 
 import org.evosuite.Properties;
@@ -317,11 +336,8 @@ public class StringHelper {
      */
     public static int StringStartsWith(String value, String prefix, int start) {
         int len = Math.min(prefix.length(), value.length());
-        //System.out.println("StartsWith: " + start + ": " + value + " / " + prefix + ": "
-        //        + value.substring(start, start + len) + " / " + prefix + " = "
-        //        + StringEquals(value.substring(start, start + len), prefix));
         ConstantPoolManager.getInstance().addDynamicConstant(prefix + value);
-        return StringEquals(value.substring(start, start + len), prefix);
+        return StringEquals(value.substring(start, Math.min(start + len, value.length())), prefix);
     }
 
     /**
@@ -411,8 +427,8 @@ public class StringHelper {
             ConstantPoolManager.getInstance().addDynamicConstant(sn2);
         }
 
-        return StringEquals(s1.substring(thisStart, length + thisStart),
-                s2.substring(start, length + start));
+        return StringEquals(s1.substring(thisStart, Math.min(length + thisStart, s1.length())),
+                s2.substring(start, Math.min(length + start, s2.length())));
     }
 
     public static int StringRegionMatches(String value, int thisStart, String string,

@@ -1,25 +1,44 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.strategy;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.result.TestGenerationResultBuilder;
-import org.evosuite.rmi.ClientServices;
-import org.evosuite.rmi.service.ClientState;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Regular whole test suite generation
@@ -123,8 +142,12 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
                 goals.addAll(factory.getCoverageGoals());
 
                 if(verbose) {
-                        LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
-                }
+                    LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
+					if (Properties.PRINT_GOALS) {
+						for (TestFitnessFunction goal : factory.getCoverageGoals())
+							LoggingUtils.getEvoLogger().info("" + goal.toString());
+					}
+				}
         } else {
                 if(verbose) {
                         LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
@@ -134,8 +157,12 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
                         goals.addAll(goalFactory.getCoverageGoals());
 
                         if(verbose) {
-                                LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
+                            LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
                                                 + " " + goalFactory.getCoverageGoals().size());
+							if (Properties.PRINT_GOALS) {
+								for (TestFitnessFunction goal : goalFactory.getCoverageGoals())
+									LoggingUtils.getEvoLogger().info("" + goal.toString());
+							}
                         }
                 }
         }

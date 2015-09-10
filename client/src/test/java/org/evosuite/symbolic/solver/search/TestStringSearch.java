@@ -1,19 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.symbolic.solver.search;
 
@@ -23,13 +25,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.evosuite.symbolic.solver.TestSolver.solve;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.Assert;
 
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
@@ -44,7 +45,7 @@ import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
@@ -57,19 +58,17 @@ public class TestStringSearch {
 		String const2 = "test";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
-		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
-				Operator.EQUALS, strConst, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.NE,
-				new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar, Operator.EQUALS, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
 			assertTrue(const2.equals(result.get("test1").toString()));
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -81,19 +80,17 @@ public class TestStringSearch {
 		String const2 = "foo";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
-		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
-				Operator.EQUALS, strConst, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.EQ,
-				new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar, Operator.EQUALS, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
 			assertTrue(!const2.equals(result.get("test1").toString()));
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -105,19 +102,17 @@ public class TestStringSearch {
 		String const2 = "Fest";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
-		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
-				Operator.EQUALSIGNORECASE, strConst, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.NE,
-				new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar, Operator.EQUALSIGNORECASE, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
 			assertTrue(const2.equalsIgnoreCase(result.get("test1").toString()));
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -129,19 +124,17 @@ public class TestStringSearch {
 		String const2 = "FOO";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
-		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
-				Operator.EQUALSIGNORECASE, strConst, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.EQ,
-				new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar, Operator.EQUALSIGNORECASE, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
 			assertFalse(const2.equalsIgnoreCase(result.get("test1").toString()));
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -157,19 +150,18 @@ public class TestStringSearch {
 		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
 		other.add(offs_expr);
 
-		StringMultipleComparison strComp = new StringMultipleComparison(strVar,
-				Operator.STARTSWITH, strConst, other, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.NE,
-				new IntegerConstant(0)));
+		StringMultipleComparison strComp = new StringMultipleComparison(strVar, Operator.STARTSWITH, strConst, other,
+				0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
 			assertTrue((result.get("test1").toString()).startsWith(const2, 2));
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -185,19 +177,18 @@ public class TestStringSearch {
 		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
 		other.add(offs_expr);
 
-		StringMultipleComparison strComp = new StringMultipleComparison(strVar,
-				Operator.STARTSWITH, strConst, other, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.EQ,
-				new IntegerConstant(0)));
+		StringMultipleComparison strComp = new StringMultipleComparison(strVar, Operator.STARTSWITH, strConst, other,
+				0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
 			assertFalse((result.get("test1").toString()).startsWith(const2, 3));
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -210,19 +201,17 @@ public class TestStringSearch {
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 
-		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
-				Operator.ENDSWITH, strConst, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.NE,
-				new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar, Operator.ENDSWITH, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
 			assertTrue((result.get("test1").toString()).endsWith(const2));
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -235,19 +224,17 @@ public class TestStringSearch {
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 
-		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
-				Operator.ENDSWITH, strConst, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.EQ,
-				new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar, Operator.ENDSWITH, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
 			assertFalse((result.get("test1").toString()).endsWith(const2));
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -260,19 +247,17 @@ public class TestStringSearch {
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 
-		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
-				Operator.CONTAINS, strConst, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.NE,
-				new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar, Operator.CONTAINS, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
 			assertTrue((result.get("test1").toString()).contains(const2));
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -285,19 +270,17 @@ public class TestStringSearch {
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 
-		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
-				Operator.CONTAINS, strConst, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.EQ,
-				new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar, Operator.CONTAINS, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
 			assertFalse((result.get("test1").toString()).contains(const2));
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -325,20 +308,18 @@ public class TestStringSearch {
 		other.add(len_expr);
 		other.add(ign_case);
 
-		StringMultipleComparison strComp = new StringMultipleComparison(strVar,
-				Operator.REGIONMATCHES, strConst, other, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.NE,
-				new IntegerConstant(0)));
+		StringMultipleComparison strComp = new StringMultipleComparison(strVar, Operator.REGIONMATCHES, strConst, other,
+				0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
-			assertTrue((result.get("test1").toString()).regionMatches(
-					ignore_case, offset1, const2, offset2, len));
-		} catch (ConstraintSolverTimeoutException e) {
+			assertTrue((result.get("test1").toString()).regionMatches(ignore_case, offset1, const2, offset2, len));
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -366,20 +347,18 @@ public class TestStringSearch {
 		other.add(len_expr);
 		other.add(ign_case);
 
-		StringMultipleComparison strComp = new StringMultipleComparison(strVar,
-				Operator.REGIONMATCHES, strConst, other, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.EQ,
-				new IntegerConstant(0)));
+		StringMultipleComparison strComp = new StringMultipleComparison(strVar, Operator.REGIONMATCHES, strConst, other,
+				0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
-			assertFalse((result.get("test1").toString()).regionMatches(
-					ignore_case, offset1, const2, offset2, len));
-		} catch (ConstraintSolverTimeoutException e) {
+			assertFalse((result.get("test1").toString()).regionMatches(ignore_case, offset1, const2, offset2, len));
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -391,7 +370,7 @@ public class TestStringSearch {
 		String var = "a+";
 		String regex = "aaa";
 
-		//so we need to solve it
+		// so we need to solve it
 		assertFalse(var.matches(regex));
 
 		String variableName = "test1";
@@ -399,52 +378,44 @@ public class TestStringSearch {
 		StringVariable strVar = new StringVariable(variableName, var);
 		StringConstant strConst = new StringConstant(regex);
 
-		StringBinaryComparison strComp = new StringBinaryComparison(strConst,
-				Operator.PATTERNMATCHES, strVar, 0L);
+		StringBinaryComparison strComp = new StringBinaryComparison(strConst, Operator.PATTERNMATCHES, strVar, 0L);
 
-		//the constraint should evaluate to true
-		constraints.add(new StringConstraint(strComp, Comparator.NE,
-				new IntegerConstant(0)));
+		// the constraint should evaluate to true
+		constraints.add(new StringConstraint(strComp, Comparator.NE, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get(variableName));
 			String solution = result.get(variableName).toString();
 			assertTrue(solution.matches(regex));
 			/*
-			 * as the regex defines only one possible matching string,
-			 * then the solution has to be equal to the regex 
+			 * as the regex defines only one possible matching string, then the
+			 * solution has to be equal to the regex
 			 */
 			assertEquals(regex, solution);
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 
-		//now let's invert them
+		// now let's invert them
 		strVar = new StringVariable(variableName, regex);
 		strConst = new StringConstant(var);
 
-		//the inversion should match immediately
+		// the inversion should match immediately
 		assertTrue(regex.matches(var));
 
-		//recreate the same type of constraint
-		strComp = new StringBinaryComparison(strConst, Operator.PATTERNMATCHES,
-				strVar, 0L);
+		// recreate the same type of constraint
+		strComp = new StringBinaryComparison(strConst, Operator.PATTERNMATCHES, strVar, 0L);
 		constraints.clear();
-		constraints.add(new StringConstraint(strComp, Comparator.NE,
-				new IntegerConstant(0)));
+		constraints.add(new StringConstraint(strComp, Comparator.NE, new IntegerConstant(0)));
 
 		try {
-			result = skr.solve(constraints);
-			/*
-			 * as "aaa" should already match "a+", then the solver
-			 * should return null
-			 */
-			assertNull(result);
-		} catch (ConstraintSolverTimeoutException e) {
+			result = solve(skr, constraints);
+			assertNotNull(result);
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -456,19 +427,17 @@ public class TestStringSearch {
 		String const2 = "TEST";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
-		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
-				Operator.PATTERNMATCHES, strConst, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.NE,
-				new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar, Operator.PATTERNMATCHES, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE, new IntegerConstant(0)));
 
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
 			assertTrue(result.get("test1").toString().matches(const2));
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -483,11 +452,10 @@ public class TestStringSearch {
 
 		int colon_int_code = (int) ':';
 		int concrete_value = var1value.indexOf(colon_int_code);
-		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(
-				var1, Operator.INDEXOFC, colon_code, (long) concrete_value);
+		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(var1, Operator.INDEXOFC,
+				colon_code, (long) concrete_value);
 
-		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon,
-				Comparator.EQ, minus_one);
+		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon, Comparator.EQ, minus_one);
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(constr1);
@@ -495,9 +463,9 @@ public class TestStringSearch {
 		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
-			solution = solver.solve(constraints);
+			solution = solve(solver, constraints);
 			assertNotNull(solution);
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 
@@ -513,11 +481,10 @@ public class TestStringSearch {
 
 		int colon_int_code = (int) ':';
 		int concrete_value = var1value.indexOf(colon_int_code);
-		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(
-				var1, Operator.INDEXOFC, colon_code, (long) concrete_value);
+		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(var1, Operator.INDEXOFC,
+				colon_code, (long) concrete_value);
 
-		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon,
-				Comparator.NE, minus_one);
+		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon, Comparator.NE, minus_one);
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(constr1);
@@ -525,9 +492,9 @@ public class TestStringSearch {
 		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
-			solution = solver.solve(constraints);
+			solution = solve(solver, constraints);
 			assertNotNull(solution);
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 
@@ -542,15 +509,13 @@ public class TestStringSearch {
 		IntegerConstant numeral_code = new IntegerConstant(58);
 		IntegerConstant minus_one = new IntegerConstant(-1);
 
-		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(
-				var1, Operator.INDEXOFC, colon_code, -1L);
-		StringBinaryToIntegerExpression index_of_numeral = new StringBinaryToIntegerExpression(
-				var1, Operator.INDEXOFC, numeral_code, -1L);
+		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(var1, Operator.INDEXOFC,
+				colon_code, -1L);
+		StringBinaryToIntegerExpression index_of_numeral = new StringBinaryToIntegerExpression(var1, Operator.INDEXOFC,
+				numeral_code, -1L);
 
-		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon,
-				Comparator.EQ, minus_one);
-		IntegerConstraint constr2 = new IntegerConstraint(index_of_numeral,
-				Comparator.NE, minus_one);
+		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon, Comparator.EQ, minus_one);
+		IntegerConstraint constr2 = new IntegerConstraint(index_of_numeral, Comparator.NE, minus_one);
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(constr1);
@@ -559,9 +524,9 @@ public class TestStringSearch {
 		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
-			solution = solver.solve(constraints);
+			solution = solve(solver, constraints);
 			assertNotNull(solution);
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 
@@ -574,20 +539,17 @@ public class TestStringSearch {
 		String const2 = "testsomestring";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
-		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
-				Operator.PATTERNMATCHES, strConst, 0L);
-		constraints.add(new StringConstraint(strComp, Comparator.EQ,
-				new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar, Operator.PATTERNMATCHES, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ, new IntegerConstant(0)));
 		EvoSuiteSolver skr = new EvoSuiteSolver();
 		Map<String, Object> result;
 		try {
-			result = skr.solve(constraints);
+			result = solve(skr, constraints);
 			assertNotNull(result);
 			assertNotNull(result.get("test1"));
-			assertFalse("Result should not match TEST: "
-					+ result.get("test1").toString(), result.get("test1")
-					.toString().matches(const2));
-		} catch (ConstraintSolverTimeoutException e) {
+			assertFalse("Result should not match TEST: " + result.get("test1").toString(),
+					result.get("test1").toString().matches(const2));
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -597,13 +559,10 @@ public class TestStringSearch {
 		// (wed equals var1("f|").toLowerCase()) != 0
 		StringVariable var1 = new StringVariable("var1", "f|");
 
-		StringBinaryComparison cmp3 = new StringBinaryComparison(
-				new StringConstant("wed"), Operator.EQUALS,
-				new StringUnaryExpression(var1, Operator.TOLOWERCASE,
-						"f|".toLowerCase()), 0L);
+		StringBinaryComparison cmp3 = new StringBinaryComparison(new StringConstant("wed"), Operator.EQUALS,
+				new StringUnaryExpression(var1, Operator.TOLOWERCASE, "f|".toLowerCase()), 0L);
 
-		StringConstraint constr3 = new StringConstraint(cmp3, Comparator.NE,
-				new IntegerConstant(0));
+		StringConstraint constr3 = new StringConstraint(cmp3, Comparator.NE, new IntegerConstant(0));
 
 		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(constr3);
@@ -611,10 +570,10 @@ public class TestStringSearch {
 		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
-			solution = solver.solve(constraints);
+			solution = solve(solver, constraints);
 
 			assertNotNull(solution);
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 	}
@@ -629,21 +588,18 @@ public class TestStringSearch {
 		IntegerConstant numeral_code = new IntegerConstant(35);
 		IntegerConstant minus_one = new IntegerConstant(-1);
 
-		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(
-				var1, Operator.INDEXOFC, colon_code, -1L);
-		StringBinaryToIntegerExpression index_of_numeral = new StringBinaryToIntegerExpression(
-				var1, Operator.INDEXOFC, numeral_code, -1L);
+		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(var1, Operator.INDEXOFC,
+				colon_code, -1L);
+		StringBinaryToIntegerExpression index_of_numeral = new StringBinaryToIntegerExpression(var1, Operator.INDEXOFC,
+				numeral_code, -1L);
 
 		/*
-		 * Here we are trying to modify the string such that the
-		 * first '#' comes before the first ':', and both are present
+		 * Here we are trying to modify the string such that the first '#' comes
+		 * before the first ':', and both are present
 		 */
-		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon,
-				Comparator.NE, minus_one);
-		IntegerConstraint constr2 = new IntegerConstraint(index_of_numeral,
-				Comparator.NE, minus_one);
-		IntegerConstraint constr3 = new IntegerConstraint(index_of_numeral,
-				Comparator.LT, index_of_colon);
+		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon, Comparator.NE, minus_one);
+		IntegerConstraint constr2 = new IntegerConstraint(index_of_numeral, Comparator.NE, minus_one);
+		IntegerConstraint constr3 = new IntegerConstraint(index_of_numeral, Comparator.LT, index_of_colon);
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(constr1);
@@ -654,12 +610,12 @@ public class TestStringSearch {
 		Map<String, Object> solution = null;
 		try {
 			/*
-			 * The constraint is not trivial, as there are search plateaus.
-			 * So it is ok if sometimes it fails (tried 10 times, failed 3).
+			 * The constraint is not trivial, as there are search plateaus. So
+			 * it is ok if sometimes it fails (tried 10 times, failed 3).
 			 */
 			final int TRIES = 20;
 			for (int i = 0; i < TRIES; i++) {
-				solution = solver.solve(constraints);
+				solution = solve(solver, constraints);
 				if (solution != null) {
 					break;
 				}
@@ -671,7 +627,7 @@ public class TestStringSearch {
 			assertTrue("Colon not found in " + result, colonPos >= 0);
 			assertTrue("Numeral not found in " + result, numeralPos >= 0);
 			assertTrue(colonPos > numeralPos);
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 

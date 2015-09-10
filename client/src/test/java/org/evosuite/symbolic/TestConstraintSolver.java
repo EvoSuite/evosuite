@@ -1,7 +1,27 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.symbolic;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
@@ -12,7 +32,9 @@ import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverEmptyQueryException;
+import org.evosuite.symbolic.solver.SolverResult;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
@@ -33,47 +55,42 @@ public class TestConstraintSolver {
 		System.out.println(tc.toCode());
 
 		// ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = ConcolicExecution
-				.executeConcolic(tc);
+		List<BranchCondition> branch_conditions = ConcolicExecution.executeConcolic(tc);
 
 		return branch_conditions;
 	}
 
-	private DefaultTestCase buildTestCase1() throws SecurityException,
-			NoSuchMethodException {
+	private DefaultTestCase buildTestCase1() throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
 		VariableReference int0 = tc.appendIntPrimitive(-15);
 		VariableReference long0 = tc.appendLongPrimitive(Long.MAX_VALUE);
-		VariableReference string0 = tc
-				.appendStringPrimitive("Togliere sta roba");
+		VariableReference string0 = tc.appendStringPrimitive("Togliere sta roba");
 
-		Method method = TestInput1.class.getMethod("test", int.class,
-				long.class, String.class);
+		Method method = TestInput1.class.getMethod("test", int.class, long.class, String.class);
 		tc.appendMethod(null, method, int0, long0, string0);
 		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void testCase1() throws SecurityException, NoSuchMethodException {
+	public void testCase1() throws SecurityException, NoSuchMethodException, SolverEmptyQueryException {
 		DefaultTestCase tc = buildTestCase1();
 		// build patch condition
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(2, branch_conditions.size());
 
 		// invoke seeker
-		Map<String, Object> model;
 		try {
-			model = executeSeeker(branch_conditions);
-			assertNotNull(model);
-		} catch (ConstraintSolverTimeoutException e) {
+			SolverResult solverResult = executeSolver(branch_conditions);
+			assertNotNull(solverResult);
+			assertTrue(solverResult.isSAT());
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 
 	}
 
-	private Map<String, Object> executeSeeker(
-			List<BranchCondition> branch_conditions)
-			throws ConstraintSolverTimeoutException {
+	private SolverResult executeSolver(List<BranchCondition> branch_conditions)
+			throws SolverTimeoutException, SolverEmptyQueryException {
 
 		final int lastBranchIndex = branch_conditions.size() - 1;
 		BranchCondition last_branch = branch_conditions.get(lastBranchIndex);
@@ -90,16 +107,17 @@ public class TestConstraintSolver {
 		System.out.println("Target constraints");
 		printConstraints(constraints);
 
-		EvoSuiteSolver seeker = new EvoSuiteSolver();
-		Map<String, Object> model = seeker.solve(constraints);
+		EvoSuiteSolver solver = new EvoSuiteSolver();
+		SolverResult solverResult = solver.solve(constraints);
 
-		if (model == null)
+		if (solverResult.isUNSAT())
 			System.out.println("No new model was found");
 		else {
+			Map<String, Object> model = solverResult.getModel();
 			System.out.println(model.toString());
 		}
 
-		return model;
+		return solverResult;
 	}
 
 	private static void printConstraints(List<Constraint<?>> constraints) {
@@ -122,8 +140,7 @@ public class TestConstraintSolver {
 	 *            ==22
 	 * 
 	 */
-	private DefaultTestCase buildTestCase2() throws SecurityException,
-			NoSuchMethodException {
+	private DefaultTestCase buildTestCase2() throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
 		VariableReference int0 = tc.appendIntPrimitive(5);
 		VariableReference int1 = tc.appendIntPrimitive(16);
@@ -131,14 +148,13 @@ public class TestConstraintSolver {
 		VariableReference int3 = tc.appendIntPrimitive(22);
 		VariableReference int4 = tc.appendIntPrimitive(22);
 
-		Method method = TestInput2.class.getMethod("test", int.class,
-				int.class, int.class, int.class, int.class);
+		Method method = TestInput2.class.getMethod("test", int.class, int.class, int.class, int.class, int.class);
 		tc.appendMethod(null, method, int0, int1, int2, int3, int4);
 		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void testCase2() throws SecurityException, NoSuchMethodException {
+	public void testCase2() throws SecurityException, NoSuchMethodException, SolverEmptyQueryException {
 		DefaultTestCase tc = buildTestCase2();
 		// build patch condition
 		List<BranchCondition> branch_conditions = executeTest(tc);
@@ -150,11 +166,11 @@ public class TestConstraintSolver {
 		sublist.add(branch_conditions.get(1));
 
 		// invoke seeker
-		Map<String, Object> model;
 		try {
-			model = executeSeeker(sublist);
-			assertNotNull(model);
-		} catch (ConstraintSolverTimeoutException e) {
+			SolverResult solverResult = executeSolver(sublist);
+			assertNotNull(solverResult);
+			assertTrue(solverResult.isSAT());
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 

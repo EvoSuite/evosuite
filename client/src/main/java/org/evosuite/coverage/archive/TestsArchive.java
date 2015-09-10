@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.coverage.archive;
 
 import java.io.IOException;
@@ -134,7 +153,8 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 
 		if(isNewCoveredGoal || better){
 			ExecutionResult copy = result.clone();
-			copy.test = copy.test.clone(); //result.clone() does not clone the test
+			TestCase copyTest = copy.test.clone(); //result.clone() does not clone the test
+			copy.setTest(copyTest);
 
 			// Remove all statements after an exception
 			if(!copy.noThrownExceptions()) {
@@ -146,29 +166,13 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		}
 	}
 
-	/*
-		TODO: does not seem it is really used for anything
-	 */
-	public TestSuiteChromosome getReducedChromosome() {
-		TestSuiteChromosome suite = new TestSuiteChromosome();
-		for(Entry<TestFitnessFunction, ExecutionResult> entry : testMap.entrySet()) {
-			if(!entry.getKey().isCoveredBy(suite)) {
-				suite.addTest(entry.getValue().test);
-			}
-		}
-        for (FitnessFunction<?> ff : coverageMap.keySet()) {
-        	suite.setCoverage(ff, coverageMap.get(ff));
-        	suite.setNumOfCoveredGoals(ff, coveredGoalsCountMap.get(ff));
-        }
-		logger.info("Final test suite size from archive: " + suite.size());
-		return suite;
-	}
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public TestSuiteChromosome createMergedSolution(TestSuiteChromosome suite) {
 
-		Properties.TEST_ARCHIVE = false; //TODO: why?
+		// Deactivate in case a test is executed and would access the archive
+		// as this might cause a concurrent access
+		Properties.TEST_ARCHIVE = false; 
 		TestSuiteChromosome best = null;
 		try {
 			best = suite.clone();
@@ -177,7 +181,8 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 				if (!entry.getKey().isCoveredBy(best)) {
 					TestChromosome chromosome = new TestChromosome();
 					ExecutionResult copy = entry.getValue().clone();
-					copy.test = copy.test.clone();
+					TestCase copyTest = copy.test.clone();
+					copy.setTest(copyTest);
 					chromosome.setTestCase(copy.test);
 					chromosome.setLastExecutionResult(copy);
 					best.addTest(chromosome); //should avoid re-execute the tests

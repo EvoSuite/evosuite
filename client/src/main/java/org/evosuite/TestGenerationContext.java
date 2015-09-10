@@ -1,4 +1,23 @@
 /**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
+/**
  * 
  */
 package org.evosuite;
@@ -19,6 +38,7 @@ import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
+import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.seeding.CastClassManager;
@@ -68,6 +88,8 @@ public class TestGenerationContext {
 		originalClassLoader = this.getClass().getClassLoader();
 		classLoader = new InstrumentingClassLoader();
 		regressionClassLoader = new InstrumentingClassLoader(true);
+		
+		DBManager.getInstance().setSutClassLoader(classLoader);
 	}
 
 	public static TestGenerationContext getInstance() {
@@ -92,7 +114,7 @@ public class TestGenerationContext {
 		Thread.currentThread().setContextClassLoader(classLoader);
 	}
 	
-	public void doneWithExecuteingSUTCode(){
+	public void doneWithExecutingSUTCode(){
 		Thread.currentThread().setContextClassLoader(originalClassLoader);
 	}
 	
@@ -118,7 +140,10 @@ public class TestGenerationContext {
 
 		// A fresh context needs a fresh class loader to make sure we can re-instrument classes
 		classLoader = new InstrumentingClassLoader();
-		
+
+		if(! DBManager.getInstance().isWasAccessed()){
+			DBManager.getInstance().setSutClassLoader(classLoader);
+		}
 
 		TestCaseExecutor.pullDown();
 

@@ -1,7 +1,26 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.symbolic.solver.cvc4;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverMathFloat;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,7 +45,7 @@ public class TestCVC4MathFloat {
 
 	@Test
 	public void testFloatAbs() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		if (Properties.CVC4_PATH == null) {
 			System.out
 					.println("Warning: cvc4_path should be configured to execute this test case");
@@ -39,7 +58,7 @@ public class TestCVC4MathFloat {
 
 	@Test
 	public void testFloatTrigonometry() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 		
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -53,7 +72,7 @@ public class TestCVC4MathFloat {
 
 	@Test
 	public void testFloatMax() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -67,7 +86,7 @@ public class TestCVC4MathFloat {
 
 	@Test
 	public void testFloatMin() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.CVC4_PATH == null) {
 			System.out
@@ -81,7 +100,7 @@ public class TestCVC4MathFloat {
 
 	@Test
 	public void testFloatRound() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 		
 		if (Properties.CVC4_PATH == null) {
 			System.out

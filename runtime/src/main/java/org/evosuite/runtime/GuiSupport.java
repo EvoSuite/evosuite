@@ -1,7 +1,30 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.runtime;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.GraphicsEnvironment;
 import java.lang.reflect.Field;
+import java.nio.file.FileSystems;
 
 /**
  * Class used to handle some particular behaviors of GUI components in the
@@ -12,6 +35,7 @@ import java.lang.reflect.Field;
  */
 public class GuiSupport {
 
+	private final static Logger logger = LoggerFactory.getLogger(GuiSupport.class);
 	
 	/**
 	 * Where the tests run in headless mode?
@@ -45,6 +69,25 @@ public class GuiSupport {
 	}
 
 	public static void initialize(){
+
+		/*
+			Since trying Java 8, started to get weird behavior on a Linux cluster.
+			Issue raises from GUI now trying to write on disk (ie due to Fonts...).
+			However, that sometimes strangely fails, even though executed before any
+			sandbox. It happens quite often on cluster experiments, but was not able
+			to reproduce it to debug :(
+			As workaround, we try here to load default file system (it would happen anyway when
+			loading fonts in Java 8), but do not crash the test suite (ie throw exception here
+			in this method, which is usually called from a @BeforeClass). Reason is that
+			maybe not all tests will access GUI.
+		 */
+		try{
+			FileSystems.getDefault();
+		} catch(Throwable t){
+			logger.error("Failed to load default file system: "+t.getMessage(), t);
+			return;
+		}
+
 		/*
 		 * Force the loading of fonts.
 		 * This is needed because font loading in the JVM can take several seconds (done only once),

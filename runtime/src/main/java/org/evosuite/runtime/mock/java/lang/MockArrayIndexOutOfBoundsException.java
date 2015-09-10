@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.runtime.mock.java.lang;
 
 import java.io.PrintStream;
@@ -33,6 +52,7 @@ public class MockArrayIndexOutOfBoundsException extends ArrayIndexOutOfBoundsExc
 	private MockThrowable getDelegate(){
 		if(delegate == null){
 			delegate = new MockThrowable(); //placeholder
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
 		}
 		return delegate;
 	}
@@ -46,11 +66,13 @@ public class MockArrayIndexOutOfBoundsException extends ArrayIndexOutOfBoundsExc
 	public MockArrayIndexOutOfBoundsException() {
 		super();
 		delegate = new MockThrowable();
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 	
 	public MockArrayIndexOutOfBoundsException(String message) {
 		super(message);
 		delegate = new MockThrowable(message);
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 
 	
@@ -123,7 +145,7 @@ public class MockArrayIndexOutOfBoundsException extends ArrayIndexOutOfBoundsExc
 		getDelegate().printStackTrace(p);
 	}
 
-
+	/**
 	@Override
 	public synchronized Throwable fillInStackTrace() {
 		if(!MockFramework.isEnabled()){
@@ -131,6 +153,7 @@ public class MockArrayIndexOutOfBoundsException extends ArrayIndexOutOfBoundsExc
 		}
 		return getDelegate().fillInStackTrace();
 	}
+	 */
 
 	@Override
 	public StackTraceElement[] getStackTrace() {		

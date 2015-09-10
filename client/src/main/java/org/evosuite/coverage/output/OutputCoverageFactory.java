@@ -1,24 +1,27 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
  *
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.coverage.output;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.testsuite.AbstractFitnessFactory;
@@ -27,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -96,7 +100,24 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                     case Type.ARRAY:
                     case Type.OBJECT:
                         goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NULL)));
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL)));
+                        //goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL)));
+                        boolean observerGoalsAdded = false;
+                        List<String> pureMethods = CheapPurityAnalyzer.getInstance().getPureMethods(returnType.getClassName());
+                        for (String pm : pureMethods) {
+                            Type t = Type.getReturnType(pm);
+                            if (t.getSort() == Type.BOOLEAN) {
+                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + BOOL_TRUE)));
+                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + BOOL_FALSE)));
+                                observerGoalsAdded = true;
+                            } else if (Arrays.asList(new Integer[]{Type.BYTE, Type.SHORT, Type.INT, Type.FLOAT, Type.LONG, Type.DOUBLE}).contains(t.getSort())) {
+                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + NUM_NEGATIVE)));
+                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + NUM_ZERO)));
+                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + NUM_POSITIVE)));
+                                observerGoalsAdded = true;
+                            }
+                        }
+                        if (!observerGoalsAdded)
+                            goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL)));
                         break;
                     default:
                         // Ignore

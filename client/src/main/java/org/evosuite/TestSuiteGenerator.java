@@ -1,33 +1,25 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite;
 
  
-import java.io.File;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.TestFactory;
@@ -44,6 +36,8 @@ import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.regression.RegressionSearchListener;
@@ -54,29 +48,18 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.runtime.sandbox.Sandbox;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.seeding.ObjectPool;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
-import org.evosuite.strategy.FixedNumRandomTestStrategy;
-import org.evosuite.strategy.IndividualTestStrategy;
-import org.evosuite.strategy.RandomTestStrategy;
-import org.evosuite.strategy.RegressionSuiteStrategy;
-import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.strategy.WholeTestSuiteStrategy;
+import org.evosuite.strategy.*;
 import org.evosuite.symbolic.DSEStats;
-import org.evosuite.testcase.ConstantInliner;
+import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.TestSuiteMinimizer;
@@ -87,6 +70,10 @@ import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.text.NumberFormat;
+import java.util.*;
 
 
 /**
@@ -130,7 +117,7 @@ public class TestSuiteGenerator {
 		} finally {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
-            TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+            TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 		}
 		
 
@@ -724,6 +711,9 @@ public class TestSuiteGenerator {
 			break;
 		case OUTPUT:
 			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");
+			break;
+		case INPUT:
+			LoggingUtils.getEvoLogger().info("  - Method-Input Coverage");
 			break;
 		default:
 			LoggingUtils.getEvoLogger().info("  - Branch Coverage");

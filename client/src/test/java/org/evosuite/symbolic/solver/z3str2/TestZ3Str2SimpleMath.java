@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.symbolic.solver.z3str2;
 
 import static org.junit.Assert.assertEquals;
@@ -6,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverSimpleMath;
 import org.evosuite.symbolic.solver.z3str2.Z3Str2Solver;
 import org.junit.AfterClass;
@@ -32,7 +51,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testAdd() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -46,7 +65,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testSub() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -60,7 +79,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testMul() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -74,7 +93,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testDiv() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -95,7 +114,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testEq() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 		
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -109,7 +128,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testNeq() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -123,7 +142,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testLt() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -137,7 +156,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testGt() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -151,7 +170,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testLte() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -165,7 +184,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testGte() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -179,7 +198,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testMod() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -193,7 +212,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testMul2() throws SecurityException, NoSuchMethodException,
-			ConstraintSolverTimeoutException {
+			SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -214,7 +233,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testCastRealToInt() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
@@ -228,7 +247,7 @@ public class TestZ3Str2SimpleMath {
 
 	@Test
 	public void testCastIntToReal() throws SecurityException,
-			NoSuchMethodException, ConstraintSolverTimeoutException {
+			NoSuchMethodException, SolverTimeoutException {
 
 		if (Properties.Z3_STR2_PATH == null) {
 			System.out
