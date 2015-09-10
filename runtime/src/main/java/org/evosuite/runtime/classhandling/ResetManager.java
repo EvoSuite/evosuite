@@ -41,7 +41,7 @@ public class ResetManager {
 	public void clearManager() {
 		resetAllClasses = false;
 		tracingIsEnabled = true;
-		classInitializationOrder.clear();;
+		classInitializationOrder.clear();
 		resetFinalFields = false;
 	}
 

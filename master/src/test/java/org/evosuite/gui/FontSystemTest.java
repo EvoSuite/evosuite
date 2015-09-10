@@ -27,7 +27,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.gui.FontCUT;;
+import com.examples.with.different.packagename.gui.FontCUT;
 
 public class FontSystemTest extends SystemTest{
 
