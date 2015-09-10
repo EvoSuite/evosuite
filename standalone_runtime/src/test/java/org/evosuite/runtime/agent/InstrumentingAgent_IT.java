@@ -68,7 +68,6 @@ public class InstrumentingAgent_IT {
         RuntimeSettings.useVNET = true;
         MethodCallReplacementCache.resetSingleton();
 		Runtime.getInstance().resetRuntime();
-		MethodCallReplacementClassAdapter.dirtyHack_applyUIDTransformation = false;
 	}
 
 	@After
@@ -76,7 +75,6 @@ public class InstrumentingAgent_IT {
 		RuntimeSettings.mockJVMNonDeterminism = replaceCalls;
 		RuntimeSettings.useVFS = vfs;
         RuntimeSettings.useVNET = vnet;
-		MethodCallReplacementClassAdapter.dirtyHack_applyUIDTransformation = true;
 	}
 
 
