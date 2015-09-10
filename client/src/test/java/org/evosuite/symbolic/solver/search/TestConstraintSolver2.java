@@ -1,7 +1,27 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.symbolic.solver.search;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -18,7 +38,9 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.solver.ConstraintSolverTimeoutException;
+import org.evosuite.symbolic.solver.SolverEmptyQueryException;
+import org.evosuite.symbolic.solver.SolverResult;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
@@ -33,19 +55,17 @@ public class TestConstraintSolver2 {
 
 		StringConstant const0 = new StringConstant(EXPECTED_STRING);
 
-		StringBinaryComparison strEqual = new StringBinaryComparison(var0,
-				Operator.EQUALS, const0, (long) 0);
+		StringBinaryComparison strEqual = new StringBinaryComparison(var0, Operator.EQUALS, const0, (long) 0);
 
 		IntegerConstant const_zero = new IntegerConstant(0);
 
-		StringConstraint constr1 = new StringConstraint(strEqual,
-				Comparator.NE, const_zero);
+		StringConstraint constr1 = new StringConstraint(strEqual, Comparator.NE, const_zero);
 
 		return Arrays.<Constraint<?>> asList(constr1);
 	}
 
 	@Test
-	public void test() {
+	public void test() throws SolverEmptyQueryException {
 		Properties.LOCAL_SEARCH_BUDGET = 100; // 5000000000000L; TODO - ??
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.FITNESS_EVALUATIONS;
 
@@ -59,10 +79,11 @@ public class TestConstraintSolver2 {
 		System.out.println("");
 		System.out.println("Initial: " + INIT_STRING);
 
-		EvoSuiteSolver seeker = new EvoSuiteSolver();
-		Map<String, Object> model;
+		EvoSuiteSolver solver = new EvoSuiteSolver();
 		try {
-			model = seeker.solve(constraints);
+			SolverResult solverResult = solver.solve(constraints);
+			assertTrue(solverResult.isSAT());
+			Map<String, Object> model = solverResult.getModel();
 			assertNotNull(model);
 
 			Object var0 = model.get("var0");
@@ -70,7 +91,7 @@ public class TestConstraintSolver2 {
 			System.out.println("Found: " + var0);
 
 			assertEquals(EXPECTED_STRING, var0);
-		} catch (ConstraintSolverTimeoutException e) {
+		} catch (SolverTimeoutException e) {
 			fail();
 		}
 

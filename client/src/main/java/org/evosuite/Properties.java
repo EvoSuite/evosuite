@@ -1,27 +1,34 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
  *
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -33,15 +40,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.evosuite.classpath.ClassPathHandler;
-import org.evosuite.runtime.Runtime;
-import org.evosuite.runtime.RuntimeSettings;
-import org.evosuite.runtime.sandbox.Sandbox;
-import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Central property repository. All global parameters of EvoSuite should be
@@ -1056,6 +1054,9 @@ public class Properties {
 	@Parameter(key = "jee" , description = "Support for JEE")
 	public static boolean JEE = false; //TODO put on by default once stable
 
+	@Parameter(key = "handle_servlets" , description = "Special treatment of JEE Servlets")
+	public static boolean HANDLE_SERVLETS = false; //TODO off for now, as we might not need it in the end
+
 	@Parameter(key = "cluster_recursion", description = "The maximum level of recursion when calculating the dependencies in the test cluster")
 	public static int CLUSTER_RECURSION = 10;
 
@@ -1163,8 +1164,9 @@ public class Properties {
 	public static String SEED_DIR = "evosuite-seeds";
 
 	/** Constant <code>CONCOLIC_MUTATION=0.0</code> */
-	@Parameter(key = "concolic_mutation", description = "Probability of using concolic mutation operator")
+	@Parameter(key = "concolic_mutation", description = "Deprcated. Probability of using concolic mutation operator")
 	@DoubleValue(min = 0.0, max = 1.0)
+	@Deprecated
 	public static double CONCOLIC_MUTATION = 0.0;
 
 	@Parameter(key = "constraint_solution_attempts", description = "Number of attempts to solve constraints related to one code branch")
@@ -1320,8 +1322,8 @@ public class Properties {
 
 	public enum Criterion {
 		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
-        MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, READABILITY,
-        ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT,
+		MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, READABILITY,
+        ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT, INPUT,
         REGRESSION,	REGRESSIONTESTS
 	}
 
@@ -1463,6 +1465,13 @@ public class Properties {
 	/** Constant <code>CLIENT_ON_THREAD=false</code> */
 	@Parameter(key = "client_on_thread", group = "Runtime", description = "Run client process on same JVM of master in separate thread. To be used only for debugging purposes")
 	public static volatile boolean CLIENT_ON_THREAD = false;
+
+
+	/** Constant <code>CLIENT_ON_THREAD=false</code> */
+	@Parameter(key = "is_running_a_system_test", group = "Runtime", description = "Specify that a system test is running. To be used only for debugging purposes")
+	public static volatile boolean IS_RUNNING_A_SYTEM_TEST = false;
+
+
 
 	// ---------------------------------------------------------------
 	// Seeding test cases

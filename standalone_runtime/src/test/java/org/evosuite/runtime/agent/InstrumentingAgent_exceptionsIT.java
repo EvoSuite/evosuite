@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.runtime.agent;
 
 import org.evosuite.runtime.Runtime;
@@ -63,7 +82,7 @@ public class InstrumentingAgent_exceptionsIT {
 			StackTraceElement[] traces = new MockThrowable().getStackTrace();
 
 			StackTraceElement[] a = eh.getTracesWhenCast();
-			Assert.assertEquals(traces[0], a[0]);
+			Assert.assertEquals(traces[1], a[1]);
 			
 		} finally{
 			MockFramework.disable();
@@ -111,7 +130,7 @@ public class InstrumentingAgent_exceptionsIT {
 			
 			ExceptionHolder eh = (ExceptionHolder) obj;
 			StackTraceElement[] b = eh.getTraces();
-			Assert.assertEquals(traces[0], b[0]);
+			Assert.assertEquals(traces[1], b[1]);
 
 		} finally{
 			MockFramework.disable();

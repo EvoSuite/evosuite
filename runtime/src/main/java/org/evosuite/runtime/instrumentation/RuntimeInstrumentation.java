@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.runtime.instrumentation;
 
 import org.evosuite.runtime.RuntimeSettings;
@@ -8,6 +27,10 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class is responsible for the bytecode instrumentation
@@ -21,15 +44,20 @@ import org.slf4j.LoggerFactory;
  */
 public class RuntimeInstrumentation {
 
-    private static Logger logger = LoggerFactory.getLogger(RuntimeInstrumentation.class);
+	private static Logger logger = LoggerFactory.getLogger(RuntimeInstrumentation.class);
 
-    /**
-     * If we are re-instrumenting a class, then we cannot change its
-     * signature: eg add new methods
-     *
+	/**
+	 * If we are re-instrumenting a class, then we cannot change its
+	 * signature: eg add new methods
+	 *
 	 * TODO: remove once we fix instrumentation
 	 */
 	private volatile boolean retransformingMode;
+
+	/**
+	 * This should ONLY be set by SystemTest
+	 */
+	private static boolean avoidInstrumentingShadedClasses = false;
 
 	public RuntimeInstrumentation(){
 		retransformingMode = false;
@@ -39,122 +67,140 @@ public class RuntimeInstrumentation {
 		retransformingMode = on;
 	}
 
-    public static boolean checkIfCanInstrument(String className) {
-        for (String s : RuntimeInstrumentation.getPackagesShouldNotBeInstrumented()) {
-            if (className.startsWith(s)) {
-                return false;
-            }
-        }
+	/**
+	 * WARN: This should ONLY be called by SystemTest
+	 */
+	public static void setAvoidInstrumentingShadedClasses(boolean avoidInstrumentingShadedClasses) {
+		RuntimeInstrumentation.avoidInstrumentingShadedClasses = avoidInstrumentingShadedClasses;
+	}
 
-        if(className.contains("EnhancerByMockito")){
-            //very special case, as Mockito will create classes on the fly
-            return false;
-        }
+	public static boolean checkIfCanInstrument(String className) {
+		for (String s : RuntimeInstrumentation.getPackagesShouldNotBeInstrumented()) {
+			if (className.startsWith(s)) {
+				return false;
+			}
+		}
 
-        return true;
-    }
+		if(className.contains("EnhancerByMockito")){
+			//very special case, as Mockito will create classes on the fly
+			return false;
+		}
+
+		return true;
+	}
 
 
-    /**
-     * <p>
-     * getPackagesShouldNotBeInstrumented
-     * </p>
-     *
-     * @return the names of class packages EvoSuite is not going to instrument
-     */
-    private static String[] getPackagesShouldNotBeInstrumented() {
-        //explicitly blocking client projects such as specmate is only a
-        //temporary solution, TODO allow the user to specify
-        //packages that should not be instrumented
-        return new String[]{"java.", "javax.", "sun.", "org.evosuite", "org.exsyst",
-                "de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite", "org.uispec4j",
-                "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
-                "testing.generation.evosuite", "com.yourkit", "com.vladium.emma.", "daikon.",
-                "org.netbeans.lib.profiler", // VisualVM profiler
-                // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
-                "apple.", "com.apple.", "com.sun",
-                "org.junit", "junit.framework","org.mockito", // do not instrument test code which will be part of final JUnit
-                "org.apache.xerces.dom3", "de.unisl.cs.st.bugex",  "org.mozilla.javascript.gen.c",
-                "corina.cross.Single",  // I really don't know what is wrong with this class, but we need to exclude it
-                "org.slf4j",
-                "jdk.internal",
-                "dk.brics.automaton", //used in DSE, and we have a class with that package inside EvoSutie
-                "org.apache.commons.discovery.tools.DiscoverSingleton",
-                "org.apache.commons.discovery.resource.ClassLoaders",
-                "org.apache.commons.discovery.resource.classes.DiscoverClasses",
-                "org.apache.commons.logging.Log",// Leads to ExceptionInInitializerException when re-instrumenting classes that use a logger
-                "org.jcp.xml.dsig.internal.dom.", //Security exception in ExecutionTracer?
-                "com_cenqua_clover", "com.cenqua", //these are for Clover code coverage instrumentation
-                "net.sourceforge.cobertura", // cobertura code coverage instrumentation
-                "javafx.", // JavaFX crashes when instrumented
-                "ch.qos.logback", // Instrumentation makes logger events sent to the master un-serialisable
-                "major.mutation", // Runtime library Major mutation tool
-                "org.apache.lucene.util.SPIClassIterator", "org.apache.lucene.analysis.util.AnalysisSPILoader", "org.apache.lucene.analysis.util.CharFilterFactory",
-                "org.apache.struts.util.MessageResources", "org.dom4j.DefaultDocumentFactory", // These classes all cause problems with re-instrumentation
-                /**
-                 * FIXME:
-                 * JavaEE libraries should be shaded, as many side-effects.
-                 * We still want them in the blacklist, as to avoid problems when running tests before shading.
-                 * If there is need of having any blacklisted library which is also an EvoSuite
-                 * dependency, then we MUST modify classloader to always load the version of the SUT
-                 * (currently it seems we delegate to parent classloader, which gives EvoSuite's version?)
-                 *
-                 * */
-                "org.hibernate","org.hsqldb","org.jboss" // used in the generated JUnit files to test JavaEE applications relying on database
+	/**
+	 * <p>
+	 * getPackagesShouldNotBeInstrumented
+	 * </p>
+	 *
+	 * @return the names of class packages EvoSuite is not going to instrument
+	 */
+	private static List<String> getPackagesShouldNotBeInstrumented() {
+		//explicitly blocking client projects such as specmate is only a
+		//temporary solution, TODO allow the user to specify
+		//packages that should not be instrumented
 
-        };
-    }
+		List<String> list = new ArrayList<>();
 
-    public byte[] transformBytes(ClassLoader classLoader, String className,
-                                 ClassReader reader) {
+		list.addAll(Arrays.asList(new String[]{"java.", "javax.", "sun.", "org.evosuite", "org.exsyst",
+				"de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite", "org.uispec4j",
+				"de.unisb.cs.st.specmate", "org.xml", "org.w3c",
+				"testing.generation.evosuite", "com.yourkit", "com.vladium.emma.", "daikon.",
+				"org.netbeans.lib.profiler", // VisualVM profiler
+				// Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
+				"apple.", "com.apple.", "com.sun",
+				"org.junit", "junit.framework","org.mockito", // do not instrument test code which will be part of final JUnit
+				"org.apache.xerces.dom3", "de.unisl.cs.st.bugex",  "org.mozilla.javascript.gen.c",
+				"corina.cross.Single",  // I really don't know what is wrong with this class, but we need to exclude it
+				"org.slf4j",
+				"org.apache.log4j", // Instrumenting this may lead to errors when tests are run with Ant, which uses log4j
+				"jdk.internal",
+				"dk.brics.automaton", //used in DSE, and we have a class with that package inside EvoSutie
+				"org.apache.commons.discovery.tools.DiscoverSingleton",
+				"org.apache.commons.discovery.resource.ClassLoaders",
+				"org.apache.commons.discovery.resource.classes.DiscoverClasses",
+				"org.apache.commons.logging.Log",// Leads to ExceptionInInitializerException when re-instrumenting classes that use a logger
+				"org.jcp.xml.dsig.internal.dom.", //Security exception in ExecutionTracer?
+				"com_cenqua_clover", "com.cenqua", //these are for Clover code coverage instrumentation
+				"net.sourceforge.cobertura", // cobertura code coverage instrumentation
+				"javafx.", // JavaFX crashes when instrumented
+				"ch.qos.logback", // Instrumentation makes logger events sent to the master un-serialisable
+				"major.mutation", // Runtime library Major mutation tool
+				"org.apache.lucene.util.SPIClassIterator", "org.apache.lucene.analysis.util.AnalysisSPILoader", "org.apache.lucene.analysis.util.CharFilterFactory",
+				"org.apache.struts.util.MessageResources", "org.dom4j.DefaultDocumentFactory" // These classes all cause problems with re-instrumentation
+		}));
 
-        String classNameWithDots = className.replace("/", ".");
+		if(avoidInstrumentingShadedClasses){
+			list.addAll(Arrays.asList(new String[]{
+					/**
+					 * TODO:
+					 * These classes are shaded. So, should be no problem in instrumenting them during search, even though
+					 * they are used by EvoSuite. However, problems arise when running system tests before shading :(
+					 * For now, we just skip them, but need to check if it leads to side effects
+					 *
+					 * Main problem due to libraries used in the generated JUnit files to test JavaEE applications relying on database
+					 * */
+					"org.hibernate","org.hsqldb","org.jboss",
+					"org.springframework", "org.apache.commons.logging", "javassist","antlr","org.dom4j",
+					"org.aopalliance"
+					}));
+		}
 
-        if (!checkIfCanInstrument(classNameWithDots)) {
-            throw new IllegalArgumentException("Should not transform a shared class ("
-                    + classNameWithDots + ")! Load by parent (JVM) classloader.");
-        }
+		return list;
+	}
 
-        int asmFlags = ClassWriter.COMPUTE_FRAMES;
-        ClassWriter writer = new ComputeClassWriter(asmFlags);
+	public byte[] transformBytes(ClassLoader classLoader, String className,
+			ClassReader reader) {
 
-        ClassVisitor cv = writer;
+		String classNameWithDots = className.replace("/", ".");
 
-        if(RuntimeSettings.resetStaticState && !retransformingMode) {
-        		/*
-        		 * FIXME: currently reset does add a new method, but that does no work
-        		 * when retransformingMode :(
-        		 */
-            CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
-            resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
-            cv = resetClassAdapter;
-        }
+		if (!checkIfCanInstrument(classNameWithDots)) {
+			throw new IllegalArgumentException("Should not transform a shared class ("
+					+ classNameWithDots + ")! Load by parent (JVM) classloader.");
+		}
 
-        if(RuntimeSettings.isUsingAnyMocking()) {
-            cv = new MethodCallReplacementClassAdapter(cv, className, !retransformingMode);
-        }
+		int asmFlags = ClassWriter.COMPUTE_FRAMES;
+		ClassWriter writer = new ComputeClassWriter(asmFlags);
 
-        cv = new KillSwitchClassAdapter(cv);
+		ClassVisitor cv = writer;
 
-        if(RuntimeSettings.maxNumberOfIterationsPerLoop >= 0){
-        		cv = new LoopCounterClassAdapter(cv);
-        }
+		if(RuntimeSettings.resetStaticState && !retransformingMode) {
+			/*
+			 * FIXME: currently reset does add a new method, but that does no work
+			 * when retransformingMode :(
+			 */
+			CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
+			resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
+			cv = resetClassAdapter;
+		}
 
-        ClassNode cn = new AnnotatedClassNode();
+		if(RuntimeSettings.isUsingAnyMocking()) {
+			cv = new MethodCallReplacementClassAdapter(cv, className, !retransformingMode);
+		}
 
-        int readFlags = ClassReader.SKIP_FRAMES;
-        reader.accept(cn, readFlags);
-        
+		cv = new KillSwitchClassAdapter(cv);
 
-        cv = new JSRInlinerClassVisitor(cv);
+		if(RuntimeSettings.maxNumberOfIterationsPerLoop >= 0){
+			cv = new LoopCounterClassAdapter(cv);
+		}
 
-        try {
-            cn.accept(cv);
-        } catch (Throwable ex) {
-           logger.error("Error while instrumenting class "+className+": "+ex.getMessage(),ex);
-        }
+		ClassNode cn = new AnnotatedClassNode();
 
-        return writer.toByteArray();
-    }
+		int readFlags = ClassReader.SKIP_FRAMES;
+		reader.accept(cn, readFlags);
+
+
+		cv = new JSRInlinerClassVisitor(cv);
+
+		try {
+			cn.accept(cv);
+		} catch (Throwable ex) {
+			logger.error("Error while instrumenting class "+className+": "+ex.getMessage(),ex);
+		}
+
+		return writer.toByteArray();
+	}
 
 }

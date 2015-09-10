@@ -1,6 +1,24 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.dse;
 
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,12 +38,12 @@ import java.util.List;
  * 
  * @author csallner@uta.edu (Christoph Csallner)
  */
-public class VM {
+public final class VM {
 
 	/**
 	 * Single VM instance
 	 */
-	public static final VM vm = new VM();
+	private static VM vm = new VM();
 
 	/**
 	 * Is this a recursive callback?
@@ -115,23 +133,10 @@ public class VM {
 	/**
 	 * Dsc calls this method just before invoking the current entry method.
 	 */
-	public void startupConcolicExecution() {
+	public void prepareConcolicExecution() {
 		stopped = false;
 		ignoreCallback = false;
 		zeroPathCallbacks();
-
-		for (IVM listener : vm.listeners)
-			listener.startupConcolicExecution();
-	}
-
-	/**
-	 * Dsc calls this method just after execution returned from the invoked
-	 * (analyzed) user method back to Dsc.
-	 */
-	public void cleanupConcolicExecution() {
-		ignoreCallback = true;
-		for (IVM listener : vm.listeners)
-			listener.cleanupConcolicExecution();
 	}
 
 	public static void NEW(String typeName) {
@@ -3725,4 +3730,13 @@ public class VM {
 		}
 		ignoreCallback = false;
 	}
+
+	public static VM getInstance() {
+		return vm;
+	}
+	
+	public static void clearInstance() {
+		vm = new VM();
+	}
+	
 }

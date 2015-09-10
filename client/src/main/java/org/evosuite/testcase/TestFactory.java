@@ -1,4 +1,23 @@
 /**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
+/**
  *
  */
 package org.evosuite.testcase;
@@ -190,7 +209,7 @@ public class TestFactory {
 			                                                       Arrays.asList(constructor.getParameterTypes()),
 			                                                       position,
 			                                                       recursionDepth + 1,
-					                                               true);
+					                                               true, false);
 			int newLength = test.size();
 			position += (newLength - length);
 
@@ -213,7 +232,8 @@ public class TestFactory {
 
 			return ref;
 		} catch (Exception e) {
-			throw new ConstructionFailedException(e.getMessage());
+			throw new ConstructionFailedException("Failed to add constructor for "+klass.getName()+
+					" due to "+e.getClass().getCanonicalName()+": "+e.getMessage());
 		}
 	}
 
@@ -256,10 +276,10 @@ public class TestFactory {
 
 				int beforeLength = test.size();
 				VariableReference valueToInject = satisfyParameters(test,
-						null,
+						ref, // avoid calling methods of bounded variables
 						Arrays.asList((Type) f.getType()),
 						injectPosition,
-						0, false).get(0);
+						0, false, true).get(0);
 				int afterLength = test.size();
 				injectPosition += (afterLength - beforeLength);
 
@@ -313,7 +333,7 @@ public class TestFactory {
 
 		if (!field.isStatic()) {
 			callee = createOrReuseVariable(test, field.getOwnerType(), position,
-					recursionDepth, null, false);
+					recursionDepth, null, false, false);
 			position += test.size() - length;
 			length = test.size();
 
@@ -321,8 +341,7 @@ public class TestFactory {
 					callee.getVariableClass())) {
 				logger.debug("Cannot call field " + field + " with callee of type "
 						+ callee.getClassName());
-				throw new ConstructionFailedException(
-						"Cannot apply field to this callee");
+				throw new ConstructionFailedException("Cannot apply field to this callee");
 			}
 
 			// TODO: Check if field is still accessible in subclass
@@ -365,7 +384,7 @@ public class TestFactory {
 		VariableReference callee = null;
 		if (!field.isStatic()) {
 			callee = createOrReuseVariable(test, field.getOwnerType(), position,
-					recursionDepth, null, false);
+					recursionDepth, null, false, false);
 			position += test.size() - length;
 			length = test.size();
 			if (!TestUsageChecker.canUse(field.getField(), callee.getVariableClass())) {
@@ -377,7 +396,7 @@ public class TestFactory {
 		}
 
 		VariableReference var = createOrReuseVariable(test, field.getFieldType(),
-		                                              position, recursionDepth, callee, true);
+		                                              position, recursionDepth, callee, true, false);
 		int newLength = test.size();
 		position += (newLength - length);
 
@@ -413,7 +432,7 @@ public class TestFactory {
 		FieldReference fieldVar = new FieldReference(test, field, callee);
 		int length = test.size();
 		VariableReference value = createOrReuseVariable(test, fieldVar.getType(),
-				position, 0, callee, true);
+				position, 0, callee, true, false);
 
 		int newLength = test.size();
 		position += (newLength - length);
@@ -454,7 +473,7 @@ public class TestFactory {
 		try {
 			if (!method.isStatic()) {
 				callee = createOrReuseVariable(test, method.getOwnerType(), position,
-						recursionDepth, null, false);
+						recursionDepth, null, false, false);
 				position += test.size() - length;
 				length = test.size();
 
@@ -464,14 +483,13 @@ public class TestFactory {
 						callee.getVariableClass())) {
 					logger.debug("Cannot call method " + method
 							+ " with callee of type " + callee.getClassName());
-					throw new ConstructionFailedException(
-							"Cannot apply method to this callee");
+					throw new ConstructionFailedException("Cannot apply method to this callee");
 				}
 			}
 
 			parameters = satisfyParameters(test, callee,
 			                               Arrays.asList(method.getParameterTypes()),
-			                               position, recursionDepth + 1, true);
+			                               position, recursionDepth + 1, true, false);
 
 		} catch (ConstructionFailedException e) {
 			// TODO: Re-insert in new test cluster
@@ -520,7 +538,7 @@ public class TestFactory {
 		List<VariableReference> parameters = satisfyParameters(
 				test, callee,
 				Arrays.asList(method.getParameterTypes()),
-				position, 1, allowNull);
+				position, 1, allowNull, false);
 
 		int newLength = test.size();
 		position += (newLength - length);
@@ -673,7 +691,7 @@ public class TestFactory {
 	 */
 	public VariableReference attemptGeneration(TestCase test, Type type, int position)
 	        throws ConstructionFailedException {
-		return attemptGeneration(test, type, position, 0, false);
+		return attemptGeneration(test, type, position, 0, false, null);
 	}
 
 	/**
@@ -682,7 +700,7 @@ public class TestFactory {
 	 */
 	public VariableReference attemptGenerationOrNull(TestCase test, Type type,
 	        int position) throws ConstructionFailedException {
-		return attemptGeneration(test, type, position, 0, true);
+		return attemptGeneration(test, type, position, 0, true, null);
 	}
 
 	/**
@@ -697,7 +715,7 @@ public class TestFactory {
 	 * @throws ConstructionFailedException
 	 */
 	protected VariableReference attemptGeneration(TestCase test, Type type, int position,
-	        int recursionDepth, boolean allowNull) throws ConstructionFailedException {
+	        int recursionDepth, boolean allowNull, VariableReference generatorRefToExclude) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
 		if (clazz.isEnum()) {
@@ -751,7 +769,7 @@ public class TestFactory {
 				return test.getStatement(returnPos).getReturnValue();
 			}
 
-			return createObject(test, type, position, recursionDepth);
+			return createObject(test, type, position, recursionDepth, generatorRefToExclude);
 		}
 	}
 
@@ -781,7 +799,7 @@ public class TestFactory {
 		logger.debug("Chosen class for Object: "+choice);
 		if(choice.isString()) {
 			return createOrReuseVariable(test, String.class, position,
-                    recursionDepth, null, true);
+                    recursionDepth, null, true, false);
 		}
 		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(choice);
 		// LoggingUtils.getEvoLogger().info("Generator for Object: " + o);
@@ -1060,13 +1078,14 @@ public class TestFactory {
 	 * @throws ConstructionFailedException
 	 */
 	public VariableReference createObject(TestCase test, Type type, int position,
-	        int recursionDepth) throws ConstructionFailedException {
+	        int recursionDepth, VariableReference generatorRefToExclude) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
 		VariableReference ret;
 
 		if( TimeController.getInstance().getPhasePercentage() >= Properties.FUNCTIONAL_MOCKING_PERCENT &&
-				Randomness.nextDouble() < Properties.P_FUNCTIONAL_MOCKING){
+				Randomness.nextDouble() < Properties.P_FUNCTIONAL_MOCKING &&
+				! type.equals(Properties.getTargetClass())){
 
 			//mock creation
 
@@ -1076,7 +1095,7 @@ public class TestFactory {
 
 			//regular creation
 
-			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz, currentRecursion, test, position);
+			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz, currentRecursion, test, position, generatorRefToExclude);
 			currentRecursion.add(o);
 
 			if (o == null) {
@@ -1099,7 +1118,7 @@ public class TestFactory {
 					}
 				}
 
-				if (Properties.P_FUNCTIONAL_MOCKING > 0) {
+				if (Properties.P_FUNCTIONAL_MOCKING > 0 && ! type.equals(Properties.getTargetClass())) {
 				/*
 					Even if mocking is not active yet in this phase, if we have
 					no generator for a type, we use mocking directly
@@ -1151,7 +1170,7 @@ public class TestFactory {
 	 * @throws ConstructionFailedException
 	 */
 	private VariableReference createOrReuseVariable(TestCase test, Type parameterType,
-	        int position, int recursionDepth, VariableReference exclude, boolean allowNull)
+	        int position, int recursionDepth, VariableReference exclude, boolean allowNull, boolean excludeCalleeGenerators)
 	        throws ConstructionFailedException {
 
 		if (Properties.SEED_TYPES && parameterType.equals(Object.class)) {
@@ -1160,7 +1179,7 @@ public class TestFactory {
 
 		double reuse = Randomness.nextDouble();
 
-		List<VariableReference> objects = getCandidatesForReuse(test, parameterType, position, exclude);
+		List<VariableReference> objects = getCandidatesForReuse(test, parameterType, position, exclude, allowNull);
 
 		GenericClass clazz = new GenericClass(parameterType);
 		boolean isPrimitiveOrSimilar = clazz.isPrimitive() || clazz.isWrapperType() || clazz.isEnum() || clazz.isClass() || clazz.isString();
@@ -1196,15 +1215,25 @@ public class TestFactory {
 
 				logger.debug(" Generating new object of type " + parameterType);
 
+				//FIXME exclude methods
+				VariableReference generatorRefToExclude = null;
+				if(excludeCalleeGenerators){
+					generatorRefToExclude = exclude;
+				}
                 VariableReference reference = attemptGeneration(test, parameterType,
 				                                                position, recursionDepth,
-				                                                allowNull);
+				                                                allowNull, generatorRefToExclude);
 				return reference;
 
 			} else {
 
-				if (objects.isEmpty())
-					throw new ConstructionFailedException("Have no objects and generators");
+				if (objects.isEmpty()){
+					if(allowNull){
+						return createNull(test, parameterType, position, recursionDepth);
+					} else {
+						throw new ConstructionFailedException("Have no objects and generators");
+					}
+				}
 
 				logger.debug(" Choosing from " + objects.size() + " existing objects");
 				VariableReference reference = Randomness.choice(objects);
@@ -1214,12 +1243,18 @@ public class TestFactory {
 		}
 	}
 
-	private List<VariableReference> getCandidatesForReuse(TestCase test, Type parameterType, int position, VariableReference exclude) {
+	private List<VariableReference> getCandidatesForReuse(TestCase test, Type parameterType, int position, VariableReference exclude,
+														  boolean allowNull) {
+
+		//look at all vars defined before pos
 		List<VariableReference> objects = test.getObjects(parameterType, position);
+
+		//if an exclude var was specified, then remove it
 		if (exclude != null) {
 			objects.remove(exclude);
 			if (exclude.getAdditionalVariableReference() != null)
 				objects.remove(exclude.getAdditionalVariableReference());
+
 			Iterator<VariableReference> it = objects.iterator();
 			while (it.hasNext()) {
 				VariableReference v = it.next();
@@ -1228,8 +1263,9 @@ public class TestFactory {
 			}
 		}
 
-		//no mock should be used more than once
 		List<VariableReference> additionalToRemove = new ArrayList<>();
+
+		//no mock should be used more than once
 		Iterator<VariableReference> iter = objects.iterator();
 		while(iter.hasNext()){
 			VariableReference ref = iter.next();
@@ -1237,6 +1273,7 @@ public class TestFactory {
 				continue;
 			}
 
+			//check if current mock var is used anywhere: if so, then we cannot choose it
 			for(int i=ref.getStPosition()+1; i<test.size(); i++){
 				Statement st = test.getStatement(i);
 				if(st.getVariableReferences().contains(ref)){
@@ -1246,6 +1283,21 @@ public class TestFactory {
 				}
 			}
 		}
+
+		//check for null
+		if(!allowNull){
+			iter = objects.iterator();
+			while(iter.hasNext()) {
+				VariableReference ref = iter.next();
+
+				if(ConstraintHelper.isNull(ref, test)){
+					iter.remove();
+					additionalToRemove.add(ref);
+				}
+			}
+		}
+
+		//further remove all other vars that have the deleted ones as additionals
 		iter = objects.iterator();
 		while(iter.hasNext()){
 			VariableReference ref = iter.next();
@@ -1680,7 +1732,7 @@ public class TestFactory {
             parameters = satisfyParameters(test, null,
                     //we need a reference to the SUT, and one to a variable of same type of chosen field
                     Arrays.asList((Type)reflectionFactory.getReflectedClass() , (Type)field.getType()),
-                    position, recursionDepth + 1, true);
+                    position, recursionDepth + 1, true, false);
 
             try {
                 st = new PrivateFieldStatement(test,reflectionFactory.getReflectedClass(),field.getName(),
@@ -1696,7 +1748,7 @@ public class TestFactory {
             list.add(reflectionFactory.getReflectedClass());
             list.addAll(Arrays.asList(method.getParameterTypes()));
 
-            parameters = satisfyParameters(test, null,list,position, recursionDepth + 1, true);
+            parameters = satisfyParameters(test, null,list,position, recursionDepth + 1, true, false);
             VariableReference callee = parameters.remove(0);
 
             try {
@@ -1753,7 +1805,7 @@ public class TestFactory {
 						Type target = m.getOwnerType();
 
 						if (!test.hasObject(target, position)) {
-							callee = createObject(test, target, position, 0);
+							callee = createObject(test, target, position, 0, null);
 							position += test.size() - previousLength;
 							previousLength = test.size();
 						} else {
@@ -1838,7 +1890,7 @@ public class TestFactory {
 					//}
 
 					if (!test.hasObject(target, position)) {
-						callee = createObject(test, target, position, 0);
+						callee = createObject(test, target, position, 0, null);
 						position += test.size() - previousLength;
 						previousLength = test.size();
 					} else {
@@ -1989,7 +2041,11 @@ public class TestFactory {
 	 */
 	public List<VariableReference> satisfyParameters(TestCase test,
 	        VariableReference callee, List<Type> parameterTypes, int position,
-	        int recursionDepth, boolean allowNull) throws ConstructionFailedException {
+	        int recursionDepth, boolean allowNull, boolean excludeCalleeGenerators) throws ConstructionFailedException {
+
+		if(callee==null && excludeCalleeGenerators){
+			throw new IllegalArgumentException("Exclude generators on null callee");
+		}
 
 		List<VariableReference> parameters = new ArrayList<>();
 		logger.debug("Trying to satisfy " + parameterTypes.size() + " parameters");
@@ -2010,7 +2066,7 @@ public class TestFactory {
 			int previousLength = test.size();
 
 			VariableReference var = createOrReuseVariable(test, parameterType, position,
-			                                              recursionDepth, callee, allowNull);
+			                                              recursionDepth, callee, allowNull, excludeCalleeGenerators);
 
 			// Generics instantiation may lead to invalid types, so better double check
 			if(!var.isAssignableTo(parameterType)) {

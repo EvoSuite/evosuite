@@ -1,5 +1,25 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.jee;
 
+import com.examples.with.different.packagename.jee.injection.InjectionWithInheritance;
 import com.examples.with.different.packagename.jee.servlet.PostPutGetServlet;
 import com.examples.with.different.packagename.jee.servlet.SimpleHttpServlet;
 import org.evosuite.EvoSuite;
@@ -8,6 +28,8 @@ import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -15,7 +37,14 @@ import org.junit.Test;
  */
 public class ServletSystemTest extends SystemTest{
 
-
+    @Before()
+    public void init(){
+        /*
+            likely we ll not need handling of Servlets... however, too early to remove all
+             the code written so far...
+         */
+        Assume.assumeTrue(Properties.HANDLE_SERVLETS);
+    }
 
     @Test
     public void testSimpleCase_noJEE(){
@@ -36,6 +65,23 @@ public class ServletSystemTest extends SystemTest{
 
         Assert.assertTrue(best.getCoverage() < 1);
     }
+
+    @Test
+    public void testCombination() {
+        testSimpleCase_noJEE();
+        super.resetStaticVariables(); //After
+        super.setDefaultPropertiesForTestCases(); //Before
+        testSimpleCase_withJEE();
+    }
+
+    @Test
+    public void testInversedCombination() {
+        testSimpleCase_withJEE();
+        super.resetStaticVariables(); //After
+        super.setDefaultPropertiesForTestCases(); //Before
+        testSimpleCase_noJEE();
+    }
+
 
     @Test
     public void testSimpleCase_withJEE(){

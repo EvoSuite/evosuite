@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.testcase.statements;
 
 
@@ -98,7 +117,7 @@ public class FunctionalMockStatementTest {
 
         final int LIMIT_5 = 5;
         Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT = LIMIT_5;
-        final int LOOP_3 = 3 , LOOP_5 = 5, LOOP_7 = 7;
+        final int LOOP_0 = 0, LOOP_3 = 3 , LOOP_5 = 5, LOOP_7 = 7;
 
 
         IntPrimitiveStatement x = new IntPrimitiveStatement(tc, LOOP_3);
@@ -146,7 +165,7 @@ public class FunctionalMockStatementTest {
         Assert.assertFalse(mockStmt.doesNeedToUpdateInputs()); //no update should be required
         types = mockStmt.updateMockedMethods();
         Assert.assertEquals(0, types.size());
-        Assert.assertEquals(LOOP_5 , mockStmt.getNumParameters());
+        Assert.assertEquals(LOOP_5, mockStmt.getNumParameters());
 
 
         //decrease, but to the limit, so still no required change
@@ -166,6 +185,15 @@ public class FunctionalMockStatementTest {
         types = mockStmt.updateMockedMethods();
         Assert.assertEquals(0, types.size()); // but no new types to add
         Assert.assertEquals(LOOP_3, mockStmt.getNumParameters());
+
+        //remove all
+        x.setValue(LOOP_0);
+        execute(tc);
+
+        Assert.assertTrue(mockStmt.doesNeedToUpdateInputs()); //do update
+        types = mockStmt.updateMockedMethods();
+        Assert.assertEquals(0, types.size()); // but no new types to add
+        Assert.assertEquals(LOOP_0, mockStmt.getNumParameters());
     }
 
 

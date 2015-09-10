@@ -1,19 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
  *
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  *
@@ -35,6 +37,7 @@ import org.evosuite.testcase.ConstraintHelper;
 import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.jee.InstanceOnlyOnce;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
@@ -111,6 +114,17 @@ public class TestCluster {
 		CastClassManager.getInstance().clear();
 
 		instance = null;
+	}
+
+	public void invalidateGeneratorCache(GenericClass klass){
+		Iterator<Map.Entry<GenericClass,Set<GenericAccessibleObject<?>>>> iter = generatorCache.entrySet().iterator();
+		while(iter.hasNext()){
+			Map.Entry entry = iter.next();
+			GenericClass gen = (GenericClass) entry.getKey();
+			if(gen.isAssignableFrom(klass)){
+				iter.remove();
+			}
+		}
 	}
 
 	public void handleRuntimeAccesses(TestCase test) {
@@ -865,7 +879,7 @@ public class TestCluster {
 	 * @throws ConstructionFailedException
 	 */
 	public GenericAccessibleObject<?> getRandomGenerator(GenericClass clazz,
-	        Set<GenericAccessibleObject<?>> excluded, TestCase test, int position) throws ConstructionFailedException {
+	        Set<GenericAccessibleObject<?>> excluded, TestCase test, int position, VariableReference generatorRefToExclude) throws ConstructionFailedException {
 
 		logger.debug("Getting random generator for " + clazz);
 
@@ -876,7 +890,7 @@ public class TestCluster {
 			if (!concreteClass.equals(clazz)) {
 				logger.debug("Target class is generic: " + clazz
 				        + ", getting instantiation " + concreteClass);
-				return getRandomGenerator(concreteClass, excluded, test, position);
+				return getRandomGenerator(concreteClass, excluded, test, position, generatorRefToExclude);
 			}
 		}
 
@@ -913,6 +927,19 @@ public class TestCluster {
 					}
 				}
 			}
+
+			if(generatorRefToExclude != null){
+				Iterator<GenericAccessibleObject<?>> iter = candidates.iterator();
+				while (iter.hasNext()) {
+					GenericAccessibleObject<?> gao = iter.next();
+					//if current generator could be called from excluded ref, then we cannot use it
+					if(generatorRefToExclude.isAssignableTo(gao.getOwnerType())){
+						iter.remove();
+					}
+				}
+
+			}
+
 			logger.debug("Candidate generators for " + clazz + ": " + candidates.size());
 
 			if (candidates.isEmpty()) {

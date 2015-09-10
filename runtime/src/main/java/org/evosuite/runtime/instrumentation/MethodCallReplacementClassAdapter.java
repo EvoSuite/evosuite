@@ -1,25 +1,29 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
  *
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
  */
 package org.evosuite.runtime.instrumentation;
 
+import java.io.ObjectStreamClass;
+import java.io.Serializable;
 import java.util.Arrays;
 
 import org.evosuite.runtime.RuntimeSettings;
@@ -41,6 +45,13 @@ import org.slf4j.LoggerFactory;
  * @author fraser
  */
 public class MethodCallReplacementClassAdapter extends ClassVisitor {
+
+	/**
+	 * To be used ONLY from tests.
+	 * Complex issue arises when the SUT and EvoSuite classloaders are the same, which might
+	 * happen in some unit tests
+	 */
+	public static boolean dirtyHack_applyUIDTransformation = true;
 
 	private final String className;
 	
@@ -145,8 +156,10 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	@Override
 	public void visitEnd() {
 		if(canChangeSignature && !definesHashCode && !isInterface && RuntimeSettings.mockJVMNonDeterminism) {
+
 			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
-			if(superClassName.equals("java.lang.Object")) {
+
+			if(superClassName.equals("java.lang.Object")) { //TODO: why only if superclass is Object??? unclear
 				Method hashCodeMethod = Method.getMethod("int hashCode()");
 				GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, hashCodeMethod, null, null, this);
 				mg.loadThis();
@@ -154,28 +167,31 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 				mg.invokeStatic(Type.getType(org.evosuite.runtime.System.class), Method.getMethod("int identityHashCode(Object)"));
 				mg.returnValue();
 				mg.endMethod();
-				
-				/*
-				 * If the class is serializable, then adding a hashCode will change the serialVersionUID
-				 * if it is not defined in the class. Hence, if it is not defined, we have to define it to
-				 * avoid problems in serialising the class.
-				 */
-				/*
-				if(!definesUid) {
-					try {
-						Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
-						if(Serializable.class.isAssignableFrom(clazz)) {
-						ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
-						long serialID = c.getSerialVersionUID();
-						logger.info("Adding serialId to class "+className);
-						visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialID);
-						}
-					} catch(ClassNotFoundException e) {
-						logger.info("Failed to add serialId to class "+className+": "+e.getMessage());
-					}
-				*/
+			}
+
+		}
+
+		/*
+		 * If the class is serializable, then doing any change (adding hashCode, static reset, etc)
+		 * will change the serialVersionUID if it is not defined in the class.
+		 * Hence, if it is not defined, we have to define it to
+		 * avoid problems in serialising the class, as reading Master will not do instrumentation.
+		 * The serialVersionUID HAS to be the same as the un-instrumented class
+		 */
+		if(!definesUid && !isInterface  && dirtyHack_applyUIDTransformation) {
+			try {
+				Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
+				if(Serializable.class.isAssignableFrom(clazz)) {
+					ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
+					long serialID = c.getSerialVersionUID();
+					logger.info("Adding serialId to class "+className);
+					visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialID);
+				}
+			} catch(ClassNotFoundException e) {
+				logger.warn("Failed to add serialId to class "+className+": "+e.getMessage());
 			}
 		}
+
 		super.visitEnd();
 	}
 }
