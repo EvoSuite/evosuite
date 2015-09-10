@@ -30,6 +30,7 @@ import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.classhandling.ResetManager;
@@ -63,6 +64,8 @@ public class SystemTest {
 	@After
 	public void resetStaticVariables() {
 		RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(false);
+		RuntimeSettings.applyUIDTransformation = false;
+
 		TestGenerationContext.getInstance().resetContext();
 		ResetManager.getInstance().clearManager();
 		System.setProperties(currentProperties);
