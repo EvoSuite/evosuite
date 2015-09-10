@@ -14,8 +14,6 @@
   <packaging>eclipse-plugin</packaging>
 
   <build>
-    <!-- FIXME after fixing test case TestExecutionOfGeneratedTestCase
-         this can be uncommented
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -45,7 +43,6 @@
         </executions>
       </plugin>
     </plugins>
-    -->
 
     <pluginManagement>
       <plugins>
