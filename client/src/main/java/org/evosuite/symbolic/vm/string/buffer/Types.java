@@ -62,6 +62,6 @@ public interface Types {
 			STRING_BUFFER_TYPE, STRING_TYPE);
 
 	public static final String INT_TO_VOID_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.VOID_TYPE, Type.INT_TYPE);;
+			Type.VOID_TYPE, Type.INT_TYPE);
 
 }

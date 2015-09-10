@@ -62,7 +62,7 @@ public class FixedSizeTestSuiteChromosomeFactory implements
 	public TestSuiteChromosome getChromosome() {
 		TestSuiteChromosome chromosome = new TestSuiteChromosome(
 		        new RandomLengthTestFactory());
-		chromosome.clearTests();;
+		chromosome.clearTests();
 		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
 		tracker.modification(chromosome);
 
