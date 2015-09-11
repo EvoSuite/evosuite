@@ -131,7 +131,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 */
 	public void addTests(Collection<T> tests) {
 		for (T test : tests) {
-			tests.add(test);
+			this.tests.add(test);
 		}
 		if (!tests.isEmpty())
 			this.setChanged(true);
