@@ -623,8 +623,10 @@ public class CoverageAnalysis {
 
 		// JUnit 4
 		try {
-			List<FrameworkMethod> methods = new TestClass(cls).getAnnotatedMethods(Test.class);
-			methods.addAll(new TestClass(cls).getAnnotatedMethods(EvoSuiteTest.class));
+			List<FrameworkMethod> methods = new ArrayList<FrameworkMethod>();
+			TestClass tc = new TestClass(cls);
+			methods.addAll(tc.getAnnotatedMethods(Test.class));
+			methods.addAll(tc.getAnnotatedMethods(EvoSuiteTest.class));
 			for (FrameworkMethod method : methods) {
 				List<Throwable> errors = new ArrayList<Throwable>();
 				method.validatePublicVoidNoArg(false, errors);
