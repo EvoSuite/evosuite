@@ -855,7 +855,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Set<Integer> getCoveredLines(String className) {
 		Set<Integer> coveredLines = new HashSet<Integer>();
 		for (Entry<String, Map<String, Map<Integer, Integer>>> entry : coverage.entrySet()) {
-			if (entry.getKey().equals(className)) {
+			if ( (entry.getKey().equals(className)) ||
+					// is it a internal class of 'className' ?
+					(entry.getKey().startsWith(className + "$")) ) {
 				for (Map<Integer, Integer> methodentry : entry.getValue().values()) {
 					coveredLines.addAll(methodentry.keySet());
 				}

@@ -51,14 +51,12 @@ public class InstrumentingAgent_threadIT {
 		RuntimeSettings.mockJVMNonDeterminism = true;
         MethodCallReplacementCache.resetSingleton();
 		Runtime.getInstance().resetRuntime();
-		MethodCallReplacementClassAdapter.dirtyHack_applyUIDTransformation = false;
 	}
 
 	@After
 	public void resetValues() {
 		RuntimeSettings.mockJVMNonDeterminism = replaceCalls;
 		KillSwitchHandler.getInstance().setKillSwitch(false);
-		MethodCallReplacementClassAdapter.dirtyHack_applyUIDTransformation = true;
 	}
 	
 	

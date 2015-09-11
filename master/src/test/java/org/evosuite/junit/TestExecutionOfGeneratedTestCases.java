@@ -14,17 +14,14 @@ public class TestExecutionOfGeneratedTestCases  {
 
 	@Test
 	public void test() {
-		MethodCallReplacementClassAdapter.dirtyHack_applyUIDTransformation = false;
 
-		try {
+
 			JUnitRunner jR = new JUnitRunner(Euclidean_ESTest.class);
 			jR.run();
 
 			List<JUnitResult> results = jR.getTestResults();
 			assertTrue(results.size() == 1);
 			assertTrue(results.get(0).wasSuccessful());
-		} finally {
-			MethodCallReplacementClassAdapter.dirtyHack_applyUIDTransformation = true;
-		}
+
 	}
 }
