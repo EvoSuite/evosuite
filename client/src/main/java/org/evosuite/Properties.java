@@ -1163,6 +1163,10 @@ public class Properties {
 	@Parameter(key = "seed_dir", group = "Output", description = "Directory name where the best chromosomes are saved")
 	public static String SEED_DIR = "evosuite-seeds";
 
+	/** Constant <code>SERIALIZE_REGRESSION_TEST_SUITE=""</code> */
+	@Parameter(key = "serialize_regression_test_suite", group = "Output", description = "(Experimental) If enable, the best minimized test suite with assertions is saved")
+	public static boolean SERIALIZE_REGRESSION_TEST_SUITE = false;
+
 	/** Constant <code>CONCOLIC_MUTATION=0.0</code> */
 	@Parameter(key = "concolic_mutation", description = "Deprcated. Probability of using concolic mutation operator")
 	@DoubleValue(min = 0.0, max = 1.0)

@@ -57,6 +57,7 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testsuite.RegressionTestSuiteSerialization;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.TestSuiteMinimizer;
@@ -285,6 +286,10 @@ public class TestSuiteGenerator {
 
 		if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
 			compileAndCheckTests(testSuite);
+		}
+
+		if (Properties.SERIALIZE_REGRESSION_TEST_SUITE) {
+			RegressionTestSuiteSerialization.performRegressionAnalysis(testSuite);
 		}
 	}
 	
