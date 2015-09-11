@@ -18,7 +18,6 @@
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite;
-
  
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
@@ -64,7 +63,6 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.TestSuiteMinimizer;
 import org.evosuite.testsuite.TestSuiteSerialization;
-import org.evosuite.testsuite.factories.SerializationSuiteChromosomeFactory;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
@@ -74,7 +72,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.*;
-
 
 /**
  * Main entry point.
@@ -163,15 +160,13 @@ public class TestSuiteGenerator {
 	 * @param testSuite
 	 */
 	protected void postProcessTests(TestSuiteChromosome testSuite) {
-		
-        if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
-            SerializationSuiteChromosomeFactory.saveTests(testSuite);
+
+        if (Properties.CTG_SEEDS_FILE_OUT != null) {
+            TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
+        } else if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
+        	TestSuiteSerialization.saveTests(testSuite, new File(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
         }
-        
-        if(Properties.CTG_SEEDS_FILE_OUT != null){
-                TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
-        }
-        
+
 		if (Properties.MINIMIZE_VALUES && 
 		                Properties.CRITERION.length == 1) {
 		    double fitness = testSuite.getFitness();

@@ -127,6 +127,7 @@ public class ClientProcess {
         RuntimeSettings.useSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
 		RuntimeSettings.className = Properties.TARGET_CLASS;
 		RuntimeSettings.useJEE = Properties.JEE;
+		RuntimeSettings.applyUIDTransformation = true;
         MethodCallReplacementCache.resetSingleton();
     }
 

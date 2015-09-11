@@ -192,7 +192,7 @@
 				<!-- Common Public License Version 1.0 -->
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.11</version>
+				<version>4.12</version>
 			</dependency>
 			<dependency>
 				<!-- Adhoc license, copyright holder is INRIA -->

@@ -310,7 +310,8 @@ public class CoverageAnalysis {
         	case REGRESSIONTESTS:
         		return null;
             default:
-            	throw new RuntimeException("Criterion not supported: " + criterion);
+            	logger.debug("Criterion not supported: " + criterion);
+            	return null;
         }
     }
 }
