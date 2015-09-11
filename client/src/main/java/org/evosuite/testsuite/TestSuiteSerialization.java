@@ -51,6 +51,9 @@ public class TestSuiteSerialization {
                     out.writeObject(tc);
                 }
             }
+
+            out.flush();
+            out.close();
         }catch (IOException e){
             logger.error("Failed to open/handle "+target.getAbsolutePath()+" for writing: "+e.getMessage());
             return false;
@@ -69,6 +72,9 @@ public class TestSuiteSerialization {
         	for (TestChromosome tc : ts.getTestChromosomes()) {
         		out.writeObject(tc);
             }
+
+            out.flush();
+            out.close();
         }catch (IOException e){
             logger.error("Failed to open/handle "+target.getAbsolutePath()+" for writing: "+e.getMessage());
             return false;
@@ -122,6 +128,7 @@ public class TestSuiteSerialization {
                 logger.warn("Problems when reading a serialized test from " + target.getAbsolutePath() + " : " + e.getMessage());
             }
 
+            in.close();
         } catch (FileNotFoundException e) {
             logger.warn("Cannot load tests because file does not exist: "+target.getAbsolutePath());
         } catch (IOException e) {

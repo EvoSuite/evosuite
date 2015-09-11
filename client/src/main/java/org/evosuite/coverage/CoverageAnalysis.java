@@ -306,7 +306,8 @@ public class CoverageAnalysis {
         	case ONLYLINE:
         		return RuntimeVariable.LineCoverageBitString;
             default:
-            	throw new RuntimeException("Criterion not supported: " + criterion);
+            	logger.debug("Criterion not supported: " + criterion);
+            	return null;
         }
     }
 }
