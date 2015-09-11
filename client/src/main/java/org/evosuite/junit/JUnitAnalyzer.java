@@ -134,7 +134,7 @@ public class JUnitAnalyzer {
 	 * remove such test from the input list
 	 * 
 	 * @param tests
-	 * @return <code>true</code> if any test was unstable
+	 * @return the number of unstable tests
 	 */
 	public static int handleTestsThatAreUnstable(List<TestCase> tests) {
 
