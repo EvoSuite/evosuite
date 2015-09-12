@@ -20,123 +20,117 @@
 package org.evosuite.coverage.rho;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.evosuite.coverage.branch.BranchCoverageFactory;
-import org.evosuite.coverage.branch.BranchCoverageTestFitness;
-import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.graphs.cfg.ControlDependency;
+import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 
-/**
- * <p>
- * RhoCoverageTestFitness class.
- * </p>
- * 
- * @author José Campos
- */
 public class RhoCoverageTestFitness extends TestFitnessFunction {
 
-	private static final long serialVersionUID = 4912040682845717510L;
+	private static final long serialVersionUID = -1483213330289592274L;
 
-	/**
-	 * 
-	 */
-	protected BytecodeInstruction goalInstruction;
+	private int previous_number_of_ones = 0;
+	private int previous_number_of_test_cases = 0;
 
-	/**
-	 * 
-	 */
-	protected List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
+	private Set<Set<Integer>> coverage_matrix_generated_so_far = new LinkedHashSet<Set<Integer>>();
 
-	/**
-	 * 
-	 * @param goalInstruction
-	 */
-	public RhoCoverageTestFitness(BytecodeInstruction goalInstruction) {
-		if (goalInstruction == null)
-			throw new IllegalArgumentException("null given");
-
-		this.goalInstruction = goalInstruction;
-
-		Set<ControlDependency> cds = goalInstruction.getControlDependencies();
-		for (ControlDependency cd : cds) {
-			BranchCoverageTestFitness fitness = BranchCoverageFactory.createBranchCoverageTestFitness(cd);
-			branchFitnesses.add(fitness);
-		}
-
-		if (goalInstruction.isRootBranchDependent())
-			branchFitnesses.add(BranchCoverageFactory.createRootBranchTestFitness(goalInstruction));
-
-		if (cds.isEmpty() && !goalInstruction.isRootBranchDependent())
-			throw new IllegalStateException(
-					"expect control dependencies to be empty only for root dependent instructions: "
-							+ toString());
-
-		if (branchFitnesses.isEmpty())
-			throw new IllegalStateException(
-					"an instruction is at least on the root branch of it's method");
-	}
-
-	/**
-	 * 
-	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
-		double fitness = Double.MAX_VALUE;
 
-		for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
-			if (branchFitness.isCovered(result)) {
-				fitness = 0.0;
-				break ;
+		Set<Set<Integer>> tmp_coverage_matrix = new LinkedHashSet<Set<Integer>>(this.coverage_matrix_generated_so_far);
+
+		double fitness = 1.0;
+
+		int number_of_goals = RhoCoverageFactory.getNumberGoals();
+		int number_of_ones = RhoCoverageFactory.getNumber_of_Ones() + this.previous_number_of_ones;
+		int number_of_test_cases = RhoCoverageFactory.getNumber_of_Test_Cases() + this.previous_number_of_test_cases;
+
+		Set<Integer> coveredLines = result.getTrace().getCoveredLines();
+
+		if (Properties.STRATEGY == Properties.Strategy.ENTBUG) {
+			// order set
+			List<Integer> l_coveredLines = new ArrayList<Integer>(coveredLines);
+			Collections.sort(l_coveredLines);
+			Set<Integer> coveredLinesOrdered = new LinkedHashSet<Integer>();
+			for (Integer coveredLine : l_coveredLines) {
+				coveredLinesOrdered.add(coveredLine);
 			}
+
+			// no coverage
+			if (coveredLinesOrdered.size() == 0) {
+				updateIndividual(this, individual, 1.0);
+				return 1.0;
+			}
+			// already exists locally
+			else if (tmp_coverage_matrix.add(coveredLinesOrdered) == false) {
+				updateIndividual(this, individual, 1.0);
+				return 1.0;
+			}
+			// already exists on the original test suite
+			else if (RhoCoverageFactory.exists(l_coveredLines)) {
+				updateIndividual(this, individual, 1.0);
+				return 1.0;
+			}
+			// good
+			else {
+				number_of_ones += coveredLinesOrdered.size();
+				number_of_test_cases++;
+			}
+		} else {
+			number_of_ones += coveredLines.size();
+			number_of_test_cases++;
 		}
 
-		//updateIndividual(this, individual, fitness);
+		// was not possible to generate new test cases
+		if (number_of_test_cases == 0.0) {
+			fitness = 1.0; // penalise this test case
+		} else {
+			fitness = ((double) number_of_ones) / ((double) number_of_test_cases) / ((double) number_of_goals);
+			fitness = Math.abs(0.5 - fitness);
+		}
+
+		updateIndividual(this, individual, fitness);
 		return fitness;
 	}
 
-	/**
-	 * 
-	 */
-	@Override
-	public boolean isMaximizationFunction() {
-		return false;
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return goalInstruction.getMethodName() + " " + goalInstruction.toString();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#compareTo(org.evosuite.testcase.TestFitnessFunction)
-	 */
 	@Override
 	public int compareTo(TestFitnessFunction other) {
-		if (other instanceof RhoCoverageTestFitness) {
-			return goalInstruction.compareTo(((RhoCoverageTestFitness) other).goalInstruction);
-		}
+		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
-	 */
 	@Override
 	public String getTargetClass() {
-		return goalInstruction.getClassName();
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
-	 */
 	@Override
 	public String getTargetMethod() {
-		return goalInstruction.getMethodName();
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void incrementNumber_of_Ones(int n) {
+		this.previous_number_of_ones += n;
+	}
+	public int getNumber_of_Ones() {
+		return this.previous_number_of_ones;
+	}
+
+	public void incrementNumber_of_Test_Cases() {
+		this.previous_number_of_test_cases++;
+	}
+	public int getNumber_of_Test_Cases() {
+		return this.previous_number_of_test_cases;
+	}
+
+	public void addTestCoverage(Set<Integer> test_coverage) {
+		this.coverage_matrix_generated_so_far.add(test_coverage);
 	}
 }

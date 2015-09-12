@@ -51,9 +51,18 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
-import org.evosuite.strategy.*;
+import org.evosuite.strategy.EntBugTestStrategy;
+import org.evosuite.strategy.FixedNumRandomTestStrategy;
+import org.evosuite.strategy.IndividualTestStrategy;
+import org.evosuite.strategy.RandomTestStrategy;
+import org.evosuite.strategy.TestGenerationStrategy;
+import org.evosuite.strategy.WholeTestSuiteStrategy;
 import org.evosuite.symbolic.DSEStats;
-import org.evosuite.testcase.*;
+import org.evosuite.testcase.ConstantInliner;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -440,6 +449,8 @@ public class TestSuiteGenerator {
 			return new FixedNumRandomTestStrategy();
 		case ONEBRANCH:
 			return new IndividualTestStrategy();
+		case ENTBUG:
+			return new EntBugTestStrategy();
 		default:
 			throw new RuntimeException("Unsupported strategy: "+Properties.STRATEGY);
 		}

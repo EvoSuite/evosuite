@@ -102,6 +102,7 @@ public enum RuntimeVariable {
 	/** Obtained fitness values at different points in time */
 	FitnessTimeline,
 	/** Obtained size values at different points in time */
+	Size_T0,
 	SizeTimeline,
 	/** Obtained length values at different points in time */
 	LengthTimeline,
@@ -110,9 +111,14 @@ public enum RuntimeVariable {
 	/** A bit string (0/1) representing whether statements (in order) are covered */
 	StatementCoverageBitString,
 	/** The obtained rho coverage */
+	RhoScore,
+	RhoScore_T0,
+	RhoScoreTimeline,
 	RhoCoverage,
-    RhoCoverageTimeline,
 	/** The obtained ambiguity coverage */
+	AmbiguityScore,
+	AmbiguityScore_T0,
+	AmbiguityScoreTimeline,
 	AmbiguityCoverage,
 	/** Not only the covered branches ratio, but also including the branchless methods. FIXME: this will need to be changed */
 	BranchCoverage,
