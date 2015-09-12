@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.testsuite.localsearch;
 
 import java.util.HashMap;
@@ -9,7 +28,10 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearch;
+import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExpander;
 import org.evosuite.testcase.TestChromosome;
@@ -40,7 +62,7 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 	 * @param individual
 	 * @return
 	 */
-	protected TestSuiteChromosome expandTestSuite(TestSuiteChromosome individual) {
+	protected void expandTestSuite(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
 		logger.debug("Expanding tests for local search");
 
 		TestSuiteChromosome newTestSuite = new TestSuiteChromosome();
@@ -71,7 +93,10 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 		List<TestChromosome> oldTests = individual.getTestChromosomes();
 		oldTests.clear();
 		oldTests.addAll(newTestSuite.getTestChromosomes());
-		return newTestSuite;
+		individual.setChanged(true);
+		for(FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
+			((TestSuiteFitnessFunction)ff).getFitness(individual);
+		}
 	}
 	
 	private TestCase expandTestCase(TestCase test) {
@@ -85,18 +110,19 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 	/**
 	 * Ensure that all branches are executed twice
 	 */
-	protected void ensureDoubleExecution(TestSuiteChromosome individual, TestSuiteFitnessFunction objective) {
+	protected void ensureDoubleExecution(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
 		logger.debug("Ensuring double execution");
 		
 		Set<TestChromosome> duplicates = new HashSet<TestChromosome>();
-
+		TestSuiteFitnessFunction defaultFitness = (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0);
+		
 		Map<Integer, Integer> covered = new HashMap<Integer, Integer>();
 		Map<Integer, TestChromosome> testMap = new HashMap<Integer, TestChromosome>();
 		for (TestChromosome test : individual.getTestChromosomes()) {
 
 			// Make sure we have an execution result
 			if (test.getLastExecutionResult() == null || test.isChanged()) {
-				ExecutionResult result = test.executeForFitnessFunction(objective);
+				ExecutionResult result = test.executeForFitnessFunction(defaultFitness);
 				test.setLastExecutionResult(result); // .clone();
 				test.setChanged(false);
 			}
@@ -116,7 +142,7 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 			int count = entry.getValue();
 			if (count == 1) {
 				TestChromosome duplicate = (TestChromosome) testMap.get(branchId).clone();
-				ExecutionResult result = duplicate.executeForFitnessFunction(objective);
+				ExecutionResult result = duplicate.executeForFitnessFunction(defaultFitness);
 				duplicate.setLastExecutionResult(result); // .clone();
 				duplicate.setChanged(false);
 				duplicates.add(duplicate);
@@ -130,7 +156,9 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 				individual.addTest(test);
 			}
 			individual.setChanged(true);
-			objective.getFitness(individual);
+			for(FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
+				((TestSuiteFitnessFunction)ff).getFitness(individual);
+			}
 		}
 	}
 	

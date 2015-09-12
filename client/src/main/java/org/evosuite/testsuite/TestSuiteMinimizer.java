@@ -1,19 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.testsuite;
 
@@ -355,17 +357,23 @@ public class TestSuiteMinimizer {
                             + " from test");
                     TestChromosome originalTestChromosome = (TestChromosome) testChromosome.clone();
 
+                    boolean modified = false;
                     try {
                         TestFactory testFactory = TestFactory.getInstance();
-                        testFactory.deleteStatementGracefully(testChromosome.getTestCase(), i);
-                        testChromosome.setChanged(true);
-                        testChromosome.getTestCase().clearCoveredGoals();
+                        modified = testFactory.deleteStatementGracefully(testChromosome.getTestCase(), i);
                     } catch (ConstructionFailedException e) {
+                        modified = false;
+                    }
+
+                    if(!modified){
                         testChromosome.setChanged(false);
                         testChromosome.setTestCase(originalTestChromosome.getTestCase());
                         logger.debug("Deleting failed");
                         continue;
                     }
+
+                    testChromosome.setChanged(true);
+                    testChromosome.getTestCase().clearCoveredGoals();
 
                     List<Double> modifiedVerFitness = new ArrayList<Double>();
                     for (TestFitnessFactory<?> ff : testFitnessFactories)

@@ -1,19 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
  *
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.testcase.execution;
 
@@ -30,7 +32,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
@@ -92,8 +93,29 @@ public class Scope {
 		        && !reference.isPrimitive() // && !reference.getGenericClass().isClass()
 		        && !o.getClass().isArray()) { // && !(reference instanceof ArrayReference)) {
 			if (TestUsageChecker.canUse(o.getClass())) {
-				if (Proxy.isProxyClass(o.getClass())) {
+				if( Proxy.isProxyClass(o.getClass()) ) {
 					reference.setType(o.getClass().getSuperclass());
+				} else if(o.getClass().getName().contains("EnhancerByMockito")){
+					/*
+						tricky: this is a functional mock for a class X. We do not want to set
+						scopes on mock objects, as their class definitions are created on the fly
+						and will be missing on different processes (eg communications between Master
+						and Client).
+						If X is a class, then the mock will extend it. However, if it was an interface,
+						then we need to look at all of its interface to find the correct one
+					 */
+					String mockName = o.getClass().getName();
+					Class<?> target = o.getClass().getSuperclass();
+					if(! mockName.startsWith(target.getName()+"$")){
+						for(Class<?> inter : o.getClass().getInterfaces()){
+							if(mockName.startsWith(inter.getName()+"$")){
+								target = inter;
+								break;
+							}
+						}
+					}
+					reference.setType(target);
+
 				} else {
 					reference.setType(o.getClass());
 				}

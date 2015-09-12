@@ -1,9 +1,28 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.symbolic.solver.search;
+
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
-
-import junit.framework.Assert;
 
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
@@ -37,7 +56,7 @@ public class StringAVMTests {
 				
 		StringAVM avm = new StringAVM(var,constraints);
 		boolean succeded = avm.applyAVM();
-		Assert.assertTrue(succeded);
+		assertTrue(succeded);
 	}
 	
 	@Test
@@ -51,11 +70,11 @@ public class StringAVMTests {
 		
 		StringAVM avm = new StringAVM(var,constraints);
 		boolean succeded = avm.applyAVM();
-		Assert.assertTrue(succeded);
+		assertTrue(succeded);
 		
 		String result = var.getConcreteValue();
 		Integer value = Integer.parseInt(result);
-		Assert.assertTrue("Value="+result, value>=0 && value<=999);
+		assertTrue("Value="+result, value>=0 && value<=999);
 	}
 	
 	@Test
@@ -70,11 +89,11 @@ public class StringAVMTests {
 		
 		StringAVM avm = new StringAVM(var,constraints);
 		boolean succeded = avm.applyAVM();
-		Assert.assertTrue(succeded);
+		assertTrue(succeded);
 		
 		String result = var.getConcreteValue();
-		Assert.assertTrue("Length="+result.length(), result.length()==6);
-		Assert.assertTrue(result, result.endsWith(start));
+		assertTrue("Length="+result.length(), result.length()==6);
+		assertTrue(result, result.endsWith(start));
 	}
 	
 	@Test
@@ -89,11 +108,11 @@ public class StringAVMTests {
 		
 		StringAVM avm = new StringAVM(var,constraints);
 		boolean succeded = avm.applyAVM();
-		Assert.assertTrue(succeded);
+		assertTrue(succeded);
 		
 		String result = var.getConcreteValue();
-		Assert.assertTrue("Length="+result.length(), result.length()==6);
-		Assert.assertTrue(result, result.startsWith(start));
+		assertTrue("Length="+result.length(), result.length()==6);
+		assertTrue(result, result.startsWith(start));
 	}
 	
 }

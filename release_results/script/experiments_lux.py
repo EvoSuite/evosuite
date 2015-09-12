@@ -1,12 +1,32 @@
 #!/usr/bin/python
+#
+# Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+# contributors
+#
+# This file is part of EvoSuite.
+#
+# EvoSuite is free software: you can redistribute it and/or modify it
+# under the terms of the GNU Lesser Public License as published by the
+# Free Software Foundation, either version 3.0 of the License, or (at your
+# option) any later version.
+#
+# EvoSuite is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser Public License for more details.
+#
+# You should have received a copy of the GNU Lesser Public License along
+# with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+#
+
 
 # How to run EvoSuite
-EVOSUITE="java -Xmx400M -jar $HOME/evosuite/evosuite-master-0.1.3-SNAPSHOT.jar"
+EVOSUITE="$HOME/java8/jdk1.8.0_45/bin/java  -Xmx400M  -jar $HOME/evosuite/evosuite-master-1.0.0.jar"
 
 # Location of SF110
 CASESTUDY_DIR="$HOME/SF110/dist"
 
-CONFIG_NAME = "0.2.0"
+CONFIG_NAME = "1.0.0"
 
 EXPERIMENT_NAME="EvoSuite"
 

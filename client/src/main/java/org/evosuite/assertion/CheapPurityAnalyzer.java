@@ -1,11 +1,26 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.assertion;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
-
 import org.evosuite.instrumentation.BytecodeInstrumentation;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.InheritanceTree;
@@ -14,6 +29,8 @@ import org.evosuite.utils.JdkPureMethodsList;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * This class performs a very cheap purity analysis by under-approximating the set of
@@ -40,11 +57,27 @@ public class CheapPurityAnalyzer {
 
 	private final HashSet<MethodEntry> updateFieldMethodList = new HashSet<MethodEntry>();
 	private final HashMap<MethodEntry, Boolean> purityCache = new HashMap<MethodEntry, Boolean>();
+	private final HashSet<MethodEntry> methodEntries = new HashSet<MethodEntry>();
+
+	/**
+	 * We return this value when we can't conclude if a given method is pure or not.
+	 */
+	private static final boolean DEFAULT_PURITY_VALUE = false;
 
 	private static final CheapPurityAnalyzer instance = new CheapPurityAnalyzer();
 
 	public static CheapPurityAnalyzer getInstance() {
 		return instance;
+	}
+
+	public List<String> getPureMethods(String className) {
+		ArrayList<String> list = new ArrayList<>();
+		for (MethodEntry m : methodEntries) {
+			if (m.className.equals(className) && isPure(m) && m.methodName != ClassResetter.STATIC_RESET) {
+				list.add(m.methodName + m.descriptor);
+			}
+		}
+		return list;
 	}
 
 	/**
@@ -318,11 +351,6 @@ public class CheapPurityAnalyzer {
 	}
 
 	/**
-	 * We return this value when we can't conclude if a given method is pure or not.
-	 */
-	private static final boolean DEFAULT_PURITY_VALUE = false;
-
-	/**
 	 * Returns if a Method is <code>cheap-pure</code>
 	 * @param method
 	 * @return true if the method is cheap-pure, otherwise false.
@@ -386,8 +414,6 @@ public class CheapPurityAnalyzer {
 					+ "]";
 		}
 	}
-
-	private final HashSet<MethodEntry> methodEntries = new HashSet<MethodEntry>();
 
 	public void addMethod(String className, String methodName,
 			String methodDescriptor) {

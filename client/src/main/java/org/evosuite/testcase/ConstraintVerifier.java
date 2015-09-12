@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.testcase;
 
 import org.evosuite.runtime.annotation.*;
@@ -82,8 +101,14 @@ public class ConstraintVerifier {
      * @param pos
      * @return
      */
-    public static boolean canDelete(TestCase tc, int pos) throws IllegalArgumentException{
+    public static boolean canDelete(TestCase tc, int pos) throws IllegalArgumentException {
+        return dependentPositions(tc,pos).isEmpty();
+    }
+
+    public static Set<Integer> dependentPositions(TestCase tc, int pos) throws IllegalArgumentException{
         Inputs.checkNull(tc);
+
+        Set<Integer> dep = new LinkedHashSet<>();
 
         Statement st = tc.getStatement(pos);
 
@@ -108,19 +133,23 @@ public class ConstraintVerifier {
                 for(VariableReference input : entity.getParameterReferences()){
                     if(input.same(ret)){
                         //var is used as input in a method that accepts no null input, so cannot be deleted
-                        return false;
+                        dep.add(i);
                     }
                 }
             }
 
-            return true;
+            return dep;
         }
 
         //first look at bounded variables
         for(Annotation[] array : getParameterAnnotations(st)){
-            for(Annotation an : array){
+            for(int i=0; i<array.length; i++){
+                Annotation an = array[i];
                 if(an instanceof BoundInputVariable){
-                    return false;
+
+                    EntityWithParametersStatement e = (EntityWithParametersStatement) st;
+                    int boundingVarPos = e.getParameterReferences().get(i).getStPosition();
+                    dep.add(boundingVarPos);
                 }
             }
         }
@@ -148,17 +177,32 @@ public class ConstraintVerifier {
                 String afterMethodName = klassAndMethod[1];
 
                 if(afterKlassName.equals(currentKlassName) && afterMethodName.equals(currentMethodName)){
-                    return false;
+                    dep.add(i);
                 }
             }
         }
-        return true;
+        return dep;
     }
 
     public static boolean isValidPositionForInsertion(GenericAccessibleObject<?> obj, TestCase tc, int pos)
         throws IllegalArgumentException{
 
         Inputs.checkNull(obj,tc);
+
+        /*
+            if the given 'obj' (a method/constructor) belongs to a class for which there is an instance
+            before "pos" which is bounded after "pos", then we cannot add it, as could break bounding
+            constraints if such instance is chosen as callee for "obj". Note: we could force to never
+            use such instance (ie use another one if exists, or create it), but that would complicate
+            a lot all the algorithms in the test factory :(
+         */
+        List<VariableReference> possibleCallees = tc.getObjects(obj.getOwnerType(), pos);
+        for(VariableReference ref : possibleCallees){
+            int boundPos = ConstraintHelper.getLastPositionOfBounded(ref, tc);
+            if(boundPos >= pos){
+                return false;
+            }
+        }
 
         Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
         if(constraints == null){
@@ -407,19 +451,7 @@ public class ConstraintVerifier {
                     //check for methods that should have no null inputs
                     if(c.noNullInputs()){
                         for(VariableReference vr : inputs){
-                            boolean invalid = false;
-
-                            if(vr instanceof NullReference){
-                                invalid = true;
-                            }
-
-                            Statement varSource = tc.getStatement(vr.getStPosition());
-                            if(varSource instanceof PrimitiveStatement){ //eg for String
-                                Object obj = ((PrimitiveStatement)varSource).getValue();
-                                if(obj==null){
-                                    invalid = true;
-                                }
-                            }
+                            boolean invalid = ConstraintHelper.isNull(vr,tc);
 
                             if(invalid){
                                 logger.error("'noNullInputs' constraint violated at position "+i+" in test case:\n"+tc.toCode());

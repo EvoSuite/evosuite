@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.runtime.mock.java.lang;
 
 import java.io.PrintStream;
@@ -33,6 +52,7 @@ public class MockIllegalStateException extends IllegalStateException  implements
 	private MockThrowable getDelegate(){
 		if(delegate == null){
 			delegate = new MockThrowable(); //placeholder
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
 		}
 		return delegate;
 	}
@@ -42,21 +62,25 @@ public class MockIllegalStateException extends IllegalStateException  implements
 	public MockIllegalStateException() {
 		super();
 		delegate = new MockThrowable();
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 	
 	public MockIllegalStateException(String message) {
 		super(message);
 		delegate = new MockThrowable(message);
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 
 	public MockIllegalStateException(Throwable cause) {
 		super(cause);
 		delegate = new MockThrowable(cause);
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 
 	public MockIllegalStateException(String message, Throwable cause) {
 		super(message, cause);
 		delegate = new MockThrowable(message, cause);
+		delegate.setOriginForDelegate(super.getStackTrace()[0]);
 	}
 		
 	
@@ -129,7 +153,7 @@ public class MockIllegalStateException extends IllegalStateException  implements
 		getDelegate().printStackTrace(p);
 	}
 
-
+/*
 	@Override
 	public synchronized Throwable fillInStackTrace() {
 		if(!MockFramework.isEnabled()){
@@ -137,7 +161,7 @@ public class MockIllegalStateException extends IllegalStateException  implements
 		}
 		return getDelegate().fillInStackTrace();
 	}
-
+*/
 	@Override
 	public StackTraceElement[] getStackTrace() {		
 		if(!MockFramework.isEnabled()){

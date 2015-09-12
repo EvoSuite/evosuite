@@ -1,25 +1,29 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
  */
 package org.evosuite;
 
+import org.dom4j.DocumentFactory;
+import org.dom4j.dom.DOMDocumentFactory;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.result.TestGenerationResult;
@@ -59,6 +63,7 @@ public class ClientProcess {
 	public void run() {
 		Properties.getInstance();
 		setupRuntimeProperties();
+		handleShadingSpecialCases();
 		Sandbox.setCheckForInitialization(Properties.SANDBOX);
 		MockFramework.enable();
 
@@ -125,8 +130,42 @@ public class ClientProcess {
         RuntimeSettings.useSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
 		RuntimeSettings.className = Properties.TARGET_CLASS;
 		RuntimeSettings.useJEE = Properties.JEE;
+		RuntimeSettings.applyUIDTransformation = true;
         MethodCallReplacementCache.resetSingleton();
     }
+
+
+	private static void handleShadingSpecialCases(){
+
+		String shadePrefix = "org.evosuite.shaded.";
+
+		if(! DocumentFactory.class.getName().startsWith(shadePrefix)){
+			//if not shaded (eg in system tests), then nothing to do
+			return;
+		}
+
+		String defaultFactory = System.getProperty("org.dom4j.factory", "org.dom4j.DocumentFactory");
+		String defaultDomSingletonClass= System.getProperty(
+				"org.dom4j.dom.DOMDocumentFactory.singleton.strategy", "org.dom4j.util.SimpleSingleton");
+		String defaultSingletonClass = System.getProperty(
+				"org.dom4j.DocumentFactory.singleton.strategy", "org.dom4j.util.SimpleSingleton");
+
+		System.setProperty("org.dom4j.factory" , shadePrefix + defaultFactory);
+		System.setProperty("org.dom4j.dom.DOMDocumentFactory.singleton.strategy" ,
+				shadePrefix + defaultDomSingletonClass);
+		System.setProperty("org.dom4j.DocumentFactory.singleton.strategy" ,
+				shadePrefix + defaultSingletonClass);
+
+		DocumentFactory.getInstance(); //force loading
+		DOMDocumentFactory.getInstance();
+
+		//restore in case SUT uses its own dom4j
+		System.setProperty("org.dom4j.factory" ,defaultFactory);
+		System.setProperty("org.dom4j.dom.DOMDocumentFactory.singleton.strategy",
+				defaultDomSingletonClass);
+		System.setProperty("org.dom4j.DocumentFactory.singleton.strategy",
+				defaultSingletonClass);
+	}
 
 	/**
 	 * <p>
@@ -143,7 +182,7 @@ public class ClientProcess {
 		 * might be issues with following System.exit if successive
 		 * threads change it if this thread is still running
 		 */
-		boolean onThread = Properties.CLIENT_ON_THREAD; 
+		boolean onThread = Properties.CLIENT_ON_THREAD;
 
 		try {
 			LoggingUtils.getEvoLogger().info("* Starting client");

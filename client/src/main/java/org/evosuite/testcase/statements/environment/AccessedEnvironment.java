@@ -1,5 +1,25 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.testcase.statements.environment;
 
+import org.evosuite.runtime.javaee.JeeData;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.runtime.vnet.EndPointInfo;
 
@@ -40,11 +60,15 @@ public class AccessedEnvironment implements Serializable {
     private final Set<EndPointInfo> remoteContactedPorts;
 
 
+    private JeeData jeeData;
+
+
     public AccessedEnvironment(){
         localFiles = new LinkedHashSet<>();
         remoteURLs = new LinkedHashSet<>();
         localListeningPorts = new LinkedHashSet<>();
         remoteContactedPorts = new LinkedHashSet<>();
+        jeeData = null;
     }
 
     public void copyFrom(AccessedEnvironment other){
@@ -53,6 +77,7 @@ public class AccessedEnvironment implements Serializable {
         this.remoteURLs.addAll(other.remoteURLs);
         this.localListeningPorts.addAll(other.localListeningPorts);
         this.remoteContactedPorts.addAll(other.remoteContactedPorts);
+        this.jeeData = other.jeeData; //it is an immutable object
     }
 
     public void clear(){
@@ -60,12 +85,21 @@ public class AccessedEnvironment implements Serializable {
         remoteURLs.clear();
         localListeningPorts.clear();
         remoteContactedPorts.clear();
+        jeeData = null;
     }
 
     public boolean hasProperty(String property) throws IllegalArgumentException{
         Inputs.checkNull(property);
 
         return false; //TODO
+    }
+
+    public JeeData getJeeData() {
+        return jeeData;
+    }
+
+    public void setJeeData(JeeData jeeData) {
+        this.jeeData = jeeData;
     }
 
     public void addRemoteContactedPorts(Collection<EndPointInfo> ports){

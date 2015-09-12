@@ -1,19 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.testcase;
 
@@ -1071,9 +1073,27 @@ public class TestCodeVisitor extends TestVisitor {
 
 		String result = "";
 
+		//by construction, we should avoid cases like:
+		//  Object obj = mock(Foo.class);
+		//as it leads to problems when setting up "when(...)", and anyway it would make no sense
+		Class<?> rawClass = new GenericClass(retval.getType()).getRawClass();
+		Class<?> targetClass = st.getTargetClass();
+		assert  rawClass.getName().equals(targetClass.getName()) :
+				"Mismatch between variable raw type "+rawClass+" and mocked "+targetClass;
+		String rawClassName = getClassName(rawClass);
+
 		//Foo foo = mock(Foo.class);
-		result += getClassName(retval) + " " + getVariableName(retval);
-		result += " = mock(" + st.getTargetClass().getName()+".class);" + NEWLINE;
+		String variableType = getClassName(retval);
+		result += variableType + " " + getVariableName(retval);
+
+		result += " = ";
+		if(! variableType.equals(rawClassName)){
+			//this can happen in case of generics, eg
+			//Foo<String> foo = (Foo<String>) mock(Foo.class);
+			result += "(" + variableType+") ";
+		}
+
+		result += "mock(" + rawClassName+".class);" + NEWLINE;
 
 		//when(...).thenReturn(...)
 		for(MethodDescriptor md : st.getMockedMethods()){
@@ -1222,14 +1242,44 @@ public class TestCodeVisitor extends TestVisitor {
 			exceptionMessage = "no message in exception (getMessage() returned null)";
 		}
 
-		result += "   //" + NEWLINE;
-		for (String msg : exceptionMessage.split("\n")) {
-			result += "   // " + StringEscapeUtils.escapeJava(msg) + NEWLINE;
-		}
-		result += "   //" + NEWLINE;
+		String sourceClass = getSourceClassName(exception);
 
+		if(sourceClass==null || isValidSource(sourceClass)) {
+			/*
+				do not print comments if it was a non-valid source.
+				however, if source is undefined, then it should be OK
+			 */
+			result += "   //" + NEWLINE;
+			for (String msg : exceptionMessage.split("\n")) {
+				result += "   // " + StringEscapeUtils.escapeJava(msg) + NEWLINE;
+			}
+			result += "   //" + NEWLINE;
+		}
+
+		if(sourceClass!=null && isValidSource(sourceClass)) {
+				/*
+					do not check source if it comes from a non-runtime evosuite
+					class. this could happen if source is an instrumentation done
+					during search which is not applied to runtime
+				 */
+
+				//from class EvoAssertions
+				result += "   assertThrownBy(\"" + sourceClass + "\", e);" + NEWLINE;
+		}
 		result += "}" + NEWLINE;// closing the catch block
 		return result;
+	}
+
+	private String getSourceClassName(Throwable exception){
+		if(exception.getStackTrace().length == 0){
+			return null;
+		}
+		return exception.getStackTrace()[0].getClassName();
+	}
+
+	private boolean isValidSource(String sourceClass){
+		return ! sourceClass.startsWith("org.evosuite.") ||
+				sourceClass.startsWith("org.evosuite.runtime.");
 	}
 
     private Class<?> getExceptionClassToUse(Throwable exception){
@@ -1238,7 +1288,8 @@ public class TestCodeVisitor extends TestVisitor {
             for "readability" of tests, it shouldn't be a mock one either
           */
         Class<?> ex = exception.getClass();
-        while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex)) {
+        while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex) ||
+				ex.getCanonicalName().startsWith("com.sun.")) {
             ex = ex.getSuperclass();
         }
         return ex;

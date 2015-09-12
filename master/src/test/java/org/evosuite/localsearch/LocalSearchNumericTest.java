@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.localsearch;
 
 import static org.junit.Assert.assertEquals;
@@ -6,9 +25,9 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.LocalSearchBudgetType;
 import org.evosuite.SystemTest;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.Properties.LocalSearchBudgetType;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.DefaultLocalSearchObjective;
@@ -27,7 +46,6 @@ import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,13 +58,6 @@ import com.examples.with.different.packagename.localsearch.IntegerLocalSearchExa
 
 public class LocalSearchNumericTest extends SystemTest {
 
-	private final double oldPrimitivePool = Properties.PRIMITIVE_POOL;
-	private final double oldDseProbability = Properties.DSE_PROBABILITY;
-	private final boolean oldLSReferences = Properties.LOCAL_SEARCH_REFERENCES; 
-	private final boolean oldLSArrays = Properties.LOCAL_SEARCH_ARRAYS; 
-	private final Properties.LocalSearchBudgetType oldLSBudgetType = Properties.LOCAL_SEARCH_BUDGET_TYPE;
-	private final long oldLSBudget = Properties.LOCAL_SEARCH_BUDGET;
-	
 	@Before
     public void init(){
         Properties.DSE_PROBABILITY = 0.0;
@@ -56,16 +67,6 @@ public class LocalSearchNumericTest extends SystemTest {
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = false;
     }
-	
-	@After
-	public void restoreProperties() {
-		Properties.DSE_PROBABILITY = oldDseProbability;
-		Properties.PRIMITIVE_POOL = oldPrimitivePool;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = oldLSBudgetType;
-		Properties.LOCAL_SEARCH_BUDGET = oldLSBudget;
-		Properties.LOCAL_SEARCH_REFERENCES = oldLSReferences;
-		Properties.LOCAL_SEARCH_ARRAYS = oldLSArrays;
-	}
 	
 	private TestCase getIntTest(int x, int y) throws NoSuchMethodException, SecurityException, ConstructionFailedException, ClassNotFoundException {
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);

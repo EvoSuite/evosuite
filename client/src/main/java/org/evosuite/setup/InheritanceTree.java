@@ -1,19 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
@@ -146,7 +148,7 @@ public class InheritanceTree {
 			return subclassCache.get(classNameWithDots);
 
 		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
-            logger.warn("Class not in inheritance graph: " + classNameWithDots);
+            LoggingUtils.logWarnAtMostOnce(logger, "Class not in inheritance graph: " + classNameWithDots);
 			return new HashSet<>();
 		}
 		Set<String> result = new LinkedHashSet<String>();
@@ -162,7 +164,7 @@ public class InheritanceTree {
 	public Set<String> getSuperclasses(String className) {
 		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
-            logger.warn("Class not in inheritance graph: " + classNameWithDots);
+			LoggingUtils.logWarnAtMostOnce(logger, "Class not in inheritance graph: " + classNameWithDots);
 			return new HashSet<>();
 		}
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
@@ -179,7 +181,7 @@ public class InheritanceTree {
 	public List<String> getOrderedSuperclasses(String className) {
 		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
-            logger.warn("Class not in inheritance graph: " + classNameWithDots);
+			LoggingUtils.logWarnAtMostOnce(logger, "Class not in inheritance graph: " + classNameWithDots);
 			return new LinkedList<>();
 		}
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(

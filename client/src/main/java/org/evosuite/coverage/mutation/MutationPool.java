@@ -1,19 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
  *
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
@@ -25,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.evosuite.Properties;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -42,7 +43,7 @@ public class MutationPool {
 	private static Map<String, Map<String, List<Mutation>>> mutationMap = new HashMap<String, Map<String, List<Mutation>>>();
 
 	// maps the mutationIDs assigned by this pool to their respective Mutations
-	private static Map<String, Map<Integer, Mutation>> mutationIdMap = new HashMap<String, Map<Integer, Mutation>>();
+	private static Map<Integer, Mutation> mutationIdMap = new HashMap<Integer, Mutation>();
 
 	private static int numMutations = 0;
 
@@ -71,13 +72,7 @@ public class MutationPool {
 		        numMutations++, instruction, mutation, distance);
 		mutationMap.get(className).get(methodName).add(mutationObject);
 
-		if (mutationIdMap.containsKey(className)) {
-			mutationIdMap.get(className).put(mutationObject.getId(), mutationObject);
-		} else {
-			Map<Integer, Mutation> values = new HashMap<Integer, Mutation>();
-			values.put(mutationObject.getId(), mutationObject);
-			mutationIdMap.put(className, values);
-		}
+		mutationIdMap.put(mutationObject.getId(), mutationObject);
 
 		return mutationObject;
 	}
@@ -107,13 +102,7 @@ public class MutationPool {
 		        numMutations++, instruction, mutation, distance);
 		mutationMap.get(className).get(methodName).add(mutationObject);
 
-		if (mutationIdMap.containsKey(className)) {
-			mutationIdMap.get(className).put(mutationObject.getId(), mutationObject);
-		} else {
-			Map<Integer, Mutation> values = new HashMap<Integer, Mutation>();
-			values.put(mutationObject.getId(), mutationObject);
-			mutationIdMap.put(className, values);
-		}
+		mutationIdMap.put(mutationObject.getId(), mutationObject);
 
 		return mutationObject;
 	}
@@ -144,23 +133,11 @@ public class MutationPool {
 	 * @return a {@link java.util.List} object.
 	 */
 	public static List<Mutation> getMutants() {
-		List<Mutation> mutants = new ArrayList<Mutation>();
-		if (!mutationIdMap.containsKey(Properties.TARGET_CLASS)) {
-			assert(mutationIdMap.size() == 0);
-			return mutants; 
-		}
-
-		mutants.addAll(mutationIdMap.get(Properties.TARGET_CLASS).values());
-		return mutants;
+		return new ArrayList<Mutation>(mutationIdMap.values());
 	}
 	
 	public static Mutation getMutant(int id) {
-		if (!mutationIdMap.containsKey(Properties.TARGET_CLASS)) {
-			assert(mutationIdMap.size() == 0);
-			return null;
-		}
-
-		return mutationIdMap.get(Properties.TARGET_CLASS).get(id);
+		return mutationIdMap.get(id);
 	}
 
 	/**
