@@ -53,6 +53,7 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.mock.MockList;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -1309,6 +1310,7 @@ public class TestClusterGenerator {
 
 					if (classDistance.get(subClass) == distance) {
 						try {
+							TestGenerationContext.getInstance().goingToExecuteSUTCode();
 							Class<?> subClazz = Class.forName(subClass,
 							                                  false,
 							                                  TestGenerationContext.getInstance().getClassLoaderForSUT());
@@ -1343,6 +1345,8 @@ public class TestClusterGenerator {
 							        + ". Class not found: " + subClass, e);
 							logger.error("Removing class from inheritance tree");
 							inheritanceTree.removeClass(subClass);
+						} finally {
+							TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 						}
 					}
 				}
