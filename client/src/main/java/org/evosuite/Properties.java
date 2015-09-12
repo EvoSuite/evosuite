@@ -682,6 +682,15 @@ public class Properties {
 	@Parameter(key = "analysis_criteria", group = "Output", description = "List of criteria which should be measured on the completed test suite")
 	public static String ANALYSIS_CRITERIA = "";
 
+	/** Constant <code>use_existing_coverage="false"</code> */
+	@Parameter(key = "use_existing_coverage", group = "Experimental", description = "Use the coverage of existing test cases")
+	public static boolean USE_EXISTING_COVERAGE = false;
+
+	/** Constant <code>EPSON=0.01</code> */
+	@Parameter(key = "epson", group = "Experimental", description = "Epson")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double EPSON = 0.01;
+
 	//----------------------------------------------------------------
 	// Continuous Test Generation
 
@@ -802,6 +811,10 @@ public class Properties {
 	@Parameter(key = "test_scaffolding", group = "Output", description = "Generate all the scaffolding needed to run EvoSuite JUnit tests in a separate file")
 	public static boolean TEST_SCAFFOLDING = true;
 
+	/** Constant <code>MAX_LENGTH_TEST_CASE=0</code> */
+	@Parameter(key = "max_length_test_case", group = "Output", description = "Maximum number of statements (normal statements and assertions)")
+	public static int MAX_LENGTH_TEST_CASE = 2500;
+
 	@Parameter(key = "no_runtime_dependency", group = "Output", description = "Avoid runtime dependencies in JUnit test")
 	public static boolean NO_RUNTIME_DEPENDENCY = false;
 
@@ -817,8 +830,8 @@ public class Properties {
 	@Parameter(key = "html", group = "Output", description = "Create html reports")
 	public static boolean HTML = true;
 
-	/** Constant <code>COVERAGE_MATRIX=true</code> */
-	@Parameter(key = "coverage_matrix", group = "Output", description = "Create coverage matrix")
+	/** Constant <code>COVERAGE_MATRIX=false</code> */
+	@Parameter(key = "coverage_matrix", group = "Output", description = "Create a coverage matrix (each row represents the coverage a test case, and each column represents one goal")
 	public static boolean COVERAGE_MATRIX = false;
 
 	/** Constant <code>JUNIT_TESTS=true</code> */
@@ -1392,7 +1405,7 @@ public class Properties {
 
 
 	public enum Strategy {
-		ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, REGRESSION
+		ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, REGRESSION, ENTBUG
 	}
 
 	/** Constant <code>STRATEGY</code> */

@@ -80,6 +80,8 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 				return new JUnitTestCarvedChromosomeFactory(new RandomLengthTestFactory());
 			default:
 			}
+		case ENTBUG:
+			return new RandomLengthTestFactory();
 		default:
 			break;
 		}
