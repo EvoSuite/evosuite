@@ -84,7 +84,7 @@ public class GuiSupport {
 		try{
 			FileSystems.getDefault();
 		} catch(Throwable t){
-			logger.error("Failed to load default file system: "+t.getMessage(), t);
+			logger.error("Failed to load default file system: "+t.getMessage());
 			return;
 		}
 
