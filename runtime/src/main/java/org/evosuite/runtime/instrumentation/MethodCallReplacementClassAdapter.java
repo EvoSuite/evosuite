@@ -172,8 +172,13 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 		 * The serialVersionUID HAS to be the same as the un-instrumented class
 		 */
 		if(!definesUid && !isInterface  && RuntimeSettings.applyUIDTransformation) {
+			ClassLoader threadCL = Thread.currentThread().getContextClassLoader();
 			try {
-				Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
+				ClassLoader evoCL = MethodCallReplacementClassAdapter.class.getClassLoader();
+				Thread.currentThread().setContextClassLoader(evoCL);
+
+				Class<?> clazz = Class.forName(className.replace('/', '.'), false, evoCL);
+
 				if(Serializable.class.isAssignableFrom(clazz)) {
 					ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
 					long serialID = c.getSerialVersionUID();
@@ -182,6 +187,8 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 				}
 			} catch(ClassNotFoundException e) {
 				logger.warn("Failed to add serialId to class "+className+": "+e.getMessage());
+			} finally {
+				Thread.currentThread().setContextClassLoader(threadCL);
 			}
 		}
 
