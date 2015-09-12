@@ -51,11 +51,15 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.utils.Randomness;
-public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends
-        Chromosome {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends Chromosome {
+
+
 	private static final long serialVersionUID = 1L;
 
-
+	private static final Logger logger = LoggerFactory.getLogger(AbstractTestSuiteChromosome.class);
 	
 	protected List<T> tests = new ArrayList<T>();
 	protected ChromosomeFactory<T> testChromosomeFactory;
