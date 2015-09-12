@@ -70,7 +70,7 @@ public class GeneralInjection {
         List<Field> fields = cache.get(klass);
         if(fields==null){
             fields = new ArrayList<>();
-            List<Class<? extends Annotation>> list = InjectionList.getList();
+
             for(Field f : klass.getDeclaredFields()){
                 Class<?> fieldClass = f.getType();
                 if(specials.containsKey(fieldClass)){
@@ -79,7 +79,7 @@ public class GeneralInjection {
                 }
                 for(Annotation annotation : f.getDeclaredAnnotations()){
                     Class<? extends Annotation> annotationClass = annotation.annotationType();
-                    if(list.contains(annotationClass)){
+                    if(InjectionList.isValidForInjection(annotationClass)){
                         fields.add(f);
                         break;
                     }

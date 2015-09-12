@@ -19,6 +19,8 @@
  */
 package org.evosuite.runtime.javaee.injection;
 
+import org.evosuite.runtime.util.Inputs;
+
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,13 +35,38 @@ public class InjectionList {
 
     private static final List<Class<? extends Annotation>> list =
             Collections.unmodifiableList(Arrays.<Class<? extends Annotation>>asList(
-        javax.inject.Inject.class,
-        javax.persistence.PersistenceContext.class,
-        javax.persistence.PersistenceUnit.class
+                    javax.inject.Inject.class,
+                    javax.persistence.PersistenceContext.class,
+                    javax.persistence.PersistenceUnit.class,
+                    org.springframework.beans.factory.annotation.Autowired.class
     ));
 
     public static List<Class<? extends Annotation>> getList(){
         return list;
     }
 
+    public static boolean isValidForInjection(Class<? extends Annotation> annotation) {
+        return isValidForInjection(annotation,list);
+    }
+
+    public static boolean isValidForInjection(Class<? extends Annotation> annotation,
+                                              List<Class<? extends Annotation>> tagsToCheck){
+        Inputs.checkNull(annotation);
+        String name = annotation.getName();
+
+        String shadedPrefix = "org.evosuite.shaded.";
+        for(Class<?> c : tagsToCheck){
+            String cn = c.getName();
+            if(name.equals(cn)){
+                return true;
+            }
+            if(cn.startsWith(shadedPrefix)){
+                if((shadedPrefix + name).equals(cn)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
