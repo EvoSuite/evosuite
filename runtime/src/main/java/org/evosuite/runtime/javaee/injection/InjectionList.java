@@ -38,6 +38,7 @@ public class InjectionList {
                     javax.inject.Inject.class,
                     javax.persistence.PersistenceContext.class,
                     javax.persistence.PersistenceUnit.class,
+                    javax.annotation.Resource.class,
                     org.springframework.beans.factory.annotation.Autowired.class
     ));
 

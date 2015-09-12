@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -146,7 +147,7 @@ public class InjectorTest {
     @Test
     public void test_getGeneralFieldsToInject(){
         List<Field> list = Injector.getGeneralFieldsToInject(Foo.class);
-        Assert.assertEquals(4, list.size());
+        Assert.assertEquals(5, list.size());
         Set<String> names = new LinkedHashSet<>();
         for(Field f : list){
             names.add(f.getName());
@@ -155,6 +156,7 @@ public class InjectorTest {
         Assert.assertTrue(names.contains("injectField"));
         Assert.assertTrue(names.contains("persistence"));
         Assert.assertTrue(names.contains("springWired"));
+        Assert.assertTrue(names.contains("aResource"));
     }
 
     @Test
@@ -192,6 +194,9 @@ public class InjectorTest {
 
         @Autowired
         private String springWired;
+
+        @Resource
+        private String aResource;
 
         @Inject
         private Event event;
