@@ -1157,7 +1157,7 @@ public class MSecurityManager extends SecurityManager {
 
 
 		//Java 7 permissions:
-		if (name.equals("getFileSystemAttributes")) {
+		if (name.equals("getFileSystemAttributes") || name.equals("fileSystemProvider")) {
 			return true;
 		}
 
