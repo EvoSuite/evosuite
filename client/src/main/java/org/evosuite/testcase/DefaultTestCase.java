@@ -759,7 +759,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public VariableReference getReturnValue(int position) {
-		return statements.get(position).getReturnValue();
+		return getStatement(position).getReturnValue();
 	}
 
 	/* (non-Javadoc)
@@ -768,6 +768,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public Statement getStatement(int position) {
+		if(position<0 || position>=statements.size()){
+			throw new IllegalArgumentException("Cannot access statement due to wrong position "
+					+position+", where total number of statements is "+statements.size());
+		}
 		return statements.get(position);
 	}
 

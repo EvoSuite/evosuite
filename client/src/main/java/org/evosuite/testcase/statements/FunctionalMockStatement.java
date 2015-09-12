@@ -22,6 +22,7 @@ package org.evosuite.testcase.statements;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
+import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.runtime.util.Inputs;
@@ -31,7 +32,6 @@ import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.ConstantValue;
-import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.utils.generic.GenericAccessibleObject;
@@ -115,7 +115,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
         this.targetClass = targetClass;
         mockedMethods = new ArrayList<>();
         methodParameters = new LinkedHashMap<>();
-        checkSUT();
+        checkTarget();
         assert parameters.isEmpty();
     }
 
@@ -131,7 +131,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
         this.targetClass = targetClass;
         mockedMethods = new ArrayList<>();
         methodParameters = new LinkedHashMap<>();
-        checkSUT();
+        checkTarget();
         assert parameters.isEmpty();
     }
 
@@ -147,10 +147,21 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
         super.changeClassLoader(loader);
     }
 
-    private void checkSUT(){
+    private void checkTarget(){
         if(targetClass.equals(Properties.getTargetClass())){
             throw new IllegalArgumentException("Cannot create a basic functional mock for the SUT");
         }
+        if(EvoSuiteMock.class.isAssignableFrom(targetClass)){
+            throw new IllegalArgumentException("Cannot create functional mocks for the environment mock "+targetClass.getName());
+        }
+    }
+
+    public static boolean canBeFunctionalMocked(Type type){
+        if(type.equals(Properties.getTargetClass()) ||
+                EvoSuiteMock.class.isAssignableFrom(new GenericClass(type).getRawClass())){
+            return false;
+        }
+        return true;
     }
 
     public Class<?> getTargetClass() {
