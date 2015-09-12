@@ -19,6 +19,7 @@
  */
 package org.evosuite.runtime;
 
+import org.evosuite.runtime.javaee.injection.InjectionList;
 import org.junit.internal.AssumptionViolatedException;
 
 import java.lang.annotation.Annotation;
@@ -112,8 +113,8 @@ public class PrivateAccess {
         if(tagsToCheck != null){
             boolean match = false;
             for(Annotation ann : field.getDeclaredAnnotations()){
-                Class<?> tag = ann.annotationType();
-                if(tagsToCheck.contains(tag)){
+                Class<? extends Annotation> tag = ann.annotationType();
+                if(InjectionList.isValidForInjection(tag, tagsToCheck)){
                     match = true;
                     break;
                 }
