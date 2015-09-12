@@ -1,29 +1,26 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
  */
 package org.evosuite.assertion;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -43,6 +40,11 @@ import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -108,6 +110,9 @@ public abstract class AssertionGenerator {
 	 * @param suite
 	 */
 	public void addAssertions(TestSuiteChromosome suite) {
+
+		setupClassLoader(suite);
+
 		for(TestChromosome test : suite.getTestChromosomes()) {
 			addAssertions(test.getTestCase());
 		}
@@ -219,9 +224,8 @@ public abstract class AssertionGenerator {
 			for(TestChromosome test : suite.getTestChromosomes()) {
 				DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
 				dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
-				test.setChanged(true);
+				test.setChanged(true); // clears cached results
 				test.clearCachedMutationResults();
-				test.clearCachedResults();
 			}
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
@@ -229,10 +233,10 @@ public abstract class AssertionGenerator {
 							: e.toString()));
 			logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
 		} finally {
-			TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
-			TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 		}
 	}
 	

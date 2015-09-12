@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.runtime;
 
 import org.evosuite.runtime.sandbox.Sandbox;
@@ -73,6 +92,17 @@ public class RuntimeSettings {
      * or with the standard classloader and instrumentation via an agent?
      */
     public static boolean useSeparateClassLoader = false;
+
+    /**
+     * If the class is serializable, then doing any change (adding hashCode, static reset, etc)
+     * will change the serialVersionUID if it is not defined in the class.
+     * Hence, if it is not defined, we have to define it to
+     * avoid problems in serialising the class, as reading Master will not do instrumentation.
+     * The serialVersionUID HAS to be the same as the un-instrumented class.
+     * However, this should not be done in the final JUnit, as it leads to a lot of issues
+     * with classloaders
+     */
+    public static boolean applyUIDTransformation = false;
 
 
     public static boolean isUsingAnyMocking(){

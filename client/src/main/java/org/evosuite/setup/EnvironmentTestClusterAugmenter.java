@@ -1,9 +1,29 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.setup;
 
 import org.evosuite.Properties;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.System;
 import org.evosuite.runtime.annotation.*;
+import org.evosuite.runtime.javaee.JeeData;
 import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.testdata.*;
@@ -102,7 +122,20 @@ public class EnvironmentTestClusterAugmenter {
 
     private void handleJEE(TestCase test) {
 
-        if(!hasAddedServlet && TestDataJavaEE.getInstance().isWasAServletInitialized()){
+        if(! Properties.HANDLE_SERVLETS){
+            /*
+                Started to prepare custom mocks for Servlets, but then realized that
+                their behavior is very basic. As such, most likely they are not needed,
+                as they could be much better replaced by functional mocks with Mockito...
+             */
+
+            return;
+        }
+
+        JeeData jeeData = TestDataJavaEE.getInstance().getJeeData();
+        test.getAccessedEnvironment().setJeeData(jeeData);
+
+        if(!hasAddedServlet && jeeData.wasAServletInitialized){
             hasAddedServlet = true;
             addEnvironmentClassToCluster(EvoServletState.class);
         }
@@ -135,7 +168,9 @@ public class EnvironmentTestClusterAugmenter {
 
             GenericAccessibleObject gc = new GenericConstructor(c,klass);
             TestCluster.getInstance().addEnvironmentTestCall(gc);
-            TestCluster.getInstance().addGenerator(new GenericClass(klass),gc);
+            GenericClass genclass = new GenericClass(klass);
+            TestCluster.getInstance().invalidateGeneratorCache(genclass);
+            TestCluster.getInstance().addGenerator(genclass,gc);
         }
 
         for(Method m : klass.getMethods()){
@@ -147,7 +182,9 @@ public class EnvironmentTestClusterAugmenter {
             TestCluster.getInstance().addEnvironmentTestCall(gm);
             Class<?> returnType = m.getReturnType();
             if(! returnType.equals(Void.TYPE)){
-                TestCluster.getInstance().addGenerator(new GenericClass(returnType),gm);
+                GenericClass genclass = new GenericClass(returnType);
+                TestCluster.getInstance().invalidateGeneratorCache(genclass);
+                TestCluster.getInstance().addGenerator(genclass,gm);
                 addEnvironmentDependency(returnType);
             }
         }
@@ -174,7 +211,9 @@ public class EnvironmentTestClusterAugmenter {
             Class<?> returnType = m.getReturnType();
 
             if(! returnType.equals(Void.TYPE)){
-                TestCluster.getInstance().addGenerator(new GenericClass(returnType),gm);
+                GenericClass genclass = new GenericClass(returnType);
+                TestCluster.getInstance().invalidateGeneratorCache(genclass);
+                TestCluster.getInstance().addGenerator(genclass,gm);
                 addEnvironmentDependency(returnType);
             }
         }

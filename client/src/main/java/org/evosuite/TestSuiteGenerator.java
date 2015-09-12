@@ -1,33 +1,24 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite;
-
  
-import java.io.File;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.TestFactory;
@@ -75,17 +66,20 @@ import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testsuite.RegressionTestSuiteSerialization;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.TestSuiteMinimizer;
 import org.evosuite.testsuite.TestSuiteSerialization;
-import org.evosuite.testsuite.factories.SerializationSuiteChromosomeFactory;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.text.NumberFormat;
+import java.util.*;
 
 /**
  * Main entry point.
@@ -128,7 +122,7 @@ public class TestSuiteGenerator {
 		} finally {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
-            TestGenerationContext.getInstance().doneWithExecuteingSUTCode();
+            TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 		}
 		
 
@@ -174,15 +168,13 @@ public class TestSuiteGenerator {
 	 * @param testSuite
 	 */
 	protected void postProcessTests(TestSuiteChromosome testSuite) {
-		
-        if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
-            SerializationSuiteChromosomeFactory.saveTests(testSuite);
+
+        if (Properties.CTG_SEEDS_FILE_OUT != null) {
+            TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
+        } else if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
+        	TestSuiteSerialization.saveTests(testSuite, new File(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
         }
-        
-        if(Properties.CTG_SEEDS_FILE_OUT != null){
-                TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
-        }
-        
+
 		if (Properties.MINIMIZE_VALUES && 
 		                Properties.CRITERION.length == 1) {
 		    double fitness = testSuite.getFitness();
@@ -303,6 +295,10 @@ public class TestSuiteGenerator {
 
 		if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
 			compileAndCheckTests(testSuite);
+		}
+
+		if (Properties.SERIALIZE_REGRESSION_TEST_SUITE) {
+			RegressionTestSuiteSerialization.performRegressionAnalysis(testSuite);
 		}
 	}
 	
@@ -707,6 +703,9 @@ public class TestSuiteGenerator {
 			break;
 		case OUTPUT:
 			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");
+			break;
+		case INPUT:
+			LoggingUtils.getEvoLogger().info("  - Method-Input Coverage");
 			break;
 		default:
 			LoggingUtils.getEvoLogger().info("  - Branch Coverage");

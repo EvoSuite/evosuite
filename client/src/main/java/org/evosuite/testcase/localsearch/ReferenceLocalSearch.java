@@ -1,5 +1,24 @@
 /**
- * 
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
+/**
+ *
  */
 package org.evosuite.testcase.localsearch;
 
@@ -24,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
- * 
+ *
  */
 public class ReferenceLocalSearch extends StatementLocalSearch {
 
@@ -123,7 +142,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 
 	/**
 	 * Add a method call on the return value of the object at position statement
-	 * 
+	 *
 	 * @param test
 	 * @param statement
 	 * @param objective
@@ -145,7 +164,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 
 	/**
 	 * Replace the call with a completely different call
-	 * 
+	 *
 	 * @param test
 	 * @param statement
 	 * @param objective
@@ -168,7 +187,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 			} else if(!var.isPrimitive()) {
 				// Test cluster does not keep track of generators for primitives
 				replacement = factory.createObject(test.getTestCase(), var.getType(),
-				                                   statement, 0);
+				                                   statement, 0, null);
 			}
 			if(replacement != null) {
 				int oldStatement = statement + (test.size() - oldLength);
@@ -191,7 +210,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 
 	/**
 	 * Switch parameter/callee variables with other available objects
-	 * 
+	 *
 	 * @param test
 	 * @param statement
 	 * @param objective
@@ -214,7 +233,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 
 	/**
 	 * Go through parameters of method call and apply local search
-	 * 
+	 *
 	 * @param test
 	 * @param statement
 	 * @param objective
@@ -271,7 +290,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 
 	/**
 	 * Go through parameters of constructor call and apply local search
-	 * 
+	 *
 	 * @param test
 	 * @param statement
 	 * @param objective
@@ -312,7 +331,7 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 
 	/**
 	 * Try to replace source of field with all possible choices
-	 * 
+	 *
 	 * @param test
 	 * @param statement
 	 * @param objective

@@ -1,6 +1,27 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.testcase.statements.reflection;
 
+import org.evosuite.Properties;
 import org.evosuite.runtime.Reflection;
+import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.Randomness;
 
@@ -40,11 +61,21 @@ public class ReflectionFactory {
             }
         }
 
+        //do not use reflection on JEE injection
+        List<Field> toSkip = null;
+        if(Properties.JEE){
+            toSkip = Injector.getAllFieldsToInject(target);
+        }
+
         for(Field f : target.getDeclaredFields()){
-            if(Modifier.isPrivate(f.getModifiers())){
+            if(Modifier.isPrivate(f.getModifiers()) && (toSkip==null || ! toSkip.contains(f)) && !f.getName().equals("serialVersionUID")){
                 fields.add(f);
             }
         }
+    }
+
+    public int getNumberOfUsableFields(){
+        return fields.size();
     }
 
     public boolean hasPrivateFieldsOrMethods(){

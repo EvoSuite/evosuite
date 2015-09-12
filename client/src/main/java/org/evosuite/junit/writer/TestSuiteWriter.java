@@ -1,19 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
  *
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  *
@@ -28,6 +30,7 @@ import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.runtime.EvoAssertions;
 import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.EvoRunnerParameters;
 import org.evosuite.runtime.testdata.EnvironmentDataList;
@@ -194,15 +197,21 @@ public class TestSuiteWriter implements Opcodes {
             throw new IllegalArgumentException("Test classes should have name ending with 'Test'. Invalid input name: " + name);
         }
 
-        List<ExecutionResult> results = new ArrayList<ExecutionResult>();
-
         List<File> generated = new ArrayList<File>();
         String dir = TestSuiteWriterUtils.makeDirectory(directory);
         String content = "";
 
+        // Execute all tests
+        executor.newObservers();
+        List<ExecutionResult> results = new ArrayList<ExecutionResult>();
+        for (int i = 0; i < testCases.size(); i++) {
+            ExecutionResult result = runTest(testCases.get(i));
+            results.add(result);
+        }
+
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
-            executor.newObservers();
+            //executor.newObservers();
             content = getUnitTestsAllInSameFile(name, results);
             Utils.writeFile(content, file);
             generated.add(file);
@@ -210,7 +219,7 @@ public class TestSuiteWriter implements Opcodes {
             for (int i = 0; i < testCases.size(); i++) {
                 String testSuiteName = name.substring(0, name.length() - "Test".length()) + "_" + i + "_Test";
                 File file = new File(dir + "/" + testSuiteName + ".java");
-                executor.newObservers();
+                //executor.newObservers();
                 String testCode = getOneUnitTestInAFile(name, i, results);
                 Utils.writeFile(testCode, file);
                 content += testCode;
@@ -239,11 +248,6 @@ public class TestSuiteWriter implements Opcodes {
      * @return String representation of JUnit test file
      */
     private String getUnitTestsAllInSameFile(String name, List<ExecutionResult> results) {
-
-        for (int i = 0; i < testCases.size(); i++) {
-            ExecutionResult result = runTest(testCases.get(i));
-            results.add(result);
-        }
 
 		/*
          * if there was any security exception, then we need to scaffold the
@@ -275,9 +279,8 @@ public class TestSuiteWriter implements Opcodes {
      * @return String representation of JUnit test file
      */
     private String getOneUnitTestInAFile(String name, int testId, List<ExecutionResult> results) {
-        ExecutionResult result = runTest(testCases.get(testId));
-        results.add(result);
-        boolean wasSecurityException = result.hasSecurityException();
+
+        boolean wasSecurityException = results.get(testId).hasSecurityException();
 
         StringBuilder builder = new StringBuilder();
 
@@ -287,7 +290,7 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
         }
 
-        builder.append(testToString(testId, testId, results.get(0)));
+        builder.append(testToString(testId, testId, results.get(testId)));
         builder.append(getFooter());
 
         return builder.toString();
@@ -330,15 +333,33 @@ public class TestSuiteWriter implements Opcodes {
     protected String getImports(List<ExecutionResult> results) {
         StringBuilder builder = new StringBuilder();
         Set<Class<?>> imports = new HashSet<Class<?>>();
+        Set<Class<?>> accessedClasses = new HashSet<Class<?>>();
         boolean wasSecurityException = TestSuiteWriterUtils.hasAnySecurityException(results);
+        boolean hasException = false;
 
         for (ExecutionResult result : results) {
         	visitor.clearExceptions();
         	visitor.setExceptions(result.exposeExceptionMapping());
             result.test.accept(visitor);
             imports.addAll(visitor.getImports());
+            accessedClasses.addAll(result.test.getAccessedClasses());
+            if(!hasException)
+            	hasException = !result.noThrownExceptions();
         }
         visitor.clearExceptions();
+
+        if(doesUseMocks(results)){
+            /*
+                TODO: this can lead to problems if SUT defines its own static methods
+                with same name as those static imports. 
+             */
+            String mockito = Mockito.class.getCanonicalName();
+            builder.append("import static "+mockito+".*;"+NEWLINE);
+        }
+
+        if(hasException) {
+        	builder.append("import static "+ EvoAssertions.class.getCanonicalName()+".*;"+NEWLINE);
+        }
 
         if (Properties.RESET_STANDARD_STREAMS) {
             imports.add(PrintStream.class);
@@ -351,7 +372,7 @@ public class TestSuiteWriter implements Opcodes {
             imports.add(RunWith.class);
         }
 
-        Set<String> import_names = new HashSet<String>();
+        Set<String> importNames = new HashSet<String>();
         for (Class<?> imp : imports) {
             while (imp.isArray())
                 imp = imp.getComponentType();
@@ -366,42 +387,37 @@ public class TestSuiteWriter implements Opcodes {
                 continue;
             // TODO: Check for anonymous type?
             if (imp.getName().contains("$"))
-                import_names.add(imp.getName().replace("$", "."));
+                importNames.add(imp.getName().replace("$", "."));
             else
-                import_names.add(imp.getName());
+                importNames.add(imp.getName());
         }
 
         for (Class<?> klass : EnvironmentDataList.getListOfClasses()) {
             //TODO: not paramount, but best if could check if actually used in the test suite
-            import_names.add(klass.getCanonicalName());
+        	if(accessedClasses.contains(klass))
+        		importNames.add(klass.getCanonicalName());
         }
 
         if (wasSecurityException) {
             //Add import info for EvoSuite classes used in the generated test suite
-            import_names.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
-            import_names.add(java.util.concurrent.Executors.class.getCanonicalName());
-            import_names.add(java.util.concurrent.Future.class.getCanonicalName());
-            import_names.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
+            importNames.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
+            importNames.add(java.util.concurrent.Executors.class.getCanonicalName());
+            importNames.add(java.util.concurrent.Future.class.getCanonicalName());
+            importNames.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
         }
 
         if (!Properties.TEST_SCAFFOLDING) {
-            import_names.addAll(Scaffolding.getScaffoldingImports(wasSecurityException, results));
+            importNames.addAll(Scaffolding.getScaffoldingImports(wasSecurityException, results));
         }
 
-        List<String> imports_sorted = new ArrayList<String>(import_names);
+        List<String> importsSorted = new ArrayList<String>(importNames);
 
-        Collections.sort(imports_sorted);
-        for (String imp : imports_sorted) {
+        Collections.sort(importsSorted);
+        for (String imp : importsSorted) {
             builder.append("import ");
             builder.append(imp);
             builder.append(";");
             builder.append(NEWLINE);
-        }
-
-        if(doesUseMocks(results)){
-            String mockito = Mockito.class.getCanonicalName();
-            builder.append("import static "+mockito+".mock();"+NEWLINE);
-            builder.append("import static "+mockito+".when();"+NEWLINE);
         }
 
         builder.append(NEWLINE);

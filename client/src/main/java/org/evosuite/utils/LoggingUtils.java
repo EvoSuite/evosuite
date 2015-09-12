@@ -1,19 +1,21 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.utils;
 
@@ -25,11 +27,16 @@ import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.util.Inputs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,12 +83,45 @@ public class LoggingUtils {
 	private final ExecutorService logHandler = Executors.newCachedThreadPool();
 
 	/**
+	 * Keep tracks of messages that should be log only once.
+	 *	Note: yes, this is a static field, but has no impact on test generation, so not a big deal
+	 */
+	private static final Map<Logger, Set<String>> atMostOnceLogs = new ConcurrentHashMap();
+
+	/**
 	 * <p>
 	 * Constructor for LoggingUtils.
 	 * </p>
 	 */
 	public LoggingUtils() {
+	}
 
+	private static synchronized void logAtMostOnce(Logger logger, String message, boolean error){
+		Inputs.checkNull(logger,message);
+
+		Set<String> previous = atMostOnceLogs.get(logger);
+		if(previous == null){
+			previous = new LinkedHashSet<>();
+			atMostOnceLogs.put(logger, previous);
+		}
+
+		if(!previous.contains(message)){
+			previous.add(message);
+
+			if(error){
+				logger.error(message);
+			} else {
+				logger.warn(message);
+			}
+		}
+	}
+
+	public static void logWarnAtMostOnce(Logger logger, String message){
+		logAtMostOnce(logger,message,false);
+	}
+
+	public static void logErrorAtMostOnce(Logger logger, String message){
+		logAtMostOnce(logger,message, true);
 	}
 
 	/**

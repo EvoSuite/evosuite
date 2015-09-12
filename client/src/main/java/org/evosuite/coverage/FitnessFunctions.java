@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.coverage;
 
 import org.evosuite.Properties;
@@ -18,20 +37,13 @@ import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
 import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
+import org.evosuite.coverage.input.InputCoverageFactory;
+import org.evosuite.coverage.input.InputCoverageSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.line.OnlyLineCoverageSuiteFitness;
-import org.evosuite.coverage.method.MethodCoverageFactory;
-import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
-import org.evosuite.coverage.method.MethodNoExceptionCoverageFactory;
-import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
-import org.evosuite.coverage.method.MethodTraceCoverageFactory;
-import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
-import org.evosuite.coverage.mutation.MutationFactory;
-import org.evosuite.coverage.mutation.OnlyMutationFactory;
-import org.evosuite.coverage.mutation.OnlyMutationSuiteFitness;
-import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
-import org.evosuite.coverage.mutation.WeakMutationSuiteFitness;
+import org.evosuite.coverage.method.*;
+import org.evosuite.coverage.mutation.*;
 import org.evosuite.coverage.output.OutputCoverageFactory;
 import org.evosuite.coverage.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.readability.ReadabilitySuiteFitness;
@@ -109,6 +121,8 @@ public class FitnessFunctions {
 			return new LineCoverageSuiteFitness();
 		case OUTPUT:
 			return new OutputCoverageSuiteFitness();
+		case INPUT:
+			return new InputCoverageSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");
@@ -167,6 +181,8 @@ public class FitnessFunctions {
 			return new LineCoverageFactory();
 		case OUTPUT:
 			return new OutputCoverageFactory();
+		case INPUT:
+			return new InputCoverageFactory();
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");

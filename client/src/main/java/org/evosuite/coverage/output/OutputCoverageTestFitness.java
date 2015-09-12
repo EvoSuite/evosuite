@@ -1,29 +1,37 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
  *
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.coverage.output;
 
+import org.evosuite.Properties;
+import org.evosuite.assertion.CheapPurityAnalyzer;
+import org.evosuite.assertion.Inspector;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -57,25 +65,26 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
 
         for (Entry<MethodStatement, Object> entry : returnValues.entrySet()) {
             String className = entry.getKey().getMethod().getMethod().getDeclaringClass().getName();
+            if (! className.equals(Properties.TARGET_CLASS))
+                continue;
             String methodName = entry.getKey().getMethod().getName() + Type.getMethodDescriptor(entry.getKey().getMethod().getMethod());
             Type returnType = Type.getReturnType(entry.getKey().getMethod().getMethod());
             Object returnValue = entry.getValue();
-            String goalSuffix = "";
             switch (returnType.getSort()) {
                 case Type.BOOLEAN:
                     if (((boolean) returnValue))
-                        goalSuffix = OutputCoverageFactory.BOOL_TRUE;
+                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.BOOL_TRUE));
                     else
-                        goalSuffix = OutputCoverageFactory.BOOL_FALSE;
+                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.BOOL_FALSE));
                     break;
                 case Type.CHAR:
                     char c = (char) returnValue;
                     if (Character.isAlphabetic(c))
-                        goalSuffix = OutputCoverageFactory.CHAR_ALPHA;
+                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.CHAR_ALPHA));
                     else if (Character.isDigit(c))
-                        goalSuffix = OutputCoverageFactory.CHAR_DIGIT;
+                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.CHAR_DIGIT));
                     else
-                        goalSuffix = OutputCoverageFactory.CHAR_OTHER;
+                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.CHAR_OTHER));
                     break;
                 case Type.BYTE:
                 case Type.SHORT:
@@ -86,26 +95,62 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                     assert (returnValue instanceof Number);
                     double value = ((Number) returnValue).doubleValue();
                     if (value < 0)
-                        goalSuffix = OutputCoverageFactory.NUM_NEGATIVE;
+                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_NEGATIVE));
                     else if (value == 0)
-                        goalSuffix = OutputCoverageFactory.NUM_ZERO;
+                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_ZERO));
                     else
-                        goalSuffix = OutputCoverageFactory.NUM_POSITIVE;
+                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_POSITIVE));
                     break;
                 case Type.ARRAY:
                 case Type.OBJECT:
                     if (returnValue == null)
-                        goalSuffix = OutputCoverageFactory.REF_NULL;
-                    else
-                        goalSuffix = OutputCoverageFactory.REF_NONNULL;
+                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NULL));
+                    else {
+                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL));
+                        List<String> pureMethods = CheapPurityAnalyzer.getInstance().getPureMethods(returnType.getClassName());
+                        for (String pm : pureMethods) {
+                            try {
+                                String pmName = pm.substring(0, pm.indexOf("("));
+                                Type[] argumentTypes = Type.getArgumentTypes(pm.substring(pm.indexOf('(')));
+                                final Class<?>[] methodParamTypeClasses = new Class[argumentTypes.length];
+                                for(int i = 0; i < argumentTypes.length; i++) {
+                                    methodParamTypeClasses[i] = getClassForName(argumentTypes[i].getClassName());
+                                }
+                                Method m = returnValue.getClass().getDeclaredMethod(pmName,methodParamTypeClasses);
+                                m.setAccessible(true);
+                                Inspector inspector = new Inspector(returnValue.getClass(), m);
+                                Object val = inspector.getValue(returnValue);
+                                if (val instanceof Boolean) {
+                                    if ((boolean)val)
+                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + OutputCoverageFactory.BOOL_TRUE));
+                                    else
+                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + OutputCoverageFactory.BOOL_FALSE));
+                                } else if (val instanceof Number) {
+                                    double dv = ((Number) val).doubleValue();
+                                    if (dv < 0)
+                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + OutputCoverageFactory.NUM_NEGATIVE));
+                                    else if (dv == 0)
+                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + OutputCoverageFactory.NUM_ZERO));
+                                    else
+                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + OutputCoverageFactory.NUM_POSITIVE));
+                                }
+                            } catch (NoSuchMethodException e) {
+                                e.printStackTrace();
+                            } catch (InvocationTargetException e) {
+                                e.printStackTrace();
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
+                    }
                     break;
                 default:
                     // IGNORE
                     // TODO: what to do with the sort for METHOD?
                     break;
             }
-            if (!goalSuffix.isEmpty())
-                results.add(OutputCoverageFactory.goalString(className, methodName, goalSuffix));
         }
         return results;
     }
@@ -238,4 +283,71 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
         return getMethod();
     }
 
+    /*
+     * TODO: Move somewhere else into a utility class
+     */
+    private static final Class<?> getClassForName(String type)
+    {
+        try
+        {
+            if( type.equals("boolean"))
+            {
+                return Boolean.TYPE;
+            }
+            else if(type.equals("byte"))
+            {
+                return Byte.TYPE;
+            }
+            else if( type.equals("char"))
+            {
+                return Character.TYPE;
+            }
+            else if( type.equals("double"))
+            {
+                return Double.TYPE;
+            }
+            else if(type.equals("float"))
+            {
+                return Float.TYPE;
+            }
+            else if(type.equals("int"))
+            {
+                return Integer.TYPE;
+            }
+            else if( type.equals("long"))
+            {
+                return Long.TYPE;
+            }
+            else if(type.equals("short"))
+            {
+                return Short.TYPE;
+            }
+            else if(type.equals("String") ||type.equals("Boolean") ||type.equals("Boolean") || type.equals("Short") ||type.equals("Long") ||
+                    type.equals("Integer") || type.equals("Float") || type.equals("Double") ||type.equals("Byte") ||
+                    type.equals("Character") )
+            {
+                return Class.forName("java.lang." + type);
+            }
+
+//			if(type.endsWith(";") && ! type.startsWith("["))
+//			{
+//				type = type.replaceFirst("L", "");
+//				type = type.replace(";", "");
+//			}
+
+            if(type.endsWith("[]"))
+            {
+                type = type.replace("[]", "");
+                return Class.forName("[L" + type + ";");
+            }
+            else
+            {
+                return Class.forName(type);
+            }
+        }
+        catch (final ClassNotFoundException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 }
