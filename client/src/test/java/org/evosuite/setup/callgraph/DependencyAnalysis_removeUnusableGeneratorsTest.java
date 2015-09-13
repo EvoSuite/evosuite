@@ -19,7 +19,7 @@ public class DependencyAnalysis_removeUnusableGeneratorsTest {
 
 
     @Test
-    public void test() throws Exception{
+    public void test() throws Exception {
         String targetClass = ClassToCheckGenerators.class.getName();
         Properties.TARGET_CLASS = targetClass;
         List<String> classpath = new ArrayList<>();
@@ -52,5 +52,23 @@ public class DependencyAnalysis_removeUnusableGeneratorsTest {
         //even for concrete versions it should not work, as they all have private constructors
         Assert.assertFalse(TestCluster.getInstance().hasGenerator(cl.loadClass(X.class.getName())));
         Assert.assertFalse(TestCluster.getInstance().hasGenerator(cl.loadClass(GeneratorForItself.class.getName())));
+    }
+
+
+    @Test
+    public void testCycle() throws Exception {
+        String targetClass = ClassToCheckGetterOfInput.class.getName();
+        Properties.TARGET_CLASS = targetClass;
+        List<String> classpath = new ArrayList<>();
+        String cp = System.getProperty("user.dir") + "/target/test-classes";
+        classpath.add(cp);
+        ClassPathHandler.getInstance().addElementToTargetProjectClassPath(cp);
+        ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+
+        DependencyAnalysis.analyzeClass(targetClass, classpath);
+
+        ClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
+
+        Assert.assertFalse(TestCluster.getInstance().hasGenerator(cl.loadClass(AnInterface.class.getName())));
     }
 }
