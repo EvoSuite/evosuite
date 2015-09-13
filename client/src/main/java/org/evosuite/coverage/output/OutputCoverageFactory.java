@@ -102,17 +102,17 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                         goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NULL)));
                         //goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL)));
                         boolean observerGoalsAdded = false;
-                        List<String> pureMethods = CheapPurityAnalyzer.getInstance().getPureMethods(returnType.getClassName());
-                        for (String pm : pureMethods) {
-                            Type t = Type.getReturnType(pm);
+                        List<String> inspectors = getInspectors(returnType.getClassName());
+                        for (String insp : inspectors) {
+                            Type t = Type.getReturnType(insp);
                             if (t.getSort() == Type.BOOLEAN) {
-                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + BOOL_TRUE)));
-                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + BOOL_FALSE)));
+                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + BOOL_TRUE)));
+                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + BOOL_FALSE)));
                                 observerGoalsAdded = true;
                             } else if (Arrays.asList(new Integer[]{Type.BYTE, Type.SHORT, Type.INT, Type.FLOAT, Type.LONG, Type.DOUBLE}).contains(t.getSort())) {
-                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + NUM_NEGATIVE)));
-                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + NUM_ZERO)));
-                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + NUM_POSITIVE)));
+                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + NUM_NEGATIVE)));
+                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + NUM_ZERO)));
+                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + NUM_POSITIVE)));
                                 observerGoalsAdded = true;
                             }
                         }
@@ -132,5 +132,22 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
 
     public static String goalString(String className, String methodName, String suffix) {
         return new String(className + "." + methodName + ":" + suffix);
+    }
+
+    /**
+     * Returns list of inspector methods in a given class.
+     * An inspector is a cheap-pure method with no arguments.
+     *
+     * @param className A class name
+     */
+    public static List<String> getInspectors(String className) {
+        List<String> pureMethods = CheapPurityAnalyzer.getInstance().getPureMethods(className);
+        List<String> inspectors = new ArrayList<>();
+        for (String pm : pureMethods) {
+            if ((Type.getArgumentTypes(pm.substring(pm.indexOf('('))).length == 0) &&
+                    ! (pm.substring(0, pm.indexOf("(")).equals("<clinit>")))
+                inspectors.add(pm);
+        }
+        return inspectors;
     }
 }
