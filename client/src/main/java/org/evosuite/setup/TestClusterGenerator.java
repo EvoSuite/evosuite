@@ -154,7 +154,7 @@ public class TestClusterGenerator {
 		 * If we fail to load a class, we skip it, and avoid to try
 		 * to load it again (which would result in extra unnecessary logging)
 		 */
-		Set<String> blackList = new LinkedHashSet<String>();
+		Set<String> blackList = new LinkedHashSet<>();
 		initBlackListWithEvoSuitePrimitives(blackList);
 
 		logger.info("Handling cast classes");
@@ -165,6 +165,8 @@ public class TestClusterGenerator {
 
 		logger.info("Resolving dependencies");
 		resolveDependencies(blackList);
+
+		TestCluster.getInstance().removeUnusableGenerators();
 
 		if (logger.isDebugEnabled()) {
 			logger.debug(TestCluster.getInstance().toString());
