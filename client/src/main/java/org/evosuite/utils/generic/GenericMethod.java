@@ -36,6 +36,7 @@ import java.util.List;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.runtime.util.Inputs;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.variable.VariableReference;
@@ -170,7 +171,9 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	 * was declared in a superclass, or <tt>type</tt> has a type parameter that
 	 * is used in the return type, or <tt>type</tt> is a raw type.
 	 */
-	public Type getExactReturnType(Method m, Type type) {
+	public Type getExactReturnType(Method m, Type type) throws IllegalArgumentException{
+		Inputs.checkNull(m,type);
+
 		Type returnType = m.getGenericReturnType();
 		Type exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type),
 		                                                                 m.getDeclaringClass());

@@ -20,7 +20,7 @@
 package org.evosuite.runtime;
 
 import org.evosuite.runtime.javaee.injection.InjectionList;
-import org.junit.internal.AssumptionViolatedException;
+import org.junit.AssumptionViolatedException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -207,9 +207,33 @@ public class PrivateAccess {
         return callMethod(klass,instance,methodName,new Object[]{input}, new Class<?>[]{type});
     }
 
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1)
+            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1}, new Class<?>[]{t0,t1});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2)
+            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2}, new Class<?>[]{t0,t1,t2});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3)
+            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3}, new Class<?>[]{t0,t1,t2,t3});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3,Object i4, Class<?> t4)
+            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4}, new Class<?>[]{t0,t1,t2,t3,t4});
+    }
+
 
     public static Method getCallMethod(int nParameters){
-        if(nParameters<0 || nParameters>10){ //TODO implement each of those methods
+        if(nParameters<0 || nParameters>5){ //TODO might consider have more
             return null;
         }
 
