@@ -20,7 +20,6 @@
 package org.evosuite.coverage.output;
 
 import org.evosuite.Properties;
-import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.assertion.Inspector;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -107,32 +106,27 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NULL));
                     else {
                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL));
-                        List<String> pureMethods = CheapPurityAnalyzer.getInstance().getPureMethods(returnType.getClassName());
-                        for (String pm : pureMethods) {
+                        List<String> inspectors = OutputCoverageFactory.getInspectors(returnType.getClassName());
+                        for (String insp : inspectors) {
                             try {
-                                String pmName = pm.substring(0, pm.indexOf("("));
-                                Type[] argumentTypes = Type.getArgumentTypes(pm.substring(pm.indexOf('(')));
-                                final Class<?>[] methodParamTypeClasses = new Class[argumentTypes.length];
-                                for(int i = 0; i < argumentTypes.length; i++) {
-                                    methodParamTypeClasses[i] = getClassForName(argumentTypes[i].getClassName());
-                                }
-                                Method m = returnValue.getClass().getDeclaredMethod(pmName,methodParamTypeClasses);
+                                String inspName = insp.substring(0, insp.indexOf("("));
+                                Method m = returnValue.getClass().getDeclaredMethod(inspName);
                                 m.setAccessible(true);
                                 Inspector inspector = new Inspector(returnValue.getClass(), m);
                                 Object val = inspector.getValue(returnValue);
                                 if (val instanceof Boolean) {
                                     if ((boolean)val)
-                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + OutputCoverageFactory.BOOL_TRUE));
+                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.BOOL_TRUE));
                                     else
-                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + OutputCoverageFactory.BOOL_FALSE));
+                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.BOOL_FALSE));
                                 } else if (val instanceof Number) {
                                     double dv = ((Number) val).doubleValue();
                                     if (dv < 0)
-                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + OutputCoverageFactory.NUM_NEGATIVE));
+                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.NUM_NEGATIVE));
                                     else if (dv == 0)
-                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + OutputCoverageFactory.NUM_ZERO));
+                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.NUM_ZERO));
                                     else
-                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + pm + ":" + OutputCoverageFactory.NUM_POSITIVE));
+                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.NUM_POSITIVE));
                                 }
                             } catch (NoSuchMethodException e) {
                                 e.printStackTrace();
@@ -141,9 +135,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                             } catch (IllegalAccessException e) {
                                 e.printStackTrace();
                             }
-
                         }
-
                     }
                     break;
                 default:
