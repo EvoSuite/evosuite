@@ -410,12 +410,20 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	private boolean mutationDelete() {
 
+		if(test.isEmpty()){
+			return false; //nothing to delete
+		}
+
 		boolean changed = false;
 		int lastMutableStatement = getLastMutatableStatement();
 		double pl = 1d / (lastMutableStatement + 1);
 		TestFactory testFactory = TestFactory.getInstance();
 
 		for (int num = lastMutableStatement; num >= 0; num--) {
+
+			if(num >= test.size()){
+				continue; //in case the delete remove more than one statement
+			}
 
 			// Each statement is deleted with probability 1/l
 			if (Randomness.nextDouble() <= pl) {
