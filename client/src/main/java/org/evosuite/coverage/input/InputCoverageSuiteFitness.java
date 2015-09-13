@@ -80,7 +80,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
     /**
      * {@inheritDoc}
      * <p/>
-     * Execute all tests and count covered output goals
+     * Execute all tests and count covered input goals
      */
     @Override
     public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
@@ -152,7 +152,8 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             return false;
 
         for (String strGoal : toRemoveGoals) {
-            if (inputCoverageMap.containsKey(strGoal))
+            TestFitnessFunction f = inputCoverageMap.remove(strGoal);
+            if (f != null)
                 removedGoals.add(strGoal);
             else
                 throw new IllegalStateException("goal to remove not found");

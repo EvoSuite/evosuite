@@ -1,87 +1,82 @@
-<project>
-	<modelVersion>4.0.0</modelVersion>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.evosuite.plugins</groupId>
-		<artifactId>evosuite-plugins</artifactId>
-		<version>0.2.1-SNAPSHOT</version>
-	</parent>
+  <parent>
+    <groupId>org.evosuite.plugins</groupId>
+    <artifactId>evosuite-plugins</artifactId>
+    <version>1.0.1-SNAPSHOT</version>
+  </parent>
 
-	<artifactId>evosuite-eclipse-plugin</artifactId>
-	<packaging>pom</packaging>
-	
-        <properties>
-          <tycho.version>0.20.0</tycho.version>
-          <tycho-extras.version>0.20.0</tycho-extras.version>
-          <kepler-repo.url>http://download.eclipse.org/releases/kepler</kepler-repo.url>
-          <manifest-location>META-INF</manifest-location>
-        </properties>
+  <artifactId>evosuite-eclipse-plugin</artifactId>
+  <packaging>pom</packaging>
 
+  <properties>
+    <tycho-version>0.23.1</tycho-version>
+    <eclipse-repo.url>http://download.eclipse.org/releases/mars</eclipse-repo.url>
+  </properties>
 
-        <repositories>
-          <repository>
-            <id>kepler</id>
-            <url>${kepler-repo.url}</url>
-            <layout>p2</layout>
-          </repository>
-        </repositories>
+  <repositories>
+    <repository>
+      <id>eclipse</id>
+      <url>${eclipse-repo.url}</url>
+      <layout>p2</layout>
+    </repository>
+  </repositories>
 
-	<name>Eclipse Plugin for EvoSuite</name>
-	<modules>
-	  <!-- <module>evosuite-eclipse-core</module> -->
-	  <!-- <module>evosuite-eclipse</module> -->
-	  <!-- <module>evosuite-eclipse-feature</module> -->
-	  <!-- <module>evosuite-eclipse-site</module> -->
-	</modules>
-	
-	<!--
-	 Disabled until the Eclipse plugin actually builds with Maven
-<build>
+  <build>
     <plugins>
       <plugin>
+        <!-- enable tycho build extension -->
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-maven-plugin</artifactId>
-        <version>${tycho.version}</version>
+        <version>${tycho-version}</version>
         <extensions>true</extensions>
-      </plugin>	
- <plugin>
+      </plugin>
+      <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>target-platform-configuration</artifactId>
-        <version>${tycho.version}</version>
+        <version>${tycho-version}</version>
         <configuration>
-            <resolver>p2</resolver>
-            <pomDependencies>consider</pomDependencies>
-            <environments>
+          <resolver>p2</resolver>
+          <pomDependencies>consider</pomDependencies>
+          <environments>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86_64</arch>
+            </environment>
               <environment>
-		<os>linux</os>
-		<ws>gtk</ws>
-		<arch>x86</arch>
-              </environment>
-              <environment>
-		<os>linux</os>
-		<ws>gtk</ws>
-		<arch>x86_64</arch>
-              </environment>
-              <environment>
-		<os>win32</os>
-		<ws>win32</ws>
-		<arch>x86</arch>
-              </environment>
-              <environment>
-		<os>win32</os>
-		<ws>win32</ws>
-		<arch>x86_64</arch>
-              </environment>
-              <environment>
-		<os>macosx</os>
-		<ws>cocoa</ws>
-		<arch>x86_64</arch>
-              </environment>
-            </environments>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>macosx</os>
+              <ws>cocoa</ws>
+              <arch>x86_64</arch>
+            </environment>
+          </environments>
         </configuration>
       </plugin>
     </plugins>
-    
- </build>
- -->
+  </build>
+
+  <modules>
+    <module>evosuite-eclipse-deps</module> 
+    <module>evosuite-eclipse-core</module> 
+    <module>evosuite-eclipse-feature</module> 
+    <module>evosuite-eclipse-site</module> 
+  </modules>
 </project>

@@ -20,7 +20,7 @@
 package com.examples.with.different.packagename.test;
 
 public class ObserverTest {
-  private ObservableDummy dummy;;
+  private ObservableDummy dummy;
 
   public ObserverTest(int x) {
      this.dummy = new ObservableDummy(x);

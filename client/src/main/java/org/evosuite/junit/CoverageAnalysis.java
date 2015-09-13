@@ -523,10 +523,13 @@ public class CoverageAnalysis {
         }
         logger.info("* CoverageBitString " + str.toString());
 
+        RuntimeVariable bitStringVariable = org.evosuite.coverage.CoverageAnalysis.getBitStringVariable(criterion);
         if (goals.isEmpty()) {
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion + ": 100% (no goals)");
 			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getCoverageVariable(criterion), 1.0);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getBitStringVariable(criterion), "1");
+			if (bitStringVariable != null) {
+				ClientServices.getInstance().getClientNode().trackOutputVariable(bitStringVariable, "1");
+			}
 		} 
         else {
         	double coverage = ((double) covered.cardinality()) / ((double) goals.size());
@@ -534,7 +537,9 @@ public class CoverageAnalysis {
 			LoggingUtils.getEvoLogger().info("* Number of covered goals: " + covered.cardinality() + " / " + goals.size());
 
 			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getCoverageVariable(criterion), coverage);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getBitStringVariable(criterion), str.toString());
+			if (bitStringVariable != null) {
+				ClientServices.getInstance().getClientNode().trackOutputVariable(bitStringVariable, str.toString());
+			}
         }
 	}
 
@@ -623,8 +628,10 @@ public class CoverageAnalysis {
 
 		// JUnit 4
 		try {
-			List<FrameworkMethod> methods = new TestClass(cls).getAnnotatedMethods(Test.class);
-			methods.addAll(new TestClass(cls).getAnnotatedMethods(EvoSuiteTest.class));
+			List<FrameworkMethod> methods = new ArrayList<FrameworkMethod>();
+			TestClass tc = new TestClass(cls);
+			methods.addAll(tc.getAnnotatedMethods(Test.class));
+			methods.addAll(tc.getAnnotatedMethods(EvoSuiteTest.class));
 			for (FrameworkMethod method : methods) {
 				List<Throwable> errors = new ArrayList<Throwable>();
 				method.validatePublicVoidNoArg(false, errors);

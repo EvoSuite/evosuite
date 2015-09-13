@@ -7,7 +7,7 @@
 	<artifactId>evosuite</artifactId>
 	<name>EvoSuite</name>
 	<description>n/a</description>
-	<version>0.2.1-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<url>http://www.evosuite.org/</url>
 	<inceptionYear>2010</inceptionYear>
@@ -192,7 +192,7 @@
 				<!-- Common Public License Version 1.0 -->
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.11</version>
+				<version>4.12</version>
 			</dependency>
 			<dependency>
 				<!-- Adhoc license, copyright holder is INRIA -->
@@ -615,6 +615,7 @@
 							<configuration>
 								<shadedArtifactAttached>false</shadedArtifactAttached>
 								<createDependencyReducedPom>true</createDependencyReducedPom>
+								<!-- do not change "org.evosuite.shaded." as it used in some of the java classes -->
 								<relocations>
 									<relocation>
 										<pattern>org.objectweb.asm</pattern>

@@ -18,7 +18,6 @@
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite;
-
  
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
@@ -52,17 +51,26 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
-import org.evosuite.strategy.*;
+import org.evosuite.strategy.EntBugTestStrategy;
+import org.evosuite.strategy.FixedNumRandomTestStrategy;
+import org.evosuite.strategy.IndividualTestStrategy;
+import org.evosuite.strategy.RandomTestStrategy;
+import org.evosuite.strategy.TestGenerationStrategy;
+import org.evosuite.strategy.WholeTestSuiteStrategy;
 import org.evosuite.symbolic.DSEStats;
-import org.evosuite.testcase.*;
+import org.evosuite.testcase.ConstantInliner;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testsuite.RegressionTestSuiteSerialization;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.TestSuiteMinimizer;
 import org.evosuite.testsuite.TestSuiteSerialization;
-import org.evosuite.testsuite.factories.SerializationSuiteChromosomeFactory;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
@@ -72,7 +80,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.*;
-
 
 /**
  * Main entry point.
@@ -161,15 +168,13 @@ public class TestSuiteGenerator {
 	 * @param testSuite
 	 */
 	protected void postProcessTests(TestSuiteChromosome testSuite) {
-		
-        if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
-            SerializationSuiteChromosomeFactory.saveTests(testSuite);
+
+        if (Properties.CTG_SEEDS_FILE_OUT != null) {
+            TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
+        } else if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
+        	TestSuiteSerialization.saveTests(testSuite, new File(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
         }
-        
-        if(Properties.CTG_SEEDS_FILE_OUT != null){
-                TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
-        }
-        
+
 		if (Properties.MINIMIZE_VALUES && 
 		                Properties.CRITERION.length == 1) {
 		    double fitness = testSuite.getFitness();
@@ -291,8 +296,10 @@ public class TestSuiteGenerator {
 		if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
 			compileAndCheckTests(testSuite);
 		}
-		
-		
+
+		if (Properties.SERIALIZE_REGRESSION_TEST_SUITE) {
+			RegressionTestSuiteSerialization.performRegressionAnalysis(testSuite);
+		}
 	}
 	
 	 /**
@@ -442,6 +449,8 @@ public class TestSuiteGenerator {
 			return new FixedNumRandomTestStrategy();
 		case ONEBRANCH:
 			return new IndividualTestStrategy();
+		case ENTBUG:
+			return new EntBugTestStrategy();
 		default:
 			throw new RuntimeException("Unsupported strategy: "+Properties.STRATEGY);
 		}
@@ -481,7 +490,6 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
 			suite.writeTestSuite(name + suffix, testDir, true);
 		}
-	
 		return TestGenerationResultBuilder.buildSuccessResult();
 	}
 

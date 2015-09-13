@@ -20,7 +20,7 @@
 package org.evosuite.runtime;
 
 import org.junit.*;
-import org.junit.internal.AssumptionViolatedException;
+import org.junit.AssumptionViolatedException;
 
 import java.io.Serializable;
 

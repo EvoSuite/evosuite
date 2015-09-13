@@ -22,6 +22,8 @@
  */
 package org.evosuite;
 
+import org.dom4j.DocumentFactory;
+import org.dom4j.dom.DOMDocumentFactory;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.result.TestGenerationResult;
@@ -61,6 +63,7 @@ public class ClientProcess {
 	public void run() {
 		Properties.getInstance();
 		setupRuntimeProperties();
+		handleShadingSpecialCases();
 		Sandbox.setCheckForInitialization(Properties.SANDBOX);
 		MockFramework.enable();
 
@@ -127,8 +130,42 @@ public class ClientProcess {
         RuntimeSettings.useSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
 		RuntimeSettings.className = Properties.TARGET_CLASS;
 		RuntimeSettings.useJEE = Properties.JEE;
+		RuntimeSettings.applyUIDTransformation = true;
         MethodCallReplacementCache.resetSingleton();
     }
+
+
+	private static void handleShadingSpecialCases(){
+
+		String shadePrefix = "org.evosuite.shaded.";
+
+		if(! DocumentFactory.class.getName().startsWith(shadePrefix)){
+			//if not shaded (eg in system tests), then nothing to do
+			return;
+		}
+
+		String defaultFactory = System.getProperty("org.dom4j.factory", "org.dom4j.DocumentFactory");
+		String defaultDomSingletonClass= System.getProperty(
+				"org.dom4j.dom.DOMDocumentFactory.singleton.strategy", "org.dom4j.util.SimpleSingleton");
+		String defaultSingletonClass = System.getProperty(
+				"org.dom4j.DocumentFactory.singleton.strategy", "org.dom4j.util.SimpleSingleton");
+
+		System.setProperty("org.dom4j.factory" , shadePrefix + defaultFactory);
+		System.setProperty("org.dom4j.dom.DOMDocumentFactory.singleton.strategy" ,
+				shadePrefix + defaultDomSingletonClass);
+		System.setProperty("org.dom4j.DocumentFactory.singleton.strategy" ,
+				shadePrefix + defaultSingletonClass);
+
+		DocumentFactory.getInstance(); //force loading
+		DOMDocumentFactory.getInstance();
+
+		//restore in case SUT uses its own dom4j
+		System.setProperty("org.dom4j.factory" ,defaultFactory);
+		System.setProperty("org.dom4j.dom.DOMDocumentFactory.singleton.strategy",
+				defaultDomSingletonClass);
+		System.setProperty("org.dom4j.DocumentFactory.singleton.strategy",
+				defaultSingletonClass);
+	}
 
 	/**
 	 * <p>

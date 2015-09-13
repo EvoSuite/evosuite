@@ -102,6 +102,7 @@ public enum RuntimeVariable {
 	/** Obtained fitness values at different points in time */
 	FitnessTimeline,
 	/** Obtained size values at different points in time */
+	Size_T0,
 	SizeTimeline,
 	/** Obtained length values at different points in time */
 	LengthTimeline,
@@ -110,9 +111,14 @@ public enum RuntimeVariable {
 	/** A bit string (0/1) representing whether statements (in order) are covered */
 	StatementCoverageBitString,
 	/** The obtained rho coverage */
+	RhoScore,
+	RhoScore_T0,
+	RhoScoreTimeline,
 	RhoCoverage,
-    RhoCoverageTimeline,
 	/** The obtained ambiguity coverage */
+	AmbiguityScore,
+	AmbiguityScore_T0,
+	AmbiguityScoreTimeline,
 	AmbiguityCoverage,
 	/** Not only the covered branches ratio, but also including the branchless methods. FIXME: this will need to be changed */
 	BranchCoverage,
@@ -204,6 +210,10 @@ public enum RuntimeVariable {
 	HadUnstableTests, 
 	/** Number of unstable tests in the generated JUnit files */
 	NumUnstableTests, 
+	/** Number of regression test cases */
+	NumRegressionTestCases,
+	/** Number of regression test cases failing */
+	NumRegressionTestCasesFailing,
 	/** An estimate (ie not precise) of the maximum number of threads running at the same time in the CUT */
 	Threads,
 	/** Number of top-level methods throwing an undeclared exception explicitly with a 'throw new' */

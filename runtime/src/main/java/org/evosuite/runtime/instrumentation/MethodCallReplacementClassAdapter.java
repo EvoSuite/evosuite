@@ -46,13 +46,6 @@ import org.slf4j.LoggerFactory;
  */
 public class MethodCallReplacementClassAdapter extends ClassVisitor {
 
-	/**
-	 * To be used ONLY from tests.
-	 * Complex issue arises when the SUT and EvoSuite classloaders are the same, which might
-	 * happen in some unit tests
-	 */
-	public static boolean dirtyHack_applyUIDTransformation = true;
-
 	private final String className;
 	
 	private String superClassName;
@@ -178,9 +171,14 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 		 * avoid problems in serialising the class, as reading Master will not do instrumentation.
 		 * The serialVersionUID HAS to be the same as the un-instrumented class
 		 */
-		if(!definesUid && !isInterface  && dirtyHack_applyUIDTransformation) {
+		if(!definesUid && !isInterface  && RuntimeSettings.applyUIDTransformation) {
+			ClassLoader threadCL = Thread.currentThread().getContextClassLoader();
 			try {
-				Class<?> clazz = Class.forName(className.replace('/', '.'), false, MethodCallReplacementClassAdapter.class.getClassLoader());
+				ClassLoader evoCL = MethodCallReplacementClassAdapter.class.getClassLoader();
+				Thread.currentThread().setContextClassLoader(evoCL);
+
+				Class<?> clazz = Class.forName(className.replace('/', '.'), false, evoCL);
+
 				if(Serializable.class.isAssignableFrom(clazz)) {
 					ObjectStreamClass c = ObjectStreamClass.lookup(clazz);
 					long serialID = c.getSerialVersionUID();
@@ -189,6 +187,8 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 				}
 			} catch(ClassNotFoundException e) {
 				logger.warn("Failed to add serialId to class "+className+": "+e.getMessage());
+			} finally {
+				Thread.currentThread().setContextClassLoader(threadCL);
 			}
 		}
 

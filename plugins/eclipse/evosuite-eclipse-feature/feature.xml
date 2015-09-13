@@ -23,14 +23,14 @@
 <feature
       id="org.evosuite.plugins.eclipse.feature"
       label="EvoSuite JUnit Test Generation"
-      version="0.2.0.qualifier">
+      version="1.0.1.qualifier">
 
    <description url="http://www.evosuite.org">
       This is an experimental plugin for the EvoSuite test generation tool, and is likely very unstable.
    </description>
 
    <copyright url="http://www.evosuite.org">
-      Copyright (C) 2011,2012, 2013 Gordon Fraser, Andrea Arcuri and EvoSuite contributors.
+      Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite contributors.
    </copyright>
 
    <license url="http://www.evosuite.org">
@@ -73,16 +73,15 @@ THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRES
    </requires>
 
    <plugin
-         id="org.evosuite.plugins.eclipse.core"
+         id="org.evosuite.plugins.eclipse.deps"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="org.evosuite.plugins.eclipse"
+         id="org.evosuite.plugins.eclipse.core"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
 </feature>

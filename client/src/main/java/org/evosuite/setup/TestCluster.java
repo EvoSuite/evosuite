@@ -116,6 +116,91 @@ public class TestCluster {
 		instance = null;
 	}
 
+	/**
+	 * A generator for X might be a non-static method M of Y, but what if Y itself has no generator?
+	 * In that case, M should not be a generator for X, as impossible to instantiate Y
+	 */
+	public void removeUnusableGenerators(){
+
+		generatorCache.clear();
+		Set<GenericClass> removed = new LinkedHashSet<>();
+
+
+		for(Map.Entry<GenericClass,Set<GenericAccessibleObject<?>>> entry : generators.entrySet()){
+			if(entry.getValue().isEmpty()){
+				recursiveRemoveGenerators(entry.getKey());
+			}
+
+
+			Set<GenericClass> toRemove = new LinkedHashSet<>();
+
+			for(GenericAccessibleObject<?> gao : entry.getValue()){
+				GenericClass owner = gao.getOwnerClass();
+				if(removed.contains(owner)){
+					continue;
+				}
+				try {
+					cacheGenerators(owner);
+				} catch (ConstructionFailedException e) {
+					continue;
+				}
+				if(generatorCache.get(owner).isEmpty()){
+					toRemove.add(owner);
+				}
+			}
+
+			for(GenericClass tr : toRemove) {
+				recursiveRemoveGenerators(tr);
+				removed.add(tr);
+			}
+		}
+
+		removeOnlySelfGenerator();
+
+		generatorCache.clear();
+	}
+
+	private void removeOnlySelfGenerator() {
+
+		for(Map.Entry<GenericClass,Set<GenericAccessibleObject<?>>> entry : generators.entrySet()){
+
+			boolean toRemove = true;
+
+			for(GenericAccessibleObject gao : entry.getValue()){
+				if(! (!gao.isStatic() && gao.isMethod() &&  gao.getOwnerClass().equals(entry.getKey()))){
+					toRemove = false; //at least one good generator
+					break;
+				}
+			}
+
+			if(toRemove){
+				entry.getValue().clear();
+			}
+		}
+	}
+
+	private void recursiveRemoveGenerators(GenericClass toRemove) {
+
+		for(Map.Entry<GenericClass,Set<GenericAccessibleObject<?>>> entry : generators.entrySet()){
+
+			boolean recursion = false;
+
+			Iterator<GenericAccessibleObject<?>> iter = entry.getValue().iterator();
+			while(iter.hasNext()){
+				GenericAccessibleObject<?> gao = iter.next();
+				if(gao.isMethod() && !gao.isStatic() && gao.getOwnerClass().equals(toRemove)){
+					iter.remove();
+					recursion = true;
+				}
+			}
+
+			if(recursion && entry.getValue().isEmpty()){
+				recursiveRemoveGenerators(entry.getKey());
+			}
+		}
+
+	}
+
 	public void invalidateGeneratorCache(GenericClass klass){
 		Iterator<Map.Entry<GenericClass,Set<GenericAccessibleObject<?>>>> iter = generatorCache.entrySet().iterator();
 		while(iter.hasNext()){
@@ -196,7 +281,7 @@ public class TestCluster {
 	 */
 	public void addModifier(GenericClass target, GenericAccessibleObject<?> call) {
 		if (!modifiers.containsKey(target))
-			modifiers.put(target, new LinkedHashSet<GenericAccessibleObject<?>>());
+			modifiers.put(target, new LinkedHashSet<>());
 
 		modifiers.get(target).add(call);
 	}
@@ -256,8 +341,7 @@ public class TestCluster {
 		} else {
 			logger.debug("2. Target class is not object: " + clazz);
 			for (GenericClass generatorClazz : generators.keySet()) {
-				logger.debug("3. Considering original generator: " + generatorClazz
-				        + " for " + clazz);
+				logger.debug("3. Considering original generator: " + generatorClazz + " for " + clazz);
 
 				if (generatorClazz.canBeInstantiatedTo(clazz)) {
 					logger.debug("4. generator " + generatorClazz + " can be instantiated to " + clazz);

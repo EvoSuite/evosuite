@@ -1228,18 +1228,44 @@ public class TestCodeVisitor extends TestVisitor {
 			exceptionMessage = "no message in exception (getMessage() returned null)";
 		}
 
-		result += "   //" + NEWLINE;
-		for (String msg : exceptionMessage.split("\n")) {
-			result += "   // " + StringEscapeUtils.escapeJava(msg) + NEWLINE;
+		String sourceClass = getSourceClassName(exception);
+
+		if(sourceClass==null || isValidSource(sourceClass)) {
+			/*
+				do not print comments if it was a non-valid source.
+				however, if source is undefined, then it should be OK
+			 */
+			result += "   //" + NEWLINE;
+			for (String msg : exceptionMessage.split("\n")) {
+				result += "   // " + StringEscapeUtils.escapeJava(msg) + NEWLINE;
+			}
+			result += "   //" + NEWLINE;
 		}
-		result += "   //" + NEWLINE;
 
-		String sourceClass = exception.getStackTrace()[0].getClassName();
-		//from class EvoAssertions
-		result += "   assertThrownBy(\"" + sourceClass + "\", e);" + NEWLINE;
+		if(sourceClass!=null && isValidSource(sourceClass)) {
+				/*
+					do not check source if it comes from a non-runtime evosuite
+					class. this could happen if source is an instrumentation done
+					during search which is not applied to runtime
+				 */
 
+				//from class EvoAssertions
+				result += "   assertThrownBy(\"" + sourceClass + "\", e);" + NEWLINE;
+		}
 		result += "}" + NEWLINE;// closing the catch block
 		return result;
+	}
+
+	private String getSourceClassName(Throwable exception){
+		if(exception.getStackTrace().length == 0){
+			return null;
+		}
+		return exception.getStackTrace()[0].getClassName();
+	}
+
+	private boolean isValidSource(String sourceClass){
+		return ! sourceClass.startsWith("org.evosuite.") ||
+				sourceClass.startsWith("org.evosuite.runtime.");
 	}
 
     private Class<?> getExceptionClassToUse(Throwable exception){

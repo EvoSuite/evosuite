@@ -41,6 +41,8 @@ import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -55,6 +57,8 @@ import java.util.List;
 public class TestChromosome extends ExecutableChromosome {
 
 	private static final long serialVersionUID = 7532366007973252782L;
+
+	private static final Logger logger = LoggerFactory.getLogger(TestChromosome.class);
 
 	/** The test case encoded in this chromosome */
 	protected TestCase test = new DefaultTestCase();
@@ -406,12 +410,20 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	private boolean mutationDelete() {
 
+		if(test.isEmpty()){
+			return false; //nothing to delete
+		}
+
 		boolean changed = false;
 		int lastMutableStatement = getLastMutatableStatement();
 		double pl = 1d / (lastMutableStatement + 1);
 		TestFactory testFactory = TestFactory.getInstance();
 
 		for (int num = lastMutableStatement; num >= 0; num--) {
+
+			if(num >= test.size()){
+				continue; //in case the delete remove more than one statement
+			}
 
 			// Each statement is deleted with probability 1/l
 			if (Randomness.nextDouble() <= pl) {
