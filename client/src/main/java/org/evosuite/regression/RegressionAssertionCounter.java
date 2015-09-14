@@ -18,6 +18,11 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/*
+ * Assertion generator for regression testing.
+ * 
+ * [Experimental]
+ */
 public class RegressionAssertionCounter {
 	protected static final Logger logger = LoggerFactory
 			.getLogger(RegressionAssertionCounter.class);

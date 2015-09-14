@@ -153,8 +153,6 @@ public class ResourceList {
 		if (!instanceMap.containsKey(classLoader)) {
 			instanceMap.put(classLoader, new ResourceList(classLoader));
 		}
-		//logger.warn("My Classloader: {}. O {}, R {}", classLoader, TestGenerationContext.getInstance().getClassLoaderForSUT(), 
-		//		TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
 		return instanceMap.get(classLoader);
 	}
 
@@ -506,8 +504,7 @@ public class ResourceList {
 		cache = new Cache();
 
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-		//logger.warn("My Classloader: {}. O {}, R {}", classLoader, TestGenerationContext.getInstance().getClassLoaderForSUT(), 
-		//		TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
+
 		// If running in regression mode and current ClassLoader is the regression ClassLoader
 		if(Properties.isRegression() && 
 				classLoader==TestGenerationContext.getInstance().getRegressionClassLoaderForSUT())

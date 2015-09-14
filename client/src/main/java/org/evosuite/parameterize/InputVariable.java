@@ -466,7 +466,6 @@ public class InputVariable implements VariableReference {
 
 	@Override
 	public TestCase getTestCase() {
-		// TODO Auto-generated method stub
 		return this.getTestCase();
 	}
 }
