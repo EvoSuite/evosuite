@@ -480,10 +480,4 @@ public class ExecutionResult implements Cloneable {
 	public void setArgumentsValues(Map<MethodStatement, List<Object>> argumentsValues) {
 		this.argumentsValues = argumentsValues;
 	}	
-	public void getFailingAssertions(){
-		for(Assertion a:this.test.getAssertions()){
-			a.isValid();
-		}
-	}
-	
 }

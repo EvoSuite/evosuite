@@ -79,7 +79,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final Set<Integer> removedBranchesF = new HashSet<>();
 	private final Set<String> removedRootBranches = new HashSet<>();	
 	
-	
+	// Total coverage value, used by Regression
+	public double totalCovered = 0.0;	
 	
 	/**
 	 * <p>
@@ -100,21 +101,15 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
-		if (prefix.isEmpty()) {
+		if (prefix.isEmpty())
 			prefix = Properties.TARGET_CLASS;
-			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(classLoader, prefix);
-			totalBranches = BranchPool.getInstance(classLoader).getBranchCountForPrefix(prefix);
-			numBranchlessMethods = BranchPool.getInstance(classLoader).getNumBranchlessMethodsPrefix(prefix);
-			branchlessMethods = BranchPool.getInstance(classLoader).getBranchlessMethodsPrefix(prefix);
-			methods = CFGMethodAdapter.getMethods(classLoader, prefix);
 
-		} else {
-			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(classLoader, prefix);
-			totalBranches = BranchPool.getInstance(classLoader).getBranchCountForPrefix(prefix);
-			numBranchlessMethods = BranchPool.getInstance(classLoader).getNumBranchlessMethodsPrefix(prefix);
-			branchlessMethods = BranchPool.getInstance(classLoader).getBranchlessMethodsPrefix(prefix);
-			methods = CFGMethodAdapter.getMethodsPrefix(classLoader, prefix);
-		}
+		totalMethods = CFGMethodAdapter.getNumMethodsPrefix(classLoader, prefix);
+		totalBranches = BranchPool.getInstance(classLoader).getBranchCountForPrefix(prefix);
+		numBranchlessMethods = BranchPool.getInstance(classLoader).getNumBranchlessMethodsPrefix(prefix);
+		branchlessMethods = BranchPool.getInstance(classLoader).getBranchlessMethodsPrefix(prefix);
+		methods = CFGMethodAdapter.getMethodsPrefix(classLoader, prefix);
+		
 		branchesId = new HashSet<>();
 
 		totalGoals = 2 * totalBranches + numBranchlessMethods;
@@ -462,8 +457,11 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		return fitness;
 	}
 	
-	public double totalCovered = 0.0;
+
 	
+	/*
+	 * Max branch coverage value
+	 */
 	public int getMaxValue() {
 		return  totalBranches * 2 + totalMethods;
 	}

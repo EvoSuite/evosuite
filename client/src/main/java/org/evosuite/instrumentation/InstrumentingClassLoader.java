@@ -64,7 +64,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public InstrumentingClassLoader() {
 		this(new BytecodeInstrumentation());
 		setClassAssertionStatus(Properties.TARGET_CLASS, true);
-		logger.debug("REGRESSION: standard classloader running now");
+		logger.debug("STANDARD classloader running now");
 	}
 	
 	/**
@@ -76,7 +76,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		this(new BytecodeInstrumentation());
 		setClassAssertionStatus(Properties.TARGET_CLASS, true);
 		this.isRegression  = isRegression;
-		logger.debug("REGRESSION: regression classloader running now");
+		logger.debug("REGRESSION classloader running now");
 	}
 
 	/**
@@ -177,9 +177,10 @@ public class InstrumentingClassLoader extends ClassLoader {
 		String className = fullyQualifiedTargetClass.replace('.', '/');
 		InputStream is = null;
 		try {
-			is = isRegression?
+			is = isRegression ?
 					ResourceList.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass)
-					:ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
+					:
+					ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
 			
 			if (is == null) {
 				throw new ClassNotFoundException("Class '" + className + ".class"

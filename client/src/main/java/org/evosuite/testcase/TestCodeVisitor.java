@@ -1270,8 +1270,8 @@ public class TestCodeVisitor extends TestVisitor {
 				result += "   assertThrownBy(\"" + sourceClass + "\", e);" + NEWLINE;
 		}
 		
-		// Add assertion on the message
-		if (exception.getMessage() != null) {
+		// Add assertion on the message (feel free to remove the isRegression() Condition)
+		if (Properties.isRegression() && exception.getMessage() != null) {
 			result += "   assertTrue(e.getMessage().equals(\"" + StringEscapeUtils.escapeJava(exceptionMessage) + "\"));";
 			result += "   \n";
 		}

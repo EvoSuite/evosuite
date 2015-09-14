@@ -98,10 +98,4 @@ public class RegressionAssertionGenerator extends AssertionGenerator {
 
 		return result;
 	}
-
-	/*
-	 * public ExecutionResult runTest(TestCase test){ return
-	 * super.runTest(test); }
-	 */
-
 }
