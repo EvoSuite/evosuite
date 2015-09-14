@@ -80,7 +80,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
     /**
      * {@inheritDoc}
      * <p/>
-     * Execute all tests and count covered output goals
+     * Execute all tests and count covered input goals
      */
     @Override
     public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {

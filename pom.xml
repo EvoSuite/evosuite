@@ -615,6 +615,7 @@
 							<configuration>
 								<shadedArtifactAttached>false</shadedArtifactAttached>
 								<createDependencyReducedPom>true</createDependencyReducedPom>
+								<!-- do not change "org.evosuite.shaded." as it used in some of the java classes -->
 								<relocations>
 									<relocation>
 										<pattern>org.objectweb.asm</pattern>

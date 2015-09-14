@@ -148,7 +148,7 @@ public class InheritanceTree {
 			return subclassCache.get(classNameWithDots);
 
 		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
-            logger.warn("Class not in inheritance graph: " + classNameWithDots);
+            LoggingUtils.logWarnAtMostOnce(logger, "Class not in inheritance graph: " + classNameWithDots);
 			return new HashSet<>();
 		}
 		Set<String> result = new LinkedHashSet<String>();
@@ -164,7 +164,7 @@ public class InheritanceTree {
 	public Set<String> getSuperclasses(String className) {
 		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
-            logger.warn("Class not in inheritance graph: " + classNameWithDots);
+			LoggingUtils.logWarnAtMostOnce(logger, "Class not in inheritance graph: " + classNameWithDots);
 			return new HashSet<>();
 		}
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
@@ -181,7 +181,7 @@ public class InheritanceTree {
 	public List<String> getOrderedSuperclasses(String className) {
 		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
-            logger.warn("Class not in inheritance graph: " + classNameWithDots);
+			LoggingUtils.logWarnAtMostOnce(logger, "Class not in inheritance graph: " + classNameWithDots);
 			return new LinkedList<>();
 		}
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(

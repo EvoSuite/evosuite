@@ -53,6 +53,7 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.mock.MockList;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -153,7 +154,7 @@ public class TestClusterGenerator {
 		 * If we fail to load a class, we skip it, and avoid to try
 		 * to load it again (which would result in extra unnecessary logging)
 		 */
-		Set<String> blackList = new LinkedHashSet<String>();
+		Set<String> blackList = new LinkedHashSet<>();
 		initBlackListWithEvoSuitePrimitives(blackList);
 
 		logger.info("Handling cast classes");
@@ -164,6 +165,8 @@ public class TestClusterGenerator {
 
 		logger.info("Resolving dependencies");
 		resolveDependencies(blackList);
+
+		TestCluster.getInstance().removeUnusableGenerators();
 
 		if (logger.isDebugEnabled()) {
 			logger.debug(TestCluster.getInstance().toString());
@@ -1309,6 +1312,7 @@ public class TestClusterGenerator {
 
 					if (classDistance.get(subClass) == distance) {
 						try {
+							TestGenerationContext.getInstance().goingToExecuteSUTCode();
 							Class<?> subClazz = Class.forName(subClass,
 							                                  false,
 							                                  TestGenerationContext.getInstance().getClassLoaderForSUT());
@@ -1343,6 +1347,8 @@ public class TestClusterGenerator {
 							        + ". Class not found: " + subClass, e);
 							logger.error("Removing class from inheritance tree");
 							inheritanceTree.removeClass(subClass);
+						} finally {
+							TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 						}
 					}
 				}

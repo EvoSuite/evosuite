@@ -220,12 +220,14 @@ public class TestFactory {
 			if(Properties.JEE) {
 				int injectPosition = doInjection(test, position, klass, ref);
 
-				if (HttpServlet.class.isAssignableFrom(klass)) {
-					//Servlets are treated specially, as part of JEE
-					if (ConstraintHelper.countNumberOfMethodCalls(test, EvoServletState.class, "initServlet") == 0) {
-						Statement ms = new MethodStatement(test, ServletSupport.getServletInit(), null,
-								Arrays.asList(ref));
-						test.addStatement(ms, injectPosition++);
+				if(Properties.HANDLE_SERVLETS) {
+					if (HttpServlet.class.isAssignableFrom(klass)) {
+						//Servlets are treated specially, as part of JEE
+						if (ConstraintHelper.countNumberOfMethodCalls(test, EvoServletState.class, "initServlet") == 0) {
+							Statement ms = new MethodStatement(test, ServletSupport.getServletInit(), null,
+									Arrays.asList(ref));
+							test.addStatement(ms, injectPosition++);
+						}
 					}
 				}
 			}
@@ -990,10 +992,11 @@ public class TestFactory {
 
 			}
 		}
+
 		objects.remove(statement.getReturnValue());
 		logger.debug("Found assignable objects: " + objects.size());
-		Set<GenericAccessibleObject<?>> currentArrayRecursion = new HashSet<GenericAccessibleObject<?>>(
-		        currentRecursion);
+		Set<GenericAccessibleObject<?>> currentArrayRecursion = new HashSet<>(currentRecursion);
+
 		for (int i = 0; i < statement.size(); i++) {
 			currentRecursion.clear();
 			currentRecursion.addAll(currentArrayRecursion);
@@ -1085,17 +1088,17 @@ public class TestFactory {
 
 		if( TimeController.getInstance().getPhasePercentage() >= Properties.FUNCTIONAL_MOCKING_PERCENT &&
 				Randomness.nextDouble() < Properties.P_FUNCTIONAL_MOCKING &&
-				! type.equals(Properties.getTargetClass())){
+				FunctionalMockStatement.canBeFunctionalMocked(type)) {
 
 			//mock creation
-
 			ret = addFunctionalMock(test,type,position,recursionDepth + 1);
 
 		} else {
 
 			//regular creation
 
-			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz, currentRecursion, test, position, generatorRefToExclude);
+			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(
+					clazz, currentRecursion, test, position, generatorRefToExclude, recursionDepth);
 			currentRecursion.add(o);
 
 			if (o == null) {
@@ -1118,7 +1121,7 @@ public class TestFactory {
 					}
 				}
 
-				if (Properties.P_FUNCTIONAL_MOCKING > 0 && ! type.equals(Properties.getTargetClass())) {
+				if (Properties.P_FUNCTIONAL_MOCKING > 0 && FunctionalMockStatement.canBeFunctionalMocked(type)) {
 				/*
 					Even if mocking is not active yet in this phase, if we have
 					no generator for a type, we use mocking directly
@@ -2070,7 +2073,7 @@ public class TestFactory {
 
 			// Generics instantiation may lead to invalid types, so better double check
 			if(!var.isAssignableTo(parameterType)) {
-				throw new ConstructionFailedException("Error");
+				throw new ConstructionFailedException("Error: "+var+" is not assignable to "+parameterType);
 			}
 			parameters.add(var);
 

@@ -173,6 +173,10 @@ public class TestUsageChecker {
             return false;
         }
 
+        if(c.getName().contains("EnhancerByMockito")){
+            return false;
+        }
+
         // TODO: This should be unnecessary if Java reflection works...
         // This is inefficient
         if(TestClusterUtils.isAnonymousClass(c.getName())) {

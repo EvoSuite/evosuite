@@ -20,7 +20,7 @@
 package org.evosuite.runtime.mock;
 
 /**
- * This interface is used to mark a class as mock for a Java API one
+ * This interface is used to mark a class as an environment mock for a Java API class.
  * 
  * @author arcuri
  *

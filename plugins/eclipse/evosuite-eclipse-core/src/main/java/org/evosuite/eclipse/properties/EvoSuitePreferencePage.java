@@ -83,8 +83,8 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		BooleanFieldEditor cleanupImports = new BooleanFieldEditor(ORGANIZE_IMPORTS, "Organize imports", getFieldEditorParent());
 		addField(cleanupImports);
 		
-		BooleanFieldEditor printGoals = new BooleanFieldEditor(TEST_COMMENTS, "Print covered goals", getFieldEditorParent());
-		addField(printGoals);
+		BooleanFieldEditor printComments = new BooleanFieldEditor(TEST_COMMENTS, "Print test comments", getFieldEditorParent());
+		addField(printComments);
 
 	}
 	

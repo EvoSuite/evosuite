@@ -134,14 +134,15 @@ public class RuntimeInstrumentation {
 
 		if(avoidInstrumentingShadedClasses){
 			list.addAll(Arrays.asList(new String[]{
-					/**
+					/*
 					 * TODO:
 					 * These classes are shaded. So, should be no problem in instrumenting them during search, even though
 					 * they are used by EvoSuite. However, problems arise when running system tests before shading :(
 					 * For now, we just skip them, but need to check if it leads to side effects
 					 *
 					 * Main problem due to libraries used in the generated JUnit files to test JavaEE applications relying on database
-					 * */
+					 *
+					 */
 					"org.hibernate","org.hsqldb","org.jboss",
 					"org.springframework", "org.apache.commons.logging", "javassist","antlr","org.dom4j",
 					"org.aopalliance"
